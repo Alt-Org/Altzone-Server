@@ -10,7 +10,9 @@ You may download it here: [https://nodejs.org/en/download](https://nodejs.org/en
 In order to start the API, you need to run the following commands in the terminal(project root repository):
 1. ```tsc -w```
 2. ```node dist/index.js```
-The API will start at http://localhost:8080 by default
+
+The API will start at http://localhost:8080 by default.
+
 Do not forget to terminate processes in the end (both tsc and node) by pressing Ctrl+C in terminal.
 
 *Currently, the API is only available to run in development mode
