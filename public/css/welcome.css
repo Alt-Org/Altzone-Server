@@ -1,0 +1,29 @@
+*{
+    /*outline: 1px solid red;*/
+}
+
+body{
+    background-color: black;
+
+    font-family: "Arial", serif;
+    font-size: 1.5em;
+    color: white;
+}
+
+h2{
+    font-size: 2em;
+}
+
+#mainSection{
+    width: 90%;
+    margin: 20px auto;
+}
+#mainArticle *{
+    width: 90%;
+    margin: 10px auto;
+}
+
+#mainImg{
+    display: block;
+    max-width: 400px;
+}
