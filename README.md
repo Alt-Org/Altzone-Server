@@ -26,6 +26,3 @@ Do not forget to terminate processes in the end (both tsc and node) by pressing 
 ![ERD second part](doc/img/ERD2.png)
 
 ![Relational diagram](doc/img/Relational.png)
-
-
-test1
