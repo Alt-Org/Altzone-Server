@@ -21,8 +21,8 @@ Do not forget to terminate processes in the end (both tsc and node) by pressing 
 
 ## API Schema
 
-![ERD first part](https://github.com/Alt-Org/Altzone-Server/doc/img/ERD1.png)
+![ERD first part](https://github.com/Alt-Org/Altzone-Server/tree/main/doc/img/ERD1.png)
 
-![ERD second part](https://github.com/Alt-Org/Altzone-Server/doc/img/ERD2.png)
+![ERD second part](https://github.com/Alt-Org/Altzone-Server/tree/main/doc/img/ERD2.png)
 
-![Relational diagram](https://github.com/Alt-Org/Altzone-Server/doc/img/Relational.png)
+![Relational diagram](https://github.com/Alt-Org/Altzone-Server/tree/main/doc/img/Relational.png)
