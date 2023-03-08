@@ -55,7 +55,6 @@ export default class ClanController{
             res.status(200).json(result);
         }catch (err: unknown) {
             let resStatus = 500;
-            console.log('err', err);
             if(err instanceof Error){
                 if(err instanceof RequestError)
                     resStatus = err.status;

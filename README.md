@@ -16,8 +16,11 @@ Create .env file in the root directory.
 Here is example values (avoid spaces):
 
 PORT=8080
+
 MONGO_URL=mongodb://127.0.0.1
+
 MONGO_PORT=27017
+
 MONGO_DB_NAME=altzone
 
 ### Start the API

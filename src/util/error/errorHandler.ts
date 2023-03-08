@@ -1,4 +1,4 @@
-import {MongooseError} from "mongoose";
+import {Error as MongooseError} from "mongoose";
 
 const getStatusForMongooseError = (err: unknown): number => {
     if(err instanceof MongooseError){
