@@ -1,4 +1,5 @@
-import {Error as MongooseError} from "mongoose";
+import { Error as MongooseError } from "mongoose";
+import { MongoServerError } from "mongodb";
 
 const getStatusForMongooseError = (err: unknown): number => {
     if(err instanceof MongooseError){
@@ -6,6 +7,14 @@ const getStatusForMongooseError = (err: unknown): number => {
             return 400;
         }
     }
+
+    if(err instanceof MongoServerError){
+        if(err.code === 11000){
+            err.codeName = 'Duplicate key value';
+            return 400;
+        }
+    }
+
 
     return 500;
 }

@@ -57,7 +57,7 @@ export default class ClanController{
             let resStatus = 500;
             if(err instanceof Error){
                 if(err instanceof RequestError)
-                    resStatus = err.status;
+                    resStatus = err.statusCode;
                 if(err instanceof MongooseError)
                     resStatus = getStatusForMongooseError(err);
             }
