@@ -10,7 +10,10 @@ import { clanRouter } from './clan';
 const app = express();
 
 // Set up database connection
-const mongoString = `${process.env.MONGO_URL}:${process.env.MONGO_PORT}/${process.env.MONGO_DB_NAME}` || 'mongodb://127.0.0.1:27017/altzone';
+const mongoURL = process.env.MONGO_URL || 'mongodb://127.0.0.1';
+const mongoPort = process.env.MONGO_PORT || '27017';
+const dbName = process.env.MONGO_DB_NAME || 'altzone';
+const mongoString = mongoURL + ':' + mongoPort + '/' + dbName;
 
 mongooseSet('strictQuery', true);
 connectToDB(mongoString).then(
