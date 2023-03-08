@@ -13,15 +13,13 @@ You may download it here: [https://nodejs.org/en/download](https://nodejs.org/en
 ### Create .env file
 Create .env file in the root directory.
 
-Here is example values (avoid spaces):
+Here is example *.env* content:
 
-PORT=8080
+    PORT=8080
+    MONGO_URL=mongodb://127.0.0.1
+    MONGO_PORT=27017
+    MONGO_DB_NAME=altzone
 
-MONGO_URL=mongodb://127.0.0.1
-
-MONGO_PORT=27017
-
-MONGO_DB_NAME=altzone
 
 ### Start the API
 In order to start the API, you need to run the following commands in the terminal(project root repository):
