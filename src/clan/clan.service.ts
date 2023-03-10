@@ -11,7 +11,7 @@ export default class ClanService{
 
          let canUpdate = false;
          if(!clanToUpdate)
-             throw new RequestError(400, 'No Clan with that id found', {lol: 'kek'});
+             throw new RequestError(400, 'No Clan with that id found');
          if(!name)
              canUpdate = true;
          else

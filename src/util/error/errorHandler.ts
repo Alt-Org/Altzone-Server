@@ -10,7 +10,8 @@ const getStatusForMongooseError = (err: unknown): number => {
 
     if(err instanceof MongoServerError){
         if(err.code === 11000){
-            err.codeName = 'Duplicate key value';
+            err.codeName = 'MongoServerError';
+            err.message = 'Duplicate key value'
             return 400;
         }
     }
