@@ -1,13 +1,13 @@
 export default class RequestError extends Error{
-    constructor(status: number, msg: string, additional?: Object) {
-        super(msg);
+    constructor(statusCode: number, msg: string, additional?: Object) {
+        super();
         this.message = msg;
-        this.status = status;
+        this.statusCode = statusCode;
         this.additional = additional;
         Object.setPrototypeOf(this, RequestError.prototype);
     }
     message: string;
-    status: number;
+    statusCode: number;
     name: string = 'RequestError';
     additional?: Object;
 }
