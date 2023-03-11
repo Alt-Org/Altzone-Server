@@ -5,6 +5,7 @@ import { getStatusForMongooseError } from "../util/error/errorHandler";
 import ClanService from "./clan.service";
 import {Error as MongooseError} from "mongoose";
 import RequestError from "../util/error/RequestError";
+import { validationResult } from "express-validator";
 
 const clanService = new ClanService();
 
@@ -13,7 +14,7 @@ export default class ClanController{
         try{
             const { name, tag, gameCoins } = req.body;
             const newClan : ICreateClanInput = { name, tag, gameCoins };
-            const result = await ClanModel.create(newClan);
+            const result = await clanService.create(newClan);
 
             res.status(201).json(result);
         }catch (err) {
