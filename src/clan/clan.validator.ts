@@ -7,13 +7,19 @@ export default class ClanValidator{
         handleValidationError
     ];
 
+    validateRead = [
+        param('id', 'Parameter id must be in Mongo ObjectId form').isMongoId(),
+        handleValidationError
+    ];
+
     validateUpdate = [
-        body('name', 'Field id can not be empty').notEmpty({ignore_whitespace:true}),
+        body('id', 'Field id can not be empty').notEmpty({ignore_whitespace:true}),
+        body('id', 'Field id must be in Mongo ObjectId form').isMongoId(),
         handleValidationError
     ];
 
     validateDelete = [
-        param('id', 'Parameter id must be a Mongo ObjectId').isMongoId(),
+        param('id', 'Parameter id must be a in Mongo ObjectId form').isMongoId(),
         handleValidationError
     ];
 }

@@ -4,7 +4,7 @@ import RequestError from "./RequestError";
 import {NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
 
-const getStatusForMongooseError = (err: unknown): number => {
+const prepareErrorForResponse = (err: unknown): number => {
     if(err instanceof MongooseError){
         if(err.name === 'ValidationError'){
             return 400;
@@ -15,13 +15,12 @@ const getStatusForMongooseError = (err: unknown): number => {
         if(err.code === 11000){
             err.codeName = 'MongoServerError';
             err.message = 'Duplicate key value'
-            return 400;
+            return 422;
         }
     }
 
     if(err instanceof RequestError)
         return err.statusCode;
-
 
     return 500;
 }
@@ -36,4 +35,4 @@ const handleValidationError = (req: Request, res: Response, next: NextFunction) 
     next();
 }
 
-export { getStatusForMongooseError, handleValidationError }
+export { prepareErrorForResponse, handleValidationError }

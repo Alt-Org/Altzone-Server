@@ -1,11 +1,9 @@
 import {ICreateClanInput, IUpdateClanInput} from "./clan";
-import ClanModel from "./clan.model";
 import {Request, Response } from "express";
-import { getStatusForMongooseError } from "../util/error/errorHandler";
+import { prepareErrorForResponse } from "../util/error/errorHandler";
 import ClanService from "./clan.service";
 import {Error as MongooseError} from "mongoose";
 import RequestError from "../util/error/RequestError";
-import { validationResult } from "express-validator";
 
 const clanService = new ClanService();
 
@@ -18,30 +16,29 @@ export default class ClanController{
 
             res.status(201).json(result);
         }catch (err) {
-            const resStatus = getStatusForMongooseError(err);
+            const resStatus = prepareErrorForResponse(err);
             res.status(resStatus).json(err);
         }
     }
 
     get = async (req: Request, res: Response): Promise<void> => {
         try{
-            const id = req.params.id;
-            const result = await ClanModel.findById(id);
+            const result = await clanService.readById(req.params.id);
 
             res.status(200).json(result);
         }catch (err) {
-            const resStatus = getStatusForMongooseError(err);
+            const resStatus = prepareErrorForResponse(err);
             res.status(resStatus).json(err);
         }
     }
 
     getAll = async (req: Request, res: Response): Promise<void> => {
         try{
-            const result = await ClanModel.find();
+            const result = await clanService.readAll();
 
             res.status(200).json(result);
         }catch (err) {
-            const resStatus = getStatusForMongooseError(err);
+            const resStatus = prepareErrorForResponse(err);
             res.status(resStatus).json(err);
         }
     }
@@ -49,19 +46,18 @@ export default class ClanController{
     update = async (req: Request, res: Response): Promise<void> => {
         try{
             const { id, name, tag, gameCoins } = req.body;
-            const newClan : IUpdateClanInput = { id, name, tag, gameCoins };
+            const updateClan : IUpdateClanInput = { id, name, tag, gameCoins };
 
-            const result = await clanService.update(newClan);
+            const isSuccess = await clanService.update(updateClan);
 
-            res.status(200).json(result);
+            let respStatusCode = 204;
+            if(!isSuccess)
+                respStatusCode = 500;
+
+            res.status(respStatusCode).send();
         }catch (err: unknown) {
             let resStatus = 500;
-            if(err instanceof Error){
-                if(err instanceof RequestError)
-                    resStatus = err.statusCode;
-                if(err instanceof MongooseError)
-                    resStatus = getStatusForMongooseError(err);
-            }
+            resStatus = prepareErrorForResponse(err);
 
             res.status(resStatus).json(err);
         }
@@ -69,12 +65,15 @@ export default class ClanController{
 
     delete = async (req: Request, res: Response): Promise<void> => {
         try{
-            const id = req.params.id;
-            const result = await ClanModel.findByIdAndDelete(id);
+            const isSuccess = await clanService.deleteById(req.params.id);
 
-            res.status(200).json(result);
+            let respStatusCode = 204;
+            if(!isSuccess)
+                respStatusCode = 500;
+
+            res.status(respStatusCode).send();
         }catch (err) {
-            const resStatus = getStatusForMongooseError(err);
+            const resStatus = prepareErrorForResponse(err);
             res.status(resStatus).json(err);
         }
     }
