@@ -2,6 +2,7 @@ import CharacterClassModel from "./characterClass.model";
 import { MongooseError, ObjectId } from "mongoose";
 import { ICreateCharacterClassInput, IUpdateCharacterClassInput } from "./characterClass";
 import RequestError from "../util/error/RequestError";
+import {DefenceEnum} from "../enums/defence.enum";
 
 export default class CharacterClassService {
     create = async (input: ICreateCharacterClassInput): Promise<Object | MongooseError | RequestError> => {
@@ -12,6 +13,9 @@ export default class CharacterClassService {
          const isCharacterClassNull = characterClassWithName === null;
          if(!isCharacterClassNull)
              throw new RequestError(422, 'CharacterClass with that name already exists');
+
+         if(!isDefenceEnumType(input.mainDefence))
+             throw new RequestError(400, 'Field mainDefence must be Defence enum type');
 
         return CharacterClassModel.create(input);
     }
@@ -30,9 +34,12 @@ export default class CharacterClassService {
     }
 
      update = async (input: IUpdateCharacterClassInput): Promise<boolean | MongooseError | RequestError> => {
-        const { id, name, mainDefence, speed, resistance, attack, defence } = input;
+        const { id, name } = input;
 
         const clanToUpdate = await CharacterClassModel.findById(id);
+
+         if(input.mainDefence && !isDefenceEnumType(input.mainDefence))
+             throw new RequestError(400, 'Field mainDefence must be Defence enum type');
 
          if(!clanToUpdate)
              throw new RequestError(404, 'No CharacterClass with that id found');
@@ -44,7 +51,7 @@ export default class CharacterClassService {
              canUpdate = await canUpdateName(id, name);
 
         if(canUpdate){
-            const updateResp = await CharacterClassModel.updateOne({_id: id}, { name, mainDefence, speed, resistance, attack, defence }, { rawResult: true });
+            const updateResp = await CharacterClassModel.updateOne({_id: id}, input, { rawResult: true });
             return updateResp !== null;
         }
 
@@ -68,4 +75,8 @@ async function canUpdateName(id: ObjectId, name: string): Promise<boolean> {
         return String(clanWithName._id) === String(id);
 
     return true;
+}
+
+function isDefenceEnumType(str: string): boolean {
+    return Object.keys(DefenceEnum).includes(str);
 }
