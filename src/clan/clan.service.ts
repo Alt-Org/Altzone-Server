@@ -16,7 +16,7 @@ export default class ClanService{
         return ClanModel.create(input);
     }
 
-    readById = async (id: String): Promise<Object | MongooseError | RequestError> => {
+    readById = async (id: string): Promise<Object | MongooseError | RequestError> => {
         const clanToReturn = await ClanModel.findById(id);
 
         if(!clanToReturn)
@@ -44,7 +44,7 @@ export default class ClanService{
              canUpdate = await canUpdateName(id, name);
 
         if(canUpdate){
-            const updateResp = ClanModel.updateOne({_id: id}, { name, tag, gameCoins }, { rawResult: true });
+            const updateResp = await ClanModel.updateOne({_id: id}, { name, tag, gameCoins }, { rawResult: true });
             return updateResp !== null;
         }
 
