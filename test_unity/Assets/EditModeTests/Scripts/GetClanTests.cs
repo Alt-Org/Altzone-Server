@@ -132,7 +132,7 @@ namespace EditModeTests.Scripts
             const string url = "http://localhost:8080/clan";
             Debug.Log($"test {url}");
 
-            var putData = JsonQuotes("{'id':'6411cd209a79de3c1987b398',name':'TestClanUpdated','tag':'TU','gameCoins':1234}");
+            var putData = JsonQuotes("{'id':'6411cd209a79de3c1987b398','name':'TestClanUpdated','tag':'TU','gameCoins':1234}");
             Debug.Log($"PUT {putData}");
 
             var bytes = Encoding.UTF8.GetBytes(putData);
@@ -152,8 +152,8 @@ namespace EditModeTests.Scripts
 
                 Assert.IsTrue(request.isDone);
                 Assert.IsTrue(request.result == UnityWebRequest.Result.Success);
+                // Body should be empty (null).
                 var body = request.downloadHandler?.text ?? string.Empty;
-                Assert.IsFalse(string.IsNullOrWhiteSpace(body));
 
                 Debug.Log($"test {request.responseCode} bytes {request.downloadedBytes}");
                 Debug.Log($"body {body}");
