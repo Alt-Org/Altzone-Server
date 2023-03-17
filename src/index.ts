@@ -30,7 +30,7 @@ app.use(bodyParser.json());
 //Routes
 app.use('/', rootRouter);
 app.use('/clan', clanRouter);
-app.use('/characterClassRouter', characterClassRouter);
+app.use('/characterClass', characterClassRouter);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
