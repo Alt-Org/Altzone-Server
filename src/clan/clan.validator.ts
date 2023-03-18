@@ -1,5 +1,5 @@
 import { body, param } from 'express-validator';
-import { handleValidationError } from "../util/error/errorHandler";
+import { handleValidationError } from "../util/response/errorHandler";
 
 export default class ClanValidator{
     validateCreate = [

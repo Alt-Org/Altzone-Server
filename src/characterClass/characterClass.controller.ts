@@ -1,15 +1,17 @@
 import { ICreateCharacterClassInput, IUpdateCharacterClassInput } from "./characterClass";
 import { Request, Response } from "express";
-import { sendErrorsToClient } from "../util/error/errorHandler";
+import { sendErrorsToClient } from "../util/response/errorHandler";
 import CharacterClassService from "./characterClass.service";
+import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 
 const characterClassService = new CharacterClassService();
+const errorThrower = new DefaultResponseErrorThrower();
 
 export default class CharacterClassController {
     create = async (req: Request, res: Response): Promise<void> => {
         try{
             const { name, mainDefence, speed, resistance, attack, defence } = req.body;
-            const newCharacterClass : ICreateCharacterClassInput = { name, mainDefence, speed, resistance, attack, defence };
+            const newCharacterClass: ICreateCharacterClassInput = { name, mainDefence, speed, resistance, attack, defence };
             const result = await characterClassService.create(newCharacterClass);
 
             res.status(201).json(result);
@@ -21,6 +23,7 @@ export default class CharacterClassController {
     get = async (req: Request, res: Response): Promise<void> => {
         try{
             const result = await characterClassService.readById(req.params.id);
+            errorThrower.throwReadErrorsIfFound(result, 'CharacterClass', 'id');
 
             res.status(200).json(result);
         }catch (err) {
@@ -31,12 +34,9 @@ export default class CharacterClassController {
     getAll = async (req: Request, res: Response): Promise<void> => {
         try{
             const result = await characterClassService.readAll();
+            errorThrower.throwReadErrorsIfFound(result, 'CharacterClass', 'id');
 
-            let resStatus = 200;
-            if(result && result instanceof Array)
-                resStatus = result.length > 0 ? 200 : 404;
-
-            res.status(resStatus).json(result);
+            res.status(200).json(result);
         }catch (err) {
             sendErrorsToClient(err, res);
         }
@@ -47,13 +47,10 @@ export default class CharacterClassController {
             const { id, name, mainDefence, speed, resistance, attack, defence } = req.body;
             const updateCharacterClass : IUpdateCharacterClassInput = { id, name, mainDefence, speed, resistance, attack, defence };
 
-            const isSuccess = await characterClassService.update(updateCharacterClass);
+            const result = await characterClassService.updateById(updateCharacterClass);
+            errorThrower.throwUpdateErrorsIfFound(result, 'CharacterClass', 'id');
 
-            let respStatusCode = 204;
-            if(!isSuccess)
-                respStatusCode = 500;
-
-            res.status(respStatusCode).send();
+            res.status(204).send();
         }catch (err: unknown) {
             sendErrorsToClient(err, res);
         }
@@ -61,13 +58,10 @@ export default class CharacterClassController {
 
     delete = async (req: Request, res: Response): Promise<void> => {
         try{
-            const isSuccess = await characterClassService.deleteById(req.params.id);
+            const result = await characterClassService.deleteById(req.params.id);
+            errorThrower.throwDeleteErrorsIfFound(result, 'CharacterClass', 'id');
 
-            let respStatusCode = 204;
-            if(!isSuccess)
-                respStatusCode = 500;
-
-            res.status(respStatusCode).send();
+            res.status(204).send();
         }catch (err) {
             sendErrorsToClient(err, res);
         }

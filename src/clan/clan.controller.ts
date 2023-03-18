@@ -1,6 +1,6 @@
 import {ICreateClanInput, IUpdateClanInput} from "./clan";
 import {Request, Response } from "express";
-import { sendErrorsToClient } from "../util/error/errorHandler";
+import { sendErrorsToClient } from "../util/response/errorHandler";
 import ClanService from "./clan.service";
 
 const clanService = new ClanService();

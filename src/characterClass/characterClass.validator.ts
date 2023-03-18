@@ -1,4 +1,4 @@
-import {handleValidationError} from "../util/error/errorHandler";
+import {handleValidationError} from "../util/response/errorHandler";
 import {ValidationChainBuilder as Validator} from "../util/validator/validationChainBuilder";
 import {Location} from "../util/validator/location";
 

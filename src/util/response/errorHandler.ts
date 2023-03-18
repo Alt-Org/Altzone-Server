@@ -1,11 +1,11 @@
 import { Error as MongooseError } from "mongoose";
 import { MongoServerError } from "mongodb";
-import RequestError from "./requestError";
+import RequestError from "../error/requestError";
 import {NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
-import APIError from "./apiError";
-import ServerError from "./serverError";
-import ValidationError from "./validationError";
+import APIError from "../error/apiError";
+import ServerError from "../error/serverError";
+import ValidationError from "../error/validationError";
 
 const sendErrorsToClient = (err: unknown, res: Response) => {
     const errors = prepareErrorForResponse(err);
