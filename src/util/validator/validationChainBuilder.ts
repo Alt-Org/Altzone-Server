@@ -47,7 +47,7 @@ export class ValidationChainBuilder {
 
     public isDefenceEnumType = (text?: string, overrideDefaultText?: boolean): ValidationChainBuilder => {
         this.validationChain.custom( (value) => {
-            if (!Object.keys(DefenceEnum).includes(value)) {
+            if (!(typeof value === "number") || Object.values(DefenceEnum).find( elem => elem === value ) === undefined) {
                 const errorMsg: string = this.getErrorText(`${this.location} ${this.name} must be DefenceEnum type`, text, overrideDefaultText);
                 throw new Error(errorMsg);
             }

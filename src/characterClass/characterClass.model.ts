@@ -3,7 +3,7 @@ import { ICharacterClass } from "./characterClass";
 
 const schema = new Schema({
     name: { type: String, required: true, unique: true },
-    mainDefence: { type: String, required: true },
+    mainDefence: { type: Number, required: true },
     speed: { type: Number, required: true },
     resistance: { type: Number, required: true },
     attack: { type: Number, required: true },
