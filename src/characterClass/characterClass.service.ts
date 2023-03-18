@@ -1,6 +1,6 @@
 import CharacterClassModel from "./characterClass.model";
 import {MongooseError} from "mongoose";
-import { ICreateCharacterClassInput, IUpdateCharacterClassInput } from "./characterClass";
+import {ICreateCharacterClassInput, IUpdateCharacterClassInput} from "./characterClass";
 import RequestError from "../util/error/requestError";
 import {UpdateResult} from "mongodb";
 

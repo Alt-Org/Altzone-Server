@@ -1,25 +1,34 @@
-import { body, param } from 'express-validator';
-import { handleValidationError } from "../util/response/errorHandler";
+import {handleValidationError} from "../util/response/errorHandler";
+import {ValidationChainBuilder as Validator} from "../util/validator/validationChainBuilder";
+import {Location} from "../util/validator/location";
 
 export default class ClanValidator{
     validateCreate = [
-        body('name', 'Field name can not be empty').notEmpty({ignore_whitespace: true}),
+        new Validator('name', Location.BODY).notEmpty().isString().build(),
+        new Validator('tag', Location.BODY).ifProvided().isString().build(),
+        new Validator('gameCoins', Location.BODY).ifProvided().isInt().build(),
+
         handleValidationError
     ];
 
     validateRead = [
-        param('id', 'Parameter id must be in Mongo ObjectId form').isMongoId(),
+        new Validator('id', Location.PARAM).isMongoId().build(),
+
         handleValidationError
     ];
 
     validateUpdate = [
-        body('id', 'Field id can not be empty').notEmpty({ignore_whitespace:true}),
-        body('id', 'Field id must be in Mongo ObjectId form').isMongoId(),
+        new Validator('id', Location.BODY).notEmpty().isMongoId().build(),
+        new Validator('name', Location.BODY).ifProvided().isString().build(),
+        new Validator('tag', Location.BODY).ifProvided().isString().build(),
+        new Validator('gameCoins', Location.BODY).ifProvided().isInt().build(),
+
         handleValidationError
     ];
 
     validateDelete = [
-        param('id', 'Parameter id must be a in Mongo ObjectId form').isMongoId(),
+        new Validator('id', Location.PARAM).notEmpty().isMongoId().build(),
+
         handleValidationError
     ];
 }
