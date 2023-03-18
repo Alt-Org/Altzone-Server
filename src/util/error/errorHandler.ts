@@ -1,38 +1,60 @@
 import { Error as MongooseError } from "mongoose";
 import { MongoServerError } from "mongodb";
-import RequestError from "./RequestError";
+import RequestError from "./requestError";
 import {NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
+import APIError from "./apiError";
+import ServerError from "./serverError";
+import ValidationError from "./validationError";
 
-const prepareErrorForResponse = (err: unknown): number => {
-    if(err instanceof MongooseError){
-        if(err.name === 'ValidationError'){
-            return 400;
-        }
-    }
-
-    if(err instanceof MongoServerError){
-        if(err.code === 11000){
-            err.codeName = 'MongoServerError';
-            err.message = 'Duplicate key value'
-            return 422;
-        }
-    }
-
-    if(err instanceof RequestError)
-        return err.statusCode;
-
-    return 500;
+const sendErrorsToClient = (err: unknown, res: Response) => {
+    const errors = prepareErrorForResponse(err);
+    const statusCode = errors[0].statusCode;
+    res.status(statusCode).json({errors});
 }
 
 const handleValidationError = (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if(!errors.isEmpty()){
-        res.status(400).json(errors);
+    const errorsResult = validationResult(req);
+    if(!errorsResult.isEmpty()){
+        const validationErrors = errorsResult.array();
+        const errors: APIError[] = [];
+
+        for(let i=0; i<validationErrors.length; i++){
+            const error = validationErrors[i];
+            errors.push(new ValidationError(400, error.msg));
+        }
+
+        res.status(400).json({errors});
         return;
     }
 
     next();
 }
 
-export { prepareErrorForResponse, handleValidationError }
+const prepareErrorForResponse = (err: unknown): APIError[] => {
+    if(err instanceof MongooseError){
+        if(err.name === 'ValidationError')
+            return [new ValidationError(400, err.message)];
+    }
+
+    if(err instanceof MongoServerError){
+        if(err.code === 11000){
+            const duplicatedFields = Object.keys(err.keyPattern);
+            const errors: APIError[] = [];
+            for(let i=0; i<duplicatedFields.length; i++){
+                const field = duplicatedFields[i];
+                const error = new RequestError(422, `Field ${field} with value ${err.keyValue[field]} already exists`);
+                errors.push(error);
+            }
+
+            return errors;
+        }
+    }
+
+    if(err instanceof APIError)
+        return [err];
+
+    return [new ServerError(500, 'Unexpected error happened', err)];
+}
+
+export { sendErrorsToClient, handleValidationError }

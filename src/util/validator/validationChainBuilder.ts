@@ -1,7 +1,8 @@
 import {body, param, query, ValidationChain} from 'express-validator';
 import {Location} from "./location";
+import {DefenceEnum} from "../../enums/defence.enum";
 
-export default class ValidationChainGenerator {
+export class ValidationChainBuilder {
     public constructor(fieldName: string, fieldLocation: Location) {
         this.name = fieldName;
         this.location = fieldLocation;
@@ -11,40 +12,53 @@ export default class ValidationChainGenerator {
     private readonly location: Location;
     private readonly validationChain: ValidationChain;
 
-    public notEmpty = (text?: string, overrideDefaultText?: boolean) : ValidationChainGenerator => {
+    public notEmpty = (text?: string, overrideDefaultText?: boolean) : ValidationChainBuilder => {
         const errorMsg: string = this.getErrorText(`${this.location} ${this.name} can not be empty`, text, overrideDefaultText);
 
         this.validationChain.notEmpty({ignore_whitespace: true}).withMessage(errorMsg);
         return this;
     }
 
-    public isString = (text?: string, overrideDefaultText?: boolean) : ValidationChainGenerator => {
+    public isString = (text?: string, overrideDefaultText?: boolean) : ValidationChainBuilder => {
         const errorMsg: string = this.getErrorText(`${this.location} ${this.name} must be string type`, text, overrideDefaultText);
 
         this.validationChain.isString().withMessage(errorMsg);
         return this;
     }
 
-    public isMongoId = (text?: string, overrideDefaultText?: boolean) : ValidationChainGenerator => {
+    public isMongoId = (text?: string, overrideDefaultText?: boolean) : ValidationChainBuilder => {
         const errorMsg: string = this.getErrorText(`${this.location} ${this.name} must be in Mongo ObjectId form`, text, overrideDefaultText);
 
         this.validationChain.isMongoId().withMessage(errorMsg);
         return this;
     }
 
-    public isInt = (text?: string, overrideDefaultText?: boolean) : ValidationChainGenerator => {
+    public isInt = (text?: string, overrideDefaultText?: boolean) : ValidationChainBuilder => {
         const errorMsg: string = this.getErrorText(`${this.location} ${this.name} must be int type`, text, overrideDefaultText);
 
         this.validationChain.isInt().withMessage(errorMsg);
         return this;
     }
 
-    public ifProvided = () : ValidationChainGenerator => {
+    public ifProvided = () : ValidationChainBuilder => {
         this.validationChain.if(this.getValidationChainStart().exists());
         return this;
     }
 
-    public generate = (): ValidationChain => {
+    public isDefenceEnumType = (text?: string, overrideDefaultText?: boolean): ValidationChainBuilder => {
+        this.validationChain.custom( (value) => {
+            if (!Object.keys(DefenceEnum).includes(value)) {
+                const errorMsg: string = this.getErrorText(`${this.location} ${this.name} must be DefenceEnum type`, text, overrideDefaultText);
+                throw new Error(errorMsg);
+            }
+
+            return true;
+        });
+
+        return this;
+    }
+
+    public build = (): ValidationChain => {
         return this.validationChain;
     }
 

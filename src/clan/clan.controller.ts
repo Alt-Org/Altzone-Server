@@ -1,6 +1,6 @@
 import {ICreateClanInput, IUpdateClanInput} from "./clan";
 import {Request, Response } from "express";
-import { prepareErrorForResponse } from "../util/error/errorHandler";
+import { sendErrorsToClient } from "../util/error/errorHandler";
 import ClanService from "./clan.service";
 
 const clanService = new ClanService();
@@ -14,8 +14,7 @@ export default class ClanController{
 
             res.status(201).json(result);
         }catch (err) {
-            const resStatus = prepareErrorForResponse(err);
-            res.status(resStatus).json(err);
+            sendErrorsToClient(err, res);
         }
     }
 
@@ -25,8 +24,7 @@ export default class ClanController{
 
             res.status(200).json(result);
         }catch (err) {
-            const resStatus = prepareErrorForResponse(err);
-            res.status(resStatus).json(err);
+            sendErrorsToClient(err, res);
         }
     }
 
@@ -36,8 +34,7 @@ export default class ClanController{
 
             res.status(200).json(result);
         }catch (err) {
-            const resStatus = prepareErrorForResponse(err);
-            res.status(resStatus).json(err);
+            sendErrorsToClient(err, res);
         }
     }
 
@@ -54,10 +51,7 @@ export default class ClanController{
 
             res.status(respStatusCode).send();
         }catch (err: unknown) {
-            let resStatus = 500;
-            resStatus = prepareErrorForResponse(err);
-
-            res.status(resStatus).json(err);
+            sendErrorsToClient(err, res);
         }
     }
 
@@ -71,8 +65,7 @@ export default class ClanController{
 
             res.status(respStatusCode).send();
         }catch (err) {
-            const resStatus = prepareErrorForResponse(err);
-            res.status(resStatus).json(err);
+            sendErrorsToClient(err, res);
         }
     }
 }

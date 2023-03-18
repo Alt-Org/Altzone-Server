@@ -1,7 +1,7 @@
 import ClanModel from "./clan.model";
 import {MongooseError, ObjectId, Query, UpdateQuery} from "mongoose";
 import {ICreateClanInput, IUpdateClanInput} from "./clan";
-import RequestError from "../util/error/RequestError";
+import RequestError from "../util/error/requestError";
 
 export default class ClanService{
     create = async (input: ICreateClanInput): Promise<Object | MongooseError | RequestError> => {

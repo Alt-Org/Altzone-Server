@@ -1,6 +1,6 @@
 import { ICreateCharacterClassInput, IUpdateCharacterClassInput } from "./characterClass";
 import { Request, Response } from "express";
-import { prepareErrorForResponse } from "../util/error/errorHandler";
+import { sendErrorsToClient } from "../util/error/errorHandler";
 import CharacterClassService from "./characterClass.service";
 
 const characterClassService = new CharacterClassService();
@@ -14,8 +14,7 @@ export default class CharacterClassController {
 
             res.status(201).json(result);
         }catch (err) {
-            const resStatus = prepareErrorForResponse(err);
-            res.status(resStatus).json(err);
+            sendErrorsToClient(err, res);
         }
     }
 
@@ -25,8 +24,7 @@ export default class CharacterClassController {
 
             res.status(200).json(result);
         }catch (err) {
-            const resStatus = prepareErrorForResponse(err);
-            res.status(resStatus).json(err);
+            sendErrorsToClient(err, res);
         }
     }
 
@@ -40,8 +38,7 @@ export default class CharacterClassController {
 
             res.status(resStatus).json(result);
         }catch (err) {
-            const resStatus = prepareErrorForResponse(err);
-            res.status(resStatus).json(err);
+            sendErrorsToClient(err, res);
         }
     }
 
@@ -58,9 +55,7 @@ export default class CharacterClassController {
 
             res.status(respStatusCode).send();
         }catch (err: unknown) {
-            const resStatus = prepareErrorForResponse(err);
-
-            res.status(resStatus).json(err);
+            sendErrorsToClient(err, res);
         }
     }
 
@@ -74,8 +69,7 @@ export default class CharacterClassController {
 
             res.status(respStatusCode).send();
         }catch (err) {
-            const resStatus = prepareErrorForResponse(err);
-            res.status(resStatus).json(err);
+            sendErrorsToClient(err, res);
         }
     }
 }
