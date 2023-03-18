@@ -1,9 +1,7 @@
 import CharacterClassModel from "./characterClass.model";
-import {Model, MongooseError, ObjectId} from "mongoose";
+import {MongooseError} from "mongoose";
 import { ICreateCharacterClassInput, IUpdateCharacterClassInput } from "./characterClass";
 import RequestError from "../util/error/requestError";
-import UpdateError from "../util/error/updateError";
-import APIError from "../util/error/apiError";
 import {UpdateResult} from "mongodb";
 
 export default class CharacterClassService {

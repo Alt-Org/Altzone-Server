@@ -1,6 +1,5 @@
 import {UpdateResult} from "mongodb";
 import UpdateError from "../error/updateError";
-import RequestError from "../error/requestError";
 import ReadError from "../error/readError";
 import DeleteError from "../error/deleteError";
 
