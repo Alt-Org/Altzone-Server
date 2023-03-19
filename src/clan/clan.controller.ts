@@ -22,8 +22,8 @@ export default class ClanController{
 
     get = async (req: Request, res: Response): Promise<void> => {
         try{
-            const result = await clanService.readById(req.params.id);
-            errorThrower.throwReadErrorsIfFound(result, 'Clan', 'id');
+            const result = await clanService.readById(req.params._id);
+            errorThrower.throwReadErrorsIfFound(result, 'Clan', '_id');
 
             res.status(200).json(result);
         }catch (err) {
@@ -34,7 +34,7 @@ export default class ClanController{
     getAll = async (req: Request, res: Response): Promise<void> => {
         try{
             const result = await clanService.readAll();
-            errorThrower.throwReadErrorsIfFound(result, 'Clan', 'id');
+            errorThrower.throwReadErrorsIfFound(result, 'Clan', '_id');
 
             res.status(200).json(result);
         }catch (err) {
@@ -44,11 +44,11 @@ export default class ClanController{
 
     update = async (req: Request, res: Response): Promise<void> => {
         try{
-            const { id, name, tag, gameCoins } = req.body;
-            const updateClan : IUpdateClanInput = { id, name, tag, gameCoins };
+            const { _id, name, tag, gameCoins } = req.body;
+            const updateClan : IUpdateClanInput = { _id, name, tag, gameCoins };
 
             const result = await clanService.updateById(updateClan);
-            errorThrower.throwUpdateErrorsIfFound(result, 'Clan', 'id');
+            errorThrower.throwUpdateErrorsIfFound(result, 'Clan', '_id');
 
             res.status(204).send();
         }catch (err: unknown) {
@@ -58,8 +58,8 @@ export default class ClanController{
 
     delete = async (req: Request, res: Response): Promise<void> => {
         try{
-            const result = await clanService.deleteById(req.params.id);
-            errorThrower.throwDeleteErrorsIfFound(result, 'Clan', 'id');
+            const result = await clanService.deleteById(req.params._id);
+            errorThrower.throwDeleteErrorsIfFound(result, 'Clan', '_id');
 
             res.status(204).send();
         }catch (err) {

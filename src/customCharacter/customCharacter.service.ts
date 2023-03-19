@@ -1,10 +1,10 @@
-import CharacterClassModel from "./characterClass.model";
+import CharacterClassModel from "./customCharacter.model";
 import {MongooseError} from "mongoose";
-import {ICreateCharacterClassInput, IUpdateCharacterClassInput} from "./characterClass";
+import {ICreateCharacterClassInput, IUpdateCharacterClassInput} from "./customCharacter";
 import RequestError from "../util/error/requestError";
 import {UpdateResult} from "mongodb";
 
-export default class CharacterClassService {
+export default class CustomCharacterService {
     create = async (input: ICreateCharacterClassInput): Promise<Object | MongooseError | RequestError> => {
         return CharacterClassModel.create(input);
     }

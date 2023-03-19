@@ -2,8 +2,8 @@ import { Document, ObjectId } from "mongoose";
 
 interface ICharacterClass extends Document{
     _id: ObjectId;
+    unityKey: string;
     name: string;
-    mainDefence: Number;
     speed: int;
     resistance: int;
     attack: int;

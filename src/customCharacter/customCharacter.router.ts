@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import ClanController from './clan.controller';
-import ClanValidator from './clan.validator';
+import CustomCharacterController from './customCharacter.controller';
+import CustomCharacterValidator from './customCharacter.validator';
 
 const router = Router();
-const controller = new ClanController();
-const validator = new ClanValidator();
+const controller = new CustomCharacterController();
+const validator = new CustomCharacterValidator();
 
 router.post('/', validator.validateCreate, controller.create);
 router.get('/:_id', validator.validateRead, controller.get);

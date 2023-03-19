@@ -12,13 +12,13 @@ export default class ClanValidator{
     ];
 
     validateRead = [
-        new Validator('id', Location.PARAM).isMongoId().build(),
+        new Validator('_id', Location.PARAM).isMongoId().build(),
 
         handleValidationError
     ];
 
     validateUpdate = [
-        new Validator('id', Location.BODY).notEmpty().isMongoId().build(),
+        new Validator('_id', Location.BODY).notEmpty().isMongoId().build(),
         new Validator('name', Location.BODY).ifProvided().isString().build(),
         new Validator('tag', Location.BODY).ifProvided().isString().build(),
         new Validator('gameCoins', Location.BODY).ifProvided().isInt().build(),
@@ -27,7 +27,7 @@ export default class ClanValidator{
     ];
 
     validateDelete = [
-        new Validator('id', Location.PARAM).notEmpty().isMongoId().build(),
+        new Validator('_id', Location.PARAM).notEmpty().isMongoId().build(),
 
         handleValidationError
     ];

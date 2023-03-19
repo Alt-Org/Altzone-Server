@@ -14,7 +14,7 @@ interface ICreateClanInput{
 }
 
 interface IUpdateClanInput{
-    id: ObjectId;
+    _id: ObjectId;
     name?: IClan['name'];
     tag?: IClan['tag'];
     gameCoins?: IClan['gameCoins'];

@@ -2,7 +2,7 @@ import {handleValidationError} from "../util/response/errorHandler";
 import {ValidationChainBuilder as Validator} from "../util/validator/validationChainBuilder";
 import {Location} from "../util/validator/location";
 
-export default class CharacterClassValidator {
+export default class CustomCharacterValidator {
     validateCreate = [
         new Validator('name', Location.BODY).notEmpty().isString().build(),
         new Validator('mainDefence', Location.BODY).notEmpty().isDefenceEnumType().build(),
@@ -15,13 +15,13 @@ export default class CharacterClassValidator {
     ];
 
     validateRead = [
-        new Validator('_id', Location.PARAM).isMongoId().build(),
+        new Validator('id', Location.PARAM).isMongoId().build(),
 
         handleValidationError
     ];
 
     validateUpdate = [
-        new Validator('_id', Location.BODY).notEmpty().isMongoId().build(),
+        new Validator('id', Location.BODY).notEmpty().isMongoId().build(),
         new Validator('name', Location.BODY).ifProvided().isString().build(),
         new Validator('mainDefence', Location.BODY).ifProvided().isDefenceEnumType().build(),
         new Validator('speed', Location.BODY).ifProvided().isInt().build(),
@@ -33,7 +33,7 @@ export default class CharacterClassValidator {
     ];
 
     validateDelete = [
-        new Validator('_id', Location.PARAM).notEmpty().isMongoId().build(),
+        new Validator('id', Location.PARAM).notEmpty().isMongoId().build(),
 
         handleValidationError
     ];

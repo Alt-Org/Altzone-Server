@@ -1,13 +1,13 @@
-import { ICreateCharacterClassInput, IUpdateCharacterClassInput } from "./characterClass";
+import { ICreateCharacterClassInput, IUpdateCharacterClassInput } from "./customCharacter";
 import { Request, Response } from "express";
 import { sendErrorsToClient } from "../util/response/errorHandler";
-import CharacterClassService from "./characterClass.service";
+import CustomCharacterService from "./customCharacter.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 
-const characterClassService = new CharacterClassService();
+const characterClassService = new CustomCharacterService();
 const errorThrower = new DefaultResponseErrorThrower();
 
-export default class CharacterClassController {
+export default class CustomCharacterController {
     create = async (req: Request, res: Response): Promise<void> => {
         try{
             const { name, mainDefence, speed, resistance, attack, defence } = req.body;

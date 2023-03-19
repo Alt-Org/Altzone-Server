@@ -9,8 +9,8 @@ export default class ClanService{
         return ClanModel.create(input);
     }
 
-    readById = async (id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return ClanModel.findById(id);
+    readById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
+        return ClanModel.findById(_id);
     }
 
     readAll = async (): Promise<Array<any>> => {
@@ -18,10 +18,10 @@ export default class ClanService{
     }
 
      updateById = async (input: IUpdateClanInput): Promise<UpdateResult> => {
-         return ClanModel.updateOne({_id: input.id}, input, { rawResult: true });
+         return ClanModel.updateOne({_id: input._id}, input, { rawResult: true });
     }
 
-    deleteById = async (id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return ClanModel.findByIdAndDelete(id);
+    deleteById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
+        return ClanModel.findByIdAndDelete(_id);
     }
 }
