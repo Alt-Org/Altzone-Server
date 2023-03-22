@@ -2,6 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import { ICharacterClass } from "./characterClass";
 
 const schema = new Schema({
+    gameId: { type: Number, required: true, unique: true },
     name: { type: String, required: true, unique: true },
     mainDefence: { type: Number, required: true },
     speed: { type: Number, required: true },

@@ -3,38 +3,42 @@ import {Location} from "./location";
 import {DefenceEnum} from "../../enums/defence.enum";
 
 export class ValidationChainBuilder {
-    public constructor(fieldName: string, fieldLocation: Location) {
+    public constructor(fieldName: string, fieldLocation: Location, nameAlias?: string) {
         this.name = fieldName;
+        this.nameAlias = nameAlias;
+        this.nameAliasString = this.nameAlias !== undefined ? `(${this.nameAlias} on game side)` : '(No analog on game side)';
         this.location = fieldLocation;
         this.validationChain = this.getValidationChainStart();
     }
     private readonly name: string;
+    private readonly nameAlias?: string;
+    private readonly nameAliasString: string;
     private readonly location: Location;
     private readonly validationChain: ValidationChain;
 
     public notEmpty = (text?: string, overrideDefaultText?: boolean) : ValidationChainBuilder => {
-        const errorMsg: string = this.getErrorText(`${this.location} ${this.name} can not be empty`, text, overrideDefaultText);
+        const errorMsg: string = this.getErrorText(`${this.location} ${this.name} ${this.nameAliasString} can not be empty`, text, overrideDefaultText);
 
         this.validationChain.notEmpty({ignore_whitespace: true}).withMessage(errorMsg);
         return this;
     }
 
     public isString = (text?: string, overrideDefaultText?: boolean) : ValidationChainBuilder => {
-        const errorMsg: string = this.getErrorText(`${this.location} ${this.name} must be string type`, text, overrideDefaultText);
+        const errorMsg: string = this.getErrorText(`${this.location} ${this.name} ${this.nameAliasString} must be string type`, text, overrideDefaultText);
 
         this.validationChain.isString().withMessage(errorMsg);
         return this;
     }
 
     public isMongoId = (text?: string, overrideDefaultText?: boolean) : ValidationChainBuilder => {
-        const errorMsg: string = this.getErrorText(`${this.location} ${this.name} must be in Mongo ObjectId form`, text, overrideDefaultText);
+        const errorMsg: string = this.getErrorText(`${this.location} ${this.name} ${this.nameAliasString} must be in Mongo ObjectId form`, text, overrideDefaultText);
 
         this.validationChain.isMongoId().withMessage(errorMsg);
         return this;
     }
 
     public isInt = (text?: string, overrideDefaultText?: boolean) : ValidationChainBuilder => {
-        const errorMsg: string = this.getErrorText(`${this.location} ${this.name} must be int type`, text, overrideDefaultText);
+        const errorMsg: string = this.getErrorText(`${this.location} ${this.name} ${this.nameAliasString} must be int type`, text, overrideDefaultText);
 
         this.validationChain.isInt().withMessage(errorMsg);
         return this;
@@ -48,7 +52,7 @@ export class ValidationChainBuilder {
     public isDefenceEnumType = (text?: string, overrideDefaultText?: boolean): ValidationChainBuilder => {
         this.validationChain.custom( (value) => {
             if (!(typeof value === "number") || Object.values(DefenceEnum).find( elem => elem === value ) === undefined) {
-                const errorMsg: string = this.getErrorText(`${this.location} ${this.name} must be DefenceEnum type`, text, overrideDefaultText);
+                const errorMsg: string = this.getErrorText(`${this.location} ${this.name} ${this.nameAliasString} must be DefenceEnum type`, text, overrideDefaultText);
                 throw new Error(errorMsg);
             }
 

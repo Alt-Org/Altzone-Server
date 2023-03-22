@@ -2,6 +2,7 @@ import {NextFunction, Request, Response} from "express";
 import {ParserType} from './parserType';
 import * as dictionary from './dictionary';
 import IFieldParser from "./IFieldParser";
+import {swapKeysAndValues} from "../general/objectUtil";
 
 export default class FieldParserFactory{
     public createParser = (parserType: ParserType): FieldParser => {
@@ -17,10 +18,7 @@ export default class FieldParserFactory{
 class FieldParser implements IFieldParser{
     constructor(dictionary: Record<string, string>) {
         this.gameToAPIDictionary = dictionary;
-        this.apiToGameDictionary = {};
-        Object.entries(this.gameToAPIDictionary).forEach(([key, value]) => {
-            this.apiToGameDictionary[value] = key;
-        });
+        this.apiToGameDictionary = swapKeysAndValues(this.gameToAPIDictionary);
     }
 
     private readonly gameToAPIDictionary: Record<string, string>;

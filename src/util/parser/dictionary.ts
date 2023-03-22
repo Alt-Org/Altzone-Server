@@ -16,3 +16,7 @@ export const clanDictionary: Record<string, string> = {
     Tag: "tag",
     GameCoins: "gameCoins"
 } as const;
+
+export const customCharacterDictionary: Record<string, string> = {
+    _id: "_id"
+} as const;
