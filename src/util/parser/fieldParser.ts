@@ -15,11 +15,16 @@ export default class FieldParserFactory{
 }
 
 class FieldParser implements IFieldParser{
-    constructor(dictionary: any) {
-        this.dictionary = dictionary;
+    constructor(dictionary: Record<string, string>) {
+        this.gameToAPIDictionary = dictionary;
+        this.apiToGameDictionary = {};
+        Object.entries(this.gameToAPIDictionary).forEach(([key, value]) => {
+            this.apiToGameDictionary[value] = key;
+        });
     }
 
-    private readonly dictionary: any;
+    private readonly gameToAPIDictionary: Record<string, string>;
+    private readonly apiToGameDictionary: Record<string, string>;
     public parseFromGameToAPI = (req: Request, res: Response, next: NextFunction) => {
         const body = req.body;
         const bodyKeys = Object.keys(body);
@@ -27,7 +32,7 @@ class FieldParser implements IFieldParser{
 
         for(let i=0; i<bodyKeys.length; i++){
             const currentKey = bodyKeys[i];
-            const apiAnalog = this.dictionary[currentKey];
+            const apiAnalog = this.gameToAPIDictionary[currentKey];
 
             if(apiAnalog !== undefined)
                 newBody[apiAnalog] = body[currentKey];
@@ -37,5 +42,39 @@ class FieldParser implements IFieldParser{
         req.body = newBody;
 
         next();
+    }
+
+    public parseFromAPIToGame = (apiResponse: Object | any): Object | Object[] | null => {
+
+        //If this is an object
+        if(apiResponse._doc){
+            return this.convertAPIToGameObject(apiResponse._doc);
+        }
+
+        //If this is an array
+        if(!apiResponse._doc){
+            const result = [];
+            for(let i=0; i<apiResponse.length; i++)
+                result.push(this.convertAPIToGameObject(apiResponse[i]._doc));
+
+            return result;
+        }
+
+        return null;
+    }
+
+    private convertAPIToGameObject = (object: Object | any): Object => {
+        const objKeys = Object.keys(object);
+        const result: any = {};
+
+        for(let i=0; i<objKeys.length; i++){
+            const currentKey: any = objKeys[i];
+            const gameAnalog: string = this.apiToGameDictionary[currentKey];
+
+            if(gameAnalog !== undefined)
+                result[gameAnalog] = object[currentKey];
+        }
+
+        return result;
     }
 }

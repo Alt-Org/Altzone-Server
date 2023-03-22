@@ -1,4 +1,4 @@
-export const characterClassDictionary: any = {
+export const characterClassDictionary: Record<string, string> = {
     _id: "_id",
     CharacterClassId: "gameId",
     Name: "name",
@@ -9,7 +9,7 @@ export const characterClassDictionary: any = {
     Defence: "defence"
 } as const;
 
-export const clanDictionary: any = {
+export const clanDictionary: Record<string, string> = {
     _id: "_id",
     Id: "gameId",
     Name: "name",
