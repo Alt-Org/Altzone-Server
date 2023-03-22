@@ -10,9 +10,7 @@ const errorThrower = new DefaultResponseErrorThrower();
 export default class ClanController{
     create = async (req: Request, res: Response): Promise<void> => {
         try{
-            const { name, tag, gameCoins } = req.body;
-            const newClan : ICreateClanInput = { name, tag, gameCoins };
-            const result = await clanService.create(newClan);
+            const result = await clanService.create(req.body);
 
             res.status(201).json(result);
         }catch (err) {
@@ -44,10 +42,7 @@ export default class ClanController{
 
     update = async (req: Request, res: Response): Promise<void> => {
         try{
-            const { _id, name, tag, gameCoins } = req.body;
-            const updateClan : IUpdateClanInput = { _id, name, tag, gameCoins };
-
-            const result = await clanService.updateById(updateClan);
+            const result = await clanService.updateById(req.body);
             errorThrower.throwUpdateErrorsIfFound(result, 'Clan', '_id');
 
             res.status(204).send();

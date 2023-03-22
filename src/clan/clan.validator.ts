@@ -4,6 +4,7 @@ import {Location} from "../util/validator/location";
 
 export default class ClanValidator{
     validateCreate = [
+        new Validator('gameId', Location.BODY).notEmpty().isString().build(),
         new Validator('name', Location.BODY).notEmpty().isString().build(),
         new Validator('tag', Location.BODY).ifProvided().isString().build(),
         new Validator('gameCoins', Location.BODY).ifProvided().isInt().build(),
@@ -19,6 +20,7 @@ export default class ClanValidator{
 
     validateUpdate = [
         new Validator('_id', Location.BODY).notEmpty().isMongoId().build(),
+        new Validator('gameId', Location.BODY).notEmpty().isString().build(),
         new Validator('name', Location.BODY).ifProvided().isString().build(),
         new Validator('tag', Location.BODY).ifProvided().isString().build(),
         new Validator('gameCoins', Location.BODY).ifProvided().isInt().build(),

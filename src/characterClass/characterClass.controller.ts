@@ -1,4 +1,3 @@
-import { ICreateCharacterClassInput, IUpdateCharacterClassInput } from "./characterClass";
 import { Request, Response } from "express";
 import { sendErrorsToClient } from "../util/response/errorHandler";
 import CharacterClassService from "./characterClass.service";
@@ -10,9 +9,7 @@ const errorThrower = new DefaultResponseErrorThrower();
 export default class CharacterClassController {
     create = async (req: Request, res: Response): Promise<void> => {
         try{
-            const { name, mainDefence, speed, resistance, attack, defence } = req.body;
-            const newCharacterClass: ICreateCharacterClassInput = { name, mainDefence, speed, resistance, attack, defence };
-            const result = await characterClassService.create(newCharacterClass);
+            const result = await characterClassService.create(req.body);
 
             res.status(201).json(result);
         }catch (err) {
@@ -44,10 +41,7 @@ export default class CharacterClassController {
 
     update = async (req: Request, res: Response): Promise<void> => {
         try{
-            const { _id, name, mainDefence, speed, resistance, attack, defence } = req.body;
-            const updateCharacterClass : IUpdateCharacterClassInput = { _id, name, mainDefence, speed, resistance, attack, defence };
-
-            const result = await characterClassService.updateById(updateCharacterClass);
+            const result = await characterClassService.updateById(req.body);
             errorThrower.throwUpdateErrorsIfFound(result, 'CharacterClass', '_id');
 
             res.status(204).send();
