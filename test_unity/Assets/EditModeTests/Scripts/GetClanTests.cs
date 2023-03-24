@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
 using System.Text;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.TestTools;
+using Random = UnityEngine.Random;
 
 namespace EditModeTests.Scripts
 {
@@ -27,19 +29,11 @@ namespace EditModeTests.Scripts
             Debug.Log($"test {url}");
 
             var request = UnityWebRequest.Get(url);
-            var asyncOp = request.SendWebRequest();
-            var asyncOpIsDone = false;
-            asyncOp.completed += operation =>
-            {
-                Assert.IsTrue(operation.isDone);
-                asyncOpIsDone = true;
-            };
-            yield return new WaitUntil(() => asyncOpIsDone);
             try
             {
-                Debug.Log($"isDone {request.isDone} result {request.result} {request.responseCode}");
+                yield return ExecuteRequest(request);
+                Debug.Log($"result {request.result} http code {request.responseCode}");
 
-                Assert.IsTrue(request.isDone);
                 Assert.IsTrue(request.result == UnityWebRequest.Result.Success);
                 var body = request.downloadHandler?.text ?? string.Empty;
                 Assert.IsFalse(string.IsNullOrWhiteSpace(body));
@@ -61,19 +55,11 @@ namespace EditModeTests.Scripts
             Debug.Log($"test {url}");
 
             var request = UnityWebRequest.Get(url);
-            var asyncOp = request.SendWebRequest();
-            var asyncOpIsDone = false;
-            asyncOp.completed += operation =>
-            {
-                Assert.IsTrue(operation.isDone);
-                asyncOpIsDone = true;
-            };
-            yield return new WaitUntil(() => asyncOpIsDone);
             try
             {
-                Debug.Log($"isDone {request.isDone} result {request.result} {request.responseCode}");
+                yield return ExecuteRequest(request);
+                Debug.Log($"result {request.result} http code {request.responseCode}");
 
-                Assert.IsTrue(request.isDone);
                 Assert.IsTrue(request.result == UnityWebRequest.Result.Success);
                 var body = request.downloadHandler?.text ?? string.Empty;
                 Assert.IsFalse(string.IsNullOrWhiteSpace(body));
@@ -100,19 +86,11 @@ namespace EditModeTests.Scripts
             var request = UnityWebRequest.Put(url, bytes);
             request.method = "POST"; // Hack to send POST to server instead of PUT
             request.SetRequestHeader("Content-Type", "application/json");
-            var asyncOp = request.SendWebRequest();
-            var asyncOpIsDone = false;
-            asyncOp.completed += operation =>
-            {
-                Assert.IsTrue(operation.isDone);
-                asyncOpIsDone = true;
-            };
-            yield return new WaitUntil(() => asyncOpIsDone);
             try
             {
-                Debug.Log($"isDone {request.isDone} result {request.result} {request.responseCode}");
+                yield return ExecuteRequest(request);
+                Debug.Log($"result {request.result} http code {request.responseCode}");
 
-                Assert.IsTrue(request.isDone);
                 Assert.IsTrue(request.result == UnityWebRequest.Result.Success);
                 var body = request.downloadHandler?.text ?? string.Empty;
                 Assert.IsFalse(string.IsNullOrWhiteSpace(body));
@@ -132,25 +110,20 @@ namespace EditModeTests.Scripts
             const string url = "http://localhost:8080/clan";
             Debug.Log($"test {url}");
 
-            var putData = JsonQuotes("{'id':'6411cd209a79de3c1987b398','name':'TestClanUpdated','tag':'TU','gameCoins':1234}");
+            // Note! will return HTTP 400 Bad Request if trying to update without changing any data.
+            var tag = Convert.ToChar(Random.Range('A', 'Z' + 1));
+            var coins = Random.Range(1, 100);
+            var putData = JsonQuotes($"{{'id':'6411cd209a79de3c1987b398','name':'TestClanUpdated','tag':'[{tag}]','gameCoins':{coins}}}");
             Debug.Log($"PUT {putData}");
 
             var bytes = Encoding.UTF8.GetBytes(putData);
             var request = UnityWebRequest.Put(url, bytes);
             request.SetRequestHeader("Content-Type", "application/json");
-            var asyncOp = request.SendWebRequest();
-            var asyncOpIsDone = false;
-            asyncOp.completed += operation =>
-            {
-                Assert.IsTrue(operation.isDone);
-                asyncOpIsDone = true;
-            };
-            yield return new WaitUntil(() => asyncOpIsDone);
             try
             {
-                Debug.Log($"isDone {request.isDone} result {request.result} {request.responseCode}");
+                yield return ExecuteRequest(request);
+                Debug.Log($"result {request.result} http code {request.responseCode}");
 
-                Assert.IsTrue(request.isDone);
                 Assert.IsTrue(request.result == UnityWebRequest.Result.Success);
                 // Body should be empty (null).
                 var body = request.downloadHandler?.text ?? string.Empty;
@@ -167,24 +140,16 @@ namespace EditModeTests.Scripts
         [UnityTest, Order(5)]
         public IEnumerator DeleteTest()
         {
-            const string clanId = "6412c37d30369acf553817d3";
+            const string clanId = "641d4d82d4598a13d3b69130";
             var url = $"http://localhost:8080/clan/{clanId}";
             Debug.Log($"test {url}");
 
             var request = UnityWebRequest.Delete(url);
-            var asyncOp = request.SendWebRequest();
-            var asyncOpIsDone = false;
-            asyncOp.completed += operation =>
-            {
-                Assert.IsTrue(operation.isDone);
-                asyncOpIsDone = true;
-            };
-            yield return new WaitUntil(() => asyncOpIsDone);
             try
             {
-                Debug.Log($"isDone {request.isDone} result {request.result} {request.responseCode}");
+                yield return ExecuteRequest(request);
+                Debug.Log($"result {request.result} http code {request.responseCode}");
 
-                Assert.IsTrue(request.isDone);
                 Assert.IsTrue(request.result == UnityWebRequest.Result.Success);
                 // Body should be empty (null).
                 var body = request.downloadHandler?.text ?? string.Empty;
@@ -196,6 +161,19 @@ namespace EditModeTests.Scripts
             {
                 request.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Convenience method to start async operation and wait until it is done.
+        /// </summary>
+        /// <remarks>
+        /// Request result should be <c>Success</c> or <c>ProtocolError</c> in most cases when server can be reached.
+        /// </remarks>
+        private static CustomYieldInstruction ExecuteRequest(UnityWebRequest request)
+        {
+            AsyncOperation asyncOperation = null;
+            request.SendWebRequest().completed += operation => asyncOperation = operation;
+            return new WaitUntil(() => asyncOperation is { isDone: true });
         }
 
         /// <summary>
