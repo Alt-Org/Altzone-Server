@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import ClanController from './clan.controller';
 import ClanValidator from './clan.validator';
-import {FieldParserFactory, ParserType} from "../util/parser";
+import {FieldParserFactory} from "../util/parser";
+import {ClassName} from "../util/dictionary";
 
 const router = Router();
 const controller = new ClanController();
 const validator = new ClanValidator();
-const parser = new FieldParserFactory().createParser(ParserType.CLAN);
+const parser = new FieldParserFactory().createParser(ClassName.CLAN);
 
 router.post('/', parser.parseFromGameToAPI, validator.validateCreate, controller.create);
 router.get('/:_id', validator.validateRead, controller.get);

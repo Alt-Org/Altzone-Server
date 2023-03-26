@@ -1,24 +1,22 @@
 import {NextFunction, Request, Response} from "express";
-import {ParserType} from './parserType';
-import * as dictionary from './dictionary';
+import {ClassName, Dictionary} from '../dictionary';
 import IFieldParser from "./IFieldParser";
-import {swapKeysAndValues} from "../general/objectUtil";
 
 export default class FieldParserFactory{
-    public createParser = (parserType: ParserType): FieldParser => {
+    public createParser = (parserType: ClassName): FieldParser => {
         switch (parserType) {
-            case ParserType.CHARACTER_CLASS:
-                return new FieldParser(dictionary.characterClassDictionary);
-            case ParserType.CLAN:
-                return new FieldParser(dictionary.clanDictionary);
+            case ClassName.CHARACTER_CLASS:
+                return new FieldParser(ClassName.CHARACTER_CLASS);
+            case ClassName.CLAN:
+                return new FieldParser(ClassName.CLAN);
         }
     }
 }
 
 class FieldParser implements IFieldParser{
-    constructor(dictionary: Record<string, string>) {
-        this.gameToAPIDictionary = dictionary;
-        this.apiToGameDictionary = swapKeysAndValues(this.gameToAPIDictionary);
+    constructor(className: string) {
+        this.gameToAPIDictionary = Dictionary.values[className]['gameToAPI'];
+        this.apiToGameDictionary = Dictionary.values[className]['apiToGame'];
     }
 
     private readonly gameToAPIDictionary: Record<string, string>;

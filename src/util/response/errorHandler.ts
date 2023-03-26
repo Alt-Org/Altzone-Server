@@ -38,6 +38,7 @@ const prepareErrorForResponse = (err: unknown): APIError[] => {
     }
 
     if(err instanceof MongoServerError){
+        //Duplicated field(s)
         if(err.code === 11000){
             const duplicatedFields = Object.keys(err.keyPattern);
             const errors: APIError[] = [];

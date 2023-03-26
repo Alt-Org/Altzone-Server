@@ -1,12 +1,17 @@
 import {body, param, query, ValidationChain} from 'express-validator';
 import {Location} from "./location";
 import {DefenceEnum} from "../../enums/defence.enum";
+import Dictionary from "../dictionary/dictionary";
 
 export class ValidationChainBuilder {
-    public constructor(fieldName: string, fieldLocation: Location, nameAlias?: string) {
+    public constructor(fieldName: string, fieldLocation: Location, className?: string) {
         this.name = fieldName;
-        this.nameAlias = nameAlias;
-        this.nameAliasString = this.nameAlias !== undefined ? `(${this.nameAlias} on game side)` : '(No analog on game side)';
+        if(className){
+            this.nameAlias = Dictionary.values[className]['apiToGame'][fieldName];
+            this.nameAliasString = `(${this.nameAlias} on game side)`;
+        } else
+            this.nameAliasString = '(No analog on game side)';
+
         this.location = fieldLocation;
         this.validationChain = this.getValidationChainStart();
     }

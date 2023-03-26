@@ -2,11 +2,12 @@ import {Request, Response} from "express";
 import {sendErrorsToClient} from "../util/response/errorHandler";
 import CharacterClassService from "./characterClass.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
-import {FieldParserFactory, ParserType} from "../util/parser";
+import {FieldParserFactory} from "../util/parser";
+import {ClassName} from "../util/dictionary";
 
 const characterClassService = new CharacterClassService();
 const errorThrower = new DefaultResponseErrorThrower();
-const parser = new FieldParserFactory().createParser(ParserType.CHARACTER_CLASS);
+const parser = new FieldParserFactory().createParser(ClassName.CHARACTER_CLASS);
 
 export default class CharacterClassController {
     create = async (req: Request, res: Response): Promise<void> => {
@@ -23,7 +24,7 @@ export default class CharacterClassController {
     get = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await characterClassService.readById(req.params._id);
-            errorThrower.throwReadErrorsIfFound(respObj, 'CharacterClass', '_id');
+            errorThrower.throwReadErrorsIfFound(respObj, ClassName.CHARACTER_CLASS, '_id');
 
             const result = parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
@@ -35,7 +36,7 @@ export default class CharacterClassController {
     getAll = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await characterClassService.readAll();
-            errorThrower.throwReadErrorsIfFound(respObj, 'CharacterClass', '_id');
+            errorThrower.throwReadErrorsIfFound(respObj, ClassName.CHARACTER_CLASS, '_id');
 
             const result = parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
@@ -47,7 +48,7 @@ export default class CharacterClassController {
     update = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await characterClassService.updateById(req.body);
-            errorThrower.throwUpdateErrorsIfFound(respObj, 'CharacterClass', '_id');
+            errorThrower.throwUpdateErrorsIfFound(respObj, ClassName.CHARACTER_CLASS, '_id');
 
             res.status(204).send();
         }catch (err: unknown) {
@@ -58,7 +59,7 @@ export default class CharacterClassController {
     delete = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await characterClassService.deleteById(req.params._id);
-            errorThrower.throwDeleteErrorsIfFound(respObj, 'CharacterClass', '_id');
+            errorThrower.throwDeleteErrorsIfFound(respObj, ClassName.CHARACTER_CLASS, '_id');
 
             res.status(204).send();
         }catch (err) {
