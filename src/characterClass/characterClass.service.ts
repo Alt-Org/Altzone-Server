@@ -9,8 +9,8 @@ export default class CharacterClassService {
         return CharacterClassModel.create(input);
     }
 
-    readById = async (id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return CharacterClassModel.findById(id);
+    readById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
+        return CharacterClassModel.findById(_id);
     }
 
     readAll = async (): Promise<Array<any>> => {
@@ -18,10 +18,10 @@ export default class CharacterClassService {
     }
 
      updateById = async (input: IUpdateCharacterClassInput): Promise<UpdateResult> => {
-        return CharacterClassModel.updateOne({_id: input.id}, input, {rawResult: true});
+        return CharacterClassModel.updateOne({_id: input._id}, input, {rawResult: true});
     }
 
-    deleteById = async (id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return CharacterClassModel.findByIdAndDelete(id);
+    deleteById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
+        return CharacterClassModel.findByIdAndDelete(_id);
     }
 }

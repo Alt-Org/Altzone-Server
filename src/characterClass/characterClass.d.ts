@@ -2,6 +2,7 @@ import { Document, ObjectId } from "mongoose";
 
 interface ICharacterClass extends Document{
     _id: ObjectId;
+    gameId: int;
     name: string;
     mainDefence: Number;
     speed: int;
@@ -11,6 +12,7 @@ interface ICharacterClass extends Document{
 }
 
 interface ICreateCharacterClassInput {
+    gameId: ICharacterClass['gameId'];
     name: ICharacterClass['name'];
     mainDefence: ICharacterClass['mainDefence'];
     speed: ICharacterClass['speed'];
@@ -20,7 +22,8 @@ interface ICreateCharacterClassInput {
 }
 
 interface IUpdateCharacterClassInput {
-    id: ObjectId;
+    _id: ObjectId;
+    gameId?: ICharacterClass['gameId'];
     name?: ICharacterClass['name'];
     mainDefence?: ICharacterClass['mainDefence'];
     speed?: ICharacterClass['speed'];
