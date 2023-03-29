@@ -1,5 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import { ICharacterClass } from "./characterClass";
+import {ClassName} from "../util/dictionary";
+import SchemaValidator from "../util/schemaValidator/schemaValidator";
 
 const schema = new Schema({
     gameId: { type: Number, required: true, unique: true },
@@ -11,4 +13,9 @@ const schema = new Schema({
     defence: { type: Number, required: true },
 });
 
-export default mongoose.model<ICharacterClass>('CharacterClass', schema);
+schema.pre('deleteOne', { document: false, query: true },async function () {
+    const {_id} = this.getQuery();
+    await SchemaValidator.validateDeleteFK({modelReferring: mongoose.model(ClassName.CUSTOM_CHARACTER), fkObj: {'characterClass_id': _id}});
+});
+
+export default mongoose.model<ICharacterClass>(ClassName.CHARACTER_CLASS, schema);

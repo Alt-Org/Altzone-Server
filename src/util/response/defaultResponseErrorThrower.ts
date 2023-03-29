@@ -3,6 +3,7 @@ import UpdateError from "../error/updateError";
 import ReadError from "../error/readError";
 import DeleteError from "../error/deleteError";
 import {Dictionary} from "../dictionary";
+import {Query} from "mongoose";
 
 export default class DefaultResponseErrorThrower {
     throwReadErrorsIfFound = (queryResult: Object | Array<any> | null, className: string, field: string) => {
@@ -19,8 +20,8 @@ export default class DefaultResponseErrorThrower {
             throw new UpdateError(400, 'Nothing to update');
     }
 
-    throwDeleteErrorsIfFound = (queryResult: Object | null, className: string, field: string) => {
-        if(queryResult == null)
+    throwDeleteErrorsIfFound = (queryResult: Object | any | null, className: string, field: string) => {
+        if(queryResult == null || (queryResult.deletedCount != null && queryResult.deletedCount === 0))
             throw new DeleteError(404, `Can not find ${className} with that ${field} (${Dictionary.values[className]['apiToGame'][field]} on game side)`)
     }
 }

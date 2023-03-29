@@ -4,12 +4,7 @@ import IFieldParser from "./IFieldParser";
 
 export default class FieldParserFactory{
     public createParser = (parserType: ClassName): FieldParser => {
-        switch (parserType) {
-            case ClassName.CHARACTER_CLASS:
-                return new FieldParser(ClassName.CHARACTER_CLASS);
-            case ClassName.CLAN:
-                return new FieldParser(ClassName.CLAN);
-        }
+        return new FieldParser(parserType);
     }
 }
 

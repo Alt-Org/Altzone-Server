@@ -41,6 +41,35 @@ export default class Dictionary {
                 tag: "Tag",
                 gameCoins: "GameCoins"
             }
+        },
+
+        CustomCharacter: {
+            gameToAPI: {
+                _id: "_id",
+                Id: "gameId",
+                UnityKey: "unityKey",
+                Name: "name",
+                Speed: "speed",
+                Resistance: "resistance",
+                Attack: "attack",
+                Defence: "defence",
+                CharacterClassId: "characterClassGameId",
+
+                characterClass_id: "characterClass_id"
+            },
+            apiToGame: {
+                _id: "_id",
+                gameId: "Id",
+                unityKey: "UnityKey",
+                name: "Name",
+                speed: "Speed",
+                resistance: "Resistance",
+                attack: "Attack",
+                defence: "Defence",
+                characterClassGameId: "CharacterClassId",
+
+                characterClass_id: "characterClass_id"
+            }
         }
     }
 }

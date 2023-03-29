@@ -22,6 +22,6 @@ export default class CharacterClassService {
     }
 
     deleteById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return CharacterClassModel.findByIdAndDelete(_id);
+        return CharacterClassModel.deleteOne({_id});
     }
 }
