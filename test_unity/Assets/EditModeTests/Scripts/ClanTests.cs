@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Text;
 using NUnit.Framework;
 using UnityEngine;
@@ -23,12 +24,12 @@ namespace EditModeTests.Scripts
     /// delete - router.delete('/:id', validator.validateDelete, controller.delete)
     /// </remarks>
     [TestFixture]
-    public class GetClanTests
+    public class ClanTests
     {
         private static readonly bool IsSaveJson = true;
 
         [UnityTest, Order(1)]
-        public IEnumerator GetAllTest()
+        public IEnumerator T1_GetAllTest()
         {
             const string url = "http://localhost:8080/clan";
             Debug.Log($"test {url}");
@@ -37,15 +38,20 @@ namespace EditModeTests.Scripts
             try
             {
                 yield return ExecuteRequest(request);
-                Debug.Log($"result {request.result} http code {request.responseCode}");
 
-                Assert.IsTrue(request.result == UnityWebRequest.Result.Success);
+                var responseCode = (int)request.responseCode;
                 var body = request.downloadHandler?.text ?? string.Empty;
-                Assert.IsFalse(string.IsNullOrWhiteSpace(body));
-                SaveJson(request.method, url, body);
-
-                Debug.Log($"test {request.responseCode} bytes {request.downloadedBytes}");
-                Debug.Log($"body {body}");
+                var hasBody = body.Length > 0;
+                Debug.Log($"result {request.result} http {responseCode} body len {body.Length}");
+                if (hasBody)
+                {
+                    Debug.Log($"body {body}");
+                    SaveJson(request.method, url, responseCode, body);
+                }
+                var isValid = request.result is UnityWebRequest.Result.Success or UnityWebRequest.Result.ProtocolError;
+                Assert.IsTrue(isValid);
+                Assert.AreEqual((int)HttpStatusCode.OK, responseCode);
+                Assert.IsTrue(hasBody);
             }
             finally
             {
@@ -54,9 +60,9 @@ namespace EditModeTests.Scripts
         }
 
         [UnityTest, Order(2)]
-        public IEnumerator GetByIdTest()
+        public IEnumerator T2_GetByIdTest()
         {
-            const string clanId = "6411cd209a79de3c1987b398";
+            const string clanId = "642972839323b99971e9eb1c";
             var url = $"http://localhost:8080/clan/{clanId}";
             Debug.Log($"test {url}");
 
@@ -64,15 +70,20 @@ namespace EditModeTests.Scripts
             try
             {
                 yield return ExecuteRequest(request);
-                Debug.Log($"result {request.result} http code {request.responseCode}");
 
-                Assert.IsTrue(request.result == UnityWebRequest.Result.Success);
+                var responseCode = (int)request.responseCode;
                 var body = request.downloadHandler?.text ?? string.Empty;
-                Assert.IsFalse(string.IsNullOrWhiteSpace(body));
-                SaveJson(request.method, url, body);
-
-                Debug.Log($"test {request.responseCode} bytes {request.downloadedBytes}");
-                Debug.Log($"body {body}");
+                var hasBody = body.Length > 0;
+                Debug.Log($"result {request.result} http {responseCode} body len {body.Length}");
+                if (hasBody)
+                {
+                    Debug.Log($"body {body}");
+                    SaveJson(request.method, url, responseCode, body);
+                }
+                var isValid = request.result is UnityWebRequest.Result.Success or UnityWebRequest.Result.ProtocolError;
+                Assert.IsTrue(isValid);
+                Assert.AreEqual((int)HttpStatusCode.OK, responseCode);
+                Assert.IsTrue(hasBody);
             }
             finally
             {
@@ -81,12 +92,14 @@ namespace EditModeTests.Scripts
         }
 
         [UnityTest, Order(3)]
-        public IEnumerator CreateTest()
+        public IEnumerator T3_CreateTest()
         {
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST
+            
             const string url = "http://localhost:8080/clan";
             Debug.Log($"test {url}");
 
-            var postData = JsonQuotes("{'name':'TestClan','tag':'T','gameCoins':0}");
+            var postData = JsonQuotes("{'Id':'1','Name':'TestClan1','Tag':'T1','GameCoins':0}");
             Debug.Log($"POST {postData}");
 
             var bytes = Encoding.UTF8.GetBytes(postData);
@@ -96,15 +109,20 @@ namespace EditModeTests.Scripts
             try
             {
                 yield return ExecuteRequest(request);
-                Debug.Log($"result {request.result} http code {request.responseCode}");
 
-                Assert.IsTrue(request.result == UnityWebRequest.Result.Success);
+                var responseCode = (int)request.responseCode;
                 var body = request.downloadHandler?.text ?? string.Empty;
-                Assert.IsFalse(string.IsNullOrWhiteSpace(body));
-                SaveJson(request.method, url, body);
-
-                Debug.Log($"test {request.responseCode} bytes {request.downloadedBytes}");
-                Debug.Log($"body {body}");
+                var hasBody = body.Length > 0;
+                Debug.Log($"result {request.result} http {responseCode} body len {body.Length}");
+                if (hasBody)
+                {
+                    Debug.Log($"body {body}");
+                    SaveJson(request.method, url, responseCode, body);
+                }
+                var isValid = request.result is UnityWebRequest.Result.Success or UnityWebRequest.Result.ProtocolError;
+                Assert.IsTrue(isValid);
+                Assert.AreEqual((int)HttpStatusCode.Created, responseCode);
+                Assert.IsTrue(hasBody);
             }
             finally
             {
@@ -113,15 +131,18 @@ namespace EditModeTests.Scripts
         }
 
         [UnityTest, Order(4)]
-        public IEnumerator UpdateTest()
+        public IEnumerator T4_UpdateTest()
         {
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT
+            
             const string url = "http://localhost:8080/clan";
             Debug.Log($"test {url}");
 
             // Note! will return HTTP 400 Bad Request if trying to update without changing any data.
+            const string clanId = "642972839323b99971e9eb1c";
             var tag = Convert.ToChar(Random.Range('A', 'Z' + 1));
             var coins = Random.Range(1, 100);
-            var putData = JsonQuotes($"{{'id':'6411cd209a79de3c1987b398','name':'TestClanUpdated','tag':'[{tag}]','gameCoins':{coins}}}");
+            var putData = JsonQuotes($"{{'_id':'{clanId}','Name':'TestClanUpdated','Tag':'[{tag}]','GameCoins':{coins}}}");
             Debug.Log($"PUT {putData}");
 
             var bytes = Encoding.UTF8.GetBytes(putData);
@@ -130,14 +151,22 @@ namespace EditModeTests.Scripts
             try
             {
                 yield return ExecuteRequest(request);
-                Debug.Log($"result {request.result} http code {request.responseCode}");
 
-                Assert.IsTrue(request.result == UnityWebRequest.Result.Success);
-                // Body should be empty (null).
+                var responseCode = (int)request.responseCode;
                 var body = request.downloadHandler?.text ?? string.Empty;
-
-                Debug.Log($"test {request.responseCode} bytes {request.downloadedBytes}");
-                Debug.Log($"body {body}");
+                var hasBody = body.Length > 0;
+                Debug.Log($"result {request.result} http {responseCode} body len {body.Length}");
+                if (hasBody)
+                {
+                    Debug.Log($"body {body}");
+                    SaveJson(request.method, url, responseCode, body);
+                }
+                var isValid = request.result is UnityWebRequest.Result.Success or UnityWebRequest.Result.ProtocolError;
+                Assert.IsTrue(isValid);
+                var isOk = responseCode is (int)HttpStatusCode.OK or (int)HttpStatusCode.NoContent;
+                Assert.IsTrue(isOk);
+                // Body should be empty (null).
+                Assert.IsFalse(hasBody);
             }
             finally
             {
@@ -146,9 +175,11 @@ namespace EditModeTests.Scripts
         }
 
         [UnityTest, Order(5)]
-        public IEnumerator DeleteTest()
+        public IEnumerator T5_DeleteTest()
         {
-            const string clanId = "641d4d82d4598a13d3b69130";
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/DELETE
+            
+            const string clanId = "6429720b9323b99971e9eb15";
             var url = $"http://localhost:8080/clan/{clanId}";
             Debug.Log($"test {url}");
 
@@ -156,14 +187,21 @@ namespace EditModeTests.Scripts
             try
             {
                 yield return ExecuteRequest(request);
-                Debug.Log($"result {request.result} http code {request.responseCode}");
 
-                Assert.IsTrue(request.result == UnityWebRequest.Result.Success);
-                // Body should be empty (null).
+                var responseCode = (int)request.responseCode;
                 var body = request.downloadHandler?.text ?? string.Empty;
-
-                Debug.Log($"test {request.responseCode} bytes {request.downloadedBytes}");
-                Debug.Log($"body {body}");
+                var hasBody = body.Length > 0;
+                Debug.Log($"result {request.result} http {responseCode} body len {body.Length}");
+                if (hasBody)
+                {
+                    Debug.Log($"body {body}");
+                    SaveJson(request.method, url, responseCode, body);
+                }
+                var isValid = request.result is UnityWebRequest.Result.Success or UnityWebRequest.Result.ProtocolError;
+                Assert.IsTrue(isValid);
+                Assert.AreEqual((int)HttpStatusCode.NoContent, responseCode);
+                // Body should be empty (null).
+                Assert.IsFalse(hasBody);
             }
             finally
             {
@@ -198,7 +236,7 @@ namespace EditModeTests.Scripts
             return jsonText.Replace('\'', '"');
         }
 
-        private static void SaveJson(string method, string url, string json)
+        private static void SaveJson(string method, string url, int httpStatus, string json)
         {
             if (!IsSaveJson)
             {
@@ -210,7 +248,7 @@ namespace EditModeTests.Scripts
             url = url.Replace('/', '_');
             url = url.Replace('?', '_');
             url = url.Replace('&', '_');
-            var filename = Path.Combine(Application.persistentDataPath, $"{method.ToLower()}_{url}.json");
+            var filename = Path.Combine(Application.persistentDataPath, $"{method.ToLower()}_{url}_{httpStatus}.json");
             File.WriteAllText(filename, json);
             Debug.Log($"wrote {filename} {json.Length} chars");
         }
