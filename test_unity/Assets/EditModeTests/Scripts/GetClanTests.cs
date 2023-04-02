@@ -1,10 +1,13 @@
 using System;
 using System.Collections;
+using System.Diagnostics;
+using System.IO;
 using System.Text;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.TestTools;
+using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
 namespace EditModeTests.Scripts
@@ -22,6 +25,8 @@ namespace EditModeTests.Scripts
     [TestFixture]
     public class GetClanTests
     {
+        private static readonly bool IsSaveJson = true;
+
         [UnityTest, Order(1)]
         public IEnumerator GetAllTest()
         {
@@ -37,6 +42,7 @@ namespace EditModeTests.Scripts
                 Assert.IsTrue(request.result == UnityWebRequest.Result.Success);
                 var body = request.downloadHandler?.text ?? string.Empty;
                 Assert.IsFalse(string.IsNullOrWhiteSpace(body));
+                SaveJson(request.method, url, body);
 
                 Debug.Log($"test {request.responseCode} bytes {request.downloadedBytes}");
                 Debug.Log($"body {body}");
@@ -63,6 +69,7 @@ namespace EditModeTests.Scripts
                 Assert.IsTrue(request.result == UnityWebRequest.Result.Success);
                 var body = request.downloadHandler?.text ?? string.Empty;
                 Assert.IsFalse(string.IsNullOrWhiteSpace(body));
+                SaveJson(request.method, url, body);
 
                 Debug.Log($"test {request.responseCode} bytes {request.downloadedBytes}");
                 Debug.Log($"body {body}");
@@ -94,6 +101,7 @@ namespace EditModeTests.Scripts
                 Assert.IsTrue(request.result == UnityWebRequest.Result.Success);
                 var body = request.downloadHandler?.text ?? string.Empty;
                 Assert.IsFalse(string.IsNullOrWhiteSpace(body));
+                SaveJson(request.method, url, body);
 
                 Debug.Log($"test {request.responseCode} bytes {request.downloadedBytes}");
                 Debug.Log($"body {body}");
@@ -171,8 +179,14 @@ namespace EditModeTests.Scripts
         /// </remarks>
         private static CustomYieldInstruction ExecuteRequest(UnityWebRequest request)
         {
+            var stopwatch = Stopwatch.StartNew();
             AsyncOperation asyncOperation = null;
-            request.SendWebRequest().completed += operation => asyncOperation = operation;
+            request.SendWebRequest().completed += operation =>
+            {
+                asyncOperation = operation;
+                stopwatch.Stop();
+                Debug.Log($"{request.method} {request.url} took {stopwatch.ElapsedMilliseconds} ms");
+            };
             return new WaitUntil(() => asyncOperation is { isDone: true });
         }
 
@@ -182,6 +196,23 @@ namespace EditModeTests.Scripts
         private static string JsonQuotes(string jsonText)
         {
             return jsonText.Replace('\'', '"');
+        }
+
+        private static void SaveJson(string method, string url, string json)
+        {
+            if (!IsSaveJson)
+            {
+                return;
+            }
+            url = url.Replace("http://", string.Empty);
+            url = url.Replace("https://", string.Empty);
+            url = url.Replace(':', '_');
+            url = url.Replace('/', '_');
+            url = url.Replace('?', '_');
+            url = url.Replace('&', '_');
+            var filename = Path.Combine(Application.persistentDataPath, $"{method.ToLower()}_{url}.json");
+            File.WriteAllText(filename, json);
+            Debug.Log($"wrote {filename} {json.Length} chars");
         }
     }
 }
