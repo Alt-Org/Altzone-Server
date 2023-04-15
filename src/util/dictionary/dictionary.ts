@@ -70,6 +70,33 @@ export default class Dictionary {
 
                 characterClass_id: "characterClass_id"
             }
+        },
+
+        PlayerData: {
+            gameToAPI: {
+                _id: "_id",
+                Id: "gameId",
+                Name: "name",
+                BackpackCapacity: "backpackCapacity",
+                UniqueIdentifier: "uniqueIdentifier",
+                ClanId: "clanGameId",
+                CurrentCustomCharacterId: "currentCustomCharacterGameId",
+
+                Clan_id: "clan_id",
+                CurrentCustomCharacter_id: "currentCustomCharacter_id"
+            },
+            apiToGame: {
+                _id: "_id",
+                gameId: "Id",
+                name: "Name",
+                backpackCapacity: "BackpackCapacity",
+                uniqueIdentifier: "UniqueIdentifier",
+                clanGameId: "ClanId",
+                currentCustomCharacterGameId: "CurrentCustomCharacterId",
+
+                clan_id: "Clan_id",
+                currentCustomCharacter_id: "CurrentCustomCharacter_id"
+            }
         }
     }
 }

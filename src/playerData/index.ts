@@ -1,3 +1,3 @@
 import router from "./playerData.router";
 
-export {router as customCharacterRouter};
+export {router as playerDataRouter};

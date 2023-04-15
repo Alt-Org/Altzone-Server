@@ -7,7 +7,7 @@ import {ClassName} from "../util/dictionary";
 const router = Router();
 const controller = new PlayerDataController();
 const validator = new PlayerDataValidator();
-const parser = new FieldParserFactory().createParser(ClassName.CUSTOM_CHARACTER);
+const parser = new FieldParserFactory().createParser(ClassName.PLAYER_DATA);
 
 router.post('/', parser.parseFromGameToAPI, validator.validateCreate, controller.create);
 router.get('/:_id', validator.validateRead, controller.get);

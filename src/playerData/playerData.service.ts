@@ -1,27 +1,27 @@
-import CustomCharacterModel from "./playerData.model";
+import PlayerDataModel from "./playerData.model";
 import {MongooseError} from "mongoose";
-import {ICreateCustomCharacterInput, IUpdateCustomCharacterInput} from "./playerData";
+import {ICreatePlayerDataInput, IUpdatePlayerDataInput} from "./playerData.d";
 import RequestError from "../util/error/requestError";
 import {UpdateResult} from "mongodb";
 
 export default class PlayerDataService {
-    create = async (input: ICreateCustomCharacterInput): Promise<Object | MongooseError | RequestError> => {
-        return CustomCharacterModel.create(input);
+    create = async (input: ICreatePlayerDataInput): Promise<Object | MongooseError | RequestError> => {
+        return PlayerDataModel.create(input);
     }
 
     readById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return CustomCharacterModel.findById(_id);
+        return PlayerDataModel.findById(_id);
     }
 
     readAll = async (): Promise<Array<any>> => {
-        return CustomCharacterModel.find();
+        return PlayerDataModel.find();
     }
 
-     updateById = async (input: IUpdateCustomCharacterInput): Promise<UpdateResult> => {
-        return CustomCharacterModel.updateOne({_id: input._id}, input, {rawResult: true, runValidators: true});
+     updateById = async (input: IUpdatePlayerDataInput): Promise<UpdateResult> => {
+        return PlayerDataModel.updateOne({_id: input._id}, input, {rawResult: true, runValidators: true});
     }
 
     deleteById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return CustomCharacterModel.deleteOne({_id});
+        return PlayerDataModel.deleteOne({_id});
     }
 }

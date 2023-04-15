@@ -7,7 +7,7 @@ import {ClassName} from "../util/dictionary";
 
 const service = new PlayerDataService();
 const errorThrower = new DefaultResponseErrorThrower();
-const parser = new FieldParserFactory().createParser(ClassName.CUSTOM_CHARACTER);
+const parser = new FieldParserFactory().createParser(ClassName.PLAYER_DATA);
 
 export default class PlayerDataController {
     create = async (req: Request, res: Response): Promise<void> => {
@@ -24,7 +24,7 @@ export default class PlayerDataController {
     get = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.readById(req.params._id);
-            errorThrower.throwReadErrorsIfFound(respObj, ClassName.CUSTOM_CHARACTER, '_id');
+            errorThrower.throwReadErrorsIfFound(respObj, ClassName.PLAYER_DATA, '_id');
 
             const result = parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
@@ -36,7 +36,7 @@ export default class PlayerDataController {
     getAll = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.readAll();
-            errorThrower.throwReadErrorsIfFound(respObj, ClassName.CUSTOM_CHARACTER, '_id');
+            errorThrower.throwReadErrorsIfFound(respObj, ClassName.PLAYER_DATA, '_id');
 
             const result = parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
@@ -48,7 +48,7 @@ export default class PlayerDataController {
     update = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.updateById(req.body);
-            errorThrower.throwUpdateErrorsIfFound(respObj, ClassName.CUSTOM_CHARACTER, '_id');
+            errorThrower.throwUpdateErrorsIfFound(respObj, ClassName.PLAYER_DATA, '_id');
 
             res.status(204).send();
         }catch (err: unknown) {
@@ -59,7 +59,7 @@ export default class PlayerDataController {
     delete = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.deleteById(req.params._id);
-            errorThrower.throwDeleteErrorsIfFound(respObj, ClassName.CUSTOM_CHARACTER, '_id');
+            errorThrower.throwDeleteErrorsIfFound(respObj, ClassName.PLAYER_DATA, '_id');
 
             res.status(204).send();
         }catch (err) {

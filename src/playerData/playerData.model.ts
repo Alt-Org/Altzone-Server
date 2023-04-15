@@ -16,7 +16,7 @@ const schema = new Schema({
         ref: ClassName.CHARACTER_CLASS,
         validate : {
             isAsync: true,
-            validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.CHARACTER_CLASS), v)
+            validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.CUSTOM_CHARACTER), v)
         }
     },
     clan_id: {
@@ -29,6 +29,7 @@ const schema = new Schema({
     }
 });
 
+//Force delete. If there is a need for save delete make a check in controller, before calling deleteOne()
 schema.pre('deleteOne', { document: false, query: true },async function () {
     const {_id} = this.getQuery();
 
