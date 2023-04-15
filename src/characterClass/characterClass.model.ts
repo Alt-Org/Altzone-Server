@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import { ICharacterClass } from "./characterClass";
 import {ClassName} from "../util/dictionary";
-import SchemaValidator from "../util/schemaValidator/schemaValidator";
+import SchemaValidator from "../util/schemaHelper/schemaValidator";
 
 const schema = new Schema({
     gameId: { type: Number, required: true, unique: true },

@@ -8,6 +8,7 @@ import { rootRouter } from './root';
 import { clanRouter } from './clan';
 import { characterClassRouter } from './characterClass';
 import { customCharacterRouter } from './customCharacter';
+import { playerDataRouter } from './playerData';
 import bodyParser from "body-parser";
 
 const app = express();
@@ -33,6 +34,7 @@ app.use('/', rootRouter);
 app.use('/clan', clanRouter);
 app.use('/characterClass', characterClassRouter);
 app.use('/customCharacter', customCharacterRouter);
+app.use('/playerData', playerDataRouter);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
