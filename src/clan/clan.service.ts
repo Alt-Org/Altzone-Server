@@ -22,6 +22,6 @@ export default class ClanService{
     }
 
     deleteById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return ClanModel.findByIdAndDelete(_id);
+        return ClanModel.deleteOne({_id});
     }
 }

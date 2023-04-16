@@ -9,4 +9,12 @@ const schema = new Schema({
     gameCoins: { type: Number, default: 0 }
 });
 
+schema.pre('deleteOne', { document: false, query: true },async function () {
+    const {_id} = this.getQuery();
+
+    const playerDataModel = mongoose.model(ClassName.PLAYER_DATA);
+    const nullIds = { clan_id: null };
+    await playerDataModel.updateMany({clan_id: _id}, nullIds);
+});
+
 export default mongoose.model<IClan>(ClassName.CLAN, schema);

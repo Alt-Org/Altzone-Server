@@ -21,7 +21,25 @@ const schema = new Schema({
             isAsync: true,
             validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.CHARACTER_CLASS), v)
         }
+    },
+
+    playerData_id: {
+        type: Schema.Types.ObjectId,
+        ref: ClassName.PLAYER_DATA,
+        required: true,
+        validate : {
+            isAsync: true,
+            validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.PLAYER_DATA), v)
+        }
     }
+});
+
+schema.pre('deleteOne', { document: false, query: true },async function () {
+    const {_id} = this.getQuery();
+
+    const playerDataModel = mongoose.model(ClassName.PLAYER_DATA);
+    const nullIds = { currentCustomCharacter_id: null };
+    await playerDataModel.updateOne({currentCustomCharacter_id: _id}, nullIds);
 });
 
 export default mongoose.model<ICustomCharacter>(ClassName.CUSTOM_CHARACTER, schema);

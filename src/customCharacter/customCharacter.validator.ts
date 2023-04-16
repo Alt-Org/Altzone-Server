@@ -15,6 +15,7 @@ export default class CustomCharacterValidator {
         new Validator('characterClassGameId', Location.BODY, ClassName.CUSTOM_CHARACTER).notEmpty().isInt().build(),
 
         new Validator('characterClass_id', Location.BODY, ClassName.CUSTOM_CHARACTER).notEmpty().isMongoId().build(),
+        new Validator('playerData_id', Location.BODY, ClassName.CUSTOM_CHARACTER).notEmpty().isMongoId().build(),
 
         handleValidationError
     ];
@@ -37,6 +38,7 @@ export default class CustomCharacterValidator {
         new Validator('characterClassGameId', Location.BODY, ClassName.CUSTOM_CHARACTER).ifProvided().isInt().build(),
 
         new Validator('characterClass_id', Location.BODY, ClassName.CUSTOM_CHARACTER).ifProvided().isMongoId().build(),
+        new Validator('playerData_id', Location.BODY, ClassName.CUSTOM_CHARACTER).ifProvided().isMongoId().build(),
 
         handleValidationError
     ];

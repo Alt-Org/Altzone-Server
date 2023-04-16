@@ -55,7 +55,8 @@ export default class Dictionary {
                 Defence: "defence",
                 CharacterClassId: "characterClassGameId",
 
-                characterClass_id: "characterClass_id"
+                characterClass_id: "characterClass_id",
+                playerData_id: "playerData_id"
             },
             apiToGame: {
                 _id: "_id",
@@ -68,7 +69,8 @@ export default class Dictionary {
                 defence: "Defence",
                 characterClassGameId: "CharacterClassId",
 
-                characterClass_id: "characterClass_id"
+                characterClass_id: "characterClass_id",
+                playerData_id: "playerData_id"
             }
         },
 

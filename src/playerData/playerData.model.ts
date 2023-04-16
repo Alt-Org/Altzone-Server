@@ -8,8 +8,8 @@ const schema = new Schema({
     name: { type: String, required: true, unique: true },
     backpackCapacity: { type: Number, required: true },
     uniqueIdentifier: { type: String, required: true, unique: true },
-    currentCustomCharacterGameId: { type: Number, required: true },
-    clanGameId: { type: String, required: true },
+    currentCustomCharacterGameId: { type: Number },
+    clanGameId: { type: String },
 
     currentCustomCharacter_id: {
         type: Schema.Types.ObjectId,
@@ -31,6 +31,12 @@ const schema = new Schema({
 
 //Force delete. If there is a need for save delete make a check in controller, before calling deleteOne()
 schema.pre('deleteOne', { document: false, query: true },async function () {
+    const {_id} = this.getQuery();
+
+    const customCharacterModel = mongoose.model(ClassName.CUSTOM_CHARACTER);
+    await customCharacterModel.deleteMany({playerData_id: _id});
+});
+schema.pre('deleteMany', { document: false, query: true },async function () {
     const {_id} = this.getQuery();
 
     const customCharacterModel = mongoose.model(ClassName.CUSTOM_CHARACTER);
