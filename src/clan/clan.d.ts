@@ -5,7 +5,7 @@ interface IClan extends Document{
     gameId: string;
     name: string;
     tag: string;
-    gameCoins: Number;
+    gameCoins: number;
 }
 
 interface ICreateClanInput{

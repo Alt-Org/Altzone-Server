@@ -2,13 +2,13 @@ import { Document, ObjectId } from "mongoose";
 
 interface ICharacterClass extends Document{
     _id: ObjectId;
-    gameId: int;
+    gameId: number;
     name: string;
-    mainDefence: Number;
-    speed: int;
-    resistance: int;
-    attack: int;
-    defence: int;
+    mainDefence: number;
+    speed: number;
+    resistance: number;
+    attack: number;
+    defence: number;
 }
 
 interface ICreateCharacterClassInput {

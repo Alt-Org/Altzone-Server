@@ -2,14 +2,14 @@ import { Document, ObjectId } from "mongoose";
 
 interface ICustomCharacter extends Document{
     _id: ObjectId;
-    gameId: int;
+    gameId: number;
     unityKey: string;
     name: string;
-    speed: int;
-    resistance: int;
-    attack: int;
-    defence: int;
-    characterClassGameId: int;
+    speed: number;
+    resistance: number;
+    attack: number;
+    defence: number;
+    characterClassGameId: number;
 
     characterClass_id: ObjectId;
 }
