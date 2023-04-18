@@ -136,6 +136,37 @@ export default class Dictionary {
                 clan_id: "Clan_id",
                 currentCustomCharacter_id: "CurrentCustomCharacter_id"
             }
+        },
+
+        ClanFurniture: {
+            gameToAPI: {
+                _id: "_id",
+                Id: "gameId",
+                Name: "name",
+                Shape: "shape",
+                Weight: "weight",
+                Material: "material",
+                Recycling: "recycling",
+                UnityKey: "unityKey",
+                Filename: "filename",
+                ClanId: "clanGameId",
+
+                clan_id: "clan_id"
+            },
+            apiToGame: {
+                _id: "_id",
+                gameId: "Id",
+                name: "Name",
+                shape: "Shape",
+                weight: "Weight",
+                material: "Material",
+                recycling: "Recycling",
+                unityKey: "UnityKey",
+                filename: "Filename",
+                clanGameId: "ClanId",
+
+                clan_id: "clan_id"
+            }
         }
     }
 }

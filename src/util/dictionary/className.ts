@@ -3,5 +3,6 @@ export enum ClassName {
     CLAN = 'Clan',
     CUSTOM_CHARACTER = 'CustomCharacter',
     PLAYER_DATA = 'PlayerData',
-    BATTLE_CHARACTER = 'BattleCharacter'
+    BATTLE_CHARACTER = 'BattleCharacter',
+    CLAN_FURNITURE = 'ClanFurniture'
 }

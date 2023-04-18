@@ -10,6 +10,7 @@ import { characterClassRouter } from './characterClass';
 import { customCharacterRouter } from './customCharacter';
 import { battleCharacterRouter } from './battleCharacter';
 import { playerDataRouter } from './playerData';
+import { clanFurnitureRouter } from './clanFurniture';
 import bodyParser from "body-parser";
 
 const app = express();
@@ -37,6 +38,7 @@ app.use('/characterClass', characterClassRouter);
 app.use('/customCharacter', customCharacterRouter);
 app.use('/battleCharacter', battleCharacterRouter);
 app.use('/playerData', playerDataRouter);
+app.use('/clanFurniture', clanFurnitureRouter);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
