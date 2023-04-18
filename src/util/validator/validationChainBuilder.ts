@@ -49,6 +49,13 @@ export class ValidationChainBuilder {
         return this;
     }
 
+    public isDouble = (text?: string, overrideDefaultText?: boolean) : ValidationChainBuilder => {
+        const errorMsg: string = this.getErrorText(`${this.location} ${this.name} ${this.nameAliasString} must be double type`, text, overrideDefaultText);
+
+        this.validationChain.isFloat().withMessage(errorMsg);
+        return this;
+    }
+
     public ifProvided = () : ValidationChainBuilder => {
         this.validationChain.if(this.getValidationChainStart().exists());
         return this;
