@@ -6,7 +6,6 @@ import RequestError from "../util/error/requestError";
 import CharacterClassModel from "../characterClass/characterClass.model";
 import CustomCharacterModel from "../customCharacter/customCharacter.model";
 import ValidationError from "../util/error/validationError";
-import {ObjectId} from "mongodb";
 
 export default class BattleCharacterService {
     create = async (input: ICreateBattleCharacterInput): Promise<Object | MongooseError | RequestError> => {
