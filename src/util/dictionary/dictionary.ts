@@ -167,6 +167,29 @@ export default class Dictionary {
 
                 clan_id: "clan_id"
             }
+        },
+
+        RaidRoom: {
+            gameToAPI: {
+                _id: "_id",
+                Id: "gameId",
+                Type: "type",
+                RowCount: "rowCount",
+                ColCount: "colCount",
+                ClanMemberId: "clanMemberId",
+
+                playerData_id: "playerData_id"
+            },
+            apiToGame: {
+                _id: "_id",
+                gameId: "Id",
+                type: "Type",
+                rowCount: "RowCount",
+                colCount: "ColCount",
+                clanMemberId: "ClanMemberId",
+
+                playerData_id: "playerData_id"
+            }
         }
     }
 }
