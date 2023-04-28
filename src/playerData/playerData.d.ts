@@ -2,11 +2,11 @@ import { Document, ObjectId } from "mongoose";
 
 interface IPlayerData extends Document{
     _id: ObjectId;
-    gameId: Number;
+    gameId: string;
     name: string;
-    backpackCapacity: Number;
+    backpackCapacity: number;
     uniqueIdentifier: string;
-    currentCustomCharacterGameId: int;
+    currentCustomCharacterGameId: string;
     clanGameId: string;
 
     currentCustomCharacter_id: ObjectId;
@@ -26,7 +26,7 @@ interface ICreatePlayerDataInput {
 }
 
 interface IUpdatePlayerDataInput {
-    _id: ObjectId;
+    _id: IPlayerData['_id'];
     gameId?: IPlayerData['gameId'];
     name?: IPlayerData['name'];
     backpackCapacity?: IPlayerData['backpackCapacity'];
