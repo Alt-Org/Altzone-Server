@@ -54,6 +54,7 @@ export default class Dictionary {
                 Attack: "attack",
                 Defence: "defence",
                 CharacterClassId: "characterClassGameId",
+                PlayerDataId: "playerDataGameId",
 
                 characterClass_id: "characterClass_id",
                 playerData_id: "playerData_id"
@@ -68,6 +69,7 @@ export default class Dictionary {
                 attack: "Attack",
                 defence: "Defence",
                 characterClassGameId: "CharacterClassId",
+                playerDataGameId: "PlayerDataId",
 
                 characterClass_id: "characterClass_id",
                 playerData_id: "playerData_id"
