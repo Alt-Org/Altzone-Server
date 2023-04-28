@@ -1,3 +1,4 @@
+#remember to change HOST env variable to 0.0.0.0 in .env file
 FROM node:18
 
 WORKDIR /usr/src/app
