@@ -2,7 +2,7 @@ import { Document, ObjectId } from "mongoose";
 
 interface ICharacterClass extends Document{
     _id: ObjectId;
-    gameId: number;
+    gameId: string;
     name: string;
     mainDefence: number;
     speed: number;

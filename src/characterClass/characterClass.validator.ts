@@ -6,7 +6,7 @@ import {ClassName} from "../util/dictionary";
 
 export default class CharacterClassValidator {
     validateCreate = [
-        new Validator('gameId', Location.BODY, ClassName.CHARACTER_CLASS).notEmpty().isInt().build(),
+        new Validator('gameId', Location.BODY, ClassName.CHARACTER_CLASS).notEmpty().isString().build(),
         new Validator('name', Location.BODY, ClassName.CHARACTER_CLASS).notEmpty().isString().build(),
         new Validator('mainDefence', Location.BODY, ClassName.CHARACTER_CLASS).notEmpty().isDefenceEnumType().build(),
         new Validator('speed', Location.BODY, ClassName.CHARACTER_CLASS).notEmpty().isInt().build(),
@@ -25,7 +25,7 @@ export default class CharacterClassValidator {
 
     validateUpdate = [
         new Validator('_id', Location.BODY, ClassName.CHARACTER_CLASS).notEmpty().isMongoId().build(),
-        new Validator('gameId', Location.BODY, ClassName.CHARACTER_CLASS).ifProvided().isInt().build(),
+        new Validator('gameId', Location.BODY, ClassName.CHARACTER_CLASS).ifProvided().isString().build(),
         new Validator('name', Location.BODY, ClassName.CHARACTER_CLASS).ifProvided().isString().build(),
         new Validator('mainDefence', Location.BODY, ClassName.CHARACTER_CLASS).ifProvided().isDefenceEnumType().build(),
         new Validator('speed', Location.BODY, ClassName.CHARACTER_CLASS).ifProvided().isInt().build(),
