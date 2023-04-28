@@ -2,7 +2,7 @@ import { Document, ObjectId } from "mongoose";
 
 interface IFurniture extends Document{
     _id: ObjectId;
-    gameId: number;
+    gameId: string;
     name: string;
     shape: string,
     weight: number,
@@ -30,7 +30,7 @@ interface ICreateFurnitureInput {
 }
 
 interface IUpdateFurnitureInput {
-    _id: ObjectId;
+    _id: IFurniture['_id'];
     gameId?: IFurniture['gameId'];
     name?: IFurniture['name'];
     shape?: IFurniture['shape'],

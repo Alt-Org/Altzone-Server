@@ -5,7 +5,7 @@ import {ClassName} from "../util/dictionary";
 
 export default class FurnitureValidator {
     validateCreate = [
-        new Validator('gameId', Location.BODY, ClassName.FURNITURE).notEmpty().isInt().build(),
+        new Validator('gameId', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
         new Validator('name', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
         new Validator('shape', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
         new Validator('weight', Location.BODY, ClassName.FURNITURE).notEmpty().isDouble().build(),
@@ -28,7 +28,7 @@ export default class FurnitureValidator {
 
     validateUpdate = [
         new Validator('_id', Location.BODY, ClassName.FURNITURE).notEmpty().isMongoId().build(),
-        new Validator('gameId', Location.BODY, ClassName.FURNITURE).ifProvided().isInt().build(),
+        new Validator('gameId', Location.BODY, ClassName.FURNITURE).ifProvided().isString().build(),
         new Validator('name', Location.BODY, ClassName.FURNITURE).ifProvided().isString().build(),
         new Validator('shape', Location.BODY, ClassName.FURNITURE).ifProvided().isString().build(),
         new Validator('weight', Location.BODY, ClassName.FURNITURE).ifProvided().isDouble().build(),
