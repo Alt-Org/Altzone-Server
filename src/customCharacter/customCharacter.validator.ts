@@ -13,6 +13,7 @@ export default class CustomCharacterValidator {
         new Validator('attack', Location.BODY, ClassName.CUSTOM_CHARACTER).notEmpty().isInt().build(),
         new Validator('defence', Location.BODY, ClassName.CUSTOM_CHARACTER).notEmpty().isInt().build(),
         new Validator('characterClassGameId', Location.BODY, ClassName.CUSTOM_CHARACTER).notEmpty().isString().build(),
+        new Validator('playerDataGameId', Location.BODY, ClassName.CUSTOM_CHARACTER).notEmpty().isString().build(),
 
         new Validator('characterClass_id', Location.BODY, ClassName.CUSTOM_CHARACTER).notEmpty().isMongoId().build(),
         new Validator('playerData_id', Location.BODY, ClassName.CUSTOM_CHARACTER).notEmpty().isMongoId().build(),
@@ -36,6 +37,7 @@ export default class CustomCharacterValidator {
         new Validator('attack', Location.BODY, ClassName.CUSTOM_CHARACTER).ifProvided().isInt().build(),
         new Validator('defence', Location.BODY, ClassName.CUSTOM_CHARACTER).ifProvided().isInt().build(),
         new Validator('characterClassGameId', Location.BODY, ClassName.CUSTOM_CHARACTER).ifProvided().isString().build(),
+        new Validator('playerDataGameId', Location.BODY, ClassName.CUSTOM_CHARACTER).notEmpty().isString().build(),
 
         new Validator('characterClass_id', Location.BODY, ClassName.CUSTOM_CHARACTER).ifProvided().isMongoId().build(),
         new Validator('playerData_id', Location.BODY, ClassName.CUSTOM_CHARACTER).ifProvided().isMongoId().build(),

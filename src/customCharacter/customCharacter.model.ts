@@ -12,6 +12,7 @@ const schema = new Schema({
     attack: { type: Number, required: true },
     defence: { type: Number, required: true },
     characterClassGameId: { type: String, required: true },
+    playerDataGameId: { type: String, required: true },
 
     characterClass_id: {
         type: Schema.Types.ObjectId,

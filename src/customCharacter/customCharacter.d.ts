@@ -10,8 +10,10 @@ interface ICustomCharacter extends Document{
     attack: number;
     defence: number;
     characterClassGameId: string;
+    playerDataGameId: string;
 
     characterClass_id: ObjectId;
+    playerData_id: ObjectId;
 }
 
 interface ICreateCustomCharacterInput {
@@ -23,8 +25,10 @@ interface ICreateCustomCharacterInput {
     attack: ICustomCharacter['attack'];
     defence: ICustomCharacter['defence'];
     characterClassGameId: ICustomCharacter['characterClassGameId'];
+    playerDataGameId: ICustomCharacter['playerDataGameId'];
 
     characterClass_id: ICustomCharacter['characterClass_id'];
+    playerData_id: ICustomCharacter['playerData_id'];
 }
 
 interface IUpdateCustomCharacterInput {
@@ -37,8 +41,10 @@ interface IUpdateCustomCharacterInput {
     attack?: ICustomCharacter['attack'];
     defence?: ICustomCharacter['defence'];
     characterClassGameId?: ICustomCharacter['characterClassGameId'];
+    playerDataGameId: ICustomCharacter['playerDataGameId'];
 
     characterClass_id?: ICustomCharacter['characterClass_id'];
+    playerData_id?: ICustomCharacter['playerData_id'];
 }
 
 export { ICustomCharacter, ICreateCustomCharacterInput, IUpdateCustomCharacterInput };
