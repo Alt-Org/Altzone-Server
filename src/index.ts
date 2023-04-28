@@ -10,7 +10,7 @@ import { characterClassRouter } from './characterClass';
 import { customCharacterRouter } from './customCharacter';
 import { battleCharacterRouter } from './battleCharacter';
 import { playerDataRouter } from './playerData';
-import { clanFurnitureRouter } from './clanFurniture';
+import { furnitureRouter } from './furniture';
 import bodyParser from "body-parser";
 
 const app = express();
@@ -38,11 +38,13 @@ app.use('/characterClass', characterClassRouter);
 app.use('/customCharacter', customCharacterRouter);
 app.use('/battleCharacter', battleCharacterRouter);
 app.use('/playerData', playerDataRouter);
-app.use('/clanFurniture', clanFurnitureRouter);
+app.use('/furniture', furnitureRouter);
 
+const HOST = process.env.HOST || '0.0.0.0';
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(`Server running: http://localhost:${PORT}`);
+
+app.listen(Number(PORT), HOST, () => {
+    console.log(`Server running: http://${HOST}:${PORT}`);
 });
 
 export default app;

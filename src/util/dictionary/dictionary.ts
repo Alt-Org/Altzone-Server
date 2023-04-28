@@ -138,7 +138,7 @@ export default class Dictionary {
             }
         },
 
-        ClanFurniture: {
+        Furniture: {
             gameToAPI: {
                 _id: "_id",
                 Id: "gameId",

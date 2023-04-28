@@ -1,5 +1,5 @@
 import mongoose, {Schema} from "mongoose";
-import { IClanFurniture } from "./clanFurniture";
+import { IFurniture } from "./furniture";
 import {ClassName} from "../util/dictionary";
 import SchemaValidator from "../util/schemaHelper/schemaValidator";
 
@@ -12,12 +12,11 @@ const schema = new Schema({
     recycling: { type: String, required: true },
     unityKey: { type: String, required: true },
     filename: { type: String, required: true },
-    clanGameId: { type: String, required: true },
+    clanGameId: { type: String },
 
     clan_id: {
         type: Schema.Types.ObjectId,
         ref: ClassName.CLAN,
-        required: true,
         validate : {
             isAsync: true,
             validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.CLAN), v)
@@ -25,4 +24,4 @@ const schema = new Schema({
     }
 });
 
-export default mongoose.model<IClanFurniture>(ClassName.CLAN_FURNITURE, schema);
+export default mongoose.model<IFurniture>(ClassName.FURNITURE, schema);

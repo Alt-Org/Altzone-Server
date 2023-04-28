@@ -1,13 +1,13 @@
 import {Router} from 'express';
-import ClanFurnitureController from './clanFurniture.controller';
-import ClanFurnitureValidator from './clanFurniture.validator';
+import FurnitureController from './furniture.controller';
+import FurnitureValidator from './furniture.validator';
 import {FieldParserFactory} from "../util/parser";
 import {ClassName} from "../util/dictionary";
 
 const router = Router();
-const controller = new ClanFurnitureController();
-const validator = new ClanFurnitureValidator();
-const parser = new FieldParserFactory().createParser(ClassName.CLAN_FURNITURE);
+const controller = new FurnitureController();
+const validator = new FurnitureValidator();
+const parser = new FieldParserFactory().createParser(ClassName.FURNITURE);
 
 router.post('/', parser.parseFromGameToAPI, validator.validateCreate, controller.create);
 router.get('/:_id', validator.validateRead, controller.get);

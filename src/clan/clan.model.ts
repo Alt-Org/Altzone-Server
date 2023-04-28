@@ -17,9 +17,9 @@ schema.pre('deleteOne', { document: false, query: true },async function () {
     const nullIds = { clan_id: null };
     await playerDataModel.updateMany({clan_id: _id}, nullIds);
 
-    //Delete all ClanFurniture objects related to the Clan
-    const clanFurnitureModel = mongoose.model(ClassName.CLAN_FURNITURE);
-    await clanFurnitureModel.deleteMany({clan_id: _id});
+    //Delete all Furniture objects related to the Clan
+    const furnitureModel = mongoose.model(ClassName.FURNITURE);
+    await furnitureModel.deleteMany({clan_id: _id});
 });
 
 schema.pre('deleteMany', { document: false, query: true },async function () {
@@ -29,8 +29,8 @@ schema.pre('deleteMany', { document: false, query: true },async function () {
     const nullIds = { clan_id: null };
     await playerDataModel.updateMany({clan_id: _id}, nullIds);
 
-    const clanFurnitureModel = mongoose.model(ClassName.CLAN_FURNITURE);
-    await clanFurnitureModel.deleteMany({clan_id: _id});
+    const furnitureModel = mongoose.model(ClassName.FURNITURE);
+    await furnitureModel.deleteMany({clan_id: _id});
 });
 
 export default mongoose.model<IClan>(ClassName.CLAN, schema);
