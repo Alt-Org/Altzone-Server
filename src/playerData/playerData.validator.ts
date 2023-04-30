@@ -11,9 +11,11 @@ export default class PlayerDataValidator {
         new Validator('uniqueIdentifier', Location.BODY, ClassName.PLAYER_DATA).notEmpty().isString().build(),
         new Validator('currentCustomCharacterGameId', Location.BODY, ClassName.PLAYER_DATA).ifProvided().isString().build(),
         new Validator('clanGameId', Location.BODY, ClassName.PLAYER_DATA).ifProvided().isString().build(),
+        new Validator('raidRoomGameId', Location.BODY, ClassName.PLAYER_DATA).ifProvided().isString().build(),
 
         new Validator('currentCustomCharacter_id', Location.BODY, ClassName.PLAYER_DATA).ifProvided().isMongoId().build(),
         new Validator('clan_id', Location.BODY, ClassName.PLAYER_DATA).ifProvided().isMongoId().build(),
+        new Validator('raidRoom_id', Location.BODY, ClassName.PLAYER_DATA).ifProvided().isMongoId().build(),
         handleValidationError
     ];
 
@@ -31,9 +33,11 @@ export default class PlayerDataValidator {
         new Validator('uniqueIdentifier', Location.BODY, ClassName.PLAYER_DATA).ifProvided().isString().build(),
         new Validator('currentCustomCharacterGameId', Location.BODY, ClassName.PLAYER_DATA).ifProvided().isString().build(),
         new Validator('clanGameId', Location.BODY, ClassName.PLAYER_DATA).ifProvided().isString().build(),
+        new Validator('raidRoomGameId', Location.BODY, ClassName.PLAYER_DATA).ifProvided().isString().build(),
 
         new Validator('currentCustomCharacter_id', Location.BODY, ClassName.PLAYER_DATA).ifProvided().isMongoId().build(),
         new Validator('clan_id', Location.BODY, ClassName.PLAYER_DATA).ifProvided().isMongoId().build(),
+        new Validator('raidRoom_id', Location.BODY, ClassName.PLAYER_DATA).ifProvided().isMongoId().build(),
 
         handleValidationError
     ];

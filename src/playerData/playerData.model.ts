@@ -10,6 +10,7 @@ const schema = new Schema({
     uniqueIdentifier: { type: String, required: true, unique: true },
     currentCustomCharacterGameId: { type: String },
     clanGameId: { type: String },
+    raidRoomGameId: { type: String },
 
     currentCustomCharacter_id: {
         type: Schema.Types.ObjectId,
@@ -26,6 +27,15 @@ const schema = new Schema({
             isAsync: true,
             validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.CLAN), v)
         }
+    },
+
+    raidRoom_id: {
+        type: Schema.Types.ObjectId,
+        ref: ClassName.RAID_ROOM,
+        validate : {
+            isAsync: true,
+            validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.RAID_ROOM), v)
+        }
     }
 });
 
@@ -35,12 +45,21 @@ schema.pre('deleteOne', { document: false, query: true },async function () {
 
     const customCharacterModel = mongoose.model(ClassName.CUSTOM_CHARACTER);
     await customCharacterModel.deleteMany({playerData_id: _id});
+
+    const raidRoomModel = mongoose.model(ClassName.RAID_ROOM);
+    const nullIds = { playerData_id: null };
+    await raidRoomModel.updateMany({playerData_id: _id}, nullIds);
 });
+
 schema.pre('deleteMany', { document: false, query: true },async function () {
     const {_id} = this.getQuery();
 
     const customCharacterModel = mongoose.model(ClassName.CUSTOM_CHARACTER);
     await customCharacterModel.deleteMany({playerData_id: _id});
+
+    const raidRoomModel = mongoose.model(ClassName.RAID_ROOM);
+    const nullIds = { playerData_id: null };
+    await raidRoomModel.updateMany({playerData_id: _id}, nullIds);
 });
 
 export default mongoose.model<IPlayerData>(ClassName.PLAYER_DATA, schema);

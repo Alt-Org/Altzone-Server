@@ -4,5 +4,6 @@ export enum ClassName {
     CUSTOM_CHARACTER = 'CustomCharacter',
     PLAYER_DATA = 'PlayerData',
     BATTLE_CHARACTER = 'BattleCharacter',
-    FURNITURE = 'Furniture'
+    FURNITURE = 'Furniture',
+    RAID_ROOM = 'RaidRoom'
 }
