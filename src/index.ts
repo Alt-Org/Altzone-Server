@@ -1,5 +1,5 @@
 import express from 'express';
-import {connect as connectToDB, set as mongooseSet } from 'mongoose';
+import mongoose, {connect as connectToDB, set as mongooseSet } from 'mongoose';
 import dotenv from 'dotenv'
 dotenv.config();
 
@@ -13,6 +13,7 @@ import { playerDataRouter } from './playerData';
 import { furnitureRouter } from './furniture';
 import { raidRoomRouter } from './raidRoom';
 import bodyParser from "body-parser";
+import {ClassName} from "./util/dictionary";
 
 const app = express();
 

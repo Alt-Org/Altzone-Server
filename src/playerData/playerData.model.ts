@@ -3,7 +3,8 @@ import { IPlayerData } from "./playerData";
 import {ClassName} from "../util/dictionary";
 import SchemaValidator from "../util/schemaHelper/schemaValidator";
 
-const schema = new Schema({
+const schema = new Schema(
+    {
     gameId: { type: String, required: true, unique: true },
     name: { type: String, required: true, unique: true },
     backpackCapacity: { type: Number, required: true },
@@ -37,7 +38,21 @@ const schema = new Schema({
             validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.RAID_ROOM), v)
         }
     }
-});
+    },
+{
+        virtuals: {
+            collectionRefs: {
+                get(){
+                    return {
+                        CharacterClass: 'currentCustomCharacter_id',
+                        Clan: 'clan_id',
+                        RaidRoom: 'raidRoom_id'
+                    }
+                }
+            }
+        }
+    }
+);
 
 //Force delete. If there is a need for save delete make a check in controller, before calling deleteOne()
 schema.pre('deleteOne', { document: false, query: true },async function () {
