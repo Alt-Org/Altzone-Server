@@ -13,9 +13,9 @@ export default class FurnitureValidator {
         new Validator('recycling', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
         new Validator('unityKey', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
         new Validator('filename', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
-        new Validator('clanGameId', Location.BODY, ClassName.FURNITURE).ifProvided().isString().build(),
+        new Validator('clanGameId', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
 
-        new Validator('clan_id', Location.BODY, ClassName.FURNITURE).ifProvided().isMongoId().build(),
+        new Validator('clan_id', Location.BODY, ClassName.FURNITURE).notEmpty().isMongoId().build(),
 
         handleValidationError
     ];

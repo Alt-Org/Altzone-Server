@@ -24,9 +24,9 @@ interface ICreateFurnitureInput {
     recycling: IFurniture['recycling'],
     unityKey: IFurniture['unityKey'],
     filename: IFurniture['filename'],
-    clanGameId?: IFurniture['clanGameId'],
+    clanGameId: IFurniture['clanGameId'],
 
-    clan_id?: IFurniture['clan_id'],
+    clan_id: IFurniture['clan_id'],
 }
 
 interface IUpdateFurnitureInput {

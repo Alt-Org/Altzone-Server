@@ -12,10 +12,11 @@ const schema = new Schema({
     recycling: { type: String, required: true },
     unityKey: { type: String, required: true },
     filename: { type: String, required: true },
-    clanGameId: { type: String },
+    clanGameId: { type: String, required: true },
 
     clan_id: {
         type: Schema.Types.ObjectId,
+        required: true,
         ref: ClassName.CLAN,
         validate : {
             isAsync: true,
