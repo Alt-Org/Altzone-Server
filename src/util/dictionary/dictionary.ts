@@ -179,8 +179,10 @@ export default class Dictionary {
                 RowCount: "rowCount",
                 ColCount: "colCount",
                 ClanMemberId: "clanMemberGameId",
+                ClanId: "clanGameId",
 
-                playerData_id: "playerData_id"
+                playerData_id: "playerData_id",
+                clan_id: "clan_id"
             },
             apiToGame: {
                 _id: "_id",
@@ -190,7 +192,8 @@ export default class Dictionary {
                 colCount: "ColCount",
                 clanMemberGameId: "ClanMemberId",
 
-                playerData_id: "playerData_id"
+                playerData_id: "playerData_id",
+                clan_id: "clan_id"
             }
         }
     }
