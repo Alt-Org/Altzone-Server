@@ -13,6 +13,7 @@ const schema = new Schema({
 
     playerData_id: {
         type: Schema.Types.ObjectId,
+        required: true,
         ref: ClassName.PLAYER_DATA,
         validate : {
             isAsync: true,
@@ -22,6 +23,7 @@ const schema = new Schema({
 
     clan_id: {
         type: Schema.Types.ObjectId,
+        required: true,
         ref: ClassName.CLAN,
         validate : {
             isAsync: true,

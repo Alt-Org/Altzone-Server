@@ -12,7 +12,7 @@ export default class RaidRoomValidator {
         new Validator('clanMemberGameId', Location.BODY, ClassName.RAID_ROOM).ifProvided().isString().build(),
         new Validator('clanGameId', Location.BODY, ClassName.RAID_ROOM).notEmpty().isString().build(),
 
-        new Validator('playerData_id', Location.BODY, ClassName.RAID_ROOM).ifProvided().isMongoId().build(),
+        new Validator('playerData_id', Location.BODY, ClassName.RAID_ROOM).notEmpty().isMongoId().build(),
         new Validator('clan_id', Location.BODY, ClassName.RAID_ROOM).notEmpty().isMongoId().build(),
 
         handleValidationError

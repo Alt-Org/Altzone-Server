@@ -18,10 +18,10 @@ interface ICreateRaidRoomInput {
     type: IRaidRoom['type'];
     rowCount: IRaidRoom['rowCount'];
     colCount: IRaidRoom['colCount'];
-    clanMemberGameId?: IRaidRoom['clanMemberGameId'];
+    clanMemberGameId: IRaidRoom['clanMemberGameId'];
     clanGameId: IRaidRoom['clanGameId'];
 
-    playerData_id?: IRaidRoom['playerData_id'];
+    playerData_id: IRaidRoom['playerData_id'];
     clan_id: IRaidRoom['clan_id'];
 }
 
