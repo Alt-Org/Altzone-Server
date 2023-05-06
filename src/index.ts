@@ -11,6 +11,7 @@ import { customCharacterRouter } from './customCharacter';
 import { battleCharacterRouter } from './battleCharacter';
 import { playerDataRouter } from './playerData';
 import { furnitureRouter } from './furniture';
+import { raidRoomRouter } from './raidRoom';
 import bodyParser from "body-parser";
 
 const app = express();
@@ -39,6 +40,7 @@ app.use('/customCharacter', customCharacterRouter);
 app.use('/battleCharacter', battleCharacterRouter);
 app.use('/playerData', playerDataRouter);
 app.use('/furniture', furnitureRouter);
+app.use('/raidRoom', raidRoomRouter);
 
 const HOST = process.env.HOST || 'localhost';
 const PORT = process.env.PORT || 8080;

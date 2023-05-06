@@ -8,9 +8,11 @@ interface IPlayerData extends Document{
     uniqueIdentifier: string;
     currentCustomCharacterGameId: string;
     clanGameId: string;
+    raidRoomGameId: string;
 
     currentCustomCharacter_id: ObjectId;
     clan_id: ObjectId;
+    raidRoom_id: ObjectId;
 }
 
 interface ICreatePlayerDataInput {
@@ -18,11 +20,13 @@ interface ICreatePlayerDataInput {
     name: IPlayerData['name'];
     backpackCapacity: IPlayerData['backpackCapacity'];
     uniqueIdentifier: IPlayerData['uniqueIdentifier'];
-    currentCustomCharacterGameId: IPlayerData['currentCustomCharacterGameId'];
-    clanGameId: IPlayerData['clanGameId'];
+    currentCustomCharacterGameId?: IPlayerData['currentCustomCharacterGameId'];
+    clanGameId?: IPlayerData['clanGameId'];
+    raidRoomGameId?: IPlayerData['raidRoomGameId'];
 
-    currentCustomCharacter_id: IPlayerData['currentCustomCharacter_id'];
-    clan_id: IPlayerData['clan_id'];
+    currentCustomCharacter_id?: IPlayerData['currentCustomCharacter_id'];
+    clan_id?: IPlayerData['clan_id'];
+    raidRoom_id?: IPlayerData['raidRoom_id'];
 }
 
 interface IUpdatePlayerDataInput {
@@ -32,10 +36,11 @@ interface IUpdatePlayerDataInput {
     backpackCapacity?: IPlayerData['backpackCapacity'];
     uniqueIdentifier?: IPlayerData['uniqueIdentifier'];
     currentCustomCharacterGameId?: IPlayerData['currentCustomCharacterGameId'];
-    clanGameId?: IPlayerData['clanGameId'];
+    raidRoomGameId?: IPlayerData['raidRoomGameId'];
 
     currentCustomCharacter_id?: IPlayerData['currentCustomCharacter_id'];
     clan_id?: IPlayerData['clan_id'];
+    raidRoom_id?: IPlayerData['raidRoom_id'];
 }
 
 export { IPlayerData, ICreatePlayerDataInput, IUpdatePlayerDataInput };

@@ -178,7 +178,7 @@ export default class Dictionary {
                 Type: "type",
                 RowCount: "rowCount",
                 ColCount: "colCount",
-                ClanMemberId: "clanMemberId",
+                ClanMemberId: "clanMemberGameId",
 
                 playerData_id: "playerData_id"
             },
@@ -188,7 +188,7 @@ export default class Dictionary {
                 type: "Type",
                 rowCount: "RowCount",
                 colCount: "ColCount",
-                clanMemberId: "ClanMemberId",
+                clanMemberGameId: "ClanMemberId",
 
                 playerData_id: "playerData_id"
             }
