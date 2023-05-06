@@ -123,8 +123,9 @@ export default class Dictionary {
                 ClanId: "clanGameId",
                 CurrentCustomCharacterId: "currentCustomCharacterGameId",
 
-                Clan_id: "clan_id",
-                CurrentCustomCharacter_id: "currentCustomCharacter_id"
+                clan_id: "clan_id",
+                raidRoom_id: "raidRoom_id",
+                currentCustomCharacter_id: "currentCustomCharacter_id"
             },
             apiToGame: {
                 _id: "_id",
@@ -135,8 +136,9 @@ export default class Dictionary {
                 clanGameId: "ClanId",
                 currentCustomCharacterGameId: "CurrentCustomCharacterId",
 
-                clan_id: "Clan_id",
-                currentCustomCharacter_id: "CurrentCustomCharacter_id"
+                clan_id: "clan_id",
+                raidRoom_id: "raidRoom_id",
+                currentCustomCharacter_id: "currentCustomCharacter_id"
             }
         },
 

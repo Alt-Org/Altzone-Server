@@ -17,9 +17,8 @@ schema.pre('deleteOne', { document: false, query: true },async function () {
     const playerDataModel = mongoose.model(ClassName.PLAYER_DATA);
     await playerDataModel.updateMany({clan_id: _id}, nullIds);
 
-    //Null all references in furniture
     const furnitureModel = mongoose.model(ClassName.FURNITURE);
-    await furnitureModel.updateMany({clan_id: _id}, nullIds);
+    await furnitureModel.deleteMany({clan_id: _id});
 
     const raidRoomModel = mongoose.model(ClassName.RAID_ROOM);
     await raidRoomModel.deleteMany({clan_id: _id});
@@ -33,7 +32,7 @@ schema.pre('deleteMany', { document: false, query: true },async function () {
     await playerDataModel.updateMany({clan_id: _id}, nullIds);
 
     const furnitureModel = mongoose.model(ClassName.FURNITURE);
-    await furnitureModel.updateMany({clan_id: _id}, nullIds);
+    await furnitureModel.deleteMany({clan_id: _id});
 
     const raidRoomModel = mongoose.model(ClassName.RAID_ROOM);
     await raidRoomModel.deleteMany({clan_id: _id});

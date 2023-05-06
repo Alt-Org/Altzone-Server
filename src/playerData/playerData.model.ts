@@ -47,7 +47,7 @@ schema.pre('deleteOne', { document: false, query: true },async function () {
     await customCharacterModel.deleteMany({playerData_id: _id});
 
     const raidRoomModel = mongoose.model(ClassName.RAID_ROOM);
-    await raidRoomModel.deleteMany({playerData_id: _id});
+    await raidRoomModel.deleteOne({playerData_id: _id});
 });
 
 schema.pre('deleteMany', { document: false, query: true },async function () {
@@ -57,7 +57,7 @@ schema.pre('deleteMany', { document: false, query: true },async function () {
     await customCharacterModel.deleteMany({playerData_id: _id});
 
     const raidRoomModel = mongoose.model(ClassName.RAID_ROOM);
-    await raidRoomModel.deleteMany({playerData_id: _id});
+    await raidRoomModel.deleteOne({playerData_id: _id});
 });
 
 export default mongoose.model<IPlayerData>(ClassName.PLAYER_DATA, schema);
