@@ -6,7 +6,7 @@ import {ClassName} from "../util/dictionary";
 export default class RaidRoomValidator {
     validateCreate = [
         new Validator('gameId', Location.BODY, ClassName.RAID_ROOM).notEmpty().isString().build(),
-        new Validator('type', Location.BODY, ClassName.RAID_ROOM).notEmpty().isInt().build(),
+        new Validator('type', Location.BODY, ClassName.RAID_ROOM).notEmpty().isRaidRoomEnumType().build(),
         new Validator('rowCount', Location.BODY, ClassName.RAID_ROOM).notEmpty().isInt().build(),
         new Validator('colCount', Location.BODY, ClassName.RAID_ROOM).notEmpty().isInt().build(),
         new Validator('clanMemberGameId', Location.BODY, ClassName.RAID_ROOM).ifProvided().isString().build(),
@@ -27,7 +27,7 @@ export default class RaidRoomValidator {
     validateUpdate = [
         new Validator('_id', Location.BODY, ClassName.RAID_ROOM).notEmpty().isMongoId().build(),
         new Validator('gameId', Location.BODY, ClassName.RAID_ROOM).ifProvided().isString().build(),
-        new Validator('type', Location.BODY, ClassName.RAID_ROOM).ifProvided().isInt().build(),
+        new Validator('type', Location.BODY, ClassName.RAID_ROOM).ifProvided().isRaidRoomEnumType().build(),
         new Validator('rowCount', Location.BODY, ClassName.RAID_ROOM).ifProvided().isInt().build(),
         new Validator('colCount', Location.BODY, ClassName.RAID_ROOM).ifProvided().isInt().build(),
         new Validator('clanMemberGameId', Location.BODY, ClassName.RAID_ROOM).ifProvided().isString().build(),

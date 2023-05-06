@@ -2,6 +2,7 @@ import {body, param, query, ValidationChain} from 'express-validator';
 import {Location} from "./location";
 import {DefenceEnum} from "../../enums/defence.enum";
 import Dictionary from "../dictionary/dictionary";
+import {RaidRoomTypeEnum} from "../../enums/raidRoomType.enum";
 
 export class ValidationChainBuilder {
     public constructor(fieldName: string, fieldLocation: Location, className?: string) {
@@ -65,6 +66,19 @@ export class ValidationChainBuilder {
         this.validationChain.custom( (value) => {
             if (!(typeof value === "number") || Object.values(DefenceEnum).find( elem => elem === value ) === undefined) {
                 const errorMsg: string = this.getErrorText(`${this.location} ${this.name} ${this.nameAliasString} must be DefenceEnum type`, text, overrideDefaultText);
+                throw new Error(errorMsg);
+            }
+
+            return true;
+        });
+
+        return this;
+    }
+
+    public isRaidRoomEnumType = (text?: string, overrideDefaultText?: boolean): ValidationChainBuilder => {
+        this.validationChain.custom( (value) => {
+            if (!(typeof value === "number") || Object.values(RaidRoomTypeEnum).find( elem => elem === value ) === undefined) {
+                const errorMsg: string = this.getErrorText(`${this.location} ${this.name} ${this.nameAliasString} must be RaidRoomTypeEnum type`, text, overrideDefaultText);
                 throw new Error(errorMsg);
             }
 
