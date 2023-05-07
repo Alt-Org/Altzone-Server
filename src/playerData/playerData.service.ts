@@ -3,8 +3,11 @@ import  {MongooseError} from "mongoose";
 import {ICreatePlayerDataInput, IUpdatePlayerDataInput} from "./playerData.d";
 import RequestError from "../util/error/requestError";
 import {UpdateResult} from "mongodb";
+import RequestHelper from "../util/request/requestHelper";
 import {ClassName} from "../util/dictionary";
 
+
+const requestHelper = new RequestHelper();
 export default class PlayerDataService {
     public create = async (input: ICreatePlayerDataInput): Promise<Object | MongooseError | RequestError> => {
         return PlayerDataModel.create(input);
@@ -15,33 +18,20 @@ export default class PlayerDataService {
     }
 
     public readOneWithCollections = (_id: string, withQuery: string): Promise<Object | null | MongooseError | RequestError | any> | null | any => {
-        const playerDataObj = PlayerDataModel.findById(_id);
-        if(!playerDataObj)
-            return null;
-
         const inputCollections = withQuery.split('_');
 
-        let result;
+        const existingRefs = [];
         for(let i=0; i<inputCollections.length; i++){
             const modelName = inputCollections[i];
-            if (Object.values(ClassName).find( elem => elem === modelName ) !== undefined)
-                result = playerDataObj.populate(CollectionRefs[modelName]);
+            if(CollectionRefs.includes(inputCollections[i]))
+                existingRefs.push(modelName);
         }
 
-        return result;
+        return requestHelper.populateCollections(ClassName.PLAYER_DATA, _id, existingRefs);
     }
 
     public readOneAllCollections = (_id: string): Promise<Object | null | MongooseError | RequestError | any> | null | any => {
-        const playerDataObj = PlayerDataModel.findById(_id);
-        if(!playerDataObj)
-            return null;
-
-        let result;
-        const modelNames = Object.values(CollectionRefs);
-        for(let i=0; i<modelNames.length; i++)
-            result = playerDataObj.populate(modelNames[i]);
-
-        return result;
+        return requestHelper.populateCollections(ClassName.PLAYER_DATA, _id, CollectionRefs);
     }
 
     public readAll = async (): Promise<Array<any>> => {

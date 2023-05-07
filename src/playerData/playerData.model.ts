@@ -3,8 +3,7 @@ import { IPlayerData } from "./playerData";
 import {ClassName} from "../util/dictionary";
 import SchemaValidator from "../util/schemaHelper/schemaValidator";
 
-const schema = new Schema(
-    {
+const schema = new Schema({
     gameId: { type: String, required: true, unique: true },
     name: { type: String, required: true, unique: true },
     backpackCapacity: { type: Number, required: true },
@@ -38,27 +37,29 @@ const schema = new Schema(
             validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.RAID_ROOM), v)
         }
     }
-    },
-    /*{
-            virtuals: {
-                collectionRefs: {
-                    get(){
-                        return {
-                            CharacterClass: 'currentCustomCharacter_id',
-                            Clan: 'clan_id',
-                            RaidRoom: 'raidRoom_id'
-                        }
-                    }
-                }
-            }
-        }*/
+},
+{toJSON: {virtuals: true}, toObject: {virtuals: true}}
 );
 
-export const CollectionRefs: Record<string, string> = {
-    CustomCharacter: 'currentCustomCharacter_id',
-    Clan: 'clan_id',
-    RaidRoom: 'raidRoom_id'
-};
+schema.virtual('CustomCharacter', {
+    ref: ClassName.CUSTOM_CHARACTER,
+    localField: 'currentCustomCharacter_id',
+    foreignField: '_id'
+});
+
+schema.virtual('Clan', {
+    ref: ClassName.CLAN,
+    localField: 'clan_id',
+    foreignField: '_id'
+});
+
+schema.virtual('RaidRoom', {
+    ref: ClassName.RAID_ROOM,
+    localField: 'raidRoom_id',
+    foreignField: '_id'
+});
+
+export const CollectionRefs: string[] = ['CustomCharacter', 'Clan', 'RaidRoom'];
 
 //Force delete. If there is a need for save delete make a check in controller, before calling deleteOne()
 schema.pre('deleteOne', { document: false, query: true },async function () {

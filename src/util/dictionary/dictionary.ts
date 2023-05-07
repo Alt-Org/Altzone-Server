@@ -125,7 +125,7 @@ export default class Dictionary {
 
                 clan_id: "clan_id",
                 raidRoom_id: "raidRoom_id",
-                currentCustomCharacter_id: "currentCustomCharacter_id"
+                currentCustomCharacter_id: "currentCustomCharacter_id",
             },
             apiToGame: {
                 _id: "_id",
@@ -138,7 +138,10 @@ export default class Dictionary {
 
                 clan_id: "clan_id",
                 raidRoom_id: "raidRoom_id",
-                currentCustomCharacter_id: "currentCustomCharacter_id"
+                currentCustomCharacter_id: "currentCustomCharacter_id",
+                Clan: "Clan",
+                CustomCharacter: "CustomCharacter",
+                RaidRoom: "RaidRoom"
             }
         },
 

@@ -37,19 +37,23 @@ class FieldParser implements IFieldParser{
 
     public parseFromAPIToGame = (apiResponse: Object | any): Object | Object[] | null => {
 
-        //If this is an object
+        //If this is an MongoDB object
         if(apiResponse._doc){
             return this.convertAPIToGameObject(apiResponse._doc);
         }
 
         //If this is an array
-        if(!apiResponse._doc){
+        if(!apiResponse._doc && apiResponse.length){
             const result = [];
             for(let i=0; i<apiResponse.length; i++)
                 result.push(this.convertAPIToGameObject(apiResponse[i]._doc));
 
             return result;
         }
+
+        //If it is a JS object
+        if((typeof apiResponse) === 'object')
+            return this.convertAPIToGameObject(apiResponse);
 
         return null;
     }
