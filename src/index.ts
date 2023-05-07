@@ -1,5 +1,5 @@
 import express from 'express';
-import mongoose, {connect as connectToDB, set as mongooseSet } from 'mongoose';
+import {connect as connectToDB, set as mongooseSet } from 'mongoose';
 import dotenv from 'dotenv'
 dotenv.config();
 

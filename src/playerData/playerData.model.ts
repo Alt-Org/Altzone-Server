@@ -15,7 +15,7 @@ const schema = new Schema(
 
     currentCustomCharacter_id: {
         type: Schema.Types.ObjectId,
-        ref: ClassName.CHARACTER_CLASS,
+        ref: ClassName.CUSTOM_CHARACTER,
         validate : {
             isAsync: true,
             validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.CUSTOM_CHARACTER), v)
@@ -39,20 +39,26 @@ const schema = new Schema(
         }
     }
     },
-{
-        virtuals: {
-            collectionRefs: {
-                get(){
-                    return {
-                        CharacterClass: 'currentCustomCharacter_id',
-                        Clan: 'clan_id',
-                        RaidRoom: 'raidRoom_id'
+    /*{
+            virtuals: {
+                collectionRefs: {
+                    get(){
+                        return {
+                            CharacterClass: 'currentCustomCharacter_id',
+                            Clan: 'clan_id',
+                            RaidRoom: 'raidRoom_id'
+                        }
                     }
                 }
             }
-        }
-    }
+        }*/
 );
+
+export const CollectionRefs: Record<string, string> = {
+    CustomCharacter: 'currentCustomCharacter_id',
+    Clan: 'clan_id',
+    RaidRoom: 'raidRoom_id'
+};
 
 //Force delete. If there is a need for save delete make a check in controller, before calling deleteOne()
 schema.pre('deleteOne', { document: false, query: true },async function () {

@@ -1,4 +1,4 @@
-import PlayerDataModel from "./playerData.model";
+import PlayerDataModel, {CollectionRefs} from "./playerData.model";
 import  {MongooseError} from "mongoose";
 import {ICreatePlayerDataInput, IUpdatePlayerDataInput} from "./playerData.d";
 import RequestError from "../util/error/requestError";
@@ -14,21 +14,34 @@ export default class PlayerDataService {
         return PlayerDataModel.findById(_id);
     }
 
-    public readOneWithCollections = (_id: string, withQuery: string): Promise<Object | null | MongooseError | RequestError> | null => {
+    public readOneWithCollections = (_id: string, withQuery: string): Promise<Object | null | MongooseError | RequestError | any> | null | any => {
         const playerDataObj = PlayerDataModel.findById(_id);
         if(!playerDataObj)
             return null;
 
         const inputCollections = withQuery.split('_');
-        const checkedCollections :string[] = [];
 
-        //Check are the queried collections exists
+        let result;
         for(let i=0; i<inputCollections.length; i++){
-            if (Object.values(ClassName).find( elem => elem === inputCollections[i] ) !== undefined)
-                checkedCollections.push(inputCollections[i]);
+            const modelName = inputCollections[i];
+            if (Object.values(ClassName).find( elem => elem === modelName ) !== undefined)
+                result = playerDataObj.populate(CollectionRefs[modelName]);
         }
 
-        return fetch("");
+        return result;
+    }
+
+    public readOneAllCollections = (_id: string): Promise<Object | null | MongooseError | RequestError | any> | null | any => {
+        const playerDataObj = PlayerDataModel.findById(_id);
+        if(!playerDataObj)
+            return null;
+
+        let result;
+        const modelNames = Object.values(CollectionRefs);
+        for(let i=0; i<modelNames.length; i++)
+            result = playerDataObj.populate(modelNames[i]);
+
+        return result;
     }
 
     public readAll = async (): Promise<Array<any>> => {
