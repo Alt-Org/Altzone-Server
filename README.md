@@ -34,5 +34,6 @@ Do not forget to terminate processes in the end (both tsc and node) by pressing 
 
 ## API Schema
 
-![ERD first part](doc/img/ERD.png)
+![ERD](doc/img/ERD.png)
+
 
