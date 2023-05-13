@@ -5,13 +5,13 @@ import RequestHelper from "../request/requestHelper";
 import {ClassName, CollectionRefs} from "../dictionary";
 
 const requestHelper = new RequestHelper();
-export default class Service{
+export default class Service<T>{
     constructor(modelName: ClassName){
         this.modelName = modelName;
         this.model = mongoose.model(modelName);
     }
     private modelName: string;
-    private model: Model<any>;
+    private model: Model<T>;
 
     public create = async (input: Object): Promise<Object | MongooseError> => {
         return this.model.create(input);
