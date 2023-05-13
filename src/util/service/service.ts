@@ -1,0 +1,52 @@
+import mongoose, { Model, MongooseError } from "mongoose";
+import {UpdateResult} from "mongodb";
+import { IUpdateInput } from "./service.d";
+import RequestHelper from "../request/requestHelper";
+import {ClassName, CollectionRefs} from "../dictionary";
+
+const requestHelper = new RequestHelper();
+export default class Service{
+    constructor(modelName: ClassName){
+        this.modelName = modelName;
+        this.model = mongoose.model(modelName);
+    }
+    private modelName: string;
+    private model: Model<any>;
+
+    public create = async (input: Object): Promise<Object | MongooseError> => {
+        return this.model.create(input);
+    }
+
+    public readById = async (_id: string): Promise<Object | null | MongooseError> => {
+        return this.model.findById(_id);
+    }
+
+    public readOneWithCollections = (_id: string, withQuery: string): Promise<Object | null | MongooseError | any> | null | any => {
+        const inputCollections = withQuery.split('_');
+
+        const existingRefs = [];
+        for(let i=0; i<inputCollections.length; i++){
+            const modelName = inputCollections[i];
+            if(CollectionRefs.values[this.modelName].includes(inputCollections[i]))
+                existingRefs.push(modelName);
+        }
+
+        return requestHelper.populateCollections(ClassName.PLAYER_DATA, _id, existingRefs);
+    }
+
+    public readOneAllCollections = (_id: string): Promise<Object | null | MongooseError | any> | null | any => {
+        return requestHelper.populateCollections(ClassName.PLAYER_DATA, _id, CollectionRefs.values[this.modelName]);
+    }
+
+    readAll = async (): Promise<Array<any>> => {
+        return this.model.find();
+    }
+
+     updateById = async (input: IUpdateInput): Promise<UpdateResult> => {
+        return this.model.updateOne({_id: input._id}, input, {rawResult: true});
+    }
+
+    deleteById = async (_id: string): Promise<Object | null | MongooseError> => {
+        return this.model.deleteOne({_id});
+    }
+}
