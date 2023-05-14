@@ -3,8 +3,6 @@ import {ValidationChainBuilder as Validator} from "../util/validator/validationC
 import {Location} from "../util/validator/location";
 import {ClassName} from "../util/dictionary";
 import ValidatorAbstract from "../util/baseAPIClasses/validatorAbstract";
-import { Request, Response, NextFunction } from "express";
-import { ValidationChain } from "express-validator";
 
 export default class BattleCharacterValidator extends ValidatorAbstract {
     validateCreate = [
@@ -20,7 +18,11 @@ export default class BattleCharacterValidator extends ValidatorAbstract {
         handleValidationError
     ];
 
-    validateUpdate?: (ValidationChain | ((req: Request<any, any, any, any, Record<string, any>>, res: Response<any, Record<string, any>>, next: NextFunction) => void))[] | undefined;
+    validateUpdate = [
+        new Validator('_id', Location.BODY, ClassName.CHARACTER_CLASS).notEmpty().isMongoId().build(),
+
+        handleValidationError
+    ];
 
     validateDelete = [
         new Validator('_id', Location.PARAM, ClassName.BATTLE_CHARACTER).isMongoId().build(),
