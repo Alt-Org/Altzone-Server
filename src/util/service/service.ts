@@ -10,8 +10,8 @@ export default class Service<T>{
         this.modelName = modelName;
         this.model = mongoose.model(modelName);
     }
-    private modelName: string;
-    private model: Model<T>;
+    protected readonly modelName: string;
+    protected readonly model: Model<T>;
 
     public create = async (input: Object): Promise<Object | MongooseError> => {
         return this.model.create(input);
@@ -38,15 +38,15 @@ export default class Service<T>{
         return requestHelper.populateCollections(ClassName.PLAYER_DATA, _id, CollectionRefs.values[this.modelName]);
     }
 
-    readAll = async (): Promise<Array<any>> => {
+    public readAll = async (): Promise<Array<any>> => {
         return this.model.find();
     }
 
-     updateById = async (input: IUpdateInput): Promise<UpdateResult> => {
+    public updateById = async (input: IUpdateInput): Promise<UpdateResult> => {
         return this.model.updateOne({_id: input._id}, input, {rawResult: true});
     }
 
-    deleteById = async (_id: string): Promise<Object | null | MongooseError> => {
+    public deleteById = async (_id: string): Promise<Object | null | MongooseError> => {
         return this.model.deleteOne({_id});
     }
 }

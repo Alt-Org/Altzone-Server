@@ -9,7 +9,7 @@ const service = new PlayerDataService();
 const errorThrower = new DefaultResponseErrorThrower();
 const parser = new FieldParserFactory().createParser(ClassName.PLAYER_DATA);
 
-export default class PlayerDataController {
+export default class PlayerDataController{
     create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.create(req.body);
