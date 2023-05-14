@@ -8,7 +8,6 @@ import BattleCharacterController from "../../../battleCharacter/battleCharacter.
 import FurnitureController from "../../../furniture/furniture.controller";
 import RaidRoomController from "../../../raidRoom/raidRoom.controller";
 
-//TODO: remove default from switch
 export default class ControllerFactory{
     public create = (modelName: ClassName): ControllerAbstract => {
         switch(modelName){
@@ -26,8 +25,6 @@ export default class ControllerFactory{
                 return new FurnitureController();
             case ClassName.RAID_ROOM:
                 return new RaidRoomController();
-            default:
-                return new PlayerDataController();
         }
     }
 }
