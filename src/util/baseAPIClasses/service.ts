@@ -1,14 +1,15 @@
-import mongoose, { Model, MongooseError } from "mongoose";
+import {Model, MongooseError} from "mongoose";
 import {UpdateResult} from "mongodb";
-import { IUpdateInput } from "./service.d";
+import {IUpdateInput} from "./service.d";
 import RequestHelper from "../request/requestHelper";
 import {ClassName, CollectionRefs} from "../dictionary";
+import ModelFactory from "./factory/modelFactory";
 
 const requestHelper = new RequestHelper();
-export default class Service<T>{
-    constructor(modelName: ClassName){
+export default abstract class Service<T>{
+    protected constructor(modelName: ClassName){
         this.modelName = modelName;
-        this.model = mongoose.model(modelName);
+        this.model = new ModelFactory().create(ClassName.PLAYER_DATA);
     }
     protected readonly modelName: string;
     protected readonly model: Model<T>;
