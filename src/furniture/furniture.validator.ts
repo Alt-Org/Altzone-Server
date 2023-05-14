@@ -2,8 +2,9 @@ import {handleValidationError} from "../util/response/errorHandler";
 import {ValidationChainBuilder as Validator} from "../util/validator/validationChainBuilder";
 import {Location} from "../util/validator/location";
 import {ClassName} from "../util/dictionary";
+import ValidatorAbstract from "../util/baseAPIClasses/validatorAbstract";
 
-export default class FurnitureValidator {
+export default class FurnitureValidator extends ValidatorAbstract{
     validateCreate = [
         new Validator('gameId', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
         new Validator('name', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),

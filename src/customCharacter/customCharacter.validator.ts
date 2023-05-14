@@ -2,8 +2,9 @@ import {handleValidationError} from "../util/response/errorHandler";
 import {ValidationChainBuilder as Validator} from "../util/validator/validationChainBuilder";
 import {Location} from "../util/validator/location";
 import {ClassName} from "../util/dictionary";
+import ValidatorAbstract from "../util/baseAPIClasses/validatorAbstract";
 
-export default class CustomCharacterValidator {
+export default class CustomCharacterValidator extends ValidatorAbstract{
     validateCreate = [
         new Validator('gameId', Location.BODY, ClassName.CUSTOM_CHARACTER).notEmpty().isString().build(),
         new Validator('unityKey', Location.BODY, ClassName.CUSTOM_CHARACTER).notEmpty().isString().build(),
