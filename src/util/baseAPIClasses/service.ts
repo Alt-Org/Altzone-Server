@@ -4,7 +4,6 @@ import {IUpdateInput} from "./service.d";
 import RequestHelper from "../request/requestHelper";
 import {ClassName, CollectionRefs} from "../dictionary";
 import ModelFactory from "./factory/modelFactory";
-import {ICreateBattleCharacterInput} from "../../battleCharacter/battleCharacter";
 
 const requestHelper = new RequestHelper();
 export default abstract class Service<T>{
