@@ -1,27 +1,9 @@
-import CustomCharacterModel from "./customCharacter.model";
-import {MongooseError} from "mongoose";
-import {ICreateCustomCharacterInput, IUpdateCustomCharacterInput} from "./customCharacter";
-import RequestError from "../util/error/requestError";
-import {UpdateResult} from "mongodb";
+import {ICustomCharacter} from "./customCharacter";
+import Service from "../util/baseAPIClasses/service";
+import {ClassName} from "../util/dictionary";
 
-export default class CustomCharacterService {
-    create = async (input: ICreateCustomCharacterInput): Promise<Object | MongooseError | RequestError> => {
-        return CustomCharacterModel.create(input);
-    }
-
-    readById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return CustomCharacterModel.findById(_id);
-    }
-
-    readAll = async (): Promise<Array<any>> => {
-        return CustomCharacterModel.find();
-    }
-
-     updateById = async (input: IUpdateCustomCharacterInput): Promise<UpdateResult> => {
-        return CustomCharacterModel.updateOne({_id: input._id}, input, {rawResult: true, runValidators: true});
-    }
-
-    deleteById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return CustomCharacterModel.deleteOne({_id});
+export default class CustomCharacterService extends Service<ICustomCharacter>{
+    constructor(){
+        super(ClassName.CUSTOM_CHARACTER);
     }
 }

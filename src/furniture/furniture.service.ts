@@ -1,27 +1,9 @@
-import FurnitureModel from "./furniture.model";
-import {MongooseError} from "mongoose";
-import {ICreateFurnitureInput, IUpdateFurnitureInput} from "./furniture";
-import RequestError from "../util/error/requestError";
-import {UpdateResult} from "mongodb";
+import {IFurniture} from "./furniture";
+import Service from "../util/baseAPIClasses/service";
+import {ClassName} from "../util/dictionary";
 
-export default class FurnitureService {
-    create = async (input: ICreateFurnitureInput): Promise<Object | MongooseError | RequestError> => {
-        return FurnitureModel.create(input);
-    }
-
-    readById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return FurnitureModel.findById(_id);
-    }
-
-    readAll = async (): Promise<Array<any>> => {
-        return FurnitureModel.find();
-    }
-
-     updateById = async (input: IUpdateFurnitureInput): Promise<UpdateResult> => {
-        return FurnitureModel.updateOne({_id: input._id}, input, {rawResult: true, runValidators: true});
-    }
-
-    deleteById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return FurnitureModel.deleteOne({_id});
+export default class FurnitureService extends Service<IFurniture>{
+    constructor(){
+        super(ClassName.FURNITURE);
     }
 }

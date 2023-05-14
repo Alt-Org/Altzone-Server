@@ -4,6 +4,7 @@ import {IUpdateInput} from "./service.d";
 import RequestHelper from "../request/requestHelper";
 import {ClassName, CollectionRefs} from "../dictionary";
 import ModelFactory from "./factory/modelFactory";
+import {ICreateBattleCharacterInput} from "../../battleCharacter/battleCharacter";
 
 const requestHelper = new RequestHelper();
 export default abstract class Service<T>{
@@ -14,7 +15,7 @@ export default abstract class Service<T>{
     protected readonly modelName: string;
     protected readonly model: Model<T>;
 
-    public create = async (input: Object): Promise<Object | MongooseError> => {
+    public create = async (input: any): Promise<Object | MongooseError> => {
         return this.model.create(input);
     }
 

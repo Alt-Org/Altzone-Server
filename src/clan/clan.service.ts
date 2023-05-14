@@ -1,27 +1,9 @@
-import ClanModel from "./clan.model";
-import {MongooseError} from "mongoose";
-import {ICreateClanInput, IUpdateClanInput} from "./clan";
-import RequestError from "../util/error/requestError";
-import {UpdateResult} from "mongodb";
+import {IClan} from "./clan";
+import Service from "../util/baseAPIClasses/service";
+import {ClassName} from "../util/dictionary";
 
-export default class ClanService{
-    create = async (input: ICreateClanInput): Promise<Object | MongooseError | RequestError> => {
-        return ClanModel.create(input);
-    }
-
-    readById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return ClanModel.findById(_id);
-    }
-
-    readAll = async (): Promise<Array<any>> => {
-        return ClanModel.find();
-    }
-
-     updateById = async (input: IUpdateClanInput): Promise<UpdateResult> => {
-         return ClanModel.updateOne({_id: input._id}, input, { rawResult: true });
-    }
-
-    deleteById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return ClanModel.deleteOne({_id});
+export default class ClanService extends Service<IClan>{
+    constructor(){
+        super(ClassName.CLAN);
     }
 }

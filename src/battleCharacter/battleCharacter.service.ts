@@ -1,14 +1,18 @@
 import BattleCharacterModel from "./battleCharacter.model";
 import {MongooseError} from "mongoose";
-import {ICreateBattleCharacterInput} from "./battleCharacter.d";
-import RequestError from "../util/error/requestError";
-
+import {IBattleCharacter, ICreateBattleCharacterInput} from "./battleCharacter.d";
 import CharacterClassModel from "../characterClass/characterClass.model";
 import CustomCharacterModel from "../customCharacter/customCharacter.model";
 import ValidationError from "../util/error/validationError";
+import Service from "../util/baseAPIClasses/service";
+import {ClassName} from "../util/dictionary";
 
-export default class BattleCharacterService {
-    create = async (input: ICreateBattleCharacterInput): Promise<Object | MongooseError | RequestError> => {
+export default class BattleCharacterService extends Service<IBattleCharacter>{
+    constructor(){
+        super(ClassName.BATTLE_CHARACTER);
+    }
+
+    create = async (input: ICreateBattleCharacterInput): Promise<Object | MongooseError> => {
         const {characterClass_id, customCharacter_id} = input;
 
         const baseCharacterClass: any = await CharacterClassModel.findById(characterClass_id);
@@ -54,17 +58,5 @@ export default class BattleCharacterService {
         combinedObj.customCharacter_id = customCharacter_id + '';
 
         return BattleCharacterModel.create(combinedObj);
-    }
-
-    readById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return BattleCharacterModel.findById(_id);
-    }
-
-    readAll = async (): Promise<Array<any>> => {
-        return BattleCharacterModel.find();
-    }
-
-    deleteById = async (_id: string): Promise<Object | null | MongooseError | RequestError> => {
-        return BattleCharacterModel.deleteOne({_id});
     }
 }
