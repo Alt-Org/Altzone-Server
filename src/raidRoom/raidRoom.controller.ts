@@ -4,12 +4,13 @@ import RaidRoomService from "./raidRoom.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {FieldParserFactory} from "../util/parser";
 import {ClassName} from "../util/dictionary";
+import {ControllerAbstract} from "../util/baseAPIClasses";
 
 const service = new RaidRoomService();
 const errorThrower = new DefaultResponseErrorThrower();
 const parser = new FieldParserFactory().createParser(ClassName.RAID_ROOM);
 
-export default class RaidRoomController {
+export default class RaidRoomController extends ControllerAbstract{
     create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.create(req.body);

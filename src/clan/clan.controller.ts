@@ -4,12 +4,13 @@ import ClanService from "./clan.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {FieldParserFactory} from "../util/parser";
 import {ClassName} from "../util/dictionary";
+import {ControllerAbstract} from "../util/baseAPIClasses";
 
 const clanService = new ClanService();
 const errorThrower = new DefaultResponseErrorThrower();
 const parser = new FieldParserFactory().createParser(ClassName.CLAN);
 
-export default class ClanController{
+export default class ClanController extends ControllerAbstract{
     create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await clanService.create(req.body);

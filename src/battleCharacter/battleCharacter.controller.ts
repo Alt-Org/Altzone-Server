@@ -4,12 +4,14 @@ import BattleCharacterService from "./battleCharacter.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {FieldParserFactory} from "../util/parser";
 import {ClassName} from "../util/dictionary";
+import ControllerAbstract from "../util/baseAPIClasses/controllerAbstract";
+import RequestError from "../util/error/requestError";
 
 const service = new BattleCharacterService();
 const errorThrower = new DefaultResponseErrorThrower();
 const parser = new FieldParserFactory().createParser(ClassName.BATTLE_CHARACTER);
 
-export default class BattleCharacterController {
+export default class BattleCharacterController extends ControllerAbstract{
     create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.create(req.body);
@@ -43,6 +45,10 @@ export default class BattleCharacterController {
         }catch (err) {
             sendErrorsToClient(err, res);
         }
+    }
+
+    update(req: Request, res: Response): Promise<void> {
+        throw new RequestError(405, 'Updating BattleCharacter data is forbidden');
     }
 
     delete = async (req: Request, res: Response): Promise<void> => {

@@ -4,12 +4,13 @@ import FurnitureService from "./furniture.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {FieldParserFactory} from "../util/parser";
 import {ClassName} from "../util/dictionary";
+import {ControllerAbstract} from "../util/baseAPIClasses";
 
 const service = new FurnitureService();
 const errorThrower = new DefaultResponseErrorThrower();
 const parser = new FieldParserFactory().createParser(ClassName.FURNITURE);
 
-export default class FurnitureController {
+export default class FurnitureController extends ControllerAbstract{
     create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.create(req.body);

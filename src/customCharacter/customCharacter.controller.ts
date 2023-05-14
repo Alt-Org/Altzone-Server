@@ -4,12 +4,13 @@ import CustomCharacterService from "./customCharacter.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {FieldParserFactory} from "../util/parser";
 import {ClassName} from "../util/dictionary";
+import {ControllerAbstract} from "../util/baseAPIClasses";
 
 const service = new CustomCharacterService();
 const errorThrower = new DefaultResponseErrorThrower();
 const parser = new FieldParserFactory().createParser(ClassName.CUSTOM_CHARACTER);
 
-export default class CustomCharacterController {
+export default class CustomCharacterController extends ControllerAbstract{
     create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.create(req.body);
