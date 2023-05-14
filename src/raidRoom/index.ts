@@ -1,3 +1,3 @@
-import router from "./raidRoom.router";
+import RaidRoomRouter from "./raidRoom.router";
 
-export {router as raidRoomRouter};
+export { RaidRoomRouter };

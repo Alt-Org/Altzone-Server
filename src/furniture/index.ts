@@ -1,3 +1,3 @@
-import router from "./furniture.router";
+import FurnitureRouter from "./furniture.router";
 
-export {router as furnitureRouter};
+export { FurnitureRouter };

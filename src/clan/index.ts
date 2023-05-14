@@ -1,3 +1,3 @@
-import router from './clan.router';
+import ClanRouter from './clan.router';
 
-export {router as clanRouter};
+export { ClanRouter };

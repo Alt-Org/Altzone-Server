@@ -1,3 +1,3 @@
-import router from './characterClass.router';
+import CharacterClassRouter from './characterClass.router';
 
-export {router as characterClassRouter};
+export { CharacterClassRouter };

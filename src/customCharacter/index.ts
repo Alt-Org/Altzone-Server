@@ -1,3 +1,3 @@
-import router from "./customCharacter.router";
+import CustomCharacterRouter from "./customCharacter.router";
 
-export {router as customCharacterRouter};
+export { CustomCharacterRouter };

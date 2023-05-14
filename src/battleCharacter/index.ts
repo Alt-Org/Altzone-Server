@@ -1,3 +1,3 @@
-import router from "./battleCharacter.router";
+import BattleCharacterRouter from "./battleCharacter.router";
 
-export {router as battleCharacterRouter};
+export { BattleCharacterRouter };

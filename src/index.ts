@@ -5,13 +5,13 @@ dotenv.config();
 
 //Routes imports
 import { rootRouter } from './root';
-import { clanRouter } from './clan';
-import { characterClassRouter } from './characterClass';
-import { customCharacterRouter } from './customCharacter';
-import { battleCharacterRouter } from './battleCharacter';
+import { ClanRouter } from './clan';
+import { CharacterClassRouter } from './characterClass';
+import { CustomCharacterRouter } from './customCharacter';
+import { BattleCharacterRouter } from './battleCharacter';
 import { PlayerDataRouter } from './playerData';
-import { furnitureRouter } from './furniture';
-import { raidRoomRouter } from './raidRoom';
+import { FurnitureRouter } from './furniture';
+import { RaidRoomRouter } from './raidRoom';
 import bodyParser from "body-parser";
 
 const app = express();
@@ -34,13 +34,13 @@ app.use(bodyParser.json());
 
 //Routes
 app.use('/', rootRouter);
-app.use('/clan', clanRouter);
-app.use('/characterClass', characterClassRouter);
-app.use('/customCharacter', customCharacterRouter);
-app.use('/battleCharacter', battleCharacterRouter);
+app.use('/clan', new ClanRouter().router);
+app.use('/characterClass', new CharacterClassRouter().router);
+app.use('/customCharacter', new CustomCharacterRouter().router);
+app.use('/battleCharacter', new BattleCharacterRouter().router);
 app.use('/playerData', new PlayerDataRouter().router);
-app.use('/furniture', furnitureRouter);
-app.use('/raidRoom', raidRoomRouter);
+app.use('/furniture', new FurnitureRouter().router);
+app.use('/raidRoom', new RaidRoomRouter().router);
 
 const HOST = process.env.HOST || 'localhost';
 const PORT = process.env.PORT || 8080;
