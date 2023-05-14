@@ -10,7 +10,7 @@ const requestHelper = new RequestHelper();
 export default abstract class Service<T>{
     protected constructor(modelName: ClassName){
         this.modelName = modelName;
-        this.model = new ModelFactory().create(ClassName.PLAYER_DATA);
+        this.model = new ModelFactory().create(modelName);
     }
     protected readonly modelName: string;
     protected readonly model: Model<T>;
@@ -33,11 +33,11 @@ export default abstract class Service<T>{
                 existingRefs.push(modelName);
         }
 
-        return requestHelper.populateCollections(ClassName.PLAYER_DATA, _id, existingRefs);
+        return requestHelper.populateCollections(this.modelName, _id, existingRefs);
     }
 
     public readOneAllCollections = (_id: string): Promise<Object | null | MongooseError | any> | null | any => {
-        return requestHelper.populateCollections(ClassName.PLAYER_DATA, _id, CollectionRefs.values[this.modelName]);
+        return requestHelper.populateCollections(this.modelName, _id, CollectionRefs.values[this.modelName]);
     }
 
     public readAll = async (): Promise<Array<any>> => {
