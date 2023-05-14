@@ -4,12 +4,13 @@ import PlayerDataService from "./playerData.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {FieldParserFactory} from "../util/parser";
 import {ClassName} from "../util/dictionary";
+import ControllerAbstract from "../util/baseAPIClasses/controllerAbstract";
 
 const service = new PlayerDataService();
 const errorThrower = new DefaultResponseErrorThrower();
 const parser = new FieldParserFactory().createParser(ClassName.PLAYER_DATA);
 
-export default class PlayerDataController{
+export default class PlayerDataController extends ControllerAbstract{
     create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.create(req.body);

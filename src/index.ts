@@ -9,7 +9,7 @@ import { clanRouter } from './clan';
 import { characterClassRouter } from './characterClass';
 import { customCharacterRouter } from './customCharacter';
 import { battleCharacterRouter } from './battleCharacter';
-import { playerDataRouter } from './playerData';
+import { PlayerDataRouter } from './playerData';
 import { furnitureRouter } from './furniture';
 import { raidRoomRouter } from './raidRoom';
 import bodyParser from "body-parser";
@@ -38,7 +38,7 @@ app.use('/clan', clanRouter);
 app.use('/characterClass', characterClassRouter);
 app.use('/customCharacter', customCharacterRouter);
 app.use('/battleCharacter', battleCharacterRouter);
-app.use('/playerData', playerDataRouter);
+app.use('/playerData', new PlayerDataRouter().router);
 app.use('/furniture', furnitureRouter);
 app.use('/raidRoom', raidRoomRouter);
 

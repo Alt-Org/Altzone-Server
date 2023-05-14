@@ -1,5 +1,5 @@
 import mongoose, {Schema} from "mongoose";
-import { IPlayerData } from "./playerData";
+import {IPlayerData} from "./playerData";
 import {ClassName} from "../util/dictionary";
 import SchemaValidator from "../util/schemaHelper/schemaValidator";
 
@@ -58,8 +58,6 @@ schema.virtual('RaidRoom', {
     localField: 'raidRoom_id',
     foreignField: '_id'
 });
-
-export const CollectionRefs: string[] = ['CustomCharacter', 'Clan', 'RaidRoom'];
 
 //Force delete. If there is a need for save delete make a check in controller, before calling deleteOne()
 schema.pre('deleteOne', { document: false, query: true },async function () {

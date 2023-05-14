@@ -1,3 +1,3 @@
-import router from "./playerData.router";
+import PlayerDataRouter from "./playerData.router";
 
-export {router as playerDataRouter};
+export { PlayerDataRouter };
