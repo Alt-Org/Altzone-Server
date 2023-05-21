@@ -5,15 +5,16 @@ import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorTh
 import {FieldParserFactory} from "../util/parser";
 import {ClassName} from "../util/dictionary";
 import {ControllerAbstract} from "../util/baseAPIClasses";
+import PlayerDataService from "../playerData/playerData.service";
 
-const characterClassService = new CharacterClassService();
+const service = new CharacterClassService();
 const errorThrower = new DefaultResponseErrorThrower();
 const parser = new FieldParserFactory().createParser(ClassName.CHARACTER_CLASS);
 
 export default class CharacterClassController extends ControllerAbstract{
     create = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await characterClassService.create(req.body);
+            const respObj = await service.create(req.body);
 
             const result = parser.parseFromAPIToGame(respObj);
             res.status(201).json(result);
@@ -24,9 +25,20 @@ export default class CharacterClassController extends ControllerAbstract{
 
     get = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await characterClassService.readById(req.params._id);
-            errorThrower.throwReadErrorsIfFound(respObj, ClassName.CHARACTER_CLASS, '_id');
+            const query = req.query;
+            let respObj = null;
 
+            if(Object.keys(query).length === 0)
+                respObj = await service.readById(req.params._id);
+            else if(query.with && (typeof query.with == 'string')){
+                const resp = await service.readOneWithCollections(req.params._id, query.with);
+                respObj = resp?.toObject();
+            } else if(query.all !== null){
+                const resp = await service.readOneAllCollections(req.params._id);
+                respObj = resp?.toObject();
+            }
+
+            errorThrower.throwReadErrorsIfFound(respObj, ClassName.CHARACTER_CLASS, '_id');
             const result = parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
         }catch (err) {
@@ -36,7 +48,7 @@ export default class CharacterClassController extends ControllerAbstract{
 
     getAll = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await characterClassService.readAll();
+            const respObj = await service.readAll();
             errorThrower.throwReadErrorsIfFound(respObj, ClassName.CHARACTER_CLASS, '_id');
 
             const result = parser.parseFromAPIToGame(respObj);
@@ -48,7 +60,7 @@ export default class CharacterClassController extends ControllerAbstract{
 
     update = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await characterClassService.updateById(req.body);
+            const respObj = await service.updateById(req.body);
             errorThrower.throwUpdateErrorsIfFound(respObj, ClassName.CHARACTER_CLASS, '_id');
 
             res.status(204).send();
@@ -59,7 +71,7 @@ export default class CharacterClassController extends ControllerAbstract{
 
     delete = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await characterClassService.deleteById(req.params._id);
+            const respObj = await service.deleteById(req.params._id);
             errorThrower.throwDeleteErrorsIfFound(respObj, ClassName.CHARACTER_CLASS, '_id');
 
             res.status(204).send();

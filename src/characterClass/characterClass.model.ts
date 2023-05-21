@@ -10,9 +10,10 @@ const schema = new Schema({
     speed: { type: Number, required: true },
     resistance: { type: Number, required: true },
     attack: { type: Number, required: true },
-    defence: { type: Number, required: true },
+    defence: { type: Number, required: true }
 });
 
+//Save delete
 schema.pre('deleteOne', { document: false, query: true },async function () {
     const {_id} = this.getQuery();
     await SchemaValidator.validateDeleteFK({modelReferring: mongoose.model(ClassName.CUSTOM_CHARACTER), fkObj: {'characterClass_id': _id}});
