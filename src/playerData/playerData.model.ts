@@ -41,19 +41,19 @@ const schema = new Schema({
 {toJSON: {virtuals: true}, toObject: {virtuals: true}}
 );
 
-schema.virtual('CustomCharacter', {
+schema.virtual(ClassName.CUSTOM_CHARACTER, {
     ref: ClassName.CUSTOM_CHARACTER,
     localField: 'currentCustomCharacter_id',
     foreignField: '_id'
 });
 
-schema.virtual('Clan', {
+schema.virtual(ClassName.CLAN, {
     ref: ClassName.CLAN,
     localField: 'clan_id',
     foreignField: '_id'
 });
 
-schema.virtual('RaidRoom', {
+schema.virtual(ClassName.RAID_ROOM, {
     ref: ClassName.RAID_ROOM,
     localField: 'raidRoom_id',
     foreignField: '_id'
