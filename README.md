@@ -15,6 +15,7 @@ Create .env file in the root directory.
 
 Here is example *.env* content:
 
+    HOST=localhost
     PORT=8080
     MONGO_URL=mongodb://127.0.0.1
     MONGO_PORT=27017
@@ -24,7 +25,7 @@ Here is example *.env* content:
 ### Start the API
 In order to start the API, you need to run the following commands in the terminal(project root repository):
 1. ```tsc -w```
-2. ```node dist/index.js```
+2. ```npm run dev``` or ```node dist/index.js```
 
 The API will start at http://localhost:8080 by default.
 
