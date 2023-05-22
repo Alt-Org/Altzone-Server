@@ -6,14 +6,14 @@ import {FieldParserFactory} from "../util/parser";
 import {ClassName} from "../util/dictionary";
 import {ControllerAbstract} from "../util/baseAPIClasses";
 
-const clanService = new ClanService();
+const service = new ClanService();
 const errorThrower = new DefaultResponseErrorThrower();
 const parser = new FieldParserFactory().createParser(ClassName.CLAN);
 
 export default class ClanController extends ControllerAbstract{
     create = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await clanService.create(req.body);
+            const respObj = await service.create(req.body);
 
             const result = parser.parseFromAPIToGame(respObj);
             res.status(201).json(result);
@@ -24,9 +24,17 @@ export default class ClanController extends ControllerAbstract{
 
     get = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await clanService.readById(req.params._id);
-            errorThrower.throwReadErrorsIfFound(respObj, ClassName.CLAN, '_id');
+            const query = req.query;
+            let respObj = null;
 
+            if(Object.keys(query).length === 0)
+                respObj = await service.readById(req.params._id);
+            else if(query.with && (typeof query.with == 'string'))
+                respObj = await service.readOneWithCollections(req.params._id, query.with);
+            else if(query.all !== null)
+                respObj = await service.readOneAllCollections(req.params._id);
+
+            errorThrower.throwReadErrorsIfFound(respObj, ClassName.CLAN, '_id');
             const result = parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
         }catch (err) {
@@ -36,7 +44,7 @@ export default class ClanController extends ControllerAbstract{
 
     getAll = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await clanService.readAll();
+            const respObj = await service.readAll();
             errorThrower.throwReadErrorsIfFound(respObj, ClassName.CLAN, '_id');
 
             const result = parser.parseFromAPIToGame(respObj);
@@ -48,7 +56,7 @@ export default class ClanController extends ControllerAbstract{
 
     update = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await clanService.updateById(req.body);
+            const respObj = await service.updateById(req.body);
             errorThrower.throwUpdateErrorsIfFound(respObj, ClassName.CLAN, '_id');
 
             res.status(204).send();
@@ -59,7 +67,7 @@ export default class ClanController extends ControllerAbstract{
 
     delete = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await clanService.deleteById(req.params._id);
+            const respObj = await service.deleteById(req.params._id);
             errorThrower.throwDeleteErrorsIfFound(respObj, ClassName.CLAN, '_id');
 
             res.status(204).send();

@@ -41,7 +41,11 @@ export default class Dictionary {
                 gameId: "Id",
                 name: "Name",
                 tag: "Tag",
-                gameCoins: "GameCoins"
+                gameCoins: "GameCoins",
+
+                PlayerData: "PlayerData",
+                RaidRoom: "RaidRoom",
+                Furniture: "Furniture"
             }
         },
 
