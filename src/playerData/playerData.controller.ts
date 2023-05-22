@@ -29,13 +29,10 @@ export default class PlayerDataController extends ControllerAbstract{
 
             if(Object.keys(query).length === 0)
                 respObj = await service.readById(req.params._id);
-            else if(query.with && (typeof query.with == 'string')){
-                const resp = await service.readOneWithCollections(req.params._id, query.with);
-                respObj = resp?.toObject();
-            } else if(query.all !== null){
-                const resp = await service.readOneAllCollections(req.params._id);
-                respObj = resp?.toObject();
-            }
+            else if(query.with && (typeof query.with == 'string'))
+                respObj = await service.readOneWithCollections(req.params._id, query.with);
+            else if(query.all !== null)
+                respObj = await service.readOneAllCollections(req.params._id);
 
             errorThrower.throwReadErrorsIfFound(respObj, ClassName.PLAYER_DATA, '_id');
             const result = parser.parseFromAPIToGame(respObj);
