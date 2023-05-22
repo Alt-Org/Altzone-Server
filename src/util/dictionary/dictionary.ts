@@ -13,8 +13,6 @@ export default class Dictionary {
                 Resistance: "resistance",
                 Attack: "attack",
                 Defence: "defence",
-
-                customCharacter_ids: "customCharacter_ids"
             },
             apiToGame: {
                 _id: "_id",
@@ -26,7 +24,7 @@ export default class Dictionary {
                 attack: "Attack",
                 defence: "Defence",
 
-                customCharacter_ids: "customCharacter_ids"
+                CustomCharacter: "CustomCharacter"
             }
         },
 

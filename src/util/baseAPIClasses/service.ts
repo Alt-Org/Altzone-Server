@@ -3,7 +3,6 @@ import {UpdateResult} from "mongodb";
 import {IUpdateInput} from "./service.d";
 import RequestHelper from "../request/requestHelper";
 import {ClassName, CollectionRefs} from "../dictionary";
-import {ICollectionRefInfo} from "../dictionary/collectionRefs";
 import ModelFactory from "./factory/modelFactory";
 
 const requestHelper = new RequestHelper();
@@ -24,46 +23,74 @@ export default abstract class Service<T>{
         return this.model.findById(_id);
     }
 
-    public readOneWithCollections = (_id: string, withQuery: string): Promise<Object | null | MongooseError | any> | null | any => {
-        const query = this.model.findById(_id);
-
+    public readOneWithCollections = async (_id: string, withQuery: string): Promise<Object | null | MongooseError | any> => {
         const inputCollections: string[] = withQuery.split('_');
 
+        const dbQuery = this.model.findById(_id);
+
         if(inputCollections.length === 0)
-            return query;
+            return dbQuery;
 
         const refInfo = CollectionRefs.values[this.modelName];
-        const notInModelRefs = refInfo.notInModelRefs;
+
         const inModelRefs = refInfo.inModelRefs;
         for(let i=0; i<inputCollections.length; i++){
             const refModelName: ClassName = inputCollections[i] as ClassName;
 
-            if(inModelRefs.includes(refModelName)){
-                query.populate(refModelName);
-                continue;
-            }
-            //TODO: add population for not specified in the model collections
+            if(inModelRefs.includes(refModelName))
+                dbQuery.populate(refModelName);
+
+        }
+        const dbQueryResp = await dbQuery.exec() as any;
+        if(dbQueryResp === null || dbQueryResp._doc === null)
+            return null;
+
+        //Find requested related documents not defined in the model
+        const notInModelRefs = refInfo.notInModelRefs;
+        const notInModelObjects: Record<any, any> = {};
+        for(let i=0; i<inputCollections.length; i++){
+            const refModelName: ClassName = inputCollections[i] as ClassName;
+
             for(let i=0; i<notInModelRefs.length; i++){
-                const info = notInModelRefs[i];
-                const refName = info.modelName;
-                const foreignKey = info.foreignKey;
-                if(refName !== refModelName)
+                if(notInModelRefs[i].modelName !== refModelName)
                     continue;
 
-                const filter = {[foreignKey]: _id} as Object;
+                const {modelName, foreignKey, isOne} = notInModelRefs[i];
 
-                if(info.isOne)
-                    query.populate({path: refName, match: filter});
-                else
-                    query.populate({path: refName, match: filter});
+                const refModel = mongoose.model(modelName);
+                const filter = {[foreignKey]: _id} as Object;
+                notInModelObjects[modelName] = isOne ? await refModel.findOne(filter) : await refModel.find(filter);
             }
         }
 
-        return query;
+        return {...dbQueryResp._doc, ...notInModelObjects};
     }
 
-    public readOneAllCollections = (_id: string): Promise<Object | null | MongooseError | any> | null | any => {
-        return requestHelper.populateCollections(this.modelName, _id, CollectionRefs.values[this.modelName].inModelRefs);
+    public readOneAllCollections = async (_id: string): Promise<Object | null | MongooseError | any> => {
+        const dbQuery = this.model.findById(_id);
+
+        const refInfo = CollectionRefs.values[this.modelName];
+
+        const inModelRefs = refInfo.inModelRefs;
+        for(let i=0; i<inModelRefs.length; i++){
+                dbQuery.populate(inModelRefs[i]);
+        }
+        const dbQueryResp = await dbQuery.exec() as any;
+        if(dbQueryResp === null || dbQueryResp._doc === null)
+            return null;
+
+        //Find all related documents not defined in the model
+        const notInModelRefs = refInfo.notInModelRefs;
+        const notInModelObjects: Record<any, any> = {};
+        for(let i=0; i<notInModelRefs.length; i++){
+            const {modelName, foreignKey, isOne} = notInModelRefs[i];
+
+            const refModel = mongoose.model(modelName);
+            const filter = {[foreignKey]: _id} as Object;
+            notInModelObjects[modelName] = isOne ? await refModel.findOne(filter) : await refModel.find(filter);
+        }
+
+        return {...dbQueryResp._doc, ...notInModelObjects};
     }
 
     public readAll = async (): Promise<Array<any>> => {
