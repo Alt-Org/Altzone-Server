@@ -17,5 +17,4 @@ WORKDIR /app
 COPY --chown=node:node ./package.json ./package.json
 COPY --chown=node:node ./package-lock.json ./package-lock.json
 RUN npm install
-RUN npm run watch
 #for production RUN npm ci --only-production && npm cache clean --force
