@@ -1,0 +1,35 @@
+services:
+  altzone_api:
+    build:
+      dockerfile: ./api.Dockerfile
+    container_name: altzone_api
+    command: npm run docker_dev
+
+    depends_on:
+      - altzone_mongodb
+    ports:
+      - 8080:8080
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8080
+      - MONGO_URL=mongodb://altzone_mongodb
+      - MONGO_PORT=27017
+      - MONGO_DB_NAME=altzone
+
+  altzone_mongodb:
+    image: mongo:4.2.24-bionic
+    container_name: altzone_mongodb
+    #Expose DB only if necessary
+    #ports:
+    # - 27017:27017
+    volumes:
+      - altzone_mongo:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=altzone
+
+volumes:
+  altzone_mongo:
+  node_modules:
