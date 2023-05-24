@@ -17,13 +17,15 @@ import bodyParser from "body-parser";
 const app = express();
 
 // Set up database connection
-const mongoURL = process.env.MONGO_URL || 'mongodb://127.0.0.1';
+const mongoUser = process.env.MONGO_USERNAME || 'root';
+const mongoPassword = process.env.MONGO_PASSWORD || 'password';
+const mongoHost = process.env.MONGO_HOST || '127.0.0.1';
 const mongoPort = process.env.MONGO_PORT || '27017';
 const dbName = process.env.MONGO_DB_NAME || 'altzone';
-const mongoString = mongoURL + ':' + mongoPort + '/' + dbName;
+const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}`;
 
 mongooseSet('strictQuery', true);
-connectToDB(mongoString).then(
+connectToDB(mongoString, {dbName: dbName}).then(
     () => { console.log('Connected to DB successfully'); },
     (err) => { console.log(err); }
 );

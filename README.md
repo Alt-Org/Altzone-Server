@@ -8,7 +8,7 @@ This is a REST API for Altzone game
 
 1. Install docker [Windows](https://www.docker.com/products/docker-desktop/) | [Linux](https://docs.docker.com/engine/install/)
 2. Start docker (by default it starts automatically, you can test whenever it is installed by running ```docker version```)
-3. In the terminal run: ```npm install tsc```
+3. In the terminal run: ```npm install```
 4. Run ```tsc -w``` (this command will recompile project after changes)
 5. Run ```docker compose up``` (this will start the actual API in dev mode(=will restart API each time you make changes to files in the /src folder))
 6. Stop the API by pressing CTRL+C and ```docker compose down```
