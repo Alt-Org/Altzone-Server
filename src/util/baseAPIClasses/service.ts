@@ -23,7 +23,7 @@ export default abstract class Service<T>{
         return this.model.findById(_id);
     }
 
-    public readOneWithCollections = async (_id: string, withQuery: string): Promise<Object | null | MongooseError | any> => {
+    public readOneWithCollections = async (_id: string, withQuery: string): Promise<Object | null | MongooseError> => {
         const inputCollections: string[] = withQuery.split('_');
 
         const dbQuery = this.model.findById(_id);
@@ -63,17 +63,17 @@ export default abstract class Service<T>{
             }
         }
 
-        return {...dbQueryResp._doc, ...notInModelObjects};
+        return {...dbQueryResp._doc, ...dbQueryResp.$$populatedVirtuals, ...notInModelObjects};
     }
 
-    public readOneAllCollections = async (_id: string): Promise<Object | null | MongooseError | any> => {
+    public readOneAllCollections = async (_id: string): Promise<Object | null | MongooseError> => {
         const dbQuery = this.model.findById(_id);
 
         const refInfo = CollectionRefs.values[this.modelName];
 
         const inModelRefs = refInfo.inModelRefs;
         for(let i=0; i<inModelRefs.length; i++){
-                dbQuery.populate(inModelRefs[i]);
+            dbQuery.populate(inModelRefs[i]);
         }
         const dbQueryResp = await dbQuery.exec() as any;
         if(dbQueryResp === null || dbQueryResp._doc === null)
@@ -90,7 +90,7 @@ export default abstract class Service<T>{
             notInModelObjects[modelName] = isOne ? await refModel.findOne(filter) : await refModel.find(filter);
         }
 
-        return {...dbQueryResp._doc, ...notInModelObjects};
+        return {...dbQueryResp._doc, ...dbQueryResp.$$populatedVirtuals, ...notInModelObjects};
     }
 
     public readAll = async (): Promise<Array<any>> => {

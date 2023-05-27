@@ -43,9 +43,9 @@ export default class Dictionary {
                 tag: "Tag",
                 gameCoins: "GameCoins",
 
-                PlayerData: "PlayerData",
-                RaidRoom: "RaidRoom",
-                Furniture: "Furniture"
+                PlayerData: "PlayerDatas",
+                RaidRoom: "RaidRooms",
+                Furniture: "Furnitures"
             }
         },
 
@@ -146,8 +146,10 @@ export default class Dictionary {
                 raidRoom_id: "raidRoom_id",
                 currentCustomCharacter_id: "currentCustomCharacter_id",
                 Clan: "Clan",
-                CustomCharacter: "CustomCharacter",
-                RaidRoom: "RaidRoom"
+                CurrentCustomCharacter: "CurrentCustomCharacter",
+                RaidRoom: "RaidRoom",
+
+                CustomCharacter: "CustomCharacters"
             }
         },
 

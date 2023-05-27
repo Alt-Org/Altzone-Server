@@ -41,22 +41,25 @@ const schema = new Schema({
 {toJSON: {virtuals: true}, toObject: {virtuals: true}}
 );
 
-schema.virtual(ClassName.CUSTOM_CHARACTER, {
+schema.virtual('CurrentCustomCharacter', {
     ref: ClassName.CUSTOM_CHARACTER,
     localField: 'currentCustomCharacter_id',
-    foreignField: '_id'
+    foreignField: '_id',
+    justOne: true
 });
 
 schema.virtual(ClassName.CLAN, {
     ref: ClassName.CLAN,
     localField: 'clan_id',
-    foreignField: '_id'
+    foreignField: '_id',
+    justOne: true
 });
 
 schema.virtual(ClassName.RAID_ROOM, {
     ref: ClassName.RAID_ROOM,
     localField: 'raidRoom_id',
-    foreignField: '_id'
+    foreignField: '_id',
+    justOne: true
 });
 
 //Force delete. If there is a need for save delete make a check in controller, before calling deleteOne()

@@ -3,8 +3,10 @@ import {ClassName} from "./className";
 export default class CollectionRefs{
     public static readonly values: Record<ClassName, ICollectionRefs> = {
         PlayerData: {
-            inModelRefs: [ClassName.CUSTOM_CHARACTER, ClassName.CLAN, ClassName.RAID_ROOM],
-            notInModelRefs: []
+            inModelRefs: ['CurrentCustomCharacter', ClassName.CLAN, ClassName.RAID_ROOM],
+            notInModelRefs: [
+                { modelName: ClassName.CUSTOM_CHARACTER, foreignKey: 'playerData_id', isOne: false}
+            ]
         },
         CharacterClass: {
             inModelRefs: [],
@@ -26,7 +28,7 @@ export default class CollectionRefs{
 }
 
 interface ICollectionRefs {
-    inModelRefs: ClassName[];
+    inModelRefs: string[];
     notInModelRefs: ICollectionRefInfo[]
 }
 
