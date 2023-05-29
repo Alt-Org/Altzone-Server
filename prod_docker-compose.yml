@@ -1,0 +1,52 @@
+#docker compose -f prod_docker-compose.yml up
+
+services:
+  api:
+    build:
+      dockerfile: prod_api.Dockerfile
+    container_name: altzone_api
+    depends_on:
+      - db
+      - proxy
+    networks:
+      - backend
+      - db
+    environment:
+      - HOST=altzone_api
+      - PORT=8080
+      - MONGO_USERNAME=rootUser
+      - MONGO_PASSWORD=superSecretPassword
+      - MONGO_HOST=altzone_db
+      - MONGO_PORT=27017
+      - MONGO_DB_NAME=altzone
+
+  db:
+    image: mongo:4.2.24-bionic
+    container_name: altzone_db
+    command: mongod --quiet --logpath /dev/null #disable logs
+    networks:
+      - db
+    volumes:
+      - altzone_db:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=rootUser
+      - MONGO_INITDB_ROOT_PASSWORD=superSecretPassword
+      - MONGO_INITDB_DATABASE=altzone
+
+  proxy:
+    build:
+      dockerfile: ./prod_nginx.Dockerfile
+    container_name: altzone_proxy
+    ports:
+      - 80:80
+    networks:
+      - backend
+
+networks:
+  backend:
+    name: altzone_backend
+  db:
+    name: altzone_db
+
+volumes:
+  altzone_db:
