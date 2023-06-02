@@ -10,20 +10,37 @@ export default class CollectionRefs{
         },
         CharacterClass: {
             inModelRefs: [],
-            notInModelRefs: [{ modelName: ClassName.CUSTOM_CHARACTER, foreignKey: 'characterClass_id', isOne: true }]
+            notInModelRefs: [
+                { modelName: ClassName.CUSTOM_CHARACTER, foreignKey: 'characterClass_id', isOne: false },
+                { modelName: ClassName.BATTLE_CHARACTER, foreignKey: 'characterClass_id', isOne: true }
+            ]
         },
         Clan: {
             inModelRefs: [],
             notInModelRefs: [
                 { modelName: ClassName.PLAYER_DATA, foreignKey: 'clan_id', isOne: false },
                 { modelName: ClassName.RAID_ROOM, foreignKey: 'clan_id', isOne: false },
-                { modelName: ClassName.FURNITURE, foreignKey: 'clan_id', isOne: false },
+                { modelName: ClassName.FURNITURE, foreignKey: 'clan_id', isOne: false }
             ]
         },
-        CustomCharacter:  { inModelRefs: [], notInModelRefs: [] },
-        BattleCharacter:  { inModelRefs: [], notInModelRefs: [] },
-        Furniture:  { inModelRefs: [], notInModelRefs: [] },
-        RaidRoom:  { inModelRefs: [], notInModelRefs: [] },
+        CustomCharacter:  {
+            inModelRefs: [ClassName.CHARACTER_CLASS, ClassName.PLAYER_DATA],
+            notInModelRefs: [
+                { modelName: ClassName.BATTLE_CHARACTER, foreignKey: 'customCharacter_id', isOne: true }
+            ]
+        },
+        BattleCharacter:  {
+            inModelRefs: [ClassName.CHARACTER_CLASS, ClassName.CUSTOM_CHARACTER],
+            notInModelRefs: []
+        },
+        Furniture:  {
+            inModelRefs: [ClassName.CLAN],
+            notInModelRefs: []
+        },
+        RaidRoom:  {
+            inModelRefs: [ClassName.PLAYER_DATA, ClassName.CLAN],
+            notInModelRefs: []
+        },
     }
 }
 

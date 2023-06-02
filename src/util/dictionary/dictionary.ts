@@ -1,6 +1,8 @@
 //If field name changed, remember to update both gameToAPI and apiToGame records
 //If you are adding a new dictionary, please remember to add a new ClassName to ./className.ts file
 
+import {ClassName} from "./className";
+
 export default class Dictionary {
     public static readonly values: Record<string, Record<string, Record<string, string>>> = {
         CharacterClass: {
@@ -24,7 +26,8 @@ export default class Dictionary {
                 attack: "Attack",
                 defence: "Defence",
 
-                CustomCharacter: "CustomCharacter"
+                CustomCharacter: "CustomCharacter",
+                BattleCharacter: "BattleCharacter"
             }
         },
 
@@ -78,7 +81,11 @@ export default class Dictionary {
                 playerDataGameId: "PlayerDataId",
 
                 characterClass_id: "characterClass_id",
-                playerData_id: "playerData_id"
+                playerData_id: "playerData_id",
+
+                CharacterClass: "CharacterClass",
+                PlayerData: "PlayerData",
+                BattleCharacter: "BattleCharacter"
             }
         },
 
@@ -115,7 +122,10 @@ export default class Dictionary {
                 mainDefence: "GestaltCycle",
 
                 characterClass_id: "characterClass_id",
-                customCharacter_id: "customCharacter_id"
+                customCharacter_id: "customCharacter_id",
+
+                CharacterClass: "CharacterClass",
+                CustomCharacter: "CustomCharacter"
             }
         },
 
@@ -180,7 +190,9 @@ export default class Dictionary {
                 filename: "Filename",
                 clanGameId: "ClanId",
 
-                clan_id: "clan_id"
+                clan_id: "clan_id",
+
+                Clan: "Clan"
             }
         },
 
@@ -206,7 +218,10 @@ export default class Dictionary {
                 clanMemberGameId: "ClanMemberId",
 
                 playerData_id: "playerData_id",
-                clan_id: "clan_id"
+                clan_id: "clan_id",
+
+                PlayerData: "PlayerData",
+                Clan: "Clan"
             }
         }
     }
