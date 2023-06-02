@@ -24,9 +24,17 @@ export default class CustomCharacterController extends ControllerAbstract{
 
     get = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await service.readById(req.params._id);
-            errorThrower.throwReadErrorsIfFound(respObj, ClassName.CUSTOM_CHARACTER, '_id');
+            const query = req.query;
+            let respObj = null;
 
+            if(Object.keys(query).length === 0)
+                respObj = await service.readById(req.params._id);
+            else if(query.with && (typeof query.with == 'string'))
+                respObj = await service.readOneWithCollections(req.params._id, query.with);
+            else if(query.all !== null)
+                respObj = await service.readOneAllCollections(req.params._id);
+
+            errorThrower.throwReadErrorsIfFound(respObj, ClassName.CUSTOM_CHARACTER, '_id');
             const result = parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
         }catch (err) {
