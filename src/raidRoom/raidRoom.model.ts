@@ -32,6 +32,20 @@ const schema = new Schema({
     }
 });
 
+schema.virtual(ClassName.PLAYER_DATA, {
+    ref: ClassName.PLAYER_DATA,
+    localField: 'playerData_id',
+    foreignField: '_id',
+    justOne: true
+});
+
+schema.virtual(ClassName.CLAN, {
+    ref: ClassName.CLAN,
+    localField: 'clan_id',
+    foreignField: '_id',
+    justOne: true
+});
+
 schema.pre('deleteOne', { document: false, query: true },async function () {
     const {_id} = this.getQuery();
 
