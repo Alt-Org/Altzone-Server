@@ -25,4 +25,11 @@ const schema = new Schema({
     }
 });
 
+schema.virtual(ClassName.CLAN, {
+    ref: ClassName.CLAN,
+    localField: 'clan_id',
+    foreignField: '_id',
+    justOne: true
+});
+
 export default mongoose.model<IFurniture>(ClassName.FURNITURE, schema);
