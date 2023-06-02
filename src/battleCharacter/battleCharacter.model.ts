@@ -35,4 +35,18 @@ const schema = new Schema({
     }
 });
 
+schema.virtual(ClassName.CHARACTER_CLASS, {
+    ref: ClassName.CHARACTER_CLASS,
+    localField: 'characterClass_id',
+    foreignField: '_id',
+    justOne: true
+});
+
+schema.virtual(ClassName.CUSTOM_CHARACTER, {
+    ref: ClassName.CUSTOM_CHARACTER,
+    localField: 'customCharacter_id',
+    foreignField: '_id',
+    justOne: true
+});
+
 export default mongoose.model<IBattleCharacter>(ClassName.BATTLE_CHARACTER, schema);
