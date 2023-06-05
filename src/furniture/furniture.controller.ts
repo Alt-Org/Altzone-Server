@@ -2,15 +2,15 @@ import {Request, Response} from "express";
 import {sendErrorsToClient} from "../util/response/errorHandler";
 import FurnitureService from "./furniture.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
-import {FieldParserFactory} from "../util/parser";
 import {ClassName} from "../util/dictionary";
-import {ControllerAbstract} from "../util/baseAPIClasses";
+import FurnitureParser from "./furniture.parser";
+import IController from "../util/baseAPIClasses/IController";
 
 const service = new FurnitureService();
 const errorThrower = new DefaultResponseErrorThrower();
-const parser = new FieldParserFactory().createParser(ClassName.FURNITURE);
+const parser = new FurnitureParser();
 
-export default class FurnitureController extends ControllerAbstract{
+export default class FurnitureController implements IController{
     create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.create(req.body);
