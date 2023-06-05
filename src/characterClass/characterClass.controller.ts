@@ -2,15 +2,15 @@ import {Request, Response} from "express";
 import {sendErrorsToClient} from "../util/response/errorHandler";
 import CharacterClassService from "./characterClass.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
-import {FieldParserFactory} from "../util/parser";
 import {ClassName} from "../util/dictionary";
-import {ControllerAbstract} from "../util/baseAPIClasses";
+import CharacterClassParser from "./characterClass.parser";
+import IController from "../util/baseAPIClasses/IController";
 
 const service = new CharacterClassService();
 const errorThrower = new DefaultResponseErrorThrower();
-const parser = new FieldParserFactory().createParser(ClassName.CHARACTER_CLASS);
+const parser = new CharacterClassParser();
 
-export default class CharacterClassController extends ControllerAbstract{
+export default class CharacterClassController implements IController{
     create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.create(req.body);
