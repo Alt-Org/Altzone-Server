@@ -7,7 +7,6 @@ services:
     container_name: altzone_api
     depends_on:
       - db
-      - proxy
     networks:
       - backend
       - db
@@ -37,6 +36,8 @@ services:
     build:
       dockerfile: ./prod_nginx.Dockerfile
     container_name: altzone_proxy
+    depends_on:
+      - api
     ports:
       - 80:80
     networks:
