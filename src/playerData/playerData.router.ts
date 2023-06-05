@@ -1,8 +1,31 @@
-import {ClassName} from "../util/dictionary";
 import RouterBase from "../util/baseAPIClasses/routerBase";
+import {IFieldParser} from "../util/parser";
+import IValidator from "../util/baseAPIClasses/IValidator";
+import IController from "../util/baseAPIClasses/IController";
+import IRouter from "../util/baseAPIClasses/IRouter";
+import {Router} from "express";
+import PlayerDataParser from "./playerData.parser";
+import PlayerDataValidator from "./playerData.validator";
+import PlayerDataController from "./playerData.controller";
 
-export default class PlayerDataRouter extends RouterBase{
-    constructor() {
-        super(ClassName.PLAYER_DATA);
+export default class PlayerDataRouter{
+    constructor(){
+        this.parser = new PlayerDataParser();
+        this.validator = new PlayerDataValidator();
+        this.controller = new PlayerDataController();
+
+        this.baseRouter = new RouterBase(this.parser, this.validator, this.controller);
+        this.baseRouter.addPost('');
+        this.baseRouter.addGet('/:_id');
+        this.baseRouter.addGet('', [this.controller.getAll]);
+        this.baseRouter.addPut('');
+        this.baseRouter.addDelete('/:_id');
     }
+
+    private readonly parser: IFieldParser;
+    private readonly validator: IValidator;
+    private readonly controller: IController;
+    private readonly baseRouter: IRouter;
+
+    public getRouter = (): Router => this.baseRouter.router;
 }
