@@ -2,9 +2,9 @@ import {handleValidationError} from "../util/response/errorHandler";
 import {ValidationChainBuilder as Validator} from "../util/validator/validationChainBuilder";
 import {Location} from "../util/validator/location";
 import {ClassName} from "../util/dictionary";
-import ValidatorAbstract from "../util/baseAPIClasses/validatorAbstract";
+import IValidator from "../util/baseAPIClasses/IValidator";
 
-export default class BattleCharacterValidator extends ValidatorAbstract {
+export default class BattleCharacterValidator implements IValidator{
     validateCreate = [
         new Validator('characterClass_id', Location.BODY, ClassName.BATTLE_CHARACTER).notEmpty().isMongoId().build(),
         new Validator('customCharacter_id', Location.BODY, ClassName.BATTLE_CHARACTER).notEmpty().isMongoId().build(),
