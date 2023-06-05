@@ -5,11 +5,10 @@ import CharacterClassModel from "../characterClass/characterClass.model";
 import CustomCharacterModel from "../customCharacter/customCharacter.model";
 import ValidationError from "../util/error/validationError";
 import Service from "../util/baseAPIClasses/service";
-import {ClassName} from "../util/dictionary";
 
 export default class BattleCharacterService extends Service<IBattleCharacter>{
     constructor(){
-        super(ClassName.BATTLE_CHARACTER);
+        super(BattleCharacterModel);
     }
 
     create = async (input: ICreateBattleCharacterInput): Promise<Object | MongooseError> => {

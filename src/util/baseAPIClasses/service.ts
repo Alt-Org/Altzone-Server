@@ -2,12 +2,10 @@ import mongoose, {Model, MongooseError} from "mongoose";
 import {UpdateResult} from "mongodb";
 import {IUpdateInput} from "./service.d";
 import {ClassName, CollectionRefs} from "../dictionary";
-import ModelFactory from "./factory/modelFactory";
 export default abstract class Service<T>{
-    protected constructor(modelName: ClassName){
-        this.modelName = modelName;
-        //mongoose.model() will crush
-        this.model = new ModelFactory().create(modelName);
+    protected constructor(model: Model<T>){
+        this.model = model;
+        this.modelName = model.modelName as ClassName;
     }
     protected readonly modelName: ClassName;
     protected readonly model: Model<T>;

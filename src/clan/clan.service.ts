@@ -1,9 +1,9 @@
 import {IClan} from "./clan";
 import Service from "../util/baseAPIClasses/service";
-import {ClassName} from "../util/dictionary";
+import ClanModel from "./clan.model";
 
 export default class ClanService extends Service<IClan>{
     constructor(){
-        super(ClassName.CLAN);
+        super(ClanModel);
     }
 }
