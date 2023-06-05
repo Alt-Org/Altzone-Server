@@ -36,13 +36,13 @@ app.use(bodyParser.json());
 
 //Routes
 app.use('/', rootRouter);
-app.use('/clan', new ClanRouter().router);
-app.use('/characterClass', new CharacterClassRouter().router);
-app.use('/customCharacter', new CustomCharacterRouter().router);
-app.use('/battleCharacter', new BattleCharacterRouter().router);
-app.use('/playerData', new PlayerDataRouter().router);
-app.use('/furniture', new FurnitureRouter().router);
-app.use('/raidRoom', new RaidRoomRouter().router);
+app.use('/clan', new ClanRouter().getRouter());
+app.use('/characterClass', new CharacterClassRouter().getRouter());
+app.use('/customCharacter', new CustomCharacterRouter().getRouter());
+app.use('/battleCharacter', new BattleCharacterRouter().getRouter());
+app.use('/playerData', new PlayerDataRouter().getRouter());
+app.use('/furniture', new FurnitureRouter().getRouter());
+app.use('/raidRoom', new RaidRoomRouter().getRouter());
 
 const HOST = process.env.HOST || 'localhost';
 const PORT = process.env.PORT || 8080;
