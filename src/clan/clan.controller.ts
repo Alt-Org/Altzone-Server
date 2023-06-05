@@ -5,17 +5,25 @@ import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorTh
 import {ClassName} from "../util/dictionary";
 import ClanParser from "./clan.parser";
 import IController from "../util/baseAPIClasses/IController";
-
-const service = new ClanService();
-const errorThrower = new DefaultResponseErrorThrower(ClassName.CLAN);
-const parser = new ClanParser();
+import {IFieldParser} from "../util/parser";
 
 export default class ClanController implements IController{
+
+    public constructor() {
+        this.service = new ClanService();
+        this.errorThrower = new DefaultResponseErrorThrower(ClassName.CLAN);
+        this.parser = new ClanParser();
+    }
+
+    private readonly service: ClanService;
+    private readonly errorThrower: DefaultResponseErrorThrower;
+    private readonly parser: IFieldParser;
+
     create = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await service.create(req.body);
+            const respObj = await this.service.create(req.body);
 
-            const result = parser.parseFromAPIToGame(respObj);
+            const result = this.parser.parseFromAPIToGame(respObj);
             res.status(201).json(result);
         }catch (err) {
             sendErrorsToClient(err, res);
@@ -28,14 +36,14 @@ export default class ClanController implements IController{
             let respObj = null;
 
             if(Object.keys(query).length === 0)
-                respObj = await service.readById(req.params._id);
+                respObj = await this.service.readById(req.params._id);
             else if(query.with && (typeof query.with == 'string'))
-                respObj = await service.readOneWithCollections(req.params._id, query.with);
+                respObj = await this.service.readOneWithCollections(req.params._id, query.with);
             else if(query.all !== null)
-                respObj = await service.readOneAllCollections(req.params._id);
+                respObj = await this.service.readOneAllCollections(req.params._id);
 
-            errorThrower.throwReadErrorsIfFound(respObj,'_id');
-            const result = parser.parseFromAPIToGame(respObj);
+            this.errorThrower.throwReadErrorsIfFound(respObj,'_id');
+            const result = this.parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
         }catch (err) {
             sendErrorsToClient(err, res);
@@ -44,10 +52,10 @@ export default class ClanController implements IController{
 
     getAll = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await service.readAll();
-            errorThrower.throwReadErrorsIfFound(respObj, '_id');
+            const respObj = await this.service.readAll();
+            this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
 
-            const result = parser.parseFromAPIToGame(respObj);
+            const result = this.parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
         }catch (err) {
             sendErrorsToClient(err, res);
@@ -56,8 +64,8 @@ export default class ClanController implements IController{
 
     update = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await service.updateById(req.body);
-            errorThrower.throwUpdateErrorsIfFound(respObj, '_id');
+            const respObj = await this.service.updateById(req.body);
+            this.errorThrower.throwUpdateErrorsIfFound(respObj, '_id');
 
             res.status(204).send();
         }catch (err: unknown) {
@@ -67,8 +75,8 @@ export default class ClanController implements IController{
 
     delete = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await service.deleteById(req.params._id);
-            errorThrower.throwDeleteErrorsIfFound(respObj, '_id');
+            const respObj = await this.service.deleteById(req.params._id);
+            this.errorThrower.throwDeleteErrorsIfFound(respObj, '_id');
 
             res.status(204).send();
         }catch (err) {

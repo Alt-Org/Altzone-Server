@@ -4,19 +4,26 @@ import BattleCharacterService from "./battleCharacter.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {ClassName} from "../util/dictionary";
 import RequestError from "../util/error/requestError";
-import BattleCharacterParser from "./battleCharacter.parser";
 import IController from "../util/baseAPIClasses/IController";
-
-const service = new BattleCharacterService();
-const errorThrower = new DefaultResponseErrorThrower(ClassName.BATTLE_CHARACTER);
-const parser = new BattleCharacterParser();
+import ClanParser from "../clan/clan.parser";
+import {IFieldParser} from "../util/parser";
 
 export default class BattleCharacterController implements IController{
+    public constructor() {
+        this.service = new BattleCharacterService();
+        this.errorThrower = new DefaultResponseErrorThrower(ClassName.BATTLE_CHARACTER);
+        this.parser = new ClanParser();
+    }
+
+    private readonly service: BattleCharacterService;
+    private readonly errorThrower: DefaultResponseErrorThrower;
+    private readonly parser: IFieldParser;
+
     create = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await service.create(req.body);
+            const respObj = await this.service.create(req.body);
 
-            const result = parser.parseFromAPIToGame(respObj);
+            const result = this.parser.parseFromAPIToGame(respObj);
             res.status(201).json(result);
         }catch (err) {
             sendErrorsToClient(err, res);
@@ -29,14 +36,14 @@ export default class BattleCharacterController implements IController{
             let respObj = null;
 
             if(Object.keys(query).length === 0)
-                respObj = await service.readById(req.params._id);
+                respObj = await this.service.readById(req.params._id);
             else if(query.with && (typeof query.with == 'string'))
-                respObj = await service.readOneWithCollections(req.params._id, query.with);
+                respObj = await this.service.readOneWithCollections(req.params._id, query.with);
             else if(query.all !== null)
-                respObj = await service.readOneAllCollections(req.params._id);
+                respObj = await this.service.readOneAllCollections(req.params._id);
 
-            errorThrower.throwReadErrorsIfFound(respObj, '_id');
-            const result = parser.parseFromAPIToGame(respObj);
+            this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
+            const result = this.parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
         }catch (err) {
             sendErrorsToClient(err, res);
@@ -45,10 +52,10 @@ export default class BattleCharacterController implements IController{
 
     getAll = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await service.readAll();
-            errorThrower.throwReadErrorsIfFound(respObj, '_id');
+            const respObj = await this.service.readAll();
+            this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
 
-            const result = parser.parseFromAPIToGame(respObj);
+            const result = this.parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
         }catch (err) {
             sendErrorsToClient(err, res);
@@ -61,8 +68,8 @@ export default class BattleCharacterController implements IController{
 
     delete = async (req: Request, res: Response): Promise<void> => {
         try{
-            const respObj = await service.deleteById(req.params._id);
-            errorThrower.throwDeleteErrorsIfFound(respObj, '_id');
+            const respObj = await this.service.deleteById(req.params._id);
+            this.errorThrower.throwDeleteErrorsIfFound(respObj, '_id');
 
             res.status(204).send();
         }catch (err) {
