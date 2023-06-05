@@ -1,8 +1,6 @@
 //If field name changed, remember to update both gameToAPI and apiToGame records
 //If you are adding a new dictionary, please remember to add a new ClassName to ./className.ts file
 
-import {ClassName} from "./className";
-
 export default class Dictionary {
     public static readonly values: Record<string, Record<string, Record<string, string>>> = {
         CharacterClass: {

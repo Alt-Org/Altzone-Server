@@ -1,11 +1,8 @@
 import mongoose, {Model, MongooseError} from "mongoose";
 import {UpdateResult} from "mongodb";
 import {IUpdateInput} from "./service.d";
-import RequestHelper from "../request/requestHelper";
 import {ClassName, CollectionRefs} from "../dictionary";
 import ModelFactory from "./factory/modelFactory";
-
-const requestHelper = new RequestHelper();
 export default abstract class Service<T>{
     protected constructor(modelName: ClassName){
         this.modelName = modelName;

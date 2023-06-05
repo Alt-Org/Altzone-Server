@@ -1,4 +1,4 @@
-import FieldParserFactory from "./fieldParser";
+import FieldParser from "./fieldParser";
 import IFieldParser from "./IFieldParser";
 
-export { FieldParserFactory, IFieldParser };
+export { FieldParser, IFieldParser };

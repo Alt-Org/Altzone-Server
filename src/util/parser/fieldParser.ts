@@ -1,17 +1,10 @@
 import {NextFunction, Request, Response} from "express";
-import {ClassName, Dictionary} from '../dictionary';
 import IFieldParser from "./IFieldParser";
 
-export default class FieldParserFactory{
-    public createParser = (parserType: ClassName): FieldParser => {
-        return new FieldParser(parserType);
-    }
-}
-
-class FieldParser implements IFieldParser{
-    constructor(className: string) {
-        this.gameToAPIDictionary = Dictionary.values[className]['gameToAPI'];
-        this.apiToGameDictionary = Dictionary.values[className]['apiToGame'];
+export default abstract class  FieldParser implements IFieldParser{
+    protected constructor(gameToAPIDictionary: Record<string, string>, apiToGameDictionary: Record<string, string>) {
+        this.gameToAPIDictionary = gameToAPIDictionary;
+        this.apiToGameDictionary = apiToGameDictionary;
     }
 
     private readonly gameToAPIDictionary: Record<string, string>;
