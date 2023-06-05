@@ -2,6 +2,10 @@
 
 This is a REST API for Altzone game
 
+## Link to server
+
+Server is now available on http://154.49.137.212/
+
 ## Getting started
 
 ### Docker compose
