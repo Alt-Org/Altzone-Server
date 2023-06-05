@@ -1,51 +1,50 @@
 import {handleValidationError} from "../util/response/errorHandler";
 import {ValidationChainBuilder as Validator} from "../util/validator/validationChainBuilder";
 import {Location} from "../util/validator/location";
-import {ClassName} from "../util/dictionary";
 import IValidator from "../util/baseAPIClasses/IValidator";
 
 export default class FurnitureValidator implements IValidator{
     validateCreate = [
-        new Validator('gameId', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
-        new Validator('name', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
-        new Validator('shape', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
-        new Validator('weight', Location.BODY, ClassName.FURNITURE).notEmpty().isDouble().build(),
-        new Validator('material', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
-        new Validator('recycling', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
-        new Validator('unityKey', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
-        new Validator('filename', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
-        new Validator('clanGameId', Location.BODY, ClassName.FURNITURE).notEmpty().isString().build(),
+        new Validator('gameId', Location.BODY).notEmpty().isString().build(),
+        new Validator('name', Location.BODY).notEmpty().isString().build(),
+        new Validator('shape', Location.BODY).notEmpty().isString().build(),
+        new Validator('weight', Location.BODY).notEmpty().isDouble().build(),
+        new Validator('material', Location.BODY).notEmpty().isString().build(),
+        new Validator('recycling', Location.BODY).notEmpty().isString().build(),
+        new Validator('unityKey', Location.BODY).notEmpty().isString().build(),
+        new Validator('filename', Location.BODY).notEmpty().isString().build(),
+        new Validator('clanGameId', Location.BODY).notEmpty().isString().build(),
 
-        new Validator('clan_id', Location.BODY, ClassName.FURNITURE).notEmpty().isMongoId().build(),
+        new Validator('clan_id', Location.BODY).notEmpty().isMongoId().build(),
 
         handleValidationError
     ];
 
     validateRead = [
-        new Validator('_id', Location.PARAM, ClassName.FURNITURE).notEmpty().isMongoId().build(),
+        new Validator('_id', Location.PARAM).notEmpty().isMongoId().build(),
 
         handleValidationError
     ];
 
     validateUpdate = [
-        new Validator('_id', Location.BODY, ClassName.FURNITURE).notEmpty().isMongoId().build(),
-        new Validator('gameId', Location.BODY, ClassName.FURNITURE).ifProvided().isString().build(),
-        new Validator('name', Location.BODY, ClassName.FURNITURE).ifProvided().isString().build(),
-        new Validator('shape', Location.BODY, ClassName.FURNITURE).ifProvided().isString().build(),
-        new Validator('weight', Location.BODY, ClassName.FURNITURE).ifProvided().isDouble().build(),
-        new Validator('material', Location.BODY, ClassName.FURNITURE).ifProvided().isString().build(),
-        new Validator('recycling', Location.BODY, ClassName.FURNITURE).ifProvided().isString().build(),
-        new Validator('unityKey', Location.BODY, ClassName.FURNITURE).ifProvided().isString().build(),
-        new Validator('filename', Location.BODY, ClassName.FURNITURE).ifProvided().isString().build(),
-        new Validator('clanGameId', Location.BODY, ClassName.FURNITURE).ifProvided().isString().build(),
+        new Validator('_id', Location.BODY).notEmpty().isMongoId().build(),
+        new Validator('gameId', Location.BODY).ifProvided().isString().build(),
+        new Validator('name', Location.BODY).ifProvided().isString().build(),
+        new Validator('shape', Location.BODY).ifProvided().isString().build(),
+        new Validator('weight', Location.BODY).ifProvided().isDouble().build(),
+        new Validator('material', Location.BODY).ifProvided().isString().build(),
+        new Validator('recycling', Location.BODY).ifProvided().isString().build(),
+        new Validator('unityKey', Location.BODY).ifProvided().isString().build(),
+        new Validator('filename', Location.BODY).ifProvided().isString().build(),
+        new Validator('clanGameId', Location.BODY).ifProvided().isString().build(),
 
-        new Validator('clan_id', Location.BODY, ClassName.FURNITURE).ifProvided().isMongoId().build(),
+        new Validator('clan_id', Location.BODY).ifProvided().isMongoId().build(),
 
         handleValidationError
     ];
 
     validateDelete = [
-        new Validator('_id', Location.PARAM, ClassName.FURNITURE).notEmpty().isMongoId().build(),
+        new Validator('_id', Location.PARAM).notEmpty().isMongoId().build(),
 
         handleValidationError
     ];
