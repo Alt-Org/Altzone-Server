@@ -1,30 +1,42 @@
 import {Router} from 'express';
-import {FieldParserFactory} from "../parser";
-import {ClassName} from "../dictionary";
-import ControllerAbstract from "./controllerAbstract";
-import ControllerFactory from "./factory/controllerFactory";
-import ValidatorAbstract from "./validatorAbstract";
-import ValidatorFactory from "./factory/validatorFactory";
+import {IFieldParser} from "../parser";
+import IValidator from "./IValidator";
+import IController from "./IController";
+import IRouter from "./IRouter";
 
-export default abstract class RouterBase{
-    protected constructor(modelName: ClassName){
-        this.modelName = modelName;
-        this.parser = new FieldParserFactory().createParser(modelName);
-        this.validator = new ValidatorFactory().create(modelName);
-        this.controller= new ControllerFactory().create(modelName);
+export default class RouterBase implements IRouter{
+    public constructor(parser: IFieldParser, validator: IValidator, controller: IController){
+        this.parser = parser;
+        this.validator = validator;
+        this.controller= controller;
 
         this.router = Router();
-        this.router.post('/', this.parser.parseFromGameToAPI, this.validator.validateCreate, this.controller.create);
-        this.router.get('/:_id', this.validator.validateRead, this.controller.get);
-        this.router.get('/', this.controller.getAll);
-        this.router.put('/', this.parser.parseFromGameToAPI, this.validator.validateUpdate, this.controller.update);
-        this.router.delete('/:_id', this.validator.validateDelete, this.controller.delete);
     }
-    protected readonly modelName: ClassName;
 
-    protected parser;
-    protected readonly validator: ValidatorAbstract;
-    protected readonly controller: ControllerAbstract;
+    public addPost = (path?: string, handlers?: any[]) => {
+        this.router.post(path || '', this.parser.parseFromGameToAPI, this.validator.validateCreate, this.controller.create);
+    }
+
+    public addGet = (path?: string, handlers?: any[]) => {
+        const chosenPath = path !== undefined ? path : '/_:id';
+
+        if(handlers == null || handlers.length === 0)
+            this.router.get(chosenPath, this.validator.validateRead, this.controller.get);
+        else
+            this.router.get(chosenPath, handlers);
+    }
+
+    public addPut = (path?: string, handlers?: any[]) => {
+        this.router.put(path || '', this.parser.parseFromGameToAPI, this.validator.validateUpdate, this.controller.update);
+    }
+
+    public addDelete = (path?: string, handlers?: any[]) => {
+        this.router.delete(path || '/:_id', this.validator.validateDelete, this.controller.delete);
+    }
+
+    private parser;
+    private readonly validator: IValidator;
+    private readonly controller: IController;
 
     public readonly router: Router;
 }
