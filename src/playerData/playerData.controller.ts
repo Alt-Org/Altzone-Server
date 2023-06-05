@@ -7,7 +7,7 @@ import PlayerDataParser from "./playerData.parser";
 import IController from "../util/baseAPIClasses/IController";
 
 const service = new PlayerDataService();
-const errorThrower = new DefaultResponseErrorThrower();
+const errorThrower = new DefaultResponseErrorThrower(ClassName.PLAYER_DATA);
 const parser = new PlayerDataParser();
 
 export default class PlayerDataController implements IController{
@@ -34,7 +34,7 @@ export default class PlayerDataController implements IController{
             else if(query.all !== null)
                 respObj = await service.readOneAllCollections(req.params._id);
 
-            errorThrower.throwReadErrorsIfFound(respObj, ClassName.PLAYER_DATA, '_id');
+            errorThrower.throwReadErrorsIfFound(respObj, '_id');
             const result = parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
         }catch (err) {
@@ -45,7 +45,7 @@ export default class PlayerDataController implements IController{
     getAll = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.readAll();
-            errorThrower.throwReadErrorsIfFound(respObj, ClassName.PLAYER_DATA, '_id');
+            errorThrower.throwReadErrorsIfFound(respObj, '_id');
 
             const result = parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
@@ -57,7 +57,7 @@ export default class PlayerDataController implements IController{
     update = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.updateById(req.body);
-            errorThrower.throwUpdateErrorsIfFound(respObj, ClassName.PLAYER_DATA, '_id');
+            errorThrower.throwUpdateErrorsIfFound(respObj, '_id');
 
             res.status(204).send();
         }catch (err: unknown) {
@@ -68,7 +68,7 @@ export default class PlayerDataController implements IController{
     delete = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.deleteById(req.params._id);
-            errorThrower.throwDeleteErrorsIfFound(respObj, ClassName.PLAYER_DATA, '_id');
+            errorThrower.throwDeleteErrorsIfFound(respObj, '_id');
 
             res.status(204).send();
         }catch (err) {

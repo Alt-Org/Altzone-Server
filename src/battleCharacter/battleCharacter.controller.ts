@@ -8,7 +8,7 @@ import BattleCharacterParser from "./battleCharacter.parser";
 import IController from "../util/baseAPIClasses/IController";
 
 const service = new BattleCharacterService();
-const errorThrower = new DefaultResponseErrorThrower();
+const errorThrower = new DefaultResponseErrorThrower(ClassName.BATTLE_CHARACTER);
 const parser = new BattleCharacterParser();
 
 export default class BattleCharacterController implements IController{
@@ -35,7 +35,7 @@ export default class BattleCharacterController implements IController{
             else if(query.all !== null)
                 respObj = await service.readOneAllCollections(req.params._id);
 
-            errorThrower.throwReadErrorsIfFound(respObj, ClassName.BATTLE_CHARACTER, '_id');
+            errorThrower.throwReadErrorsIfFound(respObj, '_id');
             const result = parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
         }catch (err) {
@@ -46,7 +46,7 @@ export default class BattleCharacterController implements IController{
     getAll = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.readAll();
-            errorThrower.throwReadErrorsIfFound(respObj, ClassName.BATTLE_CHARACTER, '_id');
+            errorThrower.throwReadErrorsIfFound(respObj, '_id');
 
             const result = parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
@@ -62,7 +62,7 @@ export default class BattleCharacterController implements IController{
     delete = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.deleteById(req.params._id);
-            errorThrower.throwDeleteErrorsIfFound(respObj, ClassName.BATTLE_CHARACTER, '_id');
+            errorThrower.throwDeleteErrorsIfFound(respObj, '_id');
 
             res.status(204).send();
         }catch (err) {

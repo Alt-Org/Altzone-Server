@@ -7,7 +7,7 @@ import FurnitureParser from "./furniture.parser";
 import IController from "../util/baseAPIClasses/IController";
 
 const service = new FurnitureService();
-const errorThrower = new DefaultResponseErrorThrower();
+const errorThrower = new DefaultResponseErrorThrower(ClassName.FURNITURE);
 const parser = new FurnitureParser();
 
 export default class FurnitureController implements IController{
@@ -34,7 +34,7 @@ export default class FurnitureController implements IController{
             else if(query.all !== null)
                 respObj = await service.readOneAllCollections(req.params._id);
 
-            errorThrower.throwReadErrorsIfFound(respObj, ClassName.FURNITURE, '_id');
+            errorThrower.throwReadErrorsIfFound(respObj, '_id');
             const result = parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
         }catch (err) {
@@ -45,7 +45,7 @@ export default class FurnitureController implements IController{
     getAll = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.readAll();
-            errorThrower.throwReadErrorsIfFound(respObj, ClassName.FURNITURE, '_id');
+            errorThrower.throwReadErrorsIfFound(respObj, '_id');
 
             const result = parser.parseFromAPIToGame(respObj);
             res.status(200).json(result);
@@ -57,7 +57,7 @@ export default class FurnitureController implements IController{
     update = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.updateById(req.body);
-            errorThrower.throwUpdateErrorsIfFound(respObj, ClassName.FURNITURE, '_id');
+            errorThrower.throwUpdateErrorsIfFound(respObj, '_id');
 
             res.status(204).send();
         }catch (err: unknown) {
@@ -68,7 +68,7 @@ export default class FurnitureController implements IController{
     delete = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.deleteById(req.params._id);
-            errorThrower.throwDeleteErrorsIfFound(respObj, ClassName.FURNITURE, '_id');
+            errorThrower.throwDeleteErrorsIfFound(respObj, '_id');
 
             res.status(204).send();
         }catch (err) {
