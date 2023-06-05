@@ -2,15 +2,15 @@ import {Request, Response } from "express";
 import { sendErrorsToClient } from "../util/response/errorHandler";
 import ClanService from "./clan.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
-import {FieldParserFactory} from "../util/parser";
 import {ClassName} from "../util/dictionary";
-import {ControllerAbstract} from "../util/baseAPIClasses";
+import ClanParser from "./clan.parser";
+import IController from "../util/baseAPIClasses/IController";
 
 const service = new ClanService();
 const errorThrower = new DefaultResponseErrorThrower();
-const parser = new FieldParserFactory().createParser(ClassName.CLAN);
+const parser = new ClanParser();
 
-export default class ClanController extends ControllerAbstract{
+export default class ClanController implements IController{
     create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.create(req.body);
