@@ -2,15 +2,15 @@ import {Request, Response} from "express";
 import {sendErrorsToClient} from "../util/response/errorHandler";
 import RaidRoomService from "./raidRoom.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
-import {FieldParserFactory} from "../util/parser";
 import {ClassName} from "../util/dictionary";
-import {ControllerAbstract} from "../util/baseAPIClasses";
+import RaidRoomParser from "./raidRoom.parser";
+import IController from "../util/baseAPIClasses/IController";
 
 const service = new RaidRoomService();
 const errorThrower = new DefaultResponseErrorThrower();
-const parser = new FieldParserFactory().createParser(ClassName.RAID_ROOM);
+const parser = new RaidRoomParser();
 
-export default class RaidRoomController extends ControllerAbstract{
+export default class RaidRoomController implements IController{
     create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await service.create(req.body);
