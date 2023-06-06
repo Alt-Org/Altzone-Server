@@ -4,13 +4,9 @@ import {ClassName} from "../util/dictionary";
 import SchemaValidator from "../util/schemaHelper/schemaValidator";
 
 const schema = new Schema({
-    gameId: { type: String, required: true, unique: true },
     name: { type: String, required: true, unique: true },
     backpackCapacity: { type: Number, required: true },
     uniqueIdentifier: { type: String, required: true, unique: true },
-    currentCustomCharacterGameId: { type: String },
-    clanGameId: { type: String },
-    raidRoomGameId: { type: String },
 
     currentCustomCharacter_id: {
         type: Schema.Types.ObjectId,
