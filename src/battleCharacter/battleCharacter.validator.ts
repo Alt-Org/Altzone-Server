@@ -4,26 +4,26 @@ import {Location} from "../util/validator/location";
 import IValidator from "../util/baseAPIClasses/IValidator";
 
 export default class BattleCharacterValidator implements IValidator{
-    validateCreate = [
+    public readonly validateCreate = [
         new Validator('characterClass_id', Location.BODY).notEmpty().isMongoId().build(),
         new Validator('customCharacter_id', Location.BODY).notEmpty().isMongoId().build(),
 
         handleValidationError
     ];
 
-    validateRead = [
+    public readonly validateRead = [
         new Validator('_id', Location.PARAM).isMongoId().build(),
 
         handleValidationError
     ];
 
-    validateUpdate = [
+    public readonly validateUpdate = [
         new Validator('_id', Location.BODY).notEmpty().isMongoId().build(),
 
         handleValidationError
     ];
 
-    validateDelete = [
+    public readonly validateDelete = [
         new Validator('_id', Location.PARAM).isMongoId().build(),
 
         handleValidationError

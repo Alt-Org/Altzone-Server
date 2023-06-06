@@ -7,11 +7,11 @@ import ValidationError from "../util/error/validationError";
 import Service from "../util/baseAPIClasses/service";
 
 export default class BattleCharacterService extends Service<IBattleCharacter>{
-    constructor(){
+    public constructor(){
         super(BattleCharacterModel);
     }
 
-    create = async (input: ICreateBattleCharacterInput): Promise<Object | MongooseError> => {
+    public create = async (input: ICreateBattleCharacterInput): Promise<Object | MongooseError> => {
         const {characterClass_id, customCharacter_id} = input;
 
         const baseCharacterClass: any = await CharacterClassModel.findById(characterClass_id);

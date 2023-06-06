@@ -19,7 +19,7 @@ export default class BattleCharacterController implements IController{
     private readonly errorThrower: DefaultResponseErrorThrower;
     private readonly parser: IFieldParser;
 
-    create = async (req: Request, res: Response): Promise<void> => {
+    public create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await this.service.create(req.body);
 
@@ -30,7 +30,7 @@ export default class BattleCharacterController implements IController{
         }
     }
 
-    get = async (req: Request, res: Response): Promise<void> => {
+    public get = async (req: Request, res: Response): Promise<void> => {
         try{
             const query = req.query;
             let respObj = null;
@@ -50,7 +50,7 @@ export default class BattleCharacterController implements IController{
         }
     }
 
-    getAll = async (req: Request, res: Response): Promise<void> => {
+    public getAll = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await this.service.readAll();
             this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
@@ -62,11 +62,11 @@ export default class BattleCharacterController implements IController{
         }
     }
 
-    update(req: Request, res: Response): Promise<void> {
+    public update(req: Request, res: Response): Promise<void> {
         throw new RequestError(405, 'Updating BattleCharacter data is forbidden');
     }
 
-    delete = async (req: Request, res: Response): Promise<void> => {
+    public delete = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await this.service.deleteById(req.params._id);
             this.errorThrower.throwDeleteErrorsIfFound(respObj, '_id');

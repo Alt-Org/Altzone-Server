@@ -9,7 +9,7 @@ import BattleCharacterValidator from "./battleCharacter.validator";
 import BattleCharacterController from "./battleCharacter.controller";
 
 export default class BattleCharacterRouter{
-    constructor(){
+    public constructor(){
         this.parser = new BattleCharacterParser();
         this.validator = new BattleCharacterValidator();
         this.controller = new BattleCharacterController();
