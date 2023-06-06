@@ -1,7 +1,7 @@
 import {NextFunction, Request, Response} from "express";
 import IFieldParser from "./IFieldParser";
 
-export default abstract class  FieldParser implements IFieldParser{
+export default abstract class FieldParser implements IFieldParser{
     protected constructor(gameToAPIDictionary: Record<string, string>, apiToGameDictionary: Record<string, string>) {
         this.gameToAPIDictionary = gameToAPIDictionary;
         this.apiToGameDictionary = apiToGameDictionary;
@@ -21,7 +21,7 @@ export default abstract class  FieldParser implements IFieldParser{
             if(apiAnalog !== undefined)
                 newBody[apiAnalog] = body[currentKey];
             else
-                console.error(`Warning: field ${currentKey} is not recognized. Please check the request body or util/parser/dictionary file`);
+                console.error(`Warning: field ${currentKey} is not recognized.`);
         }
         req.body = newBody;
 
@@ -30,7 +30,7 @@ export default abstract class  FieldParser implements IFieldParser{
 
     public parseFromAPIToGame = (apiResponse: Object | any): Object | Object[] | null => {
 
-        //If this is an MongoDB object
+        //If this is a MongoDB object
         if(apiResponse._doc){
             return this.convertAPIToGameObject(apiResponse._doc);
         }
