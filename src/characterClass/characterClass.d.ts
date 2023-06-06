@@ -12,7 +12,6 @@ interface ICharacterClass extends Document{
 }
 
 interface ICreateCharacterClassInput {
-    gameId: ICharacterClass['gameId'];
     name: ICharacterClass['name'];
     mainDefence: ICharacterClass['mainDefence'];
     speed: ICharacterClass['speed'];
@@ -23,7 +22,6 @@ interface ICreateCharacterClassInput {
 
 interface IUpdateCharacterClassInput {
     _id: ObjectId;
-    gameId?: ICharacterClass['gameId'];
     name?: ICharacterClass['name'];
     mainDefence?: ICharacterClass['mainDefence'];
     speed?: ICharacterClass['speed'];
