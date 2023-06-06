@@ -10,9 +10,7 @@ const schema = new Schema({
     speed: { type: Number },
     attack: { type: Number },
     defence: { type: Number },
-    customCharacterGameId: { type: Number },
 
-    characterClassGameId: { type: Number },
     characterClassName: { type: String },
     mainDefence: { type: Number },
 

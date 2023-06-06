@@ -3,16 +3,14 @@ import {FieldParser, IFieldParser} from "../util/parser";
 export default class BattleCharacterParser extends FieldParser implements IFieldParser{
     public constructor() {
         const gameToAPIDictionary: Record<string, string> = {
-            _id: "_id",
+            Id: "_id",
             UnityKey: "unityKey",
             Name: "name",
             Speed: "speed",
             Resistance: "resistance",
             Attack: "attack",
             Defence: "defence",
-            CustomCharacterId: "customCharacterGameId",
 
-            CharacterClassId: "characterClassGameId",
             CharacterClassName: "characterClassName",
             GestaltCycle: "mainDefence",
 
@@ -21,16 +19,14 @@ export default class BattleCharacterParser extends FieldParser implements IField
         }
 
         const apiToGameDictionary: Record<string, string> = {
-            _id: "_id",
+            _id: "Id",
             unityKey: "UnityKey",
             name: "Name",
             speed: "Speed",
             resistance: "Resistance",
             attack: "Attack",
             defence: "Defence",
-            customCharacterGameId: "CustomCharacterId",
 
-            characterClassGameId: "CharacterClassId",
             characterClassName: "CharacterClassName",
             mainDefence: "GestaltCycle",
 

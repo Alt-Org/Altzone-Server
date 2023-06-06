@@ -8,9 +8,7 @@ interface IBattleCharacter extends Document{
     speed: number;
     attack: number;
     defence: number;
-    customCharacterGameId: number;
 
-    characterClassGameId: number;
     characterClassName: string;
     mainDefence: number;
 
