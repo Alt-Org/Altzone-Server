@@ -3,7 +3,7 @@ import {IPlayerData} from "./playerData";
 import PlayerDataModel from "./playerData.model";
 
 export default class PlayerDataService extends Service<IPlayerData>{
-    constructor(){
+    public constructor(){
         super(PlayerDataModel);
     }
 }

@@ -9,7 +9,7 @@ import PlayerDataValidator from "./playerData.validator";
 import PlayerDataController from "./playerData.controller";
 
 export default class PlayerDataRouter{
-    constructor(){
+    public constructor(){
         this.parser = new PlayerDataParser();
         this.validator = new PlayerDataValidator();
         this.controller = new PlayerDataController();
