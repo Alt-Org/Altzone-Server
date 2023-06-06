@@ -9,7 +9,7 @@ import FurnitureValidator from "./furniture.validator";
 import FurnitureController from "./furniture.controller";
 
 export default class FurnitureRouter{
-    constructor(){
+    public constructor(){
         this.parser = new FurnitureParser();
         this.validator = new FurnitureValidator();
         this.controller = new FurnitureController();
