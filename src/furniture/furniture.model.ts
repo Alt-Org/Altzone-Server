@@ -4,7 +4,6 @@ import {ClassName} from "../util/dictionary";
 import SchemaValidator from "../util/schemaHelper/schemaValidator";
 
 const schema = new Schema({
-    gameId: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     shape: { type: String, required: true },
     weight: { type: Number, required: true },
@@ -12,7 +11,6 @@ const schema = new Schema({
     recycling: { type: String, required: true },
     unityKey: { type: String, required: true },
     filename: { type: String, required: true },
-    clanGameId: { type: String, required: true },
 
     clan_id: {
         type: Schema.Types.ObjectId,
