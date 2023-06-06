@@ -1,0 +1,545 @@
+openapi: 3.0.1
+info:
+  title: Altzone API
+  description: This is an API for altzone game
+  version: 1.0.0
+servers:
+  - url: 'http://154.49.137.212/'
+paths:
+  /battleCharacter:
+    post:
+      summary: Create a battle character
+      tags:
+        - battleCharacter
+      responses:
+        '201':
+          description: 'Created'
+        '400':
+          description: 'Validation error'
+        '422':
+          description: 'Unique field with that value already exists'
+        '500':
+          description: 'Unexpected error'
+    get:
+      summary: Read all battle characters
+      tags:
+        - battleCharacter
+      responses:
+        '200':
+          description: 'Found'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+    put:
+      summary: Update a battle character
+      tags:
+        - battleCharacter
+      responses:
+        '200':
+          description: 'Updated'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '422':
+          description: 'Unique field with that value already exists'
+        '500':
+          description: 'Unexpected error'
+
+  /battleCharacter/{_id}:
+    parameters:
+      - name: _id
+        in: path
+        required: true
+        description: MongoDB ObjectID
+    get:
+      summary: Read specific battle character
+      tags:
+        - battleCharacter
+      responses:
+        '200':
+          description: 'Found'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+    delete:
+      summary: Delete a battle character
+      tags:
+        - battleCharacter
+      responses:
+        '200':
+          description: 'Deleted'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+
+
+  /characterClass:
+    post:
+      summary: Create a character class
+      tags:
+        - characterClass
+      responses:
+        '201':
+          description: 'Created'
+        '400':
+          description: 'Validation error'
+        '422':
+          description: 'Unique field with that value already exists'
+        '500':
+          description: 'Unexpected error'
+    get:
+      summary: Read all character classes
+      tags:
+        - characterClass
+      responses:
+        '200':
+          description: 'Found'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+    put:
+      summary: Update a character class
+      tags:
+        - characterClass
+      responses:
+        '200':
+          description: 'Updated'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '422':
+          description: 'Unique field with that value already exists'
+        '500':
+          description: 'Unexpected error'
+
+  /characterClass/{_id}:
+    parameters:
+      - name: _id
+        in: path
+        required: true
+        description: MongoDB ObjectID
+    get:
+      summary: Read specific character class
+      tags:
+        - characterClass
+      responses:
+        '200':
+          description: 'Found'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+    delete:
+      summary: Delete a character class
+      tags:
+        - characterClass
+      responses:
+        '200':
+          description: 'Deleted'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+
+
+  /clan:
+    post:
+      summary: Create a clan
+      tags:
+        - clan
+      responses:
+        '201':
+          description: 'Created'
+        '400':
+          description: 'Validation error'
+        '422':
+          description: 'Unique field with that value already exists'
+        '500':
+          description: 'Unexpected error'
+    get:
+      summary: Read all clans
+      tags:
+        - clan
+      responses:
+        '200':
+          description: 'Found'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+    put:
+      summary: Update a clan
+      tags:
+        - clan
+      responses:
+        '200':
+          description: 'Updated'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '422':
+          description: 'Unique field with that value already exists'
+        '500':
+          description: 'Unexpected error'
+
+  /clan/{_id}:
+    parameters:
+      - name: _id
+        in: path
+        required: true
+        description: MongoDB ObjectID
+    get:
+      summary: Read specific clan
+      tags:
+        - clan
+      responses:
+        '200':
+          description: 'Found'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+    delete:
+      summary: Delete a clan
+      tags:
+        - clan
+      responses:
+        '200':
+          description: 'Deleted'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+
+
+  /customCharacter:
+    post:
+      summary: Create a custom character
+      tags:
+        - customCharacter
+      responses:
+        '201':
+          description: 'Created'
+        '400':
+          description: 'Validation error'
+        '422':
+          description: 'Unique field with that value already exists'
+        '500':
+          description: 'Unexpected error'
+    get:
+      summary: Read all custom characters
+      tags:
+        - customCharacter
+      responses:
+        '200':
+          description: 'Found'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+    put:
+      summary: Update a custom character
+      tags:
+        - customCharacter
+      responses:
+        '200':
+          description: 'Updated'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '422':
+          description: 'Unique field with that value already exists'
+        '500':
+          description: 'Unexpected error'
+
+  /customCharacter/{_id}:
+    parameters:
+      - name: _id
+        in: path
+        required: true
+        description: MongoDB ObjectID
+    get:
+      summary: Read specific custom character
+      tags:
+        - customCharacter
+      responses:
+        '200':
+          description: 'Found'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+    delete:
+      summary: Delete a custom character
+      tags:
+        - customCharacter
+      responses:
+        '200':
+          description: 'Deleted'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+
+
+  /furniture:
+    post:
+      summary: Create a furniture
+      tags:
+        - furniture
+      responses:
+        '201':
+          description: 'Created'
+        '400':
+          description: 'Validation error'
+        '422':
+          description: 'Unique field with that value already exists'
+        '500':
+          description: 'Unexpected error'
+    get:
+      summary: Read all furnitures
+      tags:
+        - furniture
+      responses:
+        '200':
+          description: 'Found'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+    put:
+      summary: Update a furniture
+      tags:
+        - furniture
+      responses:
+        '200':
+          description: 'Updated'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '422':
+          description: 'Unique field with that value already exists'
+        '500':
+          description: 'Unexpected error'
+
+  /furniture/{_id}:
+    parameters:
+      - name: _id
+        in: path
+        required: true
+        description: MongoDB ObjectID
+    get:
+      tags:
+        - furniture
+      summary: Read specific furniture
+      responses:
+        '200':
+          description: 'Found'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+    delete:
+      summary: Delete a furniture
+      tags:
+        - furniture
+      responses:
+        '200':
+          description: 'Deleted'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+
+
+  /playerData:
+    post:
+      summary: Create a player data
+      tags:
+        - playerData
+      responses:
+        '201':
+          description: 'Created'
+        '400':
+          description: 'Validation error'
+        '422':
+          description: 'Unique field with that value already exists'
+        '500':
+          description: 'Unexpected error'
+    get:
+      summary: Read all players´ data
+      tags:
+        - playerData
+      responses:
+        '200':
+          description: 'Found'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+    put:
+      summary: Update a player data
+      tags:
+        - playerData
+      responses:
+        '200':
+          description: 'Updated'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '422':
+          description: 'Unique field with that value already exists'
+        '500':
+          description: 'Unexpected error'
+
+  /playerData/{_id}:
+    parameters:
+      - name: _id
+        in: path
+        required: true
+        description: MongoDB ObjectID
+    get:
+      summary: Read specific player data
+      tags:
+        - playerData
+      responses:
+        '200':
+          description: 'Found'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+    delete:
+      summary: Delete a player data
+      tags:
+        - playerData
+      responses:
+        '200':
+          description: 'Deleted'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+
+
+  /raidRoom:
+    post:
+      summary: Create a raid room
+      tags:
+        - raidRoom
+      responses:
+        '201':
+          description: 'Created'
+        '400':
+          description: 'Validation error'
+        '422':
+          description: 'Unique field with that value already exists'
+        '500':
+          description: 'Unexpected error'
+    get:
+      summary: Read all raid rooms
+      tags:
+        - raidRoom
+      responses:
+        '200':
+          description: 'Found'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+    put:
+      summary: Update a raid room
+      tags:
+        - raidRoom
+      responses:
+        '200':
+          description: 'Updated'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '422':
+          description: 'Unique field with that value already exists'
+        '500':
+          description: 'Unexpected error'
+
+  /raidRoom/{_id}:
+    parameters:
+      - name: _id
+        in: path
+        required: true
+        description: MongoDB ObjectID
+    get:
+      summary: Read specific raid room
+      tags:
+        - raidRoom
+      responses:
+        '200':
+          description: 'Found'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
+    delete:
+      summary: Delete a raid room
+      tags:
+        - raidRoom
+      responses:
+        '200':
+          description: 'Deleted'
+        '400':
+          description: 'Validation error'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Unexpected error'
