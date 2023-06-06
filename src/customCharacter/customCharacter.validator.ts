@@ -4,7 +4,7 @@ import {Location} from "../util/validator/location";
 import IValidator from "../util/baseAPIClasses/IValidator";
 
 export default class CustomCharacterValidator implements IValidator{
-    validateCreate = [
+    public readonly validateCreate = [
         new Validator('gameId', Location.BODY).notEmpty().isString().build(),
         new Validator('unityKey', Location.BODY).notEmpty().isString().build(),
         new Validator('name', Location.BODY).notEmpty().isString().build(),
@@ -21,13 +21,13 @@ export default class CustomCharacterValidator implements IValidator{
         handleValidationError
     ];
 
-    validateRead = [
+    public readonly validateRead = [
         new Validator('_id', Location.PARAM).isMongoId().build(),
 
         handleValidationError
     ];
 
-    validateUpdate = [
+    public readonly validateUpdate = [
         new Validator('_id', Location.BODY).notEmpty().isMongoId().build(),
         new Validator('gameId', Location.BODY).ifProvided().isString().build(),
         new Validator('unityKey', Location.BODY).ifProvided().isString().build(),
@@ -45,7 +45,7 @@ export default class CustomCharacterValidator implements IValidator{
         handleValidationError
     ];
 
-    validateDelete = [
+    public readonly validateDelete = [
         new Validator('_id', Location.PARAM).notEmpty().isMongoId().build(),
 
         handleValidationError

@@ -9,7 +9,7 @@ import CustomCharacterValidator from "./customCharacter.validator";
 import CustomCharacterController from "./customCharacter.controller";
 
 export default class CustomCharacterRouter{
-    constructor(){
+    public constructor(){
         this.parser = new CustomCharacterParser();
         this.validator = new CustomCharacterValidator();
         this.controller = new CustomCharacterController();
