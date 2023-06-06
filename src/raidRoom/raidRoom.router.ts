@@ -9,7 +9,7 @@ import RaidRoomValidator from "./raidRoom.validator";
 import RaidRoomController from "./raidRoom.controller";
 
 export default class RaidRoomRouter{
-    constructor(){
+    public constructor(){
         this.parser = new RaidRoomParser();
         this.validator = new RaidRoomValidator();
         this.controller = new RaidRoomController();
