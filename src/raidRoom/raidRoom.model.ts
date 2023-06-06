@@ -4,12 +4,9 @@ import {ClassName} from "../util/dictionary";
 import SchemaValidator from "../util/schemaHelper/schemaValidator";
 
 const schema = new Schema({
-    gameId: { type: String, required: true, unique: true },
     type: { type: Number, required: true },
     rowCount: { type: Number, required: true },
     colCount: { type: Number, required: true },
-    clanMemberGameId: { type: String },
-    clanGameId: { type: String, required: true },
 
     playerData_id: {
         type: Schema.Types.ObjectId,
