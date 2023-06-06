@@ -6,7 +6,6 @@ import IValidator from "../util/baseAPIClasses/IValidator";
 
 export default class ClanValidator implements IValidator{
     public readonly validateCreate = [
-        new Validator('gameId', Location.BODY).notEmpty().isString().build(),
         new Validator('name', Location.BODY).notEmpty().isString().build(),
         new Validator('tag', Location.BODY).ifProvided().isString().build(),
         new Validator('gameCoins', Location.BODY).ifProvided().isInt().build(),
@@ -22,7 +21,6 @@ export default class ClanValidator implements IValidator{
 
     public readonly validateUpdate = [
         new Validator('_id', Location.BODY).notEmpty().isMongoId().build(),
-        new Validator('gameId', Location.BODY).ifProvided().isString().build(),
         new Validator('name', Location.BODY).ifProvided().isString().build(),
         new Validator('tag', Location.BODY).ifProvided().isString().build(),
         new Validator('gameCoins', Location.BODY).ifProvided().isInt().build(),

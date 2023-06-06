@@ -5,7 +5,6 @@ import IValidator from "../util/baseAPIClasses/IValidator";
 
 export default class FurnitureValidator implements IValidator{
     public readonly validateCreate = [
-        new Validator('gameId', Location.BODY).notEmpty().isString().build(),
         new Validator('name', Location.BODY).notEmpty().isString().build(),
         new Validator('shape', Location.BODY).notEmpty().isString().build(),
         new Validator('weight', Location.BODY).notEmpty().isDouble().build(),
@@ -13,7 +12,6 @@ export default class FurnitureValidator implements IValidator{
         new Validator('recycling', Location.BODY).notEmpty().isString().build(),
         new Validator('unityKey', Location.BODY).notEmpty().isString().build(),
         new Validator('filename', Location.BODY).notEmpty().isString().build(),
-        new Validator('clanGameId', Location.BODY).notEmpty().isString().build(),
 
         new Validator('clan_id', Location.BODY).notEmpty().isMongoId().build(),
 
@@ -28,7 +26,6 @@ export default class FurnitureValidator implements IValidator{
 
     public readonly validateUpdate = [
         new Validator('_id', Location.BODY).notEmpty().isMongoId().build(),
-        new Validator('gameId', Location.BODY).ifProvided().isString().build(),
         new Validator('name', Location.BODY).ifProvided().isString().build(),
         new Validator('shape', Location.BODY).ifProvided().isString().build(),
         new Validator('weight', Location.BODY).ifProvided().isDouble().build(),
@@ -36,7 +33,6 @@ export default class FurnitureValidator implements IValidator{
         new Validator('recycling', Location.BODY).ifProvided().isString().build(),
         new Validator('unityKey', Location.BODY).ifProvided().isString().build(),
         new Validator('filename', Location.BODY).ifProvided().isString().build(),
-        new Validator('clanGameId', Location.BODY).ifProvided().isString().build(),
 
         new Validator('clan_id', Location.BODY).ifProvided().isMongoId().build(),
 
