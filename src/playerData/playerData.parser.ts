@@ -8,9 +8,9 @@ export default class PlayerDataParser extends FieldParser implements IFieldParse
             BackpackCapacity: "backpackCapacity",
             UniqueIdentifier: "uniqueIdentifier",
 
-            clan_id: "clan_id",
-            raidRoom_id: "raidRoom_id",
-            currentCustomCharacter_id: "currentCustomCharacter_id",
+            ClanId: "clan_id",
+            RaidRoomId: "raidRoom_id",
+            CurrentCustomCharacterId: "currentCustomCharacter_id",
         };
 
         const apiToGameDictionary: Record<string, string> = {
@@ -19,9 +19,9 @@ export default class PlayerDataParser extends FieldParser implements IFieldParse
             backpackCapacity: "BackpackCapacity",
             uniqueIdentifier: "UniqueIdentifier",
 
-            clan_id: "clan_id",
-            raidRoom_id: "raidRoom_id",
-            currentCustomCharacter_id: "currentCustomCharacter_id",
+            clan_id: "ClanId",
+            raidRoom_id: "RaidRoomId",
+            currentCustomCharacter_id: "CurrentCustomCharacterId",
 
             Clan: "Clan",
             CurrentCustomCharacter: "CurrentCustomCharacter",

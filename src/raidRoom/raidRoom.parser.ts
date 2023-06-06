@@ -8,8 +8,8 @@ export default class RaidRoomParser extends FieldParser implements IFieldParser{
             RowCount: "rowCount",
             ColCount: "colCount",
 
-            playerData_id: "playerData_id",
-            clan_id: "clan_id"
+            PlayerDataId: "playerData_id",
+            ClanId: "clan_id"
         };
 
         const apiToGameDictionary: Record<string, string> = {
@@ -18,8 +18,8 @@ export default class RaidRoomParser extends FieldParser implements IFieldParser{
             rowCount: "RowCount",
             colCount: "ColCount",
 
-            playerData_id: "playerData_id",
-            clan_id: "clan_id",
+            playerData_id: "PlayerDataId",
+            clan_id: "ClanId",
 
             PlayerData: "PlayerData",
             Clan: "Clan"

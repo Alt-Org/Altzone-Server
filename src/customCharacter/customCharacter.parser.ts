@@ -11,8 +11,8 @@ export default class CustomCharacterParser extends FieldParser implements IField
             Attack: "attack",
             Defence: "defence",
 
-            characterClass_id: "characterClass_id",
-            playerData_id: "playerData_id"
+            CharacterClassId: "characterClass_id",
+            PlayerDataId: "playerData_id"
         }
 
         const apiToGameDictionary: Record<string, string> = {
@@ -24,8 +24,8 @@ export default class CustomCharacterParser extends FieldParser implements IField
             attack: "Attack",
             defence: "Defence",
 
-            characterClass_id: "characterClass_id",
-            playerData_id: "playerData_id",
+            characterClass_id: "CharacterClassId",
+            playerData_id: "PlayerDataId",
 
             CharacterClass: "CharacterClass",
             PlayerData: "PlayerData",

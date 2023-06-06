@@ -24,9 +24,7 @@ export default class BattleCharacterService extends Service<IBattleCharacter>{
             speed: 0,
             attack: 0,
             defence: 0,
-            customCharacterGameId: 0,
 
-            characterClassGameId: 0,
             characterClassName: '',
             mainDefence: 0,
 
@@ -35,8 +33,7 @@ export default class BattleCharacterService extends Service<IBattleCharacter>{
         };
 
         if(baseCharacterClass && baseCharacterClass._doc){
-            const {gameId, name, mainDefence} = baseCharacterClass._doc;
-            combinedObj.characterClassGameId = gameId;
+            const {name, mainDefence} = baseCharacterClass._doc;
             combinedObj.characterClassName = name;
             combinedObj.mainDefence = mainDefence;
         } else

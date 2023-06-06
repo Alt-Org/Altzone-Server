@@ -14,8 +14,8 @@ export default class BattleCharacterParser extends FieldParser implements IField
             CharacterClassName: "characterClassName",
             GestaltCycle: "mainDefence",
 
-            characterClass_id: "characterClass_id",
-            customCharacter_id: "customCharacter_id"
+            CharacterClassId: "characterClass_id",
+            CustomCharacterId: "customCharacter_id"
         }
 
         const apiToGameDictionary: Record<string, string> = {
@@ -30,8 +30,8 @@ export default class BattleCharacterParser extends FieldParser implements IField
             characterClassName: "CharacterClassName",
             mainDefence: "GestaltCycle",
 
-            characterClass_id: "characterClass_id",
-            customCharacter_id: "customCharacter_id",
+            characterClass_id: "CharacterClassId",
+            customCharacter_id: "CustomCharacterId",
 
             CharacterClass: "CharacterClass",
             CustomCharacter: "CustomCharacter"

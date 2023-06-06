@@ -21,7 +21,7 @@ export default class CharacterClassParser extends FieldParser implements IFieldP
             attack: "Attack",
             defence: "Defence",
 
-            CustomCharacter: "CustomCharacter",
+            CustomCharacter: "CustomCharacters",
             BattleCharacter: "BattleCharacter"
         }
 

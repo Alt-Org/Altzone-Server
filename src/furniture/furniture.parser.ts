@@ -12,7 +12,7 @@ export default class FurnitureParser extends FieldParser implements IFieldParser
             UnityKey: "unityKey",
             Filename: "filename",
 
-            clan_id: "clan_id"
+            ClanId: "clan_id"
         };
 
         const apiToGameDictionary: Record<string, string> = {
@@ -25,7 +25,7 @@ export default class FurnitureParser extends FieldParser implements IFieldParser
             unityKey: "UnityKey",
             filename: "Filename",
 
-            clan_id: "clan_id",
+            clan_id: "ClanId",
 
             Clan: "Clan"
         };
