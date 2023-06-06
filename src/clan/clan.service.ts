@@ -3,7 +3,7 @@ import Service from "../util/baseAPIClasses/service";
 import ClanModel from "./clan.model";
 
 export default class ClanService extends Service<IClan>{
-    constructor(){
+    public constructor(){
         super(ClanModel);
     }
 }

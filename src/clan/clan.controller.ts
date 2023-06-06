@@ -8,7 +8,6 @@ import IController from "../util/baseAPIClasses/IController";
 import {IFieldParser} from "../util/parser";
 
 export default class ClanController implements IController{
-
     public constructor() {
         this.service = new ClanService();
         this.errorThrower = new DefaultResponseErrorThrower(ClassName.CLAN);
@@ -19,7 +18,7 @@ export default class ClanController implements IController{
     private readonly errorThrower: DefaultResponseErrorThrower;
     private readonly parser: IFieldParser;
 
-    create = async (req: Request, res: Response): Promise<void> => {
+    public create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await this.service.create(req.body);
 
@@ -30,7 +29,7 @@ export default class ClanController implements IController{
         }
     }
 
-    get = async (req: Request, res: Response): Promise<void> => {
+    public get = async (req: Request, res: Response): Promise<void> => {
         try{
             const query = req.query;
             let respObj = null;
@@ -50,7 +49,7 @@ export default class ClanController implements IController{
         }
     }
 
-    getAll = async (req: Request, res: Response): Promise<void> => {
+    public getAll = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await this.service.readAll();
             this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
@@ -62,7 +61,7 @@ export default class ClanController implements IController{
         }
     }
 
-    update = async (req: Request, res: Response): Promise<void> => {
+    public update = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await this.service.updateById(req.body);
             this.errorThrower.throwUpdateErrorsIfFound(respObj, '_id');
@@ -73,7 +72,7 @@ export default class ClanController implements IController{
         }
     }
 
-    delete = async (req: Request, res: Response): Promise<void> => {
+    public delete = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await this.service.deleteById(req.params._id);
             this.errorThrower.throwDeleteErrorsIfFound(respObj, '_id');

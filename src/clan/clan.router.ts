@@ -9,7 +9,7 @@ import {RouterBase} from "../util/baseAPIClasses";
 import {Router} from "express";
 
 export default class ClanRouter {
-    constructor(){
+    public constructor(){
         this.parser = new ClanParser();
         this.validator = new ClanValidator();
         this.controller = new ClanController();
