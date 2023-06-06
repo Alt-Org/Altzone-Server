@@ -4,14 +4,14 @@ import PlayerDataService from "./playerData.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {ClassName} from "../util/dictionary";
 import IController from "../util/baseAPIClasses/IController";
-import ClanParser from "../clan/clan.parser";
 import {IFieldParser} from "../util/parser";
+import PlayerDataParser from "./playerData.parser";
 
 export default class PlayerDataController implements IController{
     public constructor() {
         this.service = new PlayerDataService();
         this.errorThrower = new DefaultResponseErrorThrower(ClassName.PLAYER_DATA);
-        this.parser = new ClanParser();
+        this.parser = new PlayerDataParser();
     }
 
     private readonly service: PlayerDataService;

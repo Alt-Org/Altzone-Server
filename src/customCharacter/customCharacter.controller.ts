@@ -4,14 +4,14 @@ import CustomCharacterService from "./customCharacter.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {ClassName} from "../util/dictionary";
 import IController from "../util/baseAPIClasses/IController";
-import ClanParser from "../clan/clan.parser";
 import {IFieldParser} from "../util/parser";
+import CustomCharacterParser from "./customCharacter.parser";
 
 export default class CustomCharacterController implements IController{
     public constructor() {
         this.service = new CustomCharacterService();
         this.errorThrower = new DefaultResponseErrorThrower(ClassName.CUSTOM_CHARACTER);
-        this.parser = new ClanParser();
+        this.parser = new CustomCharacterParser();
     }
 
     private readonly service: CustomCharacterService;

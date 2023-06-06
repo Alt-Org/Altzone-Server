@@ -4,14 +4,14 @@ import RaidRoomService from "./raidRoom.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {ClassName} from "../util/dictionary";
 import IController from "../util/baseAPIClasses/IController";
-import ClanParser from "../clan/clan.parser";
 import {IFieldParser} from "../util/parser";
+import RaidRoomParser from "./raidRoom.parser";
 
 export default class RaidRoomController implements IController{
     public constructor() {
         this.service = new RaidRoomService();
         this.errorThrower = new DefaultResponseErrorThrower(ClassName.RAID_ROOM);
-        this.parser = new ClanParser();
+        this.parser = new RaidRoomParser();
     }
 
     private readonly service: RaidRoomService;

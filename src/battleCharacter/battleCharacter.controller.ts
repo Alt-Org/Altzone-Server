@@ -5,14 +5,14 @@ import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorTh
 import {ClassName} from "../util/dictionary";
 import RequestError from "../util/error/requestError";
 import IController from "../util/baseAPIClasses/IController";
-import ClanParser from "../clan/clan.parser";
 import {IFieldParser} from "../util/parser";
+import BattleCharacterParser from "./battleCharacter.parser";
 
 export default class BattleCharacterController implements IController{
     public constructor() {
         this.service = new BattleCharacterService();
         this.errorThrower = new DefaultResponseErrorThrower(ClassName.BATTLE_CHARACTER);
-        this.parser = new ClanParser();
+        this.parser = new BattleCharacterParser();
     }
 
     private readonly service: BattleCharacterService;
