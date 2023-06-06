@@ -9,7 +9,7 @@ import CharacterClassValidator from "./characterClass.validator";
 import CharacterClassController from "./characterClass.controller";
 
 export default class CharacterClassRouter{
-    constructor(){
+    public constructor(){
         this.parser = new CharacterClassParser();
         this.validator = new CharacterClassValidator();
         this.controller = new CharacterClassController();

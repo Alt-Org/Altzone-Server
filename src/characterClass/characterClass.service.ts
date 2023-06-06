@@ -3,7 +3,7 @@ import Service from "../util/baseAPIClasses/service";
 import CharacterClassModel from "./characterClass.model";
 
 export default class CharacterClassService extends Service<ICharacterClass>{
-    constructor(){
+    public constructor(){
         super(CharacterClassModel);
     }
 }
