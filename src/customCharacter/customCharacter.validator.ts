@@ -13,7 +13,7 @@ export default class CustomCharacterValidator implements IValidator{
         new Validator('defence', Location.BODY).notEmpty().isInt().build(),
 
         new Validator('characterClass_id', Location.BODY).notEmpty().isMongoId().build(),
-        new Validator('playerData_id', Location.BODY).notEmpty().isMongoId().build(),
+        new Validator('player_id', Location.BODY).notEmpty().isMongoId().build(),
 
         handleValidationError
     ];
@@ -34,7 +34,7 @@ export default class CustomCharacterValidator implements IValidator{
         new Validator('defence', Location.BODY).ifProvided().isInt().build(),
 
         new Validator('characterClass_id', Location.BODY).ifProvided().isMongoId().build(),
-        new Validator('playerData_id', Location.BODY).ifProvided().isMongoId().build(),
+        new Validator('player_id', Location.BODY).ifProvided().isMongoId().build(),
 
         handleValidationError
     ];

@@ -3,7 +3,7 @@ import {ValidationChainBuilder as Validator} from "../util/validator/validationC
 import {Location} from "../util/validator/location";
 import IValidator from "../util/baseAPIClasses/IValidator";
 
-export default class PlayerDataValidator implements IValidator{
+export default class PlayerValidator implements IValidator{
     public readonly validateCreate = [
         new Validator('name', Location.BODY).notEmpty().isString().build(),
         new Validator('backpackCapacity', Location.BODY).notEmpty().isInt().build(),

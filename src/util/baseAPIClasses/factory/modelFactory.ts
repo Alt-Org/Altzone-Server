@@ -1,6 +1,6 @@
 import {Model} from "mongoose";
 import {ClassName} from "../../dictionary";
-import PlayerDataModel from "../../../playerData/playerData.model";
+import PlayerModel from "../../../player/player.model";
 import CharacterClassModel from "../../../characterClass/characterClass.model";
 import ClanModel from "../../../clan/clan.model";
 import CustomCharacterModel from "../../../customCharacter/customCharacter.model";
@@ -17,8 +17,8 @@ export default class ModelFactory {
                 return ClanModel;
             case ClassName.CUSTOM_CHARACTER:
                 return CustomCharacterModel;
-            case ClassName.PLAYER_DATA:
-                return PlayerDataModel;
+            case ClassName.PLAYER:
+                return PlayerModel;
             case ClassName.BATTLE_CHARACTER:
                 return BattleCharacterModel;
             case ClassName.FURNITURE:

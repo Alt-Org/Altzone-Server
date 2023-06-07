@@ -2,6 +2,9 @@ import express from 'express';
 import {connect as connectToDB, set as mongooseSet } from 'mongoose';
 import dotenv from 'dotenv'
 dotenv.config();
+import swaggerUi from 'swagger-ui-express';
+import * as swaggerDocument from './swagger.json';
+
 
 //Routes imports
 import { rootRouter } from './root';
@@ -9,10 +12,10 @@ import { ClanRouter } from './clan';
 import { CharacterClassRouter } from './characterClass';
 import { CustomCharacterRouter } from './customCharacter';
 import { BattleCharacterRouter } from './battleCharacter';
-import { PlayerDataRouter } from './playerData';
+import { PlayerRouter } from './player';
 import { FurnitureRouter } from './furniture';
 import { RaidRoomRouter } from './raidRoom';
-import bodyParser from "body-parser";
+import bodyParser from "body-parser"
 
 const app = express();
 
@@ -33,6 +36,7 @@ connectToDB(mongoString, {dbName: dbName}).then(
 //Outside middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //Routes
 app.use('/', rootRouter);
@@ -40,15 +44,16 @@ app.use('/clan', new ClanRouter().getRouter());
 app.use('/characterClass', new CharacterClassRouter().getRouter());
 app.use('/customCharacter', new CustomCharacterRouter().getRouter());
 app.use('/battleCharacter', new BattleCharacterRouter().getRouter());
-app.use('/playerData', new PlayerDataRouter().getRouter());
+app.use('/player', new PlayerRouter().getRouter());
 app.use('/furniture', new FurnitureRouter().getRouter());
 app.use('/raidRoom', new RaidRoomRouter().getRouter());
 
 const HOST = process.env.HOST || 'localhost';
 const PORT = process.env.PORT || 8080;
 
+//TODO: remove printing in production
 app.listen(Number(PORT), HOST, () => {
-    console.log(`Server running: http://${HOST}:${PORT}`);
+    console.log(`Server running: http://localhost:${PORT}`);
 });
 
 export default app;

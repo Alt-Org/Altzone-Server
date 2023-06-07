@@ -1,5 +1,5 @@
 import mongoose, {Schema} from "mongoose";
-import {IPlayerData} from "./playerData";
+import {IPlayer} from "./player";
 import {ClassName} from "../util/dictionary";
 import SchemaValidator from "../util/schemaHelper/schemaValidator";
 
@@ -33,9 +33,7 @@ const schema = new Schema({
             validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.RAID_ROOM), v)
         }
     }
-},
-{toJSON: {virtuals: true}, toObject: {virtuals: true}}
-);
+});
 
 schema.virtual('CurrentCustomCharacter', {
     ref: ClassName.CUSTOM_CHARACTER,
@@ -63,20 +61,20 @@ schema.pre('deleteOne', { document: false, query: true },async function () {
     const {_id} = this.getQuery();
 
     const customCharacterModel = mongoose.model(ClassName.CUSTOM_CHARACTER);
-    await customCharacterModel.deleteMany({playerData_id: _id});
+    await customCharacterModel.deleteMany({player_id: _id});
 
     const raidRoomModel = mongoose.model(ClassName.RAID_ROOM);
-    await raidRoomModel.deleteOne({playerData_id: _id});
+    await raidRoomModel.deleteOne({player_id: _id});
 });
 
 schema.pre('deleteMany', { document: false, query: true },async function () {
     const {_id} = this.getQuery();
 
     const customCharacterModel = mongoose.model(ClassName.CUSTOM_CHARACTER);
-    await customCharacterModel.deleteMany({playerData_id: _id});
+    await customCharacterModel.deleteMany({player_id: _id});
 
     const raidRoomModel = mongoose.model(ClassName.RAID_ROOM);
-    await raidRoomModel.deleteOne({playerData_id: _id});
+    await raidRoomModel.deleteOne({player_id: _id});
 });
 
-export default mongoose.model<IPlayerData>(ClassName.PLAYER_DATA, schema);
+export default mongoose.model<IPlayer>(ClassName.PLAYER, schema);

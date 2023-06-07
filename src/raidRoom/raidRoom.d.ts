@@ -6,7 +6,7 @@ interface IRaidRoom extends Document{
     rowCount: number;
     colCount: number;
 
-    playerData_id: ObjectId;
+    player_id: ObjectId;
     clan_id: ObjectId;
 }
 
@@ -15,7 +15,7 @@ interface ICreateRaidRoomInput {
     rowCount: IRaidRoom['rowCount'];
     colCount: IRaidRoom['colCount'];
 
-    playerData_id: IRaidRoom['playerData_id'];
+    player_id: IRaidRoom['player_id'];
     clan_id: IRaidRoom['clan_id'];
 }
 
@@ -25,7 +25,7 @@ interface IUpdateRaidRoomInput {
     rowCount?: IRaidRoom['rowCount'];
     colCount?: IRaidRoom['colCount'];
 
-    playerData_id?: IRaidRoom['playerData_id'];
+    player_id?: IRaidRoom['player_id'];
     clan_id?: IRaidRoom['clan_id'];
 }
 

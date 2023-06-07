@@ -2,10 +2,10 @@ import {ClassName} from "./className";
 
 export default class CollectionRefs{
     public static readonly values: Record<ClassName, ICollectionRefs> = {
-        PlayerData: {
+        Player: {
             inModelRefs: ['CurrentCustomCharacter', ClassName.CLAN, ClassName.RAID_ROOM],
             notInModelRefs: [
-                { modelName: ClassName.CUSTOM_CHARACTER, foreignKey: 'playerData_id', isOne: false}
+                { modelName: ClassName.CUSTOM_CHARACTER, foreignKey: 'player_id', isOne: false}
             ]
         },
         CharacterClass: {
@@ -18,13 +18,13 @@ export default class CollectionRefs{
         Clan: {
             inModelRefs: [],
             notInModelRefs: [
-                { modelName: ClassName.PLAYER_DATA, foreignKey: 'clan_id', isOne: false },
+                { modelName: ClassName.PLAYER, foreignKey: 'clan_id', isOne: false },
                 { modelName: ClassName.RAID_ROOM, foreignKey: 'clan_id', isOne: false },
                 { modelName: ClassName.FURNITURE, foreignKey: 'clan_id', isOne: false }
             ]
         },
         CustomCharacter:  {
-            inModelRefs: [ClassName.CHARACTER_CLASS, ClassName.PLAYER_DATA],
+            inModelRefs: [ClassName.CHARACTER_CLASS, ClassName.PLAYER],
             notInModelRefs: [
                 { modelName: ClassName.BATTLE_CHARACTER, foreignKey: 'customCharacter_id', isOne: true }
             ]
@@ -38,7 +38,7 @@ export default class CollectionRefs{
             notInModelRefs: []
         },
         RaidRoom:  {
-            inModelRefs: [ClassName.PLAYER_DATA, ClassName.CLAN],
+            inModelRefs: [ClassName.PLAYER, ClassName.CLAN],
             notInModelRefs: []
         },
     }

@@ -21,13 +21,13 @@ const schema = new Schema({
         }
     },
 
-    playerData_id: {
+    player_id: {
         type: Schema.Types.ObjectId,
-        ref: ClassName.PLAYER_DATA,
+        ref: ClassName.PLAYER,
         required: true,
         validate : {
             isAsync: true,
-            validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.PLAYER_DATA), v)
+            validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.PLAYER), v)
         }
     }
 });
@@ -39,9 +39,9 @@ schema.virtual(ClassName.CHARACTER_CLASS, {
     justOne: true
 });
 
-schema.virtual(ClassName.PLAYER_DATA, {
-    ref: ClassName.PLAYER_DATA,
-    localField: 'playerData_id',
+schema.virtual(ClassName.PLAYER, {
+    ref: ClassName.PLAYER,
+    localField: 'player_id',
     foreignField: '_id',
     justOne: true
 });
@@ -49,9 +49,9 @@ schema.virtual(ClassName.PLAYER_DATA, {
 schema.pre('deleteOne', { document: false, query: true },async function () {
     const {_id} = this.getQuery();
 
-    const playerDataModel = mongoose.model(ClassName.PLAYER_DATA);
+    const playerModel = mongoose.model(ClassName.PLAYER);
     const nullIds = { currentCustomCharacter_id: null };
-    await playerDataModel.updateOne({currentCustomCharacter_id: _id}, nullIds);
+    await playerModel.updateOne({currentCustomCharacter_id: _id}, nullIds);
 });
 
 export default mongoose.model<ICustomCharacter>(ClassName.CUSTOM_CHARACTER, schema);

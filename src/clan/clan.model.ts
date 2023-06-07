@@ -12,9 +12,9 @@ schema.pre('deleteOne', { document: false, query: true },async function () {
     const {_id} = this.getQuery();
     const nullIds = { clan_id: null };
 
-    //Null all references in playerData
-    const playerDataModel = mongoose.model(ClassName.PLAYER_DATA);
-    await playerDataModel.updateMany({clan_id: _id}, nullIds);
+    //Null all references in player
+    const playerModel = mongoose.model(ClassName.PLAYER);
+    await playerModel.updateMany({clan_id: _id}, nullIds);
 
     const furnitureModel = mongoose.model(ClassName.FURNITURE);
     await furnitureModel.deleteMany({clan_id: _id});
@@ -27,8 +27,8 @@ schema.pre('deleteMany', { document: false, query: true },async function () {
     const {_id} = this.getQuery();
     const nullIds = { clan_id: null };
 
-    const playerDataModel = mongoose.model(ClassName.PLAYER_DATA);
-    await playerDataModel.updateMany({clan_id: _id}, nullIds);
+    const playerModel = mongoose.model(ClassName.PLAYER);
+    await playerModel.updateMany({clan_id: _id}, nullIds);
 
     const furnitureModel = mongoose.model(ClassName.FURNITURE);
     await furnitureModel.deleteMany({clan_id: _id});
