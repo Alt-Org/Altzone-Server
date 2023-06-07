@@ -12,7 +12,7 @@ const schema = new Schema({
     defence: { type: Number },
 
     characterClassName: { type: String },
-    mainDefence: { type: Number },
+    gestaltCycle: { type: Number },
 
     characterClass_id: {
         type: Schema.Types.ObjectId,

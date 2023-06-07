@@ -26,16 +26,16 @@ export default class BattleCharacterService extends Service<IBattleCharacter>{
             defence: 0,
 
             characterClassName: '',
-            mainDefence: 0,
+            gestaltCycle: 0,
 
             characterClass_id: '',
             customCharacter_id: ''
         };
 
         if(baseCharacterClass && baseCharacterClass._doc){
-            const {name, mainDefence} = baseCharacterClass._doc;
+            const {name, gestaltCycle} = baseCharacterClass._doc;
             combinedObj.characterClassName = name;
-            combinedObj.mainDefence = mainDefence;
+            combinedObj.gestaltCycle = gestaltCycle;
         } else
             throw new ValidationError(400, "Could not find CharacterClass with that _id");
 

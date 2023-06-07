@@ -5,7 +5,7 @@ import SchemaValidator from "../util/schemaHelper/schemaValidator";
 
 const schema = new Schema({
     name: { type: String, required: true, unique: true },
-    mainDefence: { type: Number, required: true },
+    gestaltCycle: { type: Number, required: true },
     speed: { type: Number, required: true },
     resistance: { type: Number, required: true },
     attack: { type: Number, required: true },

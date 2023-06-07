@@ -1,4 +1,4 @@
-export enum DefenceEnum{
+export enum GestaltCycleEnum{
     None = 0,
     Desensitisation = 1,
     Deflection = 2,

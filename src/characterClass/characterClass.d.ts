@@ -4,7 +4,7 @@ interface ICharacterClass extends Document{
     _id: ObjectId;
     gameId: string;
     name: string;
-    mainDefence: number;
+    gestaltCycle: number;
     speed: number;
     resistance: number;
     attack: number;
@@ -13,7 +13,7 @@ interface ICharacterClass extends Document{
 
 interface ICreateCharacterClassInput {
     name: ICharacterClass['name'];
-    mainDefence: ICharacterClass['mainDefence'];
+    gestaltCycle: ICharacterClass['gestaltCycle'];
     speed: ICharacterClass['speed'];
     resistance: ICharacterClass['resistance'];
     attack: ICharacterClass['attack'];
@@ -23,7 +23,7 @@ interface ICreateCharacterClassInput {
 interface IUpdateCharacterClassInput {
     _id: ObjectId;
     name?: ICharacterClass['name'];
-    mainDefence?: ICharacterClass['mainDefence'];
+    gestaltCycle?: ICharacterClass['gestaltCycle'];
     speed?: ICharacterClass['speed'];
     resistance?: ICharacterClass['resistance'];
     attack?: ICharacterClass['attack'];

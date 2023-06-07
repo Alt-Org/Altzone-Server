@@ -10,7 +10,7 @@ interface IBattleCharacter extends Document{
     defence: number;
 
     characterClassName: string;
-    mainDefence: number;
+    gestaltCycle: number;
 
     characterClass_id: ObjectId;
     customCharacter_id: ObjectId
