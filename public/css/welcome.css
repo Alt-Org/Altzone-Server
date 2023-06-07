@@ -11,7 +11,12 @@ body{
 }
 
 h2{
+    display: block;
     font-size: 2em;
+}
+
+a{
+    color: red;
 }
 
 #mainSection{
@@ -20,9 +25,8 @@ h2{
 }
 #mainArticle *{
     width: 90%;
-    margin: 10px auto;
+    margin: 10px auto 40px auto;
 }
-
 #mainImg{
     display: block;
     max-width: 400px;

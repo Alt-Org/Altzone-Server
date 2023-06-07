@@ -6,6 +6,8 @@ This is a REST API for Altzone game
 
 Server is now available on http://154.49.137.212/
 
+Server description is here http://154.49.137.212/swagger
+
 ## Getting started
 
 ### Docker compose
