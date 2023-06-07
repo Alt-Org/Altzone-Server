@@ -1,0 +1,1553 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Altzone API",
+    "description": "This is an API for altzone game",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://154.49.137.212/"
+    }
+  ],
+  "paths": {
+    "/battleCharacter": {
+      "post": {
+        "summary": "Create a battle character",
+        "tags": [
+          "battleCharacter"
+        ],
+        "requestBody": {
+          "description": "BattleCharacter object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BattleCharacterPost"
+              },
+              "examples": {
+                "BattleCharacterPost": {
+                  "$ref": "#/components/examples/BattleCharacterPost"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "422": {
+            "description": "Unique field with that value already exists"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Read all battle characters",
+        "tags": [
+          "battleCharacter"
+        ],
+        "responses": {
+          "200": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/battleCharacter/{_id}": {
+      "parameters": [
+        {
+          "name": "_id",
+          "in": "path",
+          "required": true,
+          "description": "MongoDB ObjectID"
+        }
+      ],
+      "get": {
+        "summary": "Read specific battle character",
+        "tags": [
+          "battleCharacter"
+        ],
+        "responses": {
+          "200": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a battle character",
+        "tags": [
+          "battleCharacter"
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/characterClass": {
+      "post": {
+        "summary": "Create a character class",
+        "tags": [
+          "characterClass"
+        ],
+        "requestBody": {
+          "description": "CharacterClass object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterClassPost"
+              },
+              "examples": {
+                "CharacterClass": {
+                  "$ref": "#/components/examples/CharacterClassPost"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "422": {
+            "description": "Unique field with that value already exists"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Read all character classes",
+        "tags": [
+          "characterClass"
+        ],
+        "responses": {
+          "200": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a character class",
+        "tags": [
+          "characterClass"
+        ],
+        "requestBody": {
+          "description": "CharacterClass object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterClassPut"
+              },
+              "examples": {
+                "CharacterClass": {
+                  "$ref": "#/components/examples/CharacterClassPut"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Updated"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Unique field with that value already exists"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/characterClass/{_id}": {
+      "parameters": [
+        {
+          "name": "_id",
+          "in": "path",
+          "required": true,
+          "description": "MongoDB ObjectID"
+        }
+      ],
+      "get": {
+        "summary": "Read specific character class",
+        "tags": [
+          "characterClass"
+        ],
+        "responses": {
+          "200": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a character class",
+        "tags": [
+          "characterClass"
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/clan": {
+      "post": {
+        "summary": "Create a clan",
+        "tags": [
+          "clan"
+        ],
+        "requestBody": {
+          "description": "Clan object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClanPost"
+              },
+              "examples": {
+                "Clan": {
+                  "$ref": "#/components/examples/ClanPost"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "422": {
+            "description": "Unique field with that value already exists"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Read all clans",
+        "tags": [
+          "clan"
+        ],
+        "responses": {
+          "200": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a clan",
+        "tags": [
+          "clan"
+        ],
+        "requestBody": {
+          "description": "Clan object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClanPut"
+              },
+              "examples": {
+                "Clan": {
+                  "$ref": "#/components/examples/ClanPut"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Updated"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Unique field with that value already exists"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/clan/{_id}": {
+      "parameters": [
+        {
+          "name": "_id",
+          "in": "path",
+          "required": true,
+          "description": "MongoDB ObjectID"
+        }
+      ],
+      "get": {
+        "summary": "Read specific clan",
+        "tags": [
+          "clan"
+        ],
+        "responses": {
+          "200": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a clan",
+        "tags": [
+          "clan"
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/customCharacter": {
+      "post": {
+        "summary": "Create a custom character",
+        "tags": [
+          "customCharacter"
+        ],
+        "requestBody": {
+          "description": "CustomCharacter object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomCharacterPost"
+              },
+              "examples": {
+                "CustomCharacter": {
+                  "$ref": "#/components/examples/CustomCharacterPost"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "422": {
+            "description": "Unique field with that value already exists"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Read all custom characters",
+        "tags": [
+          "customCharacter"
+        ],
+        "responses": {
+          "200": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a custom character",
+        "tags": [
+          "customCharacter"
+        ],
+        "requestBody": {
+          "description": "CustomCharacter object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomCharacterPut"
+              },
+              "examples": {
+                "CustomCharacter": {
+                  "$ref": "#/components/examples/CustomCharacterPut"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Updated"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Unique field with that value already exists"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/customCharacter/{_id}": {
+      "parameters": [
+        {
+          "name": "_id",
+          "in": "path",
+          "required": true,
+          "description": "MongoDB ObjectID"
+        }
+      ],
+      "get": {
+        "summary": "Read specific custom character",
+        "tags": [
+          "customCharacter"
+        ],
+        "responses": {
+          "200": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a custom character",
+        "tags": [
+          "customCharacter"
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/furniture": {
+      "post": {
+        "summary": "Create a furniture",
+        "tags": [
+          "furniture"
+        ],
+        "requestBody": {
+          "description": "Furniture object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FurniturePost"
+              },
+              "examples": {
+                "Furniture": {
+                  "$ref": "#/components/examples/FurniturePost"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "422": {
+            "description": "Unique field with that value already exists"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Read all furnitures",
+        "tags": [
+          "furniture"
+        ],
+        "responses": {
+          "200": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a furniture",
+        "tags": [
+          "furniture"
+        ],
+        "requestBody": {
+          "description": "Furniture object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FurniturePut"
+              },
+              "examples": {
+                "Furniture": {
+                  "$ref": "#/components/examples/FurniturePut"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Updated"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Unique field with that value already exists"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/furniture/{_id}": {
+      "parameters": [
+        {
+          "name": "_id",
+          "in": "path",
+          "required": true,
+          "description": "MongoDB ObjectID"
+        }
+      ],
+      "get": {
+        "tags": [
+          "furniture"
+        ],
+        "summary": "Read specific furniture",
+        "responses": {
+          "200": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a furniture",
+        "tags": [
+          "furniture"
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/player": {
+      "post": {
+        "summary": "Create a player",
+        "tags": [
+          "player"
+        ],
+        "requestBody": {
+          "description": "Player object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlayerPost"
+              },
+              "examples": {
+                "Player": {
+                  "$ref": "#/components/examples/PlayerPost"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "422": {
+            "description": "Unique field with that value already exists"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Read all players",
+        "tags": [
+          "player"
+        ],
+        "responses": {
+          "200": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a player",
+        "tags": [
+          "player"
+        ],
+        "requestBody": {
+          "description": "Player object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlayerPut"
+              },
+              "examples": {
+                "Player": {
+                  "$ref": "#/components/examples/PlayerPut"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Updated"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Unique field with that value already exists"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/player/{_id}": {
+      "parameters": [
+        {
+          "name": "_id",
+          "in": "path",
+          "required": true,
+          "description": "MongoDB ObjectID"
+        }
+      ],
+      "get": {
+        "summary": "Read specific player",
+        "tags": [
+          "player"
+        ],
+        "responses": {
+          "200": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a player",
+        "tags": [
+          "player"
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/raidRoom": {
+      "post": {
+        "summary": "Create a raid room",
+        "tags": [
+          "raidRoom"
+        ],
+        "requestBody": {
+          "description": "RaidRoom object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RaidRoomPost"
+              },
+              "examples": {
+                "RaidRoom": {
+                  "$ref": "#/components/examples/RaidRoomPost"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "422": {
+            "description": "Unique field with that value already exists"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Read all raid rooms",
+        "tags": [
+          "raidRoom"
+        ],
+        "responses": {
+          "200": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a raid room",
+        "tags": [
+          "raidRoom"
+        ],
+        "requestBody": {
+          "description": "RaidRoom object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RaidRoomPut"
+              },
+              "examples": {
+                "RaidRoom": {
+                  "$ref": "#/components/examples/RaidRoomPut"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Updated"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Unique field with that value already exists"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/raidRoom/{_id}": {
+      "parameters": [
+        {
+          "name": "_id",
+          "in": "path",
+          "required": true,
+          "description": "MongoDB ObjectID"
+        }
+      ],
+      "get": {
+        "summary": "Read specific raid room",
+        "tags": [
+          "raidRoom"
+        ],
+        "responses": {
+          "200": {
+            "description": "Found"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a raid room",
+        "tags": [
+          "raidRoom"
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BattleCharacterPost": {
+        "type": "object",
+        "properties": {
+          "unityKey": {
+            "type": "string"
+          },
+          "name": {
+            "type": "integer"
+          },
+          "resistance": {
+            "type": "integer"
+          },
+          "speed": {
+            "type": "integer"
+          },
+          "attack": {
+            "type": "integer"
+          },
+          "defence": {
+            "type": "integer"
+          },
+          "characterClassName": {
+            "type": "string"
+          },
+          "gestaltCycle": {
+            "type": "integer",
+            "format": "GestaltCycleEnum",
+            "minimum": 0,
+            "maximum": 7
+          },
+          "characterClass_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          },
+          "customCharacter_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          }
+        }
+      },
+      "CharacterClassPost": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "required": true,
+            "uniqueItems": true
+          },
+          "gestaltCycle": {
+            "type": "integer",
+            "required": true,
+            "format": "GestaltCycleEnum",
+            "minimum": 0,
+            "maximum": 7
+          },
+          "speed": {
+            "type": "integer",
+            "required": true
+          },
+          "resistance": {
+            "type": "integer",
+            "required": true
+          },
+          "attack": {
+            "type": "integer",
+            "required": true
+          },
+          "defence": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      },
+      "CharacterClassPut": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "required": true,
+            "format": "MongoDB ObjectID"
+          },
+          "name": {
+            "type": "string",
+            "uniqueItems": true
+          },
+          "gestaltCycle": {
+            "type": "integer",
+            "format": "GestaltCycleEnum",
+            "minimum": 0,
+            "maximum": 7
+          },
+          "speed": {
+            "type": "integer"
+          },
+          "resistance": {
+            "type": "integer"
+          },
+          "attack": {
+            "type": "integer"
+          },
+          "defence": {
+            "type": "integer"
+          }
+        }
+      },
+      "ClanPost": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "required": true,
+            "uniqueItems": true
+          },
+          "gameCoins": {
+            "type": "integer",
+            "default": 0
+          },
+          "tag": {
+            "type": "string"
+          }
+        }
+      },
+      "ClanPut": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "required": true,
+            "format": "MongoDB ObjectID"
+          },
+          "name": {
+            "type": "string",
+            "uniqueItems": true
+          },
+          "gameCoins": {
+            "type": "integer",
+            "default": 0
+          },
+          "tag": {
+            "type": "string"
+          }
+        }
+      },
+      "CustomCharacterPost": {
+        "type": "object",
+        "properties": {
+          "unityKey": {
+            "type": "string",
+            "required": true
+          },
+          "name": {
+            "type": "integer",
+            "required": true
+          },
+          "speed": {
+            "type": "integer",
+            "required": true
+          },
+          "resistance": {
+            "type": "integer",
+            "required": true
+          },
+          "attack": {
+            "type": "integer",
+            "required": true
+          },
+          "defence": {
+            "type": "integer",
+            "required": true
+          },
+          "characterClass_id": {
+            "type": "string",
+            "required": true,
+            "format": "MongoDB ObjectID"
+          },
+          "player_id": {
+            "type": "string",
+            "required": true,
+            "format": "MongoDB ObjectID"
+          }
+        }
+      },
+      "CustomCharacterPut": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "required": true,
+            "format": "MongoDB ObjectID"
+          },
+          "unityKey": {
+            "type": "string"
+          },
+          "name": {
+            "type": "integer"
+          },
+          "speed": {
+            "type": "integer"
+          },
+          "resistance": {
+            "type": "integer"
+          },
+          "attack": {
+            "type": "integer"
+          },
+          "defence": {
+            "type": "integer"
+          },
+          "characterClass_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          },
+          "player_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          }
+        }
+      },
+      "FurniturePost": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "required": true
+          },
+          "shape": {
+            "type": "string",
+            "required": true
+          },
+          "weight": {
+            "type": "integer",
+            "required": true
+          },
+          "material": {
+            "type": "string",
+            "required": true
+          },
+          "recycling": {
+            "type": "string",
+            "required": true
+          },
+          "unityKey": {
+            "type": "string",
+            "required": true
+          },
+          "filename": {
+            "type": "string",
+            "required": true
+          },
+          "clan_id": {
+            "type": "string",
+            "required": true,
+            "format": "MongoDB ObjectID"
+          }
+        }
+      },
+      "FurniturePut": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "required": true,
+            "format": "MongoDB ObjectID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "shape": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "integer"
+          },
+          "material": {
+            "type": "string"
+          },
+          "recycling": {
+            "type": "string"
+          },
+          "unityKey": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "clan_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          }
+        }
+      },
+      "PlayerPost": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "required": true,
+            "uniqueItems": true
+          },
+          "backpackCapacity": {
+            "type": "integer",
+            "required": 0
+          },
+          "uniqueIdentifier": {
+            "type": "string",
+            "required": true,
+            "uniqueItems": true
+          },
+          "currentCustomCharacter_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          },
+          "clan_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          },
+          "raidRoom_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          }
+        }
+      },
+      "PlayerPut": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "required": true,
+            "format": "MongoDB ObjectID"
+          },
+          "name": {
+            "type": "string",
+            "uniqueItems": true
+          },
+          "backpackCapacity": {
+            "type": "integer",
+            "required": 0
+          },
+          "uniqueIdentifier": {
+            "type": "string",
+            "uniqueItems": true
+          },
+          "currentCustomCharacter_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          },
+          "clan_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          },
+          "raidRoom_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          }
+        }
+      },
+      "RaidRoomPost": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "integer",
+            "required": true,
+            "minimum": 0,
+            "maximum": 2
+          },
+          "rowCount": {
+            "type": "integer",
+            "required": true
+          },
+          "colCount": {
+            "type": "integer",
+            "required": true
+          },
+          "player_id": {
+            "type": "string",
+            "required": true,
+            "format": "MongoDB ObjectID"
+          },
+          "clan_id": {
+            "type": "string",
+            "required": true,
+            "format": "MongoDB ObjectID"
+          }
+        }
+      },
+      "RaidRoomPut": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "required": true,
+            "format": "MongoDB ObjectID"
+          },
+          "type": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "rowCount": {
+            "type": "integer"
+          },
+          "colCount": {
+            "type": "integer"
+          },
+          "player_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          },
+          "clan_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          }
+        }
+      }
+    },
+    "examples": {
+      "BattleCharacterPost": {
+        "value": {
+          "characterClass_id": "6480a26287b5e6ba2a0f630a",
+          "customCharacter_id": "6480a27887b5e6ba2a0f630d"
+        }
+      },
+      "CharacterClassPost": {
+        "value": {
+          "name": "my char",
+          "gestaltCycle": 1,
+          "speed": 23,
+          "resistance": 45,
+          "attack": 10,
+          "defence": 12
+        }
+      },
+      "CharacterClassPut": {
+        "value": {
+          "_id": "648095322a99de2e3bdee480",
+          "name": "my char",
+          "gestaltCycle": 1,
+          "speed": 23,
+          "resistance": 45,
+          "attack": 10,
+          "defence": 12
+        }
+      },
+      "ClanPost": {
+        "value": {
+          "name": "clan",
+          "gameCoins": 260,
+          "tag": "some tag"
+        }
+      },
+      "ClanPut": {
+        "value": {
+          "_id": "648091def1bdcdb2a19af6da",
+          "name": "clan",
+          "gameCoins": 260,
+          "tag": "some tag"
+        }
+      },
+      "CustomCharacterPost": {
+        "value": {
+          "unityKey": "somekey",
+          "name": "My custom1",
+          "speed": 10,
+          "resistance": 56,
+          "attack": 28,
+          "defence": 10,
+          "characterClass_id": "6480a26287b5e6ba2a0f630a",
+          "player_id": "64809d1336b0779ede245fc1"
+        }
+      },
+      "CustomCharacterPut": {
+        "value": {
+          "_id": "647f520fa8a94ef3c91cb0e3",
+          "unityKey": "somekey",
+          "name": "My custom1",
+          "speed": 10,
+          "resistance": 56,
+          "attack": 28,
+          "defence": 10,
+          "characterClass_id": "6480a26287b5e6ba2a0f630a",
+          "player_id": "64809d1336b0779ede245fc1"
+        }
+      },
+      "FurniturePost": {
+        "value": {
+          "name": "furn1",
+          "shape": "shape1",
+          "weight": 12,
+          "material": "mat1",
+          "recycling": "rec1",
+          "unityKey": "unity1",
+          "filename": "file1.txt",
+          "clan_id": "64809d0a36b0779ede245fbf"
+        }
+      },
+      "FurniturePut": {
+        "value": {
+          "name": "furn1",
+          "shape": "shape1",
+          "weight": 12,
+          "material": "mat1",
+          "recycling": "rec1",
+          "unityKey": "unity1",
+          "filename": "file1.txt",
+          "clan_id": "64809d0a36b0779ede245fbf"
+        }
+      },
+      "PlayerPost": {
+        "value": {
+          "name": "Anna",
+          "backpackCapacity": 20,
+          "uniqueIdentifier": "1",
+          "clan_id": "64809d0a36b0779ede245fbf"
+        }
+      },
+      "PlayerPut": {
+        "value": {
+          "name": "Anna",
+          "backpackCapacity": 23,
+          "uniqueIdentifier": "1",
+          "clan_id": "64809d0a36b0779ede245fbf",
+          "currentCustomCharacter_id": "647f5289a8a94ef3c91cb0ed",
+          "raidRoom_id": "647a19154aecd348ff70f64d"
+        }
+      },
+      "RaidRoomPost": {
+        "value": {
+          "type": "0,",
+          "rowCount": 4,
+          "colCount": 6,
+          "player_id": "64809d1336b0779ede245fc1",
+          "clan_id": "64809d0a36b0779ede245fbf"
+        }
+      },
+      "RaidRoomPut": {
+        "value": {
+          "_id": "647f53b5a8a94ef3c91cb104",
+          "type": "0,",
+          "rowCount": 4,
+          "colCount": 6,
+          "player_id": "64809d1336b0779ede245fc1",
+          "clan_id": "64809d0a36b0779ede245fbf"
+        }
+      }
+    }
+  }
+}
