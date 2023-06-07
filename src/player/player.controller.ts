@@ -1,29 +1,24 @@
 import {Request, Response} from "express";
 import {sendErrorsToClient} from "../util/response/errorHandler";
-import PlayerDataService from "./playerData.service";
+import PlayerService from "./player.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {ClassName} from "../util/dictionary";
 import IController from "../util/baseAPIClasses/IController";
-import {IFieldParser} from "../util/parser";
-import PlayerDataParser from "./playerData.parser";
 
-export default class PlayerDataController implements IController{
+export default class PlayerController implements IController{
     public constructor() {
-        this.service = new PlayerDataService();
-        this.errorThrower = new DefaultResponseErrorThrower(ClassName.PLAYER_DATA);
-        this.parser = new PlayerDataParser();
+        this.service = new PlayerService();
+        this.errorThrower = new DefaultResponseErrorThrower(ClassName.PLAYER);
     }
 
-    private readonly service: PlayerDataService;
+    private readonly service: PlayerService;
     private readonly errorThrower: DefaultResponseErrorThrower;
-    private readonly parser: IFieldParser;
 
     public create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await this.service.create(req.body);
 
-            const result = this.parser.parseFromAPIToGame(respObj);
-            res.status(201).json(result);
+            res.status(201).json(respObj);
         }catch (err) {
             sendErrorsToClient(err, res);
         }
@@ -42,8 +37,7 @@ export default class PlayerDataController implements IController{
                 respObj = await this.service.readOneAllCollections(req.params._id);
 
             this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
-            const result = this.parser.parseFromAPIToGame(respObj);
-            res.status(200).json(result);
+            res.status(200).json(respObj);
         }catch (err) {
             sendErrorsToClient(err, res);
         }
@@ -54,8 +48,7 @@ export default class PlayerDataController implements IController{
             const respObj = await this.service.readAll();
             this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
 
-            const result = this.parser.parseFromAPIToGame(respObj);
-            res.status(200).json(result);
+            res.status(200).json(respObj);
         }catch (err) {
             sendErrorsToClient(err, res);
         }

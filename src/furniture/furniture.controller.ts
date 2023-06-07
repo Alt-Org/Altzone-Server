@@ -4,26 +4,21 @@ import FurnitureService from "./furniture.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {ClassName} from "../util/dictionary";
 import IController from "../util/baseAPIClasses/IController";
-import {IFieldParser} from "../util/parser";
-import FurnitureParser from "./furniture.parser";
 
 export default class FurnitureController implements IController{
     public constructor() {
         this.service = new FurnitureService();
         this.errorThrower = new DefaultResponseErrorThrower(ClassName.FURNITURE);
-        this.parser = new FurnitureParser();
     }
 
     private readonly service: FurnitureService;
     private readonly errorThrower: DefaultResponseErrorThrower;
-    private readonly parser: IFieldParser;
 
     public create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await this.service.create(req.body);
 
-            const result = this.parser.parseFromAPIToGame(respObj);
-            res.status(201).json(result);
+            res.status(201).json(respObj);
         }catch (err) {
             sendErrorsToClient(err, res);
         }
@@ -42,8 +37,7 @@ export default class FurnitureController implements IController{
                 respObj = await this.service.readOneAllCollections(req.params._id);
 
             this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
-            const result = this.parser.parseFromAPIToGame(respObj);
-            res.status(200).json(result);
+            res.status(200).json(respObj);
         }catch (err) {
             sendErrorsToClient(err, res);
         }
@@ -54,8 +48,7 @@ export default class FurnitureController implements IController{
             const respObj = await this.service.readAll();
             this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
 
-            const result = this.parser.parseFromAPIToGame(respObj);
-            res.status(200).json(result);
+            res.status(200).json(respObj);
         }catch (err) {
             sendErrorsToClient(err, res);
         }

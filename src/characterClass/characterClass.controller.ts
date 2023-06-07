@@ -4,26 +4,21 @@ import CharacterClassService from "./characterClass.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {ClassName} from "../util/dictionary";
 import IController from "../util/baseAPIClasses/IController";
-import {IFieldParser} from "../util/parser";
-import CharacterClassParser from "./characterClass.parser";
 
 export default class CharacterClassController implements IController{
     public constructor() {
         this.service = new CharacterClassService();
         this.errorThrower = new DefaultResponseErrorThrower(ClassName.CHARACTER_CLASS);
-        this.parser = new CharacterClassParser();
     }
 
     private readonly service: CharacterClassService;
     private readonly errorThrower: DefaultResponseErrorThrower;
-    private readonly parser: IFieldParser;
 
     public create = async (req: Request, res: Response): Promise<void> => {
         try{
             const respObj = await this.service.create(req.body);
 
-            const result = this.parser.parseFromAPIToGame(respObj);
-            res.status(201).json(result);
+            res.status(201).json(respObj);
         }catch (err) {
             sendErrorsToClient(err, res);
         }
@@ -42,8 +37,7 @@ export default class CharacterClassController implements IController{
                 respObj = await this.service.readOneAllCollections(req.params._id);
 
             this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
-            const result = this.parser.parseFromAPIToGame(respObj);
-            res.status(200).json(result);
+            res.status(200).json(respObj);
         }catch (err) {
             sendErrorsToClient(err, res);
         }
@@ -54,8 +48,7 @@ export default class CharacterClassController implements IController{
             const respObj = await this.service.readAll();
             this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
 
-            const result = this.parser.parseFromAPIToGame(respObj);
-            res.status(200).json(result);
+            res.status(200).json(respObj);
         }catch (err) {
             sendErrorsToClient(err, res);
         }
