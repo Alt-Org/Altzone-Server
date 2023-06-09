@@ -15,7 +15,7 @@ import { BattleCharacterRouter } from './battleCharacter';
 import { PlayerRouter } from './player';
 import { FurnitureRouter } from './furniture';
 import { RaidRoomRouter } from './raidRoom';
-import bodyParser from "body-parser"
+import bodyParser from "body-parser";
 
 const app = express();
 

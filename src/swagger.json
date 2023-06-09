@@ -8,6 +8,9 @@
   "servers": [
     {
       "url": "http://154.49.137.212/"
+    },
+    {
+      "url": "http://localhost:8080"
     }
   ],
   "paths": {
@@ -23,11 +26,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BattleCharacterPost"
+                "$ref": "#/components/schemas/BattleCharacterNoId"
               },
               "examples": {
                 "BattleCharacterPost": {
-                  "$ref": "#/components/examples/BattleCharacterPost"
+                  "$ref": "#/components/examples/BattleCharacterNoId"
                 }
               }
             }
@@ -119,6 +122,7 @@
         }
       }
     },
+    
     "/characterClass": {
       "post": {
         "summary": "Create a character class",
@@ -131,11 +135,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CharacterClassPost"
+                "$ref": "#/components/schemas/CharacterClassNoId"
               },
               "examples": {
                 "CharacterClass": {
-                  "$ref": "#/components/examples/CharacterClassPost"
+                  "$ref": "#/components/examples/CharacterClassNoId"
                 }
               }
             }
@@ -143,7 +147,20 @@
         },
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Created",
+            "content":{
+              "application/json":{
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterClassWithId"
+                } 
+              },
+              "examples": {
+                "CharacterClass": {
+                  "$ref": "#/components/examples/CharacterClassWithId"
+                }
+              }         
+            }
+            
           },
           "400": {
             "description": "Validation error"
@@ -187,11 +204,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CharacterClassPut"
+                "$ref": "#/components/schemas/CharacterClassWithId"
               },
               "examples": {
                 "CharacterClass": {
-                  "$ref": "#/components/examples/CharacterClassPut"
+                  "$ref": "#/components/examples/CharacterClassWithId"
                 }
               }
             }
@@ -232,7 +249,19 @@
         ],
         "responses": {
           "200": {
-            "description": "Found"
+            "description": "Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterClassWithId"
+                },
+                "examples": {
+                  "CharacterClass": {
+                    "$ref": "#/components/examples/CharacterClassWithId"
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation error"
@@ -278,11 +307,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ClanPost"
+                "$ref": "#/components/schemas/ClanNoId"
               },
               "examples": {
                 "Clan": {
-                  "$ref": "#/components/examples/ClanPost"
+                  "$ref": "#/components/examples/ClanNoId"
                 }
               }
             }
@@ -290,7 +319,19 @@
         },
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClanWithId"
+                },
+                "examples": {
+                  "Clan": {
+                    "$ref": "#/components/examples/ClanWithId"
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation error"
@@ -334,11 +375,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ClanPut"
+                "$ref": "#/components/schemas/ClanWithId"
               },
               "examples": {
                 "Clan": {
-                  "$ref": "#/components/examples/ClanPut"
+                  "$ref": "#/components/examples/ClanWithId"
                 }
               }
             }
@@ -379,7 +420,19 @@
         ],
         "responses": {
           "200": {
-            "description": "Found"
+            "description": "Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClanWithId"
+                },
+                "examples": {
+                  "Clan": {
+                    "$ref": "#/components/examples/ClanWithId"
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation error"
@@ -413,6 +466,7 @@
         }
       }
     },
+
     "/customCharacter": {
       "post": {
         "summary": "Create a custom character",
@@ -425,11 +479,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CustomCharacterPost"
+                "$ref": "#/components/schemas/CustomCharacterNoId"
               },
               "examples": {
                 "CustomCharacter": {
-                  "$ref": "#/components/examples/CustomCharacterPost"
+                  "$ref": "#/components/examples/CustomCharacterNoId"
                 }
               }
             }
@@ -437,7 +491,19 @@
         },
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Created",
+            "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomCharacterWithId"
+              },
+              "examples": {
+                "CustomCharacter": {
+                  "$ref": "#/components/examples/CustomCharacterWithId"
+                }
+              }
+            }
+          }
           },
           "400": {
             "description": "Validation error"
@@ -481,11 +547,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CustomCharacterPut"
+                "$ref": "#/components/schemas/CustomCharacterWithId"
               },
               "examples": {
                 "CustomCharacter": {
-                  "$ref": "#/components/examples/CustomCharacterPut"
+                  "$ref": "#/components/examples/CustomCharacterWithId"
                 }
               }
             }
@@ -526,7 +592,19 @@
         ],
         "responses": {
           "200": {
-            "description": "Found"
+            "description": "Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomCharacterWithId"
+                },
+                "examples": {
+                  "CustomCharacter": {
+                    "$ref": "#/components/examples/CustomCharacterWithId"
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation error"
@@ -560,6 +638,7 @@
         }
       }
     },
+
     "/furniture": {
       "post": {
         "summary": "Create a furniture",
@@ -572,11 +651,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/FurniturePost"
+                "$ref": "#/components/schemas/FurnitureNoId"
               },
               "examples": {
                 "Furniture": {
-                  "$ref": "#/components/examples/FurniturePost"
+                  "$ref": "#/components/examples/FurnitureNoId"
                 }
               }
             }
@@ -584,7 +663,19 @@
         },
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FurnitureWithId"
+                },
+                "examples": {
+                  "Furniture": {
+                    "$ref": "#/components/examples/FurnitureWithId"
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation error"
@@ -628,11 +719,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/FurniturePut"
+                "$ref": "#/components/schemas/FurnitureWithId"
               },
               "examples": {
                 "Furniture": {
-                  "$ref": "#/components/examples/FurniturePut"
+                  "$ref": "#/components/examples/FurnitureWithId"
                 }
               }
             }
@@ -673,7 +764,19 @@
         "summary": "Read specific furniture",
         "responses": {
           "200": {
-            "description": "Found"
+            "description": "Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FurnitureWithId"
+                },
+                "examples": {
+                  "Furniture": {
+                    "$ref": "#/components/examples/FurnitureWithId"
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation error"
@@ -707,6 +810,7 @@
         }
       }
     },
+
     "/player": {
       "post": {
         "summary": "Create a player",
@@ -719,11 +823,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PlayerPost"
+                "$ref": "#/components/schemas/PlayerNoId"
               },
               "examples": {
                 "Player": {
-                  "$ref": "#/components/examples/PlayerPost"
+                  "$ref": "#/components/examples/PlayerNoId"
                 }
               }
             }
@@ -731,7 +835,19 @@
         },
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerWithId"
+                },
+                "examples": {
+                  "Player": {
+                    "$ref": "#/components/examples/PlayerWithId"
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation error"
@@ -775,11 +891,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PlayerPut"
+                "$ref": "#/components/schemas/PlayerWithId"
               },
               "examples": {
                 "Player": {
-                  "$ref": "#/components/examples/PlayerPut"
+                  "$ref": "#/components/examples/PlayerWithId"
                 }
               }
             }
@@ -820,7 +936,19 @@
         ],
         "responses": {
           "200": {
-            "description": "Found"
+            "description": "Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerWithId"
+                },
+                "examples": {
+                  "Player": {
+                    "$ref": "#/components/examples/PlayerWithId"
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation error"
@@ -866,11 +994,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RaidRoomPost"
+                "$ref": "#/components/schemas/RaidRoomNoId"
               },
               "examples": {
                 "RaidRoom": {
-                  "$ref": "#/components/examples/RaidRoomPost"
+                  "$ref": "#/components/examples/RaidRoomNoId"
                 }
               }
             }
@@ -878,7 +1006,19 @@
         },
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaidRoomWithId"
+                },
+                "examples": {
+                  "RaidRoom": {
+                    "$ref": "#/components/examples/RaidRoomWithId"
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation error"
@@ -922,11 +1062,11 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RaidRoomPut"
+                "$ref": "#/components/schemas/RaidRoomWithId"
               },
               "examples": {
                 "RaidRoom": {
-                  "$ref": "#/components/examples/RaidRoomPut"
+                  "$ref": "#/components/examples/RaidRoomWithId"
                 }
               }
             }
@@ -967,7 +1107,19 @@
         ],
         "responses": {
           "200": {
-            "description": "Found"
+            "description": "Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaidRoomWithId"
+                },
+                "examples": {
+                  "RaidRoom": {
+                    "$ref": "#/components/examples/RaidRoomWithId"
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation error"
@@ -1004,7 +1156,7 @@
   },
   "components": {
     "schemas": {
-      "BattleCharacterPost": {
+      "BattleCharacterNoId": {
         "type": "object",
         "properties": {
           "unityKey": {
@@ -1044,7 +1196,52 @@
           }
         }
       },
-      "CharacterClassPost": {
+      "BattleCharacterWithId": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          },
+          "unityKey": {
+            "type": "string"
+          },
+          "name": {
+            "type": "integer"
+          },
+          "resistance": {
+            "type": "integer"
+          },
+          "speed": {
+            "type": "integer"
+          },
+          "attack": {
+            "type": "integer"
+          },
+          "defence": {
+            "type": "integer"
+          },
+          "characterClassName": {
+            "type": "string"
+          },
+          "gestaltCycle": {
+            "type": "integer",
+            "format": "GestaltCycleEnum",
+            "minimum": 0,
+            "maximum": 7
+          },
+          "characterClass_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          },
+          "customCharacter_id": {
+            "type": "string",
+            "format": "MongoDB ObjectID"
+          }
+        }
+      },
+
+      "CharacterClassNoId": {
         "type": "object",
         "properties": {
           "name": {
@@ -1077,7 +1274,7 @@
           }
         }
       },
-      "CharacterClassPut": {
+      "CharacterClassWithId": {
         "type": "object",
         "properties": {
           "_id": {
@@ -1109,7 +1306,7 @@
           }
         }
       },
-      "ClanPost": {
+      "ClanNoId": {
         "type": "object",
         "properties": {
           "name": {
@@ -1126,7 +1323,7 @@
           }
         }
       },
-      "ClanPut": {
+      "ClanWithId": {
         "type": "object",
         "properties": {
           "_id": {
@@ -1147,7 +1344,7 @@
           }
         }
       },
-      "CustomCharacterPost": {
+      "CustomCharacterNoId": {
         "type": "object",
         "properties": {
           "unityKey": {
@@ -1186,7 +1383,7 @@
           }
         }
       },
-      "CustomCharacterPut": {
+      "CustomCharacterWithId": {
         "type": "object",
         "properties": {
           "_id": {
@@ -1222,7 +1419,7 @@
           }
         }
       },
-      "FurniturePost": {
+      "FurnitureNoId": {
         "type": "object",
         "properties": {
           "name": {
@@ -1260,7 +1457,7 @@
           }
         }
       },
-      "FurniturePut": {
+      "FurnitureWithId": {
         "type": "object",
         "properties": {
           "_id": {
@@ -1295,7 +1492,7 @@
           }
         }
       },
-      "PlayerPost": {
+      "PlayerNoId": {
         "type": "object",
         "properties": {
           "name": {
@@ -1326,7 +1523,7 @@
           }
         }
       },
-      "PlayerPut": {
+      "PlayerWithId": {
         "type": "object",
         "properties": {
           "_id": {
@@ -1360,7 +1557,7 @@
           }
         }
       },
-      "RaidRoomPost": {
+      "RaidRoomNoId": {
         "type": "object",
         "properties": {
           "type": {
@@ -1389,7 +1586,7 @@
           }
         }
       },
-      "RaidRoomPut": {
+      "RaidRoomWithId": {
         "type": "object",
         "properties": {
           "_id": {
@@ -1419,14 +1616,15 @@
         }
       }
     },
+
     "examples": {
-      "BattleCharacterPost": {
+      "BattleCharacterNoId": {
         "value": {
           "characterClass_id": "6480a26287b5e6ba2a0f630a",
           "customCharacter_id": "6480a27887b5e6ba2a0f630d"
         }
       },
-      "CharacterClassPost": {
+      "CharacterClassNoId": {
         "value": {
           "name": "my char",
           "gestaltCycle": 1,
@@ -1436,7 +1634,7 @@
           "defence": 12
         }
       },
-      "CharacterClassPut": {
+      "CharacterClassWithId": {
         "value": {
           "_id": "648095322a99de2e3bdee480",
           "name": "my char",
@@ -1447,14 +1645,14 @@
           "defence": 12
         }
       },
-      "ClanPost": {
+      "ClanNoId": {
         "value": {
           "name": "clan",
           "gameCoins": 260,
           "tag": "some tag"
         }
       },
-      "ClanPut": {
+      "ClanWithId": {
         "value": {
           "_id": "648091def1bdcdb2a19af6da",
           "name": "clan",
@@ -1462,7 +1660,7 @@
           "tag": "some tag"
         }
       },
-      "CustomCharacterPost": {
+      "CustomCharacterNoId": {
         "value": {
           "unityKey": "somekey",
           "name": "My custom1",
@@ -1474,7 +1672,7 @@
           "player_id": "64809d1336b0779ede245fc1"
         }
       },
-      "CustomCharacterPut": {
+      "CustomCharacterWithId": {
         "value": {
           "_id": "647f520fa8a94ef3c91cb0e3",
           "unityKey": "somekey",
@@ -1487,7 +1685,7 @@
           "player_id": "64809d1336b0779ede245fc1"
         }
       },
-      "FurniturePost": {
+      "FurnitureNoId": {
         "value": {
           "name": "furn1",
           "shape": "shape1",
@@ -1499,7 +1697,7 @@
           "clan_id": "64809d0a36b0779ede245fbf"
         }
       },
-      "FurniturePut": {
+      "FurnitureWithId": {
         "value": {
           "name": "furn1",
           "shape": "shape1",
@@ -1511,7 +1709,7 @@
           "clan_id": "64809d0a36b0779ede245fbf"
         }
       },
-      "PlayerPost": {
+      "PlayerNoId": {
         "value": {
           "name": "Anna",
           "backpackCapacity": 20,
@@ -1519,7 +1717,7 @@
           "clan_id": "64809d0a36b0779ede245fbf"
         }
       },
-      "PlayerPut": {
+      "PlayerWithId": {
         "value": {
           "name": "Anna",
           "backpackCapacity": 23,
@@ -1529,7 +1727,7 @@
           "raidRoom_id": "647a19154aecd348ff70f64d"
         }
       },
-      "RaidRoomPost": {
+      "RaidRoomNoId": {
         "value": {
           "type": "0,",
           "rowCount": 4,
@@ -1538,7 +1736,7 @@
           "clan_id": "64809d0a36b0779ede245fbf"
         }
       },
-      "RaidRoomPut": {
+      "RaidRoomWithId": {
         "value": {
           "_id": "647f53b5a8a94ef3c91cb104",
           "type": "0,",
