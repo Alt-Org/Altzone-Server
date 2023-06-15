@@ -38,7 +38,19 @@
         },
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BattleCharacterWithId"
+                },
+                "examples": {
+                  "BattleCharacterPost": {
+                    "$ref": "#/components/examples/BattleCharacterWithId"
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Validation error"
@@ -148,19 +160,18 @@
         "responses": {
           "201": {
             "description": "Created",
-            "content":{
-              "application/json":{
+            "content": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CharacterClassWithId"
-                } 
-              },
-              "examples": {
-                "CharacterClass": {
-                  "$ref": "#/components/examples/CharacterClassWithId"
+                },
+                "examples": {
+                  "CharacterClass": {
+                    "$ref": "#/components/examples/CharacterClassWithId"
+                  }
                 }
-              }         
+              }
             }
-            
           },
           "400": {
             "description": "Validation error"
@@ -295,6 +306,7 @@
         }
       }
     },
+
     "/clan": {
       "post": {
         "summary": "Create a clan",
@@ -1617,6 +1629,7 @@
       }
     },
 
+
     "examples": {
       "BattleCharacterNoId": {
         "value": {
@@ -1624,6 +1637,22 @@
           "customCharacter_id": "6480a27887b5e6ba2a0f630d"
         }
       },
+      "BattleCharacterWithId": {
+        "value": {
+          "_id": "648acf3a409da618287a1ca1",
+          "unityKey": "somekey",
+          "name": "My custom1",
+          "resistance": 56,
+          "speed": 10,
+          "attack": 28,
+          "defence": 10,
+          "characterClassName": "my char",
+          "gestaltCycle": 1,
+          "characterClass_id": "648acec6409da618287a1c8e",
+          "customCharacter_id": "648acf23409da618287a1c98"
+        }
+      },
+
       "CharacterClassNoId": {
         "value": {
           "name": "my char",
@@ -1645,6 +1674,7 @@
           "defence": 12
         }
       },
+
       "ClanNoId": {
         "value": {
           "name": "clan",
@@ -1660,6 +1690,7 @@
           "tag": "some tag"
         }
       },
+
       "CustomCharacterNoId": {
         "value": {
           "unityKey": "somekey",
@@ -1685,6 +1716,7 @@
           "player_id": "64809d1336b0779ede245fc1"
         }
       },
+
       "FurnitureNoId": {
         "value": {
           "name": "furn1",
@@ -1699,16 +1731,18 @@
       },
       "FurnitureWithId": {
         "value": {
+          "_id": "648ad033409da618287a1ca5",
           "name": "furn1",
           "shape": "shape1",
           "weight": 12,
           "material": "mat1",
           "recycling": "rec1",
           "unityKey": "unity1",
-          "filename": "file1.txt",
-          "clan_id": "64809d0a36b0779ede245fbf"
+          "filename": "file1",
+          "clan_id": "648acf02409da618287a1c91"
         }
       },
+
       "PlayerNoId": {
         "value": {
           "name": "Anna",
@@ -1719,17 +1753,17 @@
       },
       "PlayerWithId": {
         "value": {
+          "_id": "648acf12409da618287a1c95",
           "name": "Anna",
           "backpackCapacity": 23,
           "uniqueIdentifier": "1",
-          "clan_id": "64809d0a36b0779ede245fbf",
-          "currentCustomCharacter_id": "647f5289a8a94ef3c91cb0ed",
-          "raidRoom_id": "647a19154aecd348ff70f64d"
+          "clan_id": "648acf02409da618287a1c91"
         }
       },
+
       "RaidRoomNoId": {
         "value": {
-          "type": "0,",
+          "type": 0,
           "rowCount": 4,
           "colCount": 6,
           "player_id": "64809d1336b0779ede245fc1",
@@ -1739,7 +1773,7 @@
       "RaidRoomWithId": {
         "value": {
           "_id": "647f53b5a8a94ef3c91cb104",
-          "type": "0,",
+          "type": 0,
           "rowCount": 4,
           "colCount": 6,
           "player_id": "64809d1336b0779ede245fc1",
