@@ -1,24 +1,30 @@
 import {ClanService} from "./clan.service";
-import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {ClassName} from "../util/dictionary";
-import {Body, Controller, Delete, Get, Param, Post, Put, Query} from "@nestjs/common";
+import {Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query} from "@nestjs/common";
+import {CreateClanDto} from "./dto/createClan.dto";
+import {UpdateClanDto} from "./dto/updateClan.dto";
+import {_idClanDto} from "./dto/_idClan.dto";
+import {CatchCreateUpdateErrors} from "../decorator/CatchCreateUpdateErrors";
+import {BeautifyResponse} from "../decorator/BeautifyResponse";
+import {ResponseType} from "../decorator/responseType";
 
 @Controller('clan')
 export class ClanController{
-    public constructor(private readonly service: ClanService) {
-        this.errorThrower = new DefaultResponseErrorThrower(ClassName.CLAN);
+    public constructor(
+        private readonly service: ClanService
+    ) {
     }
 
-    private readonly errorThrower: DefaultResponseErrorThrower;
-
     @Post()
-    public create (@Body() body: any) {
+    @CatchCreateUpdateErrors()
+    public create(@Body() body: CreateClanDto) {
         return this.service.create(body);
     }
     @Get('/:_id')
-    public async get (@Param('_id') _id: string, @Query() query: any) {
+    @BeautifyResponse(ResponseType.READ, ClassName.CLAN)
+    public async get (@Param() param: _idClanDto, @Query() query: any) {
         if(Object.keys(query).length === 0)
-            return  this.service.readById(_id);
+            return this.service.readById(param._id);
         /*
         else if(query.with && (typeof query.with == 'string'))
             respObj = await this.service.readOneWithCollections(req.params._id, query.with);
@@ -27,17 +33,23 @@ export class ClanController{
     }
 
     @Get()
+    @BeautifyResponse(ResponseType.READ, ClassName.CLAN)
     public async getAll () {
         return this.service.readAll();
     }
 
     @Put()
-    public async update (@Body() body: any){
+    @HttpCode(204)
+    @CatchCreateUpdateErrors()
+    @BeautifyResponse(ResponseType.UPDATE, ClassName.CLAN)
+    public async update (@Body() body: UpdateClanDto){
         return this.service.updateById(body);
     }
 
     @Delete('/:_id')
-    public async delete (@Param('_id') _id: string) {
-        return this.service.deleteById(_id);
+    @HttpCode(204)
+    @BeautifyResponse(ResponseType.DELETE, ClassName.CLAN)
+    public async delete (@Param() param: _idClanDto) {
+        return this.service.deleteById(param._id);
     }
 }

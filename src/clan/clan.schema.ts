@@ -1,5 +1,7 @@
+import {Player} from "../player/player.schema";
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import {HydratedDocument} from "mongoose";
+import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
+import {ClassName} from "../util/dictionary";
 
 export type ClanDocument = HydratedDocument<Clan>;
 
@@ -13,6 +15,10 @@ export class Clan {
 
     @Prop({ type: Number, default: 0 })
     gameCoins: number;
+
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ClassName.PLAYER })
+    player_id: Player;
 }
 
 export const ClanSchema = SchemaFactory.createForClass(Clan);
+ClanSchema.set('collection', ClassName.CLAN);
