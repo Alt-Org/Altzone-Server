@@ -1,78 +1,48 @@
-import {Request, Response} from "express";
-import {sendErrorsToClient} from "../util/response/errorHandler";
-import PlayerService from "./player.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {ClassName} from "../util/dictionary";
-import IController from "../util/baseAPIClasses/IController";
+import {Body, Controller, Delete, Get, Param, Post, Put, Query} from "@nestjs/common";
+import {PlayerService} from "./player.service";
+import {CreatePlayerDto} from "./dto/createPlayer.dto";
+import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
+import {CatchCreateUpdateErrors} from "../decorator/CatchCreateUpdateErrors";
 
-export default class PlayerController implements IController{
-    public constructor() {
-        this.service = new PlayerService();
+@Controller('player')
+export default class PlayerController{
+    public constructor(private readonly service: PlayerService) {
         this.errorThrower = new DefaultResponseErrorThrower(ClassName.PLAYER);
     }
 
-    private readonly service: PlayerService;
     private readonly errorThrower: DefaultResponseErrorThrower;
 
-    public create = async (req: Request, res: Response): Promise<void> => {
-        try{
-            const respObj = await this.service.create(req.body);
-
-            res.status(201).json(respObj);
-        }catch (err) {
-            sendErrorsToClient(err, res);
-        }
+    @Post()
+    @CatchCreateUpdateErrors()
+    public create(@Body() body: CreatePlayerDto) {
+        return this.service.create(body);
     }
 
-    public get = async (req: Request, res: Response): Promise<void> => {
-        try{
-            const query = req.query;
-            let respObj = null;
-
-            if(Object.keys(query).length === 0)
-                respObj = await this.service.readById(req.params._id);
-            else if(query.with && (typeof query.with == 'string'))
-                respObj = await this.service.readOneWithCollections(req.params._id, query.with);
-            else if(query.all !== null)
-                respObj = await this.service.readOneAllCollections(req.params._id);
-
-            this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
-            res.status(200).json(respObj);
-        }catch (err) {
-            sendErrorsToClient(err, res);
-        }
+    @Get('/:_id')
+    public async get(@Param('_id') _id: string, @Query() query: any) {
+        if(Object.keys(query).length === 0)
+            return  this.service.readById(_id);
+        /*
+        else if(query.with && (typeof query.with == 'string'))
+            respObj = await this.service.readOneWithCollections(req.params._id, query.with);
+        else if(query.all !== null)
+            respObj = await this.service.readOneAllCollections(req.params._id);*/
     }
 
-    public getAll = async (req: Request, res: Response): Promise<void> => {
-        try{
-            const respObj = await this.service.readAll();
-            this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
-
-            res.status(200).json(respObj);
-        }catch (err) {
-            sendErrorsToClient(err, res);
-        }
+    @Get()
+    public async getAll() {
+        return this.service.readAll();
     }
 
-    public update = async (req: Request, res: Response): Promise<void> => {
-        try{
-            const respObj = await this.service.updateById(req.body);
-            this.errorThrower.throwUpdateErrorsIfFound(respObj, '_id');
-
-            res.status(204).send();
-        }catch (err: unknown) {
-            sendErrorsToClient(err, res);
-        }
+    @Put()
+    public async update(@Body() body: UpdatePlayerDto){
+        return this.service.updateById(body);
     }
 
-    public delete = async (req: Request, res: Response): Promise<void> => {
-        try{
-            const respObj = await this.service.deleteById(req.params._id);
-            this.errorThrower.throwDeleteErrorsIfFound(respObj, '_id');
-
-            res.status(204).send();
-        }catch (err) {
-            sendErrorsToClient(err, res);
-        }
+    @Delete('/:_id')
+    public async delete(@Param('_id') _id: string) {
+        return this.service.deleteById(_id);
     }
 }
