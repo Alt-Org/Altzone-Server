@@ -58,19 +58,21 @@ services:
       - ME_CONFIG_SITE_COOKIESECRET=cookieParserMiddlewareSecret
       - ME_CONFIG_SITE_SESSIONSECRET=secretForSessionIdCookie
       - ME_CONFIG_OPTIONS_EDITORTHEME=ayu-dark
+    ports:
+      - 8081:8081
 
-#  proxy_dev:
-#    image: nginx:1.23.4-bullseye
-#    container_name: altzone_proxy_dev
-#    depends_on:
-#      - panel_dev
-#      - api_dev
-#    ports:
-#      - 8080:80
-#    networks:
-#      - backend
-#    volumes:
-#      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  proxy_dev:
+    image: nginx:1.23.4-bullseye
+    container_name: altzone_proxy_dev
+    depends_on:
+      - panel_dev
+      #- api_dev
+    ports:
+      - 80:80
+    networks:
+      - backend
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
 
 networks:
   backend:
