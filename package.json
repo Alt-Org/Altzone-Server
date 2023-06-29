@@ -10,7 +10,6 @@
     "start:docker_dev": "nodemon -L dist/main.js",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-
     "compile": "tsc",
     "watch": "tsc -w",
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
