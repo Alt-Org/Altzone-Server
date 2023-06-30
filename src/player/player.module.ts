@@ -6,11 +6,13 @@ import {PlayerService} from "./player.service";
 import {isPlayerExists} from "./decorator/validation/IsPlayerExists";
 import {ClassName} from "../util/dictionary";
 import {ClanModule} from "../clan/clan.module";
+import {RequestHelperModule} from "../requestHelper/requestHelper.module";
 
 @Module({
     imports: [
         MongooseModule.forFeature([{name: ClassName.PLAYER, schema: PlayerSchema}]),
-        ClanModule
+        ClanModule,
+        RequestHelperModule
     ],
     controllers: [PlayerController],
     providers: [PlayerService, isPlayerExists],

@@ -5,6 +5,7 @@ import {PlayerService} from "./player.service";
 import {CreatePlayerDto} from "./dto/createPlayer.dto";
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
 import {CatchCreateUpdateErrors} from "../decorator/CatchCreateUpdateErrors";
+import {_idDto} from "./dto/_id.dto";
 
 @Controller('player')
 export default class PlayerController{
@@ -21,14 +22,13 @@ export default class PlayerController{
     }
 
     @Get('/:_id')
-    public async get(@Param('_id') _id: string, @Query() query: any) {
+    public async get(@Param() param: _idDto, @Query() query: any) {
         if(Object.keys(query).length === 0)
-            return  this.service.readById(_id);
-        /*
+            return this.service.readById(param._id);
         else if(query.with && (typeof query.with == 'string'))
-            respObj = await this.service.readOneWithCollections(req.params._id, query.with);
+            return this.service.readOneWithCollections(param._id, query.with);
         else if(query.all !== null)
-            respObj = await this.service.readOneAllCollections(req.params._id);*/
+            return this.service.readOneWithAllCollections(param._id);
     }
 
     @Get()

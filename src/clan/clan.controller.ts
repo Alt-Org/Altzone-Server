@@ -25,11 +25,10 @@ export class ClanController{
     public async get (@Param() param: _idClanDto, @Query() query: any) {
         if(Object.keys(query).length === 0)
             return this.service.readById(param._id);
-        /*
         else if(query.with && (typeof query.with == 'string'))
-            respObj = await this.service.readOneWithCollections(req.params._id, query.with);
+            return this.service.readOneWithCollections(param._id, query.with);
         else if(query.all !== null)
-            respObj = await this.service.readOneAllCollections(req.params._id);*/
+            return this.service.readOneWithAllCollections(param._id);
     }
 
     @Get()

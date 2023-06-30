@@ -5,7 +5,7 @@ import {Clan} from "../clan/clan.schema";
 
 export type PlayerDocument = HydratedDocument<Player>;
 
-@Schema()
+@Schema({ toJSON: { virtuals: true, getters: true }, toObject: { virtuals: true, getters: true }})
 export class Player {
     @Prop({ type: String, required: true, unique: true })
     name: string;
@@ -22,3 +22,9 @@ export class Player {
 
 export const PlayerSchema = SchemaFactory.createForClass(Player);
 PlayerSchema.set('collection', ClassName.PLAYER);
+PlayerSchema.virtual(ClassName.CLAN, {
+    ref: ClassName.CLAN,
+    localField: 'clan_id',
+    foreignField: '_id',
+    justOne: true
+});

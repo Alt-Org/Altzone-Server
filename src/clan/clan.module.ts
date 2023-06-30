@@ -5,6 +5,8 @@ import {ClanController} from "./clan.controller";
 import {ClanService} from "./clan.service";
 import {isClanExists} from "./decorator/validation/IsClanExists";
 import {RequestHelperModule} from "../requestHelper/requestHelper.module";
+import {BaseModule} from "../base/base.module";
+import {BaseService} from "../base/base.service";
 
 @Module({
     imports: [
@@ -12,7 +14,9 @@ import {RequestHelperModule} from "../requestHelper/requestHelper.module";
         RequestHelperModule
     ],
     controllers: [ClanController],
-    providers: [ClanService, isClanExists],
+    providers: [
+        {provide: ClanService, useClass: ClanService},
+        isClanExists],
     exports: [ClanService]
 })
 export class ClanModule {}
