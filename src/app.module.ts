@@ -6,6 +6,7 @@ import {ClanModule} from "./clan/clan.module";
 import {PlayerModule} from "./player/player.module";
 import {RequestHelperModule} from "./requestHelper/requestHelper.module";
 import { ResponseHelperModule } from './responseHelper/responseHelper.module';
+import { BaseModule } from './base/base.module';
 
 // Set up database connection
 const mongoUser = process.env.MONGO_USERNAME || 'rootUser';
@@ -21,7 +22,8 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       ClanModule,
       PlayerModule,
       RequestHelperModule,
-      ResponseHelperModule
+      ResponseHelperModule,
+      BaseModule
   ],
   controllers: [AppController],
   providers: [AppService],
