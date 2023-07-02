@@ -1,4 +1,4 @@
-import {MongooseError} from "mongoose";
+import {Model, MongooseError} from "mongoose";
 import {IgnoreReferencesType} from "../../util/type/IIgnoreReferencesType";
 
 export interface IService {
