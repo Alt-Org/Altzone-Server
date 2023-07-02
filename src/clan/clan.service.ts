@@ -5,27 +5,28 @@ import {InjectModel} from "@nestjs/mongoose";
 import {ClassName} from "../util/dictionary";
 import {IgnoreReferencesType} from "../util/type/IIgnoreReferencesType";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {BaseService} from "../base/base.service";
-
-const refsInModel: ClassName[] = [ClassName.PLAYER];
+import {AddBaseService} from "../base/decorator/AddBaseService";
+import {IService} from "../base/interface/IService";
+import {IServiceDummy} from "../base/IServiceDummy";
 
 @Injectable()
-export class ClanService extends BaseService<Clan>{
+@AddBaseService()
+export class ClanService extends IServiceDummy implements IService{
     public constructor(
-        @InjectModel(Clan.name) private readonly model: Model<Clan>,
-        protected readonly requestHelperService: RequestHelperService
+        @InjectModel(Clan.name) public readonly model: Model<Clan>,
+        private readonly requestHelperService: RequestHelperService
     ){
         super();
-        console.log(super.setBaseModel);
-        // super.setBaseModel(this.model);
-        // super.setRefsInModel(refsInModel);
+        this.refsInModel = [ClassName.PLAYER];
     }
 
-    protected clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType) => {
+    public readonly refsInModel: ClassName[];
+
+    public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType) => {
         const searchFilter = { clan_id: _id };
         const nullIds = { clan_id: null };
 
-        await this.requestHelperService.deleteReferences([
+        await this.requestHelperService.nullReferences([
             {modelName: ClassName.PLAYER, filter: searchFilter, nullIds}
         ], ignoreReferences);
     }
