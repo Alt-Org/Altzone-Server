@@ -6,7 +6,7 @@ import {useContainer} from "class-validator";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true })
+      new ValidationPipe({ whitelist: true, transform: true })
   );
 
   //Let the class-validator use DI system of NestJS
