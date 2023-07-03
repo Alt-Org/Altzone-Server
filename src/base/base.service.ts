@@ -4,8 +4,6 @@ import {Model, MongooseError, Types} from "mongoose";
 import {IgnoreReferencesType} from "../util/type/IIgnoreReferencesType";
 import {Injectable} from "@nestjs/common";
 
-//TODO: this.checkClassValidity() via class decorator
-
 @Injectable()
 export abstract class BaseService<T> implements IService{
 

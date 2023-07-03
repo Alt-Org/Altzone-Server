@@ -1,9 +1,8 @@
-import {applyDecorators, Post} from '@nestjs/common';
+import {applyDecorators} from '@nestjs/common';
 import {CatchCreateUpdateErrors} from "../../decorator/CatchCreateUpdateErrors";
 
-export function AddBaseCreateDecorators() {
+export function BasicPOST() {
     return applyDecorators(
-        Post(),
         CatchCreateUpdateErrors()
     );
 }
