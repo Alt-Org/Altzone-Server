@@ -5,13 +5,13 @@ import {InjectModel} from "@nestjs/mongoose";
 import {ClassName} from "../util/dictionary";
 import {IgnoreReferencesType} from "../util/type/IIgnoreReferencesType";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {AddBaseService} from "../base/decorator/AddBaseService";
 import {IService} from "../base/interface/IService";
-import {IServiceDummy} from "../base/IServiceDummy";
+import {ServiceDummyAbstract} from "../base/serviceDummy.abstract";
+import {AddBaseService} from "../base/decorator/AddBaseService.decorator";
 
 @Injectable()
 @AddBaseService()
-export class ClanService extends IServiceDummy implements IService{
+export class ClanService extends ServiceDummyAbstract implements IService{
     public constructor(
         @InjectModel(Clan.name) public readonly model: Model<Clan>,
         private readonly requestHelperService: RequestHelperService

@@ -1,6 +1,6 @@
 import {IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
-import {IsClanExists} from "../decorator/validation/IsClanExists";
-import {IsPlayerExists} from "../../player/decorator/validation/IsPlayerExists";
+import {IsClanExists} from "../decorator/validation/IsClanExists.decorator";
+import {IsPlayerExists} from "../../player/decorator/validation/IsPlayerExists.decorator";
 
 export class UpdateClanDto {
     @IsClanExists()

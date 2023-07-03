@@ -3,10 +3,10 @@ import {MongooseModule} from "@nestjs/mongoose";
 import {PlayerSchema} from "./player.schema";
 import PlayerController from "./player.controller";
 import {PlayerService} from "./player.service";
-import {isPlayerExists} from "./decorator/validation/IsPlayerExists";
 import {ClassName} from "../util/dictionary";
 import {ClanModule} from "../clan/clan.module";
 import {RequestHelperModule} from "../requestHelper/requestHelper.module";
+import {isPlayerExists} from "./decorator/validation/IsPlayerExists.decorator";
 
 @Module({
     imports: [
@@ -15,7 +15,7 @@ import {RequestHelperModule} from "../requestHelper/requestHelper.module";
         RequestHelperModule
     ],
     controllers: [PlayerController],
-    providers: [PlayerService, isPlayerExists],
+    providers: [ PlayerService, isPlayerExists ],
     exports: [PlayerService]
 })
 export class PlayerModule {}

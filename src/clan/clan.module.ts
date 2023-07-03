@@ -3,8 +3,8 @@ import {MongooseModule} from '@nestjs/mongoose';
 import {Clan, ClanSchema} from "./clan.schema";
 import {ClanController} from "./clan.controller";
 import {ClanService} from "./clan.service";
-import {isClanExists} from "./decorator/validation/IsClanExists";
 import {RequestHelperModule} from "../requestHelper/requestHelper.module";
+import {isClanExists} from "./decorator/validation/IsClanExists.decorator";
 
 @Module({
     imports: [
@@ -12,7 +12,7 @@ import {RequestHelperModule} from "../requestHelper/requestHelper.module";
         RequestHelperModule
     ],
     controllers: [ClanController],
-    providers: [ ClanService,isClanExists ],
+    providers: [ ClanService, isClanExists ],
     exports: [ClanService]
 })
 export class ClanModule {}
