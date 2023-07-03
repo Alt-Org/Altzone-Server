@@ -8,6 +8,7 @@ import {BasicPOST} from "../base/decorator/BasicPOST.decorator";
 import {BasicGET} from "../base/decorator/BasicGET.decorator";
 import {BasicPUT} from "../base/decorator/BasicPUT.decorator";
 import {BasicDELETE} from "../base/decorator/BasicDELETE.decorator";
+import {AddGetQueries} from "../requestHelper/decorator/AddGetQueries.decorator";
 
 @Controller('clan')
 export class ClanController{
@@ -22,15 +23,11 @@ export class ClanController{
         return this.service.create(body);
     }
 
-    @Get('/_id')
+    @Get('/:_id')
+    @AddGetQueries()
     @BasicGET(ClassName.CLAN)
     public async get(@Param() param: _idDto, @Query() query: any) {
-        if(Object.keys(query).length === 0)
-            return this.service.readById(param._id);
-        else if(query.with && (typeof query.with === 'string'))
-            return this.service.readOneWithCollections(param._id, query.with);
-        else if(query.all !== null)
-            return this.service.readOneWithAllCollections(param._id);
+        return this.service.readById(param._id);
     }
 
     @Get()
@@ -45,7 +42,7 @@ export class ClanController{
         return this.service.updateById(body);
     }
 
-    @Delete('_id')
+    @Delete('/:_id')
     @BasicDELETE(ClassName.CLAN)
     public async delete(@Param() param: _idDto) {
         return this.service.deleteById(param._id);
