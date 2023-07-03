@@ -5,7 +5,7 @@ import {PlayerService} from "./player.service";
 import {CreatePlayerDto} from "./dto/createPlayer.dto";
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
 import {CatchCreateUpdateErrors} from "../decorator/CatchCreateUpdateErrors";
-import {_idDto} from "./dto/_id.dto";
+import {_idDto} from "../requestHelper/dto/_id.dto";
 
 @Controller('player')
 export default class PlayerController{

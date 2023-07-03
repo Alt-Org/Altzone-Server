@@ -1,0 +1,1 @@
+export const serializationArray: string[] = ['_id', 'name', 'tag', 'gameCoins', 'Player'];
