@@ -1,10 +1,13 @@
 import {applyDecorators} from '@nestjs/common';
-import {BeautifyResponse} from "../../decorator/BeautifyResponse";
+import {ThrowResponseErrorIfFound} from "../../decorator/ThrowResponseErrorIfFound";
 import {ResponseType} from "../../decorator/responseType";
 import {ClassName} from "../../util/dictionary";
+import {Serialize} from "../../interceptor/Serialize";
+import {IClass} from "../../util/interfaces/IClass";
 
-export const BasicGET = (modelName: ClassName) => {
+export const BasicGET = (modelName: ClassName, responseDTO: IClass) => {
     return applyDecorators(
-        BeautifyResponse(ResponseType.READ, modelName)
+        ThrowResponseErrorIfFound(ResponseType.READ, modelName),
+        Serialize(responseDTO)
     );
 }
