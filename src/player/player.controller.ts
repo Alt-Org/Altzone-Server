@@ -4,8 +4,14 @@ import {Body, Controller, Delete, Get, Param, Post, Put, Query} from "@nestjs/co
 import {PlayerService} from "./player.service";
 import {CreatePlayerDto} from "./dto/createPlayer.dto";
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
-import {CatchCreateUpdateErrors} from "../decorator/CatchCreateUpdateErrors";
 import {_idDto} from "../requestHelper/dto/_id.dto";
+import {PlayerDto} from "./dto/player.dto";
+import {BasicPOST} from "../base/decorator/BasicPOST.decorator";
+import {BasicGET} from "../base/decorator/BasicGET.decorator";
+import {AddGetQueries} from "../requestHelper/decorator/AddGetQueries.decorator";
+import {BasicPUT} from "../base/decorator/BasicPUT.decorator";
+import {BasicDELETE} from "../base/decorator/BasicDELETE.decorator";
+import {GetQueryDto} from "../requestHelper/dto/getQuery.dto";
 
 @Controller('player')
 export default class PlayerController{
@@ -16,33 +22,33 @@ export default class PlayerController{
     private readonly errorThrower: DefaultResponseErrorThrower;
 
     @Post()
-    @CatchCreateUpdateErrors()
+    @BasicPOST(PlayerDto)
     public create(@Body() body: CreatePlayerDto) {
         return this.service.create(body);
     }
 
     @Get('/:_id')
-    public async get(@Param() param: _idDto, @Query() query: any) {
-        if(Object.keys(query).length === 0)
-            return this.service.readById(param._id);
-        else if(query.with && (typeof query.with == 'string'))
-            return this.service.readOneWithCollections(param._id, query.with);
-        else if(query.all !== null)
-            return this.service.readOneWithAllCollections(param._id);
+    @BasicGET(ClassName.PLAYER, PlayerDto)
+    @AddGetQueries()
+    public async get(@Param() param: _idDto, @Query() query: GetQueryDto) {
+        return this.service.readById(param._id);
     }
 
     @Get()
+    @BasicGET(ClassName.PLAYER, PlayerDto)
     public async getAll() {
         return this.service.readAll();
     }
 
     @Put()
+    @BasicPUT(ClassName.PLAYER)
     public async update(@Body() body: UpdatePlayerDto){
         return this.service.updateById(body);
     }
 
     @Delete('/:_id')
-    public async delete(@Param('_id') _id: string) {
-        return this.service.deleteById(_id);
+    @BasicDELETE(ClassName.PLAYER)
+    public async delete(@Param() param: _idDto) {
+        return this.service.deleteById(param._id);
     }
 }

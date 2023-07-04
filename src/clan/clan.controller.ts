@@ -1,15 +1,6 @@
 import {ClanService} from "./clan.service";
 import {ClassName} from "../util/dictionary";
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Post,
-    Put,
-    Query
-} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put, Query} from "@nestjs/common";
 import {CreateClanDto} from "./dto/createClan.dto";
 import {UpdateClanDto} from "./dto/updateClan.dto";
 import {BasicPOST} from "../base/decorator/BasicPOST.decorator";
@@ -19,10 +10,7 @@ import {BasicDELETE} from "../base/decorator/BasicDELETE.decorator";
 import {AddGetQueries} from "../requestHelper/decorator/AddGetQueries.decorator";
 import {_idDto} from "../requestHelper/dto/_id.dto";
 import {GetQueryDto} from "../requestHelper/dto/getQuery.dto";
-import {Serialize} from "../decorator/Serialize";
-import {serializationArray} from "./dto/serializationArray";
-
-//TODO: serialization to interceptor
+import {ClanDto} from "./dto/clan.dto";
 
 @Controller('clan')
 export class ClanController{
@@ -32,23 +20,20 @@ export class ClanController{
     }
 
     @Post()
-    @Serialize(serializationArray)
-    @BasicPOST()
+    @BasicPOST(ClanDto)
     public create(@Body() body: CreateClanDto) {
         return this.service.create(body);
     }
 
     @Get('/:_id')
-    @Serialize(serializationArray)
+    @BasicGET(ClassName.CLAN, ClanDto)
     @AddGetQueries()
-    @BasicGET(ClassName.CLAN)
     public get(@Param() param: _idDto, @Query() query: GetQueryDto) {
         return this.service.readById(param._id);
     }
 
     @Get()
-    @Serialize(serializationArray)
-    @BasicGET(ClassName.CLAN)
+    @BasicGET(ClassName.CLAN, ClanDto)
     public getAll() {
         return this.service.readAll();
     }

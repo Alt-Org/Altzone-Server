@@ -5,11 +5,14 @@ import {Player} from "./player.schema";
 import {ClanService} from "../clan/clan.service";
 import {ClassName} from "../util/dictionary";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {BaseService} from "../base/base.service";
 import {IgnoreReferencesType} from "../util/type/IIgnoreReferencesType";
+import {AddBaseService} from "../base/decorator/AddBaseService.decorator";
+import {ServiceDummyAbstract} from "../base/serviceDummy.abstract";
+import {IService} from "../base/interface/IService";
 
 @Injectable()
-export class PlayerService extends BaseService<Player>{
+@AddBaseService()
+export class PlayerService extends ServiceDummyAbstract implements IService{
     public constructor(
         @InjectModel(Player.name) public readonly model: Model<Player>,
         private readonly clanService: ClanService,
@@ -19,7 +22,7 @@ export class PlayerService extends BaseService<Player>{
         this.refsInModel = [ClassName.CLAN];
     }
 
-    protected readonly refsInModel: ClassName[];
+    public readonly refsInModel: ClassName[];
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         //await this.clanService.deleteByCondition({player_id: _id}, [ClassName.PLAYER]);

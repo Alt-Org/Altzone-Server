@@ -8,7 +8,7 @@ import {isClanExists} from "./decorator/validation/IsClanExists.decorator";
 
 @Module({
     imports: [
-        MongooseModule.forFeature([ {name: Clan.name,schema: ClanSchema} ]),
+        MongooseModule.forFeature([ {name: Clan.name, schema: ClanSchema} ]),
         RequestHelperModule
     ],
     controllers: [ClanController],
