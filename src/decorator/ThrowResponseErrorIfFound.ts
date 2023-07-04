@@ -4,7 +4,7 @@ import {ClassName} from "../util/dictionary";
 
 type ResponseHandler = (data: any, modelName: ClassName) => any;
 
-export const BeautifyResponse = (responseType: ResponseType, modelName: ClassName): any => {
+export const ThrowResponseErrorIfFound = (responseType: ResponseType, modelName: ClassName): any => {
     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
         // Save a reference to the original method
         const originalMethod = descriptor.value;
@@ -15,7 +15,9 @@ export const BeautifyResponse = (responseType: ResponseType, modelName: ClassNam
 
             // Check if method is asynchronous
             if (result && result instanceof Promise) {
-                return result.then( (data) => handler(data, modelName) );
+                return result.then( (data) => {
+                    return handler(data, modelName);
+                });
             }
 
             return handler(result, modelName);
