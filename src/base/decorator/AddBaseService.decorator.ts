@@ -36,11 +36,8 @@ export const AddBaseService = () => {
                     if(this.refsInModel.includes(refModelName))
                         dbQuery.populate(refModelName);
                 }
-                const dbQueryResp = await dbQuery.exec() as any;
-                if(dbQueryResp === null || dbQueryResp._doc === null)
-                    return null;
 
-                return {...dbQueryResp._doc, ...dbQueryResp.$$populatedVirtuals};
+                return await dbQuery.exec();
             }
 
             public readOneWithAllCollections = async (_id: string): Promise<object | null | MongooseError> => {
@@ -49,12 +46,7 @@ export const AddBaseService = () => {
                 for(let i=0; i<this.refsInModel.length; i++)
                     dbQuery.populate(this.refsInModel[i]);
 
-
-                const dbQueryResp = await dbQuery.exec() as any;
-                if(dbQueryResp === null || dbQueryResp._doc === null)
-                    return null;
-
-                return {...dbQueryResp._doc, ...dbQueryResp.$$populatedVirtuals};
+                return dbQuery.exec();
             }
 
             public readAll = async (): Promise<Array<object>> => {
