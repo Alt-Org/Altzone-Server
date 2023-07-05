@@ -22,7 +22,7 @@ export class ClanService extends ServiceDummyAbstract implements IService{
 
     public readonly refsInModel: ModelName[];
 
-    public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType) => {
+    public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         const searchFilter = { clan_id: _id };
         const nullIds = { clan_id: null };
 
