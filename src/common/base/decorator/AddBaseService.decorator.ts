@@ -2,10 +2,12 @@ import {Model, MongooseError} from "mongoose";
 import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
 import {ModelName} from "../../enum/modelName.enum";
 
+type ClearCollectionReferencesFunction = (_id: any, ignoreReferences?: IgnoreReferencesType) => void | Promise<void>;
+
 export const AddBaseService = () => {
     return function<T extends {
         new (...args: any[]): {
-            clearCollectionReferences: Function;
+            clearCollectionReferences: ClearCollectionReferencesFunction;
             refsInModel: ModelName[];
             model: Model<any>
         }
