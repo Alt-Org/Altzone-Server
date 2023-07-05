@@ -5,6 +5,12 @@ import {MongooseModule} from "@nestjs/mongoose";
 import {ClanModule} from "./clan/clan.module";
 import {PlayerModule} from "./player/player.module";
 import {RequestHelperModule} from "./requestHelper/requestHelper.module";
+import {CharacterClassModule} from "./characterClass/characterClass.module";
+import {FurnitureModule} from "./furniture/furniture.module";
+import {CustomCharacterModule} from "./customCharacter/customCharacter.module";
+import {RaidRoomModule} from "./raidRoom/raidRoom.module";
+import {ServeStaticModule} from "@nestjs/serve-static";
+import { join } from 'path';
 
 // Set up database connection
 const mongoUser = process.env.MONGO_USERNAME || 'rootUser';
@@ -19,7 +25,15 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       MongooseModule.forRoot(mongoString, {dbName: dbName}),
       ClanModule,
       PlayerModule,
-      RequestHelperModule
+      CharacterClassModule,
+      CustomCharacterModule,
+      FurnitureModule,
+      RaidRoomModule,
+      RequestHelperModule,
+
+      ServeStaticModule.forRoot({
+          rootPath: join(__dirname, '..', 'public'),
+      }),
   ],
   controllers: [AppController],
   providers: [AppService],
