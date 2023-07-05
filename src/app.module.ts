@@ -5,8 +5,6 @@ import {MongooseModule} from "@nestjs/mongoose";
 import {ClanModule} from "./clan/clan.module";
 import {PlayerModule} from "./player/player.module";
 import {RequestHelperModule} from "./requestHelper/requestHelper.module";
-import { ResponseHelperModule } from './responseHelper/responseHelper.module';
-import { BaseModule } from './base/base.module';
 
 // Set up database connection
 const mongoUser = process.env.MONGO_USERNAME || 'rootUser';
@@ -21,9 +19,7 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       MongooseModule.forRoot(mongoString, {dbName: dbName}),
       ClanModule,
       PlayerModule,
-      RequestHelperModule,
-      ResponseHelperModule,
-      BaseModule
+      RequestHelperModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,7 +1,7 @@
 import mongoose, {Schema} from "mongoose";
 import {ICharacterClass} from "./characterClass";
-import {ClassName} from "../util/dictionary";
 import SchemaValidator from "../util/schemaHelper/schemaValidator";
+import {ModelName} from "../common/enum/modelName.enum";
 
 const schema = new Schema({
     name: { type: String, required: true, unique: true },
@@ -15,7 +15,7 @@ const schema = new Schema({
 //Save delete
 schema.pre('deleteOne', { document: false, query: true },async function () {
     const {_id} = this.getQuery();
-    await SchemaValidator.validateDeleteFK({modelReferring: mongoose.model(ClassName.CUSTOM_CHARACTER), fkObj: {'characterClass_id': _id}});
+    await SchemaValidator.validateDeleteFK({modelReferring: mongoose.model(ModelName.CUSTOM_CHARACTER), fkObj: {'characterClass_id': _id}});
 });
 
-export default mongoose.model<ICharacterClass>(ClassName.CHARACTER_CLASS, schema);
+export default mongoose.model<ICharacterClass>(ModelName.CHARACTER_CLASS, schema);

@@ -1,7 +1,7 @@
 import mongoose, {Schema} from "mongoose";
 import { IFurniture } from "./furniture";
-import {ClassName} from "../util/dictionary";
 import SchemaValidator from "../util/schemaHelper/schemaValidator";
+import {ModelName} from "../common/enum/modelName.enum";
 
 const schema = new Schema({
     name: { type: String, required: true },
@@ -15,19 +15,19 @@ const schema = new Schema({
     clan_id: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref: ClassName.CLAN,
+        ref: ModelName.CLAN,
         validate : {
             isAsync: true,
-            validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.CLAN), v)
+            validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ModelName.CLAN), v)
         }
     }
 });
 
-schema.virtual(ClassName.CLAN, {
-    ref: ClassName.CLAN,
+schema.virtual(ModelName.CLAN, {
+    ref: ModelName.CLAN,
     localField: 'clan_id',
     foreignField: '_id',
     justOne: true
 });
 
-export default mongoose.model<IFurniture>(ClassName.FURNITURE, schema);
+export default mongoose.model<IFurniture>(ModelName.FURNITURE, schema);

@@ -2,14 +2,14 @@ import {Request, Response} from "express";
 import {sendErrorsToClient} from "../util/response/errorHandler";
 import BattleCharacterService from "./battleCharacter.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
-import {ClassName} from "../util/dictionary";
 import RequestError from "../util/error/requestError";
 import IController from "../util/baseAPIClasses/IController";
+import {ModelName} from "../common/enum/modelName.enum";
 
 export default class BattleCharacterController implements IController{
     public constructor() {
         this.service = new BattleCharacterService();
-        this.errorThrower = new DefaultResponseErrorThrower(ClassName.BATTLE_CHARACTER);
+        this.errorThrower = new DefaultResponseErrorThrower(ModelName.BATTLE_CHARACTER);
     }
 
     private readonly service: BattleCharacterService;

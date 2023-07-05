@@ -2,13 +2,13 @@ import {Request, Response} from "express";
 import {sendErrorsToClient} from "../util/response/errorHandler";
 import FurnitureService from "./furniture.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
-import {ClassName} from "../util/dictionary";
 import IController from "../util/baseAPIClasses/IController";
+import {ModelName} from "../common/enum/modelName.enum";
 
 export default class FurnitureController implements IController{
     public constructor() {
         this.service = new FurnitureService();
-        this.errorThrower = new DefaultResponseErrorThrower(ClassName.FURNITURE);
+        this.errorThrower = new DefaultResponseErrorThrower(ModelName.FURNITURE);
     }
 
     private readonly service: FurnitureService;

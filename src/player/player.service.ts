@@ -3,12 +3,12 @@ import {Model, Types} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {Player} from "./player.schema";
 import {ClanService} from "../clan/clan.service";
-import {ClassName} from "../util/dictionary";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {IgnoreReferencesType} from "../util/type/IIgnoreReferencesType";
-import {AddBaseService} from "../base/decorator/AddBaseService.decorator";
-import {ServiceDummyAbstract} from "../base/serviceDummy.abstract";
-import {IService} from "../base/interface/IService";
+import {AddBaseService} from "../common/base/decorator/AddBaseService.decorator";
+import {ServiceDummyAbstract} from "../common/base/serviceDummy.abstract";
+import {IService} from "../common/base/interface/IService";
+import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
+import {ModelName} from "../common/enum/modelName.enum";
 
 @Injectable()
 @AddBaseService()
@@ -19,10 +19,10 @@ export class PlayerService extends ServiceDummyAbstract implements IService{
         private readonly requestHelperService: RequestHelperService
     ){
         super();
-        this.refsInModel = [ClassName.CLAN];
+        this.refsInModel = [ModelName.CLAN];
     }
 
-    public readonly refsInModel: ClassName[];
+    public readonly refsInModel: ModelName[];
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         //await this.clanService.deleteByCondition({player_id: _id}, [ClassName.PLAYER]);

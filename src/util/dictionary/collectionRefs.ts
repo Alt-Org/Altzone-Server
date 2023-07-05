@@ -1,44 +1,44 @@
-import {ClassName} from "./className";
+import {ModelName} from "../../common/enum/modelName.enum";
 
 export default class CollectionRefs{
-    public static readonly values: Record<ClassName, ICollectionRefs> = {
+    public static readonly values: Record<ModelName, ICollectionRefs> = {
         Player: {
-            inModelRefs: ['CurrentCustomCharacter', ClassName.CLAN, ClassName.RAID_ROOM],
+            inModelRefs: ['CurrentCustomCharacter', ModelName.CLAN, ModelName.RAID_ROOM],
             notInModelRefs: [
-                { modelName: ClassName.CUSTOM_CHARACTER, foreignKey: 'player_id', isOne: false}
+                { modelName: ModelName.CUSTOM_CHARACTER, foreignKey: 'player_id', isOne: false}
             ]
         },
         CharacterClass: {
             inModelRefs: [],
             notInModelRefs: [
-                { modelName: ClassName.CUSTOM_CHARACTER, foreignKey: 'characterClass_id', isOne: false },
-                { modelName: ClassName.BATTLE_CHARACTER, foreignKey: 'characterClass_id', isOne: true }
+                { modelName: ModelName.CUSTOM_CHARACTER, foreignKey: 'characterClass_id', isOne: false },
+                { modelName: ModelName.BATTLE_CHARACTER, foreignKey: 'characterClass_id', isOne: true }
             ]
         },
         Clan: {
             inModelRefs: [],
             notInModelRefs: [
-                { modelName: ClassName.PLAYER, foreignKey: 'clan_id', isOne: false },
-                { modelName: ClassName.RAID_ROOM, foreignKey: 'clan_id', isOne: false },
-                { modelName: ClassName.FURNITURE, foreignKey: 'clan_id', isOne: false }
+                { modelName: ModelName.PLAYER, foreignKey: 'clan_id', isOne: false },
+                { modelName: ModelName.RAID_ROOM, foreignKey: 'clan_id', isOne: false },
+                { modelName: ModelName.FURNITURE, foreignKey: 'clan_id', isOne: false }
             ]
         },
         CustomCharacter:  {
-            inModelRefs: [ClassName.CHARACTER_CLASS, ClassName.PLAYER],
+            inModelRefs: [ModelName.CHARACTER_CLASS, ModelName.PLAYER],
             notInModelRefs: [
-                { modelName: ClassName.BATTLE_CHARACTER, foreignKey: 'customCharacter_id', isOne: true }
+                { modelName: ModelName.BATTLE_CHARACTER, foreignKey: 'customCharacter_id', isOne: true }
             ]
         },
         BattleCharacter:  {
-            inModelRefs: [ClassName.CHARACTER_CLASS, ClassName.CUSTOM_CHARACTER],
+            inModelRefs: [ModelName.CHARACTER_CLASS, ModelName.CUSTOM_CHARACTER],
             notInModelRefs: []
         },
         Furniture:  {
-            inModelRefs: [ClassName.CLAN],
+            inModelRefs: [ModelName.CLAN],
             notInModelRefs: []
         },
         RaidRoom:  {
-            inModelRefs: [ClassName.PLAYER, ClassName.CLAN],
+            inModelRefs: [ModelName.PLAYER, ModelName.CLAN],
             notInModelRefs: []
         },
     }
@@ -50,7 +50,7 @@ interface ICollectionRefs {
 }
 
 export interface ICollectionRefInfo {
-    modelName: ClassName,
+    modelName: ModelName,
     foreignKey: string,
     isOne: boolean
 }

@@ -1,7 +1,7 @@
 import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
-import {ClassName} from "../util/dictionary";
 import {Clan} from "../clan/clan.schema";
+import {ModelName} from "../common/enum/modelName.enum";
 
 export type PlayerDocument = HydratedDocument<Player>;
 
@@ -16,14 +16,14 @@ export class Player {
     @Prop({ type: String, required: true, unique: true })
     uniqueIdentifier: string;
 
-    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ClassName.CLAN })
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CLAN })
     clan_id: Clan;
 }
 
 export const PlayerSchema = SchemaFactory.createForClass(Player);
-PlayerSchema.set('collection', ClassName.PLAYER);
-PlayerSchema.virtual(ClassName.CLAN, {
-    ref: ClassName.CLAN,
+PlayerSchema.set('collection', ModelName.PLAYER);
+PlayerSchema.virtual(ModelName.CLAN, {
+    ref: ModelName.CLAN,
     localField: 'clan_id',
     foreignField: '_id',
     justOne: true

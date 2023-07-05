@@ -2,13 +2,13 @@ import {Request, Response} from "express";
 import {sendErrorsToClient} from "../util/response/errorHandler";
 import CharacterClassService from "./characterClass.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
-import {ClassName} from "../util/dictionary";
 import IController from "../util/baseAPIClasses/IController";
+import {ModelName} from "../common/enum/modelName.enum";
 
 export default class CharacterClassController implements IController{
     public constructor() {
         this.service = new CharacterClassService();
-        this.errorThrower = new DefaultResponseErrorThrower(ClassName.CHARACTER_CLASS);
+        this.errorThrower = new DefaultResponseErrorThrower(ModelName.CHARACTER_CLASS);
     }
 
     private readonly service: CharacterClassService;

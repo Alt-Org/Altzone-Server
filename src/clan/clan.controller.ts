@@ -1,16 +1,16 @@
 import {ClanService} from "./clan.service";
-import {ClassName} from "../util/dictionary";
 import {Body, Controller, Delete, Get, Param, Post, Put, Query} from "@nestjs/common";
 import {CreateClanDto} from "./dto/createClan.dto";
 import {UpdateClanDto} from "./dto/updateClan.dto";
-import {BasicPOST} from "../base/decorator/BasicPOST.decorator";
-import {BasicGET} from "../base/decorator/BasicGET.decorator";
-import {BasicPUT} from "../base/decorator/BasicPUT.decorator";
-import {BasicDELETE} from "../base/decorator/BasicDELETE.decorator";
-import {AddGetQueries} from "../requestHelper/decorator/AddGetQueries.decorator";
-import {_idDto} from "../requestHelper/dto/_id.dto";
-import {GetQueryDto} from "../requestHelper/dto/getQuery.dto";
 import {ClanDto} from "./dto/clan.dto";
+import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
+import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
+import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
+import {_idDto} from "../common/dto/_id.dto";
+import {GetQueryDto} from "../common/dto/getQuery.dto";
+import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
+import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
+import {ModelName} from "../common/enum/modelName.enum";
 
 @Controller('clan')
 export class ClanController{
@@ -26,26 +26,26 @@ export class ClanController{
     }
 
     @Get('/:_id')
-    @BasicGET(ClassName.CLAN, ClanDto)
+    @BasicGET(ModelName.CLAN, ClanDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Query() query: GetQueryDto) {
         return this.service.readById(param._id);
     }
 
     @Get()
-    @BasicGET(ClassName.CLAN, ClanDto)
+    @BasicGET(ModelName.CLAN, ClanDto)
     public getAll() {
         return this.service.readAll();
     }
 
     @Put()
-    @BasicPUT(ClassName.CLAN)
+    @BasicPUT(ModelName.CLAN)
     public update(@Body() body: UpdateClanDto){
         return this.service.updateById(body);
     }
 
     @Delete('/:_id')
-    @BasicDELETE(ClassName.CLAN)
+    @BasicDELETE(ModelName.CLAN)
     public delete(@Param() param: _idDto) {
         return this.service.deleteById(param._id);
     }

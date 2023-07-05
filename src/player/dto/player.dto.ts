@@ -1,6 +1,6 @@
 import {Expose, Type} from "class-transformer";
-import {ExtractField} from "../../decorator/ExtractField";
 import {ClanDto} from "../../clan/dto/clan.dto";
+import {ExtractField} from "../../common/decorator/response/ExtractField";
 
 export class PlayerDto {
     @ExtractField()

@@ -3,14 +3,14 @@ import {MongooseModule} from "@nestjs/mongoose";
 import {PlayerSchema} from "./player.schema";
 import PlayerController from "./player.controller";
 import {PlayerService} from "./player.service";
-import {ClassName} from "../util/dictionary";
 import {RequestHelperModule} from "../requestHelper/requestHelper.module";
 import {isPlayerExists} from "./decorator/validation/IsPlayerExists.decorator";
 import {ClanModule} from "../clan/clan.module";
+import {ModelName} from "../common/enum/modelName.enum";
 
 @Module({
     imports: [
-        MongooseModule.forFeature([{name: ClassName.PLAYER, schema: PlayerSchema}]),
+        MongooseModule.forFeature([{name: ModelName.PLAYER, schema: PlayerSchema}]),
         ClanModule,
         RequestHelperModule
     ],

@@ -1,7 +1,7 @@
 import mongoose, {Schema} from "mongoose";
 import { ICustomCharacter } from "./customCharacter";
-import {ClassName} from "../util/dictionary";
 import SchemaValidator from "../util/schemaHelper/schemaValidator";
+import {ModelName} from "../common/enum/modelName.enum";
 
 const schema = new Schema({
     unityKey: { type: String, required: true },
@@ -13,34 +13,34 @@ const schema = new Schema({
 
     characterClass_id: {
         type: Schema.Types.ObjectId,
-        ref: ClassName.CHARACTER_CLASS,
+        ref: ModelName.CHARACTER_CLASS,
         required: true,
         validate : {
             isAsync: true,
-            validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.CHARACTER_CLASS), v)
+            validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ModelName.CHARACTER_CLASS), v)
         }
     },
 
     player_id: {
         type: Schema.Types.ObjectId,
-        ref: ClassName.PLAYER,
+        ref: ModelName.PLAYER,
         required: true,
         validate : {
             isAsync: true,
-            validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ClassName.PLAYER), v)
+            validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ModelName.PLAYER), v)
         }
     }
 });
 
-schema.virtual(ClassName.CHARACTER_CLASS, {
-    ref: ClassName.CHARACTER_CLASS,
+schema.virtual(ModelName.CHARACTER_CLASS, {
+    ref: ModelName.CHARACTER_CLASS,
     localField: 'characterClass_id',
     foreignField: '_id',
     justOne: true
 });
 
-schema.virtual(ClassName.PLAYER, {
-    ref: ClassName.PLAYER,
+schema.virtual(ModelName.PLAYER, {
+    ref: ModelName.PLAYER,
     localField: 'player_id',
     foreignField: '_id',
     justOne: true
@@ -49,9 +49,9 @@ schema.virtual(ClassName.PLAYER, {
 schema.pre('deleteOne', { document: false, query: true },async function () {
     const {_id} = this.getQuery();
 
-    const playerModel = mongoose.model(ClassName.PLAYER);
+    const playerModel = mongoose.model(ModelName.PLAYER);
     const nullIds = { currentCustomCharacter_id: null };
     await playerModel.updateOne({currentCustomCharacter_id: _id}, nullIds);
 });
 
-export default mongoose.model<ICustomCharacter>(ClassName.CUSTOM_CHARACTER, schema);
+export default mongoose.model<ICustomCharacter>(ModelName.CUSTOM_CHARACTER, schema);

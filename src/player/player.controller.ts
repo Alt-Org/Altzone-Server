@@ -1,22 +1,22 @@
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
-import {ClassName} from "../util/dictionary";
 import {Body, Controller, Delete, Get, Param, Post, Put, Query} from "@nestjs/common";
 import {PlayerService} from "./player.service";
 import {CreatePlayerDto} from "./dto/createPlayer.dto";
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
-import {_idDto} from "../requestHelper/dto/_id.dto";
+import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
 import {PlayerDto} from "./dto/player.dto";
-import {BasicPOST} from "../base/decorator/BasicPOST.decorator";
-import {BasicGET} from "../base/decorator/BasicGET.decorator";
-import {AddGetQueries} from "../requestHelper/decorator/AddGetQueries.decorator";
-import {BasicPUT} from "../base/decorator/BasicPUT.decorator";
-import {BasicDELETE} from "../base/decorator/BasicDELETE.decorator";
-import {GetQueryDto} from "../requestHelper/dto/getQuery.dto";
+import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
+import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
+import {_idDto} from "../common/dto/_id.dto";
+import {GetQueryDto} from "../common/dto/getQuery.dto";
+import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
+import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
+import {ModelName} from "../common/enum/modelName.enum";
 
 @Controller('player')
 export default class PlayerController{
     public constructor(private readonly service: PlayerService) {
-        this.errorThrower = new DefaultResponseErrorThrower(ClassName.PLAYER);
+        this.errorThrower = new DefaultResponseErrorThrower(ModelName.PLAYER);
     }
 
     private readonly errorThrower: DefaultResponseErrorThrower;
@@ -28,26 +28,26 @@ export default class PlayerController{
     }
 
     @Get('/:_id')
-    @BasicGET(ClassName.PLAYER, PlayerDto)
+    @BasicGET(ModelName.PLAYER, PlayerDto)
     @AddGetQueries()
     public async get(@Param() param: _idDto, @Query() query: GetQueryDto) {
         return this.service.readById(param._id);
     }
 
     @Get()
-    @BasicGET(ClassName.PLAYER, PlayerDto)
+    @BasicGET(ModelName.PLAYER, PlayerDto)
     public async getAll() {
         return this.service.readAll();
     }
 
     @Put()
-    @BasicPUT(ClassName.PLAYER)
+    @BasicPUT(ModelName.PLAYER)
     public async update(@Body() body: UpdatePlayerDto){
         return this.service.updateById(body);
     }
 
     @Delete('/:_id')
-    @BasicDELETE(ClassName.PLAYER)
+    @BasicDELETE(ModelName.PLAYER)
     public async delete(@Param() param: _idDto) {
         return this.service.deleteById(param._id);
     }

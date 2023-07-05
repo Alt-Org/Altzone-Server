@@ -1,13 +1,14 @@
 import mongoose, {Model, MongooseError} from "mongoose";
 import {UpdateResult} from "mongodb";
 import {IUpdateInput} from "./service.d";
-import {ClassName, CollectionRefs} from "../dictionary";
+import { CollectionRefs} from "../dictionary";
+import {ModelName} from "../../common/enum/modelName.enum";
 export default abstract class Service<T>{
     protected constructor(model: Model<T>){
         this.model = model;
-        this.modelName = model.modelName as ClassName;
+        this.modelName = model.modelName as ModelName;
     }
-    protected readonly modelName: ClassName;
+    protected readonly modelName: ModelName;
     protected readonly model: Model<T>;
 
     public create = async (input: any): Promise<Object | MongooseError> => {
@@ -30,7 +31,7 @@ export default abstract class Service<T>{
 
         const inModelRefs = refInfo.inModelRefs;
         for(let i=0; i<inputCollections.length; i++){
-            const refModelName: ClassName = inputCollections[i] as ClassName;
+            const refModelName: ModelName = inputCollections[i] as ModelName;
 
             if(inModelRefs.includes(refModelName))
                 dbQuery.populate(refModelName);
@@ -44,7 +45,7 @@ export default abstract class Service<T>{
         const notInModelRefs = refInfo.notInModelRefs;
         const notInModelObjects: Record<any, any> = {};
         for(let i=0; i<inputCollections.length; i++){
-            const refModelName: ClassName = inputCollections[i] as ClassName;
+            const refModelName: ModelName = inputCollections[i] as ModelName;
 
             for(let i=0; i<notInModelRefs.length; i++){
                 if(notInModelRefs[i].modelName !== refModelName)

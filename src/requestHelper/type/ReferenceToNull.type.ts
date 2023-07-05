@@ -1,8 +1,8 @@
-import {ClassName} from "../../util/dictionary";
 import {Types} from "mongoose";
+import {ModelName} from "../../common/enum/modelName.enum";
 
 export type ReferenceToNullType = {
-    modelName: ClassName,
+    modelName: ModelName,
     filter: {[key: string]: string | Types.ObjectId},
     nullIds: {[key: string]: null}
 };

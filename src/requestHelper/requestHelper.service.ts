@@ -1,8 +1,8 @@
 import {Injectable} from "@nestjs/common";
 import {InjectConnection} from "@nestjs/mongoose";
 import {Connection} from "mongoose";
-import {IgnoreReferencesType} from "../util/type/IIgnoreReferencesType";
 import {ReferenceToNullType} from "./type/ReferenceToNull.type";
+import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 
 @Injectable()
 export class RequestHelperService {

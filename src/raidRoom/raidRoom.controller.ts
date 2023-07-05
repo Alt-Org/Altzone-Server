@@ -2,13 +2,13 @@ import {Request, Response} from "express";
 import {sendErrorsToClient} from "../util/response/errorHandler";
 import RaidRoomService from "./raidRoom.service";
 import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
-import {ClassName} from "../util/dictionary";
 import IController from "../util/baseAPIClasses/IController";
+import {ModelName} from "../common/enum/modelName.enum";
 
 export default class RaidRoomController implements IController{
     public constructor() {
         this.service = new RaidRoomService();
-        this.errorThrower = new DefaultResponseErrorThrower(ClassName.RAID_ROOM);
+        this.errorThrower = new DefaultResponseErrorThrower(ModelName.RAID_ROOM);
     }
 
     private readonly service: RaidRoomService;

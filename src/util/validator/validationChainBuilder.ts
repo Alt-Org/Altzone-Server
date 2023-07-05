@@ -1,7 +1,7 @@
 import {body, param, query, ValidationChain} from 'express-validator';
 import {Location} from "./location";
-import {GestaltCycleEnum} from "../../enums/gestaltCycle.enum";
-import {RaidRoomEnum} from "../../enums/raidRoom.enum";
+import {GestaltCycle} from "../../common/enum/gestaltCycle.enum";
+import {RaidRoom} from "../../common/enum/raidRoom.enum";
 
 export class ValidationChainBuilder {
     public constructor(fieldName: string, fieldLocation: Location) {
@@ -55,7 +55,7 @@ export class ValidationChainBuilder {
 
     public isGestaltCycleEnum = (text?: string, overrideDefaultText?: boolean): ValidationChainBuilder => {
         this.validationChain.custom( (value) => {
-            if (!(typeof value === "number") || Object.values(GestaltCycleEnum).find(elem => elem === value ) === undefined) {
+            if (!(typeof value === "number") || Object.values(GestaltCycle).find(elem => elem === value ) === undefined) {
                 const errorMsg: string = this.getErrorText(`${this.location} ${this.name} must be DefenceEnum type`, text, overrideDefaultText);
                 throw new Error(errorMsg);
             }
@@ -68,7 +68,7 @@ export class ValidationChainBuilder {
 
     public isRaidRoomEnum = (text?: string, overrideDefaultText?: boolean): ValidationChainBuilder => {
         this.validationChain.custom( (value) => {
-            if (!(typeof value === "number") || Object.values(RaidRoomEnum).find(elem => elem === value ) === undefined) {
+            if (!(typeof value === "number") || Object.values(RaidRoom).find(elem => elem === value ) === undefined) {
                 const errorMsg: string = this.getErrorText(`${this.location} ${this.name} must be RaidRoomTypeEnum type`, text, overrideDefaultText);
                 throw new Error(errorMsg);
             }
