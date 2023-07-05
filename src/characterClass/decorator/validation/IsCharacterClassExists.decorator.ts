@@ -2,22 +2,22 @@ import {ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface} fr
 import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
-import {Clan} from "../../clan.schema";
 import {registerValidationDecorator} from "../../../common/decorator/validation/registerValidationDecorator";
 import {isEntityExists} from "../../../common/decorator/validation/isEntityExists";
 import {ModelName} from "../../../common/enum/modelName.enum";
+import {CharacterClass} from "../../characterClass.schema";
 
-export function IsClanExists(validationOptions?: ValidationOptions) {
+export function IsCharacterClassExists(validationOptions?: ValidationOptions) {
     return function (object: any, propertyName: string): void {
-        registerValidationDecorator(IsClanExists.name, isClanExists, object, propertyName, validationOptions);
+        registerValidationDecorator(IsCharacterClassExists.name, isCharacterClassExists, object, propertyName, validationOptions);
     };
 }
 
-@ValidatorConstraint({ name: isClanExists.name, async: true })
+@ValidatorConstraint({ name: isCharacterClassExists.name, async: true })
 @Injectable()
-export class isClanExists extends isEntityExists<Clan> implements ValidatorConstraintInterface{
-    public constructor(@InjectModel(ModelName.CLAN) private readonly model: Model<Clan>) {
-        super(ModelName.CLAN);
+export class isCharacterClassExists extends isEntityExists<CharacterClass> implements ValidatorConstraintInterface{
+    public constructor(@InjectModel(ModelName.CHARACTER_CLASS) private readonly model: Model<CharacterClass>) {
+        super(ModelName.CHARACTER_CLASS);
         super.setEntityModel(this.model);
     }
 }

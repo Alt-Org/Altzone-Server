@@ -2,22 +2,22 @@ import {ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface} fr
 import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
-import {Clan} from "../../clan.schema";
 import {registerValidationDecorator} from "../../../common/decorator/validation/registerValidationDecorator";
 import {isEntityExists} from "../../../common/decorator/validation/isEntityExists";
 import {ModelName} from "../../../common/enum/modelName.enum";
+import {RaidRoom} from "../../raidRoom.schema";
 
-export function IsClanExists(validationOptions?: ValidationOptions) {
+export function IsRaidRoomExists(validationOptions?: ValidationOptions) {
     return function (object: any, propertyName: string): void {
-        registerValidationDecorator(IsClanExists.name, isClanExists, object, propertyName, validationOptions);
+        registerValidationDecorator(IsRaidRoomExists.name, isRaidRoomExists, object, propertyName, validationOptions);
     };
 }
 
-@ValidatorConstraint({ name: isClanExists.name, async: true })
+@ValidatorConstraint({ name: isRaidRoomExists.name, async: true })
 @Injectable()
-export class isClanExists extends isEntityExists<Clan> implements ValidatorConstraintInterface{
-    public constructor(@InjectModel(ModelName.CLAN) private readonly model: Model<Clan>) {
-        super(ModelName.CLAN);
+export class isRaidRoomExists extends isEntityExists<RaidRoom> implements ValidatorConstraintInterface{
+    public constructor(@InjectModel(ModelName.RAID_ROOM) private readonly model: Model<RaidRoom>) {
+        super(ModelName.RAID_ROOM);
         super.setEntityModel(this.model);
     }
 }

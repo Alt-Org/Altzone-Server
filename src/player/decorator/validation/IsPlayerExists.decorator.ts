@@ -8,7 +8,7 @@ import {isEntityExists} from "../../../common/decorator/validation/isEntityExist
 import {ModelName} from "../../../common/enum/modelName.enum";
 
 export function IsPlayerExists(validationOptions?: ValidationOptions) {
-    return function (object: any, propertyName: string) {
+    return function (object: any, propertyName: string): void {
         registerValidationDecorator('IsPlayerExists', isPlayerExists, object, propertyName, validationOptions);
     };
 }
