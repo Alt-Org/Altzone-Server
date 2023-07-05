@@ -1,4 +1,3 @@
-import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
 import {Body, Controller, Delete, Get, Param, Post, Put, Query} from "@nestjs/common";
 import {PlayerService} from "./player.service";
 import {CreatePlayerDto} from "./dto/createPlayer.dto";
@@ -16,10 +15,7 @@ import {ModelName} from "../common/enum/modelName.enum";
 @Controller('player')
 export default class PlayerController{
     public constructor(private readonly service: PlayerService) {
-        this.errorThrower = new DefaultResponseErrorThrower(ModelName.PLAYER);
     }
-
-    private readonly errorThrower: DefaultResponseErrorThrower;
 
     @Post()
     @BasicPOST(PlayerDto)
