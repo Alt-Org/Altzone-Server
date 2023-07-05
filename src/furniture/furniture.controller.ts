@@ -1,78 +1,52 @@
-import {Request, Response} from "express";
-import {sendErrorsToClient} from "../util/response/errorHandler";
-import FurnitureService from "./furniture.service";
-import DefaultResponseErrorThrower from "../util/response/defaultResponseErrorThrower";
-import IController from "../util/baseAPIClasses/IController";
+import {Body, Controller, Delete, Get, Param, Post, Put, Query} from "@nestjs/common";
+import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
+import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
+import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
+import {_idDto} from "../common/dto/_id.dto";
+import {GetQueryDto} from "../common/dto/getQuery.dto";
+import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
+import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
+import {FurnitureService} from "./furniture.service";
+import {FurnitureDto} from "./dto/furniture.dto";
+import {CreateFurnitureDto} from "./dto/createFurniture.dto";
+import {UpdateFurnitureDto} from "./dto/updateFurniture.dto";
 
-export default class FurnitureController implements IController{
-    public constructor() {
-        this.service = new FurnitureService();
-        this.errorThrower = new DefaultResponseErrorThrower(ModelName.FURNITURE);
+@Controller('furniture')
+export class FurnitureController{
+    public constructor(
+        private readonly service: FurnitureService
+    ) {
     }
 
-    private readonly service: FurnitureService;
-    private readonly errorThrower: DefaultResponseErrorThrower;
-
-    public create = async (req: Request, res: Response): Promise<void> => {
-        try{
-            const respObj = await this.service.create(req.body);
-
-            res.status(201).json(respObj);
-        }catch (err) {
-            sendErrorsToClient(err, res);
-        }
+    @Post()
+    @BasicPOST(FurnitureDto)
+    public create(@Body() body: CreateFurnitureDto) {
+        return this.service.create(body);
     }
 
-    public get = async (req: Request, res: Response): Promise<void> => {
-        try{
-            const query = req.query;
-            let respObj = null;
-
-            if(Object.keys(query).length === 0)
-                respObj = await this.service.readById(req.params._id);
-            else if(query.with && (typeof query.with == 'string'))
-                respObj = await this.service.readOneWithCollections(req.params._id, query.with);
-            else if(query.all !== null)
-                respObj = await this.service.readOneAllCollections(req.params._id);
-
-            this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
-            res.status(200).json(respObj);
-        }catch (err) {
-            sendErrorsToClient(err, res);
-        }
+    @Get('/:_id')
+    @BasicGET(ModelName.FURNITURE, FurnitureDto)
+    @AddGetQueries()
+    public get(@Param() param: _idDto, @Query() query: GetQueryDto) {
+        return this.service.readById(param._id);
     }
 
-    public getAll = async (req: Request, res: Response): Promise<void> => {
-        try{
-            const respObj = await this.service.readAll();
-            this.errorThrower.throwReadErrorsIfFound(respObj, '_id');
-
-            res.status(200).json(respObj);
-        }catch (err) {
-            sendErrorsToClient(err, res);
-        }
+    @Get()
+    @BasicGET(ModelName.FURNITURE, FurnitureDto)
+    public getAll() {
+        return this.service.readAll();
     }
 
-    public update = async (req: Request, res: Response): Promise<void> => {
-        try{
-            const respObj = await this.service.updateById(req.body);
-            this.errorThrower.throwUpdateErrorsIfFound(respObj, '_id');
-
-            res.status(204).send();
-        }catch (err: unknown) {
-            sendErrorsToClient(err, res);
-        }
+    @Put()
+    @BasicPUT(ModelName.FURNITURE)
+    public update(@Body() body: UpdateFurnitureDto){
+        return this.service.updateById(body);
     }
 
-    public delete = async (req: Request, res: Response): Promise<void> => {
-        try{
-            const respObj = await this.service.deleteById(req.params._id);
-            this.errorThrower.throwDeleteErrorsIfFound(respObj, '_id');
-
-            res.status(204).send();
-        }catch (err) {
-            sendErrorsToClient(err, res);
-        }
+    @Delete('/:_id')
+    @BasicDELETE(ModelName.FURNITURE)
+    public delete(@Param() param: _idDto) {
+        return this.service.deleteById(param._id);
     }
 }
