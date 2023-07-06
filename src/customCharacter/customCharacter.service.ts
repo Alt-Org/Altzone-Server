@@ -23,5 +23,11 @@ export class CustomCharacterService extends ServiceDummyAbstract implements ISer
     public readonly refsInModel: ModelName[];
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
+        const searchFilter = { currentCustomCharacter_id: _id };
+        const nullIds = { currentCustomCharacter_id: null };
+
+        await this.requestHelperService.nullReferences([
+            {modelName: ModelName.PLAYER, filter: searchFilter, nullIds, isOne: true}
+        ], ignoreReferences);
     }
 }

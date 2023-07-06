@@ -24,9 +24,11 @@ export class CustomCharacterDto {
     @Expose()
     defence: number;
 
+    @ExtractField()
     @Expose()
     characterClass_id: string;
 
+    @ExtractField()
     @Expose()
     player_id: string;
 }

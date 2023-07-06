@@ -7,10 +7,10 @@ import {GetQueryDto} from "../common/dto/getQuery.dto";
 import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
 import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
-import {CustomCharacterDto} from "../characterClass/dto/customCharacterDto";
 import {UpdateCustomCharacterDto} from "./dto/updateCustomCharacter.dto";
 import {CustomCharacterService} from "./customCharacter.service";
 import {CreateCustomCharacterDto} from "./dto/createCustomCharacter.dto";
+import {CustomCharacterDto} from "./dto/customCharacter.dto";
 
 @Controller('customCharacter')
 export class CustomCharacterController{
