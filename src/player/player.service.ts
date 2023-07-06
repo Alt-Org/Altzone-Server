@@ -9,6 +9,8 @@ import {ServiceDummyAbstract} from "../common/base/serviceDummy.abstract";
 import {IService} from "../common/base/interface/IService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
+import {CustomCharacterService} from "../customCharacter/customCharacter.service";
+import {RaidRoomService} from "../raidRoom/raidRoom.service";
 
 @Injectable()
 @AddBaseService()
@@ -16,6 +18,8 @@ export class PlayerService extends ServiceDummyAbstract implements IService{
     public constructor(
         @InjectModel(Player.name) public readonly model: Model<Player>,
         private readonly clanService: ClanService,
+        private readonly customCharacterService: CustomCharacterService,
+        private readonly raidRoomService: RaidRoomService,
         private readonly requestHelperService: RequestHelperService
     ){
         super();
@@ -25,6 +29,7 @@ export class PlayerService extends ServiceDummyAbstract implements IService{
     public readonly refsInModel: ModelName[];
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
-        //await this.clanService.deleteByCondition({player_id: _id}, [ClassName.PLAYER]);
+        await this.customCharacterService.deleteByCondition({player_id: _id});
+        await this.raidRoomService.deleteByCondition({player_id: _id}, {isOne: true});
     }
 }

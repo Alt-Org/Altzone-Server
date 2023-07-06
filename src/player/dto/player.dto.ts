@@ -20,6 +20,14 @@ export class PlayerDto {
     @Expose()
     clan_id: string;
 
+    @ExtractField()
+    @Expose()
+    currentCustomCharacter_id: string;
+
+    @ExtractField()
+    @Expose()
+    raidRoom_id: string;
+
     @Type(() => ClanDto)
     @Expose()
     Clan: ClanDto;

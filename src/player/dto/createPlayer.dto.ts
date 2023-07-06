@@ -1,5 +1,6 @@
-import {IsInt, IsMongoId, IsString} from "class-validator";
+import {IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
+import {RaidRoom} from "../../raidRoom/raidRoom.schema";
 
 export class CreatePlayerDto {
     @IsString()
@@ -13,5 +14,11 @@ export class CreatePlayerDto {
 
     @IsClanExists()
     @IsMongoId()
+    @IsOptional()
     clan_id: string;
+
+    @IsClanExists()
+    @IsMongoId()
+    @IsOptional()
+    raidRoom_id: string;
 }
