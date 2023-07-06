@@ -22,27 +22,3 @@ export class CreateRaidRoomDto {
     @IsMongoId()
     clan_id: string;
 }
-
-// type: { type: Number, required: true },
-//     rowCount: { type: Number, required: true },
-//     colCount: { type: Number, required: true },
-//
-//     player_id: {
-//         type: Schema.Types.ObjectId,
-//         required: true,
-//         ref: ModelName.PLAYER,
-//         validate : {
-//             isAsync: true,
-//             validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ModelName.PLAYER), v)
-//         }
-//     },
-//
-//     clan_id: {
-//         type: Schema.Types.ObjectId,
-//         required: true,
-//         ref: ModelName.CLAN,
-//         validate : {
-//             isAsync: true,
-//             validator: (v: Schema.Types.ObjectId) => SchemaValidator.validateCreateUpdateFK(mongoose.model(ModelName.CLAN), v)
-//         }
-//     }

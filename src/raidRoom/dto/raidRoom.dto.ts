@@ -15,9 +15,11 @@ export class RaidRoomDto {
     @Expose()
     colCount: number;
 
+    @ExtractField()
     @Expose()
     player_id: string;
 
+    @ExtractField()
     @Expose()
     clan_id: string;
 }
