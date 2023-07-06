@@ -16,8 +16,8 @@ export class Clan {
     @Prop({ type: Number, default: 0 })
     gameCoins: number;
 
-    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.PLAYER })
-    player_id: Player;
+    // @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.PLAYER })
+    // player_id: Player;
 }
 
 export const ClanSchema = SchemaFactory.createForClass(Clan);

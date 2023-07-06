@@ -1,5 +1,6 @@
 import {MongooseError} from "mongoose";
 import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
+import {DeleteOptionsType} from "../type/deleteOptions.type";
 
 export interface IService {
     create(input: any): Promise<object | MongooseError>;
@@ -9,5 +10,5 @@ export interface IService {
     readAll(): Promise<Array<object>>;
     updateById(input: any): Promise<object | MongooseError>;
     deleteById(_id: string, ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError>;
-    deleteByCondition(condition: object, ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError>;
+    deleteByCondition(condition: object, options?: DeleteOptionsType, ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError>;
 }

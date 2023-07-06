@@ -13,7 +13,10 @@ export class RequestHelperService {
         for(let i=0; i<refs.length; i++){
             const currentRef = refs[i];
             if(!ignore.includes(currentRef.modelName)){
-                await this.connection.model(currentRef.modelName).updateMany(currentRef.filter, currentRef.nullIds);
+                if(currentRef.isOne)
+                    await this.connection.model(currentRef.modelName).updateOne(currentRef.filter, currentRef.nullIds);
+                else
+                    await this.connection.model(currentRef.modelName).updateMany(currentRef.filter, currentRef.nullIds);
             }
         }
     }

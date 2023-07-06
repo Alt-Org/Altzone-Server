@@ -19,8 +19,8 @@ export class UpdateClanDto {
     @IsOptional()
     gameCoins: number;
 
-    @IsPlayerExists()
-    @IsMongoId()
-    @IsOptional()
-    player_id: string;
+    // @IsPlayerExists()
+    // @IsMongoId()
+    // @IsOptional()
+    // player_id: string;
 }

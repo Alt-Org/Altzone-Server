@@ -2,6 +2,7 @@ import {IService} from "./interface/IService";
 import {MongooseError} from "mongoose";
 import {ThrowNotImplementedMethod} from "./decorator/ThrowNotImplementedMethod.decorator";
 import {IgnoreReferencesType} from "../type/ignoreReferences.type";
+import {DeleteOptionsType} from "./type/deleteOptions.type";
 
 export abstract class ServiceDummyAbstract implements IService{
     protected constructor() {}
@@ -12,7 +13,7 @@ export abstract class ServiceDummyAbstract implements IService{
     }
 
     @ThrowNotImplementedMethod(ServiceDummyAbstract.name)
-    deleteByCondition(condition: object, ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError> {
+    deleteByCondition(condition: object, options?: DeleteOptionsType, ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError> {
         return Promise.resolve(undefined);
     }
 
