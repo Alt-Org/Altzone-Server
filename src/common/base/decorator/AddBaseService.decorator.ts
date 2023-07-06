@@ -1,6 +1,8 @@
 import {Model, MongooseError} from "mongoose";
 import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
 import {ModelName} from "../../enum/modelName.enum";
+import {IService} from "../interface/IService";
+import {DeleteOptionsType} from "../type/deleteOptions.type";
 
 type ClearCollectionReferencesFunction = (_id: any, ignoreReferences?: IgnoreReferencesType) => void | Promise<void>;
 
@@ -12,7 +14,7 @@ export const AddBaseService = () => {
             model: Model<any>
         }
     }>(originalConstructor: T) {
-        return class extends originalConstructor{
+        return class extends originalConstructor implements IService{
             constructor(...args: any[]) {
                 super(...args);
             }
@@ -69,16 +71,29 @@ export const AddBaseService = () => {
                 return this.model.deleteOne({_id});
             }
 
-            public deleteByCondition = async (condition: object, ignoreReferences?: IgnoreReferencesType): Promise<Object | null | MongooseError> => {
-                const entityToDelete = await this.model.findOne(condition);
-                if(!entityToDelete)
-                    return null;
+            public deleteByCondition = async (condition: {}, options?: DeleteOptionsType, ignoreReferences?: IgnoreReferencesType): Promise<Object | null | MongooseError> => {
+                if(options?.isOne){
+                    const entityToDelete = await this.model.findOne(condition);
+                    if(!entityToDelete)
+                        return null;
 
-                const _id = (entityToDelete as any)._id;
+                    const _id = entityToDelete._id;
+                    await this.clearCollectionReferences(_id, ignoreReferences);
 
-                await this.clearCollectionReferences(_id, ignoreReferences);
+                    return this.model.deleteOne({_id: entityToDelete._id});
+                } else{
+                    const entitiesToDelete = await this.model.find(condition);
+                    if(!entitiesToDelete || entitiesToDelete?.length === 0)
+                        return null;
 
-                return this.model.deleteOne({_id: entityToDelete._id});
+                    for(let i=0; i<entitiesToDelete.length; i++){
+                        const entity = entitiesToDelete[i];
+                        const _id = (entity as any)._id;
+                        await this.clearCollectionReferences(_id, ignoreReferences);
+                    }
+
+                    return this.model.deleteMany(condition);
+                }
             }
         }
 
