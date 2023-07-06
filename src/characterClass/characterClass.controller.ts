@@ -8,7 +8,7 @@ import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
 import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {CharacterClassService} from "./characterClass.service";
-import {CustomCharacterDto} from "./dto/customCharacterDto";
+import {CharacterClassDto} from "./dto/characterClassDto";
 import {CreateCharacterClassDto} from "./dto/createCharacterClass.dto";
 import {UpdateCharacterClassDto} from "./dto/updateCharacterClass.dto";
 
@@ -20,20 +20,20 @@ export class CharacterClassController{
     }
 
     @Post()
-    @BasicPOST(CustomCharacterDto)
+    @BasicPOST(CharacterClassDto)
     public create(@Body() body: CreateCharacterClassDto) {
         return this.service.create(body);
     }
 
     @Get('/:_id')
-    @BasicGET(ModelName.CHARACTER_CLASS, CustomCharacterDto)
+    @BasicGET(ModelName.CHARACTER_CLASS, CharacterClassDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Query() query: GetQueryDto) {
         return this.service.readById(param._id);
     }
 
     @Get()
-    @BasicGET(ModelName.CHARACTER_CLASS, CustomCharacterDto)
+    @BasicGET(ModelName.CHARACTER_CLASS, CharacterClassDto)
     public getAll() {
         return this.service.readAll();
     }
