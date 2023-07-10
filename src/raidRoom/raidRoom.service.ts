@@ -17,11 +17,17 @@ export class RaidRoomService extends ServiceDummyAbstract implements IService{
         private readonly requestHelperService: RequestHelperService
     ){
         super();
-        this.refsInModel = [];
+        this.refsInModel = [ModelName.PLAYER, ModelName.CLAN];
     }
 
     public readonly refsInModel: ModelName[];
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
+        const searchFilter = { raidRoom_id: _id };
+        const nullIds = { raidRoom_id: null };
+
+        await this.requestHelperService.nullReferences([
+            {modelName: ModelName.PLAYER, filter: searchFilter, nullIds, isOne: true}
+        ], ignoreReferences);
     }
 }
