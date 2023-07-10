@@ -1,8 +1,8 @@
 import {Expose, Type} from "class-transformer";
 import {PlayerDto} from "../../player/dto/player.dto";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
-import {IsPlayerExists} from "../../player/decorator/validation/IsPlayerExists.decorator";
-import {IsMongoId, IsOptional} from "class-validator";
+import {RaidRoomDto} from "../../raidRoom/dto/raidRoom.dto";
+import {FurnitureDto} from "../../furniture/dto/furniture.dto";
 
 export class ClanDto {
     @ExtractField()
@@ -18,11 +18,15 @@ export class ClanDto {
     @Expose()
     gameCoins: number;
 
-    // @ExtractField()
-    // @Expose()
-    // player_id: string;
-
     @Type(() => PlayerDto)
     @Expose()
     Player: PlayerDto[];
+
+    @Type(() => RaidRoomDto)
+    @Expose()
+    RaidRoom: RaidRoomDto[];
+
+    @Type(() => FurnitureDto)
+    @Expose()
+    Furniture: FurnitureDto[];
 }
