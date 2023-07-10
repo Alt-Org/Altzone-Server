@@ -1,6 +1,5 @@
-import {Player} from "../player/player.schema";
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
+import {HydratedDocument} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
 
 export type ClanDocument = HydratedDocument<Clan>;
