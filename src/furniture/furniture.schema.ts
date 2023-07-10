@@ -34,3 +34,9 @@ export class Furniture {
 
 export const FurnitureSchema = SchemaFactory.createForClass(Furniture);
 FurnitureSchema.set('collection', ModelName.FURNITURE);
+FurnitureSchema.virtual(ModelName.CLAN, {
+    ref: ModelName.CLAN,
+    localField: 'clan_id',
+    foreignField: '_id',
+    justOne: true
+});
