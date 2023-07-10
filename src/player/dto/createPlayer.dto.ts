@@ -1,5 +1,7 @@
 import {IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
+import {IsRaidRoomExists} from "../../raidRoom/decorator/validation/IsRaidRoomExists.decorator";
+import {IsCustomCharacterExists} from "../../customCharacter/decorator/validation/IsCustomCharacterExists.decorator";
 
 export class CreatePlayerDto {
     @IsString()
@@ -16,12 +18,12 @@ export class CreatePlayerDto {
     @IsOptional()
     clan_id: string;
 
-    @IsClanExists()
+    @IsRaidRoomExists()
     @IsMongoId()
     @IsOptional()
     raidRoom_id: string;
 
-    @IsClanExists()
+    @IsCustomCharacterExists()
     @IsMongoId()
     @IsOptional()
     currentCustomCharacter_id: string;
