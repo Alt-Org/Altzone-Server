@@ -17,7 +17,7 @@ export class CustomCharacterService extends ServiceDummyAbstract implements ISer
         private readonly requestHelperService: RequestHelperService
     ){
         super();
-        this.refsInModel = [];
+        this.refsInModel = [ModelName.PLAYER, ModelName.CHARACTER_CLASS];
     }
 
     public readonly refsInModel: ModelName[];
