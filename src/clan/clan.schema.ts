@@ -15,9 +15,6 @@ export class Clan {
 
     @Prop({ type: Number, default: 0 })
     gameCoins: number;
-
-    // @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.PLAYER })
-    // player_id: Player;
 }
 
 export const ClanSchema = SchemaFactory.createForClass(Clan);
@@ -25,5 +22,15 @@ ClanSchema.set('collection', ModelName.CLAN);
 ClanSchema.virtual(ModelName.PLAYER, {
     ref: ModelName.PLAYER,
     localField: '_id',
-    foreignField: 'clan_id',
+    foreignField: 'clan_id'
+});
+ClanSchema.virtual(ModelName.RAID_ROOM, {
+    ref: ModelName.RAID_ROOM,
+    localField: '_id',
+    foreignField: 'clan_id'
+});
+ClanSchema.virtual(ModelName.FURNITURE, {
+    ref: ModelName.FURNITURE,
+    localField: '_id',
+    foreignField: 'clan_id'
 });
