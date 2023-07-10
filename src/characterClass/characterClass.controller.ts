@@ -8,9 +8,9 @@ import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
 import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {CharacterClassService} from "./characterClass.service";
-import {CharacterClassDto} from "./dto/characterClassDto";
 import {CreateCharacterClassDto} from "./dto/createCharacterClass.dto";
 import {UpdateCharacterClassDto} from "./dto/updateCharacterClass.dto";
+import {CharacterClassDto} from "./dto/characterClass.dto";
 
 @Controller('characterClass')
 export class CharacterClassController{

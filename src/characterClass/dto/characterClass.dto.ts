@@ -1,6 +1,7 @@
-import {Expose} from "class-transformer";
+import {Expose, Type} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {GestaltCycle} from "../../common/enum/gestaltCycle.enum";
+import {CustomCharacterDto} from "../../customCharacter/dto/customCharacter.dto";
 
 export class CharacterClassDto {
     @ExtractField()
@@ -24,4 +25,8 @@ export class CharacterClassDto {
 
     @Expose()
     defence: number;
+
+    @Type(() => CustomCharacterDto)
+    @Expose()
+    CustomCharacter: CustomCharacterDto[];
 }
