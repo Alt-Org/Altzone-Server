@@ -19,7 +19,7 @@ export class CharacterClassService extends ServiceDummyAbstract implements IServ
         private readonly requestHelperService: RequestHelperService
     ){
         super();
-        this.refsInModel = [];
+        this.refsInModel = [ModelName.CUSTOM_CHARACTER];
     }
 
     public readonly refsInModel: ModelName[];
