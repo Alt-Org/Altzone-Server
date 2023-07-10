@@ -36,3 +36,14 @@ PlayerSchema.virtual(ModelName.CLAN, {
     foreignField: '_id',
     justOne: true
 });
+PlayerSchema.virtual(ModelName.CUSTOM_CHARACTER, {
+    ref: ModelName.CUSTOM_CHARACTER,
+    localField: '_id',
+    foreignField: 'player_id'
+});
+PlayerSchema.virtual(ModelName.RAID_ROOM, {
+    ref: ModelName.RAID_ROOM,
+    localField: '_id',
+    foreignField: 'player_id',
+    justOne: true
+});
