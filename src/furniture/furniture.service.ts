@@ -17,7 +17,7 @@ export class FurnitureService extends ServiceDummyAbstract implements IService{
         private readonly requestHelperService: RequestHelperService
     ){
         super();
-        this.refsInModel = [];
+        this.refsInModel = [ModelName.CLAN];
     }
 
     public readonly refsInModel: ModelName[];
