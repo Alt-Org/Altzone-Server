@@ -35,3 +35,15 @@ export class CustomCharacter {
 
 export const CustomCharacterSchema = SchemaFactory.createForClass(CustomCharacter);
 CustomCharacterSchema.set('collection', ModelName.CUSTOM_CHARACTER);
+CustomCharacterSchema.virtual(ModelName.CHARACTER_CLASS, {
+    ref: ModelName.CHARACTER_CLASS,
+    localField: 'characterClass_id',
+    foreignField: '_id',
+    justOne: true
+});
+CustomCharacterSchema.virtual(ModelName.PLAYER, {
+    ref: ModelName.PLAYER,
+    localField: 'player_id',
+    foreignField: '_id',
+    justOne: true
+});
