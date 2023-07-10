@@ -21,4 +21,9 @@ export class CreatePlayerDto {
     @IsMongoId()
     @IsOptional()
     raidRoom_id: string;
+
+    @IsClanExists()
+    @IsMongoId()
+    @IsOptional()
+    currentCustomCharacter_id: string;
 }
