@@ -28,3 +28,8 @@ export class CharacterClass {
 
 export const CharacterClassSchema = SchemaFactory.createForClass(CharacterClass);
 CharacterClassSchema.set('collection', ModelName.CHARACTER_CLASS);
+CharacterClassSchema.virtual(ModelName.CUSTOM_CHARACTER, {
+    ref: ModelName.CUSTOM_CHARACTER,
+    localField: '_id',
+    foreignField: 'characterClass_id',
+});
