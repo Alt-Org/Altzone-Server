@@ -26,3 +26,15 @@ export class RaidRoom {
 
 export const RaidRoomSchema = SchemaFactory.createForClass(RaidRoom);
 RaidRoomSchema.set('collection', ModelName.RAID_ROOM);
+RaidRoomSchema.virtual(ModelName.CLAN, {
+    ref: ModelName.CLAN,
+    localField: 'clan_id',
+    foreignField: '_id',
+    justOne: true
+});
+RaidRoomSchema.virtual(ModelName.PLAYER, {
+    ref: ModelName.PLAYER,
+    localField: 'player_id',
+    foreignField: '_id',
+    justOne: true
+});
