@@ -1,5 +1,6 @@
-import {Expose} from "class-transformer";
+import {Expose, Type} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
+import {ClanDto} from "../../clan/dto/clan.dto";
 
 export class FurnitureDto {
     @ExtractField()
@@ -27,6 +28,11 @@ export class FurnitureDto {
     @Expose()
     filename: string;
 
+    @ExtractField()
     @Expose()
     clan_id: string;
+
+    @Type(() => ClanDto)
+    @Expose()
+    Clan: ClanDto;
 }
