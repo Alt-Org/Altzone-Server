@@ -23,7 +23,7 @@ export class PlayerService extends ServiceDummyAbstract implements IService{
         private readonly requestHelperService: RequestHelperService
     ){
         super();
-        this.refsInModel = [ModelName.CLAN];
+        this.refsInModel = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.RAID_ROOM];
     }
 
     public readonly refsInModel: ModelName[];
