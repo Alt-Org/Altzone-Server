@@ -1,5 +1,7 @@
-import {Expose} from "class-transformer";
+import {Expose, Type} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
+import {ClanDto} from "../../clan/dto/clan.dto";
+import {PlayerDto} from "../../player/dto/player.dto";
 
 export class RaidRoomDto {
     @ExtractField()
@@ -22,4 +24,12 @@ export class RaidRoomDto {
     @ExtractField()
     @Expose()
     clan_id: string;
+
+    @Type(() => PlayerDto)
+    @Expose()
+    Player: PlayerDto;
+
+    @Type(() => ClanDto)
+    @Expose()
+    Clan: ClanDto;
 }
