@@ -2,17 +2,17 @@ import {Injectable} from "@nestjs/common";
 import {Model, Types} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {AddBaseService} from "../common/base/decorator/AddBaseService.decorator";
-import {ServiceDummyAbstract} from "../common/base/serviceDummy.abstract";
-import {IService} from "../common/base/interface/IService";
+import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
 import {CharacterClass} from "./characterClass.schema";
 import {CustomCharacterService} from "../customCharacter/customCharacter.service";
+import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
+import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 
 @Injectable()
-@AddBaseService()
-export class CharacterClassService extends ServiceDummyAbstract implements IService{
+@AddBasicService()
+export class CharacterClassService extends BasicServiceDummyAbstract implements IBasicService{
     public constructor(
         @InjectModel(CharacterClass.name) public readonly model: Model<CharacterClass>,
         private readonly customCharacterService: CustomCharacterService,

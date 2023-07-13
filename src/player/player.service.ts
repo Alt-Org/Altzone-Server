@@ -4,17 +4,17 @@ import {InjectModel} from "@nestjs/mongoose";
 import {Player} from "./player.schema";
 import {ClanService} from "../clan/clan.service";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {AddBaseService} from "../common/base/decorator/AddBaseService.decorator";
-import {ServiceDummyAbstract} from "../common/base/serviceDummy.abstract";
-import {IService} from "../common/base/interface/IService";
+import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
 import {CustomCharacterService} from "../customCharacter/customCharacter.service";
 import {RaidRoomService} from "../raidRoom/raidRoom.service";
+import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
+import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
 
 @Injectable()
-@AddBaseService()
-export class PlayerService extends ServiceDummyAbstract implements IService{
+@AddBasicService()
+export class PlayerService extends BasicServiceDummyAbstract implements IBasicService{
     public constructor(
         @InjectModel(Player.name) public readonly model: Model<Player>,
         private readonly clanService: ClanService,

@@ -2,16 +2,16 @@ import {Injectable} from "@nestjs/common";
 import {Model, Types} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {AddBaseService} from "../common/base/decorator/AddBaseService.decorator";
-import {ServiceDummyAbstract} from "../common/base/serviceDummy.abstract";
-import {IService} from "../common/base/interface/IService";
+import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Furniture} from "./furniture.schema";
+import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
+import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 
 @Injectable()
-@AddBaseService()
-export class FurnitureService extends ServiceDummyAbstract implements IService{
+@AddBasicService()
+export class FurnitureService extends BasicServiceDummyAbstract implements IBasicService{
     public constructor(
         @InjectModel(Furniture.name) public readonly model: Model<Furniture>,
         private readonly requestHelperService: RequestHelperService
