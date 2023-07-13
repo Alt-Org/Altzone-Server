@@ -4,5 +4,6 @@ export enum ModelName {
     CUSTOM_CHARACTER = 'CustomCharacter',
     PLAYER = 'Player',
     FURNITURE = 'Furniture',
-    RAID_ROOM = 'RaidRoom'
+    RAID_ROOM = 'RaidRoom',
+    PROFILE = 'Profile'
 }
