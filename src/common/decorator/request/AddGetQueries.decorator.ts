@@ -21,7 +21,7 @@ function validateController(controller: any) {
         throw new Error('"this" is undefined. Please check that it is accessible in the context');
 
     if(!controller.service)
-        throw new Error('Member "service" (type IService) is not defined in the controller class. Please define one');
+        throw new Error('Field "service" (type IBasicService) is not defined in the controller class. Please define one');
 
     if(!controller.service.readOneWithCollections || !controller.service.readOneWithAllCollections)
         throw new Error('Methods "readOneWithCollections()" and "readOneWithAllCollections()" are not defined in the service member');
