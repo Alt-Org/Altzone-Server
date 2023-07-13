@@ -11,6 +11,7 @@ import {CustomCharacterModule} from "./customCharacter/customCharacter.module";
 import {RaidRoomModule} from "./raidRoom/raidRoom.module";
 import {ServeStaticModule} from "@nestjs/serve-static";
 import { join } from 'path';
+import {ProfileModule} from "./profile/profile.module";
 
 // Set up database connection
 const mongoUser = process.env.MONGO_USERNAME || 'rootUser';
@@ -29,11 +30,12 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       CustomCharacterModule,
       FurnitureModule,
       RaidRoomModule,
-      RequestHelperModule,
+      ProfileModule,
 
+      RequestHelperModule,
       ServeStaticModule.forRoot({
           rootPath: join(__dirname, '..', 'public'),
-      }),
+      })
   ],
   controllers: [AppController],
   providers: [AppService],
