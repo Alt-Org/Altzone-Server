@@ -1,12 +1,12 @@
 import {Model, MongooseError} from "mongoose";
 import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
 import {ModelName} from "../../enum/modelName.enum";
-import {IService} from "../interface/IService";
+import {IBasicService} from "../interface/IBasicService";
 import {DeleteOptionsType} from "../type/deleteOptions.type";
 
 type ClearCollectionReferencesFunction = (_id: any, ignoreReferences?: IgnoreReferencesType) => void | Promise<void>;
 
-export const AddBaseService = () => {
+export const AddBasicService = () => {
     return function<T extends {
         new (...args: any[]): {
             clearCollectionReferences: ClearCollectionReferencesFunction;
@@ -14,7 +14,7 @@ export const AddBaseService = () => {
             model: Model<any>
         }
     }>(originalConstructor: T) {
-        return class extends originalConstructor implements IService{
+        return class extends originalConstructor implements IBasicService{
             constructor(...args: any[]) {
                 super(...args);
             }
