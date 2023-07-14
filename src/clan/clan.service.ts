@@ -10,10 +10,14 @@ import {RaidRoomService} from "../raidRoom/raidRoom.service";
 import {FurnitureService} from "../furniture/furniture.service";
 import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
+import {AddConditionService} from "../common/base/decorator/AddConditionService.decorator";
+import IBasicAndConditionService from "../common/base/interface/IBasicAndConditionService";
+import {BasicAndConditionServiceDummyAbstract} from "../common/base/abstract/basicAndConditionServiceDummy.abstract";
 
 @Injectable()
+@AddConditionService()
 @AddBasicService()
-export class ClanService extends BasicServiceDummyAbstract implements IBasicService{
+export class ClanService extends BasicAndConditionServiceDummyAbstract implements IBasicAndConditionService{
     public constructor(
         @InjectModel(Clan.name) public readonly model: Model<Clan>,
         private readonly raidRoomService: RaidRoomService,

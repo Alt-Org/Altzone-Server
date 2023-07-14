@@ -1,10 +1,12 @@
 import {MongooseError} from "mongoose";
 import {IConditionService} from "../interface/IConditionService";
 import {ThrowNotImplementedMethod} from "../decorator/ThrowNotImplementedMethod.decorator";
+import {Discriminator} from "../../enum/discriminator.enum";
 
 export abstract class ConditionServiceDummyAbstract implements IConditionService{
     protected constructor() {}
 
+    public readonly discriminator = Discriminator.IConditionService;
     @ThrowNotImplementedMethod(ConditionServiceDummyAbstract.name, 'AddConditionService')
     readByCondition(condition: {}): Promise<object | MongooseError | null> {
         return Promise.resolve(undefined);

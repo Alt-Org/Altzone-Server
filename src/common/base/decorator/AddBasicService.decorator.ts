@@ -3,6 +3,7 @@ import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
 import {ModelName} from "../../enum/modelName.enum";
 import {IBasicService} from "../interface/IBasicService";
 import {DeleteOptionsType} from "../type/deleteOptions.type";
+import {Discriminator} from "../../enum/discriminator.enum";
 
 type ClearCollectionReferencesFunction = (_id: any, ignoreReferences?: IgnoreReferencesType) => void | Promise<void>;
 
@@ -11,13 +12,24 @@ export const AddBasicService = () => {
         new (...args: any[]): {
             clearCollectionReferences: ClearCollectionReferencesFunction;
             refsInModel: ModelName[];
-            model: Model<any>
+            model: Model<any>;
+            discriminator?: Discriminator;
         }
     }>(originalConstructor: T) {
         return class extends originalConstructor implements IBasicService{
             constructor(...args: any[]) {
                 super(...args);
+
+                this.discriminator = Discriminator.IBasicService;
+                this.discriminators = [];
+                this.discriminators.push(this.discriminator);
+
+                if(super.discriminator)
+                    this.discriminators.push(super.discriminator);
             }
+
+            public readonly discriminator: Discriminator;
+            public readonly discriminators: Discriminator[];
 
             public create = async (input: any): Promise<object | MongooseError> => {
                 return this.model.create(input);

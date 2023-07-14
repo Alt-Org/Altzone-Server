@@ -1,8 +1,9 @@
 import {MongooseError} from "mongoose";
 import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
 import {DeleteOptionsType} from "../type/deleteOptions.type";
+import IDiscriminator from "../../interface/IDiscriminator";
 
-export interface IBasicService {
+export interface IBasicService extends IDiscriminator{
     create(input: any): Promise<object | MongooseError>;
 
     readById(_id: string): Promise<object | null | MongooseError>;
