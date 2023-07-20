@@ -11,23 +11,28 @@ export abstract class BasicAndConditionServiceDummyAbstract extends BasicService
     }
     public readonly discriminators = [Discriminator.IBasicService, Discriminator.IConditionService];
 
-    @ThrowNotImplementedMethod(BasicAndConditionServiceDummyAbstract.name, 'AddBaseService')
-    readByCondition(condition: {}): Promise<object | MongooseError | null> {
+    @ThrowNotImplementedMethod(BasicAndConditionServiceDummyAbstract.name, 'AddConditionService')
+    public readByCondition(condition: object): Promise<object | MongooseError | null> {
         return Promise.resolve(undefined);
     }
 
-    @ThrowNotImplementedMethod(BasicAndConditionServiceDummyAbstract.name, 'AddBaseService')
-    readOneByConditionWithAllCollections(condition: {}): Promise<object | MongooseError | null> {
+    @ThrowNotImplementedMethod(BasicAndConditionServiceDummyAbstract.name, 'AddConditionService')
+    public readOneByConditionWithAllCollections(condition: object): Promise<object | MongooseError | null> {
         return Promise.resolve(undefined);
     }
 
-    @ThrowNotImplementedMethod(BasicAndConditionServiceDummyAbstract.name, 'AddBaseService')
-    readOneByConditionWithCollections(condition: {}, withQuery: string): Promise<Object | MongooseError | null> {
+    @ThrowNotImplementedMethod(BasicAndConditionServiceDummyAbstract.name, 'AddConditionService')
+    public readOneByConditionWithCollections(condition: object, withQuery: string): Promise<Object | MongooseError | null> {
         return Promise.resolve(undefined);
     }
 
-    @ThrowNotImplementedMethod(BasicAndConditionServiceDummyAbstract.name, 'AddBaseService')
-    updateByCondition(condition: {}, input: any): Promise<object | MongooseError> {
+    @ThrowNotImplementedMethod(BasicAndConditionServiceDummyAbstract.name, 'AddConditionService')
+    public updateByCondition(condition: object, input: any): Promise<object | MongooseError> {
+        return Promise.resolve(undefined);
+    }
+
+    @ThrowNotImplementedMethod(BasicAndConditionServiceDummyAbstract.name, 'AddConditionService')
+    deleteOneByCondition(condition: object): Promise<object | MongooseError> {
         return Promise.resolve(undefined);
     }
 }

@@ -1,4 +1,4 @@
 export enum Discriminator {
-    IBasicService ,
-    IConditionService
+    IBasicService = 'IBasicService',
+    IConditionService = 'IConditionService'
 }

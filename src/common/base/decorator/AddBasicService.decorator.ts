@@ -13,23 +13,13 @@ export const AddBasicService = () => {
             clearCollectionReferences: ClearCollectionReferencesFunction;
             refsInModel: ModelName[];
             model: Model<any>;
-            discriminator?: Discriminator;
+            discriminators: Discriminator[];
         }
     }>(originalConstructor: T) {
         return class extends originalConstructor implements IBasicService{
             constructor(...args: any[]) {
                 super(...args);
-
-                this.discriminator = Discriminator.IBasicService;
-                this.discriminators = [];
-                this.discriminators.push(this.discriminator);
-
-                if(super.discriminator)
-                    this.discriminators.push(super.discriminator);
             }
-
-            public readonly discriminator: Discriminator;
-            public readonly discriminators: Discriminator[];
 
             public create = async (input: any): Promise<object | MongooseError> => {
                 return this.model.create(input);
@@ -83,7 +73,7 @@ export const AddBasicService = () => {
                 return this.model.deleteOne({_id});
             }
 
-            public deleteByCondition = async (condition: {}, options?: DeleteOptionsType, ignoreReferences?: IgnoreReferencesType): Promise<Object | null | MongooseError> => {
+            public deleteByCondition = async (condition: object, options?: DeleteOptionsType, ignoreReferences?: IgnoreReferencesType): Promise<Object | null | MongooseError> => {
                 if(options?.isOne){
                     const entityToDelete = await this.model.findOne(condition);
                     if(!entityToDelete)

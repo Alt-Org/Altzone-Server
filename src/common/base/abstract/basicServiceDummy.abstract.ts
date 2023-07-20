@@ -7,20 +7,10 @@ import {Discriminator} from "../../enum/discriminator.enum";
 
 export abstract class BasicServiceDummyAbstract implements IBasicService{
     protected constructor() {}
-    public readonly discriminator = Discriminator.IBasicService;
+    public readonly discriminators = [Discriminator.IBasicService];
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
     create(input: any): Promise<object | MongooseError> {
-        return Promise.resolve(undefined);
-    }
-
-    @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    deleteByCondition(condition: object, options?: DeleteOptionsType, ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError> {
-        return Promise.resolve(undefined);
-    }
-
-    @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    deleteById(_id: string, ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError> {
         return Promise.resolve(undefined);
     }
 
@@ -46,6 +36,16 @@ export abstract class BasicServiceDummyAbstract implements IBasicService{
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
     updateById(input: any): Promise<object | MongooseError> {
+        return Promise.resolve(undefined);
+    }
+
+    @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
+    deleteById(_id: string, ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError> {
+        return Promise.resolve(undefined);
+    }
+
+    @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
+    deleteByCondition(condition: object, options?: DeleteOptionsType, ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError> {
         return Promise.resolve(undefined);
     }
 }

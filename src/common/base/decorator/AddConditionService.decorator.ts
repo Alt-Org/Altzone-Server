@@ -8,30 +8,19 @@ export const AddConditionService = () => {
         new (...args: any[]): {
             refsInModel: ModelName[];
             model: Model<any>;
-            discriminator?: Discriminator;
+            discriminators: Discriminator[];
         }
     }>(originalConstructor: T) {
         return class extends originalConstructor implements IConditionService{
-            //TODO: add logic with discriminators for type checking in @AddQueries()
-            constructor(...args: any[]) {
+            public constructor(...args: any[]) {
                 super(...args);
-
-                this.discriminator = Discriminator.IConditionService;
-                this.discriminators = [];
-                this.discriminators.push(this.discriminator);
-
-                if(super.discriminator)
-                    this.discriminators.push(super.discriminator);
             }
 
-            public readonly discriminators: Discriminator[];
-            public readonly discriminator: Discriminator;
-
-            public readByCondition = async (condition: {}): Promise<object | null | MongooseError> => {
-                return this.model.findById(condition);
+            public readByCondition = async (condition: object): Promise<object | null | MongooseError> => {
+                return this.model.findOne(condition);
             }
 
-            public readOneByConditionWithCollections = async (condition: {}, withQuery: string): Promise<object | null | MongooseError> => {
+            public readOneByConditionWithCollections = async (condition: object, withQuery: string): Promise<object | null | MongooseError> => {
                 const withRefs: ModelName[] = withQuery.split('_') as ModelName[];
                 const dbQuery = this.model.findOne(condition);
 
@@ -48,7 +37,7 @@ export const AddConditionService = () => {
                 return await dbQuery.exec();
             }
 
-            public readOneByConditionWithAllCollections = async (condition: {}): Promise<object | null | MongooseError> => {
+            public readOneByConditionWithAllCollections = async (condition: object): Promise<object | null | MongooseError> => {
                 const dbQuery = this.model.findOne(condition) as any;
 
                 for(let i=0; i<this.refsInModel.length; i++)
@@ -57,10 +46,13 @@ export const AddConditionService = () => {
                 return dbQuery.exec();
             }
 
-            public updateByCondition = async (condition: {}, input: any): Promise<object | MongooseError> => {
+            public updateByCondition = async (condition: object, input: any): Promise<object | MongooseError> => {
                 return this.model.updateOne(condition, input, {rawResult: true});
             }
-        }
 
+            public deleteOneByCondition = async (condition: object): Promise<object | MongooseError> => {
+                return this.model.deleteOne(condition);
+            }
+        }
     }
 }

@@ -6,24 +6,29 @@ import {Discriminator} from "../../enum/discriminator.enum";
 export abstract class ConditionServiceDummyAbstract implements IConditionService{
     protected constructor() {}
 
-    public readonly discriminator = Discriminator.IConditionService;
+    public readonly discriminators = [Discriminator.IConditionService];
     @ThrowNotImplementedMethod(ConditionServiceDummyAbstract.name, 'AddConditionService')
-    readByCondition(condition: {}): Promise<object | MongooseError | null> {
+    public readByCondition(condition: object): Promise<object | MongooseError | null> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(ConditionServiceDummyAbstract.name, 'AddConditionService')
-    readOneByConditionWithAllCollections(condition: {}): Promise<object | MongooseError | null> {
+    public readOneByConditionWithAllCollections(condition: object): Promise<object | MongooseError | null> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(ConditionServiceDummyAbstract.name, 'AddConditionService')
-    readOneByConditionWithCollections(condition: {}, withQuery: string): Promise<Object | MongooseError | null> {
+    public readOneByConditionWithCollections(condition: object, withQuery: string): Promise<Object | MongooseError | null> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(ConditionServiceDummyAbstract.name, 'AddConditionService')
-    updateByCondition(condition: {}, input: any): Promise<object | MongooseError> {
+    public updateByCondition(condition: object, input: any): Promise<object | MongooseError> {
+        return Promise.resolve(undefined);
+    }
+
+    @ThrowNotImplementedMethod(ConditionServiceDummyAbstract.name, 'AddConditionService')
+    public deleteOneByCondition(condition: object): Promise<object | MongooseError> {
         return Promise.resolve(undefined);
     }
 }
