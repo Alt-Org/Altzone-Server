@@ -22,14 +22,14 @@ export class ClanController{
     @Post()
     @BasicPOST(ClanDto)
     public create(@Body() body: CreateClanDto) {
-        return this.service.create(body);
+        return this.service.createOne(body);
     }
 
     @Get('/:_id')
     @BasicGET(ModelName.CLAN, ClanDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Query() query: GetQueryDto) {
-        return this.service.readById(param._id);
+        return this.service.readOneById(param._id);
     }
 
     @Get()
@@ -41,12 +41,12 @@ export class ClanController{
     @Put()
     @BasicPUT(ModelName.CLAN)
     public update(@Body() body: UpdateClanDto){
-        return this.service.updateById(body);
+        return this.service.updateOneById(body);
     }
 
     @Delete('/:_id')
     @BasicDELETE(ModelName.CLAN)
     public delete(@Param() param: _idDto) {
-        return this.service.deleteById(param._id);
+        return this.service.deleteOneById(param._id);
     }
 }

@@ -21,11 +21,11 @@ export const AddBasicService = () => {
                 super(...args);
             }
 
-            public create = async (input: any): Promise<object | MongooseError> => {
+            public createOne = async (input: any): Promise<object | MongooseError> => {
                 return this.model.create(input);
             }
 
-            public readById = async (_id: string): Promise<object | null | MongooseError> => {
+            public readOneById = async (_id: string): Promise<object | null | MongooseError> => {
                 return this.model.findById(_id);
             }
 
@@ -59,11 +59,11 @@ export const AddBasicService = () => {
                 return this.model.find();
             }
 
-            public updateById = async (input: any): Promise<object | MongooseError> => {
+            public updateOneById = async (input: any): Promise<object | MongooseError> => {
                 return this.model.updateOne({_id: input._id}, input, {rawResult: true});
             }
 
-            public deleteById = async (_id: string, ignoreReferences?: IgnoreReferencesType): Promise<Object | null | MongooseError> => {
+            public deleteOneById = async (_id: string, ignoreReferences?: IgnoreReferencesType): Promise<Object | null | MongooseError> => {
                 const entityToDelete = await this.model.findById(_id);
                 if(!entityToDelete)
                     return null;

@@ -10,7 +10,7 @@ export abstract class BasicServiceDummyAbstract implements IBasicService{
     public readonly discriminators = [Discriminator.IBasicService];
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    create(input: any): Promise<object | MongooseError> {
+    createOne(input: any): Promise<object | MongooseError> {
         return Promise.resolve(undefined);
     }
 
@@ -20,7 +20,7 @@ export abstract class BasicServiceDummyAbstract implements IBasicService{
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readById(_id: string): Promise<object | MongooseError | null> {
+    readOneById(_id: string): Promise<object | MongooseError | null> {
         return Promise.resolve(undefined);
     }
 
@@ -35,12 +35,12 @@ export abstract class BasicServiceDummyAbstract implements IBasicService{
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    updateById(input: any): Promise<object | MongooseError> {
+    updateOneById(input: any): Promise<object | MongooseError> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    deleteById(_id: string, ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError> {
+    deleteOneById(_id: string, ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError> {
         return Promise.resolve(undefined);
     }
 

@@ -12,7 +12,7 @@ export abstract class BasicAndConditionServiceDummyAbstract extends BasicService
     public readonly discriminators = [Discriminator.IBasicService, Discriminator.IConditionService];
 
     @ThrowNotImplementedMethod(BasicAndConditionServiceDummyAbstract.name, 'AddConditionService')
-    public readByCondition(condition: object): Promise<object | MongooseError | null> {
+    public readOneByCondition(condition: object): Promise<object | MongooseError | null> {
         return Promise.resolve(undefined);
     }
 
@@ -27,7 +27,7 @@ export abstract class BasicAndConditionServiceDummyAbstract extends BasicService
     }
 
     @ThrowNotImplementedMethod(BasicAndConditionServiceDummyAbstract.name, 'AddConditionService')
-    public updateByCondition(condition: object, input: any): Promise<object | MongooseError> {
+    public updateOneByCondition(condition: object, input: any): Promise<object | MongooseError> {
         return Promise.resolve(undefined);
     }
 

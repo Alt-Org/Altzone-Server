@@ -20,14 +20,14 @@ export default class PlayerController{
     @Post()
     @BasicPOST(PlayerDto)
     public create(@Body() body: CreatePlayerDto) {
-        return this.service.create(body);
+        return this.service.createOne(body);
     }
 
     @Get('/:_id')
     @BasicGET(ModelName.PLAYER, PlayerDto)
     @AddGetQueries()
     public async get(@Param() param: _idDto, @Query() query: GetQueryDto) {
-        return this.service.readById(param._id);
+        return this.service.readOneById(param._id);
     }
 
     @Get()
@@ -39,12 +39,12 @@ export default class PlayerController{
     @Put()
     @BasicPUT(ModelName.PLAYER)
     public async update(@Body() body: UpdatePlayerDto){
-        return this.service.updateById(body);
+        return this.service.updateOneById(body);
     }
 
     @Delete('/:_id')
     @BasicDELETE(ModelName.PLAYER)
     public async delete(@Param() param: _idDto) {
-        return this.service.deleteById(param._id);
+        return this.service.deleteOneById(param._id);
     }
 }

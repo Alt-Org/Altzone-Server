@@ -16,7 +16,7 @@ export const AddConditionService = () => {
                 super(...args);
             }
 
-            public readByCondition = async (condition: object): Promise<object | null | MongooseError> => {
+            public readOneByCondition = async (condition: object): Promise<object | null | MongooseError> => {
                 return this.model.findOne(condition);
             }
 
@@ -46,7 +46,7 @@ export const AddConditionService = () => {
                 return dbQuery.exec();
             }
 
-            public updateByCondition = async (condition: object, input: any): Promise<object | MongooseError> => {
+            public updateOneByCondition = async (condition: object, input: any): Promise<object | MongooseError> => {
                 return this.model.updateOne(condition, input, {rawResult: true});
             }
 

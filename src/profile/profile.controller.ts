@@ -20,14 +20,14 @@ export default class ProfileController {
     @Post()
     @BasicPOST(ProfileDto)
     public create(@Body() body: CreateProfileDto) {
-        return this.service.create(body);
+        return this.service.createOne(body);
     }
 
     @Get('/:username')
     @BasicGET(ModelName.PROFILE, ProfileDto)
     @AddGetQueries('username')
     public async get(@Param() param: UsernameDto, @Query() query: GetQueryDto) {
-        return this.service.readByCondition({username: param.username});
+        return this.service.readOneByCondition({username: param.username});
     }
 
     @Get()
@@ -39,7 +39,7 @@ export default class ProfileController {
     @Put()
     @BasicPUT(ModelName.PROFILE)
     public async update(@Body() body: UpdateProfileDto){
-        return this.service.updateByCondition({username: body.username}, body);
+        return this.service.updateOneByCondition({username: body.username}, body);
     }
 
     @Delete('/:username')

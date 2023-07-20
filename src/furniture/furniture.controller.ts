@@ -22,14 +22,14 @@ export class FurnitureController{
     @Post()
     @BasicPOST(FurnitureDto)
     public create(@Body() body: CreateFurnitureDto) {
-        return this.service.create(body);
+        return this.service.createOne(body);
     }
 
     @Get('/:_id')
     @BasicGET(ModelName.FURNITURE, FurnitureDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Query() query: GetQueryDto) {
-        return this.service.readById(param._id);
+        return this.service.readOneById(param._id);
     }
 
     @Get()
@@ -41,12 +41,12 @@ export class FurnitureController{
     @Put()
     @BasicPUT(ModelName.FURNITURE)
     public update(@Body() body: UpdateFurnitureDto){
-        return this.service.updateById(body);
+        return this.service.updateOneById(body);
     }
 
     @Delete('/:_id')
     @BasicDELETE(ModelName.FURNITURE)
     public delete(@Param() param: _idDto) {
-        return this.service.deleteById(param._id);
+        return this.service.deleteOneById(param._id);
     }
 }
