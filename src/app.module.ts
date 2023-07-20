@@ -12,6 +12,7 @@ import {RaidRoomModule} from "./raidRoom/raidRoom.module";
 import {ServeStaticModule} from "@nestjs/serve-static";
 import { join } from 'path';
 import {ProfileModule} from "./profile/profile.module";
+import { AuthModule } from './auth/auth.module';
 
 // Set up database connection
 const mongoUser = process.env.MONGO_USERNAME || 'rootUser';
@@ -35,7 +36,8 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       RequestHelperModule,
       ServeStaticModule.forRoot({
           rootPath: join(__dirname, '..', 'public'),
-      })
+      }),
+      AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
-import {Model, Types} from "mongoose";
+import {Model, MongooseError, Types} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
-import {Profile} from "./profile.schema";
+import {Profile, ProfileDocument} from "./profile.schema";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
@@ -11,10 +11,12 @@ import {AddConditionService} from "../common/base/decorator/AddConditionService.
 import {BasicAndConditionServiceDummyAbstract} from "../common/base/abstract/basicAndConditionServiceDummy.abstract";
 import IBasicAndConditionService from "../common/base/interface/IBasicAndConditionService";
 
+//TODO: password hashing via bcrypt
+
 @Injectable()
 @AddConditionService()
 @AddBasicService()
-export class ProfileService extends BasicAndConditionServiceDummyAbstract<Profile> implements IBasicAndConditionService<Profile>{
+export class ProfileService extends BasicAndConditionServiceDummyAbstract<ProfileDocument> implements IBasicAndConditionService<ProfileDocument>{
     public constructor(
         @InjectModel(Profile.name) public readonly model: Model<Profile>,
         private readonly playerService: PlayerService,
@@ -25,6 +27,11 @@ export class ProfileService extends BasicAndConditionServiceDummyAbstract<Profil
     }
 
     public readonly refsInModel: ModelName[];
+
+    public createWithHashedPassword(condition: object): Promise<MongooseError | Profile | null> {
+        //TODO: hash psw here
+        return ;
+    }
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         await this.playerService.deleteByCondition({profile_id: _id});
