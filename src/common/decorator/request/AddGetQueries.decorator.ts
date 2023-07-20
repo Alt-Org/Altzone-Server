@@ -1,3 +1,5 @@
+import {Discriminator} from "../../enum/discriminator.enum";
+
 export const AddGetQueries = (searchField: string = '_id') => {
   return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
       const originalMethod = descriptor.value;
@@ -5,15 +7,16 @@ export const AddGetQueries = (searchField: string = '_id') => {
           validateController(this);
           const {field, query} = extractArguments(args, searchField);
 
-          console.log(this.service.discriminator);
-          console.log(this.service.discriminators);
-
           if(searchField === '_id'){
+              throwErrorIfServiceInvalid(this, Discriminator.IBasicService);
+
               if(query.with && query.with !== '')
                   return this.service.readOneWithCollections(field, query.with);
               else if(query.all != null)
                   return this.service.readOneWithAllCollections(field);
           } else {
+              throwErrorIfServiceInvalid(this, Discriminator.IConditionService);
+
               const condition = {[searchField]: field};
               if(query.with && query.with !== '')
                   return this.service.readOneByConditionWithCollections(condition, query.with);
@@ -46,4 +49,10 @@ function extractArguments(args: any[], searchField) {
         throw new Error('The second argument must be query object');
 
     return {field: args[0][searchField] as string, query: args[1]}
+}
+
+function throwErrorIfServiceInvalid(instance: any, discriminator: Discriminator) {
+    if(!instance.service.discriminators || !Array.isArray(instance.service.discriminators) || !instance.service.discriminators.includes(discriminator)){
+        throw new Error(`Field service must implement "${discriminator}" interface and include "${discriminator}" in discriminators[]`);
+    }
 }
