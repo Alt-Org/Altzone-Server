@@ -11,12 +11,11 @@ import {AddBasicService} from "../common/base/decorator/AddBasicService.decorato
 import {AddConditionService} from "../common/base/decorator/AddConditionService.decorator";
 import IBasicAndConditionService from "../common/base/interface/IBasicAndConditionService";
 import {BasicAndConditionServiceDummyAbstract} from "../common/base/abstract/basicAndConditionServiceDummy.abstract";
-import {Discriminator} from "../common/enum/discriminator.enum";
 
 @Injectable()
 @AddConditionService()
 @AddBasicService()
-export class ClanService extends BasicAndConditionServiceDummyAbstract implements IBasicAndConditionService{
+export class ClanService extends BasicAndConditionServiceDummyAbstract<Clan> implements IBasicAndConditionService<Clan>{
     public constructor(
         @InjectModel(Clan.name) public readonly model: Model<Clan>,
         private readonly raidRoomService: RaidRoomService,

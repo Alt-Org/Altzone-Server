@@ -11,7 +11,7 @@ import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDum
 
 @Injectable()
 @AddBasicService()
-export class CustomCharacterService extends BasicServiceDummyAbstract implements IBasicService{
+export class CustomCharacterService extends BasicServiceDummyAbstract<CustomCharacter> implements IBasicService<CustomCharacter>{
     public constructor(
         @InjectModel(CustomCharacter.name) public readonly model: Model<CustomCharacter>,
         private readonly requestHelperService: RequestHelperService

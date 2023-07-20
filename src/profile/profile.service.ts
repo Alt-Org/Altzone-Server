@@ -3,19 +3,18 @@ import {Model, Types} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {Profile} from "./profile.schema";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
 import {PlayerService} from "../player/player.service";
 import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
 import {AddConditionService} from "../common/base/decorator/AddConditionService.decorator";
-import {IConditionService} from "../common/base/interface/IConditionService";
 import {BasicAndConditionServiceDummyAbstract} from "../common/base/abstract/basicAndConditionServiceDummy.abstract";
+import IBasicAndConditionService from "../common/base/interface/IBasicAndConditionService";
 
 @Injectable()
 @AddConditionService()
 @AddBasicService()
-export class ProfileService extends BasicAndConditionServiceDummyAbstract implements IBasicService, IConditionService{
+export class ProfileService extends BasicAndConditionServiceDummyAbstract<Profile> implements IBasicAndConditionService<Profile>{
     public constructor(
         @InjectModel(Profile.name) public readonly model: Model<Profile>,
         private readonly playerService: PlayerService,

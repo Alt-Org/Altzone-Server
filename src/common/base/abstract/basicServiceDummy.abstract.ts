@@ -5,32 +5,32 @@ import {DeleteOptionsType} from "../type/deleteOptions.type";
 import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
 import {Discriminator} from "../../enum/discriminator.enum";
 
-export abstract class BasicServiceDummyAbstract implements IBasicService{
+export abstract class BasicServiceDummyAbstract<T=object> implements IBasicService<T>{
     protected constructor() {}
     public readonly discriminators = [Discriminator.IBasicService];
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    createOne(input: any): Promise<object | MongooseError> {
+    createOne(input: any): Promise<T | MongooseError> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readAll(): Promise<Array<object>> {
+    readAll(): Promise<Array<T>> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readOneById(_id: string): Promise<object | MongooseError | null> {
+    readOneById(_id: string): Promise<T | MongooseError | null> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readOneWithAllCollections(_id: string): Promise<object | MongooseError | null> {
+    readOneWithAllCollections(_id: string): Promise<T | MongooseError | null> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readOneWithCollections(_id: string, withQuery: string): Promise<Object | MongooseError | null> {
+    readOneWithCollections(_id: string, withQuery: string): Promise<T | MongooseError | null> {
         return Promise.resolve(undefined);
     }
 

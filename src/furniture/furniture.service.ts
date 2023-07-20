@@ -11,7 +11,7 @@ import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDum
 
 @Injectable()
 @AddBasicService()
-export class FurnitureService extends BasicServiceDummyAbstract implements IBasicService{
+export class FurnitureService extends BasicServiceDummyAbstract<Furniture> implements IBasicService<Furniture>{
     public constructor(
         @InjectModel(Furniture.name) public readonly model: Model<Furniture>,
         private readonly requestHelperService: RequestHelperService

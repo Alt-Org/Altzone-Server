@@ -21,11 +21,11 @@ export const ThrowResponseErrorIfFound = (responseType: ResponseType, modelName:
             }
 
             return handler(result, modelName);
-        };
+        }
 
         return descriptor;
-    };
-};
+    }
+}
 
 function getResponseHandler(responseType: ResponseType): ResponseHandler {
     switch (responseType) {

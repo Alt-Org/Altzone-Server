@@ -12,7 +12,7 @@ import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDum
 
 @Injectable()
 @AddBasicService()
-export class CharacterClassService extends BasicServiceDummyAbstract implements IBasicService{
+export class CharacterClassService extends BasicServiceDummyAbstract<CharacterClass> implements IBasicService<CharacterClass>{
     public constructor(
         @InjectModel(CharacterClass.name) public readonly model: Model<CharacterClass>,
         private readonly customCharacterService: CustomCharacterService,

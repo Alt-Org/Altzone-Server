@@ -3,13 +3,13 @@ import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
 import {DeleteOptionsType} from "../type/deleteOptions.type";
 import IDiscriminator from "../../interface/IDiscriminator";
 
-export interface IBasicService extends IDiscriminator{
-    createOne(input: any): Promise<object | MongooseError>;
+export interface IBasicService<T=object> extends IDiscriminator{
+    createOne(input: any): Promise<T | MongooseError>;
 
-    readOneById(_id: string): Promise<object | null | MongooseError>;
-    readOneWithCollections(_id: string, withQuery: string): Promise<Object | null | MongooseError>;
-    readOneWithAllCollections(_id: string): Promise<object | null | MongooseError>;
-    readAll(): Promise<Array<object>>;
+    readOneById(_id: string): Promise<T | null | MongooseError>;
+    readOneWithCollections(_id: string, withQuery: string): Promise<T | null | MongooseError>;
+    readOneWithAllCollections(_id: string): Promise<T | null | MongooseError>;
+    readAll(): Promise<Array<T>>;
 
     updateOneById(input: any): Promise<object | MongooseError>;
 

@@ -11,7 +11,7 @@ import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDum
 
 @Injectable()
 @AddBasicService()
-export class RaidRoomService extends BasicServiceDummyAbstract implements IBasicService{
+export class RaidRoomService extends BasicServiceDummyAbstract<RaidRoom> implements IBasicService<RaidRoom>{
     public constructor(
         @InjectModel(RaidRoom.name) public readonly model: Model<RaidRoom>,
         private readonly requestHelperService: RequestHelperService
