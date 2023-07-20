@@ -23,10 +23,9 @@ export default class ProfileController {
         return this.service.create(body);
     }
 
-    //TODO: @AddGetQueries() for username as well (cur. only for _id)
     @Get('/:username')
     @BasicGET(ModelName.PROFILE, ProfileDto)
-    @AddGetQueries()
+    @AddGetQueries('username')
     public async get(@Param() param: UsernameDto, @Query() query: GetQueryDto) {
         return this.service.readByCondition({username: param.username});
     }
@@ -40,12 +39,12 @@ export default class ProfileController {
     @Put()
     @BasicPUT(ModelName.PROFILE)
     public async update(@Body() body: UpdateProfileDto){
-        return this.service.updateById(body);
+        return this.service.updateByCondition({username: body.username}, body);
     }
 
     @Delete('/:username')
     @BasicDELETE(ModelName.PROFILE)
     public async delete(@Param() param: UsernameDto) {
-        return this.service.deleteById(param.username);
+        return this.service.deleteOneByCondition({username: param.username});
     }
 }

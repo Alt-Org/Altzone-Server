@@ -3,16 +3,15 @@ import {Model, Types} from "mongoose";
 import {Clan} from "./clan.schema";
 import {InjectModel} from "@nestjs/mongoose";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
 import {RaidRoomService} from "../raidRoom/raidRoom.service";
 import {FurnitureService} from "../furniture/furniture.service";
 import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
-import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 import {AddConditionService} from "../common/base/decorator/AddConditionService.decorator";
 import IBasicAndConditionService from "../common/base/interface/IBasicAndConditionService";
 import {BasicAndConditionServiceDummyAbstract} from "../common/base/abstract/basicAndConditionServiceDummy.abstract";
+import {Discriminator} from "../common/enum/discriminator.enum";
 
 @Injectable()
 @AddConditionService()
