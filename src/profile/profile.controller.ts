@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Query} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards} from "@nestjs/common";
 import {ProfileService} from "./profile.service";
 import {CreateProfileDto} from "./dto/createProfile.dto";
 import {UpdateProfileDto} from "./dto/updateProfile.dto";
@@ -11,6 +11,7 @@ import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
 import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {UsernameDto} from "./dto/username.dto";
+import {AuthGuard} from "../auth/auth.guard";
 
 @Controller('profile')
 export default class ProfileController {
