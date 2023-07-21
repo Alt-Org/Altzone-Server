@@ -2,7 +2,9 @@ import {Body, Controller, Post} from '@nestjs/common';
 import {SignInDto} from "./dto/signIn.dto";
 import {AuthService} from "./auth.service";
 import {ThrowAuthErrorIfFound} from "./decorator/ThrowAuthErrorIfFound";
+import {NoAuth} from "./decorator/NoAuth";
 
+@NoAuth()
 @Controller('auth')
 export class AuthController {
     public constructor(private readonly authService: AuthService) {
