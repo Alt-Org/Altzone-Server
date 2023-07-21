@@ -13,6 +13,10 @@ import {ServeStaticModule} from "@nestjs/serve-static";
 import { join } from 'path';
 import {ProfileModule} from "./profile/profile.module";
 import { AuthModule } from './auth/auth.module';
+import {AuthGuard} from "./auth/auth.guard";
+import {APP_GUARD} from "@nestjs/core";
+import {JwtModule} from "@nestjs/jwt";
+import {jwtConstants} from "./auth/constant";
 
 // Set up database connection
 const mongoUser = process.env.MONGO_USERNAME || 'rootUser';
@@ -37,10 +41,18 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       ServeStaticModule.forRoot({
           rootPath: join(__dirname, '..', 'public'),
       }),
-      AuthModule
+      AuthModule,
+      JwtModule.register({
+          global: true,
+          secret: jwtConstants.secret,
+          signOptions: { expiresIn: jwtConstants.expiresIn },
+      }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+      AppService,
+      { provide: APP_GUARD, useClass: AuthGuard }
+  ],
 })
 export class AppModule {
 }
