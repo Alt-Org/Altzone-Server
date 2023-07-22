@@ -9,6 +9,7 @@ import { jwtConstants } from './constant';
 import { Request } from 'express';
 import {Reflector} from "@nestjs/core";
 import {NO_AUTH_REQUIRED} from "./decorator/NoAuth";
+import {User} from "./user";
 
 //TODO: remove or change error messages to less specific for production
 
@@ -44,7 +45,12 @@ export class AuthGuard implements CanActivate {
                 }
             );
 
-            request['profile'] = payload;
+            const {username, profile_id, player_id} = payload;
+
+            if(!username || !profile_id || !player_id)
+                throw new Error();
+
+            request['user'] = new User(username, profile_id, player_id);
         } catch {
             throw new UnauthorizedException(
                 'The access token is expired or invalid. ' +

@@ -9,6 +9,7 @@ import {NoAuth} from "./decorator/NoAuth";
 export class AuthController {
     public constructor(private readonly authService: AuthService) {
     }
+
     @Post('/signIn')
     @ThrowAuthErrorIfFound()
     public signIn(@Body() body: SignInDto){

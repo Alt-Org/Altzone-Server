@@ -13,17 +13,21 @@ export class AuthService {
     }
 
     public signIn = async (username: string, pass: string): Promise<object> | null => {
-        const profile = await this.profileService.readOneByCondition({username: username});
+        const profile = await this.profileService.readOneByConditionWithCollections({username: username}, ModelName.PLAYER);
 
+        //TODO: throw meaningful errors, i.e. !Player => no player found for that profile
         //TODO: password comparison via bcrypt
-        if(profile instanceof MongooseError || profile?.password !== pass)
+        if(profile instanceof MongooseError || profile?.password !== pass || !profile.Player)
             return null;
 
-        const payload = {sub: profile._id, username: profile.username};
+        const payload = {
+            sub: profile._id,
+            username: profile.username,
+            player_id: profile.Player._id
+        };
         const accessToken = await this.jwtService.signAsync(payload);
 
         const { password, ...serializedProfile} = profile.toJSON();
-
 
         return {
             ...serializedProfile,
