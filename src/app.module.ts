@@ -17,6 +17,7 @@ import {AuthGuard} from "./auth/auth.guard";
 import {APP_GUARD} from "@nestjs/core";
 import {JwtModule} from "@nestjs/jwt";
 import {jwtConstants} from "./auth/constant";
+import { AuthorizationModule } from './authorization/authorization.module';
 
 // Set up database connection
 const mongoUser = process.env.MONGO_USERNAME || 'rootUser';
@@ -47,6 +48,7 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
           secret: jwtConstants.secret,
           signOptions: { expiresIn: jwtConstants.expiresIn },
       }),
+      AuthorizationModule,
   ],
   controllers: [AppController],
   providers: [
