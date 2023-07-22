@@ -20,6 +20,10 @@ export class PlayerDto {
 
     @ExtractField()
     @Expose()
+    profile_id: string;
+
+    @ExtractField()
+    @Expose()
     clan_id: string;
 
     @ExtractField()

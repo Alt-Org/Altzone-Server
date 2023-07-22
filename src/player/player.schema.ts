@@ -4,6 +4,7 @@ import {Clan} from "../clan/clan.schema";
 import {ModelName} from "../common/enum/modelName.enum";
 import {CustomCharacter} from "../customCharacter/customCharacter.schema";
 import {RaidRoom} from "../raidRoom/raidRoom.schema";
+import {Profile} from "../profile/profile.schema";
 
 export type PlayerDocument = HydratedDocument<Player>;
 
@@ -18,6 +19,9 @@ export class Player {
     @Prop({ type: String, required: true, unique: true })
     uniqueIdentifier: string;
 
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.PROFILE })
+    profile_id: Profile;
+
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CLAN })
     clan_id: Clan;
 
@@ -26,6 +30,8 @@ export class Player {
 
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.RAID_ROOM })
     raidRoom_id: RaidRoom;
+
+    _id: string;
 }
 
 export const PlayerSchema = SchemaFactory.createForClass(Player);
