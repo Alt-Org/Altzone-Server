@@ -11,13 +11,14 @@ import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
 import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {UsernameDto} from "./dto/username.dto";
-import {AuthGuard} from "../auth/auth.guard";
+import {NoAuth} from "../auth/decorator/NoAuth";
 
 @Controller('profile')
 export default class ProfileController {
     public constructor(private readonly service: ProfileService) {
     }
 
+    @NoAuth()
     @Post()
     @BasicPOST(ProfileDto)
     public create(@Body() body: CreateProfileDto) {

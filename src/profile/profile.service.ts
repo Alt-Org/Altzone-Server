@@ -23,7 +23,7 @@ export class ProfileService extends BasicAndConditionServiceDummyAbstract<Profil
         private readonly requestHelperService: RequestHelperService
     ){
         super();
-        this.refsInModel = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.RAID_ROOM];
+        this.refsInModel = [ModelName.PLAYER];
     }
 
     public readonly refsInModel: ModelName[];
