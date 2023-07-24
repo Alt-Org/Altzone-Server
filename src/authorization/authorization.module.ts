@@ -1,8 +1,13 @@
-import { Module } from '@nestjs/common';
-import {CASLAbilityFactory} from "./casl-ability.factory/casl-ability.factory";
+import {Global, Module} from '@nestjs/common';
+import {CASLAbilityFactory} from "./caslAbility.factory";
+import {PermissionGuard} from "./permissionGuard.guard";
+import {RequestHelperModule} from "../requestHelper/requestHelper.module";
+import {AuthorizationInterceptor} from "./authorization.interceptor";
 
+@Global()
 @Module({
-    providers: [CASLAbilityFactory],
-    exports: [CASLAbilityFactory]
+    imports: [RequestHelperModule],
+    providers: [PermissionGuard, CASLAbilityFactory, AuthorizationInterceptor],
+    exports: [PermissionGuard, CASLAbilityFactory]
 })
 export class AuthorizationModule {}

@@ -2,6 +2,8 @@ import {HydratedDocument} from "mongoose";
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Player} from "../player/player.schema";
+import {ObjectId} from "mongodb";
+import {ExtractField} from "../common/decorator/response/ExtractField";
 
 export type ProfileDocument = HydratedDocument<Profile>;
 
@@ -13,6 +15,8 @@ export class Profile {
     @Prop({ type: String, required: true })
     password: string;
 
+    @ExtractField()
+    _id: ObjectId;
     Player?: Player;
 }
 

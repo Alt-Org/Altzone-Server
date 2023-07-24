@@ -1,8 +1,8 @@
 import {Body, Controller, Post} from '@nestjs/common';
 import {SignInDto} from "./dto/signIn.dto";
 import {AuthService} from "./auth.service";
-import {ThrowAuthErrorIfFound} from "./decorator/ThrowAuthErrorIfFound";
-import {NoAuth} from "./decorator/NoAuth";
+import {ThrowAuthErrorIfFound} from "./decorator/ThrowAuthErrorIfFound.decorator";
+import {NoAuth} from "./decorator/NoAuth.decorator";
 
 @NoAuth()
 @Controller('auth')

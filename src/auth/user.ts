@@ -1,4 +1,4 @@
-export class User {
+export class User{
     public constructor(username: string, profile_id: string, player_id: string) {
         this.username = username;
         this.profile_id = profile_id;

@@ -1,17 +1,22 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put, Query} from "@nestjs/common";
 import {ProfileService} from "./profile.service";
 import {CreateProfileDto} from "./dto/createProfile.dto";
 import {UpdateProfileDto} from "./dto/updateProfile.dto";
 import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
 import {ProfileDto} from "./dto/profile.dto";
 import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
-import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
 import {GetQueryDto} from "../common/dto/getQuery.dto";
 import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
 import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {UsernameDto} from "./dto/username.dto";
-import {NoAuth} from "../auth/decorator/NoAuth";
+import {NoAuth} from "../auth/decorator/NoAuth.decorator";
+import {Action} from "../authorization/enum/action.enum";
+import {Authorize} from "../authorization/authorization.interceptor";
+import {Profile} from "./profile.schema";
+import {Clan} from "../clan/clan.schema";
+import {Player} from "../player/player.schema";
+import {SetAuthorizationFor} from "../authorization/decorator/SetAuthorizationFor";
 
 @Controller('profile')
 export default class ProfileController {
@@ -26,8 +31,10 @@ export default class ProfileController {
     }
 
     @Get('/:username')
+    @SetAuthorizationFor({action: Action.read, subject: Profile})
+    @Authorize()
     @BasicGET(ModelName.PROFILE, ProfileDto)
-    @AddGetQueries('username')
+    //@AddGetQueries('username')
     public async get(@Param() param: UsernameDto, @Query() query: GetQueryDto) {
         return this.service.readOneByCondition({username: param.username});
     }
