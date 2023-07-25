@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {HydratedDocument} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
+import {ExtractField} from "../common/decorator/response/ExtractField";
 
 export type ClanDocument = HydratedDocument<Clan>;
 
@@ -14,6 +15,9 @@ export class Clan {
 
     @Prop({ type: Number, default: 0 })
     gameCoins: number;
+
+    @ExtractField()
+    _id: string;
 }
 
 export const ClanSchema = SchemaFactory.createForClass(Clan);

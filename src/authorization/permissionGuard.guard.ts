@@ -24,19 +24,19 @@ export class PermissionGuard implements CanActivate{
             return true;
 
         const { user } = context.switchToHttp().getRequest();
-        if(!user || !(user instanceof User))
-            return false;
+        // if(!user || !(user instanceof User))
+        //     return false;
 
-        const userAbility = this.caslAbilityFactory.createForUser(user, Profile);
-
-        const prof = new Profile();
-        userAbility.can(Action.read_response, prof)
-
-        console.log(user);
-        console.log(userAbility.can(Action.read_response, Profile));
-
-        return permissionCheckers.every(
-            (checker) => checker(userAbility)
-        );
+        // const userAbility = this.caslAbilityFactory.createForUser(user, Profile);
+        //
+        // const prof = new Profile();
+        // userAbility.can(Action.read_response, prof)
+        //
+        // console.log(user);
+        // console.log(userAbility.can(Action.read_response, Profile));
+        //
+        // return permissionCheckers.every(
+        //     (checker) => checker(userAbility)
+        //);
     }
 }

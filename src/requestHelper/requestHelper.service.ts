@@ -14,7 +14,22 @@ export class RequestHelperService {
 
     public getModelInstanceById = async (modelName: ModelName, _id: string | ObjectId, classConstructor: ClassConstructor<any>) => {
         const resp = await this.connection.model(modelName).findById(_id);
-        return plainToInstance(classConstructor, resp._doc);
+
+        if(!resp)
+            return null;
+
+        if(resp._doc){
+            const result = plainToInstance(classConstructor, resp._doc);
+
+            for(const key in result){
+                if(result[key] && result[key] instanceof ObjectId)
+                    result[key] = result[key].toString();
+            }
+
+            return result;
+        }
+
+        return null;
     }
 
     public nullReferences = async (refs: ReferenceToNullType[], ignore: IgnoreReferencesType = [])=> {

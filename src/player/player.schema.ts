@@ -5,6 +5,7 @@ import {ModelName} from "../common/enum/modelName.enum";
 import {CustomCharacter} from "../customCharacter/customCharacter.schema";
 import {RaidRoom} from "../raidRoom/raidRoom.schema";
 import {Profile} from "../profile/profile.schema";
+import {ExtractField} from "../common/decorator/response/ExtractField";
 
 export type PlayerDocument = HydratedDocument<Player>;
 
@@ -19,18 +20,23 @@ export class Player {
     @Prop({ type: String, required: true, unique: true })
     uniqueIdentifier: string;
 
+    @ExtractField()
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.PROFILE })
     profile_id: Profile;
 
+    @ExtractField()
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CLAN })
     clan_id: Clan;
 
+    @ExtractField()
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CUSTOM_CHARACTER })
     currentCustomCharacter_id: CustomCharacter;
 
+    @ExtractField()
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.RAID_ROOM })
     raidRoom_id: RaidRoom;
 
+    @ExtractField()
     _id: string;
 }
 
