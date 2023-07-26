@@ -15,8 +15,6 @@ export class Profile {
     @Prop({ type: String, required: true })
     password: string;
 
-    @ExtractField()
-    _id: ObjectId;
     Player?: Player;
 }
 

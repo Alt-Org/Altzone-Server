@@ -1,24 +1,24 @@
 import {
     CallHandler,
-    ExecutionContext, ForbiddenException, Injectable,
+    ExecutionContext,
+    ForbiddenException,
+    Injectable, InternalServerErrorException,
     NestInterceptor,
     UnauthorizedException,
     UseInterceptors
 } from "@nestjs/common";
 import {Observable} from "rxjs";
 import {Action} from "./enum/action.enum";
-import {CASLAbilityFactory, AllowedSubject} from "./caslAbility.factory";
+import {AllowedSubject, CASLAbilityFactory} from "./caslAbility.factory";
 import {map} from "rxjs/operators";
 import {User} from "../auth/user";
-import {
-    instanceToPlain,
-    plainToInstance
-} from "class-transformer";
+import {plainToInstance} from "class-transformer";
 import {ObjectId} from "mongodb";
 import {Reflector} from "@nestjs/core";
 import {PERMISSION_METADATA} from "./decorator/SetAuthorizationFor";
 import {permittedFieldsOf} from "@casl/ability/extra";
 import {pick} from "lodash";
+import {MongoAbility} from "@casl/ability";
 
 export type PermissionMetaData = {
     action: SupportedAction,
@@ -39,46 +39,75 @@ export class AuthorizationInterceptor implements NestInterceptor{
     }
 
     public async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
-        const {action, subject} = this.reflector.get<PermissionMetaData>(PERMISSION_METADATA, context.getHandler());
-
         const httpContext = context.switchToHttp();
         const request = httpContext.getRequest();
         const { user } = request;
         if(!user || !(user instanceof User))
             throw new UnauthorizedException('User must be logged in for that request');
 
+        const metadata = this.reflector.get<PermissionMetaData>(PERMISSION_METADATA, context.getHandler());
+        if(!metadata)
+            throw new InternalServerErrorException('Permission metadata is not provided. Please provide it with @SetAuthorizationFor()');
+
+        const {action, subject} = metadata;
+
         const requestAction = Action[action + '_request'];
         const responseAction = Action[action + '_response'];
+        const requestForbiddenError = new ForbiddenException(`The logged user has no permission to execute ${requestAction} action`);
 
         const userAbility = await this.caslAbilityFactory.createForUser(user, subject);
 
         if(!userAbility.can(requestAction, subject))
-            throw new ForbiddenException(`The logged user has no permission to execute ${requestAction} action`);
+            throw requestForbiddenError;
+
+        //TODO: add logic for params as well (read and delete)
 
         //Update Serialization
-        const allFields = Object.keys(request.body);
-        const options = { fieldsFrom: rule => rule.fields || allFields };
-        //@ts-ignore
-        const dataClass: typeof subject = plainToInstance(subject, request.body) as typeof subject;
-        let fields = permittedFieldsOf(userAbility, responseAction, dataClass, options);
-        request.body = pick(dataClass, fields);
+        if(action === Action.update){
+            //@ts-ignore
+            const dataClass: typeof subject = plainToInstance(subject, request.body);
+            if(!userAbility.can(requestAction, dataClass))
+                throw requestForbiddenError;
+
+            const allowedFields = this.getAllowedFields(userAbility, responseAction, dataClass);
+            if(!allowedFields)
+                throw requestForbiddenError;
+
+            request.body = pick(dataClass, allowedFields);
+        }
 
         return next.handle().pipe(map((data: any) => {
-            //@ts-ignore
-            const dataClass: typeof subject = plainToInstance(subject, data._doc) as typeof subject;
-            //@ts-ignore
-            const dataClass_id = dataClass._id;
+            if(!data)
+                return data;
 
-            if(dataClass_id && dataClass_id instanceof ObjectId)
+            //Create and read serialization
+            if(action === Action.create || action === Action.read){
                 //@ts-ignore
-                dataClass._id = dataClass_id.toString();
+                const dataClass: typeof subject = plainToInstance(subject, data, {
+                    excludeExtraneousValues: true
+                });
+                //@ts-ignore
+                const dataClass_id = dataClass._id;
 
-            //Read Serialization
-            const allFields = Object.keys(data._doc);
-            const options = { fieldsFrom: rule => rule.fields || allFields };
-            let fields = permittedFieldsOf(userAbility, responseAction, dataClass, options);
+                if(dataClass_id && dataClass_id instanceof ObjectId)
+                    //@ts-ignore
+                    dataClass._id = dataClass_id.toString();
 
-            return pick(dataClass, fields);
+                //Read Serialization
+                const allowedFields = this.getAllowedFields(userAbility, responseAction, dataClass);
+                if(!allowedFields)
+                    throw new ForbiddenException(`The logged user has no permission to execute ${responseAction} action`);
+
+                return pick(dataClass, allowedFields);
+            }
+
+            return data;
         }));
+    }
+
+    private getAllowedFields = (ability: MongoAbility, action: SupportedAction, dataClass: object): string[] | null => {
+        const options = { fieldsFrom: rule => rule.fields || Object.keys(dataClass) };
+        const allowedFields = permittedFieldsOf(ability, action, dataClass, options);
+        return allowedFields.length !== 0 ? allowedFields : null;
     }
 }

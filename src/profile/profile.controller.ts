@@ -13,10 +13,8 @@ import {UsernameDto} from "./dto/username.dto";
 import {NoAuth} from "../auth/decorator/NoAuth.decorator";
 import {Action} from "../authorization/enum/action.enum";
 import {Authorize} from "../authorization/authorization.interceptor";
-import {Profile} from "./profile.schema";
-import {Clan} from "../clan/clan.schema";
-import {Player} from "../player/player.schema";
 import {SetAuthorizationFor} from "../authorization/decorator/SetAuthorizationFor";
+import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
 
 @Controller('profile')
 export default class ProfileController {
@@ -31,10 +29,10 @@ export default class ProfileController {
     }
 
     @Get('/:username')
-    @SetAuthorizationFor({action: Action.read, subject: Profile})
+    @SetAuthorizationFor({action: Action.read, subject: ProfileDto})
     @Authorize()
-    @BasicGET(ModelName.PROFILE, ProfileDto)
-    //@AddGetQueries('username')
+    //@BasicGET(ModelName.PROFILE, ProfileDto)
+    @AddGetQueries('username')
     public async get(@Param() param: UsernameDto, @Query() query: GetQueryDto) {
         return this.service.readOneByCondition({username: param.username});
     }
@@ -46,6 +44,8 @@ export default class ProfileController {
     }
 
     @Put()
+    @SetAuthorizationFor({action: Action.update, subject: UpdateProfileDto})
+    @Authorize()
     @BasicPUT(ModelName.PROFILE)
     public async update(@Body() body: UpdateProfileDto){
         return this.service.updateOneByCondition({username: body.username}, body);

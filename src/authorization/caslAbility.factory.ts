@@ -5,14 +5,18 @@ import {Action} from "./enum/action.enum";
 import {Profile} from "../profile/profile.schema";
 import {Player} from "../player/player.schema";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {ModelName} from "../common/enum/modelName.enum";
-import {Clan} from "../clan/clan.schema";
+import {ProfileDto} from "../profile/dto/profile.dto";
+import {PlayerDto} from "../player/dto/player.dto";
+import {UpdateProfileDto} from "../profile/dto/updateProfile.dto";
+import {CreateProfileDto} from "../profile/dto/createProfile.dto";
+import {UpdatePlayerDto} from "../player/dto/updatePlayer.dto";
+import {CreatePlayerDto} from "../player/dto/createPlayer.dto";
 
-type AllowedAction =
-    Action.create_request | Action.read_request | Action.update_request | Action.delete_request |
-    Action.create_response | Action.read_response | Action.update_response | Action.delete_response;
+type AllowedAction = Action.create_request | Action.read_request | Action.read_response | Action.update_request | Action.delete_request;
 
-export type AllowedSubject = typeof Profile | typeof Player;
+export type AllowedSubject =
+    typeof ProfileDto | typeof UpdateProfileDto |
+    typeof CreatePlayerDto | typeof PlayerDto | typeof UpdatePlayerDto;
 export type Subjects = InferSubjects<AllowedSubject>;
 
 export type AppAbility = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
@@ -28,34 +32,33 @@ export class CASLAbilityFactory {
 
         //can(Action.manage, 'all');
 
-        switch (subject) {
-            case Profile:
-
-        }
-
-        if(subject.name === ModelName.PROFILE){
-            // const userProfile = await this.requestHelperService.getModelInstanceById(ModelName.PROFILE, user.profile_id, Profile);
-            // const userPlayer = await this.requestHelperService.getModelInstanceById(ModelName.PLAYER, user.player_id, Player);
-            // const userClan = await this.requestHelperService.getModelInstanceById(ModelName.CLAN, userPlayer.clan_id, Clan);
-            //
-            // console.log(userProfile);
-            // console.log(userPlayer);
-            // console.log(userClan);
+        if(subject === ProfileDto){
+            can(Action.create_request, subject);
 
             const commonReadableFields = ['username'];
-            const commonUpdatableFields: string[] = [];
-
             can(Action.read_request, subject);
             can(Action.read_response, subject, commonReadableFields);
             can(Action.read_response, subject, {_id: user.profile_id});
+
+            can(Action.delete_request, subject, {username: user.profile_id});
+        }
+        if(subject === UpdateProfileDto){
+            can(Action.update_request, subject, {username: user.username});
         }
 
-        if(subject.name === ModelName.PLAYER){
-            const profileToAccess = await this.requestHelperService.getModelInstanceById(ModelName.PROFILE, user.profile_id, Profile);
-            console.log(profileToAccess);
-            can(Action.read_response, Player);
-            can(Action.read_response, Player, {profile_id: profileToAccess._id});
-        }
+        // if(subject === PlayerDto || subject === Player){
+        //     const commonReadableFields = ['name'];
+        //
+        //     can(Action.create_request, subject);
+        //
+        //     can(Action.read_request, subject);
+        //     can(Action.read_response, subject, commonReadableFields);
+        //     can(Action.read_response, subject, {_id: user.player_id});
+        //
+        //     can(Action.update_request, subject, {_id: user.player_id});
+        //
+        //     can(Action.delete_request, subject, {_id: user.player_id});
+        // }
 
         return build({
             detectSubjectType: (item) =>
