@@ -9,7 +9,7 @@ export interface IBasicService<T=object> extends IDiscriminator{
     readOneById(_id: string): Promise<T | null | MongooseError>;
     readOneWithCollections(_id: string, withQuery: string): Promise<T | null | MongooseError>;
     readOneWithAllCollections(_id: string): Promise<T | null | MongooseError>;
-    readAll(): Promise<Array<T>>;
+    readAll(allowedFields?: string[]): Promise<Array<T>>;
 
     updateOneById(input: any): Promise<object | MongooseError>;
 

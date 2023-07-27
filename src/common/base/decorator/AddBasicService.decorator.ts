@@ -55,8 +55,12 @@ export const AddBasicService = () => {
                 return dbQuery.exec();
             }
 
-            public readAll = async (): Promise<Array<object>> => {
-                return this.model.find();
+            public readAll = async (allowedFields?: string[]): Promise<Array<object>> => {
+                allowedFields.push();
+                if(allowedFields){
+                    return this.model.find().select(allowedFields);
+                }
+                return [];
             }
 
             public updateOneById = async (input: any): Promise<object | MongooseError> => {

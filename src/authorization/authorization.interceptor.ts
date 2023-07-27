@@ -2,7 +2,8 @@ import {
     CallHandler,
     ExecutionContext,
     ForbiddenException,
-    Injectable, InternalServerErrorException,
+    Injectable,
+    InternalServerErrorException,
     NestInterceptor,
     UnauthorizedException,
     UseInterceptors
@@ -57,12 +58,33 @@ export class AuthorizationInterceptor implements NestInterceptor{
 
         const userAbility = await this.caslAbilityFactory.createForUser(user, subject);
 
+        //if can not make any request with this method
         if(!userAbility.can(requestAction, subject))
             throw requestForbiddenError;
 
-        //TODO: add logic for params as well (read and delete)
+        //if read one or delete one then get identifier from params and check permission before farther request
+        //or specify which fields are accessible for read many
+        if(action === Action.read || action === Action.delete){
+            const { params } = request;
 
-        //Update Serialization
+            //if read one
+            if(Object.keys(params).length !== 0){
+                //@ts-ignore
+                const subjectClass: typeof subject = plainToInstance(subject, params);
+
+                if(!userAbility.can(requestAction, subjectClass))
+                    throw requestForbiddenError;
+            } else {
+                const allowedFields = this.getAllowedFields(userAbility, responseAction, new subject());
+                if(!allowedFields || allowedFields.length === 0)
+                    throw new ForbiddenException(`There is no public fields of these objects accessible for reading`);
+
+                request['allowedFields'] = allowedFields;
+            }
+        }
+
+        //Filter out all fields that logged user can not update
+        //Basically create a new request body
         if(action === Action.update){
             //@ts-ignore
             const dataClass: typeof subject = plainToInstance(subject, request.body);
@@ -70,17 +92,18 @@ export class AuthorizationInterceptor implements NestInterceptor{
                 throw requestForbiddenError;
 
             const allowedFields = this.getAllowedFields(userAbility, responseAction, dataClass);
-            if(!allowedFields)
+            if(!allowedFields || allowedFields.length === 0)
                 throw requestForbiddenError;
 
             request.body = pick(dataClass, allowedFields);
         }
 
         return next.handle().pipe(map((data: any) => {
-            if(!data)
+            //if nothing came or it is an array === read many(serialization is done on request)
+            if(!data || Array.isArray(data))
                 return data;
 
-            //Create and read serialization
+            //Create one and read one response object serialization
             if(action === Action.create || action === Action.read){
                 //@ts-ignore
                 const dataClass: typeof subject = plainToInstance(subject, data, {
@@ -93,11 +116,12 @@ export class AuthorizationInterceptor implements NestInterceptor{
                     //@ts-ignore
                     dataClass._id = dataClass_id.toString();
 
-                //Read Serialization
+                //get all fields that can be read
                 const allowedFields = this.getAllowedFields(userAbility, responseAction, dataClass);
-                if(!allowedFields)
+                if((!allowedFields || allowedFields.length === 0) && action === Action.read)
                     throw new ForbiddenException(`The logged user has no permission to execute ${responseAction} action`);
 
+                //return fields only from the array
                 return pick(dataClass, allowedFields);
             }
 
@@ -105,9 +129,8 @@ export class AuthorizationInterceptor implements NestInterceptor{
         }));
     }
 
-    private getAllowedFields = (ability: MongoAbility, action: SupportedAction, dataClass: object): string[] | null => {
+    private getAllowedFields = (ability: MongoAbility, action: SupportedAction, dataClass: object): string[] => {
         const options = { fieldsFrom: rule => rule.fields || Object.keys(dataClass) };
-        const allowedFields = permittedFieldsOf(ability, action, dataClass, options);
-        return allowedFields.length !== 0 ? allowedFields : null;
+        return permittedFieldsOf(ability, action, dataClass, options);
     }
 }

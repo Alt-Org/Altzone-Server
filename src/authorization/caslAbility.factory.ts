@@ -16,7 +16,8 @@ type AllowedAction = Action.create_request | Action.read_request | Action.read_r
 
 export type AllowedSubject =
     typeof ProfileDto | typeof UpdateProfileDto |
-    typeof CreatePlayerDto | typeof PlayerDto | typeof UpdatePlayerDto;
+    typeof PlayerDto | typeof UpdatePlayerDto;
+
 export type Subjects = InferSubjects<AllowedSubject>;
 
 export type AppAbility = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
@@ -35,12 +36,13 @@ export class CASLAbilityFactory {
         if(subject === ProfileDto){
             can(Action.create_request, subject);
 
-            const commonReadableFields = ['username'];
+            const publicFields = ['_id', 'username'];
             can(Action.read_request, subject);
-            can(Action.read_response, subject, commonReadableFields);
-            can(Action.read_response, subject, {_id: user.profile_id});
+            can(Action.read_response, subject, publicFields);
+            can(Action.read_response, subject, ['_id', 'username', 'Player._id', 'Player.name'], {_id: user.profile_id});
+            can(Action.read_response, subject, ['_id', 'username', 'Player._id', 'Player.name'], {username: user.username});
 
-            can(Action.delete_request, subject, {username: user.profile_id});
+            can(Action.delete_request, subject, {username: user.username});
         }
         if(subject === UpdateProfileDto){
             can(Action.update_request, subject, {username: user.username});

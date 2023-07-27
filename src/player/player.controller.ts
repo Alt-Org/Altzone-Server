@@ -11,12 +11,14 @@ import {GetQueryDto} from "../common/dto/getQuery.dto";
 import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
 import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
+import {NoAuth} from "../auth/decorator/NoAuth.decorator";
 
 @Controller('player')
 export default class PlayerController{
     public constructor(private readonly service: PlayerService) {
     }
 
+    @NoAuth()
     @Post()
     @BasicPOST(PlayerDto)
     public create(@Body() body: CreatePlayerDto) {

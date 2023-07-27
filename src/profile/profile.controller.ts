@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Query} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put, Query, Req} from "@nestjs/common";
 import {ProfileService} from "./profile.service";
 import {CreateProfileDto} from "./dto/createProfile.dto";
 import {UpdateProfileDto} from "./dto/updateProfile.dto";
@@ -15,6 +15,8 @@ import {Action} from "../authorization/enum/action.enum";
 import {Authorize} from "../authorization/authorization.interceptor";
 import {SetAuthorizationFor} from "../authorization/decorator/SetAuthorizationFor";
 import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
+import {CatchCreateUpdateErrors} from "../common/decorator/response/CatchCreateUpdateErrors";
+import {Serialize} from "../common/interceptor/response/Serialize";
 
 @Controller('profile')
 export default class ProfileController {
@@ -23,7 +25,8 @@ export default class ProfileController {
 
     @NoAuth()
     @Post()
-    @BasicPOST(ProfileDto)
+    @CatchCreateUpdateErrors()
+    @Serialize(ProfileDto)
     public create(@Body() body: CreateProfileDto) {
         return this.service.createOne(body);
     }
@@ -31,16 +34,18 @@ export default class ProfileController {
     @Get('/:username')
     @SetAuthorizationFor({action: Action.read, subject: ProfileDto})
     @Authorize()
-    //@BasicGET(ModelName.PROFILE, ProfileDto)
+    @BasicGET(ModelName.PROFILE, ProfileDto)
     @AddGetQueries('username')
     public async get(@Param() param: UsernameDto, @Query() query: GetQueryDto) {
         return this.service.readOneByCondition({username: param.username});
     }
 
     @Get()
+    @SetAuthorizationFor({action: Action.read, subject: ProfileDto})
+    @Authorize()
     @BasicGET(ModelName.PROFILE, ProfileDto)
-    public async getAll() {
-        return this.service.readAll();
+    public async getAll(@Req() request: Request) {
+        return this.service.readAll(request['allowedFields']);
     }
 
     @Put()
@@ -52,6 +57,8 @@ export default class ProfileController {
     }
 
     @Delete('/:username')
+    @SetAuthorizationFor({action: Action.delete, subject: ProfileDto})
+    @Authorize()
     @BasicDELETE(ModelName.PROFILE)
     public async delete(@Param() param: UsernameDto) {
         return this.service.deleteOneByCondition({username: param.username});
