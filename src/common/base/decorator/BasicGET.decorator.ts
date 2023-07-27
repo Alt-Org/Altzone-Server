@@ -7,7 +7,6 @@ import {ModelName} from "../../enum/modelName.enum";
 
 export const BasicGET = (modelName: ModelName, responseDTO: IClass) => {
     return applyDecorators(
-        ThrowResponseErrorIfFound(ResponseType.READ, modelName),
-        Serialize(responseDTO)
+        ThrowResponseErrorIfFound(ResponseType.READ, modelName)
     );
 }
