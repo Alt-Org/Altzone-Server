@@ -15,7 +15,7 @@ export abstract class BasicServiceDummyAbstract<T=object> implements IBasicServi
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readAll(): Promise<Array<T>> {
+    readAll(allowedFields?: string[]): Promise<Array<T>> {
         return Promise.resolve(undefined);
     }
 
