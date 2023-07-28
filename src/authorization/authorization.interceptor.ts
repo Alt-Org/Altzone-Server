@@ -99,7 +99,7 @@ export class AuthorizationInterceptor implements NestInterceptor{
         }
 
         return next.handle().pipe(map((data: any) => {
-            //if nothing came or it is an array === read many(serialization is done on request)
+            //if nothing came, or it is an array === read many(serialization is done on request)
             if(!data || Array.isArray(data))
                 return data;
 
