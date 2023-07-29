@@ -27,7 +27,7 @@ export type PermissionMetaData = {
 };
 type SupportedAction = Action.create | Action.read | Action.update | Action.delete;
 
-export function Authorize() {
+export function CheckPermissions() {
     return UseInterceptors(AuthorizationInterceptor);
 }
 
@@ -54,13 +54,22 @@ export class AuthorizationInterceptor implements NestInterceptor{
 
         const requestAction = Action[action + '_request'];
         const responseAction = Action[action + '_response'];
-        const requestForbiddenError = new ForbiddenException(`The logged user has no permission to execute ${requestAction} action`);
+        const requestForbiddenError = new ForbiddenException(`The logged-in user has no permission to execute ${requestAction} action`);
 
         const userAbility = await this.caslAbilityFactory.createForUser(user, subject);
 
         //if can not make any request with this method
         if(!userAbility.can(requestAction, subject))
             throw requestForbiddenError;
+
+        //check if user is trying to create subject for another user
+        //For example character with player_id different from that logged-in user has
+        if(action === Action.create){
+            //@ts-ignore
+            const dataClass: typeof subject = plainToInstance(subject, request.body);
+            if(!userAbility.can(requestAction, dataClass))
+                throw requestForbiddenError;
+        }
 
         //if read one or delete one then get identifier from params and check permission before farther request
         //or specify which fields are accessible for read many
@@ -72,6 +81,9 @@ export class AuthorizationInterceptor implements NestInterceptor{
                 //@ts-ignore
                 const subjectClass: typeof subject = plainToInstance(subject, params);
 
+                if(action === Action.delete && !userAbility.can(requestAction, subjectClass))
+                    throw new ForbiddenException(`The logged-in user has no permission to execute ${requestAction} action or instance does not exists`);
+
                 if(!userAbility.can(requestAction, subjectClass))
                     throw requestForbiddenError;
             } else {
@@ -79,7 +91,7 @@ export class AuthorizationInterceptor implements NestInterceptor{
                 if(!allowedFields || allowedFields.length === 0)
                     throw new ForbiddenException(`There is no public fields of these objects accessible for reading`);
 
-                request['allowedFields'] = allowedFields;
+                request['allowedFields'] = allowedFields.length !== 0 ? allowedFields : null;
             }
         }
 
@@ -91,7 +103,7 @@ export class AuthorizationInterceptor implements NestInterceptor{
             if(!userAbility.can(requestAction, dataClass))
                 throw requestForbiddenError;
 
-            const allowedFields = this.getAllowedFields(userAbility, responseAction, dataClass);
+            const allowedFields = this.getAllowedFields(userAbility, requestAction, dataClass);
             if(!allowedFields || allowedFields.length === 0)
                 throw requestForbiddenError;
 
@@ -119,7 +131,7 @@ export class AuthorizationInterceptor implements NestInterceptor{
                 //get all fields that can be read
                 const allowedFields = this.getAllowedFields(userAbility, responseAction, dataClass);
                 if((!allowedFields || allowedFields.length === 0) && action === Action.read)
-                    throw new ForbiddenException(`The logged user has no permission to execute ${responseAction} action`);
+                    throw new ForbiddenException(`The logged-in user has no permission to execute ${responseAction} action`);
 
                 //return fields only from the array
                 return pick(dataClass, allowedFields);
