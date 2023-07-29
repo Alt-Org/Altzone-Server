@@ -56,11 +56,13 @@ export const AddBasicService = () => {
             }
 
             public readAll = async (allowedFields?: string[]): Promise<Array<object>> => {
-                allowedFields.push();
+                if(allowedFields === null)
+                    return [];
+
                 if(allowedFields){
                     return this.model.find().select(allowedFields);
                 }
-                return [];
+                return this.model.find();
             }
 
             public updateOneById = async (input: any): Promise<object | MongooseError> => {
