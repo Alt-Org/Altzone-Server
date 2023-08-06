@@ -10,6 +10,7 @@ import { Request } from 'express';
 import {Reflector} from "@nestjs/core";
 import {NO_AUTH_REQUIRED} from "./decorator/NoAuth.decorator";
 import {User} from "./user";
+import {SystemAdminService} from "../common/apiState/systemAdmin.service";
 
 //TODO: remove or change error messages to less specific for production
 
@@ -17,7 +18,8 @@ import {User} from "./user";
 export class AuthGuard implements CanActivate {
     public constructor(
         private readonly jwtService: JwtService,
-        private readonly reflector: Reflector
+        private readonly reflector: Reflector,
+        private readonly systemAdminService: SystemAdminService
     ) {}
 
     public async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -46,11 +48,12 @@ export class AuthGuard implements CanActivate {
             );
 
             const {username, sub, player_id} = payload;
+            const isSystemAdmin = await this.systemAdminService.isSystemAdmin(sub);
 
-            if(!username || !sub || !player_id)
-                throw new Error();
+            if(!username || !sub || (!isSystemAdmin && !player_id))
+                throw new Error('Incorrect token provided');
 
-            request['user'] = new User(username, sub, player_id);
+            request['user'] = new User(username, sub, player_id, isSystemAdmin);
         } catch {
             throw new UnauthorizedException(
                 'The access token is expired or invalid. ' +

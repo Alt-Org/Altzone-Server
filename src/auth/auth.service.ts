@@ -17,17 +17,17 @@ export class AuthService {
 
         //TODO: throw meaningful errors, i.e. !Player => no player found for that profile
         //TODO: password comparison via bcrypt
-        if(profile instanceof MongooseError || profile?.password !== pass || !profile.Player)
+        if(profile instanceof MongooseError || profile?.password !== pass || (!profile.isSystemAdmin && !profile.Player))
             return null;
 
         const payload = {
             sub: profile._id,
             username: profile.username,
-            player_id: profile.Player._id
+            player_id: profile.Player?._id
         };
         const accessToken = await this.jwtService.signAsync(payload);
 
-        const { password, ...serializedProfile} = profile.toJSON();
+        const { password, isSystemAdmin, ...serializedProfile} = profile.toJSON();
 
         return {
             ...serializedProfile,
