@@ -14,13 +14,17 @@ import {playerRules} from "./rule/playerRules";
 import {customCharacterRules} from "./rule/customCharacterRules";
 import {SystemAdminService} from "../common/apiState/systemAdmin.service";
 import {systemAdminRules} from "./rule/systemAdminRules";
+import {CharacterClassDto} from "../characterClass/dto/characterClass.dto";
+import {UpdateCharacterClassDto} from "../characterClass/dto/updateCharacterClass.dto";
+import {characterClassRules} from "./rule/characterClassRules";
 
 export type AllowedAction = Action.create_request | Action.read_request | Action.read_response | Action.update_request | Action.delete_request;
 
 export type AllowedSubject =
     typeof ProfileDto | typeof UpdateProfileDto |
     typeof PlayerDto | typeof UpdatePlayerDto |
-    typeof CustomCharacterDto | typeof UpdateCustomCharacterDto;
+    typeof CustomCharacterDto | typeof UpdateCustomCharacterDto |
+    typeof CharacterClassDto | typeof UpdateCharacterClassDto;
 
 type Subjects = InferSubjects<AllowedSubject>;
 
@@ -46,5 +50,8 @@ export class CASLAbilityFactory {
 
         if(subject === CustomCharacterDto || subject === UpdateCustomCharacterDto)
             return customCharacterRules(user, subject, this.requestHelperService);
+
+        if(subject === CharacterClassDto || subject === UpdateCharacterClassDto)
+            return characterClassRules(user, subject);
     }
 }
