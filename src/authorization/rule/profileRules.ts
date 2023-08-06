@@ -1,6 +1,5 @@
 import {AllowedAction} from "../caslAbility.factory";
 import {AbilityBuilder, createMongoAbility, ExtractSubjectType} from "@casl/ability";
-import {User} from "../../auth/user";
 import {ProfileDto} from "../../profile/dto/profile.dto";
 import {Action} from "../enum/action.enum";
 import {UpdateProfileDto} from "../../profile/dto/updateProfile.dto";
@@ -26,7 +25,7 @@ export const profileRules: RulesSetter<Ability, Subjects> = (user, subject) => {
     }
 
     if(subject === UpdateProfileDto){
-        can(Action.update_request, subject, {username: user.username});
+        can(Action.update_request, subject, ['username', 'password'], {username: user.username});
     }
 
     return build({
