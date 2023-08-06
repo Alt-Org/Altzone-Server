@@ -52,6 +52,8 @@ function handleUpdateResponse (data: any, modelName: ModelName){
         throw new NotFoundException(`No ${modelName} with that query found`);
     if(data instanceof Object && data.modifiedCount === 0)
         throw new BadRequestException('Nothing to update');
+    if(typeof data === 'boolean' && !data)
+        throw new BadRequestException(`Can not update ${modelName}`);
 
     return;
 }

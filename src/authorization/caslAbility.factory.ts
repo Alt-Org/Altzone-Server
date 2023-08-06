@@ -12,6 +12,8 @@ import {UpdateCustomCharacterDto} from "../customCharacter/dto/updateCustomChara
 import {profileRules} from "./rule/profileRules";
 import {playerRules} from "./rule/playerRules";
 import {customCharacterRules} from "./rule/customCharacterRules";
+import {SystemAdminService} from "../common/apiState/systemAdmin.service";
+import {systemAdminRules} from "./rule/systemAdminRules";
 
 export type AllowedAction = Action.create_request | Action.read_request | Action.read_response | Action.update_request | Action.delete_request;
 
@@ -26,9 +28,16 @@ export type AppAbility = MongoAbility<[AllowedAction | Action.manage, Subjects |
 
 @Injectable()
 export class CASLAbilityFactory {
-    public constructor(private readonly requestHelperService: RequestHelperService) {
+    public constructor(
+        private readonly requestHelperService: RequestHelperService,
+        private readonly systemAdminService: SystemAdminService
+    ) {
     }
     public createForUser = async (user: User, subject: AllowedSubject): Promise<AppAbility> => {
+        const isSystemAdmin = await this.systemAdminService.isSystemAdmin(user.profile_id);
+        if(isSystemAdmin)
+            return systemAdminRules();
+
         if(subject === ProfileDto || subject === UpdateProfileDto)
             return profileRules(user, subject);
 

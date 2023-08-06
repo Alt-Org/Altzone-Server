@@ -87,11 +87,7 @@ export class AuthorizationInterceptor implements NestInterceptor{
                 if(!userAbility.can(requestAction, subjectClass))
                     throw requestForbiddenError;
             } else {
-                const allowedFields = this.getAllowedFields(userAbility, responseAction, new subject());
-                if(!allowedFields || allowedFields.length === 0)
-                    throw new ForbiddenException(`There is no public fields of these objects accessible for reading`);
-
-                request['allowedFields'] = allowedFields.length !== 0 ? allowedFields : null;
+                request['allowedFields'] = this.getAllowedFields(userAbility, responseAction, new subject());
             }
         }
 
@@ -130,8 +126,6 @@ export class AuthorizationInterceptor implements NestInterceptor{
 
                 //get all fields that can be read
                 const allowedFields = this.getAllowedFields(userAbility, responseAction, dataClass);
-                if((!allowedFields || allowedFields.length === 0) && action === Action.read)
-                    throw new ForbiddenException(`The logged-in user has no permission to execute ${responseAction} action`);
 
                 //return fields only from the array
                 return pick(dataClass, allowedFields);
