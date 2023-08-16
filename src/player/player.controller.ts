@@ -2,7 +2,6 @@ import {Body, Controller, Delete, Get, Param, Post, Put, Query, Req} from "@nest
 import {PlayerService} from "./player.service";
 import {CreatePlayerDto} from "./dto/createPlayer.dto";
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
-import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
 import {PlayerDto} from "./dto/player.dto";
 import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
 import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
@@ -14,7 +13,6 @@ import {ModelName} from "../common/enum/modelName.enum";
 import {NoAuth} from "../auth/decorator/NoAuth.decorator";
 import {CatchCreateUpdateErrors} from "../common/decorator/response/CatchCreateUpdateErrors";
 import {Serialize} from "../common/interceptor/response/Serialize";
-import {ProfileDto} from "../profile/dto/profile.dto";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
 
