@@ -4,7 +4,6 @@ import {IsProfileExists} from "../decorator/validation/IsProfileExists.decorator
 export class UpdateProfileDto {
     @IsProfileExists()
     @IsMongoId()
-    @IsOptional()
     _id: string;
 
     @IsString()

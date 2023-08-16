@@ -47,14 +47,14 @@ export class AuthGuard implements CanActivate {
                 }
             );
 
-            const {username, sub, player_id} = payload;
-            const isSystemAdmin = await this.systemAdminService.isSystemAdmin(sub);
+            const {profile_id, player_id, clan_id} = payload;
+            const isSystemAdmin = await this.systemAdminService.isSystemAdmin(profile_id);
 
-            if(!username || !sub || (!isSystemAdmin && !player_id))
+            if(!profile_id || (!isSystemAdmin && !player_id))
                 throw new Error('Incorrect token provided');
 
-            request['user'] = new User(username, sub, player_id, isSystemAdmin);
-        } catch {
+            request['user'] = new User(profile_id, player_id, clan_id, isSystemAdmin);
+        } catch{
             throw new UnauthorizedException(
                 'The access token is expired or invalid. ' +
                 'Please update `authorization` field with access token(in bearer token form): ' +

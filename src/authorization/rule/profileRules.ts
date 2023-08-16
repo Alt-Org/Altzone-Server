@@ -19,13 +19,12 @@ export const profileRules: RulesSetter<Ability, Subjects> = (user, subject) => {
         can(Action.read_request, subject);
         can(Action.read_response, subject, publicFields);
         can(Action.read_response, subject, {_id: user.profile_id});
-        can(Action.read_response, subject, {username: user.username});
 
-        can(Action.delete_request, subject, {username: user.username});
+        can(Action.delete_request, subject, {_id: user.profile_id});
     }
 
     if(subject === UpdateProfileDto){
-        can(Action.update_request, subject, ['username', 'password'], {username: user.username});
+        can(Action.update_request, subject, ['username', 'password'], {_id: user.profile_id});
     }
 
     return build({
