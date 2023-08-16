@@ -9,7 +9,7 @@ import {ClassConstructor, plainToInstance} from "class-transformer";
 
 @Injectable()
 export class RequestHelperService {
-    public constructor(@InjectConnection() private connection: Connection) {
+    public constructor(@InjectConnection() private readonly connection: Connection) {
     }
 
     public getModelInstanceById = async (modelName: ModelName, _id: string | ObjectId, classConstructor: ClassConstructor<any>) => {
@@ -25,7 +25,6 @@ export class RequestHelperService {
             const resp = await this.connection.model(modelName).find(condition);
             return this.convertRespToInstance(resp, classConstructor);
         }
-
     }
 
     public nullReferences = async (refs: ReferenceToNullType[], ignore: IgnoreReferencesType = [])=> {
