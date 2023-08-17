@@ -13,6 +13,7 @@ import {CreateCustomCharacterDto} from "./dto/createCustomCharacter.dto";
 import {CustomCharacterDto} from "./dto/customCharacter.dto";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
+import {Serialize} from "../common/interceptor/response/Serialize";
 
 @Controller('customCharacter')
 export class CustomCharacterController{
@@ -23,6 +24,7 @@ export class CustomCharacterController{
 
     @Post()
     @Authorize({action: Action.create, subject: CustomCharacterDto})
+    @Serialize(CustomCharacterDto)
     @BasicPOST(CustomCharacterDto)
     public create(@Body() body: CreateCustomCharacterDto) {
         return this.service.createOne(body);

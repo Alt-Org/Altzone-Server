@@ -8,11 +8,10 @@ export function Serialize(dto: IClass) {
     return UseInterceptors(new SerializeInterceptor(dto))
 }
 
-export class SerializeInterceptor implements NestInterceptor{
+class SerializeInterceptor implements NestInterceptor{
     public constructor(private readonly dto: IClass) {
     }
     public intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
-
         return next.handle().pipe(
             map((data: any) => {
                 return plainToInstance(this.dto, data, {
