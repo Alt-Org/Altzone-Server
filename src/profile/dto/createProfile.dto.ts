@@ -1,5 +1,7 @@
-import {IsOptional, IsString} from "class-validator";
+import {IsOptional, IsString, ValidateNested} from "class-validator";
 import {CreatePlayerDto} from "../../player/dto/createPlayer.dto";
+import {Type} from "class-transformer";
+import {PlayerProfileDto} from "./playerProfile.dto";
 
 export class CreateProfileDto {
     @IsString()
@@ -9,5 +11,7 @@ export class CreateProfileDto {
     password: string;
 
     @IsOptional()
-    Player: CreatePlayerDto;
+    @ValidateNested()
+    @Type(() => PlayerProfileDto)
+    Player: PlayerProfileDto;
 }
