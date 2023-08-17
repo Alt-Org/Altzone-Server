@@ -23,13 +23,14 @@ import {PlayerService} from "../player/player.service";
 export default class ProfileController {
     public constructor(
         private readonly service: ProfileService,
-        private readonly playerService: PlayerService) {
+        private readonly playerService: PlayerService
+    ) {
     }
 
     @NoAuth()
     @Post()
-    @CatchCreateUpdateErrors()
     @Serialize(ProfileDto)
+    @CatchCreateUpdateErrors()
     public async create(@Body() body: CreateProfileDto) {
         const {Player, ...profile} = body;
 
@@ -39,7 +40,12 @@ export default class ProfileController {
         const profileResp: any = await this.service.createOne(profile);
         if(profileResp && !(profileResp instanceof MongooseError)){
             Player['profile_id'] = profileResp._id;
-            profileResp['Player'] = await this.playerService.createOne(Player);
+            try{
+                profileResp['Player'] = await this.playerService.createOne(Player);
+            } catch(e){
+                await this.service.deleteOneById(profileResp._id);
+                throw e;
+            }
         }
 
         return profileResp;

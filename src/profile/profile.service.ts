@@ -34,6 +34,6 @@ export class ProfileService extends BasicAndConditionServiceDummyAbstract<Profil
     }
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
-        await this.playerService.deleteByCondition({profile_id: _id});
+        await this.playerService.deleteByCondition({profile_id: _id}, {isOne: true});
     }
 }
