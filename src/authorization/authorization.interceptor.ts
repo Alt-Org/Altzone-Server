@@ -125,7 +125,9 @@ export class AuthorizationInterceptor implements NestInterceptor{
                     dataClass._id = dataClass_id.toString();
 
                 //get all fields that can be read
-                const allowedFields = this.getAllowedFields(userAbility, responseAction, dataClass);
+                let allowedFields = this.getAllowedFields(userAbility, responseAction, dataClass);
+                if(!allowedFields || allowedFields.length === 0)
+                    allowedFields = Object.keys(dataClass);
 
                 //return fields only from the array
                 return pick(dataClass, allowedFields);
