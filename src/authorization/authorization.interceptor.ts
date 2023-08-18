@@ -17,7 +17,7 @@ import {plainToInstance} from "class-transformer";
 import {ObjectId} from "mongodb";
 import {Reflector} from "@nestjs/core";
 import {PERMISSION_METADATA} from "./decorator/SetAuthorizationFor";
-import {permittedFieldsOf} from "@casl/ability/extra";
+import {permittedFieldsOf, PermittedFieldsOptions} from "@casl/ability/extra";
 import {pick} from "lodash";
 import {MongoAbility} from "@casl/ability";
 
@@ -138,7 +138,9 @@ export class AuthorizationInterceptor implements NestInterceptor{
     }
 
     private getAllowedFields = (ability: MongoAbility, action: SupportedAction, dataClass: object): string[] => {
-        const options = { fieldsFrom: rule => rule.fields || Object.keys(dataClass) };
+        const options: PermittedFieldsOptions<any> = {
+            fieldsFrom: rule => (rule.fields && rule.fields.length !== 0) ? rule.fields : Object.keys(dataClass)
+        };
         return permittedFieldsOf(ability, action, dataClass, options);
     }
 }

@@ -1,5 +1,4 @@
 import {Body, Controller, Delete, Get, Param, Post, Put, Query, Req} from "@nestjs/common";
-import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
 import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
 import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
 import {_idDto} from "../common/dto/_id.dto";
@@ -14,6 +13,7 @@ import {CustomCharacterDto} from "./dto/customCharacter.dto";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
 import {Serialize} from "../common/interceptor/response/Serialize";
+import {CatchCreateUpdateErrors} from "../common/decorator/response/CatchCreateUpdateErrors";
 
 @Controller('customCharacter')
 export class CustomCharacterController{
@@ -24,8 +24,7 @@ export class CustomCharacterController{
 
     @Post()
     @Authorize({action: Action.create, subject: CustomCharacterDto})
-    @Serialize(CustomCharacterDto)
-    @BasicPOST(CustomCharacterDto)
+    @CatchCreateUpdateErrors()
     public create(@Body() body: CreateCustomCharacterDto) {
         return this.service.createOne(body);
     }
