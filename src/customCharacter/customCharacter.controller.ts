@@ -12,19 +12,16 @@ import {CreateCustomCharacterDto} from "./dto/createCustomCharacter.dto";
 import {CustomCharacterDto} from "./dto/customCharacter.dto";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
-import {Serialize} from "../common/interceptor/response/Serialize";
-import {CatchCreateUpdateErrors} from "../common/decorator/response/CatchCreateUpdateErrors";
+import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
 
 @Controller('customCharacter')
 export class CustomCharacterController{
-    public constructor(
-        private readonly service: CustomCharacterService
-    ) {
+    public constructor(private readonly service: CustomCharacterService) {
     }
 
     @Post()
     @Authorize({action: Action.create, subject: CustomCharacterDto})
-    @CatchCreateUpdateErrors()
+    @BasicPOST(CreateCustomCharacterDto)
     public create(@Body() body: CreateCustomCharacterDto) {
         return this.service.createOne(body);
     }
