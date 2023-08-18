@@ -17,6 +17,15 @@ import {systemAdminRules} from "./rule/systemAdminRules";
 import {CharacterClassDto} from "../characterClass/dto/characterClass.dto";
 import {UpdateCharacterClassDto} from "../characterClass/dto/updateCharacterClass.dto";
 import {characterClassRules} from "./rule/characterClassRules";
+import { FurnitureDto } from "src/furniture/dto/furniture.dto";
+import { UpdateFurnitureDto } from "src/furniture/dto/updateFurniture.dto";
+import { furnitureRules } from "./rule/furnitureRules";
+import { RaidRoomDto } from "src/raidRoom/dto/raidRoom.dto";
+import { UpdateRaidRoomDto } from "src/raidRoom/dto/updateRaidRoom.dto";
+import { raidRoomRules } from "./rule/raidRoomRules";
+import { clanRules } from "./rule/clanRules";
+import { ClanDto } from "src/clan/dto/clan.dto";
+import { UpdateClanDto } from "src/clan/dto/updateClan.dto";
 
 export type AllowedAction = Action.create_request | Action.read_request | Action.read_response | Action.update_request | Action.delete_request;
 
@@ -24,7 +33,10 @@ export type AllowedSubject =
     typeof ProfileDto | typeof UpdateProfileDto |
     typeof PlayerDto | typeof UpdatePlayerDto |
     typeof CustomCharacterDto | typeof UpdateCustomCharacterDto |
-    typeof CharacterClassDto | typeof UpdateCharacterClassDto;
+    typeof CharacterClassDto | typeof UpdateCharacterClassDto |
+    typeof FurnitureDto | typeof UpdateFurnitureDto | 
+    typeof RaidRoomDto | typeof UpdateRaidRoomDto |
+    typeof ClanDto | typeof UpdateClanDto;
 
 type Subjects = InferSubjects<AllowedSubject>;
 
@@ -53,5 +65,14 @@ export class CASLAbilityFactory {
 
         if(subject === CharacterClassDto || subject === UpdateCharacterClassDto)
             return characterClassRules(user, subject);
+
+        if(subject === FurnitureDto || subject === UpdateFurnitureDto)
+            return furnitureRules(user, subject);
+
+        if(subject === RaidRoomDto || subject === UpdateRaidRoomDto)
+            return raidRoomRules(user, subject);
+
+        if(subject === ClanDto || subject === UpdateClanDto)
+            return clanRules(user, subject);
     }
 }
