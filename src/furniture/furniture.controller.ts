@@ -51,7 +51,7 @@ export class FurnitureController{
     }
 
     @Delete('/:_id')
-    @Authorize({action: Action.delete, subject: FurnitureDto})
+    @Authorize({action: Action.delete, subject: UpdateFurnitureDto})
     @BasicDELETE(ModelName.FURNITURE)
     public delete(@Param() param: _idDto) {
         return this.service.deleteOneById(param._id);

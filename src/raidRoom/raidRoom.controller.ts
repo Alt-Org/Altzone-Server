@@ -51,7 +51,7 @@ export class RaidRoomController{
     }
 
     @Delete('/:_id')
-    @Authorize({action: Action.delete, subject: RaidRoomDto})
+    @Authorize({action: Action.delete, subject: UpdateRaidRoomDto})
     @BasicDELETE(ModelName.RAID_ROOM)
     public delete(@Param() param: _idDto) {
         return this.service.deleteOneById(param._id);

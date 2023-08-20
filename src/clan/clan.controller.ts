@@ -55,7 +55,7 @@ export class ClanController{
     }
 
     @Delete('/:_id')
-    @Authorize({action: Action.delete, subject: ClanDto})
+    @Authorize({action: Action.delete, subject: UpdateClanDto})
     @BasicDELETE(ModelName.CLAN)
     public delete(@Param() param: _idDto) {
         return this.service.deleteOneById(param._id);

@@ -67,12 +67,12 @@ export class CASLAbilityFactory {
             return characterClassRules(user, subject);
 
         if(subject === FurnitureDto || subject === UpdateFurnitureDto)
-            return furnitureRules(user, subject);
+            return furnitureRules(user, subject, this.requestHelperService);
 
         if(subject === RaidRoomDto || subject === UpdateRaidRoomDto)
-            return raidRoomRules(user, subject);
+            return raidRoomRules(user, subject, this.requestHelperService);
 
         if(subject === ClanDto || subject === UpdateClanDto)
-            return clanRules(user, subject);
+            return clanRules(user, subject, this.requestHelperService);
     }
 }

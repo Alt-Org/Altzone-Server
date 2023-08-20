@@ -18,6 +18,9 @@ export class ClanDto {
     @Expose()
     gameCoins: number;
 
+    @Expose()
+    admin_ids: string[];
+
     @Type(() => PlayerDto)
     @Expose()
     Player: PlayerDto[];
