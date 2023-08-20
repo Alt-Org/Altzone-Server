@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import {HydratedDocument} from "mongoose";
+import {HydratedDocument, Types} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
 import {ExtractField} from "../common/decorator/response/ExtractField";
 
@@ -15,6 +15,9 @@ export class Clan {
 
     @Prop({ type: Number, default: 0 })
     gameCoins: number;
+
+    @Prop({type: Array<Types.ObjectId>, default: []})
+    admin_ids: string[];
 
     @ExtractField()
     _id: string;
