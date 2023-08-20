@@ -50,7 +50,15 @@ export class ClanController{
     @Put()
     @Authorize({action: Action.update, subject: UpdateClanDto})
     @BasicPUT(ModelName.CLAN)
-    public update(@Body() body: UpdateClanDto){
+    public async update(@Body() body: UpdateClanDto){
+        if(body.admin_idsToAdd || body.admin_idsToDelete){
+            const clanToUpdate: any = await this.service.readOneById(body._id);
+            if(clanToUpdate && body.admin_idsToAdd){
+                 
+            }
+
+        }
+
         return this.service.updateOneById(body);
     }
 
