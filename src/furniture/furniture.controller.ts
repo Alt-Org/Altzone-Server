@@ -11,6 +11,8 @@ import {FurnitureService} from "./furniture.service";
 import {FurnitureDto} from "./dto/furniture.dto";
 import {CreateFurnitureDto} from "./dto/createFurniture.dto";
 import {UpdateFurnitureDto} from "./dto/updateFurniture.dto";
+import { Authorize } from "src/authorization/decorator/Authorize";
+import { Action } from "src/authorization/enum/action.enum";
 
 @Controller('furniture')
 export class FurnitureController{
@@ -20,12 +22,14 @@ export class FurnitureController{
     }
 
     @Post()
+    @Authorize({action: Action.create, subject: FurnitureDto})
     @BasicPOST(FurnitureDto)
     public create(@Body() body: CreateFurnitureDto) {
         return this.service.createOne(body);
     }
 
     @Get('/:_id')
+    @Authorize({action: Action.read, subject: FurnitureDto})
     @BasicGET(ModelName.FURNITURE, FurnitureDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Query() query: GetQueryDto) {
@@ -33,18 +37,21 @@ export class FurnitureController{
     }
 
     @Get()
+    @Authorize({action: Action.read, subject: FurnitureDto})
     @BasicGET(ModelName.FURNITURE, FurnitureDto)
     public getAll() {
         return this.service.readAll();
     }
 
     @Put()
+    @Authorize({action: Action.update, subject: UpdateFurnitureDto})
     @BasicPUT(ModelName.FURNITURE)
     public update(@Body() body: UpdateFurnitureDto){
         return this.service.updateOneById(body);
     }
 
     @Delete('/:_id')
+    @Authorize({action: Action.delete, subject: FurnitureDto})
     @BasicDELETE(ModelName.FURNITURE)
     public delete(@Param() param: _idDto) {
         return this.service.deleteOneById(param._id);

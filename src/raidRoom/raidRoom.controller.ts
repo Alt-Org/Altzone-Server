@@ -11,6 +11,8 @@ import {RaidRoomService} from "./raidRoom.service";
 import {RaidRoomDto} from "./dto/raidRoom.dto";
 import {CreateRaidRoomDto} from "./dto/createRaidRoom.dto";
 import {UpdateRaidRoomDto} from "./dto/updateRaidRoom.dto";
+import { Authorize } from "src/authorization/decorator/Authorize";
+import { Action } from "src/authorization/enum/action.enum";
 
 @Controller('raidRoom')
 export class RaidRoomController{
@@ -20,12 +22,14 @@ export class RaidRoomController{
     }
 
     @Post()
+    @Authorize({action: Action.create, subject: RaidRoomDto})
     @BasicPOST(RaidRoomDto)
     public create(@Body() body: CreateRaidRoomDto) {
         return this.service.createOne(body);
     }
 
     @Get('/:_id')
+    @Authorize({action: Action.read, subject: RaidRoomDto})
     @BasicGET(ModelName.RAID_ROOM, RaidRoomDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Query() query: GetQueryDto) {
@@ -33,18 +37,21 @@ export class RaidRoomController{
     }
 
     @Get()
+    @Authorize({action: Action.read, subject: RaidRoomDto})
     @BasicGET(ModelName.RAID_ROOM, RaidRoomDto)
     public getAll() {
         return this.service.readAll();
     }
 
     @Put()
+    @Authorize({action: Action.update, subject: UpdateRaidRoomDto})
     @BasicPUT(ModelName.RAID_ROOM)
     public update(@Body() body: UpdateRaidRoomDto){
         return this.service.updateOneById(body);
     }
 
     @Delete('/:_id')
+    @Authorize({action: Action.delete, subject: RaidRoomDto})
     @BasicDELETE(ModelName.RAID_ROOM)
     public delete(@Param() param: _idDto) {
         return this.service.deleteOneById(param._id);
