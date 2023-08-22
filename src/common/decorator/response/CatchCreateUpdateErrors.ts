@@ -1,5 +1,10 @@
 import {MongoServerError} from "mongodb";
-import {BadRequestException, InternalServerErrorException, UnprocessableEntityException} from "@nestjs/common";
+import {
+    BadRequestException,
+    ConflictException,
+    InternalServerErrorException,
+    UnprocessableEntityException
+} from "@nestjs/common";
 import {HttpException} from "@nestjs/common/exceptions/http.exception";
 
 export const CatchCreateUpdateErrors = (): any => {
@@ -45,7 +50,7 @@ function handleError(error: any) {
                 const message =  `Field '${field}' with value '${error.keyValue[field]}' already exists`;
                 errorMessages.push(message);
             }
-            throw new UnprocessableEntityException(errorMessages);
+            throw new ConflictException(errorMessages);
         }
     }
 
