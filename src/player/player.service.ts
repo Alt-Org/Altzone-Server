@@ -2,7 +2,6 @@ import {Injectable} from "@nestjs/common";
 import {Model, Types} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {Player} from "./player.schema";
-import {ClanService} from "../clan/clan.service";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
@@ -11,16 +10,15 @@ import {CustomCharacterService} from "../customCharacter/customCharacter.service
 import {RaidRoomService} from "../raidRoom/raidRoom.service";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
+import {ClanDto} from "../clan/dto/clan.dto";
 
 @Injectable()
 @AddBasicService()
 export class PlayerService extends BasicServiceDummyAbstract implements IBasicService{
     public constructor(
         @InjectModel(Player.name) public readonly model: Model<Player>,
-        private readonly clanService: ClanService,
         private readonly customCharacterService: CustomCharacterService,
-        private readonly raidRoomService: RaidRoomService,
-        private readonly requestHelperService: RequestHelperService
+        private readonly raidRoomService: RaidRoomService
     ){
         super();
         this.refsInModel = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.RAID_ROOM];
