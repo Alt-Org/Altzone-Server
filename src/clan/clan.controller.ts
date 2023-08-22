@@ -13,6 +13,8 @@ import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
+import {Clan} from "./clan.schema";
+import {MongooseError} from "mongoose";
 
 @Controller('clan')
 export class ClanController{
@@ -50,13 +52,19 @@ export class ClanController{
     @Put()
     @Authorize({action: Action.update, subject: UpdateClanDto})
     @BasicPUT(ModelName.CLAN)
-    public async update(@Body() body: UpdateClanDto){
+    public async update(@Body() body: UpdateClanDto) {
         if(body.admin_idsToAdd || body.admin_idsToDelete){
-            const clanToUpdate: any = await this.service.readOneById(body._id);
-            if(clanToUpdate && body.admin_idsToAdd){
-                 
-            }
+            const clanToUpdate = await this.service.readOneById(body._id);
+            if(clanToUpdate && !(clanToUpdate instanceof MongooseError)){
+                if(body.admin_idsToDelete)
+                    clanToUpdate.admin_ids = clanToUpdate.admin_ids.filter(value => !body.admin_idsToDelete.includes(value));
 
+                let newClanAdmin_ids: string[] = [];
+                if(body.admin_idsToAdd)
+                    newClanAdmin_ids = body.admin_idsToAdd.filter(value => !clanToUpdate.admin_ids.includes(value));
+
+                body['admin_ids'] = [...clanToUpdate.admin_ids, ...newClanAdmin_ids];
+            }
         }
 
         return this.service.updateOneById(body);

@@ -19,6 +19,7 @@ export class UpdateClanDto {
     @IsOptional()
     gameCoins: number;
 
+    //TODO: validate is player exists does not work
     @IsArray()
     @ArrayNotEmpty()
     @Validate(IsPlayerExists)
