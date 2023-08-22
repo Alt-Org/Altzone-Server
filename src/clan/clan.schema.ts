@@ -16,7 +16,7 @@ export class Clan {
     @Prop({ type: Number, default: 0 })
     gameCoins: number;
 
-    @Prop({type: Array<Types.ObjectId>, default: []})
+    @Prop({type: Array<string>, default: []})
     admin_ids: string[];
 
     @ExtractField()
