@@ -1,10 +1,9 @@
 import {Injectable} from "@nestjs/common";
 import {InjectConnection} from "@nestjs/mongoose";
-import {Connection} from "mongoose";
+import {Connection, Types} from "mongoose";
 import {ReferenceToNullType} from "./type/ReferenceToNull.type";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
-import {ObjectId} from "mongodb";
 import {ClassConstructor, plainToInstance} from "class-transformer";
 
 @Injectable()
@@ -12,7 +11,7 @@ export class RequestHelperService {
     public constructor(@InjectConnection() private readonly connection: Connection) {
     }
 
-    public getModelInstanceById = async (modelName: ModelName, _id: string | ObjectId, classConstructor: ClassConstructor<any>) => {
+    public getModelInstanceById = async (modelName: ModelName, _id: string | Types.ObjectId, classConstructor: ClassConstructor<any>) => {
         const resp = await this.connection.model(modelName).findById(_id);
         return this.convertRespToInstance(resp, classConstructor);
     }
@@ -39,6 +38,10 @@ export class RequestHelperService {
         }
     }
 
+    public updateOneById = async (modelName: ModelName, _id: string | Types.ObjectId, updateObject: Object) => {
+        return this.connection.model(modelName).updateOne({_id}, updateObject);
+    }
+
     private convertRespToInstance = (resp: any, classConstructor: ClassConstructor<any>) => {
         if(resp){
             if(!Array.isArray(resp)){
@@ -61,7 +64,7 @@ export class RequestHelperService {
             const instance = plainToInstance(classConstructor, resp._doc);
 
             for(const key in instance){
-                if(instance[key] && instance[key] instanceof ObjectId)
+                if(instance[key] && instance[key] instanceof Types.ObjectId)
                     instance[key] = instance[key].toString();
             }
 
