@@ -13,8 +13,8 @@ import {UpdateCharacterClassDto} from "../../characterClass/dto/updateCharacterC
 type Subjects = InferSubjects<typeof CharacterClassDto | typeof UpdateCharacterClassDto>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
-export const characterClassRules: RulesSetterAsync<Ability, Subjects> = async (user, subject) => {
-    const { can, cannot, build } = new AbilityBuilder<Ability>(createMongoAbility);
+export const characterClassRules: RulesSetterAsync<Ability, Subjects> = async (user, subject, action, subject_id) => {
+    const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
     if(subject === CharacterClassDto){
         can(Action.read_request, subject);

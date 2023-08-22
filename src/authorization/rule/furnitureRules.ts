@@ -11,8 +11,8 @@ import { ModelName } from "src/common/enum/modelName.enum";
 type Subjects = InferSubjects<typeof FurnitureDto | typeof UpdateFurnitureDto>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
-export const furnitureRules: RulesSetterAsync<Ability, Subjects> = async (user, subject, requestHelperService) => {
-    const { can, cannot, build } = new AbilityBuilder<Ability>(createMongoAbility);
+export const furnitureRules: RulesSetterAsync<Ability, Subjects> = async (user, subject, action, subject_id, requestHelperService) => {
+    const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
     if(subject === FurnitureDto){
         can(Action.create_request, subject, {clan_id: user.clan_id});

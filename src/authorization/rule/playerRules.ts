@@ -9,8 +9,8 @@ import {RulesSetter} from "../type/rulesSetter.type";
 type Subjects = InferSubjects<typeof PlayerDto | typeof UpdatePlayerDto>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
-export const playerRules: RulesSetter<Ability, Subjects> = (user, subject) => {
-    const { can, cannot, build } = new AbilityBuilder<Ability>(createMongoAbility);
+export const playerRules: RulesSetter<Ability, Subjects> = (user, subject, action, subject_id) => {
+    const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
     if(subject === PlayerDto){
         can(Action.create_request, subject);

@@ -25,7 +25,7 @@ export type PermissionMetaData = {
     action: SupportedAction,
     subject: AllowedSubject
 };
-type SupportedAction = Action.create | Action.read | Action.update | Action.delete;
+export type SupportedAction = Action.create | Action.read | Action.update | Action.delete;
 
 export function CheckPermissions() {
     return UseInterceptors(AuthorizationInterceptor);
@@ -35,7 +35,7 @@ export function CheckPermissions() {
 export class AuthorizationInterceptor implements NestInterceptor{
     public constructor(
         private readonly caslAbilityFactory: CASLAbilityFactory,
-        private readonly reflector: Reflector,
+        private readonly reflector: Reflector
     ) {
     }
 
@@ -56,7 +56,14 @@ export class AuthorizationInterceptor implements NestInterceptor{
         const responseAction = Action[action + '_response'];
         const requestForbiddenError = new ForbiddenException(`The logged-in user has no permission to execute ${requestAction} action`);
 
-        const userAbility = await this.caslAbilityFactory.createForUser(user, subject);
+        //Determine subject _id
+        let subject_id: string = undefined;
+        if(action === Action.read || action === Action.delete)
+            subject_id = request.params._id;
+        else if(action === Action.update)
+            subject_id = request.body._id;
+
+        const userAbility = await this.caslAbilityFactory.createForUser(user, subject, action, subject_id);
 
         //if can not make any request with this method
         if(!userAbility.can(requestAction, subject))
@@ -73,8 +80,8 @@ export class AuthorizationInterceptor implements NestInterceptor{
 
         //if read one or delete one then get identifier from params and check permission before farther request
         //or specify which fields are accessible for read many
+        const { params } = request;
         if(action === Action.read || action === Action.delete){
-            const { params } = request;
 
             //if read one
             if(Object.keys(params).length !== 0){
@@ -96,6 +103,7 @@ export class AuthorizationInterceptor implements NestInterceptor{
         if(action === Action.update){
             //@ts-ignore
             const dataClass: typeof subject = plainToInstance(subject, request.body);
+            //console.log(action);
             if(!userAbility.can(requestAction, dataClass))
                 throw requestForbiddenError;
 
