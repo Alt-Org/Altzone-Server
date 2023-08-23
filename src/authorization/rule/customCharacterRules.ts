@@ -12,10 +12,10 @@ import {RulesSetterAsync} from "../type/RulesSetter.type";
 type Subjects = InferSubjects<typeof CustomCharacterDto | typeof UpdateCustomCharacterDto>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
-export const customCharacterRules: RulesSetterAsync<Ability, Subjects> = async (user, subject, action, subject_id, requestHelperService) => {
+export const customCharacterRules: RulesSetterAsync<Ability, Subjects> = async (user, subject:any, action, subject_id, requestHelperService) => {
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
-    if(subject === CustomCharacterDto){
+    if(action === Action.create || action === Action.read){
         const publicFields = ['_id', 'unityKey', 'name', 'speed', 'resistance', 'resistance', 'defence', 'player_id'];
         can(Action.create_request, subject, {player_id: user.player_id});
 
@@ -24,7 +24,7 @@ export const customCharacterRules: RulesSetterAsync<Ability, Subjects> = async (
         can(Action.read_response, subject, {player_id: user.player_id});
     }
 
-    if(subject === UpdateCustomCharacterDto){
+    if(action === Action.update || action === Action.delete){
         const customCharacters = await getCustomCharacter(user, requestHelperService);
         if(!customCharacters){
             can(Action.update_request, subject);

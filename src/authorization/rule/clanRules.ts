@@ -8,6 +8,7 @@ import {UpdateClanDto} from "../../clan/dto/updateClan.dto";
 import {ModelName} from "../../common/enum/modelName.enum";
 import {MongooseError} from "mongoose";
 import {NotFoundException} from "@nestjs/common";
+import {getClan_id} from "../util/getClan_id";
 
 type Subjects = InferSubjects<typeof ClanDto | typeof UpdateClanDto>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
@@ -15,11 +16,12 @@ export const clanRules: RulesSetterAsync<Ability, Subjects> = async (user, subje
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
     if(action === Action.create || action === Action.read){
+        const clan_id = await getClan_id(user, requestHelperService);
         can(Action.create_request, subject);
 
         // const publicFields = ['_id', 'name', 'uniqueIdentifier'];
         can(Action.read_request, subject);
-        can(Action.read_response, subject, {_id: user.clan_id});
+        can(Action.read_response, subject, {_id: clan_id});
     }
 
     if(action === Action.update || action === Action.delete){
