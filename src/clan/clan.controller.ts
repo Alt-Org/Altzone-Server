@@ -13,25 +13,29 @@ import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
-import {Clan} from "./clan.schema";
 import {MongooseError} from "mongoose";
+import {RequestHelperService} from "../requestHelper/requestHelper.service";
 
 @Controller('clan')
 export class ClanController{
     public constructor(
-        private readonly service: ClanService
+        private readonly service: ClanService,
+        private readonly requestHelperService: RequestHelperService
     ) {
     }
 
     @Post()
     @Authorize({action: Action.create, subject: ClanDto})
     @BasicPOST(ClanDto)
-    public create(@Body() body: CreateClanDto, @Req() request: Request) {
+    public async create(@Body() body: CreateClanDto, @Req() request: Request) {
         //add clan creator to admins
         const creatorPlayer_id = request['user'].player_id;
         body['admin_ids'] = [creatorPlayer_id];
 
-        return this.service.createOne(body);
+        const clanResp = await this.service.createOne(body);
+        if(!(clanResp instanceof MongooseError))
+            await this.requestHelperService.updateOneById(ModelName.PLAYER, creatorPlayer_id, {clan_id: clanResp._id})
+        return clanResp;
     }
 
     @Get('/:_id')
