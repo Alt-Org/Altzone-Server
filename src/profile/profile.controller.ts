@@ -18,12 +18,15 @@ import {Authorize} from "../authorization/decorator/Authorize";
 import {_idDto} from "../common/dto/_id.dto";
 import {MongooseError} from "mongoose";
 import {PlayerService} from "../player/player.service";
+import {RequestHelperService} from "../requestHelper/requestHelper.service";
+import {PlayerDto} from "../player/dto/player.dto";
 
 @Controller('profile')
 export default class ProfileController {
     public constructor(
         private readonly service: ProfileService,
-        private readonly playerService: PlayerService
+        private readonly playerService: PlayerService,
+        private readonly requestHelperService: RequestHelperService
     ) {
     }
 
