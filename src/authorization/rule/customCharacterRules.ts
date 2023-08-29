@@ -12,7 +12,7 @@ import {RulesSetterAsync} from "../type/RulesSetter.type";
 type Subjects = InferSubjects<typeof CustomCharacterDto | typeof UpdateCustomCharacterDto>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
-export const customCharacterRules: RulesSetterAsync<Ability, Subjects> = async (user, subject:any, action, subject_id, requestHelperService) => {
+export const customCharacterRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj, requestHelperService) => {
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
     if(action === Action.create || action === Action.read){

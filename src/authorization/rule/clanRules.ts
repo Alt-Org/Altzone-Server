@@ -12,7 +12,7 @@ import {getClan_id} from "../util/getClan_id";
 
 type Subjects = InferSubjects<typeof ClanDto | typeof UpdateClanDto>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
-export const clanRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subject_id, requestHelperService) => {
+export const clanRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj: any, requestHelperService) => {
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
     if(action === Action.create || action === Action.read){
@@ -25,7 +25,7 @@ export const clanRules: RulesSetterAsync<Ability, Subjects> = async (user, subje
     }
 
     if(action === Action.update || action === Action.delete){
-        const clan: ClanDto = await requestHelperService.getModelInstanceById(ModelName.CLAN, subject_id, ClanDto);
+        const clan = await requestHelperService.getModelInstanceById(ModelName.CLAN, subjectObj._id, ClanDto);
         if(clan && !(clan instanceof MongooseError)){
             const isClanAdmin = clan.admin_ids.includes(user.player_id);
             if(isClanAdmin){

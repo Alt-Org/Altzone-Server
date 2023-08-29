@@ -14,7 +14,7 @@ import {getClan_id} from "../util/getClan_id";
 type Subjects = InferSubjects<typeof FurnitureDto | typeof UpdateFurnitureDto>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
-export const furnitureRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subject_id, requestHelperService) => {
+export const furnitureRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj: any, requestHelperService) => {
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
     if(action === Action.create || action === Action.read){
@@ -30,11 +30,11 @@ export const furnitureRules: RulesSetterAsync<Ability, Subjects> = async (user, 
     }
 
     if(action === Action.update || action === Action.delete){
-        const furniture: FurnitureDto = await requestHelperService.getModelInstanceById(ModelName.FURNITURE, subject_id, FurnitureDto);
+        const furniture = await requestHelperService.getModelInstanceById(ModelName.FURNITURE, subjectObj._id, FurnitureDto);
         if(!furniture || furniture instanceof MongooseError)
             throw new NotFoundException('The furniture with that _id is not found');
 
-        const clan: ClanDto = await requestHelperService.getModelInstanceById(ModelName.CLAN, furniture.clan_id, ClanDto);
+        const clan = await requestHelperService.getModelInstanceById(ModelName.CLAN, furniture.clan_id, ClanDto);
         if(!clan || clan instanceof MongooseError)
             throw new NotFoundException('The clan with that _id is not found. Can not check is the logged-in user clan admin');
 

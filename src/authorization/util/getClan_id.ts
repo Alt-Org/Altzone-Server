@@ -15,9 +15,9 @@ export const getClan_id = async (user: User, requestHelperService: RequestHelper
     if(userClan_id)
         return userClan_id;
 
-    const player: PlayerDto = await requestHelperService.getModelInstanceById(ModelName.PLAYER, user.player_id, PlayerDto);
+    const player = await requestHelperService.getModelInstanceById(ModelName.PLAYER, user.player_id, PlayerDto);
     if(player)
-        return player._id;
+        return player.clan_id;
 
     return null;
 }

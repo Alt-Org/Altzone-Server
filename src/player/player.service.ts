@@ -36,7 +36,7 @@ export class PlayerService extends BasicServiceDummyAbstract implements IBasicSe
     }
 
     private clearClanReferences = async (_id: string): Promise<boolean | Error> => {
-        const clansWithPlayerAsAdmin: ClanDto[] = await this.requestHelperService.getModelInstanceByCondition(
+        const clansWithPlayerAsAdmin = await this.requestHelperService.getModelInstanceByCondition(
             ModelName.CLAN,
             {admin_ids: {$in: [_id]}},
             ClanDto

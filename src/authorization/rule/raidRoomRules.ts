@@ -11,7 +11,7 @@ import { ModelName } from "src/common/enum/modelName.enum";
 type Subjects = InferSubjects<typeof RaidRoomDto | typeof UpdateRaidRoomDto>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
-export const raidRoomRules: RulesSetterAsync<Ability, Subjects> = async (user, subject, action, subject_id, requestHelperService) => {
+export const raidRoomRules: RulesSetterAsync<Ability, Subjects> = async (user, subject, action, subjectObj, requestHelperService) => {
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
     if(subject === RaidRoomDto){
@@ -23,7 +23,7 @@ export const raidRoomRules: RulesSetterAsync<Ability, Subjects> = async (user, s
     }
 
     if(subject === UpdateRaidRoomDto){
-        const clan: ClanDto = await requestHelperService.getModelInstanceById(ModelName.CLAN, user.clan_id, ClanDto);
+        const clan = await requestHelperService.getModelInstanceById(ModelName.CLAN, user.clan_id, ClanDto);
         const isClanAdmin = clan.admin_ids.includes(user.player_id);
         if(isClanAdmin){
             can(Action.update_request, subject);

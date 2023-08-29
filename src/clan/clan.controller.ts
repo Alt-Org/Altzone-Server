@@ -1,5 +1,5 @@
 import {ClanService} from "./clan.service";
-import {Body, Controller, Delete, Get, Param, Post, Put, Query, Req} from "@nestjs/common";
+import {BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Req} from "@nestjs/common";
 import {CreateClanDto} from "./dto/createClan.dto";
 import {UpdateClanDto} from "./dto/updateClan.dto";
 import {ClanDto} from "./dto/clan.dto";
@@ -67,7 +67,11 @@ export class ClanController{
                 if(body.admin_idsToAdd)
                     newClanAdmin_ids = body.admin_idsToAdd.filter(value => !clanToUpdate.admin_ids.includes(value));
 
-                body['admin_ids'] = [...clanToUpdate.admin_ids, ...newClanAdmin_ids];
+                const newAdmin_ids = [...clanToUpdate.admin_ids, ...newClanAdmin_ids];
+                if(newAdmin_ids.length !== 0)
+                    body['admin_ids'] = newAdmin_ids;
+                else
+                    throw new BadRequestException('Clan can not be without at least one admin. You are trying to delete all clan admins');
             }
         }
 

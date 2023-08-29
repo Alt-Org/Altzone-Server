@@ -56,14 +56,14 @@ export class AuthorizationInterceptor implements NestInterceptor{
         const responseAction = Action[action + '_response'];
         const requestForbiddenError = new ForbiddenException(`The logged-in user has no permission to execute ${requestAction} action`);
 
-        //Determine subject _id
-        let subject_id: string = undefined;
+        //Determine subject to be manipulated
+        let subjectObj: any = {};
         if(action === Action.read || action === Action.delete)
-            subject_id = request.params._id;
+            subjectObj['_id'] = request.params._id;
         else if(action === Action.update)
-            subject_id = request.body._id;
+            subjectObj = request.body;
 
-        const userAbility = await this.caslAbilityFactory.createForUser(user, subject, action, subject_id);
+        const userAbility = await this.caslAbilityFactory.createForUser(user, subject, action, subjectObj);
 
         //if can not make any request with this method
         if(!userAbility.can(requestAction, subject))
@@ -103,11 +103,12 @@ export class AuthorizationInterceptor implements NestInterceptor{
         if(action === Action.update){
             //@ts-ignore
             const dataClass: typeof subject = plainToInstance(subject, request.body);
-            //console.log(action);
             if(!userAbility.can(requestAction, dataClass))
                 throw requestForbiddenError;
 
             const allowedFields = this.getAllowedFields(userAbility, requestAction, dataClass);
+            //Add _id field, because it may not appear in case it is not specified in rule => it will be excluded from body
+            allowedFields.push('_id');
             if(!allowedFields || allowedFields.length === 0)
                 throw requestForbiddenError;
 

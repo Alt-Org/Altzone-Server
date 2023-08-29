@@ -11,19 +11,40 @@ export class RequestHelperService {
     public constructor(@InjectConnection() private readonly connection: Connection) {
     }
 
-    public getModelInstanceById = async (modelName: ModelName, _id: string | Types.ObjectId, classConstructor: ClassConstructor<any>) => {
+    public getModelInstanceById = async <T=any>(modelName: ModelName, _id: string | Types.ObjectId, classConstructor: ClassConstructor<T>): Promise<T> | null => {
+        const isValid_id = Types.ObjectId.isValid(_id);
+        if(!isValid_id){
+            return null;
+        }
         const resp = await this.connection.model(modelName).findById(_id);
         return this.convertRespToInstance(resp, classConstructor);
     }
 
-    public getModelInstanceByCondition = async (modelName: ModelName, condition: object, classConstructor: ClassConstructor<any>, isOne: boolean = false) => {
-        if(isOne){
-            const resp = await this.connection.model(modelName).findOne(condition);
-            return this.convertRespToInstance(resp, classConstructor);
-        } else{
-            const resp = await this.connection.model(modelName).find(condition);
-            return this.convertRespToInstance(resp, classConstructor);
-        }
+    public async getModelInstanceByCondition <T=any>(
+        modelName: ModelName,
+        condition: object,
+        classConstructor: ClassConstructor<T>,
+        isOne: true
+    ): Promise<T> | null;
+    public async getModelInstanceByCondition <T=any>(
+        modelName: ModelName,
+        condition: object,
+        classConstructor: ClassConstructor<T>,
+        isOne?: false
+    ): Promise<T[]> | null;
+    public async getModelInstanceByCondition <T=any>(
+        modelName: ModelName,
+        condition: object,
+        classConstructor: ClassConstructor<T>,
+        isOne: boolean = false
+    ): Promise<T | T[]> | null {
+        let resp;
+        if(isOne)
+            resp = await this.connection.model(modelName).findOne(condition);
+        else
+            resp = await this.connection.model(modelName).find(condition);
+
+        return resp ? this.convertRespToInstance(resp, classConstructor) : null;
     }
 
     public nullReferences = async (refs: ReferenceToNullType[], ignore: IgnoreReferencesType = [])=> {
@@ -42,7 +63,7 @@ export class RequestHelperService {
         return this.connection.model(modelName).updateOne({_id}, updateObject);
     }
 
-    private convertRespToInstance = (resp: any, classConstructor: ClassConstructor<any>) => {
+    private convertRespToInstance = (resp: any, classConstructor: ClassConstructor<any>): any => {
         if(resp){
             if(!Array.isArray(resp)){
                 return this.convertMongoRespToInstance(resp, classConstructor);

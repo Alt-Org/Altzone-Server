@@ -16,12 +16,12 @@ export class AuthService {
     }
 
     public signIn = async (username: string, pass: string): Promise<object> | null => {
-        const profile = await this.requestHelperService.getModelInstanceByCondition(ModelName.PROFILE, {username: username}, ProfileDto, true);
+        const profile = await this.requestHelperService.getModelInstanceByCondition<any>(ModelName.PROFILE, {username: username}, ProfileDto, true);
         //TODO: password comparison via bcrypt
         if(profile instanceof MongooseError || profile?.password !== pass)
             return null;
 
-        const player: PlayerDto = await this.requestHelperService.getModelInstanceByCondition(ModelName.PLAYER, {profile_id: profile._id}, PlayerDto, true);
+        const player = await this.requestHelperService.getModelInstanceByCondition(ModelName.PLAYER, {profile_id: profile._id}, PlayerDto, true);
 
         //TODO: throw meaningful errors, i.e. !player => no player found for that profile
         if(player instanceof MongooseError || (!profile.isSystemAdmin && !player))
