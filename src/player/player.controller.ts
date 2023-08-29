@@ -50,6 +50,9 @@ export default class PlayerController{
     @Authorize({action: Action.update, subject: UpdatePlayerDto})
     @BasicPUT(ModelName.PLAYER)
     public async update(@Body() body: UpdatePlayerDto){
+        if(body.clan_idToDelete)
+            body.clan_id = null;
+
         return this.service.updateOneById(body);
     }
 
