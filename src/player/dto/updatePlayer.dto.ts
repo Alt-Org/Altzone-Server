@@ -26,6 +26,11 @@ export class UpdatePlayerDto {
     @IsOptional()
     clan_id: string;
 
+    @IsClanExists()
+    @IsMongoId()
+    @IsOptional()
+    clan_idToDelete: string;
+
     @IsCustomCharacterExists()
     @IsMongoId()
     @IsOptional()
