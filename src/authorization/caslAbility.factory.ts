@@ -50,30 +50,30 @@ export class CASLAbilityFactory {
         private readonly systemAdminService: SystemAdminService
     ) {
     }
-    public createForUser = async (user: User, subject: AllowedSubject, action: SupportedAction, subject_id: string = undefined): Promise<AppAbility> => {
+    public createForUser = async (user: User, subject: AllowedSubject, action: SupportedAction, subjectObj: AllowedSubject = undefined): Promise<AppAbility> => {
         const isSystemAdmin = await this.systemAdminService.isSystemAdmin(user.profile_id);
         if(isSystemAdmin)
             return systemAdminRules();
 
         if(subject === ProfileDto || subject === UpdateProfileDto)
-            return profileRules(user, subject, action, subject_id);
+            return profileRules(user, subject, action, subjectObj);
 
         if(subject === PlayerDto || subject === UpdatePlayerDto)
-            return playerRules(user, subject, action, subject_id);
+            return playerRules(user, subject, action, subjectObj, this.requestHelperService);
 
         if(subject === CustomCharacterDto || subject === UpdateCustomCharacterDto)
-            return customCharacterRules(user, subject, action, subject_id, this.requestHelperService);
+            return customCharacterRules(user, subject, action, subjectObj, this.requestHelperService);
 
         if(subject === CharacterClassDto || subject === UpdateCharacterClassDto)
-            return characterClassRules(user, subject, action, subject_id);
+            return characterClassRules(user, subject, action, subjectObj);
 
         if(subject === FurnitureDto || subject === UpdateFurnitureDto)
-            return furnitureRules(user, subject, action, subject_id, this.requestHelperService);
+            return furnitureRules(user, subject, action, subjectObj, this.requestHelperService);
 
         if(subject === RaidRoomDto || subject === UpdateRaidRoomDto)
-            return raidRoomRules(user, subject, action, subject_id, this.requestHelperService);
+            return raidRoomRules(user, subject, action, subjectObj, this.requestHelperService);
 
         if(subject === ClanDto || subject === UpdateClanDto)
-            return clanRules(user, subject, action, subject_id, this.requestHelperService);
+            return clanRules(user, subject, action, subjectObj, this.requestHelperService);
     }
 }

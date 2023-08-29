@@ -9,7 +9,7 @@ import {RulesSetter} from "../type/RulesSetter.type";
 type Subjects = InferSubjects<typeof ProfileDto | typeof UpdateProfileDto>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
-export const profileRules: RulesSetter<Ability, Subjects> = (user, subject, action, subject_id) => {
+export const profileRules: RulesSetter<Ability, Subjects> = (user, subject, action, subjectObj) => {
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
     if(subject === ProfileDto){
