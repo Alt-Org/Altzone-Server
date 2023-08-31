@@ -25,7 +25,7 @@ import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
-import {MongooseError, Types} from "mongoose";
+import {MongooseError} from "mongoose";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {deleteArrayElements} from "../common/function/deleteArrayElements";
 import {addUniqueArrayElements} from "../common/function/addUniqueArrayElements";
@@ -94,8 +94,6 @@ export class ClanController{
             if(player)
                 player.clan_id === clanToUpdate_id ? playersInClan.push(player_id) : playersNotInClan.push(player_id);
         }
-        console.log('playersInClan', playersInClan);
-        console.log('playersNotInClan', playersNotInClan);
 
         const newAdmin_ids = addUniqueArrayElements(clanToUpdate.admin_ids, playersInClan);
 
