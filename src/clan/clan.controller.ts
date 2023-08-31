@@ -1,5 +1,17 @@
 import {ClanService} from "./clan.service";
-import {BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Req} from "@nestjs/common";
+import {
+    BadRequestException,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    NotFoundException,
+    Param,
+    Post,
+    Put,
+    Query,
+    Req
+} from "@nestjs/common";
 import {CreateClanDto} from "./dto/createClan.dto";
 import {UpdateClanDto} from "./dto/updateClan.dto";
 import {ClanDto} from "./dto/clan.dto";
@@ -13,8 +25,12 @@ import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
-import {MongooseError} from "mongoose";
+import {MongooseError, Types} from "mongoose";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
+import {deleteArrayElements} from "../common/function/deleteArrayElements";
+import {addUniqueArrayElements} from "../common/function/addUniqueArrayElements";
+import {deleteNotUniqueArrayElements} from "../common/function/deleteNotUniqueArrayElements";
+import {PlayerDto} from "../player/dto/player.dto";
 
 @Controller('clan')
 export class ClanController{
@@ -57,25 +73,45 @@ export class ClanController{
     @Authorize({action: Action.update, subject: UpdateClanDto})
     @BasicPUT(ModelName.CLAN)
     public async update(@Body() body: UpdateClanDto) {
-        if(body.admin_idsToAdd || body.admin_idsToDelete){
-            const clanToUpdate = await this.service.readOneById(body._id);
-            if(clanToUpdate && !(clanToUpdate instanceof MongooseError)){
-                if(body.admin_idsToDelete)
-                    clanToUpdate.admin_ids = clanToUpdate.admin_ids.filter(value => !body.admin_idsToDelete.includes(value));
+        if(!body.admin_idsToAdd && !body.admin_idsToDelete)
+            return this.service.updateOneById(body);
 
-                let newClanAdmin_ids: string[] = [];
-                if(body.admin_idsToAdd)
-                    newClanAdmin_ids = body.admin_idsToAdd.filter(value => !clanToUpdate.admin_ids.includes(value));
+        const clanToUpdate = await this.service.readOneById(body._id);
+        if(!clanToUpdate || clanToUpdate instanceof MongooseError)
+            throw new NotFoundException('Clan with that _id not found');
 
-                const newAdmin_ids = [...clanToUpdate.admin_ids, ...newClanAdmin_ids];
-                if(newAdmin_ids.length !== 0)
-                    body['admin_ids'] = newAdmin_ids;
-                else
-                    throw new BadRequestException('Clan can not be without at least one admin. You are trying to delete all clan admins');
-            }
+        if(body.admin_idsToDelete)
+            clanToUpdate.admin_ids = deleteArrayElements(clanToUpdate.admin_ids, body.admin_idsToDelete);
+
+        body.admin_idsToAdd = deleteNotUniqueArrayElements(body.admin_idsToAdd);
+        //add only players that are clan members
+        const clanToUpdate_id = clanToUpdate._id.toString();
+        const playersInClan: string[] = [];
+        const playersNotInClan: string[] = [];
+        for(let i=0; i<body.admin_idsToAdd.length; i++){
+            const player_id = body.admin_idsToAdd[i];
+            const player = await this.requestHelperService.getModelInstanceById(ModelName.PLAYER, player_id, PlayerDto);
+            if(player)
+                player.clan_id === clanToUpdate_id ? playersInClan.push(player_id) : playersNotInClan.push(player_id);
         }
+        console.log('playersInClan', playersInClan);
+        console.log('playersNotInClan', playersNotInClan);
 
-        return this.service.updateOneById(body);
+        const newAdmin_ids = addUniqueArrayElements(clanToUpdate.admin_ids, playersInClan);
+
+        if(newAdmin_ids.length === 0)
+            throw new BadRequestException('Clan can not be without at least one admin. You are trying to delete all clan admins');
+        body['admin_ids'] = newAdmin_ids;
+        const updateResp = await this.service.updateOneById(body);
+
+        if(playersNotInClan.length !== 0)
+            throw new BadRequestException(
+                `Players with the _ids: [${playersNotInClan.toString()}] ` +
+                `can not be added to clan admins because they are not the clan members. ` +
+                `All other players are successfully added to clan admins and another clan data are updated as well`
+            );
+
+        return updateResp;
     }
 
     @Delete('/:_id')

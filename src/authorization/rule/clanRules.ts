@@ -7,34 +7,42 @@ import {ClanDto} from "../../clan/dto/clan.dto";
 import {UpdateClanDto} from "../../clan/dto/updateClan.dto";
 import {ModelName} from "../../common/enum/modelName.enum";
 import {MongooseError} from "mongoose";
-import {NotFoundException} from "@nestjs/common";
+import {ForbiddenException, NotFoundException} from "@nestjs/common";
 import {getClan_id} from "../util/getClan_id";
+import {PlayerDto} from "../../player/dto/player.dto";
+import {isClanAdmin} from "../util/isClanAdmin";
 
 type Subjects = InferSubjects<typeof ClanDto | typeof UpdateClanDto>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 export const clanRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj: any, requestHelperService) => {
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
-    if(action === Action.create || action === Action.read){
+    if(action === Action.read){
         const clan_id = await getClan_id(user, requestHelperService);
-        can(Action.create_request, subject);
-
         // const publicFields = ['_id', 'name', 'uniqueIdentifier'];
         can(Action.read_request, subject);
         can(Action.read_response, subject, {_id: clan_id});
     }
 
+    if(action === Action.create){
+        const playerToMakeClanAdmin = await requestHelperService.getModelInstanceById(ModelName.PLAYER, user.player_id, PlayerDto);
+        if(playerToMakeClanAdmin.clan_id !== null)
+            throw new ForbiddenException('The logged-in user is already in another clan. Please remove the player from the clan first');
+
+        can(Action.create_request, subject);
+    }
+
     if(action === Action.update || action === Action.delete){
         const clan = await requestHelperService.getModelInstanceById(ModelName.CLAN, subjectObj._id, ClanDto);
-        if(clan && !(clan instanceof MongooseError)){
-            const isClanAdmin = clan.admin_ids.includes(user.player_id);
-            if(isClanAdmin){
-                can(Action.update_request, subject);
-                can(Action.delete_request, subject);
-            }
-        } else {
+        if(!clan)
             throw new NotFoundException('The clan with that _id is not found');
-        }
+
+        const isAdmin = isClanAdmin(clan, user.player_id);
+        if(!isAdmin)
+            throw new NotFoundException('The logged-in user is not clan admin');
+
+        can(Action.update_request, subject);
+        can(Action.delete_request, subject);
     }
 
     return build({
