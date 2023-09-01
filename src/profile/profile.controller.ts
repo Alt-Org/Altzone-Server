@@ -19,7 +19,6 @@ import {_idDto} from "../common/dto/_id.dto";
 import {MongooseError} from "mongoose";
 import {PlayerService} from "../player/player.service";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {PlayerDto} from "../player/dto/player.dto";
 
 @Controller('profile')
 export default class ProfileController {

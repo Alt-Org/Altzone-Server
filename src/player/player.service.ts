@@ -11,6 +11,35 @@ import {RaidRoomService} from "../raidRoom/raidRoom.service";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
 import {ClanDto} from "../clan/dto/clan.dto";
+import {IClass} from "../common/interface/IClass";
+import {instanceToPlain} from "class-transformer";
+
+const dbToQuery: Record<string, string> = {
+    '$eq' : '=' ,
+    '$gt' : '>' ,
+    '$gte' : '>=' ,
+    '$lt' : '<' ,
+    '$lte' : '<='
+}
+const queryToDB: Record<string, string> = {
+    '=' : '$eq',
+    '>' : '$gt',
+    '>=' : '$gte',
+    '<' : '$lt',
+    '<=' : '$lte'
+}
+const queryConditions: string[] = Object.values(dbToQuery);
+type operator = 'AND' | 'OR';
+const operators: Record<operator, string> = {
+    OR: 'OR',
+    AND: 'AND'
+}
+
+interface SearchCondition {
+    field: string;
+    condition: string;
+    value: string | number;
+}
 
 @Injectable()
 @AddBasicService()
@@ -26,6 +55,91 @@ export class PlayerService extends BasicServiceDummyAbstract implements IBasicSe
     }
 
     public readonly refsInModel: ModelName[];
+
+    //TODO: test and refactor query logic
+    public search = async (query: string, dtoClass: IClass) => {
+        //name="lol";AND;age>=18;
+        if(query.charAt(query.length-1) === ';')
+            query = query.substring(0, query.length-2);
+        const searchPairs = query.split(';');
+        if(searchPairs.length % 2 === 0)
+            return null;
+
+        const dtoClassInstance = new dtoClass();
+        const possibleFields = Object.getOwnPropertyNames(instanceToPlain(dtoClassInstance));
+
+        const andGroups: string[][] = [];
+        //split query by ORs
+        let andGroupStart = 0;
+        for(let i=0; i<searchPairs.length; i++){
+            if(searchPairs[i] === operators.OR){
+                andGroups.push(searchPairs.slice(andGroupStart, i));
+                andGroupStart = i+1;
+            }
+        }
+        andGroups.push(searchPairs.slice(andGroupStart));
+
+        const andQueries: Object[] = [];
+        for(let i=0; i<andGroups.length; i++){
+            const group = andGroups[i];
+            let andQuery = { $and: [] };
+            for(let i=0; i<group.length; i+=2){
+                const condition = this.unpackSearchPair(searchPairs[i], possibleFields);
+                if(!condition)
+                    break;
+                andQuery.$and.push({[condition.field]: {[condition.condition]: condition.value}});
+                console.log('condition', {[condition.field]: {[condition.condition]: condition.value}});
+            }
+            andQueries.push(andQuery);
+        }
+        console.log('andQueries', andQueries);
+
+        let mongoQuery: Object;
+        if(andQueries.length === 1)
+            mongoQuery = andQueries[0];
+        else
+            mongoQuery = { $or: andQueries }
+
+        console.log('end query', mongoQuery);
+    }
+
+    private unpackSearchPair = (searchPair: string, allowedFields: string[]): SearchCondition | null => {
+        const pairChars = [...searchPair];
+        let splitter: string;
+        for(let i=0; i<pairChars.length; i++){
+            const char = pairChars[i];
+            if(queryConditions.includes(char)){
+                splitter = char;
+                if(pairChars[i+1] === '=')
+                    splitter += '=';
+                break;
+            }
+        }
+
+        const splitPair = searchPair.split(splitter);
+        //if no key-value pair or search field is not allowed
+        if(splitPair.length !== 2 || !allowedFields.includes(splitPair[0]))
+            return null;
+
+        const [field, value] = splitPair;
+        const isValueString = value.includes('"');
+        //if the condition for a string field is not equals('=')
+        if(isValueString && splitter !== '=')
+            return null;
+
+        const dbCondition = queryToDB[splitter];
+        if(!dbCondition)
+            return null;
+        const parsedValue = isValueString ? value.substring(1, value.length-1) : Number(value);
+        if(!parsedValue)
+            return null;
+
+        return {
+            field: field,
+            condition: dbCondition,
+            value: parsedValue
+        }
+    }
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         const isClanRefCleanSuccess = await this.clearClanReferences(_id.toString());

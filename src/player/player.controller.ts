@@ -17,6 +17,8 @@ import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
 import {ClanDto} from "../clan/dto/clan.dto";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
+import {GetAllQueryDto} from "../common/dto/getAllQuery.dto";
+import {Player, PlayerDocument} from "./player.schema";
 
 @Controller('player')
 export default class PlayerController{
@@ -42,7 +44,10 @@ export default class PlayerController{
     @Get()
     @Authorize({action: Action.read, subject: PlayerDto})
     @BasicGET(ModelName.PLAYER, PlayerDto)
-    public async getAll(@Req() request: Request) {
+    public async getAll(@Req() request: Request, @Query() query: GetAllQueryDto) {
+        if(query.search)
+            return this.service.search(query.search, PlayerDto);
+
         return this.service.readAll(request['allowedFields']);
     }
 
