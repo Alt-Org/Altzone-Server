@@ -6,9 +6,7 @@ import {RulesSetterAsync} from "../type/RulesSetter.type";
 import {ClanDto} from "../../clan/dto/clan.dto";
 import {UpdateClanDto} from "../../clan/dto/updateClan.dto";
 import {ModelName} from "../../common/enum/modelName.enum";
-import {MongooseError} from "mongoose";
 import {ForbiddenException, NotFoundException} from "@nestjs/common";
-import {getClan_id} from "../util/getClan_id";
 import {PlayerDto} from "../../player/dto/player.dto";
 import {isClanAdmin} from "../util/isClanAdmin";
 
@@ -18,10 +16,11 @@ export const clanRules: RulesSetterAsync<Ability, Subjects> = async (user, subje
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
     if(action === Action.read){
-        const clan_id = await getClan_id(user, requestHelperService);
+        //const clan_id = await getClan_id(user, requestHelperService);
         // const publicFields = ['_id', 'name', 'uniqueIdentifier'];
+
         can(Action.read_request, subject);
-        can(Action.read_response, subject, {_id: clan_id});
+        can(Action.read_response, subject);
     }
 
     if(action === Action.create){
