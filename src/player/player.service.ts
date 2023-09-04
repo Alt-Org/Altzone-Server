@@ -13,6 +13,7 @@ import {AddBasicService} from "../common/base/decorator/AddBasicService.decorato
 import {ClanDto} from "../clan/dto/clan.dto";
 import {IClass} from "../common/interface/IClass";
 import {instanceToPlain} from "class-transformer";
+import {PlayerDto} from "./dto/player.dto";
 
 const dbToQuery: Record<string, string> = {
     '$eq' : '=' ,
@@ -35,7 +36,7 @@ const operators: Record<operator, string> = {
     AND: 'AND'
 }
 
-interface SearchCondition {
+interface FlatQuery {
     field: string;
     condition: string;
     value: string | number;
@@ -77,6 +78,7 @@ export class PlayerService extends BasicServiceDummyAbstract implements IBasicSe
                 andGroupStart = i+1;
             }
         }
+        //add last and group
         andGroups.push(searchPairs.slice(andGroupStart));
 
         const andQueries: Object[] = [];
@@ -84,26 +86,25 @@ export class PlayerService extends BasicServiceDummyAbstract implements IBasicSe
             const group = andGroups[i];
             let andQuery = { $and: [] };
             for(let i=0; i<group.length; i+=2){
-                const condition = this.unpackSearchPair(searchPairs[i], possibleFields);
-                if(!condition)
+                const query = this.unpackSearchPair(group[i], possibleFields);
+                if(!query)
                     break;
-                andQuery.$and.push({[condition.field]: {[condition.condition]: condition.value}});
-                console.log('condition', {[condition.field]: {[condition.condition]: condition.value}});
+                andQuery.$and.push({[query.field]: {[query.condition]: query.value}});
             }
-            andQueries.push(andQuery);
+            if(andQuery.$and.length !== 0)
+                andQueries.push(andQuery);
         }
-        console.log('andQueries', andQueries);
 
-        let mongoQuery: Object;
-        if(andQueries.length === 1)
-            mongoQuery = andQueries[0];
-        else
-            mongoQuery = { $or: andQueries }
+        if(andQueries.length === 0)
+            return null;
 
-        console.log('end query', mongoQuery);
+        let mongoQuery = andQueries.length === 1 ? andQueries[0] : { $or: andQueries };
+
+        const resp = await this.requestHelperService.getModelInstanceByCondition(ModelName.PLAYER, mongoQuery, PlayerDto);
+        console.log(resp);
     }
 
-    private unpackSearchPair = (searchPair: string, allowedFields: string[]): SearchCondition | null => {
+    private unpackSearchPair = (searchPair: string, allowedFields: string[]): FlatQuery | null => {
         const pairChars = [...searchPair];
         let splitter: string;
         for(let i=0; i<pairChars.length; i++){
