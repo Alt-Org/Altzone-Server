@@ -29,7 +29,7 @@ const queryToDB: Record<string, string> = {
     '<' : '$lt',
     '<=' : '$lte'
 }
-const queryConditions: string[] = Object.values(dbToQuery);
+const querySelectors: string[] = Object.values(dbToQuery);
 type operator = 'AND' | 'OR';
 const operators: Record<operator, string> = {
     OR: 'OR',
@@ -38,7 +38,7 @@ const operators: Record<operator, string> = {
 
 interface FlatQuery {
     field: string;
-    condition: string;
+    selector: string;
     value: string | number;
 }
 
@@ -61,26 +61,30 @@ export class PlayerService extends BasicServiceDummyAbstract implements IBasicSe
     public search = async (query: string, dtoClass: IClass) => {
         //name="lol";AND;age>=18;
         if(query.charAt(query.length-1) === ';')
-            query = query.substring(0, query.length-2);
-        const searchPairs = query.split(';');
-        if(searchPairs.length % 2 === 0)
+            query = query.substring(0, query.length-1);
+
+        const searchParts = query.split(';');
+        //Should be odd count, if not it is something like: name="lol";AND
+        if(searchParts.length % 2 === 0)
             return null;
 
+        //Get fields that can be queried
         const dtoClassInstance = new dtoClass();
         const possibleFields = Object.getOwnPropertyNames(instanceToPlain(dtoClassInstance));
 
         const andGroups: string[][] = [];
         //split query by ORs
         let andGroupStart = 0;
-        for(let i=0; i<searchPairs.length; i++){
-            if(searchPairs[i] === operators.OR){
-                andGroups.push(searchPairs.slice(andGroupStart, i));
+        for(let i=0; i<searchParts.length; i++){
+            if(searchParts[i] === operators.OR){
+                andGroups.push(searchParts.slice(andGroupStart, i));
                 andGroupStart = i+1;
             }
         }
         //add last and group
-        andGroups.push(searchPairs.slice(andGroupStart));
+        andGroups.push(searchParts.slice(andGroupStart));
 
+        //Generate { $and: [] } mongo queries
         const andQueries: Object[] = [];
         for(let i=0; i<andGroups.length; i++){
             const group = andGroups[i];
@@ -89,7 +93,7 @@ export class PlayerService extends BasicServiceDummyAbstract implements IBasicSe
                 const query = this.unpackSearchPair(group[i], possibleFields);
                 if(!query)
                     break;
-                andQuery.$and.push({[query.field]: {[query.condition]: query.value}});
+                andQuery.$and.push({[query.field]: {[query.selector]: query.value}});
             }
             if(andQuery.$and.length !== 0)
                 andQueries.push(andQuery);
@@ -100,18 +104,18 @@ export class PlayerService extends BasicServiceDummyAbstract implements IBasicSe
 
         let mongoQuery = andQueries.length === 1 ? andQueries[0] : { $or: andQueries };
 
-        const resp = await this.requestHelperService.getModelInstanceByCondition(ModelName.PLAYER, mongoQuery, PlayerDto);
-        console.log(resp);
+        return await this.requestHelperService.getModelInstanceByCondition(ModelName.PLAYER, mongoQuery, PlayerDto);
     }
 
     private unpackSearchPair = (searchPair: string, allowedFields: string[]): FlatQuery | null => {
+        //Find splitter = operator like >,<, = etc.
         const pairChars = [...searchPair];
         let splitter: string;
         for(let i=0; i<pairChars.length; i++){
             const char = pairChars[i];
-            if(queryConditions.includes(char)){
+            if(querySelectors.includes(char)){
                 splitter = char;
-                if(pairChars[i+1] === '=')
+                if((char === '<' || char === '>') && pairChars[i+1] === '=')
                     splitter += '=';
                 break;
             }
@@ -128,16 +132,19 @@ export class PlayerService extends BasicServiceDummyAbstract implements IBasicSe
         if(isValueString && splitter !== '=')
             return null;
 
-        const dbCondition = queryToDB[splitter];
-        if(!dbCondition)
+        let selector = queryToDB[splitter];
+        if(!selector)
             return null;
         const parsedValue = isValueString ? value.substring(1, value.length-1) : Number(value);
         if(!parsedValue)
             return null;
 
+        if(typeof parsedValue === 'string' && parsedValue.includes('.'))
+            selector = '$regex';
+
         return {
             field: field,
-            condition: dbCondition,
+            selector: selector,
             value: parsedValue
         }
     }
