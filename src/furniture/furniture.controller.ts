@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Query} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put, Query, Req} from "@nestjs/common";
 import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
 import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
 import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
@@ -13,12 +13,11 @@ import {CreateFurnitureDto} from "./dto/createFurniture.dto";
 import {UpdateFurnitureDto} from "./dto/updateFurniture.dto";
 import { Authorize } from "src/authorization/decorator/Authorize";
 import { Action } from "src/authorization/enum/action.enum";
+import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery";
 
 @Controller('furniture')
 export class FurnitureController{
-    public constructor(
-        private readonly service: FurnitureService
-    ) {
+    public constructor(private readonly service: FurnitureService) {
     }
 
     @Post()
@@ -38,9 +37,10 @@ export class FurnitureController{
 
     @Get()
     @Authorize({action: Action.read, subject: FurnitureDto})
+    @AddSearchQuery(FurnitureDto)
     @BasicGET(ModelName.FURNITURE, FurnitureDto)
-    public getAll() {
-        return this.service.readAll();
+    public getAll(@Req() request: Request) {
+        return this.service.readAll(request['allowedFields'], request['mongoFilter']);
     }
 
     @Put()

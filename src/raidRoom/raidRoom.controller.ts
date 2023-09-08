@@ -13,12 +13,11 @@ import {CreateRaidRoomDto} from "./dto/createRaidRoom.dto";
 import {UpdateRaidRoomDto} from "./dto/updateRaidRoom.dto";
 import { Authorize } from "src/authorization/decorator/Authorize";
 import { Action } from "src/authorization/enum/action.enum";
+import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery";
 
 @Controller('raidRoom')
 export class RaidRoomController{
-    public constructor(
-        private readonly service: RaidRoomService
-    ) {
+    public constructor(private readonly service: RaidRoomService) {
     }
 
     @Post()
@@ -38,6 +37,7 @@ export class RaidRoomController{
 
     @Get()
     @Authorize({action: Action.read, subject: RaidRoomDto})
+    @AddSearchQuery(RaidRoomDto)
     @BasicGET(ModelName.RAID_ROOM, RaidRoomDto)
     public getAll(@Req() request: Request) {
         return this.service.readAll(request['allowedFields'], request['mongoFilter']);
