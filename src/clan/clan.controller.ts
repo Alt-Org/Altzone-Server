@@ -31,7 +31,7 @@ import {deleteArrayElements} from "../common/function/deleteArrayElements";
 import {addUniqueArrayElements} from "../common/function/addUniqueArrayElements";
 import {deleteNotUniqueArrayElements} from "../common/function/deleteNotUniqueArrayElements";
 import {PlayerDto} from "../player/dto/player.dto";
-import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery";
+import {AddSearchQueryDecorator} from "../common/decorator/request/AddSearchQuery.decorator";
 
 @Controller('clan')
 export class ClanController{
@@ -65,7 +65,7 @@ export class ClanController{
 
     @Get()
     @Authorize({action: Action.read, subject: ClanDto})
-    @AddSearchQuery(ClanDto)
+    @AddSearchQueryDecorator(ClanDto)
     @BasicGET(ModelName.CLAN, ClanDto)
     public getAll(@Req() request: Request) {
         return this.service.readAll(request['allowedFields'], request['mongoFilter']);
