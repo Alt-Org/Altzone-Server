@@ -34,7 +34,7 @@ export const CatchCreateUpdateErrors = (): any => {
 
         return descriptor;
     };
-};
+}
 
 function handleError(error: any) {
     if(error instanceof MongoServerError){
