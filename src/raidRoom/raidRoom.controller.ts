@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Query} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put, Query, Req} from "@nestjs/common";
 import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
 import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
 import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
@@ -39,8 +39,8 @@ export class RaidRoomController{
     @Get()
     @Authorize({action: Action.read, subject: RaidRoomDto})
     @BasicGET(ModelName.RAID_ROOM, RaidRoomDto)
-    public getAll() {
-        return this.service.readAll();
+    public getAll(@Req() request: Request) {
+        return this.service.readAll(request['allowedFields'], request['mongoFilter']);
     }
 
     @Put()

@@ -11,36 +11,6 @@ import {RaidRoomService} from "../raidRoom/raidRoom.service";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
 import {ClanDto} from "../clan/dto/clan.dto";
-import {IClass} from "../common/interface/IClass";
-import {instanceToPlain} from "class-transformer";
-import {PlayerDto} from "./dto/player.dto";
-
-const dbToQuery: Record<string, string> = {
-    '$eq' : '=' ,
-    '$gt' : '>' ,
-    '$gte' : '>=' ,
-    '$lt' : '<' ,
-    '$lte' : '<='
-}
-const queryToDB: Record<string, string> = {
-    '=' : '$eq',
-    '>' : '$gt',
-    '>=' : '$gte',
-    '<' : '$lt',
-    '<=' : '$lte'
-}
-const querySelectors: string[] = Object.values(dbToQuery);
-type operator = 'AND' | 'OR';
-const operators: Record<operator, string> = {
-    OR: 'OR',
-    AND: 'AND'
-}
-
-interface FlatQuery {
-    field: string;
-    selector: string;
-    value: string | number;
-}
 
 @Injectable()
 @AddBasicService()
@@ -56,98 +26,6 @@ export class PlayerService extends BasicServiceDummyAbstract implements IBasicSe
     }
 
     public readonly refsInModel: ModelName[];
-
-    //TODO: test and refactor query logic
-    public search = async (query: string, dtoClass: IClass) => {
-        //name="lol";AND;age>=18;
-        if(query.charAt(query.length-1) === ';')
-            query = query.substring(0, query.length-1);
-
-        const searchParts = query.split(';');
-        //Should be odd count, if not it is something like: name="lol";AND
-        if(searchParts.length % 2 === 0)
-            return null;
-
-        //Get fields that can be queried
-        const dtoClassInstance = new dtoClass();
-        const possibleFields = Object.getOwnPropertyNames(instanceToPlain(dtoClassInstance));
-
-        const andGroups: string[][] = [];
-        //split query by ORs
-        let andGroupStart = 0;
-        for(let i=0; i<searchParts.length; i++){
-            if(searchParts[i] === operators.OR){
-                andGroups.push(searchParts.slice(andGroupStart, i));
-                andGroupStart = i+1;
-            }
-        }
-        //add last and group
-        andGroups.push(searchParts.slice(andGroupStart));
-
-        //Generate { $and: [] } mongo queries
-        const andQueries: Object[] = [];
-        for(let i=0; i<andGroups.length; i++){
-            const group = andGroups[i];
-            let andQuery = { $and: [] };
-            for(let i=0; i<group.length; i+=2){
-                const query = this.unpackSearchPair(group[i], possibleFields);
-                if(!query)
-                    break;
-                andQuery.$and.push({[query.field]: {[query.selector]: query.value}});
-            }
-            if(andQuery.$and.length !== 0)
-                andQueries.push(andQuery);
-        }
-
-        if(andQueries.length === 0)
-            return null;
-
-        let mongoQuery = andQueries.length === 1 ? andQueries[0] : { $or: andQueries };
-
-        return await this.requestHelperService.getModelInstanceByCondition(ModelName.PLAYER, mongoQuery, PlayerDto);
-    }
-
-    private unpackSearchPair = (searchPair: string, allowedFields: string[]): FlatQuery | null => {
-        //Find splitter = operator like >,<, = etc.
-        const pairChars = [...searchPair];
-        let splitter: string;
-        for(let i=0; i<pairChars.length; i++){
-            const char = pairChars[i];
-            if(querySelectors.includes(char)){
-                splitter = char;
-                if((char === '<' || char === '>') && pairChars[i+1] === '=')
-                    splitter += '=';
-                break;
-            }
-        }
-
-        const splitPair = searchPair.split(splitter);
-        //if no key-value pair or search field is not allowed
-        if(splitPair.length !== 2 || !allowedFields.includes(splitPair[0]))
-            return null;
-
-        const [field, value] = splitPair;
-        const isValueString = value.includes('"');
-        //if the condition for a string field is not equals('=')
-        if(isValueString && splitter !== '=')
-            return null;
-
-        let selector = queryToDB[splitter];
-        if(!selector)
-            return null;
-        const parsedValue = isValueString ? value.substring(1, value.length-1) : Number(value);
-        if(!parsedValue)
-            return null;
-
-        if(typeof parsedValue === 'string' && parsedValue.includes('.'))
-            selector = '$regex';
-
-        return {
-            field: field,
-            selector: selector,
-            value: parsedValue
-        }
-    }
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         const isClanRefCleanSuccess = await this.clearClanReferences(_id.toString());

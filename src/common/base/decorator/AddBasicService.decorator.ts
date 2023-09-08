@@ -55,14 +55,13 @@ export const AddBasicService = () => {
                 return dbQuery.exec();
             }
 
-            public readAll = async (allowedFields?: string[]): Promise<Array<object>> => {
+            public readAll = async (allowedFields?: string[], mongoFilter?: object): Promise<Array<object>> => {
                 if(allowedFields === null)
                     return [];
 
-                if(allowedFields){
-                    return this.model.find().select(allowedFields);
-                }
-                return this.model.find();
+                const filter = mongoFilter ? mongoFilter : {};
+
+                return this.model.find(filter).select(allowedFields);
             }
 
             public updateOneById = async (input: any): Promise<object | MongooseError> => {

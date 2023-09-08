@@ -1,4 +1,4 @@
-import {BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Req} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put, Query, Req} from "@nestjs/common";
 import {PlayerService} from "./player.service";
 import {CreatePlayerDto} from "./dto/createPlayer.dto";
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
@@ -15,10 +15,7 @@ import {CatchCreateUpdateErrors} from "../common/decorator/response/CatchCreateU
 import {Serialize} from "../common/interceptor/response/Serialize";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
-import {ClanDto} from "../clan/dto/clan.dto";
-import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {GetAllQueryDto} from "../common/dto/getAllQuery.dto";
-import {Player, PlayerDocument} from "./player.schema";
+import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery";
 
 @Controller('player')
 export default class PlayerController{
@@ -43,12 +40,10 @@ export default class PlayerController{
 
     @Get()
     @Authorize({action: Action.read, subject: PlayerDto})
+    @AddSearchQuery(PlayerDto)
     @BasicGET(ModelName.PLAYER, PlayerDto)
-    public async getAll(@Req() request: Request, @Query() query: GetAllQueryDto) {
-        if(query.search)
-            return this.service.search(query.search, PlayerDto);
-
-        return this.service.readAll(request['allowedFields']);
+    public async getAll(@Req() request: Request) {
+        return this.service.readAll(request['allowedFields'], request['mongoFilter']);
     }
 
     @Put()
