@@ -34,7 +34,7 @@ export default class PlayerController{
     @Authorize({action: Action.read, subject: PlayerDto})
     @BasicGET(ModelName.PLAYER, PlayerDto)
     @AddGetQueries()
-    public async get(@Param() param: _idDto, @Query() query: GetQueryDto) {
+    public async get(@Param() param: _idDto, @Req() request: Request) {
         return this.service.readOneById(param._id);
     }
 

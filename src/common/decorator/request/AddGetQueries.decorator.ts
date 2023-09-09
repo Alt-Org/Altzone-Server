@@ -1,30 +1,48 @@
 import {Discriminator} from "../../enum/discriminator.enum";
+import { ModelName } from "src/common/enum/modelName.enum";
 
-export const AddGetQueries = (searchField: string = '_id') => {
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+export const AddGetQueries = () => {
+  return (target: any, propertyKey: string, descriptor: PropertyDescriptor): PropertyDescriptor => {
       const originalMethod = descriptor.value;
       descriptor.value = function (this: any, ...args: any[]) {
-          validateController(this);
-          const {field, query} = extractArguments(args, searchField);
+        validateController(this);
+        if(!areArgsValid(args))
+            throw new Error(`The ${AddGetQueries.name} decorator needs Request object as the second argument of the method`);
 
-          if(searchField === '_id'){
-              throwErrorIfServiceInvalid(this, Discriminator.IBasicService);
+        const request = args[1];
+        const {query} = request;
+        if(!query)
+            return originalMethod.apply(this, args);
 
-              if(query.with && query.with !== '')
-                  return this.service.readOneWithCollections(field, query.with);
-              else if(query.all != null)
-                  return this.service.readOneWithAllCollections(field);
-          } else {
-              throwErrorIfServiceInvalid(this, Discriminator.IConditionService);
+        const withQuery = query['with'];
+        const allQuery = query['all'];
+        if(!withQuery && !allQuery)
+            return originalMethod.apply(this, args);
 
-              const condition = {[searchField]: field};
-              if(query.with && query.with !== '')
-                  return this.service.readOneByConditionWithCollections(condition, query.with);
-              else if(query.all != null)
-                  return this.service.readOneByConditionWithAllCollections(condition, query.with);
-          }
+        if(allQuery){
+            request['populateMongo'] = this.service.refsInModel;
+            return originalMethod.apply(this, args);
+        }
 
-          return originalMethod.apply(this, args);
+        if(withQuery){
+            const withRefs: ModelName[] = withQuery.split('_') as ModelName[];
+
+            if(withRefs.length === 0)
+                return originalMethod.apply(this, args);
+
+            request['populateMongo'] = [];
+
+            for(let i=0; i<withRefs.length; i++){
+                const refModelName = withRefs[i];
+
+                if(this.service.refsInModel.includes(refModelName))
+                    request['populateMongo'].push(refModelName);
+            }
+
+            return originalMethod.apply(this, args);
+        }
+
+        return originalMethod.apply(this, args);
       }
       return descriptor;
   }
@@ -34,25 +52,21 @@ function validateController(controller: any) {
     if(!controller)
         throw new Error('"this" is undefined. Please check that it is accessible in the context');
 
-    if(!controller.service)
-        throw new Error('Field "service" (type IBasicService) is not defined in the controller class. Please define one');
+    if(
+        !controller.service || 
+        !controller.service.discriminators ||
+        !(
+            controller.service.discriminators.includes(Discriminator.IBasicService) ||
+            controller.service.discriminators.includes(Discriminator.IConditionService)
+        )  
+    )
+        throw new Error('Field "service" (type IBasicService or IConditionService) is not defined in the controller class or it is wrong type. Please define one');
 
-    if(!controller.service.readOneWithCollections || !controller.service.readOneWithAllCollections)
-        throw new Error('Methods "readOneWithCollections()" and "readOneWithAllCollections()" are not defined in the service member');
+    if(!controller.service.refsInModel)
+        throw new Error('Array refsInModel is not defined as the service member');
 }
 
-function extractArguments(args: any[], searchField) {
-    if(!args[0][searchField])
-        throw new Error(`The first argument must be "${searchField}" type of MongoId`);
-
-    if(!args[1])
-        throw new Error('The second argument must be query object');
-
-    return {field: args[0][searchField] as string, query: args[1]}
-}
-
-function throwErrorIfServiceInvalid(instance: any, discriminator: Discriminator) {
-    if(!instance.service.discriminators || !Array.isArray(instance.service.discriminators) || !instance.service.discriminators.includes(discriminator)){
-        throw new Error(`Field service must implement "${discriminator}" interface and include "${discriminator}" in discriminators[]`);
-    }
+function areArgsValid(args: any[]) {
+    const request = args[1];
+    return request instanceof Object && request['body'] && request['query'];
 }

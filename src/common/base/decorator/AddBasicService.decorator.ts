@@ -25,8 +25,8 @@ export const AddBasicService = () => {
                 return this.model.create(input);
             }
 
-            public readOneById = async (_id: string): Promise<object | null | MongooseError> => {
-                return this.model.findById(_id);
+            public readOneById = async (_id: string, includeRefs?: ModelName[]): Promise<object | null | MongooseError> => {
+                return includeRefs ? this.model.findById(_id).populate(includeRefs) : this.model.findById(_id);
             }
 
             public readOneWithCollections = async (_id: string, withQuery: string): Promise<object | null | MongooseError> => {

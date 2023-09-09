@@ -4,6 +4,7 @@ import {ThrowNotImplementedMethod} from "../decorator/ThrowNotImplementedMethod.
 import {DeleteOptionsType} from "../type/deleteOptions.type";
 import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
 import {Discriminator} from "../../enum/discriminator.enum";
+import { ModelName } from "src/common/enum/modelName.enum";
 
 export abstract class BasicServiceDummyAbstract<T=object> implements IBasicService<T>{
     protected constructor() {}
@@ -20,7 +21,7 @@ export abstract class BasicServiceDummyAbstract<T=object> implements IBasicServi
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readOneById(_id: string): Promise<T | MongooseError | null> {
+    readOneById(_id: string, includeRefs?: ModelName[]): Promise<T | MongooseError | null> {
         return Promise.resolve(undefined);
     }
 
