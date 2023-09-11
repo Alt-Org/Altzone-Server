@@ -1,8 +1,7 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Query, Req} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put, Req} from "@nestjs/common";
 import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
 import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
 import {_idDto} from "../common/dto/_id.dto";
-import {GetQueryDto} from "../common/dto/getQuery.dto";
 import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
 import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
@@ -31,8 +30,8 @@ export class CustomCharacterController{
     @Authorize({action: Action.read, subject: CustomCharacterDto})
     @BasicGET(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
     @AddGetQueries()
-    public get(@Param() param: _idDto, @Query() query: GetQueryDto) {
-        return this.service.readOneById(param._id);
+    public get(@Param() param: _idDto, @Req() request: Request) {
+        return this.service.readOneById(param._id, request['populateMongo']);
     }
 
     @Get()

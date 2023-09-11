@@ -1,10 +1,9 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Query, Req} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put, Req} from "@nestjs/common";
 import {ProfileService} from "./profile.service";
 import {CreateProfileDto} from "./dto/createProfile.dto";
 import {UpdateProfileDto} from "./dto/updateProfile.dto";
 import {ProfileDto} from "./dto/profile.dto";
 import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
-import {GetQueryDto} from "../common/dto/getQuery.dto";
 import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
 import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
@@ -58,8 +57,8 @@ export default class ProfileController {
     @Authorize({action: Action.read, subject: ProfileDto})
     @BasicGET(ModelName.PROFILE, ProfileDto)
     @AddGetQueries()
-    public async get(@Param() param: _idDto, @Query() query: GetQueryDto) {
-        return this.service.readOneById(param._id);
+    public async get(@Param() param: _idDto, @Req() request: Request) {
+        return this.service.readOneById(param._id, request['populateMongo']);
     }
 
     @Get()

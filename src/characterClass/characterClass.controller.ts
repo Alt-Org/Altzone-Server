@@ -31,7 +31,7 @@ export class CharacterClassController{
     @Authorize({action: Action.read, subject: CharacterClassDto})
     @BasicGET(ModelName.CHARACTER_CLASS, CharacterClassDto)
     @AddGetQueries()
-    public get(@Param() param: _idDto, @Query() query: GetQueryDto) {
+    public get(@Param() param: _idDto, @Req() request: Request) {
         return this.service.readOneById(param._id);
     }
 
