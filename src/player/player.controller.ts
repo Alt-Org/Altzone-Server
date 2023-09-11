@@ -14,7 +14,7 @@ import {CatchCreateUpdateErrors} from "../common/decorator/response/CatchCreateU
 import {Serialize} from "../common/interceptor/response/Serialize";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
-import {AddSearchQueryDecorator} from "../common/decorator/request/AddSearchQuery.decorator";
+import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery";
 
 @Controller('player')
 export default class PlayerController{
@@ -39,7 +39,7 @@ export default class PlayerController{
 
     @Get()
     @Authorize({action: Action.read, subject: PlayerDto})
-    @AddSearchQueryDecorator(PlayerDto)
+    @AddSearchQuery(PlayerDto)
     @BasicGET(ModelName.PLAYER, PlayerDto)
     public async getAll(@Req() request: Request) {
         return this.service.readAll(request['allowedFields'], request['mongoFilter']);

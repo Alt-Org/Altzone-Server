@@ -2,12 +2,12 @@ import {IClass} from "../../interface/IClass";
 import {operators, querySelectors, queryToDB} from "../../type/search.type";
 import {instanceToPlain} from "class-transformer";
 
-export const AddSearchQueryDecorator = (dtoClass: IClass) => {
+export const AddSearchQuery = (dtoClass: IClass) => {
     return (target: any, propertyKey: string, descriptor: PropertyDescriptor): PropertyDescriptor => {
         const originalMethod = descriptor.value;
         descriptor.value = function (this: any, ...args: any[]) {
             if(!areArgsValid(args))
-                throw new Error(`The ${AddSearchQueryDecorator.name} decorator needs Request object as the first argument of the method`);
+                throw new Error(`The ${AddSearchQuery.name} decorator needs Request object as the first argument of the method`);
 
             let {query} = args[0];
             if(!query || !query['search'])

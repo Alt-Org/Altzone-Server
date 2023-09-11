@@ -12,7 +12,7 @@ import {CreateFurnitureDto} from "./dto/createFurniture.dto";
 import {UpdateFurnitureDto} from "./dto/updateFurniture.dto";
 import { Authorize } from "src/authorization/decorator/Authorize";
 import { Action } from "src/authorization/enum/action.enum";
-import {AddSearchQueryDecorator} from "../common/decorator/request/AddSearchQuery.decorator";
+import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery";
 
 @Controller('furniture')
 export class FurnitureController{
@@ -36,7 +36,7 @@ export class FurnitureController{
 
     @Get()
     @Authorize({action: Action.read, subject: FurnitureDto})
-    @AddSearchQueryDecorator(FurnitureDto)
+    @AddSearchQuery(FurnitureDto)
     @BasicGET(ModelName.FURNITURE, FurnitureDto)
     public getAll(@Req() request: Request) {
         return this.service.readAll(request['allowedFields'], request['mongoFilter']);

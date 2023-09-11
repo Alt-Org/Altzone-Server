@@ -18,7 +18,7 @@ import {_idDto} from "../common/dto/_id.dto";
 import {MongooseError} from "mongoose";
 import {PlayerService} from "../player/player.service";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {AddSearchQueryDecorator} from "../common/decorator/request/AddSearchQuery.decorator";
+import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery";
 
 @Controller('profile')
 export default class ProfileController {
@@ -63,7 +63,7 @@ export default class ProfileController {
 
     @Get()
     @Authorize({action: Action.read, subject: ProfileDto})
-    @AddSearchQueryDecorator(ProfileDto)
+    @AddSearchQuery(ProfileDto)
     @BasicGET(ModelName.PROFILE, ProfileDto)
     public async getAll(@Req() request: Request) {
         return this.service.readAll(request['allowedFields'], request['mongoFilter']);
