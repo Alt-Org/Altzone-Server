@@ -12,7 +12,7 @@ import {CustomCharacterDto} from "./dto/customCharacter.dto";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
 import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
-import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery";
+import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery.decorator";
 
 @Controller('customCharacter')
 export class CustomCharacterController{
@@ -31,7 +31,7 @@ export class CustomCharacterController{
     @BasicGET(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id, request['populateMongo']);
+        return this.service.readOneById(param._id, request['mongoPopulate']);
     }
 
     @Get()

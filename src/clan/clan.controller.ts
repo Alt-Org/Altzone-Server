@@ -29,7 +29,7 @@ import {deleteArrayElements} from "../common/function/deleteArrayElements";
 import {addUniqueArrayElements} from "../common/function/addUniqueArrayElements";
 import {deleteNotUniqueArrayElements} from "../common/function/deleteNotUniqueArrayElements";
 import {PlayerDto} from "../player/dto/player.dto";
-import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery";
+import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery.decorator";
 
 @Controller('clan')
 export class ClanController{
@@ -58,7 +58,7 @@ export class ClanController{
     @BasicGET(ModelName.CLAN, ClanDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id, request['populateMongo']);
+        return this.service.readOneById(param._id, request['mongoPopulate']);
     }
 
     @Get()

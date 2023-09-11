@@ -12,7 +12,7 @@ import {CreateRaidRoomDto} from "./dto/createRaidRoom.dto";
 import {UpdateRaidRoomDto} from "./dto/updateRaidRoom.dto";
 import { Authorize } from "src/authorization/decorator/Authorize";
 import { Action } from "src/authorization/enum/action.enum";
-import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery";
+import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery.decorator";
 
 @Controller('raidRoom')
 export class RaidRoomController{
@@ -31,7 +31,7 @@ export class RaidRoomController{
     @BasicGET(ModelName.RAID_ROOM, RaidRoomDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id, request['populateMongo']);
+        return this.service.readOneById(param._id, request['mongoPopulate']);
     }
 
     @Get()

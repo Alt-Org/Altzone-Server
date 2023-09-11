@@ -14,7 +14,7 @@ import {CatchCreateUpdateErrors} from "../common/decorator/response/CatchCreateU
 import {Serialize} from "../common/interceptor/response/Serialize";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
-import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery";
+import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery.decorator";
 
 @Controller('player')
 export default class PlayerController{
@@ -34,7 +34,7 @@ export default class PlayerController{
     @AddGetQueries()
     @BasicGET(ModelName.PLAYER, PlayerDto)
     public async get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id, request['populateMongo']);
+        return this.service.readOneById(param._id, request['mongoPopulate']);
     }
 
     @Get()

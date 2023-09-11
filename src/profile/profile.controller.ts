@@ -18,7 +18,7 @@ import {_idDto} from "../common/dto/_id.dto";
 import {MongooseError} from "mongoose";
 import {PlayerService} from "../player/player.service";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery";
+import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery.decorator";
 
 @Controller('profile')
 export default class ProfileController {
@@ -58,7 +58,7 @@ export default class ProfileController {
     @BasicGET(ModelName.PROFILE, ProfileDto)
     @AddGetQueries()
     public async get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id, request['populateMongo']);
+        return this.service.readOneById(param._id, request['mongoPopulate']);
     }
 
     @Get()

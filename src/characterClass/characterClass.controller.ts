@@ -3,7 +3,6 @@ import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
 import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
 import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
 import {_idDto} from "../common/dto/_id.dto";
-import {GetQueryDto} from "../common/dto/getQuery.dto";
 import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
 import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
@@ -13,7 +12,7 @@ import {UpdateCharacterClassDto} from "./dto/updateCharacterClass.dto";
 import {CharacterClassDto} from "./dto/characterClass.dto";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
-import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery";
+import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery.decorator";
 
 @Controller('characterClass')
 export class CharacterClassController{
@@ -32,7 +31,7 @@ export class CharacterClassController{
     @BasicGET(ModelName.CHARACTER_CLASS, CharacterClassDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id);
+        return this.service.readOneById(param._id, request['mongoPopulate']);
     }
 
     @Get()

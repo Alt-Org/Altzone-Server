@@ -21,7 +21,7 @@ export const AddGetQueries = () => {
 
           //all query suppose to be without value
           if(allQuery === '' || allQuery){
-              request['populateMongo'] = this.service.refsInModel;
+              request['mongoPopulate'] = this.service.refsInModel;
               return originalMethod.apply(this, args);
           }
 
@@ -31,13 +31,13 @@ export const AddGetQueries = () => {
               if(withRefs.length === 0)
                   return originalMethod.apply(this, args);
 
-              request['populateMongo'] = [];
+              request['mongoPopulate'] = [];
 
               for(let i=0; i<withRefs.length; i++){
                   const refModelName = withRefs[i];
 
                   if(this.service.refsInModel.includes(refModelName))
-                      request['populateMongo'].push(refModelName);
+                      request['mongoPopulate'].push(refModelName);
               }
 
               return originalMethod.apply(this, args);
