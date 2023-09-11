@@ -5,44 +5,45 @@ export const AddGetQueries = () => {
   return (target: any, propertyKey: string, descriptor: PropertyDescriptor): PropertyDescriptor => {
       const originalMethod = descriptor.value;
       descriptor.value = function (this: any, ...args: any[]) {
-        validateController(this);
-        if(!areArgsValid(args))
-            throw new Error(`The ${AddGetQueries.name} decorator needs Request object as the second argument of the method`);
+          validateController(this);
+          if(!areArgsValid(args))
+              throw new Error(`The ${AddGetQueries.name} decorator needs Request object as the second argument of the method`);
 
-        const request = args[1];
-        const {query} = request;
-        if(!query)
-            return originalMethod.apply(this, args);
+          const request = args[1];
+          const {query} = request;
+          if(!query)
+              return originalMethod.apply(this, args);
 
-        const withQuery = query['with'];
-        const allQuery = query['all'];
-        if(!withQuery && !allQuery)
-            return originalMethod.apply(this, args);
+          const withQuery = query['with'];
+          const allQuery = query['all'];
+          if(!withQuery && !(allQuery || allQuery === ''))
+              return originalMethod.apply(this, args);
 
-        if(allQuery){
-            request['populateMongo'] = this.service.refsInModel;
-            return originalMethod.apply(this, args);
-        }
+          //all query suppose to be without value
+          if(allQuery === '' || allQuery){
+              request['populateMongo'] = this.service.refsInModel;
+              return originalMethod.apply(this, args);
+          }
 
-        if(withQuery){
-            const withRefs: ModelName[] = withQuery.split('_') as ModelName[];
+          if(withQuery){
+              const withRefs: ModelName[] = withQuery.split('_') as ModelName[];
 
-            if(withRefs.length === 0)
-                return originalMethod.apply(this, args);
+              if(withRefs.length === 0)
+                  return originalMethod.apply(this, args);
 
-            request['populateMongo'] = [];
+              request['populateMongo'] = [];
 
-            for(let i=0; i<withRefs.length; i++){
-                const refModelName = withRefs[i];
+              for(let i=0; i<withRefs.length; i++){
+                  const refModelName = withRefs[i];
 
-                if(this.service.refsInModel.includes(refModelName))
-                    request['populateMongo'].push(refModelName);
-            }
+                  if(this.service.refsInModel.includes(refModelName))
+                      request['populateMongo'].push(refModelName);
+              }
 
-            return originalMethod.apply(this, args);
-        }
+              return originalMethod.apply(this, args);
+          }
 
-        return originalMethod.apply(this, args);
+          return originalMethod.apply(this, args);
       }
       return descriptor;
   }
