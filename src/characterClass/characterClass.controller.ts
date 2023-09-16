@@ -12,7 +12,9 @@ import {UpdateCharacterClassDto} from "./dto/updateCharacterClass.dto";
 import {CharacterClassDto} from "./dto/characterClass.dto";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
-import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery.decorator";
+import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
+import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
+import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 
 @Controller('characterClass')
 export class CharacterClassController{
@@ -38,8 +40,8 @@ export class CharacterClassController{
     @Authorize({action: Action.read, subject: CharacterClassDto})
     @AddSearchQuery(CharacterClassDto)
     @BasicGET(ModelName.CHARACTER_CLASS, CharacterClassDto)
-    public getAll(@Req() request: Request) {
-        return this.service.readAll(request['allowedFields'], request['mongoFilter']);
+    public getAll(@GetAllQuery() query: IGetAllQuery) {
+        return this.service.readAll(query.select, query.filter);
     }
 
     @Put()

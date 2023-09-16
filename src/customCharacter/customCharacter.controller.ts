@@ -12,7 +12,9 @@ import {CustomCharacterDto} from "./dto/customCharacter.dto";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
 import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
-import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery.decorator";
+import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
+import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
+import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 
 @Controller('customCharacter')
 export class CustomCharacterController{
@@ -38,8 +40,8 @@ export class CustomCharacterController{
     @Authorize({action: Action.read, subject: CustomCharacterDto})
     @AddSearchQuery(CustomCharacterDto)
     @BasicGET(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
-    public async getAll(@Req() request: Request) {
-        return this.service.readAll(request['allowedFields'], request['mongoFilter']);
+    public async getAll(@GetAllQuery() query: IGetAllQuery) {
+        return this.service.readAll(query.select, query.filter);
     }
 
     @Put()

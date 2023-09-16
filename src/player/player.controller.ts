@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Req} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put, Query, Req} from "@nestjs/common";
 import {PlayerService} from "./player.service";
 import {CreatePlayerDto} from "./dto/createPlayer.dto";
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
@@ -14,7 +14,10 @@ import {CatchCreateUpdateErrors} from "../common/decorator/response/CatchCreateU
 import {Serialize} from "../common/interceptor/response/Serialize";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
-import {AddSearchQuery} from "../common/decorator/request/AddSearchQuery.decorator";
+import {Paginate} from "../common/interceptor/request/pagination.interceptor";
+import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
+import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
+import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 
 @Controller('player')
 export default class PlayerController{
@@ -39,10 +42,11 @@ export default class PlayerController{
 
     @Get()
     @Authorize({action: Action.read, subject: PlayerDto})
+    @Paginate()
     @AddSearchQuery(PlayerDto)
     @BasicGET(ModelName.PLAYER, PlayerDto)
-    public async getAll(@Req() request: Request) {
-        return this.service.readAll(request['allowedFields'], request['mongoFilter']);
+    public async getAll(@GetAllQuery() query: IGetAllQuery) {
+        return this.service.readAll(query.select, query.filter);
     }
 
     @Put()
