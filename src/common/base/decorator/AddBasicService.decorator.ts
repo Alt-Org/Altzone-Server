@@ -1,4 +1,4 @@
-import {Model, MongooseError} from "mongoose";
+import {Model, MongooseError, QueryOptions} from "mongoose";
 import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
 import {ModelName} from "../../enum/modelName.enum";
 import {IBasicService} from "../interface/IBasicService";
@@ -55,13 +55,20 @@ export const AddBasicService = () => {
                 return dbQuery.exec();
             }
 
-            public readAll = async (allowedFields?: string[], mongoFilter?: object): Promise<Array<object>> => {
+            public readAll = async (allowedFields?: string[], mongoFilter?: object, sort?: object, count?: number): Promise<Array<object>> => {
                 if(allowedFields === null)
                     return [];
 
                 const filter = mongoFilter ? mongoFilter : {};
+                const searchOptions: QueryOptions = {};
 
-                return this.model.find(filter).select(allowedFields);
+                if(sort)
+                    searchOptions.sort = sort;
+
+                if(count)
+                    searchOptions.limit = count;
+
+                return this.model.find(filter, null, searchOptions).select(allowedFields);
             }
 
             public updateOneById = async (input: any): Promise<object | MongooseError> => {
