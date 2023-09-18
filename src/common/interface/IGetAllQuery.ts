@@ -1,4 +1,6 @@
 export interface IGetAllQuery {
-    select: string[] | null;
-    filter: object;
+    select?: string[];
+    filter?: object;
+    limit?: number;
+    sort?: object;
 }
