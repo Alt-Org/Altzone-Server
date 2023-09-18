@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Query, Req} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put, Req} from "@nestjs/common";
 import {PlayerService} from "./player.service";
 import {CreatePlayerDto} from "./dto/createPlayer.dto";
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
@@ -42,11 +42,11 @@ export default class PlayerController{
 
     @Get()
     @Authorize({action: Action.read, subject: PlayerDto})
-    @Paginate()
+    @Paginate(ModelName.PLAYER)
     @AddSearchQuery(PlayerDto)
     @BasicGET(ModelName.PLAYER, PlayerDto)
     public async getAll(@GetAllQuery() query: IGetAllQuery) {
-        return this.service.readAll(query.select, query.filter);
+        return this.service.readAll(query.select, query.filter, query.sort, query.limit);
     }
 
     @Put()

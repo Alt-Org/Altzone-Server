@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {InjectConnection} from "@nestjs/mongoose";
-import {Connection, Types} from "mongoose";
+import {Connection, QueryOptions, Types} from "mongoose";
 import {ReferenceToNullType} from "./type/ReferenceToNull.type";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
@@ -45,6 +45,10 @@ export class RequestHelperService {
             resp = await this.connection.model(modelName).find(condition);
 
         return resp ? this.convertRespToInstance(resp, classConstructor) : null;
+    }
+
+    public findOneRaw = async (modelName: ModelName, filter: object = {}, options?: QueryOptions) => {
+        return this.connection.model(modelName).findOne(filter, null, options);
     }
 
     public nullReferences = async (refs: ReferenceToNullType[], ignore: IgnoreReferencesType = [])=> {
