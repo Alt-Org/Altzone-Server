@@ -4,8 +4,6 @@ import {map} from "rxjs/operators";
 import {Request, Response as Res} from 'express';
 import {RequestHelperService} from "../../../requestHelper/requestHelper.service";
 import {ModelName} from "../../enum/modelName.enum";
-import {PlayerDto} from "../../../player/dto/player.dto";
-import {IClass} from "../../interface/IClass";
 
 export function Paginate(modelName: ModelName) {
     @Injectable()
@@ -17,28 +15,42 @@ export function Paginate(modelName: ModelName) {
             request['paginationSort'] = {_id: -1};
 
             const query = request.query;
-            if(query['previousCursor'])
-                request['paginationFilter'] = {_id: {$gt: query['previousCursor']}};
-            else if(query['nextCursor'])
-                request['paginationFilter'] = {_id: {$lt: query['nextCursor']}};
+            const prevCursor = query['prev'];
+            const nextCursor = query['next'];
+            if(prevCursor){
+                request['paginationFilter'] = {_id: {$gt: prevCursor}};
+                request['paginationSort'] = {_id: 1};
+            } else if(nextCursor)
+                request['paginationFilter'] = {_id: {$lt: nextCursor}}
 
             return next.handle().pipe(map(async (data: any) => {
-                if(!data || !data.length || data.length === 0)
+                if(!Array.isArray(data))
                     return data;
 
                 const httpContext = context.switchToHttp();
+                const request = httpContext.getRequest<Request>();
                 const response = httpContext.getResponse<Res>();
+
+                if(prevCursor)
+                    data.reverse();
 
                 let firstItem_id = data[0]._id;
                 let lastItem_id = data[data.length-1]._id;
+
+                let filter;
+                let hasPrevBasicFilter = {_id: {$gt: firstItem_id}};
+                if(request['mongoFilter']){
+                    {$and: []}
+                }
+
 
                 const hasPrev = await this.requestHelperService.findOneRaw(modelName, {_id: {$gt: firstItem_id}}) !== null;
                 const hasNext = await this.requestHelperService.findOneRaw(modelName, {_id: {$lt: lastItem_id}}) !== null;
 
                 if(hasPrev)
-                    response.set({'Previous-Cursor': `${firstItem_id}`});
+                    response.set({'prev': `${firstItem_id}`});
                 if(hasNext)
-                    response.set({'Next-Cursor': `${lastItem_id}`});
+                    response.set({'next': `${lastItem_id}`});
 
                 return data;
             }));

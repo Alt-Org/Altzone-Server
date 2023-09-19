@@ -8,6 +8,18 @@ export const GetAllQuery = createParamDecorator((data: unknown, context: Executi
     const request = context.switchToHttp().getRequest<Request>();
     const select = request['allowedFields'];
     const mongoFilter = request['mongoFilter'] ? request['mongoFilter'] : {};
+    const paginationFilter = request['paginationFilter'];
+
+    // console.log('mongoFilter', mongoFilter);
+    // console.log('paginationFilter', paginationFilter);
+
+    const filter = {$and: []};
+    if(mongoFilter)
+        filter.$and.push(mongoFilter);
+    if(paginationFilter)
+        filter.$and.push(paginationFilter);
+
+    request['filter'] = filter;
 
     const query = request.query;
 
@@ -24,7 +36,7 @@ export const GetAllQuery = createParamDecorator((data: unknown, context: Executi
 
     return {
         select,
-        filter: mongoFilter,
+        filter,
         sort,
         limit
     }
