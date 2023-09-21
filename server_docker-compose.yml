@@ -2,7 +2,7 @@
 
 services:
   api:
-    image: deriabin/altzone:api.1
+    image: deriabin/altzone:api.2
     container_name: altzone_api
     depends_on:
       - db
