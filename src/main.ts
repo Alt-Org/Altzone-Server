@@ -4,6 +4,7 @@ import {ValidationPipe} from "@nestjs/common";
 import {useContainer} from "class-validator";
 import { SwaggerModule } from '@nestjs/swagger';
 import { readFile } from 'fs/promises';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,7 +16,7 @@ async function bootstrap() {
   useContainer(app.select(AppModule), { fallbackOnErrors: true })
 
   const document = JSON.parse(
-    (await readFile('swagger.json')).toString('utf-8')
+    (await readFile(join(process.cwd(), 'swagger.json'))).toString('utf-8')
   )
   SwaggerModule.setup('swagger', app, document);
 
