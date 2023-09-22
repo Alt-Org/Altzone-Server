@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import {ValidationPipe} from "@nestjs/common";
 import {useContainer} from "class-validator";
+import { SwaggerModule } from '@nestjs/swagger';
+import { readFile } from 'fs/promises';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,16 +14,16 @@ async function bootstrap() {
   //Let the class-validator use DI system of NestJS
   useContainer(app.select(AppModule), { fallbackOnErrors: true })
 
+  const document = JSON.parse(
+    (await readFile('swagger.json')).toString('utf-8')
+  )
+  SwaggerModule.setup('swagger', app, document);
+
   /*
   app.use(cookieSession({
       keys: ['fythsopih'] //key for cookie encryption
   }));
-
-  app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true
-      })
-  );*/
+  */
   await app.listen(8080)
 }
 bootstrap();
