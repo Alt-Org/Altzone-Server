@@ -8,6 +8,20 @@ import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: [
+      'https://jazzy-taiyaki-39e194.netlify.app',
+      'http://localhost:5173'
+    ],
+    methods: ["GET", "PUT", "POST", "DELETE"],
+    allowedHeaders: [
+      'Content-Type',
+      'Access-Control-Allow-Origin',
+      'Authorization'
+    ],
+    credentials: true
+  });
+
   app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, transform: true })
   );

@@ -37,6 +37,9 @@ export class AuthService {
             clan_id: clan?._id
         };
         const accessToken = await this.jwtService.signAsync(payload);
+        const decodedAccessToken: any = this.jwtService.decode(accessToken);
+        // Extract the expiration time in Unix timestamp format
+        const tokenExpires = decodedAccessToken?.exp;
 
         profile['Player'] = player;
         if(clan)
@@ -46,7 +49,18 @@ export class AuthService {
 
         return {
             ...serializedProfile,
-            accessToken
+            accessToken,
+            tokenExpires
         };
+    }
+
+    private getTokenExpirationTime(token: string){
+        const decodedAccessToken: any = this.jwtService.decode(token);
+        // Extract the expiration time in Unix timestamp format
+        const expiresIn = decodedAccessToken?.exp;
+        const diffInSeconds = expiresIn - Math.floor(Date.now() / 1000);
+        // Convert the Unix timestamp to a Date object
+        // return expiresIn ? new Date(expiresIn * 1000) : null;
+        return diffInSeconds ? diffInSeconds : null;
     }
 }
