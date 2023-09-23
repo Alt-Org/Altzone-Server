@@ -32,6 +32,7 @@ import {PlayerDto} from "../player/dto/player.dto";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
+import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
 
 @Controller('clan')
 export class ClanController{
@@ -65,6 +66,7 @@ export class ClanController{
 
     @Get()
     @Authorize({action: Action.read, subject: ClanDto})
+    @OffsetPaginate(ModelName.CLAN)
     @AddSearchQuery(ClanDto)
     @BasicGET(ModelName.CLAN, ClanDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {

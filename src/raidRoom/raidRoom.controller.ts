@@ -15,6 +15,7 @@ import { Action } from "src/authorization/enum/action.enum";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
+import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
 
 @Controller('raidRoom')
 export class RaidRoomController{
@@ -38,6 +39,7 @@ export class RaidRoomController{
 
     @Get()
     @Authorize({action: Action.read, subject: RaidRoomDto})
+    @OffsetPaginate(ModelName.RAID_ROOM)
     @AddSearchQuery(RaidRoomDto)
     @BasicGET(ModelName.RAID_ROOM, RaidRoomDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {

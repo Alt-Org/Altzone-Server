@@ -15,6 +15,7 @@ import { Action } from "src/authorization/enum/action.enum";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
+import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
 
 @Controller('furniture')
 export class FurnitureController{
@@ -38,6 +39,7 @@ export class FurnitureController{
 
     @Get()
     @Authorize({action: Action.read, subject: FurnitureDto})
+    @OffsetPaginate(ModelName.FURNITURE)
     @AddSearchQuery(FurnitureDto)
     @BasicGET(ModelName.FURNITURE, FurnitureDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {

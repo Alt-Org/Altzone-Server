@@ -21,6 +21,7 @@ import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
+import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
 
 @Controller('profile')
 export default class ProfileController {
@@ -65,6 +66,7 @@ export default class ProfileController {
 
     @Get()
     @Authorize({action: Action.read, subject: ProfileDto})
+    @OffsetPaginate(ModelName.PROFILE)
     @AddSearchQuery(ProfileDto)
     @BasicGET(ModelName.PROFILE, ProfileDto)
     public async getAll(@GetAllQuery() query: IGetAllQuery) {

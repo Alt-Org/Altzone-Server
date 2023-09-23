@@ -15,6 +15,7 @@ import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
+import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
 
 @Controller('customCharacter')
 export class CustomCharacterController{
@@ -38,6 +39,7 @@ export class CustomCharacterController{
 
     @Get()
     @Authorize({action: Action.read, subject: CustomCharacterDto})
+    @OffsetPaginate(ModelName.CUSTOM_CHARACTER)
     @AddSearchQuery(CustomCharacterDto)
     @BasicGET(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
     public async getAll(@GetAllQuery() query: IGetAllQuery) {

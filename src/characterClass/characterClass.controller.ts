@@ -15,6 +15,7 @@ import {Action} from "../authorization/enum/action.enum";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
+import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
 
 @Controller('characterClass')
 export class CharacterClassController{
@@ -38,6 +39,7 @@ export class CharacterClassController{
 
     @Get()
     @Authorize({action: Action.read, subject: CharacterClassDto})
+    @OffsetPaginate(ModelName.CHARACTER_CLASS)
     @AddSearchQuery(CharacterClassDto)
     @BasicGET(ModelName.CHARACTER_CLASS, CharacterClassDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {
