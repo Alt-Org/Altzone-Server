@@ -14,7 +14,7 @@ import {CatchCreateUpdateErrors} from "../common/decorator/response/CatchCreateU
 import {Serialize} from "../common/interceptor/response/Serialize";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
-import {Paginate} from "../common/interceptor/request/pagination.interceptor";
+import {OffsetPaginate} from "../common/interceptor/request/offsetPagination.interceptor";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
@@ -42,11 +42,11 @@ export default class PlayerController{
 
     @Get()
     @Authorize({action: Action.read, subject: PlayerDto})
-    @Paginate(ModelName.PLAYER)
+    @OffsetPaginate()
     @AddSearchQuery(PlayerDto)
     @BasicGET(ModelName.PLAYER, PlayerDto)
     public async getAll(@GetAllQuery() query: IGetAllQuery) {
-        return this.service.readAll(query.select, query.filter, query.sort, query.limit);
+        return this.service.readAll(query);
     }
 
     @Put()

@@ -6,38 +6,31 @@ import {IGetAllQuery} from "../../interface/IGetAllQuery";
 
 export const GetAllQuery = createParamDecorator((data: unknown, context: ExecutionContext): IGetAllQuery => {
     const request = context.switchToHttp().getRequest<Request>();
-    const select = request['allowedFields'];
-    const mongoFilter = request['mongoFilter'] ? request['mongoFilter'] : {};
-    const paginationFilter = request['paginationFilter'];
-
-    // console.log('mongoFilter', mongoFilter);
-    // console.log('paginationFilter', paginationFilter);
-
-    const filter = {$and: []};
-    if(mongoFilter)
-        filter.$and.push(mongoFilter);
-    if(paginationFilter)
-        filter.$and.push(paginationFilter);
-
-    request['filter'] = filter;
-
     const query = request.query;
 
-    let paginationSort = request['paginationSort'];
-    let sort = paginationSort;
+    const select = request['allowedFields'];
+
+    const mongoFilter = request['mongoFilter'] || {};
 
     const minLimit = 20;
     const maxLimit = 50;
-    let limit = +query['limit'] || minLimit;
-    if(limit < 1)
+    let limit = request['paginationLimit'] || query['limit'] || minLimit;
+    if(query['limit'] && limit < 1)
         limit = minLimit;
-    if(limit > maxLimit)
+    if(query['limit'] && limit > maxLimit)
         limit = maxLimit;
 
+    const mongoSort = request['mongoSort'];
+
+    const offset = request['paginationOffset'] || 0;
+
+    const sort = mongoSort || {_id: -1};
+    
     return {
         select,
-        filter,
+        filter: mongoFilter,
         sort,
-        limit
+        limit,
+        offset
     }
 });

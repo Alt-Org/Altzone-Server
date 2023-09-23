@@ -5,7 +5,7 @@ import {Request, Response as Res} from 'express';
 import {RequestHelperService} from "../../../requestHelper/requestHelper.service";
 import {ModelName} from "../../enum/modelName.enum";
 
-export function Paginate(modelName: ModelName) {
+export function CursorPaginate(modelName: ModelName) {
     @Injectable()
     class PaginateInterceptor implements NestInterceptor{
         public constructor(private readonly requestHelperService: RequestHelperService) {
@@ -21,7 +21,7 @@ export function Paginate(modelName: ModelName) {
                 request['paginationFilter'] = {_id: {$gt: prevCursor}};
                 request['paginationSort'] = {_id: 1};
             } else if(nextCursor)
-                request['paginationFilter'] = {_id: {$lt: nextCursor}}
+                request['paginationFilter'] = {_id: {$lt: nextCursor}};
 
             return next.handle().pipe(map(async (data: any) => {
                 if(!Array.isArray(data))

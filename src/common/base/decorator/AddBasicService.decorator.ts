@@ -1,9 +1,10 @@
-import {Model, MongooseError, QueryOptions} from "mongoose";
+import {Model, MongooseError} from "mongoose";
 import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
 import {ModelName} from "../../enum/modelName.enum";
 import {IBasicService} from "../interface/IBasicService";
 import {DeleteOptionsType} from "../type/deleteOptions.type";
 import {Discriminator} from "../../enum/discriminator.enum";
+import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
 
 type ClearCollectionReferencesFunction = (_id: any, ignoreReferences?: IgnoreReferencesType) => void | Promise<void>;
 
@@ -55,20 +56,12 @@ export const AddBasicService = () => {
                 return dbQuery.exec();
             }
 
-            public readAll = async (allowedFields?: string[], mongoFilter?: object, sort?: object, count?: number): Promise<Array<object>> => {
-                if(allowedFields === null)
+            public readAll = async (query: IGetAllQuery): Promise<Array<object>> => {
+                if(query.select === null)
                     return [];
 
-                const filter = mongoFilter ? mongoFilter : {};
-                const searchOptions: QueryOptions = {};
-
-                if(sort)
-                    searchOptions.sort = sort;
-
-                if(count)
-                    searchOptions.limit = count;
-
-                return this.model.find(filter, null, searchOptions).select(allowedFields);
+                const {filter, ...searchOptions} = query;
+                return this.model.find(filter, null, searchOptions).select(query.select);
             }
 
             public updateOneById = async (input: any): Promise<object | MongooseError> => {

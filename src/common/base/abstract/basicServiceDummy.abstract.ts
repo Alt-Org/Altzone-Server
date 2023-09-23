@@ -5,6 +5,7 @@ import {DeleteOptionsType} from "../type/deleteOptions.type";
 import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
 import {Discriminator} from "../../enum/discriminator.enum";
 import { ModelName } from "src/common/enum/modelName.enum";
+import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
 
 export abstract class BasicServiceDummyAbstract<T=object> implements IBasicService<T>{
     protected constructor() {}
@@ -16,7 +17,7 @@ export abstract class BasicServiceDummyAbstract<T=object> implements IBasicServi
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readAll(allowedFields?: string[], mongoFilter?: object, sort?: object, count?: number): Promise<Array<T>> {
+    readAll(query: IGetAllQuery): Promise<Array<T>> {
         return Promise.resolve(undefined);
     }
 
