@@ -60,8 +60,8 @@ export const AddBasicService = () => {
                 if(query.select === null)
                     return [];
 
-                const {filter, ...searchOptions} = query;
-                return this.model.find(filter, null, searchOptions).select(query.select);
+                const {filter, select, ...searchOptions} = query;
+                return this.model.find(filter, null, searchOptions).select(select);
             }
 
             public updateOneById = async (input: any): Promise<object | MongooseError> => {

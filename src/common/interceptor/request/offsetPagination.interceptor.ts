@@ -1,10 +1,11 @@
 import {CallHandler, ExecutionContext, Injectable, NestInterceptor, UseInterceptors} from "@nestjs/common";
 import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
-import {Request, Response as Res} from 'express';
+import {Request, Response} from 'express';
 import {RequestHelperService} from "../../../requestHelper/requestHelper.service";
+import { ModelName } from "src/common/enum/modelName.enum";
 
-export function OffsetPaginate(minLimit: number=20, maxLimit:number=50) {
+export function OffsetPaginate(modelName: ModelName, minLimit: number=20, maxLimit:number=50) {
     @Injectable()
     class PaginateInterceptor implements NestInterceptor{
         public constructor(private readonly requestHelperService: RequestHelperService) {
@@ -26,6 +27,22 @@ export function OffsetPaginate(minLimit: number=20, maxLimit:number=50) {
             request['paginationOffset'] = paginationOffset;
 
             return next.handle().pipe(map(async (data: any) => {
+                if(!Array.isArray(data))
+                    return data;
+
+                const request = context.switchToHttp().getRequest<Request>();
+                const response = context.switchToHttp().getResponse<Response>();
+                const isFirstReq = query['isFirstReq'] === '' || query['isFirstReq'] === 'true';
+                if(page === 1 || isFirstReq){
+                    const itemCount = await this.requestHelperService.count(modelName, request['mongoFilter']);
+                    response.set({itemCount});
+                    const pageCount = Math.ceil(itemCount/paginationLimit);
+                    response.set({pageCount});
+                }
+                response.set({'currentPage': page});
+                response.set({'limit': paginationLimit});
+                response.set({'offset': paginationOffset});
+
                 return data;
             }));
         }

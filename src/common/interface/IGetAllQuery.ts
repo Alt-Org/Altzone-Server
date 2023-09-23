@@ -3,5 +3,5 @@ export interface IGetAllQuery {
     select?: string[];
     limit: number;
     sort: object;
-    offset: number;
+    skip: number;
 }

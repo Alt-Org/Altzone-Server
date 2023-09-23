@@ -22,15 +22,15 @@ export const GetAllQuery = createParamDecorator((data: unknown, context: Executi
 
     const mongoSort = request['mongoSort'];
 
-    const offset = request['paginationOffset'] || 0;
+    const skip = request['paginationOffset'] || 0;
 
     const sort = mongoSort || {_id: -1};
-    
+
     return {
         select,
         filter: mongoFilter,
         sort,
         limit,
-        offset
+        skip
     }
 });

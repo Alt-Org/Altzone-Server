@@ -51,6 +51,13 @@ export class RequestHelperService {
         return this.connection.model(modelName).findOne(filter, null, options);
     }
 
+    public count = async (modelName: ModelName, filter: object = {}): Promise<number> => {
+        if(filter && Object.keys(filter).length === 0)
+            return this.connection.model(modelName).estimatedDocumentCount();
+
+        return this.connection.model(modelName).countDocuments(filter);
+    }
+
     public nullReferences = async (refs: ReferenceToNullType[], ignore: IgnoreReferencesType = [])=> {
         for(let i=0; i<refs.length; i++){
             const currentRef = refs[i];

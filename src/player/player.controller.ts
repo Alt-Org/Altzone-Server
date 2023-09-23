@@ -42,7 +42,7 @@ export default class PlayerController{
 
     @Get()
     @Authorize({action: Action.read, subject: PlayerDto})
-    @OffsetPaginate()
+    @OffsetPaginate(ModelName.PLAYER)
     @AddSearchQuery(PlayerDto)
     @BasicGET(ModelName.PLAYER, PlayerDto)
     public async getAll(@GetAllQuery() query: IGetAllQuery) {
