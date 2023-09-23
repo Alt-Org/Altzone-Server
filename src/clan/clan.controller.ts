@@ -33,6 +33,7 @@ import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.inter
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
+import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
 
 @Controller('clan')
 export class ClanController{
@@ -68,6 +69,7 @@ export class ClanController{
     @Authorize({action: Action.read, subject: ClanDto})
     @OffsetPaginate(ModelName.CLAN)
     @AddSearchQuery(ClanDto)
+    @AddSortQuery(ClanDto)
     @BasicGET(ModelName.CLAN, ClanDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {
         return this.service.readAll(query);

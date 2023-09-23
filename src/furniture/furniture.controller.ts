@@ -16,6 +16,7 @@ import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.inter
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
+import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
 
 @Controller('furniture')
 export class FurnitureController{
@@ -41,6 +42,7 @@ export class FurnitureController{
     @Authorize({action: Action.read, subject: FurnitureDto})
     @OffsetPaginate(ModelName.FURNITURE)
     @AddSearchQuery(FurnitureDto)
+    @AddSortQuery(FurnitureDto)
     @BasicGET(ModelName.FURNITURE, FurnitureDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {
         return this.service.readAll(query);

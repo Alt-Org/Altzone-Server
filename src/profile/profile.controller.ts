@@ -22,6 +22,7 @@ import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.inter
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
+import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
 
 @Controller('profile')
 export default class ProfileController {
@@ -68,6 +69,7 @@ export default class ProfileController {
     @Authorize({action: Action.read, subject: ProfileDto})
     @OffsetPaginate(ModelName.PROFILE)
     @AddSearchQuery(ProfileDto)
+    @AddSortQuery(ProfileDto)
     @BasicGET(ModelName.PROFILE, ProfileDto)
     public async getAll(@GetAllQuery() query: IGetAllQuery) {
         return this.service.readAll(query);
