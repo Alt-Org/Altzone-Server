@@ -41,7 +41,7 @@ export class RaidRoomController{
     @AddSearchQuery(RaidRoomDto)
     @BasicGET(ModelName.RAID_ROOM, RaidRoomDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {
-        return this.service.readAll(query.select, query.filter);
+        return this.service.readAll(query);
     }
 
     @Put()

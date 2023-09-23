@@ -41,7 +41,7 @@ export class CharacterClassController{
     @AddSearchQuery(CharacterClassDto)
     @BasicGET(ModelName.CHARACTER_CLASS, CharacterClassDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {
-        return this.service.readAll(query.select, query.filter);
+        return this.service.readAll(query);
     }
 
     @Put()

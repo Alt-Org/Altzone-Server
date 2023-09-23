@@ -68,7 +68,7 @@ export class ClanController{
     @AddSearchQuery(ClanDto)
     @BasicGET(ModelName.CLAN, ClanDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {
-        return this.service.readAll(query.select, query.filter);
+        return this.service.readAll(query);
     }
 
     @Put()

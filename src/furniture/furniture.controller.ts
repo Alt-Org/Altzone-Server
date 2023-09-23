@@ -41,7 +41,7 @@ export class FurnitureController{
     @AddSearchQuery(FurnitureDto)
     @BasicGET(ModelName.FURNITURE, FurnitureDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {
-        return this.service.readAll(query.select, query.filter);
+        return this.service.readAll(query);
     }
 
     @Put()

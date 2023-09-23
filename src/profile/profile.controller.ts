@@ -68,7 +68,7 @@ export default class ProfileController {
     @AddSearchQuery(ProfileDto)
     @BasicGET(ModelName.PROFILE, ProfileDto)
     public async getAll(@GetAllQuery() query: IGetAllQuery) {
-        return this.service.readAll(query.select, query.filter);
+        return this.service.readAll(query);
     }
 
     @Put()
