@@ -18,6 +18,7 @@ import {OffsetPaginate} from "../common/interceptor/request/offsetPagination.int
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
+import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
 
 @Controller('player')
 export default class PlayerController{
@@ -44,6 +45,7 @@ export default class PlayerController{
     @Authorize({action: Action.read, subject: PlayerDto})
     @OffsetPaginate(ModelName.PLAYER)
     @AddSearchQuery(PlayerDto)
+    @AddSortQuery(PlayerDto)
     @BasicGET(ModelName.PLAYER, PlayerDto)
     public async getAll(@GetAllQuery() query: IGetAllQuery) {
         return this.service.readAll(query);
