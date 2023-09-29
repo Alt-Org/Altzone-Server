@@ -20,6 +20,7 @@ import {PERMISSION_METADATA} from "./decorator/SetAuthorizationFor";
 import {permittedFieldsOf, PermittedFieldsOptions} from "@casl/ability/extra";
 import {pick} from "lodash";
 import {MongoAbility} from "@casl/ability";
+import {IResponseShape} from "../common/interface/IResponseShape";
 
 export type PermissionMetaData = {
     action: SupportedAction,
@@ -120,10 +121,18 @@ export class AuthorizationInterceptor implements NestInterceptor{
             if(!data || Array.isArray(data))
                 return data;
 
+            const dataParsed = data as IResponseShape;
+            //it is an array === read many(serialization is done on request)
+            if(!dataParsed || dataParsed.metaData.dataCount > 1)
+                return dataParsed;
+
+            const {dataKey} = dataParsed.metaData;
+            const respData = dataParsed.data[dataKey];
+
             //Create one and read one response object serialization
             if(action === Action.create || action === Action.read){
                 //@ts-ignore
-                const dataClass: typeof subject = plainToInstance(subject, data, {
+                const dataClass: typeof subject = plainToInstance(subject, respData, {
                     excludeExtraneousValues: true
                 });
                 //@ts-ignore
@@ -139,10 +148,10 @@ export class AuthorizationInterceptor implements NestInterceptor{
                     allowedFields = Object.keys(dataClass);
 
                 //return fields only from the array
-                return pick(dataClass, allowedFields);
+                dataParsed.data[dataKey] = pick(dataClass, allowedFields);
             }
 
-            return data;
+            return dataParsed;
         }));
     }
 

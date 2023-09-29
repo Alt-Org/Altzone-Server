@@ -5,15 +5,19 @@ import {IBasicService} from "../interface/IBasicService";
 import {DeleteOptionsType} from "../type/deleteOptions.type";
 import {Discriminator} from "../../enum/discriminator.enum";
 import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
+import {IResponseShape} from "../../interface/IResponseShape";
 
-type ClearCollectionReferencesFunction = (_id: any, ignoreReferences?: IgnoreReferencesType) => void | Promise<void>;
+export type ClearCollectionReferences = (_id: any, ignoreReferences?: IgnoreReferencesType) => void | Promise<void>;
+export type GetDocumentMetaData = (_id: any, metaData: string[]) => object | Promise<object>;
 
 export const AddBasicService = () => {
     return function<T extends {
         new (...args: any[]): {
-            clearCollectionReferences: ClearCollectionReferencesFunction;
+            clearCollectionReferences: ClearCollectionReferences;
+            getDocumentMetaData?: GetDocumentMetaData;
             refsInModel: ModelName[];
             model: Model<any>;
+            modelName?: string;
             discriminators: Discriminator[];
         }
     }>(originalConstructor: T) {
@@ -26,8 +30,26 @@ export const AddBasicService = () => {
                 return this.model.create(input);
             }
 
-            public readOneById = async (_id: string, includeRefs?: ModelName[]): Promise<object | null | MongooseError> => {
-                return includeRefs ? this.model.findById(_id).populate(includeRefs) : this.model.findById(_id);
+            public readOneById = async (_id: string, includeRefs?: ModelName[], metaData?: string[]): Promise<IResponseShape | null | MongooseError> => {
+                if(!metaData || metaData.length === 0)
+                    return includeRefs ? this.model.findById(_id).populate(includeRefs) : this.model.findById(_id);
+
+                const data =  includeRefs ? await this.model.findById(_id).populate(includeRefs).exec() : await this.model.findById(_id).exec();
+                const meta = this.getDocumentMetaData ? await this.getDocumentMetaData(_id, metaData) : {};
+                const modelName = this.getModelName() as ModelName;
+                const dataKey = modelName;
+                return {
+                    data: {
+                        [dataKey]: data,
+                        metaData: meta
+                    },
+                    metaData: {
+                        dataKey: dataKey,
+                        modelName: modelName,
+                        dataType: 'Object',
+                        documentMetaDataKeys: metaData
+                    }
+                }
             }
 
             public readOneWithCollections = async (_id: string, withQuery: string): Promise<object | null | MongooseError> => {
@@ -102,6 +124,8 @@ export const AddBasicService = () => {
                     return this.model.deleteMany(condition);
                 }
             }
+
+            public getModelName = (): string => this.modelName ? this.modelName : 'Model';
         }
 
     }
