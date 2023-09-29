@@ -34,6 +34,7 @@ import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
 import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
+import {AddMetaDataQuery} from "../common/interceptor/request/addMetaDataQuery.interceptor";
 
 @Controller('clan')
 export class ClanController{
@@ -59,10 +60,11 @@ export class ClanController{
 
     @Get('/:_id')
     @Authorize({action: Action.read, subject: ClanDto})
+    @AddMetaDataQuery()
     @BasicGET(ModelName.CLAN, ClanDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id, request['mongoPopulate']);
+        return this.service.readOneById(param._id, request['mongoPopulate'], request['metaData']);
     }
 
     @Get()
