@@ -22,7 +22,7 @@ export abstract class BasicServiceDummyAbstract<T=object> implements IBasicServi
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readOneById(_id: string, includeRefs?: ModelName[]): Promise<T | MongooseError | null> {
+    readOneById(_id: string, includeRefs?: ModelName[], metaData?: string[]): Promise<T | MongooseError | null> {
         return Promise.resolve(undefined);
     }
 
