@@ -5,5 +5,7 @@ export enum ModelName {
     PLAYER = 'Player',
     FURNITURE = 'Furniture',
     RAID_ROOM = 'RaidRoom',
-    PROFILE = 'Profile'
+    PROFILE = 'Profile',
+
+    CLAN_META = 'ClanMeta'
 }
