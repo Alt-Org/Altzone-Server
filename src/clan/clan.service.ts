@@ -15,6 +15,7 @@ import {
 import {AddConditionService} from "../common/base/decorator/AddConditionService.decorator";
 import IBasicAndConditionService from "../common/base/interface/IBasicAndConditionService";
 import {BasicAndConditionServiceDummyAbstract} from "../common/base/abstract/basicAndConditionServiceDummy.abstract";
+import {ClanMetaService} from "../metaData/clan/clanMeta.service";
 
 @Injectable()
 @AddConditionService()
@@ -24,6 +25,7 @@ export class ClanService extends BasicAndConditionServiceDummyAbstract<Clan> imp
         @InjectModel(Clan.name) public readonly model: Model<Clan>,
         private readonly raidRoomService: RaidRoomService,
         private readonly furnitureService: FurnitureService,
+        private readonly clanMetaService: ClanMetaService,
         private readonly requestHelperService: RequestHelperService
     ){
         super();
@@ -44,6 +46,11 @@ export class ClanService extends BasicAndConditionServiceDummyAbstract<Clan> imp
 
         await this.raidRoomService.deleteByCondition(searchFilter);
         await this.furnitureService.deleteByCondition(searchFilter);
+    }
+
+    public async createOnePostHook(input: any, output: any): Promise<boolean> {
+        const createMetaDataDocumentResponse = await this.clanMetaService.createMetaData({_id: output._id});
+        return createMetaDataDocumentResponse !== null;
     }
 
     public getDocumentMetaData: GetDocumentMetaData = async (_id, metaData: string[]): Promise<object> => {
