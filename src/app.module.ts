@@ -21,6 +21,8 @@ import { AuthorizationModule } from './authorization/authorization.module';
 import { PermissionModule } from './permission/permission.module';
 import { ApiStateModule } from './common/apiState/apiState.module';
 import { SiteModule } from './site/site.module';
+import {ClanMetaDto} from "./metaData/clan/dto/clanMeta.dto";
+import {ClanMetaModule} from "./metaData/clan/clanMeta.module";
 
 // Set up database connection
 const mongoUser = process.env.MONGO_USERNAME || 'rootUser';
@@ -41,6 +43,7 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       RaidRoomModule,
       ProfileModule,
       SiteModule,
+      ClanMetaModule,
 
       RequestHelperModule,
       ServeStaticModule.forRoot({
