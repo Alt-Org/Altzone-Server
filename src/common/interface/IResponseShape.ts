@@ -12,7 +12,7 @@ interface ResponseMetaData {
     dataKey: string;
     modelName: ModelName;
     dataType: ResponseDataType;
-    documentMetaDataKeys: string[];
+    documentMetaDataKeys?: string[];
     dataCount?: number;
 }
 
