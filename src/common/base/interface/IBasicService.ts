@@ -6,7 +6,9 @@ import { ModelName } from "src/common/enum/modelName.enum";
 import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
 
 export interface IBasicService<T=object> extends IDiscriminator{
-    createOne(input: any): Promise<T | MongooseError>;
+    createOne(input: any): Promise<T | MongooseError | null>;
+    createOnePreHook?(input: any): Promise<boolean>;
+    createOnePostHook?(input: any, output: any): Promise<boolean>;
 
     readOneById(_id: string, includeRefs?: ModelName[], metaData?: string[]): Promise<T | null | MongooseError>;
     readOneWithCollections(_id: string, withQuery: string): Promise<T | null | MongooseError>;

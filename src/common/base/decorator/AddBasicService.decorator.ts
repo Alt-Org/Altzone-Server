@@ -9,6 +9,8 @@ import {IResponseShape} from "../../interface/IResponseShape";
 
 export type ClearCollectionReferences = (_id: any, ignoreReferences?: IgnoreReferencesType) => void | Promise<void>;
 export type GetDocumentMetaData = (_id: any, metaData: string[]) => object | Promise<object>;
+export type PreHookFunction = (input: any) => Promise<boolean>;
+export type PostHookFunction = (input: any, output: any) => Promise<boolean>;
 
 export const AddBasicService = () => {
     return function<T extends {
@@ -19,6 +21,9 @@ export const AddBasicService = () => {
             model: Model<any>;
             modelName?: string;
             discriminators: Discriminator[];
+
+            createOnePreHook?: PreHookFunction;
+            createOnePostHook?: PostHookFunction;
         }
     }>(originalConstructor: T) {
         return class extends originalConstructor implements IBasicService{
@@ -26,8 +31,30 @@ export const AddBasicService = () => {
                 super(...args);
             }
 
-            public createOne = async (input: any): Promise<object | MongooseError> => {
-                return this.model.create(input);
+            public createOne = async (input: any): Promise<IResponseShape | MongooseError | null> => {
+                if(this.createOnePreHook){
+                    const isPreHookSuccessful = await this.createOnePreHook(input);
+                    if(!isPreHookSuccessful)
+                        return null;
+                }
+
+                const createResp =  await this.model.create(input);
+
+                //TODO: add logic if post hook is not successful
+                if(this.createOnePostHook)
+                    await this.createOnePostHook(input, createResp);
+                const modelName = this.getModelName() as ModelName;
+                const dataKey = modelName;
+                return {
+                    data: {
+                        [dataKey]: createResp
+                    },
+                    metaData: {
+                        dataKey: dataKey,
+                        modelName: modelName,
+                        dataType: 'Object'
+                    }
+                }
             }
 
             public readOneById = async (_id: string, includeRefs?: ModelName[], metaData?: string[]): Promise<IResponseShape | null | MongooseError> => {
