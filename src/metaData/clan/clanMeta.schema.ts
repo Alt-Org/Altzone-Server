@@ -4,10 +4,10 @@ import {ModelName} from "../../common/enum/modelName.enum";
 
 export type ClanMetaDocument = HydratedDocument<ClanMeta>;
 
-@Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
+@Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true }, _id: false })
 export class ClanMeta {
-    @Prop({ type: String, required: true, unique: true })
-    _id: Types.ObjectId;
+    @Prop({ type: String })
+    _id: string;
 
     @Prop({ type: Number, default: 0, min: 0 })
     playerCount: number;
