@@ -43,7 +43,6 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       RaidRoomModule,
       ProfileModule,
       SiteModule,
-      ClanMetaModule,
 
       RequestHelperModule,
       ServeStaticModule.forRoot({
