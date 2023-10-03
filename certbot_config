@@ -1,0 +1,2 @@
+#!/bin/bash
+/opt/certbot/bin/certbot --nginx --non-interactive --email proyaleg@gmail.com --no-eff-email --agree-tos -d altzone.fi

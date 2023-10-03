@@ -33,17 +33,19 @@ services:
       - MONGO_INITDB_DATABASE=altzone
 
   proxy:
-    image: nginx:1.23.4-bullseye
+    build:
+      dockerfile: ./prod_nginx.Dockerfile
     container_name: altzone_proxy
     depends_on:
       - api
     restart: always
     ports:
       - 80:80
+      - 443:443
     networks:
       - backend
     volumes:
-      - ./prod_nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./prod_nginx.conf:/etc/nginx/nginx.conf
 
 networks:
   backend:
