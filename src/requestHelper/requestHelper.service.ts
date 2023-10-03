@@ -70,6 +70,29 @@ export class RequestHelperService {
         }
     }
 
+    public changeCounterValue = async (modelName: ModelName, filter: object, counterField: string, counterChange: number): Promise<boolean> => {
+        if(counterChange === 0)
+            return true;
+
+        const model = this.connection.model(modelName);
+
+        const docToUpdate = await model.findOne(filter);
+        if(!docToUpdate)
+            return false;
+
+        const currentCount = docToUpdate[counterField];
+        if(currentCount == null)
+            return false;
+
+        const newCount = currentCount + counterChange;
+        if(newCount < 0)
+            return false;
+
+        const updateResponse = await model.updateOne({_id: docToUpdate._id}, {[counterField]: newCount});
+        const isCountModified = updateResponse.modifiedCount !== 0;
+        return isCountModified;
+    }
+
     public updateOneById = async (modelName: ModelName, _id: string | Types.ObjectId, updateObject: Object) => {
         return this.connection.model(modelName).updateOne({_id}, updateObject);
     }
