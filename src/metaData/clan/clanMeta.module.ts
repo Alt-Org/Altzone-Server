@@ -7,9 +7,9 @@ import {ModelName} from "../../common/enum/modelName.enum";
 
 @Module({
     imports: [
-        MongooseModule.forFeature([ {name: ModelName.CLAN_META, schema: ClanMetaSchema} ]),
+        //MongooseModule.forFeature([ {name: ModelName.CLAN_META, schema: ClanMetaSchema} ]),
     ],
-    controllers: [ClanMetaController],
+    //controllers: [ClanMetaController],
     providers: [ ClanMetaService ],
     exports: [ClanMetaService]
 })

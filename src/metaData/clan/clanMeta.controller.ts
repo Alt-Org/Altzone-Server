@@ -8,14 +8,14 @@ import {ModelName} from "../../common/enum/modelName.enum";
 import {_idDto} from "../../common/dto/_id.dto";
 
 
-@Controller('metaData/clan')
+//@Controller('metaData/clan')
 export class ClanMetaController{
     public constructor(
         private readonly service: ClanMetaService
     ) {
     }
 
-    @Get('/:_id')
+    //@Get('/:_id')
     @Authorize({action: Action.read, subject: ClanMetaDto})
     @BasicGET(ModelName.CLAN_META, ClanMetaDto)
     public get(@Param() param: _idDto) {
