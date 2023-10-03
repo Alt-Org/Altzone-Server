@@ -4,9 +4,9 @@ This is a REST API for Altzone game
 
 ## Link to server
 
-Server is now available on http://154.49.137.212/
+Server is now available on https://altzone.fi/
 
-Server description is here http://154.49.137.212/swagger
+Server description is here https://altzone.fi/swagger
 
 ## Getting started
 
