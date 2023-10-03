@@ -19,6 +19,15 @@ export class Clan {
     @Prop({type: Array<string>, default: []})
     admin_ids: string[];
 
+    @Prop({ type: Number, default: 0, min: 0 })
+    playerCount: number;
+
+    @Prop({ type: Number, default: 0, min: 0 })
+    furnitureCount: number;
+
+    @Prop({ type: Number, default: 0, min: 0 })
+    raidRoomCount: number;
+
     @ExtractField()
     _id: string;
 }
