@@ -11,10 +11,13 @@ import {RaidRoomService} from "../raidRoom/raidRoom.service";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
 import {ClanDto} from "../clan/dto/clan.dto";
+import {IHookImplementer, PostHookFunction, PostUpdateHookFunction} from "../common/interface/IHookImplementer";
+import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
+import {PlayerDto} from "./dto/player.dto";
 
 @Injectable()
 @AddBasicService()
-export class PlayerService extends BasicServiceDummyAbstract implements IBasicService{
+export class PlayerService extends BasicServiceDummyAbstract implements IBasicService, IHookImplementer<Partial<UpdatePlayerDto>, Partial<PlayerDto>>{
     public constructor(
         @InjectModel(Player.name) public readonly model: Model<Player>,
         private readonly customCharacterService: CustomCharacterService,
@@ -33,6 +36,23 @@ export class PlayerService extends BasicServiceDummyAbstract implements IBasicSe
             throw new BadRequestException(isClanRefCleanSuccess.message);
         await this.customCharacterService.deleteByCondition({player_id: _id});
         await this.raidRoomService.deleteByCondition({player_id: _id}, {isOne: true});
+    }
+
+    public updateOnePostHook: PostUpdateHookFunction = async (input: Partial<UpdatePlayerDto>, oldDoc: Partial<PlayerDto>, output: Partial<PlayerDto>): Promise<boolean> => {
+        if(!input?.clan_id)
+            return true;
+
+        const changeCounterValue = this.requestHelperService.changeCounterValue;
+
+        //decrease playerCounter from old clan
+        const clanRemoveFrom_id = oldDoc.clan_id;
+        if(clanRemoveFrom_id)
+            await changeCounterValue(ModelName.CLAN, {_id: clanRemoveFrom_id}, 'playerCount', -1);
+
+        const isPlayerCountIncreased = await this.requestHelperService.changeCounterValue(ModelName.CLAN, {_id: input.clan_id}, 'playerCount', 1)
+
+
+        return isPlayerCountIncreased;
     }
 
     private clearClanReferences = async (_id: string): Promise<boolean | Error> => {

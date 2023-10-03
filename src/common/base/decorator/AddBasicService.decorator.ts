@@ -6,6 +6,7 @@ import {DeleteOptionsType} from "../type/deleteOptions.type";
 import {Discriminator} from "../../enum/discriminator.enum";
 import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
 import {IResponseShape} from "../../interface/IResponseShape";
+import {PostUpdateHookFunction} from "../../interface/IHookImplementer";
 
 export type ClearCollectionReferences = (_id: any, ignoreReferences?: IgnoreReferencesType) => void | Promise<void>;
 export type GetDocumentMetaData = (_id: any, metaData: string[]) => object | Promise<object>;
@@ -24,6 +25,8 @@ export const AddBasicService = () => {
 
             createOnePreHook?: PreHookFunction;
             createOnePostHook?: PostHookFunction;
+
+            updateOnePostHook?: PostUpdateHookFunction;
         }
     }>(originalConstructor: T) {
         return class extends originalConstructor implements IBasicService{
@@ -113,8 +116,13 @@ export const AddBasicService = () => {
                 return this.model.find(filter, null, searchOptions).select(select);
             }
 
-            public updateOneById = async (input: any): Promise<object | MongooseError> => {
-                return this.model.updateOne({_id: input._id}, input, {rawResult: true});
+            public updateOneById = async (input: any): Promise<object | boolean | MongooseError> => {
+                if(!this.updateOnePostHook)
+                    return this.model.updateOne({_id: input._id}, input, {rawResult: true});
+
+                const oldDoc = await this.model.findOneAndUpdate({_id: input._id}, input);
+                await this.updateOnePostHook(input, oldDoc, {});
+                return true;
             }
 
             public deleteOneById = async (_id: string, ignoreReferences?: IgnoreReferencesType): Promise<Object | null | MongooseError> => {
