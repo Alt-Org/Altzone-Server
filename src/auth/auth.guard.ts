@@ -47,13 +47,13 @@ export class AuthGuard implements CanActivate {
                 }
             );
 
-            const {profile_id, player_id, clan_id} = payload;
+            const {profile_id, player_id} = payload;
             const isSystemAdmin = await this.systemAdminService.isSystemAdmin(profile_id);
 
             if(!profile_id || (!isSystemAdmin && !player_id))
                 throw new Error('Incorrect token provided');
 
-            request['user'] = new User(profile_id, player_id, clan_id, isSystemAdmin);
+            request['user'] = new User(profile_id, player_id, isSystemAdmin);
         } catch{
             throw new UnauthorizedException(
                 'The access token is expired or invalid. ' +

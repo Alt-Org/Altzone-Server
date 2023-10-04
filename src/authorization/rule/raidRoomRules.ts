@@ -7,6 +7,7 @@ import { UpdateRaidRoomDto } from "src/raidRoom/dto/updateRaidRoom.dto";
 import {RulesSetterAsync} from "../type/rulesSetter.type";
 import { ClanDto } from "../../clan/dto/clan.dto";
 import { ModelName } from "src/common/enum/modelName.enum";
+import {getClan_id} from "../util/getClan_id";
 
 type Subjects = InferSubjects<typeof RaidRoomDto | typeof UpdateRaidRoomDto>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
@@ -15,15 +16,17 @@ export const raidRoomRules: RulesSetterAsync<Ability, Subjects> = async (user, s
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
     if(subject === RaidRoomDto){
-        can(Action.create_request, subject, {clan_id: user.clan_id});
+        const clan_id = await getClan_id(user, requestHelperService);
+        can(Action.create_request, subject, {clan_id: clan_id});
 
         //const publicFields = ['_id', 'name', 'uniqueIdentifier'];
         can(Action.read_request, subject);
-        can(Action.read_response, subject, {clan_id: user.clan_id});
+        can(Action.read_response, subject, {clan_id: clan_id});
     }
 
     if(subject === UpdateRaidRoomDto){
-        const clan = await requestHelperService.getModelInstanceById(ModelName.CLAN, user.clan_id, ClanDto);
+        const clan_id = await getClan_id(user, requestHelperService);
+        const clan = await requestHelperService.getModelInstanceById(ModelName.CLAN, clan_id, ClanDto);
         const isClanAdmin = clan.admin_ids.includes(user.player_id);
         if(isClanAdmin){
             can(Action.update_request, subject);

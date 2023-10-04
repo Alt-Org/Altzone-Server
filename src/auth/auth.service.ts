@@ -27,14 +27,9 @@ export class AuthService {
         if(player instanceof MongooseError || (!profile.isSystemAdmin && !player))
             return null;
 
-        let clan = null;
-        if(player?.clan_id)
-            clan = await this.requestHelperService.getModelInstanceById(ModelName.CLAN, player.clan_id, ClanDto);
-
         const payload = {
             profile_id: profile._id,
-            player_id: player?._id,
-            clan_id: clan?._id
+            player_id: player?._id
         };
         const accessToken = await this.jwtService.signAsync(payload);
         const decodedAccessToken: any = this.jwtService.decode(accessToken);
@@ -42,6 +37,9 @@ export class AuthService {
         const tokenExpires = decodedAccessToken?.exp;
 
         profile['Player'] = player;
+        let clan = null;
+        if(player?.clan_id)
+            clan = await this.requestHelperService.getModelInstanceById(ModelName.CLAN, player.clan_id, ClanDto);
         if(clan)
             profile['Clan'] = clan;
 
