@@ -4,14 +4,15 @@ import {DeleteOptionsType} from "../type/deleteOptions.type";
 import IDiscriminator from "../../interface/IDiscriminator";
 import { ModelName } from "src/common/enum/modelName.enum";
 import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
+import {IResponseShape} from "../../interface/IResponseShape";
 
 export interface IBasicService<T=object> extends IDiscriminator{
-    createOne(input: any): Promise<T | MongooseError | null>;
+    createOne(input: any): Promise<IResponseShape<T> | null | MongooseError>;
 
-    readOneById(_id: string, includeRefs?: ModelName[], metaData?: string[]): Promise<T | null | MongooseError>;
-    readOneWithCollections(_id: string, withQuery: string): Promise<T | null | MongooseError>;
-    readOneWithAllCollections(_id: string): Promise<T | null | MongooseError>;
-    readAll(query: IGetAllQuery): Promise<Array<T>>;
+    readOneById(_id: string, includeRefs?: ModelName[]): Promise<IResponseShape<T> | null | MongooseError>;
+    readOneWithCollections(_id: string, withQuery: string): Promise<IResponseShape<T> | null | MongooseError>;
+    readOneWithAllCollections(_id: string): Promise<IResponseShape<T> | null | MongooseError>;
+    readAll(query: IGetAllQuery): Promise<IResponseShape<T> | null | MongooseError>;
 
     updateOneById(input: any): Promise<object | boolean | MongooseError>;
 

@@ -6,33 +6,34 @@ import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
 import {Discriminator} from "../../enum/discriminator.enum";
 import { ModelName } from "src/common/enum/modelName.enum";
 import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
+import {IResponseShape} from "../../interface/IResponseShape";
 
 export abstract class BasicServiceDummyAbstract<T=object> implements IBasicService<T>{
     protected constructor() {}
     public readonly discriminators = [Discriminator.IBasicService];
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    createOne(input: any): Promise<T | MongooseError> {
+    createOne(input: any): Promise<IResponseShape<T> | null | MongooseError> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readAll(query: IGetAllQuery): Promise<Array<T>> {
+    readAll(query: IGetAllQuery): Promise<IResponseShape<T> | null | MongooseError> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readOneById(_id: string, includeRefs?: ModelName[], metaData?: string[]): Promise<T | MongooseError | null> {
+    readOneById(_id: string, includeRefs?: ModelName[], metaData?: string[]): Promise<IResponseShape<T> | null | MongooseError> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readOneWithAllCollections(_id: string): Promise<T | MongooseError | null> {
+    readOneWithAllCollections(_id: string): Promise<IResponseShape<T> | null | MongooseError> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readOneWithCollections(_id: string, withQuery: string): Promise<T | MongooseError | null> {
+    readOneWithCollections(_id: string, withQuery: string): Promise<IResponseShape<T> | null | MongooseError> {
         return Promise.resolve(undefined);
     }
 
