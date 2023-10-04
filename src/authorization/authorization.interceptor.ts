@@ -118,16 +118,18 @@ export class AuthorizationInterceptor implements NestInterceptor{
 
         return next.handle().pipe(map((data: any) => {
             //if nothing came, or it is an array === read many(serialization is done on request)
-            if(!data || Array.isArray(data))
+            if(!data)
                 return data;
 
             const dataParsed = data as IResponseShape;
             //it is an array === read many(serialization is done on request)
-            if(!dataParsed || dataParsed.metaData.dataCount > 1)
-                return dataParsed;
+            if(!dataParsed || dataParsed.metaData.dataType === 'Array')
+                return data;
 
             const {dataKey} = dataParsed.metaData;
             const respData = dataParsed.data[dataKey];
+            if(!respData)
+                return data;
 
             //Create one and read one response object serialization
             if(action === Action.create || action === Action.read){

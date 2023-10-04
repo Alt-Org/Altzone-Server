@@ -1,6 +1,7 @@
 import {BadRequestException, NotFoundException} from "@nestjs/common";
 import {ResponseType} from "./responseType";
 import {ModelName} from "../../enum/modelName.enum";
+import {IResponseShape} from "../../interface/IResponseShape";
 
 type ResponseHandler = (data: any, modelName: ModelName) => any;
 
@@ -39,10 +40,13 @@ function getResponseHandler(responseType: ResponseType): ResponseHandler {
 }
 
 function handleGetResponse (data: any, modelName: ModelName) {
-    if(data instanceof Array && data.length === 0)
-        throw new NotFoundException(`Can not find any ${modelName} instances`);
     if(data == null)
         throw new NotFoundException(`Can not find ${modelName} with that query`);
+
+    const parsedData = data as IResponseShape;
+
+    if(!parsedData || parsedData.metaData?.dataCount === 0)
+        throw new NotFoundException(`Can not find any ${modelName} instances`);
 
     return data;
 }
