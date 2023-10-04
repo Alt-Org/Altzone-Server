@@ -30,8 +30,8 @@ export const playerRules: RulesSetterAsync<Ability, Subjects> = async (user, sub
         can(Action.update_request, subject, {_id: user.player_id});
         cannot(Action.update_request, subject, ['clan_id']);
 
-        const reqPlayer_id = subjectObj._id;
-        const reqClan_id = subjectObj.clan_id;
+        const reqPlayer_id = subjectObj?._id;
+        const reqClan_id = subjectObj?.clan_id;
 
         //if add to clan
         if(subjectObj && reqPlayer_id && reqClan_id){
@@ -44,7 +44,7 @@ export const playerRules: RulesSetterAsync<Ability, Subjects> = async (user, sub
                 throw new NotFoundException('Player with that _id not found');
 
             //if player is in any clan and clan_id does change
-            if(playerToAdd.clan_id !== null && playerToAdd.clan_id !== reqClan_id)
+            if(playerToAdd.clan_id && playerToAdd.clan_id !== reqClan_id)
                 throw new ForbiddenException('Player is already in a clan. Please remove the Player from current clan first');
 
             const isAdmin = isClanAdmin(clanWhereToAdd, user.player_id);
