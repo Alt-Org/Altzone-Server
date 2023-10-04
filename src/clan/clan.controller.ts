@@ -53,18 +53,17 @@ export class ClanController{
         body['admin_ids'] = [creatorPlayer_id];
 
         const clanResp = await this.service.createOne(body);
-        if(!(clanResp instanceof MongooseError))
-            await this.requestHelperService.updateOneById(ModelName.PLAYER, creatorPlayer_id, {clan_id: clanResp._id})
+        if(clanResp && !(clanResp instanceof MongooseError))
+            await this.requestHelperService.updateOneById(ModelName.PLAYER, creatorPlayer_id, {clan_id: clanResp.data[clanResp.metaData.dataKey]._id});
         return clanResp;
     }
 
     @Get('/:_id')
     @Authorize({action: Action.read, subject: ClanDto})
-    @AddMetaDataQuery()
     @BasicGET(ModelName.CLAN, ClanDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id, request['mongoPopulate'], request['metaData']);
+        return this.service.readOneById(param._id, request['mongoPopulate']);
     }
 
     @Get()
@@ -89,11 +88,11 @@ export class ClanController{
             throw new NotFoundException('Clan with that _id not found');
 
         if(body.admin_idsToDelete)
-            clanToUpdate.admin_ids = deleteArrayElements(clanToUpdate.admin_ids, body.admin_idsToDelete);
+            clanToUpdate.data[clanToUpdate.metaData.dataKey].admin_ids = deleteArrayElements(clanToUpdate.data[clanToUpdate.metaData.dataKey].admin_ids, body.admin_idsToDelete);
 
         body.admin_idsToAdd = deleteNotUniqueArrayElements(body.admin_idsToAdd);
         //add only players that are clan members
-        const clanToUpdate_id = clanToUpdate._id.toString();
+        const clanToUpdate_id = clanToUpdate.data[clanToUpdate.metaData.dataKey]._id.toString();
         const playersInClan: string[] = [];
         const playersNotInClan: string[] = [];
         for(let i=0; i<body.admin_idsToAdd.length; i++){
@@ -103,7 +102,7 @@ export class ClanController{
                 player.clan_id === clanToUpdate_id ? playersInClan.push(player_id) : playersNotInClan.push(player_id);
         }
 
-        const newAdmin_ids = addUniqueArrayElements(clanToUpdate.admin_ids, playersInClan);
+        const newAdmin_ids = addUniqueArrayElements(clanToUpdate.data[clanToUpdate.metaData.dataKey].admin_ids, playersInClan);
 
         if(newAdmin_ids.length === 0)
             throw new BadRequestException('Clan can not be without at least one admin. You are trying to delete all clan admins');
