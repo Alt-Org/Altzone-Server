@@ -12,11 +12,19 @@ interface ResponseMetaData {
     dataKey: string;
     modelName: ModelName;
     dataType: ResponseDataType;
-    documentMetaDataKeys?: string[];
     dataCount?: number;
+}
+
+interface PaginationData {
+    currentPage: number;
+    limit: number;
+    offset: number;
+    itemCount?: number;
+    pageCount?: number;
 }
 
 export interface IResponseShape<D=any, M=object> {
     data: Data<D, M>;
     metaData?: ResponseMetaData;
+    paginationData?: PaginationData
 }
