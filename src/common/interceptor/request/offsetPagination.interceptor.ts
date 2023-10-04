@@ -4,6 +4,7 @@ import {map} from "rxjs/operators";
 import {Request, Response} from 'express';
 import {RequestHelperService} from "../../../requestHelper/requestHelper.service";
 import { ModelName } from "src/common/enum/modelName.enum";
+import {IResponseShape} from "../../interface/IResponseShape";
 
 export function OffsetPaginate(modelName: ModelName, minLimit: number=20, maxLimit:number=50) {
     @Injectable()
@@ -27,23 +28,27 @@ export function OffsetPaginate(modelName: ModelName, minLimit: number=20, maxLim
             request['paginationOffset'] = paginationOffset;
 
             return next.handle().pipe(map(async (data: any) => {
-                if(!Array.isArray(data))
+                if(!data)
+                    return data;
+
+                const dataParsed = data as IResponseShape;
+                if(!dataParsed || dataParsed.metaData.dataType === 'Object')
                     return data;
 
                 const request = context.switchToHttp().getRequest<Request>();
-                const response = context.switchToHttp().getResponse<Response>();
-                const isFirstReq = query['isFirstReq'] === '' || query['isFirstReq'] === 'true';
-                if(page === 1 || isFirstReq){
-                    const itemCount = await this.requestHelperService.count(modelName, request['mongoFilter']);
-                    response.set({itemCount});
-                    const pageCount = Math.ceil(itemCount/paginationLimit);
-                    response.set({pageCount});
+                const withItemCount = query['withPageCount'] === '' || query['withPageCount'] === 'true';
+                dataParsed.paginationData = {
+                    currentPage: page,
+                    limit: paginationLimit,
+                    offset: paginationOffset
                 }
-                response.set({'currentPage': page});
-                response.set({'limit': paginationLimit});
-                response.set({'offset': paginationOffset});
+                if(page === 1 || withItemCount){
+                    const itemCount = await this.requestHelperService.count(modelName, request['mongoFilter']);
+                    dataParsed.paginationData.itemCount = itemCount;
+                    dataParsed.paginationData.pageCount = Math.ceil(itemCount/paginationLimit);
+                }
 
-                return data;
+                return dataParsed;
             }));
         }
     }
