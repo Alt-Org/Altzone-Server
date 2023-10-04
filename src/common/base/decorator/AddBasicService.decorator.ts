@@ -17,7 +17,6 @@ export const AddBasicService = () => {
     return function<T extends {
         new (...args: any[]): {
             clearCollectionReferences: ClearCollectionReferences;
-            getDocumentMetaData?: GetDocumentMetaData;
             refsInModel: ModelName[];
             model: Model<any>;
             modelName?: string;
@@ -46,48 +45,23 @@ export const AddBasicService = () => {
                 //TODO: add logic if post hook is not successful
                 if(this.createOnePostHook)
                     await this.createOnePostHook(input, createResp);
-                const modelName = this.getModelName() as ModelName;
-                const dataKey = modelName;
-                return {
-                    data: {
-                        [dataKey]: createResp
-                    },
-                    metaData: {
-                        dataKey: dataKey,
-                        modelName: modelName,
-                        dataType: 'Object'
-                    }
-                }
+
+                return this.configureResponse(createResp);
             }
 
             public readOneById = async (_id: string, includeRefs?: ModelName[], metaData?: string[]): Promise<IResponseShape | null | MongooseError> => {
-                if(!metaData || metaData.length === 0)
-                    return includeRefs ? this.model.findById(_id).populate(includeRefs) : this.model.findById(_id);
-
-                const data =  includeRefs ? await this.model.findById(_id).populate(includeRefs).exec() : await this.model.findById(_id).exec();
-                const meta = this.getDocumentMetaData ? await this.getDocumentMetaData(_id, metaData) : {};
-                const modelName = this.getModelName() as ModelName;
-                const dataKey = modelName;
-                return {
-                    data: {
-                        [dataKey]: data,
-                        metaData: meta
-                    },
-                    metaData: {
-                        dataKey: dataKey,
-                        modelName: modelName,
-                        dataType: 'Object',
-                        documentMetaDataKeys: metaData
-                    }
-                }
+                const data = includeRefs ? await this.model.findById(_id).populate(includeRefs).exec() : await this.model.findById(_id).exec();
+                return data ? this.configureResponse(data) : data;
             }
 
-            public readOneWithCollections = async (_id: string, withQuery: string): Promise<object | null | MongooseError> => {
+            public readOneWithCollections = async (_id: string, withQuery: string): Promise<IResponseShape | null | MongooseError> => {
                 const withRefs: ModelName[] = withQuery.split('_') as ModelName[];
                 const dbQuery = this.model.findById(_id);
 
-                if(withRefs.length === 0)
-                    return dbQuery;
+                if(withRefs.length === 0){
+                    const data = await dbQuery.exec();
+                    return data ? this.configureResponse(data) : data;
+                }
 
                 for(let i=0; i<withRefs.length; i++){
                     const refModelName = withRefs[i];
@@ -96,24 +70,28 @@ export const AddBasicService = () => {
                         dbQuery.populate(refModelName);
                 }
 
-                return await dbQuery.exec();
+                const data = await dbQuery.exec();
+                return data ? this.configureResponse(data) : data;
             }
 
-            public readOneWithAllCollections = async (_id: string): Promise<object | null | MongooseError> => {
+            public readOneWithAllCollections = async (_id: string): Promise<IResponseShape | null | MongooseError> => {
                 const dbQuery = this.model.findById(_id) as any;
 
                 for(let i=0; i<this.refsInModel.length; i++)
                     dbQuery.populate(this.refsInModel[i]);
 
-                return dbQuery.exec();
+                const data = await dbQuery.exec();
+                return data ? this.configureResponse(data) : data;
             }
 
-            public readAll = async (query: IGetAllQuery): Promise<Array<object>> => {
+            public readAll = async (query: IGetAllQuery): Promise<IResponseShape | null | MongooseError> => {
                 if(query.select === null)
-                    return [];
+                    return this.configureResponse([]);
 
                 const {filter, select, ...searchOptions} = query;
-                return this.model.find(filter, null, searchOptions).select(select);
+
+                const data = await this.model.find(filter, null, searchOptions).select(select);
+                return this.configureResponse(data);
             }
 
             public updateOneById = async (input: any): Promise<object | boolean | MongooseError> => {
@@ -161,6 +139,24 @@ export const AddBasicService = () => {
             }
 
             public getModelName = (): string => this.modelName ? this.modelName : 'Model';
+            public configureResponse = (data: any): IResponseShape => {
+                const modelName = this.getModelName() as ModelName;
+                const dataKey = modelName;
+                const dataType = Array.isArray(data) ? 'Array' : 'Object';
+                const dataCount = dataType === 'Array' ? data.length : 1;
+
+                return {
+                    data: {
+                        [dataKey]: data
+                    },
+                    metaData: {
+                        dataKey: dataKey,
+                        modelName: modelName,
+                        dataType,
+                        dataCount
+                    }
+                }
+            }
         }
 
     }

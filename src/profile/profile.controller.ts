@@ -43,13 +43,15 @@ export default class ProfileController {
         if(!Player)
             return this.service.createOne(profile);
 
-        const profileResp: any = await this.service.createOne(profile);
+        const profileResp = await this.service.createOne(profile);
         if(profileResp && !(profileResp instanceof MongooseError)){
-            Player['profile_id'] = profileResp._id;
+            Player['profile_id'] = profileResp.data[profileResp.metaData.dataKey]._id;
             try{
-                profileResp['Player'] = await this.playerService.createOne(Player);
+                const playerResp = await this.playerService.createOne(Player);
+                if(playerResp && !(playerResp instanceof MongooseError))
+                    profileResp.data.Player = playerResp.data[playerResp.metaData.dataKey];
             } catch(e){
-                await this.service.deleteOneById(profileResp._id);
+                await this.service.deleteOneById(profileResp.data[profileResp.metaData.dataKey]._id);
                 throw e;
             }
         }
@@ -79,7 +81,7 @@ export default class ProfileController {
     @Authorize({action: Action.update, subject: UpdateProfileDto})
     @BasicPUT(ModelName.PROFILE)
     public async update(@Body() body: UpdateProfileDto){
-        return this.service.updateOneByCondition({username: body.username}, body);
+        return this.service.updateOneById(body);
     }
 
     @Delete('/:_id')
