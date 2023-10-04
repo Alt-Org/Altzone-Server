@@ -10,7 +10,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
     origin: [
-      'https://jazzy-taiyaki-39e194.netlify.app',
+      'https://altzone.netlify.app',
+      'https://altzone.fi',
       'http://localhost:5173'
     ],
     methods: ["GET", "PUT", "POST", "DELETE"],
