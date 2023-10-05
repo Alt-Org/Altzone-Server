@@ -21,6 +21,15 @@ export class ClanDto {
     @Expose()
     admin_ids: string[];
 
+    @Expose()
+    playerCount: number;
+
+    @Expose()
+    furnitureCount: number;
+
+    @Expose()
+    raidRoomCount: number;
+
     @Type(() => PlayerDto)
     @Expose()
     Player: PlayerDto[];
