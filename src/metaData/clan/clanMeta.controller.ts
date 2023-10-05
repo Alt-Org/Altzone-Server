@@ -16,7 +16,7 @@ export class ClanMetaController{
     }
 
     //@Get('/:_id')
-    @Authorize({action: Action.read, subject: ClanMetaDto})
+    //@Authorize({action: Action.read, subject: ClanMetaDto})
     @BasicGET(ModelName.CLAN_META, ClanMetaDto)
     public get(@Param() param: _idDto) {
         return this.service.readMetaData(param._id);

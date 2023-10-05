@@ -17,7 +17,7 @@ export const clanRules: RulesSetterAsync<Ability, Subjects> = async (user, subje
 
     if(action === Action.read){
         //const clan_id = await getClan_id(user, requestHelperService);
-        // const publicFields = ['_id', 'name', 'uniqueIdentifier'];
+        //const publicFields = ['_id', 'name', 'uniqueIdentifier'];
 
         can(Action.read_request, subject);
         can(Action.read_response, subject);

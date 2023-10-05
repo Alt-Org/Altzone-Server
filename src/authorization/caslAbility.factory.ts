@@ -39,8 +39,7 @@ export type AllowedSubject =
     typeof CharacterClassDto | typeof UpdateCharacterClassDto |
     typeof FurnitureDto | typeof UpdateFurnitureDto | 
     typeof RaidRoomDto | typeof UpdateRaidRoomDto |
-    typeof ClanDto | typeof UpdateClanDto |
-    typeof ClanMetaDto;
+    typeof ClanDto | typeof UpdateClanDto;
 
 type Subjects = InferSubjects<AllowedSubject>;
 
@@ -78,8 +77,5 @@ export class CASLAbilityFactory {
 
         if(subject === ClanDto || subject === UpdateClanDto)
             return clanRules(user, subject, action, subjectObj, this.requestHelperService);
-
-        if(subject === ClanMetaDto)
-            return metaDataRules(user, subject, action, subjectObj);
     }
 }
