@@ -13,6 +13,8 @@ import {
 } from "../common/base/decorator/AddBasicService.decorator";
 import {IBasicService} from "../common/base/interface/IBasicService";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
+import {IHookImplementer, PostCreateHookFunction} from "../common/interface/IHookImplementer";
+import {CreateClanDto} from "./dto/createClan.dto";
 
 @Injectable()
 @AddBasicService()

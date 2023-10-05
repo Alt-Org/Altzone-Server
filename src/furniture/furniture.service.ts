@@ -8,10 +8,13 @@ import {ModelName} from "../common/enum/modelName.enum";
 import {Furniture} from "./furniture.schema";
 import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
+import {IHookImplementer, PostCreateHookFunction, PostHookFunction} from "../common/interface/IHookImplementer";
+import {UpdateFurnitureDto} from "./dto/updateFurniture.dto";
+import {CreateFurnitureDto} from "./dto/createFurniture.dto";
 
 @Injectable()
 @AddBasicService()
-export class FurnitureService extends BasicServiceDummyAbstract<Furniture> implements IBasicService<Furniture>{
+export class FurnitureService extends BasicServiceDummyAbstract<Furniture> implements IBasicService<Furniture>, IHookImplementer{
     public constructor(
         @InjectModel(Furniture.name) public readonly model: Model<Furniture>,
         private readonly requestHelperService: RequestHelperService
@@ -21,6 +24,39 @@ export class FurnitureService extends BasicServiceDummyAbstract<Furniture> imple
     }
 
     public readonly refsInModel: ModelName[];
+
+    public createOnePostHook: PostCreateHookFunction = async (input: CreateFurnitureDto, output: Furniture): Promise<boolean> => {
+        if(!input?.clan_id)
+            return true;
+
+        const isFurnitureCountIncreased = await this.requestHelperService.changeCounterValue(ModelName.CLAN, {_id: input.clan_id}, 'furnitureCount', 1);
+        return isFurnitureCountIncreased;
+    }
+
+    public updateOnePostHook: PostHookFunction = async (input: Partial<UpdateFurnitureDto>, oldDoc: Furniture, output: Furniture): Promise<boolean> => {
+        if(!input?.clan_id)
+            return true;
+
+        const changeCounterValue = this.requestHelperService.changeCounterValue;
+
+        //decrease furnitureCount for old clan
+        const clanRemoveFrom_id = oldDoc.clan_id;
+        if(clanRemoveFrom_id)
+            await changeCounterValue(ModelName.CLAN, {_id: clanRemoveFrom_id}, 'furnitureCount', -1);
+
+        const isFurnitureCountIncreased = await changeCounterValue(ModelName.CLAN, {_id: input.clan_id}, 'furnitureCount', 1);
+        return isFurnitureCountIncreased;
+    }
+
+    public deleteOnePostHook: PostHookFunction = async (input: any, oldDoc: Furniture, output: Furniture): Promise<boolean> => {
+        const clan_id = oldDoc.clan_id;
+
+        if(!clan_id)
+            return true;
+
+        const isFurnitureCountIncreased = await this.requestHelperService.changeCounterValue(ModelName.CLAN, {_id: clan_id}, 'furnitureCount', -1);
+        return isFurnitureCountIncreased;
+    }
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
     }

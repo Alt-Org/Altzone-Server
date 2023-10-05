@@ -6,12 +6,9 @@ import {DeleteOptionsType} from "../type/deleteOptions.type";
 import {Discriminator} from "../../enum/discriminator.enum";
 import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
 import {IResponseShape} from "../../interface/IResponseShape";
-import {PostUpdateHookFunction} from "../../interface/IHookImplementer";
+import {PostCreateHookFunction, PostHookFunction} from "../../interface/IHookImplementer";
 
 export type ClearCollectionReferences = (_id: any, ignoreReferences?: IgnoreReferencesType) => void | Promise<void>;
-export type GetDocumentMetaData = (_id: any, metaData: string[]) => object | Promise<object>;
-export type PreHookFunction = (input: any) => Promise<boolean>;
-export type PostHookFunction = (input: any, output: any) => Promise<boolean>;
 
 export const AddBasicService = () => {
     return function<T extends {
@@ -22,10 +19,9 @@ export const AddBasicService = () => {
             modelName?: string;
             discriminators: Discriminator[];
 
-            createOnePreHook?: PreHookFunction;
-            createOnePostHook?: PostHookFunction;
-
-            updateOnePostHook?: PostUpdateHookFunction;
+            createOnePostHook?: PostCreateHookFunction;
+            updateOnePostHook?: PostHookFunction;
+            deleteOnePostHook?: PostHookFunction;
         }
     }>(originalConstructor: T) {
         return class extends originalConstructor implements IBasicService{
@@ -34,13 +30,7 @@ export const AddBasicService = () => {
             }
 
             public createOne = async (input: any): Promise<IResponseShape | MongooseError | null> => {
-                if(this.createOnePreHook){
-                    const isPreHookSuccessful = await this.createOnePreHook(input);
-                    if(!isPreHookSuccessful)
-                        return null;
-                }
-
-                const createResp =  await this.model.create(input);
+                const createResp = await this.model.create(input);
 
                 //TODO: add logic if post hook is not successful
                 if(this.createOnePostHook)
@@ -109,8 +99,11 @@ export const AddBasicService = () => {
                     return null;
 
                 await this.clearCollectionReferences(_id, ignoreReferences);
+                const result = await this.model.deleteOne({_id});
+                if(this.deleteOnePostHook)
+                    this.deleteOnePostHook(_id, entityToDelete, result);
 
-                return this.model.deleteOne({_id});
+                return result;
             }
 
             public deleteByCondition = async (condition: object, options?: DeleteOptionsType, ignoreReferences?: IgnoreReferencesType): Promise<Object | null | MongooseError> => {
@@ -121,8 +114,11 @@ export const AddBasicService = () => {
 
                     const _id = entityToDelete._id;
                     await this.clearCollectionReferences(_id, ignoreReferences);
+                    const result = this.model.deleteOne({_id: entityToDelete._id});
+                    if(this.deleteOnePostHook)
+                        this.deleteOnePostHook(_id, entityToDelete, result);
 
-                    return this.model.deleteOne({_id: entityToDelete._id});
+                    return result;
                 } else{
                     const entitiesToDelete = await this.model.find(condition);
                     if(!entitiesToDelete || entitiesToDelete?.length === 0)
