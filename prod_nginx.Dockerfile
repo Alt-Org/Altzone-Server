@@ -70,6 +70,7 @@ COPY --from=nginx_build /etc/nginx /etc/nginx
 COPY --from=nginx_build /usr/bin/nginx /usr/bin/nginx
 COPY --from=nginx_build /var/log/nginx /var/log/nginx
 COPY --from=nginx_build /var/run /var/run
+COPY --from=nginx_build /usr/local/nginx /usr/local/nginx
 
 #Start the server in non daemon mode (otherwise Docker will close the container)
 EXPOSE 80

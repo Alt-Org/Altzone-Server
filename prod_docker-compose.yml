@@ -46,6 +46,7 @@ services:
       - backend
     volumes:
       - ./prod_nginx.conf:/etc/nginx/nginx.conf
+      - ./public:/usr/local/nginx/public:ro
 
 networks:
   backend:
