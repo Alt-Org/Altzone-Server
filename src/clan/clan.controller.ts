@@ -34,7 +34,6 @@ import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
 import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
-import {AddMetaDataQuery} from "../common/interceptor/request/addMetaDataQuery.interceptor";
 
 @Controller('clan')
 export class ClanController{
