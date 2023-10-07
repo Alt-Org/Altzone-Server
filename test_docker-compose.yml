@@ -1,0 +1,77 @@
+#docker compose -f test_docker-compose.yml up
+
+services:
+  api_test:
+    build:
+      dockerfile: prod_api.Dockerfile
+    container_name: altzone_api_test
+    depends_on:
+      - db_test
+    networks:
+      - backend
+      - db
+    environment:
+      - HOST=altzone_api_test
+      - PORT=8080
+      - MONGO_USERNAME=testUser
+      - MONGO_PASSWORD=superSecretPassword
+      - MONGO_HOST=altzone_db_test
+      - MONGO_PORT=27017
+      - MONGO_DB_NAME=altzone_test
+
+  db_test:
+    image: mongo:4.2.24-bionic
+    container_name: altzone_db_test
+    networks:
+      - db
+    volumes:
+      - altzone_db_test:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=testUser
+      - MONGO_INITDB_ROOT_PASSWORD=superSecretPassword
+      - MONGO_INITDB_DATABASE=altzone_test
+    ports:
+      - 27017:27017
+
+  panel_test:
+    image: mongo-express:0.54.0
+    container_name: altzone_panel_test
+    depends_on:
+      - db_test
+    networks:
+      - backend
+      - db
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=testUser
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=superSecretPassword
+      - ME_CONFIG_MONGODB_SERVER=altzone_db_test
+      - ME_CONFIG_SITE_BASEURL=/panel/
+      - ME_CONFIG_SITE_COOKIESECRET=cookieParserMiddlewareSecret
+      - ME_CONFIG_SITE_SESSIONSECRET=secretForSessionIdCookie
+      - ME_CONFIG_OPTIONS_EDITORTHEME=ayu-dark
+    ports:
+      - 8081:8081
+
+  proxy_test:
+    build:
+      dockerfile: test_nginx.Dockerfile
+    container_name: altzone_proxy_test
+    depends_on:
+      - panel_test
+    ports:
+      - 80:80
+    networks:
+      - backend
+    volumes:
+      - ./test_nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./public:/usr/local/nginx/public
+
+networks:
+  backend:
+    name: altzone_backend_test
+  db:
+    name: altzone_db_test
+
+volumes:
+  altzone_db_test:
+  node_modules:
