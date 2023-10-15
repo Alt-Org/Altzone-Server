@@ -49,7 +49,7 @@ export default class ProfileController {
             try{
                 const playerResp = await this.playerService.createOne(Player);
                 if(playerResp && !(playerResp instanceof MongooseError))
-                    profileResp.data.Player = playerResp.data[playerResp.metaData.dataKey];
+                    profileResp.data[playerResp.metaData.dataKey].Player = playerResp.data[playerResp.metaData.dataKey];
             } catch(e){
                 await this.service.deleteOneById(profileResp.data[profileResp.metaData.dataKey]._id);
                 throw e;
