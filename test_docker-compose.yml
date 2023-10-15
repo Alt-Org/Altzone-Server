@@ -24,8 +24,8 @@ services:
     container_name: altzone_db_test
     networks:
       - db
-    volumes:
-      - altzone_db_test:/data/db
+#    volumes:
+#      - altzone_db_test:/data/db
     environment:
       - MONGO_INITDB_ROOT_USERNAME=testUser
       - MONGO_INITDB_ROOT_PASSWORD=superSecretPassword
