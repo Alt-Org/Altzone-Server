@@ -15,13 +15,13 @@ No queries
 ### Request object
 Includes:
 
-1. username - must be unique string
-2. password - must be string
+1. username - must be an unique string
+2. password - must be a string
 3. Player - player object, optional
 
 ### Response object
 The response should be in a standard shape, which is specified in the common section.
-Created Profile document (with nested Player if it was specified in the request) with 200 status
+Created Profile document (with nested Player if it was specified in the request) with 201 status
 
 ### Errors
 All standard create errors except related to authentication and authorization.
