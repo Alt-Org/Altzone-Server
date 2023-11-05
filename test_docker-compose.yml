@@ -33,31 +33,31 @@ services:
     ports:
       - 27017:27017
 
-  panel_test:
-    image: mongo-express:0.54.0
-    container_name: altzone_panel_test
-    depends_on:
-      - db_test
-    networks:
-      - backend
-      - db
-    environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=testUser
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=superSecretPassword
-      - ME_CONFIG_MONGODB_SERVER=altzone_db_test
-      - ME_CONFIG_SITE_BASEURL=/panel/
-      - ME_CONFIG_SITE_COOKIESECRET=cookieParserMiddlewareSecret
-      - ME_CONFIG_SITE_SESSIONSECRET=secretForSessionIdCookie
-      - ME_CONFIG_OPTIONS_EDITORTHEME=ayu-dark
-    ports:
-      - 8081:8081
+#  panel_test:
+#    image: mongo-express:0.54.0
+#    container_name: altzone_panel_test
+#    depends_on:
+#      - db_test
+#    networks:
+#      - backend
+#      - db
+#    environment:
+#      - ME_CONFIG_MONGODB_ADMINUSERNAME=testUser
+#      - ME_CONFIG_MONGODB_ADMINPASSWORD=superSecretPassword
+#      - ME_CONFIG_MONGODB_SERVER=altzone_db_test
+#      - ME_CONFIG_SITE_BASEURL=/panel/
+#      - ME_CONFIG_SITE_COOKIESECRET=cookieParserMiddlewareSecret
+#      - ME_CONFIG_SITE_SESSIONSECRET=secretForSessionIdCookie
+#      - ME_CONFIG_OPTIONS_EDITORTHEME=ayu-dark
+#    ports:
+#      - 8081:8081
 
   proxy_test:
     build:
       dockerfile: test_nginx.Dockerfile
     container_name: altzone_proxy_test
     depends_on:
-      - panel_test
+      - api_test
     ports:
       - 80:80
     networks:
