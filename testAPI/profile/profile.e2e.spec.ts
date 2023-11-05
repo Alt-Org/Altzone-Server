@@ -1,9 +1,10 @@
 import request from 'supertest';
-import {IResponseShape} from "../../src/common/interface/IResponseShape";
 import {Profile} from "../../src/profile/profile.schema";
 
-const fixed_id = 'fixed_id_for_testing_purposes';
-
+let newProfile: Partial<Profile> = {
+    username: 'bob',
+    password: 'my_password'
+}
 let newProfileWithPlayer: Partial<Profile> = {
     username: 'john',
     password: 'my_password',
@@ -14,48 +15,58 @@ let newProfileWithPlayer: Partial<Profile> = {
         uniqueIdentifier: 'johnIdentifier',
     }
 }
-let createdObject: any;
 
 const metaDataForObject = {
-    dataKey: 'Model',
-    modelName: 'Model',
+    dataKey: 'Profile',
+    modelName: 'Profile',
     dataType: 'Object',
     dataCount: 1
 }
 
 describe('Profile', () => {
 
+    it(`/profile POST, valid`, () => {
+        return request('http://localhost')
+            .post('/profile')
+            .send(newProfile)
+            .expect(201)
+            .expect(function (resp) {
+                if(!isRespValid(resp))
+                    return;
+
+                const dataKey = resp.body.metaData.dataKey;
+                const dataObj: Record<any, any> = resp.body.data[dataKey];
+
+                dataObj['password'] = newProfile.password;
+                resp.body.data[dataKey] = cleanRespObj(dataObj);
+            })
+            .expect({
+                data: {Profile: newProfile},
+                metaData: metaDataForObject
+            });
+    });
     it(`/profile POST, valid and with Player`, () => {
         return request('http://localhost')
             .post('/profile')
             .send(newProfileWithPlayer)
             .expect(201)
             .expect(function (resp) {
+                if(!isRespValid(resp))
+                    return;
+
                 const dataKey = resp.body.metaData.dataKey;
-                const dataObj: Record<any, any> = resp.body.data[dataKey] || {};
-                dataObj['_id'] = undefined;
-                dataObj['id'] = undefined;
-                dataObj['__v'] = undefined;
+                const dataObj: Record<any, any> = resp.body.data[dataKey];
+
                 dataObj['password'] = newProfileWithPlayer.password;
-                if(dataObj.Player){
-                    dataObj['Player']['_id'] = undefined;
-                    dataObj['Player']['id'] = undefined;
-                    dataObj['Player']['__v'] = undefined;
-                    dataObj['Player']['profile_id'] = undefined;
-                }
+                const cleanedObject = cleanRespObj(dataObj);
+                const {profile_id, ...cleanedPlayer} = cleanRespObj(cleanedObject.Player);
 
-                delete dataObj['_id'];
-                delete dataObj['id'];
-                delete dataObj['__v'];
-                delete dataObj['Player']['_id'];
-                delete dataObj['Player']['id'];
-                delete dataObj['Player']['__v'];
-                delete dataObj['Player']['profile_id'];
-
-                resp.body.data[dataKey] = dataObj;
+                resp.body.data[dataKey] = cleanedObject;
+                if(cleanedPlayer)
+                    resp.body.data[dataKey].Player = cleanedPlayer;
             })
             .expect({
-                data: {Model: newProfileWithPlayer},
+                data: {Profile: newProfileWithPlayer},
                 metaData: metaDataForObject
             });
     });
@@ -69,6 +80,24 @@ describe('Profile', () => {
     //         });
     // });
 });
+
+const isRespValid = (resp: any) => {
+    if(!resp.body)
+        return false;
+
+    if(!resp.body.metaData || !resp.body.metaData.dataKey || !resp.body.data)
+        return false;
+
+    return resp.body.data[resp.body.metaData.dataKey];
+}
+
+const cleanRespObj = (respObj: Record<any, any>) => {
+    if(!respObj)
+        return null;
+
+    const {id, _id, __v, ...cleanedObject} = respObj;
+    return cleanedObject;
+}
 
 // const getStandardRespFieldsToObject = (expectedData: any, _id?: any) => {
 //     const testingId = _id || testing_id;
