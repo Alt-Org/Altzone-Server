@@ -22,9 +22,11 @@ export class ProfileService extends BasicServiceDummyAbstract<ProfileDocument> i
     ){
         super();
         this.refsInModel = [ModelName.PLAYER];
+        this.modelName = ModelName.PROFILE;
     }
 
     public readonly refsInModel: ModelName[];
+    public readonly modelName: ModelName;
 
     public createWithHashedPassword(condition: object): Promise<MongooseError | Profile | null> {
         //TODO: hash psw here
