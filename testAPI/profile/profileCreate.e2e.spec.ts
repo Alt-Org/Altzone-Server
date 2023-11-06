@@ -97,6 +97,11 @@ let notUniquePlayerUniqueIdentifierResponse = {
     "error": "Conflict"
 }
 
+let accessToken = '';
+let accessTokenWithPlayer = '';
+let createdProfile_id = '';
+let createdProfileWithPlayer_id = '';
+
 describe('Create profile, /profile POST', () => {
     it(`send valid request`, () => {
         return request('http://localhost')
@@ -109,6 +114,7 @@ describe('Create profile, /profile POST', () => {
 
                 const dataKey = resp.body.metaData.dataKey;
                 const dataObj: Record<any, any> = resp.body.data[dataKey];
+                createdProfile_id = dataObj._id;
 
                 dataObj['password'] = newProfile.password;
                 resp.body.data[dataKey] = cleanRespObj(dataObj);
@@ -129,6 +135,7 @@ describe('Create profile, /profile POST', () => {
 
                 const dataKey = resp.body.metaData.dataKey;
                 const dataObj: Record<any, any> = resp.body.data[dataKey];
+                createdProfileWithPlayer_id = dataObj._id;
 
                 dataObj['password'] = newProfileWithPlayer.password;
                 const cleanedObject = cleanRespObj(dataObj);
@@ -179,6 +186,72 @@ describe('Create profile, /profile POST', () => {
             .send(notUniquePlayerUniqueIdentifier)
             .expect(409)
             .expect(notUniquePlayerUniqueIdentifierResponse);
+    });
+
+    it(`add Player to profile without it`, () => {
+        return request('http://localhost')
+            .post('/player')
+            .send({
+                name: 'Bob',
+                backpackCapacity: 12,
+                uniqueIdentifier: 'bobIdentifier',
+                profile_id: createdProfile_id
+            })
+            .expect(201)
+    });
+
+    it(`authorize with created profile`, () => {
+        return request('http://localhost')
+            .post('/auth/signIn')
+            .send({username: newProfile.username, password: newProfile.password})
+            .expect(201)
+            .expect((resp) => {
+                if(!resp.body.accessToken)
+                    throw new Error('Unable to authorize with provided credentials');
+
+                accessToken = resp.body.accessToken;
+            })
+    });
+    it(`authorize with created profile with Player`, () => {
+        return request('http://localhost')
+            .post('/auth/signIn')
+            .send(newProfileWithPlayer)
+            .expect(201)
+            .expect((resp) => {
+                if(!resp.body.accessToken)
+                    throw new Error('Unable to authorize with provided credentials');
+
+                accessTokenWithPlayer = resp.body.accessToken;
+            })
+    });
+    it(`check profiles were created`, () => {
+        return request('http://localhost')
+            .get('/profile')
+            .set('Authorization', `Bearer ${accessTokenWithPlayer}`)
+            .expect(200)
+            .expect( (resp) => {
+                const isProfile = resp.body.data['Profile'].find(p => p.username === newProfile.username);
+                const isProfileWithPlayer = resp.body.data['Profile'].find(p => p.username === newProfileWithPlayer.username);
+
+                if(!isProfile && !isProfileWithPlayer)
+                    throw new Error('Unable to find any of created profiles');
+                if(!isProfile)
+                    throw new Error('Unable to find profile without Player');
+                if(!isProfileWithPlayer)
+                    throw new Error('Unable to find profile with Player');
+            });
+    });
+    it(`delete created profile`, () => {
+        return request('http://localhost')
+            .delete(`/profile/${createdProfile_id}`)
+            .set('Authorization', `Bearer ${accessToken}`)
+            .expect(200)
+    });
+    it(`delete created profile with Player`, () => {
+        return request('http://localhost')
+            .delete(`/profile/${createdProfileWithPlayer_id}`)
+            .set('Authorization', `Bearer ${accessTokenWithPlayer}`)
+            .expect(200)
     });
 });
 
