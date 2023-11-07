@@ -9,8 +9,6 @@ import {CharacterClassModule} from "./characterClass/characterClass.module";
 import {FurnitureModule} from "./furniture/furniture.module";
 import {CustomCharacterModule} from "./customCharacter/customCharacter.module";
 import {RaidRoomModule} from "./raidRoom/raidRoom.module";
-import {ServeStaticModule} from "@nestjs/serve-static";
-import { join } from 'path';
 import {ProfileModule} from "./profile/profile.module";
 import { AuthModule } from './auth/auth.module';
 import {AuthGuard} from "./auth/auth.guard";
@@ -43,9 +41,6 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       SiteModule,
 
       RequestHelperModule,
-      ServeStaticModule.forRoot({
-          rootPath: join(__dirname, '..', 'public'),
-      }),
       AuthModule,
       JwtModule.register({
           global: true,
