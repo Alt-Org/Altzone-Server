@@ -1,7 +1,7 @@
 import {CallHandler, ExecutionContext, Injectable, NestInterceptor, UseInterceptors} from "@nestjs/common";
 import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
-import {Request, Response} from 'express';
+import {Request} from 'express';
 import {RequestHelperService} from "../../../requestHelper/requestHelper.service";
 import { ModelName } from "src/common/enum/modelName.enum";
 import {IResponseShape} from "../../interface/IResponseShape";

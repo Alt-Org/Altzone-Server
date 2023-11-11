@@ -1,9 +1,6 @@
 import {CallHandler, ExecutionContext, NestInterceptor, UseInterceptors} from "@nestjs/common";
 import {Observable} from "rxjs";
 import {Request} from 'express';
-import {instanceToPlain} from "class-transformer";
-import {operators, querySelectors, queryToDB} from "../../type/search.type";
-import {IClass} from "../../interface/IClass";
 
 export function AddMetaDataQuery() {
     return UseInterceptors(new AddMetaDataQueryInterceptor());
