@@ -1,11 +1,11 @@
-import {IsMongoId, IsString} from "class-validator";
+import {IsInt, IsMongoId} from "class-validator";
 
 export class messageParam {
     @IsMongoId()
     chat_id: string;
 
-    @IsString()
-    _id: string;
+    @IsInt()
+    _id: number;
 }
 
 export class chat_idParam {

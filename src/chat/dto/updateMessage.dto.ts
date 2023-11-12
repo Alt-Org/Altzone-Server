@@ -1,8 +1,8 @@
 import {IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
 
 export class UpdateMessageDto {
-    @IsString()
-    _id: string;
+    @IsInt()
+    id: number;
 
     @IsOptional()
     @IsString()

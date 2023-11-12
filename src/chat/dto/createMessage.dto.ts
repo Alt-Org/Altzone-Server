@@ -1,8 +1,8 @@
 import {IsInt, IsString} from "class-validator";
 
 export class CreateMessageDto {
-    @IsString()
-    _id: string;
+    @IsInt()
+    id: number;
 
     @IsString()
     senderUsername: string;
