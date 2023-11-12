@@ -3,7 +3,7 @@ import {
     Body,
     Controller,
     Delete,
-    Get,
+    Get, HttpCode,
     Param,
     Post,
     Put,
@@ -30,6 +30,7 @@ import {CreateMessageDto} from "./dto/createMessage.dto";
 import {MessageDto} from "./dto/message.dto";
 import {UpdateMessageDto} from "./dto/updateMessage.dto";
 import {chat_idParam, messageParam} from "./dto/messageParam";
+import {APIObjectName} from "../common/enum/apiObjectName.enum";
 
 @NoAuth()
 @Controller('chat')
@@ -76,13 +77,14 @@ export class ChatController {
 
 
     @Post('/:chat_id/messages')
+    @HttpCode(204)
     @BasicPOST(ChatDto)
     public async createMessage(@Param() param: chat_idParam, @Body() body: CreateMessageDto) {
         return this.service.createMessage(param.chat_id, body);
     }
 
     @Get('/:chat_id/messages/:_id')
-    @BasicGET(ModelName.CHAT, ChatDto)
+    @BasicGET(APIObjectName.MESSAGE, MessageDto)
     public getMessage(@Param() param: messageParam) {
         return this.service.readOneMessageById(param.chat_id, param._id);
     }
@@ -91,20 +93,20 @@ export class ChatController {
     @OffsetPaginate(ModelName.CHAT)
     @AddSearchQuery(MessageDto)
     @AddSortQuery(MessageDto)
-    @BasicGET(ModelName.CHAT, MessageDto)
-    public getAllMessages(@Param() param: chat_idParam, @GetAllQuery() query: IGetAllQuery) {
+    @BasicGET(APIObjectName.MESSAGE, MessageDto)
+    public getAllMessages(@Param() param: chat_idParam, @GetAllQuery('lol') query: IGetAllQuery) {
         return this.service.readAllMessages(param.chat_id, query);
     }
 
-    @Put('/:chat_id/messages')
-    @BasicPUT(ModelName.CHAT)
-    public async updateMessage(@Param() param: chat_idParam, @Body() body: UpdateMessageDto) {
-        return this.service.updateOneMessageById(param.chat_id, body);
-    }
-
-    @Delete('/:chat_id/messages/:_id')
-    @BasicDELETE(ModelName.CHAT)
-    public deleteMessage(@Param() param: messageParam) {
-        return this.service.deleteOneMessageById(param.chat_id, param._id);
-    }
+    // @Put('/:chat_id/messages')
+    // @BasicPUT(ModelName.CHAT)
+    // public async updateMessage(@Param() param: chat_idParam, @Body() body: UpdateMessageDto) {
+    //     return this.service.updateOneMessageById(param.chat_id, body);
+    // }
+    //
+    // @Delete('/:chat_id/messages/:_id')
+    // @BasicDELETE(ModelName.CHAT)
+    // public deleteMessage(@Param() param: messageParam) {
+    //     return this.service.deleteOneMessageById(param.chat_id, param._id);
+    // }
 }
