@@ -20,7 +20,7 @@ class AddSortQueryInterceptor implements NestInterceptor{
             return next.handle();
 
         const sortQuery = query['sort'] as string;
-        const orderQuery = (query['desc'] === '' || query['desc'] === 'true') ? 'desc' : 'asc';
+        const orderQuery = (query['desc'] === '' || query['desc'] === 'true') ? -1 : 1;
 
         //Get fields that can be queried
         const dtoClassInstance = new this.dtoClass();

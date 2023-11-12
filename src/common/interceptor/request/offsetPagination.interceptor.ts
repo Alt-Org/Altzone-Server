@@ -37,16 +37,23 @@ export function OffsetPaginate(modelName: ModelName, minLimit: number=20, maxLim
 
                 const request = context.switchToHttp().getRequest<Request>();
                 const withItemCount = query['withPageCount'] === '' || query['withPageCount'] === 'true';
-                dataParsed.paginationData = {
+
+                const paginationData: any = {
                     currentPage: page,
                     limit: paginationLimit,
                     offset: paginationOffset
                 }
+
                 if(page === 1 || withItemCount){
-                    const itemCount = await this.requestHelperService.count(modelName, request['mongoFilter']);
-                    dataParsed.paginationData.itemCount = itemCount;
-                    dataParsed.paginationData.pageCount = Math.ceil(itemCount/paginationLimit);
+                    const itemCount = data.paginationData && data.paginationData.itemCount ?
+                        data.paginationData.itemCount :
+                        await this.requestHelperService.count(modelName, request['mongoFilter']);
+
+                    paginationData.itemCount = itemCount;
+                    paginationData.pageCount = Math.ceil(itemCount/paginationLimit);
                 }
+
+                dataParsed.paginationData = paginationData;
 
                 return dataParsed;
             }));

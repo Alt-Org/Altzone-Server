@@ -2,10 +2,11 @@ import {BadRequestException, NotFoundException} from "@nestjs/common";
 import {ResponseType} from "./responseType";
 import {ModelName} from "../../enum/modelName.enum";
 import {IResponseShape} from "../../interface/IResponseShape";
+import {APIObjectName} from "../../enum/apiObjectName.enum";
 
-type ResponseHandler = (data: any, modelName: ModelName) => any;
+type ResponseHandler = (data: any, modelName: ModelName | APIObjectName) => any;
 
-export const ThrowResponseErrorIfFound = (responseType: ResponseType, modelName: ModelName): any => {
+export const ThrowResponseErrorIfFound = (responseType: ResponseType, modelName: ModelName | APIObjectName): any => {
     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
         // Save a reference to the original method
         const originalMethod = descriptor.value;
@@ -39,7 +40,7 @@ function getResponseHandler(responseType: ResponseType): ResponseHandler {
     }
 }
 
-function handleGetResponse (data: any, modelName: ModelName) {
+function handleGetResponse (data: any, modelName: ModelName | APIObjectName) {
     if(data == null)
         throw new NotFoundException(`Can not find ${modelName} with that query`);
 
@@ -51,7 +52,7 @@ function handleGetResponse (data: any, modelName: ModelName) {
     return data;
 }
 
-function handleUpdateResponse (data: any, modelName: ModelName){
+function handleUpdateResponse (data: any, modelName: ModelName | APIObjectName){
     if(data instanceof Object && data.matchedCount === 0)
         throw new NotFoundException(`No ${modelName} with that query found`);
     if(data instanceof Object && data.modifiedCount === 0)
@@ -62,7 +63,7 @@ function handleUpdateResponse (data: any, modelName: ModelName){
     return;
 }
 
-function handleDeleteResponse(data: any, modelName: ModelName){
+function handleDeleteResponse(data: any, modelName: ModelName | APIObjectName){
     if(data == null || (data instanceof Object && data.deletedCount != null && data.deletedCount === 0))
         throw new NotFoundException(`Can not find ${modelName} with that query`);
 

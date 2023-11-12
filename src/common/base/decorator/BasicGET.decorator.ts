@@ -4,8 +4,9 @@ import {ThrowResponseErrorIfFound} from "../../decorator/response/ThrowResponseE
 import {Serialize} from "../../interceptor/response/Serialize";
 import {ResponseType} from "../../decorator/response/responseType";
 import {ModelName} from "../../enum/modelName.enum";
+import {APIObjectName} from "../../enum/apiObjectName.enum";
 
-export const BasicGET = (modelName: ModelName, responseDTO: IClass) => {
+export const BasicGET = (modelName: ModelName | APIObjectName, responseDTO: IClass) => {
     return applyDecorators(
         ThrowResponseErrorIfFound(ResponseType.READ, modelName)
     );
