@@ -95,8 +95,10 @@ export class ChatService extends BasicServiceDummyAbstract<Chat> implements IBas
         ]);
 
         let resp = this.configureResponse(data) as any;
-        resp.paginationData = {};
-        resp.paginationData.itemCount = messagesFound[0].id;
+        if(messagesFound && messagesFound.length !== 0){
+            resp.paginationData = {};
+            resp.paginationData.itemCount = messagesFound[0].id;
+        }
 
         return resp;
     }

@@ -4,7 +4,7 @@ import {ModelName} from "../common/enum/modelName.enum";
 
 export type ChatDocument = HydratedDocument<Chat>;
 
-@Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true }, _id: false})
+@Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true }, _id: false, id: false})
 class Message {
     @Prop({ type: Number, required: true })
     id: number;
@@ -26,8 +26,8 @@ export class Chat {
     name: string;
 
     //add validate func, if needed (the only way to check is _id unique)
-    @Prop({type: [MessageSchema], required: true, default: []})
-    messages: Message[];
+    @Prop({type: [MessageSchema], required: true, default: [], _id: false})
+    messages: Message[] = [];
 }
 
 export const ChatSchema = SchemaFactory.createForClass(Chat);
