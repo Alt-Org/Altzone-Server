@@ -9,7 +9,7 @@ export const metaDataForObject = {
 }
 
 const profile = {username: 'john', password: 'lol'};
-let player = PlayerMock.generatePlayer();
+let player = PlayerMock.getValid();
 let player_id = '';
 let profile_id = '';
 let accessToken = '';
