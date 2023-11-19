@@ -20,9 +20,11 @@ export class CharacterClassService extends BasicServiceDummyAbstract<CharacterCl
     ){
         super();
         this.refsInModel = [ModelName.CUSTOM_CHARACTER];
+        this.modelName = ModelName.CHARACTER_CLASS;
     }
 
     public readonly refsInModel: ModelName[];
+    public readonly modelName: ModelName;
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         await this.customCharacterService.deleteByCondition({'characterClass_id': _id});

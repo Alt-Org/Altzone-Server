@@ -21,9 +21,11 @@ export class RaidRoomService extends BasicServiceDummyAbstract<RaidRoom> impleme
     ){
         super();
         this.refsInModel = [ModelName.PLAYER, ModelName.CLAN];
+        this.modelName = ModelName.RAID_ROOM;
     }
 
     public readonly refsInModel: ModelName[];
+    public readonly modelName: ModelName;
 
     public createOnePostHook: PostCreateHookFunction = async (input: CreateRaidRoomDto, output: RaidRoom): Promise<boolean> => {
         if(!input?.clan_id)

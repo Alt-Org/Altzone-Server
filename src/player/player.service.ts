@@ -27,9 +27,11 @@ export class PlayerService
     ){
         super();
         this.refsInModel = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.RAID_ROOM];
+        this.modelName = ModelName.PLAYER;
     }
 
     public readonly refsInModel: ModelName[];
+    public readonly modelName: ModelName;
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         const isClanRefCleanSuccess = await this.clearClanReferences(_id.toString());

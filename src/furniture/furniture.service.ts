@@ -21,9 +21,11 @@ export class FurnitureService extends BasicServiceDummyAbstract<Furniture> imple
     ){
         super();
         this.refsInModel = [ModelName.CLAN];
+        this.modelName = ModelName.FURNITURE;
     }
 
     public readonly refsInModel: ModelName[];
+    public readonly modelName: ModelName;
 
     public createOnePostHook: PostCreateHookFunction = async (input: CreateFurnitureDto, output: Furniture): Promise<boolean> => {
         if(!input?.clan_id)

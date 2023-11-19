@@ -18,9 +18,11 @@ export class CustomCharacterService extends BasicServiceDummyAbstract<CustomChar
     ){
         super();
         this.refsInModel = [ModelName.PLAYER, ModelName.CHARACTER_CLASS];
+        this.modelName = ModelName.CUSTOM_CHARACTER;
     }
 
     public readonly refsInModel: ModelName[];
+    public readonly modelName: ModelName;
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         const searchFilter = { currentCustomCharacter_id: _id };
