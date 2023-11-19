@@ -17,6 +17,7 @@ RUN npm ci --only-production && npm cache clean --force
 COPY ./dist ./dist
 COPY ./public ./public
 COPY ./swagger.json ./swagger.json
+RUN rm -rf ./dist/util/dataMock
 
 #for production RUN npm ci --only-production && npm cache clean --force
 
