@@ -1,3 +1,6 @@
+
+export type GetWrongFieldDTOptions = {randStrings?: string[], min?: number, max?: number};
+
 export class CommonMocker {
     public static removeObjectFields<T=any>(obj: T, fieldsToRemove: string[]): Partial<T> {
         let result: Partial<T> = {};
@@ -9,14 +12,15 @@ export class CommonMocker {
         return result;
     }
 
-    public static generateObjWithWrongDT<T=any>(obj: T, fieldsToBeWrong?: string[]): {}{
+    public static generateObjWithWrongDT<T=Object>(obj: T, fieldsToBeWrong?: string[], options?: GetWrongFieldDTOptions): {}{
         if(fieldsToBeWrong){
             for(let i=0; i<fieldsToBeWrong.length; i++){
                 const field = fieldsToBeWrong[i];
                 const value = obj[field];
-                const wrongTypeValue = this.getWrongFieldDataType(value);
-
-                obj[field] = wrongTypeValue;
+                if(value != null && (typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string'))
+                    obj[field] = this.getWrongFieldDataType(value, options);
+                else
+                    throw new Error(`CommonMocker.generateObjWithWrongDT(): could not generate value for '${field}' field, because it is a ${typeof field} or undefined`);
             }
 
             return obj;
@@ -24,8 +28,10 @@ export class CommonMocker {
 
         for(let field in obj){
             const value = obj[field];
-            const wrongTypeValue = this.getWrongFieldDataType(value);
-            obj[field] = wrongTypeValue;
+            if(typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string')
+                obj[field] = this.getWrongFieldDataType(value);
+            else
+                throw new Error(`CommonMocker.generateObjWithWrongDT(): could not generate value for ${field} field, because it is a ${typeof field}`);
         }
 
         return obj;
@@ -48,7 +54,7 @@ export class CommonMocker {
         }
     }
 
-    public static getWrongFieldDataType(fieldValue: boolean | number | string): any{
+    public static getWrongFieldDataType(fieldValue: boolean | number | string, options?: GetWrongFieldDTOptions): any{
         const dataTypesForBoolean = ['number', 'string'];
         const dataTypesForNumber = ['boolean', 'string'];
         const dataTypesForString = ['boolean', 'number'];
@@ -56,21 +62,21 @@ export class CommonMocker {
         if(typeof fieldValue === 'boolean'){
             const type = this.chooseRandArrElem(dataTypesForBoolean);
             if(type === 'number')
-                return this.getRandNum();
+                return this.getRandNum(options?.min, options?.max);
             else if(type === 'string')
-                return this.getRandString();
+                return this.getRandString(options?.randStrings);
         }else if(typeof fieldValue === 'number'){
             const type = this.chooseRandArrElem(dataTypesForNumber);
-            if(type === 'number')
-                return this.getRandNum();
+            if(type === 'boolean')
+                return this.getRandBoolean();
             else if(type === 'string')
-                return this.getRandString();
+                return this.getRandString(options?.randStrings);
         } else if(typeof fieldValue === 'string'){
             const type = this.chooseRandArrElem(dataTypesForString);
             if(type === 'boolean')
-                return this.getRandBoolean;
+                return this.getRandBoolean();
             else if(type === 'number')
-                return this.getRandNum();
+                return this.getRandNum(options?.min, options?.max);
         }
     }
 
@@ -79,15 +85,17 @@ export class CommonMocker {
         return this.chooseRandArrElem(values);
     }
     public static getRandNum(min: number=0, max: number=100): number{
-        return Math.floor(Math.random() * (max - min)) + min;
+        return Math.round(Math.random() * (max - min)) + min;
     }
-    public static getRandString(): string{
-        const values = ['randomString', 'anotherString', 'helloWorld', 'testing'];
-        return this.chooseRandArrElem(values) + this.getRandNum(0,1000);
+    public static getRandString(strings?: string[]): string{
+        const values = (strings && strings.length !== 0) ?
+            strings :
+            ['RandomString', 'anotherString', 'HelloWorld', 'testing', 'Str', 'my_string'];
+        return this.chooseRandArrElem(values) + this.getRandNum(0, 1000);
     }
 
     public static chooseRandArrElem(arr: any[]){
-        const randIndex = this.getRandNum(0,arr.length-1);
+        const randIndex = this.getRandNum(0, arr.length-1);
         return arr[randIndex];
     }
 }
