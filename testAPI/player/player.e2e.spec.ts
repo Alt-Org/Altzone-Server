@@ -1,26 +1,23 @@
 import request from "supertest";
-import {PlayerMock} from "../../src/util/dataMock/playerMock";
-
-export const metaDataForObject = {
-    dataKey: 'Model',
-    modelName: 'Model',
-    dataType: 'Object',
-    dataCount: 1
-}
+import {PlayerMocker} from "../../src/util/dataMock/playerMocker";
 
 const profile = {username: 'john', password: 'lol'};
-let player = PlayerMock.getValid();
+let player;
 let player_id = '';
 let profile_id = '';
 let accessToken = '';
 
 beforeAll(async () => {
+    player = PlayerMocker.getValid();
     const profileResp = await request('http://localhost')
         .post('/profile')
         .send(profile);
 
     profile_id = profileResp.body.data['Profile']._id;
     player.profile_id = profile_id;
+
+    console.log('Player player', player);
+    console.log('Player players', PlayerMocker.players);
 });
 
 describe('Create player, /player POST', () => {
@@ -40,12 +37,12 @@ describe('Create player, /player POST', () => {
                 resp.body.data[dataKey] = cleanRespObj(dataObj);
             })
             .expect({
-                data: {Model: player},
-                metaData: metaDataForObject
+                data: {Player: player},
+                metaData: PlayerMocker.getObjMeta()
             });
     });
 
-    it(`authorize with created profile`, () => {
+    it(`Authorize with created profile`, () => {
         return request('http://localhost')
             .post('/auth/signIn')
             .send(profile)
@@ -58,7 +55,7 @@ describe('Create player, /player POST', () => {
             })
     });
 
-    it(`check is Player created`, () => {
+    it(`Check is Player created`, () => {
         return request('http://localhost')
             .get(`/player/${player_id}`)
             .set('Authorization', `Bearer ${accessToken}`)
@@ -73,8 +70,8 @@ describe('Create player, /player POST', () => {
                 resp.body.data[dataKey] = cleanRespObj(dataObj);
             })
             .expect({
-                data: {Model: player},
-                metaData: metaDataForObject
+                data: {Player: player},
+                metaData: PlayerMocker.getObjMeta()
             });
     });
 });
