@@ -13,7 +13,7 @@
     "compile": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "test:e2e": "echo \"Start build...\" && nest build && echo \"Build success! Start docker\" && docker compose -f test_docker-compose.yml up -d && echo \"Docker started! Start tests...\" && (jest --config ./testAPI/jest-e2e.json || echo \"Some of the tests failed!\") && echo \"Tests completed! Stop docker...\" && docker compose -f test_docker-compose.yml down && docker image rm altzone-server-api_test && docker volume prune && echo \"Test volumes removed! E2E tests complete!\"",
+    "test:e2e": "echo \"Start build...\" && nest build && echo \"Build success! Start docker\" && docker compose -f test_docker-compose.yml up -d && echo \"Docker started! Start tests...\" && (jest -i --config ./testAPI/jest-e2e.json || echo \"Some of the tests failed!\") && echo \"Tests completed! Stop docker...\" && docker compose -f test_docker-compose.yml down && docker image rm altzone-server-api_test && docker volume prune && echo \"Test volumes removed! E2E tests complete!\"",
     "dev": "nodemon dist/index.js",
     "docker_dev": "nodemon -L dist/index.js"
   },

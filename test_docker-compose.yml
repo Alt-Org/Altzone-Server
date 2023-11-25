@@ -3,7 +3,7 @@
 services:
   api_test:
     build:
-      dockerfile: prod_api.Dockerfile
+      dockerfile: test_api.Dockerfile
     container_name: altzone_api_test
     depends_on:
       - db_test
@@ -24,6 +24,7 @@ services:
     container_name: altzone_db_test
     networks:
       - db
+      - backend
 #    volumes:
 #      - altzone_db_test:/data/db
     environment:
@@ -64,7 +65,6 @@ services:
       - backend
     volumes:
       - ./test_nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./public:/usr/local/nginx/public
 
 networks:
   backend:
