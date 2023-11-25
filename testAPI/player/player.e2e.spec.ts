@@ -1,13 +1,17 @@
 import request from "supertest";
 import {PlayerMocker} from "../../src/util/dataMock/playerMocker";
+import {ProfileMocker} from "../../src/util/dataMock/profileMocker";
+import {CommonMocker} from "../../src/util/dataMock/commonMocker";
 
-const profile = {username: 'john', password: 'lol'};
-let player;
+const profile = ProfileMocker.getValid();
+let player: any;
 let player_id = '';
 let profile_id = '';
 let accessToken = '';
 
 beforeAll(async () => {
+    const resp = await CommonMocker.cleanDB();
+
     player = PlayerMocker.getValid();
     const profileResp = await request('http://localhost')
         .post('/profile')
@@ -16,8 +20,11 @@ beforeAll(async () => {
     profile_id = profileResp.body.data['Profile']._id;
     player.profile_id = profile_id;
 
-    console.log('Player player', player);
-    console.log('Player players', PlayerMocker.players);
+    return resp;
+});
+
+afterAll(async () => {
+    return await CommonMocker.cleanDB();
 });
 
 describe('Create player, /player POST', () => {

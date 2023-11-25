@@ -14,6 +14,7 @@ import {
 } from './testData';
 import {ProfileMocker} from "../../src/util/dataMock/profileMocker";
 import {PlayerMocker} from "../../src/util/dataMock/playerMocker";
+import {CommonMocker} from "../../src/util/dataMock/commonMocker";
 
 let accessToken = '';
 let accessTokenWithPlayer = '';
@@ -29,13 +30,12 @@ let wrongDataTypesPlayer: any;
 let notUniquePlayerUniqueIdentifier: any;
 
 beforeAll(async () => {
+    const resp = await CommonMocker.cleanDB();
+
     newProfile = ProfileMocker.getValid();
     newProfileWithPlayer = ProfileMocker.getValid();
     player = PlayerMocker.getValid();
     newProfileWithPlayer.Player = player;
-
-    console.log('Profile player', player);
-    console.log('Profile players', PlayerMocker.players);
 
     wrongDataTypesPlayer = ProfileMocker.getValid();
     wrongDataTypesPlayer.Player = PlayerMocker.getWrongDT();
@@ -43,6 +43,11 @@ beforeAll(async () => {
     notUniquePlayerUniqueIdentifier = ProfileMocker.getValid();
     notUniquePlayerUniqueIdentifier.Player = PlayerMocker.getValid();
     notUniquePlayerUniqueIdentifier.Player.uniqueIdentifier = player.uniqueIdentifier;
+    return resp;
+});
+
+afterAll(async () => {
+    return await CommonMocker.cleanDB();
 });
 
 describe('Create profile, /profile POST', () => {
@@ -94,13 +99,14 @@ describe('Create profile, /profile POST', () => {
             });
     });
 
-    // it(`Create with wrong Profile data types`, () => {
-    //     return request('http://localhost')
-    //         .post('/profile')
-    //         .send(ProfileMocker.getWrongDT())
-    //         .expect(400)
-    //         .expect(wrongDataTypesResponse);
-    // });
+
+    it(`Create with wrong Profile data types`, () => {
+        return request('http://localhost')
+            .post('/profile')
+            .send(ProfileMocker.getWrongDT())
+            .expect(400)
+            .expect(wrongDataTypesResponse);
+    });
     // it(`Create with not unique username`, () => {
     //     return request('http://localhost')
     //         .post('/profile')
@@ -109,13 +115,13 @@ describe('Create profile, /profile POST', () => {
     //         .expect(notUniqueUserNameResponse);
     // });
 
-    // it(`Create with wrong data types for Player`, () => {
-    //     return request('http://localhost')
-    //         .post('/profile')
-    //         .send(wrongDataTypesPlayer)
-    //         .expect(400)
-    //         .expect(wrongDataTypesPlayerResponse);
-    // });
+    it(`Create with wrong data types for Player`, () => {
+        return request('http://localhost')
+            .post('/profile')
+            .send(wrongDataTypesPlayer)
+            .expect(400)
+            .expect(wrongDataTypesPlayerResponse);
+    });
     // it(`Create with not unique Player name`, () => {
     //     return request('http://localhost')
     //         .post('/profile')
@@ -137,7 +143,7 @@ describe('Create profile, /profile POST', () => {
     //         .send(PlayerMocker.getValid().profile_id = createdProfile_id)
     //         .expect(201)
     // });
-
+    //
     // it(`Authorize with created profile`, () => {
     //     return request('http://localhost')
     //         .post('/auth/signIn')
@@ -150,47 +156,47 @@ describe('Create profile, /profile POST', () => {
     //             accessToken = resp.body.accessToken;
     //         })
     // });
-    // it(`Authorize with created profile with Player`, () => {
-    //     return request('http://localhost')
-    //         .post('/auth/signIn')
-    //         .send(newProfileWithPlayer)
-    //         .expect(201)
-    //         .expect((resp) => {
-    //             if(!resp.body.accessToken)
-    //                 throw new Error('Unable to authorize with provided credentials');
-    //
-    //             accessTokenWithPlayer = resp.body.accessToken;
-    //         })
-    // });
-    // it(`Check profiles were created`, () => {
-    //     return request('http://localhost')
-    //         .get('/profile')
-    //         .set('Authorization', `Bearer ${accessTokenWithPlayer}`)
-    //         .expect(200)
-    //         .expect( (resp) => {
-    //             const isProfile = resp.body.data['Profile'].find(p => p.username === newProfile.username);
-    //             const isProfileWithPlayer = resp.body.data['Profile'].find(p => p.username === newProfileWithPlayer.username);
-    //
-    //             if(!isProfile && !isProfileWithPlayer)
-    //                 throw new Error('Unable to find any of created profiles');
-    //             if(!isProfile)
-    //                 throw new Error('Unable to find profile without Player');
-    //             if(!isProfileWithPlayer)
-    //                 throw new Error('Unable to find profile with Player');
-    //         });
-    // });
+    it(`Authorize with created profile with Player`, () => {
+        return request('http://localhost')
+            .post('/auth/signIn')
+            .send(newProfileWithPlayer)
+            .expect(201)
+            .expect((resp) => {
+                if(!resp.body.accessToken)
+                    throw new Error('Unable to authorize with provided credentials');
+
+                accessTokenWithPlayer = resp.body.accessToken;
+            })
+    });
+    it(`Check profiles were created`, () => {
+        return request('http://localhost')
+            .get('/profile')
+            .set('Authorization', `Bearer ${accessTokenWithPlayer}`)
+            .expect(200)
+            .expect( (resp) => {
+                const isProfile = resp.body.data['Profile'].find(p => p.username === newProfile.username);
+                const isProfileWithPlayer = resp.body.data['Profile'].find(p => p.username === newProfileWithPlayer.username);
+
+                if(!isProfile && !isProfileWithPlayer)
+                    throw new Error('Unable to find any of created profiles');
+                if(!isProfile)
+                    throw new Error('Unable to find profile without Player');
+                if(!isProfileWithPlayer)
+                    throw new Error('Unable to find profile with Player');
+            });
+    });
     // it(`delete created profile`, () => {
     //     return request('http://localhost')
     //         .delete(`/profile/${createdProfile_id}`)
     //         .set('Authorization', `Bearer ${accessToken}`)
     //         .expect(200)
     // });
-    // it(`delete created profile with Player`, () => {
-    //     return request('http://localhost')
-    //         .delete(`/profile/${createdProfileWithPlayer_id}`)
-    //         .set('Authorization', `Bearer ${accessTokenWithPlayer}`)
-    //         .expect(200)
-    // });
+    it(`delete created profile with Player`, () => {
+        return request('http://localhost')
+            .delete(`/profile/${createdProfileWithPlayer_id}`)
+            .set('Authorization', `Bearer ${accessTokenWithPlayer}`)
+            .expect(200)
+    });
 });
 
 const isRespValid = (resp: any) => {
