@@ -1,7 +1,21 @@
+import mongoose from "mongoose";
 
 export type GetWrongFieldDTOptions = {randStrings?: string[], min?: number, max?: number};
 
 export class CommonMocker {
+
+    public static async cleanDB(){
+        const db = await mongoose.connect(`mongodb://testUser:superSecretPassword@127.0.0.1:27017`, {dbName: 'altzone_test'});
+
+        const collections = await db.connection.db.collections();
+
+        for (let collection of collections) {
+           await collection.deleteMany({});
+        }
+
+        await db.connection.close();
+    }
+
     public static removeObjectFields<T=any>(obj: T, fieldsToRemove: string[]): Partial<T> {
         let result: Partial<T> = {};
         for(let field in obj){
