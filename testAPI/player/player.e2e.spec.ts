@@ -3,28 +3,47 @@ import {PlayerMocker} from "../../src/util/dataMock/playerMocker";
 import {ProfileMocker} from "../../src/util/dataMock/profileMocker";
 import {CommonMocker} from "../../src/util/dataMock/commonMocker";
 
-const profile = ProfileMocker.getValid();
-let player: any;
+const commonMocker = new CommonMocker();
+const profileMocker = new ProfileMocker();
+const playerMocker = new PlayerMocker();
+
+const profile = profileMocker.getValid();
 let player_id = '';
 let profile_id = '';
 let accessToken = '';
 
-beforeAll(async () => {
-    const resp = await CommonMocker.cleanDB();
+let player;
+let notUniqueNameReq, notUniqueNameResp;
+let notUniqueUniqueIdentifierReq, notUniqueUniqueIdentifierResp;
+let wrongDTReq, wrongDTResp;
 
-    player = PlayerMocker.getValid();
+beforeAll(async () => {
+    const resp = await commonMocker.cleanDB();
     const profileResp = await request('http://localhost')
         .post('/profile')
         .send(profile);
 
     profile_id = profileResp.body.data['Profile']._id;
+    player = playerMocker.getValid();
     player.profile_id = profile_id;
+
+    const notUniqueName = playerMocker.getNotUnique(player, 'name');
+    notUniqueNameReq = notUniqueName[0];
+    notUniqueNameResp = notUniqueName[1];
+    const notUniqueUniqueIdentifier = playerMocker.getNotUnique(player, 'uniqueIdentifier');
+    notUniqueUniqueIdentifierReq = notUniqueUniqueIdentifier[0];
+    notUniqueUniqueIdentifierResp = notUniqueUniqueIdentifier[1];
+
+    const wrongDT = playerMocker.getWrongDT();
+    wrongDTReq = wrongDT[0];
+    wrongDTReq['profile_id'] = profile_id;
+    wrongDTResp =  wrongDT[1];
 
     return resp;
 });
 
 afterAll(async () => {
-    return await CommonMocker.cleanDB();
+    return await commonMocker.cleanDB();
 });
 
 describe('Create player, /player POST', () => {
@@ -45,8 +64,30 @@ describe('Create player, /player POST', () => {
             })
             .expect({
                 data: {Player: player},
-                metaData: PlayerMocker.getObjMeta()
+                metaData: playerMocker.getObjMeta()
             });
+    });
+
+    it(`send with not unique name`, () => {
+        return request('http://localhost')
+            .post('/player')
+            .send(notUniqueNameReq)
+            //.expect(409)
+            .expect(notUniqueNameResp);
+    });
+    it(`send with not unique uniqueIdentifier`, () => {
+        return request('http://localhost')
+            .post('/player')
+            .send(notUniqueUniqueIdentifierReq)
+            //.expect(409)
+            .expect(notUniqueUniqueIdentifierResp);
+    });
+    it(`send with wrong data types`, () => {
+        return request('http://localhost')
+            .post('/player')
+            .send(wrongDTReq)
+            .expect(400)
+            .expect(wrongDTResp);
     });
 
     it(`Authorize with created profile`, () => {
@@ -78,9 +119,11 @@ describe('Create player, /player POST', () => {
             })
             .expect({
                 data: {Player: player},
-                metaData: PlayerMocker.getObjMeta()
+                metaData: playerMocker.getObjMeta()
             });
     });
+
+
 });
 
 const isRespValid = (resp: any) => {

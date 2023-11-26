@@ -2,21 +2,46 @@ import mongoose from "mongoose";
 
 export type GetWrongFieldDTOptions = {randStrings?: string[], min?: number, max?: number};
 
+export enum DataType {
+    STRING = 'a string',
+    INTEGER = 'an integer number',
+    FLOAT = 'a float number',
+    BOOLEAN = 'a boolean',
+    ARRAY = 'an array'
+}
+
 export class CommonMocker {
 
-    public static async cleanDB(){
-        const db = await mongoose.connect(`mongodb://testUser:superSecretPassword@127.0.0.1:27017`, {dbName: 'altzone_test'});
-
-        const collections = await db.connection.db.collections();
-
-        for (let collection of collections) {
-           await collection.deleteMany({});
+    public generateNotUniqueFieldsResponse(values: Object){
+        const errorArray: string[] = [];
+        for(let field in values){
+            errorArray.push(`Field '${field}' with value '${values[field]}' already exists`);
         }
-
-        await db.connection.close();
+        return { statusCode: 409, message: errorArray, error: 'Conflict' };
     }
 
-    public static removeObjectFields<T=any>(obj: T, fieldsToRemove: string[]): Partial<T> {
+    public generateWrongDataTypesResponse<T=Object>(rightObject: T, wrongFields?: string[]){
+        if(wrongFields){
+            const errorArray: string[] = [];
+            for(let i=0; i<wrongFields.length; i++){
+                const field = wrongFields[i];
+                const value = rightObject[field];
+                errorArray.push(this.getWrongDTErrorString(field, value));
+            }
+
+            return { statusCode: 400, message: errorArray, error: 'Bad Request' };
+        }
+
+        const errorArray: string[] = [];
+        for(let field in rightObject){
+            const value = rightObject[field];
+            errorArray.push(this.getWrongDTErrorString(field, value));
+        }
+
+        return { statusCode: 400,  message: errorArray, error: 'Bad Request' };
+    }
+
+    public removeObjectFields<T=any>(obj: T, fieldsToRemove: string[]): Partial<T> {
         let result: Partial<T> = {};
         for(let field in obj){
             if(!fieldsToRemove.includes(field))
@@ -26,7 +51,7 @@ export class CommonMocker {
         return result;
     }
 
-    public static generateObjWithWrongDT<T=Object>(obj: T, fieldsToBeWrong?: string[], options?: GetWrongFieldDTOptions): {}{
+    public generateObjWithWrongDT<T=Object>(obj: T, fieldsToBeWrong?: string[], options?: GetWrongFieldDTOptions): {}{
         if(fieldsToBeWrong){
             for(let i=0; i<fieldsToBeWrong.length; i++){
                 const field = fieldsToBeWrong[i];
@@ -51,7 +76,7 @@ export class CommonMocker {
         return obj;
     }
 
-    public static getMetadataForObject(dataKey: string, modelName: string){
+    public getMetadataForObject(dataKey: string, modelName: string){
         return {
             dataKey,
             modelName,
@@ -59,7 +84,7 @@ export class CommonMocker {
             dataCount: 1
         }
     }
-    public static getMetadataForArray(dataKey: string, modelName: string, dataCount: number){
+    public getMetadataForArray(dataKey: string, modelName: string, dataCount: number){
         return {
             dataKey,
             modelName,
@@ -68,7 +93,7 @@ export class CommonMocker {
         }
     }
 
-    public static getWrongFieldDataType(fieldValue: boolean | number | string, options?: GetWrongFieldDTOptions): any{
+    public getWrongFieldDataType(fieldValue: boolean | number | string, options?: GetWrongFieldDTOptions): any{
         const dataTypesForBoolean = ['number', 'string'];
         const dataTypesForNumber = ['boolean', 'string'];
         const dataTypesForString = ['boolean', 'number'];
@@ -94,22 +119,48 @@ export class CommonMocker {
         }
     }
 
-    public static getRandBoolean(): boolean{
+    public async cleanDB(){
+        const db = await mongoose.connect(`mongodb://testUser:superSecretPassword@127.0.0.1:27017`, {dbName: 'altzone_test'});
+
+        const collections = await db.connection.db.collections();
+
+        for (let collection of collections) {
+            await collection.deleteMany({});
+        }
+
+        await db.connection.close();
+    }
+
+    public getRandBoolean(): boolean{
         const values = [true, false];
         return this.chooseRandArrElem(values);
     }
-    public static getRandNum(min: number=0, max: number=100): number{
+    public getRandNum(min: number=0, max: number=100): number{
         return Math.round(Math.random() * (max - min)) + min;
     }
-    public static getRandString(strings?: string[]): string{
+    public getRandString(strings?: string[]): string{
         const values = (strings && strings.length !== 0) ?
             strings :
             ['RandomString', 'anotherString', 'HelloWorld', 'testing', 'Str', 'my_string'];
         return this.chooseRandArrElem(values) + this.getRandNum(0, 1000);
     }
 
-    public static chooseRandArrElem(arr: any[]){
+    public chooseRandArrElem(arr: any[]){
         const randIndex = this.getRandNum(0, arr.length-1);
         return arr[randIndex];
+    }
+
+    private getWrongDTErrorString(field: string, value: any){
+        let valueError = '';
+        if(typeof value === 'string')
+            valueError = DataType.STRING;
+        else if(typeof value === 'boolean')
+            valueError = DataType.BOOLEAN;
+        else if(typeof value === 'object' && value.length)
+            valueError = DataType.ARRAY;
+        else if(typeof value === 'number')
+            valueError = value % 1 === 0 ? DataType.INTEGER : DataType.FLOAT;
+
+        return `${field} must be ${valueError}`
     }
 }
