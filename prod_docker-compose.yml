@@ -48,6 +48,7 @@ services:
       - ./prod_nginx.conf:/etc/nginx/nginx.conf
       - ./public:/usr/local/nginx/public:ro
       - ./webgl_build_brotli:/usr/local/nginx/game
+      - ./letsencrypt:/etc/letsencrypt
 
 networks:
   backend:
