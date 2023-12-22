@@ -28,7 +28,6 @@ import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interc
 import {NoAuth} from "../auth/decorator/NoAuth.decorator";
 import {CreateMessageDto} from "./dto/createMessage.dto";
 import {MessageDto} from "./dto/message.dto";
-import {UpdateMessageDto} from "./dto/updateMessage.dto";
 import {chat_idParam, messageParam} from "./dto/messageParam";
 import {APIObjectName} from "../common/enum/apiObjectName.enum";
 
@@ -94,7 +93,7 @@ export class ChatController {
     @AddSearchQuery(MessageDto)
     @AddSortQuery(MessageDto)
     @BasicGET(APIObjectName.MESSAGE, MessageDto)
-    public getAllMessages(@Param() param: chat_idParam, @GetAllQuery('lol') query: IGetAllQuery) {
+    public getAllMessages(@Param() param: chat_idParam, @GetAllQuery() query: IGetAllQuery) {
         return this.service.readAllMessages(param.chat_id, query);
     }
 
