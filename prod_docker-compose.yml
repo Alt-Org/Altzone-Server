@@ -19,6 +19,19 @@ services:
       - MONGO_PORT=27017
       - MONGO_DB_NAME=altzone
 
+  site:
+    image: leolab1337/altzone_web_pages:v1
+    container_name: altzone_site
+    networks:
+      - backend
+    restart: always
+    environment:
+      - NEXT_PUBLIC_API_LINK=http://altzone_api:8080/api
+      - NEXT_PUBLIC_API_DOMAIN=altzone_api:8080/api
+      - ANALYZE=false
+      - PORT=3000
+      - HOSTNAME=altzone_site
+
   db:
     image: mongo:4.2.24-bionic
     container_name: altzone_db
