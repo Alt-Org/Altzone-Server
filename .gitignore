@@ -1,3 +1,7 @@
+#own folders
+owncloud
+letsencrypt
+
 # Logs
 logs
 *.log
