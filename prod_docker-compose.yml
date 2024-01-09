@@ -20,7 +20,7 @@ services:
       - MONGO_DB_NAME=altzone
 
   site:
-    image: leolab1337/altzone_web_pages:v1
+    image: leolab1337/altzone_web_pages:v2
     container_name: altzone_site
     networks:
       - backend
@@ -60,7 +60,7 @@ services:
       - backend
     volumes:
       - ./prod_nginx.conf:/etc/nginx/nginx.conf
-      - ./owncloud/files/owncloud/files/site:/usr/local/nginx/public:ro
+      - ./owncloud/files/owncloud/files/public:/usr/local/nginx/public:ro
       - ./owncloud/files/owncloud/files/webgl_build_brotli:/usr/local/nginx/game
       - ./letsencrypt:/etc/letsencrypt
 
