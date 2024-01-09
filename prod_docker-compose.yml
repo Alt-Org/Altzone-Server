@@ -26,8 +26,8 @@ services:
       - backend
     restart: always
     environment:
-      - NEXT_PUBLIC_API_LINK=http://altzone_api:8080/api
-      - NEXT_PUBLIC_API_DOMAIN=altzone_api:8080/api
+      - NEXT_PUBLIC_API_LINK=http://altzone_api:8080
+      - NEXT_PUBLIC_API_DOMAIN=altzone_api:8080
       - ANALYZE=false
       - PORT=3000
       - HOSTNAME=altzone_site
@@ -60,60 +60,9 @@ services:
       - backend
     volumes:
       - ./prod_nginx.conf:/etc/nginx/nginx.conf
-      - ./owncloud/files/owncloud/files/public:/usr/local/nginx/public:ro
-      - ./owncloud/files/owncloud/files/webgl_build_brotli:/usr/local/nginx/game
+      - ./public:/usr/local/nginx/public:ro
+      - ./webgl_build_brotli:/usr/local/nginx/game
       - ./letsencrypt:/etc/letsencrypt
-
-  owncloud:
-    image: owncloud/server:10
-    container_name: owncloud
-    restart: always
-    environment:
-      - OWNCLOUD_DOMAIN=owncloud
-      - OWNCLOUD_TRUSTED_DOMAINS=owncloud
-
-      - OWNCLOUD_DB_TYPE=mysql
-      - OWNCLOUD_DB_NAME=owncloud
-      - OWNCLOUD_DB_USERNAME=owncloud
-      - OWNCLOUD_DB_PASSWORD=owncloud
-      - OWNCLOUD_DB_HOST=mariadb
-      - OWNCLOUD_ADMIN_USERNAME=owncloud
-      - OWNCLOUD_ADMIN_PASSWORD=owncloud
-      - OWNCLOUD_MYSQL_UTF8MB4=true
-      - OWNCLOUD_REDIS_ENABLED=true
-      - OWNCLOUD_REDIS_HOST=redis
-    networks:
-      - owncloud
-    ports:
-      - 8080:8080
-    volumes:
-      - ./owncloud:/mnt/data
-
-  mariadb:
-    image: mariadb:11.2 # minimum required ownCloud version is 10.9
-    container_name: owncloud_mariadb
-    restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=owncloud
-      - MYSQL_USER=owncloud
-      - MYSQL_PASSWORD=owncloud
-      - MYSQL_DATABASE=owncloud
-      - MARIADB_AUTO_UPGRADE=1
-    networks:
-      - owncloud
-    command: [ "--max-allowed-packet=128M", "--innodb-log-file-size=64M" ]
-    volumes:
-      - owncloud_mariadb:/var/lib/mysql
-
-  redis:
-    image: redis:7
-    container_name: owncloud_redis
-    restart: always
-    networks:
-      - owncloud
-    command: [ "--databases", "1" ]
-    volumes:
-      - owncloud_redis:/data
 
 networks:
   backend:
@@ -125,5 +74,3 @@ networks:
 
 volumes:
   altzone_db:
-  owncloud_mariadb:
-  owncloud_redis:
