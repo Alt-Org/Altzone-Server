@@ -1,4 +1,4 @@
-import {IsInt, IsString} from "class-validator";
+import {IsBoolean, IsInt, IsOptional, IsString} from "class-validator";
 
 export class CreateClanDto {
     @IsString()
@@ -9,4 +9,8 @@ export class CreateClanDto {
 
     @IsInt()
     gameCoins: number;
+    
+    @IsBoolean()
+    @IsOptional()
+    isOpen:boolean
 }

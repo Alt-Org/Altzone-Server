@@ -27,6 +27,9 @@ export class Clan {
 
     @Prop({ type: Number, default: 0, min: 0 })
     raidRoomCount: number;
+    @Prop({type: Boolean, default: true})
+    isOpen: Boolean;
+
 
     @ExtractField()
     _id: string;

@@ -29,6 +29,10 @@ import { UpdateClanDto } from "src/clan/dto/updateClan.dto";
 import {SupportedAction} from "./authorization.interceptor";
 import {ClanMetaDto} from "../metaData/clan/dto/clanMeta.dto";
 import {metaDataRules} from "./rule/metaDataRules";
+import { JoinDto } from "src/clan/join/dto/join.dto";
+import { JoinRequestDto } from "src/clan/join/dto/joinRequest.dto";
+import { JoinResultDto } from "src/clan/join/dto/joinResult.dto";
+import { joinRules } from "./rule/joinRequestRules";
 
 export type AllowedAction = Action.create_request | Action.read_request | Action.read_response | Action.update_request | Action.delete_request;
 
@@ -39,7 +43,8 @@ export type AllowedSubject =
     typeof CharacterClassDto | typeof UpdateCharacterClassDto |
     typeof FurnitureDto | typeof UpdateFurnitureDto | 
     typeof RaidRoomDto | typeof UpdateRaidRoomDto |
-    typeof ClanDto | typeof UpdateClanDto;
+    typeof ClanDto | typeof UpdateClanDto | 
+    typeof JoinDto | typeof JoinResultDto ; 
 
 type Subjects = InferSubjects<AllowedSubject>;
 
@@ -77,5 +82,9 @@ export class CASLAbilityFactory {
 
         if(subject === ClanDto || subject === UpdateClanDto)
             return clanRules(user, subject, action, subjectObj, this.requestHelperService);
+
+        if(subject === JoinDto || subject === JoinResultDto) 
+            return joinRules(user,subject,action,subjectObj, this.requestHelperService);
+        
     }
 }
