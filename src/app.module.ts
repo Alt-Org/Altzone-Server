@@ -20,6 +20,7 @@ import { PermissionModule } from './permission/permission.module';
 import { ApiStateModule } from './common/apiState/apiState.module';
 import { SiteModule } from './site/site.module';
 import {ChatModule} from "./chat/chat.module";
+import { joinModule } from './clan/join/join.module';
 
 // Set up database connection
 const mongoUser = process.env.MONGO_USERNAME || 'rootUser';
@@ -32,6 +33,7 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
 @Module({
   imports: [
       MongooseModule.forRoot(mongoString, {dbName: dbName}),
+      joinModule,
       ClanModule,
       PlayerModule,
       CharacterClassModule,
@@ -40,9 +42,7 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       RaidRoomModule,
       ProfileModule,
       SiteModule,
-
       ChatModule,
-
       RequestHelperModule,
       AuthModule,
       JwtModule.register({

@@ -42,7 +42,6 @@ export class ClanController{
         private readonly requestHelperService: RequestHelperService
     ) {
     }
-
     @Post()
     @Authorize({action: Action.create, subject: ClanDto})
     @BasicPOST(ClanDto)
@@ -50,7 +49,6 @@ export class ClanController{
         //add clan creator to admins
         const creatorPlayer_id = request['user'].player_id;
         body['admin_ids'] = [creatorPlayer_id];
-
         const clanResp = await this.service.createOne(body);
         if(clanResp && !(clanResp instanceof MongooseError))
             await this.requestHelperService.updateOneById(ModelName.PLAYER, creatorPlayer_id, {clan_id: clanResp.data[clanResp.metaData.dataKey]._id});
@@ -85,7 +83,7 @@ export class ClanController{
         const clanToUpdate = await this.service.readOneById(body._id);
         if(!clanToUpdate || clanToUpdate instanceof MongooseError)
             throw new NotFoundException('Clan with that _id not found');
-
+        
         if(body.admin_idsToDelete)
             clanToUpdate.data[clanToUpdate.metaData.dataKey].admin_ids = deleteArrayElements(clanToUpdate.data[clanToUpdate.metaData.dataKey].admin_ids, body.admin_idsToDelete);
 
