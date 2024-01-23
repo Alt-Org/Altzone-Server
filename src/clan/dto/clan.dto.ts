@@ -30,6 +30,9 @@ export class ClanDto {
     @Expose()
     raidRoomCount: number;
 
+    @Expose()
+    isOpen: boolean
+
     @Type(() => PlayerDto)
     @Expose()
     Player: PlayerDto[];
