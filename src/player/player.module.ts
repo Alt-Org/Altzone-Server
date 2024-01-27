@@ -7,13 +7,11 @@ import {RequestHelperModule} from "../requestHelper/requestHelper.module";
 import {isPlayerExists} from "./decorator/validation/IsPlayerExists.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {CustomCharacterModule} from "../customCharacter/customCharacter.module";
-import {RaidRoomModule} from "../raidRoom/raidRoom.module";
 
 @Module({
     imports: [
         MongooseModule.forFeature([{name: ModelName.PLAYER, schema: PlayerSchema}]),
         CustomCharacterModule,
-        RaidRoomModule,
         RequestHelperModule
     ],
     controllers: [PlayerController],
