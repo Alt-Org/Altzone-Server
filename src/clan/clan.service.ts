@@ -5,7 +5,6 @@ import {InjectModel} from "@nestjs/mongoose";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
-import {RaidRoomService} from "../raidRoom/raidRoom.service";
 import {
     AddBasicService,
     ClearCollectionReferences,
@@ -13,13 +12,14 @@ import {
 import {IBasicService} from "../common/base/interface/IBasicService";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 import {ItemService} from "../item/item.service";
+import {StockService} from "../stock/stock.service";
 
 @Injectable()
 @AddBasicService()
 export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBasicService<Clan>{
     public constructor(
         @InjectModel(Clan.name) public readonly model: Model<Clan>,
-        private readonly raidRoomService: RaidRoomService,
+        private readonly stockService: StockService,
         private readonly itemService: ItemService,
         private readonly requestHelperService: RequestHelperService
     ){
@@ -39,7 +39,7 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
             {modelName: ModelName.PLAYER, filter: searchFilter, nullIds}
         ], ignoreReferences);
 
-        await this.raidRoomService.deleteByCondition(searchFilter);
+        await this.stockService.deleteByCondition(searchFilter);
         await this.itemService.deleteByCondition(searchFilter);
     }
 }

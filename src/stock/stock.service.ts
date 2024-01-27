@@ -31,7 +31,7 @@ export class StockService extends BasicServiceDummyAbstract<Stock> implements IB
         if(!input?.clan_id)
             return true;
 
-        const isRaidRoomCountIncreased = await this.requestHelperService.changeCounterValue(ModelName.CLAN, {_id: input.clan_id}, 'raidRoomCount', 1);
+        const isRaidRoomCountIncreased = await this.requestHelperService.changeCounterValue(ModelName.CLAN, {_id: input.clan_id}, 'stockCount', 1);
         return isRaidRoomCountIncreased;
     }
 
@@ -43,9 +43,9 @@ export class StockService extends BasicServiceDummyAbstract<Stock> implements IB
 
         const clanRemoveFrom_id = oldDoc.clan_id;
         if(clanRemoveFrom_id)
-            await changeCounterValue(ModelName.CLAN, {_id: clanRemoveFrom_id}, 'raidRoomCount', -1);
+            await changeCounterValue(ModelName.CLAN, {_id: clanRemoveFrom_id}, 'stockCount', -1);
 
-        const isRaidRoomCountIncreased = await changeCounterValue(ModelName.CLAN, {_id: input.clan_id}, 'raidRoomCount', 1);
+        const isRaidRoomCountIncreased = await changeCounterValue(ModelName.CLAN, {_id: input.clan_id}, 'stockCount', 1);
         return isRaidRoomCountIncreased;
     }
 
@@ -55,16 +55,10 @@ export class StockService extends BasicServiceDummyAbstract<Stock> implements IB
         if(!clan_id)
             return true;
 
-        const isRaidRoomCountIncreased = await this.requestHelperService.changeCounterValue(ModelName.CLAN, {_id: clan_id}, 'raidRoomCount', -1);
+        const isRaidRoomCountIncreased = await this.requestHelperService.changeCounterValue(ModelName.CLAN, {_id: clan_id}, 'stockCount', -1);
         return isRaidRoomCountIncreased;
     }
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
-        const searchFilter = { raidRoom_id: _id };
-        const nullIds = { raidRoom_id: null };
-
-        await this.requestHelperService.nullReferences([
-            {modelName: ModelName.PLAYER, filter: searchFilter, nullIds, isOne: true}
-        ], ignoreReferences);
     }
 }

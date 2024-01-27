@@ -26,10 +26,10 @@ export class Clan {
     itemCount: number;
 
     @Prop({ type: Number, default: 0, min: 0 })
-    raidRoomCount: number;
+    stockCount: number;
+
     @Prop({type: Boolean, default: true})
     isOpen: Boolean;
-
 
     @ExtractField()
     _id: string;
