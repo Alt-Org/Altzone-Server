@@ -1,5 +1,6 @@
 import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
+import {IsStockExists} from "../../stock/decorator/validation/IsStockExists.decorator";
 
 export class CreateItemDto {
     @IsString()
@@ -39,7 +40,7 @@ export class CreateItemDto {
     @IsOptional()
     isFurniture: boolean;
 
-    @IsClanExists()
+    @IsStockExists()
     @IsMongoId()
     @IsOptional()
     stock_id: string;
