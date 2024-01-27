@@ -4,17 +4,17 @@ import {Action} from "../enum/action.enum";
 import {InferSubjects, MongoAbility} from "@casl/ability/dist/types";
 import {RulesSetterAsync} from "../type/rulesSetter.type";
 import {ClanDto} from "../../clan/dto/clan.dto";
-import {FurnitureDto} from "src/furniture/dto/furniture.dto";
-import {UpdateFurnitureDto} from "src/furniture/dto/updateFurniture.dto";
 import {ModelName} from "src/common/enum/modelName.enum";
 import {MongooseError} from "mongoose";
 import {NotFoundException} from "@nestjs/common";
 import {getClan_id} from "../util/getClan_id";
+import {ItemDto} from "../../item/dto/item.dto";
+import {UpdateItemDto} from "../../item/dto/updateItem.dto";
 
-type Subjects = InferSubjects<typeof FurnitureDto | typeof UpdateFurnitureDto>;
+type Subjects = InferSubjects<typeof ItemDto | typeof UpdateItemDto>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
-export const furnitureRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj: any, requestHelperService) => {
+export const itemRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj: any, requestHelperService) => {
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
     if(action === Action.create || action === Action.read){
@@ -30,7 +30,7 @@ export const furnitureRules: RulesSetterAsync<Ability, Subjects> = async (user, 
     }
 
     if(action === Action.update || action === Action.delete){
-        const furniture = await requestHelperService.getModelInstanceById(ModelName.ITEM, subjectObj._id, FurnitureDto);
+        const furniture = await requestHelperService.getModelInstanceById(ModelName.ITEM, subjectObj._id, ItemDto);
         if(!furniture || furniture instanceof MongooseError)
             throw new NotFoundException('The furniture with that _id is not found');
 

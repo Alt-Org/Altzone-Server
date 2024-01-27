@@ -17,12 +17,8 @@ import {systemAdminRules} from "./rule/systemAdminRules";
 import {CharacterClassDto} from "../characterClass/dto/characterClass.dto";
 import {UpdateCharacterClassDto} from "../characterClass/dto/updateCharacterClass.dto";
 import {characterClassRules} from "./rule/characterClassRules";
-import { FurnitureDto } from "src/furniture/dto/furniture.dto";
-import { UpdateFurnitureDto } from "src/furniture/dto/updateFurniture.dto";
-import { furnitureRules } from "./rule/furnitureRules";
-import { RaidRoomDto } from "src/raidRoom/dto/raidRoom.dto";
-import { UpdateRaidRoomDto } from "src/raidRoom/dto/updateRaidRoom.dto";
-import { raidRoomRules } from "./rule/raidRoomRules";
+import { itemRules } from "./rule/itemRules";
+import { stockRules } from "./rule/stockRules";
 import { clanRules } from "./rule/clanRules";
 import { ClanDto } from "src/clan/dto/clan.dto";
 import { UpdateClanDto } from "src/clan/dto/updateClan.dto";
@@ -33,6 +29,10 @@ import { JoinDto } from "src/clan/join/dto/join.dto";
 import { JoinRequestDto } from "src/clan/join/dto/joinRequest.dto";
 import { JoinResultDto } from "src/clan/join/dto/joinResult.dto";
 import { joinRules } from "./rule/joinRequestRules";
+import {ItemDto} from "../item/dto/item.dto";
+import {UpdateItemDto} from "../item/dto/updateItem.dto";
+import {StockDto} from "../stock/dto/stock.dto";
+import {UpdateStockDto} from "../stock/dto/updateStock.dto";
 
 export type AllowedAction = Action.create_request | Action.read_request | Action.read_response | Action.update_request | Action.delete_request;
 
@@ -41,8 +41,8 @@ export type AllowedSubject =
     typeof PlayerDto | typeof UpdatePlayerDto |
     typeof CustomCharacterDto | typeof UpdateCustomCharacterDto |
     typeof CharacterClassDto | typeof UpdateCharacterClassDto |
-    typeof FurnitureDto | typeof UpdateFurnitureDto | 
-    typeof RaidRoomDto | typeof UpdateRaidRoomDto |
+    typeof ItemDto | typeof UpdateItemDto |
+    typeof StockDto | typeof UpdateStockDto |
     typeof ClanDto | typeof UpdateClanDto | 
     typeof JoinDto | typeof JoinResultDto ; 
 
@@ -74,11 +74,11 @@ export class CASLAbilityFactory {
         if(subject === CharacterClassDto || subject === UpdateCharacterClassDto)
             return characterClassRules(user, subject, action, subjectObj);
 
-        if(subject === FurnitureDto || subject === UpdateFurnitureDto)
-            return furnitureRules(user, subject, action, subjectObj, this.requestHelperService);
+        if(subject === ItemDto || subject === UpdateItemDto)
+            return itemRules(user, subject, action, subjectObj, this.requestHelperService);
 
-        if(subject === RaidRoomDto || subject === UpdateRaidRoomDto)
-            return raidRoomRules(user, subject, action, subjectObj, this.requestHelperService);
+        if(subject === StockDto || subject === UpdateStockDto)
+            return stockRules(user, subject, action, subjectObj, this.requestHelperService);
 
         if(subject === ClanDto || subject === UpdateClanDto)
             return clanRules(user, subject, action, subjectObj, this.requestHelperService);

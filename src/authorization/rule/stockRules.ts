@@ -2,20 +2,20 @@ import {AllowedAction} from "../caslAbility.factory";
 import {AbilityBuilder, createMongoAbility, ExtractSubjectType} from "@casl/ability";
 import {Action} from "../enum/action.enum";
 import {InferSubjects, MongoAbility} from "@casl/ability/dist/types";
-import { RaidRoomDto } from "src/raidRoom/dto/raidRoom.dto";
-import { UpdateRaidRoomDto } from "src/raidRoom/dto/updateRaidRoom.dto";
 import {RulesSetterAsync} from "../type/rulesSetter.type";
 import { ClanDto } from "../../clan/dto/clan.dto";
 import { ModelName } from "src/common/enum/modelName.enum";
 import {getClan_id} from "../util/getClan_id";
+import {StockDto} from "../../stock/dto/stock.dto";
+import {UpdateStockDto} from "../../stock/dto/updateStock.dto";
 
-type Subjects = InferSubjects<typeof RaidRoomDto | typeof UpdateRaidRoomDto>;
+type Subjects = InferSubjects<typeof StockDto | typeof UpdateStockDto>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
-export const raidRoomRules: RulesSetterAsync<Ability, Subjects> = async (user, subject, action, subjectObj, requestHelperService) => {
+export const stockRules: RulesSetterAsync<Ability, Subjects> = async (user, subject, action, subjectObj, requestHelperService) => {
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
-    if(subject === RaidRoomDto){
+    if(subject === StockDto){
         const clan_id = await getClan_id(user, requestHelperService);
         can(Action.create_request, subject, {clan_id: clan_id});
 
@@ -24,7 +24,7 @@ export const raidRoomRules: RulesSetterAsync<Ability, Subjects> = async (user, s
         can(Action.read_response, subject, {clan_id: clan_id});
     }
 
-    if(subject === UpdateRaidRoomDto){
+    if(subject === UpdateStockDto){
         const clan_id = await getClan_id(user, requestHelperService);
         const clan = await requestHelperService.getModelInstanceById(ModelName.CLAN, clan_id, ClanDto);
         const isClanAdmin = clan.admin_ids.includes(user.player_id);
