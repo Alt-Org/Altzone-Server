@@ -1,4 +1,4 @@
-import {IsBoolean, IsInt, IsMongoId, IsString} from "class-validator";
+import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
 
 export class CreateItemDto {
@@ -24,15 +24,19 @@ export class CreateItemDto {
     filename: string;
 
     @IsInt()
+    @IsOptional()
     rowNumber: number;
 
     @IsInt()
+    @IsOptional()
     columnNumber: number;
 
     @IsBoolean()
+    @IsOptional()
     isInStock: boolean;
 
     @IsBoolean()
+    @IsOptional()
     isFurniture: boolean;
 
     @IsClanExists()
