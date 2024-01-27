@@ -17,7 +17,7 @@ export class ItemService extends BasicServiceDummyAbstract<Item> implements IBas
         private readonly requestHelperService: RequestHelperService
     ){
         super();
-        this.refsInModel = [ModelName.CLAN];
+        this.refsInModel = [ModelName.STOCK];
         this.modelName = ModelName.ITEM;
     }
 
