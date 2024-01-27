@@ -2,7 +2,7 @@ import {Expose, Type} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {ClanDto} from "../../clan/dto/clan.dto";
 
-export class FurnitureDto {
+export class ItemDto {
     @ExtractField()
     @Expose()
     _id: string;

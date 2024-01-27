@@ -28,13 +28,25 @@ export class Furniture {
     @Prop({ type: String, required: true })
     filename: string;
 
+    @Prop({ type: Number, required: false })
+    rowNumber: number;
+
+    @Prop({ type: Number, required: false })
+    columnNumber: number;
+
+    @Prop({ type: Boolean, required: true, default: false })
+    isInStock: boolean;
+
+    @Prop({ type: Boolean, required: true, default: false })
+    isFurniture: boolean;
+
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CLAN })
     clan_id: Clan;
 }
 
-export const FurnitureSchema = SchemaFactory.createForClass(Furniture);
-FurnitureSchema.set('collection', ModelName.FURNITURE);
-FurnitureSchema.virtual(ModelName.CLAN, {
+export const ItemSchema = SchemaFactory.createForClass(Furniture);
+ItemSchema.set('collection', ModelName.ITEM);
+ItemSchema.virtual(ModelName.CLAN, {
     ref: ModelName.CLAN,
     localField: 'clan_id',
     foreignField: '_id',

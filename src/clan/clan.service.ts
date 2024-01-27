@@ -24,7 +24,7 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         private readonly requestHelperService: RequestHelperService
     ){
         super();
-        this.refsInModel = [ModelName.PLAYER, ModelName.RAID_ROOM, ModelName.FURNITURE];
+        this.refsInModel = [ModelName.PLAYER, ModelName.RAID_ROOM, ModelName.ITEM];
         this.modelName = ModelName.CLAN;
     }
 

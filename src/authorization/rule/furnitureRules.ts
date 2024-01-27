@@ -30,7 +30,7 @@ export const furnitureRules: RulesSetterAsync<Ability, Subjects> = async (user, 
     }
 
     if(action === Action.update || action === Action.delete){
-        const furniture = await requestHelperService.getModelInstanceById(ModelName.FURNITURE, subjectObj._id, FurnitureDto);
+        const furniture = await requestHelperService.getModelInstanceById(ModelName.ITEM, subjectObj._id, FurnitureDto);
         if(!furniture || furniture instanceof MongooseError)
             throw new NotFoundException('The furniture with that _id is not found');
 

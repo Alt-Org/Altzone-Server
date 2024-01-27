@@ -3,7 +3,7 @@ export enum ModelName {
     CLAN = 'Clan',
     CUSTOM_CHARACTER = 'CustomCharacter',
     PLAYER = 'Player',
-    FURNITURE = 'Furniture',
+    ITEM = 'Item',
     RAID_ROOM = 'RaidRoom',
     PROFILE = 'Profile',
     CHAT = 'Chat',

@@ -5,29 +5,29 @@ import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
-import {Furniture} from "./furniture.schema";
+import {Furniture} from "./item.schema";
 import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 import {IHookImplementer, PostCreateHookFunction, PostHookFunction} from "../common/interface/IHookImplementer";
-import {UpdateFurnitureDto} from "./dto/updateFurniture.dto";
-import {CreateFurnitureDto} from "./dto/createFurniture.dto";
+import {UpdateItemDto} from "./dto/updateItem.dto";
+import {CreateItemDto} from "./dto/createItem.dto";
 
 @Injectable()
 @AddBasicService()
-export class FurnitureService extends BasicServiceDummyAbstract<Furniture> implements IBasicService<Furniture>, IHookImplementer{
+export class ItemService extends BasicServiceDummyAbstract<Furniture> implements IBasicService<Furniture>, IHookImplementer{
     public constructor(
         @InjectModel(Furniture.name) public readonly model: Model<Furniture>,
         private readonly requestHelperService: RequestHelperService
     ){
         super();
         this.refsInModel = [ModelName.CLAN];
-        this.modelName = ModelName.FURNITURE;
+        this.modelName = ModelName.ITEM;
     }
 
     public readonly refsInModel: ModelName[];
     public readonly modelName: ModelName;
 
-    public createOnePostHook: PostCreateHookFunction = async (input: CreateFurnitureDto, output: Furniture): Promise<boolean> => {
+    public createOnePostHook: PostCreateHookFunction = async (input: CreateItemDto, output: Furniture): Promise<boolean> => {
         if(!input?.clan_id)
             return true;
 
@@ -35,7 +35,7 @@ export class FurnitureService extends BasicServiceDummyAbstract<Furniture> imple
         return isFurnitureCountIncreased;
     }
 
-    public updateOnePostHook: PostHookFunction = async (input: Partial<UpdateFurnitureDto>, oldDoc: Furniture, output: Furniture): Promise<boolean> => {
+    public updateOnePostHook: PostHookFunction = async (input: Partial<UpdateItemDto>, oldDoc: Furniture, output: Furniture): Promise<boolean> => {
         if(!input?.clan_id)
             return true;
 

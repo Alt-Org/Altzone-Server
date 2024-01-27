@@ -1,8 +1,8 @@
 import {IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
-import {IsFurnitureExists} from "../decorator/validation/IsFurnitureExists.decorator";
+import {IsFurnitureExists} from "../decorator/validation/IsItemExists.decorator";
 
-export class UpdateFurnitureDto {
+export class UpdateItemDto {
     @IsFurnitureExists()
     @IsMongoId()
     _id: string;

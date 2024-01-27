@@ -1,7 +1,7 @@
 import {IsInt, IsMongoId, IsString} from "class-validator";
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
 
-export class CreateFurnitureDto {
+export class CreateItemDto {
     @IsString()
     name: string;
 
