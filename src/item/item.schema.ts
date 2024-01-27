@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
-import {Clan} from "../clan/clan.schema";
+import {Stock} from "../stock/stock.schema";
 
 export type ItemDocument = HydratedDocument<Item>;
 
@@ -40,15 +40,15 @@ export class Item {
     @Prop({ type: Boolean, required: true, default: false })
     isFurniture: boolean;
 
-    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CLAN })
-    clan_id: Clan;
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.STOCK })
+    stock_id: Stock;
 }
 
 export const ItemSchema = SchemaFactory.createForClass(Item);
 ItemSchema.set('collection', ModelName.ITEM);
-ItemSchema.virtual(ModelName.CLAN, {
-    ref: ModelName.CLAN,
-    localField: 'clan_id',
+ItemSchema.virtual(ModelName.STOCK, {
+    ref: ModelName.STOCK,
+    localField: 'stock_id',
     foreignField: '_id',
     justOne: true
 });

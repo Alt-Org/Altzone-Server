@@ -47,8 +47,3 @@ ClanSchema.virtual(ModelName.STOCK, {
     localField: '_id',
     foreignField: 'clan_id'
 });
-ClanSchema.virtual(ModelName.ITEM, {
-    ref: ModelName.ITEM,
-    localField: '_id',
-    foreignField: 'clan_id'
-});

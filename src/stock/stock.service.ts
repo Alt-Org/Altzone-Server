@@ -10,7 +10,7 @@ import {AddBasicService} from "../common/base/decorator/AddBasicService.decorato
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 import {IHookImplementer, PostCreateHookFunction, PostHookFunction} from "../common/interface/IHookImplementer";
 import {CreateStockDto} from "./dto/createStock.dto";
-import {UpdateItemDto} from "../item/dto/updateItem.dto";
+import {UpdateStockDto} from "./dto/updateStock.dto";
 
 @Injectable()
 @AddBasicService()
@@ -20,7 +20,7 @@ export class StockService extends BasicServiceDummyAbstract<Stock> implements IB
         private readonly requestHelperService: RequestHelperService
     ){
         super();
-        this.refsInModel = [ModelName.CLAN];
+        this.refsInModel = [ModelName.CLAN, ModelName.ITEM];
         this.modelName = ModelName.STOCK;
     }
 
@@ -35,7 +35,7 @@ export class StockService extends BasicServiceDummyAbstract<Stock> implements IB
         return isRaidRoomCountIncreased;
     }
 
-    public updateOnePostHook: PostHookFunction = async (input: Partial<UpdateItemDto>, oldDoc: Stock, output: Stock): Promise<boolean> => {
+    public updateOnePostHook: PostHookFunction = async (input: Partial<UpdateStockDto>, oldDoc: Stock, output: Stock): Promise<boolean> => {
         if(!input?.clan_id)
             return true;
 

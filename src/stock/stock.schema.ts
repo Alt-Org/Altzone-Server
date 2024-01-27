@@ -28,3 +28,8 @@ StockSchema.virtual(ModelName.CLAN, {
     foreignField: '_id',
     justOne: true
 });
+StockSchema.virtual(ModelName.ITEM, {
+    ref: ModelName.ITEM,
+    localField: '_id',
+    foreignField: 'stock_id'
+});

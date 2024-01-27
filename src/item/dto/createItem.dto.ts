@@ -41,5 +41,6 @@ export class CreateItemDto {
 
     @IsClanExists()
     @IsMongoId()
-    clan_id: string;
+    @IsOptional()
+    stock_id: string;
 }

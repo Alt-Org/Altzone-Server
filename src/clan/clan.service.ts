@@ -11,7 +11,6 @@ import {
 } from "../common/base/decorator/AddBasicService.decorator";
 import {IBasicService} from "../common/base/interface/IBasicService";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
-import {ItemService} from "../item/item.service";
 import {StockService} from "../stock/stock.service";
 
 @Injectable()
@@ -20,11 +19,10 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
     public constructor(
         @InjectModel(Clan.name) public readonly model: Model<Clan>,
         private readonly stockService: StockService,
-        private readonly itemService: ItemService,
         private readonly requestHelperService: RequestHelperService
     ){
         super();
-        this.refsInModel = [ModelName.PLAYER, ModelName.STOCK, ModelName.ITEM];
+        this.refsInModel = [ModelName.PLAYER, ModelName.STOCK];
         this.modelName = ModelName.CLAN;
     }
 
@@ -40,6 +38,5 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         ], ignoreReferences);
 
         await this.stockService.deleteByCondition(searchFilter);
-        await this.itemService.deleteByCondition(searchFilter);
     }
 }

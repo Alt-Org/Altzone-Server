@@ -6,14 +6,12 @@ import {ClanService} from "./clan.service";
 import {RequestHelperModule} from "../requestHelper/requestHelper.module";
 import {isClanExists} from "./decorator/validation/IsClanExists.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
-import {ItemModule} from "../item/item.module";
 import {StockModule} from "../stock/stock.module";
 
 @Module({
     imports: [
         MongooseModule.forFeature([ {name: ModelName.CLAN, schema: ClanSchema} ]),
         StockModule,
-        ItemModule,
         RequestHelperModule
     ],
     controllers: [ClanController],

@@ -1,6 +1,7 @@
 import {Expose, Type} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {ClanDto} from "../../clan/dto/clan.dto";
+import {StockDto} from "../../stock/dto/stock.dto";
 
 export class ItemDto {
     @ExtractField()
@@ -42,9 +43,9 @@ export class ItemDto {
 
     @ExtractField()
     @Expose()
-    clan_id: string;
+    stock_id: string;
 
-    @Type(() => ClanDto)
+    @Type(() => StockDto)
     @Expose()
-    Clan: ClanDto;
+    Stock: StockDto;
 }

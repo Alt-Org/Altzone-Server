@@ -32,17 +32,7 @@ export const itemRules: RulesSetterAsync<Ability, Subjects> = async (user, subje
     if(action === Action.update || action === Action.delete){
         const furniture = await requestHelperService.getModelInstanceById(ModelName.ITEM, subjectObj._id, ItemDto);
         if(!furniture || furniture instanceof MongooseError)
-            throw new NotFoundException('The furniture with that _id is not found');
-
-        const clan = await requestHelperService.getModelInstanceById(ModelName.CLAN, furniture.clan_id, ClanDto);
-        if(!clan || clan instanceof MongooseError)
-            throw new NotFoundException('The clan with that _id is not found. Can not check is the logged-in user clan admin');
-
-        const isClanAdmin = clan.admin_ids.includes(user.player_id);
-        if(isClanAdmin){
-            can(Action.update_request, subject);
-            can(Action.delete_request, subject);
-        }
+            throw new NotFoundException('The item with that _id is not found');
     }
 
     return build({
