@@ -6,10 +6,10 @@ import {_idDto} from "../common/dto/_id.dto";
 import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
 import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
-import {RaidRoomService} from "./raidRoom.service";
-import {RaidRoomDto} from "./dto/raidRoom.dto";
-import {CreateRaidRoomDto} from "./dto/createRaidRoom.dto";
-import {UpdateRaidRoomDto} from "./dto/updateRaidRoom.dto";
+import {StockService} from "./stock.service";
+import {StockDto} from "./dto/stock.dto";
+import {CreateStockDto} from "./dto/createStock.dto";
+import {UpdateStockDto} from "./dto/updateStock.dto";
 import { Authorize } from "src/authorization/decorator/Authorize";
 import { Action } from "src/authorization/enum/action.enum";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
@@ -19,44 +19,44 @@ import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.
 import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
 
 @Controller('raidRoom')
-export class RaidRoomController{
-    public constructor(private readonly service: RaidRoomService) {
+export class StockController {
+    public constructor(private readonly service: StockService) {
     }
 
     @Post()
-    @Authorize({action: Action.create, subject: RaidRoomDto})
-    @BasicPOST(RaidRoomDto)
-    public create(@Body() body: CreateRaidRoomDto) {
+    @Authorize({action: Action.create, subject: StockDto})
+    @BasicPOST(StockDto)
+    public create(@Body() body: CreateStockDto) {
         return this.service.createOne(body);
     }
 
     @Get('/:_id')
-    @Authorize({action: Action.read, subject: RaidRoomDto})
-    @BasicGET(ModelName.RAID_ROOM, RaidRoomDto)
+    @Authorize({action: Action.read, subject: StockDto})
+    @BasicGET(ModelName.RAID_ROOM, StockDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Req() request: Request) {
         return this.service.readOneById(param._id, request['mongoPopulate']);
     }
 
     @Get()
-    @Authorize({action: Action.read, subject: RaidRoomDto})
+    @Authorize({action: Action.read, subject: StockDto})
     @OffsetPaginate(ModelName.RAID_ROOM)
-    @AddSearchQuery(RaidRoomDto)
-    @AddSortQuery(RaidRoomDto)
-    @BasicGET(ModelName.RAID_ROOM, RaidRoomDto)
+    @AddSearchQuery(StockDto)
+    @AddSortQuery(StockDto)
+    @BasicGET(ModelName.RAID_ROOM, StockDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {
         return this.service.readAll(query);
     }
 
     @Put()
-    @Authorize({action: Action.update, subject: UpdateRaidRoomDto})
+    @Authorize({action: Action.update, subject: UpdateStockDto})
     @BasicPUT(ModelName.RAID_ROOM)
-    public update(@Body() body: UpdateRaidRoomDto){
+    public update(@Body() body: UpdateStockDto){
         return this.service.updateOneById(body);
     }
 
     @Delete('/:_id')
-    @Authorize({action: Action.delete, subject: UpdateRaidRoomDto})
+    @Authorize({action: Action.delete, subject: UpdateStockDto})
     @BasicDELETE(ModelName.RAID_ROOM)
     public delete(@Param() param: _idDto) {
         return this.service.deleteOneById(param._id);

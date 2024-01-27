@@ -3,7 +3,7 @@ import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {ClanDto} from "../../clan/dto/clan.dto";
 import {PlayerDto} from "../../player/dto/player.dto";
 
-export class RaidRoomDto {
+export class StockDto {
     @ExtractField()
     @Expose()
     _id: string;

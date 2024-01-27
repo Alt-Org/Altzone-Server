@@ -2,9 +2,9 @@ import {IsEnum, IsInt, IsMongoId, IsOptional} from "class-validator";
 import {IsPlayerExists} from "../../player/decorator/validation/IsPlayerExists.decorator";
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
 import {RaidRoom} from "../../common/enum/raidRoom.enum";
-import {IsRaidRoomExists} from "../decorator/validation/IsRaidRoomExists.decorator";
+import {IsRaidRoomExists} from "../decorator/validation/IsStockExists.decorator";
 
-export class UpdateRaidRoomDto {
+export class UpdateStockDto {
     @IsRaidRoomExists()
     @IsMongoId()
     _id: string;

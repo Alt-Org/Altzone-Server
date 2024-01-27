@@ -3,7 +3,7 @@ import {IsPlayerExists} from "../../player/decorator/validation/IsPlayerExists.d
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
 import {RaidRoom} from "../../common/enum/raidRoom.enum";
 
-export class CreateRaidRoomDto {
+export class CreateStockDto {
     @IsEnum(RaidRoom)
     @IsInt()
     type: RaidRoom;

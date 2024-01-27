@@ -5,7 +5,7 @@ import {Model} from "mongoose";
 import {registerValidationDecorator} from "../../../common/decorator/validation/registerValidationDecorator";
 import {isEntityExists} from "../../../common/decorator/validation/isEntityExists";
 import {ModelName} from "../../../common/enum/modelName.enum";
-import {RaidRoom} from "../../raidRoom.schema";
+import {RaidRoom} from "../../stock.schema";
 
 export function IsRaidRoomExists(validationOptions?: ValidationOptions) {
     return function (object: any, propertyName: string): void {

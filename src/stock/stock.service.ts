@@ -5,16 +5,16 @@ import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
-import {RaidRoom} from "./raidRoom.schema";
+import {RaidRoom} from "./stock.schema";
 import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 import {IHookImplementer, PostCreateHookFunction, PostHookFunction} from "../common/interface/IHookImplementer";
 import {UpdateFurnitureDto} from "../furniture/dto/updateFurniture.dto";
-import {CreateRaidRoomDto} from "./dto/createRaidRoom.dto";
+import {CreateStockDto} from "./dto/createStock.dto";
 
 @Injectable()
 @AddBasicService()
-export class RaidRoomService extends BasicServiceDummyAbstract<RaidRoom> implements IBasicService<RaidRoom>, IHookImplementer{
+export class StockService extends BasicServiceDummyAbstract<RaidRoom> implements IBasicService<RaidRoom>, IHookImplementer{
     public constructor(
         @InjectModel(RaidRoom.name) public readonly model: Model<RaidRoom>,
         private readonly requestHelperService: RequestHelperService
@@ -27,7 +27,7 @@ export class RaidRoomService extends BasicServiceDummyAbstract<RaidRoom> impleme
     public readonly refsInModel: ModelName[];
     public readonly modelName: ModelName;
 
-    public createOnePostHook: PostCreateHookFunction = async (input: CreateRaidRoomDto, output: RaidRoom): Promise<boolean> => {
+    public createOnePostHook: PostCreateHookFunction = async (input: CreateStockDto, output: RaidRoom): Promise<boolean> => {
         if(!input?.clan_id)
             return true;
 
