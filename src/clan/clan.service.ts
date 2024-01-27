@@ -6,13 +6,13 @@ import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
 import {RaidRoomService} from "../raidRoom/raidRoom.service";
-import {FurnitureService} from "../furniture/furniture.service";
 import {
     AddBasicService,
     ClearCollectionReferences,
 } from "../common/base/decorator/AddBasicService.decorator";
 import {IBasicService} from "../common/base/interface/IBasicService";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
+import {ItemService} from "../item/item.service";
 
 @Injectable()
 @AddBasicService()
@@ -20,7 +20,7 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
     public constructor(
         @InjectModel(Clan.name) public readonly model: Model<Clan>,
         private readonly raidRoomService: RaidRoomService,
-        private readonly furnitureService: FurnitureService,
+        private readonly itemService: ItemService,
         private readonly requestHelperService: RequestHelperService
     ){
         super();
@@ -40,6 +40,6 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         ], ignoreReferences);
 
         await this.raidRoomService.deleteByCondition(searchFilter);
-        await this.furnitureService.deleteByCondition(searchFilter);
+        await this.itemService.deleteByCondition(searchFilter);
     }
 }

@@ -23,7 +23,7 @@ export class Clan {
     playerCount: number;
 
     @Prop({ type: Number, default: 0, min: 0 })
-    furnitureCount: number;
+    itemCount: number;
 
     @Prop({ type: Number, default: 0, min: 0 })
     raidRoomCount: number;

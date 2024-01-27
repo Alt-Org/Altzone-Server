@@ -7,13 +7,13 @@ import {RequestHelperModule} from "../requestHelper/requestHelper.module";
 import {isClanExists} from "./decorator/validation/IsClanExists.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {RaidRoomModule} from "../raidRoom/raidRoom.module";
-import {FurnitureModule} from "../furniture/furniture.module";
+import {ItemModule} from "../item/item.module";
 
 @Module({
     imports: [
         MongooseModule.forFeature([ {name: ModelName.CLAN, schema: ClanSchema} ]),
         RaidRoomModule,
-        FurnitureModule,
+        ItemModule,
         RequestHelperModule
     ],
     controllers: [ClanController],

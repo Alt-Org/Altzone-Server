@@ -2,7 +2,7 @@ import {Expose, Type} from "class-transformer";
 import {PlayerDto} from "../../player/dto/player.dto";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {RaidRoomDto} from "../../raidRoom/dto/raidRoom.dto";
-import {FurnitureDto} from "../../furniture/dto/furniture.dto";
+import {ItemDto} from "../../item/dto/item.dto";
 
 export class ClanDto {
     @ExtractField()
@@ -25,7 +25,7 @@ export class ClanDto {
     playerCount: number;
 
     @Expose()
-    furnitureCount: number;
+    itemCount: number;
 
     @Expose()
     raidRoomCount: number;
@@ -41,7 +41,7 @@ export class ClanDto {
     @Expose()
     RaidRoom: RaidRoomDto[];
 
-    @Type(() => FurnitureDto)
+    @Type(() => ItemDto)
     @Expose()
-    Furniture: FurnitureDto[];
+    Item: ItemDto[];
 }
