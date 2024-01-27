@@ -1,17 +1,16 @@
 import {IsEnum, IsInt, IsMongoId, IsOptional} from "class-validator";
-import {IsPlayerExists} from "../../player/decorator/validation/IsPlayerExists.decorator";
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
-import {RaidRoom} from "../../common/enum/raidRoom.enum";
-import {IsRaidRoomExists} from "../decorator/validation/IsStockExists.decorator";
+import {StockType} from "../../common/enum/stockType.enum";
+import {IsStockExists} from "../decorator/validation/IsStockExists.decorator";
 
 export class UpdateStockDto {
-    @IsRaidRoomExists()
+    @IsStockExists()
     @IsMongoId()
     _id: string;
 
-    @IsEnum(RaidRoom)
+    @IsEnum(StockType)
     @IsOptional()
-    type: RaidRoom;
+    type: StockType;
 
     @IsInt()
     @IsOptional()
@@ -19,12 +18,7 @@ export class UpdateStockDto {
 
     @IsInt()
     @IsOptional()
-    colCount: number;
-
-    @IsPlayerExists()
-    @IsMongoId()
-    @IsOptional()
-    player_id: string;
+    columnCount: number;
 
     @IsClanExists()
     @IsMongoId()

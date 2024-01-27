@@ -26,7 +26,7 @@ export class PlayerService
         private readonly requestHelperService: RequestHelperService
     ){
         super();
-        this.refsInModel = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.RAID_ROOM];
+        this.refsInModel = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.STOCK];
         this.modelName = ModelName.PLAYER;
     }
 

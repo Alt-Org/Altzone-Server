@@ -1,7 +1,6 @@
 import {Expose, Type} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {ClanDto} from "../../clan/dto/clan.dto";
-import {PlayerDto} from "../../player/dto/player.dto";
 
 export class StockDto {
     @ExtractField()
@@ -15,19 +14,11 @@ export class StockDto {
     rowCount: number;
 
     @Expose()
-    colCount: number;
-
-    @ExtractField()
-    @Expose()
-    player_id: string;
+    columnCount: number;
 
     @ExtractField()
     @Expose()
     clan_id: string;
-
-    @Type(() => PlayerDto)
-    @Expose()
-    Player: PlayerDto;
 
     @Type(() => ClanDto)
     @Expose()

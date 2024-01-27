@@ -42,8 +42,8 @@ ClanSchema.virtual(ModelName.PLAYER, {
     localField: '_id',
     foreignField: 'clan_id'
 });
-ClanSchema.virtual(ModelName.RAID_ROOM, {
-    ref: ModelName.RAID_ROOM,
+ClanSchema.virtual(ModelName.STOCK, {
+    ref: ModelName.STOCK,
     localField: '_id',
     foreignField: 'clan_id'
 });

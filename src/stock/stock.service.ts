@@ -5,29 +5,29 @@ import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
-import {RaidRoom} from "./stock.schema";
+import {Stock} from "./stock.schema";
 import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 import {IHookImplementer, PostCreateHookFunction, PostHookFunction} from "../common/interface/IHookImplementer";
-import {UpdateFurnitureDto} from "../furniture/dto/updateFurniture.dto";
 import {CreateStockDto} from "./dto/createStock.dto";
+import {UpdateItemDto} from "../item/dto/updateItem.dto";
 
 @Injectable()
 @AddBasicService()
-export class StockService extends BasicServiceDummyAbstract<RaidRoom> implements IBasicService<RaidRoom>, IHookImplementer{
+export class StockService extends BasicServiceDummyAbstract<Stock> implements IBasicService<Stock>, IHookImplementer{
     public constructor(
-        @InjectModel(RaidRoom.name) public readonly model: Model<RaidRoom>,
+        @InjectModel(Stock.name) public readonly model: Model<Stock>,
         private readonly requestHelperService: RequestHelperService
     ){
         super();
-        this.refsInModel = [ModelName.PLAYER, ModelName.CLAN];
-        this.modelName = ModelName.RAID_ROOM;
+        this.refsInModel = [ModelName.CLAN];
+        this.modelName = ModelName.STOCK;
     }
 
     public readonly refsInModel: ModelName[];
     public readonly modelName: ModelName;
 
-    public createOnePostHook: PostCreateHookFunction = async (input: CreateStockDto, output: RaidRoom): Promise<boolean> => {
+    public createOnePostHook: PostCreateHookFunction = async (input: CreateStockDto, output: Stock): Promise<boolean> => {
         if(!input?.clan_id)
             return true;
 
@@ -35,7 +35,7 @@ export class StockService extends BasicServiceDummyAbstract<RaidRoom> implements
         return isRaidRoomCountIncreased;
     }
 
-    public updateOnePostHook: PostHookFunction = async (input: Partial<UpdateFurnitureDto>, oldDoc: RaidRoom, output: RaidRoom): Promise<boolean> => {
+    public updateOnePostHook: PostHookFunction = async (input: Partial<UpdateItemDto>, oldDoc: Stock, output: Stock): Promise<boolean> => {
         if(!input?.clan_id)
             return true;
 
@@ -49,7 +49,7 @@ export class StockService extends BasicServiceDummyAbstract<RaidRoom> implements
         return isRaidRoomCountIncreased;
     }
 
-    public deleteOnePostHook: PostHookFunction = async (input: any, oldDoc: RaidRoom, output: RaidRoom): Promise<boolean> => {
+    public deleteOnePostHook: PostHookFunction = async (input: any, oldDoc: Stock, output: Stock): Promise<boolean> => {
         const clan_id = oldDoc.clan_id;
 
         if(!clan_id)

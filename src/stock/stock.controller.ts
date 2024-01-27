@@ -18,7 +18,7 @@ import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
 import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
 
-@Controller('raidRoom')
+@Controller('stock')
 export class StockController {
     public constructor(private readonly service: StockService) {
     }
@@ -32,7 +32,7 @@ export class StockController {
 
     @Get('/:_id')
     @Authorize({action: Action.read, subject: StockDto})
-    @BasicGET(ModelName.RAID_ROOM, StockDto)
+    @BasicGET(ModelName.STOCK, StockDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Req() request: Request) {
         return this.service.readOneById(param._id, request['mongoPopulate']);
@@ -40,24 +40,24 @@ export class StockController {
 
     @Get()
     @Authorize({action: Action.read, subject: StockDto})
-    @OffsetPaginate(ModelName.RAID_ROOM)
+    @OffsetPaginate(ModelName.STOCK)
     @AddSearchQuery(StockDto)
     @AddSortQuery(StockDto)
-    @BasicGET(ModelName.RAID_ROOM, StockDto)
+    @BasicGET(ModelName.STOCK, StockDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {
         return this.service.readAll(query);
     }
 
     @Put()
     @Authorize({action: Action.update, subject: UpdateStockDto})
-    @BasicPUT(ModelName.RAID_ROOM)
+    @BasicPUT(ModelName.STOCK)
     public update(@Body() body: UpdateStockDto){
         return this.service.updateOneById(body);
     }
 
     @Delete('/:_id')
     @Authorize({action: Action.delete, subject: UpdateStockDto})
-    @BasicDELETE(ModelName.RAID_ROOM)
+    @BasicDELETE(ModelName.STOCK)
     public delete(@Param() param: _idDto) {
         return this.service.deleteOneById(param._id);
     }

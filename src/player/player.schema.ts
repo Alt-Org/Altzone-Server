@@ -33,7 +33,7 @@ export class Player {
     currentCustomCharacter_id: CustomCharacter;
 
     @ExtractField()
-    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.RAID_ROOM })
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.STOCK })
     raidRoom_id: RaidRoom;
 
     @ExtractField()
@@ -53,8 +53,8 @@ PlayerSchema.virtual(ModelName.CUSTOM_CHARACTER, {
     localField: '_id',
     foreignField: 'player_id'
 });
-PlayerSchema.virtual(ModelName.RAID_ROOM, {
-    ref: ModelName.RAID_ROOM,
+PlayerSchema.virtual(ModelName.STOCK, {
+    ref: ModelName.STOCK,
     localField: '_id',
     foreignField: 'player_id',
     justOne: true
