@@ -5,7 +5,7 @@ import {RequestHelperModule} from "../requestHelper/requestHelper.module";
 import {ModelName} from "../common/enum/modelName.enum";
 import {ItemController} from "./item.controller";
 import {ItemService} from "./item.service";
-import {isFurnitureExists} from "./decorator/validation/IsItemExists.decorator";
+import {isItemExists} from "./decorator/validation/IsItemExists.decorator";
 
 @Module({
     imports: [
@@ -13,7 +13,7 @@ import {isFurnitureExists} from "./decorator/validation/IsItemExists.decorator";
         RequestHelperModule
     ],
     controllers: [ItemController],
-    providers: [ ItemService, isFurnitureExists ],
+    providers: [ ItemService, isItemExists ],
     exports: [ItemService]
 })
 export class ItemModule {}

@@ -18,7 +18,7 @@ import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
 import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
 
-@Controller('furniture')
+@Controller('item')
 export class ItemController {
     public constructor(private readonly service: ItemService) {
     }

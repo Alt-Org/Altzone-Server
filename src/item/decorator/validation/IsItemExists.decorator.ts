@@ -5,18 +5,18 @@ import {Model} from "mongoose";
 import {registerValidationDecorator} from "../../../common/decorator/validation/registerValidationDecorator";
 import {isEntityExists} from "../../../common/decorator/validation/isEntityExists";
 import {ModelName} from "../../../common/enum/modelName.enum";
-import {Furniture} from "../../item.schema";
+import {Item} from "../../item.schema";
 
-export function IsFurnitureExists(validationOptions?: ValidationOptions) {
+export function IsItemExists(validationOptions?: ValidationOptions) {
     return function (object: any, propertyName: string): void {
-        registerValidationDecorator(IsFurnitureExists.name, isFurnitureExists, object, propertyName, validationOptions);
+        registerValidationDecorator(IsItemExists.name, isItemExists, object, propertyName, validationOptions);
     };
 }
 
-@ValidatorConstraint({ name: isFurnitureExists.name, async: true })
+@ValidatorConstraint({ name: isItemExists.name, async: true })
 @Injectable()
-export class isFurnitureExists extends isEntityExists<Furniture> implements ValidatorConstraintInterface{
-    public constructor(@InjectModel(ModelName.ITEM) private readonly model: Model<Furniture>) {
+export class isItemExists extends isEntityExists<Item> implements ValidatorConstraintInterface{
+    public constructor(@InjectModel(ModelName.ITEM) private readonly model: Model<Item>) {
         super(ModelName.ITEM);
         super.setEntityModel(this.model);
     }

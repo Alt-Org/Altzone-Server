@@ -3,10 +3,10 @@ import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Clan} from "../clan/clan.schema";
 
-export type FurnitureDocument = HydratedDocument<Furniture>;
+export type ItemDocument = HydratedDocument<Item>;
 
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true }})
-export class Furniture {
+export class Item {
     @Prop({ type: String, required: true })
     name: string;
 
@@ -44,7 +44,7 @@ export class Furniture {
     clan_id: Clan;
 }
 
-export const ItemSchema = SchemaFactory.createForClass(Furniture);
+export const ItemSchema = SchemaFactory.createForClass(Item);
 ItemSchema.set('collection', ModelName.ITEM);
 ItemSchema.virtual(ModelName.CLAN, {
     ref: ModelName.CLAN,
