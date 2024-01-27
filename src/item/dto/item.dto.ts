@@ -28,6 +28,18 @@ export class ItemDto {
     @Expose()
     filename: string;
 
+    @Expose()
+    rowNumber: number;
+
+    @Expose()
+    columnNumber: number;
+
+    @Expose()
+    isInStock: boolean;
+
+    @Expose()
+    isFurniture: boolean;
+
     @ExtractField()
     @Expose()
     clan_id: string;
