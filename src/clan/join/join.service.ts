@@ -53,6 +53,7 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
             true
         );
         if(player?.clan_id && player.clan_id == clan_id )   return "You are already in the requested clan";
+
         if (clan.isOpen) { // check if clan to join is open
             if (player?.clan_id) { // does an old clan id exist? if so reduce the players in the old clan
                 await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: player.clan_id }, "playerCount", -1)
@@ -72,7 +73,6 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
     public updateOnePostHook: PostHookFunction = async (input: Partial<JoinResultDto>, oldDoc: Join): Promise<boolean> => {
         if (!input?.accepted) 
             return true;
-        //TODO check if admin
         const player = await this.requestHelperService.getModelInstanceByCondition(
             ModelName.PLAYER,
             { _id: oldDoc.player_id },
