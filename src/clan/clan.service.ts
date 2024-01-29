@@ -1,23 +1,23 @@
-
-
 import {
     AddBasicService,
     ClearCollectionReferences,
 } from "../common/base/decorator/AddBasicService.decorator";
-
 import { IBasicService } from "../common/base/interface/IBasicService";
 import { BasicServiceDummyAbstract } from "../common/base/abstract/basicServiceDummy.abstract";
 import { CreateClanDto } from "./dto/createClan.dto";
-import { IHookImplementer, PostCreateHookFunction, PostHookFunction } from "src/common/interface/IHookImplementer";
 import { UpdateClanDto } from "./dto/updateClan.dto";
 import { deleteNotUniqueArrayElements } from "src/common/function/deleteNotUniqueArrayElements";
 import { deleteArrayElements } from "src/common/function/deleteArrayElements";
 import { addUniqueArrayElements } from "src/common/function/addUniqueArrayElements";
 import { PlayerDto } from "src/player/dto/player.dto";
-
-import {IBasicService} from "../common/base/interface/IBasicService";
-import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 import {StockService} from "../stock/stock.service";
+import { BadRequestException, Body, Injectable, NotFoundException, Req } from "@nestjs/common";
+import { Clan } from "./clan.schema";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model, MongooseError, Types } from "mongoose";
+import { ModelName } from "src/common/enum/modelName.enum";
+import { RequestHelperService } from "src/requestHelper/requestHelper.service";
+import { IgnoreReferencesType } from "src/common/type/ignoreReferences.type";
 
 
 @Injectable()
