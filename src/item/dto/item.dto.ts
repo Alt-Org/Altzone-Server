@@ -1,8 +1,9 @@
 import {Expose, Type} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {ClanDto} from "../../clan/dto/clan.dto";
+import {StockDto} from "../../stock/dto/stock.dto";
 
-export class FurnitureDto {
+export class ItemDto {
     @ExtractField()
     @Expose()
     _id: string;
@@ -28,11 +29,23 @@ export class FurnitureDto {
     @Expose()
     filename: string;
 
+    @Expose()
+    rowNumber: number;
+
+    @Expose()
+    columnNumber: number;
+
+    @Expose()
+    isInStock: boolean;
+
+    @Expose()
+    isFurniture: boolean;
+
     @ExtractField()
     @Expose()
-    clan_id: string;
+    stock_id: string;
 
-    @Type(() => ClanDto)
+    @Type(() => StockDto)
     @Expose()
-    Clan: ClanDto;
+    Stock: StockDto;
 }

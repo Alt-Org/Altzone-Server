@@ -3,7 +3,6 @@ import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {Clan} from "../clan/clan.schema";
 import {ModelName} from "../common/enum/modelName.enum";
 import {CustomCharacter} from "../customCharacter/customCharacter.schema";
-import {RaidRoom} from "../raidRoom/raidRoom.schema";
 import {Profile} from "../profile/profile.schema";
 import {ExtractField} from "../common/decorator/response/ExtractField";
 
@@ -33,10 +32,6 @@ export class Player {
     currentCustomCharacter_id: CustomCharacter;
 
     @ExtractField()
-    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.RAID_ROOM })
-    raidRoom_id: RaidRoom;
-
-    @ExtractField()
     _id: string;
 }
 
@@ -52,10 +47,4 @@ PlayerSchema.virtual(ModelName.CUSTOM_CHARACTER, {
     ref: ModelName.CUSTOM_CHARACTER,
     localField: '_id',
     foreignField: 'player_id'
-});
-PlayerSchema.virtual(ModelName.RAID_ROOM, {
-    ref: ModelName.RAID_ROOM,
-    localField: '_id',
-    foreignField: 'player_id',
-    justOne: true
 });

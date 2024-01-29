@@ -1,16 +1,10 @@
-import { BadRequestException, Body, Injectable, NotFoundException, Req } from "@nestjs/common";
-import { Model, MongooseError, Types } from "mongoose";
-import { Clan } from "./clan.schema";
-import { InjectModel } from "@nestjs/mongoose";
-import { RequestHelperService } from "../requestHelper/requestHelper.service";
-import { IgnoreReferencesType } from "../common/type/ignoreReferences.type";
-import { ModelName } from "../common/enum/modelName.enum";
-import { RaidRoomService } from "../raidRoom/raidRoom.service";
-import { FurnitureService } from "../furniture/furniture.service";
+
+
 import {
     AddBasicService,
     ClearCollectionReferences,
 } from "../common/base/decorator/AddBasicService.decorator";
+
 import { IBasicService } from "../common/base/interface/IBasicService";
 import { BasicServiceDummyAbstract } from "../common/base/abstract/basicServiceDummy.abstract";
 import { CreateClanDto } from "./dto/createClan.dto";
@@ -21,17 +15,21 @@ import { deleteArrayElements } from "src/common/function/deleteArrayElements";
 import { addUniqueArrayElements } from "src/common/function/addUniqueArrayElements";
 import { PlayerDto } from "src/player/dto/player.dto";
 
+import {IBasicService} from "../common/base/interface/IBasicService";
+import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
+import {StockService} from "../stock/stock.service";
+
+
 @Injectable()
 @AddBasicService()
 export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBasicService<Clan> {
     public constructor(
         @InjectModel(Clan.name) public readonly model: Model<Clan>,
-        private readonly raidRoomService: RaidRoomService,
-        private readonly furnitureService: FurnitureService,
+        private readonly stockService: StockService,
         private readonly requestHelperService: RequestHelperService
     ) {
         super();
-        this.refsInModel = [ModelName.PLAYER, ModelName.RAID_ROOM, ModelName.FURNITURE];
+        this.refsInModel = [ModelName.PLAYER, ModelName.STOCK];
         this.modelName = ModelName.CLAN;
     }
 
@@ -94,7 +92,6 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
             { modelName: ModelName.PLAYER, filter: searchFilter, nullIds }
         ], ignoreReferences);
 
-        await this.raidRoomService.deleteByCondition(searchFilter);
-        await this.furnitureService.deleteByCondition(searchFilter);
+        await this.stockService.deleteByCondition(searchFilter);
     }
 }

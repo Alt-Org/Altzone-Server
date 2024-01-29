@@ -7,7 +7,6 @@ import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
 import {CustomCharacterService} from "../customCharacter/customCharacter.service";
-import {RaidRoomService} from "../raidRoom/raidRoom.service";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
 import {ClanDto} from "../clan/dto/clan.dto";
@@ -22,11 +21,10 @@ export class PlayerService
     public constructor(
         @InjectModel(Player.name) public readonly model: Model<Player>,
         private readonly customCharacterService: CustomCharacterService,
-        private readonly raidRoomService: RaidRoomService,
         private readonly requestHelperService: RequestHelperService
     ){
         super();
-        this.refsInModel = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.RAID_ROOM];
+        this.refsInModel = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.STOCK];
         this.modelName = ModelName.PLAYER;
     }
 
@@ -38,7 +36,6 @@ export class PlayerService
         if(isClanRefCleanSuccess instanceof Error)
             throw new BadRequestException(isClanRefCleanSuccess.message);
         await this.customCharacterService.deleteByCondition({player_id: _id});
-        await this.raidRoomService.deleteByCondition({player_id: _id}, {isOne: true});
     }
 
     public updateOnePostHook: PostHookFunction = async (input: Partial<UpdatePlayerDto>, oldDoc: Partial<Player>, output: Partial<Player>): Promise<boolean> => {

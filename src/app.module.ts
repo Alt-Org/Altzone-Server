@@ -6,9 +6,7 @@ import {ClanModule} from "./clan/clan.module";
 import {PlayerModule} from "./player/player.module";
 import {RequestHelperModule} from "./requestHelper/requestHelper.module";
 import {CharacterClassModule} from "./characterClass/characterClass.module";
-import {FurnitureModule} from "./furniture/furniture.module";
 import {CustomCharacterModule} from "./customCharacter/customCharacter.module";
-import {RaidRoomModule} from "./raidRoom/raidRoom.module";
 import {ProfileModule} from "./profile/profile.module";
 import { AuthModule } from './auth/auth.module';
 import {AuthGuard} from "./auth/auth.guard";
@@ -21,6 +19,8 @@ import { ApiStateModule } from './common/apiState/apiState.module';
 import { SiteModule } from './site/site.module';
 import {ChatModule} from "./chat/chat.module";
 import { joinModule } from './clan/join/join.module';
+import {ItemModule} from "./item/item.module";
+import {StockModule} from "./stock/stock.module";
 
 // Set up database connection
 const mongoUser = process.env.MONGO_USERNAME || 'rootUser';
@@ -38,8 +38,8 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       PlayerModule,
       CharacterClassModule,
       CustomCharacterModule,
-      FurnitureModule,
-      RaidRoomModule,
+      ItemModule,
+      StockModule,
       ProfileModule,
       SiteModule,
       ChatModule,

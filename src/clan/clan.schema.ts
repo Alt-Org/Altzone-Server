@@ -23,13 +23,13 @@ export class Clan {
     playerCount: number;
 
     @Prop({ type: Number, default: 0, min: 0 })
-    furnitureCount: number;
+    itemCount: number;
 
     @Prop({ type: Number, default: 0, min: 0 })
-    raidRoomCount: number;
+    stockCount: number;
+
     @Prop({type: Boolean, default: true})
     isOpen: Boolean;
-
 
     @ExtractField()
     _id: string;
@@ -42,13 +42,8 @@ ClanSchema.virtual(ModelName.PLAYER, {
     localField: '_id',
     foreignField: 'clan_id'
 });
-ClanSchema.virtual(ModelName.RAID_ROOM, {
-    ref: ModelName.RAID_ROOM,
-    localField: '_id',
-    foreignField: 'clan_id'
-});
-ClanSchema.virtual(ModelName.FURNITURE, {
-    ref: ModelName.FURNITURE,
+ClanSchema.virtual(ModelName.STOCK, {
+    ref: ModelName.STOCK,
     localField: '_id',
     foreignField: 'clan_id'
 });

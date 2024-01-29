@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
-import {Clan} from "../clan/clan.schema";
+import {Stock} from "../stock/stock.schema";
 
-export type FurnitureDocument = HydratedDocument<Furniture>;
+export type ItemDocument = HydratedDocument<Item>;
 
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true }})
-export class Furniture {
+export class Item {
     @Prop({ type: String, required: true })
     name: string;
 
@@ -28,15 +28,27 @@ export class Furniture {
     @Prop({ type: String, required: true })
     filename: string;
 
-    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CLAN })
-    clan_id: Clan;
+    @Prop({ type: Number, required: false })
+    rowNumber: number;
+
+    @Prop({ type: Number, required: false })
+    columnNumber: number;
+
+    @Prop({ type: Boolean, required: true, default: false })
+    isInStock: boolean;
+
+    @Prop({ type: Boolean, required: true, default: false })
+    isFurniture: boolean;
+
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.STOCK })
+    stock_id: Stock;
 }
 
-export const FurnitureSchema = SchemaFactory.createForClass(Furniture);
-FurnitureSchema.set('collection', ModelName.FURNITURE);
-FurnitureSchema.virtual(ModelName.CLAN, {
-    ref: ModelName.CLAN,
-    localField: 'clan_id',
+export const ItemSchema = SchemaFactory.createForClass(Item);
+ItemSchema.set('collection', ModelName.ITEM);
+ItemSchema.virtual(ModelName.STOCK, {
+    ref: ModelName.STOCK,
+    localField: 'stock_id',
     foreignField: '_id',
     justOne: true
 });
