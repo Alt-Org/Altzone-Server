@@ -4,6 +4,7 @@ import {
     Controller,
     Delete,
     Get,
+    HttpCode,
     NotFoundException,
     Param,
     Post,
@@ -27,6 +28,7 @@ import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.
 import { GetAllQuery } from "src/common/decorator/param/GetAllQuery";
 import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
 import { JoinResultDto } from "./dto/joinResult.dto";
+import { Serialize } from "src/common/interceptor/response/Serialize";
 @Controller("clan/join")
 export class joinController {
     public constructor(
