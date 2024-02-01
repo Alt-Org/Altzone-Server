@@ -1,4 +1,4 @@
-import { Body, Injectable, Req } from "@nestjs/common";
+import { Body, HttpCode, HttpStatus, Injectable, NotFoundException, Req } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { BasicServiceDummyAbstract } from "src/common/base/abstract/basicServiceDummy.abstract";
 import {
@@ -19,6 +19,8 @@ import { ClanDto } from "../dto/clan.dto";
 import { PlayerDto } from "src/player/dto/player.dto";
 import { JoinResultDto } from "./dto/joinResult.dto";
 import { request } from "https";
+import { ok } from "assert";
+import { IResponseShape } from "src/common/interface/IResponseShape";
 
 @Injectable()
 @AddBasicService()
@@ -34,11 +36,11 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
     public readonly refsInModel: ModelName[];
     public readonly modelName: ModelName;
 
-    public async handleJoinRequest(@Body() body: JoinRequestDto, @Req() request: Request) {
+    public async handleJoinRequest (@Body() body: JoinRequestDto, @Req() request: Request) {
         const player_id = body.player_id;
         const clan_id = body.clan_id;
         if(request["user"].player_id != player_id ) {
-            return "you can not change another players clan";
+            throw new MongooseError("you can not change another players clan");
         } 
         const clan = await this.requestHelperService.getModelInstanceByCondition(  // get the Clan to join
             ModelName.CLAN,
@@ -52,23 +54,23 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
             PlayerDto,
             true
         );
-        if(player?.clan_id && player.clan_id == clan_id )   return "You are already in the requested clan";
 
         if (clan.isOpen) { // check if clan to join is open
-            if (player?.clan_id) { // does an old clan id exist? if so reduce the players in the old clan
+           if (player?.clan_id) { // does an old clan id exist? if so reduce the players in the old clan
                 await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: player.clan_id }, "playerCount", -1)
             }
-            return this.joinClan(player_id, clan_id); // join the clan
+             this.joinClan(player_id, clan_id); // join the clan
+            const resp = this.configureResponse(body);//this.createOne(body);
+            return resp;
         } else if (body?.join_message) { // if not open create a joinrequest in db
             return this.createOne(body);
         } else {
-            return "Please include a join_message because you are trying to join an closed clan";
+            throw new NotFoundException("You need to include a join_message since you are trying to join an closed clan");
         }
     }
     public async joinClan(player_id: string, clan_id: string) { // func to join a clan
         await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, { clan_id: clan_id }); // update clan_id for the requested player;
-        await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", 1) // update clan playercount
-        return "player succesfully joined clan " + clan_id;
+         await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", 1) // update clan playercount
     }
     public updateOnePostHook: PostHookFunction = async (input: Partial<JoinResultDto>, oldDoc: Join): Promise<boolean> => {
         if (!input?.accepted) 
@@ -88,8 +90,23 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
          this.deleteOneById(input._id) // delete the entry
         return true;
     }
-
-
+    private configureResponse = (data: any): IResponseShape => {
+        const dataKey = this.modelName;
+        const dataType = Array.isArray(data) ? 'Array' : 'Object';
+        const dataCount = dataType === 'Array' ? data.length : 1;
+        return {
+            data: {
+                [dataKey]: data
+            },
+            metaData: {
+                dataKey: dataKey,
+                modelName: this.modelName,
+                dataType,
+                dataCount
+            }
+        }
+    }
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
     }
 }
+
