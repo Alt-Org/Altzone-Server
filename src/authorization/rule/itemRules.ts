@@ -27,6 +27,9 @@ export const itemRules: RulesSetterAsync<Ability, Subjects> = async (user, subje
         const item = await requestHelperService.getModelInstanceById(ModelName.ITEM, subjectObj._id, ItemDto);
         if(!item || item instanceof MongooseError)
             throw new NotFoundException('The item with that _id is not found');
+
+        can(Action.update_request, subject);
+        can(Action.delete_request, subject);
     }
 
     return build({
