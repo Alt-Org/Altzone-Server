@@ -1,0 +1,37 @@
+import { AllowedAction } from "../caslAbility.factory";
+import { AbilityBuilder, createMongoAbility, ExtractSubjectType, InferSubjects, MongoAbility } from "@casl/ability";
+import { Action } from "../enum/action.enum";
+import { RulesSetter, RulesSetterAsync } from "../type/RulesSetter.type";
+import { SoulHomeDto } from "src/soulhome/dto/soulhome.dto";
+import { updateSoulHomeDto } from "src/soulhome/dto/updateSoulHome.dto";
+import { getClan_id } from "../util/getClan_id";
+import { NotFoundException } from "@nestjs/common";
+import { ModelName } from "src/common/enum/modelName.enum";
+import { ClanDto } from "src/clan/dto/clan.dto";
+import { MongooseError } from "mongoose";
+import { RoomDto } from "src/Room/dto/room.dto";
+import { PlayerDto } from "src/player/dto/player.dto";
+import { UpdateRoomDto } from "src/Room/dto/updateRoom.dto";
+type Subjects = InferSubjects<typeof RoomDto | typeof UpdateRoomDto>;
+type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
+
+export const roomRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj: any, requestHelperService) => {
+    const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
+
+    if (action === Action.read || action === Action.create) {
+        can(Action.read_request, subject);
+        can(Action.read_response, subject);
+        can(Action.create_request, subject);
+    }
+
+    if (action === Action.update || action === Action.delete) {
+            can(Action.update_request, subject);
+            can(Action.delete_request, subject);
+
+    }
+
+    return build({
+        detectSubjectType: (item) =>
+            item.constructor as ExtractSubjectType<Subjects>,
+    });
+}

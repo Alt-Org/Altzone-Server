@@ -30,10 +30,10 @@ import { addUniqueArrayElements } from "../common/function/addUniqueArrayElement
 import { deleteNotUniqueArrayElements } from "../common/function/deleteNotUniqueArrayElements";
 import { PlayerDto } from "../player/dto/player.dto";
 import { AddSearchQuery } from "../common/interceptor/request/addSearchQuery.interceptor";
-import { GetAllQuery } from "../common/decorator/param/GetAllQuery";
-import { IGetAllQuery } from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
 import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
+import { GetAllQuery } from "src/common/decorator/param/GetAllQuery";
+import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
 
 @Controller('clan')
 export class ClanController {
@@ -46,7 +46,6 @@ export class ClanController {
     @Authorize({ action: Action.create, subject: ClanDto })
     @BasicPOST(ClanDto)
     public async create(@Body() body: CreateClanDto, @Req() request: Request) {
-        //add clan creator to admins
         return this.service.handleCreate(body, request);
     }
 
@@ -63,7 +62,7 @@ export class ClanController {
     @OffsetPaginate(ModelName.CLAN)
     @AddSearchQuery(ClanDto)
     @AddSortQuery(ClanDto)
-    @BasicGET(ModelName.CLAN, ClanDto)
+    @BasicGET(ModelName.CLAN, ClanDto )
     public getAll(@GetAllQuery() query: IGetAllQuery) {
         return this.service.readAll(query);
     }

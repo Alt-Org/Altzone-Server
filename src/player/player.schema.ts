@@ -48,3 +48,8 @@ PlayerSchema.virtual(ModelName.CUSTOM_CHARACTER, {
     localField: '_id',
     foreignField: 'player_id'
 });
+PlayerSchema.virtual(ModelName.ROOM,{
+    ref: ModelName.ROOM,
+    localField:'_id',
+    foreignField:'player_id'
+})

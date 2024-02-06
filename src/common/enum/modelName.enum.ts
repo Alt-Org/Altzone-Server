@@ -7,6 +7,9 @@ export enum ModelName {
     STOCK = 'Stock',
     PROFILE = 'Profile',
     CHAT = 'Chat',
-    JOIN = "Join",
-    CLAN_META = 'ClanMeta'
+    JOIN = 'Join',
+    CLAN_META = 'ClanMeta',
+    ROOM = 'Room',
+    SOULHOME = 'SoulHome'
+
 }
