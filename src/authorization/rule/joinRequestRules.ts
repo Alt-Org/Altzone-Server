@@ -39,6 +39,7 @@ export const joinRules: RulesSetterAsync<Ability, Subjects> = async (user, subje
         can(Action.read_response, subject, { clan_id: clan_id });
 
     }
+    can(Action.delete_request,subject);
 
     return build({
         detectSubjectType: (item) =>

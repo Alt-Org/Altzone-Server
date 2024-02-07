@@ -21,6 +21,8 @@ import {ChatModule} from "./chat/chat.module";
 import { joinModule } from './clan/join/join.module';
 import {ItemModule} from "./item/item.module";
 import {StockModule} from "./stock/stock.module";
+import { SoulHomeModule } from './soulhome/soulhome.module';
+import { RoomModule } from './Room/room.module';
 
 // Set up database connection
 const mongoUser = process.env.MONGO_USERNAME || 'rootUser';
@@ -43,6 +45,8 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       ProfileModule,
       SiteModule,
       ChatModule,
+      SoulHomeModule,
+      RoomModule,
       RequestHelperModule,
       AuthModule,
       JwtModule.register({

@@ -33,6 +33,12 @@ import {ItemDto} from "../item/dto/item.dto";
 import {UpdateItemDto} from "../item/dto/updateItem.dto";
 import {StockDto} from "../stock/dto/stock.dto";
 import {UpdateStockDto} from "../stock/dto/updateStock.dto";
+import { SoulHomeDto } from "src/soulhome/dto/soulhome.dto";
+import { updateSoulHomeDto } from "src/soulhome/dto/updateSoulHome.dto";
+import { soulHomeRules } from "./rule/soulHomeRules";
+import { RoomDto } from "src/Room/dto/room.dto";
+import { UpdateRoomDto } from "src/Room/dto/updateRoom.dto";
+import { roomRules } from "./rule/roomRules";
 
 export type AllowedAction = Action.create_request | Action.read_request | Action.read_response | Action.update_request | Action.delete_request;
 
@@ -44,7 +50,9 @@ export type AllowedSubject =
     typeof ItemDto | typeof UpdateItemDto |
     typeof StockDto | typeof UpdateStockDto |
     typeof ClanDto | typeof UpdateClanDto | 
-    typeof JoinDto | typeof JoinResultDto ; 
+    typeof JoinDto | typeof JoinResultDto |
+    typeof SoulHomeDto | typeof updateSoulHomeDto |
+    typeof RoomDto | typeof UpdateRoomDto; 
 
 type Subjects = InferSubjects<AllowedSubject>;
 
@@ -85,6 +93,9 @@ export class CASLAbilityFactory {
 
         if(subject === JoinDto || subject === JoinResultDto) 
             return joinRules(user,subject,action,subjectObj, this.requestHelperService);
-        
+        if(subject === SoulHomeDto || subject === updateSoulHomeDto) 
+            return soulHomeRules(user,subject,action,subjectObj, this.requestHelperService)
+        if(subject === RoomDto || subject === UpdateRoomDto) 
+            return roomRules(user,subject,action,subjectObj, this.requestHelperService);
     }
 }

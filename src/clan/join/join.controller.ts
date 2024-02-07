@@ -29,6 +29,7 @@ import { GetAllQuery } from "src/common/decorator/param/GetAllQuery";
 import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
 import { JoinResultDto } from "./dto/joinResult.dto";
 import { Serialize } from "src/common/interceptor/response/Serialize";
+import { _idDto } from "src/common/dto/_id.dto";
 @Controller("clan/join")
 export class joinController {
     public constructor(
@@ -58,6 +59,11 @@ export class joinController {
     @BasicGET(ModelName.JOIN, JoinDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {
         return this.service.readAll(query);
+    }
+    @Delete('/:_id')
+    @Authorize({ action: Action.delete, subject: JoinResultDto })
+    public delete(@Param() param: _idDto) {
+        return this.service.leaveClan(param);
     }
 
 }
