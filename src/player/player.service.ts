@@ -72,33 +72,34 @@ export class PlayerService
             ClanDto
         );
 
-        if(clansWithPlayerAsAdmin && clansWithPlayerAsAdmin.length > 0){
-            //Check that there will be no clans left without admins
-            let isLastAdmin = false;
-            let clan_idLastAdmin: string;
-            for(let i=0; i<clansWithPlayerAsAdmin.length; i++){
-                const currentClan = clansWithPlayerAsAdmin[i];
-                if(currentClan.admin_ids.length === 1){
-                    isLastAdmin = true;
-                    clan_idLastAdmin = currentClan._id;
-                    break;
-                }
-            }
-
-            if(isLastAdmin){
-                return new Error(
-                    `Player can not be deleted, because it is the only one admin in clan with _id '${clan_idLastAdmin}'. ` +
-                    `Please add another admin to this clan before deleting this Player or delete this clan first.`
-                );
-            }
-
-            for(let i=0; i<clansWithPlayerAsAdmin.length; i++){
-                const currentClan = clansWithPlayerAsAdmin[i];
-                const newAdmin_ids = currentClan.admin_ids.filter(value => value !== _id);
-                await this.requestHelperService.updateOneById(ModelName.CLAN, currentClan._id, {admin_ids: newAdmin_ids})
-            }
-
+        if(!clansWithPlayerAsAdmin || clansWithPlayerAsAdmin.length === 0)
             return true;
+
+        //Check that there will be no clans left without admins
+        let isLastAdminNonEmptyClan = false;
+        let clan_idLastAdmin: string;
+        for(let i=0; i<clansWithPlayerAsAdmin.length; i++){
+            const currentClan = clansWithPlayerAsAdmin[i];
+            if(currentClan.admin_ids.length === 1){
+                const clanPlayers = await this.requestHelperService.count(ModelName.PLAYER, {clan_id: currentClan._id});
+                isLastAdminNonEmptyClan = clanPlayers > 1;
+                clan_idLastAdmin = currentClan._id;
+                break;
+            }
         }
+
+        if(isLastAdminNonEmptyClan)
+            return new Error(
+                `Player can not be deleted, because it is the only one admin in a non empty clan with _id '${clan_idLastAdmin}'. ` +
+                `Please add another admin to this clan before deleting this Player or delete this clan first.`
+            );
+
+        for(let i=0; i<clansWithPlayerAsAdmin.length; i++){
+            const currentClan = clansWithPlayerAsAdmin[i];
+            const newAdmin_ids = currentClan.admin_ids.filter(value => value !== _id);
+            await this.requestHelperService.updateOneById(ModelName.CLAN, currentClan._id, {admin_ids: newAdmin_ids})
+        }
+
+        return true;
     }
 }
