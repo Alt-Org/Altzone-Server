@@ -55,11 +55,12 @@ export class SoulHomeController {
     public getAll(@GetAllQuery() query: IGetAllQuery) {
         return this.service.readAll(query);
     }
+    
     @Put()
     @Authorize({action: Action.update, subject: updateSoulHomeDto})
     @BasicPUT(ModelName.SOULHOME)
     public async update(@Body() body: updateSoulHomeDto) {
-        return this.service.updateOneById(body)
+        return this.service.handleUpdate(body);
     }
     
     @Delete('/:_id')

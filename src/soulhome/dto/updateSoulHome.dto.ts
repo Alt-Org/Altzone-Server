@@ -1,4 +1,4 @@
-import { IsMongoId, IsOptional, IsString } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsMongoId, IsOptional, IsString } from "class-validator";
 
 export class updateSoulHomeDto {
     @IsMongoId()
@@ -8,4 +8,13 @@ export class updateSoulHomeDto {
     @IsOptional()
     type:string;
 
+    @IsArray()
+    @ArrayNotEmpty()
+    @IsOptional()
+    addedRooms:string[];
+
+    @IsArray()
+    @ArrayNotEmpty()
+    @IsOptional()
+    removedRooms:string[];
 }

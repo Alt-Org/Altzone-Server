@@ -8,7 +8,7 @@ import { getClan_id } from "../util/getClan_id";
 import { NotFoundException } from "@nestjs/common";
 import { ModelName } from "src/common/enum/modelName.enum";
 import { ClanDto } from "src/clan/dto/clan.dto";
-import { MongooseError } from "mongoose";
+import { Model, MongooseError } from "mongoose";
 import { RoomDto } from "src/Room/dto/room.dto";
 import { PlayerDto } from "src/player/dto/player.dto";
 import { UpdateRoomDto } from "src/Room/dto/updateRoom.dto";
@@ -25,8 +25,14 @@ export const roomRules: RulesSetterAsync<Ability, Subjects> = async (user, subje
     }
 
     if (action === Action.update || action === Action.delete) {
-            can(Action.update_request, subject);
-            can(Action.delete_request, subject);
+        const room = await requestHelperService.getModelInstanceById(ModelName.ROOM, subjectObj._id, RoomDto);
+        if (!room|| room instanceof MongooseError)
+            throw new NotFoundException('Can not check ownership, room with that id not found'); 
+        if(room.player_id !== user.player_id)
+            throw new NotFoundException("PlayerID does not match owner")
+        
+        can(Action.update_request, subject);
+        can(Action.delete_request, subject);
 
     }
 

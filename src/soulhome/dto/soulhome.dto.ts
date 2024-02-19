@@ -11,4 +11,8 @@ export class SoulHomeDto {
 
     @Expose()
     clan_id:string;
+    
+    @Expose()
+    rooms:Array<string>;
+
 }
