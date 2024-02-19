@@ -6,5 +6,7 @@ export class CreateSoulHomeDto {
 
     @IsMongoId()
     clan_id:string
+ 
+    
     
 }

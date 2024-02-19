@@ -11,6 +11,9 @@ export class SoulHome{
     
     @Prop({type:String, required:true, unique:true})
     clan_id:string;
+
+    @Prop({type: Array<String>, default: []}) 
+    rooms:string[];
 }
 export const SoulhomeSchema = SchemaFactory.createForClass(SoulHome);
 SoulhomeSchema.set('collection', ModelName.SOULHOME);

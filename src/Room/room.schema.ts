@@ -8,10 +8,10 @@ export type RoomDocument = HydratedDocument<Room>;
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
 export class Room{
     @Prop({ type: String, required: true, unique: false })
-    floorType: string;
+    floorType: String;
 
     @Prop({ type: String ,required:true,unique:false})
-    wallType: string; 
+    wallType: String; 
 
     @Prop({ type: Boolean, default: false })
     isActive: boolean; 
@@ -24,7 +24,8 @@ export class Room{
 
     @Prop({ type: String, required: true, unique: false })
     soulHome_id: string; 
-    
+    @ExtractField()
+    _id: string;
 }
 export const RoomSchema = SchemaFactory.createForClass(Room);
 RoomSchema.set('collection', ModelName.ROOM);
