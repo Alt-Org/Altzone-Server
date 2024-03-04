@@ -49,6 +49,13 @@ export class ClanController {
         return this.service.handleCreate(body, request);
     }
 
+    @Post('/default')
+    @Authorize({ action: Action.create, subject: ClanDto })
+    @BasicPOST(ClanDto)
+    public async createDefault(@Body() body: CreateClanDto, @Req() request: Request) {
+        return this.service.handleDefaultCreate(body, request);
+    }
+
     @Get('/:_id')
     @Authorize({ action: Action.read, subject: ClanDto })
     @BasicGET(ModelName.CLAN, ClanDto)
