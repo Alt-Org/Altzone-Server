@@ -14,7 +14,7 @@ export class Item {
     shape: string;
 
     @Prop({ type: Number, required: true })
-    weight: string;
+    weight: number;
 
     @Prop({ type: String, required: true })
     material: string;

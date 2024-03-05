@@ -10,6 +10,8 @@ export enum ModelName {
     JOIN = 'Join',
     CLAN_META = 'ClanMeta',
     ROOM = 'Room',
-    SOULHOME = 'SoulHome'
+    SOULHOME = 'SoulHome',
+    CLANVOTE = 'ClanVote',
+    ITEMSHOP = 'ItemShop'
 
 }
