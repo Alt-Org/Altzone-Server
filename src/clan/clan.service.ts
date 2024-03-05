@@ -18,6 +18,12 @@ import { Model, MongooseError, Types } from "mongoose";
 import { ModelName } from "src/common/enum/modelName.enum";
 import { RequestHelperService } from "src/requestHelper/requestHelper.service";
 import { IgnoreReferencesType } from "src/common/type/ignoreReferences.type";
+import {IHookImplementer} from "../common/interface/IHookImplementer";
+import {StockDto} from "../stock/dto/stock.dto";
+import {CreateStockDto} from "../stock/dto/createStock.dto";
+import {ItemService} from "../item/item.service";
+import {CreateItemDto} from "../item/dto/createItem.dto";
+import {getDefaultItems} from "./defaultValues/items";
 
 
 @Injectable()
@@ -26,6 +32,7 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
     public constructor(
         @InjectModel(Clan.name) public readonly model: Model<Clan>,
         private readonly stockService: StockService,
+        private readonly itemService: ItemService,
         private readonly requestHelperService: RequestHelperService
     ) {
         super();
@@ -39,8 +46,42 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         const creatorPlayer_id = request['user'].player_id;
         body['admin_ids'] = [creatorPlayer_id];
         const clanResp = await this.createOne(body);
-        if (clanResp && !(clanResp instanceof MongooseError))
-            await this.requestHelperService.updateOneById(ModelName.PLAYER, creatorPlayer_id, { clan_id: clanResp.data[clanResp.metaData.dataKey]._id });
+
+        if (!clanResp || clanResp instanceof MongooseError)
+            return clanResp;
+
+        await this.requestHelperService.updateOneById(ModelName.PLAYER, creatorPlayer_id, { clan_id: clanResp.data[clanResp.metaData.dataKey]._id });
+
+        return clanResp;
+    }
+
+    public async handleDefaultCreate(@Body() body: CreateClanDto, @Req() request: Request) {
+        const creatorPlayer_id = request['user'].player_id;
+        body['admin_ids'] = [creatorPlayer_id];
+        const clanResp: any = await this.createOne(body);
+
+        if (!clanResp || clanResp instanceof MongooseError)
+            return clanResp;
+
+        await this.requestHelperService.updateOneById(ModelName.PLAYER, creatorPlayer_id, { clan_id: clanResp.data[clanResp.metaData.dataKey]._id });
+
+        //Create clan's stock
+        const clanStock: CreateStockDto = {
+            type: 1,
+            rowCount: 5,
+            columnCount: 5,
+            clan_id: clanResp.data.Clan._id
+        }
+        const stockResp = await this.stockService.createOne(clanStock);
+        if(!stockResp || stockResp instanceof MongooseError)
+            return clanResp;
+
+        clanResp.data.Clan.Stock = stockResp.data.Stock;
+
+        //Add default items to clan's stock
+        const items: CreateItemDto[] = getDefaultItems(stockResp.data.Stock._id);
+        await this.itemService.createMany(items);
+
         return clanResp;
     }
 
