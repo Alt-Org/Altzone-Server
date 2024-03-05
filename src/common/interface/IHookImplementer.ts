@@ -1,21 +1,22 @@
-export type PreHookFunction<Input=any> = (input: Input) => boolean | Promise<boolean>;
-export type PostCreateHookFunction<Input=any, Output=any> = (input: Input, output: Output) => boolean | Promise<boolean>;
-export type PostHookFunction<Input=any, OldDoc=any, Output=any> = (input: Input, oldDoc: OldDoc, output: Output) => boolean | Promise<boolean>;
-
+export type PreHookFunction<Input = any> = (input: Input) => boolean | Promise<boolean>;
+export type PostCreateHookFunction<Input = any, Output = any> = (input: Input, output: Output) => boolean | Promise<boolean>;
+export type PostHookFunction<Input = any, OldDoc = any, Output = any> = (input: Input, oldDoc: OldDoc, output: Output) => boolean | Promise<boolean>;
+export type PostReadOneHookFunction<Output = any> = (output: Output) => boolean | Promise<boolean>;
+export type PostReadAllHookFunction<> = () => boolean | Promise<boolean>;
 //Commented methods are not in use yet in BasicService
 
 /*
 * All the methods should return the result of the operation: true for success and false for any issues
 */
-export interface IHookImplementer<Input=any, OldDoc=any, Output=any> {
+export interface IHookImplementer<Input = any, OldDoc = any, Output = any> {
     //createOnePreHook?: PreHookFunction<Input>;
     createOnePostHook?: PostCreateHookFunction<Input, Output>;
 
     // readOnePreHook?: PreHookFunction<Input>;
-    // readOnePostHook?: PostHookFunction<Input, Output>;
+    readOnePostHook?: PostReadOneHookFunction<Output>;
 
     // readAllPreHook?: PreHookFunction<Input>;
-    // readAllPostHook?: PostHookFunction<Input, Output>;
+    readAllPostHook?: PostReadAllHookFunction; 
 
     // updateOnePreHook?: PreHookFunction<Input>;
     updateOnePostHook?: PostHookFunction<Input, OldDoc, Output>;

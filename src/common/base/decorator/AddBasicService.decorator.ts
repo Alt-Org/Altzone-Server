@@ -6,7 +6,7 @@ import {DeleteOptionsType} from "../type/deleteOptions.type";
 import {Discriminator} from "../../enum/discriminator.enum";
 import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
 import {IResponseShape} from "../../interface/IResponseShape";
-import {PostCreateHookFunction, PostHookFunction} from "../../interface/IHookImplementer";
+import {PostCreateHookFunction, PostHookFunction, PostReadAllHookFunction, PostReadOneHookFunction} from "../../interface/IHookImplementer";
 
 export type ClearCollectionReferences = (_id: any, ignoreReferences?: IgnoreReferencesType) => void | Promise<void>;
 
@@ -18,10 +18,11 @@ export const AddBasicService = () => {
             model: Model<any>;
             modelName?: string;
             discriminators: Discriminator[];
-
+            readAllPostHook?: PostReadAllHookFunction;
             createOnePostHook?: PostCreateHookFunction;
             updateOnePostHook?: PostHookFunction;
             deleteOnePostHook?: PostHookFunction;
+            readOnePostHook?: PostReadOneHookFunction;
         }
     }>(originalConstructor: T) {
         return class extends originalConstructor implements IBasicService{
@@ -41,6 +42,8 @@ export const AddBasicService = () => {
 
             public readOneById = async (_id: string, includeRefs?: ModelName[], metaData?: string[]): Promise<IResponseShape | null | MongooseError> => {
                 const data = includeRefs ? await this.model.findById(_id).populate(includeRefs).exec() : await this.model.findById(_id).exec();
+                if(this.readOnePostHook) 
+                    this.readOnePostHook(data)
                 return data ? this.configureResponse(data) : data;
             }
 
@@ -75,6 +78,9 @@ export const AddBasicService = () => {
             }
 
             public readAll = async (query: IGetAllQuery): Promise<IResponseShape | null | MongooseError> => {
+                if(this.readAllPostHook)
+                    await this.readAllPostHook();
+                
                 if(query.select === null)
                     return this.configureResponse([]);
 
