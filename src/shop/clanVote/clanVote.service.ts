@@ -20,7 +20,6 @@ import { ItemShopService } from "../itemShop/itemshop.service";
 import { check } from "express-validator";
 import { ShopItem } from "../itemShop/itemShop.schema";
 import { IResponseShape } from "src/common/interface/IResponseShape";
-//write documentation frieday
 @Injectable()
 @AddBasicService()
 export class ClanVoteService extends BasicServiceDummyAbstract<ClanVote> implements IBasicService<ClanVote>, IHookImplementer {
