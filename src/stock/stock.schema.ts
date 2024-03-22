@@ -3,6 +3,7 @@ import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Clan} from "../clan/clan.schema";
 import {ExtractField} from "../common/decorator/response/ExtractField";
+import { ItemShop } from 'src/shop/itemShop/itemShop.schema';
 
 export type StockDocument = HydratedDocument<Stock>;
 
@@ -23,7 +24,6 @@ export class Stock {
     @ExtractField()
     _id: string;
 }
-
 export const StockSchema = SchemaFactory.createForClass(Stock);
 StockSchema.set('collection', ModelName.STOCK);
 StockSchema.virtual(ModelName.CLAN, {

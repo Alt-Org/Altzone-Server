@@ -6,11 +6,14 @@ import { StockModule } from "src/stock/stock.module";
 import { ItemShopSchema } from "./itemShop.schema";
 import { ItemShopService } from "./itemshop.service";
 import { ItemShopController } from "./itemShop.controller";
+import { ItemModule } from "src/item/item.module";
+import { ClanVoteModule } from "../clanVote/clanVote.module";
 
 @Module({
     imports: [
         MongooseModule.forFeature([ {name: ModelName.ITEMSHOP, schema:ItemShopSchema } ]),
-        RequestHelperModule
+        RequestHelperModule,
+        ItemModule
     ],
     controllers: [ItemShopController],
     providers: [ ItemShopService],

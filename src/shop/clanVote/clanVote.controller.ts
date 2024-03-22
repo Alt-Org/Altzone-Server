@@ -19,8 +19,9 @@ import { modelNames } from "mongoose";
 import { UpdateRoomDto } from "src/Room/dto/updateRoom.dto";
 import { BasicDELETE } from "src/common/base/decorator/BasicDELETE.decorator";
 import { CreateClanVoteDto } from "./dto/createClanVote.dto";
-import { UpdateClanDto } from "src/clan/dto/updateClan.dto";
-import { updateClanVoteDto } from "./dto/updateClanVote.dto";
+import { UpdateClanVoteDto } from "./dto/updateClanVote.dto";
+import { Action } from "src/authorization/enum/action.enum";
+import { Authorize } from "src/authorization/decorator/Authorize";
 
 @Controller('ClanVote')
 export class ClanVoteController {
@@ -31,37 +32,41 @@ export class ClanVoteController {
     }
 
 
-    //TODO Add authorization after functional
 
     @Post()
+    @Authorize({action: Action.create, subject: ClanVoteDto})
     @BasicPOST(CreateClanVoteDto)
     public async create(@Body() body : CreateClanVoteDto, @Req() request: Request) {
-        return this.service.createOne(body);
+        return this.service.createWithChecks(body,request);
     }
 
     @Get("/:_id")
     @BasicGET(ModelName.CLANVOTE,ClanVoteDto)
+    @Authorize({action: Action.read, subject: UpdateClanVoteDto})
     @AddGetQueries()
     public async get(@Param() param: _idDto, @Req() request: Request) {
         return this.service.readOneById(param._id, request['mongoPopulate']);
     }
-
+    
     @Get()
     @OffsetPaginate(ModelName.CLANVOTE)
     @AddSearchQuery(ClanVoteDto)
     @AddSortQuery(ClanVoteDto)
     @BasicGET(ModelName.CLANVOTE,ClanVoteDto)
+    @Authorize({action: Action.read, subject: ClanVoteDto})
     public async getAll(@GetAllQuery() query : IGetAllQuery) {
         return this.service.readAll(query);
     }
 
     @Put()
+    @Authorize({action: Action.update, subject: UpdateClanVoteDto})
     @BasicPUT(ModelName.CLANVOTE)
-    public async update(@Body() body:updateClanVoteDto) {
+    public async update(@Body() body:UpdateClanVoteDto) {
        return this.service.handleUpdate(body);
     }
 
     @Delete("/:_id")
+    @Authorize({action: Action.delete, subject: UpdateClanVoteDto})
     @BasicDELETE(ModelName.CLANVOTE)
     public delete(@Param() param: _idDto) {
         return this.service.deleteOneById(param._id);

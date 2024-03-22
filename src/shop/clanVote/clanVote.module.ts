@@ -2,15 +2,18 @@ import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ModelName } from "src/common/enum/modelName.enum";
 import { RequestHelperModule } from "src/requestHelper/requestHelper.module";
-import { StockModule } from "src/stock/stock.module";
 import { ClanVoteSchema } from "./clanVote.schema";
 import { ClanVoteController } from "./clanVote.controller";
 import { ClanVoteService } from "./clanVote.service";
+import { ItemShopModule } from "../itemShop/itemShop.module";
+import { ItemShopService } from "../itemShop/itemshop.service";
 
 @Module({
     imports: [
         MongooseModule.forFeature([ {name: ModelName.CLANVOTE, schema: ClanVoteSchema } ]),
-        RequestHelperModule
+        RequestHelperModule,
+        ItemShopModule,
+        
     ],
     controllers: [ClanVoteController],
     providers: [ ClanVoteService],

@@ -1,6 +1,6 @@
 import { IsBoolean, IsMongoId, IsNumber } from "class-validator";
 
-export class updateClanVoteDto {
+export class UpdateClanVoteDto {
     @IsMongoId()
     _id:string;
 

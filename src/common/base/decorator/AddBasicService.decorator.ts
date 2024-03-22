@@ -78,15 +78,14 @@ export const AddBasicService = () => {
             }
 
             public readAll = async (query: IGetAllQuery): Promise<IResponseShape | null | MongooseError> => {
-                if(this.readAllPostHook)
-                    await this.readAllPostHook();
-                
                 if(query.select === null)
                     return this.configureResponse([]);
 
                 const {filter, select, ...searchOptions} = query;
 
                 const data = await this.model.find(filter, null, searchOptions).select(select);
+                if(this.readAllPostHook)
+                    await this.readAllPostHook(data);
                 return this.configureResponse(data);
             }
 

@@ -1,5 +1,6 @@
-import { Expose } from "class-transformer";
+import { Expose, Type } from "class-transformer";
 import { ExtractField } from "src/common/decorator/response/ExtractField";
+import { ShopItemDTO } from "./shopItem.dto";
 
 export class ItemShopDto {
     @ExtractField()
@@ -7,16 +8,13 @@ export class ItemShopDto {
     _id: string;
     
     @Expose()
-    item_id:string;
+    name: string;
 
     @Expose()
-    isInVoting:Boolean
+    items: ShopItemDTO[]
 
     @Expose()
-    isSold:Boolean; 
-    
-    @Expose()
-    stocked:Number;
-    
+    lastRestock:number;
+
 
 }

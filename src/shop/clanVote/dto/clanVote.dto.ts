@@ -24,8 +24,11 @@ export class ClanVoteDto {
 
     @Expose()
     startingTime: number;
-    
+
     @Expose()
     votingTime: number;
+
+    @Expose()
+    shop_id:string;
 
 }
