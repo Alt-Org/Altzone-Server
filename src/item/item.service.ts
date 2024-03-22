@@ -29,6 +29,11 @@ export class ItemService extends BasicServiceDummyAbstract<Item> implements IBas
         const resp = await this.model.insertMany(items);
         return resp && !(resp instanceof MongooseError);
     }
+    public createManyWithResponse = async (items: CreateItemDto[]) => {
+        const resp = await this.model.insertMany(items);
+        return resp;        
+    }
+
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
     }

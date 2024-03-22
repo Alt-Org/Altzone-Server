@@ -108,12 +108,14 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
     public updateOnePostHook: PostHookFunction = async (input: Partial<JoinResultDto>, oldDoc: Join): Promise<boolean> => {
         if (!input?.accepted)
             return true;
+        
         const player = await this.requestHelperService.getModelInstanceByCondition(
             ModelName.PLAYER,
             { _id: oldDoc.player_id },
             PlayerDto,
             true
         );
+        
         if (input.accepted) { // if player was accepted join the clan
             if (player?.clan_id) {
                 await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: player.clan_id }, "playerCount", -1)

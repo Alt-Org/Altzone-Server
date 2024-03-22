@@ -2,7 +2,7 @@ export type PreHookFunction<Input = any> = (input: Input) => boolean | Promise<b
 export type PostCreateHookFunction<Input = any, Output = any> = (input: Input, output: Output) => boolean | Promise<boolean>;
 export type PostHookFunction<Input = any, OldDoc = any, Output = any> = (input: Input, oldDoc: OldDoc, output: Output) => boolean | Promise<boolean>;
 export type PostReadOneHookFunction<Output = any> = (output: Output) => boolean | Promise<boolean>;
-export type PostReadAllHookFunction<> = () => boolean | Promise<boolean>;
+export type PostReadAllHookFunction<Output = any> = (output: Output) => boolean | Promise<boolean>;
 //Commented methods are not in use yet in BasicService
 
 /*
@@ -16,7 +16,7 @@ export interface IHookImplementer<Input = any, OldDoc = any, Output = any> {
     readOnePostHook?: PostReadOneHookFunction<Output>;
 
     // readAllPreHook?: PreHookFunction<Input>;
-    readAllPostHook?: PostReadAllHookFunction; 
+    readAllPostHook?: PostReadAllHookFunction<Output>; 
 
     // updateOnePreHook?: PreHookFunction<Input>;
     updateOnePostHook?: PostHookFunction<Input, OldDoc, Output>;
