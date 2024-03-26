@@ -24,6 +24,10 @@ import { IResponseShape } from "src/common/interface/IResponseShape";
 import { _idDto } from "src/common/dto/_id.dto";
 import { error } from "console";
 import { ClanService } from "../clan.service";
+import { RoomService } from "src/Room/room.service";
+import { CreateRoomDto } from "src/Room/dto/createRoom.dto";
+import { SoulHome } from "src/soulhome/soulhome.schema";
+import { SoulHomeDto } from "src/soulhome/dto/soulhome.dto";
 
 @Injectable()
 @AddBasicService()
@@ -31,10 +35,11 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
     public constructor(
         @InjectModel(Join.name) public readonly model: Model<Join>,
         private readonly requestHelperService: RequestHelperService,
-        private readonly clanService: ClanService
+        private readonly clanService: ClanService,
+        private readonly roomService:RoomService
     ) {
         super();
-        this.refsInModel = [ModelName.PLAYER, ModelName.CLAN];
+        this.refsInModel = [ModelName.PLAYER, ModelName.CLAN,ModelName.SOULHOME,ModelName.ROOM];
         this.modelName = ModelName.JOIN;
     }
     public readonly refsInModel: ModelName[];
@@ -72,7 +77,21 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
             throw new NotFoundException("You need to include a join_message since you are trying to join an closed clan");
         }
     }
+    
     public async joinClan(player_id: string, clan_id: string) { // func to join a clan
+        const soulhome = await this.requestHelperService.getModelInstanceByCondition(ModelName.SOULHOME,{clan_id:clan_id},SoulHomeDto,true)
+        const firstRoom: CreateRoomDto = {
+            floorType:"placeholder",
+            wallType:"placeholder",
+            player_id: player_id,
+            soulHome_id:soulhome._id
+        };
+        const room = await this.roomService.createOne(firstRoom);
+        if (!room || room instanceof MongooseError)
+            return;
+        var updatedlist = soulhome.rooms;
+        updatedlist.push(room.data.Room._id);
+        await this.requestHelperService.updateOneById(ModelName.SOULHOME,soulhome._id,{rooms:updatedlist})
         await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, { clan_id: clan_id }); // update clan_id for the requested player;
         await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", 1) // update clan playercount
     }

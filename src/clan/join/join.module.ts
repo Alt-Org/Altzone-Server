@@ -7,12 +7,14 @@ import { RequestHelperModule } from 'src/requestHelper/requestHelper.module';
 import { joinSchema } from './join.schema';
 import { isClanExists } from '../decorator/validation/IsClanExists.decorator';
 import { ClanModule } from '../clan.module';
+import { RoomModule } from 'src/Room/room.module';
 
 @Module({
     imports: [
         MongooseModule.forFeature([ {name: ModelName.JOIN, schema: joinSchema} ]),
         RequestHelperModule,
-        ClanModule
+        ClanModule,
+        RoomModule
     ],
     controllers: [joinController],
     providers: [ JoinService ],

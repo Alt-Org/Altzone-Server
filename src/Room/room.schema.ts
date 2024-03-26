@@ -7,10 +7,10 @@ export type RoomDocument = HydratedDocument<Room>;
 
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
 export class Room{
-    @Prop({ type: String, required: true, unique: false })
+    @Prop({ type: String, required: true })
     floorType: String;
 
-    @Prop({ type: String ,required:true,unique:false})
+    @Prop({ type: String ,required:true})
     wallType: String; 
 
     @Prop({ type: Boolean, default: false })
@@ -19,10 +19,10 @@ export class Room{
     @Prop({type: Array<String>,default: []})
     roomItems: string[]; //array of items in the room
 
-    @Prop({ type: String, required: true, unique: false })
+    @Prop({ type: String, required: true })
     player_id: string; // owner
 
-    @Prop({ type: String, required: true, unique: false })
+    @Prop({ type: String, required: true })
     soulHome_id: string; 
     @ExtractField()
     _id: string;
