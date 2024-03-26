@@ -10,7 +10,7 @@ import { deleteNotUniqueArrayElements } from "src/common/function/deleteNotUniqu
 import { deleteArrayElements } from "src/common/function/deleteArrayElements";
 import { addUniqueArrayElements } from "src/common/function/addUniqueArrayElements";
 import { PlayerDto } from "src/player/dto/player.dto";
-import {StockService} from "../stock/stock.service";
+import { StockService } from "../stock/stock.service";
 import { BadRequestException, Body, Injectable, NotFoundException, Req } from "@nestjs/common";
 import { Clan } from "./clan.schema";
 import { InjectModel } from "@nestjs/mongoose";
@@ -18,12 +18,19 @@ import { Model, MongooseError, Types } from "mongoose";
 import { ModelName } from "src/common/enum/modelName.enum";
 import { RequestHelperService } from "src/requestHelper/requestHelper.service";
 import { IgnoreReferencesType } from "src/common/type/ignoreReferences.type";
-import {IHookImplementer} from "../common/interface/IHookImplementer";
-import {StockDto} from "../stock/dto/stock.dto";
-import {CreateStockDto} from "../stock/dto/createStock.dto";
-import {ItemService} from "../item/item.service";
-import {CreateItemDto} from "../item/dto/createItem.dto";
-import {getDefaultItems} from "./defaultValues/items";
+import { IHookImplementer } from "../common/interface/IHookImplementer";
+import { StockDto } from "../stock/dto/stock.dto";
+import { CreateStockDto } from "../stock/dto/createStock.dto";
+import { ItemService } from "../item/item.service";
+import { CreateItemDto } from "../item/dto/createItem.dto";
+import { getDefaultItems } from "./defaultValues/items";
+import { CreateSoulHomeDto } from "src/soulhome/dto/createSoulHome.dto";
+import { SoulHomeService } from "src/soulhome/soulhome.service";
+import { RoomService } from "src/Room/room.service";
+import { RoomDocument } from "src/Room/room.schema";
+import { RoomDto } from "src/Room/dto/room.dto";
+import { CreateRoomDto } from "src/Room/dto/createRoom.dto";
+import { updateSoulHomeDto } from "src/soulhome/dto/updateSoulHome.dto";
 
 
 @Injectable()
@@ -33,6 +40,8 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         @InjectModel(Clan.name) public readonly model: Model<Clan>,
         private readonly stockService: StockService,
         private readonly itemService: ItemService,
+        private readonly soulhomeService: SoulHomeService,
+        private readonly roomService: RoomService,
         private readonly requestHelperService: RequestHelperService
     ) {
         super();
@@ -73,7 +82,7 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
             clan_id: clanResp.data.Clan._id
         }
         const stockResp = await this.stockService.createOne(clanStock);
-        if(!stockResp || stockResp instanceof MongooseError)
+        if (!stockResp || stockResp instanceof MongooseError)
             return clanResp;
 
         clanResp.data.Clan.Stock = stockResp.data.Stock;
@@ -82,6 +91,32 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         const items: CreateItemDto[] = getDefaultItems(stockResp.data.Stock._id);
         await this.itemService.createMany(items);
 
+        //Create clan's stock
+        const clanSoulhome: CreateSoulHomeDto = {
+            type: "clan",
+            clan_id: clanResp.data.Clan._id
+        };
+        const soulHomeResp = await this.soulhomeService.createOne(clanSoulhome);
+        if (!soulHomeResp || soulHomeResp instanceof MongooseError)
+            return clanResp;
+        const firstRoom: CreateRoomDto = {
+            floorType:"placeholder",
+            wallType:"placeholder",
+            player_id: creatorPlayer_id,
+            soulHome_id:soulHomeResp.data.SoulHome._id
+        };
+        const roomResp = await this.roomService.createOne(firstRoom);
+        if (!roomResp || roomResp instanceof MongooseError)
+            return clanResp;
+        const addRoom = [roomResp.data.Room._id];
+        const soulHomeUpdate = {
+            _id: soulHomeResp.data.SoulHome._id,
+            type:"clan",
+            addedRooms: addRoom,
+            removedRooms:undefined
+        };
+        const asad = await this.soulhomeService.handleUpdate(soulHomeUpdate);
+        console.log(asad);
         return clanResp;
     }
 

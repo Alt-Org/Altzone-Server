@@ -34,12 +34,18 @@ export class ClanVoteService extends BasicServiceDummyAbstract<ClanVote> impleme
     }
     public readonly refsInModel: ModelName[];
     public readonly modelName: ModelName;
-    public createWithChecks = async (body:CreateClanVoteDto, request:Request) => {
+    public createWithChecks = async (body: CreateClanVoteDto, request: Request) => {
         const items = await this.getShopItems(body.shop_id);
-        const predicate = (e: ShopItemDTO) => e.item_id === body.itemToBuy_id;
+        const item = await this.requestHelperService.getModelInstanceById(ModelName.ITEM, body.itemToBuy_id, ItemDto);
+
+        if (!item || item instanceof MongooseError)
+            throw new NotFoundException('No item with that _id not found'); // added this check because if index is -1 it returns index 0. thanks javascript!
+
+        const predicate = (e: ShopItemDTO) => e.item_id === body.itemToBuy_id; 
         const i = items.findIndex(predicate);
-        if(items[i].isSold)
-            throw new BadRequestException("The Item you are trying to buy has already been sold");
+        const itemToSell = items[i];
+        if (itemToSell.isSold || itemToSell.isInVoting)
+            throw new BadRequestException("The Item you are trying to buy has already been sold or, is already in voting by another clan");
         return this.createOne(body);
     }
     public readAllPostHook: PostReadAllHookFunction = async (output: ClanVote[]): Promise<boolean> => {
@@ -56,7 +62,7 @@ export class ClanVoteService extends BasicServiceDummyAbstract<ClanVote> impleme
         }
         return true;
     }
-    public getShopItems = async (shop_id) : Promise<Array<ShopItemDTO>> => {
+    public getShopItems = async (shop_id): Promise<Array<ShopItemDTO>> => {
         const shopReq = await this.shopService.readOneById(shop_id);
         if (!shopReq || shopReq instanceof MongooseError)
             throw new NotFoundException('No shop with that _id not found');
@@ -127,8 +133,8 @@ export class ClanVoteService extends BasicServiceDummyAbstract<ClanVote> impleme
         if (result) {
             await this.requestHelperService.updateOneById(ModelName.ITEM, item._id, { stock_id: stock._id })
             await this.requestHelperService.updateOneById(ModelName.ITEM, item._id, { isInStock: result });
-        } 
-        items[i].vote_id = undefined; 
+        }
+        items[i].vote_id = undefined;
         await this.requestHelperService.updateOneById(ModelName.ITEMSHOP, vote.shop_id, { items: items })
         await this.deleteOneById(vote._id);
     }
