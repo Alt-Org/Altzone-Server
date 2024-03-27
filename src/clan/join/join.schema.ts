@@ -14,6 +14,9 @@ export class Join {
 
     @Prop({type:Boolean, required: false, unique: false , default: false})
     accepted: boolean;
+
+    @ExtractField()
+    _id:string;
 }
 
 export const joinSchema = SchemaFactory.createForClass(Join);

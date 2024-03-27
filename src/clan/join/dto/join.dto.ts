@@ -4,7 +4,10 @@ import { ExtractField } from "src/common/decorator/response/ExtractField";
 import { PlayerDto } from "src/player/dto/player.dto";
 
 export class JoinDto {
-    
+    @ExtractField()
+    @Expose()
+    _id:string;
+
     @Expose()
     clan_id: string; // the clan id we are trying to join
 
