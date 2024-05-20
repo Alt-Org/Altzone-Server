@@ -34,6 +34,7 @@ import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.
 import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
 import { GetAllQuery } from "src/common/decorator/param/GetAllQuery";
 import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
+import { NoAuth } from "src/auth/decorator/NoAuth.decorator";
 
 @Controller('clan')
 export class ClanController {
@@ -57,6 +58,7 @@ export class ClanController {
     }
 
     @Get('/:_id')
+    @NoAuth()
     //@Authorize({ action: Action.read, subject: ClanDto })
     @BasicGET(ModelName.CLAN, ClanDto)
     @AddGetQueries()
@@ -65,6 +67,7 @@ export class ClanController {
     }
 
     @Get()
+    @NoAuth()
     //@Authorize({ action: Action.read, subject: ClanDto })
     @OffsetPaginate(ModelName.CLAN)
     @AddSearchQuery(ClanDto)
