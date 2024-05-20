@@ -57,7 +57,7 @@ export class ClanController {
     }
 
     @Get('/:_id')
-    @Authorize({ action: Action.read, subject: ClanDto })
+    //@Authorize({ action: Action.read, subject: ClanDto })
     @BasicGET(ModelName.CLAN, ClanDto)
     @AddGetQueries()
     public get(@Param() param: _idDto, @Req() request: Request) {
@@ -65,11 +65,11 @@ export class ClanController {
     }
 
     @Get()
-    @Authorize({ action: Action.read, subject: ClanDto })
+    //@Authorize({ action: Action.read, subject: ClanDto })
     @OffsetPaginate(ModelName.CLAN)
     @AddSearchQuery(ClanDto)
     @AddSortQuery(ClanDto)
-    @BasicGET(ModelName.CLAN, ClanDto )
+    @BasicGET(ModelName.CLAN, ClanDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {
         return this.service.readAll(query);
     }

@@ -15,13 +15,13 @@ type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 export const clanRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj: any, requestHelperService) => {
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
-    if(action === Action.read){
-        //const clan_id = await getClan_id(user, requestHelperService);
-        //const publicFields = ['_id', 'name', 'uniqueIdentifier'];
+    // if(action === Action.read){
+    //     //const clan_id = await getClan_id(user, requestHelperService);
+    //     //const publicFields = ['_id', 'name', 'uniqueIdentifier'];
 
-        can(Action.read_request, subject);
-        can(Action.read_response, subject);
-    }
+    //     can(Action.read_request, subject);
+    //     can(Action.read_response, subject);
+    // }
 
     if(action === Action.create){
         const playerToMakeClanAdmin = await requestHelperService.getModelInstanceById(ModelName.PLAYER, user.player_id, PlayerDto);
