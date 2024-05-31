@@ -4,7 +4,8 @@
 
 #Remember to generate a SSL certificate (if HTTPS is needed) inside nginx container, after start stage is completed:
 #1. docker container exec -it {container_id} bash (Go to the container)
-#2. certbot_config (Run added on the start stage bash script, which should be placed in the same folder with this Dockerfile)
+#2. certbot_certonly (Run added on the start stage bash script, which should be placed in the same folder with this Dockerfile)
+#3. add the ssl config to nginx.conf file (example can be found in prod_nginx.conf)
 
 #After that u can setup a cronjob for auto renew:
 #1. docker container exec -it {container_id} bash (Go to the container)
