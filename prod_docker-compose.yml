@@ -32,6 +32,19 @@ services:
       - PORT=3000
       - HOSTNAME=altzone_site
 
+  site_dev:
+    image: leolab1337/altzone_web_pages:v2
+    container_name: altzone_site_dev
+    networks:
+      - backend
+    restart: always
+    environment:
+      - NEXT_PUBLIC_API_LINK=http://altzone_api:8080
+      - NEXT_PUBLIC_API_DOMAIN=altzone_api:8080
+      - ANALYZE=false
+      - PORT=3001
+      - HOSTNAME=altzone_site
+
   db:
     image: mongo:4.2.24-bionic
     container_name: altzone_db
