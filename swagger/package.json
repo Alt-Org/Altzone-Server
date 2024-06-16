@@ -1,0 +1,13 @@
+{
+    "name": "swagger-docs",
+    "version": "1.0.0",
+    "description": "Swagger documentation server",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "express": "^4.19.2",
+        "swagger-ui-express": "^5.0.1"
+    }
+}
