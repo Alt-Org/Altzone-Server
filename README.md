@@ -1,12 +1,11 @@
 # Altzone-Server
 
-This is a REST API for Altzone game
+This is a REST API for Altzone game. For API desription see the wiki pages
 
 ## Link to server
 
 Server is now available on https://altzone.fi/
 
-Server description is here https://altzone.fi/swagger
 
 ## Getting started
 
