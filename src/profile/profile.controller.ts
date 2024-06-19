@@ -45,6 +45,7 @@ export default class ProfileController {
 
         const profileResp = await this.service.createOne(profile);
         if(profileResp && !(profileResp instanceof MongooseError)){
+            
             const profileDataKey = profileResp.metaData.dataKey;
             Player['profile_id'] = profileResp.data[profileDataKey]._id;
             try{
