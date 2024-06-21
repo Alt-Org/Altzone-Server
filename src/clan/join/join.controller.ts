@@ -37,11 +37,12 @@ export class joinController {
         private readonly requestHelperService: RequestHelperService
     ) {
     }
+    //Send request
     @Post()
     @Authorize({action: Action.create, subject: JoinDto})
     @BasicPOST(JoinDto)
     public async create(@Body() body: JoinRequestDto, @Req() request: Request) {
-        return this.service.handleJoinRequest(body,request);
+        return this.service.handleJoinRequest(body, request['user']);
     }
 
     @Put()
@@ -58,7 +59,7 @@ export class joinController {
     @AddSortQuery(JoinDto)
     @BasicGET(ModelName.JOIN, JoinDto)
     public getAll(@GetAllQuery() query: IGetAllQuery) {
-        return this.service.readAll(query);
+        return this.service.readJoinsByUser(query);
     }
     
     @Delete('/:_id')

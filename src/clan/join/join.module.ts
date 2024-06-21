@@ -5,7 +5,6 @@ import { joinController } from './join.controller';
 import { JoinService } from './join.service';
 import { RequestHelperModule } from 'src/requestHelper/requestHelper.module';
 import { joinSchema } from './join.schema';
-import { isClanExists } from '../decorator/validation/IsClanExists.decorator';
 import { ClanModule } from '../clan.module';
 import { RoomModule } from 'src/Room/room.module';
 

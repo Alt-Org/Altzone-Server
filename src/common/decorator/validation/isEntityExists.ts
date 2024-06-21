@@ -20,6 +20,7 @@ export class isEntityExists<T> implements ValidatorConstraintInterface{
         if(!this.entityModel)
             throw new Error(`${isEntityExists.name} class ${validate.name}(): Can not validate entity existing. Model for DB query is not provided. Please provide the model for ${this.entityName} via constructor or setEntityModel(), before using the isEntityExists class`);
         
+
         let parsedValue: any = value;
 
         if(this.searchField.indexOf('_id') !== -1){
@@ -27,7 +28,9 @@ export class isEntityExists<T> implements ValidatorConstraintInterface{
                 parsedValue = new ObjectId(value);
             } catch(e){
                 console.error('Error occured on converting _id string to mongo object', e);
-                throw new BadRequestException(`The ${this.searchField} must be mongo _id`);
+                throw new BadRequestException(`Field ` +
+                 `${validationArguments?.property ?? this.searchField} ` +
+                 `must be mongo _id`);
             }
         }
 

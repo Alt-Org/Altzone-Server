@@ -1,4 +1,4 @@
-import { Body, HttpCode, HttpStatus, Injectable, NotFoundException, Param, Req } from "@nestjs/common";
+import { BadRequestException, Body, HttpCode, HttpStatus, Injectable, NotFoundException, Param, Req } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { BasicServiceDummyAbstract } from "src/common/base/abstract/basicServiceDummy.abstract";
 import {
@@ -28,6 +28,8 @@ import { RoomService } from "src/Room/room.service";
 import { CreateRoomDto } from "src/Room/dto/createRoom.dto";
 import { SoulHome } from "src/soulhome/soulhome.schema";
 import { SoulHomeDto } from "src/soulhome/dto/soulhome.dto";
+import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
+import { User } from "src/auth/user";
 
 @Injectable()
 @AddBasicService()
@@ -45,11 +47,11 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
     public readonly refsInModel: ModelName[];
     public readonly modelName: ModelName;
 
-    public async handleJoinRequest(@Body() body: JoinRequestDto, @Req() request: Request) {
-        const player_id = body.player_id;
-        const clan_id = body.clan_id;
-        if (request["user"].player_id != player_id) {
-            throw new MongooseError("you can not change another players clan");
+    public async handleJoinRequest(joinRequest: JoinRequestDto, loggedUser: User) {
+        const {player_id, clan_id} = joinRequest;
+
+        if (loggedUser["user"].player_id != player_id) {
+            throw new MongooseError("you can not change another players' clan joining");
         }
         const clan = await this.getClan(clan_id);
         const player = await this.requestHelperService.getModelInstanceByCondition( // get the player Joining
@@ -69,13 +71,15 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
                 }
             }
             this.joinClan(player_id, clan_id); // join the clan
-            const resp = this.configureResponse(body);//this.createOne(body);
+            const resp = this.configureResponse(joinRequest);//this.createOne(body);
             return resp;
-        } else if (body?.join_message) { // if not open create a joinrequest in db
-            return this.createOne(body);
-        } else {
-            throw new NotFoundException("You need to include a join_message since you are trying to join an closed clan");
-        }
+        } 
+
+        if(!joinRequest.join_message)
+            throw new BadRequestException('The join_message must be specified for the closed clans');
+
+        // if clan closed and join_meaasage provided create a joinrequest in db
+        return this.createOne(joinRequest);    
     }
     
     public async joinClan(player_id: string, clan_id: string) { // func to join a clan
@@ -160,6 +164,17 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
             }
         }
     }
+
+    public readJoinsByUser(query: IGetAllQuery){
+        let {filter} = query;
+        if(filter){
+            console.log(filter);
+            //{ '$and': [ { clan_id: [Object] } ] }
+        }
+
+        return this.readAll(query);
+    }
+
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
     }
 }
