@@ -16,7 +16,7 @@ export class Join {
     accepted: boolean;
 
     @ExtractField()
-    _id:string;
+    _id: string;
 }
 
 export const joinSchema = SchemaFactory.createForClass(Join);

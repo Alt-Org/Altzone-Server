@@ -1,6 +1,8 @@
 import {validate, ValidationArguments, ValidatorConstraintInterface} from "class-validator";
 import {Model} from "mongoose";
 import {ModelName} from "../../enum/modelName.enum";
+import { BadRequestException } from "@nestjs/common";
+import { ObjectId } from "mongodb";
 
 export class isEntityExists<T> implements ValidatorConstraintInterface{
     public constructor(entityName: ModelName, searchField: string = '_id', entityModel?: Model<T>) {
@@ -17,7 +19,19 @@ export class isEntityExists<T> implements ValidatorConstraintInterface{
     public async validate(value: string, validationArguments?: ValidationArguments): Promise<boolean> {
         if(!this.entityModel)
             throw new Error(`${isEntityExists.name} class ${validate.name}(): Can not validate entity existing. Model for DB query is not provided. Please provide the model for ${this.entityName} via constructor or setEntityModel(), before using the isEntityExists class`);
-        const condition: {} = {[this.searchField]: value};
+        
+        let parsedValue: any = value;
+
+        if(this.searchField.indexOf('_id') !== -1){
+            try{
+                parsedValue = new ObjectId(value);
+            } catch(e){
+                console.error('Error occured on converting _id string to mongo object', e);
+                throw new BadRequestException(`The ${this.searchField} must be mongo _id`);
+            }
+        }
+
+        const condition: {} = {[this.searchField]: parsedValue};
         return await this.entityModel.findOne(condition) != null;
     }
 

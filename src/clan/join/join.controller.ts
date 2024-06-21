@@ -60,6 +60,7 @@ export class joinController {
     public getAll(@GetAllQuery() query: IGetAllQuery) {
         return this.service.readAll(query);
     }
+    
     @Delete('/:_id')
     @Authorize({ action: Action.delete, subject: JoinResultDto })
     public delete(@Param() param: _idDto) {
