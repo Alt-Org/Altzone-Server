@@ -8,13 +8,13 @@ export type SoulhomeDocument = HydratedDocument<SoulHome>;
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
 export class SoulHome{
     @Prop({ type: String, required: true})
-    type:string;
+    type: string;
     
     @Prop({type:String, required:true, unique:true})
-    clan_id:string;
+    clan_id: string;
 
     @Prop({type: Array<String>, default: []}) 
-    rooms:string[];
+    rooms: string[];
 
     @ExtractField()
     _id: string;

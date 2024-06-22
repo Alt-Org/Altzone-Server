@@ -50,19 +50,22 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
     public async handleJoinRequest(joinRequest: JoinRequestDto, loggedUser: User) {
         const {player_id, clan_id} = joinRequest;
 
-        if (loggedUser["user"].player_id != player_id) {
-            throw new MongooseError("you can not change another players' clan joining");
-        }
         const clan = await this.getClan(clan_id);
+        if(!clan)
+            throw new NotFoundException('Clan with that _id is not found');
         const player = await this.requestHelperService.getModelInstanceByCondition( // get the player Joining
             ModelName.PLAYER,
             { _id: player_id },
             PlayerDto,
             true
         );
+        if(!player)
+            throw new NotFoundException('Player with that _id is not found');
 
-        if (clan.isOpen) { // check if clan to join is open
-            if (player?.clan_id) { // does an old clan id exist? if so reduce the players in the old clan
+        // check if clan to join is open
+        if (clan.isOpen) { 
+            // does the player in some old clan? if so reduce the players in the old clan
+            if (player.clan_id) { 
                 const pclan = await this.getClan(player.clan_id);
                 if (pclan.playerCount <= 1) {
                     this.clanService.deleteOneById(pclan._id);
@@ -70,8 +73,9 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
                     await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: player.clan_id }, "playerCount", -1)
                 }
             }
-            this.joinClan(player_id, clan_id); // join the clan
+            await this.joinClan(player_id, clan_id); // join the clan
             const resp = this.configureResponse(joinRequest);//this.createOne(body);
+            
             return resp;
         } 
 
@@ -83,22 +87,32 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
     }
     
     public async joinClan(player_id: string, clan_id: string) { // func to join a clan
-        const soulhome = await this.requestHelperService.getModelInstanceByCondition(ModelName.SOULHOME,{clan_id:clan_id},SoulHomeDto,true)
-        const firstRoom: CreateRoomDto = {
-            floorType:"placeholder",
-            wallType:"placeholder",
-            player_id: player_id,
-            soulHome_id:soulhome._id
-        };
-        const room = await this.roomService.createOne(firstRoom);
-        if (!room || room instanceof MongooseError)
-            return;
-        var updatedlist = soulhome.rooms;
-        updatedlist.push(room.data.Room._id);
-        await this.requestHelperService.updateOneById(ModelName.SOULHOME,soulhome._id,{rooms:updatedlist})
+        const soulhome = await this.requestHelperService.getModelInstanceByCondition(
+            ModelName.SOULHOME, 
+            {clan_id: clan_id},
+            SoulHomeDto, true
+        );
+
+        if(soulhome){
+            const firstRoom: CreateRoomDto = {
+                floorType: "placeholder",
+                wallType: "placeholder",
+                player_id: player_id,
+                soulHome_id: soulhome._id
+            };
+    
+            const room = await this.roomService.createOne(firstRoom);
+            if (!room || room instanceof MongooseError)
+                return;
+            let updatedlist = soulhome.rooms;
+            updatedlist.push(room.data.Room._id);
+            await this.requestHelperService.updateOneById(ModelName.SOULHOME, soulhome._id, {rooms:updatedlist});
+        }
+             
         await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, { clan_id: clan_id }); // update clan_id for the requested player;
-        await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", 1) // update clan playercount
+        await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", 1); // update clan playercount
     }
+    
     public async getClan(_id: string) {
         return await this.requestHelperService.getModelInstanceByCondition(  // get the Clan to join
             ModelName.CLAN,
