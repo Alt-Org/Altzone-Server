@@ -112,7 +112,7 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
         await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, { clan_id: clan_id }); // update clan_id for the requested player;
         await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", 1); // update clan playercount
     }
-    
+
     public async getClan(_id: string) {
         return await this.requestHelperService.getModelInstanceByCondition(  // get the Clan to join
             ModelName.CLAN,
@@ -121,10 +121,46 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
             true
         );
     }
-    public async leaveClan(@Param() param: _idDto) {
+
+    public async leaveClanByUser(loggedUser: User) {
+        const {player_id} = loggedUser;
+        // get the player leaving
+        const player = await this.requestHelperService.getModelInstanceByCondition(
+            ModelName.PLAYER,
+            { _id: player_id },
+            PlayerDto,
+            true
+        );
+
+        if(!player)
+            throw new NotFoundException('Player with that _id not found');
+
+        const clan_id = player.clan_id;
+        if (!clan_id) 
+            throw new NotFoundException("Player is not joined to any clan");
+
+        const clan = await this.getClan(clan_id);
+
+        if(!clan)
+            throw new NotFoundException("Clan with that _id not found");
+
+        if (clan.admin_ids.includes(player._id)) {
+            // if is clan admin, then do something - for future
+        }
+
+        //If the last player
+        if (clan.playerCount <= 1 ) {
+            this.clanService.deleteOneById(clan._id);
+        } else {
+            await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", -1) // update clan playercount    
+        }
+        await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, { clan_id: null }); // update clan_id for the requested player;
+    }
+
+    public async leaveClan(_id: string) {
         const player = await this.requestHelperService.getModelInstanceByCondition( // get the player Joining
             ModelName.PLAYER,
-            { _id: param._id },
+            { _id: _id },
             PlayerDto,
             true
         );
@@ -140,8 +176,8 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
             await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clanid }, "playerCount", -1) // update clan playercount    
         }
         await this.requestHelperService.updateOneById(ModelName.PLAYER, player._id, { clan_id: null }); // update clan_id for the requested player;
-
     }
+
     public updateOnePostHook: PostHookFunction = async (input: Partial<JoinResultDto>, oldDoc: Join): Promise<boolean> => {
         if (!input?.accepted)
             return true;

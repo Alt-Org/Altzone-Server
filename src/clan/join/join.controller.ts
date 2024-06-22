@@ -30,6 +30,8 @@ import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
 import { JoinResultDto } from "./dto/joinResult.dto";
 import { Serialize } from "src/common/interceptor/response/Serialize";
 import { _idDto } from "src/common/dto/_id.dto";
+import { Request } from "express";
+import { LeaveByUserDto } from "./dto/leaveByUser.dto";
 @Controller("clan/join")
 export class joinController {
     public constructor(
@@ -37,12 +39,19 @@ export class joinController {
         private readonly requestHelperService: RequestHelperService
     ) {
     }
-    //Send request
+    //Send request to join the clan. if it is an open clan, player will be joined automatically
     @Post()
     @Authorize({action: Action.create, subject: JoinDto})
     @BasicPOST(JoinDto)
     public async create(@Body() body: JoinRequestDto, @Req() request: Request) {
         return this.service.handleJoinRequest(body, request['user']);
+    }
+
+    //User requests to leave the Clan
+    @Post('leave')
+    @Authorize({ action: Action.create, subject: LeaveByUserDto })
+    public leave(@Req() request: Request) {
+        return this.service.leaveClanByUser(request['user']);
     }
 
     @Put()
@@ -65,7 +74,7 @@ export class joinController {
     @Delete('/:_id')
     @Authorize({ action: Action.delete, subject: JoinResultDto })
     public delete(@Param() param: _idDto) {
-        return this.service.leaveClan(param);
+        return this.service.leaveClan(param._id);
     }
 
 }

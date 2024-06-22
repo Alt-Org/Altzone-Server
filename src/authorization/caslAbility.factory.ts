@@ -45,6 +45,7 @@ import { ItemShopDto } from "src/shop/itemShop/dto/itemshop.dto";
 import { clanVoteRules } from "./rule/clanVoteRules";
 import { shopRules } from "./rule/shopRules";
 import { ShopItemDTO } from "src/shop/itemShop/dto/shopItem.dto";
+import { LeaveByUserDto } from "src/clan/join/dto/leaveByUser.dto";
 
 export type AllowedAction = Action.create_request | Action.read_request | Action.read_response | Action.update_request | Action.delete_request;
 
@@ -56,7 +57,7 @@ export type AllowedSubject =
     typeof ItemDto | typeof UpdateItemDto |
     typeof StockDto | typeof UpdateStockDto |
     typeof ClanDto | typeof UpdateClanDto |
-    typeof JoinDto | typeof JoinResultDto |
+    typeof JoinDto | typeof JoinResultDto | typeof LeaveByUserDto |
     typeof SoulHomeDto | typeof updateSoulHomeDto |
     typeof RoomDto | typeof UpdateRoomDto |
     typeof ClanVoteDto | typeof UpdateClanVoteDto |
@@ -100,7 +101,7 @@ export class CASLAbilityFactory {
         if (subject === ClanDto || subject === UpdateClanDto)
             return clanRules(user, subject, action, subjectObj, this.requestHelperService);
 
-        if (subject === JoinDto || subject === JoinResultDto)
+        if (subject === JoinDto || subject === JoinResultDto || subject === LeaveByUserDto)
             return joinRules(user, subject, action, subjectObj, this.requestHelperService);
         if (subject === SoulHomeDto || subject === updateSoulHomeDto)
             return soulHomeRules(user, subject, action, subjectObj, this.requestHelperService)
