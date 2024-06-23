@@ -1,7 +1,9 @@
 import {IsEnum, IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
 import {GestaltCycle} from "../../common/enum/gestaltCycle.enum";
 import {IsCharacterClassExists} from "../decorator/validation/IsCharacterClassExists.decorator";
+import AddType from "src/common/base/decorator/AddType.decorator";
 
+@AddType('UpdateCharacterClassDto')
 export class UpdateCharacterClassDto {
     @IsCharacterClassExists()
     @IsMongoId()

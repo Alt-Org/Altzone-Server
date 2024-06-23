@@ -122,7 +122,42 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
         );
     }
 
-    public async leaveClanByUser(loggedUser: User) {
+    public async leaveClanByPlayer(loggedUser: User) {
+        const {player_id} = loggedUser;
+        // get the player leaving
+        const player = await this.requestHelperService.getModelInstanceByCondition(
+            ModelName.PLAYER,
+            { _id: player_id },
+            PlayerDto,
+            true
+        );
+
+        if(!player)
+            throw new NotFoundException('Player with that _id not found');
+
+        const clan_id = player.clan_id;
+        if (!clan_id) 
+            throw new NotFoundException("Player is not joined to any clan");
+
+        const clan = await this.getClan(clan_id);
+
+        if(!clan)
+            throw new NotFoundException("Clan with that _id not found");
+
+        if (clan.admin_ids.includes(player._id)) {
+            // if is clan admin, then do something - for future
+        }
+
+        //If the last player
+        if (clan.playerCount <= 1) {
+            this.clanService.deleteOneById(clan._id);
+        } else {
+            await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", -1) // update clan playercount    
+        }
+        await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, { clan_id: null }); // update clan_id for the requested player;
+    }
+
+    public async removePlayerFromClan(player_idToRemove, loggedUser: User) {
         const {player_id} = loggedUser;
         // get the player leaving
         const player = await this.requestHelperService.getModelInstanceByCondition(

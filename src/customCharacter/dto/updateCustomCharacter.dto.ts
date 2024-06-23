@@ -2,7 +2,10 @@ import {IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
 import {IsPlayerExists} from "../../player/decorator/validation/IsPlayerExists.decorator";
 import {IsCharacterClassExists} from "../../characterClass/decorator/validation/IsCharacterClassExists.decorator";
 import {IsCustomCharacterExists} from "../decorator/validation/IsCustomCharacterExists.decorator";
+import AddType from "src/common/base/decorator/AddType.decorator";
 
+export const UpdateCustomCharacterType = 'UpdateCustomCharacterType';
+@AddType('UpdateCustomCharacterDto')
 export class UpdateCustomCharacterDto {
     @IsCustomCharacterExists()
     @IsMongoId()

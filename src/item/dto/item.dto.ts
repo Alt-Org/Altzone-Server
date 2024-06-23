@@ -2,7 +2,9 @@ import {Expose, Type} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {ClanDto} from "../../clan/dto/clan.dto";
 import {StockDto} from "../../stock/dto/stock.dto";
+import AddType from "src/common/base/decorator/AddType.decorator";
 
+@AddType('ItemDto')
 export class ItemDto {
     @ExtractField()
     @Expose()

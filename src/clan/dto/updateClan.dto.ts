@@ -1,7 +1,9 @@
 import {ArrayNotEmpty, IsArray, IsBoolean, IsInt, IsMongoId, IsOptional, IsString, Validate} from "class-validator";
 import {IsClanExists} from "../decorator/validation/IsClanExists.decorator";
 import { IsPlayerExists } from "src/player/decorator/validation/IsPlayerExists.decorator";
+import AddType from "src/common/base/decorator/AddType.decorator";
 
+@AddType('UpdateClanDto')
 export class UpdateClanDto {
     @IsClanExists()
     @IsMongoId()

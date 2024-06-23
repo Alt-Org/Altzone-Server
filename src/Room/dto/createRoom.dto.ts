@@ -1,5 +1,7 @@
 import { IsMongoId, IsString } from "class-validator";
+import AddType from "src/common/base/decorator/AddType.decorator";
 
+@AddType('CreateRoomDto')
 export class CreateRoomDto {
   @IsString() 
   floorType: string;

@@ -1,6 +1,8 @@
 import {IsEnum, IsInt, IsString} from "class-validator";
 import {GestaltCycle} from "../../common/enum/gestaltCycle.enum";
+import AddType from "src/common/base/decorator/AddType.decorator";
 
+@AddType('CreateCharacterClassDto')
 export class CreateCharacterClassDto {
     @IsString()
     name: string;

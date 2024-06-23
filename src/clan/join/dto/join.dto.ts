@@ -1,8 +1,10 @@
 import { Expose, Type } from "class-transformer";
 import { IsClanExists } from "src/clan/decorator/validation/IsClanExists.decorator";
+import AddType from "src/common/base/decorator/AddType.decorator";
 import { ExtractField } from "src/common/decorator/response/ExtractField";
 import { PlayerDto } from "src/player/dto/player.dto";
 
+@AddType('JoinDto')
 export class JoinDto {
     @ExtractField()
     @Expose()

@@ -1,5 +1,7 @@
 import { ArrayNotEmpty, IsArray, IsMongoId, IsOptional, IsString } from "class-validator";
+import AddType from "src/common/base/decorator/AddType.decorator";
 
+@AddType('updateSoulHomeDto')
 export class updateSoulHomeDto {
     @IsMongoId()
     _id: string;

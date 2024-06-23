@@ -2,7 +2,9 @@ import {Expose, Type} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {GestaltCycle} from "../../common/enum/gestaltCycle.enum";
 import {CustomCharacterDto} from "../../customCharacter/dto/customCharacter.dto";
+import AddType from "src/common/base/decorator/AddType.decorator";
 
+@AddType('CharacterClassDto')
 export class CharacterClassDto {
     @ExtractField()
     @Expose()

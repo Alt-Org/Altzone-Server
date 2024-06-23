@@ -31,7 +31,8 @@ import { JoinResultDto } from "./dto/joinResult.dto";
 import { Serialize } from "src/common/interceptor/response/Serialize";
 import { _idDto } from "src/common/dto/_id.dto";
 import { Request } from "express";
-import { LeaveByUserDto } from "./dto/leaveByUser.dto";
+import { PlayerLeaveClan } from "src/authorization/rule/joinRequestRules";
+import { RemovePlayerDTO } from "./dto/removePlayer.dto";
 @Controller("clan/join")
 export class joinController {
     public constructor(
@@ -47,11 +48,20 @@ export class joinController {
         return this.service.handleJoinRequest(body, request['user']);
     }
 
-    //User requests to leave the Clan
+    //Player requests to leave the Clan
     @Post('leave')
-    @Authorize({ action: Action.create, subject: LeaveByUserDto })
+    @HttpCode(204)
+    @Authorize({ action: Action.create, subject: PlayerLeaveClan })
     public leave(@Req() request: Request) {
-        return this.service.leaveClanByUser(request['user']);
+        return this.service.leaveClanByPlayer(request['user']);
+    }
+
+    //Player requests to leave the Clan
+    @Post('remove')
+    @HttpCode(204)
+    @Authorize({ action: Action.create, subject: PlayerLeaveClan })
+    public removePlayer(@Body() body: RemovePlayerDTO, @Req() request: Request) {
+        return this.service.removePlayerFromClan(body.player_id, request['user']);
     }
 
     @Put()

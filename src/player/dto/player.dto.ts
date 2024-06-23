@@ -2,7 +2,9 @@ import {Expose, Type} from "class-transformer";
 import {ClanDto} from "../../clan/dto/clan.dto";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {CustomCharacterDto} from "../../customCharacter/dto/customCharacter.dto";
+import AddType from "src/common/base/decorator/AddType.decorator";
 
+@AddType('PlayerDto')
 export class PlayerDto {
     @ExtractField()
     @Expose()

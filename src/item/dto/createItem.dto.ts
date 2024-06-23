@@ -1,7 +1,9 @@
 import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
 import {IsStockExists} from "../../stock/decorator/validation/IsStockExists.decorator";
+import AddType from "src/common/base/decorator/AddType.decorator";
 
+@AddType('CreateItemDto')
 export class CreateItemDto {
     @IsString()
     name: string;

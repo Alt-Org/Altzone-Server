@@ -1,5 +1,7 @@
 import {Expose} from "class-transformer";
+import AddType from "src/common/base/decorator/AddType.decorator";
 
+@AddType('MessageDto')
 export class MessageDto {
     @Expose()
     id: number;
