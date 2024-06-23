@@ -10,7 +10,8 @@ import { NotFoundException } from "@nestjs/common";
 import { ModelName } from "src/common/enum/modelName.enum";
 import { ClanDto } from "src/clan/dto/clan.dto";
 import { MongooseError } from "mongoose";
-type Subjects = InferSubjects<typeof SoulHomeDto | typeof updateSoulHomeDto>;
+
+type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
 export const soulHomeRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj: any, requestHelperService) => {

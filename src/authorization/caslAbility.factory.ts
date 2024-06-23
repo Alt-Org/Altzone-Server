@@ -23,12 +23,9 @@ import { clanRules } from "./rule/clanRules";
 import { ClanDto } from "src/clan/dto/clan.dto";
 import { UpdateClanDto } from "src/clan/dto/updateClan.dto";
 import { SupportedAction } from "./authorization.interceptor";
-import { ClanMetaDto } from "../metaData/clan/dto/clanMeta.dto";
-import { metaDataRules } from "./rule/metaDataRules";
 import { JoinDto } from "src/clan/join/dto/join.dto";
-import { JoinRequestDto } from "src/clan/join/dto/joinRequest.dto";
 import { JoinResultDto } from "src/clan/join/dto/joinResult.dto";
-import { joinRules } from "./rule/joinRequestRules";
+import { PlayerLeaveClan, joinRules } from "./rule/joinRequestRules";
 import { ItemDto } from "../item/dto/item.dto";
 import { UpdateItemDto } from "../item/dto/updateItem.dto";
 import { StockDto } from "../stock/dto/stock.dto";
@@ -45,7 +42,8 @@ import { ItemShopDto } from "src/shop/itemShop/dto/itemshop.dto";
 import { clanVoteRules } from "./rule/clanVoteRules";
 import { shopRules } from "./rule/shopRules";
 import { ShopItemDTO } from "src/shop/itemShop/dto/shopItem.dto";
-import { LeaveByUserDto } from "src/clan/join/dto/leaveByUser.dto";
+import { RemovePlayerDTO } from "src/clan/join/dto/removePlayer.dto";
+import { ObjectType } from "src/common/base/decorator/AddType.decorator";
 
 export type AllowedAction = Action.create_request | Action.read_request | Action.read_response | Action.update_request | Action.delete_request;
 
@@ -57,7 +55,7 @@ export type AllowedSubject =
     typeof ItemDto | typeof UpdateItemDto |
     typeof StockDto | typeof UpdateStockDto |
     typeof ClanDto | typeof UpdateClanDto |
-    typeof JoinDto | typeof JoinResultDto | typeof LeaveByUserDto |
+    typeof JoinDto | typeof JoinResultDto | typeof PlayerLeaveClan | typeof RemovePlayerDTO |
     typeof SoulHomeDto | typeof updateSoulHomeDto |
     typeof RoomDto | typeof UpdateRoomDto |
     typeof ClanVoteDto | typeof UpdateClanVoteDto |
@@ -80,36 +78,42 @@ export class CASLAbilityFactory {
         if (isSystemAdmin)
             return systemAdminRules();
 
-        if (subject === ProfileDto || subject === UpdateProfileDto)
-            return profileRules(user, subject, action, subjectObj);
+        const obj = new subject() as unknown as ObjectType;
 
-        if (subject === PlayerDto || subject === UpdatePlayerDto)
+        if (obj.isType('ProfileDto') || obj.isType('UpdateProfileDto'))
+            return profileRules(user, subject, action, subjectObj);
+      
+        if (obj.isType('PlayerDto') || obj.isType('UpdatePlayerDto'))
             return playerRules(user, subject, action, subjectObj, this.requestHelperService);
 
-        if (subject === CustomCharacterDto || subject === UpdateCustomCharacterDto)
+        if (obj.isType('CustomCharacterDto') || obj.isType('UpdateCustomCharacterDto'))
             return customCharacterRules(user, subject, action, subjectObj, this.requestHelperService);
-
-        if (subject === CharacterClassDto || subject === UpdateCharacterClassDto)
+      
+        if (obj.isType('CharacterClassDto') || obj.isType('UpdateCharacterClassDto'))
             return characterClassRules(user, subject, action, subjectObj);
-
-        if (subject === ItemDto || subject === UpdateItemDto)
+ 
+        if (obj.isType('ItemDto') || obj.isType('UpdateItemDto'))
             return itemRules(user, subject, action, subjectObj, this.requestHelperService);
-
-        if (subject === StockDto || subject === UpdateStockDto)
+  
+        if (obj.isType('StockDto') || obj.isType('UpdateStockDto'))
             return stockRules(user, subject, action, subjectObj, this.requestHelperService);
-
-        if (subject === ClanDto || subject === UpdateClanDto)
+        
+        if (obj.isType('ClanDto') || obj.isType('UpdateClanDto'))
             return clanRules(user, subject, action, subjectObj, this.requestHelperService);
 
-        if (subject === JoinDto || subject === JoinResultDto || subject === LeaveByUserDto)
+        if (obj.isType('JoinDto') || obj.isType('JoinResultDto') || obj.isType('PlayerLeaveClan') || obj.isType('RemovePlayerDTO'))
             return joinRules(user, subject, action, subjectObj, this.requestHelperService);
-        if (subject === SoulHomeDto || subject === updateSoulHomeDto)
+
+        if (obj.isType('SoulHomeDto') || obj.isType('updateSoulHomeDto'))
             return soulHomeRules(user, subject, action, subjectObj, this.requestHelperService)
-        if (subject === RoomDto || subject === UpdateRoomDto)
+
+        if (obj.isType('RoomDto') || obj.isType('UpdateRoomDto'))
             return roomRules(user, subject, action, subjectObj, this.requestHelperService);
-        if (subject === ClanVoteDto || subject === UpdateClanVoteDto)
+
+        if (obj.isType('ClanVoteDto') || obj.isType('UpdateClanVoteDto'))
             return clanVoteRules(user, subject, action, subjectObj, this.requestHelperService)
-        if (subject === ItemShopDto || subject === ShopItemDTO)
+
+        if (obj.isType('ItemShopDto') || obj.isType('ShopItemDTO'))
             return shopRules(user, subject, action, subjectObj, this.requestHelperService)
 
     }

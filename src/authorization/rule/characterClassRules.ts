@@ -10,7 +10,7 @@ import {RulesSetterAsync} from "../type/RulesSetter.type";
 import {CharacterClassDto} from "../../characterClass/dto/characterClass.dto";
 import {UpdateCharacterClassDto} from "../../characterClass/dto/updateCharacterClass.dto";
 
-type Subjects = InferSubjects<typeof CharacterClassDto | typeof UpdateCharacterClassDto>;
+type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
 export const characterClassRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj) => {

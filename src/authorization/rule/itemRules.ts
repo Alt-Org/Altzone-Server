@@ -9,7 +9,7 @@ import {NotFoundException} from "@nestjs/common";
 import {ItemDto} from "../../item/dto/item.dto";
 import {UpdateItemDto} from "../../item/dto/updateItem.dto";
 
-type Subjects = InferSubjects<typeof ItemDto | typeof UpdateItemDto>;
+type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
 export const itemRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj: any, requestHelperService) => {

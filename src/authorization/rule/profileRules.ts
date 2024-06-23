@@ -6,7 +6,7 @@ import {UpdateProfileDto} from "../../profile/dto/updateProfile.dto";
 import {InferSubjects, MongoAbility} from "@casl/ability/dist/types";
 import {RulesSetter} from "../type/RulesSetter.type";
 
-type Subjects = InferSubjects<typeof ProfileDto | typeof UpdateProfileDto>;
+type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
 export const profileRules: RulesSetter<Ability, Subjects> = (user, subject, action, subjectObj) => {

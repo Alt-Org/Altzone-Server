@@ -12,7 +12,8 @@ import { Model, MongooseError } from "mongoose";
 import { RoomDto } from "src/Room/dto/room.dto";
 import { PlayerDto } from "src/player/dto/player.dto";
 import { UpdateRoomDto } from "src/Room/dto/updateRoom.dto";
-type Subjects = InferSubjects<typeof RoomDto | typeof UpdateRoomDto>;
+
+type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
 export const roomRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj: any, requestHelperService) => {

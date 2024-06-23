@@ -9,10 +9,10 @@ import {RequestHelperService} from "../../requestHelper/requestHelper.service";
 import {ModelName} from "../../common/enum/modelName.enum";
 import {RulesSetterAsync} from "../type/RulesSetter.type";
 
-type Subjects = InferSubjects<typeof CustomCharacterDto | typeof UpdateCustomCharacterDto>;
+type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
-export const customCharacterRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj, requestHelperService) => {
+export const customCharacterRules: RulesSetterAsync<Ability, Subjects> = async (user, subject, action, subjectObj, requestHelperService) => {
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
     if(action === Action.create || action === Action.read){

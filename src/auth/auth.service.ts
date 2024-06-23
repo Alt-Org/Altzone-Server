@@ -17,8 +17,9 @@ export class AuthService {
 
     public signIn = async (username: string, pass: string): Promise<object> | null => {
         const profile = await this.requestHelperService.getModelInstanceByCondition<any>(ModelName.PROFILE, {username: username}, ProfileDto, true);
+
         //TODO: password comparison via bcrypt
-        if(profile instanceof MongooseError || profile?.password !== pass)
+        if(!profile || profile instanceof MongooseError || profile?.password !== pass)
             return null;
 
         const player = await this.requestHelperService.getModelInstanceByCondition(ModelName.PLAYER, {profile_id: profile._id}, PlayerDto, true);

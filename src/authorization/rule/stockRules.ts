@@ -9,7 +9,7 @@ import {getClan_id} from "../util/getClan_id";
 import {StockDto} from "../../stock/dto/stock.dto";
 import {UpdateStockDto} from "../../stock/dto/updateStock.dto";
 
-type Subjects = InferSubjects<typeof StockDto | typeof UpdateStockDto>;
+type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
 export const stockRules: RulesSetterAsync<Ability, Subjects> = async (user, subject, action, subjectObj, requestHelperService) => {

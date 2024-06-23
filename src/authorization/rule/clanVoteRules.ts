@@ -12,7 +12,7 @@ import { getClan_id } from "../util/getClan_id";
 import { MongooseError } from "mongoose";
 import { JoinDto } from "src/clan/join/dto/join.dto";
 
-type Subjects = InferSubjects<typeof ClanVoteDto | typeof UpdateClanVoteDto>;
+type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 export const clanVoteRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj: any, requestHelperService) => {
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);

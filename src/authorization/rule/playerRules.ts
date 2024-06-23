@@ -11,7 +11,7 @@ import {ClanDto} from "../../clan/dto/clan.dto";
 import {isLastClanAdmin} from "../util/isLastClanAdmin";
 import {ForbiddenException, NotFoundException} from "@nestjs/common";
 
-type Subjects = InferSubjects<typeof PlayerDto | typeof UpdatePlayerDto>;
+type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
 export const playerRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj: any, requestHelperService) => {
