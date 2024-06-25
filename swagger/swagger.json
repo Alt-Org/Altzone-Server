@@ -1,1 +1,1932 @@
-{"openapi":"3.0.1","info":{"title":"Altzone API","version":"1.0.0","description":"This is a description of API for the Altzone game.\nThis swagger document is describing endpoint in more details and includes the request objects structure, examples, authorization rules and any other additional information.\nNotice,  that it does not include common rules and functions, since they are covered on the wikipages in GitHub","x-logo":{"url":""}},"servers":[{"url":"https://altzone.fi/api","description":"Production","x-last-modified":1718905376325},{"url":"http://localhost:8080","description":"Local","x-last-modified":1718899219797}],"paths":{"/clan":{"get":{"tags":["Clan"],"responses":{"200":{"$ref":"#/components/responses/200","x-last-modified":1718903639035},"404":{"$ref":"#/components/responses/404","x-last-modified":1718903708656},"500":{"$ref":"#/components/responses/500","x-last-modified":1718903720052}},"summary":"Read all clans","description":"Read all created Clans. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ","externalDocs":{"url":""}},"put":{"requestBody":{"description":"Clan object","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ClanWithId"},"examples":{"Clan":{"$ref":"#/components/examples/ClanWithId"}}}},"required":true},"tags":["Clan"],"responses":{"204":{"$ref":"#/components/responses/204","x-last-modified":1718904311827},"400":{"$ref":"#/components/responses/400","x-last-modified":1718904330219},"401":{"$ref":"#/components/responses/401","x-last-modified":1718904342825},"403":{"$ref":"#/components/responses/403","x-last-modified":1718904380222},"404":{"$ref":"#/components/responses/404","x-last-modified":1718904417087},"409":{"$ref":"#/components/responses/409","x-last-modified":1718904430763},"500":{"$ref":"#/components/responses/500","x-last-modified":1718904440777}},"summary":"Update a clan","description":"Update the Clan, which id is specified in the body. Only Clan admins can change the Clan's data, as well as add or remove admins. Notice that while removing Clan admins, its is not allowed to remove all of them, because Clan must have at least one admin.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins | \n\n"},"post":{"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ClanNoId"}}},"required":true},"tags":["Clan"],"responses":{"201":{"$ref":"#/components/responses/201","x-last-modified":1718901845436},"400":{"$ref":"#/components/responses/400","x-last-modified":1718901860622},"401":{"$ref":"#/components/responses/401","x-last-modified":1718901883486},"403":{"$ref":"#/components/responses/403","x-last-modified":1718901898221},"409":{"$ref":"#/components/responses/409","x-last-modified":1718902008128},"500":{"$ref":"#/components/responses/500","x-last-modified":1718902019444}},"summary":"Create a clan","description":"Create a new Clan. The creator of the Clan becomes its admin. Notice that if Player is creating a new Clan, he/she becomes a member of it, that means that if Player is member of some Clan it can not create a new one, before leaving the old one.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | Player can be in one Clan only at one time => if Player already is in another Clan, he/she can not create a new one | \n\n"},"x-last-modified":1718905210283},"/profile":{"summary":"user profile","description":"","get":{"tags":["Profile"]},"put":{"tags":["Profile"]},"post":{"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ProfileCreate"}}},"required":false},"tags":["Profile"],"responses":{"201":{"$ref":"#/components/responses/201","x-last-modified":1718802495276},"400":{"$ref":"#/components/responses/400","x-last-modified":1718802515397},"401":{"$ref":"#/components/responses/401","x-last-modified":1718802532007},"403":{"$ref":"#/components/responses/403","x-last-modified":1718802547386},"500":{"$ref":"#/components/responses/500","x-last-modified":1718802565870}},"operationId":"profile_create","summary":"Create profile","description":"Create a user profile with Player object associated with it."},"delete":{"tags":["Profile"]},"x-last-modified":1718905406642},"/characterClass":{"get":{"tags":["changing","CharacterClass"],"responses":{"200":{"description":"Found"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"500":{"description":"Unexpected error"}},"summary":"Read all character classes"},"put":{"requestBody":{"description":"CharacterClass object","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CharacterClassWithId"},"examples":{"CharacterClass":{"$ref":"#/components/examples/CharacterClassWithId"}}}},"required":true},"tags":["changing","CharacterClass"],"responses":{"204":{"description":"Updated"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"422":{"description":"Unique field with that value already exists"},"500":{"description":"Unexpected error"}},"summary":"Update a character class"},"post":{"requestBody":{"description":"CharacterClass object","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CharacterClassNoId"},"examples":{"CharacterClass":{"$ref":"#/components/examples/CharacterClassNoId"}}}},"required":true},"tags":["changing","CharacterClass"],"responses":{"201":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CharacterClassWithId"},"examples":{"CharacterClass":{"$ref":"#/components/examples/CharacterClassWithId"}}}},"description":"Created"},"400":{"description":"Validation error"},"422":{"description":"Unique field with that value already exists"},"500":{"description":"Unexpected error"}},"summary":"Create a character class"},"x-last-modified":1718905515240},"/characterClass/{_id}":{"get":{"tags":["changing","CharacterClass"],"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CharacterClassWithId"},"examples":{"CharacterClass":{"$ref":"#/components/examples/CharacterClassWithId"}}}},"description":"Found"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"500":{"description":"Unexpected error"}},"summary":"Read specific character class"},"delete":{"tags":["changing","CharacterClass"],"responses":{"204":{"description":"Deleted"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"500":{"description":"Unexpected error"}},"summary":"Delete a character class"},"parameters":[{"name":"_id","description":"MongoDB ObjectID","in":"path","required":true}],"x-last-modified":1718905530864},"/customCharacter":{"get":{"tags":["changing","CustomCharacter"],"responses":{"200":{"description":"Found"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"500":{"description":"Unexpected error"}},"summary":"Read all custom characters"},"put":{"requestBody":{"description":"CustomCharacter object","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CustomCharacterWithId"},"examples":{"CustomCharacter":{"$ref":"#/components/examples/CustomCharacterWithId"}}}},"required":true},"tags":["changing","CustomCharacter"],"responses":{"204":{"description":"Updated"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"422":{"description":"Unique field with that value already exists"},"500":{"description":"Unexpected error"}},"summary":"Update a custom character"},"post":{"requestBody":{"description":"CustomCharacter object","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CustomCharacterNoId"},"examples":{"CustomCharacter":{"$ref":"#/components/examples/CustomCharacterNoId"}}}},"required":true},"tags":["changing","CustomCharacter"],"responses":{"201":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CustomCharacterWithId"},"examples":{"CustomCharacter":{"$ref":"#/components/examples/CustomCharacterWithId"}}}},"description":"Created"},"400":{"description":"Validation error"},"422":{"description":"Unique field with that value already exists"},"500":{"description":"Unexpected error"}},"summary":"Create a custom character"},"x-last-modified":1718905544368},"/customCharacter/{_id}":{"get":{"tags":["changing","CustomCharacter"],"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CustomCharacterWithId"},"examples":{"CustomCharacter":{"$ref":"#/components/examples/CustomCharacterWithId"}}}},"description":"Found"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"500":{"description":"Unexpected error"}},"summary":"Read specific custom character"},"delete":{"tags":["changing","CustomCharacter"],"responses":{"204":{"description":"Deleted"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"500":{"description":"Unexpected error"}},"summary":"Delete a custom character"},"parameters":[{"name":"_id","description":"MongoDB ObjectID","in":"path","required":true}],"x-last-modified":1718905552809},"/player":{"get":{"tags":["changing","Player"],"responses":{"200":{"description":"Found"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"500":{"description":"Unexpected error"}},"summary":"Read all players"},"put":{"requestBody":{"description":"Player object","content":{"application/json":{"schema":{"$ref":"#/components/schemas/PlayerWithId"},"examples":{"Player":{"$ref":"#/components/examples/PlayerWithId"}}}},"required":true},"tags":["changing","Player"],"responses":{"204":{"description":"Updated"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"422":{"description":"Unique field with that value already exists"},"500":{"description":"Unexpected error"}},"summary":"Update a player"},"post":{"requestBody":{"description":"Player object","content":{"application/json":{"schema":{"$ref":"#/components/schemas/PlayerNoId"},"examples":{"Player":{"$ref":"#/components/examples/PlayerNoId"}}}},"required":true},"tags":["changing","Player"],"responses":{"201":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PlayerWithId"},"examples":{"Player":{"$ref":"#/components/examples/PlayerWithId"}}}},"description":"Created"},"400":{"description":"Validation error"},"422":{"description":"Unique field with that value already exists"},"500":{"description":"Unexpected error"}},"operationId":"","summary":"Create a player"},"x-last-modified":1718905616356},"/player/{_id}":{"get":{"tags":["changing","Player"],"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PlayerWithId"},"examples":{"Player":{"$ref":"#/components/examples/PlayerWithId"}}}},"description":"Found"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"500":{"description":"Unexpected error"}},"summary":"Read specific player"},"delete":{"tags":["changing","Player"],"responses":{"204":{"description":"Deleted"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"500":{"description":"Unexpected error"}},"summary":"Delete a player"},"parameters":[{"name":"_id","description":"MongoDB ObjectID","in":"path","required":true}],"x-last-modified":1718905628290},"/raidRoom":{"get":{"tags":["changing","Room"],"responses":{"200":{"description":"Found"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"500":{"description":"Unexpected error"}},"summary":"Read all raid rooms"},"put":{"requestBody":{"description":"RaidRoom object","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RaidRoomWithId"},"examples":{"RaidRoom":{"$ref":"#/components/examples/RaidRoomWithId"}}}},"required":true},"tags":["changing","Room"],"responses":{"204":{"description":"Updated"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"422":{"description":"Unique field with that value already exists"},"500":{"description":"Unexpected error"}},"summary":"Update a raid room"},"post":{"requestBody":{"description":"RaidRoom object","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RaidRoomNoId"},"examples":{"RaidRoom":{"$ref":"#/components/examples/RaidRoomNoId"}}}},"required":true},"tags":["changing","Room"],"responses":{"201":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/RaidRoomWithId"},"examples":{"RaidRoom":{"$ref":"#/components/examples/RaidRoomWithId"}}}},"description":"Created"},"400":{"description":"Validation error"},"422":{"description":"Unique field with that value already exists"},"500":{"description":"Unexpected error"}},"summary":"Create a raid room"},"x-last-modified":1718905656873},"/raidRoom/{_id}":{"get":{"tags":["changing","Room"],"responses":{"200":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/RaidRoomWithId"},"examples":{"RaidRoom":{"$ref":"#/components/examples/RaidRoomWithId"}}}},"description":"Found"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"500":{"description":"Unexpected error"}},"summary":"Read specific raid room"},"delete":{"tags":["changing","Room"],"responses":{"204":{"description":"Deleted"},"400":{"description":"Validation error"},"404":{"description":"Not found"},"500":{"description":"Unexpected error"}},"summary":"Delete a raid room"},"parameters":[{"name":"_id","description":"MongoDB ObjectID","in":"path","required":true}],"x-last-modified":1718905664449},"/clan/:_id":{"get":{"tags":["Clan"],"summary":"Get Clan by _id","description":"Read Clan data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | no | \n| Sort | no |\n| Pagination | no | ","responses":{"200":{"$ref":"#/components/responses/200","x-last-modified":1718961453189},"404":{"$ref":"#/components/responses/404","x-last-modified":1718961477750},"500":{"$ref":"#/components/responses/500","x-last-modified":1718961496775}}},"delete":{"tags":["Clan"],"description":"Delete Clan its _id field. Notice that only Clan admins can delete the Clan.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins |","summary":"Delete Clan","responses":{"204":{"$ref":"#/components/responses/204","x-last-modified":1718962199593},"401":{"$ref":"#/components/responses/401","x-last-modified":1718962219321},"403":{"$ref":"#/components/responses/403","x-last-modified":1718962234169},"404":{"$ref":"#/components/responses/404","x-last-modified":1718962248837},"500":{"$ref":"#/components/responses/500","x-last-modified":1718962265713}}},"x-last-modified":1718961076555,"parameters":[{"$ref":"#/components/parameters/_id","name":"_id","x-last-modified":1718961204734}]}},"components":{"schemas":{"CharacterClassNoId":{"type":"object","properties":{"name":{"uniqueItems":true,"required":true,"type":"string"},"gestaltCycle":{"format":"GestaltCycleEnum","maximum":7,"minimum":0,"required":true,"type":"integer"},"speed":{"required":true,"type":"integer"},"resistance":{"required":true,"type":"integer"},"attack":{"required":true,"type":"integer"},"defence":{"required":true,"type":"integer"}}},"CharacterClassWithId":{"type":"object","properties":{"_id":{"format":"MongoDB ObjectID","required":true,"type":"string"},"name":{"uniqueItems":true,"type":"string"},"gestaltCycle":{"format":"GestaltCycleEnum","maximum":7,"minimum":0,"type":"integer"},"speed":{"type":"integer"},"resistance":{"type":"integer"},"attack":{"type":"integer"},"defence":{"type":"integer"}}},"CustomCharacterNoId":{"type":"object","properties":{"unityKey":{"required":true,"type":"string"},"name":{"required":true,"type":"integer"},"speed":{"required":true,"type":"integer"},"resistance":{"required":true,"type":"integer"},"attack":{"required":true,"type":"integer"},"defence":{"required":true,"type":"integer"},"characterClass_id":{"format":"MongoDB ObjectID","required":true,"type":"string"},"player_id":{"format":"MongoDB ObjectID","required":true,"type":"string"}}},"CustomCharacterWithId":{"type":"object","properties":{"_id":{"format":"MongoDB ObjectID","required":true,"type":"string"},"unityKey":{"type":"string"},"name":{"type":"integer"},"speed":{"type":"integer"},"resistance":{"type":"integer"},"attack":{"type":"integer"},"defence":{"type":"integer"},"characterClass_id":{"format":"MongoDB ObjectID","type":"string"},"player_id":{"format":"MongoDB ObjectID","type":"string"}}},"PlayerNoId":{"type":"object","properties":{"name":{"uniqueItems":true,"required":true,"type":"string"},"backpackCapacity":{"required":0,"type":"integer"},"uniqueIdentifier":{"uniqueItems":true,"required":true,"type":"string"},"currentCustomCharacter_id":{"format":"MongoDB ObjectID","type":"string"},"clan_id":{"format":"MongoDB ObjectID","type":"string"},"raidRoom_id":{"format":"MongoDB ObjectID","type":"string"}}},"PlayerWithId":{"type":"object","properties":{"_id":{"format":"MongoDB ObjectID","required":true,"type":"string"},"name":{"uniqueItems":true,"type":"string"},"backpackCapacity":{"required":0,"type":"integer"},"uniqueIdentifier":{"uniqueItems":true,"type":"string"},"currentCustomCharacter_id":{"format":"MongoDB ObjectID","type":"string"},"clan_id":{"format":"MongoDB ObjectID","type":"string"},"raidRoom_id":{"format":"MongoDB ObjectID","type":"string"}}},"RaidRoomNoId":{"type":"object","properties":{"type":{"maximum":2,"minimum":0,"required":true,"type":"integer"},"rowCount":{"required":true,"type":"integer"},"colCount":{"required":true,"type":"integer"},"player_id":{"format":"MongoDB ObjectID","required":true,"type":"string"},"clan_id":{"format":"MongoDB ObjectID","required":true,"type":"string"}}},"RaidRoomWithId":{"type":"object","properties":{"_id":{"format":"MongoDB ObjectID","required":true,"type":"string"},"type":{"maximum":2,"minimum":0,"type":"integer"},"rowCount":{"type":"integer"},"colCount":{"type":"integer"},"player_id":{"format":"MongoDB ObjectID","type":"string"},"clan_id":{"format":"MongoDB ObjectID","type":"string"}}},"APIError":{"description":"API error","type":"object","properties":{"statusCode":{"description":"The HTTP status code","type":"integer","example":404},"message":{"description":"The error message","type":"string","example":"Cannot GET /api/profile"},"error":{"description":"The error name","type":"string","example":"Not Found"}},"x-last-modified":1718798371474},"APIConflictError":{"description":"API error","required":[],"type":"object","properties":{"statusCode":{"description":"The HTTP status code","type":"integer","example":400},"message":{"description":"An array of error messages","type":"array","items":{"type":"string"},"example":["password must be a string"]},"error":{"description":"The error name","type":"string","example":"Bad Request"}},"x-last-modified":1718798493583},"ProfileCreate":{"type":"object","properties":{"username":{"description":"The username for the Profile","type":"string","example":"user1"},"password":{"description":"The password fer the user","type":"string","example":"user1"},"Player":{"type":"object","properties":{"name":{"description":"The name of the player","type":"string","example":"User 6"},"backpackCapacity":{"description":"The capacity of the player's backpack","type":"integer","example":453},"uniqueIdentifier":{"description":"The unique identifier for the player","type":"string","example":"6"}}}},"x-last-modified":1718802111484},"ClanNoId":{"required":["name","tag","gameCoins"],"type":"object","properties":{"name":{"description":"unique","type":"string"},"gameCoins":{"default":0,"type":"integer"},"tag":{"type":"string"},"isOpen":{"default":true,"type":"boolean"}},"x-last-modified":1718901485772},"ClanWithId":{"required":["_id"],"type":"object","properties":{"_id":{"description":"The _id field","type":"string","example":"667462842425aea94d0f66cb"},"gameCoins":{"description":"The number of game coins","type":"integer","example":45},"tag":{"description":"The tag associated with the clan","type":"string","example":"my_tag"},"isOpen":{"description":"The type of the Clan","type":"boolean","example":true},"admin_idsToDelete":{"description":"List of admin _ids to delete","type":"array","items":{"type":"string"},"example":["64df3aad42cbaf850a3f891f"]},"admin_idsToAdd":{"description":"List of admin _ids to add","type":"array","items":{"type":"string"},"example":["64df3aad42cbaf850a3f891f"]}},"x-last-modified":1718904248205}},"responses":{"200":{"content":{"application/json":{"schema":{"description":"Found object(s). The response objects has three fields: data, metaData and paginationData.\nThe data has the requested data. It has an object or array, which key is a collection name.\n\nThe metaData contains additional data, which can be used for parsing the data object: \ndataKey - collection name, in data object,\ndataType - type of object in data object.\n\nThe paginationData is the data for pagination. Only on GET requests, when reading many objects\n","required":[],"type":"object"}}},"description":"Success request, response with body","x-last-modified":1718800925334},"201":{"content":{"application/json":{"schema":{"description":"Created object. The response objects has two fields: data, metaData.\n\nThe data has the created object data. It has an object inside, which key is a collection name.\n\nThe metaData contains additional data, which can be used for parsing the data object: \ndataKey - collection name, in data object,\ndataType - type of object in data object.","required":[],"type":"object"}}},"description":"Created, response for POST requests with body","x-last-modified":1718802631222},"204":{"description":"Successful request, response with no body","x-last-modified":1718801650367},"400":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/APIConflictError"},"example":{"statusCode":400,"message":["password must be a string"],"error":"Bad Request"}}},"description":"Validation error. Some of the fields are not specified, have wrong data types or any over validation problem","x-last-modified":1718798714047},"401":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/APIError"},"example":{"statusCode":401,"message":"The access token is not provided. Please add `authorization` field with access token(in bearer token form): `Bearer access-token-here` to request header. The access token you can get from /auth endpoint","error":"Unauthorized"}}},"description":"Not authenticated. The Authorization header is not specified or the token is expired","x-last-modified":1718798945854},"403":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/APIError"},"example":{"statusCode":403,"message":"The logged-in user has no permission to execute update_request action","error":"Forbidden"}}},"description":"No permission. The logged-in user has no permission to execute the action","x-last-modified":1718799023006},"404":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/APIError"},"example":{"statusCode":404,"message":"Can not find any Chat instances","error":"Not Found"}}},"description":"Not found. No object(s) found","x-last-modified":1718799247734},"409":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/APIConflictError"},"example":{"statusCode":409,"message":["Field 'username' with value 'user1' already exists"],"error":"Conflict"}}},"description":"Some of the fields are not unique ","x-last-modified":1718798807777},"500":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/APIError"},"example":{"statusCode":500,"message":"Internal server error"}}},"description":"Unexpected error happened. [Please create a new issue here](https://github.com/Alt-Org/Altzone-Server/issues) and specify the endpoint, HTTP method and description if u have any","x-last-modified":1718799573835}},"examples":{"BattleCharacterNoId":{"value":{"characterClass_id":"6480a26287b5e6ba2a0f630a","customCharacter_id":"6480a27887b5e6ba2a0f630d"}},"BattleCharacterWithId":{"value":{"_id":"648acf3a409da618287a1ca1","unityKey":"somekey","name":"My custom1","resistance":56,"speed":10,"attack":28,"defence":10,"characterClassName":"my char","gestaltCycle":1,"characterClass_id":"648acec6409da618287a1c8e","customCharacter_id":"648acf23409da618287a1c98"}},"CharacterClassNoId":{"value":{"name":"my char","gestaltCycle":1,"speed":23,"resistance":45,"attack":10,"defence":12}},"CharacterClassWithId":{"value":{"_id":"648095322a99de2e3bdee480","name":"my char","gestaltCycle":1,"speed":23,"resistance":45,"attack":10,"defence":12}},"ClanNoId":{"value":{"name":"clan","gameCoins":260,"tag":"some tag"}},"ClanWithId":{"value":{"_id":"648091def1bdcdb2a19af6da","name":"clan","gameCoins":260,"tag":"some tag"}},"CustomCharacterNoId":{"value":{"unityKey":"somekey","name":"My custom1","speed":10,"resistance":56,"attack":28,"defence":10,"characterClass_id":"6480a26287b5e6ba2a0f630a","player_id":"64809d1336b0779ede245fc1"}},"CustomCharacterWithId":{"value":{"_id":"647f520fa8a94ef3c91cb0e3","unityKey":"somekey","name":"My custom1","speed":10,"resistance":56,"attack":28,"defence":10,"characterClass_id":"6480a26287b5e6ba2a0f630a","player_id":"64809d1336b0779ede245fc1"}},"FurnitureNoId":{"value":{"name":"furn1","shape":"shape1","weight":12,"material":"mat1","recycling":"rec1","unityKey":"unity1","filename":"file1.txt","clan_id":"64809d0a36b0779ede245fbf"}},"FurnitureWithId":{"value":{"_id":"648ad033409da618287a1ca5","name":"furn1","shape":"shape1","weight":12,"material":"mat1","recycling":"rec1","unityKey":"unity1","filename":"file1","clan_id":"648acf02409da618287a1c91"}},"PlayerNoId":{"value":{"name":"Anna","backpackCapacity":20,"uniqueIdentifier":"1","clan_id":"64809d0a36b0779ede245fbf"}},"PlayerWithId":{"value":{"_id":"648acf12409da618287a1c95","name":"Anna","backpackCapacity":23,"uniqueIdentifier":"1","clan_id":"648acf02409da618287a1c91"}},"RaidRoomNoId":{"value":{"type":0,"rowCount":4,"colCount":6,"player_id":"64809d1336b0779ede245fc1","clan_id":"64809d0a36b0779ede245fbf"}},"RaidRoomWithId":{"value":{"_id":"647f53b5a8a94ef3c91cb104","type":0,"rowCount":4,"colCount":6,"player_id":"64809d1336b0779ede245fc1","clan_id":"64809d0a36b0779ede245fbf"}}},"securitySchemes":{"JWTAuth":{"scheme":"bearer","bearerFormat":"JWT","type":"http","description":"Example of header: \nAuthorization: Bearer access_token","x-last-modified":1718900169928}},"headers":{},"parameters":{"_id":{"name":"_id","in":"path","description":"_id of the object","required":true,"deprecated":false,"x-last-modified":1718961163935}}},"security":[{"JWTAuth":[]}],"tags":[{"name":"in-development","description":"not yet implemented and added to API","externalDocs":{},"x-last-modified":1718793903196},{"name":"changing","description":"already added to API, but now its functionality or docs changing","externalDocs":{},"x-last-modified":1718794009114},{"name":"Profile","description":"profile","externalDocs":{},"x-last-modified":1718900052741},{"name":"Clan","description":"clan","externalDocs":{},"x-last-modified":1718900059275},{"name":"Player","description":"player","externalDocs":{},"x-last-modified":1718900064821},{"name":"Soulhome","description":"soulhome","externalDocs":{},"x-last-modified":1718900070310},{"name":"Room","description":"room","externalDocs":{},"x-last-modified":1718900076457},{"name":"Stock","description":"stock","externalDocs":{},"x-last-modified":1718900082536},{"name":"Item","description":"item","externalDocs":{},"x-last-modified":1718900088000},{"name":"CustomCharacter","description":"CustomCharacter","externalDocs":{},"x-last-modified":1718900037702},{"name":"CharacterClass","description":"CharacterClass","externalDocs":{},"x-last-modified":1718900098154}],"externalDocs":{"description":"GitHub wikipages","url":"https://github.com/Alt-Org/Altzone-Server/wiki"}}
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Altzone API",
+        "version": "1.0.0",
+        "description": "This is a description of API for the Altzone game.\nThis swagger document is describing endpoint in more details and includes the request objects structure, examples, authorization rules and any other additional information.\nNotice,  that it does not include common rules and functions, since they are covered on the wikipages in GitHub",
+        "x-logo": {
+            "url": ""
+        }
+    },
+    "servers": [
+        {
+            "url": "https://altzone.fi/api",
+            "description": "Production",
+            "x-last-modified": 1718905376325
+        },
+        {
+            "url": "http://localhost:8080",
+            "description": "Local",
+            "x-last-modified": 1718899219797
+        }
+    ],
+    "paths": {
+        "/clan": {
+            "get": {
+                "tags": [
+                    "Clan"
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/200"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "summary": "Read all clans",
+                "description": "Read all created Clans. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
+                "externalDocs": {
+                    "url": "https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests)"
+                }
+            },
+            "put": {
+                "requestBody": {
+                    "description": "Clan object",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClanWithId"
+                            },
+                            "examples": {
+                                "Clan": {
+                                    "$ref": "#/components/examples/ClanWithId"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Clan"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "summary": "Update a clan",
+                "description": "Update the Clan, which id is specified in the body. Only Clan admins can change the Clan's data, as well as add or remove admins. Notice that while removing Clan admins, its is not allowed to remove all of them, because Clan must have at least one admin.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins | \n\n"
+            },
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClanNoId"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Clan"
+                ],
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/201",
+                        "x-last-modified": 1718901845436
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "x-last-modified": 1718901860622
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "x-last-modified": 1718901883486
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "x-last-modified": 1718901898221
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409",
+                        "x-last-modified": 1718902008128
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500",
+                        "x-last-modified": 1718902019444
+                    }
+                },
+                "summary": "Create a clan",
+                "description": "Create a new Clan. The creator of the Clan becomes its admin. Notice that if Player is creating a new Clan, he/she becomes a member of it, that means that if Player is member of some Clan it can not create a new one, before leaving the old one.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | Player can be in one Clan only at one time => if Player already is in another Clan, he/she can not create a new one | \n\n"
+            }
+        },
+        "/profile": {
+            "summary": "user profile",
+            "description": "",
+            "get": {
+                "tags": [
+                    "Profile"
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Profile"
+                ]
+            },
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProfileCreate"
+                            }
+                        }
+                    },
+                    "required": false
+                },
+                "tags": [
+                    "Profile"
+                ],
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/201",
+                        "x-last-modified": 1718802495276
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "x-last-modified": 1718802515397
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "x-last-modified": 1718802532007
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "x-last-modified": 1718802547386
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500",
+                        "x-last-modified": 1718802565870
+                    }
+                },
+                "operationId": "profile_create",
+                "summary": "Create profile",
+                "description": "Create a user profile with Player object associated with it."
+            },
+            "delete": {
+                "tags": [
+                    "Profile"
+                ]
+            },
+            "x-last-modified": 1718905406642
+        },
+        "/characterClass": {
+            "get": {
+                "tags": [
+                    "changing",
+                    "CharacterClass"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Found"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Read all character classes"
+            },
+            "put": {
+                "requestBody": {
+                    "description": "CharacterClass object",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CharacterClassWithId"
+                            },
+                            "examples": {
+                                "CharacterClass": {
+                                    "$ref": "#/components/examples/CharacterClassWithId"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "changing",
+                    "CharacterClass"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Updated"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Unique field with that value already exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Update a character class"
+            },
+            "post": {
+                "requestBody": {
+                    "description": "CharacterClass object",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CharacterClassNoId"
+                            },
+                            "examples": {
+                                "CharacterClass": {
+                                    "$ref": "#/components/examples/CharacterClassNoId"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "changing",
+                    "CharacterClass"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CharacterClassWithId"
+                                },
+                                "examples": {
+                                    "CharacterClass": {
+                                        "$ref": "#/components/examples/CharacterClassWithId"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "422": {
+                        "description": "Unique field with that value already exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Create a character class"
+            },
+            "x-last-modified": 1718905515240
+        },
+        "/characterClass/{_id}": {
+            "get": {
+                "tags": [
+                    "changing",
+                    "CharacterClass"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CharacterClassWithId"
+                                },
+                                "examples": {
+                                    "CharacterClass": {
+                                        "$ref": "#/components/examples/CharacterClassWithId"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Found"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Read specific character class"
+            },
+            "delete": {
+                "tags": [
+                    "changing",
+                    "CharacterClass"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Delete a character class"
+            },
+            "parameters": [
+                {
+                    "name": "_id",
+                    "description": "MongoDB ObjectID",
+                    "in": "path",
+                    "required": true
+                }
+            ],
+            "x-last-modified": 1718905530864
+        },
+        "/customCharacter": {
+            "get": {
+                "tags": [
+                    "changing",
+                    "CustomCharacter"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Found"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Read all custom characters"
+            },
+            "put": {
+                "requestBody": {
+                    "description": "CustomCharacter object",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CustomCharacterWithId"
+                            },
+                            "examples": {
+                                "CustomCharacter": {
+                                    "$ref": "#/components/examples/CustomCharacterWithId"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "changing",
+                    "CustomCharacter"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Updated"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Unique field with that value already exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Update a custom character"
+            },
+            "post": {
+                "requestBody": {
+                    "description": "CustomCharacter object",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CustomCharacterNoId"
+                            },
+                            "examples": {
+                                "CustomCharacter": {
+                                    "$ref": "#/components/examples/CustomCharacterNoId"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "changing",
+                    "CustomCharacter"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomCharacterWithId"
+                                },
+                                "examples": {
+                                    "CustomCharacter": {
+                                        "$ref": "#/components/examples/CustomCharacterWithId"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "422": {
+                        "description": "Unique field with that value already exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Create a custom character"
+            },
+            "x-last-modified": 1718905544368
+        },
+        "/customCharacter/{_id}": {
+            "get": {
+                "tags": [
+                    "changing",
+                    "CustomCharacter"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomCharacterWithId"
+                                },
+                                "examples": {
+                                    "CustomCharacter": {
+                                        "$ref": "#/components/examples/CustomCharacterWithId"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Found"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Read specific custom character"
+            },
+            "delete": {
+                "tags": [
+                    "changing",
+                    "CustomCharacter"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Delete a custom character"
+            },
+            "parameters": [
+                {
+                    "name": "_id",
+                    "description": "MongoDB ObjectID",
+                    "in": "path",
+                    "required": true
+                }
+            ],
+            "x-last-modified": 1718905552809
+        },
+        "/player": {
+            "get": {
+                "tags": [
+                    "changing",
+                    "Player"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Found"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Read all players"
+            },
+            "put": {
+                "requestBody": {
+                    "description": "Player object",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PlayerWithId"
+                            },
+                            "examples": {
+                                "Player": {
+                                    "$ref": "#/components/examples/PlayerWithId"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "changing",
+                    "Player"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Updated"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Unique field with that value already exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Update a player"
+            },
+            "post": {
+                "requestBody": {
+                    "description": "Player object",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PlayerNoId"
+                            },
+                            "examples": {
+                                "Player": {
+                                    "$ref": "#/components/examples/PlayerNoId"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "changing",
+                    "Player"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlayerWithId"
+                                },
+                                "examples": {
+                                    "Player": {
+                                        "$ref": "#/components/examples/PlayerWithId"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "422": {
+                        "description": "Unique field with that value already exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "operationId": "",
+                "summary": "Create a player"
+            },
+            "x-last-modified": 1718905616356
+        },
+        "/player/{_id}": {
+            "get": {
+                "tags": [
+                    "changing",
+                    "Player"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PlayerWithId"
+                                },
+                                "examples": {
+                                    "Player": {
+                                        "$ref": "#/components/examples/PlayerWithId"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Found"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Read specific player"
+            },
+            "delete": {
+                "tags": [
+                    "changing",
+                    "Player"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Delete a player"
+            },
+            "parameters": [
+                {
+                    "name": "_id",
+                    "description": "MongoDB ObjectID",
+                    "in": "path",
+                    "required": true
+                }
+            ],
+            "x-last-modified": 1718905628290
+        },
+        "/raidRoom": {
+            "get": {
+                "tags": [
+                    "changing",
+                    "Room"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Found"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Read all raid rooms"
+            },
+            "put": {
+                "requestBody": {
+                    "description": "RaidRoom object",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RaidRoomWithId"
+                            },
+                            "examples": {
+                                "RaidRoom": {
+                                    "$ref": "#/components/examples/RaidRoomWithId"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "changing",
+                    "Room"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Updated"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Unique field with that value already exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Update a raid room"
+            },
+            "post": {
+                "requestBody": {
+                    "description": "RaidRoom object",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RaidRoomNoId"
+                            },
+                            "examples": {
+                                "RaidRoom": {
+                                    "$ref": "#/components/examples/RaidRoomNoId"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "changing",
+                    "Room"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RaidRoomWithId"
+                                },
+                                "examples": {
+                                    "RaidRoom": {
+                                        "$ref": "#/components/examples/RaidRoomWithId"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "422": {
+                        "description": "Unique field with that value already exists"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Create a raid room"
+            },
+            "x-last-modified": 1718905656873
+        },
+        "/raidRoom/{_id}": {
+            "get": {
+                "tags": [
+                    "changing",
+                    "Room"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RaidRoomWithId"
+                                },
+                                "examples": {
+                                    "RaidRoom": {
+                                        "$ref": "#/components/examples/RaidRoomWithId"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Found"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Read specific raid room"
+            },
+            "delete": {
+                "tags": [
+                    "changing",
+                    "Room"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "500": {
+                        "description": "Unexpected error"
+                    }
+                },
+                "summary": "Delete a raid room"
+            },
+            "parameters": [
+                {
+                    "name": "_id",
+                    "description": "MongoDB ObjectID",
+                    "in": "path",
+                    "required": true
+                }
+            ],
+            "x-last-modified": 1718905664449
+        },
+        "/clan/{_id}": {
+            "get": {
+                "tags": [
+                    "Clan"
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/200"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "summary": "Get Clan by _id",
+                "description": "Read Clan data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
+            },
+            "delete": {
+                "tags": [
+                    "Clan"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "summary": "Delete Clan",
+                "description": "Delete Clan its _id field. Notice that only Clan admins can delete the Clan.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins |"
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "_id": {
+                            "value": "667462842425aea94d0f66cb"
+                        }
+                    },
+                    "name": "_id",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/clan/join": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClanNoId"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Clan"
+                ],
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/201",
+                        "x-last-modified": 1718901845436
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "x-last-modified": 1718901860622
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "x-last-modified": 1718901883486
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500",
+                        "x-last-modified": 1718902019444
+                    }
+                },
+                "summary": "Create a clan",
+                "description": "Request to join a Clan. Notice that if the Clan is open the Player will be joined automatically without admin approval. Notice that if the Player was in another Clan then he/she will be removed from the old one and if there was no other Players, the old Clan will be removed.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no, but for closed Clans there should be an admin approval first | \n\n"
+            }
+        },
+        "/clan/join/leave": {
+            "post": {
+                "tags": [
+                    "Clan"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "x-last-modified": 1718901883486
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500",
+                        "x-last-modified": 1718902019444
+                    }
+                },
+                "summary": "Create a clan",
+                "description": "Request to leave a Clan. Notice that Player can leave any Clan without admin approval.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no | \n\n"
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CharacterClassNoId": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "uniqueItems": true,
+                        "required": true,
+                        "type": "string"
+                    },
+                    "gestaltCycle": {
+                        "format": "GestaltCycleEnum",
+                        "maximum": 7,
+                        "minimum": 0,
+                        "required": true,
+                        "type": "integer"
+                    },
+                    "speed": {
+                        "required": true,
+                        "type": "integer"
+                    },
+                    "resistance": {
+                        "required": true,
+                        "type": "integer"
+                    },
+                    "attack": {
+                        "required": true,
+                        "type": "integer"
+                    },
+                    "defence": {
+                        "required": true,
+                        "type": "integer"
+                    }
+                }
+            },
+            "CharacterClassWithId": {
+                "type": "object",
+                "properties": {
+                    "_id": {
+                        "format": "MongoDB ObjectID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    "name": {
+                        "uniqueItems": true,
+                        "type": "string"
+                    },
+                    "gestaltCycle": {
+                        "format": "GestaltCycleEnum",
+                        "maximum": 7,
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "speed": {
+                        "type": "integer"
+                    },
+                    "resistance": {
+                        "type": "integer"
+                    },
+                    "attack": {
+                        "type": "integer"
+                    },
+                    "defence": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "CustomCharacterNoId": {
+                "type": "object",
+                "properties": {
+                    "unityKey": {
+                        "required": true,
+                        "type": "string"
+                    },
+                    "name": {
+                        "required": true,
+                        "type": "integer"
+                    },
+                    "speed": {
+                        "required": true,
+                        "type": "integer"
+                    },
+                    "resistance": {
+                        "required": true,
+                        "type": "integer"
+                    },
+                    "attack": {
+                        "required": true,
+                        "type": "integer"
+                    },
+                    "defence": {
+                        "required": true,
+                        "type": "integer"
+                    },
+                    "characterClass_id": {
+                        "format": "MongoDB ObjectID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    "player_id": {
+                        "format": "MongoDB ObjectID",
+                        "required": true,
+                        "type": "string"
+                    }
+                }
+            },
+            "CustomCharacterWithId": {
+                "type": "object",
+                "properties": {
+                    "_id": {
+                        "format": "MongoDB ObjectID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    "unityKey": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "integer"
+                    },
+                    "speed": {
+                        "type": "integer"
+                    },
+                    "resistance": {
+                        "type": "integer"
+                    },
+                    "attack": {
+                        "type": "integer"
+                    },
+                    "defence": {
+                        "type": "integer"
+                    },
+                    "characterClass_id": {
+                        "format": "MongoDB ObjectID",
+                        "type": "string"
+                    },
+                    "player_id": {
+                        "format": "MongoDB ObjectID",
+                        "type": "string"
+                    }
+                }
+            },
+            "PlayerNoId": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "uniqueItems": true,
+                        "required": true,
+                        "type": "string"
+                    },
+                    "backpackCapacity": {
+                        "required": 0,
+                        "type": "integer"
+                    },
+                    "uniqueIdentifier": {
+                        "uniqueItems": true,
+                        "required": true,
+                        "type": "string"
+                    },
+                    "currentCustomCharacter_id": {
+                        "format": "MongoDB ObjectID",
+                        "type": "string"
+                    },
+                    "clan_id": {
+                        "format": "MongoDB ObjectID",
+                        "type": "string"
+                    },
+                    "raidRoom_id": {
+                        "format": "MongoDB ObjectID",
+                        "type": "string"
+                    }
+                }
+            },
+            "PlayerWithId": {
+                "type": "object",
+                "properties": {
+                    "_id": {
+                        "format": "MongoDB ObjectID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    "name": {
+                        "uniqueItems": true,
+                        "type": "string"
+                    },
+                    "backpackCapacity": {
+                        "required": 0,
+                        "type": "integer"
+                    },
+                    "uniqueIdentifier": {
+                        "uniqueItems": true,
+                        "type": "string"
+                    },
+                    "currentCustomCharacter_id": {
+                        "format": "MongoDB ObjectID",
+                        "type": "string"
+                    },
+                    "clan_id": {
+                        "format": "MongoDB ObjectID",
+                        "type": "string"
+                    },
+                    "raidRoom_id": {
+                        "format": "MongoDB ObjectID",
+                        "type": "string"
+                    }
+                }
+            },
+            "RaidRoomNoId": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "maximum": 2,
+                        "minimum": 0,
+                        "required": true,
+                        "type": "integer"
+                    },
+                    "rowCount": {
+                        "required": true,
+                        "type": "integer"
+                    },
+                    "colCount": {
+                        "required": true,
+                        "type": "integer"
+                    },
+                    "player_id": {
+                        "format": "MongoDB ObjectID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    "clan_id": {
+                        "format": "MongoDB ObjectID",
+                        "required": true,
+                        "type": "string"
+                    }
+                }
+            },
+            "RaidRoomWithId": {
+                "type": "object",
+                "properties": {
+                    "_id": {
+                        "format": "MongoDB ObjectID",
+                        "required": true,
+                        "type": "string"
+                    },
+                    "type": {
+                        "maximum": 2,
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "rowCount": {
+                        "type": "integer"
+                    },
+                    "colCount": {
+                        "type": "integer"
+                    },
+                    "player_id": {
+                        "format": "MongoDB ObjectID",
+                        "type": "string"
+                    },
+                    "clan_id": {
+                        "format": "MongoDB ObjectID",
+                        "type": "string"
+                    }
+                }
+            },
+            "APIError": {
+                "description": "API error",
+                "type": "object",
+                "properties": {
+                    "statusCode": {
+                        "description": "The HTTP status code",
+                        "type": "integer",
+                        "example": 404
+                    },
+                    "message": {
+                        "description": "The error message",
+                        "type": "string",
+                        "example": "Cannot GET /api/profile"
+                    },
+                    "error": {
+                        "description": "The error name",
+                        "type": "string",
+                        "example": "Not Found"
+                    }
+                },
+                "x-last-modified": 1718798371474
+            },
+            "APIConflictError": {
+                "description": "API error",
+                "required": [],
+                "type": "object",
+                "properties": {
+                    "statusCode": {
+                        "description": "The HTTP status code",
+                        "type": "integer",
+                        "example": 400
+                    },
+                    "message": {
+                        "description": "An array of error messages",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "password must be a string"
+                        ]
+                    },
+                    "error": {
+                        "description": "The error name",
+                        "type": "string",
+                        "example": "Bad Request"
+                    }
+                },
+                "x-last-modified": 1718798493583
+            },
+            "ProfileCreate": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "description": "The username for the Profile",
+                        "type": "string",
+                        "example": "user1"
+                    },
+                    "password": {
+                        "description": "The password fer the user",
+                        "type": "string",
+                        "example": "user1"
+                    },
+                    "Player": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "description": "The name of the player",
+                                "type": "string",
+                                "example": "User 6"
+                            },
+                            "backpackCapacity": {
+                                "description": "The capacity of the player's backpack",
+                                "type": "integer",
+                                "example": 453
+                            },
+                            "uniqueIdentifier": {
+                                "description": "The unique identifier for the player",
+                                "type": "string",
+                                "example": "6"
+                            }
+                        }
+                    }
+                },
+                "x-last-modified": 1718802111484
+            },
+            "ClanNoId": {
+                "required": [
+                    "name",
+                    "tag",
+                    "gameCoins"
+                ],
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "description": "unique",
+                        "type": "string"
+                    },
+                    "gameCoins": {
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "tag": {
+                        "type": "string"
+                    },
+                    "isOpen": {
+                        "default": true,
+                        "type": "boolean"
+                    }
+                },
+                "x-last-modified": 1718901485772
+            },
+            "ClanWithId": {
+                "required": [
+                    "_id"
+                ],
+                "type": "object",
+                "properties": {
+                    "_id": {
+                        "description": "The _id field",
+                        "type": "string",
+                        "example": "667462842425aea94d0f66cb"
+                    },
+                    "gameCoins": {
+                        "description": "The number of game coins",
+                        "type": "integer",
+                        "example": 45
+                    },
+                    "tag": {
+                        "description": "The tag associated with the clan",
+                        "type": "string",
+                        "example": "my_tag"
+                    },
+                    "isOpen": {
+                        "description": "The type of the Clan",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "admin_idsToDelete": {
+                        "description": "List of admin _ids to delete",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "64df3aad42cbaf850a3f891f"
+                        ]
+                    },
+                    "admin_idsToAdd": {
+                        "description": "List of admin _ids to add",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "64df3aad42cbaf850a3f891f"
+                        ]
+                    }
+                },
+                "x-last-modified": 1718904248205
+            },
+            "JoinClanReq": {
+                "description": "Clan joining request by Player",
+                "required": [
+                    "clan_id",
+                    "player_id"
+                ],
+                "type": "object",
+                "properties": {
+                    "clan_id": {
+                        "description": "which Clan to join",
+                        "type": "string"
+                    },
+                    "player_id": {
+                        "description": "who want to join the Clan",
+                        "type": "string"
+                    },
+                    "join_message": {
+                        "description": "optional for open Clans",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "clan_id": "667462842425aea94d0f66cb",
+                    "player_id": "666720806cc90102f60bd325",
+                    "join_message": "User 2 wants to join"
+                }
+            }
+        },
+        "responses": {
+            "200": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "description": "Found object(s). The response objects has three fields: data, metaData and paginationData.\nThe data has the requested data. It has an object or array, which key is a collection name.\n\nThe metaData contains additional data, which can be used for parsing the data object: \ndataKey - collection name, in data object,\ndataType - type of object in data object.\n\nThe paginationData is the data for pagination. Only on GET requests, when reading many objects\n",
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "object"
+                                },
+                                "metaData": {
+                                    "type": "object",
+                                    "properties": {
+                                        "dataKey": {
+                                            "description": "The key in the data object",
+                                            "type": "string",
+                                            "example": "Clan"
+                                        },
+                                        "modelName": {
+                                            "description": "The name of the model class in data object",
+                                            "type": "string",
+                                            "example": "Clan"
+                                        },
+                                        "dataType": {
+                                            "description": "The type of the data: Array or Object",
+                                            "type": "string",
+                                            "example": "Array"
+                                        },
+                                        "dataCount": {
+                                            "description": "The count of data items(dataType is Array)",
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    }
+                                },
+                                "paginationData": {
+                                    "type": "object",
+                                    "properties": {
+                                        "currentPage": {
+                                            "description": "The current page number",
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "limit": {
+                                            "description": "The limit of items per page",
+                                            "type": "integer",
+                                            "example": 20
+                                        },
+                                        "offset": {
+                                            "description": "The offset of items",
+                                            "type": "integer",
+                                            "example": 0
+                                        },
+                                        "itemCount": {
+                                            "description": "The total number of items",
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "pageCount": {
+                                            "description": "The total number of pages",
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Success request, response with body. [Here is more about GET requests](https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests))"
+            },
+            "201": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "description": "Created object. The response objects has two fields: data, metaData.\n\nThe data has the created object data. It has an object inside, which key is a collection name.\n\nThe metaData contains additional data, which can be used for parsing the data object: \ndataKey - collection name, in data object,\ndataType - type of object in data object.",
+                            "required": [],
+                            "type": "object"
+                        }
+                    }
+                },
+                "description": "Created, response for POST requests with body"
+            },
+            "204": {
+                "description": "Successful request, response with no body"
+            },
+            "400": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/APIConflictError"
+                        },
+                        "example": {
+                            "statusCode": 400,
+                            "message": [
+                                "password must be a string"
+                            ],
+                            "error": "Bad Request"
+                        }
+                    }
+                },
+                "description": "Validation error. Some of the fields are not specified, have wrong data types or any over validation problem",
+                "x-last-modified": 1718798714047
+            },
+            "401": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/APIError"
+                        },
+                        "example": {
+                            "statusCode": 401,
+                            "message": "The access token is not provided. Please add `authorization` field with access token(in bearer token form): `Bearer access-token-here` to request header. The access token you can get from /auth endpoint",
+                            "error": "Unauthorized"
+                        }
+                    }
+                },
+                "description": "Not authenticated. The Authorization header is not specified or the token is expired. [Here is more about auth](https://github.com/Alt-Org/Altzone-Server/wiki/2.-Authentication-and-authorization)"
+            },
+            "403": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/APIError"
+                        },
+                        "example": {
+                            "statusCode": 403,
+                            "message": "The logged-in user has no permission to execute update_request action",
+                            "error": "Forbidden"
+                        }
+                    }
+                },
+                "description": "No permission. The logged-in user has no permission to execute the action. [Here is more about auth](https://github.com/Alt-Org/Altzone-Server/wiki/2.-Authentication-and-authorization)"
+            },
+            "404": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/APIError"
+                        },
+                        "example": {
+                            "statusCode": 404,
+                            "message": "Can not find any Chat instances",
+                            "error": "Not Found"
+                        }
+                    }
+                },
+                "description": "Not found. No object(s) found"
+            },
+            "409": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/APIConflictError"
+                        },
+                        "example": {
+                            "statusCode": 409,
+                            "message": [
+                                "Field 'username' with value 'user1' already exists"
+                            ],
+                            "error": "Conflict"
+                        }
+                    }
+                },
+                "description": "Some of the fields are not unique "
+            },
+            "500": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/APIError"
+                        },
+                        "example": {
+                            "statusCode": 500,
+                            "message": "Internal server error"
+                        }
+                    }
+                },
+                "description": "Unexpected error happened. [Please create a new issue here](https://github.com/Alt-Org/Altzone-Server/issues) and specify the endpoint, HTTP method and description if u have any",
+                "x-last-modified": 1718799573835
+            },
+            "200_one": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "description": "Found object. The response objects has two fields: data and metaData.\nThe data has the requested data. It has an object inside, which key is a collection name.\n\nThe metaData contains additional data, which can be used for parsing the data object: \ndataKey - collection name, in data object,\ndataType - type of object in data object.",
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "object"
+                                },
+                                "metaData": {
+                                    "type": "object",
+                                    "properties": {
+                                        "dataKey": {
+                                            "description": "The key in the data object",
+                                            "type": "string",
+                                            "example": "Clan"
+                                        },
+                                        "modelName": {
+                                            "description": "The name of the model class in data object",
+                                            "type": "string",
+                                            "example": "Clan"
+                                        },
+                                        "dataType": {
+                                            "description": "The type of the data: Array or Object",
+                                            "type": "string",
+                                            "example": "Object"
+                                        },
+                                        "dataCount": {
+                                            "description": "The count of data items(dataType is Array)",
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Success request, response with body. [Here is more about GET requests](https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests))"
+            }
+        },
+        "parameters": {
+            "_id": {
+                "deprecated": false,
+                "name": "_id",
+                "description": "_id of the object",
+                "in": "path",
+                "required": true,
+                "x-last-modified": 1718961163935
+            }
+        },
+        "examples": {
+            "BattleCharacterNoId": {
+                "value": {
+                    "characterClass_id": "6480a26287b5e6ba2a0f630a",
+                    "customCharacter_id": "6480a27887b5e6ba2a0f630d"
+                }
+            },
+            "BattleCharacterWithId": {
+                "value": {
+                    "_id": "648acf3a409da618287a1ca1",
+                    "unityKey": "somekey",
+                    "name": "My custom1",
+                    "resistance": 56,
+                    "speed": 10,
+                    "attack": 28,
+                    "defence": 10,
+                    "characterClassName": "my char",
+                    "gestaltCycle": 1,
+                    "characterClass_id": "648acec6409da618287a1c8e",
+                    "customCharacter_id": "648acf23409da618287a1c98"
+                }
+            },
+            "CharacterClassNoId": {
+                "value": {
+                    "name": "my char",
+                    "gestaltCycle": 1,
+                    "speed": 23,
+                    "resistance": 45,
+                    "attack": 10,
+                    "defence": 12
+                }
+            },
+            "CharacterClassWithId": {
+                "value": {
+                    "_id": "648095322a99de2e3bdee480",
+                    "name": "my char",
+                    "gestaltCycle": 1,
+                    "speed": 23,
+                    "resistance": 45,
+                    "attack": 10,
+                    "defence": 12
+                }
+            },
+            "ClanNoId": {
+                "value": {
+                    "name": "clan",
+                    "gameCoins": 260,
+                    "tag": "some tag"
+                }
+            },
+            "ClanWithId": {
+                "value": {
+                    "_id": "648091def1bdcdb2a19af6da",
+                    "name": "clan",
+                    "gameCoins": 260,
+                    "tag": "some tag"
+                }
+            },
+            "CustomCharacterNoId": {
+                "value": {
+                    "unityKey": "somekey",
+                    "name": "My custom1",
+                    "speed": 10,
+                    "resistance": 56,
+                    "attack": 28,
+                    "defence": 10,
+                    "characterClass_id": "6480a26287b5e6ba2a0f630a",
+                    "player_id": "64809d1336b0779ede245fc1"
+                }
+            },
+            "CustomCharacterWithId": {
+                "value": {
+                    "_id": "647f520fa8a94ef3c91cb0e3",
+                    "unityKey": "somekey",
+                    "name": "My custom1",
+                    "speed": 10,
+                    "resistance": 56,
+                    "attack": 28,
+                    "defence": 10,
+                    "characterClass_id": "6480a26287b5e6ba2a0f630a",
+                    "player_id": "64809d1336b0779ede245fc1"
+                }
+            },
+            "FurnitureNoId": {
+                "value": {
+                    "name": "furn1",
+                    "shape": "shape1",
+                    "weight": 12,
+                    "material": "mat1",
+                    "recycling": "rec1",
+                    "unityKey": "unity1",
+                    "filename": "file1.txt",
+                    "clan_id": "64809d0a36b0779ede245fbf"
+                }
+            },
+            "FurnitureWithId": {
+                "value": {
+                    "_id": "648ad033409da618287a1ca5",
+                    "name": "furn1",
+                    "shape": "shape1",
+                    "weight": 12,
+                    "material": "mat1",
+                    "recycling": "rec1",
+                    "unityKey": "unity1",
+                    "filename": "file1",
+                    "clan_id": "648acf02409da618287a1c91"
+                }
+            },
+            "PlayerNoId": {
+                "value": {
+                    "name": "Anna",
+                    "backpackCapacity": 20,
+                    "uniqueIdentifier": "1",
+                    "clan_id": "64809d0a36b0779ede245fbf"
+                }
+            },
+            "PlayerWithId": {
+                "value": {
+                    "_id": "648acf12409da618287a1c95",
+                    "name": "Anna",
+                    "backpackCapacity": 23,
+                    "uniqueIdentifier": "1",
+                    "clan_id": "648acf02409da618287a1c91"
+                }
+            },
+            "RaidRoomNoId": {
+                "value": {
+                    "type": 0,
+                    "rowCount": 4,
+                    "colCount": 6,
+                    "player_id": "64809d1336b0779ede245fc1",
+                    "clan_id": "64809d0a36b0779ede245fbf"
+                }
+            },
+            "RaidRoomWithId": {
+                "value": {
+                    "_id": "647f53b5a8a94ef3c91cb104",
+                    "type": 0,
+                    "rowCount": 4,
+                    "colCount": 6,
+                    "player_id": "64809d1336b0779ede245fc1",
+                    "clan_id": "64809d0a36b0779ede245fbf"
+                }
+            }
+        },
+        "securitySchemes": {
+            "JWTAuth": {
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "type": "http",
+                "description": "Example of header: \nAuthorization: Bearer access_token",
+                "x-last-modified": 1718900169928
+            }
+        }
+    },
+    "security": [
+        {
+            "JWTAuth": []
+        }
+    ],
+    "tags": [
+        {
+            "name": "in-development",
+            "description": "not yet implemented and added to API"
+        },
+        {
+            "name": "changing",
+            "description": "already added to API, but now its functionality or docs changing"
+        },
+        {
+            "name": "Profile",
+            "description": "profile"
+        },
+        {
+            "name": "Clan",
+            "description": "clan"
+        },
+        {
+            "name": "Player",
+            "description": "player"
+        },
+        {
+            "name": "Soulhome",
+            "description": "soulhome"
+        },
+        {
+            "name": "Room",
+            "description": "room"
+        },
+        {
+            "name": "Stock",
+            "description": "stock"
+        },
+        {
+            "name": "Item",
+            "description": "item"
+        },
+        {
+            "name": "CustomCharacter",
+            "description": "CustomCharacter"
+        },
+        {
+            "name": "CharacterClass",
+            "description": "CharacterClass"
+        }
+    ],
+    "externalDocs": {
+        "description": "GitHub wikipages",
+        "url": "https://github.com/Alt-Org/Altzone-Server/wiki"
+    }
+}
