@@ -138,13 +138,64 @@
             "description": "",
             "get": {
                 "tags": [
-                    "Profile"
-                ]
+                    "Profile",
+                    "changing"
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/200_one"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Read logged-in user Profile data",
+                "description": "Read logged-in user Profile data\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only own |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
             },
             "put": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProfileUpdate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "tags": [
-                    "Profile"
-                ]
+                    "Profile",
+                    "changing"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Update user Profile",
+                "description": "Update logged-in user Profile data. Notice that only fields needed to be updated should be specified."
             },
             "post": {
                 "requestBody": {
@@ -155,10 +206,11 @@
                             }
                         }
                     },
-                    "required": false
+                    "required": true
                 },
                 "tags": [
-                    "Profile"
+                    "Profile",
+                    "changing"
                 ],
                 "responses": {
                     "201": {
@@ -169,13 +221,8 @@
                         "$ref": "#/components/responses/400",
                         "x-last-modified": 1718802515397
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401",
-                        "x-last-modified": 1718802532007
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403",
-                        "x-last-modified": 1718802547386
+                    "409": {
+                        "$ref": "#/components/responses/409"
                     },
                     "500": {
                         "$ref": "#/components/responses/500",
@@ -184,14 +231,35 @@
                 },
                 "operationId": "profile_create",
                 "summary": "Create profile",
-                "description": "Create a user profile with Player object associated with it."
+                "description": "Create a user profile with Player object associated with it. Notice, that it is also possible some edge cases to create a Profile without Player object assosiated with it, however it is not recommended and API expects that for every Profile there is a Player object created. "
             },
             "delete": {
                 "tags": [
-                    "Profile"
-                ]
-            },
-            "x-last-modified": 1718905406642
+                    "Profile",
+                    "changing"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Delete Profile",
+                "description": "Delete logged-in user's Profile. Notice, that Profile deletion will lead removing all user data, such as Player and CustomCharacters. Since the Player object is assosiated with the Clan, user will be also removed from the Clan. Notice, that if there was nobody in the Clan the Clan with all assosiated objects will be removed. However, in case if the user was admin in this Clan and there are no other admins the user must first set at least one admin for this Clan, overwise the Profile will not be removed and 403 will be returned."
+            }
         },
         "/characterClass": {
             "get": {
@@ -1001,7 +1069,7 @@
                         "x-last-modified": 1718902019444
                     }
                 },
-                "summary": "Create a clan",
+                "summary": "Player requests join to clan",
                 "description": "Request to join a Clan. Notice that if the Clan is open the Player will be joined automatically without admin approval. Notice that if the Player was in another Clan then he/she will be removed from the old one and if there was no other Players, the old Clan will be removed.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no, but for closed Clans there should be an admin approval first | \n\n"
             }
         },
@@ -1026,8 +1094,44 @@
                         "x-last-modified": 1718902019444
                     }
                 },
-                "summary": "Create a clan",
+                "summary": "Player requests leave the Clan",
                 "description": "Request to leave a Clan. Notice that Player can leave any Clan without admin approval.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no | \n\n"
+            }
+        },
+        "/clan/default": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClanNoId"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/201"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "summary": "Create Clan with Stock and default Items in it",
+                "description": "Create a new Clan with Stock containing default Items. Notice that if the Player is already in some other Clan, then he/she can not create a new one."
             }
         }
     },
@@ -1350,37 +1454,36 @@
                 "type": "object",
                 "properties": {
                     "username": {
-                        "description": "The username for the Profile",
+                        "description": "The username for the Profile, unique",
                         "type": "string",
                         "example": "user1"
                     },
                     "password": {
-                        "description": "The password fer the user",
+                        "description": "The password for the Profile",
                         "type": "string",
-                        "example": "user1"
+                        "example": "my_password"
                     },
                     "Player": {
                         "type": "object",
                         "properties": {
                             "name": {
-                                "description": "The name of the player",
+                                "description": "The name of the Player, unique",
                                 "type": "string",
-                                "example": "User 6"
+                                "example": "User 1"
                             },
                             "backpackCapacity": {
-                                "description": "The capacity of the player's backpack",
+                                "description": "The capacity of the Player's backpack",
                                 "type": "integer",
                                 "example": 453
                             },
                             "uniqueIdentifier": {
-                                "description": "The unique identifier for the player",
+                                "description": "The identifier for the player, unique",
                                 "type": "string",
-                                "example": "6"
+                                "example": "1"
                             }
                         }
                     }
-                },
-                "x-last-modified": 1718802111484
+                }
             },
             "ClanNoId": {
                 "required": [
@@ -1482,6 +1585,21 @@
                     "clan_id": "667462842425aea94d0f66cb",
                     "player_id": "666720806cc90102f60bd325",
                     "join_message": "User 2 wants to join"
+                }
+            },
+            "ProfileUpdate": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "description": "The username for the Profile, unique",
+                        "type": "string",
+                        "example": "user1"
+                    },
+                    "password": {
+                        "description": "The password for the Profile",
+                        "type": "string",
+                        "example": "my_password"
+                    }
                 }
             }
         },
