@@ -11,7 +11,7 @@ import { deleteArrayElements } from "src/common/function/deleteArrayElements";
 import { addUniqueArrayElements } from "src/common/function/addUniqueArrayElements";
 import { PlayerDto } from "src/player/dto/player.dto";
 import { StockService } from "../stock/stock.service";
-import { BadRequestException, Body, Injectable, NotFoundException, Req } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Clan } from "./clan.schema";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, MongooseError, Types } from "mongoose";
@@ -31,6 +31,7 @@ import { RoomDocument } from "src/Room/room.schema";
 import { RoomDto } from "src/Room/dto/room.dto";
 import { CreateRoomDto } from "src/Room/dto/createRoom.dto";
 import { updateSoulHomeDto } from "src/soulhome/dto/updateSoulHome.dto";
+import { User } from "src/auth/user";
 
 
 @Injectable()
@@ -51,8 +52,8 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
 
     public readonly refsInModel: ModelName[];
     public readonly modelName: ModelName;
-    public async handleCreate(@Body() body: CreateClanDto, @Req() request: Request) {
-        const creatorPlayer_id = request['user'].player_id;
+    public async handleCreate(body: CreateClanDto, user: User) {
+        const creatorPlayer_id = user.player_id;
         body['admin_ids'] = [creatorPlayer_id];
         const clanResp = await this.createOne(body);
 
@@ -64,7 +65,7 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         return clanResp;
     }
 
-    public async handleDefaultCreate(@Body() body: CreateClanDto, @Req() request: Request) {
+    public async handleDefaultCreate(body: CreateClanDto, request: Request) {
         const creatorPlayer_id = request['user'].player_id;
         body['admin_ids'] = [creatorPlayer_id];
         const clanResp: any = await this.createOne(body);
@@ -115,12 +116,11 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
             addedRooms: addRoom,
             removedRooms:undefined
         };
-        const asad = await this.soulhomeService.handleUpdate(soulHomeUpdate);
-        console.log(asad);
+        await this.soulhomeService.handleUpdate(soulHomeUpdate);
         return clanResp;
     }
 
-    public async handleUpdate(@Body() body: UpdateClanDto) {
+    public async handleUpdate(body: UpdateClanDto) {
         if (!body.admin_idsToAdd && !body.admin_idsToDelete)
             return this.updateOneById(body);
 

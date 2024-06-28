@@ -47,7 +47,7 @@ export class ClanController {
     @Authorize({ action: Action.create, subject: ClanDto })
     @BasicPOST(ClanDto)
     public async create(@Body() body: CreateClanDto, @Req() request: Request) {
-        return this.service.handleCreate(body, request);
+        return this.service.handleCreate(body, request['user']);
     }
 
     @Post('/default')
