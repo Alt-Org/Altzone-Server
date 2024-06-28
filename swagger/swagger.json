@@ -28,7 +28,65 @@
                 ],
                 "responses": {
                     "200": {
-                        "$ref": "#/components/responses/200"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/200"
+                                },
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Clan": [
+                                                    {
+                                                        "_id": "667eedc9b3b5bf0f7a840ef1",
+                                                        "name": "User2 clan",
+                                                        "tag": "tag2",
+                                                        "gameCoins": 90,
+                                                        "admin_ids": [
+                                                            "666720806cc90102f60bd325"
+                                                        ],
+                                                        "playerCount": 1,
+                                                        "itemCount": 0,
+                                                        "stockCount": 0,
+                                                        "isOpen": true,
+                                                        "id": "667eedc9b3b5bf0f7a840ef1"
+                                                    },
+                                                    {
+                                                        "_id": "667bfec6afb8211b4bd8dbff",
+                                                        "name": "User1 clan",
+                                                        "tag": "tag1",
+                                                        "gameCoins": 4,
+                                                        "admin_ids": [
+                                                            "665df7026bf5b8f670569ea4"
+                                                        ],
+                                                        "playerCount": 1,
+                                                        "itemCount": 0,
+                                                        "stockCount": 0,
+                                                        "isOpen": true,
+                                                        "id": "667bfec6afb8211b4bd8dbff"
+                                                    }
+                                                ]
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Clan",
+                                                "modelName": "Clan",
+                                                "dataType": "Array",
+                                                "dataCount": 2
+                                            },
+                                            "paginationData": {
+                                                "currentPage": 1,
+                                                "limit": 2,
+                                                "offset": 0,
+                                                "itemCount": 2,
+                                                "pageCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "OK"
                     },
                     "404": {
                         "$ref": "#/components/responses/404"
@@ -86,6 +144,11 @@
                         "$ref": "#/components/responses/500"
                     }
                 },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
                 "summary": "Update a clan",
                 "description": "Update the Clan, which id is specified in the body. Only Clan admins can change the Clan's data, as well as add or remove admins. Notice that while removing Clan admins, its is not allowed to remove all of them, because Clan must have at least one admin.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins | \n\n"
             },
@@ -105,8 +168,42 @@
                 ],
                 "responses": {
                     "201": {
-                        "$ref": "#/components/responses/201",
-                        "x-last-modified": 1718901845436
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/201"
+                                },
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Clan": {
+                                                    "objectType": "ClanDto",
+                                                    "_id": "667eedc9b3b5bf0f7a840ef1",
+                                                    "name": "User1 clan",
+                                                    "tag": "kek",
+                                                    "gameCoins": 90,
+                                                    "admin_ids": [
+                                                        "666720806cc90102f60bd325"
+                                                    ],
+                                                    "playerCount": 1,
+                                                    "itemCount": 0,
+                                                    "stockCount": 0,
+                                                    "isOpen": true
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Clan",
+                                                "modelName": "Clan",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Created"
                     },
                     "400": {
                         "$ref": "#/components/responses/400",
@@ -129,6 +226,11 @@
                         "x-last-modified": 1718902019444
                     }
                 },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
                 "summary": "Create a clan",
                 "description": "Create a new Clan. The creator of the Clan becomes its admin. Notice that if Player is creating a new Clan, he/she becomes a member of it, that means that if Player is member of some Clan it can not create a new one, before leaving the old one.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | Player can be in one Clan only at one time => if Player already is in another Clan, he/she can not create a new one | \n\n"
             }
@@ -143,7 +245,32 @@
                 ],
                 "responses": {
                     "200": {
-                        "$ref": "#/components/responses/200_one"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/200_one"
+                                },
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Profile": {
+                                                    "_id": "667ee778b3b5bf0f7a840ec9",
+                                                    "username": "user1"
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Profile",
+                                                "modelName": "Profile",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "OK"
                     },
                     "401": {
                         "$ref": "#/components/responses/401"
@@ -214,19 +341,50 @@
                 ],
                 "responses": {
                     "201": {
-                        "$ref": "#/components/responses/201",
-                        "x-last-modified": 1718802495276
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/201"
+                                },
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Profile": {
+                                                    "objectType": "ProfileDto",
+                                                    "_id": "667ee778b3b5bf0f7a840ec9",
+                                                    "username": "user6",
+                                                    "Player": {
+                                                        "objectType": "PlayerDto",
+                                                        "_id": "667ee778b3b5bf0f7a840ecb",
+                                                        "name": "User 6",
+                                                        "backpackCapacity": 34,
+                                                        "uniqueIdentifier": "6",
+                                                        "profile_id": "667ee778b3b5bf0f7a840ec9"
+                                                    }
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Profile",
+                                                "modelName": "Profile",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Created"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400",
-                        "x-last-modified": 1718802515397
+                        "$ref": "#/components/responses/400"
                     },
                     "409": {
                         "$ref": "#/components/responses/409"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500",
-                        "x-last-modified": 1718802565870
+                        "$ref": "#/components/responses/500"
                     }
                 },
                 "operationId": "profile_create",
@@ -981,7 +1139,41 @@
                 ],
                 "responses": {
                     "200": {
-                        "$ref": "#/components/responses/200"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/200_one"
+                                },
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Clan": {
+                                                    "_id": "667eedc9b3b5bf0f7a840ef1",
+                                                    "name": "User1 clan",
+                                                    "tag": "tag1",
+                                                    "gameCoins": 90,
+                                                    "admin_ids": [
+                                                        "666720806cc90102f60bd325"
+                                                    ],
+                                                    "playerCount": 1,
+                                                    "itemCount": 0,
+                                                    "stockCount": 0,
+                                                    "isOpen": true
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Clan",
+                                                "modelName": "Clan",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "OK"
                     },
                     "404": {
                         "$ref": "#/components/responses/404"
@@ -1014,6 +1206,11 @@
                         "$ref": "#/components/responses/500"
                     }
                 },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
                 "summary": "Delete Clan",
                 "description": "Delete Clan its _id field. Notice that only Clan admins can delete the Clan.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins |"
             },
@@ -1050,8 +1247,34 @@
                 ],
                 "responses": {
                     "201": {
-                        "$ref": "#/components/responses/201",
-                        "x-last-modified": 1718901845436
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/201"
+                                },
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Join": {
+                                                    "objectType": "JoinDto",
+                                                    "clan_id": "667bfec6afb8211b4bd8dbff",
+                                                    "player_id": "666720806cc90102f60bd325",
+                                                    "join_message": "User 2 wants to join"
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Join",
+                                                "modelName": "Join",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Created"
                     },
                     "400": {
                         "$ref": "#/components/responses/400",
@@ -1069,6 +1292,11 @@
                         "x-last-modified": 1718902019444
                     }
                 },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
                 "summary": "Player requests join to clan",
                 "description": "Request to join a Clan. Notice that if the Clan is open the Player will be joined automatically without admin approval. Notice that if the Player was in another Clan then he/she will be removed from the old one and if there was no other Players, the old Clan will be removed.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no, but for closed Clans there should be an admin approval first | \n\n"
             }
@@ -1094,6 +1322,11 @@
                         "x-last-modified": 1718902019444
                     }
                 },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
                 "summary": "Player requests leave the Clan",
                 "description": "Request to leave a Clan. Notice that Player can leave any Clan without admin approval.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no | \n\n"
             }
@@ -1111,8 +1344,53 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
-                        "$ref": "#/components/responses/201"
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/201"
+                                },
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Clan": {
+                                                    "objectType": "ClanDto",
+                                                    "_id": "667ef139b3b5bf0f7a840f0a",
+                                                    "name": "User1 clan",
+                                                    "tag": "tag1",
+                                                    "gameCoins": 90,
+                                                    "admin_ids": [
+                                                        "666720806cc90102f60bd325"
+                                                    ],
+                                                    "playerCount": 1,
+                                                    "itemCount": 0,
+                                                    "stockCount": 0,
+                                                    "isOpen": true,
+                                                    "Stock": [
+                                                        {
+                                                            "objectType": "StockDto",
+                                                            "_id": "667ef139b3b5bf0f7a840f0d",
+                                                            "type": 1,
+                                                            "rowCount": 5,
+                                                            "columnCount": 5,
+                                                            "clan_id": "667ef139b3b5bf0f7a840f0a"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Clan",
+                                                "modelName": "Clan",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Created"
                     },
                     "400": {
                         "$ref": "#/components/responses/400"
@@ -1130,6 +1408,11 @@
                         "$ref": "#/components/responses/500"
                     }
                 },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
                 "summary": "Create Clan with Stock and default Items in it",
                 "description": "Create a new Clan with Stock containing default Items. Notice that if the Player is already in some other Clan, then he/she can not create a new one."
             }
@@ -1137,6 +1420,98 @@
     },
     "components": {
         "schemas": {
+            "200": {
+                "description": "Found object(s). The response objects has three fields: data, metaData and paginationData.\nThe data has the requested data. It has an object or array, which key is a collection name.\n\nThe metaData contains additional data, which can be used for parsing the data object: \ndataKey - collection name, in data object,\ndataType - type of object in data object.\n\nThe paginationData is the data for pagination. Only on GET requests, when reading many objects\n",
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "metaData": {
+                        "type": "object",
+                        "properties": {
+                            "dataKey": {
+                                "description": "collection name",
+                                "type": "string"
+                            },
+                            "modelName": {
+                                "description": "model name, usually same as dataKey",
+                                "type": "string"
+                            },
+                            "dataType": {
+                                "description": "Object or Array",
+                                "type": "string"
+                            },
+                            "dataCount": {
+                                "description": "1 for Object dataType and length if Array",
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "paginationData": {
+                        "type": "object",
+                        "properties": {
+                            "currentPage": {
+                                "description": "The current page number",
+                                "type": "integer"
+                            },
+                            "limit": {
+                                "description": "The limit of items per page",
+                                "type": "integer"
+                            },
+                            "offset": {
+                                "description": "The offset of items",
+                                "type": "integer"
+                            },
+                            "itemCount": {
+                                "description": "The total number of items",
+                                "type": "integer"
+                            },
+                            "pageCount": {
+                                "description": "The total number of pages",
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            },
+            "201": {
+                "description": "Created object. The response objects has two fields: data, metaData.\n\nThe data has the created object data. It has an object inside, which key is a collection name.\n\nThe metaData contains additional data, which can be used for parsing the data object: \ndataKey - collection name, in data object,\ndataType - type of object in the data object.",
+                "required": [
+                    "data",
+                    "metaData"
+                ],
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "object"
+                    },
+                    "metaData": {
+                        "type": "object",
+                        "properties": {
+                            "dataKey": {
+                                "description": "collection name",
+                                "type": "string"
+                            },
+                            "modelName": {
+                                "description": "model name",
+                                "type": "string"
+                            },
+                            "dataType": {
+                                "description": "always has Object value",
+                                "type": "string"
+                            },
+                            "dataCount": {
+                                "description": "always has 1 value",
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            },
             "CharacterClassNoId": {
                 "type": "object",
                 "properties": {
@@ -1599,6 +1974,36 @@
                         "description": "The password for the Profile",
                         "type": "string",
                         "example": "my_password"
+                    }
+                }
+            },
+            "200_one": {
+                "description": "Found object. The response objects has two fields: data and metaData.\nThe data has the requested data. It has an object inside, which key is a collection name.\n\nThe metaData contains additional data, which can be used for parsing the data object: \ndataKey - collection name, in data object,\ndataType - type of object in data object.",
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "object"
+                    },
+                    "metaData": {
+                        "type": "object",
+                        "properties": {
+                            "dataKey": {
+                                "description": "collection name",
+                                "type": "string"
+                            },
+                            "modelName": {
+                                "description": "model name",
+                                "type": "string"
+                            },
+                            "dataType": {
+                                "description": "always has Object value",
+                                "type": "string"
+                            },
+                            "dataCount": {
+                                "description": "always has 1 value",
+                                "type": "integer"
+                            }
+                        }
                     }
                 }
             }
