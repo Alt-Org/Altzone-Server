@@ -1,5 +1,5 @@
 import { RequestHelperService } from "src/requestHelper/requestHelper.service";
-import { ItemShopService } from "./itemshop.service";
+import { ItemShopService } from "./itemShop.service";
 import { Body, Controller, Get, Param, Post, Req } from "@nestjs/common";
 import { BasicGET } from "src/common/base/decorator/BasicGET.decorator";
 import { ModelName } from "src/common/enum/modelName.enum";

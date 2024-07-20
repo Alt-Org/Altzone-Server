@@ -2,7 +2,7 @@ import {AllowedAction} from "../caslAbility.factory";
 import {AbilityBuilder, createMongoAbility, ExtractSubjectType} from "@casl/ability";
 import {Action} from "../enum/action.enum";
 import {InferSubjects, MongoAbility} from "@casl/ability/dist/types";
-import {RulesSetterAsync} from "../type/rulesSetter.type";
+import {RulesSetterAsync} from "../type/RulesSetter.type";
 import { ClanDto } from "../../clan/dto/clan.dto";
 import { ModelName } from "src/common/enum/modelName.enum";
 import {getClan_id} from "../util/getClan_id";

@@ -6,7 +6,7 @@ import { ClanVoteSchema } from "./clanVote.schema";
 import { ClanVoteController } from "./clanVote.controller";
 import { ClanVoteService } from "./clanVote.service";
 import { ItemShopModule } from "../itemShop/itemShop.module";
-import { ItemShopService } from "../itemShop/itemshop.service";
+import { ItemShopService } from "../itemShop/itemShop.service";
 
 @Module({
     imports: [
