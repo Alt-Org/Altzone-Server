@@ -1553,187 +1553,11 @@
             ]
         },
         "/soulhome": {
+            "description": "",
             "get": {
                 "tags": [
-                    "SoulHome"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/200"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": {
-                                            "data": {
-                                                "SoulHome": [
-                                                    {
-                                                        "_id": "668c11499470819cf38e374c",
-                                                        "id": "668c11499470819cf38e374c"
-                                                    },
-                                                    {
-                                                        "_id": "667ef139b3b5bf0f7a840f2d",
-                                                        "id": "667ef139b3b5bf0f7a840f2d"
-                                                    }
-                                                ]
-                                            },
-                                            "metaData": {
-                                                "dataKey": "SoulHome",
-                                                "modelName": "SoulHome",
-                                                "dataType": "Array",
-                                                "dataCount": 1
-                                            },
-                                            "paginationData": {
-                                                "currentPage": 1,
-                                                "limit": 2,
-                                                "offset": 0,
-                                                "itemCount": 1,
-                                                "pageCount": 1
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "OK"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Read all soulhomes",
-                "description": "Read all created SoulHomes. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
-                "externalDocs": {
-                    "url": "https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests)"
-                }
-            },
-            "put": {
-                "requestBody": {
-                    "description": "SoulHome object",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/SoulHomeUpdate"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "SoulHome"
-                ],
-                "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/409"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {
-                        "JWTAuth": []
-                    }
-                ],
-                "summary": "Update a soulhome",
-                "description": "Update the SoulHome, which id is specified in the body. \n\nNotice, that only Clan admins can change the SoulHome's data.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only for Clan admins |\n"
-            },
-            "post": {
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/SoulHomeCreate"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "SoulHome"
-                ],
-                "responses": {
-                    "201": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/201"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": {
-                                            "data": {
-                                                "SoulHome": {
-                                                    "objectType": "SoulHomeDto",
-                                                    "_id": "668c0e9f9470819cf38e371c",
-                                                    "type": "type1",
-                                                    "clan_id": "667bfec6afb8211b4bd8dbff",
-                                                    "rooms": []
-                                                }
-                                            },
-                                            "metaData": {
-                                                "dataKey": "SoulHome",
-                                                "modelName": "SoulHome",
-                                                "dataType": "Object",
-                                                "dataCount": 1
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Created"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/409"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {
-                        "JWTAuth": []
-                    }
-                ],
-                "summary": "Create a soulhome",
-                "description": "Create a new SoulHome. Soulhome consists of Rooms. The clan_id specifies, which Clan owns the SoulHome. There can be one SoulHome for one Clan.\n\nNotice, that only Clan admins can create a SoulHome for the Clan.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | Clan admins only |\n"
-            }
-        },
-        "/soulhome/{_id}": {
-            "get": {
-                "tags": [
-                    "SoulHome"
-                ],
-                "parameters": [
-                    {
-                        "name": "_id",
-                        "in": "path",
-                        "required": true
-                    }
+                    "SoulHome",
+                    "changing"
                 ],
                 "responses": {
                     "200": {
@@ -1748,9 +1572,8 @@
                                             "data": {
                                                 "SoulHome": {
                                                     "_id": "668c0e9f9470819cf38e371c",
-                                                    "type": "type1",
-                                                    "clan_id": "667bfec6afb8211b4bd8dbff",
-                                                    "rooms": []
+                                                    "name": "clan1",
+                                                    "clan_id": "667bfec6afb8211b4bd8dbff"
                                                 }
                                             },
                                             "metaData": {
@@ -1766,33 +1589,8 @@
                         },
                         "description": "OK"
                     },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Get SoulHome by _id",
-                "description": "Read SoulHome data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
-            },
-            "delete": {
-                "tags": [
-                    "SoulHome"
-                ],
-                "parameters": [
-                    {
-                        "name": "_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
+                    "401": {
+                        "$ref": "#/components/responses/401"
                     },
                     "404": {
                         "$ref": "#/components/responses/404"
@@ -1806,8 +1604,8 @@
                         "JWTAuth": []
                     }
                 ],
-                "summary": "Delete SoulHome",
-                "description": "Delete SoulHome by its _id field. Notice that only Clan admins can delete the SoulHome.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins |"
+                "summary": "Get SoulHome",
+                "description": "## Method description\n\nGet SoulHome data for the logged-in user. \n\nIf the logged-in user is a Clan member, the SoulHome for this Clan will be returned. \n\nIf the logged-in user is not belonging to any Clan the 404 error will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n\n\n## Endpoint description\n\n### General description\n\nSoulhome is a safe place for storing Clan Items (inside SoulHome's Rooms). This means, that it is possible to steal Items from the SoulHome rooms, therefore the access to CRUD operations mostly lies in hands of Clan members.\n\nSoulHome does have only one field \"name\", which is same as a Clan name.\n\n### Relations\n\nSoulHome can belong to one Clan and Clan may have only one SoulHome. SoulHome may have many Rooms. Room may belong to one SoulHome.\n\n### CRUD operations\n\nSoulHome must be created automatically when Clan is created. When SoulHome is created 30 Rooms for that SoulHome with default values must created."
             }
         },
         "/room": {
