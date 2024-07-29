@@ -1137,177 +1137,11 @@
                 }
             ]
         },
-        "/item": {
-            "get": {
-                "tags": [
-                    "Item"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/200"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": {
-                                            "data": {
-                                                "Item": [
-                                                    {
-                                                        "_id": "668a765091020196cb10d5a3",
-                                                        "id": "668a765091020196cb10d5a3"
-                                                    },
-                                                    {
-                                                        "_id": "668a742d91020196cb10d59c",
-                                                        "id": "668a742d91020196cb10d59c"
-                                                    }
-                                                ]
-                                            },
-                                            "metaData": {
-                                                "dataKey": "Item",
-                                                "modelName": "Item",
-                                                "dataType": "Array",
-                                                "dataCount": 2
-                                            },
-                                            "paginationData": {
-                                                "currentPage": 1,
-                                                "limit": 2,
-                                                "offset": 0,
-                                                "itemCount": 84,
-                                                "pageCount": 42
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "OK"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Read all items",
-                "description": "Read all created Items. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
-                "externalDocs": {
-                    "url": "https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests)"
-                }
-            },
-            "put": {
-                "requestBody": {
-                    "description": "Item object",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ItemUpdate"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "Item"
-                ],
-                "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Update an item",
-                "description": "Update the Item, which _id is specified in the body.\n\nNotice, that there is no authentication needed to update an Item as well as where are no authorization rules.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | no | \n| Authorization   | no |"
-            },
-            "post": {
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ItemCreate"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "Item"
-                ],
-                "responses": {
-                    "201": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/201"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": {
-                                            "data": {
-                                                "Item": {
-                                                    "objectType": "ItemDto",
-                                                    "_id": "668a70ce91020196cb10d595",
-                                                    "name": "item1",
-                                                    "shape": "shape1",
-                                                    "weight": 67,
-                                                    "material": "mat1",
-                                                    "recycling": "rec1",
-                                                    "unityKey": "unity1",
-                                                    "filename": "file1",
-                                                    "rowNumber": 1,
-                                                    "columnNumber": 1,
-                                                    "isInStock": true,
-                                                    "isFurniture": true,
-                                                    "stock_id": "668953cd4a7b6c993aed1a36"
-                                                }
-                                            },
-                                            "metaData": {
-                                                "dataKey": "Item",
-                                                "modelName": "Item",
-                                                "dataType": "Object",
-                                                "dataCount": 1
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Created"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Create an item",
-                "description": "Create a new Item. The Item represents an unit of which the Stock is consists of. Stock may have many Items, but Item can belong to one Stock only.\n\nThe stock_id defines to whch Stock the Item is belongs to.\n\nNotice, that there is no authentication needed to create an Item as well as where are no authorization rules.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | no | \n| Authorization   | no |\n"
-            }
-        },
         "/item/{_id}": {
             "get": {
                 "tags": [
-                    "Item"
+                    "Item",
+                    "changing"
                 ],
                 "responses": {
                     "200": {
@@ -1323,17 +1157,17 @@
                                                 "Item": {
                                                     "_id": "668a70ce91020196cb10d595",
                                                     "name": "item1",
-                                                    "shape": "shape1",
                                                     "weight": 67,
-                                                    "material": "mat1",
-                                                    "recycling": "rec1",
+                                                    "recycling": "yleinen",
                                                     "unityKey": "unity1",
                                                     "filename": "file1",
-                                                    "rowNumber": 1,
-                                                    "columnNumber": 1,
-                                                    "isInStock": true,
+                                                    "location": [
+                                                        2,
+                                                        4
+                                                    ],
                                                     "isFurniture": true,
-                                                    "stock_id": "668953cd4a7b6c993aed1a36"
+                                                    "stock_id": "668953cd4a7b6c993aed1a36",
+                                                    "price": 23
                                                 }
                                             },
                                             "metaData": {
@@ -1363,28 +1197,7 @@
                     {}
                 ],
                 "summary": "Get Item by _id",
-                "description": "Read Item data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
-            },
-            "delete": {
-                "tags": [
-                    "Item"
-                ],
-                "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Delete Item",
-                "description": "Delete Item by its _id field. \n\nNotice that currently anyone can delete any Item.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |"
+                "description": "Read Item data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n\n\n## Endpoint description\n\n### General description\n\nItems are objects, which can be placed in SoulHomes' Rooms, Stocks and Shop. Item is an object, which has its value in the game and can be bought from the Shop, stolen from the Stock or placed in safe to SoulHome's Room.\n\nItems can be obtained only from Shop and then stored in Room or a Stock.\n\nItem can be a furniture or some other kind of object. The difference between furniture and not furniture is that a furniture can be placed only on a floor. Not furniture can be placed anywhere including on top of a furniture, walls, celling and floor. This data is used in game logic only and does not affect the API in any way.\n\n### Relations\n\nItem can belong to one Room. Room can have multiple Items.\n\nItem can belong to one Stock. Stock can have multiple Items.\n\nItem can belong to Shop. Shop can have multiple Items.\n\n### CRUD operations\n\nItem can not be created by Player. It can only be bought from Shop. API creates new Items automatically.\n\nItem can be read by anyone. One Item can be accessed via its _id field. Multiple Items can be accessed by requesting them within another endpoints via \"with\" or \"all\" queries (/stock/:stock_id?with=Item), since they are mostly required together with Stock, Room or Shop data.\n\nItem can not be directly updated by Players. However, Players may move Items from one place to another. They first can buy an Item from Shop and so update Item's place by moving it to the Clan's Stock. Then they can move it from SoulHome to Stock or vice versa. Item can be bought from Shop via /stock/buy enpoint (not yet implemented). Item can be moved from Room to Stock or from Stock to Room via /item/move POST endpoint.\n\nItem can not be deleted."
             },
             "parameters": [
                 {
@@ -2991,6 +2804,63 @@
                 "summary": "Inform API about battle",
                 "description": "Enpoint for notifying the API about battle events or any other data.\n\nNotice, that the field type is required and determines the type of the data.\n\nNotice that the type also determines shape of the body. Examples, for each type can be found in request examples section.\n\n## Type field\n\n### result\n\nResult of the battle, only members of the winning team should send this data.\n\nAs a response an access token will be returned, which can be used when stealing Items from losed Clan's Stock. Notice that the steal token will expire after some period of time. \n\nThe steal token can be used only by the winner's Clan's members for the loser's Clan Stock."
             }
+        },
+        "/item/move": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "item_id": "397bfec6adb8211b4bd8dbe0",
+                                        "moveTo": "Stock",
+                                        "destination_id": "667bfec6afb8211b4bd8dbff"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Item",
+                    "in-development"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "summary": "Move Item",
+                "description": "Move Item from Stock to Room or from Room to Stock\n\nNotice that Clan members can move only own Clan Items and a member is trying to move other Clan's Item the 404 will be returned.\n\nNotice that if an Item need to be moved to a Stock then there is no need to specify the destination_id field, since Clan can have only one Stock.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n\n## Endpoint description\n\n### General description\n\nItems are objects, which can be placed in SoulHomes' Rooms, Stocks and Shop. Item is an object, which has its value in the game and can be bought from the Shop, stolen from the Stock or placed in safe to SoulHome's Room.\n\nItems can be obtained only from Shop and then stored in Room or a Stock.\n\nItem can be a furniture or some other kind of object. The difference between furniture and not furniture is that a furniture can be placed only on a floor. Not furniture can be placed anywhere including on top of a furniture, walls, celling and floor. This data is used in game logic only and does not affect the API in any way.\n\n### Relations\n\nItem can belong to one Room. Room can have multiple Items.\n\nItem can belong to one Stock. Stock can have multiple Items.\n\nItem can belong to Shop. Shop can have multiple Items.\n\n### CRUD operations\n\nItem can not be created by Player. It can only be bought from Shop. API creates new Items automatically.\n\nItem can be read by anyone. One Item can be accessed via its _id field. Multiple Items can be accessed by requesting them within another endpoints via \"with\" or \"all\" queries (/stock/:stock_id?with=Item), since they are mostly required together with Stock, Room or Shop data.\n\nItem can not be directly updated by Players. However, Players may move Items from one place to another. They first can buy an Item from Shop and so update Item's place by moving it to the Clan's Stock. Then they can move it from SoulHome to Stock or vice versa. Item can be bought from Shop via /stock/buy enpoint (not yet implemented). Item can be moved from Room to Stock or from Stock to Room via /item/move POST endpoint.\n\nItem can not be deleted."
+            }
+        },
+        "/itemShop/buy": {
+            "post": {
+                "tags": [
+                    "ItemShop",
+                    "in-development"
+                ],
+                "responses": {
+                    "501": {
+                        "description": "Not implemented"
+                    }
+                },
+                "summary": "Buy an Item from Shop"
+            }
         }
     },
     "components": {
@@ -3430,143 +3300,6 @@
                         "description": "optional message for joining request (for closed Clans only)",
                         "type": "string",
                         "example": "User 2 wants to join"
-                    }
-                }
-            },
-            "ItemCreate": {
-                "description": "Item creation object",
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "description": "The name of the Item",
-                        "type": "string",
-                        "example": "item1"
-                    },
-                    "shape": {
-                        "description": "The shape of the Item",
-                        "type": "string",
-                        "example": "shape1"
-                    },
-                    "weight": {
-                        "description": "The weight of the Item",
-                        "type": "integer",
-                        "example": 67
-                    },
-                    "material": {
-                        "description": "The material of the Item",
-                        "type": "string",
-                        "example": "mat1"
-                    },
-                    "recycling": {
-                        "description": "The recycling information of the Item",
-                        "type": "string",
-                        "example": "rec1"
-                    },
-                    "unityKey": {
-                        "description": "The unity key of the Item",
-                        "type": "string",
-                        "example": "unity1"
-                    },
-                    "filename": {
-                        "description": "The filename associated with the Item",
-                        "type": "string",
-                        "example": "file1"
-                    },
-                    "rowNumber": {
-                        "description": "The row number of the Item in the Stock",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "columnNumber": {
-                        "description": "The column number of the Item in the Stock",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "isInStock": {
-                        "description": "Whether the Item is in stock",
-                        "type": "boolean",
-                        "example": true
-                    },
-                    "isFurniture": {
-                        "description": "Whether the Item is furniture",
-                        "type": "boolean",
-                        "example": true
-                    },
-                    "stock_id": {
-                        "description": "The id of the associated Stock",
-                        "type": "string",
-                        "example": "668953cd4a7b6c993aed1a36"
-                    }
-                }
-            },
-            "ItemUpdate": {
-                "description": "Item updating object",
-                "type": "object",
-                "properties": {
-                    "_id": {
-                        "description": "The _id of the Item to update, readonly",
-                        "type": "string",
-                        "example": "668a70ce91020196cb10d595"
-                    },
-                    "name": {
-                        "description": "The name of the Item",
-                        "type": "string",
-                        "example": "item1"
-                    },
-                    "shape": {
-                        "description": "The shape of the Item",
-                        "type": "string",
-                        "example": "shape1"
-                    },
-                    "weight": {
-                        "description": "The weight of the Item",
-                        "type": "integer",
-                        "example": 67
-                    },
-                    "material": {
-                        "description": "The material of the Item",
-                        "type": "string",
-                        "example": "mat1"
-                    },
-                    "recycling": {
-                        "description": "The recycling information of the Item",
-                        "type": "string",
-                        "example": "rec1"
-                    },
-                    "unityKey": {
-                        "description": "The unity key of the Item",
-                        "type": "string",
-                        "example": "unity1"
-                    },
-                    "filename": {
-                        "description": "The filename associated with the Item",
-                        "type": "string",
-                        "example": "file1"
-                    },
-                    "rowNumber": {
-                        "description": "The row number of the Item in the Stock",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "columnNumber": {
-                        "description": "The column number of the Item in the Stock",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "isInStock": {
-                        "description": "Whether the Item is in stock",
-                        "type": "boolean",
-                        "example": true
-                    },
-                    "isFurniture": {
-                        "description": "Whether the Item is furniture",
-                        "type": "boolean",
-                        "example": true
-                    },
-                    "stock_id": {
-                        "description": "The id of the associated Stock",
-                        "type": "string",
-                        "example": "668953cd4a7b6c993aed1a36"
                     }
                 }
             },
