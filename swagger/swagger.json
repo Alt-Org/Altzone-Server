@@ -1007,7 +1007,8 @@
         "/stock": {
             "get": {
                 "tags": [
-                    "Stock"
+                    "Stock",
+                    "changing"
                 ],
                 "responses": {
                     "200": {
@@ -1023,9 +1024,7 @@
                                                 "Stock": [
                                                     {
                                                         "_id": "66894fbd4a7b6c993aed1a18",
-                                                        "type": 0,
-                                                        "rowCount": 4,
-                                                        "columnCount": 6,
+                                                        "cellCount": 30,
                                                         "clan_id": "667bfec6afb8211b4bd8dbff"
                                                     }
                                                 ]
@@ -1061,133 +1060,17 @@
                     {}
                 ],
                 "summary": "Read all stocks",
-                "description": "Read all created Stocks of all Clans. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
+                "description": "Read all created Stocks of all Clans. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | \n\n## Endpoint description\n\n### General description\n\nStock is a public place of a Clan, where Items can be stored. These Items, however, can be stolen from the Clan by other Clans' members during raid. \n\n### Relations\n\nStock can belong to one Clan and Clan may have only one Stock. Stock may have many Items. Stock may belong to one Stock.\n\n### CRUD operations\n\nSince a Clan can have only one Stock, the Stock is created automatically whenever a Clan is created.\n\nStock data can be read by anybody without authentication, as well all existing Stocks list can be fetched.\n\nStock does not have any data, which can be updated by Clan members. The only field, which can be updated is a cellCount, which hold information about Stock capacity. The starting value of it is 30, but more cells can be bought from store later. The cellCount does not have a limit.\n\nStock is deleted automatically (and Items related to it) when the Clan to which it belongs to is also deleted.",
                 "externalDocs": {
                     "url": "https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests)"
                 }
-            },
-            "put": {
-                "requestBody": {
-                    "description": "Stock object",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/StockUpdate"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "Stock"
-                ],
-                "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/409"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {
-                        "JWTAuth": []
-                    }
-                ],
-                "summary": "Update a stock",
-                "description": "Update the Stock, which _id is specified in the body. \n\nNotice, that only Clan admins to which the Stock belongs to can change the Stock's data.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only for Clan admins | \n"
-            },
-            "post": {
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/StockCreate"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "Stock"
-                ],
-                "responses": {
-                    "201": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/201"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": {
-                                            "data": {
-                                                "Stock": {
-                                                    "objectType": "StockDto",
-                                                    "_id": "66894fbd4a7b6c993aed1a18",
-                                                    "type": 0,
-                                                    "rowCount": 4,
-                                                    "columnCount": 6,
-                                                    "clan_id": "667bfec6afb8211b4bd8dbff"
-                                                }
-                                            },
-                                            "metaData": {
-                                                "dataKey": "Stock",
-                                                "modelName": "Stock",
-                                                "dataType": "Object",
-                                                "dataCount": 1
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Created"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/409"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {
-                        "JWTAuth": []
-                    }
-                ],
-                "summary": "Create a stock",
-                "description": "Create a new Stock. Stock is representing a place, where Clan items are stored. One Clan may have many Stocks. The Stock may have many Items in it.\n\nNotice, that only Clan's Players can create Stocks both admins and regular members.\n\nThe clan_id field associate the Stock with a Clan. The type field is a enum determining the stock type:\n- None = 0,\n- Public = 1,\n- Proposal = 2\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | Clan members only |\n"
             }
         },
         "/stock/{_id}": {
             "get": {
                 "tags": [
-                    "Stock"
+                    "Stock",
+                    "changing"
                 ],
                 "responses": {
                     "200": {
@@ -1235,39 +1118,7 @@
                     {}
                 ],
                 "summary": "Get Stock by _id",
-                "description": "Read Stock data by its _id field.\n\nNotice that everybody is able to read all Stock data\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
-            },
-            "delete": {
-                "tags": [
-                    "Stock"
-                ],
-                "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {
-                        "JWTAuth": []
-                    }
-                ],
-                "summary": "Delete Stock",
-                "description": "Delete Stock by its _id field. Notice that only Clan admins can delete the Stock.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins |"
+                "description": "Read Stock data by its _id field.\n\nNotice that everybody is able to read any Stock data.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n\n## Endpoint description\n\n### General description\n\nStock is a public place of a Clan, where Items can be stored. These Items, however, can be stolen from the Clan by other Clans' members during raid. \n\n### Relations\n\nStock can belong to one Clan and Clan may have only one Stock. Stock may have many Items. Stock may belong to one Stock.\n\n### CRUD operations\n\nSince a Clan can have only one Stock, the Stock is created automatically whenever a Clan is created.\n\nStock data can be read by anybody without authentication, as well all existing Stocks list can be fetched.\n\nStock does not have any data, which can be updated by Clan members. The only field, which can be updated is a cellCount, which hold information about Stock capacity. The starting value of it is 30, but more cells can be bought from store later. The cellCount does not have a limit.\n\nStock is deleted automatically (and Items related to it) when the Clan to which it belongs to is also deleted."
             },
             "parameters": [
                 {
@@ -1286,177 +1137,11 @@
                 }
             ]
         },
-        "/item": {
-            "get": {
-                "tags": [
-                    "Item"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/200"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": {
-                                            "data": {
-                                                "Item": [
-                                                    {
-                                                        "_id": "668a765091020196cb10d5a3",
-                                                        "id": "668a765091020196cb10d5a3"
-                                                    },
-                                                    {
-                                                        "_id": "668a742d91020196cb10d59c",
-                                                        "id": "668a742d91020196cb10d59c"
-                                                    }
-                                                ]
-                                            },
-                                            "metaData": {
-                                                "dataKey": "Item",
-                                                "modelName": "Item",
-                                                "dataType": "Array",
-                                                "dataCount": 2
-                                            },
-                                            "paginationData": {
-                                                "currentPage": 1,
-                                                "limit": 2,
-                                                "offset": 0,
-                                                "itemCount": 84,
-                                                "pageCount": 42
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "OK"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Read all items",
-                "description": "Read all created Items. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
-                "externalDocs": {
-                    "url": "https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests)"
-                }
-            },
-            "put": {
-                "requestBody": {
-                    "description": "Item object",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ItemUpdate"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "Item"
-                ],
-                "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Update an item",
-                "description": "Update the Item, which _id is specified in the body.\n\nNotice, that there is no authentication needed to update an Item as well as where are no authorization rules.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | no | \n| Authorization   | no |"
-            },
-            "post": {
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ItemCreate"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "Item"
-                ],
-                "responses": {
-                    "201": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/201"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": {
-                                            "data": {
-                                                "Item": {
-                                                    "objectType": "ItemDto",
-                                                    "_id": "668a70ce91020196cb10d595",
-                                                    "name": "item1",
-                                                    "shape": "shape1",
-                                                    "weight": 67,
-                                                    "material": "mat1",
-                                                    "recycling": "rec1",
-                                                    "unityKey": "unity1",
-                                                    "filename": "file1",
-                                                    "rowNumber": 1,
-                                                    "columnNumber": 1,
-                                                    "isInStock": true,
-                                                    "isFurniture": true,
-                                                    "stock_id": "668953cd4a7b6c993aed1a36"
-                                                }
-                                            },
-                                            "metaData": {
-                                                "dataKey": "Item",
-                                                "modelName": "Item",
-                                                "dataType": "Object",
-                                                "dataCount": 1
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Created"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Create an item",
-                "description": "Create a new Item. The Item represents an unit of which the Stock is consists of. Stock may have many Items, but Item can belong to one Stock only.\n\nThe stock_id defines to whch Stock the Item is belongs to.\n\nNotice, that there is no authentication needed to create an Item as well as where are no authorization rules.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | no | \n| Authorization   | no |\n"
-            }
-        },
         "/item/{_id}": {
             "get": {
                 "tags": [
-                    "Item"
+                    "Item",
+                    "changing"
                 ],
                 "responses": {
                     "200": {
@@ -1472,17 +1157,17 @@
                                                 "Item": {
                                                     "_id": "668a70ce91020196cb10d595",
                                                     "name": "item1",
-                                                    "shape": "shape1",
                                                     "weight": 67,
-                                                    "material": "mat1",
-                                                    "recycling": "rec1",
+                                                    "recycling": "yleinen",
                                                     "unityKey": "unity1",
                                                     "filename": "file1",
-                                                    "rowNumber": 1,
-                                                    "columnNumber": 1,
-                                                    "isInStock": true,
+                                                    "location": [
+                                                        2,
+                                                        4
+                                                    ],
                                                     "isFurniture": true,
-                                                    "stock_id": "668953cd4a7b6c993aed1a36"
+                                                    "stock_id": "668953cd4a7b6c993aed1a36",
+                                                    "price": 23
                                                 }
                                             },
                                             "metaData": {
@@ -1512,28 +1197,7 @@
                     {}
                 ],
                 "summary": "Get Item by _id",
-                "description": "Read Item data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
-            },
-            "delete": {
-                "tags": [
-                    "Item"
-                ],
-                "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Delete Item",
-                "description": "Delete Item by its _id field. \n\nNotice that currently anyone can delete any Item.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |"
+                "description": "Read Item data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n\n\n## Endpoint description\n\n### General description\n\nItems are objects, which can be placed in SoulHomes' Rooms, Stocks and Shop. Item is an object, which has its value in the game and can be bought from the Shop, stolen from the Stock or placed in safe to SoulHome's Room.\n\nItems can be obtained only from Shop and then stored in Room or a Stock.\n\nItem can be a furniture or some other kind of object. The difference between furniture and not furniture is that a furniture can be placed only on a floor. Not furniture can be placed anywhere including on top of a furniture, walls, celling and floor. This data is used in game logic only and does not affect the API in any way.\n\n### Relations\n\nItem can belong to one Room. Room can have multiple Items.\n\nItem can belong to one Stock. Stock can have multiple Items.\n\nItem can belong to Shop. Shop can have multiple Items.\n\n### CRUD operations\n\nItem can not be created by Player. It can only be bought from Shop. API creates new Items automatically.\n\nItem can be read by anyone. One Item can be accessed via its _id field. Multiple Items can be accessed by requesting them within another endpoints via \"with\" or \"all\" queries (/stock/:stock_id?with=Item), since they are mostly required together with Stock, Room or Shop data.\n\nItem can not be directly updated by Players. However, Players may move Items from one place to another. They first can buy an Item from Shop and so update Item's place by moving it to the Clan's Stock. Then they can move it from SoulHome to Stock or vice versa. Item can be bought from Shop via /stock/buy enpoint (not yet implemented). Item can be moved from Room to Stock or from Stock to Room via /item/move POST endpoint.\n\nItem can not be deleted."
             },
             "parameters": [
                 {
@@ -1553,187 +1217,11 @@
             ]
         },
         "/soulhome": {
+            "description": "",
             "get": {
                 "tags": [
-                    "SoulHome"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/200"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": {
-                                            "data": {
-                                                "SoulHome": [
-                                                    {
-                                                        "_id": "668c11499470819cf38e374c",
-                                                        "id": "668c11499470819cf38e374c"
-                                                    },
-                                                    {
-                                                        "_id": "667ef139b3b5bf0f7a840f2d",
-                                                        "id": "667ef139b3b5bf0f7a840f2d"
-                                                    }
-                                                ]
-                                            },
-                                            "metaData": {
-                                                "dataKey": "SoulHome",
-                                                "modelName": "SoulHome",
-                                                "dataType": "Array",
-                                                "dataCount": 1
-                                            },
-                                            "paginationData": {
-                                                "currentPage": 1,
-                                                "limit": 2,
-                                                "offset": 0,
-                                                "itemCount": 1,
-                                                "pageCount": 1
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "OK"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Read all soulhomes",
-                "description": "Read all created SoulHomes. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
-                "externalDocs": {
-                    "url": "https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests)"
-                }
-            },
-            "put": {
-                "requestBody": {
-                    "description": "SoulHome object",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/SoulHomeUpdate"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "SoulHome"
-                ],
-                "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/409"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {
-                        "JWTAuth": []
-                    }
-                ],
-                "summary": "Update a soulhome",
-                "description": "Update the SoulHome, which id is specified in the body. \n\nNotice, that only Clan admins can change the SoulHome's data.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only for Clan admins |\n"
-            },
-            "post": {
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/SoulHomeCreate"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "SoulHome"
-                ],
-                "responses": {
-                    "201": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/201"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": {
-                                            "data": {
-                                                "SoulHome": {
-                                                    "objectType": "SoulHomeDto",
-                                                    "_id": "668c0e9f9470819cf38e371c",
-                                                    "type": "type1",
-                                                    "clan_id": "667bfec6afb8211b4bd8dbff",
-                                                    "rooms": []
-                                                }
-                                            },
-                                            "metaData": {
-                                                "dataKey": "SoulHome",
-                                                "modelName": "SoulHome",
-                                                "dataType": "Object",
-                                                "dataCount": 1
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Created"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/409"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {
-                        "JWTAuth": []
-                    }
-                ],
-                "summary": "Create a soulhome",
-                "description": "Create a new SoulHome. Soulhome consists of Rooms. The clan_id specifies, which Clan owns the SoulHome. There can be one SoulHome for one Clan.\n\nNotice, that only Clan admins can create a SoulHome for the Clan.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | Clan admins only |\n"
-            }
-        },
-        "/soulhome/{_id}": {
-            "get": {
-                "tags": [
-                    "SoulHome"
-                ],
-                "parameters": [
-                    {
-                        "name": "_id",
-                        "in": "path",
-                        "required": true
-                    }
+                    "SoulHome",
+                    "changing"
                 ],
                 "responses": {
                     "200": {
@@ -1748,14 +1236,72 @@
                                             "data": {
                                                 "SoulHome": {
                                                     "_id": "668c0e9f9470819cf38e371c",
-                                                    "type": "type1",
-                                                    "clan_id": "667bfec6afb8211b4bd8dbff",
-                                                    "rooms": []
+                                                    "name": "clan1",
+                                                    "clan_id": "667bfec6afb8211b4bd8dbff"
                                                 }
                                             },
                                             "metaData": {
                                                 "dataKey": "SoulHome",
                                                 "modelName": "SoulHome",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get SoulHome",
+                "description": "## Method description\n\nGet SoulHome data for the logged-in user. \n\nIf the logged-in user is a Clan member, the SoulHome for this Clan will be returned. \n\nIf the logged-in user is not belonging to any Clan the 404 error will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n\n\n## Endpoint description\n\n### General description\n\nSoulhome is a safe place for storing Clan Items (inside SoulHome's Rooms). This means, that it is possible to steal Items from the SoulHome rooms, therefore the access to CRUD operations mostly lies in hands of Clan members.\n\nSoulHome does have only one field \"name\", which is same as a Clan name.\n\n### Relations\n\nSoulHome can belong to one Clan and Clan may have only one SoulHome. SoulHome may have many Rooms. Room may belong to one SoulHome.\n\n### CRUD operations\n\nSoulHome must be created automatically when Clan is created. When SoulHome is created 30 Rooms for that SoulHome with default values must created."
+            }
+        },
+        "/room": {
+            "get": {
+                "tags": [
+                    "Room",
+                    "changing"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/200_one"
+                                },
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Room": {
+                                                    "_id": "668d6003a9292e300e94c833",
+                                                    "floorType": "floor1",
+                                                    "wallType": "wall1",
+                                                    "isActive": false,
+                                                    "roomItems": [],
+                                                    "player_id": "665df7026bf5b8f670569ea4",
+                                                    "soulHome_id": "667ef139b3b5bf0f7a840f2d"
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Room",
+                                                "modelName": "Room",
                                                 "dataType": "Object",
                                                 "dataCount": 1
                                             }
@@ -1774,101 +1320,15 @@
                     }
                 },
                 "security": [
-                    {}
-                ],
-                "summary": "Get SoulHome by _id",
-                "description": "Read SoulHome data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
-            },
-            "delete": {
-                "tags": [
-                    "SoulHome"
-                ],
-                "parameters": [
-                    {
-                        "name": "_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
                     {
                         "JWTAuth": []
                     }
                 ],
-                "summary": "Delete SoulHome",
-                "description": "Delete SoulHome by its _id field. Notice that only Clan admins can delete the SoulHome.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins |"
-            }
-        },
-        "/room": {
-            "get": {
-                "tags": [
-                    "Room"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/200"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": {
-                                            "data": {
-                                                "Room": [
-                                                    {
-                                                        "_id": "668d6474a9292e300e94c84b",
-                                                        "id": "668d6474a9292e300e94c84b"
-                                                    }
-                                                ]
-                                            },
-                                            "metaData": {
-                                                "dataKey": "Room",
-                                                "modelName": "Room",
-                                                "dataType": "Array",
-                                                "dataCount": 1
-                                            },
-                                            "paginationData": {
-                                                "currentPage": 1,
-                                                "limit": 1,
-                                                "offset": 0,
-                                                "itemCount": 1,
-                                                "pageCount": 1
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "OK"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "summary": "Read all rooms",
-                "description": "Read all created Rooms. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
-                "externalDocs": {
-                    "url": "https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests)"
-                }
+                "summary": "Get all Clan's Rooms",
+                "description": "## Method description\n\nGet all Rooms for the logged-in user. \n\nIf the logged-in user is a Clan member, the Rooms for this Clan will be returned. \n\nIf the logged-in user is not belonging to any Clan the 404 error will be returned.\n\nIf the pagination is required, it can be used, but by  default it will return all 30 rooms at once.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n| Pagination   | yes |\n| Sort   | yes |\n| Search   | yes |\n\n\n## Endpoint description\n\n### General description\n\nRoom is a place, which can safely store Items of a Clan. Items from the Room can not be stolen. \n\nRoom is closely related to its SoulHome. SoulHome consists of Rooms. \n\nRoom has an automatic behavior. Room has two statuses active and deactivated. When the Room is becoming deactivated its isActive field is taking on the value false. This should be done automatically when the deactivationTimestamp field is expired.\n\n### Relations\n\nRoom can belong to one SoulHome. SoulHome may have many Rooms.\n\nRoom can have many Items. Item may belong to one Room.\n\n### CRUD operations\n\nRooms for a SoulHome must be created automatically, when a SoulHome is created. Therefore there is no enpoint for Room creation.\n\nRoom and all Rooms can be read by Clan members, to which the Room (its SoulHome) is belonging.\n\nRoom can be updated by Clan members, to which it (its SoulHome) belongs.\n\nRoom can be deleted only automatically, when the SoulHome, to which the Room belongs is deleted."
             },
             "put": {
                 "requestBody": {
-                    "description": "Room object",
                     "content": {
                         "application/json": {
                             "schema": {
@@ -1879,14 +1339,18 @@
                     "required": true
                 },
                 "tags": [
-                    "Room"
+                    "Room",
+                    "changing"
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Success, no body"
+                    "204": {
+                        "$ref": "#/components/responses/204"
                     },
                     "400": {
                         "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
                     },
                     "404": {
                         "$ref": "#/components/responses/404"
@@ -1900,163 +1364,9 @@
                         "JWTAuth": []
                     }
                 ],
-                "summary": "Update a room",
-                "description": "Update the Room, which id is specified in the body.\n\nNotice, that only Room owners can change the Room's data. The Room owner is the one whos player_id is specified in the Room data.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization  | only for Room owners |\n"
-            },
-            "post": {
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/RoomCreate"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "Room"
-                ],
-                "responses": {
-                    "201": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/201"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": {
-                                            "data": {
-                                                "Room": {
-                                                    "objectType": "RoomDto",
-                                                    "_id": "668d6003a9292e300e94c833",
-                                                    "floorType": "floor1",
-                                                    "wallType": "wall1",
-                                                    "isActive": false,
-                                                    "roomItems": [],
-                                                    "player_id": "665df7026bf5b8f670569ea4",
-                                                    "soulHome_id": "667ef139b3b5bf0f7a840f2d"
-                                                }
-                                            },
-                                            "metaData": {
-                                                "dataKey": "Room",
-                                                "modelName": "Room",
-                                                "dataType": "Object",
-                                                "dataCount": 1
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Created"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Create a room",
-                "description": "Create a new Room. The specified player_id will assosiate the Room with a Player and soulHome_id with SoulHome. One Room can belong to one Player. Many Rooms can belong to one SoulHome. One Room can have many Items.\n\nNotice that isActive will be set to false and roomItems to empty array. These values can be modified with /room PUT request. \n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | no | \n| Authorization   | no | \n"
+                "summary": "Update Room by _id",
+                "description": "## Method description\n\nUpdate Room by its _id specified in the body.\n\nAny Clan member can update any Room, which (SoulHome) belongs to the Clan.\n\nIf the logged-in user is a Clan member and the Clan does have the requested Room, the Room for this Clan will be returned. \n\nIf the logged-in user is not belonging to any Clan, or Room in that Clan with provided _id is not found the 404 error will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n\n\n## Endpoint description\n\n### General description\n\nRoom is a place, which can safely store Items of a Clan. Items from the Room can not be stolen. \n\nRoom is closely related to its SoulHome. SoulHome consists of Rooms. \n\nRoom has an automatic behavior. Room has two statuses active and deactivated. When the Room is becoming deactivated its isActive field is taking on the value false. This should be done automatically when the deactivationTimestamp field is expired.\n\n### Relations\n\nRoom can belong to one SoulHome. SoulHome may have many Rooms.\n\nRoom can have many Items. Item may belong to one Room.\n\n### CRUD operations\n\nRooms for a SoulHome must be created automatically, when a SoulHome is created. Therefore there is no enpoint for Room creation.\n\nRoom and all Rooms can be read by Clan members, to which the Room (its SoulHome) is belonging.\n\nRoom can be updated by Clan members, to which it (its SoulHome) belongs.\n\nRoom can be deleted only automatically, when the SoulHome, to which the Room belongs is deleted."
             }
-        },
-        "/room/{_id}": {
-            "get": {
-                "tags": [
-                    "Room"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/200_one"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": {
-                                            "data": {
-                                                "Room": {
-                                                    "_id": "668d6003a9292e300e94c833",
-                                                    "floorType": "floor1",
-                                                    "wallType": "wall1",
-                                                    "isActive": false,
-                                                    "roomItems": [],
-                                                    "player_id": "665df7026bf5b8f670569ea4",
-                                                    "soulHome_id": "667ef139b3b5bf0f7a840f2d"
-                                                }
-                                            },
-                                            "metaData": {
-                                                "dataKey": "Room",
-                                                "modelName": "Room",
-                                                "dataType": "Object",
-                                                "dataCount": 1
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "OK"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Get Room by _id",
-                "description": "Read Room data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | no | \n| Sort | no |\n| Pagination | no |"
-            },
-            "delete": {
-                "tags": [
-                    "Room"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success, no body"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {
-                        "JWTAuth": []
-                    }
-                ],
-                "summary": "Delete Room",
-                "description": "Delete Room by its _id field. Notice that only Room owners can delete the Room.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Room admins |"
-            },
-            "parameters": [
-                {
-                    "examples": {
-                        "1": {
-                            "value": "668d5ffaa9292e300e94c82e"
-                        }
-                    },
-                    "name": "_id",
-                    "description": "room _id field",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "path",
-                    "required": true
-                }
-            ]
         },
         "/itemShop": {
             "get": {
@@ -2612,7 +1922,6 @@
                                                     {
                                                         "_id": "66912712d191c865ab53da8a",
                                                         "name": "Chat 1",
-                                                        "messages": [],
                                                         "__v": 0,
                                                         "id": "66912712d191c865ab53da8a"
                                                     }
@@ -2676,6 +1985,9 @@
                     "400": {
                         "$ref": "#/components/responses/400"
                     },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
                     "404": {
                         "$ref": "#/components/responses/404"
                     },
@@ -2687,7 +1999,9 @@
                     }
                 },
                 "security": [
-                    {}
+                    {
+                        "JWTAuth": []
+                    }
                 ],
                 "summary": "Update a chat",
                 "description": "Update the Chat, which _id is specified in the body.\n\nNotice that currently anybody is able to change any Chat.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | no | \n| Authorization   | no | \n"
@@ -2741,6 +2055,9 @@
                     "400": {
                         "$ref": "#/components/responses/400"
                     },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
                     "409": {
                         "$ref": "#/components/responses/409"
                     },
@@ -2749,7 +2066,9 @@
                     }
                 },
                 "security": [
-                    {}
+                    {
+                        "JWTAuth": []
+                    }
                 ],
                 "summary": "Create a chat",
                 "description": "Create a new Chat. The Chat is an object containing messages.\n\nNotice, that currently there is no restrictions on who can create a Chat.\n\nNotice that the Message objects are inner objects of Chat and can not be used enewhere else than in the Chat. There is also no separate collection for the Message in the DB.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | no | \n| Authorization   | no | \n"
@@ -2774,7 +2093,6 @@
                                                 "Chat": {
                                                     "_id": "66912712d191c865ab53da8a",
                                                     "name": "Chat 1",
-                                                    "messages": [],
                                                     "__v": 0,
                                                     "id": "66912712d191c865ab53da8a"
                                                 }
@@ -2813,6 +2131,9 @@
                     "204": {
                         "$ref": "#/components/responses/204"
                     },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
                     "404": {
                         "$ref": "#/components/responses/404"
                     },
@@ -2821,7 +2142,9 @@
                     }
                 },
                 "security": [
-                    {}
+                    {
+                        "JWTAuth": []
+                    }
                 ],
                 "summary": "Delete Chat",
                 "description": "Delete Chat by its _id field. \n\nNotice that currently anybody can delete any Chat.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |"
@@ -2925,6 +2248,9 @@
                     "400": {
                         "$ref": "#/components/responses/400"
                     },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
                     "404": {
                         "$ref": "#/components/responses/404"
                     },
@@ -2936,7 +2262,9 @@
                     }
                 },
                 "security": [
-                    {}
+                    {
+                        "JWTAuth": []
+                    }
                 ],
                 "summary": "Create a message",
                 "description": "Create a new Message. Message represent the object of message sent by a Player.\n\nNotice that currently there are no authorization required.\n\nNotice, that the messages does not have an usual _id field generated by data base. Instead the Photon id should be used.\n\nNotice that the messages is contained in the array of a Chat collection.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | no | \n| Authorization   | no |\n"
@@ -3231,6 +2559,308 @@
                     "required": true
                 }
             ]
+        },
+        "/room/{_id}": {
+            "get": {
+                "tags": [
+                    "Room",
+                    "changing"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/200_one"
+                                },
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Room": {
+                                                    "_id": "668d6003a9292e300e94c833",
+                                                    "floorType": "floor1",
+                                                    "wallType": "wall1",
+                                                    "isActive": false,
+                                                    "roomItems": [],
+                                                    "player_id": "665df7026bf5b8f670569ea4",
+                                                    "soulHome_id": "667ef139b3b5bf0f7a840f2d"
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Room",
+                                                "modelName": "Room",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get Room by _id",
+                "description": "## Method description\n\nGet Room by its _id. \n\nIf the logged-in user is a Clan member and the Clan does have the requested Room, the Room for this Clan will be returned. \n\nIf the logged-in user is not belonging to any Clan, or Room in that Clan with provided _id is not found the 404 error will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n\n\n## Endpoint description\n\n### General description\n\nRoom is a place, which can safely store Items of a Clan. Items from the Room can not be stolen. \n\nRoom is closely related to its SoulHome. SoulHome consists of Rooms. \n\nRoom has an automatic behavior. Room has two statuses active and deactivated. When the Room is becoming deactivated its isActive field is taking on the value false. This should be done automatically when the deactivationTimestamp field is expired.\n\n### Relations\n\nRoom can belong to one SoulHome. SoulHome may have many Rooms.\n\nRoom can have many Items. Item may belong to one Room.\n\n### CRUD operations\n\nRooms for a SoulHome must be created automatically, when a SoulHome is created. Therefore there is no enpoint for Room creation.\n\nRoom and all Rooms can be read by Clan members, to which the Room (its SoulHome) is belonging.\n\nRoom can be updated by Clan members, to which it (its SoulHome) belongs.\n\nRoom can be deleted only automatically, when the SoulHome, to which the Room belongs is deleted."
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "1": {
+                            "value": "667ee778b3b5bf0f7a840ec9"
+                        }
+                    },
+                    "name": "_id",
+                    "description": "Room _id",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/room/activate": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "room_ids"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "room_ids": {
+                                        "description": "List of Room _ids to activate",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "64df3aad42cbaf850a3f891f"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Room",
+                    "in-development"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Activate the Room by _id",
+                "description": "## Method description\n\nActivate the specified Rooms.\n\nIf Room _id specified in the room_ids field does not belong to logged-in user's Clan (SoulHome), it will be ignored. However it will return 404 if non of the Room _ids does not belong to the Clan. \n\n\n## Endpoint description\n\n### General description\n\nRoom is a place, which can safely store Items of a Clan. Items from the Room can not be stolen. \n\nRoom is closely related to its SoulHome. SoulHome consists of Rooms. \n\nRoom has an automatic behavior. Room has two statuses active and deactivated. When the Room is becoming deactivated its isActive field is taking on the value false. This should be done automatically when the deactivationTimestamp field is expired.\n\n### Relations\n\nRoom can belong to one SoulHome. SoulHome may have many Rooms.\n\nRoom can have many Items. Item may belong to one Room.\n\n### CRUD operations\n\nRooms for a SoulHome must be created automatically, when a SoulHome is created. Therefore there is no enpoint for Room creation.\n\nRoom and all Rooms can be read by Clan members, to which the Room (its SoulHome) is belonging.\n\nRoom can be updated by Clan members, to which it (its SoulHome) belongs.\n\nRoom can be deleted only automatically, when the SoulHome, to which the Room belongs is deleted."
+            }
+        },
+        "/stock/steal": {
+            "post": {
+                "requestBody": {
+                    "description": "Items to be stolen",
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "steal_token": "some_token",
+                                        "item_ids": [
+                                            "668a765091020196cb10d5a3",
+                                            "668a765091020196cb10d5a3"
+                                        ],
+                                        "room_is": "668a765091020196cb10d5a3"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Stock",
+                    "in-development"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Steal Items from another Clan",
+                "description": "Steal Items from the loser Clan's Stock. The stolen Items will be automatically added to a specified Room of the winners Clan's SoulHome.\n\nNotice that first a steal token must be requested by winner player(s) from the /gameData/battle POST endpoint with body type \"result\".\n\nRequests without the steal token or with an expired token will get 403 as a response.\n\nNotice that only found Items will be stolen and all not found Items will be ignored. \n\n## Endpoint description\n\n### General description\n\nStock is a public place of a Clan, where Items can be stored. These Items, however, can be stolen from the Clan by other Clans' members during raid. \n\n### Relations\n\nStock can belong to one Clan and Clan may have only one Stock. Stock may have many Items. Stock may belong to one Stock.\n\n### CRUD operations\n\nSince a Clan can have only one Stock, the Stock is created automatically whenever a Clan is created.\n\nStock data can be read by anybody without authentication, as well all existing Stocks list can be fetched.\n\nStock does not have any data, which can be updated by Clan members. The only field, which can be updated is a cellCount, which hold information about Stock capacity. The starting value of it is 30, but more cells can be bought from store later. The cellCount does not have a limit.\n\nStock is deleted automatically (and Items related to it) when the Clan to which it belongs to is also deleted."
+            }
+        },
+        "/gameData/battle": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "result": {
+                                    "value": {
+                                        "type": "result",
+                                        "winner_player_id": "667bfec6afb8211b4bd8dbff",
+                                        "loser_player_id": "397bfec6adb8211b4bd8dbe0"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "GameData",
+                    "in-development"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "result": {
+                                        "value": {
+                                            "steal_token": "temporary_token_to_use_for_/room/steal",
+                                            "stock_id": "667ee778b3b5bf0f7a840ec9",
+                                            "clan_id": "668d6003a9292e300e94c833"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Inform API about battle",
+                "description": "Enpoint for notifying the API about battle events or any other data.\n\nNotice, that the field type is required and determines the type of the data.\n\nNotice that the type also determines shape of the body. Examples, for each type can be found in request examples section.\n\n## Type field\n\n### result\n\nResult of the battle, only members of the winning team should send this data.\n\nAs a response an access token will be returned, which can be used when stealing Items from losed Clan's Stock. Notice that the steal token will expire after some period of time. \n\nThe steal token can be used only by the winner's Clan's members for the loser's Clan Stock."
+            }
+        },
+        "/item/move": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "item_id": "397bfec6adb8211b4bd8dbe0",
+                                        "moveTo": "Stock",
+                                        "destination_id": "667bfec6afb8211b4bd8dbff"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Item",
+                    "in-development"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "summary": "Move Item",
+                "description": "Move Item from Stock to Room or from Room to Stock\n\nNotice that Clan members can move only own Clan Items and a member is trying to move other Clan's Item the 404 will be returned.\n\nNotice that if an Item need to be moved to a Stock then there is no need to specify the destination_id field, since Clan can have only one Stock.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n\n## Endpoint description\n\n### General description\n\nItems are objects, which can be placed in SoulHomes' Rooms, Stocks and Shop. Item is an object, which has its value in the game and can be bought from the Shop, stolen from the Stock or placed in safe to SoulHome's Room.\n\nItems can be obtained only from Shop and then stored in Room or a Stock.\n\nItem can be a furniture or some other kind of object. The difference between furniture and not furniture is that a furniture can be placed only on a floor. Not furniture can be placed anywhere including on top of a furniture, walls, celling and floor. This data is used in game logic only and does not affect the API in any way.\n\n### Relations\n\nItem can belong to one Room. Room can have multiple Items.\n\nItem can belong to one Stock. Stock can have multiple Items.\n\nItem can belong to Shop. Shop can have multiple Items.\n\n### CRUD operations\n\nItem can not be created by Player. It can only be bought from Shop. API creates new Items automatically.\n\nItem can be read by anyone. One Item can be accessed via its _id field. Multiple Items can be accessed by requesting them within another endpoints via \"with\" or \"all\" queries (/stock/:stock_id?with=Item), since they are mostly required together with Stock, Room or Shop data.\n\nItem can not be directly updated by Players. However, Players may move Items from one place to another. They first can buy an Item from Shop and so update Item's place by moving it to the Clan's Stock. Then they can move it from SoulHome to Stock or vice versa. Item can be bought from Shop via /stock/buy enpoint (not yet implemented). Item can be moved from Room to Stock or from Stock to Room via /item/move POST endpoint.\n\nItem can not be deleted."
+            }
+        },
+        "/itemShop/buy": {
+            "post": {
+                "tags": [
+                    "ItemShop",
+                    "in-development"
+                ],
+                "responses": {
+                    "501": {
+                        "description": "Not implemented"
+                    }
+                },
+                "summary": "Buy an Item from Shop"
+            }
         }
     },
     "components": {
@@ -3673,292 +3303,6 @@
                     }
                 }
             },
-            "StockCreate": {
-                "description": "",
-                "type": "object",
-                "properties": {
-                    "type": {
-                        "description": "The type of the Stock(0-None, 1-Public, 2-Proposal)",
-                        "enum": [
-                            0,
-                            1,
-                            2
-                        ],
-                        "type": "integer",
-                        "example": 0
-                    },
-                    "rowCount": {
-                        "description": "The number of rows in the Stock",
-                        "type": "integer",
-                        "example": 4
-                    },
-                    "columnCount": {
-                        "description": "The number of columns in the Stock",
-                        "type": "integer",
-                        "example": 6
-                    },
-                    "clan_id": {
-                        "description": "The id of the associated Clan",
-                        "type": "string",
-                        "example": "667bfec6afb8211b4bd8dbff"
-                    }
-                }
-            },
-            "StockUpdate": {
-                "description": "",
-                "type": "object",
-                "properties": {
-                    "_id": {
-                        "description": "The _id of the Stock, readonly",
-                        "type": "string",
-                        "example": "66894fbd4a7b6c993aed1a18"
-                    },
-                    "type": {
-                        "description": "The type of the Stock(0-None, 1-Public, 2-Proposal)",
-                        "enum": [
-                            0,
-                            1,
-                            2
-                        ],
-                        "type": "integer",
-                        "example": 0
-                    },
-                    "rowCount": {
-                        "description": "The number of rows in the Stock",
-                        "type": "integer",
-                        "example": 4
-                    },
-                    "columnCount": {
-                        "description": "The number of columns in the Stock",
-                        "type": "integer",
-                        "example": 6
-                    },
-                    "clan_id": {
-                        "description": "The id of the associated Clan",
-                        "type": "string",
-                        "example": "667bfec6afb8211b4bd8dbff"
-                    }
-                }
-            },
-            "ItemCreate": {
-                "description": "Item creation object",
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "description": "The name of the Item",
-                        "type": "string",
-                        "example": "item1"
-                    },
-                    "shape": {
-                        "description": "The shape of the Item",
-                        "type": "string",
-                        "example": "shape1"
-                    },
-                    "weight": {
-                        "description": "The weight of the Item",
-                        "type": "integer",
-                        "example": 67
-                    },
-                    "material": {
-                        "description": "The material of the Item",
-                        "type": "string",
-                        "example": "mat1"
-                    },
-                    "recycling": {
-                        "description": "The recycling information of the Item",
-                        "type": "string",
-                        "example": "rec1"
-                    },
-                    "unityKey": {
-                        "description": "The unity key of the Item",
-                        "type": "string",
-                        "example": "unity1"
-                    },
-                    "filename": {
-                        "description": "The filename associated with the Item",
-                        "type": "string",
-                        "example": "file1"
-                    },
-                    "rowNumber": {
-                        "description": "The row number of the Item in the Stock",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "columnNumber": {
-                        "description": "The column number of the Item in the Stock",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "isInStock": {
-                        "description": "Whether the Item is in stock",
-                        "type": "boolean",
-                        "example": true
-                    },
-                    "isFurniture": {
-                        "description": "Whether the Item is furniture",
-                        "type": "boolean",
-                        "example": true
-                    },
-                    "stock_id": {
-                        "description": "The id of the associated Stock",
-                        "type": "string",
-                        "example": "668953cd4a7b6c993aed1a36"
-                    }
-                }
-            },
-            "ItemUpdate": {
-                "description": "Item updating object",
-                "type": "object",
-                "properties": {
-                    "_id": {
-                        "description": "The _id of the Item to update, readonly",
-                        "type": "string",
-                        "example": "668a70ce91020196cb10d595"
-                    },
-                    "name": {
-                        "description": "The name of the Item",
-                        "type": "string",
-                        "example": "item1"
-                    },
-                    "shape": {
-                        "description": "The shape of the Item",
-                        "type": "string",
-                        "example": "shape1"
-                    },
-                    "weight": {
-                        "description": "The weight of the Item",
-                        "type": "integer",
-                        "example": 67
-                    },
-                    "material": {
-                        "description": "The material of the Item",
-                        "type": "string",
-                        "example": "mat1"
-                    },
-                    "recycling": {
-                        "description": "The recycling information of the Item",
-                        "type": "string",
-                        "example": "rec1"
-                    },
-                    "unityKey": {
-                        "description": "The unity key of the Item",
-                        "type": "string",
-                        "example": "unity1"
-                    },
-                    "filename": {
-                        "description": "The filename associated with the Item",
-                        "type": "string",
-                        "example": "file1"
-                    },
-                    "rowNumber": {
-                        "description": "The row number of the Item in the Stock",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "columnNumber": {
-                        "description": "The column number of the Item in the Stock",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "isInStock": {
-                        "description": "Whether the Item is in stock",
-                        "type": "boolean",
-                        "example": true
-                    },
-                    "isFurniture": {
-                        "description": "Whether the Item is furniture",
-                        "type": "boolean",
-                        "example": true
-                    },
-                    "stock_id": {
-                        "description": "The id of the associated Stock",
-                        "type": "string",
-                        "example": "668953cd4a7b6c993aed1a36"
-                    }
-                }
-            },
-            "SoulHomeCreate": {
-                "description": "",
-                "type": "object",
-                "properties": {
-                    "type": {
-                        "description": "The type of the SoulHome",
-                        "type": "string",
-                        "example": "type1"
-                    },
-                    "clan_id": {
-                        "description": "The id of the associated Clan",
-                        "type": "string",
-                        "example": "667bfec6afb8211b4bd8dbff"
-                    }
-                }
-            },
-            "SoulHomeUpdate": {
-                "description": "",
-                "type": "object",
-                "properties": {
-                    "_id": {
-                        "description": "The _id of the SoulHome, readonly",
-                        "type": "string",
-                        "example": "668c0e9f9470819cf38e371c"
-                    },
-                    "type": {
-                        "description": "The type of the SoulHome",
-                        "type": "string",
-                        "example": "type1"
-                    },
-                    "clan_id": {
-                        "description": "The id of the associated Clan",
-                        "type": "string",
-                        "example": "667bfec6afb8211b4bd8dbff"
-                    },
-                    "addedRooms": {
-                        "description": "The rooms to add to the SoulHome",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "example": [
-                            "667bfec6afb8211b4bd8dbff"
-                        ]
-                    },
-                    "removedRooms": {
-                        "description": "The rooms to remove from the SoulHome",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "example": [
-                            "667bfec6afb8211b4bd8dbff"
-                        ]
-                    }
-                }
-            },
-            "RoomCreate": {
-                "type": "object",
-                "properties": {
-                    "floorType": {
-                        "description": "The type of the floor in the room",
-                        "type": "string",
-                        "example": "floor1"
-                    },
-                    "wallType": {
-                        "description": "The type of the wall in the room",
-                        "type": "string",
-                        "example": "wall1"
-                    },
-                    "player_id": {
-                        "description": "The id of the associated Player",
-                        "type": "string",
-                        "example": "665df7026bf5b8f670569ea4"
-                    },
-                    "soulHome_id": {
-                        "description": "The id of the associated SoulHome",
-                        "type": "string",
-                        "example": "667ef139b3b5bf0f7a840f2d"
-                    }
-                }
-            },
             "RoomUpdate": {
                 "type": "object",
                 "properties": {
@@ -3977,28 +3321,20 @@
                         "type": "string",
                         "example": "wall1"
                     },
-                    "player_id": {
-                        "description": "The id of the associated Player",
-                        "type": "string",
-                        "example": "665df7026bf5b8f670569ea4"
-                    },
-                    "soulHome_id": {
-                        "description": "The id of the associated SoulHome",
-                        "type": "string",
-                        "example": "667ef139b3b5bf0f7a840f2d"
-                    },
                     "isActive": {
-                        "description": "Indicates whether the room is active",
+                        "description": "Indicates whether the room is active or deactivated",
                         "type": "boolean",
                         "example": false
                     },
-                    "roomItems": {
-                        "description": "List of items in the room",
-                        "type": "array",
-                        "items": {
-                            "type": "object"
-                        },
-                        "example": []
+                    "deactivationTimestamp": {
+                        "description": "Indicates when the Room will be deactivated",
+                        "type": "number",
+                        "example": 1721927762
+                    },
+                    "isLift": {
+                        "description": "Indicates whether the room has lift or staicases",
+                        "type": "boolean",
+                        "example": false
                     }
                 }
             },

@@ -30,8 +30,9 @@ import {CreateMessageDto} from "./dto/createMessage.dto";
 import {MessageDto} from "./dto/message.dto";
 import {chat_idParam, messageParam} from "./dto/messageParam";
 import {APIObjectName} from "../common/enum/apiObjectName.enum";
+import { Serialize } from "src/common/interceptor/response/Serialize";
 
-@NoAuth()
+
 @Controller('chat')
 export class ChatController {
     public constructor(
@@ -46,6 +47,8 @@ export class ChatController {
         return this.service.createOne(body);
     }
 
+    @NoAuth()
+    @Serialize(ChatDto)
     @Get('/:_id')
     @BasicGET(ModelName.CHAT, ChatDto)
     @AddGetQueries()
@@ -53,7 +56,9 @@ export class ChatController {
         return this.service.readOneById(param._id, request['mongoPopulate']);
     }
 
+    @NoAuth()
     @Get()
+    @Serialize(ChatDto)
     @OffsetPaginate(ModelName.CHAT)
     @AddSearchQuery(ChatDto)
     @AddSortQuery(ChatDto)
@@ -82,12 +87,14 @@ export class ChatController {
         return this.service.createMessage(param.chat_id, body);
     }
 
+    @NoAuth()
     @Get('/:chat_id/messages/:_id')
     @BasicGET(APIObjectName.MESSAGE, MessageDto)
     public getMessage(@Param() param: messageParam) {
         return this.service.readOneMessageById(param.chat_id, param._id);
     }
 
+    @NoAuth()
     @Get('/:chat_id/messages')
     @OffsetPaginate(ModelName.CHAT)
     @AddSearchQuery(MessageDto)
