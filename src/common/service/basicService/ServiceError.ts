@@ -11,6 +11,7 @@ export const SERVICE_ERROR_TYPE = 'ServiceError';
 type ServiceErrorArgs = {
     reason?: SEReason,
     field?: string,
+    value?: string,
     message?: string,
     additional?: any
 }
@@ -22,6 +23,7 @@ type ServiceErrorArgs = {
  * The ServiceError has following fields:
  * - reason why the error happen, default UNEXPECTED
  * - field with what field there is a problem (usually in validation errors), default null
+ * - value which cause the error, default null
  * - message optional message to consumer with explanation of the error, default null
  * - additional data to pass farther, which can be useful for the consumer, for example DB error object, default null
  */
@@ -30,16 +32,19 @@ export default class ServiceError{
     constructor({
         reason = SEReason.UNEXPECTED,
         field=null,
+        value=null,
         message=null,
         additional=null
     }: ServiceErrorArgs){
         this.reason = reason;
         this.field = field;
+        this.value = value;
         this.message = message;
         this.additional = additional;
     }
     public reason: SEReason;
     public field: string | null;
+    public value: string | null;
     public message: string | null;
     public additional: any | null;
 
