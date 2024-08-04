@@ -17,24 +17,19 @@ import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
 import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
-import BasicService from "src/common/service/basicService/BasicService";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
 import { NoAuth } from "src/auth/decorator/NoAuth.decorator";
 
 @Controller('characterClass')
 export class CharacterClassController{
-    public constructor(private readonly service: CharacterClassService, @InjectModel(ModelName.CHARACTER_CLASS) public model: Model<any>) {
+    public constructor(private readonly service: CharacterClassService) {
     }
 
     @Post()
-    //@Authorize({action: Action.create, subject: CharacterClassDto})
+    @Authorize({action: Action.create, subject: CharacterClassDto})
     @NoAuth()
     @BasicPOST(CharacterClassDto)
-    public create(@Body() body: any) {
-        const service = new BasicService(this.model);
-        //66ae5240c0f22557a7016397
-        return service.readOneById('66ae5240c0f22557a7016397', {includeRefs: [ModelName.CHAT]});
+    public async create(@Body() body: CreateCharacterClassDto) {
+        return this.service.createOne(body);
     }
 
     @Get('/:_id')
