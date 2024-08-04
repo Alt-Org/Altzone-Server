@@ -2,8 +2,13 @@ import { ModelName } from "src/common/enum/modelName.enum";
 import ServiceError from "./ServiceError";
 import { FilterQuery } from "mongoose";
 
-
+/**
+ * Currently not in use
+ */
 export type TIServiceCreateOneOptions = {}
+/**
+ * Currently not in use
+ */
 export type TIServiceCreateManyOptions = {}
 
 export type TReadByIdOptions = {
@@ -113,7 +118,7 @@ export type TIServiceReadManyOptions<TObject = any> = {
      * ```
      * @see [MongoDB queries](https://www.mongodb.com/docs/manual/reference/operator/query/)
      */
-    filter: FilterQuery<TObject> | FilterQuery<TObject>[],
+    filter?: FilterQuery<TObject> | FilterQuery<TObject>[],
 
     /**
      * Specifies which fields of the requested objects to include.
@@ -166,6 +171,9 @@ export type TIServiceReadManyOptions<TObject = any> = {
     includeRefs?: ModelName[]
 }
 
+/**
+ * Currently not in use
+ */
 export type TIServiceUpdateByIdOptions = {}
 
 export type TIServiceUpdateOneOptions<TObject = any> = {
@@ -222,6 +230,9 @@ export type TIServiceUpdateManyOptions<TObject = any> = {
     filter: FilterQuery<TObject> | FilterQuery<TObject>[]
 }
 
+/**
+ * Currently not in use
+ */
 export type TIServiceDeleteByIdOptions = {}
 
 export type TIServiceDeleteOneOptions<TObject = any> = {
