@@ -4,11 +4,10 @@
 export const OBJECT_TYPE_FIELD = 'objectType';
 
 /**
- * Interface can be used together with AddType decorator to add the objectType field and isType() function for TS
+ * Interface can be used together with AddType decorator to add the objectType field
  */
 export interface ObjectType {
     [OBJECT_TYPE_FIELD]: string;
-    isType: (type: string) => boolean;
 }
 
 /**
@@ -25,11 +24,23 @@ export default function AddType(type: string) {
     }
 }
 
+/**
+ * Determines whenever the object is of specified type or not
+ *
+ * Notice that it will return false for null objects and for objects, which does not have the objectType field
+ * @param obj to check
+ * @param type 
+ * @returns _true_ if objectType field is equal to the type parameter or _false_ if not
+ */
+export function isType(obj: any, type: string){
+    if(!obj || !obj[OBJECT_TYPE_FIELD])
+        return false;
+
+    return obj[OBJECT_TYPE_FIELD] === type;
+}
+
 function ObjectTypeMixin<T extends { new(...args: any[]): {} }>(Base: T, type: string) {
     return class extends Base implements ObjectType {
         [OBJECT_TYPE_FIELD] = type;
-        isType(compareType: string): boolean {
-            return this[OBJECT_TYPE_FIELD] === compareType;
-        }
     };
 }
