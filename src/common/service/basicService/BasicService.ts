@@ -1,4 +1,4 @@
-import { Error, Model, MongooseError } from "mongoose";
+import { Error, Model } from "mongoose";
 import { IService, TIServiceCreateManyOptions, TIServiceCreateOneOptions, TIServiceDeleteByIdOptions, TIServiceDeleteManyOptions, TIServiceDeleteOneOptions, TIServiceReadManyOptions, TIServiceReadOneOptions, TIServiceUpdateByIdOptions, TIServiceUpdateManyOptions, TIServiceUpdateOneOptions, TReadByIdOptions } from "./IService";
 import ServiceError from "./ServiceError";
 import { SEReason } from "./SEReason";
@@ -11,6 +11,10 @@ import { SEReason } from "./SEReason";
  * In case of any errors occurred class methods will return an array of ServiceErrors
  */
 export default class BasicService implements IService{
+    /**
+     * 
+     * @param model DB model class to query. Can also be injected with @InjectModel() by mongoose
+     */
     constructor(
         private readonly model: Model<any>
     ){
@@ -35,19 +39,40 @@ export default class BasicService implements IService{
 
     async readOneById<TOutput = any>(_id: string, options?: TReadByIdOptions): Promise<TOutput | ServiceError[]> {
         try {
-            return options?.includeRefs ? 
+            const resp = options?.includeRefs ? 
                 await this.model.findById(_id, options?.select).populate(options.includeRefs) as TOutput : 
                 await this.model.findById(_id, options?.select);
-        } catch (error) {
-            console.log(error);
+
+            if(!resp)
+                return [new ServiceError({
+                    reason: SEReason.NOT_FOUND,
+                    message: 'Could not find any objects with specified id',
+                    field: '_id',
+                    value: _id
+                })];
+
+            return resp;
+        } catch (error: any) {
             return convertMongooseToServiceErrors(error);
         }
     }
 
     async readOne<TOutput = any>(options: TIServiceReadOneOptions): Promise<TOutput | ServiceError[]> {
         try {
-            const { includeRefs, filter, select } = options;
-            return await this.model.findOne(filter, select).populate(includeRefs) as TOutput;
+            const { filter } = options;
+            const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
+
+            const resp = options?.includeRefs ? 
+                await this.model.findOne(filterToApply, options?.select).populate(options.includeRefs) as TOutput :
+                await this.model.findOne(filterToApply, options?.select);
+
+            if(!resp)
+                return [new ServiceError({
+                    reason: SEReason.NOT_FOUND,
+                    message: 'Could not find any objects with specified condition'
+                })];
+
+            return resp;
         } catch (error) {
             return convertMongooseToServiceErrors(error);
         }
@@ -55,8 +80,20 @@ export default class BasicService implements IService{
 
     async readMany<TOutput = any>(options?: TIServiceReadManyOptions): Promise<TOutput[] | ServiceError[]> {
         try {
-            const { includeRefs, filter, select, ...settings } = options;
-            return await this.model.find(filter, select, settings).populate(includeRefs) as TOutput[];
+            const { ...settings } = options;
+            const filterToApply = Array.isArray(options?.filter) ? { $or: options?.filter } : options?.filter;
+
+            const resp = options?.includeRefs ? 
+                await this.model.find(filterToApply, options?.select, settings).populate(options.includeRefs) as TOutput[] :
+                await this.model.find(filterToApply, options?.select, settings) as TOutput[];
+
+            if(!resp || resp.length === 0)
+                return [new ServiceError({
+                    reason: SEReason.NOT_FOUND,
+                    message: 'Could not find any objects with specified condition'
+                })];
+                
+            return resp;
         } catch (error) {
             return convertMongooseToServiceErrors(error);
         }
@@ -66,7 +103,15 @@ export default class BasicService implements IService{
     async updateOneById<TInput = any>(_id: string, input: TInput, options?: TIServiceUpdateByIdOptions): Promise<boolean | ServiceError[]> {
         try {
             const resp = await this.model.updateOne({_id}, input);
-            return true;
+            if(resp.matchedCount === 0)
+                return [new ServiceError({
+                    reason: SEReason.NOT_FOUND,
+                    message: 'Could not find any objects with specified _id',
+                    field: '_id',
+                    value: _id
+                })];
+
+            return resp.modifiedCount !== 0;
         } catch (error) {
             return convertMongooseToServiceErrors(error);
         }
@@ -75,8 +120,16 @@ export default class BasicService implements IService{
     async updateOne<TInput = any>(input: TInput, options: TIServiceUpdateOneOptions): Promise<boolean | ServiceError[]> {
         try {
             const { filter } = options;
-            const resp = await this.model.updateOne(filter, input);
-            return true;
+            const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
+
+            const resp = await this.model.updateOne(filterToApply, input);
+            if(resp.matchedCount === 0)
+                return [new ServiceError({
+                    reason: SEReason.NOT_FOUND,
+                    message: 'Could not find any objects with specified condition'
+                })];
+
+            return resp.modifiedCount !== 0;
         } catch (error) {
             return convertMongooseToServiceErrors(error);
         }
@@ -85,8 +138,15 @@ export default class BasicService implements IService{
     async updateMany<TInput = any>(input: TInput[], options: TIServiceUpdateManyOptions): Promise<boolean | ServiceError[]> {
         try {
             const { filter } = options;
-            const resp = await this.model.updateMany(filter, input);
-            return true;
+            const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
+            const resp = await this.model.updateMany(filterToApply, input);
+            if(resp.matchedCount === 0)
+                return [new ServiceError({
+                    reason: SEReason.NOT_FOUND,
+                    message: 'Could not find any objects with specified condition'
+                })];
+
+            return resp.modifiedCount !== 0;
         } catch (error) {
             return convertMongooseToServiceErrors(error);
         }
@@ -96,6 +156,13 @@ export default class BasicService implements IService{
     async deleteOneById(_id: string, options?: TIServiceDeleteByIdOptions): Promise<true | ServiceError[]> {
         try {
             const resp = await this.model.deleteOne({_id});
+            if(resp.deletedCount === 0)
+                return [new ServiceError({
+                    reason: SEReason.NOT_FOUND,
+                    message: 'Could not find any objects by specified _id',
+                    field: '_id',
+                    value: _id
+                })];
             return true;
         } catch (error) {
             return convertMongooseToServiceErrors(error);
@@ -106,6 +173,11 @@ export default class BasicService implements IService{
         try {
             const { filter } = options;
             const resp = await this.model.deleteOne(filter);
+            if(resp.deletedCount === 0)
+                return [new ServiceError({
+                    reason: SEReason.NOT_FOUND,
+                    message: 'Could not find any objects by specified condition'
+                })];
             return true;
         } catch (error) {
             return convertMongooseToServiceErrors(error);
@@ -116,6 +188,11 @@ export default class BasicService implements IService{
         try {
             const { filter } = options;
             const resp = await this.model.deleteMany(filter);
+            if(resp.deletedCount === 0)
+                return [new ServiceError({
+                    reason: SEReason.NOT_FOUND,
+                    message: 'Could not find any objects by specified condition'
+                })];
             return true;
         } catch (error) {
             return convertMongooseToServiceErrors(error);
@@ -133,11 +210,13 @@ export function convertMongooseToServiceErrors(error?: any): ServiceError[]{
     if(!error)
         return [new ServiceError({ reason: SEReason.MISCONFIGURED, message: 'Provided error is null' })];
 
+    //Not unique field(s)
     if(error?.code === 11000)
         return convertUniqueErrorToServiceErrors(error)
 
-    if(!(error instanceof MongooseError))
-        return [new ServiceError({ reason: SEReason.MISCONFIGURED, message: 'The error is not of type MongooseError', additional: error })];
+    //Trying to populate collection, which is not related to the requested
+    if(error?.name === 'StrictPopulateError' && error?.path)
+        return [new ServiceError({ reason: SEReason.NOT_ALLOWED, message: `Reference "${error?.path}" is not in the DB schema`, field: 'includeRefs' })];
     
     if (error instanceof Error.ValidationError) {
         const fieldErrors = Object.values(error.errors);
@@ -154,7 +233,7 @@ export function convertMongooseToServiceErrors(error?: any): ServiceError[]{
 
     if(error instanceof Error.CastError)
         return [new ServiceError({
-            reason: SEReason.MISCONFIGURED,
+            reason: convertMongooseErrorKindToReason(error.kind),
             field: error.path,
             message: error.message
         })];
@@ -166,6 +245,13 @@ export function convertMongooseToServiceErrors(error?: any): ServiceError[]{
             message: error.message
         })];
 
+    if(error?.name == 'Error')
+        return [new ServiceError({
+            reason: SEReason.UNEXPECTED,
+            message: 'Can not convert the JS Error to ServiceError',
+            additional: { ...error, message: error?.message, name: error.name }
+        })];
+
     return [new ServiceError({
         reason: SEReason.UNEXPECTED,
         message: 'Can not convert the error from Mongoose to Service',
@@ -175,46 +261,39 @@ export function convertMongooseToServiceErrors(error?: any): ServiceError[]{
 
 function convertValidationMongooseErrorToService(error: any){
     const serviceErrorArgs = {
-        reason: SEReason.UNEXPECTED,
+        reason: convertMongooseErrorKindToReason(error.kind),
         field: error.path,
         message: error.message,
         value: error.value
     };
-    
-    switch (error.kind) {
-        case 'required':
-            serviceErrorArgs.reason = SEReason.REQUIRED;
-            break;
-        case 'enum':
-            serviceErrorArgs.reason = SEReason.WRONG_ENUM;
-            break;
-        case 'min':
-            serviceErrorArgs.reason = SEReason.NOT_NUMBER;
-            break;
-        case 'max':
-            serviceErrorArgs.reason = SEReason.NOT_NUMBER;
-            break;
-        case 'String':
-            serviceErrorArgs.reason = SEReason.NOT_STRING;
-            break;
-        case 'Number':
-            serviceErrorArgs.reason = SEReason.NOT_NUMBER;
-            break;
-        case 'Boolean':
-            serviceErrorArgs.reason = SEReason.NOT_BOOLEAN;
-            break;
-        case 'Array':
-            serviceErrorArgs.reason = SEReason.NOT_ARRAY;
-            break;
-        case 'Object':
-            serviceErrorArgs.reason = SEReason.NOT_OBJECT;
-            break;
-        default:
-            serviceErrorArgs.reason = SEReason.UNEXPECTED;
-            break;
-    }
 
     return new ServiceError(serviceErrorArgs);
+}
+
+function convertMongooseErrorKindToReason(kind: string){
+    const lowerCaseKind = kind.toLowerCase();
+    switch (lowerCaseKind) {
+        case 'required':
+            return SEReason.REQUIRED;
+        case 'enum':
+            return SEReason.WRONG_ENUM;
+        case 'min':
+            return SEReason.NOT_NUMBER;
+        case 'max':
+            return SEReason.NOT_NUMBER;
+        case 'string':
+            return SEReason.NOT_STRING;
+        case 'number':
+            return SEReason.NOT_NUMBER;
+        case 'boolean':
+            return SEReason.NOT_BOOLEAN;
+        case 'array':
+            return SEReason.NOT_ARRAY;
+        case 'object':
+            return SEReason.NOT_OBJECT;
+        default:
+            return SEReason.UNEXPECTED;
+    }
 }
 
 /**
