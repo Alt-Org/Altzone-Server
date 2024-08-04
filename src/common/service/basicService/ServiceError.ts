@@ -1,4 +1,4 @@
-import AddType from "src/common/base/decorator/AddType.decorator";
+import AddType, { isType } from "src/common/base/decorator/AddType.decorator";
 import { SEReason } from "./SEReason";
 
 /**
@@ -9,23 +9,37 @@ import { SEReason } from "./SEReason";
 export const SERVICE_ERROR_TYPE = 'ServiceError';
 
 type ServiceErrorArgs = {
+    /**
+     * Why the error is happen
+     * @default SEReason.UNEXPECTED
+     */
     reason?: SEReason,
+    /**
+     * On what field the error happen (if the field is possible to define), mostly used for validation errors
+     * @default null
+     */
     field?: string,
+    /**
+     * Value of the field (only if the field is specified), mostly used for validation errors
+     * @default null
+     */
     value?: string,
+    /**
+     * Message should specify why error happen, mostly used for other developers "FYI"
+     * @default null
+     */
     message?: string,
+    /**
+     * Any additional data to provide. 
+     * For example if the error is thrown by some method and is UNEXPECTED, when this field should contain the thrown error
+     * @default null
+     */
     additional?: any
 }
 /**
  * The class represents an error occurred on service level
  *
  * The error can relate for example to validation or database errors
- *
- * The ServiceError has following fields:
- * - reason why the error happen, default UNEXPECTED
- * - field with what field there is a problem (usually in validation errors), default null
- * - value which cause the error, default null
- * - message optional message to consumer with explanation of the error, default null
- * - additional data to pass farther, which can be useful for the consumer, for example DB error object, default null
  */
 @AddType(SERVICE_ERROR_TYPE)
 export default class ServiceError{
@@ -49,5 +63,18 @@ export default class ServiceError{
     public additional: any | null;
 
     declare objectType: string;
-    declare isType: (type: string) => boolean;
+}
+
+/**
+ * Determines whenever the specified object or array is ServiceError or not.
+ *
+ * In case the item is an array, it will check whenever the first item of an array is a ServiceError or not
+ * @param item object or array to check
+ * @returns _true_ if object is ServiceError or array contains ServiceError objects, _false_ if not
+ */
+export function isServiceError(item: any | any[]) {
+    if(Array.isArray(item))
+        return isType(item[0], SERVICE_ERROR_TYPE);
+
+    return isType(item, SERVICE_ERROR_TYPE);
 }
