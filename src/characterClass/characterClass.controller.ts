@@ -17,6 +17,7 @@ import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
 import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
+import { NoAuth } from "src/auth/decorator/NoAuth.decorator";
 
 @Controller('characterClass')
 export class CharacterClassController{
@@ -25,8 +26,9 @@ export class CharacterClassController{
 
     @Post()
     @Authorize({action: Action.create, subject: CharacterClassDto})
+    @NoAuth()
     @BasicPOST(CharacterClassDto)
-    public create(@Body() body: CreateCharacterClassDto) {
+    public async create(@Body() body: CreateCharacterClassDto) {
         return this.service.createOne(body);
     }
 
