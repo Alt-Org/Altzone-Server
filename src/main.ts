@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import {ValidationPipe} from "@nestjs/common";
-import {useContainer} from "class-validator";
+import {BadRequestException, ValidationPipe} from "@nestjs/common";
+import {useContainer, ValidationError} from "class-validator";
 import { SwaggerModule } from '@nestjs/swagger';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
@@ -24,7 +24,7 @@ async function bootstrap() {
     // });
 
     app.useGlobalPipes(
-        new ValidationPipe({ whitelist: true, transform: true })
+        new ValidationPipe({ whitelist: true, transform: true, exceptionFactory: errorFactory })
     );
 
     //Let the class-validator use DI system of NestJS
@@ -43,3 +43,23 @@ async function bootstrap() {
     await app.listen(8080);
 }
 bootstrap();
+
+/**
+ * Converts thrown validation errors to Nest BadRequestException with additional errors array used in ValidationExceptionFilter
+ * @param errors 
+ * @returns 
+ */
+function errorFactory(errors: ValidationError[]) {
+    const messages = extractMessagesFromValidationErrors(errors);
+    const err = new BadRequestException({
+        statusCode: 400,
+        message: messages,
+        error: "Bad Request",
+        errors: errors
+    });
+
+    return err;
+}
+function extractMessagesFromValidationErrors(errors: ValidationError[]){
+    return errors.map(error => Object.values(error.constraints));
+}
