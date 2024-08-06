@@ -14,6 +14,7 @@ export enum SEReason {
     NOT_ARRAY = 'NOT_ARRAY',
     NOT_OBJECT = 'NOT_OBJECT',
     WRONG_ENUM = 'WRONG_ENUM',
+    NOT_DATE = 'NOT_DATE',
     LESS_THAN_MIN = 'LESS_THAN_MIN',
     MORE_THAN_MAX = 'MORE_THAN_MAX',
  

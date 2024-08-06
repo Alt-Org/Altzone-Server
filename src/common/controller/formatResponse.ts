@@ -13,16 +13,17 @@ import { ModelName } from "../enum/modelName.enum";
  * ```
  * @returns formatted response object
  */
-export default function formatResponse(data: any, modelName: ModelName) {
+export default function formatResponse(data: any, modelName?: ModelName) {
     const dataType = Array.isArray(data) ? 'Array' : 'Object';
-    const dataCount = dataType === 'Array' ? data.length : 1; 
+    const dataCount = dataType === 'Array' ? data.length : 1;
+    const model = modelName ?? 'Object';
     return {
         data: {
-            [modelName]: data
+            [model]: data
         },
         metaData: {
-            dataKey: modelName,
-            modelName: modelName,
+            dataKey: model,
+            modelName: model,
             dataType,
             dataCount
         }

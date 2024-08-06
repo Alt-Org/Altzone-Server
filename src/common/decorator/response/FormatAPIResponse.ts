@@ -1,17 +1,10 @@
-import {MongoServerError} from "mongodb";
-import {
-    BadRequestException,
-    ConflictException,
-    InternalServerErrorException,
-    UnprocessableEntityException
-} from "@nestjs/common";
 import {HttpException} from "@nestjs/common/exceptions/http.exception";
 import { isServiceError } from "src/common/service/basicService/ServiceError";
 import { APIError, convertToAPIError, isAPIError } from "src/common/controller/APIError";
 import formatResponse from "src/common/controller/formatResponse";
 import { ModelName } from "src/common/enum/modelName.enum";
 
-export const FormatAPIResponse = (modelName: ModelName): any => {
+export const FormatAPIResponse = (modelName?: ModelName): any => {
     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
         const originalMethod = descriptor.value;
 
@@ -24,7 +17,7 @@ export const FormatAPIResponse = (modelName: ModelName): any => {
                         if(isServiceError(data) || isAPIError(data))
                             throw data;
 
-                        return formatResponse(result, modelName);
+                        return data != null ? formatResponse(data, modelName) : data;
                     }).catch((error: any) => {
                         throwAPIError(error);
                     });
@@ -33,7 +26,7 @@ export const FormatAPIResponse = (modelName: ModelName): any => {
                 if(isServiceError(result) || isAPIError(result))
                     throw result;
 
-                return formatResponse(result, modelName);
+                return result != null ? formatResponse(result, modelName) : result;
             } catch (error) {
                 throwAPIError(error);
             }
@@ -51,5 +44,5 @@ function throwAPIError(error: any) {
     else
         resp.errors.push(convertToAPIError(error));
 
-    throw new HttpException(resp, resp.errors[0].status);    
+    throw new HttpException(resp, resp.errors[0].statusCode);    
 }
