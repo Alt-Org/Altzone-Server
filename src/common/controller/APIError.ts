@@ -1,3 +1,4 @@
+import { HttpException, HttpStatus } from "@nestjs/common";
 import AddType, { isType } from "../base/decorator/AddType.decorator.js";
 import { SERVICE_ERROR_TYPE } from "../service/basicService/ServiceError.js";
 import {APIErrorReason} from "./APIErrorReason";
@@ -19,17 +20,17 @@ type APIErrorArgs = {
      * HTTP status code of the error
      * @default null
      */
-    status?: number,
+    statusCode?: number,
     /**
      * Message should specify why error happen, mostly used for other developers "FYI"
-     * @default 'Unexpected server error occurred'
+     * @default null
      */
     message?: string,
     /**
      * On what field the error happen (if the field is possible to define), mostly used for validation errors
      * @default null
      */
-    field?: null,
+    field?: string,
     /**
      * Value of the field (only if the field is specified), mostly used for validation errors
      * @default null
@@ -47,27 +48,36 @@ type APIErrorArgs = {
  * The class represents an error occurred on controller level
  *
  * The class is used to sent an error to the client side
+ *
+ * It extends the Nest HttpException and can be handled by built-in filters (not recommended)
+ *
+ * @see [Nest Filters](https://docs.nestjs.com/exception-filters)
  */
 @AddType(API_ERROR_TYPE)
-export class APIError{
+export class APIError extends HttpException{
     constructor({
             reason = APIErrorReason.UNEXPECTED,
-            status,
-            message = 'Unexpected server error occurred',
+            statusCode,
+            message = null,
             field = null,
             value = null,
             additional = null
         }: APIErrorArgs){
+        const validStatus = statusCode ? (isStatusValid(statusCode) ? statusCode : 500) : determineStatus(reason);
+        super(reason, validStatus);
+
         this.reason = reason;
         this.message = message;
         this.field = field;
         this.value = value;
         this.additional = additional;
-
-        this.status = status ? (isStatusValid(status) ? status : 500) : determineStatus(this.reason);
+        this.statusCode = validStatus;
     }
+
+    name: string;
+    stack?: string;
     reason: APIErrorReason;
-    status: number | null;
+    statusCode: number | null;
     message: string | null;
     field: string | null;
     value: string | null;
@@ -113,7 +123,8 @@ function determineStatus(reason: APIErrorReason){
         APIErrorReason.NOT_STRING, APIErrorReason.NOT_NUMBER, 
         APIErrorReason.NOT_BOOLEAN, APIErrorReason.NOT_ARRAY,
         APIErrorReason.NOT_OBJECT, APIErrorReason.WRONG_ENUM,
-        APIErrorReason.LESS_THAN_MIN, APIErrorReason.MORE_THAN_MAX
+        APIErrorReason.LESS_THAN_MIN, APIErrorReason.MORE_THAN_MAX,
+        APIErrorReason.NOT_DATE
     ];
 
     const notAuthenticated = [
