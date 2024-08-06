@@ -66,6 +66,14 @@ type Subjects = InferSubjects<AllowedSubject>;
 
 export type AppAbility = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
+/**
+ * This class is a factory for returning appropriate rules for specified subjects and actions.
+ *
+ * In case some new file with rules is created it should be registered here in order to work with \@Authorize() decorator as follows: 
+ * - Create a new rule 
+ * - Add the subject(s) type to the AllowedSubject type above
+ * - Add new if statement in the createForUser()
+ */
 @Injectable()
 export class CASLAbilityFactory {
     public constructor(
@@ -89,7 +97,7 @@ export class CASLAbilityFactory {
         if (isType(obj, 'CustomCharacterDto') || isType(obj, 'UpdateCustomCharacterDto'))
             return customCharacterRules(user, subject, action, subjectObj, this.requestHelperService);
       
-        if (isType(obj, 'CharacterClassDto') || isType(obj, 'UpdateCharacterClassDto'))
+        if (obj instanceof CharacterClassDto || isType(obj, 'CharacterClassDto') || isType(obj, 'UpdateCharacterClassDto'))
             return characterClassRules(user, subject, action, subjectObj);
  
         if (isType(obj, 'ItemDto') || isType(obj, 'UpdateItemDto'))

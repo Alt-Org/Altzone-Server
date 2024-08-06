@@ -6,6 +6,13 @@ import {RequestHelperService} from "../../../requestHelper/requestHelper.service
 import { ModelName } from "src/common/enum/modelName.enum";
 import {IResponseShape} from "../../interface/IResponseShape";
 
+/**
+ * Extract pagination data from queries and add it to the request object
+ * @param modelName used to calculate the amount of objects of this model in DB
+ * @param minLimit defines the min value for the "limit" query on the client side, so if the client will set limit below min this minLimit value will be used instead
+ * @param maxLimit defines the max value for the "limit" query on the client side, so if the client will set limit above max this maxLimit value will be used instead
+ * @returns 
+ */
 export function OffsetPaginate(modelName: ModelName, minLimit: number=20, maxLimit:number=50) {
     @Injectable()
     class PaginateInterceptor implements NestInterceptor{
