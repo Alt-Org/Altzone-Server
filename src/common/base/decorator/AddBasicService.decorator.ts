@@ -10,6 +10,10 @@ import {PostCreateHookFunction, PostHookFunction, PostReadAllHookFunction, PostR
 
 export type ClearCollectionReferences = (_id: any, ignoreReferences?: IgnoreReferencesType) => void | Promise<void>;
 
+/**
+ * @deprecated this decorator is going to be removed from use shortly. Please use BasicService class instead
+ * @returns 
+ */
 export const AddBasicService = () => {
     return function<T extends {
         new (...args: any[]): {

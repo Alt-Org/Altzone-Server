@@ -1,3 +1,5 @@
+import { Expose } from "class-transformer";
+
 /**
  * Constant, which determines the field used to determine the type of the object
  */
@@ -20,7 +22,14 @@ export interface ObjectType {
  */
 export default function AddType(type: string) {
     return function <T extends { new(...args: any[]): {} }>(constructor: T) {
-        return ObjectTypeMixin(constructor, type);
+        return class extends constructor {
+            objectType = type;
+    
+            constructor(...args: any[]) {
+                super(...args);
+                Object.assign(this, { objectType: type });
+            }
+        };
     }
 }
 
@@ -40,7 +49,13 @@ export function isType(obj: any, type: string){
 }
 
 function ObjectTypeMixin<T extends { new(...args: any[]): {} }>(Base: T, type: string) {
-    return class extends Base implements ObjectType {
-        [OBJECT_TYPE_FIELD] = type;
+    return class extends Base {
+        objectType = type;
+
+        constructor(...args: any[]) {
+            console.log(args);
+            super(...args);
+            Object.assign(this, { objectType: type });
+        }
     };
 }

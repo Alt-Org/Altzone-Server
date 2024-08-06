@@ -67,7 +67,7 @@ export class AuthorizationInterceptor implements NestInterceptor{
         const userAbility = await this.caslAbilityFactory.createForUser(user, subject, action, subjectObj);
 
         //if can not make any request with this method
-        if(!userAbility.can(requestAction, subject))
+        if(!userAbility?.can(requestAction, subject))
             throw requestForbiddenError;
 
         //check if user is trying to create subject for another user
@@ -159,7 +159,12 @@ export class AuthorizationInterceptor implements NestInterceptor{
 
     private getAllowedFields = (ability: MongoAbility, action: SupportedAction, dataClass: object): string[] => {
         const options: PermittedFieldsOptions<any> = {
-            fieldsFrom: rule => (rule.fields && rule.fields.length !== 0) ? rule.fields : Object.keys(dataClass)
+            fieldsFrom: (rule) => {
+                if(rule.fields && rule.fields.length !== 0)
+                    return rule.fields;
+
+                return Object.keys(dataClass);
+            }
         };
         return permittedFieldsOf(ability, action, dataClass, options);
     }

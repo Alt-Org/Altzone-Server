@@ -3,8 +3,12 @@ import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
 import {plainToInstance} from "class-transformer";
 import {IClass} from "../../interface/IClass";
-import {IResponseShape} from "../../interface/IResponseShape";
 
+/**
+ * Add a serialization or remove all fields from response, which do not have the /@Expose() decorator defined
+ * @param dto defines, which fields should be returned and which node
+ * @returns 
+ */
 export function Serialize(dto: IClass) {
     return UseInterceptors(new SerializeInterceptor(dto))
 }
@@ -14,11 +18,12 @@ class SerializeInterceptor implements NestInterceptor{
     }
     public intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
         return next.handle().pipe(
-            map((data: any) => {
+            map(async (data: any) => {
                 if(!data)
                     return data;
 
-                const parsedData = data as IResponseShape;
+                const parsedData = await data;
+
                 const serializedData = plainToInstance(this.dto, parsedData.data[parsedData.metaData.dataKey], {
                     excludeExtraneousValues: true
                 });

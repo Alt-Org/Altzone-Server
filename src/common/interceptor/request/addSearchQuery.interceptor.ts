@@ -5,6 +5,11 @@ import {instanceToPlain} from "class-transformer";
 import {operators, querySelectors, queryToDB} from "../../type/search.type";
 import {IClass} from "../../interface/IClass";
 
+/**
+ * Extract "search" query from the request and add the  data to request
+ * @param dtoClass used to determine allowed searching fields
+ * @returns 
+ */
 export function AddSearchQuery(dtoClass: IClass) {
     return UseInterceptors(new AddSearchQueryInterceptor(dtoClass))
 }

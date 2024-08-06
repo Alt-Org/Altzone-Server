@@ -8,14 +8,18 @@ import {CharacterClassService} from "./characterClass.service";
 import {isCharacterClassExists} from "./decorator/validation/IsCharacterClassExists.decorator";
 import {CustomCharacterModule} from "../customCharacter/customCharacter.module";
 
+//Modules are used by Nest, just copy paste and adjust to your needs
 @Module({
     imports: [
+        //What model the controller or service uses (for mongoose)
         MongooseModule.forFeature([ {name: ModelName.CHARACTER_CLASS, schema: CharacterClassSchema} ]),
+        //What other modules (services etc.) this module use
         CustomCharacterModule,
         RequestHelperModule
     ],
     controllers: [CharacterClassController],
     providers: [ CharacterClassService, isCharacterClassExists ],
+    //What to export, that other modules can use, by default nothing is exported, usually you want to export the service class
     exports: [CharacterClassService]
 })
 export class CharacterClassModule {}
