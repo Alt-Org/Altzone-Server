@@ -46,7 +46,7 @@ export class CharacterClassController{
     //You can also open the endpoint for everyone, so there is no need to provide authentication (the Authorization header with token)
     //Notice that in that case you can not use @Authorize() and you have no user object 
     @NoAuth()
-    @UniformResponse()
+    @UniformResponse(ModelName.CHARACTER_CLASS)
     //Notice that the params can also be validated
     public get(@Param() param: _idDto, @Req() request: Request) {
         return this.service.readOneById(param._id);
