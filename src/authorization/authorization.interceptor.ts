@@ -13,7 +13,7 @@ import {Action} from "./enum/action.enum";
 import {AllowedSubject, CASLAbilityFactory} from "./caslAbility.factory";
 import {map} from "rxjs/operators";
 import {User} from "../auth/user";
-import {plainToInstance} from "class-transformer";
+import {instanceToPlain, plainToInstance} from "class-transformer";
 import {ObjectId} from "mongodb";
 import {Reflector} from "@nestjs/core";
 import {PERMISSION_METADATA} from "./decorator/SetAuthorizationFor";
@@ -21,6 +21,7 @@ import {permittedFieldsOf, PermittedFieldsOptions} from "@casl/ability/extra";
 import {pick} from "lodash";
 import {MongoAbility} from "@casl/ability";
 import {IResponseShape} from "../common/interface/IResponseShape";
+import { CharacterClass } from "src/characterClass/characterClass.schema";
 
 export type PermissionMetaData = {
     action: SupportedAction,
@@ -95,7 +96,7 @@ export class AuthorizationInterceptor implements NestInterceptor{
                 if(!userAbility.can(requestAction, subjectClass))
                     throw requestForbiddenError;
             } else {
-                request['allowedFields'] = this.getAllowedFields(userAbility, responseAction, new subject());
+                request['allowedFields'] = this.getAllowedFields(userAbility, responseAction, new subject(), subject);
             }
         }
 
@@ -107,7 +108,7 @@ export class AuthorizationInterceptor implements NestInterceptor{
             if(!userAbility.can(requestAction, dataClass))
                 throw requestForbiddenError;
 
-            const allowedFields = this.getAllowedFields(userAbility, requestAction, dataClass);
+            const allowedFields = this.getAllowedFields(userAbility, requestAction, dataClass, subject);
             //Add _id field, because it may not appear in case it is not specified in rule => it will be excluded from body
             allowedFields.push('_id');
             if(!allowedFields || allowedFields.length === 0)
@@ -145,7 +146,7 @@ export class AuthorizationInterceptor implements NestInterceptor{
                     dataClass._id = dataClass_id.toString();
 
                 //get all fields that can be read
-                let allowedFields = this.getAllowedFields(userAbility, responseAction, dataClass);
+                let allowedFields = this.getAllowedFields(userAbility, responseAction, new subject(), subject);
                 if(!allowedFields || allowedFields.length === 0)
                     allowedFields = Object.keys(dataClass);
 
@@ -157,13 +158,16 @@ export class AuthorizationInterceptor implements NestInterceptor{
         }));
     }
 
-    private getAllowedFields = (ability: MongoAbility, action: SupportedAction, dataClass: object): string[] => {
+    private getAllowedFields = (ability: MongoAbility, action: SupportedAction, dataClass: object, subject: AllowedSubject): string[] => {
         const options: PermittedFieldsOptions<any> = {
             fieldsFrom: (rule) => {
                 if(rule.fields && rule.fields.length !== 0)
                     return rule.fields;
 
-                return Object.keys(dataClass);
+                const foundKeys = Object.keys(dataClass);
+                const areKeysInvalid = foundKeys.length === 0 || (foundKeys.length === 1 && foundKeys[0] === 'objectType');
+
+                return !areKeysInvalid ? foundKeys : Object.keys(plainToInstance(subject, new subject()));
             }
         };
         return permittedFieldsOf(ability, action, dataClass, options);
