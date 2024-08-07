@@ -39,9 +39,9 @@ export default class BasicService implements IService{
 
     async readOneById<TOutput = any>(_id: string, options?: TReadByIdOptions): Promise<TOutput | ServiceError[]> {
         try {
-            const resp = options?.includeRefs ? 
-                await this.model.findById(_id, options?.select).populate(options.includeRefs) as TOutput : 
-                await this.model.findById(_id, options?.select);
+            const { select, includeRefs } = options ? options : { select: undefined, includeRefs: [] };
+
+            const resp = await this.model.findById(_id, select).populate(includeRefs);
 
             if(!resp)
                 return [new ServiceError({
@@ -51,7 +51,7 @@ export default class BasicService implements IService{
                     value: _id
                 })];
 
-            return resp;
+            return resp as TOutput;
         } catch (error: any) {
             return convertMongooseToServiceErrors(error);
         }
@@ -59,12 +59,9 @@ export default class BasicService implements IService{
 
     async readOne<TOutput = any>(options: TIServiceReadOneOptions): Promise<TOutput | ServiceError[]> {
         try {
-            const { filter } = options;
-            const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
+            const { filter, select, includeRefs } = options ? options : { filter: undefined, select: undefined, includeRefs: [] };
 
-            const resp = options?.includeRefs ? 
-                await this.model.findOne(filterToApply, options?.select).populate(options.includeRefs) as TOutput :
-                await this.model.findOne(filterToApply, options?.select);
+            const resp = await this.model.findOne(filter, select).populate(includeRefs);
 
             if(!resp)
                 return [new ServiceError({
@@ -72,7 +69,7 @@ export default class BasicService implements IService{
                     message: 'Could not find any objects with specified condition'
                 })];
 
-            return resp;
+            return resp as TOutput;
         } catch (error) {
             return convertMongooseToServiceErrors(error);
         }
@@ -80,12 +77,9 @@ export default class BasicService implements IService{
 
     async readMany<TOutput = any>(options?: TIServiceReadManyOptions): Promise<TOutput[] | ServiceError[]> {
         try {
-            const { ...settings } = options;
-            const filterToApply = Array.isArray(options?.filter) ? { $or: options?.filter } : options?.filter;
+            const { filter, select, includeRefs, ...settings } = options ? options : { filter: undefined, select: undefined, includeRefs: [] };
 
-            const resp = options?.includeRefs ? 
-                await this.model.find(filterToApply, options?.select, settings).populate(options.includeRefs) as TOutput[] :
-                await this.model.find(filterToApply, options?.select, settings) as TOutput[];
+            const resp = await this.model.find(filter, select, settings).populate(includeRefs);
 
             if(!resp || resp.length === 0)
                 return [new ServiceError({
@@ -93,7 +87,7 @@ export default class BasicService implements IService{
                     message: 'Could not find any objects with specified condition'
                 })];
                 
-            return resp;
+            return resp as TOutput[];
         } catch (error) {
             return convertMongooseToServiceErrors(error);
         }
@@ -119,7 +113,7 @@ export default class BasicService implements IService{
 
     async updateOne<TInput = any>(input: TInput, options: TIServiceUpdateOneOptions): Promise<boolean | ServiceError[]> {
         try {
-            const { filter } = options;
+            const { filter } = options ? options : { filter: undefined };
             const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
 
             const resp = await this.model.updateOne(filterToApply, input);
@@ -137,7 +131,7 @@ export default class BasicService implements IService{
 
     async updateMany<TInput = any>(input: TInput[], options: TIServiceUpdateManyOptions): Promise<boolean | ServiceError[]> {
         try {
-            const { filter } = options;
+            const { filter } = options ? options : { filter: undefined };
             const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
             const resp = await this.model.updateMany(filterToApply, input);
             if(resp.matchedCount === 0)
@@ -171,7 +165,7 @@ export default class BasicService implements IService{
 
     async deleteOne(options: TIServiceDeleteOneOptions): Promise<true | ServiceError[]> {
         try {
-            const { filter } = options;
+            const { filter } = options ? options : { filter: undefined };
             const resp = await this.model.deleteOne(filter);
             if(resp.deletedCount === 0)
                 return [new ServiceError({
@@ -186,7 +180,7 @@ export default class BasicService implements IService{
     
     async deleteMany(options: TIServiceDeleteManyOptions): Promise<true | ServiceError[]> {
         try {
-            const { filter } = options;
+            const { filter } = options ? options : { filter: undefined };
             const resp = await this.model.deleteMany(filter);
             if(resp.deletedCount === 0)
                 return [new ServiceError({
