@@ -5,8 +5,11 @@ import {GestaltCycle} from "../common/enum/gestaltCycle.enum";
 
 export type CharacterClassDocument = HydratedDocument<CharacterClass>;
 
+//Defines a collection schema for Mongo, 
+//you can just copy paste this example and adjust to your needs (specs can be found in ER diagram in README file)
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true }})
 export class CharacterClass {
+    //Defines properties of a field
     @Prop({ type: String, required: true, unique: true })
     name: string;
 
@@ -26,10 +29,17 @@ export class CharacterClass {
     defence: number;
 }
 
+
 export const CharacterClassSchema = SchemaFactory.createForClass(CharacterClass);
 CharacterClassSchema.set('collection', ModelName.CHARACTER_CLASS);
+
+//Define any connection with other collections in DB
+//Here it means that the CUSTOM_CHARACTER belongs to (references) CHARACTER_CLASS  
 CharacterClassSchema.virtual(ModelName.CUSTOM_CHARACTER, {
+    //To which collection it refers to
     ref: ModelName.CUSTOM_CHARACTER,
+    //This collection ref field
     localField: '_id',
+    //Other collection ref field
     foreignField: 'characterClass_id',
 });

@@ -43,7 +43,7 @@ import { clanVoteRules } from "./rule/clanVoteRules";
 import { shopRules } from "./rule/shopRules";
 import { ShopItemDTO } from "src/shop/itemShop/dto/shopItem.dto";
 import { RemovePlayerDTO } from "src/clan/join/dto/removePlayer.dto";
-import { ObjectType } from "src/common/base/decorator/AddType.decorator";
+import { isType, ObjectType } from "src/common/base/decorator/AddType.decorator";
 
 export type AllowedAction = Action.create_request | Action.read_request | Action.read_response | Action.update_request | Action.delete_request;
 
@@ -66,6 +66,14 @@ type Subjects = InferSubjects<AllowedSubject>;
 
 export type AppAbility = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
+/**
+ * This class is a factory for returning appropriate rules for specified subjects and actions.
+ *
+ * In case some new file with rules is created it should be registered here in order to work with \@Authorize() decorator as follows: 
+ * - Create a new rule 
+ * - Add the subject(s) type to the AllowedSubject type above
+ * - Add new if statement in the createForUser()
+ */
 @Injectable()
 export class CASLAbilityFactory {
     public constructor(
@@ -80,40 +88,40 @@ export class CASLAbilityFactory {
 
         const obj = new subject() as unknown as ObjectType;
 
-        if (obj.isType('ProfileDto') || obj.isType('UpdateProfileDto'))
+        if (isType(obj, 'ProfileDto') || isType(obj, 'UpdateProfileDto'))
             return profileRules(user, subject, action, subjectObj);
       
-        if (obj.isType('PlayerDto') || obj.isType('UpdatePlayerDto'))
+        if (isType(obj, 'PlayerDto') || isType(obj, 'UpdatePlayerDto'))
             return playerRules(user, subject, action, subjectObj, this.requestHelperService);
 
-        if (obj.isType('CustomCharacterDto') || obj.isType('UpdateCustomCharacterDto'))
+        if (isType(obj, 'CustomCharacterDto') || isType(obj, 'UpdateCustomCharacterDto'))
             return customCharacterRules(user, subject, action, subjectObj, this.requestHelperService);
       
-        if (obj.isType('CharacterClassDto') || obj.isType('UpdateCharacterClassDto'))
+        if (obj instanceof CharacterClassDto || isType(obj, 'CharacterClassDto') || isType(obj, 'UpdateCharacterClassDto'))
             return characterClassRules(user, subject, action, subjectObj);
  
-        if (obj.isType('ItemDto') || obj.isType('UpdateItemDto'))
+        if (isType(obj, 'ItemDto') || isType(obj, 'UpdateItemDto'))
             return itemRules(user, subject, action, subjectObj, this.requestHelperService);
   
-        if (obj.isType('StockDto') || obj.isType('UpdateStockDto'))
+        if (isType(obj, 'StockDto') || isType(obj, 'UpdateStockDto'))
             return stockRules(user, subject, action, subjectObj, this.requestHelperService);
         
-        if (obj.isType('ClanDto') || obj.isType('UpdateClanDto'))
+        if (isType(obj, 'ClanDto') || isType(obj, 'UpdateClanDto'))
             return clanRules(user, subject, action, subjectObj, this.requestHelperService);
 
-        if (obj.isType('JoinDto') || obj.isType('JoinResultDto') || obj.isType('PlayerLeaveClan') || obj.isType('RemovePlayerDTO'))
+        if (isType(obj, 'JoinDto') || isType(obj, 'JoinResultDto') || isType(obj, 'PlayerLeaveClan') || isType(obj, 'RemovePlayerDTO'))
             return joinRules(user, subject, action, subjectObj, this.requestHelperService);
 
-        if (obj.isType('SoulHomeDto') || obj.isType('updateSoulHomeDto'))
+        if (isType(obj, 'SoulHomeDto') || isType(obj, 'updateSoulHomeDto'))
             return soulHomeRules(user, subject, action, subjectObj, this.requestHelperService)
 
-        if (obj.isType('RoomDto') || obj.isType('UpdateRoomDto'))
+        if (isType(obj, 'RoomDto') || isType(obj, 'UpdateRoomDto'))
             return roomRules(user, subject, action, subjectObj, this.requestHelperService);
 
-        if (obj.isType('ClanVoteDto') || obj.isType('UpdateClanVoteDto'))
+        if (isType(obj, 'ClanVoteDto') || isType(obj, 'UpdateClanVoteDto'))
             return clanVoteRules(user, subject, action, subjectObj, this.requestHelperService)
 
-        if (obj.isType('ItemShopDto') || obj.isType('ShopItemDTO'))
+        if (isType(obj, 'ItemShopDto') || isType(obj, 'ShopItemDTO'))
             return shopRules(user, subject, action, subjectObj, this.requestHelperService)
 
     }
