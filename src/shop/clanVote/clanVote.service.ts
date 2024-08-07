@@ -16,7 +16,7 @@ import { ItemShopDto } from "../itemShop/dto/itemshop.dto";
 import { ShopItemDTO } from "../itemShop/dto/shopItem.dto";
 import { StockDto } from "src/stock/dto/stock.dto";
 import { CreateClanVoteDto } from "./dto/createClanVote.dto";
-import { ItemShopService } from "../itemShop/itemshop.service";
+import { ItemShopService } from "../itemShop/itemShop.service";
 import { check } from "express-validator";
 import { ShopItem } from "../itemShop/itemShop.schema";
 import { IResponseShape } from "src/common/interface/IResponseShape";

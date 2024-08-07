@@ -4,7 +4,7 @@ import { ModelName } from "src/common/enum/modelName.enum";
 import { RequestHelperModule } from "src/requestHelper/requestHelper.module";
 import { StockModule } from "src/stock/stock.module";
 import { ItemShopSchema } from "./itemShop.schema";
-import { ItemShopService } from "./itemshop.service";
+import { ItemShopService } from "./itemShop.service";
 import { ItemShopController } from "./itemShop.controller";
 import { ItemModule } from "src/item/item.module";
 import { ClanVoteModule } from "../clanVote/clanVote.module";

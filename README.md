@@ -6,50 +6,44 @@ This is a REST API for Altzone game. For API desription see the wiki pages
 
 Server is now available on https://altzone.fi/api
 
-
 ## Getting started
 
-### Docker compose
+### Install required software
 
-1. Install docker [Windows](https://www.docker.com/products/docker-desktop/) | [Linux](https://docs.docker.com/engine/install/)
-2. Start docker (by default it starts automatically, you can test whenever it is installed by running ```docker version```)
-3. In the terminal run: ```npm install```
-4. Run ```tsc -w``` (this command will recompile project after changes)
-5. Run ```docker compose up``` (this will start the actual API in dev mode(=will restart API each time you make changes to files in the /src folder))
-6. Stop the API by pressing CTRL+C and ```docker compose down```
+1. Install Node and npm, choose your platform and node version, which should be LTS [Download here](https://nodejs.org/en/download/prebuilt-installer/current)
+2. Install docker [Instructions here](https://docs.docker.com/engine/install/)
+3. Clone the API repo from GitHub [Link to repo](https://github.com/Alt-Org/Altzone-Server)
+4. Open cloned repo in IDE and install required dependencies with ```npm install``` 
 
-### Directly on PC
 
-#### Install software to run the API
-1. You have to install Node.js version 18 to your computer. The installation process is similar to installing a regular program.
-   You may download it here: [https://nodejs.org/en/download](https://nodejs.org/en/download). For Windows choose the LTS .msi 64-bit version.
-2. Install MongoDB Community Server: [https://www.mongodb.com/try/download/community](https://www.mongodb.com/try/download/community)
-3. After that go to the folder where you have saved the project and run ```npm install``` in the terminal
+### Start DB
 
-#### Create a .env file
+Run ```docker compose up``` to start DB, mondo-express (UI for Mongo) and Nginx (it will take couple minutes for the first time)
 
-Create .env file in the root directory.
 
-Here is example *.env* content:
+### Start the API
 
-    HOST=localhost
-    PORT=8080
-    MONGO_URL=mongodb://127.0.0.1
-    MONGO_PORT=27017
-    MONGO_DB_NAME=altzone
+Start the API in dev (watch) mode by running ```npm run start:dev``` in a new terminal. 
 
-#### Start API
+This command will compile TS to JS and create a dist folder. This folder should not be removed.
 
-In order to start the API, you need to run the following commands in the terminal(project root repository):
-1. ```tsc -w```
-2. ```npm run dev``` or ```node dist/index.js```
 
-The API will start at http://localhost:8080 by default.
+### Stop API and DB
 
-Do not forget to terminate processes in the end (both tsc and node) by pressing Ctrl+C in terminal.
+1. Stop API by pressing Ctrl+C in terminal
+2. Stop DB and all other Docker services by pressing Ctrl+C (mb couple times) and run ```docker compose down```
 
-## API Schema
+
+## Swagger description
+
+[Swagger](https://swagger.altzone.fi/)
+
+
+## DB Schema
 
 ![ERD](doc/img/ERD.png)
 
 
+## Instructions for development
+
+Instruction can be found from wiki pages on pages with dev world: [Wiki pages](https://github.com/Alt-Org/Altzone-Server/wiki)

@@ -4,7 +4,7 @@ import {Action} from "../enum/action.enum";
 import {InferSubjects, MongoAbility} from "@casl/ability/dist/types";
 import {PlayerDto} from "../../player/dto/player.dto";
 import {UpdatePlayerDto} from "../../player/dto/updatePlayer.dto";
-import {RulesSetterAsync} from "../type/rulesSetter.type";
+import {RulesSetterAsync} from "../type/RulesSetter.type";
 import {isClanAdmin} from "../util/isClanAdmin";
 import {ModelName} from "../../common/enum/modelName.enum";
 import {ClanDto} from "../../clan/dto/clan.dto";
