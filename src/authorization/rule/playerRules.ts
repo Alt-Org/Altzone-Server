@@ -3,7 +3,6 @@ import {AbilityBuilder, createMongoAbility, ExtractSubjectType} from "@casl/abil
 import {Action} from "../enum/action.enum";
 import {InferSubjects, MongoAbility} from "@casl/ability/dist/types";
 import {PlayerDto} from "../../player/dto/player.dto";
-import {UpdatePlayerDto} from "../../player/dto/updatePlayer.dto";
 import {RulesSetterAsync} from "../type/RulesSetter.type";
 import {isClanAdmin} from "../util/isClanAdmin";
 import {ModelName} from "../../common/enum/modelName.enum";
@@ -20,7 +19,7 @@ export const playerRules: RulesSetterAsync<Ability, Subjects> = async (user, sub
     if(action === Action.create || action === Action.read){
         can(Action.create_request, subject);
 
-        const publicFields = ['_id', 'name', 'uniqueIdentifier', 'profile_id'];
+        const publicFields = ['_id', 'name', 'uniqueIdentifier', 'profile_id', 'clan_id', 'Clan', 'CustomCharacter'];
         can(Action.read_request, subject);
         can(Action.read_response, subject, publicFields);
         can(Action.read_response, subject, {_id: user.player_id});
