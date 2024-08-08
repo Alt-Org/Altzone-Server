@@ -1050,10 +1050,10 @@
                         "description": "OK"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -1105,13 +1105,13 @@
                         "description": "OK"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -1184,13 +1184,13 @@
                         "description": "OK"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -1254,13 +1254,13 @@
                         "description": "OK"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -1313,10 +1313,10 @@
                         "description": "OK"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -1347,16 +1347,16 @@
                         "$ref": "#/components/responses/204"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400_New"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -2601,13 +2601,13 @@
                         "description": "OK"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -2671,16 +2671,16 @@
                         "$ref": "#/components/responses/204"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400_New"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -2723,16 +2723,16 @@
                         "$ref": "#/components/responses/204"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400_New"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -2784,16 +2784,16 @@
                         "description": ""
                     },
                     "400": {
-                        "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400_New"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -2832,16 +2832,16 @@
                         "$ref": "#/components/responses/204"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400_New"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "summary": "Move Item",
@@ -3004,8 +3004,7 @@
                         "type": "string",
                         "example": "Bad Request"
                     }
-                },
-                "x-last-modified": 1718798493583
+                }
             },
             "ProfileCreate": {
                 "type": "object",
@@ -3508,6 +3507,433 @@
                         "example": "665df7026bf5b8f670569ea4"
                     }
                 }
+            },
+            "ErrorAuthentication": {
+                "title": "Error on Authentication",
+                "description": "Error happen on authentication",
+                "type": "object",
+                "properties": {
+                    "response": {
+                        "type": "string",
+                        "example": "AUTHENTICATION_FAILED"
+                    },
+                    "status": {
+                        "format": "int32",
+                        "description": "HTTP status code of the error",
+                        "type": "integer",
+                        "example": 401
+                    },
+                    "message": {
+                        "nullable": true,
+                        "description": "Error message explaining the error reason",
+                        "type": "string",
+                        "example": "Could not authenticate the user"
+                    },
+                    "name": {
+                        "description": "Name of the error",
+                        "type": "string",
+                        "example": ""
+                    },
+                    "reason": {
+                        "description": "Why the error happen",
+                        "enum": [
+                            "AUTHENTICATION_FAILED",
+                            "NOT_AUTHENTICATED",
+                            "INVALID_AUTH_TOKEN"
+                        ],
+                        "type": "string",
+                        "example": "AUTHENTICATION_FAILED"
+                    },
+                    "field": {
+                        "nullable": true,
+                        "description": "On which field the error happen",
+                        "type": "string"
+                    },
+                    "value": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "additional": {
+                        "nullable": true,
+                        "description": "Additional data, which can be useful. For unexpected errors this field will include the error happen",
+                        "type": "string"
+                    },
+                    "statusCode": {
+                        "format": "int32",
+                        "description": "HTTP status code of the error",
+                        "type": "integer",
+                        "example": 401
+                    },
+                    "objectType": {
+                        "description": "Type of the object. All errors are of type APIError",
+                        "type": "string",
+                        "example": "APIError"
+                    }
+                }
+            },
+            "APIErrorReason": {
+                "description": "Enum with all possible APIError reasons",
+                "enum": [
+                    "NOT_FOUND",
+                    "BAD_REQUEST",
+                    "NOT_UNIQUE",
+                    "REQUIRED",
+                    "NOT_ALLOWED",
+                    "VALIDATION",
+                    "NOT_STRING",
+                    "NOT_NUMBER",
+                    "NOT_BOOLEAN",
+                    "NOT_ARRAY",
+                    "NOT_OBJECT",
+                    "NOT_DATE",
+                    "WRONG_ENUM",
+                    "LESS_THAN_MIN",
+                    "MORE_THAN_MAX",
+                    "NOT_AUTHENTICATED",
+                    "INVALID_AUTH_TOKEN",
+                    "AUTHENTICATION_FAILED",
+                    "NOT_AUTHORIZED",
+                    "TOO_MANY_REQUESTS",
+                    "MISCONFIGURED",
+                    "NOT_AVAILABLE",
+                    "UNEXPECTED"
+                ],
+                "type": "string"
+            },
+            "ErrorValidation": {
+                "title": "Error on Validation",
+                "description": "Error happen, because some of the fields are not valid",
+                "type": "object",
+                "properties": {
+                    "response": {
+                        "type": "string",
+                        "example": "NOT_STRING"
+                    },
+                    "status": {
+                        "format": "int32",
+                        "description": "HTTP status code of the error",
+                        "type": "integer",
+                        "example": 400
+                    },
+                    "message": {
+                        "nullable": true,
+                        "description": "Error message explaining the error reason",
+                        "type": "string",
+                        "example": "name must be a string"
+                    },
+                    "name": {
+                        "description": "Name of the error",
+                        "type": "string",
+                        "example": ""
+                    },
+                    "reason": {
+                        "description": "Why the error happen",
+                        "enum": [
+                            "BAD_REQUEST",
+                            "REQUIRED",
+                            "NOT_ALLOWED",
+                            "VALIDATION",
+                            "NOT_STRING",
+                            "NOT_NUMBER",
+                            "NOT_BOOLEAN",
+                            "NOT_ARRAY",
+                            "NOT_OBJECT",
+                            "NOT_DATE",
+                            "WRONG_ENUM",
+                            "LESS_THAN_MIN",
+                            "MORE_THAN_MAX"
+                        ],
+                        "type": "string",
+                        "example": "NOT_STRING"
+                    },
+                    "field": {
+                        "nullable": true,
+                        "description": "On which field the error happen",
+                        "type": "string",
+                        "example": "name"
+                    },
+                    "value": {
+                        "nullable": true,
+                        "type": "string",
+                        "example": 1
+                    },
+                    "additional": {
+                        "nullable": true,
+                        "description": "Additional data, which can be useful. For unexpected errors this field will include the error happen",
+                        "type": "string",
+                        "example": "isString"
+                    },
+                    "statusCode": {
+                        "format": "int32",
+                        "description": "HTTP status code of the error",
+                        "type": "integer",
+                        "example": 400
+                    },
+                    "objectType": {
+                        "description": "Type of the object. All errors are of type APIError",
+                        "type": "string",
+                        "example": "APIError"
+                    }
+                }
+            },
+            "ErrorNotFound": {
+                "title": "Error on Not Found",
+                "description": "Error happen if the requested object(s) can not be found",
+                "type": "object",
+                "properties": {
+                    "response": {
+                        "type": "string",
+                        "example": "NOT_FOUND"
+                    },
+                    "status": {
+                        "format": "int32",
+                        "description": "HTTP status code of the error",
+                        "type": "integer",
+                        "example": 404
+                    },
+                    "message": {
+                        "nullable": true,
+                        "description": "Error message explaining the error reason",
+                        "type": "string",
+                        "example": "Could not find any objects with specified id"
+                    },
+                    "name": {
+                        "description": "Name of the error",
+                        "type": "string",
+                        "example": ""
+                    },
+                    "reason": {
+                        "description": "Why the error happen",
+                        "enum": [
+                            "NOT_FOUND"
+                        ],
+                        "type": "string",
+                        "example": "NOT_FOUND"
+                    },
+                    "field": {
+                        "nullable": true,
+                        "description": "On which field the error happen",
+                        "type": "string",
+                        "example": "_id"
+                    },
+                    "value": {
+                        "nullable": true,
+                        "type": "string",
+                        "example": "64df3aad42cbaf850a3f891f"
+                    },
+                    "additional": {
+                        "nullable": true,
+                        "description": "Additional data, which can be useful. For unexpected errors this field will include the error happen",
+                        "type": "string"
+                    },
+                    "statusCode": {
+                        "format": "int32",
+                        "description": "HTTP status code of the error",
+                        "type": "integer",
+                        "example": 404
+                    },
+                    "objectType": {
+                        "description": "Type of the object. All errors are of type APIError",
+                        "type": "string",
+                        "example": "APIError"
+                    }
+                }
+            },
+            "ErrorNotUnique": {
+                "title": "Error on Not Unique",
+                "description": "Error happen if an unique value already exists in DB",
+                "type": "object",
+                "properties": {
+                    "response": {
+                        "type": "string",
+                        "example": "NOT_UNIQUE"
+                    },
+                    "status": {
+                        "format": "int32",
+                        "description": "HTTP status code of the error",
+                        "type": "integer",
+                        "example": 409
+                    },
+                    "message": {
+                        "nullable": true,
+                        "description": "Error message explaining the error reason",
+                        "type": "string",
+                        "example": "Field \"name\" with value \"John\" already exists"
+                    },
+                    "name": {
+                        "description": "Name of the error",
+                        "type": "string",
+                        "example": ""
+                    },
+                    "reason": {
+                        "description": "Why the error happen",
+                        "enum": [
+                            "NOT_UNIQUE"
+                        ],
+                        "type": "string",
+                        "example": "NOT_UNIQUE"
+                    },
+                    "field": {
+                        "nullable": true,
+                        "description": "On which field the error happen",
+                        "type": "string",
+                        "example": "name"
+                    },
+                    "value": {
+                        "nullable": true,
+                        "type": "string",
+                        "example": "John"
+                    },
+                    "additional": {
+                        "nullable": true,
+                        "description": "Additional data, which can be useful. For unexpected errors this field will include the error happen",
+                        "type": "string"
+                    },
+                    "statusCode": {
+                        "format": "int32",
+                        "description": "HTTP status code of the error",
+                        "type": "integer",
+                        "example": 409
+                    },
+                    "objectType": {
+                        "description": "Type of the object. All errors are of type APIError",
+                        "type": "string",
+                        "example": "APIError"
+                    }
+                }
+            },
+            "ErrorAuthorization": {
+                "title": "Error on Authorization",
+                "description": "Logged-in user does not have a permission to execute the action",
+                "type": "object",
+                "properties": {
+                    "response": {
+                        "type": "string",
+                        "example": "NOT_AUTHORIZED"
+                    },
+                    "status": {
+                        "format": "int32",
+                        "description": "HTTP status code of the error",
+                        "type": "integer",
+                        "example": 403
+                    },
+                    "message": {
+                        "nullable": true,
+                        "description": "Error message explaining the error reason",
+                        "type": "string",
+                        "example": "The logged-in user has no permission to execute create_request action"
+                    },
+                    "name": {
+                        "description": "Name of the error",
+                        "type": "string",
+                        "example": ""
+                    },
+                    "reason": {
+                        "description": "Why the error happen",
+                        "enum": [
+                            "NOT_AUTHORIZED"
+                        ],
+                        "type": "string",
+                        "example": "NOT_AUTHORIZED"
+                    },
+                    "field": {
+                        "nullable": true,
+                        "description": "On which field the error happen",
+                        "type": "string"
+                    },
+                    "value": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "additional": {
+                        "nullable": true,
+                        "description": "Additional data, which can be useful. For unexpected errors this field will include the error happen",
+                        "type": "string",
+                        "example": "create_request"
+                    },
+                    "statusCode": {
+                        "format": "int32",
+                        "description": "HTTP status code of the error",
+                        "type": "integer",
+                        "example": 403
+                    },
+                    "objectType": {
+                        "description": "Type of the object. All errors are of type APIError",
+                        "type": "string",
+                        "example": "APIError"
+                    }
+                }
+            },
+            "ErrorServer": {
+                "title": "Error on Server",
+                "description": "Error happen on server side",
+                "type": "object",
+                "properties": {
+                    "response": {
+                        "type": "string",
+                        "example": "UNEXPECTED"
+                    },
+                    "status": {
+                        "format": "int32",
+                        "description": "HTTP status code of the error",
+                        "enum": [
+                            500,
+                            503
+                        ],
+                        "type": "integer",
+                        "example": 500
+                    },
+                    "message": {
+                        "nullable": true,
+                        "description": "Error message explaining the error reason",
+                        "type": "string",
+                        "example": "Unexpected error happen"
+                    },
+                    "name": {
+                        "description": "Name of the error",
+                        "type": "string",
+                        "example": ""
+                    },
+                    "reason": {
+                        "description": "Why the error happen",
+                        "enum": [
+                            "MISCONFIGURED",
+                            "NOT_AVAILABLE",
+                            "UNEXPECTED"
+                        ],
+                        "type": "string",
+                        "example": "UNEXPECTED"
+                    },
+                    "field": {
+                        "nullable": true,
+                        "description": "On which field the error happen",
+                        "type": "string"
+                    },
+                    "value": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "additional": {
+                        "nullable": true,
+                        "description": "Additional data, which can be useful. For unexpected errors this field will include the error happen",
+                        "type": "string"
+                    },
+                    "statusCode": {
+                        "format": "int32",
+                        "description": "HTTP status code of the error",
+                        "enum": [
+                            500,
+                            503
+                        ],
+                        "type": "integer",
+                        "example": 500
+                    },
+                    "objectType": {
+                        "description": "Type of the object. All errors are of type APIError",
+                        "type": "string",
+                        "example": "APIError"
+                    }
+                }
             }
         },
         "responses": {
@@ -3732,6 +4158,150 @@
                     }
                 },
                 "description": "Success request, response with body. [Here is more about GET requests](https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests))"
+            },
+            "400_New": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "format": "int32",
+                                    "description": "HTTP status code of the response",
+                                    "type": "integer",
+                                    "example": 400
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ErrorValidation"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Validation error. Some of the fields are not specified, have wrong data types or any over validation problem"
+            },
+            "401_New": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "format": "int32",
+                                    "description": "HTTP status code of the response",
+                                    "type": "integer",
+                                    "example": 401
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ErrorAuthentication"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Not authenticated. The Authorization header is not specified or the token is expired. [Here is more about auth](https://github.com/Alt-Org/Altzone-Server/wiki/2.-Authentication-and-authorization)"
+            },
+            "403_New": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "format": "int32",
+                                    "description": "HTTP status code of the response",
+                                    "type": "integer",
+                                    "example": 403
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ErrorAuthorization"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "No permission. The logged-in user has no permission to execute the action. [Here is more about auth](https://github.com/Alt-Org/Altzone-Server/wiki/2.-Authentication-and-authorization)"
+            },
+            "404_New": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "format": "int32",
+                                    "description": "HTTP status code of the response",
+                                    "type": "integer",
+                                    "example": 404
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ErrorNotFound"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Not found. No object(s) found"
+            },
+            "409_New": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "format": "int32",
+                                    "description": "HTTP status code of the response",
+                                    "type": "integer",
+                                    "example": 409
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ErrorNotUnique"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Some of the fields are not unique "
+            },
+            "500_New": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "statusCode": {
+                                    "format": "int32",
+                                    "description": "HTTP status code of the response",
+                                    "type": "integer",
+                                    "example": 500
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ErrorServer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Unexpected error happened. [Please create a new issue here](https://github.com/Alt-Org/Altzone-Server/issues) and specify the endpoint, HTTP method and description if u have any"
             }
         },
         "parameters": {
