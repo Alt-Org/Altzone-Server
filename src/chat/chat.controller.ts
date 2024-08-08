@@ -43,7 +43,7 @@ export class ChatController {
 
     @Post()
     @BasicPOST(ChatDto)
-    public async create(@Body() body: CreateChatDto) {
+    public create(@Body() body: CreateChatDto) {
         return this.service.createOne(body);
     }
 
@@ -69,7 +69,7 @@ export class ChatController {
 
     @Put()
     @BasicPUT(ModelName.CHAT)
-    public async update(@Body() body: UpdateChatDto) {
+    public update(@Body() body: UpdateChatDto) {
         return this.service.updateOneById(body);
     }
 
@@ -83,7 +83,7 @@ export class ChatController {
     @Post('/:chat_id/messages')
     @HttpCode(204)
     @BasicPOST(ChatDto)
-    public async createMessage(@Param() param: chat_idParam, @Body() body: CreateMessageDto) {
+    public createMessage(@Param() param: chat_idParam, @Body() body: CreateMessageDto) {
         return this.service.createMessage(param.chat_id, body);
     }
 
