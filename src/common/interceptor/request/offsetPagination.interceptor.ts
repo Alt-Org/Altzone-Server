@@ -38,8 +38,10 @@ export function OffsetPaginate(modelName: ModelName, minLimit: number=20, maxLim
                 if(!data)
                     return data;
 
-                const dataParsed = data as IResponseShape;
-                if(!dataParsed || dataParsed.metaData.dataType === 'Object')
+                const dataParsed = await data as IResponseShape;
+                if(!dataParsed || !dataParsed.metaData || 
+                    !dataParsed.metaData.dataType || 
+                    dataParsed.metaData.dataType === 'Object')
                     return data;
 
                 const request = context.switchToHttp().getRequest<Request>();
