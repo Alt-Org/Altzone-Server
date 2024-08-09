@@ -2861,6 +2861,100 @@
                 },
                 "summary": "Buy an Item from Shop"
             }
+        },
+        "/auth/signIn": {
+            "post": {
+                "requestBody": {
+                    "description": "Profile credentials",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "password"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "description": "The username of the profile",
+                                        "type": "string",
+                                        "example": "user1"
+                                    },
+                                    "password": {
+                                        "description": "The password of the profile",
+                                        "type": "string",
+                                        "example": "myPassword"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Auth"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "objectType": "ProfileDto",
+                                            "_id": "651a716b5129c6e54cb7d7c9",
+                                            "username": "user1",
+                                            "__v": 0,
+                                            "Player": {
+                                                "objectType": "PlayerDto",
+                                                "_id": "651a716b5129c6e54cb7d7cb",
+                                                "name": "User1",
+                                                "backpackCapacity": 456,
+                                                "uniqueIdentifier": "3",
+                                                "profile_id": "651a716b5129c6e54cb7d7c9",
+                                                "__v": 0,
+                                                "clan_id": "651a72c35129c6e54cb7d7de"
+                                            },
+                                            "Clan": {
+                                                "objectType": "ClanDto",
+                                                "itemCount": 0,
+                                                "isOpen": true,
+                                                "_id": "651a72c35129c6e54cb7d7de",
+                                                "name": "User1 clan",
+                                                "tag": "sometage",
+                                                "gameCoins": 645,
+                                                "admin_ids": [
+                                                    "651a716b5129c6e54cb7d7cb"
+                                                ],
+                                                "__v": 0,
+                                                "playerCount": 2,
+                                                "stockCount": 1
+                                            },
+                                            "accessToken": "your_token",
+                                            "tokenExpires": 1725799544
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Successful login with the profile data"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                },
+                "security": [
+                    {}
+                ],
+                "summary": "Log in to the system",
+                "description": "After the profile with player was created, the user can log in to the system and get a JWT token to access resources.\n\nIf the user provides the correct credentials, the access token will be returned, which should be used as a Bearer token in the Authorization header.\n\nIf the user provides wrong credentials, a 401 status will be returned."
+            }
         }
     },
     "components": {
@@ -4513,6 +4607,10 @@
         {
             "name": "CustomCharacter",
             "description": "CustomCharacter"
+        },
+        {
+            "name": "Auth",
+            "description": "Authentication related features"
         }
     ],
     "externalDocs": {
