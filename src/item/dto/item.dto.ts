@@ -2,6 +2,7 @@ import {Expose, Type} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {ClanDto} from "../../clan/dto/clan.dto";
 import {StockDto} from "../../stock/dto/stock.dto";
+import {RoomDto} from "../../Room/dto/room.dto";
 import AddType from "src/common/base/decorator/AddType.decorator";
 
 @AddType('ItemDto')
@@ -14,13 +15,7 @@ export class ItemDto {
     name: string;
 
     @Expose()
-    shape: string;
-
-    @Expose()
     weight: number;
-
-    @Expose()
-    material: string;
 
     @Expose()
     recycling: string;
@@ -29,19 +24,16 @@ export class ItemDto {
     unityKey: string;
 
     @Expose()
-    filename: string;
+    price: number;
 
     @Expose()
-    rowNumber: number;
-
+    location: Array<number>;
+   
     @Expose()
-    columnNumber: number;
+    isFurniture: boolean;
 
     @Expose()
     isInStock: boolean;
-
-    @Expose()
-    isFurniture: boolean;
 
     @ExtractField()
     @Expose()
@@ -50,4 +42,12 @@ export class ItemDto {
     @Type(() => StockDto)
     @Expose()
     Stock: StockDto;
+
+    @ExtractField()
+    @Expose()
+    room_id: string;
+
+    @Type(() => RoomDto)
+    @Expose()
+    Room: RoomDto;
 }

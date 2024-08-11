@@ -1,4 +1,4 @@
-import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
+import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString, IsArray} from "class-validator";
 import {IsItemExists} from "../decorator/validation/IsItemExists.decorator";
 import {IsStockExists} from "../../stock/decorator/validation/IsStockExists.decorator";
 import AddType from "src/common/base/decorator/AddType.decorator";
@@ -13,17 +13,9 @@ export class UpdateItemDto {
     @IsOptional()
     name: string;
 
-    @IsString()
-    @IsOptional()
-    shape: string;
-
     @IsInt()
     @IsOptional()
     weight: number;
-
-    @IsString()
-    @IsOptional()
-    material: string;
 
     @IsString()
     @IsOptional()
@@ -33,17 +25,13 @@ export class UpdateItemDto {
     @IsOptional()
     unityKey: string;
 
-    @IsString()
+    @IsArray()
     @IsOptional()
-    filename: string;
+    location: Array<number>;
 
     @IsInt()
     @IsOptional()
-    rowNumber: number;
-
-    @IsInt()
-    @IsOptional()
-    columnNumber: number;
+    price: number;
 
     @IsBoolean()
     @IsOptional()
@@ -57,4 +45,8 @@ export class UpdateItemDto {
     @IsMongoId()
     @IsOptional()
     stock_id: string;
+
+    @IsMongoId()
+    @IsOptional()
+    room_id: string;
 }

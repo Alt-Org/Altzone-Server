@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Stock} from "../stock/stock.schema";
+import {Room} from "../Room/room.schema";
 
 export type ItemDocument = HydratedDocument<Item>;
 
@@ -10,14 +11,8 @@ export class Item {
     @Prop({ type: String, required: true })
     name: string;
 
-    @Prop({ type: String, required: true })
-    shape: string;
-
     @Prop({ type: Number, required: true })
     weight: number;
-
-    @Prop({ type: String, required: true })
-    material: string;
 
     @Prop({ type: String, required: true })
     recycling: string;
@@ -25,14 +20,11 @@ export class Item {
     @Prop({ type: String, required: true })
     unityKey: string;
 
-    @Prop({ type: String, required: true })
-    filename: string;
+    @Prop({ type: Array<number>, required: true})
+    location: Array<number>;
 
-    @Prop({ type: Number, required: false })
-    rowNumber: number;
-
-    @Prop({ type: Number, required: false })
-    columnNumber: number;
+    @Prop({ type: Number, required: true })
+    price: number;
 
     @Prop({ type: Boolean, required: true, default: false })
     isInStock: boolean;
@@ -42,6 +34,9 @@ export class Item {
 
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.STOCK })
     stock_id: Stock;
+
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.STOCK })
+    room_id: Room;
 }
 
 export const ItemSchema = SchemaFactory.createForClass(Item);
