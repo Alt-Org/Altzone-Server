@@ -44,8 +44,8 @@ export class joinController {
     @Post()
     @Authorize({action: Action.create, subject: JoinDto})
     @BasicPOST(JoinDto)
-    public async create(@Body() body: JoinRequestDto, @Req() request: Request) {
-        return this.service.handleJoinRequest(body, request['user']);
+    public async create(@Body() body: JoinRequestDto) {
+        return this.service.handleJoinRequest(body);
     }
 
     //Player requests to leave the Clan
@@ -53,17 +53,18 @@ export class joinController {
     @HttpCode(204)
     @Authorize({ action: Action.create, subject: PlayerLeaveClan })
     public leave(@Req() request: Request) {
-        return this.service.leaveClanByPlayer(request['user']);
+        return this.service.leaveClan(request['user'].player_id);
     }
 
     //Player requests to leave the Clan
     @Post('remove')
     @HttpCode(204)
-    @Authorize({ action: Action.create, subject: PlayerLeaveClan })
+    @Authorize({ action: Action.create, subject: RemovePlayerDTO })
     public removePlayer(@Body() body: RemovePlayerDTO, @Req() request: Request) {
         return this.service.removePlayerFromClan(body.player_id, request['user']);
     }
 
+    //For requests approvals
     @Put()
     @Authorize({ action: Action.update, subject: JoinResultDto})
     @BasicPUT(ModelName.JOIN)
@@ -77,14 +78,14 @@ export class joinController {
     @AddSearchQuery(JoinDto)
     @AddSortQuery(JoinDto)
     @BasicGET(ModelName.JOIN, JoinDto)
-    public getAll(@GetAllQuery() query: IGetAllQuery) {
-        return this.service.readJoinsByUser(query);
+    public getAll(@GetAllQuery() query: IGetAllQuery, @Req() req: Request) {
+        return this.service.readJoinsOfPlayer(req['user'].player_id, query);
     }
     
     @Delete('/:_id')
+    @HttpCode(204)
     @Authorize({ action: Action.delete, subject: JoinResultDto })
     public delete(@Param() param: _idDto) {
-        return this.service.leaveClan(param._id);
+        return this.service.deleteOneById(param._id);
     }
-
 }
