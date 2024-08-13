@@ -2,6 +2,7 @@ import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString, IsArray} from "class-
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
 import {IsStockExists} from "../../stock/decorator/validation/IsStockExists.decorator";
 import AddType from "src/common/base/decorator/AddType.decorator";
+import { recycling } from "src/common/enum/recycling.enum";
 
 @AddType('CreateItemDto')
 export class CreateItemDto {
@@ -12,7 +13,7 @@ export class CreateItemDto {
     weight: number;
 
     @IsString()
-    recycling: string;
+    recycling: recycling;
 
     @IsString()
     unityKey: string;
@@ -27,12 +28,12 @@ export class CreateItemDto {
     @IsOptional()
     isFurniture: boolean;
 
-    @IsBoolean()
-    @IsOptional()
-    isInStock: boolean;
-
     @IsStockExists()
     @IsMongoId()
     @IsOptional()
     stock_id: string;   
+
+    @IsMongoId()
+    @IsOptional()
+    room_id: string;
 }

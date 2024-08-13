@@ -3,6 +3,7 @@ import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Stock} from "../stock/stock.schema";
 import {Room} from "../Room/room.schema";
+import { recycling } from "src/common/enum/recycling.enum";
 
 export type ItemDocument = HydratedDocument<Item>;
 
@@ -15,7 +16,7 @@ export class Item {
     weight: number;
 
     @Prop({ type: String, required: true })
-    recycling: string;
+    recycling: recycling;
 
     @Prop({ type: String, required: true })
     unityKey: string;
@@ -26,8 +27,8 @@ export class Item {
     @Prop({ type: Number, required: true })
     price: number;
 
-    @Prop({ type: Boolean, required: true, default: false })
-    isInStock: boolean;
+    //@Prop({ type: Boolean, required: true, default: false })
+    //isInStock: boolean;
 
     @Prop({ type: Boolean, required: true, default: false })
     isFurniture: boolean;

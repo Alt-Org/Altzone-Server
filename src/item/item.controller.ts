@@ -27,7 +27,6 @@ export class ItemController {
 
     @Post()
     @Authorize({action: Action.create, subject: ItemDto})
-    //@BasicPOST(ItemDto)
     @UniformResponse(ModelName.ITEM)
     public create(@Body() body: CreateItemDto) {
         return this.service.createOne(body);
@@ -35,37 +34,33 @@ export class ItemController {
 
     @Get('/:_id')
     @Authorize({action: Action.read, subject: ItemDto})
-    //@BasicGET(ModelName.ITEM, ItemDto)
     @UniformResponse(ModelName.ITEM)
     //@AddGetQueries()
     public get(@Param() param: _idDto, @Req() request: Request) {
         return this.service.readOneById(param._id);// request['mongoPopulate']);
     }
 
-    @Get()
-    @Authorize({action: Action.read, subject: ItemDto})
-    @OffsetPaginate(ModelName.ITEM)
-    @AddSearchQuery(ItemDto)
-    @AddSortQuery(ItemDto)
-    @Serialize(ItemDto)
-    @UniformResponse(ModelName.ITEM)
-    //@BasicGET(ModelName.ITEM, ItemDto)
-    public getAll(@GetAllQuery() query: IGetAllQuery) {
-        return this.service.readAll(query);
-    }
+    //@Get()
+    //@Authorize({action: Action.read, subject: ItemDto})
+    //@OffsetPaginate(ModelName.ITEM)
+    //@AddSearchQuery(ItemDto)
+    //@AddSortQuery(ItemDto)
+    //@Serialize(ItemDto)
+    //@UniformResponse(ModelName.ITEM)
+    //public getAll(@GetAllQuery() query: IGetAllQuery) {
+    //    return this.service.readAll(query);
+    //}
 
-    @Put()
+    //@Put()
     @Authorize({action: Action.update, subject: UpdateItemDto})
-    //@BasicPUT(ModelName.ITEM)
     @UniformResponse()
     public update(@Body() body: UpdateItemDto){
         return this.service.updateOneById(body);
     }
 
-    @Delete('/:_id')
+    //@Delete('/:_id')
     @Authorize({action: Action.delete, subject: UpdateItemDto})
     @UniformResponse()
-    //@BasicDELETE(ModelName.ITEM)
     public delete(@Param() param: _idDto) {
         return this.service.deleteOneById(param._id);
     }
