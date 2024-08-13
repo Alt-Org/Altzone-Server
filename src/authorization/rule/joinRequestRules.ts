@@ -10,7 +10,7 @@ import { getClan_id } from "../util/getClan_id";
 import { JoinDto } from "src/clan/join/dto/join.dto";
 import { isClanAdmin } from "../util/isClanAdmin";
 import { RemovePlayerDTO } from "src/clan/join/dto/removePlayer.dto";
-import AddType from "src/common/base/decorator/AddType.decorator";
+import AddType, { isType } from "src/common/base/decorator/AddType.decorator";
 
 @AddType('PlayerLeaveClan')
 export class PlayerLeaveClan{
@@ -27,6 +27,20 @@ export const joinRules: RulesSetterAsync<Ability, Subjects> = async (user, subje
         else
             //Player can make clan joining requests only by himself
             can(Action.create_request, subject, {player_id: user.player_id});
+    }
+    console.log('rules', subject);
+
+    //If someone is making request to remove a player from the clan
+    if(action === Action.create && isType(subject, 'RemovePlayerDTO')){
+        const clan_id = await getClan_id(user, requestHelperService);
+        const clan = await requestHelperService.getModelInstanceById(ModelName.CLAN, clan_id, ClanDto);
+        console.log(clan);
+        const isAdmin = isClanAdmin(clan, user.player_id);
+        console.log(isAdmin);
+
+        if(isAdmin){
+            can(Action.create_request, subject);
+        }
     }
     
     if (action === Action.read || action === Action.update || action === Action.delete) {
