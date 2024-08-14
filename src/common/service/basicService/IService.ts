@@ -1,4 +1,4 @@
-import { ModelName } from "src/common/enum/modelName.enum";
+import { ModelName } from "../../../common/enum/modelName.enum";
 import ServiceError from "./ServiceError";
 import { FilterQuery } from "mongoose";
 

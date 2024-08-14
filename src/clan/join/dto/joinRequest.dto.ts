@@ -1,7 +1,7 @@
 import { IsMongoId, IsOptional, IsString } from "class-validator";
-import { IsClanExists } from "src/clan/decorator/validation/IsClanExists.decorator";
-import AddType from "src/common/base/decorator/AddType.decorator";
-import { IsPlayerExists } from "src/player/decorator/validation/IsPlayerExists.decorator";
+import { IsClanExists } from "../../../clan/decorator/validation/IsClanExists.decorator";
+import AddType from "../../../common/base/decorator/AddType.decorator";
+import { IsPlayerExists } from "../../../player/decorator/validation/IsPlayerExists.decorator";
 
 @AddType('JoinRequestDto')
 export class JoinRequestDto {

@@ -1,11 +1,11 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
-import { ModelName } from "src/common/enum/modelName.enum";
-import { RequestHelperModule } from "src/requestHelper/requestHelper.module";
+import { ModelName } from "../common/enum/modelName.enum";
+import { RequestHelperModule } from "../requestHelper/requestHelper.module";
 import { SoulhomeSchema } from "./soulhome.schema";
 import { SoulHomeController } from "./soulhome.controller";
 import { SoulHomeService } from "./soulhome.service";
-import { RoomModule } from "src/Room/room.module";
+import { RoomModule } from "../Room/room.module";
 
 @Module({
     imports: [

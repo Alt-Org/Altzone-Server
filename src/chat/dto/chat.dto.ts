@@ -1,6 +1,6 @@
 import {Expose} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
-import AddType from "src/common/base/decorator/AddType.decorator";
+import AddType from "../../common/base/decorator/AddType.decorator";
 
 @AddType('ChatDto')
 export class ChatDto {

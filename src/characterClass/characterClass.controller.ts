@@ -11,12 +11,12 @@ import {Action} from "../authorization/enum/action.enum";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
-import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
-import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
-import { NoAuth } from "src/auth/decorator/NoAuth.decorator";
-import { UniformResponse } from "src/common/decorator/response/UniformResponse";
-import { Serialize } from "src/common/interceptor/response/Serialize";
-import { isServiceError } from "src/common/service/basicService/ServiceError";
+import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
+import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
+import { NoAuth } from "../auth/decorator/NoAuth.decorator";
+import { UniformResponse } from "../common/decorator/response/UniformResponse";
+import { Serialize } from "../common/interceptor/response/Serialize";
+import { isServiceError } from "../common/service/basicService/ServiceError";
 
 //The endpoint to use. Controller classes will be registered for this endpoint automatically (/characterClass)
 @Controller('characterClass')

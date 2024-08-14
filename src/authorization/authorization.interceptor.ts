@@ -21,7 +21,6 @@ import {permittedFieldsOf, PermittedFieldsOptions} from "@casl/ability/extra";
 import {pick} from "lodash";
 import {MongoAbility} from "@casl/ability";
 import {IResponseShape} from "../common/interface/IResponseShape";
-import { CharacterClass } from "src/characterClass/characterClass.schema";
 
 export type PermissionMetaData = {
     action: SupportedAction,

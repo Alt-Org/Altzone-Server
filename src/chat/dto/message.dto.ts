@@ -1,5 +1,5 @@
 import {Expose} from "class-transformer";
-import AddType from "src/common/base/decorator/AddType.decorator";
+import AddType from "../../common/base/decorator/AddType.decorator";
 
 @AddType('MessageDto')
 export class MessageDto {

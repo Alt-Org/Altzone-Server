@@ -10,13 +10,13 @@ import {ItemService} from "./item.service";
 import {ItemDto} from "./dto/item.dto";
 import {CreateItemDto} from "./dto/createItem.dto";
 import {UpdateItemDto} from "./dto/updateItem.dto";
-import { Authorize } from "src/authorization/decorator/Authorize";
-import { Action } from "src/authorization/enum/action.enum";
+import { Authorize } from "../authorization/decorator/Authorize";
+import { Action } from "../authorization/enum/action.enum";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
-import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
-import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
+import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
+import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
 
 @Controller('item')
 export class ItemController {

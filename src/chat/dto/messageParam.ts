@@ -1,5 +1,5 @@
 import {IsInt, IsMongoId} from "class-validator";
-import AddType from "src/common/base/decorator/AddType.decorator";
+import AddType from "../../common/base/decorator/AddType.decorator";
 
 @AddType('messageParam')
 export class messageParam {

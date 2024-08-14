@@ -1,8 +1,8 @@
 import {HttpException} from "@nestjs/common/exceptions/http.exception";
-import { isServiceError } from "src/common/service/basicService/ServiceError";
-import { APIError, convertToAPIError, isAPIError } from "src/common/controller/APIError";
-import formatResponse from "src/common/controller/formatResponse";
-import { ModelName } from "src/common/enum/modelName.enum";
+import { isServiceError } from "../../../common/service/basicService/ServiceError";
+import { APIError, convertToAPIError, isAPIError } from "../../../common/controller/APIError";
+import formatResponse from "../../../common/controller/formatResponse";
+import { ModelName } from "../../../common/enum/modelName.enum";
 
 export const FormatAPIResponse = (modelName?: ModelName): any => {
     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {

@@ -3,7 +3,7 @@ import {PlayerDto} from "../../player/dto/player.dto";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {ItemDto} from "../../item/dto/item.dto";
 import {StockDto} from "../../stock/dto/stock.dto";
-import AddType from "src/common/base/decorator/AddType.decorator";
+import AddType from "../../common/base/decorator/AddType.decorator";
 
 @AddType('ClanDto')
 export class ClanDto {
