@@ -1,10 +1,6 @@
 import {Body, Controller, Delete, Get, Param, Post, Put, Req} from "@nestjs/common";
-//import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
-//import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
 import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
 import {_idDto} from "../common/dto/_id.dto";
-//import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
-//import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {ItemService} from "./item.service";
 import {ItemDto} from "./dto/item.dto";
@@ -51,14 +47,12 @@ export class ItemController {
     //    return this.service.readAll(query);
     //}
 
-    //@Put()
     @Authorize({action: Action.update, subject: UpdateItemDto})
     @UniformResponse()
     public update(@Body() body: UpdateItemDto){
         return this.service.updateOneById(body);
     }
 
-    //@Delete('/:_id')
     @Authorize({action: Action.delete, subject: UpdateItemDto})
     @UniformResponse()
     public delete(@Param() param: _idDto) {

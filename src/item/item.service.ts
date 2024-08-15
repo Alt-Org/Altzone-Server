@@ -2,23 +2,16 @@ import {Injectable} from "@nestjs/common";
 import {Model, MongooseError, Types} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Item} from "./item.schema";
-import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
-import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 import {CreateItemDto} from "./dto/createItem.dto";
 import {UpdateItemDto} from "./dto/updateItem.dto";
 import {ItemDto} from "./dto/Item.dto";
 import BasicService from "src/common/service/basicService/BasicService";
 import { TIServiceReadManyOptions, TReadByIdOptions } from "src/common/service/basicService/IService";
-import ServiceError from "src/common/service/basicService/ServiceError";
-import { SEReason } from "src/common/service/basicService/SEReason";
 
 @Injectable()
-//@AddBasicService()
-//export class ItemService extends BasicServiceDummyAbstract<Item> implements IBasicService<Item>{
 export class ItemService {
     public constructor(
         @InjectModel(Item.name) public readonly model: Model<Item>,
