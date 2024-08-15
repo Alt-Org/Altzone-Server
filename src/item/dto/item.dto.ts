@@ -4,7 +4,7 @@ import {ClanDto} from "../../clan/dto/clan.dto";
 import {StockDto} from "../../stock/dto/stock.dto";
 import {RoomDto} from "../../Room/dto/room.dto";
 import AddType from "src/common/base/decorator/AddType.decorator";
-import { recycling } from "src/common/enum/recycling.enum";
+import { Recycling } from "../enum/recycling.enum";
 
 @AddType('ItemDto')
 export class ItemDto {
@@ -19,7 +19,7 @@ export class ItemDto {
     weight: number;
 
     @Expose()
-    recycling: recycling;
+    recycling: Recycling;
 
     @Expose()
     unityKey: string;
@@ -32,9 +32,6 @@ export class ItemDto {
    
     @Expose()
     isFurniture: boolean;
-
-    //@Expose()
-    //isInStock: boolean;
 
     @ExtractField()
     @Expose()

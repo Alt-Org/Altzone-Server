@@ -42,10 +42,10 @@ export class ItemService {
 
 
   /**
-    * Creates a new CharacterClass in DB.
+    * Creates a new Item in DB.
     * 
-    * @param characterClass - The CharacterClass data to create.
-    * @returns  created CharacterClass or an array of service errors if any occurred.
+    * @param Item - The Item data to create.
+    * @returns  created Item or an array of service errors if any occurred.
     */
     async createOne(Item: CreateItemDto) {
         //If you need you can specify types for some BasicService methods
@@ -61,11 +61,11 @@ export class ItemService {
 
 
     /**
-    * Reads a character class by its _id in DB.
+    * Reads a item by its _id in DB.
     * 
-    * @param _id - The Mongo _id of the CharacterClass to read.
-    * @param options - Options for reading the CharacterClass.
-    * @returns CharacterClass with the given _id on succeed or an array of ServiceErrors if any occurred.
+    * @param _id - The Mongo _id of the Item to read.
+    * @param options - Options for reading the Item.
+    * @returns Item with the given _id on succeed or an array of ServiceErrors if any occurred.
     */
     async readOneById(_id: string, options?: TReadByIdOptions) {
        let optionsToApply = options;
@@ -75,25 +75,11 @@ export class ItemService {
     }
 
     /**
-    * Reads all CharacterClasses based on the provided options.
+    * Updates a Item by its _id in DB. The _id field is read-only and must be found from the parameter
     * 
-    * @param options - Options for reading CharacterClasses.
-    * @returns An array of CharacterClasses if succeeded or an array of ServiceErrors if error occurred.
-    */
-    //async readAll(options?: TIServiceReadManyOptions) {
-    //    let optionsToApply = options;
-    //    if(options?.includeRefs)
-    //        optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
-
-    //    return this.basicService.readMany<ItemDto>(optionsToApply);
-    //}
-
-    /**
-    * Updates a CharacterClass by its _id in DB. The _id field is read-only and must be found from the parameter
-    * 
-    * @param characterClass - The data needs to be updated for the CharacterClass.
-    * @returns _true_ if CharacterClass was updated successfully, _false_ if nothing was updated for the CharacterClass, 
-     * or a ServiceError array if CharacterClass was not found or something else went wrong.
+    * @param Item - The data needs to be updated for the Item.
+    * @returns _true_ if Item was updated successfully, _false_ if nothing was updated for the Item, 
+     * or a ServiceError array if Item was not found or something else went wrong.
     */
     async updateOneById(Item: UpdateItemDto) {
         const {_id, ...fieldsToUpdate} = Item
@@ -101,10 +87,10 @@ export class ItemService {
     }
 
     /**
-    * Deletes a CharacterClass its _id from DB.
+    * Deletes a Item its _id from DB.
     * 
-    * @param _id - The Mongo _id of the CharacterClass to delete.
-    * @returns _true_ if CharacterClass was removed successfully, or a ServiceError array if the CharacterClass was not found or something else went wrong
+    * @param _id - The Mongo _id of the Item to delete.
+    * @returns _true_ if Item was removed successfully, or a ServiceError array if the Item was not found or something else went wrong
     */
     async deleteOneById(_id: string) {
         return this.basicService.deleteOneById(_id);

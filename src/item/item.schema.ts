@@ -3,7 +3,7 @@ import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Stock} from "../stock/stock.schema";
 import {Room} from "../Room/room.schema";
-import { recycling } from "src/common/enum/recycling.enum";
+import { Recycling } from "src/item/enum/recycling.enum";
 
 export type ItemDocument = HydratedDocument<Item>;
 
@@ -16,7 +16,7 @@ export class Item {
     weight: number;
 
     @Prop({ type: String, required: true })
-    recycling: recycling;
+    recycling: Recycling;
 
     @Prop({ type: String, required: true })
     unityKey: string;
@@ -27,16 +27,13 @@ export class Item {
     @Prop({ type: Number, required: true })
     price: number;
 
-    //@Prop({ type: Boolean, required: true, default: false })
-    //isInStock: boolean;
-
     @Prop({ type: Boolean, required: true, default: false })
     isFurniture: boolean;
 
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.STOCK })
     stock_id: Stock;
 
-    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.STOCK })
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.ROOM })
     room_id: Room;
 }
 
@@ -45,6 +42,13 @@ ItemSchema.set('collection', ModelName.ITEM);
 ItemSchema.virtual(ModelName.STOCK, {
     ref: ModelName.STOCK,
     localField: 'stock_id',
+    foreignField: '_id',
+    justOne: true
+});
+//ItemSchema.set('collection', ModelName.ITEM);
+ItemSchema.virtual(ModelName.ROOM, {
+    ref: ModelName.ROOM,
+   localField: 'room_id',
     foreignField: '_id',
     justOne: true
 });

@@ -21,41 +21,11 @@ export class ItemController {
     public constructor(private readonly service: ItemService) {
     }
 
-    @Post()
-    @Authorize({action: Action.create, subject: ItemDto})
-    @UniformResponse(ModelName.ITEM)
-    public create(@Body() body: CreateItemDto) {
-        return this.service.createOne(body);
-    }
-
     @Get('/:_id')
     @Authorize({action: Action.read, subject: ItemDto})
     @UniformResponse(ModelName.ITEM)
     //@AddGetQueries()
     public get(@Param() param: _idDto, @Req() request: Request) {
         return this.service.readOneById(param._id);// request['mongoPopulate']);
-    }
-
-    //@Get()
-    //@Authorize({action: Action.read, subject: ItemDto})
-    //@OffsetPaginate(ModelName.ITEM)
-    //@AddSearchQuery(ItemDto)
-    //@AddSortQuery(ItemDto)
-    //@Serialize(ItemDto)
-    //@UniformResponse(ModelName.ITEM)
-    //public getAll(@GetAllQuery() query: IGetAllQuery) {
-    //    return this.service.readAll(query);
-    //}
-
-    @Authorize({action: Action.update, subject: UpdateItemDto})
-    @UniformResponse()
-    public update(@Body() body: UpdateItemDto){
-        return this.service.updateOneById(body);
-    }
-
-    @Authorize({action: Action.delete, subject: UpdateItemDto})
-    @UniformResponse()
-    public delete(@Param() param: _idDto) {
-        return this.service.deleteOneById(param._id);
     }
 }

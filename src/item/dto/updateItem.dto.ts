@@ -1,8 +1,8 @@
-import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString, IsArray} from "class-validator";
+import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString, IsArray, IsEnum} from "class-validator";
 import {IsItemExists} from "../decorator/validation/IsItemExists.decorator";
 import {IsStockExists} from "../../stock/decorator/validation/IsStockExists.decorator";
 import AddType from "src/common/base/decorator/AddType.decorator";
-import { recycling } from "src/common/enum/recycling.enum";
+import { Recycling } from "../enum/recycling.enum";
 
 @AddType('UpdateItemDto')
 export class UpdateItemDto {
@@ -18,9 +18,9 @@ export class UpdateItemDto {
     @IsOptional()
     weight: number;
 
-    @IsString()
+    @IsEnum(Recycling)
     @IsOptional()
-    recycling: recycling;
+    recycling: Recycling;
 
     @IsString()
     @IsOptional()
@@ -33,10 +33,6 @@ export class UpdateItemDto {
     @IsInt()
     @IsOptional()
     price: number;
-
-    //@IsBoolean()
-    //@IsOptional()
-    //isInStock: boolean;
 
     @IsBoolean()
     @IsOptional()

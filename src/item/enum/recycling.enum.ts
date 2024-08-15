@@ -1,4 +1,4 @@
-export enum recycling {
+export enum Recycling {
   common = 'common',
   rare = 'rare',
   epic = 'epic'

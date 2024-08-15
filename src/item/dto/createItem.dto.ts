@@ -1,8 +1,8 @@
-import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString, IsArray} from "class-validator";
+import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString, IsArray, IsEnum } from "class-validator";
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
 import {IsStockExists} from "../../stock/decorator/validation/IsStockExists.decorator";
 import AddType from "src/common/base/decorator/AddType.decorator";
-import { recycling } from "src/common/enum/recycling.enum";
+import { Recycling } from "../enum/recycling.enum";
 
 @AddType('CreateItemDto')
 export class CreateItemDto {
@@ -12,8 +12,8 @@ export class CreateItemDto {
     @IsInt()
     weight: number;
 
-    @IsString()
-    recycling: recycling;
+    @IsEnum(Recycling)
+    recycling: Recycling;
 
     @IsString()
     unityKey: string;
