@@ -144,44 +144,48 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         return dataToReturn;
     }
 
-    public async handleUpdate(body: UpdateClanDto) {
-        if (!body.admin_idsToAdd && !body.admin_idsToDelete)
-            return this.updateOneById(body);
+    /**
+     * Update the specified Clan data
+     * @param clanToUpdate object with fields to be updated 
+     * @returns 
+     */
+    public async handleUpdate(clanToUpdate: UpdateClanDto) {
+        if (!clanToUpdate.admin_idsToAdd && !clanToUpdate.admin_idsToDelete)
+            return this.updateOneById(clanToUpdate);
 
-        const clanToUpdate = await this.readOneById(body._id);
-        if (!clanToUpdate || clanToUpdate instanceof MongooseError)
+        const clanResp = await this.readOneById(clanToUpdate._id);
+        if (!clanResp || clanResp instanceof MongooseError || !clanResp.data || !clanResp.data.Clan)
             throw new NotFoundException('Clan with that _id not found');
 
-        if (body.admin_idsToDelete)
-            clanToUpdate.data[clanToUpdate.metaData.dataKey].admin_ids = deleteArrayElements(clanToUpdate.data[clanToUpdate.metaData.dataKey].admin_ids, body.admin_idsToDelete);
+        const clan = clanResp.data.Clan as ClanDto;
+        let admin_ids: string[] = clan.admin_ids;
 
-        body.admin_idsToAdd = deleteNotUniqueArrayElements(body.admin_idsToAdd);
+        if(clanToUpdate.admin_idsToDelete)
+            admin_ids = deleteArrayElements(admin_ids, clanToUpdate.admin_idsToDelete);
+
+        if(clanToUpdate.admin_idsToAdd)
+            admin_ids = admin_ids ? 
+                [...admin_ids, ...deleteNotUniqueArrayElements(clanToUpdate.admin_idsToAdd)] : 
+                deleteNotUniqueArrayElements(clanToUpdate.admin_idsToAdd);
+        
+        if (admin_ids.length === 0)
+            throw new BadRequestException('Clan can not be without at least one admin. You are trying to delete all clan admins');
+
         //add only players that are clan members
-        const clanToUpdate_id = clanToUpdate.data[clanToUpdate.metaData.dataKey]._id.toString();
+        const clanToUpdate_id = clan._id;
         const playersInClan: string[] = [];
         const playersNotInClan: string[] = [];
-        for (let i = 0; i < body.admin_idsToAdd.length; i++) {
-            const player_id = body.admin_idsToAdd[i];
+        for (let i = 0; i < admin_ids.length; i++) {
+            const player_id = admin_ids[i];
             const player = await this.requestHelperService.getModelInstanceById(ModelName.PLAYER, player_id, PlayerDto);
             if (player)
                 player.clan_id === clanToUpdate_id ? playersInClan.push(player_id) : playersNotInClan.push(player_id);
         }
-
-        const newAdmin_ids = addUniqueArrayElements(clanToUpdate.data[clanToUpdate.metaData.dataKey].admin_ids, playersInClan);
-
-        if (newAdmin_ids.length === 0)
-            throw new BadRequestException('Clan can not be without at least one admin. You are trying to delete all clan admins');
-        body['admin_ids'] = newAdmin_ids;
-        const updateResp = await this.updateOneById(body);
-
-        if (playersNotInClan.length !== 0)
-            throw new BadRequestException(
-                `Players with the _ids: [${playersNotInClan.toString()}] ` +
-                `can not be added to clan admins because they are not the clan members. ` +
-                `All other players are successfully added to clan admins and another clan data are updated as well`
-            );
-
-        return updateResp;
+        
+        clanToUpdate['admin_idsToDelete'] = undefined;
+        clanToUpdate['admin_idsToAdd'] = undefined;
+        clanToUpdate['admin_ids'] = playersInClan;
+        return await this.updateOneById(clanToUpdate);
     }
 
     public clearCollectionReferences: ClearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
