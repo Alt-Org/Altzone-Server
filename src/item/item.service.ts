@@ -1,24 +1,19 @@
 import {Injectable} from "@nestjs/common";
-import {Model, MongooseError, Types} from "mongoose";
+import {Model} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
-import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Item} from "./item.schema";
 import {CreateItemDto} from "./dto/createItem.dto";
 import {UpdateItemDto} from "./dto/updateItem.dto";
 import {ItemDto} from "./dto/Item.dto";
 import BasicService from "src/common/service/basicService/BasicService";
-import { TIServiceReadManyOptions, TReadByIdOptions } from "src/common/service/basicService/IService";
+import { TReadByIdOptions } from "src/common/service/basicService/IService";
 
 @Injectable()
 export class ItemService {
     public constructor(
-        @InjectModel(Item.name) public readonly model: Model<Item>,
-        //public readonly model: Model<Item>,
-        private readonly requestHelperService: RequestHelperService
+        @InjectModel(Item.name) public readonly model: Model<Item>
     ){
-        //super();
         this.refsInModel = [ModelName.STOCK];
         this.modelName = ModelName.ITEM;
         this.basicService = new BasicService(model);
@@ -28,40 +23,39 @@ export class ItemService {
     public readonly modelName: ModelName;
     public readonly basicService: BasicService;
 
-//    public createMany = async (items: CreateItemDto[]): Promise<boolean> => {
-//        const resp = await this.model.insertMany(items);
-//        return resp && !(resp instanceof MongooseError);
-//    }
-//    public createManyWithResponse = async (items: CreateItemDto[]) => {
-//        const resp = await this.model.insertMany(items);
-//        return resp;        
-//    }
-
- //   public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> //=> {
- //   }
-
-
   /**
-    * Creates a new Item in DB.
+    * Creates an new Item in DB.
     * 
-    * @param Item - The Item data to create.
+    * @param item - The Item data to create.
     * @returns  created Item or an array of service errors if any occurred.
     */
-    async createOne(Item: CreateItemDto) {
-        //If you need you can specify types for some BasicService methods
-        return this.basicService.createOne<CreateItemDto, ItemDto>(Item);
+    async createOne(item: CreateItemDto) {
+        return this.basicService.createOne<CreateItemDto, ItemDto>(item);
     }
 
+    /**
+    * Creates many new Items in DB.
+    * 
+    * @param items - The Items data to create.
+    * @returns created Item or an array of service errors if any occurred.
+    */
     async createMany(items: CreateItemDto[]) {
-	return this.basicService.createMany<CreateItemDto, ItemDto[]>(items);
+	    return this.basicService.createMany<CreateItemDto, ItemDto[]>(items);
     }
+
+    /**
+    * Creates many new Items in DB.
+    * 
+    * @deprecated The createMany() method should be used instead
+    * @param items - The Items data to create.
+    * @returns created Item or an array of service errors if any occurred.
+    */
     async createManyWithResponse(items: CreateItemDto[]) {
         return this.basicService.createMany<CreateItemDto, ItemDto[]>(items);
     }
 
-
     /**
-    * Reads a item by its _id in DB.
+    * Reads an Item by its _id in DB.
     * 
     * @param _id - The Mongo _id of the Item to read.
     * @param options - Options for reading the Item.
@@ -75,7 +69,7 @@ export class ItemService {
     }
 
     /**
-    * Updates a Item by its _id in DB. The _id field is read-only and must be found from the parameter
+    * Updates an Item by its _id in DB. The _id field is read-only and must be found from the parameter
     * 
     * @param Item - The data needs to be updated for the Item.
     * @returns _true_ if Item was updated successfully, _false_ if nothing was updated for the Item, 
@@ -87,7 +81,7 @@ export class ItemService {
     }
 
     /**
-    * Deletes a Item its _id from DB.
+    * Deletes an Item its _id from DB.
     * 
     * @param _id - The Mongo _id of the Item to delete.
     * @returns _true_ if Item was removed successfully, or a ServiceError array if the Item was not found or something else went wrong
