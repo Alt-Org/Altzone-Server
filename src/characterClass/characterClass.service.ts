@@ -7,9 +7,9 @@ import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
 import {CharacterClass} from "./characterClass.schema";
 import {CustomCharacterService} from "../customCharacter/customCharacter.service";
-import BasicService from "src/common/service/basicService/BasicService";
+import BasicService from "../common/service/basicService/BasicService";
 import { UpdateCharacterClassDto } from "./dto/updateCharacterClass.dto";
-import { TIServiceReadManyOptions, TReadByIdOptions } from "src/common/service/basicService/IService";
+import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 import { CreateCharacterClassDto } from "./dto/createCharacterClass.dto";
 import { CharacterClassDto } from "./dto/characterClass.dto";
 

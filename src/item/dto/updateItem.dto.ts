@@ -1,7 +1,7 @@
 import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString, IsArray, IsEnum} from "class-validator";
 import {IsItemExists} from "../decorator/validation/IsItemExists.decorator";
 import {IsStockExists} from "../../stock/decorator/validation/IsStockExists.decorator";
-import AddType from "src/common/base/decorator/AddType.decorator";
+import AddType from "../../common/base/decorator/AddType.decorator";
 import { Recycling } from "../enum/recycling.enum";
 
 @AddType('UpdateItemDto')

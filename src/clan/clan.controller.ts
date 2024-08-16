@@ -30,11 +30,11 @@ import { addUniqueArrayElements } from "../common/function/addUniqueArrayElement
 import { deleteNotUniqueArrayElements } from "../common/function/deleteNotUniqueArrayElements";
 import { PlayerDto } from "../player/dto/player.dto";
 import { AddSearchQuery } from "../common/interceptor/request/addSearchQuery.interceptor";
-import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
-import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
-import { GetAllQuery } from "src/common/decorator/param/GetAllQuery";
-import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
-import { NoAuth } from "src/auth/decorator/NoAuth.decorator";
+import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
+import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
+import { GetAllQuery } from "../common/decorator/param/GetAllQuery";
+import { IGetAllQuery } from "../common/interface/IGetAllQuery";
+import { NoAuth } from "../auth/decorator/NoAuth.decorator";
 
 @Controller('clan')
 export class ClanController {

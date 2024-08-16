@@ -10,13 +10,13 @@ import {StockService} from "./stock.service";
 import {StockDto} from "./dto/stock.dto";
 import {CreateStockDto} from "./dto/createStock.dto";
 import {UpdateStockDto} from "./dto/updateStock.dto";
-import { Authorize } from "src/authorization/decorator/Authorize";
-import { Action } from "src/authorization/enum/action.enum";
+import { Authorize } from "../authorization/decorator/Authorize";
+import { Action } from "../authorization/enum/action.enum";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
-import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
-import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
+import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
+import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
 
 @Controller('stock')
 export class StockController {

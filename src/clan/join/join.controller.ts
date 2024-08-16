@@ -11,27 +11,27 @@ import {
     Put,
     Req
 } from "@nestjs/common";
-import { RequestHelperService } from "src/requestHelper/requestHelper.service";
+import { RequestHelperService } from "../../requestHelper/requestHelper.service";
 import { JoinService } from "./join.service";
 import { JoinDto } from "./dto/join.dto";
-import { BasicPOST } from "src/common/base/decorator/BasicPOST.decorator";
-import { Action } from "src/authorization/enum/action.enum";
-import { Authorize } from "src/authorization/decorator/Authorize";
+import { BasicPOST } from "../../common/base/decorator/BasicPOST.decorator";
+import { Action } from "../../authorization/enum/action.enum";
+import { Authorize } from "../../authorization/decorator/Authorize";
 import { JoinRequestDto } from "./dto/joinRequest.dto";
-import { ModelName } from "src/common/enum/modelName.enum";
+import { ModelName } from "../../common/enum/modelName.enum";
 import { MongooseError } from "mongoose";
-import { BasicPUT } from "src/common/base/decorator/BasicPUT.decorator";
-import { AddSearchQuery } from "src/common/interceptor/request/addSearchQuery.interceptor";
-import { BasicGET } from "src/common/base/decorator/BasicGET.decorator";
-import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
-import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
-import { GetAllQuery } from "src/common/decorator/param/GetAllQuery";
-import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
+import { BasicPUT } from "../../common/base/decorator/BasicPUT.decorator";
+import { AddSearchQuery } from "../../common/interceptor/request/addSearchQuery.interceptor";
+import { BasicGET } from "../../common/base/decorator/BasicGET.decorator";
+import { AddSortQuery } from "../../common/interceptor/request/addSortQuery.interceptor";
+import { OffsetPaginate } from "../../common/interceptor/request/offsetPagination.interceptor";
+import { GetAllQuery } from "../../common/decorator/param/GetAllQuery";
+import { IGetAllQuery } from "../../common/interface/IGetAllQuery";
 import { JoinResultDto } from "./dto/joinResult.dto";
-import { Serialize } from "src/common/interceptor/response/Serialize";
-import { _idDto } from "src/common/dto/_id.dto";
+import { Serialize } from "../../common/interceptor/response/Serialize";
+import { _idDto } from "../../common/dto/_id.dto";
 import { Request } from "express";
-import { PlayerLeaveClan } from "src/authorization/rule/joinRequestRules";
+import { PlayerLeaveClan } from "../../authorization/rule/joinRequestRules";
 import { RemovePlayerDTO } from "./dto/removePlayer.dto";
 @Controller("clan/join")
 export class joinController {

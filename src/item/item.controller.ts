@@ -3,9 +3,9 @@ import {_idDto} from "../common/dto/_id.dto";
 import {ModelName} from "../common/enum/modelName.enum";
 import {ItemService} from "./item.service";
 import {ItemDto} from "./dto/item.dto";
-import { Authorize } from "src/authorization/decorator/Authorize";
-import { Action } from "src/authorization/enum/action.enum";
-import { UniformResponse } from "src/common/decorator/response/UniformResponse";
+import { Authorize } from "../authorization/decorator/Authorize";
+import { Action } from "../authorization/enum/action.enum";
+import { UniformResponse } from "../common/decorator/response/UniformResponse";
 
 @Controller('item')
 export class ItemController {

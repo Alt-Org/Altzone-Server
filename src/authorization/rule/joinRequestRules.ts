@@ -5,12 +5,12 @@ import { InferSubjects, MongoAbility } from "@casl/ability/dist/types";
 import { RulesSetterAsync } from "../type/RulesSetter.type";
 import { ClanDto } from "../../clan/dto/clan.dto";
 import { ModelName } from "../../common/enum/modelName.enum";
-import { JoinResultDto } from "src/clan/join/dto/joinResult.dto";
+import { JoinResultDto } from "../../clan/join/dto/joinResult.dto";
 import { getClan_id } from "../util/getClan_id";
-import { JoinDto } from "src/clan/join/dto/join.dto";
+import { JoinDto } from "../../clan/join/dto/join.dto";
 import { isClanAdmin } from "../util/isClanAdmin";
-import { RemovePlayerDTO } from "src/clan/join/dto/removePlayer.dto";
-import AddType from "src/common/base/decorator/AddType.decorator";
+import { RemovePlayerDTO } from "../../clan/join/dto/removePlayer.dto";
+import AddType from "../../common/base/decorator/AddType.decorator";
 
 @AddType('PlayerLeaveClan')
 export class PlayerLeaveClan{

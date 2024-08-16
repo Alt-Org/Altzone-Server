@@ -3,7 +3,7 @@ import {AbilityBuilder, createMongoAbility, ExtractSubjectType} from "@casl/abil
 import {Action} from "../enum/action.enum";
 import {InferSubjects, MongoAbility} from "@casl/ability/dist/types";
 import {RulesSetterAsync} from "../type/RulesSetter.type";
-import {ModelName} from "src/common/enum/modelName.enum";
+import {ModelName} from "../../common/enum/modelName.enum";
 import {MongooseError} from "mongoose";
 import {NotFoundException} from "@nestjs/common";
 import {ItemDto} from "../../item/dto/item.dto";
