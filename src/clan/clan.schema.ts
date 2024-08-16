@@ -47,3 +47,8 @@ ClanSchema.virtual(ModelName.STOCK, {
     localField: '_id',
     foreignField: 'clan_id'
 });
+ClanSchema.virtual(ModelName.SOULHOME, {
+    ref: ModelName.SOULHOME,
+    localField: '_id',
+    foreignField: 'clan_id'
+});
