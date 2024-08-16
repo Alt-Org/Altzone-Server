@@ -51,7 +51,7 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         private readonly requestHelperService: RequestHelperService
     ) {
         super();
-        this.refsInModel = [ModelName.PLAYER, ModelName.STOCK];
+        this.refsInModel = [ModelName.PLAYER, ModelName.STOCK, ModelName.SOULHOME];
         this.modelName = ModelName.CLAN;
     }
 
@@ -86,47 +86,55 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
      * @returns 
      */
     public async handleDefaultCreate(clanToCreate: CreateClanDto, player_id: string) {
-        let dataToReturn: IResponseShape;
-
+        let dataToReturn: IResponseShape = {
+            data: {},
+            metaData: {
+                dataKey: ModelName.CLAN,
+                modelName: ModelName.CLAN,
+                dataType: 'Object',
+                dataCount: 1
+            }
+        };
         clanToCreate['admin_ids'] = [player_id];
-        const clanResp: any = await this.createOne(clanToCreate); 
 
-        if (!clanResp || clanResp instanceof MongooseError || !clanResp.data)
-            return clanResp;
+        const clanResp: any = await this.createOne(clanToCreate);
 
-        const createdClan = clanResp.data as ClanDto;
+        if (!clanResp || clanResp instanceof MongooseError || !clanResp.data || !clanResp.data.Clan)
+            return dataToReturn;
+
+        const createdClan = clanResp.data.Clan as ClanDto;
         dataToReturn.data[ModelName.CLAN] = createdClan;
 
         await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, { clan_id: createdClan._id });
 
         //Create clan's stock
-        const clanStock = getDefaultStock(createdClan._id);
+        const clanStock = getDefaultStock(createdClan._id.toString());
         const stockResp = await this.stockService.createOne(clanStock);
-        if (!stockResp || stockResp instanceof MongooseError || !stockResp.data || stockResp.data.Stock)
+        if (!stockResp || stockResp instanceof MongooseError || !stockResp.data || !stockResp.data.Stock)
             return dataToReturn;
 
         const createdStock = stockResp.data.Stock as unknown as StockDto;
         dataToReturn.data[ModelName.STOCK] = createdStock;
 
         //Add default items to clan's stock
-        const items: CreateItemDto[] = getDefaultItems(createdStock?._id);
-        await this.itemService.createMany(items);
+        const items: CreateItemDto[] = getDefaultItems(createdStock._id.toString());
+        const itemResp = await this.itemService.createMany(items);
 
         //Create clan's SoulHome
-        const clanSoulHome = getDefaultSoulHome(createdClan._id);
+        const clanSoulHome = getDefaultSoulHome(createdClan._id.toString());
         const soulHomeResp = await this.soulhomeService.createOne(clanSoulHome);
         if (!soulHomeResp || soulHomeResp instanceof MongooseError || !soulHomeResp.data || !soulHomeResp.data.SoulHome)
             return dataToReturn;
 
-        const createdSoulHome = stockResp.data.SoulHome as unknown as SoulHomeDto;
+        const createdSoulHome = soulHomeResp.data.SoulHome as unknown as SoulHomeDto;
         dataToReturn.data[ModelName.SOULHOME] = createdSoulHome;
 
-        const firstRoom = getDefaultRoom(createdSoulHome._id, player_id);
+        const firstRoom = getDefaultRoom(createdSoulHome._id.toString(), player_id);
         const roomResp = await this.roomService.createOne(firstRoom);
         if (!roomResp || roomResp instanceof MongooseError || !roomResp.data || !roomResp.data.Room)
             return dataToReturn;
 
-        const createdRoom = stockResp.data.SoulHome as unknown as RoomDto;
+        const createdRoom = roomResp.data.Room as unknown as RoomDto;
 
         const addRoom = [createdRoom._id];
         const soulHomeUpdate: updateSoulHomeDto = {
@@ -134,13 +142,7 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
             addedRooms: addRoom, removedRooms: undefined
         };
         await this.soulhomeService.handleUpdate(soulHomeUpdate);
-
-        dataToReturn.metaData = {
-            dataKey: ModelName.CLAN,
-            modelName: ModelName.CLAN,
-            dataType: 'Object',
-            dataCount: 1
-        }
+        
         return dataToReturn;
     }
 
@@ -197,5 +199,6 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         ], ignoreReferences);
 
         await this.stockService.deleteByCondition(searchFilter);
+        await this.soulhomeService.deleteByCondition(searchFilter);
     }
 }
