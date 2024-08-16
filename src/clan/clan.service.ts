@@ -32,6 +32,11 @@ import { RoomDto } from "src/Room/dto/room.dto";
 import { CreateRoomDto } from "src/Room/dto/createRoom.dto";
 import { updateSoulHomeDto } from "src/soulhome/dto/updateSoulHome.dto";
 import { User } from "src/auth/user";
+import { ClanDto } from "./dto/clan.dto";
+import { IResponseShape } from "../common/interface/IResponseShape";
+import getDefaultStock from "./defaultValues/stock";
+import {getDefaultRoom, getDefaultSoulHome} from "./defaultValues/soulHome";
+import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
 
 
 @Injectable()
@@ -52,6 +57,12 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
 
     public readonly refsInModel: ModelName[];
     public readonly modelName: ModelName;
+    /**
+     * @deprecated use the handleDefaultCreate() method instead
+     * @param body 
+     * @param user 
+     * @returns 
+     */
     public async handleCreate(body: CreateClanDto, user: User) {
         const creatorPlayer_id = user.player_id;
         body['admin_ids'] = [creatorPlayer_id];
@@ -65,59 +76,72 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         return clanResp;
     }
 
-    public async handleDefaultCreate(body: CreateClanDto, request: Request) {
-        const creatorPlayer_id = request['user'].player_id;
-        body['admin_ids'] = [creatorPlayer_id];
-        const clanResp: any = await this.createOne(body);
+    /**
+     * Crete a new Clan with other default objects.
+     *
+     * The default objects are required on the game side. 
+     * These objects are a Stock with its Items given to each new Clan, as well as a SoulHome with one Room
+     * @param clanToCreate 
+     * @param player_id the player_id of the Clan creator, and who is also will be the admin of the Clan
+     * @returns 
+     */
+    public async handleDefaultCreate(clanToCreate: CreateClanDto, player_id: string) {
+        let dataToReturn: IResponseShape;
 
-        if (!clanResp || clanResp instanceof MongooseError)
+        clanToCreate['admin_ids'] = [player_id];
+        const clanResp: any = await this.createOne(clanToCreate); 
+
+        if (!clanResp || clanResp instanceof MongooseError || !clanResp.data)
             return clanResp;
 
-        await this.requestHelperService.updateOneById(ModelName.PLAYER, creatorPlayer_id, { clan_id: clanResp.data[clanResp.metaData.dataKey]._id });
+        const createdClan = clanResp.data as ClanDto;
+        dataToReturn.data[ModelName.CLAN] = createdClan;
+
+        await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, { clan_id: createdClan._id });
 
         //Create clan's stock
-        const clanStock: CreateStockDto = {
-            type: 1,
-            rowCount: 5,
-            columnCount: 5,
-            clan_id: clanResp.data.Clan._id
-        }
+        const clanStock = getDefaultStock(createdClan._id);
         const stockResp = await this.stockService.createOne(clanStock);
-        if (!stockResp || stockResp instanceof MongooseError)
-            return clanResp;
+        if (!stockResp || stockResp instanceof MongooseError || !stockResp.data || stockResp.data.Stock)
+            return dataToReturn;
 
-        clanResp.data.Clan.Stock = stockResp.data.Stock;
+        const createdStock = stockResp.data.Stock as unknown as StockDto;
+        dataToReturn.data[ModelName.STOCK] = createdStock;
 
         //Add default items to clan's stock
-        const items: CreateItemDto[] = getDefaultItems(stockResp.data.Stock._id);
+        const items: CreateItemDto[] = getDefaultItems(createdStock?._id);
         await this.itemService.createMany(items);
 
-        //Create clan's stock
-        const clanSoulhome: CreateSoulHomeDto = {
-            type: "clan",
-            clan_id: clanResp.data.Clan._id
-        };
-        const soulHomeResp = await this.soulhomeService.createOne(clanSoulhome);
-        if (!soulHomeResp || soulHomeResp instanceof MongooseError)
-            return clanResp;
-        const firstRoom: CreateRoomDto = {
-            floorType:"placeholder",
-            wallType:"placeholder",
-            player_id: creatorPlayer_id,
-            soulHome_id:soulHomeResp.data.SoulHome._id
-        };
+        //Create clan's SoulHome
+        const clanSoulHome = getDefaultSoulHome(createdClan._id);
+        const soulHomeResp = await this.soulhomeService.createOne(clanSoulHome);
+        if (!soulHomeResp || soulHomeResp instanceof MongooseError || !soulHomeResp.data || !soulHomeResp.data.SoulHome)
+            return dataToReturn;
+
+        const createdSoulHome = stockResp.data.SoulHome as unknown as SoulHomeDto;
+        dataToReturn.data[ModelName.SOULHOME] = createdSoulHome;
+
+        const firstRoom = getDefaultRoom(createdSoulHome._id, player_id);
         const roomResp = await this.roomService.createOne(firstRoom);
-        if (!roomResp || roomResp instanceof MongooseError)
-            return clanResp;
-        const addRoom = [roomResp.data.Room._id];
-        const soulHomeUpdate = {
-            _id: soulHomeResp.data.SoulHome._id,
-            type:"clan",
-            addedRooms: addRoom,
-            removedRooms:undefined
+        if (!roomResp || roomResp instanceof MongooseError || !roomResp.data || !roomResp.data.Room)
+            return dataToReturn;
+
+        const createdRoom = stockResp.data.SoulHome as unknown as RoomDto;
+
+        const addRoom = [createdRoom._id];
+        const soulHomeUpdate: updateSoulHomeDto = {
+            _id: createdSoulHome._id, type: undefined,
+            addedRooms: addRoom, removedRooms: undefined
         };
         await this.soulhomeService.handleUpdate(soulHomeUpdate);
-        return clanResp;
+
+        dataToReturn.metaData = {
+            dataKey: ModelName.CLAN,
+            modelName: ModelName.CLAN,
+            dataType: 'Object',
+            dataCount: 1
+        }
+        return dataToReturn;
     }
 
     public async handleUpdate(body: UpdateClanDto) {
