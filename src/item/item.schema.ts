@@ -45,7 +45,7 @@ ItemSchema.virtual(ModelName.STOCK, {
     foreignField: '_id',
     justOne: true
 });
-//ItemSchema.set('collection', ModelName.ITEM);
+
 ItemSchema.virtual(ModelName.ROOM, {
     ref: ModelName.ROOM,
    localField: 'room_id',
