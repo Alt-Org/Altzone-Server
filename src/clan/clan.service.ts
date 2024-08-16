@@ -88,10 +88,6 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
 
         clanResp.data.Clan.Stock = stockResp.data.Stock;
 
-        //Add default items to clan's stock
-        const items: CreateItemDto[] = getDefaultItems(stockResp.data.Stock._id);
-        await this.itemService.createMany(items);
-
         //Create clan's stock
         const clanSoulhome: CreateSoulHomeDto = {
             type: "clan",
@@ -117,6 +113,10 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
             removedRooms:undefined
         };
         await this.soulhomeService.handleUpdate(soulHomeUpdate);
+        
+        //Add default items to clan's stock
+        const items: CreateItemDto[] = getDefaultItems(stockResp.data.Stock._id,roomResp.data.Room._id);
+        await this.itemService.createMany(items);
         return clanResp;
     }
 
