@@ -8,7 +8,6 @@ import { CreateClanDto } from "./dto/createClan.dto";
 import { UpdateClanDto } from "./dto/updateClan.dto";
 import { deleteNotUniqueArrayElements } from "src/common/function/deleteNotUniqueArrayElements";
 import { deleteArrayElements } from "src/common/function/deleteArrayElements";
-import { addUniqueArrayElements } from "src/common/function/addUniqueArrayElements";
 import { PlayerDto } from "src/player/dto/player.dto";
 import { StockService } from "../stock/stock.service";
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
@@ -18,18 +17,13 @@ import { Model, MongooseError, Types } from "mongoose";
 import { ModelName } from "src/common/enum/modelName.enum";
 import { RequestHelperService } from "src/requestHelper/requestHelper.service";
 import { IgnoreReferencesType } from "src/common/type/ignoreReferences.type";
-import { IHookImplementer } from "../common/interface/IHookImplementer";
 import { StockDto } from "../stock/dto/stock.dto";
-import { CreateStockDto } from "../stock/dto/createStock.dto";
 import { ItemService } from "../item/item.service";
 import { CreateItemDto } from "../item/dto/createItem.dto";
 import { getDefaultItems } from "./defaultValues/items";
-import { CreateSoulHomeDto } from "src/soulhome/dto/createSoulHome.dto";
 import { SoulHomeService } from "src/soulhome/soulhome.service";
 import { RoomService } from "src/Room/room.service";
-import { RoomDocument } from "src/Room/room.schema";
 import { RoomDto } from "src/Room/dto/room.dto";
-import { CreateRoomDto } from "src/Room/dto/createRoom.dto";
 import { updateSoulHomeDto } from "src/soulhome/dto/updateSoulHome.dto";
 import { User } from "src/auth/user";
 import { ClanDto } from "./dto/clan.dto";
@@ -165,16 +159,17 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         if(clanToUpdate.admin_idsToDelete)
             admin_ids = deleteArrayElements(admin_ids, clanToUpdate.admin_idsToDelete);
 
-        if(clanToUpdate.admin_idsToAdd)
-            admin_ids = admin_ids ? 
-                [...admin_ids, ...deleteNotUniqueArrayElements(clanToUpdate.admin_idsToAdd)] : 
-                deleteNotUniqueArrayElements(clanToUpdate.admin_idsToAdd);
-        
+        if(clanToUpdate.admin_idsToAdd){
+            const idsToAdd = deleteNotUniqueArrayElements(clanToUpdate.admin_idsToAdd);
+            admin_ids = admin_ids ? [...admin_ids, ...idsToAdd] : idsToAdd;
+            admin_ids = deleteNotUniqueArrayElements(admin_ids);
+        }
+
         if (admin_ids.length === 0)
             throw new BadRequestException('Clan can not be without at least one admin. You are trying to delete all clan admins');
 
         //add only players that are clan members
-        const clanToUpdate_id = clan._id;
+        const clanToUpdate_id = clan._id.toString();
         const playersInClan: string[] = [];
         const playersNotInClan: string[] = [];
         for (let i = 0; i < admin_ids.length; i++) {
@@ -183,10 +178,14 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
             if (player)
                 player.clan_id === clanToUpdate_id ? playersInClan.push(player_id) : playersNotInClan.push(player_id);
         }
+
+        if (playersInClan.length === 0)
+            throw new BadRequestException('Clan can not be without at least one admin. You are trying to delete all clan admins');
         
         clanToUpdate['admin_idsToDelete'] = undefined;
         clanToUpdate['admin_idsToAdd'] = undefined;
         clanToUpdate['admin_ids'] = playersInClan;
+
         return await this.updateOneById(clanToUpdate);
     }
 
