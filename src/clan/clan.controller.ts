@@ -1,11 +1,9 @@
 import { ClanService } from "./clan.service";
 import {
-    BadRequestException,
     Body,
     Controller,
     Delete,
     Get,
-    NotFoundException,
     Param,
     Post,
     Put,
@@ -23,12 +21,7 @@ import { BasicPUT } from "../common/base/decorator/BasicPUT.decorator";
 import { ModelName } from "../common/enum/modelName.enum";
 import { Authorize } from "../authorization/decorator/Authorize";
 import { Action } from "../authorization/enum/action.enum";
-import { MongooseError } from "mongoose";
 import { RequestHelperService } from "../requestHelper/requestHelper.service";
-import { deleteArrayElements } from "../common/function/deleteArrayElements";
-import { addUniqueArrayElements } from "../common/function/addUniqueArrayElements";
-import { deleteNotUniqueArrayElements } from "../common/function/deleteNotUniqueArrayElements";
-import { PlayerDto } from "../player/dto/player.dto";
 import { AddSearchQuery } from "../common/interceptor/request/addSearchQuery.interceptor";
 import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
 import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
@@ -48,7 +41,6 @@ export class ClanController {
     @BasicPOST(ClanDto)
     public async create(@Body() body: CreateClanDto, @Req() request: Request) {
         const resp = await this.service.handleDefaultCreate(body, request['user']?.player_id);
-        console.log('controller resp', resp);
         return resp;
     }
 
