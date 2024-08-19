@@ -10,13 +10,7 @@ export type StockDocument = HydratedDocument<Stock>;
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true }})
 export class Stock {
     @Prop({ type: Number, required: true })
-    type: number;
-
-    @Prop({ type: Number, required: true })
-    rowCount: number;
-
-    @Prop({ type: Number, required: true })
-    columnCount: number;
+    cellCount: number;
 
     @Prop({ type: MongooseSchema.Types.ObjectId, required: true, ref: ModelName.CLAN })
     clan_id: Clan;

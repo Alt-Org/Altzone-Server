@@ -10,17 +10,13 @@ export class UpdateStockDto {
     @IsMongoId()
     _id: string;
 
-    @IsEnum(StockType)
-    @IsOptional()
-    type: StockType;
+    //@IsEnum(StockType)
+    //@IsOptional()
+    //type: StockType;
 
     @IsInt()
     @IsOptional()
-    rowCount: number;
-
-    @IsInt()
-    @IsOptional()
-    columnCount: number;
+    cellCount: number;
 
     @IsClanExists()
     @IsMongoId()

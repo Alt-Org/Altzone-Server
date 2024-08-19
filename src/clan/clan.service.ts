@@ -33,7 +33,6 @@ import { CreateRoomDto } from "../Room/dto/createRoom.dto";
 import { updateSoulHomeDto } from "../soulhome/dto/updateSoulHome.dto";
 import { User } from "../auth/user";
 
-
 @Injectable()
 @AddBasicService()
 export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBasicService<Clan> {
@@ -77,16 +76,14 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
 
         //Create clan's stock
         const clanStock: CreateStockDto = {
-            type: 1,
-            rowCount: 5,
-            columnCount: 5,
+            cellCount: 5,
             clan_id: clanResp.data.Clan._id
         }
         const stockResp = await this.stockService.createOne(clanStock);
         if (!stockResp || stockResp instanceof MongooseError)
             return clanResp;
-
-        clanResp.data.Clan.Stock = stockResp.data.Stock;
+        
+        //clanResp.data.Clan.Stock = stockResp.data.Stock;
 
         //Create clan's stock
         const clanSoulhome: CreateSoulHomeDto = {
@@ -115,8 +112,8 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         await this.soulhomeService.handleUpdate(soulHomeUpdate);
         
         //Add default items to clan's stock
-        const items: CreateItemDto[] = getDefaultItems(stockResp.data.Stock._id,roomResp.data.Room._id);
-        await this.itemService.createMany(items);
+        //const items: CreateItemDto[] = getDefaultItems(stockResp.data.Stock._id,roomResp.data.Room._id);
+        //await this.itemService.createMany(items);
         return clanResp;
     }
 
@@ -167,7 +164,7 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         await this.requestHelperService.nullReferences([
             { modelName: ModelName.PLAYER, filter: searchFilter, nullIds }
         ], ignoreReferences);
-
-        await this.stockService.deleteByCondition(searchFilter);
+	console.log(_id);
+//        await this.stockService.deleteOneById(_id);
     }
 }
