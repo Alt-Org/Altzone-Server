@@ -25,7 +25,7 @@ import { UpdateClanDto } from "src/clan/dto/updateClan.dto";
 import { SupportedAction } from "./authorization.interceptor";
 import { JoinDto } from "src/clan/join/dto/join.dto";
 import { JoinResultDto } from "src/clan/join/dto/joinResult.dto";
-import { PlayerLeaveClan, joinRules } from "./rule/joinRequestRules";
+import { joinRules } from "./rule/joinRequestRules";
 import { ItemDto } from "../item/dto/item.dto";
 import { UpdateItemDto } from "../item/dto/updateItem.dto";
 import { StockDto } from "../stock/dto/stock.dto";
@@ -44,6 +44,7 @@ import { shopRules } from "./rule/shopRules";
 import { ShopItemDTO } from "src/shop/itemShop/dto/shopItem.dto";
 import { RemovePlayerDTO } from "src/clan/join/dto/removePlayer.dto";
 import { isType, ObjectType } from "src/common/base/decorator/AddType.decorator";
+import { PlayerLeaveClanDto } from "../clan/join/dto/playerLeave.dto";
 
 export type AllowedAction = Action.create_request | Action.read_request | Action.read_response | Action.update_request | Action.delete_request;
 
@@ -55,7 +56,7 @@ export type AllowedSubject =
     typeof ItemDto | typeof UpdateItemDto |
     typeof StockDto | typeof UpdateStockDto |
     typeof ClanDto | typeof UpdateClanDto |
-    typeof JoinDto | typeof JoinResultDto | typeof PlayerLeaveClan | typeof RemovePlayerDTO |
+    typeof JoinDto | typeof JoinResultDto | typeof PlayerLeaveClanDto | typeof RemovePlayerDTO |
     typeof SoulHomeDto | typeof updateSoulHomeDto |
     typeof RoomDto | typeof UpdateRoomDto |
     typeof ClanVoteDto | typeof UpdateClanVoteDto |

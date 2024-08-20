@@ -44,7 +44,7 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
         private readonly roomService:RoomService
     ) {
         super();
-        this.refsInModel = [ModelName.PLAYER, ModelName.CLAN,ModelName.SOULHOME,ModelName.ROOM];
+        this.refsInModel = [];
         this.modelName = ModelName.JOIN;
 
         this.playerCounter = this.playerCounterFactory.create();
@@ -190,27 +190,6 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
         }
         this.deleteOneById(input._id) // delete the join request
         return true;
-    }
-    
-    /**
-     * Read join requests for the player.
-     *
-     * These requests are going to be the requests came to the Player's Clan
-     * @param player_id 
-     * @param query 
-     * @returns 
-     */
-    public async readJoinsOfPlayer(player_id: string, query: IGetAllQuery){
-        const player = await this.requestHelperService.getModelInstanceByCondition(
-            ModelName.PLAYER,
-            { _id: player_id },
-            PlayerDto,
-            true
-        );
-        if(!player || !player.clan_id)
-            return null;
-
-        return this.readAll({...query, filter: { clan_id: player.clan_id }});
     }
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {

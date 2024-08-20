@@ -4,6 +4,7 @@ import {
     Controller,
     Delete,
     Get,
+    HttpCode,
     Param,
     Post,
     Put,
@@ -28,11 +29,17 @@ import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interc
 import { GetAllQuery } from "src/common/decorator/param/GetAllQuery";
 import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
 import { NoAuth } from "src/auth/decorator/NoAuth.decorator";
+import { JoinDto } from "./join/dto/join.dto";
+import { JoinRequestDto } from "./join/dto/joinRequest.dto";
+import { JoinService } from "./join/join.service";
+import { RemovePlayerDTO } from "./join/dto/removePlayer.dto";
+import { PlayerLeaveClanDto } from "./join/dto/playerLeave.dto";
 
 @Controller('clan')
 export class ClanController {
     public constructor(
         private readonly service: ClanService,
+        private readonly joinService: JoinService,
         private readonly requestHelperService: RequestHelperService
     ) {
     }
@@ -83,5 +90,28 @@ export class ClanController {
     @BasicDELETE(ModelName.CLAN)
     public delete(@Param() param: _idDto) {
         return this.service.deleteOneById(param._id);
+    }
+
+
+    
+    @Post('join')
+    @Authorize({action: Action.create, subject: JoinDto})
+    @BasicPOST(JoinDto)
+    public async createJoin(@Body() body: JoinRequestDto) {
+        return this.joinService.handleJoinRequest(body);
+    }
+
+    @Post('leave')
+    @HttpCode(204)
+    @Authorize({ action: Action.create, subject: PlayerLeaveClanDto })
+    public leaveClan(@Req() request: Request) {
+        return this.joinService.leaveClan(request['user'].player_id);
+    }
+
+    @Post('exclude')
+    @HttpCode(204)
+    @Authorize({ action: Action.create, subject: RemovePlayerDTO })
+    public excludePlayer(@Body() body: RemovePlayerDTO, @Req() request: Request) {
+        return this.joinService.removePlayerFromClan(body.player_id, request['user']);
     }
 }
