@@ -1,4 +1,4 @@
-import AddType, { isType } from "src/common/base/decorator/AddType.decorator";
+import AddType, { isType } from "../../../common/base/decorator/AddType.decorator";
 import { SEReason } from "./SEReason";
 
 /**

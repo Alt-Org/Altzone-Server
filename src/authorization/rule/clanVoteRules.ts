@@ -1,16 +1,13 @@
 import { AbilityBuilder, ExtractSubjectType, InferSubjects, MongoAbility, createMongoAbility } from "@casl/ability";
-import { ClanVoteDto } from "src/shop/clanVote/dto/clanVote.dto";
-import { UpdateClanVoteDto } from "src/shop/clanVote/dto/updateClanVote.dto";
+import { ClanVoteDto } from "../../shop/clanVote/dto/clanVote.dto";
 import { AllowedAction } from "../caslAbility.factory";
 import { Action } from "../enum/action.enum";
 import { RulesSetterAsync } from "../type/RulesSetter.type";
 import { ClanDto } from "../../clan/dto/clan.dto";
-import { UpdateClanDto } from "../../clan/dto/updateClan.dto";
 import { ModelName } from "../../common/enum/modelName.enum";
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { getClan_id } from "../util/getClan_id";
 import { MongooseError } from "mongoose";
-import { JoinDto } from "src/clan/join/dto/join.dto";
 
 type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;

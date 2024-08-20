@@ -1,6 +1,6 @@
 import {IsEnum, IsInt, IsString} from "class-validator";
 import {GestaltCycle} from "../../common/enum/gestaltCycle.enum";
-import AddType from "src/common/base/decorator/AddType.decorator";
+import AddType from "../../common/base/decorator/AddType.decorator";
 
 /**
  * This class is used for validation incoming requests while creating a CharacterClass.

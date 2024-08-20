@@ -1,17 +1,17 @@
 import { Body, Injectable, NotFoundException } from "@nestjs/common";
-import { BasicServiceDummyAbstract } from "src/common/base/abstract/basicServiceDummy.abstract";
-import { AddBasicService, ClearCollectionReferences } from "src/common/base/decorator/AddBasicService.decorator";
+import { BasicServiceDummyAbstract } from "../common/base/abstract/basicServiceDummy.abstract";
+import { AddBasicService, ClearCollectionReferences } from "../common/base/decorator/AddBasicService.decorator";
 import { SoulHome } from "./soulhome.schema";
-import { IBasicService } from "src/common/base/interface/IBasicService";
+import { IBasicService } from "../common/base/interface/IBasicService";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, MongooseError, Types } from "mongoose";
-import { StockService } from "src/stock/stock.service";
-import { RequestHelperService } from "src/requestHelper/requestHelper.service";
-import { ModelName } from "src/common/enum/modelName.enum";
-import { IgnoreReferencesType } from "src/common/type/ignoreReferences.type";
-import { RoomService } from "src/Room/room.service";
+import { StockService } from "../stock/stock.service";
+import { RequestHelperService } from "../requestHelper/requestHelper.service";
+import { ModelName } from "../common/enum/modelName.enum";
+import { IgnoreReferencesType } from "../common/type/ignoreReferences.type";
+import { RoomService } from "../Room/room.service";
 import { updateSoulHomeDto } from "./dto/updateSoulHome.dto";
-import { deleteArrayElements } from "src/common/function/deleteArrayElements";
+import { deleteArrayElements } from "../common/function/deleteArrayElements";
 
 @Injectable()
 @AddBasicService()

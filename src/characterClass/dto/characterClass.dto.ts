@@ -2,7 +2,7 @@ import {Expose, Type} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {GestaltCycle} from "../../common/enum/gestaltCycle.enum";
 import {CustomCharacterDto} from "../../customCharacter/dto/customCharacter.dto";
-import AddType from "src/common/base/decorator/AddType.decorator";
+import AddType from "../../common/base/decorator/AddType.decorator";
 
 /**
  * This is a DTO class = data transfer object.

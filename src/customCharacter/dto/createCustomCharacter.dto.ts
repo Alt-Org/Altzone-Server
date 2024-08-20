@@ -1,7 +1,7 @@
 import {IsInt, IsMongoId, IsString} from "class-validator";
 import {IsCharacterClassExists} from "../../characterClass/decorator/validation/IsCharacterClassExists.decorator";
 import {IsPlayerExists} from "../../player/decorator/validation/IsPlayerExists.decorator";
-import AddType from "src/common/base/decorator/AddType.decorator";
+import AddType from "../../common/base/decorator/AddType.decorator";
 
 @AddType('CreateCustomCharacterDto')
 export class CreateCustomCharacterDto {

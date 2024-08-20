@@ -1,5 +1,5 @@
 import {Discriminator} from "../../enum/discriminator.enum";
-import { ModelName } from "src/common/enum/modelName.enum";
+import { ModelName } from "../../../common/enum/modelName.enum";
 
 /**
  * Add "with" and "all" queries to the endpoint.

@@ -1,35 +1,35 @@
 import { BadRequestException, Body, HttpCode, HttpStatus, Inject, Injectable, NotFoundException, Param, Req } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { BasicServiceDummyAbstract } from "src/common/base/abstract/basicServiceDummy.abstract";
+import { BasicServiceDummyAbstract } from "../../common/base/abstract/basicServiceDummy.abstract";
 import {
     AddBasicService,
     ClearCollectionReferences,
-} from "src/common/base/decorator/AddBasicService.decorator";
-import { IBasicService } from "src/common/base/interface/IBasicService";
-import { IHookImplementer, PostCreateHookFunction, PostHookFunction } from "src/common/interface/IHookImplementer";
-import { PlayerService } from "src/player/player.service";
+} from "../../common/base/decorator/AddBasicService.decorator";
+import { IBasicService } from "../../common/base/interface/IBasicService";
+import { IHookImplementer, PostCreateHookFunction, PostHookFunction } from "../../common/interface/IHookImplementer";
+import { PlayerService } from "../../player/player.service";
 import { Join } from "./join.schema";
 import { Model, MongooseError, Types } from "mongoose";
-import { ModelName } from "src/common/enum/modelName.enum";
-import { RequestHelperService } from "src/requestHelper/requestHelper.service";
-import { IgnoreReferencesType } from "src/common/type/ignoreReferences.type";
+import { ModelName } from "../../common/enum/modelName.enum";
+import { RequestHelperService } from "../../requestHelper/requestHelper.service";
+import { IgnoreReferencesType } from "../../common/type/ignoreReferences.type";
 import { body } from "express-validator";
 import { JoinRequestDto } from "./dto/joinRequest.dto";
 import { ClanDto } from "../dto/clan.dto";
-import { PlayerDto } from "src/player/dto/player.dto";
+import { PlayerDto } from "../../player/dto/player.dto";
 import { JoinResultDto } from "./dto/joinResult.dto";
 import { request } from "https";
 import { ok } from "assert";
-import { IResponseShape } from "src/common/interface/IResponseShape";
-import { _idDto } from "src/common/dto/_id.dto";
+import { IResponseShape } from "../../common/interface/IResponseShape";
+import { _idDto } from "../../common/dto/_id.dto";
 import { error } from "console";
 import { ClanService } from "../clan.service";
-import { RoomService } from "src/Room/room.service";
-import { CreateRoomDto } from "src/Room/dto/createRoom.dto";
-import { SoulHome } from "src/soulhome/soulhome.schema";
-import { SoulHomeDto } from "src/soulhome/dto/soulhome.dto";
-import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
-import { User } from "src/auth/user";
+import { RoomService } from "../../Room/room.service";
+import { CreateRoomDto } from "../../Room/dto/createRoom.dto";
+import { SoulHome } from "../../soulhome/soulhome.schema";
+import { SoulHomeDto } from "../../soulhome/dto/soulhome.dto";
+import { IGetAllQuery } from "../../common/interface/IGetAllQuery";
+import { User } from "../../auth/user";
 import { PlayerCounterFactory } from "../clan.counters";
 import ICounter from "src/common/service/counter/ICounter";
 

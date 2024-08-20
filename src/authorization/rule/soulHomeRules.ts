@@ -3,12 +3,12 @@ import { AllowedAction } from "../caslAbility.factory";
 import { AbilityBuilder, createMongoAbility, ExtractSubjectType } from "@casl/ability";
 import { Action } from "../enum/action.enum";
 import { RulesSetter, RulesSetterAsync } from "../type/RulesSetter.type";
-import { SoulHomeDto } from "src/soulhome/dto/soulhome.dto";
-import { updateSoulHomeDto } from "src/soulhome/dto/updateSoulHome.dto";
+import { SoulHomeDto } from "../../soulhome/dto/soulhome.dto";
+import { updateSoulHomeDto } from "../../soulhome/dto/updateSoulHome.dto";
 import { getClan_id } from "../util/getClan_id";
 import { NotFoundException } from "@nestjs/common";
-import { ModelName } from "src/common/enum/modelName.enum";
-import { ClanDto } from "src/clan/dto/clan.dto";
+import { ModelName } from "../../common/enum/modelName.enum";
+import { ClanDto } from "../../clan/dto/clan.dto";
 import { MongooseError } from "mongoose";
 
 type Subjects = InferSubjects<any>;

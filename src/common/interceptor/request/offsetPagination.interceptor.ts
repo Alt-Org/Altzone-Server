@@ -3,7 +3,7 @@ import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
 import {Request} from 'express';
 import {RequestHelperService} from "../../../requestHelper/requestHelper.service";
-import { ModelName } from "src/common/enum/modelName.enum";
+import { ModelName } from "../../../common/enum/modelName.enum";
 import {IResponseShape} from "../../interface/IResponseShape";
 
 /**

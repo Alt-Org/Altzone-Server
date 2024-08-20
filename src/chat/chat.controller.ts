@@ -23,14 +23,14 @@ import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
-import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
-import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
+import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
+import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
 import {NoAuth} from "../auth/decorator/NoAuth.decorator";
 import {CreateMessageDto} from "./dto/createMessage.dto";
 import {MessageDto} from "./dto/message.dto";
 import {chat_idParam, messageParam} from "./dto/messageParam";
 import {APIObjectName} from "../common/enum/apiObjectName.enum";
-import { Serialize } from "src/common/interceptor/response/Serialize";
+import { Serialize } from "../common/interceptor/response/Serialize";
 
 
 @Controller('chat')

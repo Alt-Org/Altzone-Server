@@ -6,32 +6,30 @@ import { IBasicService } from "../common/base/interface/IBasicService";
 import { BasicServiceDummyAbstract } from "../common/base/abstract/basicServiceDummy.abstract";
 import { CreateClanDto } from "./dto/createClan.dto";
 import { UpdateClanDto } from "./dto/updateClan.dto";
-import { deleteNotUniqueArrayElements } from "src/common/function/deleteNotUniqueArrayElements";
-import { deleteArrayElements } from "src/common/function/deleteArrayElements";
-import { PlayerDto } from "src/player/dto/player.dto";
+import { deleteNotUniqueArrayElements } from "../common/function/deleteNotUniqueArrayElements";
+import { deleteArrayElements } from "../common/function/deleteArrayElements";
+import { addUniqueArrayElements } from "../common/function/addUniqueArrayElements";
+import { PlayerDto } from "../player/dto/player.dto";
 import { StockService } from "../stock/stock.service";
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Clan } from "./clan.schema";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, MongooseError, Types } from "mongoose";
-import { ModelName } from "src/common/enum/modelName.enum";
-import { RequestHelperService } from "src/requestHelper/requestHelper.service";
-import { IgnoreReferencesType } from "src/common/type/ignoreReferences.type";
+import { ModelName } from "../common/enum/modelName.enum";
+import { RequestHelperService } from "../requestHelper/requestHelper.service";
+import { IgnoreReferencesType } from "../common/type/ignoreReferences.type";
 import { StockDto } from "../stock/dto/stock.dto";
 import { ItemService } from "../item/item.service";
 import { CreateItemDto } from "../item/dto/createItem.dto";
 import { getDefaultItems } from "./defaultValues/items";
-import { SoulHomeService } from "src/soulhome/soulhome.service";
-import { RoomService } from "src/Room/room.service";
-import { RoomDto } from "src/Room/dto/room.dto";
-import { updateSoulHomeDto } from "src/soulhome/dto/updateSoulHome.dto";
-import { User } from "src/auth/user";
-import { ClanDto } from "./dto/clan.dto";
-import { IResponseShape } from "../common/interface/IResponseShape";
-import getDefaultStock from "./defaultValues/stock";
-import {getDefaultRoom, getDefaultSoulHome} from "./defaultValues/soulHome";
-import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
-
+import { CreateSoulHomeDto } from "../soulhome/dto/createSoulHome.dto";
+import { SoulHomeService } from "../soulhome/soulhome.service";
+import { RoomService } from "../Room/room.service";
+import { RoomDocument } from "../Room/room.schema";
+import { RoomDto } from "../Room/dto/room.dto";
+import { CreateRoomDto } from "../Room/dto/createRoom.dto";
+import { updateSoulHomeDto } from "../soulhome/dto/updateSoulHome.dto";
+import { User } from "../auth/user";
 
 @Injectable()
 @AddBasicService()

@@ -1,5 +1,5 @@
 import { IsBoolean, IsMongoId, IsNumber } from "class-validator";
-import AddType from "src/common/base/decorator/AddType.decorator";
+import AddType from "../../../common/base/decorator/AddType.decorator";
 
 @AddType('UpdateClanVoteDto')
 export class UpdateClanVoteDto {
