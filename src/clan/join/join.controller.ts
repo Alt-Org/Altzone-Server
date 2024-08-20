@@ -56,8 +56,8 @@ export class joinController {
         return this.service.leaveClan(request['user'].player_id);
     }
 
-    //Player requests to leave the Clan
-    @Post('remove')
+    //Clan admin requests to remove Player from Clan
+    @Post('exclude')
     @HttpCode(204)
     @Authorize({ action: Action.create, subject: RemovePlayerDTO })
     public removePlayer(@Body() body: RemovePlayerDTO, @Req() request: Request) {
