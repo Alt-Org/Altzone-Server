@@ -9,12 +9,14 @@ import {ModelName} from "../common/enum/modelName.enum";
 import {StockModule} from "../stock/stock.module";
 import {ItemModule} from "../item/item.module";
 import { RoomModule } from 'src/Room/room.module';
-import { SoulHome } from 'src/soulhome/soulhome.schema';
 import { SoulHomeModule } from 'src/soulhome/soulhome.module';
+import { PlayerCounterFactory } from './clan.counters';
+import { joinSchema } from './join/join.schema';
+import { JoinService } from './join/join.service';
 
 @Module({
     imports: [
-        MongooseModule.forFeature([ {name: ModelName.CLAN, schema: ClanSchema} ]),
+        MongooseModule.forFeature([ {name: ModelName.CLAN, schema: ClanSchema}, {name: ModelName.JOIN, schema: joinSchema} ]),
         StockModule,
         ItemModule,
         RoomModule,
@@ -22,7 +24,7 @@ import { SoulHomeModule } from 'src/soulhome/soulhome.module';
         RequestHelperModule
     ],
     controllers: [ClanController],
-    providers: [ ClanService, isClanExists ],
-    exports: [ClanService]
+    providers: [ ClanService, isClanExists, PlayerCounterFactory, JoinService ],
+    exports: [ClanService, PlayerCounterFactory]
 })
 export class ClanModule {}

@@ -25,8 +25,12 @@ export const clanRules: RulesSetterAsync<Ability, Subjects> = async (user, subje
 
     if(action === Action.create){
         const playerToMakeClanAdmin = await requestHelperService.getModelInstanceById(ModelName.PLAYER, user.player_id, PlayerDto);
+
+        if(!playerToMakeClanAdmin)
+            throw new NotFoundException('Could not recognize logged-in user');
+
         if(playerToMakeClanAdmin.clan_id)
-            throw new ForbiddenException('The logged-in user is already in another clan. Please remove the player from the clan first');
+            throw new ForbiddenException('The logged-in user is already in another Clan');
 
         can(Action.create_request, subject);
     }
