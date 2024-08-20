@@ -7,9 +7,7 @@ import { CreateStockDto } from "../../stock/dto/createStock.dto"
  */
 export default function getDefaultStock(clan_id: string): CreateStockDto {
     return {
-        type: 1,
-        rowCount: 5,
-        columnCount: 5,
+        cellCount: 20,
         clan_id
     }
 }

@@ -30,6 +30,10 @@ import { RoomDto } from "../Room/dto/room.dto";
 import { CreateRoomDto } from "../Room/dto/createRoom.dto";
 import { updateSoulHomeDto } from "../soulhome/dto/updateSoulHome.dto";
 import { User } from "../auth/user";
+import { ClanDto } from "./dto/clan.dto";
+import { getDefaultRoom, getDefaultSoulHome } from "./defaultValues/soulHome";
+import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
+import { IResponseShape } from "../common/interface/IResponseShape";
 
 @Injectable()
 @AddBasicService()
@@ -100,17 +104,17 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, { clan_id: createdClan._id });
 
         //Create clan's stock
-        const clanStock = getDefaultStock(createdClan._id.toString());
-        const stockResp = await this.stockService.createOne(clanStock);
-        if (!stockResp || stockResp instanceof MongooseError || !stockResp.data || !stockResp.data.Stock)
-            return dataToReturn;
+        // const clanStock = getDefaultStock(createdClan._id.toString());
+        // const stockResp = await this.stockService.createOne(clanStock);
+        // if (!stockResp || stockResp instanceof MongooseError || !stockResp.data || !stockResp.data.Stock)
+        //     return dataToReturn;
 
-        const createdStock = stockResp.data.Stock as unknown as StockDto;
-        dataToReturn.data[ModelName.STOCK] = createdStock;
+        // const createdStock = stockResp.data.Stock as unknown as StockDto;
+        // dataToReturn.data[ModelName.STOCK] = createdStock;
 
-        //Add default items to clan's stock
-        const items: CreateItemDto[] = getDefaultItems(createdStock._id.toString());
-        const itemResp = await this.itemService.createMany(items);
+        // //Add default items to clan's stock
+        // const items: CreateItemDto[] = getDefaultItems(createdStock._id.toString());
+        // const itemResp = await this.itemService.createMany(items);
 
         //Create clan's SoulHome
         const clanSoulHome = getDefaultSoulHome(createdClan._id.toString());
@@ -195,7 +199,7 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
             { modelName: ModelName.PLAYER, filter: searchFilter, nullIds }
         ], ignoreReferences);
 
-        await this.stockService.deleteByCondition(searchFilter);
+        //await this.stockService.deleteByCondition(searchFilter);
         await this.soulhomeService.deleteByCondition(searchFilter);
     }
 }
