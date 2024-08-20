@@ -75,13 +75,13 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         await this.requestHelperService.updateOneById(ModelName.PLAYER, creatorPlayer_id, { clan_id: clanResp.data[clanResp.metaData.dataKey]._id });
 
         //Create clan's stock
-        const clanStock: CreateStockDto = {
-            cellCount: 5,
-            clan_id: clanResp.data.Clan._id
-        }
-        const stockResp = await this.stockService.createOne(clanStock);
-        if (!stockResp || stockResp instanceof MongooseError)
-            return clanResp;
+        // const clanStock: CreateStockDto = {
+        //     cellCount: 5,
+        //     clan_id: clanResp.data.Clan._id
+        // }
+        // const stockResp = await this.stockService.createOne(clanStock);
+        // if (!stockResp || stockResp instanceof MongooseError)
+        //     return clanResp;
         
         //clanResp.data.Clan.Stock = stockResp.data.Stock;
 
