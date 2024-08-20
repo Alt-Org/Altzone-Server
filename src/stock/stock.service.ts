@@ -36,20 +36,26 @@ export class StockService {
     }
 
   /**
-    * Updates an Stock by its cellCount in DB. The cellCount field is read-only and must be found from the parameter
+    * Updates a Stock cellCount field by the specified amount.
     * 
-    * @param Stock - The data needs to be updated for the Stock.
+    * @param _id - The Mongo _id of the Stock to be updated
+    * @param cellCountChange - the amount the cellCount field will be updated on. It can be ever negative or positive number.
     * @returns _true_ if Stock was updated successfully, _false_ if nothing was updated for the Stock, 
      * or a ServiceError array if Stock was not found or something else went wrong.
     */
-    async updateOneBycellcount(Stock: UpdateStockDto) {
-       const {_id, cellCount, ...fieldsToUpdate} = Stock;
-       const x = await this.basicService.readOneById<StockDto>(_id);
-       if (isServiceError(x))
-         return x as ServiceError[]; 
-       const stock = x as unknown as Stock;
-       stock.cellCount = cellCount;
-       return this.basicService.updateOneById(_id, stock);
+    public updateStockCellCount = async (_id: string, cellCountChange: number) => {
+        const dbResp = await this.basicService.readOneById<StockDto>(_id);
+        if(isServiceError(dbResp))
+            return dbResp as ServiceError[];
+
+        const stock = dbResp as unknown as Stock;
+
+        const { cellCount } = stock;
+
+        const requestedCellCount = cellCount + cellCountChange;
+        const newCellCount = requestedCellCount < 0 ? 0 : requestedCellCount;
+
+        return this.basicService.updateOneById(_id, { cellCount: newCellCount });
     }
 
     /**
@@ -67,7 +73,7 @@ export class StockService {
     }
 
     /**
-    * Reads all Stocks by its in DB.
+    * Reads Stocks by specified options from DB.
     * 
     * @param options - Options for reading CharacterClasses.
     * @returns An array of Stocks if succeed or an array of ServiceErrors if any occurred.
@@ -87,8 +93,8 @@ export class StockService {
     * @returns _true_ if Item was updated successfully, _false_ if nothing was updated for the Stock, 
      * or a ServiceError array if Stock was not found or something else went wrong.
     */
-    async updateOneById(Stock: UpdateStockDto) {
-        const {_id, ...fieldsToUpdate} = Stock
+    async updateOneById(stock: UpdateStockDto) {
+        const {_id, ...fieldsToUpdate} = stock;
         return this.basicService.updateOneById(_id, fieldsToUpdate);
     }
 
