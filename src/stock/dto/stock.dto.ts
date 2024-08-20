@@ -21,7 +21,7 @@ export class StockDto {
     @Expose()
     Clan: ClanDto;
 
-    //@Type(() => ItemDto)
-    //@Expose()
-    //Item: ItemDto[];
+    @Type(() => ItemDto)
+    @Expose()
+    Item: ItemDto[];
 }
