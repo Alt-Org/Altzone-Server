@@ -11,14 +11,8 @@ export class StockDto {
     _id: string;
 
     @Expose()
-    type: number;
-
-    @Expose()
-    rowCount: number;
-
-    @Expose()
-    columnCount: number;
-
+    cellCount: number;
+    
     @ExtractField()
     @Expose()
     clan_id: string;
