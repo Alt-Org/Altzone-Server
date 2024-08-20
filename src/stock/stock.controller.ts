@@ -1,11 +1,8 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Req} from "@nestjs/common";
-import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
+import {Controller, Get, Param} from "@nestjs/common";
 import {_idDto} from "../common/dto/_id.dto";
 import {ModelName} from "../common/enum/modelName.enum";
 import {StockService} from "./stock.service";
 import {StockDto} from "./dto/stock.dto";
-import {CreateStockDto} from "./dto/createStock.dto";
-import {UpdateStockDto} from "./dto/updateStock.dto";
 import { Authorize } from "../authorization/decorator/Authorize";
 import { Action } from "../authorization/enum/action.enum";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
@@ -23,9 +20,8 @@ export class StockController {
     @Get('/:_id')
     @Authorize({action: Action.read, subject: StockDto})
     @UniformResponse(ModelName.STOCK)
-    @AddGetQueries()
-    public get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id);//, request['mongoPopulate']);
+    public get(@Param() param: _idDto) {
+        return this.service.readOneById(param._id);
     }
 
     @Get()
