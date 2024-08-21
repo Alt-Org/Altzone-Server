@@ -6,12 +6,12 @@ import {ExtractField} from "../common/decorator/response/ExtractField";
 export type RoomDocument = HydratedDocument<Room>;
 
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
-export class Room{
+export class Room {
     @Prop({ type: String, required: true })
-    floorType: String;
+    floorType: string;
 
     @Prop({ type: String ,required:true})
-    wallType: String; 
+    wallType: string; 
 
     @Prop({ type: Boolean, default: false })
     isActive: boolean; 
