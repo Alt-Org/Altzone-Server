@@ -1,18 +1,29 @@
-import { IsMongoId, IsString } from "class-validator";
+import { IsBoolean, IsMongoId, IsNumber, IsOptional, IsString } from "class-validator";
 import AddType from "../../common/base/decorator/AddType.decorator";
 
 @AddType('CreateRoomDto')
 export class CreateRoomDto {
-  @IsString() 
-  floorType: string;
+    @IsString() 
+    floorType: string;
 
-  @IsString()
-  wallType: string;
+    @IsString()
+    wallType: string;
 
-  @IsMongoId()
-  player_id: string
+    @IsBoolean()
+    @IsOptional()
+    isActive: boolean;
 
-  @IsMongoId()
-  soulHome_id:string;
+    @IsBoolean()
+    @IsOptional()
+    hasLift: boolean;
 
+    @IsNumber()
+    @IsOptional()
+    deactivationTime: number;
+
+    @IsNumber()
+    cellCount: number;
+
+    @IsMongoId()
+    soulHome_id: string;
 }
