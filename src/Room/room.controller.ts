@@ -21,7 +21,7 @@ import { BasicDELETE } from "../common/base/decorator/BasicDELETE.decorator";
 import { Authorize } from "../authorization/decorator/Authorize";
 import { Action } from "../authorization/enum/action.enum";
 
-@Controller('Room')
+@Controller('room')
 export class RoomController {
     public constructor(
         private readonly service: RoomService,
