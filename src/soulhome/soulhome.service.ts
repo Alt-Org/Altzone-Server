@@ -50,6 +50,6 @@ export class SoulHomeService extends BasicServiceDummyAbstract<SoulHome> impleme
     }
     public clearCollectionReferences: ClearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         const searchFilter = { soulHome_id: _id };
-        await this.roomService.deleteByCondition(searchFilter);
+        //await this.roomService.deleteByCondition(searchFilter);
     }
 }

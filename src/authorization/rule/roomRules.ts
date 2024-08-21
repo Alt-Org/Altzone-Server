@@ -29,8 +29,8 @@ export const roomRules: RulesSetterAsync<Ability, Subjects> = async (user, subje
         const room = await requestHelperService.getModelInstanceById(ModelName.ROOM, subjectObj._id, RoomDto);
         if (!room|| room instanceof MongooseError)
             throw new NotFoundException('Can not check ownership, room with that id not found'); 
-        if(room.player_id !== user.player_id)
-            throw new NotFoundException("PlayerID does not match owner")
+        // if(room.player_id !== user.player_id)
+        //     throw new NotFoundException("PlayerID does not match owner")
         
         can(Action.update_request, subject);
         can(Action.delete_request, subject);

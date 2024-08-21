@@ -125,19 +125,19 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         const createdSoulHome = soulHomeResp.data.SoulHome as unknown as SoulHomeDto;
         dataToReturn.data[ModelName.SOULHOME] = createdSoulHome;
 
-        const firstRoom = getDefaultRoom(createdSoulHome._id.toString(), player_id);
-        const roomResp = await this.roomService.createOne(firstRoom);
-        if (!roomResp || roomResp instanceof MongooseError || !roomResp.data || !roomResp.data.Room)
-            return dataToReturn;
+        // const firstRoom = getDefaultRoom(createdSoulHome._id.toString(), player_id);
+        // const roomResp = await this.roomService.createOne(firstRoom);
+        // if (!roomResp || roomResp instanceof MongooseError || !roomResp.data || !roomResp.data.Room)
+        //     return dataToReturn;
 
-        const createdRoom = roomResp.data.Room as unknown as RoomDto;
+        // const createdRoom = roomResp.data.Room as unknown as RoomDto;
 
-        const addRoom = [createdRoom._id];
-        const soulHomeUpdate: updateSoulHomeDto = {
-            _id: createdSoulHome._id, type: undefined,
-            addedRooms: addRoom, removedRooms: undefined
-        };
-        await this.soulhomeService.handleUpdate(soulHomeUpdate);
+        // const addRoom = [createdRoom._id];
+        // const soulHomeUpdate: updateSoulHomeDto = {
+        //     _id: createdSoulHome._id, type: undefined,
+        //     addedRooms: addRoom, removedRooms: undefined
+        // };
+        // await this.soulhomeService.handleUpdate(soulHomeUpdate);
         
         return dataToReturn;
     }
