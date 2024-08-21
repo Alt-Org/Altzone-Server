@@ -6,12 +6,14 @@ import { RoomService } from "./room.service";
 import { RequestHelperModule } from "../requestHelper/requestHelper.module";
 import { RoomSchema } from "./room.schema";
 import { PlayerModule } from "../player/player.module";
+import { ClanSchema } from "../clan/clan.schema";
 
 @Module({
     imports: [
         MongooseModule.forFeature([ {name: ModelName.ROOM, schema: RoomSchema } ]),
+        MongooseModule.forFeature([ {name: ModelName.CLAN, schema: ClanSchema } ]),
         PlayerModule,
-        RequestHelperModule
+        RequestHelperModule,
     ],
     controllers: [ RoomController ],
     providers: [ RoomService ],
