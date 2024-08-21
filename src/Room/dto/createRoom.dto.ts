@@ -19,7 +19,7 @@ export class CreateRoomDto {
 
     @IsNumber()
     @IsOptional()
-    deactivationTime: number;
+    deactivationTimestamp: number;
 
     @IsNumber()
     cellCount: number;

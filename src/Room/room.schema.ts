@@ -17,7 +17,7 @@ export class Room {
     isActive: boolean; 
 
     @Prop({ type: Number })
-    deactivationTime: number;
+    deactivationTimestamp: number;
 
     @Prop({ type: Number, required: true })
     cellCount: number;

@@ -4,7 +4,7 @@ import AddType from "../../common/base/decorator/AddType.decorator";
 @AddType('UpdateRoomDto')
 export class UpdateRoomDto {
     @IsMongoId()
-    _id:string;
+    _id: string;
 
     @IsString() 
     @IsOptional()
@@ -24,7 +24,7 @@ export class UpdateRoomDto {
 
     @IsNumber()
     @IsOptional()
-    deactivationTime: number;
+    deactivationTimestamp: number;
 
     @IsNumber()
     @IsOptional()

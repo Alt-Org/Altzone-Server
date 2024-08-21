@@ -21,7 +21,7 @@ export class RoomDto {
     hasLift: boolean;
 
     @Expose()
-    deactivationTime: number;
+    deactivationTimestamp: number;
 
     @Expose()
     cellCount: number;
