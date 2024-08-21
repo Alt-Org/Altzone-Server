@@ -60,7 +60,7 @@ export class RoomService {
     */
     async readPlayerClanRooms(player_id: string, options?: TIServiceReadManyOptions) {
         const playerResp = await this.playerService.readOneById(player_id);
-        if(!playerResp || playerResp instanceof MongooseError)
+        if(!playerResp || playerResp instanceof MongooseError || !playerResp.data?.Player)
             return [new ServiceError({
                 reason: SEReason.NOT_FOUND, 
                 field: 'player_id', 
@@ -68,8 +68,7 @@ export class RoomService {
                 message: 'Could not find any Player with this _id'
             })];
         
-        const {clan_id} = playerResp as unknown as PlayerDto;
-
+        const {clan_id} = playerResp.data.Player as unknown as PlayerDto;
         if(!clan_id)
             return [new ServiceError({
                 reason: SEReason.NOT_FOUND, 
