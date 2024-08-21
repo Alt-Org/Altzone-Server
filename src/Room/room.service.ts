@@ -16,7 +16,7 @@ import { PlayerDto } from "../player/dto/player.dto";
 @Injectable()
 export class RoomService {
     public constructor(
-        @InjectModel(RoomService.name) public readonly model: Model<Room>,
+        @InjectModel(Room.name) public readonly model: Model<Room>,
         private readonly playerService: PlayerService
     ){
         this.refsInModel = [ModelName.ITEM, ModelName.SOULHOME];
