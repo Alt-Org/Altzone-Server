@@ -21,7 +21,7 @@ import {ChatModule} from "./chat/chat.module";
 import {ItemModule} from "./item/item.module";
 import {StockModule} from "./stock/stock.module";
 import { SoulHomeModule } from './soulhome/soulhome.module';
-import { RoomModule } from './Room/room.module';
+import { RoomModule } from './room/room.module';
 import { ClanVoteModule } from './shop/clanVote/clanVote.module';
 import { ItemShopModule } from './shop/itemShop/itemShop.module';
 

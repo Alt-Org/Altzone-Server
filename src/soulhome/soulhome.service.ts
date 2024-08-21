@@ -9,7 +9,7 @@ import { StockService } from "../stock/stock.service";
 import { RequestHelperService } from "../requestHelper/requestHelper.service";
 import { ModelName } from "../common/enum/modelName.enum";
 import { IgnoreReferencesType } from "../common/type/ignoreReferences.type";
-import { RoomService } from "../Room/room.service";
+import { RoomService } from "../room/room.service";
 import { updateSoulHomeDto } from "./dto/updateSoulHome.dto";
 import { deleteArrayElements } from "../common/function/deleteArrayElements";
 

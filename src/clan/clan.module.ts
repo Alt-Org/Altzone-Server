@@ -8,7 +8,7 @@ import {isClanExists} from "./decorator/validation/IsClanExists.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {StockModule} from "../stock/stock.module";
 import {ItemModule} from "../item/item.module";
-import { RoomModule } from 'src/Room/room.module';
+import { RoomModule } from 'src/room/room.module';
 import { SoulHomeModule } from 'src/soulhome/soulhome.module';
 import { PlayerCounterFactory } from './clan.counters';
 import { joinSchema } from './join/join.schema';

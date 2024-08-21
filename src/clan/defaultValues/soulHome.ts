@@ -1,4 +1,4 @@
-import { CreateRoomDto } from "../../Room/dto/createRoom.dto"
+import { CreateRoomDto } from "../../room/dto/createRoom.dto"
 import { CreateSoulHomeDto } from "../../soulhome/dto/createSoulHome.dto"
 
 /**

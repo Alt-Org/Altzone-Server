@@ -9,9 +9,9 @@ import { NotFoundException } from "@nestjs/common";
 import { ModelName } from "../../common/enum/modelName.enum";
 import { ClanDto } from "../../clan/dto/clan.dto";
 import { Model, MongooseError } from "mongoose";
-import { RoomDto } from "../../Room/dto/room.dto";
+import { RoomDto } from "../../room/dto/room.dto";
 import { PlayerDto } from "../../player/dto/player.dto";
-import { UpdateRoomDto } from "../../Room/dto/updateRoom.dto";
+import { UpdateRoomDto } from "../../room/dto/updateRoom.dto";
 
 type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;

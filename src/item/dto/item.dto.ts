@@ -1,7 +1,7 @@
 import {Expose, Type} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {StockDto} from "../../stock/dto/stock.dto";
-import {RoomDto} from "../../Room/dto/room.dto";
+import {RoomDto} from "../../room/dto/room.dto";
 import AddType from "../../common/base/decorator/AddType.decorator";
 import { Recycling } from "../enum/recycling.enum";
 
