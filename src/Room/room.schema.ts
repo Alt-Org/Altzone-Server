@@ -16,21 +16,32 @@ export class Room{
     @Prop({ type: Boolean, default: false })
     isActive: boolean; 
 
-    @Prop({type: Array<String>,default: []})
-    roomItems: string[]; //array of items in the room
+    @Prop({ type: Number })
+    deactivationTime: number;
 
-    @Prop({ type: String, required: true })
-    player_id: string; // owner
+    @Prop({ type: Number, required: true })
+    cellCount: number;
+
+    @Prop({ type: Boolean, default: false })
+    hasLift: boolean;
 
     @Prop({ type: String, required: true })
     soulHome_id: string; 
+
     @ExtractField()
     _id: string;
 }
+
 export const RoomSchema = SchemaFactory.createForClass(Room);
 RoomSchema.set('collection', ModelName.ROOM);
-RoomSchema.virtual(ModelName.PLAYER,{
-    ref: ModelName.PLAYER,
-    localField : "player_id",
-    foreignField :"_id"
-})
+RoomSchema.virtual(ModelName.SOULHOME, {
+    ref: ModelName.SOULHOME,
+    localField : "soulHome_id",
+    foreignField :"_id",
+    justOne: true
+});
+RoomSchema.virtual(ModelName.ITEM, {
+    ref: ModelName.ITEM,
+    localField : "_id",
+    foreignField :"room_id"
+});
