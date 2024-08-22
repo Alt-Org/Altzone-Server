@@ -70,8 +70,8 @@ export class RoomService {
         const soulHome = soulHomeResp as unknown as SoulHomeDto;
         const soulHome_id = soulHome._id;
 
-        const optionsToApply = options;
-        if(options?.includeRefs)
+        const optionsToApply = options ?? { filter: {}, includeRefs: undefined };
+        if(optionsToApply.includeRefs)
             optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
 
         optionsToApply.filter = {...optionsToApply.filter, _id, soulHome_id};
