@@ -24,7 +24,7 @@ export class RoomController {
     @Authorize({action: Action.read, subject: RoomDto})
     @UniformResponse(ModelName.ROOM)
     public async get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id, request['mongoPopulate']);
+        return this.service.readOneByIdAndPlayerId(param._id, request['user'].player_id);
     }
 
     @Get()
