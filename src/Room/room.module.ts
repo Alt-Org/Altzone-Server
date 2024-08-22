@@ -7,6 +7,7 @@ import { RequestHelperModule } from "../requestHelper/requestHelper.module";
 import { RoomSchema } from "./room.schema";
 import { PlayerModule } from "../player/player.module";
 import { ClanSchema } from "../clan/clan.schema";
+import RoomHelperService from "./utils/room.helper.service";
 
 @Module({
     imports: [
@@ -16,7 +17,7 @@ import { ClanSchema } from "../clan/clan.schema";
         RequestHelperModule,
     ],
     controllers: [ RoomController ],
-    providers: [ RoomService ],
+    providers: [ RoomService, RoomHelperService ],
     exports: [ RoomService ]
 })
 export class RoomModule {}
