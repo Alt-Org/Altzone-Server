@@ -7,30 +7,27 @@ import { UpdateRoomDto } from "./dto/updateRoom.dto";
 import BasicService from "../common/service/basicService/BasicService";
 import { CreateRoomDto } from "./dto/createRoom.dto";
 import { RoomDto } from "./dto/room.dto";
-import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
+import { TIServiceReadManyOptions, TIServiceReadOneOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 import ServiceError, { isServiceError } from "../common/service/basicService/ServiceError";
 import { SEReason } from "../common/service/basicService/SEReason";
-import { PlayerService } from "../player/player.service";
 import { PlayerDto } from "../player/dto/player.dto";
 import { Clan } from "../clan/clan.schema";
 import { ClanDto } from "../clan/dto/clan.dto";
 import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
+import RoomHelperService from "./utils/room.helper.service";
 
 @Injectable()
 export class RoomService {
     public constructor(
         @InjectModel(Room.name) public readonly model: Model<Room>,
-        @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
-        private readonly playerService: PlayerService
+        private readonly roomHelper: RoomHelperService
     ){
         this.refsInModel = [ModelName.ITEM, ModelName.SOULHOME];
         this.basicService = new BasicService(model);
-        this.clanBasicService = new BasicService(clanModel);
     }
 
     public readonly refsInModel: ModelName[];
     private readonly basicService: BasicService;
-    private readonly clanBasicService: BasicService;
 
     /**
      * Creates a new Room in DB.
@@ -50,11 +47,36 @@ export class RoomService {
      * @returns Room with the given _id on succeed or an array of ServiceErrors if any occurred.
     */
     async readOneById(_id: string, options?: TReadByIdOptions) {
-        let optionsToApply = options;
+        const optionsToApply = options;
         if(options?.includeRefs)
             optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
 
         return this.basicService.readOneById<RoomDto>(_id, optionsToApply);
+    }
+
+    /**
+     * Reads a Room by its _id and player_id if the specified Player belongs to the same Clan as the Room's SoulHome
+     * 
+     * @param _id - The Mongo _id of the Room to read.
+     * @param player_id - The Mongo _id of the Player
+     * @param options - Options for reading the Room.
+     * @returns _Room_ object or array with _ServiceError_ with reason NOT_FOUND if the Player does not belong to the same Clan as the Room's SoulHome
+    */
+    async readOneByIdAndPlayerId(_id: string, player_id: string, options?: TIServiceReadOneOptions) {
+        const soulHomeResp = await this.roomHelper.getPlayerSoulHome(player_id);
+        if(isServiceError(soulHomeResp))
+            return soulHomeResp as ServiceError[];
+
+        const soulHome = soulHomeResp as unknown as SoulHomeDto;
+        const soulHome_id = soulHome._id;
+
+        const optionsToApply = options;
+        if(options?.includeRefs)
+            optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
+
+        optionsToApply.filter = {...optionsToApply.filter, _id, soulHome_id};
+
+        return this.basicService.readOne<RoomDto>(optionsToApply);
     }
 
     /**
@@ -65,47 +87,14 @@ export class RoomService {
      * @returns An array of Rooms if succeeded or an array of ServiceErrors if error occurred.
     */
     async readPlayerClanRooms(player_id: string, options?: TIServiceReadManyOptions) {
-        const playerResp = await this.playerService.readOneById(player_id);
-        if(!playerResp || playerResp instanceof MongooseError || !playerResp.data?.Player)
-            return [new ServiceError({
-                reason: SEReason.NOT_FOUND, 
-                field: 'player_id', 
-                value: player_id, 
-                message: 'Could not find any Player with this _id'
-            })];
-        
-        const {clan_id} = playerResp.data.Player as unknown as PlayerDto;
-        if(!clan_id)
-            return [new ServiceError({
-                reason: SEReason.NOT_FOUND, 
-                field: 'clan_id', 
-                value: clan_id, 
-                message: 'The Player is not in any Clan'
-            })];
+        const soulHomeResp = await this.roomHelper.getPlayerSoulHome(player_id);
+        if(isServiceError(soulHomeResp))
+            return soulHomeResp as ServiceError[];
 
-        const clanResp = await this.clanBasicService.readOneById<ClanDto>(clan_id, {includeRefs: [ModelName.SOULHOME]});
-        if(isServiceError(clanResp))
-            return [new ServiceError({
-                reason: SEReason.NOT_FOUND, 
-                field: 'clan_id', 
-                value: clan_id, 
-                message: 'Could not find any Clan with this _id'
-            })];
-        
-        const clan = clanResp as unknown as ClanDto;
-        const clanSoulHome = clan.SoulHome as unknown as SoulHomeDto[];
+        const soulHome = soulHomeResp as unknown as SoulHomeDto;
+        const soulHome_id = soulHome._id;
 
-        if(!clanSoulHome || clanSoulHome.length === 0)
-            return [new ServiceError({
-                reason: SEReason.NOT_FOUND,
-                field: 'soulHome_id',
-                value: undefined,
-                message: 'Could not find SoulHome of the Clan'
-            })];
-
-        const soulHome_id = clanSoulHome[0]._id;
-
-        let optionsToApply = options;
+        const optionsToApply = options;
         if(options?.includeRefs)
             optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
 
