@@ -24,10 +24,10 @@ import { CreateItemDto } from "../item/dto/createItem.dto";
 import { getDefaultItems } from "./defaultValues/items";
 import { CreateSoulHomeDto } from "../soulhome/dto/createSoulHome.dto";
 import { SoulHomeService } from "../soulhome/soulhome.service";
-import { RoomService } from "../Room/room.service";
-import { RoomDocument } from "../Room/room.schema";
-import { RoomDto } from "../Room/dto/room.dto";
-import { CreateRoomDto } from "../Room/dto/createRoom.dto";
+import { RoomService } from "../room/room.service";
+import { RoomDocument } from "../room/room.schema";
+import { RoomDto } from "../room/dto/room.dto";
+import { CreateRoomDto } from "../room/dto/createRoom.dto";
 import { updateSoulHomeDto } from "../soulhome/dto/updateSoulHome.dto";
 import { User } from "../auth/user";
 import { ClanDto } from "./dto/clan.dto";
@@ -125,19 +125,19 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         const createdSoulHome = soulHomeResp.data.SoulHome as unknown as SoulHomeDto;
         dataToReturn.data[ModelName.SOULHOME] = createdSoulHome;
 
-        const firstRoom = getDefaultRoom(createdSoulHome._id.toString(), player_id);
-        const roomResp = await this.roomService.createOne(firstRoom);
-        if (!roomResp || roomResp instanceof MongooseError || !roomResp.data || !roomResp.data.Room)
-            return dataToReturn;
+        // const firstRoom = getDefaultRoom(createdSoulHome._id.toString(), player_id);
+        // const roomResp = await this.roomService.createOne(firstRoom);
+        // if (!roomResp || roomResp instanceof MongooseError || !roomResp.data || !roomResp.data.Room)
+        //     return dataToReturn;
 
-        const createdRoom = roomResp.data.Room as unknown as RoomDto;
+        // const createdRoom = roomResp.data.Room as unknown as RoomDto;
 
-        const addRoom = [createdRoom._id];
-        const soulHomeUpdate: updateSoulHomeDto = {
-            _id: createdSoulHome._id, type: undefined,
-            addedRooms: addRoom, removedRooms: undefined
-        };
-        await this.soulhomeService.handleUpdate(soulHomeUpdate);
+        // const addRoom = [createdRoom._id];
+        // const soulHomeUpdate: updateSoulHomeDto = {
+        //     _id: createdSoulHome._id, type: undefined,
+        //     addedRooms: addRoom, removedRooms: undefined
+        // };
+        // await this.soulhomeService.handleUpdate(soulHomeUpdate);
         
         return dataToReturn;
     }

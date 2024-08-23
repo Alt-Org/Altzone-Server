@@ -1,4 +1,4 @@
-import { CreateRoomDto } from "../../Room/dto/createRoom.dto"
+import { CreateRoomDto } from "../../room/dto/createRoom.dto"
 import { CreateSoulHomeDto } from "../../soulhome/dto/createSoulHome.dto"
 
 /**
@@ -19,11 +19,11 @@ export function getDefaultSoulHome(clan_id: string): CreateSoulHomeDto {
  * @param player_id to which the Room belongs to
  * @returns 
  */
-export function getDefaultRoom(soulHome_id: string, player_id: string): CreateRoomDto {
-    return {
-        floorType: "placeholder",
-        wallType: "placeholder",
-        player_id,
-        soulHome_id
-    }
+export function getDefaultRoom(soulHome_id: string, player_id: string){ //: CreateRoomDto {
+    // return {
+    //     floorType: "placeholder",
+    //     wallType: "placeholder",
+    //     player_id,
+    //     soulHome_id
+    // }
 }

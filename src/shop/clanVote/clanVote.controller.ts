@@ -16,7 +16,7 @@ import { query } from "express";
 import { IGetAllQuery } from "../../common/interface/IGetAllQuery";
 import { BasicPUT } from "../../common/base/decorator/BasicPUT.decorator";
 import { modelNames } from "mongoose";
-import { UpdateRoomDto } from "../../Room/dto/updateRoom.dto";
+import { UpdateRoomDto } from "../../room/dto/updateRoom.dto";
 import { BasicDELETE } from "../../common/base/decorator/BasicDELETE.decorator";
 import { CreateClanVoteDto } from "./dto/createClanVote.dto";
 import { UpdateClanVoteDto } from "./dto/updateClanVote.dto";

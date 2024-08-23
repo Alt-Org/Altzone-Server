@@ -9,9 +9,9 @@ import { NotFoundException } from "@nestjs/common";
 import { ModelName } from "../../common/enum/modelName.enum";
 import { ClanDto } from "../../clan/dto/clan.dto";
 import { Model, MongooseError } from "mongoose";
-import { RoomDto } from "../../Room/dto/room.dto";
+import { RoomDto } from "../../room/dto/room.dto";
 import { PlayerDto } from "../../player/dto/player.dto";
-import { UpdateRoomDto } from "../../Room/dto/updateRoom.dto";
+import { UpdateRoomDto } from "../../room/dto/updateRoom.dto";
 
 type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
@@ -29,8 +29,8 @@ export const roomRules: RulesSetterAsync<Ability, Subjects> = async (user, subje
         const room = await requestHelperService.getModelInstanceById(ModelName.ROOM, subjectObj._id, RoomDto);
         if (!room|| room instanceof MongooseError)
             throw new NotFoundException('Can not check ownership, room with that id not found'); 
-        if(room.player_id !== user.player_id)
-            throw new NotFoundException("PlayerID does not match owner")
+        // if(room.player_id !== user.player_id)
+        //     throw new NotFoundException("PlayerID does not match owner")
         
         can(Action.update_request, subject);
         can(Action.delete_request, subject);

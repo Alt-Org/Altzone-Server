@@ -24,8 +24,8 @@ import { IResponseShape } from "../../common/interface/IResponseShape";
 import { _idDto } from "../../common/dto/_id.dto";
 import { error } from "console";
 import { ClanService } from "../clan.service";
-import { RoomService } from "../../Room/room.service";
-import { CreateRoomDto } from "../../Room/dto/createRoom.dto";
+import { RoomService } from "../../room/room.service";
+import { CreateRoomDto } from "../../room/dto/createRoom.dto";
 import { SoulHome } from "../../soulhome/soulhome.schema";
 import { SoulHomeDto } from "../../soulhome/dto/soulhome.dto";
 import { IGetAllQuery } from "../../common/interface/IGetAllQuery";
@@ -202,21 +202,21 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
             SoulHomeDto, true
         );
 
-        if(soulhome){
-            const firstRoom: CreateRoomDto = {
-                floorType: "placeholder",
-                wallType: "placeholder",
-                player_id: player_id,
-                soulHome_id: soulhome._id
-            };
+        // if(soulhome){
+        //     const firstRoom: CreateRoomDto = {
+        //         floorType: "placeholder",
+        //         wallType: "placeholder",
+        //         player_id: player_id,
+        //         soulHome_id: soulhome._id
+        //     };
     
-            const room = await this.roomService.createOne(firstRoom);
-            if (!room || room instanceof MongooseError)
-                return;
-            let updatedlist = soulhome.rooms;
-            updatedlist.push(room.data.Room._id);
-            await this.requestHelperService.updateOneById(ModelName.SOULHOME, soulhome._id, {rooms:updatedlist});
-        }
+        //     const room = await this.roomService.createOne(firstRoom);
+        //     if (!room || room instanceof MongooseError)
+        //         return;
+        //     let updatedlist = soulhome.rooms;
+        //     updatedlist.push(room.data.Room._id);
+        //     await this.requestHelperService.updateOneById(ModelName.SOULHOME, soulhome._id, {rooms:updatedlist});
+        // }
              
         await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, { clan_id: clan_id }); // update clan_id for the requested player;
         await this.playerCounter.increaseByIdOnOne(clan_id);

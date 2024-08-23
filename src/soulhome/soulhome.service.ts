@@ -9,7 +9,7 @@ import { StockService } from "../stock/stock.service";
 import { RequestHelperService } from "../requestHelper/requestHelper.service";
 import { ModelName } from "../common/enum/modelName.enum";
 import { IgnoreReferencesType } from "../common/type/ignoreReferences.type";
-import { RoomService } from "../Room/room.service";
+import { RoomService } from "../room/room.service";
 import { updateSoulHomeDto } from "./dto/updateSoulHome.dto";
 import { deleteArrayElements } from "../common/function/deleteArrayElements";
 
@@ -50,6 +50,6 @@ export class SoulHomeService extends BasicServiceDummyAbstract<SoulHome> impleme
     }
     public clearCollectionReferences: ClearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         const searchFilter = { soulHome_id: _id };
-        await this.roomService.deleteByCondition(searchFilter);
+        //await this.roomService.deleteByCondition(searchFilter);
     }
 }

@@ -5,7 +5,7 @@ import { RequestHelperModule } from "../requestHelper/requestHelper.module";
 import { SoulhomeSchema } from "./soulhome.schema";
 import { SoulHomeController } from "./soulhome.controller";
 import { SoulHomeService } from "./soulhome.service";
-import { RoomModule } from "../Room/room.module";
+import { RoomModule } from "../room/room.module";
 
 @Module({
     imports: [
