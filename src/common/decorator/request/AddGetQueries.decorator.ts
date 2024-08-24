@@ -6,7 +6,10 @@ import { ModelName } from "../../../common/enum/modelName.enum";
  *
  * This basically means, that if these queries are specified, the decorator will add "mongoPopulate"-field to a request object
  *
- * Notice that for this decorator to work the second argument of the controller method must be the request object
+ * Notice that for this decorator to work the second argument of the controller method must be the request object.
+ *
+ * @deprecated Notice that it can be used only in old type of controllers, which are using @AddBasicService() 
+ *
  * @returns 
  */
 export const AddGetQueries = () => {

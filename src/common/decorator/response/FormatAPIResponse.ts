@@ -4,6 +4,14 @@ import { APIError, convertToAPIError, isAPIError } from "../../../common/control
 import formatResponse from "../../../common/controller/formatResponse";
 import { ModelName } from "../../../common/enum/modelName.enum";
 
+/**
+ * Formats the method return value to uniform shape for sending it to client side.
+ *
+ * Notice that if the returning value is ServiceError or APIError, it will be thrown, and should be caught by appropriate error filter
+ *
+ * @param modelName name of the model method is returning
+ * @returns
+ */
 export const FormatAPIResponse = (modelName?: ModelName): any => {
     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
         const originalMethod = descriptor.value;
@@ -36,6 +44,10 @@ export const FormatAPIResponse = (modelName?: ModelName): any => {
     };
 }
 
+/**
+ * Converts any error and throws it as a HttpException
+ * @param error to be thrown
+ */
 function throwAPIError(error: any) {
     const resp: {errors: APIError[]} = {errors: []};
     if(Array.isArray(error))

@@ -9,6 +9,12 @@ import { Response } from 'express';
 import { APIError } from 'src/common/controller/APIError';
 import { APIErrorReason } from 'src/common/controller/APIErrorReason';
   
+/**
+ * Error filter to handle ValidationErrors thrown by class-validator module.
+ *
+ * Filter will convert ValidationError(s) to appropriate APIError(s) 
+ * as well as send an array with occurred APIError(s) to the client side
+ */
 @Catch(BadRequestException)
 export class ValidationExceptionFilter implements ExceptionFilter {
 	catch(exception: BadRequestException, host: ArgumentsHost) {
