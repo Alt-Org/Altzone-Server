@@ -5,6 +5,9 @@ import {IConditionService} from "../interface/IConditionService";
 import {ThrowNotImplementedMethod} from "../decorator/ThrowNotImplementedMethod.decorator";
 import {Discriminator} from "../../enum/discriminator.enum";
 
+/**
+ * @deprecated 
+ */
 export abstract class BasicAndConditionServiceDummyAbstract<T=object> extends BasicServiceDummyAbstract<T> implements IBasicService<T>, IConditionService<T>{
     protected constructor() {
         super();

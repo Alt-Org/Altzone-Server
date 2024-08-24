@@ -1,3 +1,6 @@
+/**
+ * @deprecated 
+ */
 export const ThrowNotImplementedMethod = (className: string, decoratorName: string | string[]): any => {
     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
         descriptor.value = function () {

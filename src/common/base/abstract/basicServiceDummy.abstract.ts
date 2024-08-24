@@ -8,6 +8,9 @@ import { ModelName } from "../../../common/enum/modelName.enum";
 import { IGetAllQuery } from "../../../common/interface/IGetAllQuery";
 import {IResponseShape} from "../../interface/IResponseShape";
 
+/**
+ * @deprecated 
+ */
 export abstract class BasicServiceDummyAbstract<T=object> implements IBasicService<T>{
     protected constructor() {}
     public readonly discriminators = [Discriminator.IBasicService];

@@ -3,6 +3,9 @@ import {ModelName} from "../../enum/modelName.enum";
 import {IConditionService} from "../interface/IConditionService";
 import {Discriminator} from "../../enum/discriminator.enum";
 
+/**
+ * @deprecated 
+ */
 export const AddConditionService = () => {
     return function<T extends {
         new (...args: any[]): {

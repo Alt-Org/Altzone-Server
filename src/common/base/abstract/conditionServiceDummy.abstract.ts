@@ -3,6 +3,9 @@ import {IConditionService} from "../interface/IConditionService";
 import {ThrowNotImplementedMethod} from "../decorator/ThrowNotImplementedMethod.decorator";
 import {Discriminator} from "../../enum/discriminator.enum";
 
+/**
+ * @deprecated 
+ */
 export abstract class ConditionServiceDummyAbstract<T=object> implements IConditionService<T>{
     protected constructor() {}
 
