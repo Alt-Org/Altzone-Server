@@ -1,6 +1,9 @@
 import {NextFunction, Request, Response} from "express";
 import IFieldParser from "./IFieldParser";
 
+/**
+ * @deprecated
+ */
 export default abstract class FieldParser implements IFieldParser{
     protected constructor(gameToAPIDictionary: Record<string, string>, apiToGameDictionary: Record<string, string>) {
         this.gameToAPIDictionary = gameToAPIDictionary;
