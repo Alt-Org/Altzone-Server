@@ -7,6 +7,9 @@ import {
 } from "@nestjs/common";
 import {HttpException} from "@nestjs/common/exceptions/http.exception";
 
+/**
+ * @deprecated 
+ */
 export const CatchCreateUpdateErrors = (): any => {
     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
         // Save a reference to the original method

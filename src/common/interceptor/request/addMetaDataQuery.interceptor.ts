@@ -2,10 +2,16 @@ import {CallHandler, ExecutionContext, NestInterceptor, UseInterceptors} from "@
 import {Observable} from "rxjs";
 import {Request} from 'express';
 
+/**
+ * @deprecated 
+ */
 export function AddMetaDataQuery() {
     return UseInterceptors(new AddMetaDataQueryInterceptor());
 }
 
+/**
+ * @deprecated 
+ */
 class AddMetaDataQueryInterceptor implements NestInterceptor{
     public constructor() {
     }
