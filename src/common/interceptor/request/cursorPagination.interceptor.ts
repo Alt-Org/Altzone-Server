@@ -5,6 +5,9 @@ import {Request, Response as Res} from 'express';
 import {RequestHelperService} from "../../../requestHelper/requestHelper.service";
 import {ModelName} from "../../enum/modelName.enum";
 
+/**
+ * @deprecated 
+ */
 export function CursorPaginate(modelName: ModelName) {
     @Injectable()
     class PaginateInterceptor implements NestInterceptor{
