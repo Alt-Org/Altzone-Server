@@ -1,5 +1,3 @@
-import { Expose } from "class-transformer";
-
 /**
  * Constant, which determines the field used to determine the type of the object
  */
@@ -15,9 +13,6 @@ export interface ObjectType {
 /**
  * Add objectType to the class for comparisons as well as isType(), which can determine whenever the object is right type or not
  *
- * In case you want to use the objectType and isType() inside the API code, please add this two statements to your class:
- * - declare objectType: string;
- * - declare isType: (type: string) => boolean;
  * @param type class objectType field to be added
  */
 export default function AddType(type: string) {
@@ -46,16 +41,4 @@ export function isType(obj: any, type: string){
         return false;
 
     return obj[OBJECT_TYPE_FIELD] === type;
-}
-
-function ObjectTypeMixin<T extends { new(...args: any[]): {} }>(Base: T, type: string) {
-    return class extends Base {
-        objectType = type;
-
-        constructor(...args: any[]) {
-            console.log(args);
-            super(...args);
-            Object.assign(this, { objectType: type });
-        }
-    };
 }

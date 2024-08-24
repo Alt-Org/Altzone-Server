@@ -6,6 +6,9 @@ import { ModelName } from "../../../common/enum/modelName.enum";
 import { IGetAllQuery } from "../../../common/interface/IGetAllQuery";
 import {IResponseShape} from "../../interface/IResponseShape";
 
+/**
+ * @deprecated
+ */
 export interface IBasicService<T=object> extends IDiscriminator{
     createOne(input: any): Promise<IResponseShape<T> | null | MongooseError>;
 
