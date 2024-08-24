@@ -6,6 +6,9 @@ import {APIObjectName} from "../../enum/apiObjectName.enum";
 
 type ResponseHandler = (data: any, modelName: ModelName | APIObjectName) => any;
 
+/**
+ * @deprecated 
+ */
 export const ThrowResponseErrorIfFound = (responseType: ResponseType, modelName: ModelName | APIObjectName): any => {
     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
         // Save a reference to the original method
