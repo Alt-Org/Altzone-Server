@@ -7,7 +7,7 @@ export function Send204OnEmptyRes() {
 }
 
 /**
- * Sends a 204 response if data is undefined
+ * Sends a 204 response to the client side if returned data from controller function is undefined
  */
 @Injectable()
 class Send204OnEmptyResInterceptor implements NestInterceptor{
