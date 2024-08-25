@@ -1,3 +1,6 @@
+/**
+ * Enum used in game for determining _gestaltCycle_ field of CharacterClass
+ */
 export enum GestaltCycle{
     None = 0,
     Desensitisation = 1,
