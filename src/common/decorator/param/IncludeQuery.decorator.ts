@@ -1,6 +1,8 @@
 import {createParamDecorator, ExecutionContext} from "@nestjs/common";
 import {Request} from "express";
 import { ModelName } from "../../enum/modelName.enum";
+import { APIError } from "../../controller/APIError";
+import { APIErrorReason } from "../../controller/APIErrorReason";
 
 
 /**
@@ -18,6 +20,14 @@ import { ModelName } from "../../enum/modelName.enum";
  * @see [Mongoose Populate](https://mongoosejs.com/docs/populate.html)
  */
 export const IncludeQuery = createParamDecorator((allowedReferences: ModelName[], context: ExecutionContext): ModelName[] => {
+    if(!allowedReferences)
+        throw new APIError({ 
+            reason: APIErrorReason.MISCONFIGURED, 
+            message: '@IncludeQuery() requires array of allowed references of the model parameter',
+            field: 'allowedReferences',
+            value: allowedReferences
+        });
+
     const request = context.switchToHttp().getRequest<Request>();
     const withQuery = request.query['with'];
     const allQuery = request.query['all'];
