@@ -42,10 +42,10 @@ type Data<D=any, M=object> = DataObject<D> & DocumentMetaObject<M>;
 /**
  * Interface representing the metadata for a response.
  * 
- * @property dataKey The key associated with the data in the response.
- * @property modelName The name of the model to which the data belongs.
- * @property dataType The type of the data. see {@link ResponseDataType}
- * @property dataCount Count of items if the data is an array.
+ * @property dataKey - The key associated with the data in the response.
+ * @property modelName - The name of the model to which the data belongs.
+ * @property dataType - The type of the data. see {@link ResponseDataType}
+ * @property dataCount - Count of items if the data is an array.
  */
 interface ResponseMetaData {
     /**
@@ -69,11 +69,11 @@ interface ResponseMetaData {
 /**
  * Pagination information, used to describe how the data is paginated.
  * 
- * @property currentPage The current page number.
- * @property limit The maximum number of items per page.
- * @property offset The offset from the start of the dataset.
- * @property itemCount Total number of items available.
- * @property pageCount Total number of pages available.
+ * @property currentPage - The current page number.
+ * @property limit - The maximum number of items per page.
+ * @property offset - The offset from the start of the dataset.
+ * @property itemCount - Total number of items available.
+ * @property pageCount - Total number of pages available.
  */
 interface PaginationData {
     /**
@@ -106,9 +106,9 @@ interface PaginationData {
  * @template D The type of the data payload.
  * @template M The type of the metadata.
  * 
- * @property data The main response data, see {@link Data}.
- * @property metaData Optional metadata associated with the response, see {@link ResponseMetaData}.
- * @property paginationData Optional pagination information, see {@link PaginationData}.
+ * @property data - The main response data, see {@link Data}.
+ * @property metaData - Metadata associated with the response, see {@link ResponseMetaData}.
+ * @property paginationData - Pagination information, see {@link PaginationData}.
  */
 export interface IResponseShape<D=any, M=object> {
     /**
