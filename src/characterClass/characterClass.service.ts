@@ -5,7 +5,7 @@ import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
-import {CharacterClass} from "./characterClass.schema";
+import {CharacterClass, publicReferences} from "./characterClass.schema";
 import {CustomCharacterService} from "../customCharacter/customCharacter.service";
 import BasicService from "../common/service/basicService/BasicService";
 import { UpdateCharacterClassDto } from "./dto/updateCharacterClass.dto";
@@ -26,15 +26,10 @@ export class CharacterClassService {
         //Nest can inject some other module service
         private readonly customCharacterService: CustomCharacterService
     ){
-        //If you need to use mongo populate (="with" and "all" queries), 
-        //u should check that the additional collections are actually in the schema
-        this.refsInModel = [ModelName.CUSTOM_CHARACTER];
-
         //Preferably use this service instead of mongoose (if possible)
         this.basicService = new BasicService(model);
     }
 
-    public readonly refsInModel: ModelName[];
     public readonly basicService: BasicService;
 
     /**
@@ -57,8 +52,10 @@ export class CharacterClassService {
     */
     async readOneById(_id: string, options?: TReadByIdOptions) {
         let optionsToApply = options;
+        //If you need to use mongo populate (="with" and "all" queries), 
+        //u should check that the requested additional collections are actually in the schema
         if(options?.includeRefs)
-            optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
+            optionsToApply.includeRefs = options.includeRefs.filter((ref) => publicReferences.includes(ref));
 
         return this.basicService.readOneById<CharacterClassDto>(_id, optionsToApply);
     }
@@ -72,7 +69,7 @@ export class CharacterClassService {
     async readAll(options?: TIServiceReadManyOptions) {
         let optionsToApply = options;
         if(options?.includeRefs)
-            optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
+            optionsToApply.includeRefs = options.includeRefs.filter((ref) => publicReferences.includes(ref));
 
         return this.basicService.readMany<CharacterClassDto>(optionsToApply);
     }
