@@ -35,7 +35,7 @@ type APIErrorArgs = {
      * Value of the field (only if the field is specified), mostly used for validation errors
      * @default null
      */
-    value?: string,
+    value?: any,
     /**
      * Any additional data to provide. 
      * For example if the error is thrown by some method and is UNEXPECTED, when this field should contain the thrown error
