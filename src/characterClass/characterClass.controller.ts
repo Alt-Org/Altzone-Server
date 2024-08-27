@@ -1,5 +1,4 @@
 import {Body, Controller, Delete, Get, Param, Post, Put, Req} from "@nestjs/common";
-import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
 import {_idDto} from "../common/dto/_id.dto";
 import {ModelName} from "../common/enum/modelName.enum";
 import {CharacterClassService} from "./characterClass.service";
@@ -17,6 +16,8 @@ import { NoAuth } from "../auth/decorator/NoAuth.decorator";
 import { UniformResponse } from "../common/decorator/response/UniformResponse";
 import { Serialize } from "../common/interceptor/response/Serialize";
 import { isServiceError } from "../common/service/basicService/ServiceError";
+import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
+import { User } from "../auth/user";
 
 //The endpoint to use. Controller classes will be registered for this endpoint automatically (/characterClass)
 @Controller('characterClass')
@@ -81,7 +82,8 @@ export class CharacterClassController{
     @Delete('/:_id')
     @Authorize({action: Action.delete, subject: UpdateCharacterClassDto})
     @UniformResponse()
-    public async delete(@Param() param: _idDto) {
+    //You can get a logged-in user with LoggedUser decorator
+    public async delete(@Param() param: _idDto, @LoggedUser() user: User) {
         const resp = await this.service.deleteOneById(param._id);
         if(isServiceError(resp))
             return resp;
