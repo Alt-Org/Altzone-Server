@@ -52,12 +52,18 @@ Instruction can be found from wiki pages on pages with dev word in the beginning
 
 ## Wiki pages quick access
 
-### General information
+### Client side docs (game and webpages teams):
 
- - [Home page](https://github.com/Alt-Org/Altzone-Server/wiki)
- - [Authentication and authorization](https://github.com/Alt-Org/Altzone-Server/wiki/2.-Authentication-and-authorization)
- - [Data fetching](https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests))
+#### [General info](https://github.com/Alt-Org/Altzone-Server/wiki)
+#### [Authentication and authorization](https://github.com/Alt-Org/Altzone-Server/wiki/2.-Authentication-and-authorization)
+#### [Data fetching (GET requests)](https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests))
 
-### API Developers Pages
+### API developers pages:
 
- - [Dev process and Branches](https://github.com/Alt-Org/Altzone-Server/wiki/dev-Branches)
+#### [Development process](https://github.com/Alt-Org/Altzone-Server/wiki/Development-process)
+#### [Branches](https://github.com/Alt-Org/Altzone-Server/wiki/Branches)
+#### [JSDocs](https://github.com/Alt-Org/Altzone-Server/wiki/JSDocs)
+#### [Pull request check list](https://github.com/Alt-Org/Altzone-Server/wiki/Pull-request-check-list)
+#### [Documentation](https://github.com/Alt-Org/Altzone-Server/wiki/Documentation)
+#### [Files that should not be modified](https://github.com/Alt-Org/Altzone-Server/wiki/Files-that-should-not-be-modified)
+#### [What to do if](https://github.com/Alt-Org/Altzone-Server/wiki/What-to-do-if)
