@@ -1,11 +1,26 @@
 import ICounter from "./ICounter";
 import { Model } from "mongoose";
 
+/**
+ * @property model - where the field is located
+ * @property counterField - counter field name
+ */
 type CounterSettings = {
+    /**
+     * where the field is located
+     */
     model: Model<any>,
+    /**
+     * counter field name
+     */
     counterField: string
 }
 
+/**
+ * Class used for managing counter fields of collections in DB.
+ *
+ * Notice that these fields must be integers.
+ */
 export default class Counter implements ICounter{
     constructor({model, counterField}: CounterSettings){
         this.model = model;
@@ -45,6 +60,18 @@ export default class Counter implements ICounter{
     private readonly counterField: string;
 }
 
+/**
+ * Changes a counter field in DB
+ *
+ * @param model where the field is located
+ * @param filter how the field can be found
+ * @param counterField counter field name
+ * @param counterChange how the counter field must be changed. It can be negative or positive number
+ * @returns 
+ * _true_ if the change succeeded
+ *
+ * _false_ if the change did not succeed
+ */
 async function changeCounterValue(model: Model<any>, filter: object, counterField: string, counterChange: number): Promise<boolean>{
     const docToUpdate = await model.findOne(filter);
     if(!docToUpdate)
