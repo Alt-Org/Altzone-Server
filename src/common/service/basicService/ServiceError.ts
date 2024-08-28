@@ -36,8 +36,9 @@ type ServiceErrorArgs = {
      */
     additional?: any
 }
+
 /**
- * The class represents an error occurred on service level
+ * The class represents an error occurred on service level or in other words inside the API logic.
  *
  * The error can relate for example to validation or database errors
  */
@@ -56,13 +57,28 @@ export default class ServiceError{
         this.message = message;
         this.additional = additional;
     }
+    /**
+     * Why the error is happen
+     */
     public reason: SEReason;
+    /**
+     * On what field the error happen (if the field is possible to define), mostly used for validation errors
+     */
     public field: string | null;
+    /**
+     * Value of the field (only if the field is specified), mostly used for validation errors
+     */
     public value: string | null;
+    /**
+     * Message should specify why error happen, mostly used for other developers "FYI"
+     */
     public message: string | null;
+    /**
+     * Any additional data to provide. 
+     * For example if the error is thrown by some method and is UNEXPECTED, 
+     * when this field should contain the thrown error
+     */
     public additional: any | null;
-
-    declare objectType: string;
 }
 
 /**

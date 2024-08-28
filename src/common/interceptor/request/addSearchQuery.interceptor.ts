@@ -6,7 +6,8 @@ import {operators, querySelectors, queryToDB} from "../../type/search.type";
 import {IClass} from "../../interface/IClass";
 
 /**
- * Extract "search" query from the request and add the  data to request
+ * Extracts `search` query from the request and adds `mongoFilter` field to request object, 
+ * which can be used in mongoose queries as it is.
  * @param dtoClass used to determine allowed searching fields
  * @returns 
  */
@@ -14,6 +15,12 @@ export function AddSearchQuery(dtoClass: IClass) {
     return UseInterceptors(new AddSearchQueryInterceptor(dtoClass))
 }
 
+/**
+ * Interceptor that processes search query parameters from an HTTP request and transforms them into a MongoDB filter object.
+ * The generated filter is attached to the request object as `mongoFilter`.
+ * 
+ * @implements {NestInterceptor}
+ */
 class AddSearchQueryInterceptor implements NestInterceptor{
     public constructor(private readonly dtoClass: IClass) {
     }
@@ -79,6 +86,14 @@ interface FlatQuery {
     selector: string;
     value: string | number;
 }
+
+/**
+ * Extracts and validates a key-value pair from a search string, returning an object containing the field, selector, and value.
+ * 
+ * @param searchPair The key-value pair string to unpack, in the form "field=value" or "field>=value".
+ * @param allowedFields The list of fields that are permitted to be used in the search query.
+ * @returns An object containing the field, selector, and value if valid, or null if invalid.
+ */
 function unpackSearchPair(searchPair: string, allowedFields: string[]): FlatQuery | null {
     //Find splitter = operator like >,<, = etc.
     const pairChars = [...searchPair];

@@ -7,8 +7,13 @@ import { ModelName } from "../../../common/enum/modelName.enum";
 import {IResponseShape} from "../../interface/IResponseShape";
 
 /**
- * Extract pagination data from queries and add it to the request object
- * @param modelName used to calculate the amount of objects of this model in DB
+ * Extracts pagination data from queries and adds to the request object:
+ * - `paginationLimit` with max amount of objects to be queried
+ * - `paginationOffset` with offset of the query
+ *
+ * Also adds a `paginationData` field to the response body object with some usable information about the pagination.
+ *
+ * @param modelName used to calculate the total amount of objects of this model in DB
  * @param minLimit defines the min value for the "limit" query on the client side, so if the client will set limit below min this minLimit value will be used instead
  * @param maxLimit defines the max value for the "limit" query on the client side, so if the client will set limit above max this maxLimit value will be used instead
  * @returns 
