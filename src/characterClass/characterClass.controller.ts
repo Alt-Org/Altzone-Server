@@ -16,6 +16,8 @@ import { NoAuth } from "../auth/decorator/NoAuth.decorator";
 import { UniformResponse } from "../common/decorator/response/UniformResponse";
 import { Serialize } from "../common/interceptor/response/Serialize";
 import { isServiceError } from "../common/service/basicService/ServiceError";
+import { IncludeQuery } from "../common/decorator/param/IncludeQuery.decorator";
+import { publicReferences } from "./characterClass.schema";
 import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
 import { User } from "../auth/user";
 
@@ -49,8 +51,8 @@ export class CharacterClassController{
     @NoAuth()
     @UniformResponse(ModelName.CHARACTER_CLASS)
     //Notice that the params can also be validated
-    public get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id);
+    public get(@Param() param: _idDto, @IncludeQuery(publicReferences) includeRefs: ModelName[]) {
+        return this.service.readOneById(param._id, { includeRefs });
     }
 
     @Get()
