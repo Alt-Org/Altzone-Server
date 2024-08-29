@@ -24,7 +24,8 @@
         "/clan": {
             "get": {
                 "tags": [
-                    "Clan"
+                    "Clan",
+                    "changing"
                 ],
                 "responses": {
                     "200": {
@@ -89,10 +90,10 @@
                         "description": "OK"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -122,29 +123,30 @@
                     "required": true
                 },
                 "tags": [
-                    "Clan"
+                    "Clan",
+                    "changing"
                 ],
                 "responses": {
                     "204": {
                         "$ref": "#/components/responses/204"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400_New"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403"
+                        "$ref": "#/components/responses/403_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "409": {
-                        "$ref": "#/components/responses/409"
+                        "$ref": "#/components/responses/409_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -167,7 +169,8 @@
                     "required": true
                 },
                 "tags": [
-                    "Clan"
+                    "Clan",
+                    "changing"
                 ],
                 "responses": {
                     "201": {
@@ -181,18 +184,39 @@
                                         "value": {
                                             "data": {
                                                 "Clan": {
-                                                    "objectType": "ClanDto",
-                                                    "_id": "667eedc9b3b5bf0f7a840ef1",
-                                                    "name": "User1 clan",
-                                                    "tag": "kek",
-                                                    "gameCoins": 90,
+                                                    "_id": "66c1f2e4daab7a7a7d8ca257",
+                                                    "name": "clan1",
+                                                    "tag": "my_clan",
+                                                    "gameCoins": 20,
                                                     "admin_ids": [
-                                                        "666720806cc90102f60bd325"
+                                                        "66bf718b16e17095a22972fb"
                                                     ],
                                                     "playerCount": 1,
                                                     "itemCount": 0,
-                                                    "stockCount": 0,
-                                                    "isOpen": true
+                                                    "stockCount": 1,
+                                                    "isOpen": true,
+                                                    "__v": 0,
+                                                    "Stock": [
+                                                        {
+                                                            "_id": "66c1f2e4daab7a7a7d8ca25a",
+                                                            "type": 1,
+                                                            "rowCount": 5,
+                                                            "columnCount": 5,
+                                                            "clan_id": "66c1f2e4daab7a7a7d8ca257",
+                                                            "__v": 0,
+                                                            "id": "66c1f2e4daab7a7a7d8ca25a"
+                                                        }
+                                                    ],
+                                                    "SoulHome": [
+                                                        {
+                                                            "_id": "66c1f2e4daab7a7a7d8ca27a",
+                                                            "type": "clan",
+                                                            "clan_id": "66c1f2e4daab7a7a7d8ca257",
+                                                            "__v": 0,
+                                                            "id": "66c1f2e4daab7a7a7d8ca27a"
+                                                        }
+                                                    ],
+                                                    "id": "66c1f2e4daab7a7a7d8ca257"
                                                 }
                                             },
                                             "metaData": {
@@ -209,24 +233,19 @@
                         "description": "Created"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400",
-                        "x-last-modified": 1718901860622
+                        "$ref": "#/components/responses/400_New"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401",
-                        "x-last-modified": 1718901883486
+                        "$ref": "#/components/responses/401_New"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403",
-                        "x-last-modified": 1718901898221
+                        "$ref": "#/components/responses/403_New"
                     },
                     "409": {
-                        "$ref": "#/components/responses/409",
-                        "x-last-modified": 1718902008128
+                        "$ref": "#/components/responses/409_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500",
-                        "x-last-modified": 1718902019444
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -235,7 +254,7 @@
                     }
                 ],
                 "summary": "Create a clan",
-                "description": "Create a new Clan. The creator of the Clan becomes its admin. Notice that if Player is creating a new Clan, he/she becomes a member of it, that means that if Player is member of some Clan it can not create a new one, before leaving the old one.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | Player can be in one Clan only at one time => if Player already is in another Clan, he/she can not create a new one | \n\n"
+                "description": "Create a new Clan. The creator of the Clan becomes its admin. Notice that if Player is creating a new Clan, he/she becomes a member of it, that means that if Player is member of some Clan it can not create a new one, before leaving the old one.\n\nAlso endpoint creates Clan's Stock containing default Items, as well as Clan's SoulHome and Rooms.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | Player can be in one Clan only at one time => if Player already is in another Clan, he/she can not create a new one | \n\n"
             }
         },
         "/profile": {
@@ -713,7 +732,8 @@
         "/clan/{_id}": {
             "get": {
                 "tags": [
-                    "Clan"
+                    "Clan",
+                    "changing"
                 ],
                 "responses": {
                     "200": {
@@ -754,40 +774,44 @@
                         "description": "OK"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
+                "security": [
+                    {}
+                ],
                 "summary": "Get Clan by _id",
                 "description": "Read Clan data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
             },
             "delete": {
                 "tags": [
-                    "Clan"
+                    "Clan",
+                    "changing"
                 ],
                 "responses": {
                     "204": {
                         "$ref": "#/components/responses/204"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400_New"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403"
+                        "$ref": "#/components/responses/403_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -830,50 +854,20 @@
                     "Clan"
                 ],
                 "responses": {
-                    "201": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/201"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": {
-                                            "data": {
-                                                "Join": {
-                                                    "objectType": "JoinDto",
-                                                    "clan_id": "667bfec6afb8211b4bd8dbff",
-                                                    "player_id": "666720806cc90102f60bd325",
-                                                    "join_message": "User 2 wants to join"
-                                                }
-                                            },
-                                            "metaData": {
-                                                "dataKey": "Join",
-                                                "modelName": "Join",
-                                                "dataType": "Object",
-                                                "dataCount": 1
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Created"
+                    "204": {
+                        "$ref": "#/components/responses/204"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400",
-                        "x-last-modified": 1718901860622
+                        "$ref": "#/components/responses/400_New"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401",
-                        "x-last-modified": 1718901883486
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500",
-                        "x-last-modified": 1718902019444
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -885,10 +879,11 @@
                 "description": "Request to join a Clan. \n\nNotice that if the Clan is open the Player will be joined automatically without admin approval. \n\nNotice that if the Player was in another Clan then he/she will be removed from the old one and if in this Clan was no other Players, it will be removed.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no, but for closed Clans there should be an admin approval first | \n\n"
             }
         },
-        "/clan/join/leave": {
+        "/clan/leave": {
             "post": {
                 "tags": [
-                    "Clan"
+                    "Clan",
+                    "changing"
                 ],
                 "responses": {
                     "204": {
@@ -913,95 +908,6 @@
                 ],
                 "summary": "Player requests leave the Clan",
                 "description": "Request to leave a Clan. \n\nNotice that Player can leave any Clan without admin approval.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no | \n\n"
-            }
-        },
-        "/clan/default": {
-            "post": {
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ClanCreate"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "Clan"
-                ],
-                "responses": {
-                    "201": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/201"
-                                },
-                                "examples": {
-                                    "1": {
-                                        "value": {
-                                            "data": {
-                                                "Clan": {
-                                                    "objectType": "ClanDto",
-                                                    "_id": "667ef139b3b5bf0f7a840f0a",
-                                                    "name": "User1 clan",
-                                                    "tag": "tag1",
-                                                    "gameCoins": 90,
-                                                    "admin_ids": [
-                                                        "666720806cc90102f60bd325"
-                                                    ],
-                                                    "playerCount": 1,
-                                                    "itemCount": 0,
-                                                    "stockCount": 0,
-                                                    "isOpen": true,
-                                                    "Stock": [
-                                                        {
-                                                            "objectType": "StockDto",
-                                                            "_id": "667ef139b3b5bf0f7a840f0d",
-                                                            "type": 1,
-                                                            "rowCount": 5,
-                                                            "columnCount": 5,
-                                                            "clan_id": "667ef139b3b5bf0f7a840f0a"
-                                                        }
-                                                    ]
-                                                }
-                                            },
-                                            "metaData": {
-                                                "dataKey": "Clan",
-                                                "modelName": "Clan",
-                                                "dataType": "Object",
-                                                "dataCount": 1
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Created"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/409"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {
-                        "JWTAuth": []
-                    }
-                ],
-                "summary": "Create Clan with Stock and default Items in it",
-                "description": "Create a new Clan with Stock containing default Items. Notice that if the Player is already in some other Clan, then he/she can not create a new one."
             }
         },
         "/stock": {
@@ -1289,20 +1195,23 @@
                                     "1": {
                                         "value": {
                                             "data": {
-                                                "Room": {
-                                                    "_id": "668d6003a9292e300e94c833",
-                                                    "floorType": "floor1",
-                                                    "wallType": "wall1",
-                                                    "isActive": false,
-                                                    "roomItems": [],
-                                                    "player_id": "665df7026bf5b8f670569ea4",
-                                                    "soulHome_id": "667ef139b3b5bf0f7a840f2d"
-                                                }
+                                                "Room": [
+                                                    {
+                                                        "_id": "668d6003a9292e300e94c833",
+                                                        "floorType": "floor1",
+                                                        "wallType": "wall1",
+                                                        "isActive": false,
+                                                        "deactivationTimestamp": 34524523654,
+                                                        "cellCount": 20,
+                                                        "soulHome_id": "667ef139b3b5bf0f7a840f2d",
+                                                        "hasLift": true
+                                                    }
+                                                ]
                                             },
                                             "metaData": {
                                                 "dataKey": "Room",
                                                 "modelName": "Room",
-                                                "dataType": "Object",
+                                                "dataType": "Array",
                                                 "dataCount": 1
                                             }
                                         }
@@ -1311,6 +1220,9 @@
                             }
                         },
                         "description": "OK"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
                         "$ref": "#/components/responses/404_New"
@@ -2582,9 +2494,10 @@
                                                     "floorType": "floor1",
                                                     "wallType": "wall1",
                                                     "isActive": false,
-                                                    "roomItems": [],
-                                                    "player_id": "665df7026bf5b8f670569ea4",
-                                                    "soulHome_id": "667ef139b3b5bf0f7a840f2d"
+                                                    "deactivationTimestamp": 34524523654,
+                                                    "cellCount": 20,
+                                                    "soulHome_id": "667ef139b3b5bf0f7a840f2d",
+                                                    "hasLift": true
                                                 }
                                             },
                                             "metaData": {
@@ -2602,6 +2515,9 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
                         "$ref": "#/components/responses/404_New"
@@ -2954,6 +2870,48 @@
                 ],
                 "summary": "Log in to the system",
                 "description": "After the profile with player was created, the user can log in to the system and get a JWT token to access resources.\n\nIf the user provides the correct credentials, the access token will be returned, which should be used as a Bearer token in the Authorization header.\n\nIf the user provides wrong credentials, a 401 status will be returned."
+            }
+        },
+        "/clan/exclude": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ClanExclude"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Clan",
+                    "changing"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Exclude Player from Clan",
+                "description": "Request to join a Clan. \n\nNotice that if the Clan is open the Player will be joined automatically without admin approval. \n\nNotice that if the Player was in another Clan then he/she will be removed from the old one and if in this Clan was no other Players, it will be removed.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no, but for closed Clans there should be an admin approval first | \n\n"
             }
         }
     },
@@ -3358,7 +3316,7 @@
                     },
                     "player_id": {
                         "description": "the Player _id who want to join",
-                        "type": "integer",
+                        "type": "string",
                         "example": "666720806cc90102f60bd325"
                     },
                     "join_message": {
@@ -3386,7 +3344,7 @@
                     },
                     "player_id": {
                         "description": "the Player _id who want to join",
-                        "type": "integer",
+                        "type": "string",
                         "example": "666720806cc90102f60bd325"
                     },
                     "join_message": {
@@ -3424,7 +3382,7 @@
                         "type": "number",
                         "example": 1721927762
                     },
-                    "isLift": {
+                    "hasLift": {
                         "description": "Indicates whether the room has lift or staicases",
                         "type": "boolean",
                         "example": false
@@ -4026,6 +3984,19 @@
                         "description": "Type of the object. All errors are of type APIError",
                         "type": "string",
                         "example": "APIError"
+                    }
+                }
+            },
+            "ClanExclude": {
+                "required": [
+                    "player_id"
+                ],
+                "type": "object",
+                "properties": {
+                    "player_id": {
+                        "description": "the Player _id which need to be excluded from the clan",
+                        "type": "string",
+                        "example": "666720806cc90102f60bd325"
                     }
                 }
             }
