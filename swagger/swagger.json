@@ -2608,7 +2608,82 @@
                 "description": "## Method description\n\nActivate the specified Rooms.\n\nIf Room _id specified in the room_ids field does not belong to logged-in user's Clan (SoulHome), it will be ignored. However it will return 404 if non of the Room _ids does not belong to the Clan. \n\n\n## Endpoint description\n\n### General description\n\nRoom is a place, which can safely store Items of a Clan. Items from the Room can not be stolen. \n\nRoom is closely related to its SoulHome. SoulHome consists of Rooms. \n\nRoom has an automatic behavior. Room has two statuses active and deactivated. When the Room is becoming deactivated its isActive field is taking on the value false. This should be done automatically when the deactivationTimestamp field is expired.\n\n### Relations\n\nRoom can belong to one SoulHome. SoulHome may have many Rooms.\n\nRoom can have many Items. Item may belong to one Room.\n\n### CRUD operations\n\nRooms for a SoulHome must be created automatically, when a SoulHome is created. Therefore there is no enpoint for Room creation.\n\nRoom and all Rooms can be read by Clan members, to which the Room (its SoulHome) is belonging.\n\nRoom can be updated by Clan members, to which it (its SoulHome) belongs.\n\nRoom can be deleted only automatically, when the SoulHome, to which the Room belongs is deleted."
             }
         },
-        "/stock/steal": {
+        "/item/steal": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "steal_token",
+                        "description": "",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "SoulHome": {
+                                                    "_id": "668c0e9f9470819cf38e371c",
+                                                    "name": "clan1",
+                                                    "clan_id": "667bfec6afb8211b4bd8dbff",
+                                                    "Room": [
+                                                        {
+                                                            "_id": "668d6003a9292e300e94c833",
+                                                            "floorType": "floor1",
+                                                            "wallType": "wall1",
+                                                            "isActive": false,
+                                                            "deactivationTimestamp": 34524523654,
+                                                            "cellCount": 20,
+                                                            "soulHome_id": "668c0e9f9470819cf38e371c",
+                                                            "hasLift": true
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "SoulHome",
+                                                "modelName": "SoulHome",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "SoulHome and its Rooms"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get SoulHome data from which items can be stolen",
+                "description": "Based on the provided steal token, which contains the SoulHome _id from which Items can be stolen, the SoulHome data and its Rooms will be returned.\n\nYou can see the process flow from [this diagram](https://github.com/Alt-Org/Altzone-Server/tree/dev/doc/img/game_results)"
+            },
             "post": {
                 "requestBody": {
                     "description": "Items to be stolen",
@@ -2631,12 +2706,47 @@
                     "required": true
                 },
                 "tags": [
-                    "Stock",
-                    "in-development"
+                    "in-development",
+                    "Item"
                 ],
                 "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Item": [
+                                                    {
+                                                        "_id": "668a70ce91020196cb10d595",
+                                                        "name": "item1",
+                                                        "weight": 67,
+                                                        "recycling": "yleinen",
+                                                        "unityKey": "unity1",
+                                                        "filename": "file1",
+                                                        "location": [
+                                                            2,
+                                                            4
+                                                        ],
+                                                        "isFurniture": true,
+                                                        "stock_id": "668953cd4a7b6c993aed1a36",
+                                                        "price": 23
+                                                    }
+                                                ]
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Item",
+                                                "modelName": "Item",
+                                                "dataType": "Array",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Array of Items, which were stolen"
                     },
                     "400": {
                         "$ref": "#/components/responses/400_New"
@@ -2657,7 +2767,7 @@
                     }
                 ],
                 "summary": "Steal Items from another Clan",
-                "description": "Steal Items from the loser Clan's Stock. The stolen Items will be automatically added to a specified Room of the winners Clan's SoulHome.\n\nNotice that first a steal token must be requested by winner player(s) from the /gameData/battle POST endpoint with body type \"result\".\n\nRequests without the steal token or with an expired token will get 403 as a response.\n\nNotice that only found Items will be stolen and all not found Items will be ignored. \n\n## Endpoint description\n\n### General description\n\nStock is a public place of a Clan, where Items can be stored. These Items, however, can be stolen from the Clan by other Clans' members during raid. \n\n### Relations\n\nStock can belong to one Clan and Clan may have only one Stock. Stock may have many Items. Stock may belong to one Stock.\n\n### CRUD operations\n\nSince a Clan can have only one Stock, the Stock is created automatically whenever a Clan is created.\n\nStock data can be read by anybody without authentication, as well all existing Stocks list can be fetched.\n\nStock does not have any data, which can be updated by Clan members. The only field, which can be updated is a cellCount, which hold information about Stock capacity. The starting value of it is 30, but more cells can be bought from store later. The cellCount does not have a limit.\n\nStock is deleted automatically (and Items related to it) when the Clan to which it belongs to is also deleted."
+                "description": "Steal Items from the loser Clan's SoulHome. The stolen Items will be automatically added to a specified Room of the winners Clan's SoulHome.\n\nNotice that at first a steal token should be obtained by the winner player(s) from the /gameData/battle POST endpoint with body type \"result\", while informing about game result.\n\nRequests without the steal token or with an expired token will get 403 as a response.\n\nNotice that only found SoulHome Items will be stolen. It is possible that some other player already has stoled some of the specified Items, in this case these Items will be ignored since they can not be stolen twice.  \n\nYou can see the process flow from [this diagram](https://github.com/Alt-Org/Altzone-Server/tree/dev/doc/img/game_results)\n\n## Endpoint description\n\n### General description\n\nItems are objects, which can be placed in SoulHomes' Rooms, Stocks and Shop. Item is an object, which has its value in the game and can be bought from the Shop, stolen from the Stock or placed in safe to SoulHome's Room.\n\nItems can be obtained only from Shop and then stored in Room or a Stock.\n\nItem can be a furniture or some other kind of object. The difference between furniture and not furniture is that a furniture can be placed only on a floor. Not furniture can be placed anywhere including on top of a furniture, walls, celling and floor. This data is used in game logic only and does not affect the API in any way.\n\n### Relations\n\nItem can belong to one Room. Room can have multiple Items.\n\nItem can belong to one Stock. Stock can have multiple Items.\n\nItem can belong to Shop. Shop can have multiple Items.\n\n### CRUD operations\n\nItem can not be created by Player. It can only be bought from Shop. API creates new Items automatically.\n\nItem can be read by anyone. One Item can be accessed via its _id field. Multiple Items can be accessed by requesting them within another endpoints via \"with\" or \"all\" queries (/stock/:stock_id?with=Item), since they are mostly required together with Stock, Room or Shop data.\n\nItem can not be directly updated by Players. However, Players may move Items from one place to another. They first can buy an Item from Shop and so update Item's place by moving it to the Clan's Stock. Then they can move it from SoulHome to Stock or vice versa. Item can be bought from Shop via /stock/buy enpoint (not yet implemented). Item can be moved from Room to Stock or from Stock to Room via /item/move POST endpoint.\n\nItem can not be deleted."
             }
         },
         "/gameData/battle": {
@@ -2669,8 +2779,16 @@
                                 "result": {
                                     "value": {
                                         "type": "result",
-                                        "winner_player_id": "667bfec6afb8211b4bd8dbff",
-                                        "loser_player_id": "397bfec6adb8211b4bd8dbe0"
+                                        "team1": [
+                                            "667bfec6afb8211b4bd8dbff",
+                                            "597bfec6afb8211b4bd8db64"
+                                        ],
+                                        "team2": [
+                                            "397bfec6adb8211b4bd8dbe0",
+                                            "207bfec6adb8211b4bd8dba1"
+                                        ],
+                                        "duration": 120,
+                                        "winnerTeam": 1
                                     }
                                 }
                             }
@@ -2718,7 +2836,7 @@
                     }
                 ],
                 "summary": "Inform API about battle",
-                "description": "Enpoint for notifying the API about battle events or any other data.\n\nNotice, that the field type is required and determines the type of the data.\n\nNotice that the type also determines shape of the body. Examples, for each type can be found in request examples section.\n\n## Type field\n\n### result\n\nResult of the battle, only members of the winning team should send this data.\n\nAs a response an access token will be returned, which can be used when stealing Items from losed Clan's Stock. Notice that the steal token will expire after some period of time. \n\nThe steal token can be used only by the winner's Clan's members for the loser's Clan Stock."
+                "description": "Enpoint for notifying the API about battle events or any other data.\n\nNotice, that the field type is required and determines the type of the data.\n\nNotice that the type also determines shape of the body. Examples, for each type can be found in request examples section.\n\n## Type field\n\n### result\n\nResult of the battle, all players of the battle should send this data.\n\nAs a response for winners an access token will be returned, which can be used when stealing Items from losed Clan's SoulHome. Notice that the steal token will expire after some period of time. Loosers will get 403 error\n\nThe steal token can be used only by the winner's Clan's members for the loser's Clan Stock.\n\nYou can see the process flow from [this diagram](https://github.com/Alt-Org/Altzone-Server/tree/dev/doc/img/game_results)"
             }
         },
         "/item/move": {
@@ -2760,6 +2878,11 @@
                         "$ref": "#/components/responses/500_New"
                     }
                 },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
                 "summary": "Move Item",
                 "description": "Move Item from Stock to Room or from Room to Stock\n\nNotice that Clan members can move only own Clan Items and a member is trying to move other Clan's Item the 404 will be returned.\n\nNotice that if an Item need to be moved to a Stock then there is no need to specify the destination_id field, since Clan can have only one Stock.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n\n## Endpoint description\n\n### General description\n\nItems are objects, which can be placed in SoulHomes' Rooms, Stocks and Shop. Item is an object, which has its value in the game and can be bought from the Shop, stolen from the Stock or placed in safe to SoulHome's Room.\n\nItems can be obtained only from Shop and then stored in Room or a Stock.\n\nItem can be a furniture or some other kind of object. The difference between furniture and not furniture is that a furniture can be placed only on a floor. Not furniture can be placed anywhere including on top of a furniture, walls, celling and floor. This data is used in game logic only and does not affect the API in any way.\n\n### Relations\n\nItem can belong to one Room. Room can have multiple Items.\n\nItem can belong to one Stock. Stock can have multiple Items.\n\nItem can belong to Shop. Shop can have multiple Items.\n\n### CRUD operations\n\nItem can not be created by Player. It can only be bought from Shop. API creates new Items automatically.\n\nItem can be read by anyone. One Item can be accessed via its _id field. Multiple Items can be accessed by requesting them within another endpoints via \"with\" or \"all\" queries (/stock/:stock_id?with=Item), since they are mostly required together with Stock, Room or Shop data.\n\nItem can not be directly updated by Players. However, Players may move Items from one place to another. They first can buy an Item from Shop and so update Item's place by moving it to the Clan's Stock. Then they can move it from SoulHome to Stock or vice versa. Item can be bought from Shop via /stock/buy enpoint (not yet implemented). Item can be moved from Room to Stock or from Stock to Room via /item/move POST endpoint.\n\nItem can not be deleted."
             }
