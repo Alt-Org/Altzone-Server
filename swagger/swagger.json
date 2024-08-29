@@ -2610,6 +2610,10 @@
         },
         "/item/steal": {
             "get": {
+                "tags": [
+                    "Item",
+                    "in-development"
+                ],
                 "parameters": [
                     {
                         "name": "steal_token",
