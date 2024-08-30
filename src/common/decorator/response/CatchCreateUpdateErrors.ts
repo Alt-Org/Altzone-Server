@@ -6,6 +6,8 @@ import {
     UnprocessableEntityException
 } from "@nestjs/common";
 import {HttpException} from "@nestjs/common/exceptions/http.exception";
+import { APIError } from "../../controller/APIError";
+import { APIErrorReason } from "../../controller/APIErrorReason";
 
 /**
  * @deprecated 
@@ -48,12 +50,22 @@ function handleError(error: any) {
         if(error.code === 11000){
             const duplicatedFields = Object.keys(error.keyPattern);
             const errorMessages: string[] = [];
+            const apiErrors: APIError[] = [];
             for(let i=0; i<duplicatedFields.length; i++){
                 const field = duplicatedFields[i];
-                const message =  `Field '${field}' with value '${error.keyValue[field]}' already exists`;
+                const value = error.keyValue[field];
+                const message =  `Field '${field}' with value '${value}' already exists`;
                 errorMessages.push(message);
+                apiErrors.push(new APIError({ reason: APIErrorReason.NOT_UNIQUE, message, field, value }));
             }
-            throw new ConflictException(errorMessages);
+            
+            throw new ConflictException({
+                message: errorMessages,
+                errors: apiErrors,
+
+                statusCode: 409,
+                error: 'Conflict'
+            });
         }
     }
 
