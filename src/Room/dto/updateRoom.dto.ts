@@ -16,15 +16,7 @@ export class UpdateRoomDto {
 
     @IsBoolean()
     @IsOptional()
-    isActive: boolean;
-
-    @IsBoolean()
-    @IsOptional()
     hasLift: boolean;
-
-    @IsNumber()
-    @IsOptional()
-    deactivationTimestamp: number;
 
     @IsNumber()
     @IsOptional()

@@ -11,15 +11,7 @@ export class CreateRoomDto {
 
     @IsBoolean()
     @IsOptional()
-    isActive: boolean;
-
-    @IsBoolean()
-    @IsOptional()
     hasLift: boolean;
-
-    @IsNumber()
-    @IsOptional()
-    deactivationTimestamp: number;
 
     @IsNumber()
     cellCount: number;
