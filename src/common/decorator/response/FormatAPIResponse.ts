@@ -49,12 +49,15 @@ export const FormatAPIResponse = (modelName?: ModelName): any => {
  * @param error to be thrown
  */
 function throwAPIError(error: any) {
-    const resp: {errors: APIError[]} = {errors: []};
+    const resp: {errors: APIError[], statusCode: number} = {errors: [], statusCode: 0};
     if(Array.isArray(error))
         for(let i=0, l=error.length; i<l; i++)
             resp.errors.push(convertToAPIError(error[i]));
     else
         resp.errors.push(convertToAPIError(error));
 
-    throw new HttpException(resp, resp.errors[0].statusCode);    
+    const respStatusCode = resp.errors[0].statusCode;
+    resp.statusCode = respStatusCode;
+
+    throw new HttpException(resp, respStatusCode);    
 }
