@@ -11,6 +11,8 @@ import {Reflector} from "@nestjs/core";
 import {NO_AUTH_REQUIRED} from "./decorator/NoAuth.decorator";
 import {User} from "./user";
 import {SystemAdminService} from "../common/apiState/systemAdmin.service";
+import { APIError } from '../common/controller/APIError';
+import { APIErrorReason } from '../common/controller/APIErrorReason';
 
 //TODO: remove or change error messages to less specific for production
 
@@ -30,13 +32,34 @@ export class AuthGuard implements CanActivate {
         if(noAuthRequired)
             return true;
 
+        const errorResponse = {
+            statusCode: 401,
+            error: 'Unauthorized'
+        }
+
+        /**
+        NOT_AUTHENTICATED = 'NOT_AUTHENTICATED',
+        INVALID_AUTH_TOKEN = 'INVALID_AUTH_TOKEN',
+        AUTHENTICATION_FAILED = 'AUTHENTICATION_FAILED',
+         */
+        /**
+         * {
+            "statusCode": 401,
+            "message": "quest header. The access token you can get from /auth endpoint",
+            "error": "Unauthorized"
+        }
+         */
+
         const request = context.switchToHttp().getRequest();
         const token = this.extractTokenFromHeader(request);
         if (!token)
             throw new UnauthorizedException(
-                'The access token is not provided. ' +
-                'Please add `authorization` field with access token(in bearer token form): ' +
-                '`Bearer access-token-here` to request header. The access token you can get from /auth endpoint'
+                {...errorResponse, 
+                    message: 'The access token is not provided. ' +
+                             'Please add `authorization` field with access token(in bearer token form): ' +
+                             '`Bearer access-token-here` to request header. The access token you can get from /auth endpoint', 
+                    errors: [new APIError({reason: APIErrorReason.NOT_AUTHENTICATED, message: 'The access token is not provided'})]
+                }
             );
 
         try {
@@ -51,14 +74,22 @@ export class AuthGuard implements CanActivate {
             const isSystemAdmin = await this.systemAdminService.isSystemAdmin(profile_id);
 
             if(!profile_id || (!isSystemAdmin && !player_id))
-                throw new Error('Incorrect token provided');
+                throw new UnauthorizedException(
+                    {...errorResponse, 
+                        message: 'Incorrect token provided',
+                        errors: [new APIError({reason: APIErrorReason.INVALID_AUTH_TOKEN, message: 'Incorrect token provided'})]
+                    }
+                );
 
             request['user'] = new User(profile_id, player_id, isSystemAdmin);
         } catch{
             throw new UnauthorizedException(
-                'The access token is expired or invalid. ' +
-                'Please update `authorization` field with access token(in bearer token form): ' +
-                '`Bearer access-token-here` in your request header. The access token you can get from /auth endpoint'
+                {...errorResponse, 
+                    message: 'The access token is expired or invalid. ' +
+                             'Please update `authorization` field with access token(in bearer token form): ' +
+                             '`Bearer access-token-here` in your request header. The access token you can get from /auth endpoint',
+                    errors: [new APIError({reason: APIErrorReason.AUTHENTICATION_FAILED, message: 'The access token is expired or invalid'})]
+                }
             );
         }
 
