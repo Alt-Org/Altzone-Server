@@ -1,6 +1,7 @@
-import { Expose } from "class-transformer";
+import { Expose, Type } from "class-transformer";
 import AddType from "../../common/base/decorator/AddType.decorator";
 import { ExtractField } from "../../common/decorator/response/ExtractField";
+import { RoomDto } from "../../room/dto/room.dto";
 
 @AddType('SoulHomeDto')
 export class SoulHomeDto {
@@ -17,4 +18,7 @@ export class SoulHomeDto {
     @Expose()
     rooms:Array<string>;
 
+    @Type(() => RoomDto)
+    @Expose()
+    Room: RoomDto[];
 }
