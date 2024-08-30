@@ -37,19 +37,6 @@ export class AuthGuard implements CanActivate {
             error: 'Unauthorized'
         }
 
-        /**
-        NOT_AUTHENTICATED = 'NOT_AUTHENTICATED',
-        INVALID_AUTH_TOKEN = 'INVALID_AUTH_TOKEN',
-        AUTHENTICATION_FAILED = 'AUTHENTICATION_FAILED',
-         */
-        /**
-         * {
-            "statusCode": 401,
-            "message": "quest header. The access token you can get from /auth endpoint",
-            "error": "Unauthorized"
-        }
-         */
-
         const request = context.switchToHttp().getRequest();
         const token = this.extractTokenFromHeader(request);
         if (!token)
