@@ -124,4 +124,19 @@ export class RoomService {
     async deleteOneById(_id: string) {
         return this.basicService.deleteOneById(_id);
     }
+
+    /**
+     * Activates specified rooms.
+     *
+     * The method sets `deactivationTimestamp` field to current + specified duration.
+     * @param room_ids rooms to update
+     * @param durationS how long in seconds room should remain active
+     */
+    async activateRoomsByIds(room_ids: string[], durationS: number){
+        const deactivationTimestamp = Date.now() + durationS*1000;
+        const updateObject = { deactivationTimestamp };
+
+        for(let i=0, l=room_ids.length; i<l; i++)
+            await this.basicService.updateOneById(room_ids[i], updateObject);
+    }
 }
