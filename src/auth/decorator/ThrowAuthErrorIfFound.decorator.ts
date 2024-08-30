@@ -1,4 +1,6 @@
 import {UnauthorizedException} from "@nestjs/common";
+import { APIError } from "../../common/controller/APIError";
+import { APIErrorReason } from "../../common/controller/APIErrorReason";
 
 export const ThrowAuthErrorIfFound = (): any => {
     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
@@ -22,6 +24,16 @@ export const ThrowAuthErrorIfFound = (): any => {
 
 function handler(resp: any) {
     if(resp === null)
-        throw new UnauthorizedException('Credentials for that profile are incorrect');
+        throw new UnauthorizedException({
+            message: 'Credentials for that profile are incorrect',
+            errors: [ new APIError({
+                reason: APIErrorReason.NOT_AUTHENTICATED,
+                message: 'Credentials for that profile are incorrect'
+            }) ],
+
+            statusCode: 401,
+            error: "Unauthorized"
+        });
+
     return resp;
 }
