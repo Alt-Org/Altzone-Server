@@ -1,6 +1,6 @@
 import {applyDecorators, UseFilters, UseInterceptors} from '@nestjs/common';
 import { ModelName } from 'src/common/enum/modelName.enum';
-import { ValidationExceptionFilter } from './ValidationExceptionFilter';
+import { ValidationExceptionFilter } from '../../errorFilter/ValidationExceptionFilter';
 import { FormatAPIResponse } from './FormatAPIResponse';
 import { Send204OnEmptyRes } from 'src/common/interceptor/response/Send204OnEmptyRes';
 
