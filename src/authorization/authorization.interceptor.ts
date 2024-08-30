@@ -21,6 +21,8 @@ import {permittedFieldsOf, PermittedFieldsOptions} from "@casl/ability/extra";
 import {pick} from "lodash";
 import {MongoAbility} from "@casl/ability";
 import {IResponseShape} from "../common/interface/IResponseShape";
+import { APIError } from "../common/controller/APIError";
+import { APIErrorReason } from "../common/controller/APIErrorReason";
 
 export type PermissionMetaData = {
     action: SupportedAction,
@@ -45,17 +47,41 @@ export class AuthorizationInterceptor implements NestInterceptor{
         const request = httpContext.getRequest();
         const { user } = request;
         if(!user || !(user instanceof User))
-            throw new UnauthorizedException('User must be logged in for that request');
+            throw new UnauthorizedException({
+                message: 'User must be logged in for that request',
+                errors: [ new APIError({
+                    reason: APIErrorReason.NOT_AUTHENTICATED,
+                    message: 'Credentials for that profile are incorrect'
+                }) ],
+                statusCode: 401, error: 'Unauthorized'
+            });
 
         const metadata = this.reflector.get<PermissionMetaData>(PERMISSION_METADATA, context.getHandler());
         if(!metadata)
-            throw new InternalServerErrorException('Permission metadata is not provided. Please provide it with @SetAuthorizationFor()');
+            throw new InternalServerErrorException({
+                message: 'Permission metadata is not provided. Please provide it with @SetAuthorizationFor()',
+                errors: [ new APIError({
+                    reason: APIErrorReason.MISCONFIGURED,
+                    message: 'Permission metadata is not provided. Please provide it with @SetAuthorizationFor()'
+                }) ],
+                statusCode: 500, error: 'Internal Server Error'
+            });
 
         const {action, subject} = metadata;
 
         const requestAction = Action[action + '_request'];
         const responseAction = Action[action + '_response'];
-        const requestForbiddenError = new ForbiddenException(`The logged-in user has no permission to execute ${requestAction} action`);
+
+        const requestForbiddenError = new ForbiddenException({
+            message: `The logged-in user has no permission to execute ${requestAction} action`,
+            errors: [ new APIError({
+                reason: APIErrorReason.NOT_AUTHORIZED,
+                message: `The logged-in user has no permission to execute ${requestAction} action`
+            })],
+
+            statusCode: 403,
+            error: 'Forbidden'
+        });
 
         //Determine subject to be manipulated
         let subjectObj: any = {};
@@ -90,7 +116,7 @@ export class AuthorizationInterceptor implements NestInterceptor{
                 const subjectClass: typeof subject = plainToInstance(subject, params);
 
                 if(action === Action.delete && !userAbility.can(requestAction, subjectClass))
-                    throw new ForbiddenException(`The logged-in user has no permission to execute ${requestAction} action or instance does not exists`);
+                    throw requestForbiddenError;
 
                 if(!userAbility.can(requestAction, subjectClass))
                     throw requestForbiddenError;
