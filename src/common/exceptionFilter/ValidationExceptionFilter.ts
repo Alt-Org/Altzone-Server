@@ -37,7 +37,7 @@ export class ValidationExceptionFilter implements ExceptionFilter {
 	}
 }
 
-function validationToAPIErrors(error: ValidationError): APIError[] {
+export function validationToAPIErrors(error: ValidationError): APIError[] {
 	const { property, value, constraints } = error;
 
 	const errors: APIError[] = [];
