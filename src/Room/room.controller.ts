@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Put, Req } from "@nestjs/common";
+import { Body, Controller, forwardRef, Get, Inject, Param, Post, Put, Req } from "@nestjs/common";
 import { RoomService } from "./room.service";
 import { RoomDto } from "./dto/room.dto";
 import { ModelName } from "../common/enum/modelName.enum";
@@ -12,11 +12,21 @@ import { UpdateRoomDto } from "./dto/updateRoom.dto";
 import { Authorize } from "../authorization/decorator/Authorize";
 import { Action } from "../authorization/enum/action.enum";
 import { UniformResponse } from "../common/decorator/response/UniformResponse";
+import { ActivateRoomDto } from "./dto/ActivateRoom.dto";
+import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
+import { User } from "../auth/user";
+import { ClanService } from "../clan/clan.service";
+import RoomHelperService from "./utils/room.helper.service";
+import { isServiceError } from "../common/service/basicService/ServiceError";
+import { APIError } from "../common/controller/APIError";
+import { APIErrorReason } from "../common/controller/APIErrorReason";
+import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
 
 @Controller('room')
 export class RoomController {
     public constructor(
-        private readonly service: RoomService
+        private readonly service: RoomService,
+        private readonly roomHelperService: RoomHelperService
     ) {
     }
 
@@ -42,5 +52,28 @@ export class RoomController {
     @UniformResponse()
     public async update(@Body() body: UpdateRoomDto) {
         return this.service.updateOneById(body);
+    }
+
+    @Post('/activate')
+    @UniformResponse(ModelName.ROOM)
+    public async activate(@Body() body: ActivateRoomDto, @LoggedUser() user: User) {
+        const { room_ids, durationS } = body;
+
+        const roomsResp = await this.roomHelperService.getPlayerRooms(user.player_id);
+        if(isServiceError(roomsResp))
+            return roomsResp;
+
+        const userRoomIds = roomsResp.map(room => room?._id?.toString());
+        const allowedRooms = room_ids.filter(_id => userRoomIds.includes(_id));
+
+        if(allowedRooms.length === 0)
+            return [new APIError({
+                reason: APIErrorReason.NOT_FOUND,
+                message: 'Could not find any of the specified rooms',
+                field: 'room_ids',
+                value: room_ids
+            })];
+
+        return this.service.activateRoomsByIds(allowedRooms, durationS ?? 21600); //6h is default
     }
 }

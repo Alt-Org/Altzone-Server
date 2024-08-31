@@ -2571,6 +2571,11 @@
                                         "example": [
                                             "64df3aad42cbaf850a3f891f"
                                         ]
+                                    },
+                                    "durationS": {
+                                        "description": "Optional duration of room to be active in seconds",
+                                        "type": "number",
+                                        "example": 60
                                     }
                                 }
                             }

@@ -10,6 +10,8 @@ import { PlayerDto } from "../../player/dto/player.dto";
 import { ClanDto } from "../../clan/dto/clan.dto";
 import { SoulHomeDto } from "../../soulhome/dto/soulhome.dto";
 import { ModelName } from "../../common/enum/modelName.enum";
+import { SoulHome } from "../../soulhome/soulhome.schema";
+import { RoomDto } from "../dto/room.dto";
 
 /**
  * Class containing helper methods used in the module service(s)
@@ -18,12 +20,15 @@ import { ModelName } from "../../common/enum/modelName.enum";
 export default class RoomHelperService{
     public constructor(
         @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
+        @InjectModel(SoulHome.name) public readonly soulHomeModel: Model<SoulHome>,
         private readonly playerService: PlayerService
     ){
         this.clanBasicService = new BasicService(clanModel);
+        this.soulHomeBasicService = new BasicService(soulHomeModel);
     }
 
     private readonly clanBasicService: BasicService;
+    private readonly soulHomeBasicService: BasicService;
 
     /**
      * Get the SoulHome of the Clan to which Player belongs to
@@ -73,5 +78,32 @@ export default class RoomHelperService{
             })];
 
         return clanSoulHome[0];
-    } 
+    }
+
+
+    /**
+     * Get array of Room objects of the Clan to which Player belongs to
+     *
+     * @param player_id Mongo _id of the Player
+     * @returns _Rooms array_ object if the Player belongs to Clan or 
+     * array with _ServiceError_ with reason NOT_FOUND if the Player can not be found,
+     * the Player does not belong to any Clan or if this Clan does not have any SoulHome
+     */
+    async getPlayerRooms(player_id: string): Promise<RoomDto[] | ServiceError[]>{
+        const soulHomeResp = await this.getPlayerSoulHome(player_id);
+
+        if(isServiceError(soulHomeResp))
+            return soulHomeResp as ServiceError[];
+
+        const soulHome = soulHomeResp as unknown as SoulHomeDto;
+
+        const soulHomeWithRoomsResp = await this.soulHomeBasicService.readOneById(soulHome._id, {includeRefs: [ModelName.ROOM]});
+
+        if(isServiceError(soulHomeWithRoomsResp))
+            return soulHomeWithRoomsResp;
+
+        const soulHomeWithRooms = soulHomeWithRoomsResp as unknown as SoulHomeDto;
+
+        return soulHomeWithRooms.Room ?? [];
+    }
 }

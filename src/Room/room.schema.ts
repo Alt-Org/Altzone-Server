@@ -13,9 +13,6 @@ export class Room {
     @Prop({ type: String ,required:true})
     wallType: string; 
 
-    @Prop({ type: Boolean, default: false })
-    isActive: boolean; 
-
     @Prop({ type: Number })
     deactivationTimestamp: number;
 
@@ -27,6 +24,8 @@ export class Room {
 
     @Prop({ type: String, required: true })
     soulHome_id: string; 
+
+    isActive: boolean;
 
     @ExtractField()
     _id: string;
@@ -44,4 +43,11 @@ RoomSchema.virtual(ModelName.ITEM, {
     ref: ModelName.ITEM,
     localField : "_id",
     foreignField :"room_id"
+});
+
+RoomSchema.virtual('isActive').get(function (this: RoomDocument) {
+    if (!this.deactivationTimestamp) 
+        return false; 
+    
+    return Date.now() < this.deactivationTimestamp;
 });
