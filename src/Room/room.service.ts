@@ -127,9 +127,9 @@ export class RoomService {
     }
 
     /**
-     * Deletes a Room by its _id from DB.
+     * Deletes all Rooms associated with a SoulHome by its _id from DB.
      * 
-     * Notice that the method also removes all Items inside the Room
+     * Notice that the method also removes all Items inside these Rooms
      *
      * @param _id - The Mongo _id of the Room to delete.
      * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
