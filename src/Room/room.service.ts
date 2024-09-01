@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model, MongooseError } from "mongoose";
+import { Model } from "mongoose";
 import { Room } from "./room.schema";
 import { ModelName } from "../common/enum/modelName.enum";
 import { UpdateRoomDto } from "./dto/updateRoom.dto";
@@ -9,10 +9,6 @@ import { CreateRoomDto } from "./dto/createRoom.dto";
 import { RoomDto } from "./dto/room.dto";
 import { TIServiceReadManyOptions, TIServiceReadOneOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 import ServiceError, { isServiceError } from "../common/service/basicService/ServiceError";
-import { SEReason } from "../common/service/basicService/SEReason";
-import { PlayerDto } from "../player/dto/player.dto";
-import { Clan } from "../clan/clan.schema";
-import { ClanDto } from "../clan/dto/clan.dto";
 import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
 import RoomHelperService from "./utils/room.helper.service";
 
