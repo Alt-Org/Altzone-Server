@@ -11,12 +11,14 @@ import { TIServiceReadManyOptions, TIServiceReadOneOptions, TReadByIdOptions } f
 import ServiceError, { isServiceError } from "../common/service/basicService/ServiceError";
 import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
 import RoomHelperService from "./utils/room.helper.service";
+import { ItemService } from "../item/item.service";
 
 @Injectable()
 export class RoomService {
     public constructor(
         @InjectModel(Room.name) public readonly model: Model<Room>,
-        private readonly roomHelper: RoomHelperService
+        private readonly roomHelper: RoomHelperService,
+        private readonly itemService: ItemService
     ){
         this.refsInModel = [ModelName.ITEM, ModelName.SOULHOME];
         this.basicService = new BasicService(model);
@@ -118,6 +120,7 @@ export class RoomService {
      * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
     */
     async deleteOneById(_id: string) {
+        await this.itemService.deleteAllRoomItems(_id);
         return this.basicService.deleteOneById(_id);
     }
 
