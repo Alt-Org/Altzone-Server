@@ -10,11 +10,13 @@ import { TIServiceReadManyOptions, TReadByIdOptions } from "src/common/service/b
 import BasicService from "src/common/service/basicService/BasicService";
 import ServiceError from "src/common/service/basicService/ServiceError";
 import { isServiceError } from "src/common/service/basicService/ServiceError";
+import { ItemService } from "../item/item.service";
 
 @Injectable()
 export class StockService {
     public constructor(
-        @InjectModel(Stock.name) public readonly model: Model<Stock>
+        @InjectModel(Stock.name) public readonly model: Model<Stock>,
+        private readonly itemService: ItemService
     ){
         this.refsInModel = [ModelName.CLAN, ModelName.ITEM];
         this.modelName = ModelName.STOCK;
@@ -100,11 +102,14 @@ export class StockService {
 
     /**
       * Deletes a Stock its _id from DB.
+      *
+      * Notice that the method will also delete all Items inside of the Stock.
       * 
       * @param _id - The Mongo _id of the Stock to delete.
       * @returns _true_ if Stock was removed successfully, or a ServiceError array if the Stock was not found or something else went wrong
     */
     async deleteOneById(_id: string) {
+        await this.itemService.deleteAllStockItems(_id);
         return this.basicService.deleteOneById(_id);
     }
 }
