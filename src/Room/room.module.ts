@@ -9,6 +9,7 @@ import { PlayerModule } from "../player/player.module";
 import { ClanSchema } from "../clan/clan.schema";
 import RoomHelperService from "./utils/room.helper.service";
 import { SoulhomeSchema } from "../soulhome/soulhome.schema";
+import { ItemModule } from "../item/item.module";
 
 @Module({
     imports: [
@@ -17,6 +18,7 @@ import { SoulhomeSchema } from "../soulhome/soulhome.schema";
         MongooseModule.forFeature([ {name: ModelName.CLAN, schema: ClanSchema } ]),
         PlayerModule,
         RequestHelperModule,
+        ItemModule
     ],
     controllers: [ RoomController ],
     providers: [ RoomService, RoomHelperService ],
