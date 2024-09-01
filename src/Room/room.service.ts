@@ -116,12 +116,34 @@ export class RoomService {
     /**
      * Deletes a Room by its _id from DB.
      * 
+     * Notice that the method also removes all Items inside the Room
+     *
      * @param _id - The Mongo _id of the Room to delete.
      * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
     */
     async deleteOneById(_id: string) {
         await this.itemService.deleteAllRoomItems(_id);
         return this.basicService.deleteOneById(_id);
+    }
+
+    /**
+     * Deletes a Room by its _id from DB.
+     * 
+     * Notice that the method also removes all Items inside the Room
+     *
+     * @param _id - The Mongo _id of the Room to delete.
+     * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
+    */
+    async deleteAllSoulHomeRooms(soulHome_id: string) {
+        const soulHomeRoomsResp = await this.basicService.readMany<RoomDto>({filter: { soulHome_id }});
+        if(isServiceError(soulHomeRoomsResp))
+            return soulHomeRoomsResp as ServiceError[];
+
+        const soulHomeRooms = soulHomeRoomsResp as RoomDto[];
+        for(let i=0, l=soulHomeRooms.length; i<l; i++)
+            await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id);
+
+        return this.basicService.deleteMany({filter: { soulHome_id }});
     }
 
     /**
