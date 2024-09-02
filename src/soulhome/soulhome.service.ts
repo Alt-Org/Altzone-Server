@@ -67,6 +67,7 @@ export class SoulHomeService {
      * @returns _true_ if SoulHome was removed successfully, or a ServiceError array if the SoulHome was not found or something else went wrong
      */
     async deleteOneById(_id: string) {
+        await this.roomService.deleteAllSoulHomeRooms(_id);
         return this.basicService.deleteOneById(_id);
     }
 }
