@@ -28,7 +28,7 @@ import { RoomService } from "../room/room.service";
 import { RoomDocument } from "../room/room.schema";
 import { RoomDto } from "../room/dto/room.dto";
 import { CreateRoomDto } from "../room/dto/createRoom.dto";
-import { updateSoulHomeDto } from "../soulhome/dto/updateSoulHome.dto";
+import { UpdateSoulHomeDto } from "../soulhome/dto/updateSoulHome.dto";
 import { User } from "../auth/user";
 import { ClanDto } from "./dto/clan.dto";
 import { getDefaultRoom, getDefaultSoulHome } from "./defaultValues/soulHome";
