@@ -40,6 +40,7 @@ export default class RoomHelperService{
      */
     async getPlayerSoulHome(player_id: string){
         const playerResp = await this.playerService.readOneById(player_id);
+        
         if(!playerResp || playerResp instanceof MongooseError || !playerResp.data?.Player)
             return [new ServiceError({
                 reason: SEReason.NOT_FOUND, 
@@ -67,9 +68,9 @@ export default class RoomHelperService{
             })];
         
         const clan = clanResp as unknown as ClanDto;
-        const clanSoulHome = clan.SoulHome as unknown as SoulHomeDto[];
+        const clanSoulHome = clan.SoulHome as unknown as SoulHomeDto;
 
-        if(!clanSoulHome || clanSoulHome.length === 0)
+        if(!clanSoulHome)
             return [new ServiceError({
                 reason: SEReason.NOT_FOUND,
                 field: 'soulHome_id',
@@ -77,7 +78,7 @@ export default class RoomHelperService{
                 message: 'Could not find SoulHome of the Clan'
             })];
 
-        return clanSoulHome[0];
+        return clanSoulHome;
     }
 
 
