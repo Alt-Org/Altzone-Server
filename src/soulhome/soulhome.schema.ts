@@ -31,3 +31,5 @@ SoulhomeSchema.virtual(ModelName.ROOM, {
     localField : "_id",
     foreignField :"soulHome_id"
 });
+
+export const publicReferences = [ModelName.CLAN, ModelName.ROOM];
