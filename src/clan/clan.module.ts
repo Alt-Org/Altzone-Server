@@ -13,10 +13,16 @@ import { SoulHomeModule } from 'src/soulhome/soulhome.module';
 import { PlayerCounterFactory } from './clan.counters';
 import { joinSchema } from './join/join.schema';
 import { JoinService } from './join/join.service';
+import ClanHelperService from './utils/clanHelper.service';
+import { PlayerSchema } from '../player/player.schema';
 
 @Module({
     imports: [
-        MongooseModule.forFeature([ {name: ModelName.CLAN, schema: ClanSchema}, {name: ModelName.JOIN, schema: joinSchema} ]),
+        MongooseModule.forFeature([ 
+            {name: ModelName.CLAN, schema: ClanSchema}, 
+            {name: ModelName.JOIN, schema: joinSchema},
+            {name: ModelName.PLAYER, schema: PlayerSchema}  
+        ]),
         StockModule,
         ItemModule,
         RoomModule,
@@ -24,7 +30,7 @@ import { JoinService } from './join/join.service';
         RequestHelperModule
     ],
     controllers: [ClanController],
-    providers: [ ClanService, isClanExists, PlayerCounterFactory, JoinService ],
+    providers: [ ClanService, isClanExists, PlayerCounterFactory, JoinService, ClanHelperService ],
     exports: [ClanService, PlayerCounterFactory]
 })
 export class ClanModule {}
