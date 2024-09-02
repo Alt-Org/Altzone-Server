@@ -10,13 +10,10 @@ export class SoulHomeDto {
     _id: string;
     
     @Expose()
-    type:string;
+    name: string;
 
     @Expose()
-    clan_id:string;
-    
-    @Expose()
-    rooms:Array<string>;
+    clan_id: string;
 
     @Type(() => RoomDto)
     @Expose()
