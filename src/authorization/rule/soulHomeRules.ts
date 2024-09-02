@@ -4,7 +4,7 @@ import { AbilityBuilder, createMongoAbility, ExtractSubjectType } from "@casl/ab
 import { Action } from "../enum/action.enum";
 import { RulesSetter, RulesSetterAsync } from "../type/RulesSetter.type";
 import { SoulHomeDto } from "../../soulhome/dto/soulhome.dto";
-import { updateSoulHomeDto } from "../../soulhome/dto/updateSoulHome.dto";
+import { UpdateSoulHomeDto } from "../../soulhome/dto/updateSoulHome.dto";
 import { getClan_id } from "../util/getClan_id";
 import { NotFoundException } from "@nestjs/common";
 import { ModelName } from "../../common/enum/modelName.enum";
