@@ -7,5 +7,5 @@ export class UpdateSoulHomeDto {
     _id: string;
 
     @IsString()
-    name: string;
+    name?: string;
 }
