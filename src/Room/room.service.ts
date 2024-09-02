@@ -38,6 +38,16 @@ export class RoomService {
     }
 
     /**
+     * Creates multiple Rooms in DB.
+     * 
+     * @param rooms - The Rooms data to create.
+     * @returns  created Rooms or an array of service errors if any occurred.
+    */
+    async createMany(rooms: CreateRoomDto[]) {
+        return this.basicService.createMany<CreateRoomDto, RoomDto[]>(rooms);
+    }
+
+    /**
      * Reads a Room by its _id in DB.
      * 
      * @param _id - The Mongo _id of the Room to read.
