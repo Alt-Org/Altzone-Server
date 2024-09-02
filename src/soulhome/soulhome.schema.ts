@@ -10,7 +10,7 @@ export class SoulHome{
     @Prop({ type: String, required: true})
     name: string;
     
-    @Prop({type:String, required:true, unique:true})
+    @Prop({ type: String, required: true, unique: true })
     clan_id: string;
 
     @ExtractField()
@@ -21,7 +21,8 @@ SoulhomeSchema.set('collection', ModelName.SOULHOME);
 SoulhomeSchema.virtual(ModelName.CLAN,{
     ref: ModelName.CLAN,
     localField : "clan_id",
-    foreignField :"_id"
+    foreignField :"_id",
+    justOne: true
 });
 SoulhomeSchema.virtual(ModelName.ROOM, {
     ref: ModelName.ROOM,
