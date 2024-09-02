@@ -1,4 +1,4 @@
-import {Controller, Get, Param, Req} from "@nestjs/common";
+import {Controller, Get, Param} from "@nestjs/common";
 import {_idDto} from "../common/dto/_id.dto";
 import {ModelName} from "../common/enum/modelName.enum";
 import {ItemService} from "./item.service";
@@ -15,7 +15,7 @@ export class ItemController {
     @Get('/:_id')
     @Authorize({action: Action.read, subject: ItemDto})
     @UniformResponse(ModelName.ITEM)
-    public get(@Param() param: _idDto, @Req() request: Request) {
+    public get(@Param() param: _idDto) {
         return this.service.readOneById(param._id);
     }
 }

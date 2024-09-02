@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model, MongooseError } from "mongoose";
+import { Model } from "mongoose";
 import { Room } from "./room.schema";
 import { ModelName } from "../common/enum/modelName.enum";
 import { UpdateRoomDto } from "./dto/updateRoom.dto";
@@ -9,18 +9,16 @@ import { CreateRoomDto } from "./dto/createRoom.dto";
 import { RoomDto } from "./dto/room.dto";
 import { TIServiceReadManyOptions, TIServiceReadOneOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 import ServiceError, { isServiceError } from "../common/service/basicService/ServiceError";
-import { SEReason } from "../common/service/basicService/SEReason";
-import { PlayerDto } from "../player/dto/player.dto";
-import { Clan } from "../clan/clan.schema";
-import { ClanDto } from "../clan/dto/clan.dto";
 import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
 import RoomHelperService from "./utils/room.helper.service";
+import { ItemService } from "../item/item.service";
 
 @Injectable()
 export class RoomService {
     public constructor(
         @InjectModel(Room.name) public readonly model: Model<Room>,
-        private readonly roomHelper: RoomHelperService
+        private readonly roomHelper: RoomHelperService,
+        private readonly itemService: ItemService
     ){
         this.refsInModel = [ModelName.ITEM, ModelName.SOULHOME];
         this.basicService = new BasicService(model);
@@ -118,11 +116,34 @@ export class RoomService {
     /**
      * Deletes a Room by its _id from DB.
      * 
+     * Notice that the method also removes all Items inside the Room
+     *
      * @param _id - The Mongo _id of the Room to delete.
      * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
     */
     async deleteOneById(_id: string) {
+        await this.itemService.deleteAllRoomItems(_id);
         return this.basicService.deleteOneById(_id);
+    }
+
+    /**
+     * Deletes all Rooms associated with a SoulHome by its _id from DB.
+     * 
+     * Notice that the method also removes all Items inside these Rooms
+     *
+     * @param _id - The Mongo _id of the Room to delete.
+     * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
+    */
+    async deleteAllSoulHomeRooms(soulHome_id: string) {
+        const soulHomeRoomsResp = await this.basicService.readMany<RoomDto>({filter: { soulHome_id }});
+        if(isServiceError(soulHomeRoomsResp))
+            return soulHomeRoomsResp as ServiceError[];
+
+        const soulHomeRooms = soulHomeRoomsResp as RoomDto[];
+        for(let i=0, l=soulHomeRooms.length; i<l; i++)
+            await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id);
+
+        return this.basicService.deleteMany({filter: { soulHome_id }});
     }
 
     /**
