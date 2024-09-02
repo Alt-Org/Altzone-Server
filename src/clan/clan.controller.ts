@@ -14,15 +14,10 @@ import { CreateClanDto } from "./dto/createClan.dto";
 import { UpdateClanDto } from "./dto/updateClan.dto";
 import { ClanDto } from "./dto/clan.dto";
 import { BasicPOST } from "../common/base/decorator/BasicPOST.decorator";
-import { BasicGET } from "../common/base/decorator/BasicGET.decorator";
-import { AddGetQueries } from "../common/decorator/request/AddGetQueries.decorator";
 import { _idDto } from "../common/dto/_id.dto";
-import { BasicDELETE } from "../common/base/decorator/BasicDELETE.decorator";
-import { BasicPUT } from "../common/base/decorator/BasicPUT.decorator";
 import { ModelName } from "../common/enum/modelName.enum";
 import { Authorize } from "../authorization/decorator/Authorize";
 import { Action } from "../authorization/enum/action.enum";
-import { RequestHelperService } from "../requestHelper/requestHelper.service";
 import { AddSearchQuery } from "../common/interceptor/request/addSearchQuery.interceptor";
 import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
 import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
@@ -34,64 +29,64 @@ import { JoinRequestDto } from "./join/dto/joinRequest.dto";
 import { JoinService } from "./join/join.service";
 import { RemovePlayerDTO } from "./join/dto/removePlayer.dto";
 import { PlayerLeaveClanDto } from "./join/dto/playerLeave.dto";
+import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
+import { User } from "../auth/user";
+import { UniformResponse } from "../common/decorator/response/UniformResponse";
+import { IncludeQuery } from "../common/decorator/param/IncludeQuery.decorator";
+import { publicReferences } from "./clan.schema";
+import { Serialize } from "../common/interceptor/response/Serialize";
+import { isServiceError } from "../common/service/basicService/ServiceError";
 
 @Controller('clan')
 export class ClanController {
     public constructor(
         private readonly service: ClanService,
-        private readonly joinService: JoinService,
-        private readonly requestHelperService: RequestHelperService
+        private readonly joinService: JoinService
     ) {
     }
+
     @Post()
     @Authorize({ action: Action.create, subject: ClanDto })
-    @BasicPOST(ClanDto)
-    public async create(@Body() body: CreateClanDto, @Req() request: Request) {
-        const resp = await this.service.handleDefaultCreate(body, request['user']?.player_id);
-        return resp;
-    }
-
-    @Post('/default')
-    @Authorize({ action: Action.create, subject: ClanDto })
-    @BasicPOST(ClanDto)
-    public async createDefault(@Body() body: CreateClanDto, @Req() request: Request) {
-        return this.service.handleDefaultCreate(body, request['user']?.player_id);
+    @UniformResponse(ModelName.CLAN)
+    public async create(@Body() body: CreateClanDto, @LoggedUser() user: User) {
+        return await this.service.createOne(body, user.player_id);
     }
 
     @Get('/:_id')
     @NoAuth()
-    //@Authorize({ action: Action.read, subject: ClanDto })
-    @BasicGET(ModelName.CLAN, ClanDto)
-    @AddGetQueries()
-    public get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id, request['mongoPopulate']);
+    @UniformResponse(ModelName.CLAN)
+    public get(@Param() param: _idDto, @IncludeQuery(publicReferences) includeRefs: ModelName[]) {
+        return this.service.readOneById(param._id, { includeRefs });
     }
 
     @Get()
     @NoAuth()
-    //@Authorize({ action: Action.read, subject: ClanDto })
     @OffsetPaginate(ModelName.CLAN)
     @AddSearchQuery(ClanDto)
     @AddSortQuery(ClanDto)
-    @BasicGET(ModelName.CLAN, ClanDto)
+    @Serialize(ClanDto)
+    @UniformResponse(ModelName.CLAN)
     public getAll(@GetAllQuery() query: IGetAllQuery) {
         return this.service.readAll(query);
     }
 
     @Put()
     @Authorize({ action: Action.update, subject: UpdateClanDto })
-    @BasicPUT(ModelName.CLAN)
+    @UniformResponse()
     public async update(@Body() body: UpdateClanDto) {
-        return this.service.handleUpdate(body)
+        const resp = await this.service.updateOneById(body);
+        if(isServiceError(resp))
+            return resp;
     }
 
     @Delete('/:_id')
     @Authorize({ action: Action.delete, subject: UpdateClanDto })
-    @BasicDELETE(ModelName.CLAN)
-    public delete(@Param() param: _idDto) {
-        return this.service.deleteOneById(param._id);
+    @UniformResponse()
+    public async delete(@Param() param: _idDto) {
+        const resp = await this.service.deleteOneById(param._id);
+        if(isServiceError(resp))
+            return resp;
     }
-
 
     
     @Post('join')
