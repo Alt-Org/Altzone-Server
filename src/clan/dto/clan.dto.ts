@@ -41,7 +41,7 @@ export class ClanDto {
 
     @Type(() => StockDto)
     @Expose()
-    Stock: StockDto[];
+    Stock: StockDto;
 
     @Type(() => SoulHomeDto)
     @Expose()
