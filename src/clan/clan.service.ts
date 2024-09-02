@@ -117,13 +117,13 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         // const itemResp = await this.itemService.createMany(items);
 
         //Create clan's SoulHome
-        const clanSoulHome = getDefaultSoulHome(createdClan._id.toString());
-        const soulHomeResp = await this.soulhomeService.createOne(clanSoulHome);
-        if (!soulHomeResp || soulHomeResp instanceof MongooseError || !soulHomeResp.data || !soulHomeResp.data.SoulHome)
-            return dataToReturn;
+        // const clanSoulHome = getDefaultSoulHome(createdClan._id.toString());
+        // const soulHomeResp = await this.soulhomeService.createOne(clanSoulHome);
+        // if (!soulHomeResp || soulHomeResp instanceof MongooseError || !soulHomeResp.data || !soulHomeResp.data.SoulHome)
+        //     return dataToReturn;
 
-        const createdSoulHome = soulHomeResp.data.SoulHome as unknown as SoulHomeDto;
-        dataToReturn.data[ModelName.SOULHOME] = createdSoulHome;
+        // const createdSoulHome = soulHomeResp.data.SoulHome as unknown as SoulHomeDto;
+        // dataToReturn.data[ModelName.SOULHOME] = createdSoulHome;
 
         // const firstRoom = getDefaultRoom(createdSoulHome._id.toString(), player_id);
         // const roomResp = await this.roomService.createOne(firstRoom);
@@ -200,6 +200,6 @@ export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBas
         ], ignoreReferences);
 
         //await this.stockService.deleteByCondition(searchFilter);
-        await this.soulhomeService.deleteByCondition(searchFilter);
+        //await this.soulhomeService.deleteByCondition(searchFilter);
     }
 }
