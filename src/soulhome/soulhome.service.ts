@@ -1,55 +1,72 @@
-import { Body, Injectable, NotFoundException } from "@nestjs/common";
-import { BasicServiceDummyAbstract } from "../common/base/abstract/basicServiceDummy.abstract";
-import { AddBasicService, ClearCollectionReferences } from "../common/base/decorator/AddBasicService.decorator";
-import { SoulHome } from "./soulhome.schema";
-import { IBasicService } from "../common/base/interface/IBasicService";
+import { Injectable } from "@nestjs/common";
+import { publicReferences, SoulHome } from "./soulhome.schema";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model, MongooseError, Types } from "mongoose";
-import { StockService } from "../stock/stock.service";
-import { RequestHelperService } from "../requestHelper/requestHelper.service";
+import { Model } from "mongoose";
 import { ModelName } from "../common/enum/modelName.enum";
-import { IgnoreReferencesType } from "../common/type/ignoreReferences.type";
 import { RoomService } from "../room/room.service";
-import { updateSoulHomeDto } from "./dto/updateSoulHome.dto";
-import { deleteArrayElements } from "../common/function/deleteArrayElements";
+import { TIServiceReadOneOptions, TReadByIdOptions } from "../common/service/basicService/IService";
+import BasicService from "../common/service/basicService/BasicService";
+import { SoulHomeDto } from "./dto/soulhome.dto";
+import { CreateSoulHomeDto } from "./dto/createSoulHome.dto";
+import { UpdateSoulHomeDto } from "./dto/updateSoulHome.dto";
 
 @Injectable()
-@AddBasicService()
-export class SoulHomeService extends BasicServiceDummyAbstract<SoulHome> implements IBasicService<SoulHome> {
+export class SoulHomeService {
 
     public constructor(
         @InjectModel(SoulHome.name) public readonly model: Model<SoulHome>,
-        private readonly roomService: RoomService,
-        private readonly requestHelperService: RequestHelperService
+        private readonly roomService: RoomService
     ) {
-        super();
-        this.refsInModel = [ModelName.CLAN, , ModelName.ROOM];
-        this.modelName = ModelName.SOULHOME;
+        this.basicService = new BasicService(model);
     }
-    public readonly refsInModel: ModelName[];
-    public readonly modelName: ModelName;
-    public async handleUpdate(@Body() body: updateSoulHomeDto) {
-        if (!body.addedRooms && !body.removedRooms) {
-            return this.updateOneById(body);
-        }
-        const homeToUpdate = await this.readOneById(body._id);
-        if (!homeToUpdate || homeToUpdate instanceof MongooseError)
-            throw new NotFoundException('SoulHome with that _id not found');
-        body["rooms"] = homeToUpdate.data[homeToUpdate.metaData.dataKey].rooms;
-        if (body.removedRooms)
-            body["rooms"] = deleteArrayElements(body["rooms"], body.removedRooms);
-        const rooms = body["rooms"];
-        if (!body.addedRooms)
-            return this.updateOneById(body);
-        body.addedRooms.forEach((o, i) => {
-            rooms.push(o);
-        });
-        body["rooms"] = rooms;
-        return this.updateOneById(body);
 
+    public readonly basicService: BasicService;
+    public readonly modelName: ModelName;
+
+    /**
+     * Creates a new SoulHome in DB.
+     * 
+     * @param soulHome - The SoulHome data to create.
+     * @returns  created SoulHome or an array of service errors if any occurred.
+     */
+    async createOne(soulHome: CreateSoulHomeDto) {
+        return this.basicService.createOne<CreateSoulHomeDto, SoulHomeDto>(soulHome);
     }
-    public clearCollectionReferences: ClearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
-        const searchFilter = { soulHome_id: _id };
-        //await this.roomService.deleteByCondition(searchFilter);
+
+    /**
+     * Reads a SoulHome by its _id in DB.
+     * 
+     * @param _id - The Mongo _id of the SoulHome to read.
+     * @param options - Options for reading the SoulHome.
+     * @returns SoulHome with the given _id on succeed or an array of ServiceErrors if any occurred.
+     */
+    async readOneById(_id: string, options?: TReadByIdOptions) {
+        let optionsToApply = options;
+        if(options?.includeRefs)
+            optionsToApply.includeRefs = options.includeRefs.filter((ref) => publicReferences.includes(ref));
+
+        return this.basicService.readOneById<SoulHomeDto>(_id, optionsToApply);
+    }
+
+    /**
+     * Updates a SoulHome by its _id in DB. The _id field is read-only and must be found from the parameter
+     * 
+     * @param soulHome - The data needs to be updated for the SoulHome.
+     * @returns _true_ if SoulHome was updated successfully, _false_ if nothing was updated for the SoulHome, 
+     * or a ServiceError array if SoulHome was not found or something else went wrong.
+     */
+    async updateOneById(soulHome: UpdateSoulHomeDto) {
+        const {_id, ...fieldsToUpdate} = soulHome;
+        return this.basicService.updateOneById(_id, fieldsToUpdate);
+    }
+
+    /**
+     * Deletes a SoulHome its _id from DB.
+     * 
+     * @param _id - The Mongo _id of the SoulHome to delete.
+     * @returns _true_ if SoulHome was removed successfully, or a ServiceError array if the SoulHome was not found or something else went wrong
+     */
+    async deleteOneById(_id: string) {
+        return this.basicService.deleteOneById(_id);
     }
 }

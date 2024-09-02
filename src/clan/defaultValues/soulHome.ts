@@ -1,4 +1,3 @@
-import { CreateRoomDto } from "../../room/dto/createRoom.dto"
 import { CreateSoulHomeDto } from "../../soulhome/dto/createSoulHome.dto"
 
 /**
@@ -8,7 +7,7 @@ import { CreateSoulHomeDto } from "../../soulhome/dto/createSoulHome.dto"
  */
 export function getDefaultSoulHome(clan_id: string): CreateSoulHomeDto {
     return {
-        type: "clan",
+        name: "clan",
         clan_id
     }
 }

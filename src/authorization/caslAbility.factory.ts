@@ -31,7 +31,7 @@ import { UpdateItemDto } from "../item/dto/updateItem.dto";
 import { StockDto } from "../stock/dto/stock.dto";
 import { UpdateStockDto } from "../stock/dto/updateStock.dto";
 import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
-import { updateSoulHomeDto } from "../soulhome/dto/updateSoulHome.dto";
+import { UpdateSoulHomeDto } from "../soulhome/dto/updateSoulHome.dto";
 import { soulHomeRules } from "./rule/soulHomeRules";
 import { RoomDto } from "../room/dto/room.dto";
 import { UpdateRoomDto } from "../room/dto/updateRoom.dto";
@@ -57,7 +57,7 @@ export type AllowedSubject =
     typeof StockDto | typeof UpdateStockDto |
     typeof ClanDto | typeof UpdateClanDto |
     typeof JoinDto | typeof JoinResultDto | typeof PlayerLeaveClanDto | typeof RemovePlayerDTO |
-    typeof SoulHomeDto | typeof updateSoulHomeDto |
+    typeof SoulHomeDto | typeof UpdateSoulHomeDto |
     typeof RoomDto | typeof UpdateRoomDto |
     typeof ClanVoteDto | typeof UpdateClanVoteDto |
     typeof ItemShopDto | typeof ShopItemDTO;

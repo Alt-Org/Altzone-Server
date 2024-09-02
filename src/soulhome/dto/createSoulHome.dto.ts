@@ -4,11 +4,8 @@ import AddType from "../../common/base/decorator/AddType.decorator";
 @AddType('CreateSoulHomeDto')
 export class CreateSoulHomeDto {
     @IsString()
-    type: string
+    name: string;
 
     @IsMongoId()
-    clan_id:string
- 
-    
-    
+    clan_id: string;
 }
