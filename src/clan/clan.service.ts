@@ -17,6 +17,7 @@ import ClanHelperService from "./utils/clanHelper.service";
 import { SEReason } from "../common/service/basicService/SEReason";
 import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 import { ModelName } from "../common/enum/modelName.enum";
+import { ObjectId } from "mongodb";
 
 @Injectable()
 export class ClanService{
@@ -129,7 +130,6 @@ export class ClanService{
             })]];
 
         //add only players that are clan members
-        const clanToUpdate_id = clan._id.toString();
         const playersInClan: string[] = [];
         const playersNotInClan: string[] = [];
         for (let i = 0; i < admin_ids.length; i++) {
@@ -138,8 +138,7 @@ export class ClanService{
             if(playerErrors || !player)
                 continue;
 
-            if (player)
-                player.clan_id === clanToUpdate_id ? playersInClan.push(player_id) : playersNotInClan.push(player_id);
+            player.clan_id.toString() === _id ? playersInClan.push(player_id) : playersNotInClan.push(player_id);
         }
 
         if (playersInClan.length === 0)
