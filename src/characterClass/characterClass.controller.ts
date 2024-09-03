@@ -76,9 +76,9 @@ export class CharacterClassController{
     @UniformResponse()
     public async update(@Body() body: UpdateCharacterClassDto){
         //Usually you do not want to return anything for put and delete if it was success (204 response)
-        const resp = await this.service.updateOneById(body);
-        if(isServiceError(resp))
-            return resp;
+        const [resp, errors] = await this.service.updateOneById(body);
+        if(errors)
+            return [null, errors];
     }
 
     @Delete('/:_id')
@@ -86,8 +86,8 @@ export class CharacterClassController{
     @UniformResponse()
     //You can get a logged-in user with LoggedUser decorator
     public async delete(@Param() param: _idDto, @LoggedUser() user: User) {
-        const resp = await this.service.deleteOneById(param._id);
-        if(isServiceError(resp))
-            return resp;
+        const [resp, errors] = await this.service.deleteOneById(param._id);
+        if(errors)
+            return [null, errors];
     }
 }

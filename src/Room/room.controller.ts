@@ -52,7 +52,7 @@ export class RoomController {
     public async update(@Body() body: UpdateRoomDto) {
         const [resp, errors] = await this.service.updateOneById(body);
         if(errors)
-            return errors;
+            return [null, errors];
     }
 
     @Post('/activate')
