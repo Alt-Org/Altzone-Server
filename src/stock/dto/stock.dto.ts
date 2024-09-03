@@ -2,7 +2,7 @@ import {Expose, Type} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {ClanDto} from "../../clan/dto/clan.dto";
 import {ItemDto} from "../../item/dto/item.dto";
-import AddType from "src/common/base/decorator/AddType.decorator";
+import AddType from "../../common/base/decorator/AddType.decorator";
 
 @AddType('StockDto')
 export class StockDto {
@@ -11,14 +11,8 @@ export class StockDto {
     _id: string;
 
     @Expose()
-    type: number;
-
-    @Expose()
-    rowCount: number;
-
-    @Expose()
-    columnCount: number;
-
+    cellCount: number;
+    
     @ExtractField()
     @Expose()
     clan_id: string;

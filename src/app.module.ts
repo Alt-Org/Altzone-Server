@@ -18,11 +18,10 @@ import { PermissionModule } from './permission/permission.module';
 import { ApiStateModule } from './common/apiState/apiState.module';
 import { SiteModule } from './site/site.module';
 import {ChatModule} from "./chat/chat.module";
-import { joinModule } from './clan/join/join.module';
 import {ItemModule} from "./item/item.module";
 import {StockModule} from "./stock/stock.module";
 import { SoulHomeModule } from './soulhome/soulhome.module';
-import { RoomModule } from './Room/room.module';
+import { RoomModule } from './room/room.module';
 import { ClanVoteModule } from './shop/clanVote/clanVote.module';
 import { ItemShopModule } from './shop/itemShop/itemShop.module';
 
@@ -37,7 +36,6 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
 @Module({
   imports: [
       MongooseModule.forRoot(mongoString, {dbName: dbName}),
-      joinModule,
       ClanModule,
       PlayerModule,
       CharacterClassModule,

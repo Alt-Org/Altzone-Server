@@ -6,7 +6,7 @@ import {IGetAllQuery} from "../../interface/IGetAllQuery";
 
 /**
  * Get all data added by \@OffsetPaginate(), \@AddSearchQuery(), \@AddSortQuery() decorators 
- * and convert it to the search options object usable for mongoose queries
+ * and convert it to the search options object, which can be used for mongoose queries
  */
 export const GetAllQuery = createParamDecorator((data: unknown, context: ExecutionContext): IGetAllQuery => {
     const request = context.switchToHttp().getRequest<Request>();

@@ -2,10 +2,13 @@ import {MongooseError} from "mongoose";
 import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
 import {DeleteOptionsType} from "../type/deleteOptions.type";
 import IDiscriminator from "../../interface/IDiscriminator";
-import { ModelName } from "src/common/enum/modelName.enum";
-import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
+import { ModelName } from "../../../common/enum/modelName.enum";
+import { IGetAllQuery } from "../../../common/interface/IGetAllQuery";
 import {IResponseShape} from "../../interface/IResponseShape";
 
+/**
+ * @deprecated
+ */
 export interface IBasicService<T=object> extends IDiscriminator{
     createOne(input: any): Promise<IResponseShape<T> | null | MongooseError>;
 

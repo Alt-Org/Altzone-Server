@@ -1,173 +1,188 @@
-import {
-    AddBasicService,
-    ClearCollectionReferences,
-} from "../common/base/decorator/AddBasicService.decorator";
-import { IBasicService } from "../common/base/interface/IBasicService";
-import { BasicServiceDummyAbstract } from "../common/base/abstract/basicServiceDummy.abstract";
 import { CreateClanDto } from "./dto/createClan.dto";
 import { UpdateClanDto } from "./dto/updateClan.dto";
-import { deleteNotUniqueArrayElements } from "src/common/function/deleteNotUniqueArrayElements";
-import { deleteArrayElements } from "src/common/function/deleteArrayElements";
-import { addUniqueArrayElements } from "src/common/function/addUniqueArrayElements";
-import { PlayerDto } from "src/player/dto/player.dto";
+import { deleteNotUniqueArrayElements } from "../common/function/deleteNotUniqueArrayElements";
+import { deleteArrayElements } from "../common/function/deleteArrayElements";
+import { PlayerDto } from "../player/dto/player.dto";
 import { StockService } from "../stock/stock.service";
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { Clan } from "./clan.schema";
+import { Injectable } from "@nestjs/common";
+import { Clan, publicReferences } from "./clan.schema";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model, MongooseError, Types } from "mongoose";
-import { ModelName } from "src/common/enum/modelName.enum";
-import { RequestHelperService } from "src/requestHelper/requestHelper.service";
-import { IgnoreReferencesType } from "src/common/type/ignoreReferences.type";
-import { IHookImplementer } from "../common/interface/IHookImplementer";
-import { StockDto } from "../stock/dto/stock.dto";
-import { CreateStockDto } from "../stock/dto/createStock.dto";
-import { ItemService } from "../item/item.service";
-import { CreateItemDto } from "../item/dto/createItem.dto";
-import { getDefaultItems } from "./defaultValues/items";
-import { CreateSoulHomeDto } from "src/soulhome/dto/createSoulHome.dto";
-import { SoulHomeService } from "src/soulhome/soulhome.service";
-import { RoomService } from "src/Room/room.service";
-import { RoomDocument } from "src/Room/room.schema";
-import { RoomDto } from "src/Room/dto/room.dto";
-import { CreateRoomDto } from "src/Room/dto/createRoom.dto";
-import { updateSoulHomeDto } from "src/soulhome/dto/updateSoulHome.dto";
-import { User } from "src/auth/user";
-
+import { Model } from "mongoose";
+import { SoulHomeService } from "../soulhome/soulhome.service";
+import { ClanDto } from "./dto/clan.dto";
+import BasicService from "../common/service/basicService/BasicService";
+import ServiceError from "../common/service/basicService/ServiceError";
+import { Player } from "../player/player.schema";
+import ClanHelperService from "./utils/clanHelper.service";
+import { SEReason } from "../common/service/basicService/SEReason";
+import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
+import { ModelName } from "../common/enum/modelName.enum";
 
 @Injectable()
-@AddBasicService()
-export class ClanService extends BasicServiceDummyAbstract<Clan> implements IBasicService<Clan> {
+export class ClanService{
     public constructor(
         @InjectModel(Clan.name) public readonly model: Model<Clan>,
+        @InjectModel(Player.name) public readonly playerModel: Model<Player>,
         private readonly stockService: StockService,
-        private readonly itemService: ItemService,
         private readonly soulhomeService: SoulHomeService,
-        private readonly roomService: RoomService,
-        private readonly requestHelperService: RequestHelperService
+        private readonly clanHelperService: ClanHelperService
     ) {
-        super();
-        this.refsInModel = [ModelName.PLAYER, ModelName.STOCK];
-        this.modelName = ModelName.CLAN;
+        this.basicService = new BasicService(model);
+        this.playerService = new BasicService(playerModel);
+    }
+    public readonly basicService: BasicService;
+    public readonly playerService: BasicService;
+
+    /**
+     * Crete a new Clan with other default objects.
+     *
+     * The default objects are required on the game side. 
+     * These objects are a Stock with its Items given to each new Clan, as well as a SoulHome with one Room
+     * @param clanToCreate 
+     * @param player_id the player_id of the Clan creator, and who is also will be the admin of the Clan
+     * @returns 
+     */
+    public async createOne(clanToCreate: CreateClanDto, player_id: string) {
+        const clanWithAdmin = {...clanToCreate, admin_ids: [player_id]};
+        let [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>(clanWithAdmin);
+
+        if(clanErrors || !clan)
+            return [null, clanErrors];
+
+        const [isPlayerUpdated, playerErrors] = await this.playerService.updateOneById(player_id, { clan_id: clan._id });
+        if(playerErrors)
+            return [null, playerErrors];
+
+        const [stock, stockErrors] = await this.clanHelperService.createDefaultStock(clan._id);
+        if(stockErrors || !stock)
+            return [ null, stockErrors ];
+
+        const [soulHome, soulHomeErrors] = await this.clanHelperService.createDefaultSoulHome(clan._id, clan.name);
+        if(soulHomeErrors || !soulHome)
+            return [null, soulHomeErrors];
+
+        clan.SoulHome = soulHome.SoulHome;
+        clan.Stock = stock.Stock;
+
+        return clan;
     }
 
-    public readonly refsInModel: ModelName[];
-    public readonly modelName: ModelName;
-    public async handleCreate(body: CreateClanDto, user: User) {
-        const creatorPlayer_id = user.player_id;
-        body['admin_ids'] = [creatorPlayer_id];
-        const clanResp = await this.createOne(body);
+    /**
+     * Reads a Clan by its _id in DB.
+     * 
+     * @param _id - The Mongo _id of the Clan to read.
+     * @param options - Options for reading the Clan.
+     * @returns Clan with the given _id on succeed or an array of ServiceErrors if any occurred.
+     */
+    async readOneById(_id: string, options?: TReadByIdOptions) {
+        let optionsToApply = options;
+        if(options?.includeRefs)
+            optionsToApply.includeRefs = options.includeRefs.filter((ref) => publicReferences.includes(ref));
 
-        if (!clanResp || clanResp instanceof MongooseError)
-            return clanResp;
-
-        await this.requestHelperService.updateOneById(ModelName.PLAYER, creatorPlayer_id, { clan_id: clanResp.data[clanResp.metaData.dataKey]._id });
-
-        return clanResp;
+        return this.basicService.readOneById<ClanDto>(_id, optionsToApply);
     }
 
-    public async handleDefaultCreate(body: CreateClanDto, request: Request) {
-        const creatorPlayer_id = request['user'].player_id;
-        body['admin_ids'] = [creatorPlayer_id];
-        const clanResp: any = await this.createOne(body);
+    /**
+     * Reads all Clans based on the provided options.
+     * 
+     * @param options - Options for reading Clans.
+     * @returns An array of Clans if succeeded or an array of ServiceErrors if error occurred.
+     */
+    async readAll(options?: TIServiceReadManyOptions) {
+        let optionsToApply = options;
+        if(options?.includeRefs)
+            optionsToApply.includeRefs = options.includeRefs.filter((ref) => publicReferences.includes(ref));
 
-        if (!clanResp || clanResp instanceof MongooseError)
-            return clanResp;
+        return this.basicService.readMany<ClanDto>(optionsToApply);
+    }
 
-        await this.requestHelperService.updateOneById(ModelName.PLAYER, creatorPlayer_id, { clan_id: clanResp.data[clanResp.metaData.dataKey]._id });
+    /**
+     * Updates the specified Clan data in DB
+     *
+     * @param clanToUpdate object with fields to be updated 
+     * @returns _true_ if update went successfully or array 
+     * of ServiceErrors if something went wrong
+     */
+    public async updateOneById(clanToUpdate: UpdateClanDto): Promise<[boolean | null, ServiceError[] | null]> {
+        const {_id, admin_idsToDelete, admin_idsToAdd, ...fieldsToUpdate} = clanToUpdate;
 
-        //Create clan's stock
-        const clanStock: CreateStockDto = {
-            type: 1,
-            rowCount: 5,
-            columnCount: 5,
-            clan_id: clanResp.data.Clan._id
+        if (!admin_idsToAdd && !admin_idsToDelete)
+            return this.basicService.updateOneById(_id, fieldsToUpdate);
+
+        const [clan, clanErrors] = await this.basicService.readOneById<ClanDto>(_id);
+        if(clanErrors || !clan)
+            return [null, clanErrors];
+
+        let admin_ids: string[] = clan.admin_ids;
+
+        if(admin_idsToDelete)
+            admin_ids = deleteArrayElements(admin_ids, admin_idsToDelete);
+
+        if(admin_idsToAdd){
+            const idsToAdd = deleteNotUniqueArrayElements(admin_idsToAdd);
+            admin_ids = admin_ids ? [...admin_ids, ...idsToAdd] : idsToAdd;
+            admin_ids = deleteNotUniqueArrayElements(admin_ids);
         }
-        const stockResp = await this.stockService.createOne(clanStock);
-        if (!stockResp || stockResp instanceof MongooseError)
-            return clanResp;
 
-        clanResp.data.Clan.Stock = stockResp.data.Stock;
+        if (admin_ids.length === 0)
+            return [null, [new ServiceError({
+                message: 'Clan can not be without at least one admin. You are trying to delete all clan admins',
+                field: 'admin_ids',
+                reason: SEReason.REQUIRED
+            })]];
 
-        //Add default items to clan's stock
-        const items: CreateItemDto[] = getDefaultItems(stockResp.data.Stock._id);
-        await this.itemService.createMany(items);
-
-        //Create clan's stock
-        const clanSoulhome: CreateSoulHomeDto = {
-            type: "clan",
-            clan_id: clanResp.data.Clan._id
-        };
-        const soulHomeResp = await this.soulhomeService.createOne(clanSoulhome);
-        if (!soulHomeResp || soulHomeResp instanceof MongooseError)
-            return clanResp;
-        const firstRoom: CreateRoomDto = {
-            floorType:"placeholder",
-            wallType:"placeholder",
-            player_id: creatorPlayer_id,
-            soulHome_id:soulHomeResp.data.SoulHome._id
-        };
-        const roomResp = await this.roomService.createOne(firstRoom);
-        if (!roomResp || roomResp instanceof MongooseError)
-            return clanResp;
-        const addRoom = [roomResp.data.Room._id];
-        const soulHomeUpdate = {
-            _id: soulHomeResp.data.SoulHome._id,
-            type:"clan",
-            addedRooms: addRoom,
-            removedRooms:undefined
-        };
-        await this.soulhomeService.handleUpdate(soulHomeUpdate);
-        return clanResp;
-    }
-
-    public async handleUpdate(body: UpdateClanDto) {
-        if (!body.admin_idsToAdd && !body.admin_idsToDelete)
-            return this.updateOneById(body);
-
-        const clanToUpdate = await this.readOneById(body._id);
-        if (!clanToUpdate || clanToUpdate instanceof MongooseError)
-            throw new NotFoundException('Clan with that _id not found');
-
-        if (body.admin_idsToDelete)
-            clanToUpdate.data[clanToUpdate.metaData.dataKey].admin_ids = deleteArrayElements(clanToUpdate.data[clanToUpdate.metaData.dataKey].admin_ids, body.admin_idsToDelete);
-
-        body.admin_idsToAdd = deleteNotUniqueArrayElements(body.admin_idsToAdd);
         //add only players that are clan members
-        const clanToUpdate_id = clanToUpdate.data[clanToUpdate.metaData.dataKey]._id.toString();
         const playersInClan: string[] = [];
         const playersNotInClan: string[] = [];
-        for (let i = 0; i < body.admin_idsToAdd.length; i++) {
-            const player_id = body.admin_idsToAdd[i];
-            const player = await this.requestHelperService.getModelInstanceById(ModelName.PLAYER, player_id, PlayerDto);
-            if (player)
-                player.clan_id === clanToUpdate_id ? playersInClan.push(player_id) : playersNotInClan.push(player_id);
+        for (let i = 0; i < admin_ids.length; i++) {
+            const player_id = admin_ids[i];
+            const [player, playerErrors] = await this.playerService.readOneById<PlayerDto>(player_id);
+            if(playerErrors || !player)
+                continue;
+
+            player.clan_id.toString() === _id ? playersInClan.push(player_id) : playersNotInClan.push(player_id);
         }
 
-        const newAdmin_ids = addUniqueArrayElements(clanToUpdate.data[clanToUpdate.metaData.dataKey].admin_ids, playersInClan);
+        if (playersInClan.length === 0)
+            return [null, [new ServiceError({
+                message: 'Clan can not be without at least one admin. You are trying to delete all clan admins',
+                field: 'admin_ids',
+                reason: SEReason.REQUIRED
+            })]];
 
-        if (newAdmin_ids.length === 0)
-            throw new BadRequestException('Clan can not be without at least one admin. You are trying to delete all clan admins');
-        body['admin_ids'] = newAdmin_ids;
-        const updateResp = await this.updateOneById(body);
-
-        if (playersNotInClan.length !== 0)
-            throw new BadRequestException(
-                `Players with the _ids: [${playersNotInClan.toString()}] ` +
-                `can not be added to clan admins because they are not the clan members. ` +
-                `All other players are successfully added to clan admins and another clan data are updated as well`
-            );
-
-        return updateResp;
+        return await this.basicService.updateOneById(_id, {...fieldsToUpdate, admin_ids: playersInClan});
     }
 
-    public clearCollectionReferences: ClearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
-        const searchFilter = { clan_id: _id };
-        const nullIds = { clan_id: null };
+    /**
+     * Deletes a Clan by its _id from DB.
+     *  
+     * Notice that the method will also delete Clan's SoulHome and Stock as well.
+     * Also all Players, which were members of the Clan will be excluded.
+     *
+     * @param _id - The Mongo _id of the Clan to delete.
+     * @returns _true_ if Clan was removed successfully, 
+     * or a ServiceError array if the Clan was not found or something else went wrong
+     */
+    async deleteOneById(_id: string): Promise<[true | null, ServiceError[] | null]> {
+        const [clan, clanErrors] = await this.basicService.readOneById<ClanDto>(
+            _id, 
+            { includeRefs: [ ModelName.SOULHOME, ModelName.STOCK, ModelName.PLAYER ] }
+        );
+        if(clanErrors || !clan)
+            return [null, clanErrors];
 
-        await this.requestHelperService.nullReferences([
-            { modelName: ModelName.PLAYER, filter: searchFilter, nullIds }
-        ], ignoreReferences);
+        if(clan.Player){
+            for(let i=0, l=clan.Player.length; i<l; i++){
+                const player = clan.Player[i];
+                await this.playerService.updateOneById(player._id, { clan_id: null });
+            }
+        }
 
-        await this.stockService.deleteByCondition(searchFilter);
+        if(clan.Stock)
+            await this.stockService.deleteOneById(clan.Stock._id);
+        if(clan.SoulHome)
+            await this.soulhomeService.deleteOneById(clan.SoulHome._id);
+
+        return this.basicService.deleteOneById(_id);
     }
 }

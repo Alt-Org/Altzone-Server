@@ -1,25 +1,25 @@
 import { InjectModel } from "@nestjs/mongoose";
 import { ClanVote } from "./clanVote.schema";
 import { Model, MongooseError, Types } from "mongoose";
-import { RequestHelperService } from "src/requestHelper/requestHelper.service";
-import { ModelName } from "src/common/enum/modelName.enum";
-import { AddBasicService, ClearCollectionReferences } from "src/common/base/decorator/AddBasicService.decorator";
-import { IgnoreReferencesType } from "src/common/type/ignoreReferences.type";
-import { IBasicService } from "src/common/base/interface/IBasicService";
-import { BasicServiceDummyAbstract } from "src/common/base/abstract/basicServiceDummy.abstract";
+import { RequestHelperService } from "../../requestHelper/requestHelper.service";
+import { ModelName } from "../../common/enum/modelName.enum";
+import { AddBasicService, ClearCollectionReferences } from "../../common/base/decorator/AddBasicService.decorator";
+import { IgnoreReferencesType } from "../../common/type/ignoreReferences.type";
+import { IBasicService } from "../../common/base/interface/IBasicService";
+import { BasicServiceDummyAbstract } from "../../common/base/abstract/basicServiceDummy.abstract";
 import { BadRequestException, Body, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { IHookImplementer, PostCreateHookFunction, PostHookFunction, PostReadAllHookFunction, PostReadOneHookFunction, PreHookFunction } from "src/common/interface/IHookImplementer";
+import { IHookImplementer, PostCreateHookFunction, PostHookFunction, PostReadAllHookFunction, PostReadOneHookFunction, PreHookFunction } from "../../common/interface/IHookImplementer";
 import { UpdateClanVoteDto } from "./dto/updateClanVote.dto";
-import { passed } from "src/common/function/timeUtils";
-import { ItemDto } from "src/item/dto/item.dto";
+import { passed } from "../../common/function/timeUtils";
+import { ItemDto } from "../../item/dto/item.dto";
 import { ItemShopDto } from "../itemShop/dto/itemshop.dto";
 import { ShopItemDTO } from "../itemShop/dto/shopItem.dto";
-import { StockDto } from "src/stock/dto/stock.dto";
+import { StockDto } from "../../stock/dto/stock.dto";
 import { CreateClanVoteDto } from "./dto/createClanVote.dto";
 import { ItemShopService } from "../itemShop/itemShop.service";
 import { check } from "express-validator";
 import { ShopItem } from "../itemShop/itemShop.schema";
-import { IResponseShape } from "src/common/interface/IResponseShape";
+import { IResponseShape } from "../../common/interface/IResponseShape";
 @Injectable()
 @AddBasicService()
 export class ClanVoteService extends BasicServiceDummyAbstract<ClanVote> implements IBasicService<ClanVote>, IHookImplementer {

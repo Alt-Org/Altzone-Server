@@ -1,37 +1,24 @@
-import { ArrayNotEmpty, IsArray, IsBoolean, IsMongoId, IsOptional, IsString } from "class-validator";
-import AddType from "src/common/base/decorator/AddType.decorator";
+import { IsBoolean, IsMongoId, IsNumber, IsOptional, IsString } from "class-validator";
+import AddType from "../../common/base/decorator/AddType.decorator";
 
 @AddType('UpdateRoomDto')
 export class UpdateRoomDto {
     @IsMongoId()
-    _id:string;
+    _id: string;
+
+    @IsString() 
+    @IsOptional()
+    floorType: string;
 
     @IsString()
     @IsOptional()
-    floorType:string;
-
-    @IsString()
-    @IsOptional()
-    wallType:string;
+    wallType: string;
 
     @IsBoolean()
     @IsOptional()
-    isActive:boolean;
+    hasLift: boolean;
 
-    @IsArray()
-    @ArrayNotEmpty()
+    @IsNumber()
     @IsOptional()
-    roomItemsToAdd:string[];
-
-    @IsArray()
-    @ArrayNotEmpty()
-    @IsOptional()
-    roomItemsToRemove:string[];
-
-    @IsMongoId()
-    @IsOptional()
-    player_id:string;
-    @IsMongoId()
-    @IsOptional()
-    soulhome_id:string;
+    cellCount: number;
 }

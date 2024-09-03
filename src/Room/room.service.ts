@@ -1,79 +1,169 @@
-import { Body, Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model, MongooseError, Types } from "mongoose";
-import { BasicServiceDummyAbstract } from "src/common/base/abstract/basicServiceDummy.abstract";
-import { AddBasicService, ClearCollectionReferences } from "src/common/base/decorator/AddBasicService.decorator";
-import { IBasicService } from "src/common/base/interface/IBasicService";
-import { RequestHelperService } from "src/requestHelper/requestHelper.service";
-import { StockService } from "src/stock/stock.service";
+import { Model } from "mongoose";
 import { Room } from "./room.schema";
-import { ModelName } from "src/common/enum/modelName.enum";
-import { IgnoreReferencesType } from "src/common/type/ignoreReferences.type";
-import { SoulHome, SoulhomeSchema } from "src/soulhome/soulhome.schema";
-import { IHookImplementer, PostHookFunction } from "src/common/interface/IHookImplementer";
+import { ModelName } from "../common/enum/modelName.enum";
 import { UpdateRoomDto } from "./dto/updateRoom.dto";
-import { roomRules } from "src/authorization/rule/roomRules";
-import { deleteArrayElements } from "src/common/function/deleteArrayElements";
-import { addUniqueArrayElements } from "src/common/function/addUniqueArrayElements";
-import { deleteNotUniqueArrayElements } from "src/common/function/deleteNotUniqueArrayElements";
+import BasicService from "../common/service/basicService/BasicService";
+import { CreateRoomDto } from "./dto/createRoom.dto";
+import { RoomDto } from "./dto/room.dto";
+import { TIServiceReadManyOptions, TIServiceReadOneOptions, TReadByIdOptions } from "../common/service/basicService/IService";
+import ServiceError from "../common/service/basicService/ServiceError";
+import RoomHelperService from "./utils/room.helper.service";
+import { ItemService } from "../item/item.service";
 
 @Injectable()
-@AddBasicService()
-export class RoomService extends BasicServiceDummyAbstract<Room> implements IBasicService<Room> ,IHookImplementer {
-
+export class RoomService {
     public constructor(
         @InjectModel(Room.name) public readonly model: Model<Room>,
-        private readonly requestHelperService: RequestHelperService
-    ) {
-        super();
-        this.refsInModel = [ModelName.PLAYER, ModelName.ITEM, ModelName.SOULHOME];
-        this.modelName = ModelName.ROOM;
+        private readonly roomHelper: RoomHelperService,
+        private readonly itemService: ItemService
+    ){
+        this.refsInModel = [ModelName.ITEM, ModelName.SOULHOME];
+        this.basicService = new BasicService(model);
     }
+
     public readonly refsInModel: ModelName[];
-    public readonly modelName: ModelName;
+    private readonly basicService: BasicService;
 
-    public async handleUpdate(@Body() body: UpdateRoomDto) {
-        if (!body.roomItemsToAdd && !body.roomItemsToRemove) {
-            return this.updateOneById(body);
-        }
-
-        const roomToUpdate = await this.readOneById(body._id);
-
-        if (!roomToUpdate || roomToUpdate instanceof MongooseError)
-            throw new NotFoundException('Room with that _id not found');
-
-        body["roomItems"] = roomToUpdate.data[roomToUpdate.metaData.dataKey].roomItems;
-
-        if (body.roomItemsToRemove)
-            body["roomItems"] =  deleteArrayElements(body["roomItems"], body.roomItemsToRemove);
-
-        const roomItems = body["roomItems"];
-
-        if(!body.roomItemsToAdd) 
-            return this.updateOneById(body);
-
-        body.roomItemsToAdd.forEach((o,i) => {
-            roomItems.push(o);
-        });
-
-        body["roomItems"] = roomItems;
-        
-        return this.updateOneById(body);
-
+    /**
+     * Creates a new Room in DB.
+     * 
+     * @param room - The Room data to create.
+     * @returns  created Room or an array of service errors if any occurred.
+    */
+    async createOne(room: CreateRoomDto) {
+        return this.basicService.createOne<CreateRoomDto, RoomDto>(room);
     }
 
-    public deleteOnePostHook: PostHookFunction = async (input: any, oldDoc: Partial<Room>, output: Partial<Room>): Promise<boolean> => { 
-        if(!oldDoc.soulHome_id)
-            return true;
-
-        const soulHome = await this.requestHelperService.getModelInstanceById(ModelName.SOULHOME,oldDoc.soulHome_id,SoulHome);
-        const id = [oldDoc._id.toString()] // hack for delete;
-        let newRoom = deleteArrayElements(soulHome.rooms,id);
-        await this.requestHelperService.updateOneById(ModelName.SOULHOME,oldDoc.soulHome_id,{rooms: newRoom})
-        return true;
+    /**
+     * Creates multiple Rooms in DB.
+     * 
+     * @param rooms - The Rooms data to create.
+     * @returns  created Rooms or an array of service errors if any occurred.
+    */
+    async createMany(rooms: CreateRoomDto[]) {
+        return this.basicService.createMany<CreateRoomDto, RoomDto>(rooms);
     }
 
-    public clearCollectionReferences: ClearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
-        
+    /**
+     * Reads a Room by its _id in DB.
+     * 
+     * @param _id - The Mongo _id of the Room to read.
+     * @param options - Options for reading the Room.
+     * @returns Room with the given _id on succeed or an array of ServiceErrors if any occurred.
+    */
+    async readOneById(_id: string, options?: TReadByIdOptions) {
+        const optionsToApply = options;
+        if(options?.includeRefs)
+            optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
+
+        return this.basicService.readOneById<RoomDto>(_id, optionsToApply);
+    }
+
+    /**
+     * Reads a Room by its _id and player_id if the specified Player belongs to the same Clan as the Room's SoulHome
+     * 
+     * @param _id - The Mongo _id of the Room to read.
+     * @param player_id - The Mongo _id of the Player
+     * @param options - Options for reading the Room.
+     * @returns _Room_ object or array with _ServiceError_ with reason NOT_FOUND if the Player does not belong to the same Clan as the Room's SoulHome
+    */
+    async readOneByIdAndPlayerId(_id: string, player_id: string, options?: TIServiceReadOneOptions): Promise<[RoomDto | null, ServiceError[] | null]> {
+        const [soulHome, errors] = await this.roomHelper.getPlayerSoulHome(player_id);
+        if(errors || !soulHome)
+            return [null, errors];
+
+        const soulHome_id = soulHome._id;
+
+        const optionsToApply = options ?? { filter: {}, includeRefs: undefined };
+        if(optionsToApply.includeRefs)
+            optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
+
+        optionsToApply.filter = {...optionsToApply.filter, _id, soulHome_id};
+
+        return this.basicService.readOne<RoomDto>(optionsToApply);
+    }
+
+    /**
+     * Reads all Rooms of the Clan's SoulHome the Player belongs to.
+     * 
+     * @param player_id - Mongo _id of the Player.
+     * @param options - Options for reading Rooms.
+     * @returns An array of Rooms if succeeded or an array of ServiceErrors if error occurred.
+    */
+    async readPlayerClanRooms(player_id: string, options?: TIServiceReadManyOptions): Promise<[RoomDto[] | null, ServiceError[] | null]> {
+        const [soulHome, errors] = await this.roomHelper.getPlayerSoulHome(player_id);
+        if(errors || !soulHome)
+            return [null, errors]
+
+        const soulHome_id = soulHome._id;
+
+        const optionsToApply = options;
+        if(options?.includeRefs)
+            optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
+
+        optionsToApply.filter = {...optionsToApply.filter, soulHome_id};
+
+        return this.basicService.readMany<RoomDto>(optionsToApply);
+    }
+
+    /**
+     * Updates a Room by its _id in DB. The _id field is read-only and must be found from the parameter
+     * 
+     * @param room - The data needs to be updated for the Room.
+     * @returns _true_ if Room was updated successfully, _false_ if nothing was updated for the Room, 
+     * or a ServiceError array if Room was not found or something else went wrong.
+    */
+    async updateOneById(room: UpdateRoomDto) {
+        const {_id, ...fieldsToUpdate} = room;
+        return this.basicService.updateOneById(_id, fieldsToUpdate);
+    }
+
+    /**
+     * Deletes a Room by its _id from DB.
+     * 
+     * Notice that the method also removes all Items inside the Room
+     *
+     * @param _id - The Mongo _id of the Room to delete.
+     * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
+    */
+    async deleteOneById(_id: string) {
+        await this.itemService.deleteAllRoomItems(_id);
+        return this.basicService.deleteOneById(_id);
+    }
+
+    /**
+     * Deletes all Rooms associated with a SoulHome by its _id from DB.
+     * 
+     * Notice that the method also removes all Items inside these Rooms
+     *
+     * @param _id - The Mongo _id of the Room to delete.
+     * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
+    */
+    async deleteAllSoulHomeRooms(soulHome_id: string): Promise<[true | null, ServiceError[] | null]> {
+        const [soulHomeRooms, errors] = await this.basicService.readMany<RoomDto>({filter: { soulHome_id }});
+        if(errors || !soulHomeRooms)
+            return [null, errors];
+
+        for(let i=0, l=soulHomeRooms.length; i<l; i++)
+            await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id);
+
+        return this.basicService.deleteMany({filter: { soulHome_id }});
+    }
+
+    /**
+     * Activates specified rooms.
+     *
+     * The method sets `deactivationTimestamp` field to current + specified duration.
+     * @param room_ids rooms to update
+     * @param durationS how long in seconds room should remain active
+     */
+    async activateRoomsByIds(room_ids: string[], durationS: number){
+        const deactivationTimestamp = Date.now() + durationS*1000;
+        const updateObject = { deactivationTimestamp };
+
+        for(let i=0, l=room_ids.length; i<l; i++)
+            await this.basicService.updateOneById(room_ids[i], updateObject);
     }
 }

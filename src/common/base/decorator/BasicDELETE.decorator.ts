@@ -3,6 +3,9 @@ import {ThrowResponseErrorIfFound} from "../../decorator/response/ThrowResponseE
 import {ResponseType} from "../../decorator/response/responseType";
 import {ModelName} from "../../enum/modelName.enum";
 
+/**
+ * @deprecated 
+ */
 export function BasicDELETE(modelName: ModelName) {
     return applyDecorators(
         HttpCode(204),

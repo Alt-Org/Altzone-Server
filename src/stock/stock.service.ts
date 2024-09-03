@@ -1,64 +1,112 @@
 import {Injectable} from "@nestjs/common";
-import {Model, Types} from "mongoose";
+import {Model} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
-import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {IBasicService} from "../common/base/interface/IBasicService";
-import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Stock} from "./stock.schema";
-import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
-import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
-import {IHookImplementer, PostCreateHookFunction, PostHookFunction} from "../common/interface/IHookImplementer";
 import {CreateStockDto} from "./dto/createStock.dto";
 import {UpdateStockDto} from "./dto/updateStock.dto";
+import {StockDto} from "./dto/stock.dto";
+import { ItemService } from "../item/item.service";
+import ServiceError from "../common/service/basicService/ServiceError";
+import BasicService from "../common/service/basicService/BasicService";
+import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 
 @Injectable()
-@AddBasicService()
-export class StockService extends BasicServiceDummyAbstract<Stock> implements IBasicService<Stock>, IHookImplementer{
+export class StockService {
     public constructor(
         @InjectModel(Stock.name) public readonly model: Model<Stock>,
-        private readonly requestHelperService: RequestHelperService
+        private readonly itemService: ItemService
     ){
-        super();
         this.refsInModel = [ModelName.CLAN, ModelName.ITEM];
         this.modelName = ModelName.STOCK;
+        this.basicService = new BasicService(model);
     }
 
     public readonly refsInModel: ModelName[];
     public readonly modelName: ModelName;
+    public readonly basicService: BasicService;
 
-    public createOnePostHook: PostCreateHookFunction = async (input: CreateStockDto, output: Stock): Promise<boolean> => {
-        if(!input?.clan_id)
-            return true;
-
-        const isRaidRoomCountIncreased = await this.requestHelperService.changeCounterValue(ModelName.CLAN, {_id: input.clan_id}, 'stockCount', 1);
-        return isRaidRoomCountIncreased;
+    /**
+      * Creates a new Stock in DB.
+      * 
+      * @param stock - The Stock data to create.
+      * @returns created Stock or an array of service errors if any occurred.
+    */
+    async createOne(stock: CreateStockDto) {
+        return this.basicService.createOne<CreateStockDto, StockDto>(stock);
     }
 
-    public updateOnePostHook: PostHookFunction = async (input: Partial<UpdateStockDto>, oldDoc: Stock, output: Stock): Promise<boolean> => {
-        if(!input?.clan_id)
-            return true;
+    /**
+      * Reads a Stock by its _id in DB.
+      * 
+      * @param _id - The Mongo _id of the Stock to read.
+      * @param options - Options for reading the Stock.
+      * @returns Stock with the given _id on succeed or an array of ServiceErrors if any occurred.
+    */
+    async readOneById(_id: string, options?: TReadByIdOptions) {
+        let optionsToApply = options;
+        if(options?.includeRefs)
+            optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
+        return this.basicService.readOneById<StockDto>(_id, optionsToApply);
+     }
+ 
+    /**
+      * Reads Stocks by specified options from DB.
+      * 
+      * @param options - Options for reading CharacterClasses.
+      * @returns An array of Stocks if succeed or an array of ServiceErrors if any occurred.
+     */
+     async readAll(options?: TIServiceReadManyOptions) {
+         let optionsToApply = options;
+         if(options?.includeRefs)
+             optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
+ 
+         return this.basicService.readMany<StockDto>(optionsToApply);
+     }
 
-        const changeCounterValue = this.requestHelperService.changeCounterValue;
+    /**
+      * Updates a Stock cellCount field by the specified amount.
+      * 
+      * @param _id - The Mongo _id of the Stock to be updated
+      * @param cellCountChange - the amount the cellCount field will be updated on. It can be ever negative or positive number.
+      * @returns _true_ if Stock was updated successfully, _false_ if nothing was updated for the Stock, 
+      * or a ServiceError array if Stock was not found or something else went wrong.
+    */
+    public updateStockCellCount = async (_id: string, cellCountChange: number): Promise<[boolean | null, ServiceError[] | null]> => {
+        const [stock, errors] = await this.basicService.readOneById<StockDto>(_id);
+        if(errors || !stock)
+            return [null, errors];
 
-        const clanRemoveFrom_id = oldDoc.clan_id;
-        if(clanRemoveFrom_id)
-            await changeCounterValue(ModelName.CLAN, {_id: clanRemoveFrom_id}, 'stockCount', -1);
+        const { cellCount } = stock;
 
-        const isRaidRoomCountIncreased = await changeCounterValue(ModelName.CLAN, {_id: input.clan_id}, 'stockCount', 1);
-        return isRaidRoomCountIncreased;
+        const requestedCellCount = cellCount + cellCountChange;
+        const newCellCount = requestedCellCount < 0 ? 0 : requestedCellCount;
+
+        return this.basicService.updateOneById(_id, { cellCount: newCellCount });
     }
 
-    public deleteOnePostHook: PostHookFunction = async (input: any, oldDoc: Stock, output: Stock): Promise<boolean> => {
-        const clan_id = oldDoc.clan_id;
-
-        if(!clan_id)
-            return true;
-
-        const isRaidRoomCountIncreased = await this.requestHelperService.changeCounterValue(ModelName.CLAN, {_id: clan_id}, 'stockCount', -1);
-        return isRaidRoomCountIncreased;
+    /**
+      * Updates a Stock by its _id in DB. The _id field is read-only and must be found from the parameter
+      * 
+      * @param Stock - The data needs to be updated for the Stock.
+      * @returns _true_ if Stock was updated successfully, _false_ if nothing was updated for the Stock, 
+      * or a ServiceError array if Stock was not found or something else went wrong.
+    */
+    async updateOneById(stock: UpdateStockDto) {
+        const {_id, ...fieldsToUpdate} = stock;
+        return this.basicService.updateOneById(_id, fieldsToUpdate);
     }
 
-    public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
+    /**
+      * Deletes a Stock its _id from DB.
+      *
+      * Notice that the method will also delete all Items inside of the Stock.
+      * 
+      * @param _id - The Mongo _id of the Stock to delete.
+      * @returns _true_ if Stock was removed successfully, or a ServiceError array if the Stock was not found or something else went wrong
+    */
+    async deleteOneById(_id: string) {
+        await this.itemService.deleteAllStockItems(_id);
+        return this.basicService.deleteOneById(_id);
     }
 }

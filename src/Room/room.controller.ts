@@ -1,47 +1,39 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Put } from "@nestjs/common";
 import { RoomService } from "./room.service";
-import { RequestHelperService } from "src/requestHelper/requestHelper.service";
-import { BasicPOST } from "src/common/base/decorator/BasicPOST.decorator";
-import { CreateRoomDto } from "./dto/createRoom.dto";
-import { NoAuth } from "src/auth/decorator/NoAuth.decorator";
-import { RoomDocument } from "./room.schema";
 import { RoomDto } from "./dto/room.dto";
-import { BasicGET } from "src/common/base/decorator/BasicGET.decorator";
-import { ModelName } from "src/common/enum/modelName.enum";
-import { _idDto } from "src/common/dto/_id.dto";
-import { AddGetQueries } from "src/common/decorator/request/AddGetQueries.decorator";
-import { OffsetPaginate } from "src/common/interceptor/request/offsetPagination.interceptor";
-import { AddSearchQuery } from "src/common/interceptor/request/addSearchQuery.interceptor";
-import { AddSortQuery } from "src/common/interceptor/request/addSortQuery.interceptor";
-import { GetAllQuery } from "src/common/decorator/param/GetAllQuery";
-import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
+import { ModelName } from "../common/enum/modelName.enum";
+import { _idDto } from "../common/dto/_id.dto";
+import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
+import { AddSearchQuery } from "../common/interceptor/request/addSearchQuery.interceptor";
+import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
+import { GetAllQuery } from "../common/decorator/param/GetAllQuery";
+import { IGetAllQuery } from "../common/interface/IGetAllQuery";
 import { UpdateRoomDto } from "./dto/updateRoom.dto";
-import { BasicPUT } from "src/common/base/decorator/BasicPUT.decorator";
-import { BasicDELETE } from "src/common/base/decorator/BasicDELETE.decorator";
-import { Authorize } from "src/authorization/decorator/Authorize";
-import { Action } from "src/authorization/enum/action.enum";
+import { Authorize } from "../authorization/decorator/Authorize";
+import { Action } from "../authorization/enum/action.enum";
+import { UniformResponse } from "../common/decorator/response/UniformResponse";
+import { ActivateRoomDto } from "./dto/ActivateRoom.dto";
+import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
+import { User } from "../auth/user";
+import RoomHelperService from "./utils/room.helper.service";
+import { APIError } from "../common/controller/APIError";
+import { APIErrorReason } from "../common/controller/APIErrorReason";
+import { IncludeQuery } from "../common/decorator/param/IncludeQuery.decorator";
+import { publicReferences } from "./room.schema";
 
-@Controller('Room')
+@Controller('room')
 export class RoomController {
     public constructor(
         private readonly service: RoomService,
-        private readonly requestHelperService: RequestHelperService
+        private readonly roomHelperService: RoomHelperService
     ) {
-    }
-
-    @Post()
-    @Authorize({action: Action.create, subject: RoomDto})
-    @BasicPOST(CreateRoomDto)
-    public async create(@Body() body: CreateRoomDto, @Req() request: Request) {
-        return  this.service.createOne(body);
     }
 
     @Get('/:_id')
     @Authorize({action: Action.read, subject: RoomDto})
-    @BasicGET(ModelName.ROOM, RoomDto)
-    @AddGetQueries()
-    public async get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id, request['mongoPopulate']);
+    @UniformResponse(ModelName.ROOM)
+    public async get(@Param() param: _idDto, @LoggedUser() user: User, @IncludeQuery(publicReferences) includeRefs: ModelName[]) {
+        return this.service.readOneByIdAndPlayerId(param._id, user.player_id, {filter: undefined, includeRefs});
     }
 
     @Get()
@@ -49,23 +41,40 @@ export class RoomController {
     @OffsetPaginate(ModelName.ROOM)
     @AddSearchQuery(RoomDto)
     @AddSortQuery(RoomDto)
-    @BasicGET(ModelName.ROOM, RoomDto)
-    public async getAll(@GetAllQuery() query: IGetAllQuery) {
-        return this.service.readAll(query);
+    @UniformResponse(ModelName.ROOM)
+    public async getAll(@GetAllQuery() query: IGetAllQuery, @LoggedUser() user: User) {
+        return this.service.readPlayerClanRooms(user.player_id, query);
     }
 
     @Put()
     @Authorize({action: Action.update, subject: UpdateRoomDto })
-    @BasicPUT(ModelName.ROOM)
+    @UniformResponse()
     public async update(@Body() body: UpdateRoomDto) {
-        return this.service.handleUpdate(body);
-    }
-    
-    @Delete('/:_id')
-    @Authorize({action: Action.delete, subject: UpdateRoomDto})
-    @BasicDELETE(ModelName.ROOM)
-    public delete(@Param() param: _idDto) {
-        return this.service.deleteOneById(param._id);
+        const [resp, errors] = await this.service.updateOneById(body);
+        if(errors)
+            return [null, errors];
     }
 
+    @Post('/activate')
+    @UniformResponse(ModelName.ROOM)
+    public async activate(@Body() body: ActivateRoomDto, @LoggedUser() user: User) {
+        const { room_ids, durationS } = body;
+
+        const [rooms, errors] = await this.roomHelperService.getPlayerRooms(user.player_id);
+        if(errors || !rooms)
+            return [null, errors];
+
+        const userRoomIds = rooms.map(room => room?._id?.toString());
+        const allowedRooms = room_ids.filter(_id => userRoomIds.includes(_id));
+
+        if(allowedRooms.length === 0)
+            return [null, [new APIError({
+                reason: APIErrorReason.NOT_FOUND,
+                message: 'Could not find any of the specified rooms',
+                field: 'room_ids',
+                value: room_ids
+            })]];
+
+        this.service.activateRoomsByIds(allowedRooms, durationS ?? 21600); //6h is default
+    }
 }

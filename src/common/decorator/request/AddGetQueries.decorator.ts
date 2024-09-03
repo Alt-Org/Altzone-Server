@@ -1,12 +1,15 @@
 import {Discriminator} from "../../enum/discriminator.enum";
-import { ModelName } from "src/common/enum/modelName.enum";
+import { ModelName } from "../../../common/enum/modelName.enum";
 
 /**
  * Add "with" and "all" queries to the endpoint.
  *
  * This basically means, that if these queries are specified, the decorator will add "mongoPopulate"-field to a request object
  *
- * Notice that for this decorator to work the second argument of the controller method must be the request object
+ * Notice that for this decorator to work the second argument of the controller method must be the request object.
+ *
+ * @deprecated Notice that it can be used only in old type of controllers, which are using @AddBasicService() 
+ *
  * @returns 
  */
 export const AddGetQueries = () => {

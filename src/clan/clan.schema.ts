@@ -45,5 +45,14 @@ ClanSchema.virtual(ModelName.PLAYER, {
 ClanSchema.virtual(ModelName.STOCK, {
     ref: ModelName.STOCK,
     localField: '_id',
-    foreignField: 'clan_id'
+    foreignField: 'clan_id',
+    justOne: true
 });
+ClanSchema.virtual(ModelName.SOULHOME, {
+    ref: ModelName.SOULHOME,
+    localField: '_id',
+    foreignField: 'clan_id',
+    justOne: true
+});
+
+export const publicReferences = [ ModelName.PLAYER, ModelName.STOCK, ModelName.SOULHOME ];

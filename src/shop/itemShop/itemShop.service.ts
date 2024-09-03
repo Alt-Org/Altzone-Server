@@ -1,18 +1,18 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
-import { BasicServiceDummyAbstract } from "src/common/base/abstract/basicServiceDummy.abstract";
-import { AddBasicService, ClearCollectionReferences } from "src/common/base/decorator/AddBasicService.decorator";
+import { BasicServiceDummyAbstract } from "../../common/base/abstract/basicServiceDummy.abstract";
+import { AddBasicService, ClearCollectionReferences } from "../../common/base/decorator/AddBasicService.decorator";
 import { ItemShop, ItemShopDocument, ShopItem } from "./itemShop.schema";
-import { IBasicService } from "src/common/base/interface/IBasicService";
+import { IBasicService } from "../../common/base/interface/IBasicService";
 import { Document, Model, MongooseError, Types } from "mongoose";
-import { IgnoreReferencesType } from "src/common/type/ignoreReferences.type";
-import { RequestHelperService } from "src/requestHelper/requestHelper.service";
+import { IgnoreReferencesType } from "../../common/type/ignoreReferences.type";
+import { RequestHelperService } from "../../requestHelper/requestHelper.service";
 import { InjectModel } from "@nestjs/mongoose";
-import { ModelName } from "src/common/enum/modelName.enum";
-import { IHookImplementer, PostReadAllHookFunction, PostReadOneHookFunction } from "src/common/interface/IHookImplementer";
-import { getTimeSince, passed } from "src/common/function/timeUtils";
-import { ItemService } from "src/item/item.service";
-import { getDefaultItemsNotInStock } from "src/clan/defaultValues/items";
-import { CreateItemDto } from "src/item/dto/createItem.dto";
+import { ModelName } from "../../common/enum/modelName.enum";
+import { IHookImplementer, PostReadAllHookFunction, PostReadOneHookFunction } from "../../common/interface/IHookImplementer";
+import { getTimeSince, passed } from "../../common/function/timeUtils";
+import { ItemService } from "../../item/item.service";
+import { getDefaultItemsNotInStock } from "../../clan/defaultValues/items";
+import { CreateItemDto } from "../../item/dto/createItem.dto";
 import { CreateShopItemDTO } from "./dto/createShopItem.dto";
 import { CreateShopDto } from "./dto/createItemshop.dto";
 import { ShopItemDTO } from "./dto/shopItem.dto";
@@ -55,31 +55,32 @@ export class ItemShopService extends BasicServiceDummyAbstract<ItemShop> impleme
     private restock = async (shop: ItemShop) => {
         await this.requestHelperService.updateOneById(ModelName.ITEMSHOP, shop._id, { lastRestock: Date.now() });
         const items: CreateItemDto[] = getDefaultItemsNotInStock();
-        const itemResp = await this.itemService.createManyWithResponse(items)
-        if (itemResp instanceof MongooseError) throw new InternalServerErrorException("Could not create items");
-        const shopDocument = await this.getShopOrThrowNotFoundError(shop._id);
-        const tempArray = [];
-        shopDocument.items.forEach(e => {
-            if (e.isInVoting) {
-                tempArray.push(e);
-            } else if(!e.isSold){
-                this.itemService.deleteOneById(e.item_id);
-            }
-        });
-        shopDocument.items = tempArray;
-        itemResp.forEach(p => {
-            let item: CreateShopItemDTO = {
-                item_id: p._id.toString(),
-                isInVoting: false,
-                isSold: false,
-                vote_id:undefined
-            };
-            shopDocument.items.push(item);
-        });
-        shopDocument.markModified("items");
-        const resp = await shopDocument.save();
-        if (!resp || !(resp instanceof Document))
-            throw new InternalServerErrorException('Could not save the message');
+        // const itemResp = await this.itemService.createManyWithResponse(items)
+        // if (itemResp instanceof MongooseError) 
+        //     throw new InternalServerErrorException("Could not create items");
+        // const shopDocument = await this.getShopOrThrowNotFoundError(shop._id);
+        // const tempArray = [];
+        // shopDocument.items.forEach(e => {
+        //     if (e.isInVoting) {
+        //         tempArray.push(e);
+        //     } else if(!e.isSold){
+        //         this.itemService.deleteOneById(e.item_id);
+        //     }
+        // });
+        // shopDocument.items = tempArray;
+        // itemResp.forEach(p => {
+        //     let item: CreateShopItemDTO = {
+        //         item_id: p._id.toString(),
+        //         isInVoting: false,
+        //         isSold: false,
+        //         vote_id:undefined
+        //     };
+        //     shopDocument.items.push(item);
+        // });
+        // shopDocument.markModified("items");
+        // const resp = await shopDocument.save();
+        // if (!resp || !(resp instanceof Document))
+        //     throw new InternalServerErrorException('Could not save the message');
 
     }
     public clearCollectionReferences: ClearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {

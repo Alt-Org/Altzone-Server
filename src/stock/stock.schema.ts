@@ -3,20 +3,13 @@ import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Clan} from "../clan/clan.schema";
 import {ExtractField} from "../common/decorator/response/ExtractField";
-import { ItemShop } from 'src/shop/itemShop/itemShop.schema';
 
 export type StockDocument = HydratedDocument<Stock>;
 
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true }})
 export class Stock {
     @Prop({ type: Number, required: true })
-    type: number;
-
-    @Prop({ type: Number, required: true })
-    rowCount: number;
-
-    @Prop({ type: Number, required: true })
-    columnCount: number;
+    cellCount: number;
 
     @Prop({ type: MongooseSchema.Types.ObjectId, required: true, ref: ModelName.CLAN })
     clan_id: Clan;
@@ -37,3 +30,5 @@ StockSchema.virtual(ModelName.ITEM, {
     localField: '_id',
     foreignField: 'stock_id'
 });
+
+export const publicReferences = [ModelName.CLAN, ModelName.ITEM];

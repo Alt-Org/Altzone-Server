@@ -43,3 +43,7 @@ CharacterClassSchema.virtual(ModelName.CUSTOM_CHARACTER, {
     //Other collection ref field
     foreignField: 'characterClass_id',
 });
+
+//Add collection references, which are public, this is used with mongoose populate parameter.
+//Usually all collection references are meant to be public
+export const publicReferences = [ ModelName.CUSTOM_CHARACTER ];

@@ -18,7 +18,7 @@ import {OffsetPaginate} from "../common/interceptor/request/offsetPagination.int
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
-import {AddSortQuery} from "src/common/interceptor/request/addSortQuery.interceptor";
+import {AddSortQuery} from "../common/interceptor/request/addSortQuery.interceptor";
 
 @Controller('player')
 export default class PlayerController{

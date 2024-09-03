@@ -4,7 +4,7 @@ import {ModelName} from "../../enum/modelName.enum";
 import {IBasicService} from "../interface/IBasicService";
 import {DeleteOptionsType} from "../type/deleteOptions.type";
 import {Discriminator} from "../../enum/discriminator.enum";
-import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
+import { IGetAllQuery } from "../../../common/interface/IGetAllQuery";
 import {IResponseShape} from "../../interface/IResponseShape";
 import {PostCreateHookFunction, PostHookFunction, PostReadAllHookFunction, PostReadOneHookFunction} from "../../interface/IHookImplementer";
 

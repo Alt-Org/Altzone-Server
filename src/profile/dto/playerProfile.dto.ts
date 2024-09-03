@@ -1,4 +1,4 @@
-import AddType from "src/common/base/decorator/AddType.decorator";
+import AddType from "../../common/base/decorator/AddType.decorator";
 import {CreatePlayerDto} from "../../player/dto/createPlayer.dto";
 import {IsProfileExists} from "../decorator/validation/IsProfileExists.decorator";
 import {IsMongoId, IsOptional} from "class-validator";

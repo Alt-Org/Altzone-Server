@@ -5,6 +5,8 @@ import {useContainer, ValidationError} from "class-validator";
 import { SwaggerModule } from '@nestjs/swagger';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
+import { APIError } from './common/controller/APIError';
+import { validationToAPIErrors } from './common/exceptionFilter/ValidationExceptionFilter';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -45,17 +47,25 @@ async function bootstrap() {
 bootstrap();
 
 /**
- * Converts thrown validation errors to Nest BadRequestException with additional errors array used in ValidationExceptionFilter
- * @param errors 
+ * Converts thrown validation errors to Nest BadRequestException 
+ * with a field `errors` containing converted ValidationErrors to APIErrors
+ * @param validationErrors thrown errors
  * @returns 
  */
-function errorFactory(errors: ValidationError[]) {
-    const messages = extractMessagesFromValidationErrors(errors);
+function errorFactory(validationErrors: ValidationError[]) {
+    const messages = extractMessagesFromValidationErrors(validationErrors);
+
+    const apiErrors: APIError[] = [];
+    for(let i=0, l=validationErrors.length; i<l; i++){
+        const errors = validationToAPIErrors(validationErrors[i]);
+        apiErrors.push(...errors);
+    }
+
     const err = new BadRequestException({
         statusCode: 400,
         message: messages,
         error: "Bad Request",
-        errors: errors
+        errors: apiErrors
     });
 
     return err;

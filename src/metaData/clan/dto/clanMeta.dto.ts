@@ -1,5 +1,5 @@
 import {Expose} from "class-transformer";
-import { ExtractField } from "src/common/decorator/response/ExtractField";
+import { ExtractField } from "../../../common/decorator/response/ExtractField";
 
 export class ClanMetaDto {
     @ExtractField()

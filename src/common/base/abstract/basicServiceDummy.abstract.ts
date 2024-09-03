@@ -4,10 +4,13 @@ import {ThrowNotImplementedMethod} from "../decorator/ThrowNotImplementedMethod.
 import {DeleteOptionsType} from "../type/deleteOptions.type";
 import {IgnoreReferencesType} from "../../type/ignoreReferences.type";
 import {Discriminator} from "../../enum/discriminator.enum";
-import { ModelName } from "src/common/enum/modelName.enum";
-import { IGetAllQuery } from "src/common/interface/IGetAllQuery";
+import { ModelName } from "../../../common/enum/modelName.enum";
+import { IGetAllQuery } from "../../../common/interface/IGetAllQuery";
 import {IResponseShape} from "../../interface/IResponseShape";
 
+/**
+ * @deprecated 
+ */
 export abstract class BasicServiceDummyAbstract<T=object> implements IBasicService<T>{
     protected constructor() {}
     public readonly discriminators = [Discriminator.IBasicService];

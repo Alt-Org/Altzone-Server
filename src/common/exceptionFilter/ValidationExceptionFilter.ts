@@ -6,9 +6,15 @@ import {
 } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 import { Response } from 'express';
-import { APIError } from 'src/common/controller/APIError';
-import { APIErrorReason } from 'src/common/controller/APIErrorReason';
+import { APIError } from '../controller/APIError';
+import { APIErrorReason } from '../controller/APIErrorReason';
   
+/**
+ * Error filter to handle ValidationErrors thrown by class-validator module.
+ *
+ * Filter will convert ValidationError(s) to appropriate APIError(s) 
+ * as well as send an array with occurred APIError(s) to the client side
+ */
 @Catch(BadRequestException)
 export class ValidationExceptionFilter implements ExceptionFilter {
 	catch(exception: BadRequestException, host: ArgumentsHost) {
@@ -31,7 +37,10 @@ export class ValidationExceptionFilter implements ExceptionFilter {
 	}
 }
 
-function validationToAPIErrors(error: ValidationError): APIError[] {
+export function validationToAPIErrors(error: ValidationError): APIError[] {
+	if(error instanceof APIError)
+		return [error];
+
 	const { property, value, constraints } = error;
 
 	const errors: APIError[] = [];

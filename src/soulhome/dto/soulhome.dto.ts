@@ -1,6 +1,8 @@
-import { Expose } from "class-transformer";
-import AddType from "src/common/base/decorator/AddType.decorator";
-import { ExtractField } from "src/common/decorator/response/ExtractField";
+import { Expose, Type } from "class-transformer";
+import AddType from "../../common/base/decorator/AddType.decorator";
+import { ExtractField } from "../../common/decorator/response/ExtractField";
+import { RoomDto } from "../../room/dto/room.dto";
+import { ClanDto } from "../../clan/dto/clan.dto";
 
 @AddType('SoulHomeDto')
 export class SoulHomeDto {
@@ -9,12 +11,16 @@ export class SoulHomeDto {
     _id: string;
     
     @Expose()
-    type:string;
+    name: string;
 
     @Expose()
-    clan_id:string;
-    
-    @Expose()
-    rooms:Array<string>;
+    clan_id: string;
 
+    @Type(() => RoomDto)
+    @Expose()
+    Room: RoomDto[];
+
+    @Type(() => ClanDto)
+    @Expose()
+    Clan: ClanDto;
 }
