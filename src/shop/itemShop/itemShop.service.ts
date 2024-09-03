@@ -55,31 +55,32 @@ export class ItemShopService extends BasicServiceDummyAbstract<ItemShop> impleme
     private restock = async (shop: ItemShop) => {
         await this.requestHelperService.updateOneById(ModelName.ITEMSHOP, shop._id, { lastRestock: Date.now() });
         const items: CreateItemDto[] = getDefaultItemsNotInStock();
-        const itemResp = await this.itemService.createManyWithResponse(items)
-        if (itemResp instanceof MongooseError) throw new InternalServerErrorException("Could not create items");
-        const shopDocument = await this.getShopOrThrowNotFoundError(shop._id);
-        const tempArray = [];
-        shopDocument.items.forEach(e => {
-            if (e.isInVoting) {
-                tempArray.push(e);
-            } else if(!e.isSold){
-                this.itemService.deleteOneById(e.item_id);
-            }
-        });
-        shopDocument.items = tempArray;
-        itemResp.forEach(p => {
-            let item: CreateShopItemDTO = {
-                item_id: p._id.toString(),
-                isInVoting: false,
-                isSold: false,
-                vote_id:undefined
-            };
-            shopDocument.items.push(item);
-        });
-        shopDocument.markModified("items");
-        const resp = await shopDocument.save();
-        if (!resp || !(resp instanceof Document))
-            throw new InternalServerErrorException('Could not save the message');
+        // const itemResp = await this.itemService.createManyWithResponse(items)
+        // if (itemResp instanceof MongooseError) 
+        //     throw new InternalServerErrorException("Could not create items");
+        // const shopDocument = await this.getShopOrThrowNotFoundError(shop._id);
+        // const tempArray = [];
+        // shopDocument.items.forEach(e => {
+        //     if (e.isInVoting) {
+        //         tempArray.push(e);
+        //     } else if(!e.isSold){
+        //         this.itemService.deleteOneById(e.item_id);
+        //     }
+        // });
+        // shopDocument.items = tempArray;
+        // itemResp.forEach(p => {
+        //     let item: CreateShopItemDTO = {
+        //         item_id: p._id.toString(),
+        //         isInVoting: false,
+        //         isSold: false,
+        //         vote_id:undefined
+        //     };
+        //     shopDocument.items.push(item);
+        // });
+        // shopDocument.markModified("items");
+        // const resp = await shopDocument.save();
+        // if (!resp || !(resp instanceof Document))
+        //     throw new InternalServerErrorException('Could not save the message');
 
     }
     public clearCollectionReferences: ClearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
