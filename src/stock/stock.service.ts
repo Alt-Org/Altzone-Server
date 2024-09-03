@@ -8,9 +8,8 @@ import {UpdateStockDto} from "./dto/updateStock.dto";
 import {StockDto} from "./dto/stock.dto";
 import { TIServiceReadManyOptions, TReadByIdOptions } from "src/common/service/basicService/IService";
 import BasicService from "src/common/service/basicService/BasicService";
-import ServiceError from "src/common/service/basicService/ServiceError";
-import { isServiceError } from "src/common/service/basicService/ServiceError";
 import { ItemService } from "../item/item.service";
+import ServiceError from "../common/service/basicService/ServiceError";
 
 @Injectable()
 export class StockService {
@@ -73,12 +72,10 @@ export class StockService {
       * @returns _true_ if Stock was updated successfully, _false_ if nothing was updated for the Stock, 
       * or a ServiceError array if Stock was not found or something else went wrong.
     */
-    public updateStockCellCount = async (_id: string, cellCountChange: number) => {
-        const dbResp = await this.basicService.readOneById<StockDto>(_id);
-        if(isServiceError(dbResp))
-            return dbResp as ServiceError[];
-
-        const stock = dbResp as unknown as Stock;
+    public updateStockCellCount = async (_id: string, cellCountChange: number): Promise<[boolean | null, ServiceError[] | null]> => {
+        const [stock, errors] = await this.basicService.readOneById<StockDto>(_id);
+        if(errors || !stock)
+            return [null, errors];
 
         const { cellCount } = stock;
 
