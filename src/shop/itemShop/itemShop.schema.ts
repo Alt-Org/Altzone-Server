@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from "mongoose";
-import { ExtractField } from 'src/common/decorator/response/ExtractField';
-import { ModelName } from 'src/common/enum/modelName.enum';
 import { ShopItemDTO } from './dto/shopItem.dto';
+import { ExtractField } from '../../common/decorator/response/ExtractField';
+import { ModelName } from '../../common/enum/modelName.enum';
 
 export type ItemShopDocument = HydratedDocument<ItemShop>;
 

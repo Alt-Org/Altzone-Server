@@ -6,8 +6,8 @@ import {Item} from "./item.schema";
 import {CreateItemDto} from "./dto/createItem.dto";
 import {UpdateItemDto} from "./dto/updateItem.dto";
 import {ItemDto} from "./dto/Item.dto";
-import BasicService from "src/common/service/basicService/BasicService";
-import { TReadByIdOptions } from "src/common/service/basicService/IService";
+import BasicService from "../common/service/basicService/BasicService";
+import { TReadByIdOptions } from "../common/service/basicService/IService";
 
 @Injectable()
 export class ItemService {

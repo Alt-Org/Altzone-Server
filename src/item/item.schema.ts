@@ -3,7 +3,7 @@ import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Stock} from "../stock/stock.schema";
 import {Room} from "../room/room.schema";
-import { Recycling } from "src/item/enum/recycling.enum";
+import { Recycling } from './enum/recycling.enum';
 
 export type ItemDocument = HydratedDocument<Item>;
 

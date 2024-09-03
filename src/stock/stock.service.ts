@@ -6,10 +6,10 @@ import {Stock} from "./stock.schema";
 import {CreateStockDto} from "./dto/createStock.dto";
 import {UpdateStockDto} from "./dto/updateStock.dto";
 import {StockDto} from "./dto/stock.dto";
-import { TIServiceReadManyOptions, TReadByIdOptions } from "src/common/service/basicService/IService";
-import BasicService from "src/common/service/basicService/BasicService";
 import { ItemService } from "../item/item.service";
 import ServiceError from "../common/service/basicService/ServiceError";
+import BasicService from "../common/service/basicService/BasicService";
+import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 
 @Injectable()
 export class StockService {

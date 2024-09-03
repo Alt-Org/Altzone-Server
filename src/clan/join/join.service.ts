@@ -31,7 +31,7 @@ import { SoulHomeDto } from "../../soulhome/dto/soulhome.dto";
 import { IGetAllQuery } from "../../common/interface/IGetAllQuery";
 import { User } from "../../auth/user";
 import { PlayerCounterFactory } from "../clan.counters";
-import ICounter from "src/common/service/counter/ICounter";
+import ICounter from "../../common/service/counter/ICounter";
 
 @Injectable()
 @AddBasicService()

@@ -8,13 +8,13 @@ import {isClanExists} from "./decorator/validation/IsClanExists.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {StockModule} from "../stock/stock.module";
 import {ItemModule} from "../item/item.module";
-import { RoomModule } from 'src/room/room.module';
-import { SoulHomeModule } from 'src/soulhome/soulhome.module';
 import { PlayerCounterFactory } from './clan.counters';
 import { joinSchema } from './join/join.schema';
 import { JoinService } from './join/join.service';
 import ClanHelperService from './utils/clanHelper.service';
 import { PlayerSchema } from '../player/player.schema';
+import { RoomModule } from '../room/room.module';
+import { SoulHomeModule } from '../soulhome/soulhome.module';
 
 @Module({
     imports: [

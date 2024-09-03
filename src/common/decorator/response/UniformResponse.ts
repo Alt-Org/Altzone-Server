@@ -1,8 +1,8 @@
 import {applyDecorators, UseFilters, UseInterceptors} from '@nestjs/common';
-import { ModelName } from 'src/common/enum/modelName.enum';
 import { ValidationExceptionFilter } from '../../exceptionFilter/ValidationExceptionFilter';
 import { FormatAPIResponse } from './FormatAPIResponse';
-import { Send204OnEmptyRes } from 'src/common/interceptor/response/Send204OnEmptyRes';
+import { ModelName } from '../../enum/modelName.enum';
+import { Send204OnEmptyRes } from '../../interceptor/response/Send204OnEmptyRes';
 
 /**
  * Uniform response sent to the client side as follows

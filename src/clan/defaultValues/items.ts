@@ -1,5 +1,5 @@
 import {CreateItemDto} from "../../item/dto/createItem.dto";
-import { Recycling } from "src/item/enum/recycling.enum";
+import { Recycling } from "../../item/enum/recycling.enum";
 
 export const getDefaultItems = (stock_id: string, room_id: string) : CreateItemDto[] => {
     

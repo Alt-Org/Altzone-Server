@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 import { Response } from 'express';
-import { APIError } from 'src/common/controller/APIError';
-import { APIErrorReason } from 'src/common/controller/APIErrorReason';
+import { APIError } from '../controller/APIError';
+import { APIErrorReason } from '../controller/APIErrorReason';
   
 /**
  * Error filter to handle ValidationErrors thrown by class-validator module.

@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import Counter from "src/common/service/counter/Counter";
-import ICounterFactory from "src/common/service/counter/ICounterFactory";
 import { Clan } from "./clan.schema";
+import Counter from "../common/service/counter/Counter";
+import ICounterFactory from "../common/service/counter/ICounterFactory";
 
 @Injectable()
 export class PlayerCounterFactory implements ICounterFactory{
