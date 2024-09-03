@@ -316,7 +316,7 @@ export interface IService {
      * @param options - Options for the request.
      * @returns An array of added objects to the DB with _id fields or a ServiceError array if something went wrong.
      */
-    createMany<TInput=any, TOutput=any>(input: TInput[], options?: TIServiceCreateManyOptions): Promise<IServiceReturn<TOutput>>;
+    createMany<TInput=any, TOutput=any>(input: TInput[], options?: TIServiceCreateManyOptions): Promise<IServiceReturn<TOutput[]>>;
 
     /**
      * Find an object in the DB by its _id field.
@@ -340,7 +340,7 @@ export interface IService {
      * @param options - Options for the request.
      * @returns An array of found objects or a ServiceError array if none were found or something else went wrong.
      */
-    readMany<TOutput=any>(options?: TIServiceReadManyOptions): Promise<IServiceReturn<TOutput>>;
+    readMany<TOutput=any>(options?: TIServiceReadManyOptions): Promise<IServiceReturn<TOutput[]>>;
 
     /**
      * Update an object in the DB by its _id field.
