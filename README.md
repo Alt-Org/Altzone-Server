@@ -3,6 +3,11 @@
 This is a REST API for the Altzone game. For API description see the wiki pages
 
 
+## Releases
+
+- [Release notes 03.09.2024](https://github.com/Alt-Org/Altzone-Server/blob/main/doc/release-notes/release-03-09-24.md)
+
+
 ## Link to the production API
 
 Server is available on https://altzone.fi/api
