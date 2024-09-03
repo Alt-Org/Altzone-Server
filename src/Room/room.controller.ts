@@ -1,4 +1,4 @@
-import { Body, Controller, forwardRef, Get, Inject, Param, Post, Put, Req } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Put, Req } from "@nestjs/common";
 import { RoomService } from "./room.service";
 import { RoomDto } from "./dto/room.dto";
 import { ModelName } from "../common/enum/modelName.enum";
@@ -15,12 +15,9 @@ import { UniformResponse } from "../common/decorator/response/UniformResponse";
 import { ActivateRoomDto } from "./dto/ActivateRoom.dto";
 import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
 import { User } from "../auth/user";
-import { ClanService } from "../clan/clan.service";
 import RoomHelperService from "./utils/room.helper.service";
-import { isServiceError } from "../common/service/basicService/ServiceError";
 import { APIError } from "../common/controller/APIError";
 import { APIErrorReason } from "../common/controller/APIErrorReason";
-import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
 
 @Controller('room')
 export class RoomController {
@@ -59,21 +56,21 @@ export class RoomController {
     public async activate(@Body() body: ActivateRoomDto, @LoggedUser() user: User) {
         const { room_ids, durationS } = body;
 
-        const roomsResp = await this.roomHelperService.getPlayerRooms(user.player_id);
-        if(isServiceError(roomsResp))
-            return roomsResp;
+        const [rooms, errors] = await this.roomHelperService.getPlayerRooms(user.player_id);
+        if(errors || !rooms)
+            return [null, errors];
 
-        const userRoomIds = roomsResp.map(room => room?._id?.toString());
+        const userRoomIds = rooms.map(room => room?._id?.toString());
         const allowedRooms = room_ids.filter(_id => userRoomIds.includes(_id));
 
         if(allowedRooms.length === 0)
-            return [new APIError({
+            return [null, [new APIError({
                 reason: APIErrorReason.NOT_FOUND,
                 message: 'Could not find any of the specified rooms',
                 field: 'room_ids',
                 value: room_ids
-            })];
+            })]];
 
-        return this.service.activateRoomsByIds(allowedRooms, durationS ?? 21600); //6h is default
+        this.service.activateRoomsByIds(allowedRooms, durationS ?? 21600); //6h is default
     }
 }
