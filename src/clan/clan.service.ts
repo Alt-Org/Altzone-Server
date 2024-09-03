@@ -17,7 +17,6 @@ import ClanHelperService from "./utils/clanHelper.service";
 import { SEReason } from "../common/service/basicService/SEReason";
 import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 import { ModelName } from "../common/enum/modelName.enum";
-import { ObjectId } from "mongodb";
 
 @Injectable()
 export class ClanService{
@@ -45,7 +44,7 @@ export class ClanService{
      */
     public async createOne(clanToCreate: CreateClanDto, player_id: string) {
         const clanWithAdmin = {...clanToCreate, admin_ids: [player_id]};
-        const [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>(clanWithAdmin);
+        let [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>(clanWithAdmin);
 
         if(clanErrors || !clan)
             return [null, clanErrors];
@@ -61,6 +60,9 @@ export class ClanService{
         const [soulHome, soulHomeErrors] = await this.clanHelperService.createDefaultSoulHome(clan._id, clan.name);
         if(soulHomeErrors || !soulHome)
             return [null, soulHomeErrors];
+
+        clan.SoulHome = soulHome.SoulHome;
+        clan.Stock = stock.Stock;
 
         return clan;
     }
