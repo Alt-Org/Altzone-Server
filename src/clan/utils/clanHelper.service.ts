@@ -2,14 +2,14 @@ import { Injectable } from "@nestjs/common";
 import { StockService } from "../../stock/stock.service";
 import { SoulHomeService } from "../../soulhome/soulhome.service";
 import { ItemService } from "../../item/item.service";
-import ServiceError, { isServiceError } from "../../common/service/basicService/ServiceError";
-import { StockDto } from "../../stock/dto/stock.dto";
 import { getStockDefaultItems, getRoomDefaultItems } from "./defaultValues/items";
 import { RoomService } from "../../room/room.service";
-import { SoulHomeDto } from "../../soulhome/dto/soulhome.dto";
 import { CreateRoomDto } from "../../room/dto/createRoom.dto";
-import { RoomDto } from "../../room/dto/room.dto";
+import { StockDto } from "../../stock/dto/stock.dto";
 import { ItemDto } from "../../item/dto/item.dto";
+import ServiceError from "../../common/service/basicService/ServiceError";
+import { SoulHomeDto } from "../../soulhome/dto/soulhome.dto";
+import { RoomDto } from "../../room/dto/room.dto";
 
 @Injectable()
 export default class ClanHelperService {
@@ -31,24 +31,19 @@ export default class ClanHelperService {
      *
      * @returns created _Stock_ and its _items_, or array of ServiceErrors if something went wrong 
      */
-    async createDefaultStock(clan_id: string){
-        const stockResp = await this.stockService.createOne({cellCount: 20, clan_id});
+    async createDefaultStock(clan_id: string): Promise<[{Stock: StockDto, Item: ItemDto[]} | null, ServiceError[] | null]>{
+        const [stock, stockErrors] = await this.stockService.createOne({cellCount: 20, clan_id});
+        if(stockErrors || !stock)
+            return [null, stockErrors];
 
-        if(isServiceError(stockResp))
-            return stockResp as ServiceError[];
+        const [items, itemsErrors] = await this.itemService.createMany(getStockDefaultItems(stock._id));
+        if(itemsErrors || !items)
+            return [null, itemsErrors];
 
-        const stock = stockResp as StockDto;
-
-        const itemsResp = await this.itemService.createMany(getStockDefaultItems(stock._id));
-        if(isServiceError(itemsResp))
-            return itemsResp as ServiceError[];
-
-        const items = itemsResp as ItemDto[];
-
-        return {
+        return [{
             Stock: stock,
             Item: items
-        }
+        }, null]
     }
 
     /**
@@ -63,33 +58,27 @@ export default class ClanHelperService {
      *
      * @returns created _SoulHome_, _Rooms_ and _Items_, or array of ServiceErrors if something went wrong 
      */
-    async createDefaultSoulHome(clan_id: string, name: string, roomsCount: number = 30){
-        const soulHomeResp = await this.soulHomeService.createOne({name, clan_id});
-        if(isServiceError(soulHomeResp))
-            return soulHomeResp as ServiceError[];
-
-        const soulHome = soulHomeResp as SoulHomeDto;
+    async createDefaultSoulHome(clan_id: string, name: string, roomsCount: number = 30): Promise<[{SoulHome: SoulHomeDto, Room: RoomDto[], Item: ItemDto[]} | null, ServiceError[] | null]>{
+        const [soulHome, soulHomeErrors] = await this.soulHomeService.createOne({name, clan_id});
+        if(soulHomeErrors || !soulHome)
+            return [null, soulHomeErrors];
    
         const defaultRooms = this.getDefaultRooms(soulHome._id, roomsCount);
-        const roomsResp = await this.roomService.createMany(defaultRooms);
-        if(isServiceError(roomsResp))
-            return roomsResp as ServiceError[];
-
-        const rooms = roomsResp as RoomDto[];
+        const [rooms, roomsErrors] = await this.roomService.createMany(defaultRooms);
+        if(roomsErrors || !rooms)
+            return [null, roomsErrors];
 
         const firstRoom = rooms[0];
 
-        const itemsResp = await this.itemService.createMany(getRoomDefaultItems(firstRoom._id));
-        if(isServiceError(itemsResp))
-            return itemsResp as ServiceError[];
+        const [items, itemsErrors] = await this.itemService.createMany(getRoomDefaultItems(firstRoom._id));
+        if(itemsErrors || !items)
+            return [null, itemsErrors];
 
-        const items = itemsResp as ItemDto[];
-
-        return {
+        return [{
             SoulHome: soulHome,
             Room: rooms,
             Item: items
-        };
+        }, null];
     }
 
     /**

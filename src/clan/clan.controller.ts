@@ -35,7 +35,6 @@ import { UniformResponse } from "../common/decorator/response/UniformResponse";
 import { IncludeQuery } from "../common/decorator/param/IncludeQuery.decorator";
 import { publicReferences } from "./clan.schema";
 import { Serialize } from "../common/interceptor/response/Serialize";
-import { isServiceError } from "../common/service/basicService/ServiceError";
 
 @Controller('clan')
 export class ClanController {
@@ -74,8 +73,8 @@ export class ClanController {
     @Authorize({ action: Action.update, subject: UpdateClanDto })
     @UniformResponse()
     public async update(@Body() body: UpdateClanDto) {
-        const resp = await this.service.updateOneById(body);
-        if(isServiceError(resp))
+        const [resp, errors] = await this.service.updateOneById(body);
+        if(errors)
             return resp;
     }
 
@@ -83,8 +82,8 @@ export class ClanController {
     @Authorize({ action: Action.delete, subject: UpdateClanDto })
     @UniformResponse()
     public async delete(@Param() param: _idDto) {
-        const resp = await this.service.deleteOneById(param._id);
-        if(isServiceError(resp))
+        const [resp, errors] = await this.service.deleteOneById(param._id);
+        if(errors)
             return resp;
     }
 
