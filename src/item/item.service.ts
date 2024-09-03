@@ -40,7 +40,7 @@ export class ItemService {
      * @returns created Item or an array of service errors if any occurred.
     */
     async createMany(items: CreateItemDto[]) {
-	    return this.basicService.createMany<CreateItemDto, ItemDto[]>(items);
+	    return this.basicService.createMany<CreateItemDto, ItemDto>(items);
     }
 
     /**
@@ -51,7 +51,7 @@ export class ItemService {
      * @returns created Item or an array of service errors if any occurred.
     */
     async createManyWithResponse(items: CreateItemDto[]) {
-        return this.basicService.createMany<CreateItemDto, ItemDto[]>(items);
+        return this.basicService.createMany<CreateItemDto, ItemDto>(items);
     }
 
     /**

@@ -4,7 +4,7 @@ import { Clan } from "../../clan/clan.schema";
 import { Model, MongooseError } from "mongoose";
 import BasicService from "../../common/service/basicService/BasicService";
 import { PlayerService } from "../../player/player.service";
-import ServiceError, { isServiceError } from "../../common/service/basicService/ServiceError";
+import ServiceError from "../../common/service/basicService/ServiceError";
 import { SEReason } from "../../common/service/basicService/SEReason";
 import { PlayerDto } from "../../player/dto/player.dto";
 import { ClanDto } from "../../clan/dto/clan.dto";
@@ -38,47 +38,46 @@ export default class RoomHelperService{
      * array with _ServiceError_ with reason NOT_FOUND if the Player can not be found,
      * the Player does not belong to any Clan or if this Clan does not have any SoulHome
      */
-    async getPlayerSoulHome(player_id: string){
+    async getPlayerSoulHome(player_id: string): Promise<[SoulHomeDto | null, ServiceError[] | null]>{
         const playerResp = await this.playerService.readOneById(player_id);
         
         if(!playerResp || playerResp instanceof MongooseError || !playerResp.data?.Player)
-            return [new ServiceError({
+            return [null, [new ServiceError({
                 reason: SEReason.NOT_FOUND, 
                 field: 'player_id', 
                 value: player_id, 
                 message: 'Could not find any Player with this _id'
-            })];
+            })]];
         
-        const {clan_id} = playerResp.data.Player as unknown as PlayerDto;
+        const {clan_id} = playerResp.data.Player as PlayerDto;
         if(!clan_id)
-            return [new ServiceError({
+            return [null, [new ServiceError({
                 reason: SEReason.NOT_FOUND, 
                 field: 'clan_id', 
                 value: clan_id, 
                 message: 'The Player is not in any Clan'
-            })];
+            })]];
 
-        const clanResp = await this.clanBasicService.readOneById<ClanDto>(clan_id, {includeRefs: [ModelName.SOULHOME]});
-        if(isServiceError(clanResp))
-            return [new ServiceError({
+        const [clan, errors] = await this.clanBasicService.readOneById<ClanDto>(clan_id, {includeRefs: [ModelName.SOULHOME]});
+        if(errors || !clan)
+            return [null, [new ServiceError({
                 reason: SEReason.NOT_FOUND, 
                 field: 'clan_id', 
                 value: clan_id, 
                 message: 'Could not find any Clan with this _id'
-            })];
+            })]];
         
-        const clan = clanResp as unknown as ClanDto;
-        const clanSoulHome = clan.SoulHome as unknown as SoulHomeDto;
+        const clanSoulHome = clan.SoulHome as SoulHomeDto;
 
         if(!clanSoulHome)
-            return [new ServiceError({
+            return [null, [new ServiceError({
                 reason: SEReason.NOT_FOUND,
                 field: 'soulHome_id',
                 value: undefined,
                 message: 'Could not find SoulHome of the Clan'
-            })];
+            })]];
 
-        return clanSoulHome;
+        return [clanSoulHome, null];
     }
 
 
@@ -90,21 +89,21 @@ export default class RoomHelperService{
      * array with _ServiceError_ with reason NOT_FOUND if the Player can not be found,
      * the Player does not belong to any Clan or if this Clan does not have any SoulHome
      */
-    async getPlayerRooms(player_id: string): Promise<RoomDto[] | ServiceError[]>{
-        const soulHomeResp = await this.getPlayerSoulHome(player_id);
+    async getPlayerRooms(player_id: string): Promise<[RoomDto[] | null, ServiceError[] | null]>{
+        const [soulHome, errors] = await this.getPlayerSoulHome(player_id);
 
-        if(isServiceError(soulHomeResp))
-            return soulHomeResp as ServiceError[];
+        if(errors || !soulHome)
+            return [null, errors]
 
-        const soulHome = soulHomeResp as unknown as SoulHomeDto;
+        const [soulHomeWithRooms, roomsErrors] = await this.soulHomeBasicService.readOneById<SoulHomeDto>(soulHome._id, {includeRefs: [ModelName.ROOM]});
 
-        const soulHomeWithRoomsResp = await this.soulHomeBasicService.readOneById(soulHome._id, {includeRefs: [ModelName.ROOM]});
+        if(roomsErrors || !soulHomeWithRooms)
+            return [null, roomsErrors];
 
-        if(isServiceError(soulHomeWithRoomsResp))
-            return soulHomeWithRoomsResp;
+        const rooms = soulHomeWithRooms.Room;
+        if(!rooms)
+            return [[], null];
 
-        const soulHomeWithRooms = soulHomeWithRoomsResp as unknown as SoulHomeDto;
-
-        return soulHomeWithRooms.Room ?? [];
+        return [rooms, null];
     }
 }

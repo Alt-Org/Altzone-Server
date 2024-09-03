@@ -1,5 +1,5 @@
 import {HttpException} from "@nestjs/common/exceptions/http.exception";
-import { isServiceError } from "../../../common/service/basicService/ServiceError";
+import ServiceError, { isServiceError } from "../../../common/service/basicService/ServiceError";
 import { APIError, convertToAPIError, isAPIError } from "../../../common/controller/APIError";
 import formatResponse from "../../../common/controller/formatResponse";
 import { ModelName } from "../../../common/enum/modelName.enum";
@@ -22,6 +22,14 @@ export const FormatAPIResponse = (modelName?: ModelName): any => {
 
                 if (result && result instanceof Promise) {
                     return result.then((data) => {
+                        //Tuple with error returned
+                        if(Array.isArray(data) && data.length === 2 && data[0] === null)
+                            throw data[1];
+
+                        //Tuple with data returned
+                        if(Array.isArray(data) && data.length === 2 && data[1] === null)
+                            return formatResponse(data[0], modelName);
+
                         if(isServiceError(data) || isAPIError(data))
                             throw data;
 
@@ -30,6 +38,14 @@ export const FormatAPIResponse = (modelName?: ModelName): any => {
                         throwAPIError(error);
                     });
                 }
+
+                //Tuple with error returned
+                if(Array.isArray(result) && result.length === 2 && result[0] === null)
+                    throw result[1];
+
+                //Tuple with data returned
+                if(Array.isArray(result) && result.length === 2 && result[1] === null)
+                    return formatResponse(result[0], modelName);
 
                 if(isServiceError(result) || isAPIError(result))
                     throw result;

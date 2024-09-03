@@ -290,6 +290,13 @@ export type TIServiceDeleteManyOptions<TObject = any> = {
 }
 
 /**
+ * Type for all methods returns, which is a tuple. 
+ * On the first place coming data for success or null if not.
+ * On the second place is ServiceErrors array if any errors occurred or null if not. 
+ */
+export type IServiceReturn<TData> = [TData | null, ServiceError[] | null];
+
+/**
  * Interface for a service class, which provides all basic operations with DB.
  * 
  * Notice that the class implementing the interface should not throw any errors but return them as a ServiceError array instead.
@@ -301,7 +308,7 @@ export interface IService {
      * @param options - Options for the request.
      * @returns The added object to the DB with the _id field or a ServiceError array if something went wrong.
      */
-    createOne<TInput=any, TOutput=any>(input: TInput, options?: TIServiceCreateOneOptions): Promise<TOutput | ServiceError[]>;
+    createOne<TInput=any, TOutput=any>(input: TInput, options?: TIServiceCreateOneOptions): Promise<IServiceReturn<TOutput>>;
 
     /**
      * Add the specified objects to the DB.
@@ -309,7 +316,7 @@ export interface IService {
      * @param options - Options for the request.
      * @returns An array of added objects to the DB with _id fields or a ServiceError array if something went wrong.
      */
-    createMany<TInput=any, TOutput=any>(input: TInput[], options?: TIServiceCreateManyOptions): Promise<TOutput | ServiceError[]>;
+    createMany<TInput=any, TOutput=any>(input: TInput[], options?: TIServiceCreateManyOptions): Promise<IServiceReturn<TOutput[]>>;
 
     /**
      * Find an object in the DB by its _id field.
@@ -317,7 +324,7 @@ export interface IService {
      * @param options - Options for the request.
      * @returns The found object or a ServiceError array if it was not found or something else went wrong.
      */
-    readOneById<TOutput=any>(_id: string, options?: TReadByIdOptions): Promise<TOutput | ServiceError[]>;
+    readOneById<TOutput=any>(_id: string, options?: TReadByIdOptions): Promise<IServiceReturn<TOutput>>;
 
     /**
      * Find one object in the DB by the specified condition.
@@ -326,14 +333,14 @@ export interface IService {
      * @param options - Options for the request.
      * @returns The found object or a ServiceError array if it was not found or something else went wrong.
      */
-    readOne<TOutput=any>(options: TIServiceReadOneOptions): Promise<TOutput | ServiceError[]>;
+    readOne<TOutput=any>(options: TIServiceReadOneOptions): Promise<IServiceReturn<TOutput>>;
 
     /**
      * Find all objects in the DB.
      * @param options - Options for the request.
      * @returns An array of found objects or a ServiceError array if none were found or something else went wrong.
      */
-    readMany<TOutput=any>(options?: TIServiceReadManyOptions): Promise<TOutput[] | ServiceError[]>;
+    readMany<TOutput=any>(options?: TIServiceReadManyOptions): Promise<IServiceReturn<TOutput[]>>;
 
     /**
      * Update an object in the DB by its _id field.
@@ -342,7 +349,7 @@ export interface IService {
      * @param options - Options for the request.
      * @returns _true_ if it was updated successfully, _false_ if nothing was updated for the object, or a ServiceError array if it was not found or something else went wrong.
      */
-    updateOneById<TInput=any>(_id: string, input: TInput, options?: TIServiceUpdateByIdOptions): Promise<boolean | ServiceError[]>;
+    updateOneById<TInput=any>(_id: string, input: TInput, options?: TIServiceUpdateByIdOptions): Promise<IServiceReturn<boolean>>;
 
     /**
      * Update one object in the DB by the specified condition.
@@ -352,7 +359,7 @@ export interface IService {
      * @param options - Options for the request.
      * @returns _true_ if it was updated successfully, _false_ if nothing was updated for the object, or a ServiceError array if it was not found or something else went wrong.
      */
-    updateOne<TInput=any>(input: TInput, options: TIServiceUpdateOneOptions): Promise<boolean | ServiceError[]>;
+    updateOne<TInput=any>(input: TInput, options: TIServiceUpdateOneOptions): Promise<IServiceReturn<boolean>>;
 
     /**
      * Update multiple objects in the DB at once by the specified condition.
@@ -360,7 +367,7 @@ export interface IService {
      * @param options - Options for the request.
      * @returns _true_ if the objects were updated successfully, _false_ if nothing was updated for the objects, or a ServiceError array if none were found or something else went wrong.
      */
-    updateMany<TInput=any>(input: TInput[], options: TIServiceUpdateManyOptions): Promise<boolean | ServiceError[]>;
+    updateMany<TInput=any>(input: TInput[], options: TIServiceUpdateManyOptions): Promise<IServiceReturn<boolean>>;
 
     /**
      * Remove an object by its _id field from the DB.
@@ -368,7 +375,7 @@ export interface IService {
      * @param options - Options for the request.
      * @returns _true_ if it was removed successfully, or a ServiceError array if it was not found or something else went wrong.
      */
-    deleteOneById(_id: string, options?: TIServiceDeleteByIdOptions): Promise<true | ServiceError[]>;
+    deleteOneById(_id: string, options?: TIServiceDeleteByIdOptions): Promise<IServiceReturn<true>>;
 
     /**
      * Remove one object from the DB by the specified condition.
@@ -377,12 +384,12 @@ export interface IService {
      * @param options - Options for the request.
      * @returns _true_ if it was removed successfully, or a ServiceError array if it was not found or something else went wrong.
      */
-    deleteOne(options: TIServiceDeleteOneOptions): Promise<true | ServiceError[]>;
+    deleteOne(options: TIServiceDeleteOneOptions): Promise<IServiceReturn<true>>;
 
     /**
      * Remove multiple objects at once from the DB by the specified condition.
      * @param options - Options for the request.
      * @returns _true_ if the objects were removed successfully, or a ServiceError array if none were found or something else went wrong.
      */
-    deleteMany(options: TIServiceDeleteManyOptions): Promise<true | ServiceError[]>;
+    deleteMany(options: TIServiceDeleteManyOptions): Promise<IServiceReturn<true>>;
 }

@@ -8,8 +8,7 @@ import BasicService from "../common/service/basicService/BasicService";
 import { CreateRoomDto } from "./dto/createRoom.dto";
 import { RoomDto } from "./dto/room.dto";
 import { TIServiceReadManyOptions, TIServiceReadOneOptions, TReadByIdOptions } from "../common/service/basicService/IService";
-import ServiceError, { isServiceError } from "../common/service/basicService/ServiceError";
-import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
+import ServiceError from "../common/service/basicService/ServiceError";
 import RoomHelperService from "./utils/room.helper.service";
 import { ItemService } from "../item/item.service";
 
@@ -44,7 +43,7 @@ export class RoomService {
      * @returns  created Rooms or an array of service errors if any occurred.
     */
     async createMany(rooms: CreateRoomDto[]) {
-        return this.basicService.createMany<CreateRoomDto, RoomDto[]>(rooms);
+        return this.basicService.createMany<CreateRoomDto, RoomDto>(rooms);
     }
 
     /**
@@ -70,12 +69,11 @@ export class RoomService {
      * @param options - Options for reading the Room.
      * @returns _Room_ object or array with _ServiceError_ with reason NOT_FOUND if the Player does not belong to the same Clan as the Room's SoulHome
     */
-    async readOneByIdAndPlayerId(_id: string, player_id: string, options?: TIServiceReadOneOptions) {
-        const soulHomeResp = await this.roomHelper.getPlayerSoulHome(player_id);
-        if(isServiceError(soulHomeResp))
-            return soulHomeResp as ServiceError[];
+    async readOneByIdAndPlayerId(_id: string, player_id: string, options?: TIServiceReadOneOptions): Promise<[RoomDto | null, ServiceError[] | null]> {
+        const [soulHome, errors] = await this.roomHelper.getPlayerSoulHome(player_id);
+        if(errors || !soulHome)
+            return [null, errors];
 
-        const soulHome = soulHomeResp as unknown as SoulHomeDto;
         const soulHome_id = soulHome._id;
 
         const optionsToApply = options ?? { filter: {}, includeRefs: undefined };
@@ -94,12 +92,11 @@ export class RoomService {
      * @param options - Options for reading Rooms.
      * @returns An array of Rooms if succeeded or an array of ServiceErrors if error occurred.
     */
-    async readPlayerClanRooms(player_id: string, options?: TIServiceReadManyOptions) {
-        const soulHomeResp = await this.roomHelper.getPlayerSoulHome(player_id);
-        if(isServiceError(soulHomeResp))
-            return soulHomeResp as ServiceError[];
+    async readPlayerClanRooms(player_id: string, options?: TIServiceReadManyOptions): Promise<[RoomDto[] | null, ServiceError[] | null]> {
+        const [soulHome, errors] = await this.roomHelper.getPlayerSoulHome(player_id);
+        if(errors || !soulHome)
+            return [null, errors]
 
-        const soulHome = soulHomeResp as unknown as SoulHomeDto;
         const soulHome_id = soulHome._id;
 
         const optionsToApply = options;
@@ -144,12 +141,11 @@ export class RoomService {
      * @param _id - The Mongo _id of the Room to delete.
      * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
     */
-    async deleteAllSoulHomeRooms(soulHome_id: string) {
-        const soulHomeRoomsResp = await this.basicService.readMany<RoomDto>({filter: { soulHome_id }});
-        if(isServiceError(soulHomeRoomsResp))
-            return soulHomeRoomsResp as ServiceError[];
+    async deleteAllSoulHomeRooms(soulHome_id: string): Promise<[true | null, ServiceError[] | null]> {
+        const [soulHomeRooms, errors] = await this.basicService.readMany<RoomDto>({filter: { soulHome_id }});
+        if(errors || !soulHomeRooms)
+            return [null, errors];
 
-        const soulHomeRooms = soulHomeRoomsResp as RoomDto[];
         for(let i=0, l=soulHomeRooms.length; i<l; i++)
             await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id);
 

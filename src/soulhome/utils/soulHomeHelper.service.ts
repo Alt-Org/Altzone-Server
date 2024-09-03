@@ -4,7 +4,7 @@ import { Model } from "mongoose";
 import { Player } from "../../player/player.schema";
 import BasicService from "../../common/service/basicService/BasicService";
 import { PlayerDto } from "../../player/dto/player.dto";
-import ServiceError, { isServiceError } from "../../common/service/basicService/ServiceError";
+import ServiceError from "../../common/service/basicService/ServiceError";
 import { SoulHomeDto } from "../dto/soulhome.dto";
 import { Injectable } from "@nestjs/common";
 
@@ -31,13 +31,11 @@ export default class SoulHomeHelperService {
      *
      * @returns Found _SoulHome_ or array of ServiceErrors in case it was not found or any other error(s) occurred
      */
-    public async getPlayerSoulHome(player_id: string){
-        const playerResp = await this.playerService.readOneById<PlayerDto>(player_id);
+    public async getPlayerSoulHome(player_id: string): Promise<[SoulHomeDto | null, ServiceError[] | null]>{
+        const [player, errors] = await this.playerService.readOneById<PlayerDto>(player_id);
 
-        if(isServiceError(playerResp))
-            return playerResp as ServiceError[];
- 
-        const player = playerResp as PlayerDto;
+        if(errors || !player)
+            return [null, errors];
 
         return this.soulHomeService.readOne<SoulHomeDto>({filter: {clan_id: player.clan_id}});
     }

@@ -8,19 +8,16 @@ import { Injectable } from "@nestjs/common";
 import { Clan, publicReferences } from "./clan.schema";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { StockDto } from "../stock/dto/stock.dto";
 import { SoulHomeService } from "../soulhome/soulhome.service";
-import { RoomDto } from "../room/dto/room.dto";
 import { ClanDto } from "./dto/clan.dto";
-import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
 import BasicService from "../common/service/basicService/BasicService";
-import ServiceError, { isServiceError } from "../common/service/basicService/ServiceError";
+import ServiceError from "../common/service/basicService/ServiceError";
 import { Player } from "../player/player.schema";
 import ClanHelperService from "./utils/clanHelper.service";
-import { ItemDto } from "../item/dto/item.dto";
 import { SEReason } from "../common/service/basicService/SEReason";
 import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 import { ModelName } from "../common/enum/modelName.enum";
+import { ObjectId } from "mongodb";
 
 @Injectable()
 export class ClanService{
@@ -48,28 +45,22 @@ export class ClanService{
      */
     public async createOne(clanToCreate: CreateClanDto, player_id: string) {
         const clanWithAdmin = {...clanToCreate, admin_ids: [player_id]};
-        const clanResp = await this.basicService.createOne<any, ClanDto>(clanWithAdmin);
+        const [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>(clanWithAdmin);
 
-        if(isServiceError(clanResp))
-            return clanResp as ServiceError[];
+        if(clanErrors || !clan)
+            return [null, clanErrors];
 
-        const clan = clanResp as ClanDto;
+        const [isPlayerUpdated, playerErrors] = await this.playerService.updateOneById(player_id, { clan_id: clan._id });
+        if(playerErrors)
+            return [null, playerErrors];
 
-        const playerResp = await this.playerService.updateOneById(player_id, { clan_id: clan._id });
-        if(isServiceError(playerResp))
-            return playerResp as ServiceError[];
+        const [stock, stockErrors] = await this.clanHelperService.createDefaultStock(clan._id);
+        if(stockErrors || !stock)
+            return [ null, stockErrors ];
 
-        const stockResp = await this.clanHelperService.createDefaultStock(clan._id);
-        if(isServiceError(stockResp))
-            return stockResp as ServiceError[];
-
-        const stock = stockResp as { Stock: StockDto, Item: ItemDto[] };
-
-        const soulHomeResp = await this.clanHelperService.createDefaultSoulHome(clan._id, clan.name);
-        if(isServiceError(soulHomeResp))
-            return soulHomeResp as ServiceError[];
-
-        const soulHome = soulHomeResp as { SoulHome: SoulHomeDto, Item: ItemDto[], Room: RoomDto[] };
+        const [soulHome, soulHomeErrors] = await this.clanHelperService.createDefaultSoulHome(clan._id, clan.name);
+        if(soulHomeErrors || !soulHome)
+            return [null, soulHomeErrors];
 
         return clan;
     }
@@ -110,17 +101,16 @@ export class ClanService{
      * @returns _true_ if update went successfully or array 
      * of ServiceErrors if something went wrong
      */
-    public async updateOneById(clanToUpdate: UpdateClanDto) {
+    public async updateOneById(clanToUpdate: UpdateClanDto): Promise<[boolean | null, ServiceError[] | null]> {
         const {_id, admin_idsToDelete, admin_idsToAdd, ...fieldsToUpdate} = clanToUpdate;
 
         if (!admin_idsToAdd && !admin_idsToDelete)
             return this.basicService.updateOneById(_id, fieldsToUpdate);
 
-        const clanResp = await this.basicService.readOneById<ClanDto>(_id);
-        if(isServiceError(clanResp))
-            return clanResp as ServiceError[];
+        const [clan, clanErrors] = await this.basicService.readOneById<ClanDto>(_id);
+        if(clanErrors || !clan)
+            return [null, clanErrors];
 
-        const clan = clanResp as ClanDto;
         let admin_ids: string[] = clan.admin_ids;
 
         if(admin_idsToDelete)
@@ -133,34 +123,30 @@ export class ClanService{
         }
 
         if (admin_ids.length === 0)
-            return [new ServiceError({
+            return [null, [new ServiceError({
                 message: 'Clan can not be without at least one admin. You are trying to delete all clan admins',
                 field: 'admin_ids',
                 reason: SEReason.REQUIRED
-            })];
+            })]];
 
         //add only players that are clan members
-        const clanToUpdate_id = clan._id.toString();
         const playersInClan: string[] = [];
         const playersNotInClan: string[] = [];
         for (let i = 0; i < admin_ids.length; i++) {
             const player_id = admin_ids[i];
-            const playerResp = await this.playerService.readOneById<PlayerDto>(player_id);
-            if(isServiceError(playerResp))
+            const [player, playerErrors] = await this.playerService.readOneById<PlayerDto>(player_id);
+            if(playerErrors || !player)
                 continue;
 
-            const player = playerResp as PlayerDto;
-
-            if (player)
-                player.clan_id === clanToUpdate_id ? playersInClan.push(player_id) : playersNotInClan.push(player_id);
+            player.clan_id.toString() === _id ? playersInClan.push(player_id) : playersNotInClan.push(player_id);
         }
 
         if (playersInClan.length === 0)
-            return [new ServiceError({
+            return [null, [new ServiceError({
                 message: 'Clan can not be without at least one admin. You are trying to delete all clan admins',
                 field: 'admin_ids',
                 reason: SEReason.REQUIRED
-            })];
+            })]];
 
         return await this.basicService.updateOneById(_id, {...fieldsToUpdate, admin_ids: playersInClan});
     }
@@ -175,15 +161,13 @@ export class ClanService{
      * @returns _true_ if Clan was removed successfully, 
      * or a ServiceError array if the Clan was not found or something else went wrong
      */
-    async deleteOneById(_id: string) {
-        const clanResp = await this.basicService.readOneById<ClanDto>(
+    async deleteOneById(_id: string): Promise<[true | null, ServiceError[] | null]> {
+        const [clan, clanErrors] = await this.basicService.readOneById<ClanDto>(
             _id, 
             { includeRefs: [ ModelName.SOULHOME, ModelName.STOCK, ModelName.PLAYER ] }
         );
-        if(isServiceError(clanResp))
-            return clanResp;
-
-        const clan = clanResp as ClanDto;
+        if(clanErrors || !clan)
+            return [null, clanErrors];
 
         if(clan.Player){
             for(let i=0, l=clan.Player.length; i<l; i++){

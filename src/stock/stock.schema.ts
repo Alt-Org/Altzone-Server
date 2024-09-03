@@ -30,3 +30,5 @@ StockSchema.virtual(ModelName.ITEM, {
     localField: '_id',
     foreignField: 'stock_id'
 });
+
+export const publicReferences = [ModelName.CLAN, ModelName.ITEM];

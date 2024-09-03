@@ -1,5 +1,5 @@
 import { Error, Model } from "mongoose";
-import { IService, TIServiceCreateManyOptions, TIServiceCreateOneOptions, TIServiceDeleteByIdOptions, TIServiceDeleteManyOptions, TIServiceDeleteOneOptions, TIServiceReadManyOptions, TIServiceReadOneOptions, TIServiceUpdateByIdOptions, TIServiceUpdateManyOptions, TIServiceUpdateOneOptions, TReadByIdOptions } from "./IService";
+import { IService, IServiceReturn, TIServiceCreateManyOptions, TIServiceCreateOneOptions, TIServiceDeleteByIdOptions, TIServiceDeleteManyOptions, TIServiceDeleteOneOptions, TIServiceReadManyOptions, TIServiceReadOneOptions, TIServiceUpdateByIdOptions, TIServiceUpdateManyOptions, TIServiceUpdateOneOptions, TReadByIdOptions } from "./IService";
 import ServiceError from "./ServiceError";
 import { SEReason } from "./SEReason";
 
@@ -20,176 +20,195 @@ export default class BasicService implements IService{
     ){
     }
 
-    async createOne<TInput = any, TOutput = any>(input: TInput, options?: TIServiceCreateOneOptions): Promise<TOutput | ServiceError[]> {
+    async createOne<TInput = any, TOutput = any>(input: TInput, options?: TIServiceCreateOneOptions): Promise<IServiceReturn<TOutput>> {
         try {
-            return await this.model.create(input);
+            const data = await this.model.create(input);
+            return [data, null];
         } catch (error) {
-            return convertMongooseToServiceErrors(error);
+            const errors = convertMongooseToServiceErrors(error);
+            return [null, errors];
         }
     }
 
-    async createMany<TInput = any, TOutput = any>(input: TInput[], options?: TIServiceCreateManyOptions): Promise<TOutput | ServiceError[]> {
+    async createMany<TInput = any, TOutput = any>(input: TInput[], options?: TIServiceCreateManyOptions): Promise<IServiceReturn<TOutput[]>> {
         try {
-            return await this.model.create(input);
+            const data = await this.model.create(input);
+            return [data, null];
         } catch (error) {
-            return convertMongooseToServiceErrors(error);
+            const errors = convertMongooseToServiceErrors(error);
+            return [null, errors];
         }
     }
 
 
-    async readOneById<TOutput = any>(_id: string, options?: TReadByIdOptions): Promise<TOutput | ServiceError[]> {
+    async readOneById<TOutput = any>(_id: string, options?: TReadByIdOptions): Promise<IServiceReturn<TOutput>> {
         try {
             const { select, includeRefs } = options ? options : { select: undefined, includeRefs: [] };
 
             const resp = await this.model.findById(_id, select).populate(includeRefs);
 
             if(!resp)
-                return [new ServiceError({
+                return [null, [new ServiceError({
                     reason: SEReason.NOT_FOUND,
                     message: 'Could not find any objects with specified id',
                     field: '_id',
                     value: _id
-                })];
+                })]];
 
-            return resp as TOutput;
+            return [resp, null];
         } catch (error: any) {
-            return convertMongooseToServiceErrors(error);
+            const errors = convertMongooseToServiceErrors(error);
+            return [null, errors];
         }
     }
 
-    async readOne<TOutput = any>(options: TIServiceReadOneOptions): Promise<TOutput | ServiceError[]> {
+    async readOne<TOutput = any>(options: TIServiceReadOneOptions): Promise<IServiceReturn<TOutput>> {
         try {
             const { filter, select, includeRefs } = options ? options : { filter: undefined, select: undefined, includeRefs: [] };
 
             const resp = await this.model.findOne(filter, select).populate(includeRefs);
 
             if(!resp)
-                return [new ServiceError({
+                return [null, [new ServiceError({
                     reason: SEReason.NOT_FOUND,
                     message: 'Could not find any objects with specified condition'
-                })];
+                })]];
 
-            return resp as TOutput;
+            return [resp, null];
         } catch (error) {
-            return convertMongooseToServiceErrors(error);
+            const errors = convertMongooseToServiceErrors(error);
+            return [null, errors];
         }
     }
 
-    async readMany<TOutput = any>(options?: TIServiceReadManyOptions): Promise<TOutput[] | ServiceError[]> {
+    async readMany<TOutput = any>(options?: TIServiceReadManyOptions): Promise<IServiceReturn<TOutput[]>> {
         try {
             const { filter, select, includeRefs, ...settings } = options ? options : { filter: undefined, select: undefined, includeRefs: [] };
 
             const resp = await this.model.find(filter, select, settings).populate(includeRefs);
 
             if(!resp || resp.length === 0)
-                return [new ServiceError({
+                return [null, [new ServiceError({
                     reason: SEReason.NOT_FOUND,
                     message: 'Could not find any objects with specified condition'
-                })];
+                })]];
                 
-            return resp as TOutput[];
+            return [resp, null];
         } catch (error) {
-            return convertMongooseToServiceErrors(error);
+            const errors = convertMongooseToServiceErrors(error);
+            return [null, errors];
         }
     }
 
 
-    async updateOneById<TInput = any>(_id: string, input: TInput, options?: TIServiceUpdateByIdOptions): Promise<boolean | ServiceError[]> {
+    async updateOneById<TInput = any>(_id: string, input: TInput, options?: TIServiceUpdateByIdOptions): Promise<IServiceReturn<boolean>> {
         try {
             const resp = await this.model.updateOne({_id}, input);
             if(resp.matchedCount === 0)
-                return [new ServiceError({
+                return [null, [new ServiceError({
                     reason: SEReason.NOT_FOUND,
                     message: 'Could not find any objects with specified _id',
                     field: '_id',
                     value: _id
-                })];
+                })]];
 
-            return resp.modifiedCount !== 0;
+            const wasUpdated = resp.modifiedCount !== 0;
+            return [ wasUpdated, null ];
         } catch (error) {
-            return convertMongooseToServiceErrors(error);
+            const errors = convertMongooseToServiceErrors(error);
+            return [null, errors];
         }
     }
 
-    async updateOne<TInput = any>(input: TInput, options: TIServiceUpdateOneOptions): Promise<boolean | ServiceError[]> {
+    async updateOne<TInput = any>(input: TInput, options: TIServiceUpdateOneOptions): Promise<IServiceReturn<boolean>> {
         try {
             const { filter } = options ? options : { filter: undefined };
             const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
 
             const resp = await this.model.updateOne(filterToApply, input);
             if(resp.matchedCount === 0)
-                return [new ServiceError({
+                return [null, [new ServiceError({
                     reason: SEReason.NOT_FOUND,
                     message: 'Could not find any objects with specified condition'
-                })];
+                })]];
 
-            return resp.modifiedCount !== 0;
+            const wasUpdated = resp.modifiedCount !== 0;
+            return [ wasUpdated, null ];
         } catch (error) {
-            return convertMongooseToServiceErrors(error);
+            const errors = convertMongooseToServiceErrors(error);
+            return [null, errors];
         }
     }
 
-    async updateMany<TInput = any>(input: TInput[], options: TIServiceUpdateManyOptions): Promise<boolean | ServiceError[]> {
+    async updateMany<TInput = any>(input: TInput[], options: TIServiceUpdateManyOptions): Promise<IServiceReturn<boolean>> {
         try {
             const { filter } = options ? options : { filter: undefined };
             const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
             const resp = await this.model.updateMany(filterToApply, input);
             if(resp.matchedCount === 0)
-                return [new ServiceError({
+                return [null, [new ServiceError({
                     reason: SEReason.NOT_FOUND,
                     message: 'Could not find any objects with specified condition'
-                })];
+                })]];
 
-            return resp.modifiedCount !== 0;
+            const wasUpdated = resp.modifiedCount !== 0;
+            return [ wasUpdated, null ];
         } catch (error) {
-            return convertMongooseToServiceErrors(error);
+            const errors = convertMongooseToServiceErrors(error);
+            return [null, errors];
         }
     }
 
 
-    async deleteOneById(_id: string, options?: TIServiceDeleteByIdOptions): Promise<true | ServiceError[]> {
+    async deleteOneById(_id: string, options?: TIServiceDeleteByIdOptions): Promise<IServiceReturn<true>> {
         try {
             const resp = await this.model.deleteOne({_id});
             if(resp.deletedCount === 0)
-                return [new ServiceError({
+                return [null, [new ServiceError({
                     reason: SEReason.NOT_FOUND,
                     message: 'Could not find any objects by specified _id',
                     field: '_id',
                     value: _id
-                })];
-            return true;
+                })]];
+
+            return [true, null];
         } catch (error) {
-            return convertMongooseToServiceErrors(error);
+            const errors = convertMongooseToServiceErrors(error);
+            return [null, errors];
         }
     }
 
-    async deleteOne(options: TIServiceDeleteOneOptions): Promise<true | ServiceError[]> {
+    async deleteOne(options: TIServiceDeleteOneOptions): Promise<IServiceReturn<true>> {
         try {
             const { filter } = options ? options : { filter: undefined };
             const resp = await this.model.deleteOne(filter);
             if(resp.deletedCount === 0)
-                return [new ServiceError({
+                return [null, [new ServiceError({
                     reason: SEReason.NOT_FOUND,
                     message: 'Could not find any objects by specified condition'
-                })];
-            return true;
+                })]];
+
+            return [true, null];
         } catch (error) {
-            return convertMongooseToServiceErrors(error);
+            const errors = convertMongooseToServiceErrors(error);
+            return [null, errors];
         }
     }
     
-    async deleteMany(options: TIServiceDeleteManyOptions): Promise<true | ServiceError[]> {
+    async deleteMany(options: TIServiceDeleteManyOptions): Promise<IServiceReturn<true>> {
         try {
             const { filter } = options ? options : { filter: undefined };
             const resp = await this.model.deleteMany(filter);
             if(resp.deletedCount === 0)
-                return [new ServiceError({
+                return [null, [new ServiceError({
                     reason: SEReason.NOT_FOUND,
                     message: 'Could not find any objects by specified condition'
-                })];
-            return true;
+                })]];
+
+            return [true, null];
         } catch (error) {
-            return convertMongooseToServiceErrors(error);
+            const errors = convertMongooseToServiceErrors(error);
+            return [null, errors];
         }
     }
 }
