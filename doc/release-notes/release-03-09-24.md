@@ -3,25 +3,25 @@
 [View swagger notes here](https://swagger.altzone.fi/#/release-03-09-24)
 
 _Table of content_:
-1. [General changes]()
+1. [General changes](https://github.com/Alt-Org/Altzone-Server/blob/main/doc/release-notes/release-03-09-24.md#general-changes)
    
-   1.1 [Clan data]()
+   1.1 [Clan data](https://github.com/Alt-Org/Altzone-Server/blob/main/doc/release-notes/release-03-09-24.md#clan-data)
    
-   1.2 [Error responses]()
+   1.2 [Error responses](https://github.com/Alt-Org/Altzone-Server/blob/main/doc/release-notes/release-03-09-24.md#error-responses)
    
-2. [Endpoints changes]()
+2. [Changes of endpoints](https://github.com/Alt-Org/Altzone-Server/blob/main/doc/release-notes/release-03-09-24.md#changes-of-endpoints)
    
-   2.1 [/clan]()
+   2.1 [/clan](https://github.com/Alt-Org/Altzone-Server/blob/main/doc/release-notes/release-03-09-24.md#clan)
    
-   2.2 [/stock]()
+   2.2 [/stock](https://github.com/Alt-Org/Altzone-Server/blob/main/doc/release-notes/release-03-09-24.md#stock)
    
-   2.3 [/soulhome]()
+   2.3 [/soulhome](https://github.com/Alt-Org/Altzone-Server/blob/main/doc/release-notes/release-03-09-24.md#soulhome)
    
-   2.4 [/room]()
+   2.4 [/room](https://github.com/Alt-Org/Altzone-Server/blob/main/doc/release-notes/release-03-09-24.md#room)
    
-   2.5 [/item]()
+   2.5 [/item](https://github.com/Alt-Org/Altzone-Server/blob/main/doc/release-notes/release-03-09-24.md#item)
    
-   2.6 [/chat]()
+   2.6 [/chat](https://github.com/Alt-Org/Altzone-Server/blob/main/doc/release-notes/release-03-09-24.md#chat)
    
 ## General changes
 
