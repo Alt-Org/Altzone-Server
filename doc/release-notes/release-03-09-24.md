@@ -1,17 +1,26 @@
 # Release notes 03.09.2024
 
-[View swagger notes here]()
+[View swagger notes here](https://swagger.altzone.fi/#/release-03-09-24)
 
 _Table of content_:
 1. [General changes]()
+   
    1.1 [Clan data]()
+   
    1.2 [Error responses]()
+   
 2. [Endpoints changes]()
+   
    2.1 [/clan]()
+   
    2.2 [/stock]()
+   
    2.3 [/soulhome]()
+   
    2.4 [/room]()
+   
    2.5 [/item]()
+   
    2.6 [/chat]()
    
 ## General changes
