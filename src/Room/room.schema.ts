@@ -51,3 +51,5 @@ RoomSchema.virtual('isActive').get(function (this: RoomDocument) {
     
     return Date.now() < this.deactivationTimestamp;
 });
+
+export const publicReferences = [ ModelName.SOULHOME, ModelName.ITEM ];

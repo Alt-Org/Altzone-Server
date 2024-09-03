@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Req } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Put } from "@nestjs/common";
 import { RoomService } from "./room.service";
 import { RoomDto } from "./dto/room.dto";
 import { ModelName } from "../common/enum/modelName.enum";
@@ -18,6 +18,8 @@ import { User } from "../auth/user";
 import RoomHelperService from "./utils/room.helper.service";
 import { APIError } from "../common/controller/APIError";
 import { APIErrorReason } from "../common/controller/APIErrorReason";
+import { IncludeQuery } from "../common/decorator/param/IncludeQuery.decorator";
+import { publicReferences } from "./room.schema";
 
 @Controller('room')
 export class RoomController {
@@ -30,8 +32,8 @@ export class RoomController {
     @Get('/:_id')
     @Authorize({action: Action.read, subject: RoomDto})
     @UniformResponse(ModelName.ROOM)
-    public async get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneByIdAndPlayerId(param._id, request['user'].player_id);
+    public async get(@Param() param: _idDto, @LoggedUser() user: User, @IncludeQuery(publicReferences) includeRefs: ModelName[]) {
+        return this.service.readOneByIdAndPlayerId(param._id, user.player_id, {filter: undefined, includeRefs});
     }
 
     @Get()
@@ -40,15 +42,17 @@ export class RoomController {
     @AddSearchQuery(RoomDto)
     @AddSortQuery(RoomDto)
     @UniformResponse(ModelName.ROOM)
-    public async getAll(@GetAllQuery() query: IGetAllQuery, @Req() request: Request) {
-        return this.service.readPlayerClanRooms(request['user'].player_id, query);
+    public async getAll(@GetAllQuery() query: IGetAllQuery, @LoggedUser() user: User) {
+        return this.service.readPlayerClanRooms(user.player_id, query);
     }
 
     @Put()
     @Authorize({action: Action.update, subject: UpdateRoomDto })
     @UniformResponse()
     public async update(@Body() body: UpdateRoomDto) {
-        return this.service.updateOneById(body);
+        const [resp, errors] = await this.service.updateOneById(body);
+        if(errors)
+            return errors;
     }
 
     @Post('/activate')
