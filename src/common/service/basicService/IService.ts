@@ -290,6 +290,13 @@ export type TIServiceDeleteManyOptions<TObject = any> = {
 }
 
 /**
+ * Type for all methods returns, which is a tuple. 
+ * On the first place coming data for success or null if not.
+ * On the second place is ServiceErrors array if any errors occurred or null if not. 
+ */
+export type IServiceReturn<TData> = [TData | null, ServiceError[] | null];
+
+/**
  * Interface for a service class, which provides all basic operations with DB.
  * 
  * Notice that the class implementing the interface should not throw any errors but return them as a ServiceError array instead.
