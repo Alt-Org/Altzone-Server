@@ -13,7 +13,6 @@ import { UniformResponse } from "../common/decorator/response/UniformResponse";
 import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
 import { User } from "../auth/user";
 import SoulHomeHelperService from "./utils/soulHomeHelper.service";
-import { isServiceError } from "../common/service/basicService/ServiceError";
 import { publicReferences } from "./soulhome.schema";
 import { IncludeQuery } from "../common/decorator/param/IncludeQuery.decorator";
 
@@ -33,11 +32,10 @@ export class SoulHomeController {
     @Serialize(SoulHomeDto)
     @UniformResponse(ModelName.SOULHOME)
     public async getPlayerSoulHome(@IncludeQuery(publicReferences) includeRefs: ModelName[], @LoggedUser() user: User) {
-        const playerSoulHomeResp = await this.helper.getPlayerSoulHome(user.player_id);
-        if(isServiceError(playerSoulHomeResp))
-            return playerSoulHomeResp;
+        const [soulHome, errors] = await this.helper.getPlayerSoulHome(user.player_id);
+        if(errors || !soulHome)
+            return [null, errors];
 
-        const soulHome = playerSoulHomeResp as SoulHomeDto;
         return this.service.readOneById(soulHome._id, {includeRefs});
     }
 }
