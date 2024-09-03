@@ -11,6 +11,8 @@ import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
 import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
 import { UniformResponse } from "../common/decorator/response/UniformResponse";
+import { IncludeQuery } from "../common/decorator/param/IncludeQuery.decorator";
+import { publicReferences } from "./stock.schema";
 
 @Controller('stock')
 export class StockController {
@@ -20,8 +22,8 @@ export class StockController {
     @Get('/:_id')
     @Authorize({action: Action.read, subject: StockDto})
     @UniformResponse(ModelName.STOCK)
-    public get(@Param() param: _idDto) {
-        return this.service.readOneById(param._id);
+    public get(@Param() param: _idDto, @IncludeQuery(publicReferences) includeRefs: ModelName[]) {
+        return this.service.readOneById(param._id, {includeRefs});
     }
 
     @Get()
