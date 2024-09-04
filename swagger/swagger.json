@@ -1834,10 +1834,14 @@
                                             "data": {
                                                 "Chat": [
                                                     {
-                                                        "_id": "66912712d191c865ab53da8a",
-                                                        "name": "Chat 1",
-                                                        "__v": 0,
-                                                        "id": "66912712d191c865ab53da8a"
+                                                        "objectType": "ChatDto",
+                                                        "_id": "66d8611a184d5f0a7c0675b7",
+                                                        "name": "chat1"
+                                                    },
+                                                    {
+                                                        "objectType": "ChatDto",
+                                                        "_id": "66d85e3f4bed433708d5cb7f",
+                                                        "name": "Chat 1"
                                                     }
                                                 ]
                                             },
@@ -1845,13 +1849,13 @@
                                                 "dataKey": "Chat",
                                                 "modelName": "Chat",
                                                 "dataType": "Array",
-                                                "dataCount": 1
+                                                "dataCount": 2
                                             },
                                             "paginationData": {
                                                 "currentPage": 1,
-                                                "limit": 1,
+                                                "limit": 20,
                                                 "offset": 0,
-                                                "itemCount": 1,
+                                                "itemCount": 2,
                                                 "pageCount": 1
                                             }
                                         }
@@ -1950,11 +1954,9 @@
                                         "value": {
                                             "data": {
                                                 "Chat": {
-                                                    "name": "Chat 1",
-                                                    "_id": "66912712d191c865ab53da8a",
-                                                    "messages": [],
-                                                    "__v": 0,
-                                                    "id": "66912712d191c865ab53da8a"
+                                                    "objectType": "ChatDto",
+                                                    "_id": "66d86147184d5f0a7c0675ca",
+                                                    "name": "chat2"
                                                 }
                                             },
                                             "metaData": {
@@ -2010,10 +2012,9 @@
                                         "value": {
                                             "data": {
                                                 "Chat": {
-                                                    "_id": "66912712d191c865ab53da8a",
-                                                    "name": "Chat 1",
-                                                    "__v": 0,
-                                                    "id": "66912712d191c865ab53da8a"
+                                                    "objectType": "ChatDto",
+                                                    "_id": "66d8611a184d5f0a7c0675b7",
+                                                    "name": "chat1"
                                                 }
                                             },
                                             "metaData": {
@@ -3551,6 +3552,17 @@
                 }
             },
             "ChatCreate": {
+                "description": "Create a new Chat",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "description": "The name of the chat",
+                        "type": "string",
+                        "example": "Chat 1"
+                    }
+                }
+            },
+            "ChatUpdate": {
                 "description": "Update an existing Chat",
                 "type": "object",
                 "properties": {
@@ -3571,17 +3583,6 @@
                             "type": "object"
                         },
                         "example": []
-                    }
-                }
-            },
-            "ChatUpdate": {
-                "description": "Create a new Chat",
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "description": "The name of the chat",
-                        "type": "string",
-                        "example": "Chat 1"
                     }
                 }
             },
