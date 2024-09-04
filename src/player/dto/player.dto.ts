@@ -19,6 +19,9 @@ export class PlayerDto {
     @Expose()
     uniqueIdentifier: string;
 
+    @Expose()
+    above13: boolean;
+
     @ExtractField()
     @Expose()
     profile_id: string;
