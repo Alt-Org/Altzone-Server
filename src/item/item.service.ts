@@ -134,17 +134,24 @@ export class ItemService {
         return this.basicService.deleteMany({filter: { room_id }});
     }
 
+    /**
+     * Moves multiple items to a specified stock.
+     * 
+     * @param {string[]} itemIds - The IDs of the items to be moved.
+     * @param {string} stockId - The ID of the stock to which the items should be moved.
+     * @returns {Promise<[boolean | null, ServiceError[] | null]>} - A promise that resolves to a tuple where the first element is a boolean indicating if the update was successful, and the second element is either null or an array of ServiceError objects if something went wrong.
+     */
     async moveItemsToStock(itemIds: string[], stockId: string) {
         const [stock, stockErrors] = await this.stockService.readOneById(stockId);
         if (stockErrors !== null) {
-            return [null, stockErrors]
+            return [null, stockErrors];
         }
         
         const [items, itemErrors] = await this.readMany({ filter: { _id: { $in: itemIds } }});
         if (itemErrors !== null) {
             return [null, itemErrors];
         }
-    
+
         const filter = { _id: { $in: items } };
         const update = { $set: { stock_id: stock._id, room_id: null } };
 
@@ -152,7 +159,7 @@ export class ItemService {
         if (updateErrors !== null) {
             return [null, updateErrors];
         }
-    
+
         return [wasUpdated, null];
     }
 }
