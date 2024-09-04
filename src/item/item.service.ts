@@ -7,7 +7,7 @@ import {CreateItemDto} from "./dto/createItem.dto";
 import {UpdateItemDto} from "./dto/updateItem.dto";
 import {ItemDto} from "./dto/Item.dto";
 import BasicService from "../common/service/basicService/BasicService";
-import { TReadByIdOptions } from "../common/service/basicService/IService";
+import { TIServiceCreateManyOptions, TIServiceUpdateManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 import { StockService } from "src/stock/stock.service";
 
 @Injectable()
@@ -68,6 +68,16 @@ export class ItemService {
        if(options?.includeRefs)
            optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
        return this.basicService.readOneById<ItemDto>(_id, optionsToApply);
+    }
+
+    /**
+     * Reads multiple items from the database based on the provided options.
+     * 
+     * @param {TIServiceCreateManyOptions} [options] - Optional settings for the read operation.
+     * @returns {Promise<[ItemDto[], ServiceError[] | null]>} - A promise that resolves to a tuple where the first element is an array of ItemDto objects, and the second element is either null or an array of ServiceError objects if something went wrong.
+     */
+    async readMany(options?: TIServiceCreateManyOptions) {
+        return this.basicService.readMany<ItemDto>(options);
     }
 
     /**
