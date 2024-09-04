@@ -93,6 +93,18 @@ export class ItemService {
     }
 
     /**
+     * Updates multiple items in the database.
+     * 
+     * @template T - The type of items to update.
+     * @param {T[]} items - The items to update.
+     * @param {TIServiceUpdateManyOptions} [options] - Optional settings for the update operation.
+     * @returns {Promise<[boolean, ServiceError[] | null]>} - A promise that resolves to a tuple where the first element is a boolean indicating if the update was successful, and the second element is either null or an array of ServiceError objects if something went wrong.
+     */
+    async updateMany<T = any>(items: T[], options?: TIServiceUpdateManyOptions) {
+        return this.basicService.updateMany<T>(items, options);
+    }
+
+    /**
      * Deletes an Item by its _id from DB.
      * 
      * @param _id - The Mongo _id of the Item to delete.
