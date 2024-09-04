@@ -451,7 +451,8 @@
                                                         "name": "User 2",
                                                         "backpackCapacity": 654,
                                                         "uniqueIdentifier": 2,
-                                                        "profile_id": "6686cb3b71adebdb10f33ff9"
+                                                        "profile_id": "6686cb3b71adebdb10f33ff9",
+                                                        "above13": true
                                                     }
                                                 ]
                                             },
@@ -578,7 +579,8 @@
                                                     "name": "User 2",
                                                     "backpackCapacity": 654,
                                                     "uniqueIdentifier": 2,
-                                                    "profile_id": "6686cb3b71adebdb10f33ff9"
+                                                    "profile_id": "6686cb3b71adebdb10f33ff9",
+                                                    "above13": true
                                                 }
                                             },
                                             "metaData": {
@@ -640,7 +642,8 @@
                                                     "name": "User 2",
                                                     "backpackCapacity": 654,
                                                     "uniqueIdentifier": 2,
-                                                    "profile_id": "6686cb3b71adebdb10f33ff9"
+                                                    "profile_id": "6686cb3b71adebdb10f33ff9",
+                                                    "above13": true
                                                 }
                                             },
                                             "metaData": {
@@ -3225,6 +3228,11 @@
                                 "description": "The identifier for the player, unique",
                                 "type": "string",
                                 "example": "1"
+                            },
+                            "above13": {
+                                "description": "Is Player age 13 or above",
+                                "type": "boolean",
+                                "example": true
                             }
                         }
                     }
@@ -3373,6 +3381,11 @@
                         "description": "The id of the associated Profile",
                         "type": "string",
                         "example": "6686cac271adebdb10f33fee"
+                    },
+                    "above13": {
+                        "description": "Is Player age 13 or above",
+                        "type": "boolean",
+                        "example": true
                     }
                 }
             },
@@ -3404,6 +3417,11 @@
                         "description": "The id of the associated Profile",
                         "type": "string",
                         "example": "6686cac271adebdb10f33fee"
+                    },
+                    "above13": {
+                        "description": "Is Player age 13 or above",
+                        "type": "boolean",
+                        "example": true
                     }
                 }
             },
