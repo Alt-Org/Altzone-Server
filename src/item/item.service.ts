@@ -133,4 +133,26 @@ export class ItemService {
     async deleteAllRoomItems(room_id: string) {
         return this.basicService.deleteMany({filter: { room_id }});
     }
+
+    async moveItemsToStock(itemIds: string[], stockId: string) {
+        const [stock, stockErrors] = await this.stockService.readOneById(stockId);
+        if (stockErrors !== null) {
+            return [null, stockErrors]
+        }
+        
+        const [items, itemErrors] = await this.readMany({ filter: { _id: { $in: itemIds } }});
+        if (itemErrors !== null) {
+            return [null, itemErrors];
+        }
+    
+        const filter = { _id: { $in: items } };
+        const update = { $set: { stock_id: stock._id, room_id: null } };
+
+        const [wasUpdated, updateErrors] = await this.updateMany([update], { filter });
+        if (updateErrors !== null) {
+            return [null, updateErrors];
+        }
+    
+        return [wasUpdated, null];
+    }
 }
