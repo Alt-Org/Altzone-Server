@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {forwardRef, Inject, Injectable} from "@nestjs/common";
 import {Model} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
@@ -8,11 +8,13 @@ import {UpdateItemDto} from "./dto/updateItem.dto";
 import {ItemDto} from "./dto/Item.dto";
 import BasicService from "../common/service/basicService/BasicService";
 import { TReadByIdOptions } from "../common/service/basicService/IService";
+import { StockService } from "src/stock/stock.service";
 
 @Injectable()
 export class ItemService {
     public constructor(
-        @InjectModel(Item.name) public readonly model: Model<Item>
+        @InjectModel(Item.name) public readonly model: Model<Item>,
+        @Inject(forwardRef(() => StockService)) private readonly stockService: StockService
     ){
         this.refsInModel = [ModelName.STOCK];
         this.modelName = ModelName.ITEM;
