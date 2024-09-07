@@ -7,12 +7,18 @@ import {ItemController} from "./item.controller";
 import {ItemService} from "./item.service";
 import {isItemExists} from "./decorator/validation/IsItemExists.decorator";
 import { StockModule } from 'src/stock/stock.module';
+import { ClanModule } from 'src/clan/clan.module';
+import { RoomModule } from 'src/room/room.module';
+import { PlayerModule } from 'src/player/player.module';
 
 @Module({
     imports: [
         MongooseModule.forFeature([ {name: ModelName.ITEM, schema: ItemSchema} ]),
         RequestHelperModule,
-        forwardRef(() => StockModule)
+        forwardRef(() => StockModule),
+        forwardRef(() => ClanModule),
+        forwardRef(() => RoomModule),
+        forwardRef(() => PlayerModule),
     ],
     controllers: [ItemController],
     providers: [ ItemService, isItemExists ],
