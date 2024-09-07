@@ -142,31 +142,68 @@ export class ItemService {
     }
 
     /**
-     * Moves multiple items to a specified stock.
+     * Moves multiple items to a specified stock or room.
      * 
      * @param {string[]} itemIds - The IDs of the items to be moved.
-     * @param {string} stockId - The ID of the stock to which the items should be moved.
-     * @returns {Promise<[boolean | null, ServiceError[] | null]>} - A promise that resolves to a tuple where the first element is a boolean indicating if the update was successful, and the second element is either null or an array of ServiceError objects if something went wrong.
+     * @param {string} storageId - The ID of the stock or room to which the items should be moved.
+     * @param {MoveTo} storageType - The type of target, either 'stock' or 'room'.
+     * @returns {Promise<(boolean | ServiceError[])>} - A promise that resolves to a tuple where the first element is a boolean indicating if the update was successful, and the second element is either null or an array of ServiceError objects if something went wrong.
      */
-    async moveItemsToStock(itemIds: string[], stockId: string) {
-        const [stock, stockErrors] = await this.stockService.readOneById(stockId);
-        if (stockErrors !== null) {
-            return [null, stockErrors];
+    async moveItems(itemIds: string[], storageId: string, storageType: MoveTo) {
+        const [items, itemErrors] = await this.readMany({ filter: { _id: { $in: itemIds } } });
+        if (itemErrors)
+            return [false, itemErrors];
+
+        const filter = { _id: { $in: items.map(item => item._id) } };
+        const update = storageType === MoveTo.STOCK 
+            ? { $set: { stock_id: storageId, room_id: null } }
+            : { $set: { room_id: storageId, stock_id: null } };
+
+        return this.updateMany([update], { filter });
+    }
+
+    /**
+    * Moves a single item to a specified destination.
+    *
+    * @param {string} itemId - The ID of the item to be moved.
+    * @param {string} destinationId - The ID of the destination (room or stock).
+    * @param {MoveTo} moveTo - The type of target, either 'stock' or 'room'.
+    * @param {string} playerId - The ID of the player performing the move.
+    * @returns {Promise<[any, ServiceError[] | null]>} - A promise that resolves to a tuple where the first element is the moved item or null if an error occurred, and the second element is either null or an array of ServiceError objects if something went wrong.
+    */
+    async moveItem(itemId: string, destinationId: string, moveTo: MoveTo, playerId: string) {
+        const [player, playerErrors] = await this.playerService.getPlayerById(playerId);
+        if (playerErrors) {
+            return [null, playerErrors];
         }
-        
-        const [items, itemErrors] = await this.readMany({ filter: { _id: { $in: itemIds } }});
-        if (itemErrors !== null) {
+
+        const [item, itemErrors] = await this.readOneById(itemId, { includeRefs: [ModelName.CLAN]});
+        if (itemErrors) {
             return [null, itemErrors];
         }
 
-        const filter = { _id: { $in: items } };
-        const update = { $set: { stock_id: stock._id, room_id: null } };
-
-        const [wasUpdated, updateErrors] = await this.updateMany([update], { filter });
-        if (updateErrors !== null) {
-            return [null, updateErrors];
+        const roomId = item.room_id ? item.room_id.toString() : destinationId;
+        const [room, roomErrors] = await this.roomService.readOneById(roomId, { includeRefs: [ModelName.SOULHOME] })
+        if (roomErrors) {
+            return [null, roomErrors];
         }
 
-        return [wasUpdated, null];
+        const [clan, clanErrors] = await this.clanService.readOneById(room['SoulHome'].clan_id, { includeRefs: [ModelName.STOCK]});
+        if (clanErrors) {
+            return [null, clanErrors];
+        }
+
+        destinationId = moveTo === MoveTo.STOCK ? clan.Stock._id.toString() : destinationId
+        const playerClanId = player.clan_id ? player.clan_id.toString() : "";
+        const itemClanId = room['SoulHome'].clan_id;
+   
+        if (playerClanId !== itemClanId || playerClanId !== room['SoulHome'].clan_id || (!item.room_id && !item.stock_id)) {
+            return [null, new ServiceError({
+                reason: SEReason.NOT_ALLOWED,
+                message: "Unauthorized. Item or room doesn't belong to your clan",
+            })]
+        }
+
+        return this.moveItems([itemId], destinationId, moveTo);
     }
 }
