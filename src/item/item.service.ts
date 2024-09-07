@@ -8,13 +8,20 @@ import {UpdateItemDto} from "./dto/updateItem.dto";
 import {ItemDto} from "./dto/Item.dto";
 import BasicService from "../common/service/basicService/BasicService";
 import { TIServiceCreateManyOptions, TIServiceUpdateManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
-import { StockService } from "src/stock/stock.service";
+import { MoveTo } from "./enum/moveTo.enum";
+import { RoomService } from "src/room/room.service";
+import { PlayerService } from "src/player/player.service";
+import ServiceError from "src/common/service/basicService/ServiceError";
+import { ClanService } from "src/clan/clan.service";
+import { SEReason } from "src/common/service/basicService/SEReason";
 
 @Injectable()
 export class ItemService {
     public constructor(
         @InjectModel(Item.name) public readonly model: Model<Item>,
-        @Inject(forwardRef(() => StockService)) private readonly stockService: StockService
+        @Inject(forwardRef(() => ClanService)) private readonly clanService: ClanService,
+        @Inject(forwardRef(() => RoomService)) private readonly roomService: RoomService,
+        @Inject(forwardRef(() => PlayerService)) private readonly playerService: PlayerService,
     ){
         this.refsInModel = [ModelName.STOCK];
         this.modelName = ModelName.ITEM;
