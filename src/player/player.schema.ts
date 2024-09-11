@@ -22,6 +22,9 @@ export class Player {
     @Prop({ type: Boolean, required: true, default: false })
     above13: boolean;
 
+    @Prop({ type: Boolean, required: true, default: null })
+    parentalAuth: boolean;
+
     @ExtractField()
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.PROFILE })
     profile_id: Profile;
