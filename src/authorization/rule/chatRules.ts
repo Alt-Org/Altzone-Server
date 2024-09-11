@@ -13,7 +13,7 @@ export const chatRules: RulesSetterAsync<Ability, Subjects> = async (user, subje
 
     const loggedPlayer = await requestHelperService.getModelInstanceById(ModelName.PLAYER, user.player_id, PlayerDto);
 
-    if(loggedPlayer.above13){
+    if(loggedPlayer.parentalAuth || loggedPlayer.above13){
         can(Action.create_request, subject);
 
         can(Action.read_request, subject);
