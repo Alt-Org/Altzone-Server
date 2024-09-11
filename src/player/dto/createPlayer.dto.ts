@@ -15,7 +15,7 @@ export class CreatePlayerDto {
 
     @IsOptional()
     @IsBoolean()
-    above13: boolean;
+    above13?: boolean;
 
     @IsProfileExists()
     @IsMongoId()
