@@ -2854,7 +2854,7 @@
             }
         },
         "/item/move": {
-            "patch": {
+            "post": {
                 "requestBody": {
                     "content": {
                         "application/json": {
