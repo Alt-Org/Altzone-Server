@@ -452,7 +452,8 @@
                                                         "backpackCapacity": 654,
                                                         "uniqueIdentifier": 2,
                                                         "profile_id": "6686cb3b71adebdb10f33ff9",
-                                                        "above13": true
+                                                        "above13": true,
+                                                        "parentalAuth": true
                                                     }
                                                 ]
                                             },
@@ -580,7 +581,8 @@
                                                     "backpackCapacity": 654,
                                                     "uniqueIdentifier": 2,
                                                     "profile_id": "6686cb3b71adebdb10f33ff9",
-                                                    "above13": true
+                                                    "above13": true,
+                                                    "parentalAuth": true
                                                 }
                                             },
                                             "metaData": {
@@ -643,7 +645,8 @@
                                                     "backpackCapacity": 654,
                                                     "uniqueIdentifier": 2,
                                                     "profile_id": "6686cb3b71adebdb10f33ff9",
-                                                    "above13": true
+                                                    "above13": true,
+                                                    "parentalAuth": true
                                                 }
                                             },
                                             "metaData": {
@@ -1878,7 +1881,7 @@
                     }
                 ],
                 "summary": "Read all existing chats",
-                "description": "Read all created Chats. Remember about the pagination.\n\nNotice, that use of messages array is not advised and can be removed at some point in the future. For accessing messages of the Chat please use the /chat/:_id/message endpoint.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
+                "description": "Read all created Chats. Remember about the pagination.\n\nNotice, that use of messages array is not advised and can be removed at some point in the future. For accessing messages of the Chat please use the /chat/:_id/message endpoint.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
                 "externalDocs": {
                     "url": "https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests)"
                 }
@@ -1925,7 +1928,7 @@
                     }
                 ],
                 "summary": "Update a chat",
-                "description": "Update the Chat, which _id is specified in the body.\n\nNotice that currently anybody is able to change any Chat.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only for Players above 13 | \n"
+                "description": "Update the Chat, which _id is specified in the body.\n\nNotice that currently anybody is able to change any Chat.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only for Players above 13 or with parents approval | \n"
             },
             "post": {
                 "requestBody": {
@@ -1991,7 +1994,7 @@
                     }
                 ],
                 "summary": "Create a chat",
-                "description": "Create a new Chat. The Chat is an object containing messages.\n\nNotice, that currently there is no restrictions on who can create a Chat.\n\nNotice that the Message objects are inner objects of Chat and can not be used enewhere else than in the Chat. There is also no separate collection for the Message in the DB.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only for Players above 13 | \n"
+                "description": "Create a new Chat. The Chat is an object containing messages.\n\nNotice, that currently there is no restrictions on who can create a Chat.\n\nNotice that the Message objects are inner objects of Chat and can not be used enewhere else than in the Chat. There is also no separate collection for the Message in the DB.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only for Players above 13 or with parents approval | \n"
             }
         },
         "/chat/{_id}": {
@@ -2043,7 +2046,7 @@
                     }
                 ],
                 "summary": "Get Chat by _id",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nRead Chat data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
+                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nRead Chat data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
             },
             "delete": {
                 "tags": [
@@ -2070,7 +2073,7 @@
                     }
                 ],
                 "summary": "Delete Chat",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nDelete Chat by its _id field. \n\nNotice that currently anybody can delete any Chat.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 |"
+                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nDelete Chat by its _id field. \n\nNotice that currently anybody can delete any Chat.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |"
             },
             "parameters": [
                 {
@@ -2148,7 +2151,7 @@
                     }
                 ],
                 "summary": "Read all messages from the Chat",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nRead all messages of specified Chat. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
+                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nRead all messages of specified Chat. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
                 "externalDocs": {
                     "url": "https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests)"
                 }
@@ -2194,7 +2197,7 @@
                     }
                 ],
                 "summary": "Create a message",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nCreate a new Message. Message represent the object of message sent by a Player.\n\nNotice that currently there are no authorization required.\n\nNotice, that the messages does not have an usual _id field generated by data base. Instead the Photon id should be used.\n\nNotice that the messages is contained in the array of a Chat collection.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes |\n| Authorization   | only for Players above 13 |\n"
+                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nCreate a new Message. Message represent the object of message sent by a Player.\n\nNotice that currently there are no authorization required.\n\nNotice, that the messages does not have an usual _id field generated by data base. Instead the Photon id should be used.\n\nNotice that the messages is contained in the array of a Chat collection.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n"
             },
             "parameters": [
                 {
@@ -3390,7 +3393,12 @@
                         "example": "6686cac271adebdb10f33fee"
                     },
                     "above13": {
-                        "description": "Is Player age 13 or above",
+                        "description": "Is Player age 13 or above, default null",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "parentalAuth": {
+                        "description": "Is Player got parents approval, default null",
                         "type": "boolean",
                         "example": true
                     }
@@ -3427,6 +3435,11 @@
                     },
                     "above13": {
                         "description": "Is Player age 13 or above",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "parentalAuth": {
+                        "description": "Is Player got parents approval, default null",
                         "type": "boolean",
                         "example": true
                     }

@@ -17,6 +17,10 @@ export class CreatePlayerDto {
     @IsBoolean()
     above13?: boolean;
 
+    @IsOptional()
+    @IsBoolean()
+    parentalAuth?: boolean;
+
     @IsProfileExists()
     @IsMongoId()
     profile_id?: string;
