@@ -1,4 +1,4 @@
-import {Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Req} from "@nestjs/common";
+import {Body, Controller, Get, Param, Post} from "@nestjs/common";
 import {_idDto} from "../common/dto/_id.dto";
 import {ModelName} from "../common/enum/modelName.enum";
 import {ItemService} from "./item.service";
@@ -7,6 +7,8 @@ import { Authorize } from "../authorization/decorator/Authorize";
 import { Action } from "../authorization/enum/action.enum";
 import { UniformResponse } from "../common/decorator/response/UniformResponse";
 import { MoveItemDto } from "./dto/moveItem.dto";
+import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
+import { User } from "../auth/user";
 
 @Controller('item')
 export class ItemController {
@@ -19,10 +21,11 @@ export class ItemController {
         return this.service.readOneById(param._id);
     }
 
-    @Patch('/move')
-    @HttpCode(HttpStatus.NO_CONTENT)
-    @UniformResponse(ModelName.ITEM)
-    public async moveItems(@Body() body: MoveItemDto, @Req() req: any) {
-        return this.service.moveItem(body.item_id, body.destination_id, body.move_to, req.user.player_id);
+    @Post('/move')
+    @UniformResponse()
+    public async moveItems(@Body() body: MoveItemDto, @LoggedUser() user: User) {
+        const [resp, errors] = await this.service.moveItem(body.item_id, body.destination_id, body.moveTo, user.player_id);
+        if(errors)
+            return [null, errors];
     }
 }
