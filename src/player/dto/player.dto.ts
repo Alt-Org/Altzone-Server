@@ -20,7 +20,7 @@ export class PlayerDto {
     uniqueIdentifier: string;
 
     @Expose()
-    above13: boolean;
+    above13?: boolean | null;
 
     @Expose()
     parentalAuth: boolean | null;
