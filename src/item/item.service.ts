@@ -9,11 +9,11 @@ import {ItemDto} from "./dto/Item.dto";
 import BasicService from "../common/service/basicService/BasicService";
 import { TIServiceCreateManyOptions, TIServiceUpdateManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 import { MoveTo } from "./enum/moveTo.enum";
-import { RoomService } from "src/room/room.service";
-import { PlayerService } from "src/player/player.service";
-import ServiceError from "src/common/service/basicService/ServiceError";
-import { ClanService } from "src/clan/clan.service";
-import { SEReason } from "src/common/service/basicService/SEReason";
+import { RoomService } from "../room/room.service";
+import { PlayerService } from "../player/player.service";
+import { NotFoundError } from "./errors/item.errors";
+import { ClanService } from "../clan/clan.service";
+import ServiceError from "../common/service/basicService/ServiceError";
 
 @Injectable()
 export class ItemService {
@@ -80,8 +80,8 @@ export class ItemService {
     /**
      * Reads multiple items from the database based on the provided options.
      * 
-     * @param {TIServiceCreateManyOptions} [options] - Optional settings for the read operation.
-     * @returns {Promise<[ItemDto[], ServiceError[] | null]>} - A promise that resolves to a tuple where the first element is an array of ItemDto objects, and the second element is either null or an array of ServiceError objects if something went wrong.
+     * @param options - Optional settings for the read operation.
+     * @returns A promise that resolves to a tuple where the first element is an array of ItemDto objects, and the second element is either null or an array of ServiceError objects if something went wrong.
      */
     async readMany(options?: TIServiceCreateManyOptions) {
         return this.basicService.readMany<ItemDto>(options);
@@ -103,9 +103,9 @@ export class ItemService {
      * Updates multiple items in the database.
      * 
      * @template T - The type of items to update.
-     * @param {T[]} items - The items to update.
-     * @param {TIServiceUpdateManyOptions} [options] - Optional settings for the update operation.
-     * @returns {Promise<[boolean, ServiceError[] | null]>} - A promise that resolves to a tuple where the first element is a boolean indicating if the update was successful, and the second element is either null or an array of ServiceError objects if something went wrong.
+     * @param items - The items to update.
+     * @param options - Optional settings for the update operation.
+     * @returns A promise that resolves to a tuple where the first element is a boolean indicating if the update was successful, and the second element is either null or an array of ServiceError objects if something went wrong.
      */
     async updateMany<T = any>(items: T[], options?: TIServiceUpdateManyOptions) {
         return this.basicService.updateMany<T>(items, options);
@@ -144,10 +144,10 @@ export class ItemService {
     /**
      * Moves multiple items to a specified stock or room.
      * 
-     * @param {string[]} itemIds - The IDs of the items to be moved.
-     * @param {string} storageId - The ID of the stock or room to which the items should be moved.
-     * @param {MoveTo} storageType - The type of target, either 'stock' or 'room'.
-     * @returns {Promise<(boolean | ServiceError[])>} - A promise that resolves to a tuple where the first element is a boolean indicating if the update was successful, and the second element is either null or an array of ServiceError objects if something went wrong.
+     * @param itemIds - The IDs of the items to be moved.
+     * @param storageId - The ID of the stock or room to which the items should be moved.
+     * @param storageType - The type of target, either 'stock' or 'room'.
+     * @returns A promise that resolves to a tuple where the first element is a boolean indicating if the update was successful, and the second element is either null or an array of ServiceError objects if something went wrong.
      */
     async moveItems(itemIds: string[], storageId: string, storageType: MoveTo) {
         const [items, itemErrors] = await this.readMany({ filter: { _id: { $in: itemIds } } });
@@ -163,47 +163,80 @@ export class ItemService {
     }
 
     /**
-    * Moves a single item to a specified destination.
+    * Moves a single item to a specified destination if player, destination and item are in same clan.
     *
-    * @param {string} itemId - The ID of the item to be moved.
-    * @param {string} destinationId - The ID of the destination (room or stock).
-    * @param {MoveTo} moveTo - The type of target, either 'stock' or 'room'.
-    * @param {string} playerId - The ID of the player performing the move.
-    * @returns {Promise<[any, ServiceError[] | null]>} - A promise that resolves to a tuple where the first element is the moved item or null if an error occurred, and the second element is either null or an array of ServiceError objects if something went wrong.
+    * @param itemId - The ID of the item to be moved.
+    * @param destinationId - The ID of the destination (Room or Stock).
+    * @param moveTo - The type of target, either 'Stock' or 'Room'.
+    * @param playerId - The ID of the player performing the move.
+    * @returns A promise that resolves to a tuple where the first element is the moved item or null if an error occurred, and the second element is either null or an array of ServiceError objects if something went wrong.
     */
     async moveItem(itemId: string, destinationId: string, moveTo: MoveTo, playerId: string) {
+        let playerClanId: string;
+        let itemClanId: string;
+        let destinationClanId: string;
+
         const [player, playerErrors] = await this.playerService.getPlayerById(playerId);
-        if (playerErrors) {
-            return [null, playerErrors];
-        }
+        if (playerErrors || !player.clan_id)
+            return [null, NotFoundError]
 
-        const [item, itemErrors] = await this.readOneById(itemId, { includeRefs: [ModelName.CLAN]});
-        if (itemErrors) {
-            return [null, itemErrors];
-        }
+        playerClanId = player.clan_id.toString();
 
-        const roomId = item.room_id ? item.room_id.toString() : destinationId;
-        const [room, roomErrors] = await this.roomService.readOneById(roomId, { includeRefs: [ModelName.SOULHOME] })
-        if (roomErrors) {
-            return [null, roomErrors];
-        }
+        const [id, errors] = await this.getItemClanId(itemId);
+        if (errors)
+            return [null, errors];
+        
+        itemClanId = id;
 
-        const [clan, clanErrors] = await this.clanService.readOneById(room['SoulHome'].clan_id, { includeRefs: [ModelName.STOCK]});
-        if (clanErrors) {
-            return [null, clanErrors];
-        }
+        if (moveTo === MoveTo.ROOM) {
+            const [room, roomErrors] = await this.roomService.readOneById(destinationId, { includeRefs: [ModelName.SOULHOME] });
+            if (roomErrors)
+                return [null, roomErrors];
 
-        destinationId = moveTo === MoveTo.STOCK ? clan.Stock._id.toString() : destinationId
-        const playerClanId = player.clan_id ? player.clan_id.toString() : "";
-        const itemClanId = room['SoulHome'].clan_id;
+            destinationClanId = room['SoulHome'].clan_id;
+        } else {
+            destinationClanId = player.clan_id.toString();
+            const [clan, clanErrors] = await this.clanService.readOneById(destinationClanId, { includeRefs: [ModelName.STOCK]});
+            if (clanErrors)
+                return [null, clanErrors];
+
+            destinationId = clan.Stock._id.toString();
+        }
    
-        if (playerClanId !== itemClanId || playerClanId !== room['SoulHome'].clan_id || (!item.room_id && !item.stock_id)) {
-            return [null, new ServiceError({
-                reason: SEReason.NOT_ALLOWED,
-                message: "Unauthorized. Item or room doesn't belong to your clan",
-            })]
-        }
+        if (playerClanId !== itemClanId || playerClanId !== destinationClanId)
+            return [null, [NotFoundError]];
 
         return this.moveItems([itemId], destinationId, moveTo);
+    }
+
+    /**
+     * Retrieves the clan ID associated with an item.
+     *
+     * @param _id - The ID of the item.
+     * @returns A promise that resolves to a tuple where the first element is the clan ID as a string or null if not found, and the second element is either null or an array of ServiceErrors if something went wrong.
+     */
+    async getItemClanId(_id: string): Promise<[string | null, ServiceError[] | null]> {
+    const [item, itemErrors] = await this.readOneById(_id, { includeRefs: [ModelName.STOCK] });
+    if (itemErrors) {
+        return [null, itemErrors];
+    }
+
+    if (item.Stock && item.stock_id && item.Stock.clan_id) {
+        return [item.Stock.clan_id.toString(), null];
+    }
+
+    if (!item.room_id) {
+        return [null, [NotFoundError]];
+    }
+
+    const [room, roomErrors] = await this.roomService.readOneById(item.room_id, { includeRefs: [ModelName.SOULHOME] });
+    if (roomErrors) {
+        return [null, roomErrors];
+    }
+    if (!room['SoulHome'] || !room['SoulHome'].clan_id) {
+        return [null, [NotFoundError]];
+    }
+
+    return [room['SoulHome'].clan_id, null];
     }
 }
