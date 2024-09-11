@@ -19,10 +19,10 @@ export class Player {
     @Prop({ type: String, required: true, unique: true })
     uniqueIdentifier: string;
 
-    @Prop({ type: Boolean, required: true, default: false })
+    @Prop({ type: Boolean, default: false })
     above13: boolean;
 
-    @Prop({ type: Boolean, required: true, default: null })
+    @Prop({ type: Boolean, default: null })
     parentalAuth: boolean;
 
     @ExtractField()

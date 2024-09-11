@@ -23,7 +23,7 @@ export class PlayerDto {
     above13: boolean;
 
     @Expose()
-    parentalAuth?: boolean | null;
+    parentalAuth: boolean | null;
 
     @ExtractField()
     @Expose()
