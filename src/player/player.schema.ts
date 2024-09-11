@@ -19,7 +19,7 @@ export class Player {
     @Prop({ type: String, required: true, unique: true })
     uniqueIdentifier: string;
 
-    @Prop({ type: Boolean, required: true, default: false })
+    @Prop({ type: Boolean, default: null })
     above13: boolean;
 
     @ExtractField()
