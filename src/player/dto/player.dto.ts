@@ -22,6 +22,9 @@ export class PlayerDto {
     @Expose()
     above13: boolean;
 
+    @Expose()
+    parentalAuth?: boolean | null;
+
     @ExtractField()
     @Expose()
     profile_id: string;

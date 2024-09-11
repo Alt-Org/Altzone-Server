@@ -26,6 +26,10 @@ export class UpdatePlayerDto {
     @IsBoolean()
     above13?: boolean;
 
+    @IsOptional()
+    @IsBoolean()
+    parentalAuth?: boolean;
+
     @IsClanExists()
     @IsMongoId()
     @IsOptional()
