@@ -13,4 +13,4 @@ import { ItemModule } from '../item/item.module';
     providers: [ GameAnalyticsService ],
     exports: [ GameAnalyticsService ]
 })
-export class StockModule {}
+export class GameAnalyticsModule {}
