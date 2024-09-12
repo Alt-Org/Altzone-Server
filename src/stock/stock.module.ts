@@ -1,4 +1,4 @@
-import {Module} from '@nestjs/common';
+import {forwardRef, Module} from '@nestjs/common';
 import {MongooseModule} from '@nestjs/mongoose';
 import {StockSchema} from "./stock.schema";
 import {RequestHelperModule} from "../requestHelper/requestHelper.module";
@@ -12,7 +12,7 @@ import { ItemModule } from '../item/item.module';
     imports: [
         MongooseModule.forFeature([ {name: ModelName.STOCK, schema: StockSchema} ]),
         RequestHelperModule,
-        ItemModule
+        forwardRef(() => ItemModule)
     ],
     controllers: [StockController],
     providers: [ StockService, isStockExists ],
