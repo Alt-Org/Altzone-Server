@@ -8,10 +8,13 @@ import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
 import { User } from "../auth/user";
 import { APIError } from "../common/controller/APIError";
 import { APIErrorReason } from "../common/controller/APIErrorReason";
+import { LogFileService } from "./logFile.service";
 
 @Controller('gameAnalytics')
 export class GameAnalyticsController {
-    public constructor() {
+    public constructor(
+        private readonly logFileService: LogFileService
+    ) {
     }
 
     @Post('/logFile')
@@ -38,6 +41,6 @@ export class GameAnalyticsController {
                 new APIError({reason: APIErrorReason.REQUIRED, message: 'Could not define a file sent. The file is required'})
             ]];
 
-        
+        this.logFileService.saveFile(file, user.player_id);
     }
 }
