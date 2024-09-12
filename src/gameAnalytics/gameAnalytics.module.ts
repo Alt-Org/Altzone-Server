@@ -1,7 +1,7 @@
 import {Module} from '@nestjs/common';
 import {RequestHelperModule} from "../requestHelper/requestHelper.module";
 import {GameAnalyticsController} from "./gameAnalytics.controller";
-import {GameAnalyticsService} from "./gameAnalytics.service";
+import {LogFileService} from "./logFile.service";
 import { ItemModule } from '../item/item.module';
 
 @Module({
@@ -10,7 +10,7 @@ import { ItemModule } from '../item/item.module';
         ItemModule
     ],
     controllers: [GameAnalyticsController],
-    providers: [ GameAnalyticsService ],
-    exports: [ GameAnalyticsService ]
+    providers: [ LogFileService ],
+    exports: [ ]
 })
 export class GameAnalyticsModule {}
