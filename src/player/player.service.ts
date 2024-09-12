@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {Model, MongooseError, Types} from "mongoose";
+import {Model, Types} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {Player} from "./player.schema";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
@@ -12,10 +12,9 @@ import {AddBasicService} from "../common/base/decorator/AddBasicService.decorato
 import {ClanDto} from "../clan/dto/clan.dto";
 import {IHookImplementer, PostHookFunction} from "../common/interface/IHookImplementer";
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
-import BasicService from "src/common/service/basicService/BasicService";
-import { IResponseShape } from "src/common/interface/IResponseShape";
-import { TReadByIdOptions } from "src/common/service/basicService/IService";
 import { PlayerDto } from "./dto/player.dto";
+import BasicService from "../common/service/basicService/BasicService";
+import { TReadByIdOptions } from "../common/service/basicService/IService";
 
 @Injectable()
 @AddBasicService()
