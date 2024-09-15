@@ -3063,6 +3063,55 @@
                 "summary": "Exclude Player from Clan",
                 "description": "Request exclude the player from clan. \n\nNotice that only Clan admin can remove the Player\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | yes, only clan admin | \n\n"
             }
+        },
+        "/gameAnalytics/logFile": {
+            "post": {
+                "requestBody": {
+                    "description": "File that needs to be uploaded",
+                    "content": {
+                        "multipart/form-data": {}
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "GameAnalytics"
+                ],
+                "parameters": [
+                    {
+                        "name": "Secret",
+                        "description": "secret_string",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Upload a game analytics log file",
+                "description": "Enpoint uploads a log file and save on the server.\n\nThe file will be saved to the folder with name corresponding to the date when it was uploaded, i.e. 1-9-2024.\n\nFile name must be unique and therefore its name will contain date, time, Player _id and a random string, i.e. 1-9-2024_14-45-12_667eedc9b3b5bf0f7a840ef1_123456.log\n\nNotice that the request must have a Secret header which holds a password for such requests.\n\nNotice that the request must be in multipart/form-data format, where field name containing the file is \"logFile\""
+            }
         }
     },
     "components": {
@@ -4761,6 +4810,10 @@
         {
             "name": "Chat",
             "description": "chats and their messages "
+        },
+        {
+            "name": "GameAnalytics",
+            "description": "Various functionality for game analytics"
         }
     ],
     "externalDocs": {
