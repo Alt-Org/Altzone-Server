@@ -15,7 +15,11 @@ Server is available on https://altzone.fi/api
 
 ## Swagger description
 
-[Swagger](https://swagger.altzone.fi/)
+1. [Latest swagger file version](https://github.com/Alt-Org/Altzone-Server/blob/dev/swagger/swagger.json) 
+   You can find the latest API description and changes here.
+
+2. [Swagger on web](https://swagger.altzone.fi/)
+
 
 
 ## Getting started
