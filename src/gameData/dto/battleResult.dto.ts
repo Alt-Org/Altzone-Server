@@ -1,7 +1,8 @@
-import { IsArray, IsInt, IsMongoId, IsPositive, IsString, Max, Min } from "class-validator";
+import { IsArray, IsInt, IsMongoId, IsPositive, IsString, Matches, Max, Min } from "class-validator";
 
 export class BattleResultDto {
 	@IsString()
+	@Matches(/^result$/, { message: 'type must be "result"' })	
 	type: string;
 
 	@IsArray()
