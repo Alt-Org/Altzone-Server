@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, HttpException, Post } from '@nestjs/common';
 import { BattleResultDto } from './dto/battleResult.dto';
 import { GameDataService } from './gameData.service';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
@@ -14,7 +14,6 @@ export class GameDataController {
 	@Post('battle')
 	@UniformResponse()
 	async handleBattleResult(@Body() body: BattleResultDto, @LoggedUser() user: User) {
-		if (body.type === "result") 
-			return await this.service.handleBattleResult(body, user)
+		return await this.service.handleBattleResult(body, user)
 	} 
 }
