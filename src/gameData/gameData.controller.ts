@@ -26,7 +26,7 @@ export class GameDataController {
 		if (teamIdsErrors)
 			return teamIdsErrors
 
-		await this.service.createGameIfNotExists(body, teamIds, currentTime);
+		this.service.createGameIfNotExists(body, teamIds, currentTime);
 		
 		return await this.service.generateResponse(body, teamIds.team1Id, teamIds.team2Id, user)
 	} 
