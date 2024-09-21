@@ -4,6 +4,8 @@ import { GameDataService } from './gameData.service';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
+import { APIError } from '../common/controller/APIError';
+import { APIErrorReason } from '../common/controller/APIErrorReason';
 
 @Controller('gameData')
 export class GameDataController {
@@ -14,6 +16,23 @@ export class GameDataController {
 	@Post('battle')
 	@UniformResponse()
 	async handleBattleResult(@Body() body: BattleResultDto, @LoggedUser() user: User) {
-		return await this.service.handleBattleResult(body, user)
+		const currentTime = new Date();
+		const winningTeam = body.winnerTeam === 1 ? body.team1 : body.team2;
+		const playerInWinningTeam = winningTeam.includes(user.player_id);
+		if (!playerInWinningTeam)
+			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED });
+
+		const [teamIds, teamIdsErrors] = await this.service.getClanIdForTeams([body.team1[0], body.team2[0]]);
+		if (teamIdsErrors)
+			return teamIdsErrors
+
+		const existingGame = await this.service.gameAlreadyExists(body.team1, body.team2, currentTime);
+		if (!existingGame) {
+			const newGame = this.service.createNewGameObject(body, teamIds.team1Id, teamIds.team2Id, currentTime);
+			const [_, createGameErrors] = await this.service.createOne(newGame);
+			if (createGameErrors)
+				return [null, createGameErrors]
+		}
+		return await this.service.generateResponse(body, teamIds.team1Id, teamIds.team2Id, user)
 	} 
 }
