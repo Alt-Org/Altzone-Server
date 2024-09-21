@@ -26,13 +26,8 @@ export class GameDataController {
 		if (teamIdsErrors)
 			return teamIdsErrors
 
-		const existingGame = await this.service.gameAlreadyExists(body.team1, body.team2, currentTime);
-		if (!existingGame) {
-			const newGame = this.service.createNewGameObject(body, teamIds.team1Id, teamIds.team2Id, currentTime);
-			const [_, createGameErrors] = await this.service.createOne(newGame);
-			if (createGameErrors)
-				return [null, createGameErrors]
-		}
+		await this.service.createGameIfNotExists(body, teamIds, currentTime);
+		
 		return await this.service.generateResponse(body, teamIds.team1Id, teamIds.team2Id, user)
 	} 
 }

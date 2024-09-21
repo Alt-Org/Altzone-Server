@@ -13,6 +13,7 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { BattleResultDto } from './dto/battleResult.dto';
 import { User } from '../auth/user';
 import { GameDto } from './dto/game.dto';
+import { BattleResponseDto } from './dto/battleResponse.dto';
 
 @Injectable()
 export class GameDataService {
@@ -73,7 +74,7 @@ export class GameDataService {
 	 * @param user - The user who is submitting the battle result.
 	 * @returns - A promise that resolves to an array containing the response object and any service errors.
 	 */
-	async generateResponse(body: BattleResultDto, team1ClanId: string, team2ClanId: string, user: User): Promise<[{stealToken: string, SoulHome_id: string, roomIds: string[]}, ServiceError[]]> {
+	async generateResponse(body: BattleResultDto, team1ClanId: string, team2ClanId: string, user: User): Promise<[BattleResponseDto, ServiceError[]]> {
 		const [clan, errors] = await this.clanService.readOneById(body.winnerTeam === 1 ? team2ClanId : team1ClanId, { includeRefs: [ModelName.SOULHOME] });
 		if (errors) {
 			return [null, errors]
@@ -84,7 +85,7 @@ export class GameDataService {
 		}
 
 		const stealToken = await this.generateStealToken(user.player_id, clan.SoulHome._id);
-		const response = {
+		const response: BattleResponseDto = {
 			stealToken,
 			SoulHome_id: clan.SoulHome._id,
 			roomIds
@@ -176,5 +177,22 @@ export class GameDataService {
 
 		const roomIds = rooms.map((room) => room._id);
 		return [roomIds, null];
+	}
+
+	/**
+	 * Checks if a game already exists and creates a new game if not.
+	 * 
+	 * @param body - The battle result data transfer object.
+	 * @param teamIds - The clan IDs for both teams.
+	 * @param currentTime - The current time.
+	 */
+	async createGameIfNotExists(body: BattleResultDto, teamIds: { team1Id: string, team2Id: string }, currentTime: Date) {
+		const existingGame = await this.gameAlreadyExists(body.team1, body.team2, currentTime);
+		if (!existingGame) {
+			const newGame = this.createNewGameObject(body, teamIds.team1Id, teamIds.team2Id, currentTime);
+			const [_, createGameErrors] = await this.createOne(newGame);
+			if (createGameErrors)
+				console.error("Error creating new game:", createGameErrors)
+		}
 	}
 }
