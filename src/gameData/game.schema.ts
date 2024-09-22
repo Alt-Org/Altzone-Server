@@ -9,10 +9,10 @@ export type GameDocument = HydratedDocument<Game>;
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
 export class Game {
   @Prop({ type: [MongooseSchema.Types.ObjectId], required: true, ref: ModelName.PLAYER })
-  team1: Player[];
+  team1: string[];
 
   @Prop({ type: [MongooseSchema.Types.ObjectId], required: true, ref: ModelName.PLAYER })
-  team2: Player[];
+  team2: string[];
 
   @Prop({ type: MongooseSchema.Types.ObjectId, required: true, ref: ModelName.CLAN })
   team1Clan: string;
