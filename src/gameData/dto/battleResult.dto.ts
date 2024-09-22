@@ -1,9 +1,9 @@
-import { IsArray, IsInt, IsMongoId, IsPositive, IsString, Matches, Max, Min } from "class-validator";
+import { IsArray, IsEnum, IsInt, IsMongoId, IsPositive, IsString, Matches, Max, Min } from "class-validator";
+import { RequestType } from "../enum/requestType.enum";
 
 export class BattleResultDto {
-	@IsString()
-	@Matches(/^result$/, { message: 'type must be "result"' })	
-	type: string;
+	@IsEnum(RequestType)
+	type: RequestType.RESULT;
 
 	@IsArray()
 	@IsMongoId({ each: true })
