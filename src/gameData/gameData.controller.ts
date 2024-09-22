@@ -1,11 +1,13 @@
 import { Body, Controller, ForbiddenException, HttpException, Post } from '@nestjs/common';
-import { BattleResultDto } from './dto/battleResult.dto';
 import { GameDataService } from './gameData.service';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
+import { validate } from 'class-validator';
+import { RequestType } from './enum/requestType.enum';
+import { RequestTypeDto } from './dto/resultType.dto';
 
 @Controller('gameData')
 export class GameDataController {
@@ -15,19 +17,18 @@ export class GameDataController {
 
 	@Post('battle')
 	@UniformResponse()
-	async handleBattleResult(@Body() body: BattleResultDto, @LoggedUser() user: User) {
-		const currentTime = new Date();
-		const winningTeam = body.winnerTeam === 1 ? body.team1 : body.team2;
-		const playerInWinningTeam = winningTeam.includes(user.player_id);
-		if (!playerInWinningTeam)
-			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED });
+	async handleBattleResult(@Body() body: any, @LoggedUser() user: User) {
+		const typeDto = new RequestTypeDto
+		typeDto.type = body.type
+		const errors = await validate(typeDto);
+		if (errors.length > 0)
+			return new APIError({ reason: APIErrorReason.VALIDATION });
 
-		const [teamIds, teamIdsErrors] = await this.service.getClanIdForTeams([body.team1[0], body.team2[0]]);
-		if (teamIdsErrors)
-			return teamIdsErrors
-
-		this.service.createGameIfNotExists(body, teamIds, currentTime);
-		
-		return await this.service.generateResponse(body, teamIds.team1Id, teamIds.team2Id, user)
+		switch (typeDto.type) {
+			case RequestType.RESULT:
+				return await this.service.handleResultType(body, user)
+			default:
+				return new APIError({ reason: APIErrorReason.BAD_REQUEST })
+		}
 	} 
 }

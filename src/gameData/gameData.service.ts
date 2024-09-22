@@ -14,6 +14,8 @@ import { BattleResultDto } from './dto/battleResult.dto';
 import { User } from '../auth/user';
 import { GameDto } from './dto/game.dto';
 import { BattleResponseDto } from './dto/battleResponse.dto';
+import { APIError } from '../common/controller/APIError';
+import { APIErrorReason } from '../common/controller/APIErrorReason';
 
 @Injectable()
 export class GameDataService {
@@ -87,7 +89,7 @@ export class GameDataService {
 		const stealToken = await this.generateStealToken(user.player_id, clan.SoulHome._id);
 		const response: BattleResponseDto = {
 			stealToken,
-			SoulHome_id: clan.SoulHome._id,
+			soulHome_id: clan.SoulHome._id,
 			roomIds
 		}
 		return [response, null]
@@ -194,5 +196,28 @@ export class GameDataService {
 			if (createGameErrors)
 				console.error("Error creating new game:", createGameErrors)
 		}
+	}
+
+	/**
+	 * Handles the result type request.
+	 * 
+	 * @param body - The body of the request containing battle result data.
+	 * @param user - The user making the request.
+	 * @returns - Returns a promise that resolves to the response or an API error.
+	 */
+	async handleResultType(body: BattleResultDto, user: User): Promise<any> {
+		const currentTime = new Date();
+		const winningTeam = body.winnerTeam === 1 ? body.team1 : body.team2;
+		const playerInWinningTeam = winningTeam.includes(user.player_id);
+		if (!playerInWinningTeam)
+			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED, message: "Invalid type field" });
+	
+		const [teamIds, teamIdsErrors] = await this.getClanIdForTeams([body.team1[0], body.team2[0]]);
+		if (teamIdsErrors)
+			return teamIdsErrors
+	
+		this.createGameIfNotExists(body, teamIds, currentTime);
+		
+		return await this.generateResponse(body, teamIds.team1Id, teamIds.team2Id, user)
 	}
 }
