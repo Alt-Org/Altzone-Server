@@ -48,20 +48,20 @@ export class GameDataService {
 	/**
 	 * Creates a new game object based on the provided battle result and team information.
 	 * 
-	 * @param body - The battle result data transfer object containing details of the battle.
+	 * @param battleResult - The battle result data transfer object containing details of the battle.
 	 * @param team1Id - The identifier for team 1's clan.
 	 * @param team2Id - The identifier for team 2's clan.
 	 * @param currentTime - The current date and time when the game is being created.
 	 * @returns A new game data transfer object ready to be saved in the database.
 	 */
-	createNewGameObject(body: BattleResultDto, team1Id: string, team2Id: string, currentTime: Date) {
+	createNewGameObject(battleResult: BattleResultDto, team1Id: string, team2Id: string, currentTime: Date) {
 		const newGame: CreateGameDto = {
-			team1: body.team1,
-			team2: body.team2,
+			team1: battleResult.team1,
+			team2: battleResult.team2,
 			team1Clan: team1Id,
 			team2Clan: team2Id,
-			winner: body.winnerTeam,
-			startedAt: new Date(currentTime.getTime() - body.duration * 1000),
+			winner: battleResult.winnerTeam,
+			startedAt: new Date(currentTime.getTime() - battleResult.duration * 1000),
 			endedAt: currentTime
 		}
 		return newGame
@@ -70,14 +70,14 @@ export class GameDataService {
 	/**
 	 * Generates a response for the battle result, including a steal token, SoulHome ID, and room IDs.
 	 * 
-	 * @param body - The battle result data transfer object.
+	 * @param battleResult - The battle result data transfer object.
 	 * @param team1ClanId - The identifier for team 1's clan.
 	 * @param team2ClanId - The identifier for team 2's clan.
 	 * @param user - The user who is submitting the battle result.
 	 * @returns - A promise that resolves to an array containing the response object and any service errors.
 	 */
-	async generateResponse(body: BattleResultDto, team1ClanId: string, team2ClanId: string, user: User): Promise<[BattleResponseDto, ServiceError[]]> {
-		const [clan, errors] = await this.clanService.readOneById(body.winnerTeam === 1 ? team2ClanId : team1ClanId, { includeRefs: [ModelName.SOULHOME] });
+	async generateResponse(battleResult: BattleResultDto, team1ClanId: string, team2ClanId: string, user: User): Promise<[BattleResponseDto, ServiceError[]]> {
+		const [clan, errors] = await this.clanService.readOneById(battleResult.winnerTeam === 1 ? team2ClanId : team1ClanId, { includeRefs: [ModelName.SOULHOME] });
 		if (errors) {
 			return [null, errors]
 		}
@@ -184,14 +184,14 @@ export class GameDataService {
 	/**
 	 * Checks if a game already exists and creates a new game if not.
 	 * 
-	 * @param body - The battle result data transfer object.
+	 * @param battleResult - The battle result data transfer object.
 	 * @param teamIds - The clan IDs for both teams.
 	 * @param currentTime - The current time.
 	 */
-	async createGameIfNotExists(body: BattleResultDto, teamIds: { team1Id: string, team2Id: string }, currentTime: Date) {
-		const existingGame = await this.gameAlreadyExists(body.team1, body.team2, currentTime);
+	async createGameIfNotExists(battleResult: BattleResultDto, teamIds: { team1Id: string, team2Id: string }, currentTime: Date) {
+		const existingGame = await this.gameAlreadyExists(battleResult.team1, battleResult.team2, currentTime);
 		if (!existingGame) {
-			const newGame = this.createNewGameObject(body, teamIds.team1Id, teamIds.team2Id, currentTime);
+			const newGame = this.createNewGameObject(battleResult, teamIds.team1Id, teamIds.team2Id, currentTime);
 			const [_, createGameErrors] = await this.createOne(newGame);
 			if (createGameErrors)
 				console.error("Error creating new game:", createGameErrors)
@@ -201,23 +201,23 @@ export class GameDataService {
 	/**
 	 * Handles the result type request.
 	 * 
-	 * @param body - The body of the request containing battle result data.
+	 * @param battleResult - The battleResult of the request containing battle result data.
 	 * @param user - The user making the request.
 	 * @returns - Returns a promise that resolves to the response or an API error.
 	 */
-	async handleResultType(body: BattleResultDto, user: User): Promise<any> {
+	async handleResultType(battleResult: BattleResultDto, user: User): Promise<any> {
 		const currentTime = new Date();
-		const winningTeam = body.winnerTeam === 1 ? body.team1 : body.team2;
+		const winningTeam = battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
 		const playerInWinningTeam = winningTeam.includes(user.player_id);
 		if (!playerInWinningTeam)
 			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED, message: "Invalid type field" });
 	
-		const [teamIds, teamIdsErrors] = await this.getClanIdForTeams([body.team1[0], body.team2[0]]);
+		const [teamIds, teamIdsErrors] = await this.getClanIdForTeams([battleResult.team1[0], battleResult.team2[0]]);
 		if (teamIdsErrors)
 			return teamIdsErrors
 	
-		this.createGameIfNotExists(body, teamIds, currentTime);
+		this.createGameIfNotExists(battleResult, teamIds, currentTime);
 		
-		return await this.generateResponse(body, teamIds.team1Id, teamIds.team2Id, user)
+		return await this.generateResponse(battleResult, teamIds.team1Id, teamIds.team2Id, user)
 	}
 }
