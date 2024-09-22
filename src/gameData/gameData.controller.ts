@@ -22,7 +22,7 @@ export class GameDataController {
 		typeDto.type = body.type
 		const errors = await validate(typeDto);
 		if (errors.length > 0)
-			return new APIError({ reason: APIErrorReason.VALIDATION });
+			return new APIError({ reason: APIErrorReason.WRONG_ENUM, message: "Invalid type" });
 
 		switch (typeDto.type) {
 			case RequestType.RESULT:
