@@ -53,7 +53,6 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       AuthModule,
       ItemShopModule,
       ClanVoteModule,
-      GameAnalyticsModule,
       JwtModule.register({
           global: true,
           secret: jwtConstants.secret,
@@ -63,6 +62,7 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       PermissionModule,
       ApiStateModule,
       GameDataModule,
+      GameAnalyticsModule
   ],
   controllers: [AppController],
   providers: [
