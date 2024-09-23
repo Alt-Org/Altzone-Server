@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.8 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.8">
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
-    <mxGraphModel dx="3124" dy="3083" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1488" dy="2080" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
@@ -31,10 +31,10 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-53" source="hmTvUvVirtF6M48gfIGW-2" target="dMIBYix0wGJR4mhEJEMT-3">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" parent="hmTvUvVirtF6M48gfIGW-53" source="hmTvUvVirtF6M48gfIGW-2" target="dMIBYix0wGJR4mhEJEMT-3" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-7" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dMIBYix0wGJR4mhEJEMT-4">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-7" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="dMIBYix0wGJR4mhEJEMT-4" vertex="1" connectable="0">
           <mxGeometry x="-0.8586" y="-1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
@@ -69,34 +69,34 @@
         <mxCell id="hmTvUvVirtF6M48gfIGW-46" value="API" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="hmTvUvVirtF6M48gfIGW-53" vertex="1">
           <mxGeometry x="490" y="60" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-1" value="&lt;br&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Starts a voting between Clan members, whenever they want to sell the Item&lt;/span&gt;&lt;div&gt;&lt;br/&gt;&lt;/div&gt;" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=process;whiteSpace=wrap;rounded=1;size=0.14;arcSize=6;" vertex="1" parent="hmTvUvVirtF6M48gfIGW-53">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-1" value="&lt;br&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Start a voting between Clan members, whenever they want to sell the Item&lt;/span&gt;" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=process;whiteSpace=wrap;rounded=1;size=0.14;arcSize=6;" parent="hmTvUvVirtF6M48gfIGW-53" vertex="1">
           <mxGeometry x="470" y="370" width="100" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-53" source="dMIBYix0wGJR4mhEJEMT-3" target="dMIBYix0wGJR4mhEJEMT-1">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="hmTvUvVirtF6M48gfIGW-53" source="dMIBYix0wGJR4mhEJEMT-3" target="dMIBYix0wGJR4mhEJEMT-1" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-3" value="" style="shape=waypoint;sketch=0;fillStyle=solid;size=6;pointerEvents=1;points=[];fillColor=none;resizable=0;rotatable=0;perimeter=centerPerimeter;snapToPoint=1;" vertex="1" parent="hmTvUvVirtF6M48gfIGW-53">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-3" value="" style="shape=waypoint;sketch=0;fillStyle=solid;size=6;pointerEvents=1;points=[];fillColor=none;resizable=0;rotatable=0;perimeter=centerPerimeter;snapToPoint=1;" parent="hmTvUvVirtF6M48gfIGW-53" vertex="1">
           <mxGeometry x="640" y="390" width="20" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-8" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-53">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-8" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" parent="hmTvUvVirtF6M48gfIGW-53" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="180" y="650" as="sourcePoint" />
             <mxPoint x="180" y="60" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-9" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-53">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-9" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" parent="hmTvUvVirtF6M48gfIGW-53" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="414" y="650" as="sourcePoint" />
             <mxPoint x="414" y="60" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-53" source="dMIBYix0wGJR4mhEJEMT-18" target="hmTvUvVirtF6M48gfIGW-10">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="hmTvUvVirtF6M48gfIGW-53" source="dMIBYix0wGJR4mhEJEMT-18" target="hmTvUvVirtF6M48gfIGW-10" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-18" value="Save started voting to DB" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.stored_data;whiteSpace=wrap;" vertex="1" parent="hmTvUvVirtF6M48gfIGW-53">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-18" value="Save started voting to DB" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.stored_data;whiteSpace=wrap;" parent="hmTvUvVirtF6M48gfIGW-53" vertex="1">
           <mxGeometry x="470" y="570" width="100" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.93;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-53" source="dMIBYix0wGJR4mhEJEMT-3" target="dMIBYix0wGJR4mhEJEMT-18">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.93;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" parent="hmTvUvVirtF6M48gfIGW-53" source="dMIBYix0wGJR4mhEJEMT-3" target="dMIBYix0wGJR4mhEJEMT-18" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="650" y="600" />
@@ -104,24 +104,36 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-56" value="" style="group" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1" connectable="0">
-          <mxGeometry x="40" y="-280" width="1110" height="1420" as="geometry" />
+          <mxGeometry x="40" y="-280" width="1110" height="1730" as="geometry" />
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-55" value="Item buying process" style="swimlane;whiteSpace=wrap;html=1;" parent="hmTvUvVirtF6M48gfIGW-56" vertex="1">
-          <mxGeometry y="-120" width="1110" height="1540" as="geometry" />
+          <mxGeometry y="-146.2" width="920" height="1746.2" as="geometry" />
+        </mxCell>
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-46" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" parent="hmTvUvVirtF6M48gfIGW-55" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="190" y="1716.2" as="sourcePoint" />
+            <mxPoint x="178" y="59.697183098591545" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-47" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" parent="hmTvUvVirtF6M48gfIGW-55" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="440" y="1716.2" as="sourcePoint" />
+            <mxPoint x="428" y="48.732394366197184" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="hmTvUvVirtF6M48gfIGW-25" target="hmTvUvVirtF6M48gfIGW-26" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-25" value="Clan member wants to buy an Item from flea market" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
-          <mxGeometry x="48" y="139" width="118" height="80" as="geometry" />
+          <mxGeometry x="45" y="146.19718309859155" width="118" height="80" as="geometry" />
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-26" value="Sends a request&amp;nbsp;&lt;div&gt;to buy an Item&lt;/div&gt;" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
-          <mxGeometry x="236" y="139" width="150" height="80" as="geometry" />
+          <mxGeometry x="233" y="146.19718309859155" width="150" height="80" as="geometry" />
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="hmTvUvVirtF6M48gfIGW-31" target="hmTvUvVirtF6M48gfIGW-32" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="546" y="299" />
+              <mxPoint x="543" y="306.19718309859155" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -131,154 +143,148 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-31" value="Is player&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;logged in and&amp;nbsp;&lt;/span&gt;&lt;div&gt;a member&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;of a Clan&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;?&lt;/span&gt;&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
-          <mxGeometry x="466" y="119" width="160" height="120" as="geometry" />
+          <mxGeometry x="463" y="126.19718309859155" width="160" height="120" as="geometry" />
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-32" value="Sends a reject" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
-          <mxGeometry x="256" y="269" width="110" height="60" as="geometry" />
+          <mxGeometry x="253" y="276.19718309859155" width="110" height="60" as="geometry" />
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="hmTvUvVirtF6M48gfIGW-35" target="hmTvUvVirtF6M48gfIGW-37" edge="1">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="148" y="359" as="targetPoint" />
+            <mxPoint x="145" y="366.19718309859155" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-35" value="Sends success" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
-          <mxGeometry x="256" y="599" width="110" height="60" as="geometry" />
+          <mxGeometry x="253" y="606.1971830985915" width="110" height="60" as="geometry" />
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="hmTvUvVirtF6M48gfIGW-26" target="hmTvUvVirtF6M48gfIGW-31" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-37" value="Player gets response" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
-          <mxGeometry x="48" y="319" width="100" height="60" as="geometry" />
+          <mxGeometry x="45" y="326.19718309859155" width="100" height="60" as="geometry" />
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="hmTvUvVirtF6M48gfIGW-32" target="hmTvUvVirtF6M48gfIGW-37" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-49" value="Game" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
-          <mxGeometry x="78" y="69" width="60" height="30" as="geometry" />
+          <mxGeometry x="75" y="76.19718309859155" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-50" value="Internet" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
-          <mxGeometry x="293" y="69" width="60" height="30" as="geometry" />
+          <mxGeometry x="290" y="76.19718309859155" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="hmTvUvVirtF6M48gfIGW-51" value="API" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
-          <mxGeometry x="608" y="69" width="60" height="30" as="geometry" />
+          <mxGeometry x="605" y="76.19718309859155" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-10" target="hmTvUvVirtF6M48gfIGW-32">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-10" target="hmTvUvVirtF6M48gfIGW-32" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="408" y="434" />
-              <mxPoint x="408" y="299" />
+              <mxPoint x="405" y="441.19718309859155" />
+              <mxPoint x="405" y="306.19718309859155" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-15" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dMIBYix0wGJR4mhEJEMT-14">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-15" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="dMIBYix0wGJR4mhEJEMT-14" vertex="1" connectable="0">
           <mxGeometry x="-0.8208" y="3" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-10" target="dMIBYix0wGJR4mhEJEMT-22">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-10" target="dMIBYix0wGJR4mhEJEMT-22" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-25" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dMIBYix0wGJR4mhEJEMT-24">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-25" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="dMIBYix0wGJR4mhEJEMT-24" vertex="1" connectable="0">
           <mxGeometry x="-0.5564" y="1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-10" value="Does the Clan has&amp;nbsp;&lt;div&gt;enough coins to&amp;nbsp;&lt;/div&gt;&lt;div&gt;buy the Item?&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" vertex="1" parent="hmTvUvVirtF6M48gfIGW-55">
-          <mxGeometry x="482" y="379" width="170" height="110" as="geometry" />
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-10" value="Does the Clan has&amp;nbsp;&lt;div&gt;enough coins to&amp;nbsp;&lt;/div&gt;&lt;div&gt;buy the Item?&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
+          <mxGeometry x="479" y="386.19718309859155" width="170" height="110" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="hmTvUvVirtF6M48gfIGW-31" target="dMIBYix0wGJR4mhEJEMT-10">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="hmTvUvVirtF6M48gfIGW-31" target="dMIBYix0wGJR4mhEJEMT-10" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="698" y="179" />
-              <mxPoint x="698" y="434" />
+              <mxPoint x="695" y="186.19718309859155" />
+              <mxPoint x="695" y="441.19718309859155" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-13" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dMIBYix0wGJR4mhEJEMT-12">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-13" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="dMIBYix0wGJR4mhEJEMT-12" vertex="1" connectable="0">
           <mxGeometry x="-0.8745" y="1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-16" value="&lt;br&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Starts a voting between Clan members, whenever they want to buy the Item&lt;/span&gt;&lt;div&gt;&lt;br/&gt;&lt;/div&gt;" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=process;whiteSpace=wrap;rounded=1;size=0.14;arcSize=6;" vertex="1" parent="hmTvUvVirtF6M48gfIGW-55">
-          <mxGeometry x="517" y="884" width="100" height="60" as="geometry" />
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-16" value="&lt;br&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(251, 251, 251); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Start a voting between Clan members, whenever they want to buy the Item&lt;/span&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=process;whiteSpace=wrap;rounded=1;size=0.14;arcSize=6;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
+          <mxGeometry x="514" y="1041.1971830985915" width="100" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-22" target="dMIBYix0wGJR4mhEJEMT-23">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-22" target="dMIBYix0wGJR4mhEJEMT-23" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-22" value="Book the Item from the flea market so other Players can not buy it during the voting&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" vertex="1" parent="hmTvUvVirtF6M48gfIGW-55">
-          <mxGeometry x="517" y="579" width="100" height="100" as="geometry" />
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-22" value="Book the Item from the flea market so other Players can not buy it during the voting&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
+          <mxGeometry x="514" y="586.1971830985915" width="100" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-23" target="dMIBYix0wGJR4mhEJEMT-16">
+        <mxCell id="OcN8d44AKgJIc_ikEJC8-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-23" target="OcN8d44AKgJIc_ikEJC8-0">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-23" target="hmTvUvVirtF6M48gfIGW-35">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="408" y="779" />
-              <mxPoint x="408" y="629" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-23" value="Book the Item&#39;s price from Clan&#39;s coins&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
+          <mxGeometry x="514" y="736.1971830985915" width="100" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-23" value="Book the Item&#39;s price from Clan&#39;s coins&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" vertex="1" parent="hmTvUvVirtF6M48gfIGW-55">
-          <mxGeometry x="517" y="729" width="100" height="100" as="geometry" />
-        </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-29" target="dMIBYix0wGJR4mhEJEMT-31">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-29" target="dMIBYix0wGJR4mhEJEMT-31" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-29" value="Wait until the voting ends" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.delay;whiteSpace=wrap;" vertex="1" parent="hmTvUvVirtF6M48gfIGW-55">
-          <mxGeometry x="728" y="884" width="100" height="60" as="geometry" />
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-29" value="Wait until the voting ends" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.delay;whiteSpace=wrap;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
+          <mxGeometry x="726" y="1041.1971830985915" width="100" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-16" target="dMIBYix0wGJR4mhEJEMT-29">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-16" target="dMIBYix0wGJR4mhEJEMT-29" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-31" target="dMIBYix0wGJR4mhEJEMT-33">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-31" target="dMIBYix0wGJR4mhEJEMT-33" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-41" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dMIBYix0wGJR4mhEJEMT-39">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-41" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="dMIBYix0wGJR4mhEJEMT-39" vertex="1" connectable="0">
           <mxGeometry x="-0.8032" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-31" target="dMIBYix0wGJR4mhEJEMT-35">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-31" target="dMIBYix0wGJR4mhEJEMT-35" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-45" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dMIBYix0wGJR4mhEJEMT-44">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-45" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="dMIBYix0wGJR4mhEJEMT-44" vertex="1" connectable="0">
           <mxGeometry x="-0.601" y="-1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-31" value="Are Clan&amp;nbsp;&lt;div&gt;members desided to&amp;nbsp;&lt;/div&gt;&lt;div&gt;by the Item?&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" vertex="1" parent="hmTvUvVirtF6M48gfIGW-55">
-          <mxGeometry x="698" y="1089" width="160" height="100" as="geometry" />
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-31" value="Are Clan&amp;nbsp;&lt;div&gt;members desided to&amp;nbsp;&lt;/div&gt;&lt;div&gt;by the Item?&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
+          <mxGeometry x="696" y="1246.1971830985915" width="160" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-33" target="dMIBYix0wGJR4mhEJEMT-34">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-33" target="dMIBYix0wGJR4mhEJEMT-34" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-33" value="Release the Item so other Players can now buy it" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" vertex="1" parent="hmTvUvVirtF6M48gfIGW-55">
-          <mxGeometry x="517" y="1269" width="100" height="100" as="geometry" />
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-33" value="Release the Item so other Players can now buy it" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
+          <mxGeometry x="515" y="1426.1971830985915" width="100" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-34" value="Release booked Clan&#39;s coins" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" vertex="1" parent="hmTvUvVirtF6M48gfIGW-55">
-          <mxGeometry x="517" y="1419" width="100" height="100" as="geometry" />
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-34" value="Release booked Clan&#39;s coins" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
+          <mxGeometry x="515" y="1576.1971830985915" width="100" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-35" target="dMIBYix0wGJR4mhEJEMT-36">
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="hmTvUvVirtF6M48gfIGW-55" source="dMIBYix0wGJR4mhEJEMT-35" target="dMIBYix0wGJR4mhEJEMT-36" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-35" value="Move the Item to Clan&#39;s Stock" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" vertex="1" parent="hmTvUvVirtF6M48gfIGW-55">
-          <mxGeometry x="728" y="1269" width="100" height="100" as="geometry" />
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-35" value="Move the Item to Clan&#39;s Stock" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
+          <mxGeometry x="726" y="1426.1971830985915" width="100" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-36" value="Decrease Clan&#39;s booked coins amount&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" vertex="1" parent="hmTvUvVirtF6M48gfIGW-55">
-          <mxGeometry x="728" y="1419" width="100" height="100" as="geometry" />
+        <mxCell id="dMIBYix0wGJR4mhEJEMT-36" value="Decrease Clan&#39;s booked coins amount&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" parent="hmTvUvVirtF6M48gfIGW-55" vertex="1">
+          <mxGeometry x="726" y="1576.1971830985915" width="100" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-46" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55">
-          <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="188" y="1529" as="sourcePoint" />
-            <mxPoint x="178" y="49" as="targetPoint" />
+        <mxCell id="OcN8d44AKgJIc_ikEJC8-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="OcN8d44AKgJIc_ikEJC8-0" target="hmTvUvVirtF6M48gfIGW-35">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="405" y="936.1971830985915" />
+              <mxPoint x="405" y="636.1971830985915" />
+            </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="dMIBYix0wGJR4mhEJEMT-47" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55">
-          <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="438" y="1520" as="sourcePoint" />
-            <mxPoint x="428" y="40" as="targetPoint" />
-          </mxGeometry>
+        <mxCell id="OcN8d44AKgJIc_ikEJC8-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="hmTvUvVirtF6M48gfIGW-55" source="OcN8d44AKgJIc_ikEJC8-0" target="dMIBYix0wGJR4mhEJEMT-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OcN8d44AKgJIc_ikEJC8-0" value="Save voting data&amp;nbsp;&lt;div&gt;to DB&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.stored_data;whiteSpace=wrap;" vertex="1" parent="hmTvUvVirtF6M48gfIGW-55">
+          <mxGeometry x="508.5" y="906.1971830985915" width="111" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
