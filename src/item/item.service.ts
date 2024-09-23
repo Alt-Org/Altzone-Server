@@ -5,7 +5,7 @@ import {ModelName} from "../common/enum/modelName.enum";
 import {Item} from "./item.schema";
 import {CreateItemDto} from "./dto/createItem.dto";
 import {UpdateItemDto} from "./dto/updateItem.dto";
-import {ItemDto} from "./dto/Item.dto";
+import {ItemDto} from "./dto/item.dto";
 import BasicService from "../common/service/basicService/BasicService";
 import { TIServiceCreateManyOptions, TIServiceUpdateManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 import { MoveTo } from "./enum/moveTo.enum";

@@ -1,6 +1,7 @@
 #own folders
 strapi_test
 letsencrypt
+owncloud
 
 # Logs
 logs
