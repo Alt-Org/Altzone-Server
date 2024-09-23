@@ -24,6 +24,7 @@ import { SoulHomeModule } from './soulhome/soulhome.module';
 import { RoomModule } from './room/room.module';
 import { ClanVoteModule } from './shop/clanVote/clanVote.module';
 import { ItemShopModule } from './shop/itemShop/itemShop.module';
+import { GameDataModule } from './gameData/gameData.module';
 import { GameAnalyticsModule } from './gameAnalytics/gameAnalytics.module';
 
 // Set up database connection
@@ -52,7 +53,6 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       AuthModule,
       ItemShopModule,
       ClanVoteModule,
-      GameAnalyticsModule,
       JwtModule.register({
           global: true,
           secret: jwtConstants.secret,
@@ -61,6 +61,8 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       AuthorizationModule,
       PermissionModule,
       ApiStateModule,
+      GameDataModule,
+      GameAnalyticsModule
   ],
   controllers: [AppController],
   providers: [

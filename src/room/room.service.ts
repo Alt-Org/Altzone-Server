@@ -166,4 +166,15 @@ export class RoomService {
         for(let i=0, l=room_ids.length; i<l; i++)
             await this.basicService.updateOneById(room_ids[i], updateObject);
     }
+
+
+    /**
+     * Reads all rooms associated with a given Soul Home.
+     *
+     * @param soulHome_id - The ID of the soulHome
+     * @returns A promise that resolves to an array of RoomDto objects if successful, or a ServiceError array if something went wrong.
+     */
+    async readAllSoulHomeRooms(soulHome_id: string) {
+        return await this.basicService.readMany<RoomDto>({ filter: { soulHome_id } });
+    }
 }
