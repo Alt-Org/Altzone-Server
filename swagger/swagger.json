@@ -2602,6 +2602,9 @@
                     "401": {
                         "$ref": "#/components/responses/401_New"
                     },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
                     "404": {
                         "$ref": "#/components/responses/404_New"
                     },
@@ -2615,7 +2618,7 @@
                     }
                 ],
                 "summary": "Inform API about battle",
-                "description": "Enpoint for notifying the API about battle events or any other data.\n\nNotice, that the field type is required and determines the type of the data.\n\nNotice that the type also determines shape of the body. Examples, for each type can be found in request examples section.\n\n## Type field\n\n### result\n\nResult of the battle, all players of the battle should send this data.\n\nAs a response for winners an access token will be returned, which can be used when stealing Items from losed Clan's SoulHome. Notice that the steal token will expire after some period of time. Loosers will get 403 error\n\nThe steal token can be used only by the winner's Clan's members for the loser's Clan Stock.\n\nYou can see the process flow from [this diagram](https://github.com/Alt-Org/Altzone-Server/tree/dev/doc/img/game_results)"
+                "description": "Enpoint for notifying the API about battle events or any other data.\n\nNotice, that the field type is required and determines the type of the data.\n\nNotice that the type also determines shape of the body. Examples, for each type can be found in request examples section.\n\n## Type field\n\n### result\n\nResult of the battle, all players of the battle should send this data.\n\nAs a response for winners an access token will be returned, which can be used when stealing Items from losed Clan's SoulHome. Notice that the steal token will expire after some period of time. Losers will get 403 error = they can not get the steal token.\n\nThe steal token can be used only by the winner's Clan's members for the loser's Clan Stock.\n\nYou can see the process flow from [this diagram](https://github.com/Alt-Org/Altzone-Server/tree/dev/doc/img/game_results)"
             }
         },
         "/item/move": {
@@ -2949,6 +2952,55 @@
                 ],
                 "summary": "Sell an Item on the flea market",
                 "description": "Sell an Item on the flea market. This will start a voting in the Clan from which Item is being moved to the flee marked. Voting min approval percentage is 51. During the voting an Item is in \"Shipping\" status and can not be bought by other players.\n\nNotice that if a FleaMarketItem has already \"Shipping\" status 403 will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | yes, only selling Clan members |\n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there."
+            }
+        },
+        "/voting": {
+            "put": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "voting_id": "667eedc9b3b5bf0f7a840ef1",
+                                        "choice": "accept"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Voting"
+                ],
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/201"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Send a vote",
+                "description": "Send a vote.\n\nThe minimum acceptance percentage refering to the min percentage of a group members that need to accept some option for the voting to be concluded. For example Clan members are voting whenever they want to sell an Item or not and the min percentage might be 51 => if 51% of all this Clan members accept to sell the Item then the Item can be sold and otherwise if the 51% of Clan members reject to sell the Item it will not be sold. Same logic can be applied if there are more than 2 options available.\n\nVoting endpoint is served for different kinds of votings. The \"type\" field is an enum and determines what value the \"choice\" field may have.\n\n| type          | options            |\n| ------------- | ------------------ |\n| selling_item: | \"accept\", \"reject\" |\n| buying_item:  | \"accept\", \"reject\" |\n\n\n## selling_item\n\nPlayer votes whenever he/she wants that an item is going for sale to the flea market. The voter must be a member of the Clan from which item is going to sale, otherwise 403 will be returned. The min acceptance percentage is 51%. Notice that during the voting process there will be sent different notifications via MQTT:\n- new voting started\n- somebody has voted\n- voting ended\n\n## buying_item\n\nPlayer votes whenever he/she wants that an item should be bought from the flea market or not. The voter must be a member of the Clan for which item is going to be bought, otherwise 403 will be returned. The min acceptance percentage is 51%. The time limit for the voting is 10 mins. Notice that during the voting process there will be sent different notifications via MQTT:\n- new voting started\n- somebody has voted\n- voting ended\n- error if time limit expired"
             }
         }
     },
@@ -4656,6 +4708,10 @@
         {
             "name": "FleaMarket",
             "description": "Flea market, place where Clans can sell own items or buy other's."
+        },
+        {
+            "name": "Voting",
+            "description": "In-game votings"
         }
     ],
     "externalDocs": {
