@@ -2975,8 +2975,8 @@
                     "Voting"
                 ],
                 "responses": {
-                    "201": {
-                        "$ref": "#/components/responses/201"
+                    "204": {
+                        "$ref": "#/components/responses/204"
                     },
                     "400": {
                         "$ref": "#/components/responses/400_New"
@@ -3002,6 +3002,85 @@
                 "summary": "Send a vote",
                 "description": "Send a vote.\n\nThe minimum acceptance percentage refering to the min percentage of a group members that need to accept some option for the voting to be concluded. For example Clan members are voting whenever they want to sell an Item or not and the min percentage might be 51 => if 51% of all this Clan members accept to sell the Item then the Item can be sold and otherwise if the 51% of Clan members reject to sell the Item it will not be sold. Same logic can be applied if there are more than 2 options available.\n\nVoting endpoint is served for different kinds of votings. The \"type\" field is an enum and determines what value the \"choice\" field may have.\n\n| type          | options            |\n| ------------- | ------------------ |\n| selling_item: | \"accept\", \"reject\" |\n| buying_item:  | \"accept\", \"reject\" |\n\n\n## selling_item\n\nPlayer votes whenever he/she wants that an item is going for sale to the flea market. The voter must be a member of the Clan from which item is going to sale, otherwise 403 will be returned. The min acceptance percentage is 51%. Notice that during the voting process there will be sent different notifications via MQTT:\n- new voting started\n- somebody has voted\n- voting ended\n\n## buying_item\n\nPlayer votes whenever he/she wants that an item should be bought from the flea market or not. The voter must be a member of the Clan for which item is going to be bought, otherwise 403 will be returned. The min acceptance percentage is 51%. The time limit for the voting is 10 mins. Notice that during the voting process there will be sent different notifications via MQTT:\n- new voting started\n- somebody has voted\n- voting ended\n- error if time limit expired"
             }
+        },
+        "/voting/{_id}": {
+            "get": {
+                "tags": [
+                    "Voting"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "_id": "668953cd4a7b6c993aed1a36",
+                                            "startedAt": 1727178420,
+                                            "organizer_id": "668d6003a9292e300e94c833",
+                                            "type": "selling_item",
+                                            "player_ids": [
+                                                "66d86147184d5f0a7c0675ca",
+                                                "668a765091020196cb10d5a3"
+                                            ],
+                                            "votes": [
+                                                {
+                                                    "player_id": "66d86147184d5f0a7c0675ca",
+                                                    "choice": "accept"
+                                                },
+                                                {
+                                                    "player_id": "668a765091020196cb10d5a3",
+                                                    "choice": "reject"
+                                                }
+                                            ],
+                                            "minPercentage": 51
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success, response with body "
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get voting data by _id",
+                "description": "Get data of the current voting state.\n\nNotice that it can return 403 in case the logged-in player does not have permission to access the voting, for example if the player tries to access a voting that is an internal for other Clan."
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "1": {
+                            "value": "668a70ce91020196cb10d595"
+                        }
+                    },
+                    "name": "_id",
+                    "description": "voting _id",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
         }
     },
     "components": {
