@@ -10,6 +10,7 @@ import {RequestHelperModule} from "../requestHelper/requestHelper.module";
       ApiStateModule
   ],
   providers: [AuthService],
-  controllers: [AuthController]
+  controllers: [AuthController],
+  exports: [AuthService]
 })
 export class AuthModule {}
