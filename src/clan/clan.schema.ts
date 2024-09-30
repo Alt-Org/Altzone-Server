@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {HydratedDocument} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
 import {ExtractField} from "../common/decorator/response/ExtractField";
+import { ClanLabel } from '../common/enum/clanLabel.enum';
 
 export type ClanDocument = HydratedDocument<Clan>;
 
@@ -10,8 +11,8 @@ export class Clan {
     @Prop({ type: String, required: true, unique: true })
     name: string;
 
-    @Prop({ type: String })
-    tag: string;
+    @Prop({ type: [String], enum: ClanLabel })
+    labels?: string[];
 
     @Prop({ type: Number, default: 0 })
     gameCoins: number;
