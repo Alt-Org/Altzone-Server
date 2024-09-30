@@ -33,7 +33,7 @@ Server is available on https://altzone.fi/api
 
 ### Start DB
 
-Run ```docker compose up``` to start DB, mondo-express (UI for Mongo) and Nginx (it will take couple minutes for the first time)
+Run ```docker compose up``` to start DB, mongo-express (UI for Mongo) and Nginx (it will take couple minutes for the first time)
 
 ### Start the API
 

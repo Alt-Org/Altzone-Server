@@ -1283,11 +1283,11 @@
                 "description": "## Method description\n\nUpdate Room by its _id specified in the body.\n\nAny Clan member can update any Room, which (SoulHome) belongs to the Clan.\n\nIf the logged-in user is a Clan member and the Clan does have the requested Room, the Room for this Clan will be returned. \n\nIf the logged-in user is not belonging to any Clan, or Room in that Clan with provided _id is not found the 404 error will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n\n\n## Endpoint description\n\n### General description\n\nRoom is a place, which can safely store Items of a Clan. Items from the Room can not be stolen. \n\nRoom is closely related to its SoulHome. SoulHome consists of Rooms. \n\nRoom has an automatic behavior. Room has two statuses active and deactivated. When the Room is becoming deactivated its isActive field is taking on the value false. This should be done automatically when the deactivationTimestamp field is expired.\n\n### Relations\n\nRoom can belong to one SoulHome. SoulHome may have many Rooms.\n\nRoom can have many Items. Item may belong to one Room.\n\n### CRUD operations\n\nRooms for a SoulHome must be created automatically, when a SoulHome is created. Therefore there is no enpoint for Room creation.\n\nRoom and all Rooms can be read by Clan members, to which the Room (its SoulHome) is belonging.\n\nRoom can be updated by Clan members, to which it (its SoulHome) belongs.\n\nRoom can be deleted only automatically, when the SoulHome, to which the Room belongs is deleted."
             }
         },
-        "/fleeMarket": {
+        "/fleaMarket": {
             "get": {
                 "tags": [
                     "in-development",
-                    "FleeMarket"
+                    "FleaMarket"
                 ],
                 "responses": {
                     "200": {
@@ -1384,7 +1384,7 @@
                                     "1": {
                                         "value": {
                                             "data": {
-                                                "FleeMarketItem": [
+                                                "FleaMarketItem": [
                                                     {
                                                         "_id": "668a70ce91020196cb10d595",
                                                         "name": "item1",
@@ -1399,8 +1399,8 @@
                                                 ]
                                             },
                                             "metaData": {
-                                                "dataKey": "FleeMarketItem",
-                                                "modelName": "FleeMarketItem",
+                                                "dataKey": "FleaMarketItem",
+                                                "modelName": "FleaMarketItem",
                                                 "dataType": "Array",
                                                 "dataCount": 1
                                             }
@@ -1426,15 +1426,15 @@
                         "JWTAuth": []
                     }
                 ],
-                "summary": "Get all flee market items",
-                "description": "Get all FleeMarketItems of the flee market\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | \n\n## Endpoint description\n\n### General description\n\nThe FleeMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleeMarketItem belongs to a selling Clan. The selling Clan can have many FleeMarketItems. FleeMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleeMarketItem is added by Clan member by moving the Item from Stock to FleeMarket, which means the Item from Stock is copied to the FleeMarketItem collection and then removed from the Stock.\n\nFleeMarketItems can be read by any logged-in user.\n\nFleeMarketItem data can not be changed at the time and it is read-only.\n\nFleeMarketItem can not be removed from the FleeMarket at the time once it is put there.\n"
+                "summary": "Get all flea market items",
+                "description": "Get all FleaMarketItems of the flea market\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | \n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there.\n"
             }
         },
-        "/fleeMarket/{_id}": {
+        "/fleaMarket/{_id}": {
             "get": {
                 "tags": [
                     "in-development",
-                    "FleeMarket"
+                    "FleaMarket"
                 ],
                 "responses": {
                     "200": {
@@ -1508,7 +1508,7 @@
                                     "1": {
                                         "value": {
                                             "data": {
-                                                "FleeMarketItem": {
+                                                "FleaMarketItem": {
                                                     "_id": "668a70ce91020196cb10d595",
                                                     "name": "item1",
                                                     "weight": 67,
@@ -1521,8 +1521,8 @@
                                                 }
                                             },
                                             "metaData": {
-                                                "dataKey": "FleeMarketItem",
-                                                "modelName": "FleeMarketItem",
+                                                "dataKey": "FleaMarketItem",
+                                                "modelName": "FleaMarketItem",
                                                 "dataType": "Object",
                                                 "dataCount": 1
                                             }
@@ -1548,8 +1548,8 @@
                         "JWTAuth": []
                     }
                 ],
-                "summary": "Get flee market item data by _id",
-                "description": "Get an idividual FleeMarketItem by its mongo _id field.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | \n\n## Endpoint description\n\n### General description\n\nThe FleeMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleeMarketItem belongs to a selling Clan. The selling Clan can have many FleeMarketItems. FleeMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleeMarketItem is added by Clan member by moving the Item from Stock to FleeMarket, which means the Item from Stock is copied to the FleeMarketItem collection and then removed from the Stock.\n\nFleeMarketItems can be read by any logged-in user.\n\nFleeMarketItem data can not be changed at the time and it is read-only.\n\nFleeMarketItem can not be removed from the FleeMarket at the time once it is put there.\n"
+                "summary": "Get flea market item data by _id",
+                "description": "Get an idividual FleaMarketItem by its mongo _id field.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | \n\n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there.\n"
             },
             "parameters": [
                 {
@@ -1559,7 +1559,7 @@
                         }
                     },
                     "name": "_id",
-                    "description": "FleeMarketItem _id to get",
+                    "description": "FleaMarketItem _id to get",
                     "schema": {
                         "type": "string"
                     },
@@ -2602,6 +2602,9 @@
                     "401": {
                         "$ref": "#/components/responses/401_New"
                     },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
                     "404": {
                         "$ref": "#/components/responses/404_New"
                     },
@@ -2615,7 +2618,7 @@
                     }
                 ],
                 "summary": "Inform API about battle",
-                "description": "Enpoint for notifying the API about battle events or any other data.\n\nNotice, that the field type is required and determines the type of the data.\n\nNotice that the type also determines shape of the body. Examples, for each type can be found in request examples section.\n\n## Type field\n\n### result\n\nResult of the battle, all players of the battle should send this data.\n\nAs a response for winners an access token will be returned, which can be used when stealing Items from losed Clan's SoulHome. Notice that the steal token will expire after some period of time. Loosers will get 403 error\n\nThe steal token can be used only by the winner's Clan's members for the loser's Clan Stock.\n\nYou can see the process flow from [this diagram](https://github.com/Alt-Org/Altzone-Server/tree/dev/doc/img/game_results)"
+                "description": "Enpoint for notifying the API about battle events or any other data.\n\nNotice, that the field type is required and determines the type of the data.\n\nNotice that the type also determines shape of the body. Examples, for each type can be found in request examples section.\n\n## Type field\n\n### result\n\nResult of the battle, all players of the battle should send this data.\n\nAs a response for winners an access token will be returned, which can be used when stealing Items from losed Clan's SoulHome. Notice that the steal token will expire after some period of time. Losers will get 403 error = they can not get the steal token.\n\nThe steal token can be used only by the winner's Clan's members for the loser's Clan Stock.\n\nYou can see the process flow from [this diagram](https://github.com/Alt-Org/Altzone-Server/tree/dev/doc/img/game_results)"
             }
         },
         "/item/move": {
@@ -2666,7 +2669,7 @@
                 "description": "Move Item from Stock to Room or from Room to Stock, based on the _moveTo_ field, which can have only two values: \"Stock\" or \"Room\"\n\nNotice that Clan members can move only own Clan Items and a member is trying to move other Clan's Item the 404 will be returned.\n\nNotice that if an Item need to be moved to a Stock then there is no need to specify the destination_id field, since Clan can have only one Stock.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n\n## Endpoint description\n\n### General description\n\nItems are objects, which can be placed in SoulHomes' Rooms, Stocks and Shop. Item is an object, which has its value in the game and can be bought from the Shop, stolen from the Stock or placed in safe to SoulHome's Room.\n\nItems can be obtained only from Shop and then stored in Room or a Stock.\n\nItem can be a furniture or some other kind of object. The difference between furniture and not furniture is that a furniture can be placed only on a floor. Not furniture can be placed anywhere including on top of a furniture, walls, celling and floor. This data is used in game logic only and does not affect the API in any way.\n\n### Relations\n\nItem can belong to one Room. Room can have multiple Items.\n\nItem can belong to one Stock. Stock can have multiple Items.\n\nItem can belong to Shop. Shop can have multiple Items.\n\n### CRUD operations\n\nItem can not be created by Player. It can only be bought from Shop. API creates new Items automatically.\n\nItem can be read by anyone. One Item can be accessed via its _id field. Multiple Items can be accessed by requesting them within another endpoints via \"with\" or \"all\" queries (/stock/:stock_id?with=Item), since they are mostly required together with Stock, Room or Shop data.\n\nItem can not be directly updated by Players. However, Players may move Items from one place to another. They first can buy an Item from Shop and so update Item's place by moving it to the Clan's Stock. Then they can move it from SoulHome to Stock or vice versa. Item can be bought from Shop via /stock/buy enpoint (not yet implemented). Item can be moved from Room to Stock or from Stock to Room via /item/move POST endpoint.\n\nItem can not be deleted."
             }
         },
-        "/fleeMarket/buy": {
+        "/fleaMarket/buy": {
             "post": {
                 "requestBody": {
                     "description": "Item to buy",
@@ -2685,7 +2688,7 @@
                 },
                 "tags": [
                     "in-development",
-                    "FleeMarket"
+                    "FleaMarket"
                 ],
                 "responses": {
                     "201": {
@@ -2712,8 +2715,8 @@
                         "JWTAuth": []
                     }
                 ],
-                "summary": "Buy an Item from the flee market",
-                "description": "Buy an Item from the flee market. This will start a voting in the Clan for which Item is being purchased. Voting duration is 10 min at max and the min approval percentage is 51. During the voting an Item is in \"Booked\" status and can not be bought by other players.\n\nNotice that if a FleeMarketItem has already \"Booked\" status 403 will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | yes, only buying Clan members |\n\n## Endpoint description\n\n### General description\n\nThe FleeMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleeMarketItem belongs to a selling Clan. The selling Clan can have many FleeMarketItems. FleeMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleeMarketItem is added by Clan member by moving the Item from Stock to FleeMarket, which means the Item from Stock is copied to the FleeMarketItem collection and then removed from the Stock.\n\nFleeMarketItems can be read by any logged-in user.\n\nFleeMarketItem data can not be changed at the time and it is read-only.\n\nFleeMarketItem can not be removed from the FleeMarket at the time once it is put there.\n"
+                "summary": "Buy an Item from the flea market",
+                "description": "Buy an Item from the flea market. This will start a voting in the Clan for which Item is being purchased. Voting duration is 10 min at max and the min approval percentage is 51. During the voting an Item is in \"Booked\" status and can not be bought by other players.\n\nNotice that if a FleaMarketItem has already \"Booked\" status 403 will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | yes, only buying Clan members |\n\n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there.\n"
             }
         },
         "/auth/signIn": {
@@ -2901,7 +2904,7 @@
                 "description": "Enpoint uploads a log file and save on the server.\n\nThe file will be saved to the folder with name corresponding to the date when it was uploaded, i.e. 1-9-2024.\n\nFile name must be unique and therefore its name will contain date, time, Player _id and a random string, i.e. 1-9-2024_14-45-12_667eedc9b3b5bf0f7a840ef1_123456.log\n\nNotice that the request must have a Secret header which holds a password for such requests.\n\nNotice that the request must be in multipart/form-data format, where field name containing the file is \"logFile\""
             }
         },
-        "/fleeMarket/sell": {
+        "/fleaMarket/sell": {
             "post": {
                 "requestBody": {
                     "description": "Item to sell",
@@ -2920,7 +2923,7 @@
                 },
                 "tags": [
                     "in-development",
-                    "FleeMarket"
+                    "FleaMarket"
                 ],
                 "responses": {
                     "201": {
@@ -2947,9 +2950,137 @@
                         "JWTAuth": []
                     }
                 ],
-                "summary": "Sell an Item on the flee market",
-                "description": "Sell an Item on the flee market. This will start a voting in the Clan from which Item is being moved to the flee marked. Voting min approval percentage is 51. During the voting an Item is in \"Shipping\" status and can not be bought by other players.\n\nNotice that if a FleeMarketItem has already \"Shipping\" status 403 will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | yes, only selling Clan members |\n\n## Endpoint description\n\n### General description\n\nThe FleeMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleeMarketItem belongs to a selling Clan. The selling Clan can have many FleeMarketItems. FleeMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleeMarketItem is added by Clan member by moving the Item from Stock to FleeMarket, which means the Item from Stock is copied to the FleeMarketItem collection and then removed from the Stock.\n\nFleeMarketItems can be read by any logged-in user.\n\nFleeMarketItem data can not be changed at the time and it is read-only.\n\nFleeMarketItem can not be removed from the FleeMarket at the time once it is put there.\n"
+                "summary": "Sell an Item on the flea market",
+                "description": "Sell an Item on the flea market. This will start a voting in the Clan from which Item is being moved to the flee marked. Voting min approval percentage is 51. During the voting an Item is in \"Shipping\" status and can not be bought by other players.\n\nNotice that if a FleaMarketItem has already \"Shipping\" status 403 will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | yes, only selling Clan members |\n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there."
             }
+        },
+        "/voting": {
+            "put": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "voting_id": "667eedc9b3b5bf0f7a840ef1",
+                                        "choice": "accept"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Voting"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Send a vote",
+                "description": "Send a vote.\n\nThe minimum acceptance percentage refering to the min percentage of a group members that need to accept some option for the voting to be concluded. For example Clan members are voting whenever they want to sell an Item or not and the min percentage might be 51 => if 51% of all this Clan members accept to sell the Item then the Item can be sold and otherwise if the 51% of Clan members reject to sell the Item it will not be sold. Same logic can be applied if there are more than 2 options available.\n\nVoting endpoint is served for different kinds of votings. The \"type\" field is an enum and determines what value the \"choice\" field may have.\n\n| type          | options            |\n| ------------- | ------------------ |\n| selling_item: | \"accept\", \"reject\" |\n| buying_item:  | \"accept\", \"reject\" |\n\n\n## selling_item\n\nPlayer votes whenever he/she wants that an item is going for sale to the flea market. The voter must be a member of the Clan from which item is going to sale, otherwise 403 will be returned. The min acceptance percentage is 51%. Notice that during the voting process there will be sent different notifications via MQTT:\n- new voting started\n- somebody has voted\n- voting ended\n\n## buying_item\n\nPlayer votes whenever he/she wants that an item should be bought from the flea market or not. The voter must be a member of the Clan for which item is going to be bought, otherwise 403 will be returned. The min acceptance percentage is 51%. The time limit for the voting is 10 mins. Notice that during the voting process there will be sent different notifications via MQTT:\n- new voting started\n- somebody has voted\n- voting ended\n- error if time limit expired"
+            }
+        },
+        "/voting/{_id}": {
+            "get": {
+                "tags": [
+                    "Voting"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "_id": "668953cd4a7b6c993aed1a36",
+                                            "startedAt": 1727178420,
+                                            "organizer_id": "668d6003a9292e300e94c833",
+                                            "type": "selling_item",
+                                            "player_ids": [
+                                                "66d86147184d5f0a7c0675ca",
+                                                "668a765091020196cb10d5a3"
+                                            ],
+                                            "votes": [
+                                                {
+                                                    "player_id": "66d86147184d5f0a7c0675ca",
+                                                    "choice": "accept"
+                                                },
+                                                {
+                                                    "player_id": "668a765091020196cb10d5a3",
+                                                    "choice": "reject"
+                                                }
+                                            ],
+                                            "minPercentage": 51
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success, response with body "
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get voting data by _id",
+                "description": "Get data of the current voting state.\n\nNotice that it can return 403 in case the logged-in player does not have permission to access the voting, for example if the player tries to access a voting that is an internal for other Clan."
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "1": {
+                            "value": "668a70ce91020196cb10d595"
+                        }
+                    },
+                    "name": "_id",
+                    "description": "voting _id",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
         }
     },
     "components": {
@@ -4654,8 +4785,12 @@
             "description": "Various functionality for game analytics"
         },
         {
-            "name": "FleeMarket",
-            "description": "Flee market, place where Clans can sell own items or buy other's."
+            "name": "FleaMarket",
+            "description": "Flea market, place where Clans can sell own items or buy other's."
+        },
+        {
+            "name": "Voting",
+            "description": "In-game votings"
         }
     ],
     "externalDocs": {

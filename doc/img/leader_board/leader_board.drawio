@@ -1,0 +1,67 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.8 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.8">
+  <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
+    <mxGraphModel dx="1562" dy="957" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="h8LuHstR76urkbQpMCvY-14" value="Top Clans leader board request" style="swimlane;whiteSpace=wrap;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+          <mxGeometry x="9" y="40" width="810" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="h8LuHstR76urkbQpMCvY-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="h8LuHstR76urkbQpMCvY-14" source="EeeF___QMRqapKU7vAIY-0" target="h8LuHstR76urkbQpMCvY-1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="EeeF___QMRqapKU7vAIY-0" value="Player wants to see top Clans" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" parent="h8LuHstR76urkbQpMCvY-14" vertex="1">
+          <mxGeometry x="21.5" y="60" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h8LuHstR76urkbQpMCvY-1" value="Sends request" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="h8LuHstR76urkbQpMCvY-14" vertex="1">
+          <mxGeometry x="201.5" y="60" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h8LuHstR76urkbQpMCvY-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="h8LuHstR76urkbQpMCvY-14" source="h8LuHstR76urkbQpMCvY-2" target="h8LuHstR76urkbQpMCvY-4" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="511.5" y="230" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h8LuHstR76urkbQpMCvY-13" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="h8LuHstR76urkbQpMCvY-5" vertex="1" connectable="0">
+          <mxGeometry x="-0.8499" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h8LuHstR76urkbQpMCvY-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="h8LuHstR76urkbQpMCvY-14" source="h8LuHstR76urkbQpMCvY-2" target="h8LuHstR76urkbQpMCvY-3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h8LuHstR76urkbQpMCvY-10" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="h8LuHstR76urkbQpMCvY-9" vertex="1" connectable="0">
+          <mxGeometry x="-0.633" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h8LuHstR76urkbQpMCvY-2" value="Where the&amp;nbsp;&lt;div&gt;board updated within&amp;nbsp;&lt;/div&gt;&lt;div&gt;last 12 hours?&amp;nbsp;&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" parent="h8LuHstR76urkbQpMCvY-14" vertex="1">
+          <mxGeometry x="431.5" y="40" width="160" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="h8LuHstR76urkbQpMCvY-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="h8LuHstR76urkbQpMCvY-14" source="h8LuHstR76urkbQpMCvY-3" target="h8LuHstR76urkbQpMCvY-4" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="738.5" y="230" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h8LuHstR76urkbQpMCvY-3" value="Regenerate the board again" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" parent="h8LuHstR76urkbQpMCvY-14" vertex="1">
+          <mxGeometry x="688.5" y="40" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="h8LuHstR76urkbQpMCvY-4" value="Send list of&amp;nbsp;&lt;div&gt;top Clans&lt;/div&gt;" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" parent="h8LuHstR76urkbQpMCvY-14" vertex="1">
+          <mxGeometry x="206.5" y="200" width="115" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h8LuHstR76urkbQpMCvY-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" parent="h8LuHstR76urkbQpMCvY-14" source="h8LuHstR76urkbQpMCvY-1" target="h8LuHstR76urkbQpMCvY-2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h8LuHstR76urkbQpMCvY-11" value="Player gets top Clans" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;" parent="h8LuHstR76urkbQpMCvY-14" vertex="1">
+          <mxGeometry x="21.5" y="200" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h8LuHstR76urkbQpMCvY-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" parent="h8LuHstR76urkbQpMCvY-14" source="h8LuHstR76urkbQpMCvY-4" target="h8LuHstR76urkbQpMCvY-11" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

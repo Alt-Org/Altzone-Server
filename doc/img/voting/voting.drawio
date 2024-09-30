@@ -1,0 +1,187 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.8 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.8">
+  <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
+    <mxGraphModel dx="735" dy="957" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-49" value="Voting for item to sell / buy process" style="swimlane;whiteSpace=wrap;html=1;container=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+          <mxGeometry x="853" y="20" width="887" height="1030" as="geometry">
+            <mxRectangle x="853" y="20" width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="m72Cucl0lrbH9CYc9DHn-0" target="m72Cucl0lrbH9CYc9DHn-2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-0" value="Player has chosen an Item to sell / buy" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="57" y="75" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="m72Cucl0lrbH9CYc9DHn-1" target="m72Cucl0lrbH9CYc9DHn-6" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="757" y="105" />
+              <mxPoint x="757" y="250" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-1" value="Voting data is saved" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=process;whiteSpace=wrap;rounded=1;size=0.14;arcSize=6;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="614.5" y="75" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="m72Cucl0lrbH9CYc9DHn-2" target="m72Cucl0lrbH9CYc9DHn-1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-2" value="Sends data of chosen Item" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="300" y="75" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="m72Cucl0lrbH9CYc9DHn-6" target="m72Cucl0lrbH9CYc9DHn-8" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-6" value="Sends notification&amp;nbsp;&lt;div&gt;via MQTT broker&amp;nbsp;&lt;/div&gt;&lt;div&gt;about started voting&amp;nbsp;&lt;/div&gt;&lt;div&gt;with voting _id&lt;/div&gt;" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="261" y="210" width="190" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="m72Cucl0lrbH9CYc9DHn-8" target="m72Cucl0lrbH9CYc9DHn-10" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="107" y="405" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-8" value="Clan members see that the voting is started and deside whenever they want to sell / buy or not" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="57" y="200" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-10" value="Sends vote&amp;nbsp;&lt;div&gt;with voting&lt;/div&gt;&lt;div&gt;&amp;nbsp;_id&lt;/div&gt;" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="296" y="375" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="m72Cucl0lrbH9CYc9DHn-12" target="m72Cucl0lrbH9CYc9DHn-17" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="665" y="515" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-21" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="88q-Dpn8F04BBY4nHb_a-6" vertex="1" connectable="0">
+          <mxGeometry x="-0.8816" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-12" value="Is&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;logged-in&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;player,&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;member of&amp;nbsp;&lt;/span&gt;&lt;div&gt;the&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;Clan where&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;voting is&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;going?&lt;/div&gt;&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="579.5" y="337.5" width="170" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="m72Cucl0lrbH9CYc9DHn-14" target="m72Cucl0lrbH9CYc9DHn-31" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-22" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="88q-Dpn8F04BBY4nHb_a-12" vertex="1" connectable="0">
+          <mxGeometry x="-0.6869" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="m72Cucl0lrbH9CYc9DHn-14" target="m72Cucl0lrbH9CYc9DHn-35" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="665" y="925" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-23" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="88q-Dpn8F04BBY4nHb_a-16" vertex="1" connectable="0">
+          <mxGeometry x="-0.8949" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-14" value="Is voting ended = does&lt;div&gt;&amp;nbsp;the voting has min amount of approvals or rejections&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="568.25" y="690" width="192.5" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="m72Cucl0lrbH9CYc9DHn-17" target="m72Cucl0lrbH9CYc9DHn-21" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-17" value="Sends reject" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="306" y="485" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="m72Cucl0lrbH9CYc9DHn-18" target="m72Cucl0lrbH9CYc9DHn-21" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="236" y="600" />
+              <mxPoint x="236" y="565" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-18" value="Sends success" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="296" y="570" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-21" value="Player receives the response" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="67" y="515" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-28" value="Clan members receives the notification that voting is ended" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="67" y="720" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-31" value="Sends notification&amp;nbsp;&lt;div&gt;that voting is done&amp;nbsp;&lt;/div&gt;&lt;div&gt;via MQTT broker&lt;/div&gt;" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="276" y="715" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="m72Cucl0lrbH9CYc9DHn-35" target="m72Cucl0lrbH9CYc9DHn-37" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-35" value="Sends notification&amp;nbsp;&lt;div&gt;about new vote&amp;nbsp;&lt;/div&gt;&lt;div&gt;made&lt;/div&gt;" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="276" y="885" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-37" value="Clan members get the notification about new vote made" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="67" y="875" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-44" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" parent="m72Cucl0lrbH9CYc9DHn-49" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="217" y="975" as="sourcePoint" />
+            <mxPoint x="216" y="35" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-46" value="Game" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="77" y="35" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-47" value="Internet" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="325" y="35" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m72Cucl0lrbH9CYc9DHn-48" value="API" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;container=0;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="579.5" y="35" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="m72Cucl0lrbH9CYc9DHn-10" target="m72Cucl0lrbH9CYc9DHn-12" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-8" value="" style="shape=waypoint;sketch=0;fillStyle=solid;size=6;pointerEvents=1;points=[];fillColor=none;resizable=0;rotatable=0;perimeter=centerPerimeter;snapToPoint=1;" parent="m72Cucl0lrbH9CYc9DHn-49" vertex="1">
+          <mxGeometry x="796" y="590" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.56;entryY=-0.01;entryDx=0;entryDy=0;entryPerimeter=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="m72Cucl0lrbH9CYc9DHn-12" target="88q-Dpn8F04BBY4nHb_a-8" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-20" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="88q-Dpn8F04BBY4nHb_a-9" vertex="1" connectable="0">
+          <mxGeometry x="-0.7866" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="88q-Dpn8F04BBY4nHb_a-8" target="m72Cucl0lrbH9CYc9DHn-14" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="806" y="755" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.917;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="88q-Dpn8F04BBY4nHb_a-8" target="m72Cucl0lrbH9CYc9DHn-18" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" parent="m72Cucl0lrbH9CYc9DHn-49" source="m72Cucl0lrbH9CYc9DHn-31" target="m72Cucl0lrbH9CYc9DHn-28" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="88q-Dpn8F04BBY4nHb_a-26" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1330" y="996" as="sourcePoint" />
+            <mxPoint x="1330" y="56" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uJLH5HQEmcCicQbO4MA_-6" value="The notification is sent to &quot;/clan/{clan_id}/voting/undefined/new&quot; topic.&lt;div&gt;With json payload:&lt;/div&gt;&lt;div&gt;{&lt;/div&gt;&lt;div&gt;&amp;nbsp; topic: &quot;&lt;span style=&quot;background-color: initial;&quot;&gt;/clan/{clan_id}/voting/{voting_id}&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&quot;,&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp; status: &quot;new&quot;,&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp; voting_id: {voting_id},&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp; type: &quot;selling_item&quot;, // &quot;selling_item&quot; if selling, &quot;buying_item&quot; if buying&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp; item: {item_object}, // item data for selling or buying,&lt;/div&gt;&lt;div&gt;&amp;nbsp; organizer: {player_object} // who has chosen the item = organizer&amp;nbsp;&amp;nbsp;&lt;/div&gt;&lt;div&gt;}&lt;/div&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;fontSize=14;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="1760" y="150" width="440" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="uJLH5HQEmcCicQbO4MA_-7" value="The notification is sent to &quot;/clan/{clan_id}/voting/{voting_id}/end&quot; topic.&lt;div&gt;With json payload:&lt;/div&gt;&lt;div&gt;{&lt;/div&gt;&lt;div&gt;&amp;nbsp; topic: &quot;&lt;span style=&quot;background-color: initial;&quot;&gt;/clan/{clan_id}/voting/{voting_id}&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&quot;,&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp; status: &quot;end&quot;,&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp; voting_id: {voting_id},&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp; type: &quot;selling_item&quot;, // &quot;selling_item&quot; if selling, &quot;buying_item&quot; if buying&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp; item: {item_object}, // item data for selling or buying&lt;/div&gt;&lt;div&gt;}&lt;/div&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;fontSize=14;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="1760" y="600" width="440" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="uJLH5HQEmcCicQbO4MA_-8" value="The notification is sent to &quot;/clan/{clan_id}/voting/{voting_id}/update&quot; topic.&lt;div&gt;With json payload:&lt;/div&gt;&lt;div&gt;{&lt;/div&gt;&lt;div&gt;&amp;nbsp; topic: &quot;&lt;span style=&quot;background-color: initial;&quot;&gt;/clan/{clan_id}/voting/{voting_id}&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&quot;,&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp; status: &quot;update&quot;,&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp; voting_id: {voting_id},&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp; type: &quot;selling_item&quot;, // &quot;selling_item&quot; if selling, &quot;buying_item&quot; if buying&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp; item: {item_object}, // item data for selling or buying,&lt;/div&gt;&lt;div&gt;&amp;nbsp; voter: {player_object} // player who has voted&amp;nbsp;&amp;nbsp;&lt;/div&gt;&lt;div&gt;}&lt;/div&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;fontSize=14;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="1760" y="880" width="440" height="240" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

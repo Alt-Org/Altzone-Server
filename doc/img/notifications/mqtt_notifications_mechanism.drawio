@@ -1,0 +1,290 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.8 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.8">
+  <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
+    <mxGraphModel dx="1302" dy="798" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-94" value="MQTT topics" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="50" y="1670" width="1520" height="550" as="geometry">
+            <mxRectangle x="50" y="1640" width="140" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-81" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;Group&lt;/font&gt;&lt;/b&gt;&lt;div&gt;For example Clan to which Player belongs to or his/her personal notifications&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-94">
+          <mxGeometry x="40" y="70" width="220" height="146" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-82" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;Group _id&lt;/font&gt;&lt;/b&gt;&lt;div&gt;For example Clan&#39;s _id or Player&#39;s _id.&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-94">
+          <mxGeometry x="280" y="70" width="220" height="146" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-83" value="&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;Notification resource&lt;/b&gt;&lt;/span&gt;&lt;br&gt;&lt;div&gt;What kind of the notification it is, for example voting or daily task.&amp;nbsp;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-94">
+          <mxGeometry x="520" y="70" width="220" height="146" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-84" value="&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;Notification resource _id&lt;/b&gt;&lt;/span&gt;&lt;br&gt;&lt;div&gt;For example voting _id.&lt;/div&gt;&lt;div&gt;Notice that there is &quot;undefined&quot; value, which works as a placeholder in case the resource can not be defined (if process status = new)&amp;nbsp;&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-94">
+          <mxGeometry x="760" y="70" width="220" height="146" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-85" value="&lt;span style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;Process status&lt;/b&gt;&lt;/span&gt;&lt;br&gt;&lt;div&gt;Usually a notification is coming about some continuing process step. For example voting has 3 steps: start, players are voting, end.&lt;/div&gt;&lt;div&gt;The process status can be described with 4 statuses:&lt;/div&gt;&lt;div&gt;1. New - Starting point, voting started&lt;/div&gt;&lt;div&gt;2. Update - Process updates, someone has voted&lt;/div&gt;&lt;div&gt;3. Error - Error occured during the process and it can not be continued. Voting time is over and there are not enought voters participated&lt;/div&gt;&lt;div&gt;4. End - Process end, voting is done.&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-94">
+          <mxGeometry x="1000" y="70" width="390" height="146" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-86" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;MQTT topics examples&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-94">
+          <mxGeometry x="40" y="256" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-87" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;Get notification when particular voting is done:&amp;nbsp;&lt;/font&gt;&lt;div style=&quot;font-size: 14px;&quot;&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;/&lt;/b&gt;&amp;nbsp;clan &lt;b&gt;/&lt;/b&gt; {clan_id} &lt;b&gt;/&lt;/b&gt; voting &lt;b&gt;/&lt;/b&gt; {voting_id} &lt;b&gt;/&lt;/b&gt; end&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;font-size: 14px;&quot;&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;/&amp;nbsp;&lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;clan&amp;nbsp;&lt;/span&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;/&amp;nbsp;&lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;667eedc9b3b5bf0f7a840ef1&amp;nbsp;&lt;/span&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;/&amp;nbsp;&lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;voting&amp;nbsp;&lt;/span&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;/&amp;nbsp;&lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;667bfec6afb8211b4bd8dbff&amp;nbsp;&lt;/span&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;/ &lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;end&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-94">
+          <mxGeometry x="40" y="296" width="560" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-88" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;Get all notifications coming for particular clan members:&amp;nbsp;&lt;/font&gt;&lt;div style=&quot;font-size: 14px;&quot;&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;/&lt;/b&gt;&amp;nbsp;clan &lt;b&gt;/&lt;/b&gt; {clan_id}&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;font-size: 14px;&quot;&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;/&amp;nbsp;&lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;clan&amp;nbsp;&lt;/span&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;/&amp;nbsp;&lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;667eedc9b3b5bf0f7a840ef1&lt;/span&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-94">
+          <mxGeometry x="40" y="376" width="360" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-89" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;Get notifications of new voting started:&amp;nbsp;&lt;/font&gt;&lt;div style=&quot;font-size: 14px;&quot;&gt;&lt;div&gt;&lt;b&gt;/&lt;/b&gt;&amp;nbsp;clan&amp;nbsp;&lt;b&gt;/&lt;/b&gt;&amp;nbsp;{clan_id}&amp;nbsp;&lt;b&gt;/&lt;/b&gt;&amp;nbsp;voting&amp;nbsp;&lt;b&gt;/&lt;/b&gt;&amp;nbsp;{voting_id = undefined}&amp;nbsp;&lt;b&gt;/&lt;/b&gt;&amp;nbsp;new&lt;/div&gt;&lt;div&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;/&amp;nbsp;&lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;clan&amp;nbsp;&lt;/span&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;/&amp;nbsp;&lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;667eedc9b3b5bf0f7a840ef1&amp;nbsp;&lt;/span&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;/&amp;nbsp;&lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;voting&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;b&gt;/ &lt;/b&gt;undefined&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;/ &lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;new&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-94">
+          <mxGeometry x="40" y="456" width="490" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-96" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;MQTT topics structure&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-94">
+          <mxGeometry x="40" y="30" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-95" value="Vertical Container" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="30" y="20" width="500" height="450" as="geometry">
+            <mxRectangle x="40" y="20" width="140" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-0" value="Game" style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.mobile;container=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-95">
+          <mxGeometry x="260" y="300" width="50" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-1" value="Game" style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.mobile;container=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-95">
+          <mxGeometry x="30" y="300" width="50" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-2" value="MQTT Brocker" style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.server;container=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-95">
+          <mxGeometry x="130" y="130" width="90" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-3" value="API" style="fontColor=#0066CC;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;html=1;outlineConnect=0;fillColor=#CCCCCC;strokeColor=#6881B3;gradientColor=none;gradientDirection=north;strokeWidth=2;shape=mxgraph.networks.server;container=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-95">
+          <mxGeometry x="370" y="50" width="90" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-95" source="S6tzUBMvqjxcn_sBSGBV-2" target="S6tzUBMvqjxcn_sBSGBV-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-95" source="S6tzUBMvqjxcn_sBSGBV-2" target="S6tzUBMvqjxcn_sBSGBV-0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-95" source="S6tzUBMvqjxcn_sBSGBV-3" target="S6tzUBMvqjxcn_sBSGBV-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-11" value="Sends notification" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];container=0;" vertex="1" connectable="0" parent="S6tzUBMvqjxcn_sBSGBV-9">
+          <mxGeometry x="-0.128" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-54" value="Notification sending process" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="50" y="520" width="1140" height="550" as="geometry">
+            <mxRectangle x="50" y="520" width="190" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54" source="S6tzUBMvqjxcn_sBSGBV-12" target="S6tzUBMvqjxcn_sBSGBV-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-12" value="API wants to send a notification to game" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="20" y="94" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54" source="S6tzUBMvqjxcn_sBSGBV-13" target="S6tzUBMvqjxcn_sBSGBV-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-13" value="Determines the topic where notification should be sent" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="30" y="184" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54" source="S6tzUBMvqjxcn_sBSGBV-14" target="S6tzUBMvqjxcn_sBSGBV-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-14" value="Encrypts a notification message" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="30" y="314" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54" source="S6tzUBMvqjxcn_sBSGBV-17" target="S6tzUBMvqjxcn_sBSGBV-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-17" value="Sends notification&lt;div&gt;to MQTT brocker with credentials&lt;/div&gt;" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="200" y="329" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54" source="S6tzUBMvqjxcn_sBSGBV-19" target="S6tzUBMvqjxcn_sBSGBV-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-24" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="S6tzUBMvqjxcn_sBSGBV-23">
+          <mxGeometry x="-0.2172" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54" source="S6tzUBMvqjxcn_sBSGBV-19" target="S6tzUBMvqjxcn_sBSGBV-25">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="450" y="474" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-31" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="S6tzUBMvqjxcn_sBSGBV-30">
+          <mxGeometry x="-0.7694" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-19" value="Is&amp;nbsp;&lt;div&gt;notification from allowed&amp;nbsp;&lt;/div&gt;&lt;div&gt;domain?&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="390" y="309" width="120" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54" source="S6tzUBMvqjxcn_sBSGBV-22" target="S6tzUBMvqjxcn_sBSGBV-25">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="474" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-33" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="S6tzUBMvqjxcn_sBSGBV-32">
+          <mxGeometry x="-0.8697" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-37" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54" source="S6tzUBMvqjxcn_sBSGBV-22" target="S6tzUBMvqjxcn_sBSGBV-35">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-22" value="Are credentials valid?" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="570" y="314" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-39" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54" source="S6tzUBMvqjxcn_sBSGBV-25" target="S6tzUBMvqjxcn_sBSGBV-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-25" value="Sends reject" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="220" y="444" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-27" value="Prints the error to log" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="30" y="444" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-52" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54" source="S6tzUBMvqjxcn_sBSGBV-35" target="S6tzUBMvqjxcn_sBSGBV-50">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-35" value="Sends notification&amp;nbsp;&lt;div&gt;to game&lt;/div&gt;" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="720" y="324" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-40" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="171" y="530" as="sourcePoint" />
+            <mxPoint x="171" y="30" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-41" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="365" y="530" as="sourcePoint" />
+            <mxPoint x="365" y="30" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-42" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="691" y="530" as="sourcePoint" />
+            <mxPoint x="691" y="30" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-43" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="891" y="530" as="sourcePoint" />
+            <mxPoint x="891" y="30" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-44" value="API" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="50" y="34" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-45" value="Internet" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="240" y="34" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-46" value="MQTT brocker" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="510" y="34" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-47" value="Internet" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="780" y="34" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-48" value="Game" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="950" y="34" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-53" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-54" source="S6tzUBMvqjxcn_sBSGBV-50" target="S6tzUBMvqjxcn_sBSGBV-51">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-50" value="Decrypts the notification" style="rounded=1;whiteSpace=wrap;html=1;absoluteArcSize=1;arcSize=14;strokeWidth=2;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="940" y="314" width="100" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-51" value="Game has the notification" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-54">
+          <mxGeometry x="940" y="454" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-79" value="Notification waiting process" style="swimlane;whiteSpace=wrap;html=1;container=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="50" y="1120" width="640" height="470" as="geometry">
+            <mxRectangle width="190" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-63" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-79" source="S6tzUBMvqjxcn_sBSGBV-57" target="S6tzUBMvqjxcn_sBSGBV-58">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-57" value="Game wants to receive notifications" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.start_1;whiteSpace=wrap;container=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-79">
+          <mxGeometry x="45" y="97.64285714285711" width="100" height="77.14285714285715" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-64" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-79" source="S6tzUBMvqjxcn_sBSGBV-58" target="S6tzUBMvqjxcn_sBSGBV-59">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-58" value="Subscribes to&amp;nbsp;&lt;div&gt;a topic&lt;/div&gt;" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;container=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-79">
+          <mxGeometry x="235" y="91.21428571428578" width="120" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-65" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-79" source="S6tzUBMvqjxcn_sBSGBV-59" target="S6tzUBMvqjxcn_sBSGBV-60">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="495" y="277.6428571428571" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-68" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];container=0;" vertex="1" connectable="0" parent="S6tzUBMvqjxcn_sBSGBV-65">
+          <mxGeometry x="-0.7216" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-66" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-79" source="S6tzUBMvqjxcn_sBSGBV-59" target="S6tzUBMvqjxcn_sBSGBV-61">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="595" y="136.5" />
+              <mxPoint x="595" y="393.5" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-69" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];container=0;" vertex="1" connectable="0" parent="S6tzUBMvqjxcn_sBSGBV-66">
+          <mxGeometry x="-0.9084" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-59" value="Are credentials valid?" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;container=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-79">
+          <mxGeometry x="445" y="86.93000000000006" width="100" height="98.57" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-60" value="Sends reject" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;container=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-79">
+          <mxGeometry x="245" y="239.07142857142867" width="100" height="77.14285714285715" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-71" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-79" source="S6tzUBMvqjxcn_sBSGBV-61" target="S6tzUBMvqjxcn_sBSGBV-62">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-61" value="Sends success" style="shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;container=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-79">
+          <mxGeometry x="245" y="354.7857142857142" width="110" height="77.14285714285715" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-62" value="Game is waiting for notifications" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;container=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-79">
+          <mxGeometry x="55" y="290.5" width="100" height="77.14285714285715" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-70" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-79" source="S6tzUBMvqjxcn_sBSGBV-60" target="S6tzUBMvqjxcn_sBSGBV-62">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-74" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-79">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="185" y="450.5" as="sourcePoint" />
+            <mxPoint x="185" y="40.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-75" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" edge="1" parent="S6tzUBMvqjxcn_sBSGBV-79">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="405" y="450.5" as="sourcePoint" />
+            <mxPoint x="405" y="40.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-76" value="Game" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-79">
+          <mxGeometry x="65" y="39.5" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-77" value="Internet" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-79">
+          <mxGeometry x="270" y="39.5" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="S6tzUBMvqjxcn_sBSGBV-78" value="MQTT brocker" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="S6tzUBMvqjxcn_sBSGBV-79">
+          <mxGeometry x="465" y="39.5" width="60" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
