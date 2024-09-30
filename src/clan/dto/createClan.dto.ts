@@ -10,7 +10,6 @@ export class CreateClanDto {
     @IsArray()
     @ArrayMaxSize(5)
     @IsEnum(ClanLabel, { each: true })
-    @IsOptional()
     labels?: string[];
 
     @IsInt()

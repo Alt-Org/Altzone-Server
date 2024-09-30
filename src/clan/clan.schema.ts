@@ -11,8 +11,8 @@ export class Clan {
     @Prop({ type: String, required: true, unique: true })
     name: string;
 
-    @Prop({ type: [String], enum: ClanLabel })
-    labels?: string[];
+    @Prop({ type: [String], enum: ClanLabel, required: true })
+    labels: string[];
 
     @Prop({ type: Number, default: 0 })
     gameCoins: number;

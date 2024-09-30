@@ -16,7 +16,6 @@ export class UpdateClanDto {
     @IsArray()
     @ArrayMaxSize(5)
     @IsEnum(ClanLabel, { each: true })
-    @IsOptional()
     labels?: string[];
 
     @IsInt()
