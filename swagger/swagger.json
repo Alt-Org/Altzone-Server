@@ -11,11 +11,15 @@
     "servers": [
         {
             "url": "https://altzone.fi/api",
-            "description": "Production"
+            "description": "Production. Stable version of API, which might not have all of the new changes"
         },
         {
             "url": "http://localhost:8080",
             "description": "Local"
+        },
+        {
+            "url": "https://devapi.altzone.fi",
+            "description": "Development. Current version of API with latest changes"
         }
     ],
     "paths": {
@@ -49,6 +53,7 @@
                                                         "itemCount": 0,
                                                         "stockCount": 0,
                                                         "isOpen": true,
+                                                        "points": 20,
                                                         "id": "667eedc9b3b5bf0f7a840ef1"
                                                     },
                                                     {
@@ -63,6 +68,7 @@
                                                         "itemCount": 0,
                                                         "stockCount": 0,
                                                         "isOpen": true,
+                                                        "points": 20,
                                                         "id": "667bfec6afb8211b4bd8dbff"
                                                     }
                                                 ]
@@ -194,6 +200,7 @@
                                                     "itemCount": 0,
                                                     "stockCount": 0,
                                                     "isOpen": true,
+                                                    "points": 0,
                                                     "Stock": {
                                                         "objectType": "StockDto",
                                                         "_id": "66d74887c988e09f4c45870d",
@@ -453,7 +460,8 @@
                                                         "uniqueIdentifier": 2,
                                                         "profile_id": "6686cb3b71adebdb10f33ff9",
                                                         "above13": true,
-                                                        "parentalAuth": true
+                                                        "parentalAuth": true,
+                                                        "points": 20
                                                     }
                                                 ]
                                             },
@@ -582,7 +590,8 @@
                                                     "uniqueIdentifier": 2,
                                                     "profile_id": "6686cb3b71adebdb10f33ff9",
                                                     "above13": true,
-                                                    "parentalAuth": true
+                                                    "parentalAuth": true,
+                                                    "points": 0
                                                 }
                                             },
                                             "metaData": {
@@ -646,7 +655,8 @@
                                                     "uniqueIdentifier": 2,
                                                     "profile_id": "6686cb3b71adebdb10f33ff9",
                                                     "above13": true,
-                                                    "parentalAuth": true
+                                                    "parentalAuth": true,
+                                                    "points": 20
                                                 }
                                             },
                                             "metaData": {
@@ -3081,6 +3091,106 @@
                     "required": true
                 }
             ]
+        },
+        "/leaderboard": {
+            "get": {
+                "tags": [
+                    "Leaderboard"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Clan": [
+                                                    {
+                                                        "_id": "667eedc9b3b5bf0f7a840ef1",
+                                                        "name": "User2 clan",
+                                                        "tag": "tag2",
+                                                        "gameCoins": 90,
+                                                        "admin_ids": [
+                                                            "666720806cc90102f60bd325"
+                                                        ],
+                                                        "playerCount": 1,
+                                                        "itemCount": 0,
+                                                        "stockCount": 0,
+                                                        "isOpen": true,
+                                                        "points": 20,
+                                                        "id": "667eedc9b3b5bf0f7a840ef1"
+                                                    },
+                                                    {
+                                                        "_id": "667bfec6afb8211b4bd8dbff",
+                                                        "name": "User1 clan",
+                                                        "tag": "tag1",
+                                                        "gameCoins": 4,
+                                                        "admin_ids": [
+                                                            "665df7026bf5b8f670569ea4"
+                                                        ],
+                                                        "playerCount": 1,
+                                                        "itemCount": 0,
+                                                        "stockCount": 0,
+                                                        "isOpen": true,
+                                                        "points": 10,
+                                                        "id": "667bfec6afb8211b4bd8dbff"
+                                                    }
+                                                ]
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Clan",
+                                                "modelName": "Clan",
+                                                "dataType": "Array",
+                                                "dataCount": 2
+                                            },
+                                            "paginationData": {
+                                                "currentPage": 1,
+                                                "limit": 2,
+                                                "offset": 0,
+                                                "itemCount": 2,
+                                                "pageCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success, with body"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {}
+                ],
+                "summary": "Get leaderboard data",
+                "description": "Various leaderboards define the best ones in different categories, for example top Players or top Clans.\n\nNotice that the leaderboards data is updated once every 12 hours.\n\n## Leaderboard parameters\n\n### Player\n\nTop Players are defined by the amount of points that he/she has.\n\n### Clan\n\nTop Clans are defined by the amount of points that each Clan has."
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "top clans": {
+                            "value": "Clan"
+                        }
+                    },
+                    "name": "category",
+                    "description": "Category of the leaderboard",
+                    "schema": {
+                        "enum": [
+                            "Clan",
+                            "Player"
+                        ],
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                }
+            ]
         }
     },
     "components": {
@@ -4791,6 +4901,10 @@
         {
             "name": "Voting",
             "description": "In-game votings"
+        },
+        {
+            "name": "Leaderboard",
+            "description": "Leaderboards of different categories"
         }
     ],
     "externalDocs": {
