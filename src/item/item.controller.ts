@@ -15,49 +15,45 @@ import { StealToken as stealToken } from "./type/stealToken.type";
 import { SoulHomeService } from "../soulhome/soulhome.service";
 import { IdMismatchError } from "./errors/playerId.errors";
 import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
+import { StealItemsDto } from "./dto/stealItems.dto";
 
 @Controller("item")
 export class ItemController {
-  public constructor(
-    private readonly service: ItemService,
-    private readonly soulHomeService: SoulHomeService,
-  ) {}
+	public constructor(
+		private readonly service: ItemService,
+		private readonly soulHomeService: SoulHomeService,
+	) {}
 
-  @Get("steal")
-  @Authorize({ action: Action.read, subject: SoulHomeDto })
-  @UseGuards(StealTokenGuard)
-  @UniformResponse(ModelName.SOULHOME)
-  public async getSoulHome(@StealToken() stealToken: stealToken, @LoggedUser() user: User) {
-    if (stealToken.playerId !== user.player_id)
-        throw IdMismatchError
+	@Get("steal")
+	@Authorize({ action: Action.read, subject: SoulHomeDto })
+	@UseGuards(StealTokenGuard)
+	@UniformResponse(ModelName.SOULHOME)
+	public async getSoulHome(@StealToken() stealToken: stealToken, @LoggedUser() user: User) {
+		if (stealToken.playerId !== user.player_id) 
+			throw IdMismatchError;
 
-    return await this.soulHomeService.readOneById(stealToken.soulHomeId, {
-      includeRefs: [ModelName.ROOM],
-    });
-  }
+		return await this.soulHomeService.readOneById(stealToken.soulHomeId, { includeRefs: [ModelName.ROOM] });
+	}
 
-  @Get("/:_id")
-  @Authorize({ action: Action.read, subject: ItemDto })
-  @UniformResponse(ModelName.ITEM)
-  public get(@Param() param: _idDto) {
-    return this.service.readOneById(param._id);
-  }
+	@Get("/:_id")
+	@Authorize({ action: Action.read, subject: ItemDto })
+	@UniformResponse(ModelName.ITEM)
+	public get(@Param() param: _idDto) {
+		return this.service.readOneById(param._id);
+	}
 
-  @Post("/move")
-  @UniformResponse()
-  public async moveItems(@Body() body: MoveItemDto, @LoggedUser() user: User) {
-    const [resp, errors] = await this.service.moveItem(
-      body.item_id,
-      body.destination_id,
-      body.moveTo,
-      user.player_id,
-    );
-    if (errors) {
-      return [null, errors];
-    }
-  }
+	@Post("/move")
+	@UniformResponse()
+	public async moveItems(@Body() body: MoveItemDto, @LoggedUser() user: User) {
+		const [_, errors] = await this.service.moveItem(body.item_id, body.destination_id, body.moveTo, user.player_id);
+		if (errors)
+			return errors;
+	}
 
-  @Post("steal")
-  public async stealItems() {
-  }
+	@Post("steal")
+	@UseGuards(StealTokenGuard)
+	@UniformResponse(ModelName.ITEM)
+	public async stealItems(@Body() body: StealItemsDto, @StealToken() stealToken: stealToken) {
+		return await this.service.stealItems(body.item_ids, stealToken, body.room_id);
+	}
 }
