@@ -26,8 +26,7 @@
         "/clan": {
             "get": {
                 "tags": [
-                    "Clan",
-                    "release-03-09-24"
+                    "Clan"
                 ],
                 "responses": {
                     "200": {
@@ -53,6 +52,10 @@
                                                         "itemCount": 0,
                                                         "stockCount": 0,
                                                         "isOpen": true,
+                                                        "labels": [
+                                                            "eläinrakkaat",
+                                                            "itsenäiset"
+                                                        ],
                                                         "points": 20,
                                                         "id": "667eedc9b3b5bf0f7a840ef1"
                                                     },
@@ -68,6 +71,10 @@
                                                         "itemCount": 0,
                                                         "stockCount": 0,
                                                         "isOpen": true,
+                                                        "labels": [
+                                                            "eläinrakkaat",
+                                                            "itsenäiset"
+                                                        ],
                                                         "points": 20,
                                                         "id": "667bfec6afb8211b4bd8dbff"
                                                     }
@@ -127,8 +134,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Clan",
-                    "release-03-09-24"
+                    "Clan"
                 ],
                 "responses": {
                     "204": {
@@ -159,7 +165,7 @@
                     }
                 ],
                 "summary": "Update a clan",
-                "description": "Update the Clan, which _id is specified in the body. \n\nOnly Clan admins can change the Clan's data, as well as add or remove admins. Notice that while removing Clan admins, its is not allowed to remove all of them, because Clan must have at least one admin.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins | \n\n"
+                "description": "Update the Clan, which _id is specified in the body. \n\nOnly Clan admins can change the Clan's data, as well as add or remove admins. Notice that while removing Clan admins, its is not allowed to remove all of them, because Clan must have at least one admin.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins | \n\n\nThe labels enum values:\n\n    - 'eläinrakkaat',\n    - 'maahanmuuttomyönteiset',\n    - 'lgbtq+',\n    - 'raittiit',\n    - 'kohteliaat',\n    - 'kiusaamisenvastaiset',\n    - 'urheilevat',\n    - 'syvälliset',\n    - 'oikeudenmukaiset',\n    - 'kaikkien kaverit',\n    - 'itsenäiset',\n    - 'retkeilijät',\n    - 'suomenruotsalaiset',\n    - 'huumorintajuiset',\n    - 'rikkaat',\n    - 'ikiteinit',\n    - 'juoruilevat',\n    - 'rakastavat',\n    - 'oleilijat',\n    - 'nörtit',\n    - 'musadiggarit',\n    - 'tunteelliset',\n    - 'gamerit',\n    - 'animefanit',\n    - 'sinkut',\n    - 'monikulttuuriset',\n    - 'kauniit',\n    - 'järjestelmälliset',\n    - 'epäjärjestelmälliset',\n    - 'tasa-arvoiset',\n    - 'somepersoonat',\n    - 'kädentaitajat',\n    - 'muusikot',\n    - 'taiteilijat',\n    - 'spämmääjät',\n    - 'kasvissyöjät',\n    - 'tasapainoiset'"
             },
             "post": {
                 "requestBody": {
@@ -173,8 +179,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Clan",
-                    "release-03-09-24"
+                    "Clan"
                 ],
                 "responses": {
                     "201": {
@@ -201,6 +206,10 @@
                                                     "stockCount": 0,
                                                     "isOpen": true,
                                                     "points": 0,
+                                                    "labels": [
+                                                        "eläinrakkaat",
+                                                        "itsenäiset"
+                                                    ],
                                                     "Stock": {
                                                         "objectType": "StockDto",
                                                         "_id": "66d74887c988e09f4c45870d",
@@ -737,8 +746,7 @@
         "/clan/{_id}": {
             "get": {
                 "tags": [
-                    "Clan",
-                    "release-03-09-24"
+                    "Clan"
                 ],
                 "responses": {
                     "200": {
@@ -758,6 +766,10 @@
                                                     "gameCoins": 90,
                                                     "admin_ids": [
                                                         "666720806cc90102f60bd325"
+                                                    ],
+                                                    "labels": [
+                                                        "eläinrakkaat",
+                                                        "itsenäiset"
                                                     ],
                                                     "playerCount": 1,
                                                     "itemCount": 0,
@@ -796,8 +808,7 @@
             },
             "delete": {
                 "tags": [
-                    "Clan",
-                    "release-03-09-24"
+                    "Clan"
                 ],
                 "responses": {
                     "204": {
@@ -887,8 +898,7 @@
         "/clan/leave": {
             "post": {
                 "tags": [
-                    "Clan",
-                    "release-03-09-24"
+                    "Clan"
                 ],
                 "responses": {
                     "204": {
@@ -918,8 +928,7 @@
         "/stock": {
             "get": {
                 "tags": [
-                    "Stock",
-                    "release-03-09-24"
+                    "Stock"
                 ],
                 "responses": {
                     "200": {
@@ -989,8 +998,7 @@
         "/stock/{_id}": {
             "get": {
                 "tags": [
-                    "Stock",
-                    "release-03-09-24"
+                    "Stock"
                 ],
                 "responses": {
                     "200": {
@@ -1059,8 +1067,7 @@
         "/item/{_id}": {
             "get": {
                 "tags": [
-                    "Item",
-                    "release-03-09-24"
+                    "Item"
                 ],
                 "responses": {
                     "200": {
@@ -1138,8 +1145,7 @@
             "description": "",
             "get": {
                 "tags": [
-                    "SoulHome",
-                    "release-03-09-24"
+                    "SoulHome"
                 ],
                 "responses": {
                     "200": {
@@ -1194,8 +1200,7 @@
         "/room": {
             "get": {
                 "tags": [
-                    "Room",
-                    "release-03-09-24"
+                    "Room"
                 ],
                 "responses": {
                     "200": {
@@ -1264,8 +1269,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Room",
-                    "release-03-09-24"
+                    "Room"
                 ],
                 "responses": {
                     "204": {
@@ -1581,8 +1585,7 @@
         "/chat": {
             "get": {
                 "tags": [
-                    "Chat",
-                    "release-03-09-24"
+                    "Chat"
                 ],
                 "responses": {
                     "200": {
@@ -1659,8 +1662,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Chat",
-                    "release-03-09-24"
+                    "Chat"
                 ],
                 "responses": {
                     "204": {
@@ -1702,8 +1704,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Chat",
-                    "release-03-09-24"
+                    "Chat"
                 ],
                 "responses": {
                     "201": {
@@ -1760,8 +1761,7 @@
         "/chat/{_id}": {
             "get": {
                 "tags": [
-                    "Chat",
-                    "release-03-09-24"
+                    "Chat"
                 ],
                 "responses": {
                     "200": {
@@ -1810,8 +1810,7 @@
             },
             "delete": {
                 "tags": [
-                    "Chat",
-                    "release-03-09-24"
+                    "Chat"
                 ],
                 "responses": {
                     "204": {
@@ -1855,7 +1854,6 @@
         "/chat/{_id}/messages": {
             "get": {
                 "tags": [
-                    "release-03-09-24",
                     "Chat"
                 ],
                 "responses": {
@@ -1928,8 +1926,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Chat",
-                    "release-03-09-24"
+                    "Chat"
                 ],
                 "responses": {
                     "204": {
@@ -2253,8 +2250,7 @@
         "/room/{_id}": {
             "get": {
                 "tags": [
-                    "Room",
-                    "release-03-09-24"
+                    "Room"
                 ],
                 "responses": {
                     "200": {
@@ -2362,8 +2358,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Room",
-                    "release-03-09-24"
+                    "Room"
                 ],
                 "responses": {
                     "204": {
@@ -2394,8 +2389,7 @@
         "/item/steal": {
             "get": {
                 "tags": [
-                    "Item",
-                    "in-development"
+                    "Item"
                 ],
                 "parameters": [
                     {
@@ -2493,7 +2487,6 @@
                     "required": true
                 },
                 "tags": [
-                    "in-development",
                     "Item"
                 ],
                 "responses": {
@@ -2584,8 +2577,7 @@
                     "required": true
                 },
                 "tags": [
-                    "GameData",
-                    "in-development"
+                    "GameData"
                 ],
                 "responses": {
                     "200": {
@@ -2650,8 +2642,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Item",
-                    "in-development"
+                    "Item"
                 ],
                 "responses": {
                     "204": {
@@ -2779,6 +2770,7 @@
                                                 "backpackCapacity": 456,
                                                 "uniqueIdentifier": "3",
                                                 "profile_id": "651a716b5129c6e54cb7d7c9",
+                                                "points": 10,
                                                 "__v": 0,
                                                 "clan_id": "651a72c35129c6e54cb7d7de"
                                             },
@@ -2793,6 +2785,11 @@
                                                 "admin_ids": [
                                                     "651a716b5129c6e54cb7d7cb"
                                                 ],
+                                                "labels": [
+                                                    "eläinrakkaat",
+                                                    "itsenäiset"
+                                                ],
+                                                "points": 20,
                                                 "__v": 0,
                                                 "playerCount": 2,
                                                 "stockCount": 1
@@ -2836,8 +2833,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Clan",
-                    "release-03-09-24"
+                    "Clan"
                 ],
                 "responses": {
                     "204": {
@@ -2982,7 +2978,8 @@
                     "required": true
                 },
                 "tags": [
-                    "Voting"
+                    "Voting",
+                    "in-development"
                 ],
                 "responses": {
                     "204": {
@@ -3016,7 +3013,8 @@
         "/voting/{_id}": {
             "get": {
                 "tags": [
-                    "Voting"
+                    "Voting",
+                    "in-development"
                 ],
                 "responses": {
                     "200": {
@@ -3095,7 +3093,8 @@
         "/leaderboard": {
             "get": {
                 "tags": [
-                    "Leaderboard"
+                    "Leaderboard",
+                    "in-development"
                 ],
                 "responses": {
                     "200": {
@@ -3189,6 +3188,51 @@
                     },
                     "in": "query",
                     "required": true
+                }
+            ]
+        },
+        "/playerTasks": {
+            "get": {
+                "tags": [
+                    "in-development",
+                    "PlayerTasks"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, response with body"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get Player's tasks",
+                "description": "Returns a list of logged-in Player's tasks. \n\nThe period query works as follows:\n\ntoday - all tasks for today (completed and uncomleted)\n\nweek - all tasks for the current week (completed and uncomleted) including daily tasks.\n\nmonth - all tasks for the current month (completed and uncompleted), including weekly and daily tasks\n\n| Feature         | Has                     |\n| --------------- | ----------------------- |\n| Authentication  | yes                     |\n| Authorization   | only Player's own tasks |\n| Search          | yes                     | \n| Sort            | yes                     |\n| Pagination      | yes                     | \n\n## General description\n\nThe daily task is a predefined task for an individual player to perform.\n\nThere are tasks for each day, each two weeks and each month.\n\nPlayer is getting points for each completed task and each task brings different amount of points and coins.\n\nThese points and coins are going to the player's clan. The points are used to determine top clans in the game and the coins are used to purchase items from the flee market of the game."
+            },
+            "parameters": [
+                {
+                    "name": "period",
+                    "description": "Period of time for the tasks",
+                    "schema": {
+                        "enum": [
+                            "today",
+                            "week",
+                            "month"
+                        ],
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": false
                 }
             ]
         }
@@ -3421,6 +3465,18 @@
                         "example": [
                             "64df3aad42cbaf850a3f891f"
                         ]
+                    },
+                    "labels": {
+                        "description": "labels that describes the clan, notice that it is an enum",
+                        "default": [],
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "eläinrakkaat",
+                            "itsenäiset"
+                        ]
                     }
                 }
             },
@@ -3593,7 +3649,7 @@
                         "example": 23
                     },
                     "tag": {
-                        "description": "amount of clan coins",
+                        "description": "deprecated use labels instead, clan's tag",
                         "type": "string",
                         "example": "my_tag"
                     },
@@ -3602,6 +3658,18 @@
                         "default": true,
                         "type": "boolean",
                         "example": true
+                    },
+                    "labels": {
+                        "description": "labels that describes the clan, notice that it is an enum",
+                        "default": [],
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "eläinrakkaat",
+                            "itsenäiset"
+                        ]
                     }
                 }
             },
@@ -4843,10 +4911,6 @@
     ],
     "tags": [
         {
-            "name": "release-03-09-24",
-            "description": "Endpoints affected in 03.09.2024 release"
-        },
-        {
             "name": "in-development",
             "description": "endpoint is changing or not yet implemented"
         },
@@ -4905,6 +4969,10 @@
         {
             "name": "Leaderboard",
             "description": "Leaderboards of different categories"
+        },
+        {
+            "name": "PlayerTasks",
+            "description": "In-game tasks for Player to do daily, weekly, monthly"
         }
     ],
     "externalDocs": {
