@@ -1,5 +1,4 @@
 import {
-	BadRequestException,
   CanActivate,
   ExecutionContext,
   Injectable,
@@ -18,14 +17,11 @@ export class StealTokenGuard implements CanActivate {
     const stealToken = request.query.steal_token ?? request.body.steal_token;
 
     if (!stealToken) {
-      throw new BadRequestException({
-        statusCode: 400,
-        errors: [
-          new APIError({
-            reason: APIErrorReason.NOT_AUTHORIZED,
-            message: "Missing header steal_token",
-          }),
-        ],
+      throw new APIError({
+        reason: APIErrorReason.NOT_AUTHORIZED,
+        message: "steal_token is not provided",
+        field: "steal_token",
+        value: stealToken
       });
     }
 
