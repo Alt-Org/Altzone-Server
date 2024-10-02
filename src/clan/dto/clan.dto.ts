@@ -15,6 +15,9 @@ export class ClanDto {
     name: string;
 
     @Expose()
+    tag: string;
+
+    @Expose()
     labels: string[];
 
     @Expose()
