@@ -16,13 +16,13 @@ import { SoulHomeService } from "../soulhome/soulhome.service";
 import { IdMismatchError } from "./errors/playerId.errors";
 import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
 import { StealItemsDto } from "./dto/stealItems.dto";
-import { APIError } from "../common/controller/APIError";
-import { APIErrorReason } from "../common/controller/APIErrorReason";
+import { ItemMoverService } from "./itemMover.service";
 
 @Controller("item")
 export class ItemController {
 	public constructor(
-		private readonly service: ItemService,
+		private readonly itemService: ItemService,
+		private readonly itemMoverService: ItemMoverService,
 		private readonly soulHomeService: SoulHomeService,
 	) {}
 
@@ -41,13 +41,13 @@ export class ItemController {
 	@Authorize({ action: Action.read, subject: ItemDto })
 	@UniformResponse(ModelName.ITEM)
 	public get(@Param() param: _idDto) {
-		return this.service.readOneById(param._id);
+		return this.itemService.readOneById(param._id);
 	}
 
 	@Post("/move")
 	@UniformResponse()
 	public async moveItems(@Body() body: MoveItemDto, @LoggedUser() user: User) {
-		const [_, errors] = await this.service.moveItem(body.item_id, body.destination_id, body.moveTo, user.player_id);
+		const [_, errors] = await this.itemMoverService.moveItem(body.item_id, body.destination_id, body.moveTo, user.player_id);
 		if (errors)
 			return errors;
 	}
@@ -59,6 +59,6 @@ export class ItemController {
 		if (user.player_id !== stealToken.playerId)
 			throw IdMismatchError
 
-		return await this.service.stealItems(body.item_ids, stealToken, body.room_id);
+		return await this.itemMoverService.stealItems(body.item_ids, stealToken, body.room_id);
 	}
 }

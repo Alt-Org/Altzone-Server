@@ -12,6 +12,8 @@ import { RoomModule } from '../room/room.module';
 import { PlayerModule } from '../player/player.module';
 import { AuthModule } from '../auth/auth.module';
 import { SoulHomeModule } from '../soulhome/soulhome.module';
+import { ItemHelperService } from './itemHelper.service';
+import { ItemMoverService } from './itemMover.service';
 
 @Module({
     imports: [
@@ -25,7 +27,7 @@ import { SoulHomeModule } from '../soulhome/soulhome.module';
         AuthModule,
     ],
     controllers: [ItemController],
-    providers: [ ItemService, isItemExists ],
+    providers: [ItemService, isItemExists, ItemHelperService, ItemMoverService],
     exports: [ItemService]
 })
 export class ItemModule {}
