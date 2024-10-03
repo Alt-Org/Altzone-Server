@@ -10,6 +10,10 @@ import { StockModule } from '../stock/stock.module';
 import { ClanModule } from '../clan/clan.module';
 import { RoomModule } from '../room/room.module';
 import { PlayerModule } from '../player/player.module';
+import { AuthModule } from '../auth/auth.module';
+import { SoulHomeModule } from '../soulhome/soulhome.module';
+import { ItemHelperService } from './itemHelper.service';
+import { ItemMoverService } from './itemMover.service';
 
 @Module({
     imports: [
@@ -19,9 +23,11 @@ import { PlayerModule } from '../player/player.module';
         forwardRef(() => ClanModule),
         forwardRef(() => RoomModule),
         forwardRef(() => PlayerModule),
+        forwardRef(() => SoulHomeModule),
+        AuthModule,
     ],
     controllers: [ItemController],
-    providers: [ ItemService, isItemExists ],
+    providers: [ItemService, isItemExists, ItemHelperService, ItemMoverService],
     exports: [ItemService]
 })
 export class ItemModule {}
