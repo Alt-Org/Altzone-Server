@@ -16,6 +16,8 @@ import { SoulHomeService } from "../soulhome/soulhome.service";
 import { IdMismatchError } from "./errors/playerId.errors";
 import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
 import { StealItemsDto } from "./dto/stealItems.dto";
+import { APIError } from "../common/controller/APIError";
+import { APIErrorReason } from "../common/controller/APIErrorReason";
 
 @Controller("item")
 export class ItemController {
@@ -53,7 +55,10 @@ export class ItemController {
 	@Post("steal")
 	@UseGuards(StealTokenGuard)
 	@UniformResponse(ModelName.ITEM)
-	public async stealItems(@Body() body: StealItemsDto, @StealToken() stealToken: stealToken) {
+	public async stealItems(@Body() body: StealItemsDto, @StealToken() stealToken: stealToken, @LoggedUser() user: User) {
+		if (user.player_id !== stealToken.playerId)
+			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED })
+
 		return await this.service.stealItems(body.item_ids, stealToken, body.room_id);
 	}
 }
