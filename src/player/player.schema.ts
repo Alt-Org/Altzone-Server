@@ -19,6 +19,12 @@ export class Player {
     @Prop({ type: String, required: true, unique: true })
     uniqueIdentifier: string;
 
+    @Prop({ type: Boolean, default: null })
+    above13: boolean;
+
+    @Prop({ type: Boolean, default: null })
+    parentalAuth: boolean;
+
     @ExtractField()
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.PROFILE })
     profile_id: Profile;

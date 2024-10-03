@@ -45,6 +45,10 @@ import { ShopItemDTO } from "../shop/itemShop/dto/shopItem.dto";
 import { RemovePlayerDTO } from "../clan/join/dto/removePlayer.dto";
 import { isType, ObjectType } from "../common/base/decorator/AddType.decorator";
 import { PlayerLeaveClanDto } from "../clan/join/dto/playerLeave.dto";
+import { ChatDto } from "../chat/dto/chat.dto";
+import { UpdateChatDto } from "../chat/dto/updateChat.dto";
+import { MessageDto } from "../chat/dto/message.dto";
+import { chatRules } from "./rule/chatRules";
 
 export type AllowedAction = Action.create_request | Action.read_request | Action.read_response | Action.update_request | Action.delete_request;
 
@@ -60,7 +64,8 @@ export type AllowedSubject =
     typeof SoulHomeDto | typeof UpdateSoulHomeDto |
     typeof RoomDto | typeof UpdateRoomDto |
     typeof ClanVoteDto | typeof UpdateClanVoteDto |
-    typeof ItemShopDto | typeof ShopItemDTO;
+    typeof ItemShopDto | typeof ShopItemDTO |
+    typeof ChatDto | typeof UpdateChatDto | typeof MessageDto;
 
 
 type Subjects = InferSubjects<AllowedSubject>;
@@ -125,6 +130,8 @@ export class CASLAbilityFactory {
         if (isType(obj, 'ItemShopDto') || isType(obj, 'ShopItemDTO'))
             return shopRules(user, subject, action, subjectObj, this.requestHelperService)
 
+        if (isType(obj, 'ChatDto') || isType(obj, 'UpdateChatDto') || isType(obj, 'MessageDto'))
+            return chatRules(user, subject, action, subjectObj, this.requestHelperService);
     }
 }
 

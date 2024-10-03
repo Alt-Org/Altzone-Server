@@ -3,6 +3,7 @@ import { ValidationExceptionFilter } from '../../exceptionFilter/ValidationExcep
 import { FormatAPIResponse } from './FormatAPIResponse';
 import { ModelName } from '../../enum/modelName.enum';
 import { Send204OnEmptyRes } from '../../interceptor/response/Send204OnEmptyRes';
+import { APIErrorFilter } from '../../exceptionFilter/APIErrorFilter';
 
 /**
  * Uniform response sent to the client side as follows
@@ -18,7 +19,7 @@ import { Send204OnEmptyRes } from '../../interceptor/response/Send204OnEmptyRes'
 export function UniformResponse(modelName?: ModelName) {
     const decorators = [
         Send204OnEmptyRes(), 
-        UseFilters(new ValidationExceptionFilter()), 
+        UseFilters(new ValidationExceptionFilter(), new APIErrorFilter()), 
         FormatAPIResponse(modelName)
     ];
 

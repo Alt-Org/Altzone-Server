@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {forwardRef, Inject, Injectable} from "@nestjs/common";
 import {Model} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
@@ -15,7 +15,7 @@ import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/ba
 export class StockService {
     public constructor(
         @InjectModel(Stock.name) public readonly model: Model<Stock>,
-        private readonly itemService: ItemService
+        @Inject(forwardRef(() => ItemService)) private readonly itemService: ItemService
     ){
         this.refsInModel = [ModelName.CLAN, ModelName.ITEM];
         this.modelName = ModelName.STOCK;

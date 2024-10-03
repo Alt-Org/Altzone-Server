@@ -19,6 +19,12 @@ export class PlayerDto {
     @Expose()
     uniqueIdentifier: string;
 
+    @Expose()
+    above13?: boolean | null;
+
+    @Expose()
+    parentalAuth: boolean | null;
+
     @ExtractField()
     @Expose()
     profile_id: string;
