@@ -57,7 +57,7 @@ export class ItemController {
 	@UniformResponse(ModelName.ITEM)
 	public async stealItems(@Body() body: StealItemsDto, @StealToken() stealToken: stealToken, @LoggedUser() user: User) {
 		if (user.player_id !== stealToken.playerId)
-			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED })
+			throw IdMismatchError
 
 		return await this.service.stealItems(body.item_ids, stealToken, body.room_id);
 	}
