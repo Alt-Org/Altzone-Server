@@ -298,7 +298,7 @@ export class ItemService {
 
 		const filteredItems = itemSoulHomeIds.filter((item) => item.soulHomeId === stealToken.soulHomeId);
 		if (filteredItems.length === 0)
-			throw new APIError({ reason: APIErrorReason.BAD_REQUEST, message: "No movable items found" });
+			throw new APIError({ reason: APIErrorReason.NOT_FOUND, message: "No movable items found" });
 
 		const filteredItemIds = filteredItems.map((item) => item.itemId);
 		return this.moveItems(filteredItemIds, roomId, MoveTo.ROOM);
