@@ -9,11 +9,18 @@ import { APIErrorReason } from "../../common/controller/APIErrorReason";
 
 @Injectable()
 export class StealTokenGuard implements CanActivate {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
+  /**
+   * Verifies that the request has a valid steal token attached.
+   * 
+   * @param context - The execution context of the request.
+   * @returns - A promise that resolves to a boolean indicating whether the request is authorized.
+   * @throws - If the steal_token is missing or invalid.
+   */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-	
+
     const stealToken = request.query.steal_token ?? request.body.steal_token;
 
     if (!stealToken) {
