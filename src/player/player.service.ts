@@ -12,6 +12,9 @@ import {AddBasicService} from "../common/base/decorator/AddBasicService.decorato
 import {ClanDto} from "../clan/dto/clan.dto";
 import {IHookImplementer, PostHookFunction} from "../common/interface/IHookImplementer";
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
+import { PlayerDto } from "./dto/player.dto";
+import BasicService from "../common/service/basicService/BasicService";
+import { TReadByIdOptions } from "../common/service/basicService/IService";
 
 @Injectable()
 @AddBasicService()
@@ -24,12 +27,22 @@ export class PlayerService
         private readonly requestHelperService: RequestHelperService
     ){
         super();
+        this.basicService = new BasicService(model);
         this.refsInModel = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.ROOM];
         this.modelName = ModelName.PLAYER;
     }
 
     public readonly refsInModel: ModelName[];
     public readonly modelName: ModelName;
+    private readonly basicService: BasicService;
+
+    async getPlayerById(_id: string, options?: TReadByIdOptions) {
+        let optionsToApply = options;
+        if (options?.includeRefs) {
+            optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
+        }
+        return this.basicService.readOneById<PlayerDto>(_id, optionsToApply);
+    }
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         const isClanRefCleanSuccess = await this.clearClanReferences(_id.toString());

@@ -11,19 +11,22 @@
     "servers": [
         {
             "url": "https://altzone.fi/api",
-            "description": "Production"
+            "description": "Production. Stable version of API, which might not have all of the new changes"
         },
         {
             "url": "http://localhost:8080",
             "description": "Local"
+        },
+        {
+            "url": "https://devapi.altzone.fi",
+            "description": "Development. Current version of API with latest changes"
         }
     ],
     "paths": {
         "/clan": {
             "get": {
                 "tags": [
-                    "Clan",
-                    "release-03-09-24"
+                    "Clan"
                 ],
                 "responses": {
                     "200": {
@@ -49,6 +52,11 @@
                                                         "itemCount": 0,
                                                         "stockCount": 0,
                                                         "isOpen": true,
+                                                        "labels": [
+                                                            "eläinrakkaat",
+                                                            "itsenäiset"
+                                                        ],
+                                                        "points": 20,
                                                         "id": "667eedc9b3b5bf0f7a840ef1"
                                                     },
                                                     {
@@ -63,6 +71,11 @@
                                                         "itemCount": 0,
                                                         "stockCount": 0,
                                                         "isOpen": true,
+                                                        "labels": [
+                                                            "eläinrakkaat",
+                                                            "itsenäiset"
+                                                        ],
+                                                        "points": 20,
                                                         "id": "667bfec6afb8211b4bd8dbff"
                                                     }
                                                 ]
@@ -121,8 +134,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Clan",
-                    "release-03-09-24"
+                    "Clan"
                 ],
                 "responses": {
                     "204": {
@@ -153,7 +165,7 @@
                     }
                 ],
                 "summary": "Update a clan",
-                "description": "Update the Clan, which _id is specified in the body. \n\nOnly Clan admins can change the Clan's data, as well as add or remove admins. Notice that while removing Clan admins, its is not allowed to remove all of them, because Clan must have at least one admin.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins | \n\n"
+                "description": "Update the Clan, which _id is specified in the body. \n\nOnly Clan admins can change the Clan's data, as well as add or remove admins. Notice that while removing Clan admins, its is not allowed to remove all of them, because Clan must have at least one admin.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins | \n\n\nThe labels enum values:\n\n    - 'eläinrakkaat',\n    - 'maahanmuuttomyönteiset',\n    - 'lgbtq+',\n    - 'raittiit',\n    - 'kohteliaat',\n    - 'kiusaamisenvastaiset',\n    - 'urheilevat',\n    - 'syvälliset',\n    - 'oikeudenmukaiset',\n    - 'kaikkien kaverit',\n    - 'itsenäiset',\n    - 'retkeilijät',\n    - 'suomenruotsalaiset',\n    - 'huumorintajuiset',\n    - 'rikkaat',\n    - 'ikiteinit',\n    - 'juoruilevat',\n    - 'rakastavat',\n    - 'oleilijat',\n    - 'nörtit',\n    - 'musadiggarit',\n    - 'tunteelliset',\n    - 'gamerit',\n    - 'animefanit',\n    - 'sinkut',\n    - 'monikulttuuriset',\n    - 'kauniit',\n    - 'järjestelmälliset',\n    - 'epäjärjestelmälliset',\n    - 'tasa-arvoiset',\n    - 'somepersoonat',\n    - 'kädentaitajat',\n    - 'muusikot',\n    - 'taiteilijat',\n    - 'spämmääjät',\n    - 'kasvissyöjät',\n    - 'tasapainoiset'"
             },
             "post": {
                 "requestBody": {
@@ -167,8 +179,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Clan",
-                    "release-03-09-24"
+                    "Clan"
                 ],
                 "responses": {
                     "201": {
@@ -194,6 +205,11 @@
                                                     "itemCount": 0,
                                                     "stockCount": 0,
                                                     "isOpen": true,
+                                                    "points": 0,
+                                                    "labels": [
+                                                        "eläinrakkaat",
+                                                        "itsenäiset"
+                                                    ],
                                                     "Stock": {
                                                         "objectType": "StockDto",
                                                         "_id": "66d74887c988e09f4c45870d",
@@ -451,7 +467,10 @@
                                                         "name": "User 2",
                                                         "backpackCapacity": 654,
                                                         "uniqueIdentifier": 2,
-                                                        "profile_id": "6686cb3b71adebdb10f33ff9"
+                                                        "profile_id": "6686cb3b71adebdb10f33ff9",
+                                                        "above13": true,
+                                                        "parentalAuth": true,
+                                                        "points": 20
                                                     }
                                                 ]
                                             },
@@ -578,7 +597,10 @@
                                                     "name": "User 2",
                                                     "backpackCapacity": 654,
                                                     "uniqueIdentifier": 2,
-                                                    "profile_id": "6686cb3b71adebdb10f33ff9"
+                                                    "profile_id": "6686cb3b71adebdb10f33ff9",
+                                                    "above13": true,
+                                                    "parentalAuth": true,
+                                                    "points": 0
                                                 }
                                             },
                                             "metaData": {
@@ -640,7 +662,10 @@
                                                     "name": "User 2",
                                                     "backpackCapacity": 654,
                                                     "uniqueIdentifier": 2,
-                                                    "profile_id": "6686cb3b71adebdb10f33ff9"
+                                                    "profile_id": "6686cb3b71adebdb10f33ff9",
+                                                    "above13": true,
+                                                    "parentalAuth": true,
+                                                    "points": 20
                                                 }
                                             },
                                             "metaData": {
@@ -721,8 +746,7 @@
         "/clan/{_id}": {
             "get": {
                 "tags": [
-                    "Clan",
-                    "release-03-09-24"
+                    "Clan"
                 ],
                 "responses": {
                     "200": {
@@ -742,6 +766,10 @@
                                                     "gameCoins": 90,
                                                     "admin_ids": [
                                                         "666720806cc90102f60bd325"
+                                                    ],
+                                                    "labels": [
+                                                        "eläinrakkaat",
+                                                        "itsenäiset"
                                                     ],
                                                     "playerCount": 1,
                                                     "itemCount": 0,
@@ -780,8 +808,7 @@
             },
             "delete": {
                 "tags": [
-                    "Clan",
-                    "release-03-09-24"
+                    "Clan"
                 ],
                 "responses": {
                     "204": {
@@ -871,8 +898,7 @@
         "/clan/leave": {
             "post": {
                 "tags": [
-                    "Clan",
-                    "release-03-09-24"
+                    "Clan"
                 ],
                 "responses": {
                     "204": {
@@ -902,8 +928,7 @@
         "/stock": {
             "get": {
                 "tags": [
-                    "Stock",
-                    "release-03-09-24"
+                    "Stock"
                 ],
                 "responses": {
                     "200": {
@@ -973,8 +998,7 @@
         "/stock/{_id}": {
             "get": {
                 "tags": [
-                    "Stock",
-                    "release-03-09-24"
+                    "Stock"
                 ],
                 "responses": {
                     "200": {
@@ -1043,8 +1067,7 @@
         "/item/{_id}": {
             "get": {
                 "tags": [
-                    "Item",
-                    "release-03-09-24"
+                    "Item"
                 ],
                 "responses": {
                     "200": {
@@ -1063,7 +1086,6 @@
                                                     "weight": 67,
                                                     "recycling": "yleinen",
                                                     "unityKey": "unity1",
-                                                    "filename": "file1",
                                                     "location": [
                                                         2,
                                                         4
@@ -1123,8 +1145,7 @@
             "description": "",
             "get": {
                 "tags": [
-                    "SoulHome",
-                    "release-03-09-24"
+                    "SoulHome"
                 ],
                 "responses": {
                     "200": {
@@ -1179,8 +1200,7 @@
         "/room": {
             "get": {
                 "tags": [
-                    "Room",
-                    "release-03-09-24"
+                    "Room"
                 ],
                 "responses": {
                     "200": {
@@ -1249,8 +1269,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Room",
-                    "release-03-09-24"
+                    "Room"
                 ],
                 "responses": {
                     "204": {
@@ -1278,10 +1297,11 @@
                 "description": "## Method description\n\nUpdate Room by its _id specified in the body.\n\nAny Clan member can update any Room, which (SoulHome) belongs to the Clan.\n\nIf the logged-in user is a Clan member and the Clan does have the requested Room, the Room for this Clan will be returned. \n\nIf the logged-in user is not belonging to any Clan, or Room in that Clan with provided _id is not found the 404 error will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n\n\n## Endpoint description\n\n### General description\n\nRoom is a place, which can safely store Items of a Clan. Items from the Room can not be stolen. \n\nRoom is closely related to its SoulHome. SoulHome consists of Rooms. \n\nRoom has an automatic behavior. Room has two statuses active and deactivated. When the Room is becoming deactivated its isActive field is taking on the value false. This should be done automatically when the deactivationTimestamp field is expired.\n\n### Relations\n\nRoom can belong to one SoulHome. SoulHome may have many Rooms.\n\nRoom can have many Items. Item may belong to one Room.\n\n### CRUD operations\n\nRooms for a SoulHome must be created automatically, when a SoulHome is created. Therefore there is no enpoint for Room creation.\n\nRoom and all Rooms can be read by Clan members, to which the Room (its SoulHome) is belonging.\n\nRoom can be updated by Clan members, to which it (its SoulHome) belongs.\n\nRoom can be deleted only automatically, when the SoulHome, to which the Room belongs is deleted."
             }
         },
-        "/itemShop": {
+        "/fleaMarket": {
             "get": {
                 "tags": [
-                    "ItemShop"
+                    "in-development",
+                    "FleaMarket"
                 ],
                 "responses": {
                     "200": {
@@ -1378,188 +1398,57 @@
                                     "1": {
                                         "value": {
                                             "data": {
-                                                "ItemShop": [
+                                                "FleaMarketItem": [
                                                     {
-                                                        "_id": "65feaee74ec1b78cc4afc9da",
-                                                        "name": "Huonekalukauppa",
-                                                        "lastRestock": 1720612774100,
-                                                        "items": [
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7da",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7db",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7dc",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7dd",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7de",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7df",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7e0",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7e1",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7e2",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7e3",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7e4",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7e5",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7e6",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7e7",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7e8",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7e9",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7ea",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7eb",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7ec",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7ed",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7ee",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7ef",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7f0",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7f1",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7f2",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7f3",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            },
-                                                            {
-                                                                "item_id": "668e77a657e6f7ebbcf3a7f4",
-                                                                "isInVoting": false,
-                                                                "isSold": false
-                                                            }
-                                                        ],
-                                                        "__v": 2,
-                                                        "id": "65feaee74ec1b78cc4afc9da"
+                                                        "_id": "668a70ce91020196cb10d595",
+                                                        "name": "item1",
+                                                        "weight": 67,
+                                                        "recycling": "yleinen",
+                                                        "unityKey": "unity1",
+                                                        "isFurniture": true,
+                                                        "price": 23,
+                                                        "status": "Available",
+                                                        "clan_id": "668953cd4a7b6c993aed1a36"
                                                     }
                                                 ]
                                             },
                                             "metaData": {
-                                                "dataKey": "ItemShop",
-                                                "modelName": "ItemShop",
+                                                "dataKey": "FleaMarketItem",
+                                                "modelName": "FleaMarketItem",
                                                 "dataType": "Array",
                                                 "dataCount": 1
-                                            },
-                                            "paginationData": {
-                                                "currentPage": 1,
-                                                "limit": 20,
-                                                "offset": 0,
-                                                "itemCount": 1,
-                                                "pageCount": 1
                                             }
                                         }
                                     }
                                 }
                             }
                         },
-                        "description": "Success, rseponse with body"
+                        "description": "Success, response with body"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
-                    {}
+                    {
+                        "JWTAuth": []
+                    }
                 ],
-                "summary": "Get item shops",
-                "description": "The ItemShop is an object containing ShopItems. There can be only one ItemShop excisting. The ShopItem is an inner object of the ItemShop, which contains item_id (reference to an Item), isInVoting, isSold and vote_id(reference to a ClanVote).\n\nNotice that ItemShop is created automatically by an API with some default ShopItems in it. Each day ItemShop is reset, so that all default values, which was sold are restored back.\n\nNotice that it is possible to access ItemShop via this endpoint and also via /itemShop/{_id}, the response will be the same (except that this endpoint will have the ItemShop data in an array).\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | "
+                "summary": "Get all flea market items",
+                "description": "Get all FleaMarketItems of the flea market\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | \n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there.\n"
             }
         },
-        "/itemShop/{_id}": {
+        "/fleaMarket/{_id}": {
             "get": {
                 "tags": [
-                    "ItemShop"
+                    "in-development",
+                    "FleaMarket"
                 ],
                 "responses": {
                     "200": {
@@ -1633,154 +1522,21 @@
                                     "1": {
                                         "value": {
                                             "data": {
-                                                "ItemShop": {
-                                                    "_id": "65feaee74ec1b78cc4afc9da",
-                                                    "name": "Huonekalukauppa",
-                                                    "lastRestock": 1720612774100,
-                                                    "items": [
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7da",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7db",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7dc",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7dd",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7de",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7df",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7e0",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7e1",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7e2",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7e3",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7e4",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7e5",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7e6",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7e7",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7e8",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7e9",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7ea",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7eb",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7ec",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7ed",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7ee",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7ef",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7f0",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7f1",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7f2",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7f3",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        },
-                                                        {
-                                                            "item_id": "668e77a657e6f7ebbcf3a7f4",
-                                                            "isInVoting": false,
-                                                            "isSold": false
-                                                        }
-                                                    ],
-                                                    "__v": 2,
-                                                    "id": "65feaee74ec1b78cc4afc9da"
+                                                "FleaMarketItem": {
+                                                    "_id": "668a70ce91020196cb10d595",
+                                                    "name": "item1",
+                                                    "weight": 67,
+                                                    "recycling": "yleinen",
+                                                    "unityKey": "unity1",
+                                                    "isFurniture": true,
+                                                    "price": 23,
+                                                    "status": "Available",
+                                                    "clan_id": "668953cd4a7b6c993aed1a36"
                                                 }
                                             },
                                             "metaData": {
-                                                "dataKey": "ItemShop",
-                                                "modelName": "ItemShop",
+                                                "dataKey": "FleaMarketItem",
+                                                "modelName": "FleaMarketItem",
                                                 "dataType": "Object",
                                                 "dataCount": 1
                                             }
@@ -1789,7 +1545,10 @@
                                 }
                             }
                         },
-                        "description": "Success, rseponse with body"
+                        "description": "Success, response with body"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
                     },
                     "404": {
                         "$ref": "#/components/responses/404"
@@ -1799,14 +1558,25 @@
                     }
                 },
                 "security": [
-                    {}
+                    {
+                        "JWTAuth": []
+                    }
                 ],
-                "summary": "Get item shop",
-                "description": "The ItemShop is an object containing ShopItems. There can be only one ItemShop excisting. The ShopItem is an inner object of the ItemShop, which contains item_id (reference to an Item), isInVoting, isSold and vote_id(reference to a ClanVote).\n\nNotice that ItemShop is created automatically by an API with some default ShopItems in it. Each day ItemShop is reset, so that all default values, which was sold are restored back.\n\nNotice that it is possible to access ItemShop via this endpoint and also via /itemShop, the response will be the same (except that this endpoint will have the ItemShop data as an object).\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |"
+                "summary": "Get flea market item data by _id",
+                "description": "Get an idividual FleaMarketItem by its mongo _id field.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | \n\n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there.\n"
             },
             "parameters": [
                 {
+                    "examples": {
+                        "1": {
+                            "value": "668a70ce91020196cb10d595"
+                        }
+                    },
                     "name": "_id",
+                    "description": "FleaMarketItem _id to get",
+                    "schema": {
+                        "type": "string"
+                    },
                     "in": "path",
                     "required": true
                 }
@@ -1815,8 +1585,7 @@
         "/chat": {
             "get": {
                 "tags": [
-                    "Chat",
-                    "release-03-09-24"
+                    "Chat"
                 ],
                 "responses": {
                     "200": {
@@ -1831,10 +1600,14 @@
                                             "data": {
                                                 "Chat": [
                                                     {
-                                                        "_id": "66912712d191c865ab53da8a",
-                                                        "name": "Chat 1",
-                                                        "__v": 0,
-                                                        "id": "66912712d191c865ab53da8a"
+                                                        "objectType": "ChatDto",
+                                                        "_id": "66d8611a184d5f0a7c0675b7",
+                                                        "name": "chat1"
+                                                    },
+                                                    {
+                                                        "objectType": "ChatDto",
+                                                        "_id": "66d85e3f4bed433708d5cb7f",
+                                                        "name": "Chat 1"
                                                     }
                                                 ]
                                             },
@@ -1842,13 +1615,13 @@
                                                 "dataKey": "Chat",
                                                 "modelName": "Chat",
                                                 "dataType": "Array",
-                                                "dataCount": 1
+                                                "dataCount": 2
                                             },
                                             "paginationData": {
                                                 "currentPage": 1,
-                                                "limit": 1,
+                                                "limit": 20,
                                                 "offset": 0,
-                                                "itemCount": 1,
+                                                "itemCount": 2,
                                                 "pageCount": 1
                                             }
                                         }
@@ -1866,10 +1639,12 @@
                     }
                 },
                 "security": [
-                    {}
+                    {
+                        "JWTAuth": []
+                    }
                 ],
                 "summary": "Read all existing chats",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nRead all created Chats. Remember about the pagination.\n\nNotice, that use of messages array is not advised and can be removed at some point in the future. For accessing messages of the Chat please use the /chat/:_id/message endpoint.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
+                "description": "Read all created Chats. Remember about the pagination.\n\nNotice, that use of messages array is not advised and can be removed at some point in the future. For accessing messages of the Chat please use the /chat/:_id/message endpoint.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
                 "externalDocs": {
                     "url": "https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests)"
                 }
@@ -1887,8 +1662,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Chat",
-                    "release-03-09-24"
+                    "Chat"
                 ],
                 "responses": {
                     "204": {
@@ -1916,7 +1690,7 @@
                     }
                 ],
                 "summary": "Update a chat",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nUpdate the Chat, which _id is specified in the body.\n\nNotice that currently anybody is able to change any Chat.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | no | \n| Authorization   | no | \n"
+                "description": "Update the Chat, which _id is specified in the body.\n\nNotice that currently anybody is able to change any Chat.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only for Players above 13 or with parents approval | \n"
             },
             "post": {
                 "requestBody": {
@@ -1930,8 +1704,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Chat",
-                    "release-03-09-24"
+                    "Chat"
                 ],
                 "responses": {
                     "201": {
@@ -1945,11 +1718,9 @@
                                         "value": {
                                             "data": {
                                                 "Chat": {
-                                                    "name": "Chat 1",
-                                                    "_id": "66912712d191c865ab53da8a",
-                                                    "messages": [],
-                                                    "__v": 0,
-                                                    "id": "66912712d191c865ab53da8a"
+                                                    "objectType": "ChatDto",
+                                                    "_id": "66d86147184d5f0a7c0675ca",
+                                                    "name": "chat2"
                                                 }
                                             },
                                             "metaData": {
@@ -1984,14 +1755,13 @@
                     }
                 ],
                 "summary": "Create a chat",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nCreate a new Chat. The Chat is an object containing messages.\n\nNotice, that currently there is no restrictions on who can create a Chat.\n\nNotice that the Message objects are inner objects of Chat and can not be used enewhere else than in the Chat. There is also no separate collection for the Message in the DB.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | no | \n| Authorization   | no | \n"
+                "description": "Create a new Chat. The Chat is an object containing messages.\n\nNotice, that currently there is no restrictions on who can create a Chat.\n\nNotice that the Message objects are inner objects of Chat and can not be used enewhere else than in the Chat. There is also no separate collection for the Message in the DB.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only for Players above 13 or with parents approval | \n"
             }
         },
         "/chat/{_id}": {
             "get": {
                 "tags": [
-                    "Chat",
-                    "release-03-09-24"
+                    "Chat"
                 ],
                 "responses": {
                     "200": {
@@ -2005,10 +1775,9 @@
                                         "value": {
                                             "data": {
                                                 "Chat": {
-                                                    "_id": "66912712d191c865ab53da8a",
-                                                    "name": "Chat 1",
-                                                    "__v": 0,
-                                                    "id": "66912712d191c865ab53da8a"
+                                                    "objectType": "ChatDto",
+                                                    "_id": "66d8611a184d5f0a7c0675b7",
+                                                    "name": "chat1"
                                                 }
                                             },
                                             "metaData": {
@@ -2032,15 +1801,16 @@
                     }
                 },
                 "security": [
-                    {}
+                    {
+                        "JWTAuth": []
+                    }
                 ],
                 "summary": "Get Chat by _id",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nRead Chat data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
+                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nRead Chat data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
             },
             "delete": {
                 "tags": [
-                    "Chat",
-                    "release-03-09-24"
+                    "Chat"
                 ],
                 "responses": {
                     "204": {
@@ -2062,7 +1832,7 @@
                     }
                 ],
                 "summary": "Delete Chat",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nDelete Chat by its _id field. \n\nNotice that currently anybody can delete any Chat.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |"
+                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nDelete Chat by its _id field. \n\nNotice that currently anybody can delete any Chat.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |"
             },
             "parameters": [
                 {
@@ -2084,7 +1854,6 @@
         "/chat/{_id}/messages": {
             "get": {
                 "tags": [
-                    "release-03-09-24",
                     "Chat"
                 ],
                 "responses": {
@@ -2135,10 +1904,12 @@
                     }
                 },
                 "security": [
-                    {}
+                    {
+                        "JWTAuth": []
+                    }
                 ],
                 "summary": "Read all messages from the Chat",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nRead all messages of specified Chat. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
+                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nRead all messages of specified Chat. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
                 "externalDocs": {
                     "url": "https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests)"
                 }
@@ -2155,8 +1926,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Chat",
-                    "release-03-09-24"
+                    "Chat"
                 ],
                 "responses": {
                     "204": {
@@ -2184,7 +1954,7 @@
                     }
                 ],
                 "summary": "Create a message",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nCreate a new Message. Message represent the object of message sent by a Player.\n\nNotice that currently there are no authorization required.\n\nNotice, that the messages does not have an usual _id field generated by data base. Instead the Photon id should be used.\n\nNotice that the messages is contained in the array of a Chat collection.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | no | \n| Authorization   | no |\n"
+                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nCreate a new Message. Message represent the object of message sent by a Player.\n\nNotice that currently there are no authorization required.\n\nNotice, that the messages does not have an usual _id field generated by data base. Instead the Photon id should be used.\n\nNotice that the messages is contained in the array of a Chat collection.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n"
             },
             "parameters": [
                 {
@@ -2480,8 +2250,7 @@
         "/room/{_id}": {
             "get": {
                 "tags": [
-                    "Room",
-                    "release-03-09-24"
+                    "Room"
                 ],
                 "responses": {
                     "200": {
@@ -2589,8 +2358,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Room",
-                    "release-03-09-24"
+                    "Room"
                 ],
                 "responses": {
                     "204": {
@@ -2621,8 +2389,7 @@
         "/item/steal": {
             "get": {
                 "tags": [
-                    "Item",
-                    "in-development"
+                    "Item"
                 ],
                 "parameters": [
                     {
@@ -2711,7 +2478,7 @@
                                             "668a765091020196cb10d5a3",
                                             "668a765091020196cb10d5a3"
                                         ],
-                                        "room_is": "668a765091020196cb10d5a3"
+                                        "room_id": "668a765091020196cb10d5a3"
                                     }
                                 }
                             }
@@ -2720,7 +2487,6 @@
                     "required": true
                 },
                 "tags": [
-                    "in-development",
                     "Item"
                 ],
                 "responses": {
@@ -2811,8 +2577,7 @@
                     "required": true
                 },
                 "tags": [
-                    "GameData",
-                    "in-development"
+                    "GameData"
                 ],
                 "responses": {
                     "200": {
@@ -2822,8 +2587,10 @@
                                     "result": {
                                         "value": {
                                             "steal_token": "temporary_token_to_use_for_/room/steal",
-                                            "stock_id": "667ee778b3b5bf0f7a840ec9",
-                                            "clan_id": "668d6003a9292e300e94c833"
+                                            "soulHome_id": "667ee778b3b5bf0f7a840ec9",
+                                            "room_ids": [
+                                                "668d6003a9292e300e94c833"
+                                            ]
                                         }
                                     }
                                 }
@@ -2836,6 +2603,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
                     },
                     "404": {
                         "$ref": "#/components/responses/404_New"
@@ -2850,7 +2620,7 @@
                     }
                 ],
                 "summary": "Inform API about battle",
-                "description": "Enpoint for notifying the API about battle events or any other data.\n\nNotice, that the field type is required and determines the type of the data.\n\nNotice that the type also determines shape of the body. Examples, for each type can be found in request examples section.\n\n## Type field\n\n### result\n\nResult of the battle, all players of the battle should send this data.\n\nAs a response for winners an access token will be returned, which can be used when stealing Items from losed Clan's SoulHome. Notice that the steal token will expire after some period of time. Loosers will get 403 error\n\nThe steal token can be used only by the winner's Clan's members for the loser's Clan Stock.\n\nYou can see the process flow from [this diagram](https://github.com/Alt-Org/Altzone-Server/tree/dev/doc/img/game_results)"
+                "description": "Enpoint for notifying the API about battle events or any other data.\n\nNotice, that the field type is required and determines the type of the data.\n\nNotice that the type also determines shape of the body. Examples, for each type can be found in request examples section.\n\n## Type field\n\n### result\n\nResult of the battle, all players of the battle should send this data.\n\nAs a response for winners an access token will be returned, which can be used when stealing Items from losed Clan's SoulHome. Notice that the steal token will expire after some period of time. Losers will get 403 error = they can not get the steal token.\n\nThe steal token can be used only by the winner's Clan's members for the loser's Clan Stock.\n\nYou can see the process flow from [this diagram](https://github.com/Alt-Org/Altzone-Server/tree/dev/doc/img/game_results)"
             }
         },
         "/item/move": {
@@ -2872,8 +2642,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Item",
-                    "in-development"
+                    "Item"
                 ],
                 "responses": {
                     "204": {
@@ -2901,18 +2670,54 @@
                 "description": "Move Item from Stock to Room or from Room to Stock, based on the _moveTo_ field, which can have only two values: \"Stock\" or \"Room\"\n\nNotice that Clan members can move only own Clan Items and a member is trying to move other Clan's Item the 404 will be returned.\n\nNotice that if an Item need to be moved to a Stock then there is no need to specify the destination_id field, since Clan can have only one Stock.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n\n## Endpoint description\n\n### General description\n\nItems are objects, which can be placed in SoulHomes' Rooms, Stocks and Shop. Item is an object, which has its value in the game and can be bought from the Shop, stolen from the Stock or placed in safe to SoulHome's Room.\n\nItems can be obtained only from Shop and then stored in Room or a Stock.\n\nItem can be a furniture or some other kind of object. The difference between furniture and not furniture is that a furniture can be placed only on a floor. Not furniture can be placed anywhere including on top of a furniture, walls, celling and floor. This data is used in game logic only and does not affect the API in any way.\n\n### Relations\n\nItem can belong to one Room. Room can have multiple Items.\n\nItem can belong to one Stock. Stock can have multiple Items.\n\nItem can belong to Shop. Shop can have multiple Items.\n\n### CRUD operations\n\nItem can not be created by Player. It can only be bought from Shop. API creates new Items automatically.\n\nItem can be read by anyone. One Item can be accessed via its _id field. Multiple Items can be accessed by requesting them within another endpoints via \"with\" or \"all\" queries (/stock/:stock_id?with=Item), since they are mostly required together with Stock, Room or Shop data.\n\nItem can not be directly updated by Players. However, Players may move Items from one place to another. They first can buy an Item from Shop and so update Item's place by moving it to the Clan's Stock. Then they can move it from SoulHome to Stock or vice versa. Item can be bought from Shop via /stock/buy enpoint (not yet implemented). Item can be moved from Room to Stock or from Stock to Room via /item/move POST endpoint.\n\nItem can not be deleted."
             }
         },
-        "/itemShop/buy": {
+        "/fleaMarket/buy": {
             "post": {
+                "requestBody": {
+                    "description": "Item to buy",
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "item_id": "66d8611a184d5f0a7c0675b7"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "tags": [
-                    "ItemShop",
-                    "in-development"
+                    "in-development",
+                    "FleaMarket"
                 ],
                 "responses": {
-                    "501": {
-                        "description": "Not implemented"
+                    "201": {
+                        "$ref": "#/components/responses/201"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
-                "summary": "Buy an Item from Shop"
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Buy an Item from the flea market",
+                "description": "Buy an Item from the flea market. This will start a voting in the Clan for which Item is being purchased. Voting duration is 10 min at max and the min approval percentage is 51. During the voting an Item is in \"Booked\" status and can not be bought by other players.\n\nNotice that if a FleaMarketItem has already \"Booked\" status 403 will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | yes, only buying Clan members |\n\n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there.\n"
             }
         },
         "/auth/signIn": {
@@ -2965,6 +2770,7 @@
                                                 "backpackCapacity": 456,
                                                 "uniqueIdentifier": "3",
                                                 "profile_id": "651a716b5129c6e54cb7d7c9",
+                                                "points": 10,
                                                 "__v": 0,
                                                 "clan_id": "651a72c35129c6e54cb7d7de"
                                             },
@@ -2979,6 +2785,11 @@
                                                 "admin_ids": [
                                                     "651a716b5129c6e54cb7d7cb"
                                                 ],
+                                                "labels": [
+                                                    "eläinrakkaat",
+                                                    "itsenäiset"
+                                                ],
+                                                "points": 20,
                                                 "__v": 0,
                                                 "playerCount": 2,
                                                 "stockCount": 1
@@ -3022,8 +2833,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Clan",
-                    "release-03-09-24"
+                    "Clan"
                 ],
                 "responses": {
                     "204": {
@@ -3050,6 +2860,381 @@
                 "summary": "Exclude Player from Clan",
                 "description": "Request exclude the player from clan. \n\nNotice that only Clan admin can remove the Player\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | yes, only clan admin | \n\n"
             }
+        },
+        "/gameAnalytics/logFile": {
+            "post": {
+                "requestBody": {
+                    "description": "File that needs to be uploaded",
+                    "content": {
+                        "multipart/form-data": {}
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "GameAnalytics"
+                ],
+                "parameters": [
+                    {
+                        "name": "Secret",
+                        "description": "secret_string",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Upload a game analytics log file",
+                "description": "Enpoint uploads a log file and save on the server.\n\nThe file will be saved to the folder with name corresponding to the date when it was uploaded, i.e. 1-9-2024.\n\nFile name must be unique and therefore its name will contain date, time, Player _id and a random string, i.e. 1-9-2024_14-45-12_667eedc9b3b5bf0f7a840ef1_123456.log\n\nNotice that the request must have a Secret header which holds a password for such requests.\n\nNotice that the request must be in multipart/form-data format, where field name containing the file is \"logFile\""
+            }
+        },
+        "/fleaMarket/sell": {
+            "post": {
+                "requestBody": {
+                    "description": "Item to sell",
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "item_id": "66d8611a184d5f0a7c0675b7"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "in-development",
+                    "FleaMarket"
+                ],
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/201"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Sell an Item on the flea market",
+                "description": "Sell an Item on the flea market. This will start a voting in the Clan from which Item is being moved to the flee marked. Voting min approval percentage is 51. During the voting an Item is in \"Shipping\" status and can not be bought by other players.\n\nNotice that if a FleaMarketItem has already \"Shipping\" status 403 will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | yes, only selling Clan members |\n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there."
+            }
+        },
+        "/voting": {
+            "put": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "voting_id": "667eedc9b3b5bf0f7a840ef1",
+                                        "choice": "accept"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Voting",
+                    "in-development"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Send a vote",
+                "description": "Send a vote.\n\nThe minimum acceptance percentage refering to the min percentage of a group members that need to accept some option for the voting to be concluded. For example Clan members are voting whenever they want to sell an Item or not and the min percentage might be 51 => if 51% of all this Clan members accept to sell the Item then the Item can be sold and otherwise if the 51% of Clan members reject to sell the Item it will not be sold. Same logic can be applied if there are more than 2 options available.\n\nVoting endpoint is served for different kinds of votings. The \"type\" field is an enum and determines what value the \"choice\" field may have.\n\n| type          | options            |\n| ------------- | ------------------ |\n| selling_item: | \"accept\", \"reject\" |\n| buying_item:  | \"accept\", \"reject\" |\n\n\n## selling_item\n\nPlayer votes whenever he/she wants that an item is going for sale to the flea market. The voter must be a member of the Clan from which item is going to sale, otherwise 403 will be returned. The min acceptance percentage is 51%. Notice that during the voting process there will be sent different notifications via MQTT:\n- new voting started\n- somebody has voted\n- voting ended\n\n## buying_item\n\nPlayer votes whenever he/she wants that an item should be bought from the flea market or not. The voter must be a member of the Clan for which item is going to be bought, otherwise 403 will be returned. The min acceptance percentage is 51%. The time limit for the voting is 10 mins. Notice that during the voting process there will be sent different notifications via MQTT:\n- new voting started\n- somebody has voted\n- voting ended\n- error if time limit expired"
+            }
+        },
+        "/voting/{_id}": {
+            "get": {
+                "tags": [
+                    "Voting",
+                    "in-development"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "_id": "668953cd4a7b6c993aed1a36",
+                                            "startedAt": 1727178420,
+                                            "organizer_id": "668d6003a9292e300e94c833",
+                                            "type": "selling_item",
+                                            "player_ids": [
+                                                "66d86147184d5f0a7c0675ca",
+                                                "668a765091020196cb10d5a3"
+                                            ],
+                                            "votes": [
+                                                {
+                                                    "player_id": "66d86147184d5f0a7c0675ca",
+                                                    "choice": "accept"
+                                                },
+                                                {
+                                                    "player_id": "668a765091020196cb10d5a3",
+                                                    "choice": "reject"
+                                                }
+                                            ],
+                                            "minPercentage": 51
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success, response with body "
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get voting data by _id",
+                "description": "Get data of the current voting state.\n\nNotice that it can return 403 in case the logged-in player does not have permission to access the voting, for example if the player tries to access a voting that is an internal for other Clan."
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "1": {
+                            "value": "668a70ce91020196cb10d595"
+                        }
+                    },
+                    "name": "_id",
+                    "description": "voting _id",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/leaderboard": {
+            "get": {
+                "tags": [
+                    "Leaderboard",
+                    "in-development"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Clan": [
+                                                    {
+                                                        "_id": "667eedc9b3b5bf0f7a840ef1",
+                                                        "name": "User2 clan",
+                                                        "tag": "tag2",
+                                                        "gameCoins": 90,
+                                                        "admin_ids": [
+                                                            "666720806cc90102f60bd325"
+                                                        ],
+                                                        "playerCount": 1,
+                                                        "itemCount": 0,
+                                                        "stockCount": 0,
+                                                        "isOpen": true,
+                                                        "points": 20,
+                                                        "id": "667eedc9b3b5bf0f7a840ef1"
+                                                    },
+                                                    {
+                                                        "_id": "667bfec6afb8211b4bd8dbff",
+                                                        "name": "User1 clan",
+                                                        "tag": "tag1",
+                                                        "gameCoins": 4,
+                                                        "admin_ids": [
+                                                            "665df7026bf5b8f670569ea4"
+                                                        ],
+                                                        "playerCount": 1,
+                                                        "itemCount": 0,
+                                                        "stockCount": 0,
+                                                        "isOpen": true,
+                                                        "points": 10,
+                                                        "id": "667bfec6afb8211b4bd8dbff"
+                                                    }
+                                                ]
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Clan",
+                                                "modelName": "Clan",
+                                                "dataType": "Array",
+                                                "dataCount": 2
+                                            },
+                                            "paginationData": {
+                                                "currentPage": 1,
+                                                "limit": 2,
+                                                "offset": 0,
+                                                "itemCount": 2,
+                                                "pageCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success, with body"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {}
+                ],
+                "summary": "Get leaderboard data",
+                "description": "Various leaderboards define the best ones in different categories, for example top Players or top Clans.\n\nNotice that the leaderboards data is updated once every 12 hours.\n\n## Leaderboard parameters\n\n### Player\n\nTop Players are defined by the amount of points that he/she has.\n\n### Clan\n\nTop Clans are defined by the amount of points that each Clan has."
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "top clans": {
+                            "value": "Clan"
+                        }
+                    },
+                    "name": "category",
+                    "description": "Category of the leaderboard",
+                    "schema": {
+                        "enum": [
+                            "Clan",
+                            "Player"
+                        ],
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                }
+            ]
+        },
+        "/playerTasks": {
+            "get": {
+                "tags": [
+                    "in-development",
+                    "PlayerTasks"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, response with body"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get Player's tasks",
+                "description": "Returns a list of logged-in Player's tasks. \n\nThe period query works as follows:\n\ntoday - all tasks for today (completed and uncomleted)\n\nweek - all tasks for the current week (completed and uncomleted) including daily tasks.\n\nmonth - all tasks for the current month (completed and uncompleted), including weekly and daily tasks\n\n| Feature         | Has                     |\n| --------------- | ----------------------- |\n| Authentication  | yes                     |\n| Authorization   | only Player's own tasks |\n| Search          | yes                     | \n| Sort            | yes                     |\n| Pagination      | yes                     | \n\n## General description\n\nThe daily task is a predefined task for an individual player to perform.\n\nThere are tasks for each day, each two weeks and each month.\n\nPlayer is getting points for each completed task and each task brings different amount of points and coins.\n\nThese points and coins are going to the player's clan. The points are used to determine top clans in the game and the coins are used to purchase items from the flee market of the game."
+            },
+            "parameters": [
+                {
+                    "name": "period",
+                    "description": "Period of time for the tasks",
+                    "schema": {
+                        "enum": [
+                            "today",
+                            "week",
+                            "month"
+                        ],
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": false
+                }
+            ]
         }
     },
     "components": {
@@ -3225,6 +3410,11 @@
                                 "description": "The identifier for the player, unique",
                                 "type": "string",
                                 "example": "1"
+                            },
+                            "above13": {
+                                "description": "Is Player age 13 or above",
+                                "type": "boolean",
+                                "example": true
                             }
                         }
                     }
@@ -3274,6 +3464,18 @@
                         },
                         "example": [
                             "64df3aad42cbaf850a3f891f"
+                        ]
+                    },
+                    "labels": {
+                        "description": "labels that describes the clan, notice that it is an enum",
+                        "default": [],
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "eläinrakkaat",
+                            "itsenäiset"
                         ]
                     }
                 }
@@ -3373,6 +3575,16 @@
                         "description": "The id of the associated Profile",
                         "type": "string",
                         "example": "6686cac271adebdb10f33fee"
+                    },
+                    "above13": {
+                        "description": "Is Player age 13 or above, default null",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "parentalAuth": {
+                        "description": "Is Player got parents approval, default null",
+                        "type": "boolean",
+                        "example": true
                     }
                 }
             },
@@ -3404,6 +3616,16 @@
                         "description": "The id of the associated Profile",
                         "type": "string",
                         "example": "6686cac271adebdb10f33fee"
+                    },
+                    "above13": {
+                        "description": "Is Player age 13 or above",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "parentalAuth": {
+                        "description": "Is Player got parents approval, default null",
+                        "type": "boolean",
+                        "example": true
                     }
                 }
             },
@@ -3427,7 +3649,7 @@
                         "example": 23
                     },
                     "tag": {
-                        "description": "amount of clan coins",
+                        "description": "deprecated use labels instead, clan's tag",
                         "type": "string",
                         "example": "my_tag"
                     },
@@ -3436,6 +3658,18 @@
                         "default": true,
                         "type": "boolean",
                         "example": true
+                    },
+                    "labels": {
+                        "description": "labels that describes the clan, notice that it is an enum",
+                        "default": [],
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "eläinrakkaat",
+                            "itsenäiset"
+                        ]
                     }
                 }
             },
@@ -3527,6 +3761,17 @@
                 }
             },
             "ChatCreate": {
+                "description": "Create a new Chat",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "description": "The name of the chat",
+                        "type": "string",
+                        "example": "Chat 1"
+                    }
+                }
+            },
+            "ChatUpdate": {
                 "description": "Update an existing Chat",
                 "type": "object",
                 "properties": {
@@ -3547,17 +3792,6 @@
                             "type": "object"
                         },
                         "example": []
-                    }
-                }
-            },
-            "ChatUpdate": {
-                "description": "Create a new Chat",
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "description": "The name of the chat",
-                        "type": "string",
-                        "example": "Chat 1"
                     }
                 }
             },
@@ -4677,10 +4911,6 @@
     ],
     "tags": [
         {
-            "name": "release-03-09-24",
-            "description": "Endpoints affected in 03.09.2024 release"
-        },
-        {
             "name": "in-development",
             "description": "endpoint is changing or not yet implemented"
         },
@@ -4723,6 +4953,26 @@
         {
             "name": "Chat",
             "description": "chats and their messages "
+        },
+        {
+            "name": "GameAnalytics",
+            "description": "Various functionality for game analytics"
+        },
+        {
+            "name": "FleaMarket",
+            "description": "Flea market, place where Clans can sell own items or buy other's."
+        },
+        {
+            "name": "Voting",
+            "description": "In-game votings"
+        },
+        {
+            "name": "Leaderboard",
+            "description": "Leaderboards of different categories"
+        },
+        {
+            "name": "PlayerTasks",
+            "description": "In-game tasks for Player to do daily, weekly, monthly"
         }
     ],
     "externalDocs": {

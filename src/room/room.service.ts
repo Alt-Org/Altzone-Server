@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Room } from "./room.schema";
@@ -17,7 +17,7 @@ export class RoomService {
     public constructor(
         @InjectModel(Room.name) public readonly model: Model<Room>,
         private readonly roomHelper: RoomHelperService,
-        private readonly itemService: ItemService
+        @Inject(forwardRef(() => ItemService)) private readonly itemService: ItemService
     ){
         this.refsInModel = [ModelName.ITEM, ModelName.SOULHOME];
         this.basicService = new BasicService(model);
@@ -165,5 +165,16 @@ export class RoomService {
 
         for(let i=0, l=room_ids.length; i<l; i++)
             await this.basicService.updateOneById(room_ids[i], updateObject);
+    }
+
+
+    /**
+     * Reads all rooms associated with a given Soul Home.
+     *
+     * @param soulHome_id - The ID of the soulHome
+     * @returns A promise that resolves to an array of RoomDto objects if successful, or a ServiceError array if something went wrong.
+     */
+    async readAllSoulHomeRooms(soulHome_id: string) {
+        return await this.basicService.readMany<RoomDto>({ filter: { soulHome_id } });
     }
 }

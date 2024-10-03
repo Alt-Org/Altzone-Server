@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ModelName } from "../common/enum/modelName.enum";
 import { RoomController } from "./room.controller";
@@ -16,9 +16,9 @@ import { ItemModule } from "../item/item.module";
         MongooseModule.forFeature([ {name: ModelName.SOULHOME, schema: SoulhomeSchema } ]),
         MongooseModule.forFeature([ {name: ModelName.ROOM, schema: RoomSchema } ]),
         MongooseModule.forFeature([ {name: ModelName.CLAN, schema: ClanSchema } ]),
-        PlayerModule,
+        forwardRef(() => PlayerModule),
+        forwardRef(() => ItemModule),
         RequestHelperModule,
-        ItemModule
     ],
     controllers: [ RoomController ],
     providers: [ RoomService, RoomHelperService ],

@@ -18,6 +18,9 @@ export class ClanDto {
     tag: string;
 
     @Expose()
+    labels: string[];
+
+    @Expose()
     gameCoins: number;
 
     @Expose()

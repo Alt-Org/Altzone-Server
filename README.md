@@ -5,6 +5,8 @@ This is a REST API for the Altzone game. For API description see the wiki pages
 
 ## Releases
 
+- [Release notes 03.10.2024](https://github.com/Alt-Org/Altzone-Server/blob/dev/doc/release-notes/release-03-10-2024.md)
+
 - [Release notes 03.09.2024](https://github.com/Alt-Org/Altzone-Server/blob/main/doc/release-notes/release-03-09-24.md)
 
 
@@ -15,7 +17,11 @@ Server is available on https://altzone.fi/api
 
 ## Swagger description
 
-[Swagger](https://swagger.altzone.fi/)
+1. [Latest swagger file version](https://github.com/Alt-Org/Altzone-Server/blob/dev/swagger/swagger.json) 
+   You can find the latest API description and changes here.
+
+2. [Swagger on web](https://swagger.altzone.fi/)
+
 
 
 ## Getting started
@@ -29,7 +35,7 @@ Server is available on https://altzone.fi/api
 
 ### Start DB
 
-Run ```docker compose up``` to start DB, mondo-express (UI for Mongo) and Nginx (it will take couple minutes for the first time)
+Run ```docker compose up``` to start DB, mongo-express (UI for Mongo) and Nginx (it will take couple minutes for the first time)
 
 ### Start the API
 

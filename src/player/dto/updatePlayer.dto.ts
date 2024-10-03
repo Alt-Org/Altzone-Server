@@ -1,4 +1,4 @@
-import {IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
+import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
 import {IsPlayerExists} from "../decorator/validation/IsPlayerExists.decorator";
 import {IsCustomCharacterExists} from "../../customCharacter/decorator/validation/IsCustomCharacterExists.decorator";
@@ -21,6 +21,14 @@ export class UpdatePlayerDto {
     @IsString()
     @IsOptional()
     uniqueIdentifier: string;
+
+    @IsOptional()
+    @IsBoolean()
+    above13?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    parentalAuth?: boolean;
 
     @IsClanExists()
     @IsMongoId()

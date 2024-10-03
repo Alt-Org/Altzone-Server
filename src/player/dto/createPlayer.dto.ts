@@ -1,4 +1,4 @@
-import {IsInt, IsMongoId, IsString} from "class-validator";
+import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
 import {IsProfileExists} from "../../profile/decorator/validation/IsProfileExists.decorator";
 import AddType from "../../common/base/decorator/AddType.decorator";
 
@@ -13,7 +13,15 @@ export class CreatePlayerDto {
     @IsString()
     uniqueIdentifier: string;
 
+    @IsOptional()
+    @IsBoolean()
+    above13?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    parentalAuth?: boolean;
+
     @IsProfileExists()
     @IsMongoId()
-    profile_id: string;
+    profile_id?: string;
 }

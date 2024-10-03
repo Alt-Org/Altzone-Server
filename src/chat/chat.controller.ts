@@ -4,7 +4,6 @@ import {
     Controller,
     Delete,
     Get, HttpCode,
-    NotImplementedException,
     Param,
     Post,
     Put,
@@ -26,12 +25,13 @@ import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
 import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
-import {NoAuth} from "../auth/decorator/NoAuth.decorator";
 import {CreateMessageDto} from "./dto/createMessage.dto";
 import {MessageDto} from "./dto/message.dto";
 import {chat_idParam, messageParam} from "./dto/messageParam";
 import {APIObjectName} from "../common/enum/apiObjectName.enum";
 import { Serialize } from "../common/interceptor/response/Serialize";
+import { Authorize } from "../authorization/decorator/Authorize";
+import { Action } from "../authorization/enum/action.enum";
 
 
 @Controller('chat')
@@ -42,95 +42,70 @@ export class ChatController {
     ) {
     }
 
-    @NoAuth()
     @Post()
-    // @BasicPOST(ChatDto)
-    public create(
-       // @Body() body: CreateChatDto
-    ) {
-        throw new NotImplementedException();
-        //return this.service.createOne(body);
+    @Authorize({action: Action.create, subject: ChatDto})
+    @BasicPOST(ChatDto)
+    public create(@Body() body: CreateChatDto) {
+        return this.service.createOne(body);
     }
 
-    @NoAuth()
-    // @Serialize(ChatDto)
+    @Serialize(ChatDto)
     @Get('/:_id')
-    // @BasicGET(ModelName.CHAT, ChatDto)
-    // @AddGetQueries()
-    public get(
-        //@Param() param: _idDto, 
-        //@Req() request: Request
-    ) {
-        throw new NotImplementedException();
-        //return this.service.readOneById(param._id, request['mongoPopulate']);
+    @Authorize({action: Action.read, subject: ChatDto})
+    @BasicGET(ModelName.CHAT, ChatDto)
+    @AddGetQueries()
+    public get(@Param() param: _idDto, @Req() request: Request) {
+        return this.service.readOneById(param._id, request['mongoPopulate']);
     }
 
-    @NoAuth()
     @Get()
-    // @Serialize(ChatDto)
-    // @OffsetPaginate(ModelName.CHAT)
-    // @AddSearchQuery(ChatDto)
-    // @AddSortQuery(ChatDto)
-    // @BasicGET(ModelName.CHAT, ChatDto)
-    public getAll(
-        //@GetAllQuery() query: IGetAllQuery
-    ) {
-        throw new NotImplementedException();
-        //return this.service.readAll(query);
+    @Authorize({action: Action.read, subject: ChatDto})
+    @Serialize(ChatDto)
+    @OffsetPaginate(ModelName.CHAT)
+    @AddSearchQuery(ChatDto)
+    @AddSortQuery(ChatDto)
+    @BasicGET(ModelName.CHAT, ChatDto)
+    public getAll(@GetAllQuery() query: IGetAllQuery) {
+        return this.service.readAll(query);
     }
 
-    @NoAuth()
     @Put()
-    // @BasicPUT(ModelName.CHAT)
-    public update(
-        //@Body() body: UpdateChatDto
-    ) {
-        throw new NotImplementedException();
-        //return this.service.updateOneById(body);
+    @Authorize({action: Action.update, subject: UpdateChatDto})
+    @BasicPUT(ModelName.CHAT)
+    public update(@Body() body: UpdateChatDto) {
+        return this.service.updateOneById(body);
     }
 
-    @NoAuth()
     @Delete('/:_id')
-    // @BasicDELETE(ModelName.CHAT)
+    @Authorize({action: Action.delete, subject: UpdateChatDto})
+    @BasicDELETE(ModelName.CHAT)
     public delete(@Param() param: _idDto) {
-        throw new NotImplementedException();
-        //return this.service.deleteOneById(param._id);
+        return this.service.deleteOneById(param._id);
     }
 
-    @NoAuth()
     @Post('/:chat_id/messages')
-    // @HttpCode(204)
-    // @BasicPOST(ChatDto)
-    public createMessage(
-       // @Param() param: chat_idParam, 
-       // @Body() body: CreateMessageDto
-    ) {
-        throw new NotImplementedException();
-        //return this.service.createMessage(param.chat_id, body);
+    @Authorize({action: Action.create, subject: ChatDto})
+    @HttpCode(204)
+    @BasicPOST(ChatDto)
+    public createMessage(@Param() param: chat_idParam, @Body() body: CreateMessageDto) {
+        return this.service.createMessage(param.chat_id, body);
     }
 
-    @NoAuth()
     @Get('/:chat_id/messages/:_id')
-    // @BasicGET(APIObjectName.MESSAGE, MessageDto)
-    public getMessage(
-       // @Param() param: messageParam
-    ) {
-        throw new NotImplementedException();
-        //return this.service.readOneMessageById(param.chat_id, param._id);
+    @Authorize({action: Action.read, subject: MessageDto})
+    @BasicGET(APIObjectName.MESSAGE, MessageDto)
+    public getMessage(@Param() param: messageParam) {
+        return this.service.readOneMessageById(param.chat_id, param._id);
     }
 
-    @NoAuth()
     @Get('/:chat_id/messages')
-    // @OffsetPaginate(ModelName.CHAT)
-    // @AddSearchQuery(MessageDto)
-    // @AddSortQuery(MessageDto)
-    // @BasicGET(APIObjectName.MESSAGE, MessageDto)
-    public getAllMessages(
-        //@Param() param: chat_idParam, 
-        //@GetAllQuery() query: IGetAllQuery
-    ) {
-        throw new NotImplementedException();
-        //return this.service.readAllMessages(param.chat_id, query);
+    @Authorize({action: Action.read, subject: MessageDto})
+    @OffsetPaginate(ModelName.CHAT)
+    @AddSearchQuery(MessageDto)
+    @AddSortQuery(MessageDto)
+    @BasicGET(APIObjectName.MESSAGE, MessageDto)
+    public getAllMessages(@Param() param: chat_idParam, @GetAllQuery() query: IGetAllQuery) {
+        return this.service.readAllMessages(param.chat_id, query);
     }
 
     // @Put('/:chat_id/messages')

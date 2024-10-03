@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {MongooseError} from "mongoose";
 import {JwtService} from "@nestjs/jwt";
 import {ModelName} from "../common/enum/modelName.enum";
@@ -6,6 +6,8 @@ import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {ProfileDto} from "../profile/dto/profile.dto";
 import {PlayerDto} from "../player/dto/player.dto";
 import {ClanDto} from "../clan/dto/clan.dto";
+import { APIError } from '../common/controller/APIError';
+import { APIErrorReason } from '../common/controller/APIErrorReason';
 
 @Injectable()
 export class AuthService {
@@ -61,5 +63,25 @@ export class AuthService {
         // Convert the Unix timestamp to a Date object
         // return expiresIn ? new Date(expiresIn * 1000) : null;
         return diffInSeconds ? diffInSeconds : null;
+    }
+
+    /**
+     * Verifies the provided JWT token.
+     * 
+     * @param token - The JWT token to verify.
+     * @returns - A promise that resolves with the decoded token if verification is successful.
+     * @throws - Throws an UnauthorizedException if the token is invalid or expired
+     */
+    public async verifyToken(token: string): Promise<any> {
+        try {
+            return await this.jwtService.verifyAsync(token);
+        } catch (_) {
+            const expTime = this.getTokenExpirationTime(token);
+            const errorMsg = expTime <= 0 ? "Token has expired" : "Invalid token";
+            throw new UnauthorizedException({
+                statusCode: 403,
+                errors: [new APIError({ reason: APIErrorReason.NOT_AUTHORIZED, message: errorMsg })]
+            });
+        }
     }
 }

@@ -30,5 +30,6 @@ export enum ModelName {
     ROOM = 'Room',
     SOULHOME = 'SoulHome',
     CLANVOTE = 'ClanVote',
-    ITEMSHOP = 'ItemShop'
+    ITEMSHOP = 'ItemShop',
+    GAME = 'Game',
 }

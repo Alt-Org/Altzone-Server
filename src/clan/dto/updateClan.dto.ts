@@ -1,7 +1,7 @@
-import {ArrayNotEmpty, IsArray, IsBoolean, IsInt, IsMongoId, IsOptional, IsString, Validate} from "class-validator";
-import {IsClanExists} from "../decorator/validation/IsClanExists.decorator";
+import { ArrayNotEmpty, IsArray, ArrayMaxSize, IsEnum, IsBoolean, IsInt, IsMongoId, IsOptional, IsString, Validate } from 'class-validator';import {IsClanExists} from "../decorator/validation/IsClanExists.decorator";
 import { IsPlayerExists } from "../../player/decorator/validation/IsPlayerExists.decorator";
 import AddType from "../../common/base/decorator/AddType.decorator";
+import { ClanLabel } from '../enum/clanLabel.enum';
 
 @AddType('UpdateClanDto')
 export class UpdateClanDto {
@@ -16,6 +16,12 @@ export class UpdateClanDto {
     @IsString()
     @IsOptional()
     tag: string;
+
+    @IsArray()
+    @ArrayMaxSize(5)
+    @IsEnum(ClanLabel, { each: true })
+    @IsOptional()
+    labels: ClanLabel[];
 
     @IsInt()
     @IsOptional()
