@@ -26,6 +26,7 @@ import { ClanVoteModule } from './shop/clanVote/clanVote.module';
 import { ItemShopModule } from './shop/itemShop/itemShop.module';
 import { GameDataModule } from './gameData/gameData.module';
 import { GameAnalyticsModule } from './gameAnalytics/gameAnalytics.module';
+import { PlayerTasksModule } from './playerTasks/playerTasks.module';
 
 // Set up database connection
 const mongoUser = process.env.MONGO_USERNAME || 'rootUser';
@@ -62,7 +63,8 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       PermissionModule,
       ApiStateModule,
       GameDataModule,
-      GameAnalyticsModule
+      GameAnalyticsModule,
+      PlayerTasksModule,
   ],
   controllers: [AppController],
   providers: [
