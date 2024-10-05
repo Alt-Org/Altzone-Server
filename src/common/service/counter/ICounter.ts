@@ -1,7 +1,7 @@
 /**
  * Provides functionality of increasing or decreasing counter fields in DB
  */
-export default interface ICounter{
+export default interface ICounter<T>{
     /**
      * Decrease the counter field by the specified amount.
      *

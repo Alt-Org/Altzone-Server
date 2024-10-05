@@ -5,11 +5,11 @@ import { Model } from "mongoose";
  * @property model - where the field is located
  * @property counterField - counter field name
  */
-type CounterSettings = {
+type CounterSettings<T> = {
     /**
      * where the field is located
      */
-    model: Model<any>,
+    model: Model<T>,
     /**
      * counter field name
      */
@@ -21,8 +21,11 @@ type CounterSettings = {
  *
  * Notice that these fields must be integers.
  */
-export default class Counter implements ICounter{
-    constructor({model, counterField}: CounterSettings){
+export default class Counter<T> implements ICounter<T>{
+    private model: Model<T>;
+    private counterField: string;
+
+    constructor({model, counterField}: CounterSettings<T>){
         this.model = model;
         this.counterField = counterField;
     }
@@ -30,6 +33,7 @@ export default class Counter implements ICounter{
     public async decrease(filter: object, amount: number) {
         return changeCounterValue(this.model, filter, this.counterField, -Math.abs(amount));
     }
+
     public async decreaseById(_id: string, amount: number) {
         return changeCounterValue(this.model, {_id}, this.counterField, -Math.abs(amount));
     }
@@ -37,14 +41,15 @@ export default class Counter implements ICounter{
     public async decreaseOnOne(filter: object) {
         return changeCounterValue(this.model, filter, this.counterField, -1);
     }
+
     public async decreaseByIdOnOne(_id: string) {
         return changeCounterValue(this.model, {_id}, this.counterField, -1);
     }
 
-
     public async increase(filter: object, amount: number) {
         return changeCounterValue(this.model, filter, this.counterField, Math.abs(amount));
     }
+
     public async increaseById(_id: string, amount: number) {
         return changeCounterValue(this.model, {_id}, this.counterField, Math.abs(amount));
     }
@@ -52,12 +57,10 @@ export default class Counter implements ICounter{
     public async increaseOnOne(filter: object) {
         return changeCounterValue(this.model, filter, this.counterField, 1);
     }
+
     public async increaseByIdOnOne(_id: string) {
         return changeCounterValue(this.model, {_id}, this.counterField, 1);
     }
-
-    private readonly model: Model<any>;
-    private readonly counterField: string;
 }
 
 /**
@@ -72,7 +75,7 @@ export default class Counter implements ICounter{
  *
  * _false_ if the change did not succeed
  */
-async function changeCounterValue(model: Model<any>, filter: object, counterField: string, counterChange: number): Promise<boolean>{
+async function changeCounterValue<T>(model: Model<T>, filter: object, counterField: string, counterChange: number): Promise<boolean> {
     const docToUpdate = await model.findOne(filter);
     if(!docToUpdate)
         return false;
