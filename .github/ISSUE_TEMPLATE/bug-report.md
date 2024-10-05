@@ -1,9 +1,9 @@
 ---
-name: Bug
+name: Bug report
 about: Tell us what need to be fixed
 title: 'Bug: '
 labels: bug
-assignees: ''
+assignees: MikhailDeriabin
 
 ---
 
@@ -13,11 +13,13 @@ assignees: ''
 
 ## What is the endpoint and method? (if applicable)
 
+Endpoint: 
 
+Method: 
 
 ## How can it be reproduced?
 
-
+1. 
 
 ## What should it do instead?
 
