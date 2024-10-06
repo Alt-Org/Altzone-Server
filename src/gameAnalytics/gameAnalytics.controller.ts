@@ -9,6 +9,7 @@ import { User } from "../auth/user";
 import { APIError } from "../common/controller/APIError";
 import { APIErrorReason } from "../common/controller/APIErrorReason";
 import { LogFileService } from "./logFile.service";
+import { BattleIdHeader } from "./decorator/BattleIdHeader.decorator";
 
 @Controller('gameAnalytics')
 export class GameAnalyticsController {
@@ -24,13 +25,9 @@ export class GameAnalyticsController {
     async uploadFile(
         @UploadedFile() file: Express.Multer.File, 
         @SecretHeader() secret: string,
+        @BattleIdHeader() battleId: string,
         @LoggedUser() user: User
     ) {
-        if(!secret)
-            return [null, [
-                new APIError({reason: APIErrorReason.REQUIRED, message: 'The "Secret" header is required'})
-            ]];
-
         if(secret !== 'my_secret')
             return [null, [
                 new APIError({reason: APIErrorReason.NOT_AUTHORIZED, message: 'The "Secret" header is not valid'})
@@ -41,7 +38,7 @@ export class GameAnalyticsController {
                 new APIError({reason: APIErrorReason.REQUIRED, message: 'Could not define a file sent. The file is required'})
             ]];
 
-        const [resp, errors] = await this.logFileService.saveFile(file, user.player_id);
+        const [resp, errors] = await this.logFileService.saveFile(file, user.player_id, battleId);
         if(errors)
             return [null, errors];
     }
