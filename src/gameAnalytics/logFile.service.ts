@@ -11,26 +11,26 @@ export class LogFileService {
     private client: WebDAVClient;
 
     private readonly logFilesRootFolder = process.env.OWNCLOUD_LOG_FILES_ROOT;
-    //private readonly logFilesRootFolder = '/log-files';
 
     /**
      * Saves the provided file to the own cloud via WebDAV in the designated folder.
      * 
      * @param fileToSave - The file to save.
      * @param player_id - The player's unique identifier to be included in the file name.
+     * @param battleId - The battle id to which battle belongs to
      * @returns A tuple with first element set to _true_ if file was saved 
      *
      *          or _array of ServiceErrors_ as a second element
      */
-    async saveFile(fileToSave: Express.Multer.File, player_id: string){
-        const folderPath = this.getFolderPath();
-        const filePath = this.getFilePath(player_id);
+    async saveFile(fileToSave: Express.Multer.File, player_id: string, battleId: string){
+        const folderPath = this.getFolderPath(battleId);
+        const filePath = this.getFilePath(battleId, player_id);
 
         try {
             const isFileFolderExist = await this.client.exists(folderPath);
             if(!isFileFolderExist)
                 //Notice that the "logFilesRootFolder" folder must be already created manually in own cloud
-                await this.client.createDirectory(folderPath, {recursive: false});
+                await this.client.createDirectory(folderPath, {recursive: true});
         } catch (error) {
             return [null, [ 
                 new ServiceError({
@@ -92,20 +92,22 @@ export class LogFileService {
     /**
      * Constructs the full path to the folder where log files will be stored.
      * 
+     * @param battleId - The id of the battle where file belongs to
      * @returns The full folder path as a string.
      */
-    private getFolderPath(){
-        const folderName = this.getFolderName();
-        return `${this.logFilesRootFolder}/${folderName}`;
+    private getFolderPath(battleId: string){
+        const folderDataName = this.getDateFolderName();
+        return `${this.logFilesRootFolder}/${folderDataName}/${battleId}`;
     }
     /**
      * Constructs the full path to the file, including the folder and the file name.
      * 
+     * @param battleId - The id of the battle where file belongs to
      * @param player_id - The player's unique identifier to be included in the file name.
      * @returns The full file path.
      */
-    private getFilePath(player_id: string){
-        const folderPath = this.getFolderPath();
+    private getFilePath(battleId: string, player_id: string){
+        const folderPath = this.getFolderPath(battleId);
         const fileName = this.getFileName(player_id);
         return `${folderPath}/${fileName}`;
     }
@@ -115,7 +117,7 @@ export class LogFileService {
      * 
      * @returns A string representing the folder name, formatted as DD-MM-YYYY.
      */
-    private getFolderName(){
+    private getDateFolderName(){
         return this.getDateString();
     }
     /**
