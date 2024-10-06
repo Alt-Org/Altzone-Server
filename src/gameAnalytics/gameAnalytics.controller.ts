@@ -3,7 +3,7 @@ import {_idDto} from "../common/dto/_id.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { FileValidationFilter } from "./FileValidation.filter";
 import { UniformResponse } from "../common/decorator/response/UniformResponse";
-import { SecretHeader } from "./SecretHeader.decorator";
+import { SecretHeader } from "./decorator/SecretHeader.decorator";
 import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
 import { User } from "../auth/user";
 import { APIError } from "../common/controller/APIError";
