@@ -2882,6 +2882,15 @@
                         },
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "name": "Battle-Id",
+                        "description": "Id of the battle to which log file belongs to",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
