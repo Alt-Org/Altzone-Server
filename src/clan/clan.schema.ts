@@ -3,6 +3,9 @@ import {HydratedDocument} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
 import {ExtractField} from "../common/decorator/response/ExtractField";
 import { ClanLabel } from './enum/clanLabel.enum';
+import { AgeRange } from './enum/ageRange.enum';
+import { Language } from '../common/enum/language.enum';
+import { Goal } from './enum/goal.enum';
 
 export type ClanDocument = HydratedDocument<Clan>;
 
@@ -34,6 +37,18 @@ export class Clan {
 
     @Prop({type: Boolean, default: true})
     isOpen: Boolean;
+
+    @Prop({type: String, enum: AgeRange, default: AgeRange.NONE})
+    ageRange: AgeRange;
+
+    @Prop({type: String, enum: Goal, default: Goal.NONE})
+    goal: Goal;
+
+    @Prop({type: String, required: true})
+    phrase: string;
+
+    @Prop({type: String, enum: Language, default: Language.NONE})
+    language: Language;
 
     @ExtractField()
     _id: string;
