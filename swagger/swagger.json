@@ -41,42 +41,48 @@
                                             "data": {
                                                 "Clan": [
                                                     {
-                                                        "_id": "667eedc9b3b5bf0f7a840ef1",
-                                                        "name": "User2 clan",
-                                                        "tag": "tag2",
-                                                        "gameCoins": 90,
+                                                        "objectType": "ClanDto",
+                                                        "_id": "66d74887c988e09f4c45870a",
+                                                        "name": "clan2",
+                                                        "tag": "clan2",
+                                                        "labels": [
+                                                            "itsenäiset",
+                                                            "oleilijat",
+                                                            "rikkaat"
+                                                        ],
+                                                        "gameCoins": 0,
                                                         "admin_ids": [
-                                                            "666720806cc90102f60bd325"
+                                                            "66d7067645b40dd7f491e753"
                                                         ],
                                                         "playerCount": 1,
                                                         "itemCount": 0,
                                                         "stockCount": 0,
-                                                        "isOpen": true,
-                                                        "labels": [
-                                                            "eläinrakkaat",
-                                                            "itsenäiset"
-                                                        ],
-                                                        "points": 20,
-                                                        "id": "667eedc9b3b5bf0f7a840ef1"
+                                                        "ageRange": "None",
+                                                        "goal": "None",
+                                                        "language": "None",
+                                                        "isOpen": true
                                                     },
                                                     {
-                                                        "_id": "667bfec6afb8211b4bd8dbff",
-                                                        "name": "User1 clan",
-                                                        "tag": "tag1",
-                                                        "gameCoins": 4,
+                                                        "objectType": "ClanDto",
+                                                        "_id": "66d70d08941f1d7be5033a3c",
+                                                        "name": "clan1",
+                                                        "tag": "clan1",
+                                                        "labels": [
+                                                            "eläinrakkaat",
+                                                            "urheilevat",
+                                                            "rikkaat"
+                                                        ],
+                                                        "gameCoins": 0,
                                                         "admin_ids": [
-                                                            "665df7026bf5b8f670569ea4"
+                                                            "66d705c645b40dd7f491e6eb"
                                                         ],
                                                         "playerCount": 1,
                                                         "itemCount": 0,
                                                         "stockCount": 0,
-                                                        "isOpen": true,
-                                                        "labels": [
-                                                            "eläinrakkaat",
-                                                            "itsenäiset"
-                                                        ],
-                                                        "points": 20,
-                                                        "id": "667bfec6afb8211b4bd8dbff"
+                                                        "ageRange": "None",
+                                                        "goal": "None",
+                                                        "language": "None",
+                                                        "isOpen": true
                                                     }
                                                 ]
                                             },
@@ -165,7 +171,7 @@
                     }
                 ],
                 "summary": "Update a clan",
-                "description": "Update the Clan, which _id is specified in the body. \n\nOnly Clan admins can change the Clan's data, as well as add or remove admins. Notice that while removing Clan admins, its is not allowed to remove all of them, because Clan must have at least one admin.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins | \n\n\nThe labels enum values:\n\n    - 'eläinrakkaat',\n    - 'maahanmuuttomyönteiset',\n    - 'lgbtq+',\n    - 'raittiit',\n    - 'kohteliaat',\n    - 'kiusaamisenvastaiset',\n    - 'urheilevat',\n    - 'syvälliset',\n    - 'oikeudenmukaiset',\n    - 'kaikkien kaverit',\n    - 'itsenäiset',\n    - 'retkeilijät',\n    - 'suomenruotsalaiset',\n    - 'huumorintajuiset',\n    - 'rikkaat',\n    - 'ikiteinit',\n    - 'juoruilevat',\n    - 'rakastavat',\n    - 'oleilijat',\n    - 'nörtit',\n    - 'musadiggarit',\n    - 'tunteelliset',\n    - 'gamerit',\n    - 'animefanit',\n    - 'sinkut',\n    - 'monikulttuuriset',\n    - 'kauniit',\n    - 'järjestelmälliset',\n    - 'epäjärjestelmälliset',\n    - 'tasa-arvoiset',\n    - 'somepersoonat',\n    - 'kädentaitajat',\n    - 'muusikot',\n    - 'taiteilijat',\n    - 'spämmääjät',\n    - 'kasvissyöjät',\n    - 'tasapainoiset'"
+                "description": "Update the Clan, which _id is specified in the body. \n\nOnly Clan admins can change the Clan's data, as well as add or remove admins. Notice that while removing Clan admins, its is not allowed to remove all of them, because Clan must have at least one admin.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins | \n\n\nThe **labels** enum values:\n\n|                         |                            |                      |                       |\n|-------------------------|----------------------------|----------------------|-----------------------|\n| 'eläinrakkaat'          | 'maahanmuuttomyönteiset'   | 'lgbtq+'             | 'raittiit'            |\n| 'kohteliaat'            | 'kiusaamisenvastaiset'     | 'urheilevat'         | 'syvälliset'          |\n| 'oikeudenmukaiset'      | 'kaikkien kaverit'         | 'itsenäiset'         | 'retkeilijät'         |\n| 'suomenruotsalaiset'    | 'huumorintajuiset'         | 'rikkaat'            | 'ikiteinit'           |\n| 'juoruilevat'           | 'rakastavat'               | 'oleilijat'          | 'nörtit'              |\n| 'musadiggarit'          | 'tunteelliset'             | 'gamerit'            | 'animefanit'          |\n| 'sinkut'                | 'monikulttuuriset'         | 'kauniit'            | 'järjestelmälliset'   |\n| 'epäjärjestelmälliset'  | 'tasa-arvoiset'            | 'somepersoonat'      | 'kädentaitajat'       |\n| 'muusikot'              | 'taiteilijat'              | 'spämmääjät'         | 'kasvissyöjät'        |\n| 'tasapainoiset'         |                            |                      |                       |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **language** enum values:\n\n|             |           |             |               |\n|---------------------|-------------------|---------------------|-----------------------|\n| 'None'              | 'English'         | 'Finnish'           | 'Swedish'             |\n| 'Mandarin Chinese'  | 'Hindi'           | 'Spanish'           | 'French'              |\n| 'Arabic'            | 'Bengali'         | 'Russian'           | 'Portuguese'          |\n| 'Urdu'              | 'Indonesian'      | 'German'            | 'Japanese'            |\n| 'Swahili'           | 'Marathi'         |                     |                       |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **goal** enum values:\n\n|         |          |        |     |\n|-----------------|------------------|----------------|--------------|\n| 'None'          | 'Fiilistely'      | 'Grindaus'     | 'Intohimoisuus' |\n| 'Keraily'       |                  |                |              |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **ageRange** enum values:\n\n|       |       |       |   |\n|---------------|---------------|---------------|-----------|\n| 'None'        | 'Teenagers'    | 'Toddlers'    | 'Adults'  |\n| 'All'         |               |               |           |"
             },
             "post": {
                 "requestBody": {
@@ -190,47 +196,7 @@
                                 },
                                 "examples": {
                                     "1": {
-                                        "value": {
-                                            "data": {
-                                                "Clan": {
-                                                    "objectType": "ClanDto",
-                                                    "_id": "66d74887c988e09f4c45870a",
-                                                    "name": "clan2",
-                                                    "tag": "clan2",
-                                                    "gameCoins": 0,
-                                                    "admin_ids": [
-                                                        "66d7067645b40dd7f491e753"
-                                                    ],
-                                                    "playerCount": 1,
-                                                    "itemCount": 0,
-                                                    "stockCount": 0,
-                                                    "isOpen": true,
-                                                    "points": 0,
-                                                    "labels": [
-                                                        "eläinrakkaat",
-                                                        "itsenäiset"
-                                                    ],
-                                                    "Stock": {
-                                                        "objectType": "StockDto",
-                                                        "_id": "66d74887c988e09f4c45870d",
-                                                        "cellCount": 20,
-                                                        "clan_id": "66d74887c988e09f4c45870a"
-                                                    },
-                                                    "SoulHome": {
-                                                        "objectType": "SoulHomeDto",
-                                                        "_id": "66d74887c988e09f4c458715",
-                                                        "name": "clan2",
-                                                        "clan_id": "66d74887c988e09f4c45870a"
-                                                    }
-                                                }
-                                            },
-                                            "metaData": {
-                                                "dataKey": "Clan",
-                                                "modelName": "Clan",
-                                                "dataType": "Object",
-                                                "dataCount": 1
-                                            }
-                                        }
+                                        "value": "{\n    \"data\": {\n        \"Clan\": {\n            \"objectType\": \"ClanDto\",\n                \"_id\": \"66d74887c988e09f4c45870a\",\n                \"name\": \"clan2\",\n                \"tag\": \"clan2\",\n                \"labels\": [\n                    \"itsenäiset\",\n                    \"oleilijat\",\n                    \"rikkaat\"\n                ],\n                \"gameCoins\": 0,\n                \"admin_ids\": [\n                    \"66d7067645b40dd7f491e753\"\n                ],\n                \"playerCount\": 1,\n                \"itemCount\": 0,\n                \"stockCount\": 0,\n                \"ageRange\": \"None\",\n                \"goal\": \"None\",\n                \"language\": \"None\",\n                \"isOpen\": true\n            \"Stock\": {\n                \"objectType\": \"StockDto\",\n                \"_id\": \"66d74887c988e09f4c45870d\",\n                \"cellCount\": 20,\n                \"clan_id\": \"66d74887c988e09f4c45870a\"\n            },\n            \"SoulHome\": {\n                \"objectType\": \"SoulHomeDto\",\n                \"_id\": \"66d74887c988e09f4c458715\",\n                \"name\": \"clan2\",\n                \"clan_id\": \"66d74887c988e09f4c45870a\"\n            }\n        }\n    },\n    \"metaData\": {\n        \"dataKey\": \"Clan\",\n        \"modelName\": \"Clan\",\n        \"dataType\": \"Object\",\n        \"dataCount\": 1\n    }\n}"
                                     }
                                 }
                             }
@@ -259,7 +225,7 @@
                     }
                 ],
                 "summary": "Create a clan",
-                "description": "Create a new Clan. The creator of the Clan becomes its admin. Notice that if Player is creating a new Clan, he/she becomes a member of it, that means that if Player is member of some Clan it can not create a new one, before leaving the old one.\n\nAlso endpoint creates Clan's Stock containing default Items, as well as Clan's SoulHome and Rooms.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | Player can be in one Clan only at one time => if Player already is in another Clan, he/she can not create a new one | \n\n"
+                "description": "Create a new Clan. The creator of the Clan becomes its admin. Notice that if Player is creating a new Clan, he/she becomes a member of it, that means that if Player is member of some Clan it can not create a new one, before leaving the old one.\n\nAlso endpoint creates Clan's Stock containing default Items, as well as Clan's SoulHome and Rooms.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | Player can be in one Clan only at one time => if Player already is in another Clan, he/she can not create a new one | \n\nThe **labels** enum values:\n\n|                         |                            |                      |                       |\n|-------------------------|----------------------------|----------------------|-----------------------|\n| 'eläinrakkaat'          | 'maahanmuuttomyönteiset'   | 'lgbtq+'             | 'raittiit'            |\n| 'kohteliaat'            | 'kiusaamisenvastaiset'     | 'urheilevat'         | 'syvälliset'          |\n| 'oikeudenmukaiset'      | 'kaikkien kaverit'         | 'itsenäiset'         | 'retkeilijät'         |\n| 'suomenruotsalaiset'    | 'huumorintajuiset'         | 'rikkaat'            | 'ikiteinit'           |\n| 'juoruilevat'           | 'rakastavat'               | 'oleilijat'          | 'nörtit'              |\n| 'musadiggarit'          | 'tunteelliset'             | 'gamerit'            | 'animefanit'          |\n| 'sinkut'                | 'monikulttuuriset'         | 'kauniit'            | 'järjestelmälliset'   |\n| 'epäjärjestelmälliset'  | 'tasa-arvoiset'            | 'somepersoonat'      | 'kädentaitajat'       |\n| 'muusikot'              | 'taiteilijat'              | 'spämmääjät'         | 'kasvissyöjät'        |\n| 'tasapainoiset'         |                            |                      |                       |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **language** enum values:\n\n|             |           |             |               |\n|---------------------|-------------------|---------------------|-----------------------|\n| 'None'              | 'English'         | 'Finnish'           | 'Swedish'             |\n| 'Mandarin Chinese'  | 'Hindi'           | 'Spanish'           | 'French'              |\n| 'Arabic'            | 'Bengali'         | 'Russian'           | 'Portuguese'          |\n| 'Urdu'              | 'Indonesian'      | 'German'            | 'Japanese'            |\n| 'Swahili'           | 'Marathi'         |                     |                       |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **goal** enum values:\n\n|         |          |        |     |\n|-----------------|------------------|----------------|--------------|\n| 'None'          | 'Fiilistely'      | 'Grindaus'     | 'Intohimoisuus' |\n| 'Keraily'       |                  |                |              |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **ageRange** enum values:\n\n|       |       |       |   |\n|---------------|---------------|---------------|-----------|\n| 'None'        | 'Teenagers'    | 'Toddlers'    | 'Adults'  |\n| 'All'         |               |               |           |"
             }
         },
         "/profile": {
@@ -760,20 +726,25 @@
                                         "value": {
                                             "data": {
                                                 "Clan": {
-                                                    "_id": "667eedc9b3b5bf0f7a840ef1",
-                                                    "name": "User1 clan",
-                                                    "tag": "tag1",
-                                                    "gameCoins": 90,
-                                                    "admin_ids": [
-                                                        "666720806cc90102f60bd325"
-                                                    ],
+                                                    "objectType": "ClanDto",
+                                                    "_id": "66d70d08941f1d7be5033a3c",
+                                                    "name": "clan1",
+                                                    "tag": "clan1",
                                                     "labels": [
                                                         "eläinrakkaat",
-                                                        "itsenäiset"
+                                                        "urheilevat",
+                                                        "rikkaat"
+                                                    ],
+                                                    "gameCoins": 0,
+                                                    "admin_ids": [
+                                                        "66d705c645b40dd7f491e6eb"
                                                     ],
                                                     "playerCount": 1,
                                                     "itemCount": 0,
                                                     "stockCount": 0,
+                                                    "ageRange": "None",
+                                                    "goal": "None",
+                                                    "language": "None",
                                                     "isOpen": true
                                                 }
                                             },
@@ -3440,11 +3411,6 @@
                         "type": "string",
                         "example": "667462842425aea94d0f66cb"
                     },
-                    "gameCoins": {
-                        "description": "The number of clan coins",
-                        "type": "integer",
-                        "example": 45
-                    },
                     "tag": {
                         "description": "The tag associated with the clan",
                         "type": "string",
@@ -3486,6 +3452,29 @@
                             "eläinrakkaat",
                             "itsenäiset"
                         ]
+                    },
+                    "ageRange": {
+                        "description": "the age range of the Clan, notice it is an enum",
+                        "default": "None",
+                        "type": "string",
+                        "example": "Adults"
+                    },
+                    "goal": {
+                        "description": "the goal of the Clan, notice it is an enum",
+                        "default": "None",
+                        "type": "string",
+                        "example": "Grindaus"
+                    },
+                    "phrase": {
+                        "description": "the motto phrase of the Clan",
+                        "type": "string",
+                        "example": "Adults"
+                    },
+                    "language": {
+                        "description": "the language that Clan primarly uses, notice it is an enum",
+                        "default": "None",
+                        "type": "string",
+                        "example": "Spanish"
                     }
                 }
             },
@@ -3642,7 +3631,7 @@
                 "required": [
                     "name",
                     "tag",
-                    "gameCoins"
+                    "labels"
                 ],
                 "type": "object",
                 "properties": {
@@ -3650,12 +3639,6 @@
                         "description": "name of the clan, unique",
                         "type": "string",
                         "example": "my_clan"
-                    },
-                    "gameCoins": {
-                        "description": "amount of clan coins",
-                        "default": 0,
-                        "type": "integer",
-                        "example": 23
                     },
                     "tag": {
                         "description": "deprecated use labels instead, clan's tag",
@@ -3669,7 +3652,7 @@
                         "example": true
                     },
                     "labels": {
-                        "description": "labels that describes the clan, notice that it is an enum",
+                        "description": "labels that describes the clan, notice that it is an enums array",
                         "default": [],
                         "type": "array",
                         "items": {
@@ -3679,6 +3662,29 @@
                             "eläinrakkaat",
                             "itsenäiset"
                         ]
+                    },
+                    "ageRange": {
+                        "description": "the age range of the Clan, notice it is an enum",
+                        "default": "None",
+                        "type": "string",
+                        "example": "Adults"
+                    },
+                    "goal": {
+                        "description": "the goal of the Clan, notice it is an enum",
+                        "default": "None",
+                        "type": "string",
+                        "example": "Grindaus"
+                    },
+                    "phrase": {
+                        "description": "the motto phrase of the Clan",
+                        "type": "string",
+                        "example": "Adults"
+                    },
+                    "language": {
+                        "description": "the language that Clan primarly uses, notice it is an enum",
+                        "default": "None",
+                        "type": "string",
+                        "example": "Spanish"
                     }
                 }
             },
