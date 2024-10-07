@@ -38,16 +38,16 @@ export class Clan {
     @Prop({type: Boolean, default: true})
     isOpen: Boolean;
 
-    @Prop({type: AgeRange, default: AgeRange.NONE})
+    @Prop({type: String, enum: AgeRange, default: AgeRange.NONE})
     ageRange: AgeRange;
 
-    @Prop({type: Goal, default: Goal.NONE})
+    @Prop({type: String, enum: Goal, default: Goal.NONE})
     goal: Goal;
 
     @Prop({type: String, required: true})
     phrase: string;
 
-    @Prop({type: Language, default: Language.NONE})
+    @Prop({type: String, enum: Language, default: Language.NONE})
     language: Language;
 
     @ExtractField()
