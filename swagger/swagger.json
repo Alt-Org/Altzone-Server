@@ -44,7 +44,6 @@
                                                         "objectType": "ClanDto",
                                                         "_id": "66d74887c988e09f4c45870a",
                                                         "name": "clan2",
-                                                        "tag": "clan2",
                                                         "labels": [
                                                             "itsenäiset",
                                                             "oleilijat",
@@ -66,7 +65,6 @@
                                                         "objectType": "ClanDto",
                                                         "_id": "66d70d08941f1d7be5033a3c",
                                                         "name": "clan1",
-                                                        "tag": "clan1",
                                                         "labels": [
                                                             "eläinrakkaat",
                                                             "urheilevat",
@@ -196,7 +194,67 @@
                                 },
                                 "examples": {
                                     "1": {
-                                        "value": "{\n    \"data\": {\n        \"Clan\": {\n            \"objectType\": \"ClanDto\",\n                \"_id\": \"66d74887c988e09f4c45870a\",\n                \"name\": \"clan2\",\n                \"tag\": \"clan2\",\n                \"labels\": [\n                    \"itsenäiset\",\n                    \"oleilijat\",\n                    \"rikkaat\"\n                ],\n                \"gameCoins\": 0,\n                \"admin_ids\": [\n                    \"66d7067645b40dd7f491e753\"\n                ],\n                \"playerCount\": 1,\n                \"itemCount\": 0,\n                \"stockCount\": 0,\n                \"ageRange\": \"None\",\n                \"goal\": \"None\",\n                \"language\": \"None\",\n                \"isOpen\": true\n            \"Stock\": {\n                \"objectType\": \"StockDto\",\n                \"_id\": \"66d74887c988e09f4c45870d\",\n                \"cellCount\": 20,\n                \"clan_id\": \"66d74887c988e09f4c45870a\"\n            },\n            \"SoulHome\": {\n                \"objectType\": \"SoulHomeDto\",\n                \"_id\": \"66d74887c988e09f4c458715\",\n                \"name\": \"clan2\",\n                \"clan_id\": \"66d74887c988e09f4c45870a\"\n            }\n        }\n    },\n    \"metaData\": {\n        \"dataKey\": \"Clan\",\n        \"modelName\": \"Clan\",\n        \"dataType\": \"Object\",\n        \"dataCount\": 1\n    }\n}"
+                                        "value": {
+                                            "data": {
+                                                "Clan": [
+                                                    {
+                                                        "objectType": "ClanDto",
+                                                        "_id": "66d74887c988e09f4c45870a",
+                                                        "name": "clan2",
+                                                        "labels": [
+                                                            "itsenäiset",
+                                                            "oleilijat",
+                                                            "rikkaat"
+                                                        ],
+                                                        "gameCoins": 0,
+                                                        "admin_ids": [
+                                                            "66d7067645b40dd7f491e753"
+                                                        ],
+                                                        "playerCount": 1,
+                                                        "itemCount": 0,
+                                                        "stockCount": 0,
+                                                        "ageRange": "None",
+                                                        "goal": "None",
+                                                        "language": "None",
+                                                        "isOpen": true
+                                                    },
+                                                    {
+                                                        "objectType": "ClanDto",
+                                                        "_id": "66d70d08941f1d7be5033a3c",
+                                                        "name": "clan1",
+                                                        "labels": [
+                                                            "eläinrakkaat",
+                                                            "urheilevat",
+                                                            "rikkaat"
+                                                        ],
+                                                        "gameCoins": 0,
+                                                        "admin_ids": [
+                                                            "66d705c645b40dd7f491e6eb"
+                                                        ],
+                                                        "playerCount": 1,
+                                                        "itemCount": 0,
+                                                        "stockCount": 0,
+                                                        "ageRange": "None",
+                                                        "goal": "None",
+                                                        "language": "None",
+                                                        "isOpen": true
+                                                    }
+                                                ]
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Clan",
+                                                "modelName": "Clan",
+                                                "dataType": "Array",
+                                                "dataCount": 2
+                                            },
+                                            "paginationData": {
+                                                "currentPage": 1,
+                                                "limit": 2,
+                                                "offset": 0,
+                                                "itemCount": 2,
+                                                "pageCount": 1
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -729,7 +787,6 @@
                                                     "objectType": "ClanDto",
                                                     "_id": "66d70d08941f1d7be5033a3c",
                                                     "name": "clan1",
-                                                    "tag": "clan1",
                                                     "labels": [
                                                         "eläinrakkaat",
                                                         "urheilevat",
@@ -3631,7 +3688,8 @@
                 "required": [
                     "name",
                     "tag",
-                    "labels"
+                    "labels",
+                    "phrase"
                 ],
                 "type": "object",
                 "properties": {
