@@ -18,9 +18,6 @@ export class CreateClanDto {
     @IsEnum(ClanLabel, { each: true })
     labels: ClanLabel[];
 
-    @IsInt()
-    gameCoins: number;
-
     @IsBoolean()
     @IsOptional()
     isOpen?: boolean

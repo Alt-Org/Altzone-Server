@@ -26,10 +26,6 @@ export class UpdateClanDto {
     @IsOptional()
     labels?: ClanLabel[];
 
-    @IsInt()
-    @IsOptional()
-    gameCoins?: number;
-
     //TODO: validate is player exists does not work
     @IsArray()
     @ArrayNotEmpty()
