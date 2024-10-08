@@ -1441,10 +1441,11 @@
                                                 "FleaMarketItem": [
                                                     {
                                                         "_id": "668a70ce91020196cb10d595",
-                                                        "name": "item1",
                                                         "weight": 67,
-                                                        "recycling": "yleinen",
-                                                        "unityKey": "unity1",
+                                                        "name": "Sofa_Taakka",
+                                                        "recycling": "Mixed_waste",
+                                                        "qualityLevel": "common",
+                                                        "unityKey": "Sofa_Taakka",
                                                         "isFurniture": true,
                                                         "price": 23,
                                                         "status": "Available",
@@ -1564,10 +1565,11 @@
                                             "data": {
                                                 "FleaMarketItem": {
                                                     "_id": "668a70ce91020196cb10d595",
-                                                    "name": "item1",
                                                     "weight": 67,
-                                                    "recycling": "yleinen",
-                                                    "unityKey": "unity1",
+                                                    "name": "Sofa_Taakka",
+                                                    "recycling": "Mixed_waste",
+                                                    "qualityLevel": "common",
+                                                    "unityKey": "Sofa_Taakka",
                                                     "isFurniture": true,
                                                     "price": 23,
                                                     "status": "Available",
