@@ -2,18 +2,23 @@ import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString, IsArray, IsEnum } fro
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
 import {IsStockExists} from "../../stock/decorator/validation/IsStockExists.decorator";
 import AddType from "../../common/base/decorator/AddType.decorator";
+import { QualityLevel } from "../enum/qualityLevel.enum";
 import { Recycling } from "../enum/recycling.enum";
+import { ItemName } from "../enum/itemName.enum";
 
 @AddType('CreateItemDto')
 export class CreateItemDto {
     @IsString()
-    name: string;
+    name: ItemName;
 
     @IsInt()
     weight: number;
 
     @IsEnum(Recycling)
     recycling: Recycling;
+
+    @IsEnum(QualityLevel)
+    qualityLevel: QualityLevel;
 
     @IsString()
     unityKey: string;
