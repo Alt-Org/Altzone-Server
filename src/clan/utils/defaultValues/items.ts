@@ -1,5 +1,6 @@
+import { itemProperties } from "../../../item/const/itemProperties";
 import {CreateItemDto} from "../../../item/dto/createItem.dto";
-import { Recycling } from "../../../item/enum/recycling.enum";
+import { ItemName } from "../../../item/enum/itemName.enum";
 
 /**
  * Returns default Item objects for a Stock
@@ -9,21 +10,9 @@ import { Recycling } from "../../../item/enum/recycling.enum";
  */
 export function getStockDefaultItems(stock_id: string): CreateItemDto[]{
     return [
-        { 
-            stock_id, unityKey: 'kirja', name: 'kirja', 
-            recycling: Recycling.common, weight: 1, isFurniture: false, price: 1, 
-            location : [1,1], room_id: null
-        },
-        { 
-            stock_id, unityKey: 'tyyny', name: 'tyyny', 
-            recycling: Recycling.common, weight: 1, isFurniture: false, price: 1, 
-            location : [1,2], room_id: null
-        },
-        { 
-            stock_id, unityKey: 'lelu', name: 'lelu', 
-            recycling: Recycling.common, weight: 1, isFurniture: false, price: 1, 
-            location : [1,3], room_id: null
-        }
+        {...itemProperties.Carpet_Rakkaus, stock_id, room_id: null, unityKey: ItemName.CARPET_RAKKAUS, location : [1,1] },
+        {...itemProperties.Mirror_Rakkaus, stock_id, room_id: null, unityKey: ItemName.MIRROR_RAKKAUS, location : [1,2] },
+        {...itemProperties.Closet_Rakkaus, stock_id, room_id: null, unityKey: ItemName.CLOSET_RAKKAUS, location : [1,3] }
     ];
 }
 
@@ -35,30 +24,11 @@ export function getStockDefaultItems(stock_id: string): CreateItemDto[]{
  */
 export function getRoomDefaultItems(room_id: string): CreateItemDto[]{
     return [
-        { 
-            room_id, unityKey: 'patja', name: 'patja', 
-            recycling: Recycling.common, weight: 1, isFurniture: true, price: 1, 
-            location : [1,1], stock_id: null
-        },
-        { 
-            room_id, unityKey: 'viltti', name: 'viltti', 
-            recycling: Recycling.common, weight: 1, isFurniture: false, price: 1, 
-            location : [1,2], stock_id: null
-        },
-        { 
-            room_id, unityKey: 'tuoli', name: 'tuoli', 
-            recycling: Recycling.common, weight: 1, isFurniture: true, price: 1, 
-            location : [1,3], stock_id: null
-        },
-        { 
-            room_id, unityKey: 'pöytä', name: 'pöytä', 
-            recycling: Recycling.common, weight: 1, isFurniture: true, price: 1, 
-            location : [1,4], stock_id: null
-        },
-        { 
-            room_id, unityKey: 'lamppu', name: 'lamppu', 
-            recycling: Recycling.common, weight: 1, isFurniture: true, price: 1, 
-            location : [1,5], stock_id: null
-        }
+        {...itemProperties.Sofa_Rakkaus, stock_id: null, room_id, unityKey: ItemName.SOFA_RAKKAUS, location : [1,1] },
+        {...itemProperties.Carpet_Rakkaus, stock_id: null, room_id, unityKey: ItemName.CARPET_RAKKAUS, location : [1,2] },
+        {...itemProperties.Chair_Neuro, stock_id: null, room_id, unityKey: ItemName.CHAIR_NEURO, location : [1,3] },
+        {...itemProperties.SideTable_Taakka, stock_id: null, room_id, unityKey: ItemName.SIDETABLE_TAAKKA, location : [1,4] },
+        {...itemProperties.Floorlamp_Taakka, stock_id: null, room_id, unityKey: ItemName.FLOORLAMP_TAAKKA, location : [1,5] },
+        {...itemProperties.Sofa_Taakka, stock_id: null, room_id, unityKey: ItemName.SOFA_TAAKKA, location : [1,6] }
     ];
 }
