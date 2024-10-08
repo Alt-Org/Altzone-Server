@@ -11,7 +11,6 @@ import { ModelName } from "../../common/enum/modelName.enum";
 import { IHookImplementer, PostReadAllHookFunction, PostReadOneHookFunction } from "../../common/interface/IHookImplementer";
 import { getTimeSince, passed } from "../../common/function/timeUtils";
 import { ItemService } from "../../item/item.service";
-import { getDefaultItemsNotInStock } from "../../clan/defaultValues/items";
 import { CreateItemDto } from "../../item/dto/createItem.dto";
 import { CreateShopItemDTO } from "./dto/createShopItem.dto";
 import { CreateShopDto } from "./dto/createItemshop.dto";
@@ -54,7 +53,7 @@ export class ItemShopService extends BasicServiceDummyAbstract<ItemShop> impleme
 
     private restock = async (shop: ItemShop) => {
         await this.requestHelperService.updateOneById(ModelName.ITEMSHOP, shop._id, { lastRestock: Date.now() });
-        const items: CreateItemDto[] = getDefaultItemsNotInStock();
+        //const items: CreateItemDto[] = getDefaultItemsNotInStock();
         // const itemResp = await this.itemService.createManyWithResponse(items)
         // if (itemResp instanceof MongooseError) 
         //     throw new InternalServerErrorException("Could not create items");
