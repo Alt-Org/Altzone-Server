@@ -1,6 +1,7 @@
 import { Transform } from "class-transformer";
 import { IsDate, IsEnum, IsMongoId, IsNotEmpty, IsNumber } from "class-validator";
 import { TaskName } from "../enum/taskName.enum";
+import { TaskFrequency } from "../enum/taskFrequency.enum";
 
 export class CreateTaskDto {
 	@IsNotEmpty()
@@ -8,23 +9,26 @@ export class CreateTaskDto {
 	playerId: string;
 
 	@IsNotEmpty()
-	@IsNumber()
-	taskId: number;
-
-	@IsNotEmpty()
-	@IsNumber()
-	@Transform(({ value }) => value ?? 0) // Default value 0
-	progressAmount: number;
-
-	@IsNotEmpty()
-	@IsNumber()
-	targetAmount: number;
-
-	@IsNotEmpty()
 	@IsEnum(TaskName)
 	type: TaskName;
 
 	@IsNotEmpty()
 	@IsDate()
-	expiryDate: Date;
+	startedAt: Date;
+
+	@IsNotEmpty()
+	@IsEnum(TaskFrequency)
+	frequency: TaskFrequency;
+
+	@IsNotEmpty()
+	@IsNumber()
+	amountLeft: number;
+
+	@IsNotEmpty()
+	@IsNumber()
+	coins: number;
+
+	@IsNotEmpty()
+	@IsNumber()
+	points: number;
 }
