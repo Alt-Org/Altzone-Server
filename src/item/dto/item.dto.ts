@@ -3,7 +3,9 @@ import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {StockDto} from "../../stock/dto/stock.dto";
 import {RoomDto} from "../../room/dto/room.dto";
 import AddType from "../../common/base/decorator/AddType.decorator";
+import { QualityLevel } from "../enum/qualityLevel.enum";
 import { Recycling } from "../enum/recycling.enum";
+import { ItemName } from "../enum/itemName.enum";
 
 @AddType('ItemDto')
 export class ItemDto {
@@ -12,13 +14,16 @@ export class ItemDto {
     _id: string;
 
     @Expose()
-    name: string;
+    name: ItemName;
 
     @Expose()
     weight: number;
 
     @Expose()
     recycling: Recycling;
+
+    @Expose()
+    qualityLevel: QualityLevel;
 
     @Expose()
     unityKey: string;
