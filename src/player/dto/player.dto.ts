@@ -3,6 +3,7 @@ import {ClanDto} from "../../clan/dto/clan.dto";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {CustomCharacterDto} from "../../customCharacter/dto/customCharacter.dto";
 import AddType from "../../common/base/decorator/AddType.decorator";
+import { GameStatistics } from "../gameStatistics.schema";
 
 @AddType('PlayerDto')
 export class PlayerDto {
@@ -24,6 +25,9 @@ export class PlayerDto {
 
     @Expose()
     parentalAuth: boolean | null;
+
+    @Expose()
+    gameStatistics: GameStatistics;
 
     @ExtractField()
     @Expose()
