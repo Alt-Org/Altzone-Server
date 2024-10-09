@@ -30,8 +30,10 @@ services:
       - REDIS_PORT=6379
       - MOSQUITTO_HOST=mosquitto
       - MOSQUITTO_PORT=1883
-      - MOSQUITTO_USER=altzone
-      - MOSQUITTO_PASSWORD=mysecretpassword
+      - MOSQUITTO_SUBSCRIBER_USER=subscriber
+      - MOSQUITTO_SUBSCRIBER_PASSWORD=subscriberPassword
+      - MOSQUITTO_PUBLISHER=publisher
+      - MOSQUITTO_PUBLISHER_PASSWORD=publisherPassword
       
   site:
     image: leolab1337/altzone_web_pages:v2
