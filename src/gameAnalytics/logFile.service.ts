@@ -2,6 +2,7 @@ import {Injectable} from "@nestjs/common";
 import ServiceError from "../common/service/basicService/ServiceError";
 import { SEReason } from "../common/service/basicService/SEReason";
 import { createClient, WebDAVClient } from "webdav";
+import { envVars } from "../common/service/envHandler/envVars";
 
 @Injectable()
 export class LogFileService {
@@ -10,7 +11,7 @@ export class LogFileService {
     }
     private client: WebDAVClient;
 
-    private readonly logFilesRootFolder = process.env.OWNCLOUD_LOG_FILES_ROOT;
+    private readonly logFilesRootFolder = envVars.OWNCLOUD_LOG_FILES_ROOT;
 
     /**
      * Saves the provided file to the own cloud via WebDAV in the designated folder.
@@ -71,10 +72,10 @@ export class LogFileService {
      */
     private initializeWebDavClient() {
         this.client = createClient(
-            `http://${process.env.OWNCLOUD_HOST}:${process.env.OWNCLOUD_PORT}/remote.php/webdav/`,
+            `http://${envVars.OWNCLOUD_HOST}:${envVars.OWNCLOUD_PORT}/remote.php/webdav/`,
             {
-                username: process.env.OWNCLOUD_USER,
-                password: process.env.OWNCLOUD_PASSWORD
+                username: envVars.OWNCLOUD_USER,
+                password: envVars.OWNCLOUD_PASSWORD
             }
         );
     }
