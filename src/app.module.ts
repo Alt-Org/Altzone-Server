@@ -27,13 +27,14 @@ import { ItemShopModule } from './shop/itemShop/itemShop.module';
 import { GameDataModule } from './gameData/gameData.module';
 import { GameAnalyticsModule } from './gameAnalytics/gameAnalytics.module';
 import { PlayerTasksModule } from './playerTasks/playerTasks.module';
+import { envVars } from './common/service/envHandler/envVars';
 
 // Set up database connection
-const mongoUser = process.env.MONGO_USERNAME || 'rootUser';
-const mongoPassword = process.env.MONGO_PASSWORD || 'superSecretPassword';
-const mongoHost = process.env.MONGO_HOST || '127.0.0.1';
-const mongoPort = process.env.MONGO_PORT || '27017';
-const dbName = process.env.MONGO_DB_NAME || 'altzone_dev';
+const mongoUser = envVars.MONGO_USERNAME;
+const mongoPassword = envVars.MONGO_PASSWORD;
+const mongoHost = envVars.MONGO_HOST;
+const mongoPort = envVars.MONGO_PORT;
+const dbName = envVars.MONGO_DB_NAME;
 const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}`;
 
 @Module({
