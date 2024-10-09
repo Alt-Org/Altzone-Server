@@ -28,7 +28,13 @@ services:
       - REDIS_PASSWORD=mySecretPassword
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-
+      - MOSQUITTO_HOST=mosquitto
+      - MOSQUITTO_PORT=1883
+      - MOSQUITTO_SUBSCRIBER_USER=subscriber
+      - MOSQUITTO_SUBSCRIBER_PASSWORD=subscriberPassword
+      - MOSQUITTO_PUBLISHER=publisher
+      - MOSQUITTO_PUBLISHER_PASSWORD=publisherPassword
+      
   site:
     image: leolab1337/altzone_web_pages:v2
     container_name: altzone_site
@@ -93,6 +99,16 @@ services:
       - altzone_redis:/data
     networks:
       - redis
+
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: altzone_mosquitto
+    networks:
+      - backend
+    volumes:
+      - altzone_mosquitto:/mosquitto/data
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/log:/mosquitto/log
 
   owncloud:
     image: owncloud/server:10.15
@@ -172,3 +188,4 @@ volumes:
   altzone_db:
   owncloud_db:
   altzone_redis:
+  altzone_mosquitto:
