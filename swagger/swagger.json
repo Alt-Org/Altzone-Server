@@ -2908,7 +2908,7 @@
                             "type": "string"
                         },
                         "in": "header",
-                        "required": true
+                        "required": false
                     }
                 ],
                 "responses": {
@@ -2934,7 +2934,7 @@
                     }
                 ],
                 "summary": "Upload a game analytics log file",
-                "description": "Enpoint uploads a log file and save on the server.\n\nThe file will be saved to the folder with name corresponding to the date when it was uploaded, i.e. 1-9-2024.\n\nFile name must be unique and therefore its name will contain date, time, Player _id and a random string, i.e. 1-9-2024_14-45-12_667eedc9b3b5bf0f7a840ef1_123456.log\n\nNotice that the request must have a Secret header which holds a password for such requests.\n\nNotice that the request must be in multipart/form-data format, where field name containing the file is \"logFile\""
+                "description": "Enpoint uploads a log file and save on the server.\n\nThe file will be saved to the folder with name corresponding to the date when it was uploaded, i.e. 1-9-2024.\n\nFile name must be unique and therefore its name will contain date, time, Player _id and a random string, i.e. 1-9-2024_14-45-12_667eedc9b3b5bf0f7a840ef1_123456.log\n\nNotice that the request must have a Secret header which holds a password for such requests.\n\nNotice that if the Battle-Id header is not defined the current timestamp will be used instead.\n\nNotice that the request must be in multipart/form-data format, where field name containing the file is \"logFile\""
             }
         },
         "/fleaMarket/sell": {

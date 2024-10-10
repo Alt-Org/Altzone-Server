@@ -23,7 +23,9 @@ export class LogFileService {
      *
      *          or _array of ServiceErrors_ as a second element
      */
-    async saveFile(fileToSave: Express.Multer.File, player_id: string, battleId: string){
+    async saveFile(fileToSave: Express.Multer.File, player_id: string, battleId?: string){
+        if(!battleId)
+            battleId = Date.now().toString();
         const folderPath = this.getFolderPath(battleId);
         const filePath = this.getFilePath(battleId, player_id);
 
