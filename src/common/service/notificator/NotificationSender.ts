@@ -27,7 +27,7 @@ export default class NotificationSender {
     }
 }
 
-class Notification<TPayload> extends NotificationSender implements IAddGroup<TPayload>, IAddResource<TPayload>, INotify<TPayload>{
+class Notification<TPayload> extends NotificationSender implements IAddGroup<TPayload>, IAddResource<TPayload>, ISend<TPayload>{
     constructor() {
         super();
     }
@@ -49,7 +49,6 @@ class Notification<TPayload> extends NotificationSender implements IAddGroup<TPa
         this.resource_id = resource_id;
         return this;
     }
-
     send(status: NotificationStatus, payload: TPayload){
         this.status = status;
         this.payload = payload;
@@ -62,9 +61,9 @@ interface IAddGroup<TPayload> {
 }
 
 interface IAddResource<TPayload> {
-    addResource: (resource: NotificationResource, resource_id: string) => INotify<TPayload>;
+    addResource: (resource: NotificationResource, resource_id: string) => ISend<TPayload>;
 }
 
-interface INotify<TPayload> {
+interface ISend<TPayload> {
     send: (status: NotificationStatus, payload: TPayload) => void;
 }
