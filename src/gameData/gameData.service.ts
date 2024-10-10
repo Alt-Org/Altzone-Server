@@ -209,13 +209,15 @@ export class GameDataService {
 		const currentTime = new Date();
 		const winningTeam = battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
 		const playerInWinningTeam = winningTeam.includes(user.player_id);
+		this.playerService.addPlayedGame(user.player_id);
 		if (!playerInWinningTeam)
 			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED, message: "Invalid type field" });
-	
+		
+		this.playerService.addWonPlayedGame(user.player_id);
 		const [teamIds, teamIdsErrors] = await this.getClanIdForTeams([battleResult.team1[0], battleResult.team2[0]]);
 		if (teamIdsErrors)
 			return teamIdsErrors
-	
+		
 		this.createGameIfNotExists(battleResult, teamIds, currentTime);
 		
 		return await this.generateResponse(battleResult, teamIds.team1Id, teamIds.team2Id, user)
