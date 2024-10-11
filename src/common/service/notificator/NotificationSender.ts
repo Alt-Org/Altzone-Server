@@ -17,9 +17,9 @@ export default class NotificationSender {
 
     protected notify(
         group: NotificationGroup, 
-        group_id: string, 
+        group_id: string='undefined', 
         resource: NotificationResource,
-        resource_id: string, 
+        resource_id: string='undefined', 
         status: NotificationStatus, 
         payload: any
     ){
@@ -39,12 +39,12 @@ class Notification<TPayload> extends NotificationSender implements IAddGroup<TPa
     status: NotificationStatus;
     payload: TPayload;
 
-    addGroup(group: NotificationGroup, group_id: string){
+    addGroup(group: NotificationGroup, group_id?: string){
         this.group = group;
         this.group_id = group_id;
         return this;
     }
-    addResource(resource: NotificationResource, resource_id: string){
+    addResource(resource: NotificationResource, resource_id?: string){
         this.resource = resource;
         this.resource_id = resource_id;
         return this;
@@ -57,11 +57,11 @@ class Notification<TPayload> extends NotificationSender implements IAddGroup<TPa
 }
 
 interface IAddGroup<TPayload> {
-    addGroup: (group: NotificationGroup, group_id: string) => IAddResource<TPayload>;
+    addGroup: (group: NotificationGroup, group_id?: string) => IAddResource<TPayload>;
 }
 
 interface IAddResource<TPayload> {
-    addResource: (resource: NotificationResource, resource_id: string) => ISend<TPayload>;
+    addResource: (resource: NotificationResource, resource_id?: string) => ISend<TPayload>;
 }
 
 interface ISend<TPayload> {
