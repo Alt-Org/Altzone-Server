@@ -1,4 +1,4 @@
-import mqtt, { MqttClient } from "mqtt/*";
+import mqtt, { MqttClient } from "mqtt";
 import { envVars } from "../envHandler/envVars";
 
 export default class MQTTConnector {
@@ -30,7 +30,7 @@ export default class MQTTConnector {
         return MQTTConnector.client.endAsync();
     }
 
-    async publish(topic: string, payload: any){
-        MQTTConnector.client.publishAsync(topic, payload)
+    async publish(topic: string, payload: string | Buffer){
+        MQTTConnector.client.publishAsync(topic, payload);
     }
 }
