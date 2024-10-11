@@ -58,6 +58,7 @@ services:
     container_name: altzone_mosquitto_dev
     ports:
       - 1883:1883
+      - 9001:9001
     networks:
       - backend
     volumes:
