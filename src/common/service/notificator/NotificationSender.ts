@@ -23,7 +23,8 @@ export default class NotificationSender {
         status: NotificationStatus, 
         payload: any
     ){
-        this.connector.publish(`/${group}/${group_id}/${resource}/${resource_id}/${status}`, payload);
+        const payloadStringified = JSON.stringify(payload);
+        this.connector.publish(`/${group}/${group_id}/${resource}/${resource_id}/${status}`, payloadStringified);
     }
 }
 
