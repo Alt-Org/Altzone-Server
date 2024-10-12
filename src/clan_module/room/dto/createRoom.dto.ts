@@ -1,5 +1,5 @@
 import { IsBoolean, IsMongoId, IsNumber, IsOptional, IsString } from "class-validator";
-import AddType from "../../common/base/decorator/AddType.decorator";
+import AddType from "../../../common/base/decorator/AddType.decorator";
 
 @AddType('CreateRoomDto')
 export class CreateRoomDto {
