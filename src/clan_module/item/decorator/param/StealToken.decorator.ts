@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { APIError } from "../../../common/controller/APIError";
-import { APIErrorReason } from "../../../common/controller/APIErrorReason";
+import { APIError } from "../../../../common/controller/APIError";
+import { APIErrorReason } from "../../../../common/controller/APIErrorReason";
 
 /**
  * Custom decorator to extract the steal token from the request.

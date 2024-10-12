@@ -1,5 +1,6 @@
-import { APIError } from "../../common/controller/APIError";
-import { APIErrorReason } from "../../common/controller/APIErrorReason";
+import { APIError } from "../../../common/controller/APIError";
+import { APIErrorReason } from "../../../common/controller/APIErrorReason";
+
 
 export const IdMismatchError = new APIError({
 	reason: APIErrorReason.NOT_AUTHORIZED,

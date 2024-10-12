@@ -1,13 +1,13 @@
 import {Injectable} from "@nestjs/common";
 import {Model} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
-import {ModelName} from "../common/enum/modelName.enum";
 import {Item} from "./item.schema";
 import {CreateItemDto} from "./dto/createItem.dto";
 import {UpdateItemDto} from "./dto/updateItem.dto";
 import {ItemDto} from "./dto/item.dto";
-import BasicService from "../common/service/basicService/BasicService";
-import { TIServiceCreateManyOptions, TIServiceUpdateManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
+import { ModelName } from "../../common/enum/modelName.enum";
+import BasicService from "../../common/service/basicService/BasicService";
+import { TIServiceCreateManyOptions, TIServiceUpdateManyOptions, TReadByIdOptions } from "../../common/service/basicService/IService";
 
 @Injectable()
 export class ItemService {

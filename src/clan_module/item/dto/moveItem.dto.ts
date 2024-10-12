@@ -1,6 +1,6 @@
 import { IsMongoId, IsString, IsEnum, ValidateIf } from "class-validator";
-import AddType from "../../common/base/decorator/AddType.decorator";
 import { MoveTo } from "../enum/moveTo.enum";
+import AddType from "../../../common/base/decorator/AddType.decorator";
 
 @AddType('MoveItemDto')
 export class MoveItemDto {
