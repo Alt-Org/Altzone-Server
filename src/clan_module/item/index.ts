@@ -3,6 +3,7 @@ import { ItemService } from './item.service';
 import { isItemExists } from './decorator/validation/IsItemExists.decorator';
 import { ItemHelperService } from './itemHelper.service';
 import { ItemMoverService } from './itemMover.service';
+import { ItemSchema } from './item.schema';
 
 export {
     ItemController,
@@ -10,4 +11,5 @@ export {
     isItemExists,
     ItemHelperService,
     ItemMoverService,
+    ItemSchema
 }

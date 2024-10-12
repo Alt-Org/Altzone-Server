@@ -1,36 +1,57 @@
-import {Module} from '@nestjs/common';
+import {forwardRef, Module} from '@nestjs/common';
 import {MongooseModule} from '@nestjs/mongoose';
-import {ClanSchema} from "./clan.schema";
-import {ClanController} from "./clan.controller";
-import {ClanService} from "./clan.service";
-import {RequestHelperModule} from "../requestHelper/requestHelper.module";
-import {isClanExists} from "./decorator/validation/IsClanExists.decorator";
-import {ModelName} from "../common/enum/modelName.enum";
-import {StockModule} from "../stock/stock.module";
-import {ItemModule} from "../item/item.module";
-import { PlayerCounterFactory } from '../clan.counters';
-import { joinSchema } from '../join/join.schema';
-import { JoinService } from './join/join.service';
-import ClanHelperService from './utils/clanHelper.service';
+import { ModelName } from '../common/enum/modelName.enum';
+import { 
+    ClanController, ClanHelperService, ClanService, 
+    JoinService, PlayerCounterFactory, isClanExists,
+    JoinSchema, ClanSchema
+} from './clan';
+import { 
+    isItemExists, ItemController, ItemHelperService, 
+    ItemMoverService, ItemService 
+} from './item';
+import { 
+    SoulHomeController, SoulHomeHelperService, SoulhomeSchema, 
+    SoulHomeService 
+} from './soulhome';
+import { 
+    RoomController, RoomHelperService, RoomSchema, 
+    RoomService 
+} from './room';
 import { PlayerSchema } from '../player/player.schema';
-import { RoomModule } from '../room/room.module';
-import { SoulHomeModule } from '../soulhome/soulhome.module';
+import { RequestHelperModule } from '../requestHelper/requestHelper.module';
+import { isStockExists, StockController, StockSchema, StockService } from './stock';
+import { PlayerModule } from '../player/player.module';
+
 
 @Module({
     imports: [
         MongooseModule.forFeature([ 
-            {name: ModelName.CLAN, schema: ClanSchema}, 
-            {name: ModelName.JOIN, schema: joinSchema},
-            {name: ModelName.PLAYER, schema: PlayerSchema}  
+            { name: ModelName.CLAN, schema: ClanSchema }, 
+            { name: ModelName.JOIN, schema: JoinSchema },
+            { name: ModelName.PLAYER, schema: PlayerSchema },
+            { name: ModelName.STOCK, schema: StockSchema },
+            { name: ModelName.SOULHOME, schema: SoulhomeSchema },
+            { name: ModelName.ROOM, schema: RoomSchema }
         ]),
-        StockModule,
-        ItemModule,
-        RoomModule,
-        SoulHomeModule,
+
+        forwardRef(() => PlayerModule),
         RequestHelperModule
     ],
-    controllers: [ClanController],
-    providers: [ ClanService, isClanExists, PlayerCounterFactory, JoinService, ClanHelperService ],
-    exports: [ClanService, PlayerCounterFactory]
+    controllers: [
+        ClanController, StockController, ItemController,   
+        RoomController, SoulHomeController
+    ],
+    providers: [ 
+        ClanService, isClanExists, PlayerCounterFactory, 
+        JoinService, ClanHelperService, StockService, isStockExists,
+        ItemService, isItemExists, ItemHelperService, ItemMoverService,
+        RoomService, RoomHelperService,
+        SoulHomeService, SoulHomeHelperService
+    ],
+    exports: [
+        ClanService, PlayerCounterFactory, StockService,
+        ItemService, RoomService, SoulHomeService,
+    ]
 })
 export class ClanModule {}

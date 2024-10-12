@@ -34,6 +34,7 @@ import { AddSortQuery } from "../../common/interceptor/request/addSortQuery.inte
 import { Serialize } from "../../common/interceptor/response/Serialize";
 import { GetAllQuery } from "../../common/decorator/param/GetAllQuery";
 import { IGetAllQuery } from "../../common/interface/IGetAllQuery";
+import { BasicPOST } from "../../common/base/decorator/BasicPOST.decorator";
 
 @Controller('clan')
 export class ClanController {

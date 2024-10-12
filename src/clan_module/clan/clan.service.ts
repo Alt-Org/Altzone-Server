@@ -16,6 +16,7 @@ import { deleteArrayElements } from "../../common/function/deleteArrayElements";
 import { deleteNotUniqueArrayElements } from "../../common/function/deleteNotUniqueArrayElements";
 import { SEReason } from "../../common/service/basicService/SEReason";
 import { ModelName } from "../../common/enum/modelName.enum";
+import { PlayerDto } from "../../player/dto/player.dto";
 
 @Injectable()
 export class ClanService{
