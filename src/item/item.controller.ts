@@ -17,6 +17,7 @@ import { IdMismatchError } from "./errors/playerId.errors";
 import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
 import { StealItemsDto } from "./dto/stealItems.dto";
 import { ItemMoverService } from "./itemMover.service";
+import { RoomService } from "../room/room.service";
 
 @Controller("item")
 export class ItemController {
@@ -24,6 +25,7 @@ export class ItemController {
 		private readonly itemService: ItemService,
 		private readonly itemMoverService: ItemMoverService,
 		private readonly soulHomeService: SoulHomeService,
+		private readonly roomService: RoomService,
 	) {}
 
 	@Get("steal")
@@ -34,7 +36,18 @@ export class ItemController {
 		if (stealToken.playerId !== user.player_id) 
 			throw IdMismatchError;
 
-		return await this.soulHomeService.readOneById(stealToken.soulHomeId, { includeRefs: [ModelName.ROOM] });
+		const [soulHome, error] = await this.soulHomeService.readOneById(stealToken.soulHomeId, { includeRefs: [ ModelName.ROOM ] })
+		if (error)
+			return error
+
+		const [rooms, roomsError] = await this.roomService.readPlayerClanRooms(user.player_id, { includeRefs: [ ModelName.ITEM ] });
+		if (roomsError)
+			return roomsError	
+
+		const filteredRooms = rooms.filter(room => room["Item"].length !== 0);
+		soulHome.Room = filteredRooms
+
+		return soulHome
 	}
 
 	@Get("/:_id")
