@@ -32,4 +32,5 @@ export enum ModelName {
     CLANVOTE = 'ClanVote',
     ITEMSHOP = 'ItemShop',
     GAME = 'Game',
+    PLAYER_TASK = 'PlayerTask',
 }
