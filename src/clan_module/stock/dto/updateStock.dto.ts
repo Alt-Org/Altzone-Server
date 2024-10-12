@@ -1,7 +1,7 @@
 import {IsInt, IsMongoId, IsOptional} from "class-validator";
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
 import {IsStockExists} from "../decorator/validation/IsStockExists.decorator";
-import AddType from "../../common/base/decorator/AddType.decorator";
+import AddType from "../../../common/base/decorator/AddType.decorator";
 
 @AddType('UpdateStockDto')
 export class UpdateStockDto {

@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
-import {ModelName} from "../common/enum/modelName.enum";
 import {Clan} from "../clan/clan.schema";
-import {ExtractField} from "../common/decorator/response/ExtractField";
+import { ExtractField } from '../../common/decorator/response/ExtractField';
+import { ModelName } from '../../common/enum/modelName.enum';
 
 export type StockDocument = HydratedDocument<Stock>;
 
