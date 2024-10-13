@@ -5,17 +5,18 @@ import { PlayerTasks } from './type/tasks.type';
 import { TaskFrequency } from './enum/taskFrequency.enum';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskProgress, TaskProgressDocument } from './playerTasks.schema';
-import { Model } from 'mongoose';
+import { Model, Mongoose, ObjectId, Schema } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { ModelName } from '../common/enum/modelName.enum';
 import { TaskName } from './enum/taskName.enum';
 import { Task } from './type/task.type';
 import { CreateTaskDto } from './dto/createTask.dto';
-import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import PlayerTaskNotifier from './playerTask.notifier';
+import ServiceError from '../common/service/basicService/ServiceError';
+import { networkInterfaces } from 'os';
 
 @Injectable()
 export class PlayerTasksService implements OnModuleInit {
@@ -41,6 +42,26 @@ export class PlayerTasksService implements OnModuleInit {
 		this.tasks = JSON.parse(fileContent);
 	}
 
+	/**
+	 * Calls the registerAtomicTaskCompleted with all TaskFrequencies.
+	 * 
+	 * @param playerId - Id of the player.
+	 * @param taskName - Task type from TaskName enum.
+	 */
+	async updateTask(playerId: string, taskName: TaskName) {
+		this.registerAtomicTaskCompleted(playerId, taskName, TaskFrequency.DAILY)
+		this.registerAtomicTaskCompleted(playerId, taskName, TaskFrequency.WEEKLY)
+		this.registerAtomicTaskCompleted(playerId, taskName, TaskFrequency.MONTHLY)
+	}
+
+	/**
+	 * Creates a new task object for a player based on the task name and frequency.
+	 *
+	 * @param playerId - The ID of the player.
+	 * @param taskName - The type of the task from TaskName enum.
+	 * @param taskFrequency - The frequency of the task from TaskFrequency enum.
+	 * @returns - The new task object.
+	 */
 	getNewTaskObject(playerId: string, taskName: TaskName, taskFrequency: TaskFrequency) {
 		let taskType = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
 		if (taskFrequency === TaskFrequency.WEEKLY)
@@ -61,63 +82,124 @@ export class PlayerTasksService implements OnModuleInit {
 		}
 		return newTask
 	}
-	
-	async taskRegister(inputData: any) {
-		const { playerId, taskName, taskFrequency } = inputData;
 
+	/**
+	 * Registers an atomic task completion for the specified task of the current day.
+	 *
+	 * If there a no atomic tasks left to do, nothing will be done.
+	 *
+	 * If this is the last atomic task to do, 
+	 * the task will be marked as a completed and appropriate notification will be sent.
+	 *
+	 * If this is not the last atomic task to do, 
+	 * the atomic tasks left amount will be updated and appropriate notification will be sent.
+	 *
+	 * @param playerId for whom the atomic task is registered
+	 * @param taskName the name of the task to update
+	 * @param taskFrequency the frequency of the task to update
+	 *
+	 * @throws ServiceError if any error occurred during the registration
+	 *
+	 * @returns false if nothing was updated and true if task was updated
+	 */
+	async registerAtomicTaskCompleted(playerId: string, taskName: TaskName, taskFrequency: TaskFrequency) {
 		let [task, taskError] = await this.basicService.readOne<TaskProgressDocument>({
-			filter: {
-				playerId,
-				type: taskName,
-				frequency: taskFrequency,
-		}});
-		if (taskError && taskError[0] instanceof ServiceError && taskError[0].reason !== SEReason.NOT_FOUND)
-			throw taskError
-		
+			filter: { playerId, type: taskName, frequency: taskFrequency }
+		});
+
+		//If any error occurred expect for NOT_FOUND
+		if (taskError && taskError[0].reason !== SEReason.NOT_FOUND)
+			throw taskError;
+
+		//If there was no task defined in DB, add it to DB, update its amountLeft and send notification
 		if (!task) {
-			// create new task
-			const newTaskDTO = this.getNewTaskObject(playerId, taskName, taskFrequency)
-			task = await this.createTaskProgress(newTaskDTO);
+			console.log("JEE");
+			const newTaskToSave = this.getNewTaskObject(playerId, taskName, taskFrequency);
+			newTaskToSave.amountLeft--;
+			const newTask = await this.createTaskProgress(newTaskToSave);
+
+			this.notifier.taskUpdated(playerId, newTask);
+
+			return [true, null];
+		}
+		
+		//Check if the whole task is already completed today
+		const taskIsActive = task ? this.checkIfTaskIsActive(task) : false;
+
+		if (!taskIsActive || task.completedAt) {
+			const newTaskToUpdate = this.getNewTaskObject(playerId, taskName, taskFrequency);
+			Object.assign(task, {
+				startedAt: newTaskToUpdate.startedAt,
+				amountLeft: newTaskToUpdate.amountLeft - 1,
+				coins: newTaskToUpdate.coins,
+				points: newTaskToUpdate.points
+			})
+			task.save();
+
+			return [true, null];
 		}
 
-		if (task.completedAt) {
-			task.deleteOne();
-			const newTaskDTO = this.getNewTaskObject(playerId, taskName, taskFrequency)
-			task = await this.createTaskProgress(newTaskDTO);
-		}
+		task.amountLeft--;
 
-		// Check if the task is still active
-		const isActive = this.checkIfTaskIsActive(task);
-		if (!isActive) {
-			// create new task
-			const newTaskDTO = this.getNewTaskObject(playerId, taskName, taskFrequency);
-			task = await this.createTaskProgress(newTaskDTO);
-		}
-
-		task.amountLeft = task.amountLeft - 1;
-		if (task.amountLeft === 0) {
+		//This is the last atomic task for today => set it as completed and send a notification
+		if(task.amountLeft === 0){
 			task.completedAt = new Date();
-			this.notifier.taskCompleted(task.playerId.toString(), task)
-		} else {
-			this.notifier.taskUpdated(task.playerId.toString(), task)
+			this.notifier.taskCompleted(playerId, task);
+			task.save();
+
+			return [true, null];
 		}
-		task.save();
 
-}
+		task.save()
+		await this.updateTaskProgress(task.id, { amountLeft: task.amountLeft });
+		await this.notifier.taskUpdated(playerId, task);
 
+		return [true, null];
+	}
+
+	/**
+	 * Updates the task in db.
+	 * 
+	 * @param taskID - Id of the task db.
+	 * @param dataToUpdate - Data to be updated in db.
+	 * @returns - True if update is successful False is not.
+	 */
+	async updateTaskProgress(taskId: string | ObjectId, dataToUpdate: Partial<TaskProgress>){
+		console.log(dataToUpdate);
+		return await this.basicService.updateOne<Partial<TaskProgress>>(
+			dataToUpdate,
+			{ filter: { taskId } }
+		);
+	}
+
+	/**
+	 * Creates a new task to db if the task is valid.
+	 * 
+	 * @param createTaskProgressDto - DTO with task data to be added to db.
+	 * 
+	 * @throws - If the task creation fails.
+	 * 
+	 * @returns - The created task.
+	 */
 	async createTaskProgress(createTaskProgressDto: CreateTaskDto) {
 		const createTaskDtoInstance = plainToClass(CreateTaskDto, createTaskProgressDto);
 		const errors = await validate(createTaskDtoInstance)
 		if (errors.length > 0)
 			throw new BadRequestException('Validation failed');
 
-		const [task, err] = await this.basicService.createOne<CreateTaskDto>(createTaskDtoInstance);
+		const [task, err]: [TaskProgress, ServiceError[]] = await this.basicService.createOne<CreateTaskDto>(createTaskDtoInstance);
 		if (err)
 			throw err
 
 		return task
 	}
 
+	/**
+	 * Checks that the task is still active.
+	 * 
+	 * @param task - Task to validate.
+	 * @returns - True if task is still active or false if it isn't.
+	 */
 	checkIfTaskIsActive(task: TaskProgress): boolean {
 		const currentTime = new Date();
 		switch (task.frequency) {
