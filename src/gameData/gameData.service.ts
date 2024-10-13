@@ -16,6 +16,8 @@ import { GameDto } from './dto/game.dto';
 import { BattleResponseDto } from './dto/battleResponse.dto';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
+import { PlayerTasksService } from '../playerTasks/playerTasks.service';
+import { TaskName } from '../playerTasks/enum/taskName.enum';
 
 @Injectable()
 export class GameDataService {
@@ -24,6 +26,7 @@ export class GameDataService {
 		@Inject(forwardRef(() => PlayerService)) public readonly playerService: PlayerService,
 		@Inject(forwardRef(() => ClanService)) public readonly clanService: ClanService,
 		@Inject(forwardRef(() => RoomService)) public readonly roomService: RoomService,
+		@Inject(forwardRef(() => PlayerTasksService)) public readonly taskService: PlayerTasksService,
 		private readonly jwtService: JwtService,
 	){
 		this.basicService = new BasicService(model);
@@ -210,6 +213,7 @@ export class GameDataService {
 		const winningTeam = battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
 		const playerInWinningTeam = winningTeam.includes(user.player_id);
 		this.playerService.addPlayedGame(user.player_id);
+		this.taskService.updateTask(user.player_id, TaskName.PLAY_BATTLE);
 		if (!playerInWinningTeam)
 			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED, message: "Invalid type field" });
 		
