@@ -5,7 +5,7 @@ import { PlayerTasks } from './type/tasks.type';
 import { TaskFrequency } from './enum/taskFrequency.enum';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskProgress, TaskProgressDocument } from './playerTasks.schema';
-import { Model, Mongoose, ObjectId, Schema } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { ModelName } from '../common/enum/modelName.enum';
 import { TaskName } from './enum/taskName.enum';
@@ -16,7 +16,6 @@ import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import PlayerTaskNotifier from './playerTask.notifier';
 import ServiceError from '../common/service/basicService/ServiceError';
-import { networkInterfaces } from 'os';
 
 @Injectable()
 export class PlayerTasksService implements OnModuleInit {
@@ -113,7 +112,6 @@ export class PlayerTasksService implements OnModuleInit {
 
 		//If there was no task defined in DB, add it to DB, update its amountLeft and send notification
 		if (!task) {
-			console.log("JEE");
 			const newTaskToSave = this.getNewTaskObject(playerId, taskName, taskFrequency);
 			newTaskToSave.amountLeft--;
 			const newTask = await this.createTaskProgress(newTaskToSave);
@@ -165,7 +163,6 @@ export class PlayerTasksService implements OnModuleInit {
 	 * @returns - True if update is successful False is not.
 	 */
 	async updateTaskProgress(taskId: string | ObjectId, dataToUpdate: Partial<TaskProgress>){
-		console.log(dataToUpdate);
 		return await this.basicService.updateOne<Partial<TaskProgress>>(
 			dataToUpdate,
 			{ filter: { taskId } }
