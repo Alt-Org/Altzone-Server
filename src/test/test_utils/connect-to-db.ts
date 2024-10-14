@@ -14,7 +14,7 @@ beforeAll(async () => {
         // },
         instance: {
             dbName: envVars.MONGO_DB_NAME,
-            // port: Number.parseInt(envVars.MONGO_PORT)
+            port: Number.parseInt(envVars.MONGO_PORT)
         }
     });
 });
@@ -33,4 +33,3 @@ afterAll(async () => {
     await mongoose.disconnect()
     await mongod.stop();
 });
- 
