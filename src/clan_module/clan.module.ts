@@ -22,6 +22,7 @@ import { PlayerSchema } from '../player/player.schema';
 import { RequestHelperModule } from '../requestHelper/requestHelper.module';
 import { isStockExists, StockController, StockSchema, StockService } from './stock';
 import { PlayerModule } from '../player/player.module';
+import { AuthModule } from '../auth/auth.module';
 
 
 @Module({
@@ -36,7 +37,8 @@ import { PlayerModule } from '../player/player.module';
         ]),
 
         forwardRef(() => PlayerModule),
-        RequestHelperModule
+        RequestHelperModule,
+        AuthModule
     ],
     controllers: [
         ClanController, StockController, ItemController,   
