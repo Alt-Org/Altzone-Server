@@ -190,14 +190,14 @@ export class GameDataService {
 	 * @param battleResult - The battle result data transfer object.
 	 * @param teamIds - The clan IDs for both teams.
 	 * @param currentTime - The current time.
+	 * 
+	 * @returns - A Promise that resolves into GameDto or ServiceError[]
 	 */
 	private async createGameIfNotExists(battleResult: BattleResultDto, teamIds: { team1Id: string, team2Id: string }, currentTime: Date) {
 		const existingGame = await this.gameAlreadyExists(battleResult.team1, battleResult.team2, currentTime);
 		if (!existingGame) {
 			const newGame = this.createNewGameObject(battleResult, teamIds.team1Id, teamIds.team2Id, currentTime);
-			const [_, createGameErrors] = await this.createOne(newGame);
-			if (createGameErrors)
-				console.error("Error creating new game:", createGameErrors)
+			return await this.createOne(newGame);
 		}
 	}
 
