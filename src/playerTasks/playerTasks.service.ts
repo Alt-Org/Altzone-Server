@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { PlayerTasks } from './type/tasks.type';
@@ -174,7 +174,7 @@ export class PlayerTasksService implements OnModuleInit {
 	 * 
 	 * @param createTaskProgressDto - DTO with task data to be added to db.
 	 * 
-	 * @throws - If the task creation fails.
+	 * @throws - If the task creation or validation fails.
 	 * 
 	 * @returns - The created task.
 	 */
@@ -182,7 +182,10 @@ export class PlayerTasksService implements OnModuleInit {
 		const createTaskDtoInstance = plainToClass(CreateTaskDto, createTaskProgressDto);
 		const errors = await validate(createTaskDtoInstance)
 		if (errors.length > 0)
-			throw new BadRequestException('Validation failed');
+			throw new ServiceError({ 
+				reason: SEReason.MISCONFIGURED, 
+				message: "data validation failed"
+			});
 
 		const [task, err]: [TaskProgress, ServiceError[]] = await this.basicService.createOne<CreateTaskDto>(createTaskDtoInstance);
 		if (err)
