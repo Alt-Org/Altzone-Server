@@ -135,7 +135,7 @@ export class PlayerTasksService implements OnModuleInit {
 				completedAt: undefined,
 			})
 			task.save();
-
+			this.notifier.taskUpdated(playerId, task);
 			return [true, null];
 		}
 
@@ -151,7 +151,6 @@ export class PlayerTasksService implements OnModuleInit {
 		}
 
 		task.save()
-		await this.updateTaskProgress(task.id, { amountLeft: task.amountLeft });
 		await this.notifier.taskUpdated(playerId, task);
 
 		return [true, null];
@@ -167,7 +166,7 @@ export class PlayerTasksService implements OnModuleInit {
 	async updateTaskProgress(taskId: string | ObjectId, dataToUpdate: Partial<TaskProgress>){
 		return await this.basicService.updateOne<Partial<TaskProgress>>(
 			dataToUpdate,
-			{ filter: { taskId } }
+			{ filter: { _id: taskId } }
 		);
 	}
 
