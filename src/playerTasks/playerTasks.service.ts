@@ -126,11 +126,13 @@ export class PlayerTasksService implements OnModuleInit {
 
 		if (!taskIsActive || task.completedAt) {
 			const newTaskToUpdate = this.getNewTaskObject(playerId, taskName, taskFrequency);
+
 			Object.assign(task, {
 				startedAt: newTaskToUpdate.startedAt,
 				amountLeft: newTaskToUpdate.amountLeft - 1,
 				coins: newTaskToUpdate.coins,
-				points: newTaskToUpdate.points
+				points: newTaskToUpdate.points,
+				completedAt: undefined,
 			})
 			task.save();
 
