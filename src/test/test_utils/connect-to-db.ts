@@ -8,10 +8,11 @@ let mongod: MongoMemoryServer;
 
 beforeAll(async () => {
     mongod = await MongoMemoryServer.create({
-        // auth: {
-        //     customRootName: envVars.MONGO_USERNAME,
-        //     customRootPwd: envVars.MONGO_PASSWORD
-        // },
+        auth: {
+            customRootName: envVars.MONGO_USERNAME,
+            customRootPwd: envVars.MONGO_PASSWORD,
+            enable: true
+        },
         instance: {
             dbName: envVars.MONGO_DB_NAME,
             port: Number.parseInt(envVars.MONGO_PORT)
@@ -22,10 +23,10 @@ beforeAll(async () => {
 beforeEach(async () => {
     await mongoose.connect(mongod.getUri(), { 
         dbName: envVars.MONGO_DB_NAME, 
-        // auth: { 
-        //     username: envVars.MONGO_USERNAME, 
-        //     password: envVars.MONGO_PASSWORD 
-        // }
+        auth: { 
+            username: envVars.MONGO_USERNAME, 
+            password: envVars.MONGO_PASSWORD 
+        }
     });
 });
 
