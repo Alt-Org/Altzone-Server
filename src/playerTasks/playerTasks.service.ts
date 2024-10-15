@@ -220,4 +220,42 @@ export class PlayerTasksService implements OnModuleInit {
 				return false
 		}
 	}
+
+	/**
+	 * Determines the task frequency based on the provided task id from the playerTasks.json
+	 * @param taskId the id of the task to determine
+	 * @returns frequency of the task
+	 */
+	private determineTaskFrequency(taskId: number){
+		for(const period in this.tasks){
+			const periodTasks: Task[] = this.tasks[period];
+			const periodHasTask = periodTasks.find(task => task.id === taskId);
+
+			if(!periodHasTask)
+				continue;
+
+			if(period === 'weekly')
+				return TaskFrequency.WEEKLY;
+
+			if(period === 'monthly')
+				return TaskFrequency.MONTHLY;
+
+			return TaskFrequency.DAILY;
+		}
+	}
+
+	/**
+	 * Finds the task default data based on its id
+	 * @param taskId the id of the task to find
+	 * @returns appropriate task frequency
+	 */
+	private getTaskDefaultData(taskId: number){
+		for(const period in this.tasks){
+			const periodTasks: Task[] = this.tasks[period];
+			const foundTask = periodTasks.find(task => task.id === taskId);
+
+			if(foundTask)
+				return foundTask;
+		}
+	}
 }
