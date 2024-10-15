@@ -4,7 +4,7 @@ dotenv.config();
 
 // Please remember to add env name here, before you add it to the record
 type EnvName =
-    'PORT' | 
+    'PORT' | 'JWT_SECRET' | 'JWT_EXPIRES' |
     'MONGO_USERNAME' | 'MONGO_PASSWORD' | 'MONGO_HOST' | 'MONGO_PORT' | 'MONGO_DB_NAME' | 
     'OWNCLOUD_HOST' | 'OWNCLOUD_PORT' | 'OWNCLOUD_USER' | 'OWNCLOUD_PASSWORD' | 'OWNCLOUD_LOG_FILES_SECRET' | 'OWNCLOUD_LOG_FILES_ROOT' | 
     'REDIS_PASSWORD' | 'REDIS_HOST' | 'REDIS_PORT' | 
@@ -13,6 +13,8 @@ type EnvName =
 /**
  * Record with all environment variables required by the API and loaded from .env file
  * @property PORT - The port on which the API runs.
+ * @property JWT_SECRET - Secret for JWT signings.
+ * @property JWT_EXPIRES - For how long JWT is valid.
  * @property MONGO_USERNAME - The username for MongoDB authentication.
  * @property MONGO_PASSWORD - The password for MongoDB authentication.
  * @property MONGO_HOST - The MongoDB host address.
@@ -36,6 +38,8 @@ type EnvName =
  */
 export const envVars: Record<EnvName, string> = {
     PORT: process.env.PORT,
+    JWT_SECRET: process.env.JWT_SECRET,
+    JWT_EXPIRES: process.env.JWT_EXPIRES,
 
     MONGO_USERNAME: process.env.MONGO_USERNAME,
     MONGO_PASSWORD: process.env.MONGO_PASSWORD,
