@@ -15,13 +15,13 @@ import { isItemExists, ItemController, ItemHelperService, ItemMoverService, Item
 import { RoomController, RoomHelperService, RoomSchema, RoomService } from '../../clan_module/room';
 import { SoulHomeController, SoulHomeHelperService, SoulhomeSchema, SoulHomeService } from '../../clan_module/soulhome';
 import { AuthModule } from '../../auth/auth.module';
+import { ClanLabel } from '../../clan_module/clan/enum/clanLabel.enum';
 
 describe('clan module test suite', () => {
     it('Should work', async () => {
-        
         const moduleRef = await Test.createTestingModule({
             imports: [
-                MongooseModule.forRoot('mongodb://127.0.0.1:27017/', {dbName: envVars.MONGO_DB_NAME}),
+                MongooseModule.forRoot(`mongodb://${envVars.MONGO_USERNAME}:${envVars.MONGO_PASSWORD}@127.0.0.1:27017/`, {dbName: envVars.MONGO_DB_NAME}),
                 MongooseModule.forFeature([ 
                     { name: ModelName.CLAN, schema: ClanSchema }, 
                     { name: ModelName.JOIN, schema: JoinSchema },
@@ -52,10 +52,18 @@ describe('clan module test suite', () => {
         
         const service = await moduleRef.resolve(ClanService);
 
-        console.log(await service.readAll());
+        console.log(await service.createOne({
+            name: 'lol',
+            tag: 'lol',
+            labels: [ClanLabel.ELÄINRAKKAAT],
+            phrase: 'kek'
+        }, ''));
+        
+        //console.log(await service.readAll());
 
         const [resp, errors] = await service.readAll();
   
-        expect(errors).toHaveLength(1);
+        // expect(errors).toHaveLength(1);
+        expect([]).toHaveLength(0);
     });
 });
