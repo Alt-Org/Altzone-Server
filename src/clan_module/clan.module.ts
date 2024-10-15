@@ -8,7 +8,7 @@ import {
 } from './clan';
 import { 
     isItemExists, ItemController, ItemHelperService, 
-    ItemMoverService, ItemService 
+    ItemMoverService, ItemSchema, ItemService 
 } from './item';
 import { 
     SoulHomeController, SoulHomeHelperService, SoulhomeSchema, 
@@ -33,7 +33,8 @@ import { AuthModule } from '../auth/auth.module';
             { name: ModelName.PLAYER, schema: PlayerSchema },
             { name: ModelName.STOCK, schema: StockSchema },
             { name: ModelName.SOULHOME, schema: SoulhomeSchema },
-            { name: ModelName.ROOM, schema: RoomSchema }
+            { name: ModelName.ROOM, schema: RoomSchema },
+            { name: ModelName.ITEM, schema: ItemSchema }
         ]),
 
         forwardRef(() => PlayerModule),
