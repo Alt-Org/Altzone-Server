@@ -4,7 +4,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { RequestHelperModule } from '../../requestHelper/requestHelper.module';
 import { PlayerSchema } from '../../player/player.schema';
 import { PlayerModule } from '../../player/player.module';
-import { envVars } from '../../common/service/envHandler/envVars';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { AuthModule } from '../../auth/auth.module';
 
@@ -35,12 +34,14 @@ import RoomHelperService from '../../clan_module/room/utils/room.helper.service'
 import { RoomService } from '../../clan_module/room/room.service';
 import { SoulHomeService } from '../../clan_module/soulhome/soulhome.service';
 import SoulHomeHelperService from '../../clan_module/soulhome/utils/soulHomeHelper.service';
+import { mongooseOptions, mongoString } from '../test_utils/const/db';
+import LoggedUser from '../test_utils/const/loggedUser';
 
 describe('clan module test suite', () => {
     it('Should work', async () => {
         const moduleRef = await Test.createTestingModule({
             imports: [
-                MongooseModule.forRoot(`mongodb://${envVars.MONGO_USERNAME}:${envVars.MONGO_PASSWORD}@127.0.0.1:27017/`, {dbName: envVars.MONGO_DB_NAME}),
+                MongooseModule.forRoot(mongoString, mongooseOptions),
                 MongooseModule.forFeature([ 
                     { name: ModelName.CLAN, schema: ClanSchema }, 
                     { name: ModelName.JOIN, schema: JoinSchema },
@@ -71,14 +72,8 @@ describe('clan module test suite', () => {
         
         const service = await moduleRef.resolve(ClanService);
 
-        console.log(await service.createOne({
-            name: 'lol',
-            tag: 'lol',
-            labels: [ClanLabel.ELÄINRAKKAAT],
-            phrase: 'kek'
-        }, ''));
-        
-        //console.log(await service.readAll());
+        // const player = LoggedUser.getPlayer();
+        // console.log(player);
 
         const [resp, errors] = await service.readAll();
   
