@@ -2,10 +2,10 @@ import {ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface} fr
 import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
-import {Clan} from "../../clan.schema";
 import { registerValidationDecorator } from "../../../../common/decorator/validation/registerValidationDecorator";
 import { isEntityExists } from "../../../../common/decorator/validation/isEntityExists";
 import { ModelName } from "../../../../common/enum/modelName.enum";
+import { Clan } from "../../clan.schema";
 
 export function IsClanExists(validationOptions?: ValidationOptions) {
     return function (object: any, propertyName: string): void {

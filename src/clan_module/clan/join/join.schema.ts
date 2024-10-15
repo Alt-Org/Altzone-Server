@@ -21,5 +21,5 @@ export class Join {
     _id: string;
 }
 
-export const joinSchema = SchemaFactory.createForClass(Join);
-joinSchema.set('collection', ModelName.JOIN);
+export const JoinSchema = SchemaFactory.createForClass(Join);
+JoinSchema.set('collection', ModelName.JOIN);
