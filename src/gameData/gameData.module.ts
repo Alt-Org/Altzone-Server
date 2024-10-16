@@ -6,7 +6,7 @@ import { Game, GameSchema } from './game.schema';
 import { PlayerModule } from '../player/player.module';
 import { ClanModule } from '../clan/clan.module';
 import { RoomModule } from '../room/room.module';
-import { JwtModule } from '@nestjs/jwt';
+import { PlayerTasksModule } from '../playerTasks/playerTasks.module';
 
 @Module({
   imports: [
@@ -14,6 +14,7 @@ import { JwtModule } from '@nestjs/jwt';
     forwardRef(() => PlayerModule),
     forwardRef(() => ClanModule),
     forwardRef(() => RoomModule),
+    forwardRef(() => PlayerTasksModule),
   ],
   providers: [GameDataService],
   controllers: [GameDataController]

@@ -48,7 +48,7 @@
 	],
 	"tuesday": [
 		{
-			"id": 1,
+			"id": 6,
 			"title": { "fi": "Pelaa 3 taistelua" },
 			"content": { "fi": "Sun pitää pelata tänään 3 taistelua" },
 			"amount": 3,
@@ -57,7 +57,7 @@
 			"points": 60
 		},
 		{
-			"id": 2,
+			"id": 7,
 			"title": { "fi": "Voita 5 taistelua" },
 			"content": { "fi": "Sun pitää voittaa tänään 5 taistelua" },
 			"amount": 5,
@@ -66,7 +66,7 @@
 			"points": 500
 		},
 		{
-			"id": 3,
+			"id": 8,
 			"title": { "fi": "Lähetä 10 viestiä chattiin" },
 			"content": { "fi": "Sun pitää lähettää tänään 10 viestiä chattiin" },
 			"amount": 10,
@@ -75,7 +75,7 @@
 			"points": 90
 		},
 		{
-			"id": 4,
+			"id": 9,
 			"title": { "fi": "Aloita taistelu eri hahmolla" },
 			"content": { "fi": "Sun pitää aloittaa taistelu eri hahmolla" },
 			"amount": 3,
@@ -84,7 +84,7 @@
 			"points": 60
 		},
 		{
-			"id": 5,
+			"id": 10,
 			"title": { "fi": "Äänestä 2 kertaa" },
 			"content": { "fi": "Sun pitää äänestää tänään 2 kertaa" },
 			"amount": 2,
@@ -95,7 +95,7 @@
 	],
 	"wednesday": [
 		{
-			"id": 1,
+			"id": 11,
 			"title": { "fi": "Pelaa 3 taistelua" },
 			"content": { "fi": "Sun pitää pelata tänään 3 taistelua" },
 			"amount": 3,
@@ -104,7 +104,7 @@
 			"points": 60
 		},
 		{
-			"id": 2,
+			"id": 12,
 			"title": { "fi": "Voita 5 taistelua" },
 			"content": { "fi": "Sun pitää voittaa tänään 5 taistelua" },
 			"amount": 5,
@@ -113,7 +113,7 @@
 			"points": 500
 		},
 		{
-			"id": 3,
+			"id": 13,
 			"title": { "fi": "Lähetä 10 viestiä chattiin" },
 			"content": { "fi": "Sun pitää lähettää tänään 10 viestiä chattiin" },
 			"amount": 10,
@@ -122,7 +122,7 @@
 			"points": 90
 		},
 		{
-			"id": 4,
+			"id": 14,
 			"title": { "fi": "Aloita taistelu eri hahmolla" },
 			"content": { "fi": "Sun pitää aloittaa taistelu eri hahmolla" },
 			"amount": 3,
@@ -131,7 +131,7 @@
 			"points": 60
 		},
 		{
-			"id": 5,
+			"id": 15,
 			"title": { "fi": "Äänestä 2 kertaa" },
 			"content": { "fi": "Sun pitää äänestää tänään 2 kertaa" },
 			"amount": 2,
@@ -142,7 +142,7 @@
 	],
 	"thursday": [
 		{
-			"id": 1,
+			"id": 16,
 			"title": { "fi": "Pelaa 3 taistelua" },
 			"content": { "fi": "Sun pitää pelata tänään 3 taistelua" },
 			"amount": 3,
@@ -151,7 +151,7 @@
 			"points": 60
 		},
 		{
-			"id": 2,
+			"id": 17,
 			"title": { "fi": "Voita 5 taistelua" },
 			"content": { "fi": "Sun pitää voittaa tänään 5 taistelua" },
 			"amount": 5,
@@ -160,7 +160,7 @@
 			"points": 500
 		},
 		{
-			"id": 3,
+			"id": 18,
 			"title": { "fi": "Lähetä 10 viestiä chattiin" },
 			"content": { "fi": "Sun pitää lähettää tänään 10 viestiä chattiin" },
 			"amount": 10,
@@ -169,7 +169,7 @@
 			"points": 90
 		},
 		{
-			"id": 4,
+			"id": 19,
 			"title": { "fi": "Aloita taistelu eri hahmolla" },
 			"content": { "fi": "Sun pitää aloittaa taistelu eri hahmolla" },
 			"amount": 3,
@@ -178,7 +178,7 @@
 			"points": 60
 		},
 		{
-			"id": 5,
+			"id": 20,
 			"title": { "fi": "Äänestä 2 kertaa" },
 			"content": { "fi": "Sun pitää äänestää tänään 2 kertaa" },
 			"amount": 2,
@@ -189,7 +189,7 @@
 	],
 	"friday": [
 		{
-			"id": 1,
+			"id": 21,
 			"title": { "fi": "Pelaa 3 taistelua" },
 			"content": { "fi": "Sun pitää pelata tänään 3 taistelua" },
 			"amount": 3,
@@ -198,7 +198,7 @@
 			"points": 60
 		},
 		{
-			"id": 2,
+			"id": 22,
 			"title": { "fi": "Voita 5 taistelua" },
 			"content": { "fi": "Sun pitää voittaa tänään 5 taistelua" },
 			"amount": 5,
@@ -207,7 +207,7 @@
 			"points": 500
 		},
 		{
-			"id": 3,
+			"id": 23,
 			"title": { "fi": "Lähetä 10 viestiä chattiin" },
 			"content": { "fi": "Sun pitää lähettää tänään 10 viestiä chattiin" },
 			"amount": 10,
@@ -216,7 +216,7 @@
 			"points": 90
 		},
 		{
-			"id": 4,
+			"id": 24,
 			"title": { "fi": "Aloita taistelu eri hahmolla" },
 			"content": { "fi": "Sun pitää aloittaa taistelu eri hahmolla" },
 			"amount": 3,
@@ -225,7 +225,7 @@
 			"points": 60
 		},
 		{
-			"id": 5,
+			"id": 25,
 			"title": { "fi": "Äänestä 2 kertaa" },
 			"content": { "fi": "Sun pitää äänestää tänään 2 kertaa" },
 			"amount": 2,
@@ -236,7 +236,7 @@
 	],
 	"saturday": [
 		{
-			"id": 1,
+			"id": 26,
 			"title": { "fi": "Pelaa 3 taistelua" },
 			"content": { "fi": "Sun pitää pelata tänään 3 taistelua" },
 			"amount": 3,
@@ -245,7 +245,7 @@
 			"points": 60
 		},
 		{
-			"id": 2,
+			"id": 27,
 			"title": { "fi": "Voita 5 taistelua" },
 			"content": { "fi": "Sun pitää voittaa tänään 5 taistelua" },
 			"amount": 5,
@@ -254,7 +254,7 @@
 			"points": 500
 		},
 		{
-			"id": 3,
+			"id": 28,
 			"title": { "fi": "Lähetä 10 viestiä chattiin" },
 			"content": { "fi": "Sun pitää lähettää tänään 10 viestiä chattiin" },
 			"amount": 10,
@@ -263,7 +263,7 @@
 			"points": 90
 		},
 		{
-			"id": 4,
+			"id": 29,
 			"title": { "fi": "Aloita taistelu eri hahmolla" },
 			"content": { "fi": "Sun pitää aloittaa taistelu eri hahmolla" },
 			"amount": 3,
@@ -272,7 +272,7 @@
 			"points": 60
 		},
 		{
-			"id": 5,
+			"id": 30,
 			"title": { "fi": "Äänestä 2 kertaa" },
 			"content": { "fi": "Sun pitää äänestää tänään 2 kertaa" },
 			"amount": 2,
@@ -283,7 +283,7 @@
 	],
 	"sunday": [
 		{
-			"id": 1,
+			"id": 31,
 			"title": { "fi": "Pelaa 3 taistelua" },
 			"content": { "fi": "Sun pitää pelata tänään 3 taistelua" },
 			"amount": 3,
@@ -292,7 +292,7 @@
 			"points": 60
 		},
 		{
-			"id": 2,
+			"id": 32,
 			"title": { "fi": "Voita 5 taistelua" },
 			"content": { "fi": "Sun pitää voittaa tänään 5 taistelua" },
 			"amount": 5,
@@ -301,7 +301,7 @@
 			"points": 500
 		},
 		{
-			"id": 3,
+			"id": 33,
 			"title": { "fi": "Lähetä 10 viestiä chattiin" },
 			"content": { "fi": "Sun pitää lähettää tänään 10 viestiä chattiin" },
 			"amount": 10,
@@ -310,7 +310,7 @@
 			"points": 90
 		},
 		{
-			"id": 4,
+			"id": 34,
 			"title": { "fi": "Aloita taistelu eri hahmolla" },
 			"content": { "fi": "Sun pitää aloittaa taistelu eri hahmolla" },
 			"amount": 3,
@@ -319,7 +319,7 @@
 			"points": 60
 		},
 		{
-			"id": 5,
+			"id": 35,
 			"title": { "fi": "Äänestä 2 kertaa" },
 			"content": { "fi": "Sun pitää äänestää tänään 2 kertaa" },
 			"amount": 2,
@@ -330,7 +330,7 @@
 	],
 	"weekly": [
 		{
-			"id": 11,
+			"id": 36,
 			"title": { "fi": "Pelaa 20 taistelua" },
 			"content": { "fi": "Sun pitää pelata tällä viikolla 20 taistelua" },
 			"amount": 20,
@@ -339,7 +339,7 @@
 			"points": 400
 		},
 		{
-			"id": 12,
+			"id": 37,
 			"title": { "fi": "Voita 50 taistelua" },
 			"content": { "fi": "Sun pitää voittaa tällä viikolla 50 taistelua" },
 			"amount": 50,
@@ -348,7 +348,7 @@
 			"points": 5000
 		},
 		{
-			"id": 13,
+			"id": 38,
 			"title": { "fi": "Lähetä 30 viestiä chattiin" },
 			"content": {
 				"fi": "Sun pitää lähettää tällä viikolla 30 viestiä chattiin"
@@ -359,7 +359,7 @@
 			"points": 900
 		},
 		{
-			"id": 14,
+			"id": 39,
 			"title": { "fi": "Aloita 5 taistelua eri hahmolla" },
 			"content": {
 				"fi": "Sun pitää aloittaa tällä viikolla 5 taistelua eri hahmolla"
@@ -370,7 +370,7 @@
 			"points": 100
 		},
 		{
-			"id": 15,
+			"id": 40,
 			"title": { "fi": "Äänestä 10 kertaa" },
 			"content": { "fi": "Sun pitää äänestää tällä viikolla 10 kertaa" },
 			"amount": 10,
@@ -381,7 +381,7 @@
 	],
 	"monthly": [
 		{
-			"id": 16,
+			"id": 41,
 			"title": { "fi": "Pelaa 100 taistelua" },
 			"content": { "fi": "Sun pitää pelata tässä kuussa 100 taistelua" },
 			"amount": 100,
@@ -390,7 +390,7 @@
 			"points": 2000
 		},
 		{
-			"id": 17,
+			"id": 42,
 			"title": { "fi": "Voita 100 taistelua" },
 			"content": { "fi": "Sun pitää voittaa tässä kuussa 100 taistelua" },
 			"amount": 100,
@@ -399,7 +399,7 @@
 			"points": 10000
 		},
 		{
-			"id": 18,
+			"id": 43,
 			"title": { "fi": "Lähetä 500 viestiä chattiin" },
 			"content": {
 				"fi": "Sun pitää lähettää tässä kuussa 500 viestiä chattiin"
@@ -410,7 +410,7 @@
 			"points": 15000
 		},
 		{
-			"id": 19,
+			"id": 44,
 			"title": { "fi": "Aloita 30 taistelua eri hahmolla" },
 			"content": {
 				"fi": "Sun pitää aloittaa tässä kuussa 30 taistelua eri hahmolla"
@@ -421,7 +421,7 @@
 			"points": 900
 		},
 		{
-			"id": 20,
+			"id": 45,
 			"title": { "fi": "Äänestä 50 kertaa" },
 			"content": { "fi": "Sun pitää äänestää tässä kuussa 50 kertaa" },
 			"amount": 50,
