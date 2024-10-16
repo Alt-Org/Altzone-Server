@@ -5,7 +5,7 @@ import { PlayerTasks } from './type/tasks.type';
 import { TaskFrequency } from './enum/taskFrequency.enum';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskProgress, TaskProgressDocument } from './playerTasks.schema';
-import { Model, ObjectId } from 'mongoose';
+import { Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { ModelName } from '../common/enum/modelName.enum';
 import { TaskName } from './enum/taskName.enum';
@@ -16,6 +16,7 @@ import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import PlayerTaskNotifier from './playerTask.notifier';
 import ServiceError from '../common/service/basicService/ServiceError';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class PlayerTasksService implements OnModuleInit {
@@ -72,12 +73,9 @@ export class PlayerTasksService implements OnModuleInit {
 		const taskFromJSON = todaysTasks.find((t: Task) => t.type === taskName);
 		const newTask: CreateTaskDto = {
 			playerId,
-			type: taskName,
+			taskId: taskFromJSON.id,
 			startedAt: new Date(),
-			frequency: taskFrequency,
 			amountLeft: taskFromJSON.amount,
-			coins: taskFromJSON.coins,
-			points: taskFromJSON.points
 		}
 		return newTask
 	}
@@ -102,27 +100,34 @@ export class PlayerTasksService implements OnModuleInit {
 	 * @returns false if nothing was updated and true if task was updated
 	 */
 	async registerAtomicTaskCompleted(playerId: string, taskName: TaskName, taskFrequency: TaskFrequency) {
-		let [task, taskError] = await this.basicService.readOne<TaskProgressDocument>({
-			filter: { playerId, type: taskName, frequency: taskFrequency }
+		const [tasks, tasksError] = await this.basicService.readMany<TaskProgressDocument>({
+			filter: { playerId: playerId }
 		});
 
 		//If any error occurred expect for NOT_FOUND
-		if (taskError && taskError[0].reason !== SEReason.NOT_FOUND)
-			throw taskError;
+		if (tasksError && tasksError[0].reason !== SEReason.NOT_FOUND)
+			throw tasksError;
+
+		const task = tasks?.find(task => taskFrequency === this.determineTaskFrequency(task.taskId))
 
 		//If there was no task defined in DB, add it to DB, update its amountLeft and send notification
 		if (!task) {
 			const newTaskToSave = this.getNewTaskObject(playerId, taskName, taskFrequency);
+			const taskFromJson = this.getTaskDefaultData(newTaskToSave.taskId);
 			newTaskToSave.amountLeft--;
-			const newTask = await this.createTaskProgress(newTaskToSave);
+			taskFromJson.amount--;
+			this.createTaskProgress(newTaskToSave);
 
-			this.notifier.taskUpdated(playerId, newTask);
+			this.notifier.taskUpdated(playerId, taskFromJson);
 
 			return [true, null];
 		}
+
+		const taskFromJson = this.getTaskDefaultData(task.taskId);
 		
 		//Check if the whole task is already completed today
-		const taskIsActive = task ? this.checkIfTaskIsActive(task) : false;
+		const frequency = this.determineTaskFrequency(taskFromJson.id);
+		const taskIsActive = task ? this.checkIfTaskIsActive(task, frequency) : false;
 
 		if (!taskIsActive || task.completedAt) {
 			const newTaskToUpdate = this.getNewTaskObject(playerId, taskName, taskFrequency);
@@ -130,12 +135,10 @@ export class PlayerTasksService implements OnModuleInit {
 			Object.assign(task, {
 				startedAt: newTaskToUpdate.startedAt,
 				amountLeft: newTaskToUpdate.amountLeft - 1,
-				coins: newTaskToUpdate.coins,
-				points: newTaskToUpdate.points,
 				completedAt: undefined,
 			})
 			task.save();
-			this.notifier.taskUpdated(playerId, task);
+			this.notifier.taskUpdated(playerId, taskFromJson);
 			return [true, null];
 		}
 
@@ -144,14 +147,14 @@ export class PlayerTasksService implements OnModuleInit {
 		//This is the last atomic task for today => set it as completed and send a notification
 		if(task.amountLeft === 0){
 			task.completedAt = new Date();
-			this.notifier.taskCompleted(playerId, task);
+			this.notifier.taskCompleted(playerId, taskFromJson);
 			task.save();
 
 			return [true, null];
 		}
 
 		task.save()
-		await this.notifier.taskUpdated(playerId, task);
+		await this.notifier.taskUpdated(playerId, taskFromJson);
 
 		return [true, null];
 	}
@@ -201,9 +204,9 @@ export class PlayerTasksService implements OnModuleInit {
 	 * @param task - Task to validate.
 	 * @returns - True if task is still active or false if it isn't.
 	 */
-	checkIfTaskIsActive(task: TaskProgress): boolean {
+	checkIfTaskIsActive(task: TaskProgress, taskFrequency: TaskFrequency): boolean {
 		const currentTime = new Date();
-		switch (task.frequency) {
+		switch (taskFrequency) {
 			case TaskFrequency.DAILY:
 				return task.startedAt.toDateString() === currentTime.toDateString();
 			case TaskFrequency.WEEKLY:
