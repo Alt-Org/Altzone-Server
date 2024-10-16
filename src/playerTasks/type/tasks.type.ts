@@ -18,6 +18,7 @@ export type PlayerTasks = {
 	monday: Task[];
 	tuesday: Task[];
 	wednesday: Task[];
+	thursday: Task[];
 	friday: Task[];
 	saturday: Task[];
 	sunday: Task[];
