@@ -4,7 +4,6 @@ import { NotificationResource } from "../common/service/notificator/enum/Notific
 import { NotificationStatus } from "../common/service/notificator/enum/NotificationStatus.enum";
 import NotificationSender from "../common/service/notificator/NotificationSender";
 import { TaskName } from "./enum/taskName.enum";
-import { TaskProgress } from "./playerTasks.schema";
 import { Task } from "./type/task.type";
 
 /**
@@ -32,9 +31,9 @@ export default class PlayerTaskNotifier {
      * @param player_id the DB _id of the player for whom notification is addressed
      * @param task updated info of the task
      */
-    taskUpdated(player_id: string, task: TaskProgress){
+    taskUpdated(player_id: string, task: Task){
         NotificationSender
-            .buildNotification<TaskProgress>()
+            .buildNotification<Task>()
             .addGroup(this.group, player_id)
             .addResource(this.resource, task.type)
             .send(NotificationStatus.UPDATE, task);
@@ -58,9 +57,9 @@ export default class PlayerTaskNotifier {
      * @param player_id the DB _id of the player for whom notification is addressed
      * @param task info of the completed task 
      */
-    taskCompleted(player_id: string, task: TaskProgress){
+    taskCompleted(player_id: string, task: Task){
         NotificationSender
-            .buildNotification<TaskProgress>()
+            .buildNotification<Task>()
             .addGroup(this.group, player_id)
             .addResource(this.resource, task.type)
             .send(NotificationStatus.END, task);
