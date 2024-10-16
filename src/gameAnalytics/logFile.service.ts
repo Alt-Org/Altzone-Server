@@ -3,6 +3,7 @@ import ServiceError from "../common/service/basicService/ServiceError";
 import { SEReason } from "../common/service/basicService/SEReason";
 import { createClient, WebDAVClient } from "webdav";
 import { envVars } from "../common/service/envHandler/envVars";
+import { Readable } from "stream";
 
 @Injectable()
 export class LogFileService {
@@ -45,7 +46,8 @@ export class LogFileService {
         }
 
         try {
-            const isSuccess = await this.client.putFileContents(filePath, fileToSave.buffer, {
+            const fileStream = this.bufferToStream(fileToSave.buffer);
+            const isSuccess = await this.client.putFileContents(filePath, fileStream, {
                 overwrite: true
             });
 
@@ -70,6 +72,19 @@ export class LogFileService {
     }
 
     /**
+     * Converts provided buffer of a file to reading stream
+     * @param buffer buffer to convert
+     * @returns stream
+     */
+    private bufferToStream(buffer: Buffer) {
+        const readable = new Readable();
+        readable._read = () => {};
+        readable.push(buffer);
+        readable.push(null);
+        return readable;
+    }
+
+    /**
      * Initializes the WebDAV client using credentials from the environment variables.
      */
     private initializeWebDavClient() {
@@ -77,8 +92,9 @@ export class LogFileService {
             `http://${envVars.OWNCLOUD_HOST}:${envVars.OWNCLOUD_PORT}/remote.php/webdav/`,
             {
                 username: envVars.OWNCLOUD_USER,
-                password: envVars.OWNCLOUD_PASSWORD
-            }
+                password: envVars.OWNCLOUD_PASSWORD,
+                maxBodyLength: 52428800
+            },
         );
     }
 
