@@ -1,15 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, HydratedDocument, Schema as MongooseSchema } from 'mongoose';
-import { TaskName } from './enum/taskName.enum';
-import { TaskFrequency } from './enum/taskFrequency.enum';
+import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
+import { ModelName } from '../common/enum/modelName.enum';
+import { Player } from '../player/player.schema';
 
 
 export type TaskProgressDocument = HydratedDocument<TaskProgress>;
 
-@Schema()
+@Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } } )
 export class TaskProgress {
   @Prop({ type: MongooseSchema.Types.ObjectId, required: true })
-  playerId: MongooseSchema.Types.ObjectId;
+  playerId: Player;
 
   @Prop({ required: true })
   taskId: number;
@@ -25,3 +25,10 @@ export class TaskProgress {
 }
 
 export const TaskProgressSchema = SchemaFactory.createForClass(TaskProgress);
+TaskProgressSchema.set("collection", ModelName.PLAYER_TASK);
+TaskProgressSchema.virtual(ModelName.PLAYER, {
+  ref: ModelName.PLAYER,
+  localField: "playerId",
+  foreignField: "_id",
+  justOne: true,
+})
