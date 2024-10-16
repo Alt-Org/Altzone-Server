@@ -11,8 +11,8 @@ export class TaskProgress {
   @Prop({ type: MongooseSchema.Types.ObjectId, required: true })
   playerId: MongooseSchema.Types.ObjectId;
 
-  @Prop({ required: true, enum: TaskName })
-  type: TaskName;
+  @Prop({ required: true })
+  taskId: number;
 
   @Prop({ required: true, default: () => new Date() })
   startedAt: Date;
@@ -20,17 +20,8 @@ export class TaskProgress {
   @Prop()
   completedAt: Date;
 
-  @Prop({ required: true, enum: TaskFrequency })
-  frequency: TaskFrequency; // New property for daily, weekly, or monthly
-
   @Prop({ required: true })
   amountLeft: number; // Amount of atomic tasks to complete. When 0 set completedAt.
-
-  @Prop({ required: true })
-  coins: number; // Coins awarded upon completion
-
-  @Prop({ required: true })
-  points: number; // Points awarded upon completion
 }
 
 export const TaskProgressSchema = SchemaFactory.createForClass(TaskProgress);

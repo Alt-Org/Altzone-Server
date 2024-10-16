@@ -9,26 +9,15 @@ export class CreateTaskDto {
 	playerId: string;
 
 	@IsNotEmpty()
-	@IsEnum(TaskName)
-	type: TaskName;
+	@IsNumber()
+	taskId: number;
+	@IsNotEmpty()
 
 	@IsNotEmpty()
 	@IsDate()
 	startedAt: Date;
 
 	@IsNotEmpty()
-	@IsEnum(TaskFrequency)
-	frequency: TaskFrequency;
-
-	@IsNotEmpty()
 	@IsNumber()
 	amountLeft: number;
-
-	@IsNotEmpty()
-	@IsNumber()
-	coins: number;
-
-	@IsNotEmpty()
-	@IsNumber()
-	points: number;
 }
