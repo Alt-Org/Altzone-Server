@@ -26,11 +26,12 @@ export class PlayerTasksService implements OnModuleInit {
 	){
 		this.basicService = new BasicService(model);
 		this.modelName = ModelName.PLAYER_TASK;
-
+		this.refsInModel = [ModelName.PLAYER]
 	}
 	private tasks: PlayerTasks;
 	public readonly modelName: ModelName;
 	private readonly basicService: BasicService;
+	public readonly refsInModel: ModelName[];
 
 	/**
 	 * Initializes the tasks by loading and parsing them from a JSON file.
@@ -62,7 +63,7 @@ export class PlayerTasksService implements OnModuleInit {
 	 * @param taskFrequency - The frequency of the task from TaskFrequency enum.
 	 * @returns - The new task object.
 	 */
-	getNewTaskObject(playerId: string, taskName: TaskName, taskFrequency: TaskFrequency) {
+	private getNewTaskObject(playerId: string, taskName: TaskName, taskFrequency: TaskFrequency) {
 		let taskType = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
 		if (taskFrequency === TaskFrequency.WEEKLY)
 			taskType = TaskFrequency.WEEKLY
@@ -101,7 +102,7 @@ export class PlayerTasksService implements OnModuleInit {
 	 */
 	async registerAtomicTaskCompleted(playerId: string, taskName: TaskName, taskFrequency: TaskFrequency) {
 		const [tasks, tasksError] = await this.basicService.readMany<TaskProgressDocument>({
-			filter: { playerId: playerId }
+			filter: { playerId: playerId } 
 		});
 
 		//If any error occurred expect for NOT_FOUND
@@ -204,7 +205,7 @@ export class PlayerTasksService implements OnModuleInit {
 	 * @param task - Task to validate.
 	 * @returns - True if task is still active or false if it isn't.
 	 */
-	checkIfTaskIsActive(task: TaskProgress, taskFrequency: TaskFrequency): boolean {
+	private checkIfTaskIsActive(task: TaskProgress, taskFrequency: TaskFrequency): boolean {
 		const currentTime = new Date();
 		switch (taskFrequency) {
 			case TaskFrequency.DAILY:
