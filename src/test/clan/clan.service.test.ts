@@ -72,10 +72,18 @@ describe('clan module test suite', () => {
         
         const service = await moduleRef.resolve(ClanService);
 
-        // const player = LoggedUser.getPlayer();
-        // console.log(player);
+        const player = LoggedUser.getPlayer();
+        const createResp = await service.createOne({
+            name: 'lol',
+            tag: 'lol',
+            labels: [ ClanLabel.ANIMEFANIT ],
+            phrase: 'lololo'
+        }, player._id);
+        // console.log('createResp', createResp);
 
         const [resp, errors] = await service.readAll();
+        // console.log('resp', resp);
+        // console.log('errors', errors);
   
         // expect(errors).toHaveLength(1);
         expect([]).toHaveLength(0);
