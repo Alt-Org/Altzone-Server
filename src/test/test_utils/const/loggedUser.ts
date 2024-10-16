@@ -1,56 +1,71 @@
 import { Player } from "../../../player/player.schema";
 import { Profile } from "../../../profile/profile.schema";
 
-export default class LoggedUser {
-    private constructor() {
-        LoggedUser.profile = {
-            _id: '',
-            username: 'user',
-            password: 'password',
-            isSystemAdmin: false
-        }
+/**
+ * username of the pre-created profile in DB
+ */
+export const defaultUsername = 'user';
+/**
+ * password of the pre-created profile in DB
+ */
+export const defaultPassword = 'password';
+/**
+ * name of the pre-created player in DB
+ */
+export const defaultPlayerName = 'player';
 
-        LoggedUser.player = {
-            _id: '',
-            backpackCapacity: 10,
-            name: 'player',
-            uniqueIdentifier: 'player',
-            profile_id: ''
-        }
-    }
+/**
+ * Class for retrieving pre-created profile and player for it from DB.
+ * 
+ * Please do not use any setter methods as this class data should be read-only.
+ */
+export default class LoggedUser {
+    private constructor() {}
 
     private static profile: Profile & {_id: string} = {
         _id: '',
-        username: 'user',
-        password: 'password',
+        username: defaultUsername,
+        password: defaultPassword,
         isSystemAdmin: false
     };
     private static player: Player & {_id: string} = {
         _id: '',
         backpackCapacity: 10,
-        name: 'player',
-        uniqueIdentifier: 'player',
+        name: defaultPlayerName,
+        uniqueIdentifier: defaultPlayerName,
         profile_id: ''
     };
 
+    /**
+     * Please use this method only on tests setup
+     * @param _id profile _id to set
+     */
     static setProfile_id(_id: string){
-        // LoggedUser.init();
         LoggedUser.profile._id = _id;
         LoggedUser.player.profile_id = _id;
     }
 
+    /**
+     * Please use this method only on tests setup
+     * @param _id player _id to set
+     */
     static setPlayer_id(_id: string){
-        // LoggedUser.init();
         LoggedUser.player._id = _id;
     }
 
+    /**
+     * Returns a pre-created in DB `Profile` data.
+     * @returns pre-created profile
+     */
     static getProfile(){
-        // LoggedUser.init();
         return LoggedUser.profile;
     }
 
+    /**
+     * Returns a pre-created in DB `Player` data.
+     * @returns 
+     */
     static getPlayer(){
-        // LoggedUser.init();
         return LoggedUser.player;
     }
 } 
