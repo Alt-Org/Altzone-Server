@@ -156,7 +156,12 @@ export class PlayerTasksService implements OnModuleInit {
 		if (tasksError && tasksError[0].reason !== SEReason.NOT_FOUND)
 			throw tasksError;
 
-		const task = tasks?.find(task => taskFrequency === this.determineTaskFrequency(task.taskId))
+		const task = tasks?.find(task => {
+			const { type } = this.getTaskDefaultData(task.taskId);
+			const frequency = this.determineTaskFrequency(task.taskId);
+
+			return type === taskName && taskFrequency === frequency;
+		});
 
 		//If there was no task defined in DB, add it to DB, update its amountLeft and send notification
 		if (!task) {
@@ -306,7 +311,7 @@ export class PlayerTasksService implements OnModuleInit {
 			const foundTask = periodTasks.find(task => task.id === taskId);
 
 			if(foundTask)
-				return foundTask;
+				return {...foundTask};
 		}
 	}
 }
