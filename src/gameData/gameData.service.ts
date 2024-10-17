@@ -215,8 +215,9 @@ export class GameDataService {
 		this.playerService.addPlayedGame(user.player_id);
 		this.taskService.updateTask(user.player_id, TaskName.PLAY_BATTLE);
 		if (!playerInWinningTeam)
-			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED, message: "Invalid type field" });
-		
+			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED, message: "Player is not in the winning team and therefore is not allowed to steal" });
+
+		this.taskService.updateTask(user.player_id, TaskName.WIN_BATTLE);
 		this.playerService.addWonPlayedGame(user.player_id);
 		const [teamIds, teamIdsErrors] = await this.getClanIdForTeams([battleResult.team1[0], battleResult.team2[0]]);
 		if (teamIdsErrors)
