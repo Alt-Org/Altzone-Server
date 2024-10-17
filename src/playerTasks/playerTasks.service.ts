@@ -66,28 +66,31 @@ export class PlayerTasksService implements OnModuleInit {
 		if (errors)
 			return [null, errors];
 
-		// Update the amount in tasks from the database.
-		tasks.forEach((task) => {
-			playerTasks['daily'].forEach((playerTask) => {
-				if (playerTask.id === task.taskId) {
-					playerTask.amount = task.amountLeft;
-				}
-			})
-
-			playerTasks.weekly?.forEach((playerTask) => {
-				if (playerTask.id === task.taskId) {
-					playerTask.amount = task.amountLeft;
-				}
-			})
-
-			playerTasks.monthly?.forEach((playerTask) => {
-				if (playerTask.id === task.taskId) {
-					playerTask.amount = task.amountLeft;
-				}
-			})
-		})
+		playerTasks = this.updateTaskAmounts(tasks, playerTasks);
 
 		return [playerTasks, null];
+	}
+
+	/**
+	 * Updates the amount field on tasks.
+	 * 
+	 * This method iterates over the tasks retrieved from the database and
+	 * updates tasks from the JSON file with the amountLeft from the db document.
+	 * 
+	 * @param dbTasks - Players tasks from the database.
+	 * @param jsonTasks - Tasks from the json file.
+	 * @returns - Json tasks with the updated amount from db tasks.
+	 */
+	private updateTaskAmounts(dbTasks: TaskProgress[], jsonTasks: Partial<PlayerTasks>) {
+		dbTasks.forEach((dbTask) => {
+			for(const period in jsonTasks) {
+				jsonTasks[period].forEach((jsonTask) => {
+					if (jsonTask.id === dbTask.taskId) 
+						jsonTask.amount = dbTask.amountLeft;
+				})
+			}
+		})
+		return jsonTasks;
 	}
 
 	/**
