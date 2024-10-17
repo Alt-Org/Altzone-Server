@@ -53,7 +53,7 @@ export class PlayerTasksService implements OnModuleInit {
 	async getPlayerTasks(playerId: string, taskFrequency: TaskFrequency) {
 		const today = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date()).toLowerCase();
 		let playerTasks: Partial<PlayerTasks> = {};
-		playerTasks[today] = this.tasks[today];
+		playerTasks['daily'] = this.tasks[today];
 
 		if (taskFrequency === TaskFrequency.MONTHLY) {
 			playerTasks.weekly = this.tasks.weekly;
@@ -68,7 +68,7 @@ export class PlayerTasksService implements OnModuleInit {
 
 		// Update the amount in tasks from the database.
 		tasks.forEach((task) => {
-			playerTasks[today].forEach((playerTask) => {
+			playerTasks['daily'].forEach((playerTask) => {
 				if (playerTask.id === task.taskId) {
 					playerTask.amount = task.amountLeft;
 				}
