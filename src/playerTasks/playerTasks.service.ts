@@ -44,6 +44,53 @@ export class PlayerTasksService implements OnModuleInit {
 	}
 
 	/**
+	 * Finds the player tasks based on the player id and task frequency.
+	 * 
+	 * @param playerId - The ID of the player.
+	 * @param taskFrequency - The frequency of the tasks.
+	 * @returns - A promise that resolves to a tuple containing player tasks possible errors.
+	 */
+	async getPlayerTasks(playerId: string, taskFrequency: TaskFrequency) {
+		const today = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date()).toLowerCase();
+		let playerTasks: Partial<PlayerTasks> = {};
+		playerTasks[today] = this.tasks[today];
+
+		if (taskFrequency === TaskFrequency.MONTHLY) {
+			playerTasks.weekly = this.tasks.weekly;
+			playerTasks.monthly = this.tasks.monthly;
+		} else if (taskFrequency === TaskFrequency.WEEKLY) {
+			playerTasks.weekly = this.tasks.weekly;
+		}
+
+		const [tasks, errors] = await this.basicService.readMany<TaskProgress>({ filter: { playerId } });
+		if (errors)
+			return [null, errors];
+
+		// Update the amount in tasks from the database.
+		tasks.forEach((task) => {
+			playerTasks[today].forEach((playerTask) => {
+				if (playerTask.id === task.taskId) {
+					playerTask.amount = task.amountLeft;
+				}
+			})
+
+			playerTasks.weekly?.forEach((playerTask) => {
+				if (playerTask.id === task.taskId) {
+					playerTask.amount = task.amountLeft;
+				}
+			})
+
+			playerTasks.monthly?.forEach((playerTask) => {
+				if (playerTask.id === task.taskId) {
+					playerTask.amount = task.amountLeft;
+				}
+			})
+		})
+
+		return [playerTasks, null];
+	}
+
+	/**
 	 * Calls the registerAtomicTaskCompleted with all TaskFrequencies.
 	 * 
 	 * @param playerId - Id of the player.
