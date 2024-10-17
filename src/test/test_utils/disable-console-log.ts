@@ -1,3 +1,5 @@
+import './jest.matchers.d';
+
 global.console = {
     ...console,
     //Comment what you need to see in console while testing

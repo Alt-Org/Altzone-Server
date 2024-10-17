@@ -1,28 +1,17 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
-import { mongoString } from './const/db';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { ProfileSchema } from '../../profile/profile.schema';
 import LoggedUser from './const/loggedUser';
 import { PlayerSchema } from '../../player/player.schema';
-import { envVars } from '../../common/service/envHandler/envVars';
-
-let mongod: MongoMemoryServer;
+import './jest.matchers.d';
+import { mongooseOptions, mongoString } from './const/db';
 
 beforeAll(async () => {
-    const dbName = `altzone_${process.env.JEST_WORKER_ID}`;
-
-    mongod = await MongoMemoryServer.create({
-        instance: {
-            dbName: dbName,
-            port: Number.parseInt(envVars.MONGO_PORT)
-        }
-    });
-
     try {
-        await mongoose.connect(mongoString, {dbName: dbName});
+        await mongoose.connect(mongoString, mongooseOptions);
     } catch (error) {
         console.error('beforeAll() global: Could not connect to DB', error);
+        throw error;
     }
 });
 
@@ -31,8 +20,8 @@ beforeEach(async () => {
         await initDB();
     } catch (error) {
         console.error('beforeEach() global: Could not init DB before test', error);
+        throw error;
     }
-    
 });
 
 afterEach(async () => {
@@ -40,15 +29,16 @@ afterEach(async () => {
         await clearDB();
     } catch (error) {
         console.error('afterEach() global: Could not clean DB after test', error);
+        throw error;
     }
 });
 
 afterAll(async () => {
     try {
-        await mongoose.disconnect();
-        await mongod.stop();
+        //await mongoose.disconnect();
     } catch (error) {
         console.error('afterAll() global: Could not stop DB after all tests', error);
+        throw error;
     }
 });
 

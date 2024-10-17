@@ -30,5 +30,8 @@ module.exports = {
     ],
     setupFilesAfterEnv: [
         `${testDir}/test_utils/connect-to-db.ts`
-    ]
+    ],
+
+    globalSetup: `${testDir}/test_utils/globalSetup.ts`,
+    globalTeardown: `${testDir}/test_utils/globalTeardown.ts`,
 };
