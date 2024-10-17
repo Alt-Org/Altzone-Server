@@ -22,24 +22,39 @@ beforeAll(async () => {
     try {
         await mongoose.connect(mongoString, {dbName: dbName});
     } catch (error) {
-        console.error('Could not connect to DB', error);
+        console.error('beforeAll() global: Could not connect to DB', error);
     }
 });
 
 beforeEach(async () => {
-    await initDB();
+    try {
+        await initDB();
+    } catch (error) {
+        console.error('beforeEach() global: Could not init DB before test', error);
+    }
+    
 });
 
 afterEach(async () => {
-    await clearDB();
+    try {
+        await clearDB();
+    } catch (error) {
+        console.error('afterEach() global: Could not clean DB after test', error);
+    }
 });
 
 afterAll(async () => {
-    await mongoose.disconnect();
-    await mongod.stop();
+    try {
+        await mongoose.disconnect();
+        await mongod.stop();
+    } catch (error) {
+        console.error('afterAll() global: Could not stop DB after all tests', error);
+    }
 });
 
-
+/**
+ * Inserts default data to DB, such as default profile and player
+ */
 async function initDB() {
     const profileModel = mongoose.model(ModelName.PROFILE, ProfileSchema);
     const defaultProfile = LoggedUser.getProfile();
@@ -54,6 +69,9 @@ async function initDB() {
     LoggedUser.setPlayer_id(playerResp._id.toString());
 }
 
+/**
+ * Removes all documents from all collections from DB
+ */
 async function clearDB(){
     const collections = mongoose.connection.collections;
     
