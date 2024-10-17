@@ -44,6 +44,56 @@ export class PlayerTasksService implements OnModuleInit {
 	}
 
 	/**
+	 * Finds the player tasks based on the player id and task frequency.
+	 * 
+	 * @param playerId - The ID of the player.
+	 * @param taskFrequency - The frequency of the tasks.
+	 * @returns - A promise that resolves to a tuple containing player tasks possible errors.
+	 */
+	async getPlayerTasks(playerId: string, taskFrequency: TaskFrequency) {
+		const today = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date()).toLowerCase();
+		let playerTasks: Partial<PlayerTasks> = {};
+		playerTasks['daily'] = this.tasks[today];
+
+		if (taskFrequency === TaskFrequency.MONTHLY) {
+			playerTasks.weekly = this.tasks.weekly;
+			playerTasks.monthly = this.tasks.monthly;
+		} else if (taskFrequency === TaskFrequency.WEEKLY) {
+			playerTasks.weekly = this.tasks.weekly;
+		}
+
+		const [tasks, errors] = await this.basicService.readMany<TaskProgress>({ filter: { playerId } });
+		if (errors)
+			return [null, errors];
+
+		playerTasks = this.updateTaskAmounts(tasks, playerTasks);
+
+		return [playerTasks, null];
+	}
+
+	/**
+	 * Updates the amount field on tasks.
+	 * 
+	 * This method iterates over the tasks retrieved from the database and
+	 * updates tasks from the JSON file with the amountLeft from the db document.
+	 * 
+	 * @param dbTasks - Players tasks from the database.
+	 * @param jsonTasks - Tasks from the json file.
+	 * @returns - Json tasks with the updated amount from db tasks.
+	 */
+	private updateTaskAmounts(dbTasks: TaskProgress[], jsonTasks: Partial<PlayerTasks>) {
+		dbTasks.forEach((dbTask) => {
+			for(const period in jsonTasks) {
+				jsonTasks[period].forEach((jsonTask) => {
+					if (jsonTask.id === dbTask.taskId) 
+						jsonTask.amount = dbTask.amountLeft;
+				})
+			}
+		})
+		return jsonTasks;
+	}
+
+	/**
 	 * Calls the registerAtomicTaskCompleted with all TaskFrequencies.
 	 * 
 	 * @param playerId - Id of the player.
