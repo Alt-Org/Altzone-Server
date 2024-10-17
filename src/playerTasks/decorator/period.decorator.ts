@@ -9,7 +9,7 @@ import { TaskFrequency } from "../enum/taskFrequency.enum";
  */
 export const Period = createParamDecorator((_, context: ExecutionContext) => {
 	const request = context.switchToHttp().getRequest();
-	const period = request.query["period"] ?? "today";
+	const period = request.query["period"];
 
 	switch (period) {
 		case "week":
