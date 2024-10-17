@@ -8,6 +8,7 @@ import { Task } from "./task.type";
  * @property monday - The tasks assigned for Monday.
  * @property tuesday - The tasks assigned for Tuesday.
  * @property wednesday - The tasks assigned for Wednesday.
+ * @property thursday - The tasks assigned for Thursday.
  * @property friday - The tasks assigned for Friday.
  * @property saturday - The tasks assigned for Saturday.
  * @property sunday - The tasks assigned for Sunday.
