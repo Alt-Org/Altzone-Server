@@ -12,8 +12,6 @@ export const Period = createParamDecorator((_, context: ExecutionContext) => {
 	const period = request.query["period"] ?? "today";
 
 	switch (period) {
-		case "today":
-			return TaskFrequency.DAILY;
 		case "week":
 			return TaskFrequency.WEEKLY;
 		case "month":
