@@ -4,9 +4,19 @@ declare global {
     namespace jest {
         interface Matchers<R> {
             /**
+             * Check that object is a ServiceError with reason LESS_THAN_MIN.
+             */
+            toBeSE_LESS_THAN_MIN(): R;
+
+            /**
              * Check that object is a ServiceError with reason MISCONFIGURED.
              */
             toBeSE_MISCONFIGURED(): R;
+
+            /**
+             * Check that object is a ServiceError with reason MORE_THAN_MAX.
+             */
+            toBeSE_MORE_THAN_MAX(): R;
 
             /**
              * Check that object is a ServiceError with reason NOT_ALLOWED.
@@ -22,6 +32,11 @@ declare global {
              * Check that object is a ServiceError with reason NOT_BOOLEAN.
              */
             toBeSE_NOT_BOOLEAN(): R;
+
+            /**
+             * Check that object is a ServiceError with reason NOT_DATE.
+             */
+            toBeSE_NOT_DATE(): R;
             
             /**
              * Check that object is a ServiceError with reason NOT_FOUND.
@@ -32,6 +47,11 @@ declare global {
              * Check that object is a ServiceError with reason NOT_NUMBER.
              */
             toBeSE_NOT_NUMBER(): R;
+
+            /**
+             * Check that object is a ServiceError with reason NOT_OBJECT.
+             */
+            toBeSE_NOT_OBJECT(): R;
             
             /**
              * Check that object is a ServiceError with reason NOT_STRING.
@@ -55,16 +75,39 @@ declare global {
             toBeSE_UNEXPECTED(): R;
 
             /**
+             * Check that object is a ServiceError with reason VALIDATION.
+             */
+            toBeSE_VALIDATION(): R;
+
+            /**
+             * Check that object is a ServiceError with reason WRONG_ENUM.
+             */
+            toBeSE_WRONG_ENUM(): R;
+
+            /**
              * Check that object has a provided ServiceError reason field.
              * @param expected Expected SEReason
              */
             toBeSE(expected: SEReason): R;
+
+
+            /**
+             * Check that it is an array 
+             * containing at least one ServiceError with reason LESS_THAN_MIN
+             */
+            toContainSE_LESS_THAN_MIN(): R;
 
             /**
              * Check that it is an array 
              * containing at least one ServiceError with reason MISCONFIGURED
              */
             toContainSE_MISCONFIGURED(): R;
+
+            /**
+             * Check that it is an array 
+             * containing at least one ServiceError with reason MORE_THAN_MAX
+             */
+            toContainSE_MORE_THAN_MAX(): R;
 
             /**
              * Check that it is an array 
@@ -86,6 +129,12 @@ declare global {
 
             /**
              * Check that it is an array 
+             * containing at least one ServiceError with reason NOT_DATE
+             */
+            toContainSE_NOT_DATE(): R;
+
+            /**
+             * Check that it is an array 
              * containing at least one ServiceError with reason NOT_FOUND
              */
             toContainSE_NOT_FOUND(): R;
@@ -95,6 +144,12 @@ declare global {
              * containing at least one ServiceError with reason NOT_NUMBER
              */
             toContainSE_NOT_NUMBER(): R;
+
+            /**
+             * Check that it is an array 
+             * containing at least one ServiceError with reason NOT_OBJECT
+             */
+            toContainSE_NOT_OBJECT(): R;
 
             /**
              * Check that it is an array 
@@ -119,6 +174,18 @@ declare global {
              * containing at least one ServiceError with reason UNEXPECTED
              */
             toContainSE_UNEXPECTED(): R;
+
+            /**
+             * Check that it is an array 
+             * containing at least one ServiceError with reason VALIDATION
+             */
+            toContainSE_VALIDATION(): R;
+
+            /**
+             * Check that it is an array 
+             * containing at least one ServiceError with reason WRONG_ENUM
+             */
+            toContainSE_WRONG_ENUM(): R;
 
             /**
              * Check that it is an array 
