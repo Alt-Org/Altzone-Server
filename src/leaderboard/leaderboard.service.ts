@@ -76,8 +76,9 @@ export class LeaderboardService {
 				sort: { points: -1 },
 				skip: 0,
 			};
-			const [data, errors] = await fetchFunction(query);
+			const [fetchedData, errors] = await fetchFunction(query);
 			if (errors) throw new InternalServerErrorException({ errors });
+			data = fetchedData;
 
 			// Set the data with 12 hour ttl. The { ttl: number } as any is required to overwrite the default value.
 			await this.cacheService.set(cacheKey, data, { ttl: 60 * 60 * 12 } as any);
