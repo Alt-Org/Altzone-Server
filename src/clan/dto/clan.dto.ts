@@ -27,6 +27,9 @@ export class ClanDto {
     gameCoins: number;
 
     @Expose()
+    points: number;
+
+    @Expose()
     admin_ids: string[];
 
     @Expose()

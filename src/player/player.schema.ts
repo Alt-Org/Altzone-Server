@@ -17,6 +17,9 @@ export class Player {
     @Prop({ type: Number, required: true })
     backpackCapacity: number;
 
+    @Prop({ type: Number, default: 0 })
+    points: number;
+
     @Prop({ type: String, required: true, unique: true })
     uniqueIdentifier: string;
 
