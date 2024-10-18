@@ -42,7 +42,7 @@ export class ClanService{
      * @param player_id the player_id of the Clan creator, and who is also will be the admin of the Clan
      * @returns 
      */
-    public async createOne(clanToCreate: CreateClanDto, player_id: string) {
+    public async createOne(clanToCreate: CreateClanDto, player_id: string): Promise<[ClanDto, ServiceError[]]> {
         const clanWithAdmin = {...clanToCreate, admin_ids: [player_id]};
         let [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>(clanWithAdmin);
 
@@ -64,7 +64,7 @@ export class ClanService{
         clan.SoulHome = soulHome.SoulHome;
         clan.Stock = stock.Stock;
 
-        return clan;
+        return [clan, null];
     }
 
     /**
