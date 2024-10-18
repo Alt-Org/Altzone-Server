@@ -1,7 +1,7 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {Model, Types} from "mongoose";
+import {Model, MongooseError, Types} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
-import {Player} from "./player.schema";
+import {Player, publicReferences} from "./player.schema";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
@@ -14,7 +14,9 @@ import {IHookImplementer, PostHookFunction} from "../common/interface/IHookImple
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
 import { PlayerDto } from "./dto/player.dto";
 import BasicService from "../common/service/basicService/BasicService";
-import { TReadByIdOptions } from "../common/service/basicService/IService";
+import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
+import { IGetAllQuery } from "../common/interface/IGetAllQuery";
+import { IResponseShape } from "../common/interface/IResponseShape";
 
 @Injectable()
 @AddBasicService()
@@ -42,6 +44,22 @@ export class PlayerService
             optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
         }
         return this.basicService.readOneById<PlayerDto>(_id, optionsToApply);
+    }
+
+    /**
+     * This method is used in the LeaderboardService and serves as a replacement
+     * for the deprecated readAll method from the BasicServiceDummyAbstract.
+     * It should be renamed to readAll when the service is updated to the new way.
+     * 
+     * @param options - Options for reading players.
+     * @returns - An array of players if succeeded or an array of ServiceErrors if error occurred.
+     */
+    async getAll(options?: TIServiceReadManyOptions) {
+        let optionsToApply = options;
+        if(options?.includeRefs)
+            optionsToApply.includeRefs = options.includeRefs.filter((ref) => publicReferences.includes(ref));
+        
+        return this.basicService.readMany<PlayerDto>(optionsToApply);
     }
 
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
