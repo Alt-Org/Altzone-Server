@@ -20,6 +20,9 @@ module.exports = {
     testMatch: [
         `${testDir}/**/*.test.ts`
     ],
+    testPathIgnorePatterns: [
+        `${testDir}/test_utils`
+    ],
 
     // transform: {
     //     "^.+\\.[t|j]sx?$": "babel-jest"
