@@ -50,9 +50,9 @@ export const envVars: Record<EnvName, string> = {
     OWNCLOUD_LOG_FILES_SECRET: process.env.OWNCLOUD_LOG_FILES_SECRET,
     OWNCLOUD_LOG_FILES_ROOT: process.env.OWNCLOUD_LOG_FILES_ROOT,
 
-    REDIS_PASSWORD: process.env.REDIS_PASSWORD,
-    REDIS_HOST: process.env.REDIS_HOST,
-    REDIS_PORT: process.env.REDIS_PORT,
+    REDIS_PASSWORD: process.env.REDIS_PASSWORD ?? "mySecretPassword",
+    REDIS_HOST: process.env.REDIS_HOST ?? "localhost",
+    REDIS_PORT: process.env.REDIS_PORT ?? "6379",
 
     MOSQUITTO_HOST: process.env.MOSQUITTO_HOST,
     MOSQUITTO_PORT: process.env.MOSQUITTO_PORT,
