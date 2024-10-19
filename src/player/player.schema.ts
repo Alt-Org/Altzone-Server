@@ -21,25 +21,25 @@ export class Player {
     uniqueIdentifier: string;
 
     @Prop({ type: Boolean, default: null })
-    above13: boolean;
+    above13?: boolean;
 
     @Prop({ type: Boolean, default: null })
-    parentalAuth: boolean;
+    parentalAuth?: boolean;
 
     @Prop({ type: GameStatistics, default: () => ({}) })
-    gameStatistics: GameStatistics;
+    gameStatistics?: GameStatistics;
     
     @ExtractField()
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.PROFILE })
-    profile_id: Profile;
+    profile_id?: string;
 
     @ExtractField()
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CLAN })
-    clan_id: Clan;
+    clan_id?: string;
 
     @ExtractField()
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CUSTOM_CHARACTER })
-    currentCustomCharacter_id: CustomCharacter;
+    currentCustomCharacter_id?: string;
 
     @ExtractField()
     _id: string;

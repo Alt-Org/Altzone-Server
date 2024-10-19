@@ -34,6 +34,7 @@ export class AuthService {
             profile_id: profile._id,
             player_id: player?._id
         };
+        
         const accessToken = await this.jwtService.signAsync(payload);
         const decodedAccessToken: any = this.jwtService.decode(accessToken);
         // Extract the expiration time in Unix timestamp format

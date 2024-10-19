@@ -55,5 +55,9 @@ function errorFactory(validationErrors: ValidationError[]) {
     return err;
 }
 function extractMessagesFromValidationErrors(errors: ValidationError[]){
-    return errors.map(error => Object.values(error.constraints));
+    return errors.map(error => Object.values(
+        error.constraints ? 
+        error.constraints : 
+        error.children.map(e => Object.values(e.constraints))
+    ));
 }
