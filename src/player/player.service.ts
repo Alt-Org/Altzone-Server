@@ -115,30 +115,21 @@ export class PlayerService
 
         return true;
     }
-    
-    /**
-     * Increments the playedBattles field in the gameStatistics object for the specified player.
-     * 
-     * @param playerId - The ID of the player whose playedBattles field should be incremented.
-     * @throws Will throw an error if the update operation fails.
-     */
-    async addPlayedGame(playerId: string) {
-        const update = { $inc: { 'gameStatistics.playedBattles': 1 } };
-        const [_, updateError] = await this.basicService.updateOneById(playerId, update);
-        if (updateError)
-            throw updateError;
-    }
 
     /**
-     * Increments the wonBattles field in the gameStatistics object for the specified player.
+     * Increments the points, played and won battles of a specified player based on the battle outcome.
      * 
-     * @param playerId - The ID of the player whose wonBattles field should be incremented.
-     * @throws Will throw an error if the update operation fails.
+     * @param playerId - ID of the player to be updated.
+     * @param playerWon - A boolean indicating whether the player won or not.
      */
-    async addWonPlayedGame(playerId: string) {
-        const update = { $inc: { 'gameStatistics.wonBattles': 1 } };
-        const [_, updateError] = await this.basicService.updateOneById(playerId, update);
-        if (updateError)
-            throw updateError;
+    async handlePlayedBattle(playerId: string, playerWon: boolean) {
+        const points = playerWon ? 50 : 10;
+        let update = { $inc: { 'gameStatistics.playedBattles': 1 , 'points': points } };
+        if (playerWon)
+            update.$inc['gameStatistics.wonBattles'] = 1
+
+        const [_, updateErrors] = await this.basicService.updateOneById(playerId, update);
+        if (updateErrors)
+            throw updateErrors
     }
 }
