@@ -130,13 +130,13 @@ export class PlayerService
     }
 
     /**
-     * Increments the wonBattles field in the gameStatistics object for the specified player.
+     * Increments the won battles and points for the specified player.
      * 
      * @param playerId - The ID of the player whose wonBattles field should be incremented.
      * @throws Will throw an error if the update operation fails.
      */
-    async addWonPlayedGame(playerId: string) {
-        const update = { $inc: { 'gameStatistics.wonBattles': 1 } };
+    async handleWonGame(playerId: string) {
+        const update = { $inc: { 'gameStatistics.wonBattles': 1, 'points': 50 } };
         const [_, updateError] = await this.basicService.updateOneById(playerId, update);
         if (updateError)
             throw updateError;
