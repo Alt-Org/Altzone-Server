@@ -121,6 +121,7 @@ export class PlayerService
      * 
      * @param playerId - ID of the player to be updated.
      * @param playerWon - A boolean indicating whether the player won or not.
+     * @throws - Will throw if the update operation fails.
      */
     async handlePlayedBattle(playerId: string, playerWon: boolean) {
         const points = playerWon ? 50 : 10;
