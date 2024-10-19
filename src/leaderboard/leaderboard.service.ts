@@ -1,15 +1,10 @@
-import {
-	forwardRef,
-	Inject,
-	Injectable,
-	InternalServerErrorException,
-} from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { PlayerService } from "../player/player.service";
 import { ClanService } from "../clan/clan.service";
 import { IGetAllQuery } from "../common/interface/IGetAllQuery";
 import { CACHE_MANAGER, Cache } from "@nestjs/cache-manager";
-import { APIError } from "../common/controller/APIError";
-import { APIErrorReason } from "../common/controller/APIErrorReason";
+import ServiceError from "../common/service/basicService/ServiceError";
+import { SEReason } from "../common/service/basicService/SEReason";
 
 @Injectable()
 export class LeaderboardService {
@@ -77,7 +72,7 @@ export class LeaderboardService {
 				skip: 0,
 			};
 			const [fetchedData, errors] = await fetchFunction(query);
-			if (errors) throw new InternalServerErrorException({ errors });
+			if (errors) throw errors;
 			data = fetchedData;
 
 			// Set the data with 12 hour ttl. The { ttl: number } as any is required to overwrite the default value.
@@ -86,8 +81,8 @@ export class LeaderboardService {
 
 		const slicedData = this.sliceArray(data, reqQuery.limit, reqQuery.skip);
 		if (slicedData.length === 0)
-			throw new APIError({
-				reason: APIErrorReason.NOT_FOUND,
+			throw new ServiceError({
+				reason: SEReason.NOT_FOUND,
 				message: "No data found for the requested page.",
 			});
 
