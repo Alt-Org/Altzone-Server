@@ -218,7 +218,7 @@ export class GameDataService {
 			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED, message: "Player is not in the winning team and therefore is not allowed to steal" });
 
 		this.taskService.updateTask(user.player_id, TaskName.WIN_BATTLE);
-		this.playerService.addWonPlayedGame(user.player_id);
+		this.playerService.handleWonGame(user.player_id);
 		const [teamIds, teamIdsErrors] = await this.getClanIdForTeams([battleResult.team1[0], battleResult.team2[0]]);
 		if (teamIdsErrors)
 			return teamIdsErrors
