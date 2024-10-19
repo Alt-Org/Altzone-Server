@@ -59,7 +59,7 @@ export class LeaderboardService {
 	 */
 	private async getLeaderboard(
 		cacheKey: string,
-		fetchFunction: (query: IGetAllQuery) => Promise<any>,
+		fetchFunction: (query: IGetAllQuery) => Promise<[any, ServiceError[]]>,
 		reqQuery: IGetAllQuery
 	): Promise<object[]> {
 		let data: object[] = await this.cacheService.get(cacheKey);
