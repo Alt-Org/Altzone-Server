@@ -67,4 +67,4 @@ PlayerSchema.virtual(ModelName.ROOM,{
     foreignField:'player_id'
 })
 
-export const publicReferences = [ModelName.CLAN, ModelName.CHARACTER_CLASS, ModelName.ROOM];
+export const publicReferences = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.ROOM];
