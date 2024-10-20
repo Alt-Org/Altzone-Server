@@ -15,6 +15,9 @@ export class PlayerDto {
     name: string;
 
     @Expose()
+    points: number;
+
+    @Expose()
     backpackCapacity: number;
 
     @Expose()

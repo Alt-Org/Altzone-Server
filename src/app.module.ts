@@ -26,6 +26,9 @@ import { GameDataModule } from './gameData/gameData.module';
 import { GameAnalyticsModule } from './gameAnalytics/gameAnalytics.module';
 import { PlayerTasksModule } from './playerTasks/playerTasks.module';
 import { envVars } from './common/service/envHandler/envVars';
+import { LeaderboardModule } from './leaderboard/leaderboard.module';
+import * as redisStore from 'cache-manager-redis-store';
+import { CacheModule } from '@nestjs/cache-manager';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -35,9 +38,21 @@ const mongoPort = envVars.MONGO_PORT;
 const dbName = envVars.MONGO_DB_NAME;
 const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}`;
 
+// Set up redis connection
+const redisPassword = envVars.REDIS_PASSWORD;
+const redisHost = envVars.REDIS_HOST;
+const redisPort = parseInt(envVars.REDIS_PORT);
+
 @Module({
   imports: [
       MongooseModule.forRoot(mongoString, {dbName: dbName}),
+      CacheModule.register({
+        isGlobal: true,
+        store: redisStore,
+        host: redisHost,
+        port: redisPort,
+        password: redisPassword,
+      }),
       ClanModule,
       PlayerModule,
       CharacterClassModule,
@@ -59,6 +74,7 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
       GameDataModule,
       GameAnalyticsModule,
       PlayerTasksModule,
+      LeaderboardModule,
   ],
   controllers: [AppController],
   providers: [

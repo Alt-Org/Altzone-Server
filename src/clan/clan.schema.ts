@@ -23,6 +23,9 @@ export class Clan {
     @Prop({ type: Number, default: 0 })
     gameCoins: number;
 
+    @Prop({ type: Number, default: 0 })
+    points: number;
+
     @Prop({type: Array<string>, default: []})
     admin_ids: string[];
 

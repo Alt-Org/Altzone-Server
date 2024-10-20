@@ -17,6 +17,9 @@ export class Player {
     @Prop({ type: Number, required: true })
     backpackCapacity: number;
 
+    @Prop({ type: Number, default: 0 })
+    points: number;
+
     @Prop({ type: String, required: true, unique: true })
     uniqueIdentifier: string;
 
@@ -63,3 +66,5 @@ PlayerSchema.virtual(ModelName.ROOM,{
     localField:'_id',
     foreignField:'player_id'
 })
+
+export const publicReferences = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.ROOM];
