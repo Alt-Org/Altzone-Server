@@ -33,7 +33,8 @@ export default class LoggedUser {
         backpackCapacity: 10,
         name: defaultPlayerName,
         uniqueIdentifier: defaultPlayerName,
-        profile_id: ''
+        profile_id: '',
+        points: 0
     };
 
     /**
