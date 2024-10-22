@@ -1,3 +1,4 @@
+import ClanBuilder from './clan/ClanBuilder';
 import CreateClanDtoBuilder from './clan/CreateClanDtoBuilder';
 import JoinRequestDtoBuilder from './clan/JoinRequestDtoBuilder';
 import RemovePlayerDtoBuilder from './clan/RemovePlayerDtoBuilder';
@@ -10,7 +11,7 @@ import CreateSoulHomeDtoBuilder from './soulhome/CreateSoulHomeDtoBuilder';
 import CreateStockDtoBuilder from './stock/CreateStockDtoBuilder';
 
 type BuilderName = 
-    'CreateClanDto' | 'JoinRequestDto' | 'RemovePlayerDTO' |
+    'CreateClanDto' | 'JoinRequestDto' | 'RemovePlayerDTO' | 'Clan' |
     'CreateItemDto' | 'MoveItemDto' | 'StealItemsDto' |
     'ActivateRoomDto' | 'CreateRoomDto' | 'CreateSoulHomeDto' |
     'CreateStockDto';
@@ -19,6 +20,7 @@ type BuilderMap = {
     CreateClanDto: CreateClanDtoBuilder,
     JoinRequestDto: JoinRequestDtoBuilder,
     RemovePlayerDTO: RemovePlayerDtoBuilder,
+    Clan: ClanBuilder
     CreateItemDto: CreateItemDtoBuilder,
     MoveItemDto: MoveItemDtoBuilder,
     StealItemsDto: StealItemsDtoBuilder,
@@ -37,6 +39,8 @@ export default class Factory {
                 return new JoinRequestDtoBuilder() as BuilderMap[T];
             case 'RemovePlayerDTO':
                 return new RemovePlayerDtoBuilder() as BuilderMap[T];
+            case 'Clan':
+                return new ClanBuilder() as BuilderMap[T];
             case 'CreateItemDto':
                 return new CreateItemDtoBuilder() as BuilderMap[T];
             case 'MoveItemDto':
