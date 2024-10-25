@@ -17,6 +17,7 @@ import {IResponseShape} from "../common/interface/IResponseShape";
 import {ObjectId} from "mongodb";
 import { PlayerTasksService } from "../playerTasks/playerTasks.service";
 import { TaskName } from "../playerTasks/enum/taskName.enum";
+import { PlayerService } from "../player/player.service";
 
 @Injectable()
 @AddBasicService()
@@ -25,6 +26,7 @@ export class ChatService extends BasicServiceDummyAbstract<Chat> implements IBas
         @InjectModel(Chat.name) public readonly model: Model<Chat>,
         private readonly requestHelperService: RequestHelperService,
         private readonly playerTaskService: PlayerTasksService,
+        private readonly playerService: PlayerService,
     ){
         super();
         this.refsInModel = [];
@@ -44,8 +46,10 @@ export class ChatService extends BasicServiceDummyAbstract<Chat> implements IBas
      */
     async handleCreateMessage(chat_id: string, input: CreateMessageDto, player_id: string) {
         const messageCreated = await this.createMessage(chat_id, input);
-        if (messageCreated)
+        if (messageCreated) {
             this.playerTaskService.updateTask(player_id, TaskName.WRITE_CHAT_MESSAGE);
+            this.playerService.trackPlayerMessageCount(player_id);
+        }
     }
 
     public createMessage = async (chat_id: string, input: CreateMessageDto): Promise<boolean> => {
