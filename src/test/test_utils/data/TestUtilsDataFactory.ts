@@ -1,3 +1,4 @@
+import ArgumentsHostBuilder from "./ArgumentsHostBuilder";
 import BodyBuilder from "./BodyBuilder";
 import CallHandlerBuilder from "./CallHandlerBuilder";
 import ExecutionContextBuilder from "./ExecutionContextBuilder";
@@ -6,14 +7,15 @@ import RequestBuilder from "./RequestBuilder";
 
 type BuilderName = 
     'Body' | 'Request' | 
-    'ExecutionContext' | 'CallHandler';
+    'ExecutionContext' | 'CallHandler' | 'ArgumentsHost';
 
 type BuilderMap = {
     Body: BodyBuilder,
     Request: RequestBuilder,
 
     ExecutionContext: ExecutionContextBuilder,
-    CallHandler: CallHandlerBuilder
+    CallHandler: CallHandlerBuilder,
+    ArgumentsHost: ArgumentsHostBuilder
 };
 
 export default class TestUtilDataFactory {
@@ -27,6 +29,9 @@ export default class TestUtilDataFactory {
                 return new ExecutionContextBuilder() as BuilderMap[T];
             case 'CallHandler':
                 return new CallHandlerBuilder() as BuilderMap[T];
+            case 'ArgumentsHost':
+                return new ArgumentsHostBuilder() as BuilderMap[T];
+
             default:
                 throw new Error(`Unknown builder name: ${builderName}`);
         }
