@@ -1,5 +1,10 @@
 import { ValidationError } from 'class-validator';
 
+type Constraint =
+    'min' | 'arrayMinSize' | 'minDate' | 'minLength' | 'arrayNotEmpty' |
+    'isNotEmptyObject' | 'max' | 'arrayMaxSize' | 'maxLength' | 'isNumber' | 'isInt' | 'isString' |
+    'notObject' | 'notDate' | 'isArray' | 'isBoolean' | 'isEnum';
+
 export default class ValidationErrorBuilder {
     private readonly base: Partial<ValidationError> = {
         property: '',
@@ -21,12 +26,12 @@ export default class ValidationErrorBuilder {
         return this;
     }
 
-    setConstraints(constraints: { [type: string]: string }) {
+    setConstraints(constraints: { Constraint: string }) {
         this.base.constraints = constraints;
         return this;
     }
 
-    addConstraint(type: string, message: string) {
+    addConstraint(type: Constraint, message: string) {
         if (!this.base.constraints) {
             this.base.constraints = {};
         }
