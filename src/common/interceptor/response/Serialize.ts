@@ -19,7 +19,7 @@ export function Serialize(dto: IClass) {
  * 
  * @implements {NestInterceptor}
  */
-class SerializeInterceptor implements NestInterceptor{
+export class SerializeInterceptor implements NestInterceptor{
     public constructor(private readonly dto: IClass) {
     }
     public intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
