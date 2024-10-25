@@ -1,5 +1,6 @@
 import APIErrorBuilder from "./APIErrorBuilder";
 import ArgumentsHostBuilder from "./ArgumentsHostBuilder";
+import BadRequestExceptionBuilder from "./BadRequestExceptionBuilder";
 import BodyBuilder from "./BodyBuilder";
 import CallHandlerBuilder from "./CallHandlerBuilder";
 import ExecutionContextBuilder from "./ExecutionContextBuilder";
@@ -8,7 +9,7 @@ import RequestBuilder from "./RequestBuilder";
 
 type BuilderName = 
     'Body' | 'Request' | 
-    'ExecutionContext' | 'CallHandler' | 'ArgumentsHost' |
+    'ExecutionContext' | 'CallHandler' | 'ArgumentsHost' | 'BadRequestException' |
     'APIError';
 
 type BuilderMap = {
@@ -18,6 +19,7 @@ type BuilderMap = {
     ExecutionContext: ExecutionContextBuilder,
     CallHandler: CallHandlerBuilder,
     ArgumentsHost: ArgumentsHostBuilder,
+    BadRequestException: BadRequestExceptionBuilder,
 
     APIError: APIErrorBuilder
 };
@@ -36,6 +38,8 @@ export default class TestUtilDataFactory {
                 return new CallHandlerBuilder() as BuilderMap[T];
             case 'ArgumentsHost':
                 return new ArgumentsHostBuilder() as BuilderMap[T];
+            case 'BadRequestException':
+                return new BadRequestExceptionBuilder() as BuilderMap[T];
 
             case 'APIError':
                 return new APIErrorBuilder() as BuilderMap[T];
