@@ -176,7 +176,7 @@ export class PlayerService
             todaysMessage.count += 1;
         } else {
             const newMessage = { date: today, count: 1 } as Message;
-            player.gameStatistics.messages.push(newMessage);
+            messages.push(newMessage);
             todaysMessage = newMessage;
         }
 
