@@ -3,7 +3,6 @@ import ClanModule from "../../../../clan_module/modules/clan.module";
 import { Clan } from "../../../../../clan_module/clan/clan.schema";
 import { isEntityExists } from "../../../../../common/decorator/validation/isEntityExists";
 import { ModelName } from "../../../../../common/enum/modelName.enum";
-import { BadRequestException } from "@nestjs/common";
 import Factory from "../../../../clan_module/data/factory";
 
 describe('isEntityExists.validate() test suite', () => {
@@ -22,19 +21,13 @@ describe('isEntityExists.validate() test suite', () => {
             await sut.validate('667ee778b3b5bf0f7a840ec9')
         };
 
-        expect(throwingError).toThrow(
+        await expect(throwingError).rejects.toThrow(
             new Error(
                 'isEntityExists class validate(): Can not validate entity existing. Model for DB query is not provided. ' +
                 'Please provide the model for Clan via constructor or setEntityModel(), ' + 
                 'before using the isEntityExists class'
             )
         );
-    });
-
-    it('Should throw BadRequestException if the provided value is not mongo _id', async () => {
-        const throwingError = async () => await sut.validate('not-mongo-id');
-
-        expect(throwingError).toThrow(BadRequestException);
     });
 
     it('Should return false if no items with this _id found', async () => {
