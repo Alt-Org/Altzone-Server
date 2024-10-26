@@ -1,7 +1,7 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {Model, MongooseError, Types} from "mongoose";
+import {Model, Types} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
-import {Player, publicReferences} from "./player.schema";
+import {Player, PlayerDocument, publicReferences} from "./player.schema";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
@@ -15,8 +15,8 @@ import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
 import { PlayerDto } from "./dto/player.dto";
 import BasicService from "../common/service/basicService/BasicService";
 import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
-import { IGetAllQuery } from "../common/interface/IGetAllQuery";
-import { IResponseShape } from "../common/interface/IResponseShape";
+import { Message } from "./message.schema";
+import ServiceError from "../common/service/basicService/ServiceError";
 
 @Injectable()
 @AddBasicService()
@@ -150,5 +150,44 @@ export class PlayerService
         const [_, updateErrors] = await this.basicService.updateOneById(playerId, update);
         if (updateErrors)
             throw updateErrors
+    }
+
+    /**
+     * Tracks the daily amount of messages sent by a player.
+     * 
+     * Finds the player from db and updates or creates a message for that player.
+     * If the message count is 3 increments player points by 20.
+     * 
+     * @param playerId - ID of the player whose messages to track.
+     * @returns - A promise that resolves in to a tuple where first value is boolean that
+     * indicates if the update was successful and the second value is an array of errors.
+     */
+    async trackPlayerMessageCount(playerId: string): Promise<[boolean, ServiceError[]]> {
+        const today = new Date();
+    
+        const [player, errors] = await this.basicService.readOneById<PlayerDocument>(playerId);
+        if (errors)
+            return [false, errors];
+    
+        const messages: Message[] = player.gameStatistics.messages || [];
+        let todaysMessage: Message = messages.find(message => message.date.toDateString() === today.toDateString());
+    
+        if (todaysMessage) {
+            todaysMessage.count += 1;
+        } else {
+            const newMessage = { date: today, count: 1 } as Message;
+            messages.push(newMessage);
+            todaysMessage = newMessage;
+        }
+
+        if (todaysMessage.count === 3)
+            player.points += 20;
+    
+        player.gameStatistics.messages = messages;
+        const [update, updateErrors] = await this.basicService.updateOneById(playerId, player);
+        if (updateErrors)
+            return [false, updateErrors]
+
+        return [update, null];
     }
 }

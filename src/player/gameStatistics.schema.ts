@@ -1,5 +1,6 @@
 import { Prop } from "@nestjs/mongoose";
 import { Document } from "mongoose";
+import { Message } from "./message.schema";
 
 
 /**
@@ -36,4 +37,10 @@ export class GameStatistics extends Document {
 	 */
 	@Prop({ type: Number, default: 0 })
 	participatedVotings: number;
+
+	/**
+	 * Array of messages
+	 */
+	@Prop({ type: [Message], default: [] })
+	messages: Message[];
 }
