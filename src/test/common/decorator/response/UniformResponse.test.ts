@@ -21,7 +21,7 @@ jest.mock("../../../../common/exceptionFilter/ValidationExceptionFilter");
 jest.mock("../../../../common/exceptionFilter/APIErrorFilter");
 
 
-describe('UniformResponse test suite', () => {
+describe('UniformResponse() test suite', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
