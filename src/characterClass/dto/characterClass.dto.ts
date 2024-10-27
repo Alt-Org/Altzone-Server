@@ -35,6 +35,9 @@ export class CharacterClassDto {
     @Expose()
     defence: number;
 
+    @Expose()
+    hp: number;
+
     //Transform the field object(s) to an appropriate class
     @Type(() => CustomCharacterDto)
     @Expose()

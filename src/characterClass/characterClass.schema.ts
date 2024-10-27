@@ -27,6 +27,9 @@ export class CharacterClass {
 
     @Prop({ type: Number, required: true })
     defence: number;
+
+    @Prop({ type: Number, required: true })
+    hp: number;
 }
 
 

@@ -40,4 +40,8 @@ export class UpdateCharacterClassDto {
     @IsInt()
     @IsOptional()
     defence: number;
+
+    @IsInt()
+    @IsOptional()
+    hp: number;
 }

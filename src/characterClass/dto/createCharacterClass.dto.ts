@@ -28,4 +28,7 @@ export class CreateCharacterClassDto {
 
     @IsInt()
     defence: number;
+
+    @IsInt()
+    hp: number;
 }
