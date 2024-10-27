@@ -4,6 +4,20 @@ import {ModelName} from "../../enum/modelName.enum";
 import { BadRequestException } from "@nestjs/common";
 import { ObjectId } from "mongodb";
 
+/**
+ * Class can be used for creating decorators checking whenever object with certain _id can be found from DB
+ *
+ * @example ```
+ * ValidatorConstraint({ name: isStockExists.name, async: true })
+ * Injectable()
+ * export class isStockExists extends isEntityExists<Stock> implements ValidatorConstraintInterface{
+ *  public constructor(@InjectModel(ModelName.STOCK) private readonly model: Model<Stock>) {
+ *      super(ModelName.STOCK);
+ *       super.setEntityModel(this.model);
+ *   }
+ * }
+ * ```
+ */
 export class isEntityExists<T> implements ValidatorConstraintInterface{
     public constructor(entityName: ModelName, searchField: string = '_id', entityModel?: Model<T>) {
         this.entityName = entityName;

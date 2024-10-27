@@ -5,7 +5,7 @@ import BodyBuilder from "./BodyBuilder";
 import CallHandlerBuilder from "./CallHandlerBuilder";
 import ExecutionContextBuilder from "./ExecutionContextBuilder";
 import RequestBuilder from "./RequestBuilder";
-import ValidationErrorBuilder from "./VAlidationErrorBuilder";
+import ValidationErrorBuilder from "./ValidationErrorBuilder";
 
 
 type BuilderName =
