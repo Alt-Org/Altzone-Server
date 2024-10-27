@@ -17,6 +17,8 @@ import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
 import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
+import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
+import { User } from "../auth/user";
 
 @Controller('customCharacter')
 export class CustomCharacterController{
@@ -44,7 +46,8 @@ export class CustomCharacterController{
     @AddSearchQuery(CustomCharacterDto)
     @AddSortQuery(CustomCharacterDto)
     @BasicGET(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
-    public async getAll(@GetAllQuery() query: IGetAllQuery) {
+    public async getAll(@GetAllQuery() query: IGetAllQuery, @LoggedUser() user: User) {
+        query.filter = { player_id: user.player_id };
         return this.service.readAll(query);
     }
 
