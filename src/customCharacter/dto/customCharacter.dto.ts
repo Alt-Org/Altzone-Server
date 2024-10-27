@@ -28,6 +28,9 @@ export class CustomCharacterDto {
     @Expose()
     defence: number;
 
+    @Expose()
+    hp: number;
+
     @ExtractField()
     @Expose()
     characterClass_id: string;
