@@ -2,13 +2,13 @@ import { Injectable } from "@nestjs/common";
 import { publicReferences, SoulHome } from "./soulhome.schema";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { ModelName } from "../common/enum/modelName.enum";
 import { RoomService } from "../room/room.service";
-import { TIServiceReadOneOptions, TReadByIdOptions } from "../common/service/basicService/IService";
-import BasicService from "../common/service/basicService/BasicService";
 import { SoulHomeDto } from "./dto/soulhome.dto";
 import { CreateSoulHomeDto } from "./dto/createSoulHome.dto";
 import { UpdateSoulHomeDto } from "./dto/updateSoulHome.dto";
+import { ModelName } from "../../common/enum/modelName.enum";
+import BasicService from "../../common/service/basicService/BasicService";
+import { TReadByIdOptions } from "../../common/service/basicService/IService";
 
 @Injectable()
 export class SoulHomeService {

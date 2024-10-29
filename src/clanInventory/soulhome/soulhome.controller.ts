@@ -1,20 +1,19 @@
 import { Controller, Get } from "@nestjs/common";
-import { ModelName } from "../common/enum/modelName.enum";
-import { _idDto } from "../common/dto/_id.dto";
-import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
-import { AddSearchQuery } from "../common/interceptor/request/addSearchQuery.interceptor";
-import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
 import { SoulHomeDto } from "./dto/soulhome.dto";
-import { Authorize } from "../authorization/decorator/Authorize";
-import { Action } from "../authorization/enum/action.enum";
 import { SoulHomeService } from "./soulhome.service";
-import { Serialize } from "../common/interceptor/response/Serialize";
-import { UniformResponse } from "../common/decorator/response/UniformResponse";
-import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
-import { User } from "../auth/user";
 import SoulHomeHelperService from "./utils/soulHomeHelper.service";
 import { publicReferences } from "./soulhome.schema";
-import { IncludeQuery } from "../common/decorator/param/IncludeQuery.decorator";
+import { User } from "../../auth/user";
+import { Authorize } from "../../authorization/decorator/Authorize";
+import { Action } from "../../authorization/enum/action.enum";
+import { IncludeQuery } from "../../common/decorator/param/IncludeQuery.decorator";
+import { LoggedUser } from "../../common/decorator/param/LoggedUser.decorator";
+import { UniformResponse } from "../../common/decorator/response/UniformResponse";
+import { ModelName } from "../../common/enum/modelName.enum";
+import { AddSearchQuery } from "../../common/interceptor/request/addSearchQuery.interceptor";
+import { AddSortQuery } from "../../common/interceptor/request/addSortQuery.interceptor";
+import { OffsetPaginate } from "../../common/interceptor/request/offsetPagination.interceptor";
+import { Serialize } from "../../common/interceptor/response/Serialize";
 
 @Controller('soulhome')
 export class SoulHomeController {

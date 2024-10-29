@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {HydratedDocument} from "mongoose";
-import {ModelName} from "../common/enum/modelName.enum";
-import { ExtractField } from '../common/decorator/response/ExtractField';
+import { ExtractField } from '../../common/decorator/response/ExtractField';
+import { ModelName } from '../../common/enum/modelName.enum';
 
 export type SoulhomeDocument = HydratedDocument<SoulHome>;
 
