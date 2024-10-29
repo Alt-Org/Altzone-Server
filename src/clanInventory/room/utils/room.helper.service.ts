@@ -1,17 +1,17 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Clan } from "../../clan/clan.schema";
 import { Model, MongooseError } from "mongoose";
-import BasicService from "../../common/service/basicService/BasicService";
-import { PlayerService } from "../../player/player.service";
-import ServiceError from "../../common/service/basicService/ServiceError";
-import { SEReason } from "../../common/service/basicService/SEReason";
-import { PlayerDto } from "../../player/dto/player.dto";
-import { ClanDto } from "../../clan/dto/clan.dto";
 import { SoulHomeDto } from "../../soulhome/dto/soulhome.dto";
-import { ModelName } from "../../common/enum/modelName.enum";
 import { SoulHome } from "../../soulhome/soulhome.schema";
 import { RoomDto } from "../dto/room.dto";
+import { Clan } from "../../../clan/clan.schema";
+import { ClanDto } from "../../../clan/dto/clan.dto";
+import { ModelName } from "../../../common/enum/modelName.enum";
+import BasicService from "../../../common/service/basicService/BasicService";
+import { SEReason } from "../../../common/service/basicService/SEReason";
+import ServiceError from "../../../common/service/basicService/ServiceError";
+import { PlayerDto } from "../../../player/dto/player.dto";
+import { PlayerService } from "../../../player/player.service";
 
 /**
  * Class containing helper methods used in the module service(s)

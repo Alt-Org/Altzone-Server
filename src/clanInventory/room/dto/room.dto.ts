@@ -1,6 +1,6 @@
 import { Expose } from "class-transformer";
-import AddType from "../../common/base/decorator/AddType.decorator";
-import { ExtractField } from "../../common/decorator/response/ExtractField";
+import AddType from "../../../common/base/decorator/AddType.decorator";
+import { ExtractField } from "../../../common/decorator/response/ExtractField";
 
 @AddType('RoomDto')
 export class RoomDto {

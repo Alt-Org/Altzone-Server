@@ -1,5 +1,5 @@
 import { IsMongoId, IsNumber, IsOptional } from "class-validator";
-import AddType from "../../common/base/decorator/AddType.decorator";
+import AddType from "../../../common/base/decorator/AddType.decorator";
 
 @AddType('ActivateRoomDto')
 export class ActivateRoomDto {
