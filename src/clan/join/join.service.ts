@@ -1,37 +1,27 @@
-import { BadRequestException, Body, HttpCode, HttpStatus, Inject, Injectable, NotFoundException, Param, Req } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { BasicServiceDummyAbstract } from "../../common/base/abstract/basicServiceDummy.abstract";
 import {
     AddBasicService,
-    ClearCollectionReferences,
 } from "../../common/base/decorator/AddBasicService.decorator";
 import { IBasicService } from "../../common/base/interface/IBasicService";
-import { IHookImplementer, PostCreateHookFunction, PostHookFunction } from "../../common/interface/IHookImplementer";
-import { PlayerService } from "../../player/player.service";
+import { IHookImplementer, PostHookFunction } from "../../common/interface/IHookImplementer";
 import { Join } from "./join.schema";
-import { Model, MongooseError, Types } from "mongoose";
+import { Model, Types } from "mongoose";
 import { ModelName } from "../../common/enum/modelName.enum";
 import { RequestHelperService } from "../../requestHelper/requestHelper.service";
 import { IgnoreReferencesType } from "../../common/type/ignoreReferences.type";
-import { body } from "express-validator";
 import { JoinRequestDto } from "./dto/joinRequest.dto";
 import { ClanDto } from "../dto/clan.dto";
 import { PlayerDto } from "../../player/dto/player.dto";
 import { JoinResultDto } from "./dto/joinResult.dto";
-import { request } from "https";
-import { ok } from "assert";
 import { IResponseShape } from "../../common/interface/IResponseShape";
 import { _idDto } from "../../common/dto/_id.dto";
-import { error } from "console";
 import { ClanService } from "../clan.service";
-import { RoomService } from "../../room/room.service";
-import { CreateRoomDto } from "../../room/dto/createRoom.dto";
-import { SoulHome } from "../../soulhome/soulhome.schema";
-import { SoulHomeDto } from "../../soulhome/dto/soulhome.dto";
-import { IGetAllQuery } from "../../common/interface/IGetAllQuery";
-import { User } from "../../auth/user";
 import { PlayerCounterFactory } from "../clan.counters";
 import ICounter from "../../common/service/counter/ICounter";
+import { RoomService } from "../../clanInventory/room/room.service";
+import { SoulHomeDto } from "../../clanInventory/soulhome/dto/soulhome.dto";
 
 @Injectable()
 @AddBasicService()
@@ -41,7 +31,7 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
         private readonly playerCounterFactory: PlayerCounterFactory,
         private readonly requestHelperService: RequestHelperService,
         private readonly clanService: ClanService,
-        private readonly roomService:RoomService
+        private readonly roomService: RoomService
     ) {
         super();
         this.refsInModel = [];

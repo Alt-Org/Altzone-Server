@@ -1,6 +1,7 @@
-import { itemProperties } from "../../../item/const/itemProperties";
-import {CreateItemDto} from "../../../item/dto/createItem.dto";
-import { ItemName } from "../../../item/enum/itemName.enum";
+import { itemProperties } from "../../../clanInventory/item/const/itemProperties";
+import { CreateItemDto } from "../../../clanInventory/item/dto/createItem.dto";
+import { ItemName } from "../../../clanInventory/item/enum/itemName.enum";
+
 
 /**
  * Returns default Item objects for a Stock

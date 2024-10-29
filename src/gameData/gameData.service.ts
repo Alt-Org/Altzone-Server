@@ -8,7 +8,6 @@ import { PlayerService } from '../player/player.service';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { JwtService } from '@nestjs/jwt';
 import { ClanService } from '../clan/clan.service';
-import { RoomService } from '../room/room.service';
 import { ModelName } from '../common/enum/modelName.enum';
 import { BattleResultDto } from './dto/battleResult.dto';
 import { User } from '../auth/user';
@@ -18,6 +17,7 @@ import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { PlayerTasksService } from '../playerTasks/playerTasks.service';
 import { TaskName } from '../playerTasks/enum/taskName.enum';
+import { RoomService } from '../clanInventory/room/room.service';
 
 @Injectable()
 export class GameDataService {

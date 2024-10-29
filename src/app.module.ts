@@ -16,12 +16,6 @@ import { PermissionModule } from './permission/permission.module';
 import { ApiStateModule } from './common/apiState/apiState.module';
 import { SiteModule } from './site/site.module';
 import {ChatModule} from "./chat/chat.module";
-import {ItemModule} from "./item/item.module";
-import {StockModule} from "./stock/stock.module";
-import { SoulHomeModule } from './soulhome/soulhome.module';
-import { RoomModule } from './room/room.module';
-import { ClanVoteModule } from './shop/clanVote/clanVote.module';
-import { ItemShopModule } from './shop/itemShop/itemShop.module';
 import { GameDataModule } from './gameData/gameData.module';
 import { GameAnalyticsModule } from './gameAnalytics/gameAnalytics.module';
 import { PlayerTasksModule } from './playerTasks/playerTasks.module';
@@ -29,6 +23,7 @@ import { envVars } from './common/service/envHandler/envVars';
 import { LeaderboardModule } from './leaderboard/leaderboard.module';
 import * as redisStore from 'cache-manager-redis-store';
 import { CacheModule } from '@nestjs/cache-manager';
+import { ClanInventoryModule } from './clanInventory/clanInventory.module';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -57,17 +52,12 @@ const redisPort = parseInt(envVars.REDIS_PORT);
       PlayerModule,
       CharacterClassModule,
       CustomCharacterModule,
-      ItemModule,
-      StockModule,
+      ClanInventoryModule,
       ProfileModule,
       SiteModule,
       ChatModule,
-      SoulHomeModule,
-      RoomModule,
       RequestHelperModule,
       AuthModule,
-      ItemShopModule,
-      ClanVoteModule,
       AuthorizationModule,
       PermissionModule,
       ApiStateModule,

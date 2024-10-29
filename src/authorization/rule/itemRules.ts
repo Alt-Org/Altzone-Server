@@ -6,8 +6,7 @@ import {RulesSetterAsync} from "../type/RulesSetter.type";
 import {ModelName} from "../../common/enum/modelName.enum";
 import {MongooseError} from "mongoose";
 import {NotFoundException} from "@nestjs/common";
-import {ItemDto} from "../../item/dto/item.dto";
-import {UpdateItemDto} from "../../item/dto/updateItem.dto";
+import { ItemDto } from "../../clanInventory/item/dto/item.dto";
 
 type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
