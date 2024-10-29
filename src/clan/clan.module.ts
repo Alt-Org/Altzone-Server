@@ -20,7 +20,7 @@ import { ClanInventoryModule } from '../clanInventory/clanInventory.module';
             {name: ModelName.JOIN, schema: joinSchema},
             {name: ModelName.PLAYER, schema: PlayerSchema}  
         ]),
-        forwardRef(() => ClanInventoryModule),
+        ClanInventoryModule,
         RequestHelperModule
     ],
     controllers: [ClanController],
