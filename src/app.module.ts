@@ -24,6 +24,7 @@ import { LeaderboardModule } from './leaderboard/leaderboard.module';
 import * as redisStore from 'cache-manager-redis-store';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ClanInventoryModule } from './clanInventory/clanInventory.module';
+import { ItemMoverModule } from './itemMover/itemMover.module';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -53,6 +54,7 @@ const redisPort = parseInt(envVars.REDIS_PORT);
       CharacterClassModule,
       CustomCharacterModule,
       ClanInventoryModule,
+      ItemMoverModule,
       ProfileModule,
       SiteModule,
       ChatModule,

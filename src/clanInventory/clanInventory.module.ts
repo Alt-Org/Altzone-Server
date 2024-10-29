@@ -1,16 +1,14 @@
-import {forwardRef, Module} from '@nestjs/common';
+import {Module} from '@nestjs/common';
 import {MongooseModule} from '@nestjs/mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { PlayerSchema } from '../player/player.schema';
 import { RequestHelperModule } from '../requestHelper/requestHelper.module';
-import { PlayerModule } from '../player/player.module';
 import { AuthModule } from '../auth/auth.module';
 import { isItemExists } from './item/decorator/validation/IsItemExists.decorator';
 import { ItemController } from './item/item.controller';
 import { ItemSchema } from './item/item.schema';
 import { ItemService } from './item/item.service';
 import { ItemHelperService } from './item/itemHelper.service';
-import { ItemMoverService } from './item/itemMover.service';
 import { RoomController } from './room/room.controller';
 import { RoomSchema } from './room/room.schema';
 import { RoomService } from './room/room.service';
@@ -24,21 +22,19 @@ import { StockController } from './stock/stock.controller';
 import { StockSchema } from './stock/stock.schema';
 import { StockService } from './stock/stock.service';
 import { ClanSchema } from '../clan/clan.schema';
-import { ClanModule } from '../clan/clan.module';
+import { StealTokenGuard } from './item/guards/StealToken.guard';
 
 @Module({
     imports: [
         MongooseModule.forFeature([
             { name: ModelName.PLAYER, schema: PlayerSchema },
-            { name: ModelName.STOCK, schema: StockSchema },
-            { name: ModelName.SOULHOME, schema: SoulhomeSchema },
-            { name: ModelName.ROOM, schema: RoomSchema },
             { name: ModelName.ITEM, schema: ItemSchema },
-            {name: ModelName.CLAN, schema: ClanSchema }
+            {name: ModelName.CLAN, schema: ClanSchema },
+            {name: ModelName.STOCK, schema: StockSchema },
+            {name: ModelName.ROOM, schema: RoomSchema },
+            {name: ModelName.SOULHOME, schema: SoulhomeSchema }
         ]),
 
-        forwardRef(() => PlayerModule),
-        forwardRef(() => ClanModule),
         RequestHelperModule,
         AuthModule
     ],
@@ -48,12 +44,15 @@ import { ClanModule } from '../clan/clan.module';
     ],
     providers: [ 
         StockService, isStockExists,
-        ItemService, isItemExists, ItemHelperService, ItemMoverService,
+        ItemService, isItemExists, ItemHelperService, StealTokenGuard,
         RoomService, RoomHelperService,
         SoulHomeService, SoulHomeHelperService
     ],
     exports: [
-        StockService, ItemService, RoomService, SoulHomeService,
+        StockService, 
+        ItemService, ItemHelperService, StealTokenGuard,
+        RoomService, 
+        SoulHomeService
     ]
 })
 export class ClanInventoryModule {}

@@ -2,17 +2,24 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { ItemService } from "./item.service";
 import { NotFoundError } from "./errors/item.errors";
 import { RoomService } from "../room/room.service";
-import { ClanService } from "../../clan/clan.service";
 import { ModelName } from "../../common/enum/modelName.enum";
 import ServiceError from "../../common/service/basicService/ServiceError";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import BasicService from "../../common/service/basicService/BasicService";
+import { Clan } from "../../clan/clan.schema";
 
 @Injectable()
 export class ItemHelperService {
 	public constructor(
+		@InjectModel(Clan.name) public readonly model: Model<Clan>,
 		@Inject(forwardRef(() => ItemService)) private readonly itemService: ItemService,
-		@Inject(forwardRef(() => RoomService)) private readonly roomService: RoomService,
-		@Inject(forwardRef(() => ClanService)) private readonly clanService: ClanService,
-	){}
+		@Inject(forwardRef(() => RoomService)) private readonly roomService: RoomService
+	){
+		this.basicService = new BasicService(model);
+	}
+
+	private readonly basicService: BasicService;
 	
 	/**
 	 * Retrieves the clan ID associated with an item.
@@ -54,7 +61,7 @@ export class ItemHelperService {
 			throw itemErrors;
 
 		if (item.stock_id) {
-			const [clan, error] = await this.clanService.readOneById(item.Stock.clan_id.toString(), { includeRefs: [ModelName.SOULHOME] });
+			const [clan, error] = await this.basicService.readOneById(item.Stock.clan_id.toString(), { includeRefs: [ModelName.SOULHOME] });
 			if (error)
 				throw NotFoundError;
 

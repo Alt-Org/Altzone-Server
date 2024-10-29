@@ -9,7 +9,6 @@ import { SoulHomeService } from "../soulhome/soulhome.service";
 import { IdMismatchError } from "./errors/playerId.errors";
 import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
 import { StealItemsDto } from "./dto/stealItems.dto";
-import { ItemMoverService } from "./itemMover.service";
 import { RoomService } from "../room/room.service";
 import { User } from "../../auth/user";
 import { Authorize } from "../../authorization/decorator/Authorize";
@@ -23,7 +22,6 @@ import { ModelName } from "../../common/enum/modelName.enum";
 export class ItemController {
 	public constructor(
 		private readonly itemService: ItemService,
-		private readonly itemMoverService: ItemMoverService,
 		private readonly soulHomeService: SoulHomeService,
 		private readonly roomService: RoomService,
 	) {}
@@ -55,23 +53,5 @@ export class ItemController {
 	@UniformResponse(ModelName.ITEM)
 	public get(@Param() param: _idDto) {
 		return this.itemService.readOneById(param._id);
-	}
-
-	@Post("/move")
-	@UniformResponse()
-	public async moveItems(@Body() body: MoveItemDto, @LoggedUser() user: User) {
-		const [_, errors] = await this.itemMoverService.moveItem(body.item_id, body.destination_id, body.moveTo, user.player_id);
-		if (errors)
-			return errors;
-	}
-
-	@Post("steal")
-	@UseGuards(StealTokenGuard)
-	@UniformResponse(ModelName.ITEM)
-	public async stealItems(@Body() body: StealItemsDto, @StealToken() stealToken: stealToken, @LoggedUser() user: User) {
-		if (user.player_id !== stealToken.playerId)
-			throw IdMismatchError
-
-		return await this.itemMoverService.stealItems(body.item_ids, stealToken, body.room_id);
 	}
 }

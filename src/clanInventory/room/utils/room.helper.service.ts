@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model, MongooseError } from "mongoose";
+import { Model } from "mongoose";
 import { SoulHomeDto } from "../../soulhome/dto/soulhome.dto";
 import { SoulHome } from "../../soulhome/soulhome.schema";
 import { RoomDto } from "../dto/room.dto";
@@ -11,7 +11,7 @@ import BasicService from "../../../common/service/basicService/BasicService";
 import { SEReason } from "../../../common/service/basicService/SEReason";
 import ServiceError from "../../../common/service/basicService/ServiceError";
 import { PlayerDto } from "../../../player/dto/player.dto";
-import { PlayerService } from "../../../player/player.service";
+import { Player } from "../../../player/player.schema";
 
 /**
  * Class containing helper methods used in the module service(s)
@@ -21,14 +21,16 @@ export default class RoomHelperService{
     public constructor(
         @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
         @InjectModel(SoulHome.name) public readonly soulHomeModel: Model<SoulHome>,
-        private readonly playerService: PlayerService
+        @InjectModel(Player.name) public readonly playerModel: Model<Player>
     ){
         this.clanBasicService = new BasicService(clanModel);
         this.soulHomeBasicService = new BasicService(soulHomeModel);
+        this.playerBasicService = new BasicService(playerModel);
     }
 
     private readonly clanBasicService: BasicService;
     private readonly soulHomeBasicService: BasicService;
+    private readonly playerBasicService: BasicService;
 
     /**
      * Get the SoulHome of the Clan to which Player belongs to
@@ -39,9 +41,9 @@ export default class RoomHelperService{
      * the Player does not belong to any Clan or if this Clan does not have any SoulHome
      */
     async getPlayerSoulHome(player_id: string): Promise<[SoulHomeDto | null, ServiceError[] | null]>{
-        const playerResp = await this.playerService.readOneById(player_id);
+        const [player, playerErrors] = await this.playerBasicService.readOneById<PlayerDto>(player_id);
         
-        if(!playerResp || playerResp instanceof MongooseError || !playerResp.data?.Player)
+        if(playerErrors || !player)
             return [null, [new ServiceError({
                 reason: SEReason.NOT_FOUND, 
                 field: 'player_id', 
@@ -49,7 +51,7 @@ export default class RoomHelperService{
                 message: 'Could not find any Player with this _id'
             })]];
         
-        const {clan_id} = playerResp.data.Player as PlayerDto;
+        const { clan_id } = player;
         if(!clan_id)
             return [null, [new ServiceError({
                 reason: SEReason.NOT_FOUND, 

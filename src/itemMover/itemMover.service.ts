@@ -1,27 +1,36 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
-import { ItemService } from "./item.service";
-import { ItemHelperService } from "./itemHelper.service";
-import { ItemDto } from "./dto/item.dto";
-import { MoveTo } from "./enum/moveTo.enum";
+import { ItemService } from "../clanInventory/item/item.service";
+import { ItemHelperService } from "../clanInventory/item/itemHelper.service";
+import { RoomService } from "../clanInventory/room/room.service";
+import { MoveTo } from "../clanInventory/item/enum/moveTo.enum";
+import { ItemDto } from "../clanInventory/item/dto/item.dto";
+import ServiceError from "../common/service/basicService/ServiceError";
 import { NotFoundError } from "./errors/item.errors";
-import { StealToken } from "./type/stealToken.type";
-import { RoomService } from "../room/room.service";
-import { ClanService } from "../../clan/clan.service";
-import { APIError } from "../../common/controller/APIError";
-import { APIErrorReason } from "../../common/controller/APIErrorReason";
-import { ModelName } from "../../common/enum/modelName.enum";
-import ServiceError from "../../common/service/basicService/ServiceError";
-import { PlayerService } from "../../player/player.service";
+import { ModelName } from "../common/enum/modelName.enum";
+import { StealToken } from "../clanInventory/item/type/stealToken.type";
+import { APIErrorReason } from "../common/controller/APIErrorReason";
+import { APIError } from "../common/controller/APIError";
+import { InjectModel } from "@nestjs/mongoose";
+import { Clan } from "../clan/clan.schema";
+import { Model } from "mongoose";
+import BasicService from "../common/service/basicService/BasicService";
+import { Player } from "../player/player.schema";
 
 @Injectable()
 export class ItemMoverService {
 	public constructor(
+		@InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
+		@InjectModel(Player.name) public readonly playerModel: Model<Player>,
 		@Inject(forwardRef(() => ItemService)) private readonly itemService: ItemService,
 		@Inject(forwardRef(() => ItemHelperService)) private readonly itemHelperService: ItemHelperService,
-		@Inject(forwardRef(() => PlayerService)) private readonly playerService: PlayerService,
-		@Inject(forwardRef(() => ClanService)) private readonly clanService: ClanService,
-		@Inject(forwardRef(() => RoomService)) private readonly roomService: RoomService,
-	){}
+		@Inject(forwardRef(() => RoomService)) private readonly roomService: RoomService
+	){
+		this.clanBasicService = new BasicService(clanModel);
+		this.playerBasicService = new BasicService(playerModel);
+	}
+
+	private readonly clanBasicService: BasicService;
+	private readonly playerBasicService: BasicService;
 
 
 	/**
@@ -62,7 +71,7 @@ export class ItemMoverService {
 	async moveItem(itemId: string, destinationId: string, moveTo: MoveTo, playerId: string): Promise<[ItemDto[], ServiceError[]]> {
 		let destinationClanId: string;
 
-		const [player, playerErrors] = await this.playerService.getPlayerById(playerId);
+		const [player, playerErrors] = await this.playerBasicService.readOneById(playerId);
 		if (playerErrors || !player.clan_id) 
 			return [null, [NotFoundError]];
 
@@ -82,7 +91,7 @@ export class ItemMoverService {
 			destinationClanId = room['SoulHome'].clan_id;
 		} else {
 			destinationClanId = player.clan_id.toString();
-			const [clan, clanErrors] = await this.clanService.readOneById(destinationClanId, { includeRefs: [ModelName.STOCK]});
+			const [clan, clanErrors] = await this.clanBasicService.readOneById(destinationClanId, { includeRefs: [ModelName.STOCK]});
 			if (clanErrors)
 				return [null, clanErrors];
 
