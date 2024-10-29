@@ -3,9 +3,9 @@ import {
   ExecutionContext,
   Injectable,
 } from "@nestjs/common";
-import { AuthService } from "../../auth/auth.service";
-import { APIError } from "../../common/controller/APIError";
-import { APIErrorReason } from "../../common/controller/APIErrorReason";
+import { AuthService } from "../../../auth/auth.service";
+import { APIError } from "../../../common/controller/APIError";
+import { APIErrorReason } from "../../../common/controller/APIErrorReason";
 
 @Injectable()
 export class StealTokenGuard implements CanActivate {
