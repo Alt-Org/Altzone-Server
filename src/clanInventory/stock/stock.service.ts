@@ -1,15 +1,15 @@
 import {forwardRef, Inject, Injectable} from "@nestjs/common";
 import {Model} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
-import {ModelName} from "../common/enum/modelName.enum";
 import {Stock} from "./stock.schema";
 import {CreateStockDto} from "./dto/createStock.dto";
 import {UpdateStockDto} from "./dto/updateStock.dto";
 import {StockDto} from "./dto/stock.dto";
 import { ItemService } from "../item/item.service";
-import ServiceError from "../common/service/basicService/ServiceError";
-import BasicService from "../common/service/basicService/BasicService";
-import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
+import { ModelName } from "../../common/enum/modelName.enum";
+import BasicService from "../../common/service/basicService/BasicService";
+import { TReadByIdOptions, TIServiceReadManyOptions } from "../../common/service/basicService/IService";
+import ServiceError from "../../common/service/basicService/ServiceError";
 
 @Injectable()
 export class StockService {

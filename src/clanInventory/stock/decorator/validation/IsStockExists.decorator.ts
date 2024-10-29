@@ -2,10 +2,10 @@ import {ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface} fr
 import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
-import {registerValidationDecorator} from "../../../common/decorator/validation/registerValidationDecorator";
-import {isEntityExists} from "../../../common/decorator/validation/isEntityExists";
-import {ModelName} from "../../../common/enum/modelName.enum";
 import {Stock} from "../../stock.schema";
+import { isEntityExists } from "../../../../common/decorator/validation/isEntityExists";
+import { registerValidationDecorator } from "../../../../common/decorator/validation/registerValidationDecorator";
+import { ModelName } from "../../../../common/enum/modelName.enum";
 
 export function IsStockExists(validationOptions?: ValidationOptions) {
     return function (object: any, propertyName: string): void {
