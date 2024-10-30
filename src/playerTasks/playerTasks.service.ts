@@ -5,7 +5,7 @@ import { PlayerTasks } from './type/tasks.type';
 import { TaskFrequency } from './enum/taskFrequency.enum';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskProgress, TaskProgressDocument } from './playerTasks.schema';
-import { Model } from 'mongoose';
+import { Model, MongooseError } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { ModelName } from '../common/enum/modelName.enum';
 import { TaskName } from './enum/taskName.enum';
@@ -17,13 +17,19 @@ import { validate } from 'class-validator';
 import PlayerTaskNotifier from './playerTask.notifier';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { ObjectId } from 'mongodb';
+import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
+import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
+import { PlayerService } from '../player/player.service';
 
 @Injectable()
 export class PlayerTasksService implements OnModuleInit {
 	public constructor(
 		@InjectModel(TaskProgress.name) public readonly model: Model<TaskProgress>,
+		private readonly playerService: PlayerService,
 		private readonly notifier: PlayerTaskNotifier,
-	){
+		private readonly clanRewarder: ClanRewarder,
+		private readonly playerRewarder: PlayerRewarder,
+	) {
 		this.basicService = new BasicService(model);
 		this.modelName = ModelName.PLAYER_TASK;
 		this.refsInModel = [ModelName.PLAYER]
@@ -83,9 +89,9 @@ export class PlayerTasksService implements OnModuleInit {
 	 */
 	private updateTaskAmounts(dbTasks: TaskProgress[], jsonTasks: Partial<PlayerTasks>) {
 		dbTasks.forEach((dbTask) => {
-			for(const period in jsonTasks) {
+			for (const period in jsonTasks) {
 				jsonTasks[period].forEach((jsonTask) => {
-					if (jsonTask.id === dbTask.taskId) 
+					if (jsonTask.id === dbTask.taskId)
 						jsonTask.amount = dbTask.amountLeft;
 				})
 			}
@@ -100,9 +106,17 @@ export class PlayerTasksService implements OnModuleInit {
 	 * @param taskName - Task type from TaskName enum.
 	 */
 	async updateTask(playerId: string, taskName: TaskName) {
-		this.registerAtomicTaskCompleted(playerId, taskName, TaskFrequency.DAILY)
-		this.registerAtomicTaskCompleted(playerId, taskName, TaskFrequency.WEEKLY)
-		this.registerAtomicTaskCompleted(playerId, taskName, TaskFrequency.MONTHLY)
+		const [dailyResult, dailyErrors] = await this.registerAtomicTaskCompleted(playerId, taskName, TaskFrequency.DAILY);
+		if (dailyResult === 'done')
+			await this.setPlayerTaskRewards(playerId, TaskFrequency.DAILY, taskName);
+		
+		const [weeklyResult, weeklyErrors] = await this.registerAtomicTaskCompleted(playerId, taskName, TaskFrequency.WEEKLY);
+		if (weeklyResult === 'done')
+			await this.setPlayerTaskRewards(playerId, TaskFrequency.WEEKLY, taskName);
+
+		const [monthlyResult, monthlyErrors] = await this.registerAtomicTaskCompleted(playerId, taskName, TaskFrequency.MONTHLY);
+		if (monthlyResult === 'done')
+			await this.setPlayerTaskRewards(playerId, TaskFrequency.MONTHLY, taskName);
 	}
 
 	/**
@@ -119,7 +133,7 @@ export class PlayerTasksService implements OnModuleInit {
 			taskType = TaskFrequency.WEEKLY
 		if (taskFrequency === TaskFrequency.MONTHLY)
 			taskType = TaskFrequency.MONTHLY
-		
+
 		const todaysTasks: Task[] = this.tasks[taskType.toLowerCase()];
 		const taskFromJSON = todaysTasks.find((t: Task) => t.type === taskName);
 		const newTask: CreateTaskDto = {
@@ -150,9 +164,9 @@ export class PlayerTasksService implements OnModuleInit {
 	 *
 	 * @returns false if nothing was updated and true if task was updated
 	 */
-	async registerAtomicTaskCompleted(playerId: string, taskName: TaskName, taskFrequency: TaskFrequency) {
+	private async registerAtomicTaskCompleted(playerId: string, taskName: TaskName, taskFrequency: TaskFrequency): Promise<['updated' | 'done', ServiceError[]]> {
 		const [tasks, tasksError] = await this.basicService.readMany<TaskProgressDocument>({
-			filter: { playerId: playerId } 
+			filter: { playerId: playerId }
 		});
 
 		//If any error occurred expect for NOT_FOUND
@@ -176,11 +190,11 @@ export class PlayerTasksService implements OnModuleInit {
 
 			this.notifier.taskUpdated(playerId, taskFromJson);
 
-			return [true, null];
+			return ['updated', null];
 		}
 
 		const taskFromJson = this.getTaskDefaultData(task.taskId);
-		
+
 		//Check if the whole task is already completed today
 		const frequency = this.determineTaskFrequency(taskFromJson.id);
 		const taskIsActive = task ? this.checkIfTaskIsActive(task, frequency) : false;
@@ -195,24 +209,24 @@ export class PlayerTasksService implements OnModuleInit {
 			})
 			task.save();
 			this.notifier.taskUpdated(playerId, taskFromJson);
-			return [true, null];
+			return ['updated', null];
 		}
 
 		task.amountLeft--;
 
 		//This is the last atomic task for today => set it as completed and send a notification
-		if(task.amountLeft === 0){
+		if (task.amountLeft === 0) {
 			task.completedAt = new Date();
 			this.notifier.taskCompleted(playerId, taskFromJson);
 			task.save();
 
-			return [true, null];
+			return ['done', null];
 		}
 
 		task.save()
 		await this.notifier.taskUpdated(playerId, taskFromJson);
 
-		return [true, null];
+		return ['updated', null];
 	}
 
 	/**
@@ -222,7 +236,7 @@ export class PlayerTasksService implements OnModuleInit {
 	 * @param dataToUpdate - Data to be updated in db.
 	 * @returns - True if update is successful False is not.
 	 */
-	async updateTaskProgress(taskId: string | ObjectId, dataToUpdate: Partial<TaskProgress>){
+	async updateTaskProgress(taskId: string | ObjectId, dataToUpdate: Partial<TaskProgress>) {
 		return await this.basicService.updateOne<Partial<TaskProgress>>(
 			dataToUpdate,
 			{ filter: { _id: taskId } }
@@ -242,8 +256,8 @@ export class PlayerTasksService implements OnModuleInit {
 		const createTaskDtoInstance = plainToClass(CreateTaskDto, createTaskProgressDto);
 		const errors = await validate(createTaskDtoInstance)
 		if (errors.length > 0)
-			throw new ServiceError({ 
-				reason: SEReason.MISCONFIGURED, 
+			throw new ServiceError({
+				reason: SEReason.MISCONFIGURED,
 				message: "data validation failed"
 			});
 
@@ -252,6 +266,26 @@ export class PlayerTasksService implements OnModuleInit {
 			throw err
 
 		return task
+	}
+
+	/**
+	 * Sets rewards for the specified player and his/her clan
+	 * @param player_id player _id, who completed the task
+	 * @param frequency task frequency
+	 * @param name task name
+	 */
+	private async setPlayerTaskRewards(player_id: string, frequency: TaskFrequency, name: TaskName){
+		const task = this.getTaskDefaultDataByFrequency(frequency, name);
+		if (task) {
+			const player = await this.playerService.readOneById(player_id);
+			if (!(player instanceof MongooseError))
+				this.clanRewarder.rewardClanForPlayerTask(
+					player.data.Player['clan_id'],
+					{ coins: task.coins, points: task.points }
+				);
+
+			this.playerRewarder.rewardForPlayerTask(player_id, task.points);
+		}
 	}
 
 	/**
@@ -285,18 +319,18 @@ export class PlayerTasksService implements OnModuleInit {
 	 * @param taskId the id of the task to determine
 	 * @returns frequency of the task
 	 */
-	private determineTaskFrequency(taskId: number){
-		for(const period in this.tasks){
+	private determineTaskFrequency(taskId: number) {
+		for (const period in this.tasks) {
 			const periodTasks: Task[] = this.tasks[period];
 			const periodHasTask = periodTasks.find(task => task.id === taskId);
 
-			if(!periodHasTask)
+			if (!periodHasTask)
 				continue;
 
-			if(period === 'weekly')
+			if (period === 'weekly')
 				return TaskFrequency.WEEKLY;
 
-			if(period === 'monthly')
+			if (period === 'monthly')
 				return TaskFrequency.MONTHLY;
 
 			return TaskFrequency.DAILY;
@@ -308,13 +342,40 @@ export class PlayerTasksService implements OnModuleInit {
 	 * @param taskId the id of the task to find
 	 * @returns appropriate task frequency
 	 */
-	private getTaskDefaultData(taskId: number){
-		for(const period in this.tasks){
+	private getTaskDefaultData(taskId: number) {
+		for (const period in this.tasks) {
 			const periodTasks: Task[] = this.tasks[period];
 			const foundTask = periodTasks.find(task => task.id === taskId);
 
-			if(foundTask)
-				return {...foundTask};
+			if (foundTask)
+				return { ...foundTask };
 		}
+	}
+
+	/**
+	 * Finds the task data by frequency and its name
+	 * @param frequency task frequency
+	 * @param name task name
+	 * @returns task if found or undefined if not
+	 */
+	private getTaskDefaultDataByFrequency(frequency: TaskFrequency, name: TaskName): Task | undefined {
+		if (frequency === TaskFrequency.WEEKLY)
+			return this.tasks.weekly.find(task => task.type === name);
+
+		if (frequency === TaskFrequency.MONTHLY)
+			return this.tasks.monthly.find(task => task.type === name);
+
+		for (const period in this.tasks) {
+			if (period === 'weekly' || period === 'monthly')
+				continue;
+
+			const periodTasks: Task[] = this.tasks[period];
+			const foundTask = periodTasks.find(task => task.type === name);
+
+			if (foundTask)
+				return { ...foundTask };
+		}
+
+		return undefined;
 	}
 }
