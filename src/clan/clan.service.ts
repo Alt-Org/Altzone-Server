@@ -13,7 +13,7 @@ import ServiceError from "../common/service/basicService/ServiceError";
 import { Player } from "../player/player.schema";
 import ClanHelperService from "./utils/clanHelper.service";
 import { SEReason } from "../common/service/basicService/SEReason";
-import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
+import { TIServiceReadManyOptions, TIServiceUpdateOneOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 import { ModelName } from "../common/enum/modelName.enum";
 import { StockService } from "../clanInventory/stock/stock.service";
 import { SoulHomeService } from "../clanInventory/soulhome/soulhome.service";
@@ -151,6 +151,17 @@ export class ClanService{
             })]];
 
         return await this.basicService.updateOneById(_id, {...fieldsToUpdate, admin_ids: playersInClan});
+    }
+
+
+    /**
+     * Updates one clan data
+     * @param updateInfo data to update
+     * @param options required options of the query
+     * @returns tuple in form [ isSuccess, errors ]
+     */
+    async updateOne(updateInfo: Partial<Clan>, options: TIServiceUpdateOneOptions){
+        return this.basicService.updateOne(updateInfo, options);
     }
 
     /**
