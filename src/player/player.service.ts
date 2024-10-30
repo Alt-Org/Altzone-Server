@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {Model, Types} from "mongoose";
+import {Model, Types, UpdateQuery} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {Player, PlayerDocument, publicReferences} from "./player.schema";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
@@ -14,7 +14,7 @@ import {IHookImplementer, PostHookFunction} from "../common/interface/IHookImple
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
 import { PlayerDto } from "./dto/player.dto";
 import BasicService from "../common/service/basicService/BasicService";
-import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
+import { TIServiceReadManyOptions, TIServiceUpdateOneOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 import { Message } from "./message.schema";
 import ServiceError from "../common/service/basicService/ServiceError";
 
@@ -83,6 +83,16 @@ export class PlayerService
         const isPlayerCountIncreased = await changeCounterValue(ModelName.CLAN, {_id: input.clan_id}, 'playerCount', 1);
 
         return isPlayerCountIncreased;
+    }
+
+    /**
+     * Updates one player data
+     * @param updateInfo data to update
+     * @param options required options of the query
+     * @returns tuple in form [ isSuccess, errors ]
+     */
+    async updatePlayerById(_id: string, updateInfo: UpdateQuery<Player>){
+        return this.basicService.updateOneById(_id, updateInfo);
     }
 
     public deleteOnePostHook: PostHookFunction = async (input: any, oldDoc: Partial<Player>, output: Partial<Player>): Promise<boolean> => {

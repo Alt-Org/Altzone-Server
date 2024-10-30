@@ -21,6 +21,14 @@ import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
 import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
 import { PlayerService } from '../player/player.service';
 
+type TaskUpdateStatus = 'update' | 'done';
+type TaskUpdate = { status: TaskUpdateStatus, task: Task };
+type TaskUpdateResult = {
+	daily: TaskUpdate,
+	weekly: TaskUpdate,
+	monthly: TaskUpdate
+};
+
 @Injectable()
 export class PlayerTasksService implements OnModuleInit {
 	public constructor(
@@ -28,11 +36,11 @@ export class PlayerTasksService implements OnModuleInit {
 		private readonly playerService: PlayerService,
 		private readonly notifier: PlayerTaskNotifier,
 		private readonly clanRewarder: ClanRewarder,
-		private readonly playerRewarder: PlayerRewarder,
+		private readonly playerRewarder: PlayerRewarder
 	) {
 		this.basicService = new BasicService(model);
 		this.modelName = ModelName.PLAYER_TASK;
-		this.refsInModel = [ModelName.PLAYER]
+		this.refsInModel = [ModelName.PLAYER];
 	}
 	private tasks: PlayerTasks;
 	public readonly modelName: ModelName;
@@ -51,7 +59,7 @@ export class PlayerTasksService implements OnModuleInit {
 
 	/**
 	 * Finds the player tasks based on the player id and task frequency.
-	 * 
+	 *
 	 * @param playerId - The ID of the player.
 	 * @param taskFrequency - The frequency of the tasks.
 	 * @returns - A promise that resolves to a tuple containing player tasks possible errors.
@@ -105,18 +113,16 @@ export class PlayerTasksService implements OnModuleInit {
 	 * @param playerId - Id of the player.
 	 * @param taskName - Task type from TaskName enum.
 	 */
-	async updateTask(playerId: string, taskName: TaskName) {
+	async updateTask(playerId: string, taskName: TaskName): Promise<TaskUpdateResult> {
 		const [dailyResult, dailyErrors] = await this.registerAtomicTaskCompleted(playerId, taskName, TaskFrequency.DAILY);
-		if (dailyResult === 'done')
-			await this.setPlayerTaskRewards(playerId, TaskFrequency.DAILY, taskName);
-		
 		const [weeklyResult, weeklyErrors] = await this.registerAtomicTaskCompleted(playerId, taskName, TaskFrequency.WEEKLY);
-		if (weeklyResult === 'done')
-			await this.setPlayerTaskRewards(playerId, TaskFrequency.WEEKLY, taskName);
-
 		const [monthlyResult, monthlyErrors] = await this.registerAtomicTaskCompleted(playerId, taskName, TaskFrequency.MONTHLY);
-		if (monthlyResult === 'done')
-			await this.setPlayerTaskRewards(playerId, TaskFrequency.MONTHLY, taskName);
+
+		return {
+			daily: dailyResult,
+			weekly: weeklyResult,
+			monthly: monthlyResult
+		}
 	}
 
 	/**
@@ -164,7 +170,7 @@ export class PlayerTasksService implements OnModuleInit {
 	 *
 	 * @returns false if nothing was updated and true if task was updated
 	 */
-	private async registerAtomicTaskCompleted(playerId: string, taskName: TaskName, taskFrequency: TaskFrequency): Promise<['updated' | 'done', ServiceError[]]> {
+	private async registerAtomicTaskCompleted(playerId: string, taskName: TaskName, taskFrequency: TaskFrequency): Promise<[TaskUpdate, ServiceError[]]> {
 		const [tasks, tasksError] = await this.basicService.readMany<TaskProgressDocument>({
 			filter: { playerId: playerId }
 		});
@@ -190,7 +196,7 @@ export class PlayerTasksService implements OnModuleInit {
 
 			this.notifier.taskUpdated(playerId, taskFromJson);
 
-			return ['updated', null];
+			return [{ status: 'update', task: taskFromJson }, null];
 		}
 
 		const taskFromJson = this.getTaskDefaultData(task.taskId);
@@ -209,7 +215,7 @@ export class PlayerTasksService implements OnModuleInit {
 			})
 			task.save();
 			this.notifier.taskUpdated(playerId, taskFromJson);
-			return ['updated', null];
+			return [{ status: 'update', task: taskFromJson }, null];
 		}
 
 		task.amountLeft--;
@@ -220,13 +226,13 @@ export class PlayerTasksService implements OnModuleInit {
 			this.notifier.taskCompleted(playerId, taskFromJson);
 			task.save();
 
-			return ['done', null];
+			return [{ status: 'done', task: taskFromJson }, null];
 		}
 
 		task.save()
-		await this.notifier.taskUpdated(playerId, taskFromJson);
+		this.notifier.taskUpdated(playerId, taskFromJson);
 
-		return ['updated', null];
+		return [{ status: 'update', task: taskFromJson }, null];
 	}
 
 	/**
