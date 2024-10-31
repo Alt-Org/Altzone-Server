@@ -18,6 +18,8 @@ import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { PlayerTasksService } from '../playerTasks/playerTasks.service';
 import { TaskName } from '../playerTasks/enum/taskName.enum';
 import { RoomService } from '../clanInventory/room/room.service';
+import { GameEventsHandler } from '../gameEventsBroker/gameEventsHandler';
+import { GameEvent } from '../gameEventsBroker/enum/GameEvent.enum';
 
 @Injectable()
 export class GameDataService {
@@ -26,7 +28,7 @@ export class GameDataService {
 		@Inject(forwardRef(() => PlayerService)) public readonly playerService: PlayerService,
 		@Inject(forwardRef(() => ClanService)) public readonly clanService: ClanService,
 		@Inject(forwardRef(() => RoomService)) public readonly roomService: RoomService,
-		@Inject(forwardRef(() => PlayerTasksService)) public readonly taskService: PlayerTasksService,
+		private readonly gameEventsBroker: GameEventsHandler,
 		private readonly jwtService: JwtService,
 	){
 		this.basicService = new BasicService(model);
@@ -37,6 +39,34 @@ export class GameDataService {
 	public readonly basicService: BasicService;
 	public readonly refsInModel: ModelName[];
     public readonly modelName: ModelName;
+
+	/**
+	 * Handles the result type request.
+	 * 
+	 * @param battleResult - The battleResult of the request containing battle result data.
+	 * @param user - The user making the request.
+	 * @returns - Returns a promise that resolves to the response or an API error.
+	 */
+	async handleResultType(battleResult: BattleResultDto, user: User): Promise<any> {
+		const currentTime = new Date();
+		const winningTeam = battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
+		const playerInWinningTeam = winningTeam.includes(user.player_id);
+		//this.playerService.handlePlayedBattle(user.player_id, playerInWinningTeam);
+		//this.taskService.updateTask(user.player_id, TaskName.PLAY_BATTLE);
+		this.gameEventsBroker.handleEvent(user.player_id, GameEvent.PLAYER_PLAY_BATTLE);
+		if (!playerInWinningTeam)
+			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED, message: "Player is not in the winning team and therefore is not allowed to steal" });
+
+		//this.taskService.updateTask(user.player_id, TaskName.WIN_BATTLE);
+		this.gameEventsBroker.handleEvent(user.player_id, GameEvent.PLAYER_WIN_BATTLE);
+		const [teamIds, teamIdsErrors] = await this.getClanIdForTeams([battleResult.team1[0], battleResult.team2[0]]);
+		if (teamIdsErrors)
+			return teamIdsErrors
+		
+		this.createGameIfNotExists(battleResult, teamIds, currentTime);
+		
+		return await this.generateResponse(battleResult, teamIds.team1Id, teamIds.team2Id, user)
+	}
 
 	/**
 	 * Creates a new game in DB.
@@ -199,31 +229,5 @@ export class GameDataService {
 			const newGame = this.createNewGameObject(battleResult, teamIds.team1Id, teamIds.team2Id, currentTime);
 			return await this.createOne(newGame);
 		}
-	}
-
-	/**
-	 * Handles the result type request.
-	 * 
-	 * @param battleResult - The battleResult of the request containing battle result data.
-	 * @param user - The user making the request.
-	 * @returns - Returns a promise that resolves to the response or an API error.
-	 */
-	async handleResultType(battleResult: BattleResultDto, user: User): Promise<any> {
-		const currentTime = new Date();
-		const winningTeam = battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
-		const playerInWinningTeam = winningTeam.includes(user.player_id);
-		this.playerService.handlePlayedBattle(user.player_id, playerInWinningTeam);
-		this.taskService.updateTask(user.player_id, TaskName.PLAY_BATTLE);
-		if (!playerInWinningTeam)
-			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED, message: "Player is not in the winning team and therefore is not allowed to steal" });
-
-		this.taskService.updateTask(user.player_id, TaskName.WIN_BATTLE);
-		const [teamIds, teamIdsErrors] = await this.getClanIdForTeams([battleResult.team1[0], battleResult.team2[0]]);
-		if (teamIdsErrors)
-			return teamIdsErrors
-		
-		this.createGameIfNotExists(battleResult, teamIds, currentTime);
-		
-		return await this.generateResponse(battleResult, teamIds.team1Id, teamIds.team2Id, user)
 	}
 }

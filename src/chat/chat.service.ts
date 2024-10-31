@@ -15,9 +15,8 @@ import {CreateMessageDto} from "./dto/createMessage.dto";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import {IResponseShape} from "../common/interface/IResponseShape";
 import {ObjectId} from "mongodb";
-import { PlayerTasksService } from "../playerTasks/playerTasks.service";
-import { TaskName } from "../playerTasks/enum/taskName.enum";
-import { PlayerService } from "../player/player.service";
+import { GameEventsHandler } from "../gameEventsBroker/gameEventsHandler";
+import { GameEvent } from "../gameEventsBroker/enum/GameEvent.enum";
 
 @Injectable()
 @AddBasicService()
@@ -25,8 +24,7 @@ export class ChatService extends BasicServiceDummyAbstract<Chat> implements IBas
     public constructor(
         @InjectModel(Chat.name) public readonly model: Model<Chat>,
         private readonly requestHelperService: RequestHelperService,
-        private readonly playerTaskService: PlayerTasksService,
-        private readonly playerService: PlayerService,
+        private readonly gameEventsHandler: GameEventsHandler
     ){
         super();
         this.refsInModel = [];
@@ -47,8 +45,10 @@ export class ChatService extends BasicServiceDummyAbstract<Chat> implements IBas
     async handleCreateMessage(chat_id: string, input: CreateMessageDto, player_id: string) {
         const messageCreated = await this.createMessage(chat_id, input);
         if (messageCreated) {
-            this.playerTaskService.updateTask(player_id, TaskName.WRITE_CHAT_MESSAGE);
-            this.playerService.trackPlayerMessageCount(player_id);
+            this.gameEventsHandler.handleEvent(player_id, GameEvent.PLAYER_SEND_MESSAGE);
+
+            // this.playerTaskService.updateTask(player_id, TaskName.WRITE_CHAT_MESSAGE);
+            // this.playerService.trackPlayerMessageCount(player_id);
         }
     }
 

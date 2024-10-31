@@ -2,12 +2,10 @@ import {Module} from '@nestjs/common';
 import {RequestHelperModule} from "../requestHelper/requestHelper.module";
 import {GameAnalyticsController} from "./gameAnalytics.controller";
 import {LogFileService} from "./logFile.service";
-import { ClanInventoryModule } from '../clanInventory/clanInventory.module';
 
 @Module({
     imports: [
-        RequestHelperModule,
-        ClanInventoryModule
+        RequestHelperModule
     ],
     controllers: [GameAnalyticsController],
     providers: [ LogFileService ],

@@ -5,6 +5,7 @@ import { RewarderModule } from '../rewarder/rewarder.module';
 import { StatisticsKeeperModule } from '../statisticsKeeper/statisticsKeeper.module';
 import { GameEventsHandler } from './gameEventsHandler';
 import { PlayerModule } from '../player/player.module';
+import { ClanEventHandler } from './clanEventHandler';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { PlayerModule } from '../player/player.module';
     StatisticsKeeperModule,
     PlayerModule
   ],
-  providers: [ PlayerEventHandler, GameEventsHandler ],
+  providers: [ PlayerEventHandler, ClanEventHandler, GameEventsHandler ],
   controllers: [],
   exports: [ GameEventsHandler ]
 })

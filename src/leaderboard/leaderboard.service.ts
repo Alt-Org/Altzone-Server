@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { PlayerService } from "../player/player.service";
 import { ClanService } from "../clan/clan.service";
 import { IGetAllQuery } from "../common/interface/IGetAllQuery";
@@ -10,9 +10,7 @@ import { SEReason } from "../common/service/basicService/SEReason";
 export class LeaderboardService {
 	constructor(
 		@Inject(CACHE_MANAGER) private cacheService: Cache,
-		@Inject(forwardRef(() => PlayerService))
 		private readonly playerService: PlayerService,
-		@Inject(forwardRef(() => ClanService))
 		private readonly clanService: ClanService
 	) {}
 
