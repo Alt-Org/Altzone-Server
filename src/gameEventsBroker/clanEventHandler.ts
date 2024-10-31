@@ -39,20 +39,19 @@ export class ClanEventHandler {
 		if(daily.status === 'done'){
 			await this.clanRewarder.rewardClanForPlayerTask(clan_id, this.convertTaskToReward(daily.task));
 			await this.playerRewarder.rewardForPlayerTask(player_id, daily.task.points);
-			return [ true, null ];
 		}
 
 		if(weekly.status === 'done'){
-			await this.clanRewarder.rewardClanForPlayerTask(clan_id, this.convertTaskToReward(daily.task));
+			await this.clanRewarder.rewardClanForPlayerTask(clan_id, this.convertTaskToReward(weekly.task));
 			await this.playerRewarder.rewardForPlayerTask(player_id, weekly.task.points);
-			return [ true, null ];
 		}
 
 		if(monthly.status === 'done'){
-			await this.clanRewarder.rewardClanForPlayerTask(clan_id, this.convertTaskToReward(daily.task));
+			await this.clanRewarder.rewardClanForPlayerTask(clan_id, this.convertTaskToReward(monthly.task));
 			await this.playerRewarder.rewardForPlayerTask(player_id, monthly.task.points);
-			return [ true, null ];
 		}
+
+		return [ true, null ];
 	}
 
 	private convertTaskToReward(task: Task): Reward{

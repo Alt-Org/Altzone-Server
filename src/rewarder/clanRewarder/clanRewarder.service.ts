@@ -1,6 +1,8 @@
+import { Injectable } from "@nestjs/common";
 import { ClanService } from "../../clan/clan.service";
 import { Reward } from "./points";
 
+@Injectable()
 export class ClanRewarder {
 	constructor(
 		private readonly clanService: ClanService,

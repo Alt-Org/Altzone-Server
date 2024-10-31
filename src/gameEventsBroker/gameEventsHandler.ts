@@ -36,8 +36,8 @@ export class GameEventsHandler {
     }
 
 	private async handleWinBattle(player_id: string){
-		const [ playerSuccess, playerErrors ] = await this.playerEventHandler.handlePlayerEvent(player_id, PlayerEvent.BATTLE_PLAYED);
-		const [ clanSuccess, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id, TaskName.PLAY_BATTLE);
+		const [ playerSuccess, playerErrors ] = await this.playerEventHandler.handlePlayerEvent(player_id, PlayerEvent.BATTLE_WON);
+		const [ clanSuccess, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id, TaskName.WIN_BATTLE);
 
 		if(playerErrors || clanErrors)
 			return [ null, this.concatArrays(playerErrors, clanErrors) ];
@@ -46,8 +46,8 @@ export class GameEventsHandler {
 	}
 
 	private async handlePlayBattle(player_id: string){
-		const [ playerSuccess, playerErrors ] = await this.playerEventHandler.handlePlayerEvent(player_id, PlayerEvent.BATTLE_WON);
-		const [ clanSuccess, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id, TaskName.WIN_BATTLE);
+		const [ playerSuccess, playerErrors ] = await this.playerEventHandler.handlePlayerEvent(player_id, PlayerEvent.BATTLE_PLAYED);
+		const [ clanSuccess, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id, TaskName.PLAY_BATTLE);
 
 		if(playerErrors || clanErrors)
 			return [ null, this.concatArrays(playerErrors, clanErrors) ];

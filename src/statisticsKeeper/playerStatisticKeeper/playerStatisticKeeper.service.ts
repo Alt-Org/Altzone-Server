@@ -43,7 +43,6 @@ export class PlayerStatisticService {
 	 * Tracks the daily amount of messages sent by a player.
 	 * 
 	 * Finds the player from db and updates or creates a message for that player.
-	 * If the message count is 3 increments player points by 20.
 	 * 
 	 * @param player_id - ID of the player whose messages to track.
 	 * @returns - A promise that resolves in to a tuple where first value is boolean that
@@ -70,9 +69,6 @@ export class PlayerStatisticService {
 			messages.push(newMessage);
 			todaysMessage = newMessage;
 		}
-
-		if (todaysMessage.count === 3)
-			player.points += 20;
 
 		player.gameStatistics.messages = messages;
 		const updateResp = await this.playerService.updateOneById({ ...player, _id: player_id });

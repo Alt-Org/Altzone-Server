@@ -14,8 +14,8 @@ export class PlayerEventHandler {
 	}
 
 	async handlePlayerEvent(player_id: string, event: PlayerEvent): Promise<[boolean, ServiceError[]]> {
-		await this.playerRewarder.rewardForPlayerEvent(player_id, event);
 		await this.playerStatistics.updatePlayerStatistic(player_id, event);
+		await this.playerRewarder.rewardForPlayerEvent(player_id, event);
 		return [true, null];
 	}
 }

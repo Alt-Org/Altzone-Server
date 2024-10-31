@@ -12,7 +12,6 @@ import { AuthModule } from './auth/auth.module';
 import {AuthGuard} from "./auth/auth.guard";
 import {APP_GUARD} from "@nestjs/core";
 import { AuthorizationModule } from './authorization/authorization.module';
-import { ApiStateModule } from './common/apiState/apiState.module';
 import { SiteModule } from './site/site.module';
 import {ChatModule} from "./chat/chat.module";
 import { GameDataModule } from './gameData/gameData.module';
@@ -24,6 +23,9 @@ import * as redisStore from 'cache-manager-redis-store';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ClanInventoryModule } from './clanInventory/clanInventory.module';
 import { ItemMoverModule } from './itemMover/itemMover.module';
+import { GameEventsBrokerModule } from './gameEventsBroker/gameEventsBroker.module';
+import { RewarderModule } from './rewarder/rewarder.module';
+import { StatisticsKeeperModule } from './statisticsKeeper/statisticsKeeper.module';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -48,23 +50,33 @@ const redisPort = parseInt(envVars.REDIS_PORT);
         port: redisPort,
         password: redisPassword,
       }),
+
+      GameDataModule,
+      ChatModule,
+
+      GameEventsBrokerModule,
+      LeaderboardModule,
+      PlayerTasksModule,
+      RewarderModule,
+      StatisticsKeeperModule,
+
       ClanModule,
       PlayerModule,
-      CharacterClassModule,
+
+      ItemMoverModule,
+
       CustomCharacterModule,
       ClanInventoryModule,
-      ItemMoverModule,
+      CharacterClassModule,
+      
       ProfileModule,
       SiteModule,
-      ChatModule,
-      RequestHelperModule,
+      
       AuthModule,
       AuthorizationModule,
-      ApiStateModule,
-      GameDataModule,
       GameAnalyticsModule,
-      PlayerTasksModule,
-      LeaderboardModule,
+
+      RequestHelperModule
   ],
   controllers: [AppController],
   providers: [

@@ -171,15 +171,15 @@ export class PlayerTasksService implements OnModuleInit {
 	 * @returns false if nothing was updated and true if task was updated
 	 */
 	private async registerAtomicTaskCompleted(playerId: string, taskName: TaskName, taskFrequency: TaskFrequency): Promise<[TaskUpdate, ServiceError[]]> {
-		const [tasks, tasksError] = await this.basicService.readMany<TaskProgressDocument>({
+		const [tasks, tasksErrors] = await this.basicService.readMany<TaskProgressDocument>({
 			filter: { playerId: playerId }
 		});
 
 		//If any error occurred expect for NOT_FOUND
-		if (tasksError && tasksError[0].reason !== SEReason.NOT_FOUND)
-			throw tasksError;
+		if (tasksErrors && tasksErrors[0].reason !== SEReason.NOT_FOUND)
+			return [null, tasksErrors];
 
-		const task = tasks?.find(task => {
+		const taskToUpdate = tasks?.find(task => {
 			const { type } = this.getTaskDefaultData(task.taskId);
 			const frequency = this.determineTaskFrequency(task.taskId);
 
@@ -187,9 +187,10 @@ export class PlayerTasksService implements OnModuleInit {
 		});
 
 		//If there was no task defined in DB, add it to DB, update its amountLeft and send notification
-		if (!task) {
+		if (!taskToUpdate) {
 			const newTaskToSave = this.getNewTaskObject(playerId, taskName, taskFrequency);
 			const taskFromJson = this.getTaskDefaultData(newTaskToSave.taskId);
+
 			newTaskToSave.amountLeft--;
 			taskFromJson.amount--;
 			this.createTaskProgress(newTaskToSave);
@@ -199,37 +200,40 @@ export class PlayerTasksService implements OnModuleInit {
 			return [{ status: 'update', task: taskFromJson }, null];
 		}
 
-		const taskFromJson = this.getTaskDefaultData(task.taskId);
+		const taskFromJson = this.getTaskDefaultData(taskToUpdate.taskId);
 
-		//Check if the whole task is already completed today
+		//Check if the whole task old atm
 		const frequency = this.determineTaskFrequency(taskFromJson.id);
-		const taskIsActive = task ? this.checkIfTaskIsActive(task, frequency) : false;
+		const isOldTask = this.isTaskOld(taskToUpdate, frequency);
 
-		if (!taskIsActive || task.completedAt) {
+		if (isOldTask) {
 			const newTaskToUpdate = this.getNewTaskObject(playerId, taskName, taskFrequency);
 
-			Object.assign(task, {
+			Object.assign(taskToUpdate, {
 				startedAt: newTaskToUpdate.startedAt,
 				amountLeft: newTaskToUpdate.amountLeft - 1,
-				completedAt: undefined,
+				completedAt: null
 			})
-			task.save();
+			taskToUpdate.save();
 			this.notifier.taskUpdated(playerId, taskFromJson);
 			return [{ status: 'update', task: taskFromJson }, null];
 		}
 
-		task.amountLeft--;
+		if(taskToUpdate.amountLeft <= 0)
+			return [{ status: 'update', task: taskFromJson }, null];
+		
+		taskToUpdate.amountLeft--;
 
-		//This is the last atomic task for today => set it as completed and send a notification
-		if (task.amountLeft === 0) {
-			task.completedAt = new Date();
+		//This is the last atomic task for period => set it as completed and send a notification
+		if (taskToUpdate.amountLeft <= 0) {
+			taskToUpdate.completedAt = new Date();
 			this.notifier.taskCompleted(playerId, taskFromJson);
-			task.save();
+			taskToUpdate.save();
 
 			return [{ status: 'done', task: taskFromJson }, null];
 		}
 
-		task.save()
+		taskToUpdate.save()
 		this.notifier.taskUpdated(playerId, taskFromJson);
 
 		return [{ status: 'update', task: taskFromJson }, null];
@@ -275,28 +279,34 @@ export class PlayerTasksService implements OnModuleInit {
 	}
 
 	/**
-	 * Checks that the task is still active.
+	 * Checks is task old.
 	 * 
 	 * @param task - Task to validate.
-	 * @returns - True if task is still active or false if it isn't.
+	 * @returns - True if task is old or false if it isn't.
 	 */
-	private checkIfTaskIsActive(task: TaskProgress, taskFrequency: TaskFrequency): boolean {
-		const currentTime = new Date();
+	private isTaskOld(task: TaskProgress, taskFrequency: TaskFrequency): boolean {
+		if (!task.startedAt)
+			return true;
+
+		const started = task.startedAt.getTime();
+
+		if (task.completedAt && (task.completedAt.getTime() < started))
+			return true;
+
+		const now = new Date();
 		switch (taskFrequency) {
 			case TaskFrequency.DAILY:
-				return task.startedAt.toDateString() === currentTime.toDateString();
+				const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+				return started < startOfToday;
 			case TaskFrequency.WEEKLY:
-				const startOfWeek = (date: Date) => {
-					const day = date.getDay();
-					const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-					return new Date(date.setDate(diff));
-				};
-				return startOfWeek(task.startedAt).toDateString() === startOfWeek(currentTime).toDateString();
+				const dayOfWeek = now.getDay();
+				const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek).getTime();
+				return started < startOfWeek;
 			case TaskFrequency.MONTHLY:
-				return task.startedAt.getFullYear() === currentTime.getFullYear() &&
-					task.startedAt.getMonth() == currentTime.getMonth();
+				const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+				return started < startOfMonth;
 			default:
-				return false
+				return true;
 		}
 	}
 

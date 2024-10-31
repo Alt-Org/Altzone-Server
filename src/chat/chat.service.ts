@@ -46,9 +46,6 @@ export class ChatService extends BasicServiceDummyAbstract<Chat> implements IBas
         const messageCreated = await this.createMessage(chat_id, input);
         if (messageCreated) {
             this.gameEventsHandler.handleEvent(player_id, GameEvent.PLAYER_SEND_MESSAGE);
-
-            // this.playerTaskService.updateTask(player_id, TaskName.WRITE_CHAT_MESSAGE);
-            // this.playerService.trackPlayerMessageCount(player_id);
         }
     }
 

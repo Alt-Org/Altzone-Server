@@ -1,11 +1,16 @@
-import { PlayerService } from "../../player/player.service";
 import { MongooseError } from "mongoose";
 import { points } from "./points";
 import { PlayerEvent } from "./enum/PlayerEvent.enum";
+import { PlayerService } from "../../player/player.service";
+import { Injectable } from "@nestjs/common";
+import ServiceError from "../../common/service/basicService/ServiceError";
+import { SEReason } from "../../common/service/basicService/SEReason";
+import { Message } from "../../player/message.schema";
 
+@Injectable()
 export class PlayerRewarder {
 	constructor(
-		private readonly playerService: PlayerService,
+		private readonly playerService: PlayerService
 	){
 	}
 
@@ -17,6 +22,9 @@ export class PlayerRewarder {
 	 * @returns true if player was rewarded successfully
 	 */
 	async rewardForPlayerEvent(player_id: string, playerEvent: PlayerEvent) {
+		if(playerEvent === PlayerEvent.MESSAGE_SENT)
+			return this.rewardSendMessages(player_id);
+		
 		const pointAmount = points[playerEvent];
 		return this.increasePlayerPoints(player_id, pointAmount);
 	}
@@ -47,6 +55,32 @@ export class PlayerRewarder {
 
 		if (result instanceof MongooseError)
 			throw result;
+
+		return [true, null];
+	}
+
+	private async rewardSendMessages(player_id: string): Promise<[boolean, ServiceError[] | MongooseError]> {
+		const today = new Date();
+
+		const playerResp = await this.playerService.readOneById(player_id);
+		if (playerResp instanceof MongooseError)
+			return [false, playerResp];
+
+		if (!playerResp.data[playerResp.metaData.dataKey])
+			return [false, [new ServiceError({ reason: SEReason.NOT_FOUND, message: 'Could not read the player' })]];
+
+		const player = playerResp.data[playerResp.metaData.dataKey];
+		const messages: Message[] = player.gameStatistics.messages || [];
+		let todaysMessage: Message = messages.find(message => message.date.toDateString() === today.toDateString());
+
+		const messageCount = todaysMessage?.count;
+
+		if (messageCount === 3)
+			player.points += 20;
+
+		const updateResp = await this.playerService.updateOneById({ ...player, _id: player_id });
+		if (updateResp instanceof MongooseError)
+			return [false, updateResp];
 
 		return [true, null];
 	}

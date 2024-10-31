@@ -15,8 +15,6 @@ import { GameDto } from './dto/game.dto';
 import { BattleResponseDto } from './dto/battleResponse.dto';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
-import { PlayerTasksService } from '../playerTasks/playerTasks.service';
-import { TaskName } from '../playerTasks/enum/taskName.enum';
 import { RoomService } from '../clanInventory/room/room.service';
 import { GameEventsHandler } from '../gameEventsBroker/gameEventsHandler';
 import { GameEvent } from '../gameEventsBroker/enum/GameEvent.enum';
@@ -25,9 +23,9 @@ import { GameEvent } from '../gameEventsBroker/enum/GameEvent.enum';
 export class GameDataService {
 	constructor(
 		@InjectModel(Game.name) public readonly model: Model<Game>,
-		@Inject(forwardRef(() => PlayerService)) public readonly playerService: PlayerService,
-		@Inject(forwardRef(() => ClanService)) public readonly clanService: ClanService,
-		@Inject(forwardRef(() => RoomService)) public readonly roomService: RoomService,
+		public readonly playerService: PlayerService,
+		public readonly clanService: ClanService,
+		public readonly roomService: RoomService,
 		private readonly gameEventsBroker: GameEventsHandler,
 		private readonly jwtService: JwtService,
 	){
@@ -51,13 +49,11 @@ export class GameDataService {
 		const currentTime = new Date();
 		const winningTeam = battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
 		const playerInWinningTeam = winningTeam.includes(user.player_id);
-		//this.playerService.handlePlayedBattle(user.player_id, playerInWinningTeam);
-		//this.taskService.updateTask(user.player_id, TaskName.PLAY_BATTLE);
-		this.gameEventsBroker.handleEvent(user.player_id, GameEvent.PLAYER_PLAY_BATTLE);
+		await this.gameEventsBroker.handleEvent(user.player_id, GameEvent.PLAYER_PLAY_BATTLE);
+		
 		if (!playerInWinningTeam)
 			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED, message: "Player is not in the winning team and therefore is not allowed to steal" });
 
-		//this.taskService.updateTask(user.player_id, TaskName.WIN_BATTLE);
 		this.gameEventsBroker.handleEvent(user.player_id, GameEvent.PLAYER_WIN_BATTLE);
 		const [teamIds, teamIdsErrors] = await this.getClanIdForTeams([battleResult.team1[0], battleResult.team2[0]]);
 		if (teamIdsErrors)
