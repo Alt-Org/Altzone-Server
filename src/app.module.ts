@@ -12,7 +12,6 @@ import { AuthModule } from './auth/auth.module';
 import {AuthGuard} from "./auth/auth.guard";
 import {APP_GUARD} from "@nestjs/core";
 import { AuthorizationModule } from './authorization/authorization.module';
-import { PermissionModule } from './permission/permission.module';
 import { ApiStateModule } from './common/apiState/apiState.module';
 import { SiteModule } from './site/site.module';
 import {ChatModule} from "./chat/chat.module";
@@ -61,7 +60,6 @@ const redisPort = parseInt(envVars.REDIS_PORT);
       RequestHelperModule,
       AuthModule,
       AuthorizationModule,
-      PermissionModule,
       ApiStateModule,
       GameDataModule,
       GameAnalyticsModule,
