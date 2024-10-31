@@ -23,7 +23,7 @@ import { PlayerService } from '../player/player.service';
 
 type TaskUpdateStatus = 'update' | 'done';
 type TaskUpdate = { status: TaskUpdateStatus, task: Task };
-type TaskUpdateResult = {
+export type TaskUpdateResult = {
 	daily: TaskUpdate,
 	weekly: TaskUpdate,
 	monthly: TaskUpdate
@@ -275,26 +275,6 @@ export class PlayerTasksService implements OnModuleInit {
 	}
 
 	/**
-	 * Sets rewards for the specified player and his/her clan
-	 * @param player_id player _id, who completed the task
-	 * @param frequency task frequency
-	 * @param name task name
-	 */
-	private async setPlayerTaskRewards(player_id: string, frequency: TaskFrequency, name: TaskName){
-		const task = this.getTaskDefaultDataByFrequency(frequency, name);
-		if (task) {
-			const player = await this.playerService.readOneById(player_id);
-			if (!(player instanceof MongooseError))
-				this.clanRewarder.rewardClanForPlayerTask(
-					player.data.Player['clan_id'],
-					{ coins: task.coins, points: task.points }
-				);
-
-			this.playerRewarder.rewardForPlayerTask(player_id, task.points);
-		}
-	}
-
-	/**
 	 * Checks that the task is still active.
 	 * 
 	 * @param task - Task to validate.
@@ -356,32 +336,5 @@ export class PlayerTasksService implements OnModuleInit {
 			if (foundTask)
 				return { ...foundTask };
 		}
-	}
-
-	/**
-	 * Finds the task data by frequency and its name
-	 * @param frequency task frequency
-	 * @param name task name
-	 * @returns task if found or undefined if not
-	 */
-	private getTaskDefaultDataByFrequency(frequency: TaskFrequency, name: TaskName): Task | undefined {
-		if (frequency === TaskFrequency.WEEKLY)
-			return this.tasks.weekly.find(task => task.type === name);
-
-		if (frequency === TaskFrequency.MONTHLY)
-			return this.tasks.monthly.find(task => task.type === name);
-
-		for (const period in this.tasks) {
-			if (period === 'weekly' || period === 'monthly')
-				continue;
-
-			const periodTasks: Task[] = this.tasks[period];
-			const foundTask = periodTasks.find(task => task.type === name);
-
-			if (foundTask)
-				return { ...foundTask };
-		}
-
-		return undefined;
 	}
 }
