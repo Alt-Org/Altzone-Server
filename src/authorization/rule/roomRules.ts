@@ -1,17 +1,11 @@
 import { AllowedAction } from "../caslAbility.factory";
 import { AbilityBuilder, createMongoAbility, ExtractSubjectType, InferSubjects, MongoAbility } from "@casl/ability";
 import { Action } from "../enum/action.enum";
-import { RulesSetter, RulesSetterAsync } from "../type/RulesSetter.type";
-import { SoulHomeDto } from "../../soulhome/dto/soulhome.dto";
-import { UpdateSoulHomeDto } from "../../soulhome/dto/updateSoulHome.dto";
-import { getClan_id } from "../util/getClan_id";
+import { RulesSetterAsync } from "../type/RulesSetter.type";
 import { NotFoundException } from "@nestjs/common";
 import { ModelName } from "../../common/enum/modelName.enum";
-import { ClanDto } from "../../clan/dto/clan.dto";
-import { Model, MongooseError } from "mongoose";
-import { RoomDto } from "../../room/dto/room.dto";
-import { PlayerDto } from "../../player/dto/player.dto";
-import { UpdateRoomDto } from "../../room/dto/updateRoom.dto";
+import { MongooseError } from "mongoose";
+import { RoomDto } from "../../clanInventory/room/dto/room.dto";
 
 type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;

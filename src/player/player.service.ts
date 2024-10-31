@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {Model, Types} from "mongoose";
+import {Model, Types, UpdateQuery} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {Player, PlayerDocument, publicReferences} from "./player.schema";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
@@ -14,7 +14,7 @@ import {IHookImplementer, PostHookFunction} from "../common/interface/IHookImple
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
 import { PlayerDto } from "./dto/player.dto";
 import BasicService from "../common/service/basicService/BasicService";
-import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
+import { TIServiceReadManyOptions, TIServiceUpdateOneOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 import { Message } from "./message.schema";
 import ServiceError from "../common/service/basicService/ServiceError";
 
@@ -85,6 +85,16 @@ export class PlayerService
         return isPlayerCountIncreased;
     }
 
+    /**
+     * Updates one player data
+     * @param updateInfo data to update
+     * @param options required options of the query
+     * @returns tuple in form [ isSuccess, errors ]
+     */
+    async updatePlayerById(_id: string, updateInfo: UpdateQuery<Player>){
+        return this.basicService.updateOneById(_id, updateInfo);
+    }
+
     public deleteOnePostHook: PostHookFunction = async (input: any, oldDoc: Partial<Player>, output: Partial<Player>): Promise<boolean> => {
         const clan_id = oldDoc.clan_id;
 
@@ -150,44 +160,5 @@ export class PlayerService
         const [_, updateErrors] = await this.basicService.updateOneById(playerId, update);
         if (updateErrors)
             throw updateErrors
-    }
-
-    /**
-     * Tracks the daily amount of messages sent by a player.
-     * 
-     * Finds the player from db and updates or creates a message for that player.
-     * If the message count is 3 increments player points by 20.
-     * 
-     * @param playerId - ID of the player whose messages to track.
-     * @returns - A promise that resolves in to a tuple where first value is boolean that
-     * indicates if the update was successful and the second value is an array of errors.
-     */
-    async trackPlayerMessageCount(playerId: string): Promise<[boolean, ServiceError[]]> {
-        const today = new Date();
-    
-        const [player, errors] = await this.basicService.readOneById<PlayerDocument>(playerId);
-        if (errors)
-            return [false, errors];
-    
-        const messages: Message[] = player.gameStatistics.messages || [];
-        let todaysMessage: Message = messages.find(message => message.date.toDateString() === today.toDateString());
-    
-        if (todaysMessage) {
-            todaysMessage.count += 1;
-        } else {
-            const newMessage = { date: today, count: 1 } as Message;
-            messages.push(newMessage);
-            todaysMessage = newMessage;
-        }
-
-        if (todaysMessage.count === 3)
-            player.points += 20;
-    
-        player.gameStatistics.messages = messages;
-        const [update, updateErrors] = await this.basicService.updateOneById(playerId, player);
-        if (updateErrors)
-            return [false, updateErrors]
-
-        return [update, null];
     }
 }

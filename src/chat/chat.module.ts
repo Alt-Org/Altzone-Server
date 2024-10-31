@@ -6,15 +6,13 @@ import {ChatService} from "./chat.service";
 import {isChatExists} from "./decorator/validation/IsChatExists.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {RequestHelperModule} from "../requestHelper/requestHelper.module";
-import { PlayerTasksModule } from '../playerTasks/playerTasks.module';
-import { PlayerModule } from '../player/player.module';
+import { GameEventsBrokerModule } from '../gameEventsBroker/gameEventsBroker.module';
 
 @Module({
     imports: [
         MongooseModule.forFeature([ {name: ModelName.CHAT, schema: ChatSchema} ]),
         RequestHelperModule,
-        PlayerTasksModule,
-        PlayerModule,
+        GameEventsBrokerModule
     ],
     controllers: [ChatController],
     providers: [ ChatService, isChatExists ],

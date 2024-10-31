@@ -9,7 +9,6 @@ import { Request } from 'express';
 import {Reflector} from "@nestjs/core";
 import {NO_AUTH_REQUIRED} from "./decorator/NoAuth.decorator";
 import {User} from "./user";
-import {SystemAdminService} from "../common/apiState/systemAdmin.service";
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { envVars } from '../common/service/envHandler/envVars';
@@ -20,8 +19,7 @@ import { envVars } from '../common/service/envHandler/envVars';
 export class AuthGuard implements CanActivate {
     public constructor(
         private readonly jwtService: JwtService,
-        private readonly reflector: Reflector,
-        private readonly systemAdminService: SystemAdminService
+        private readonly reflector: Reflector
     ) {}
 
     public async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -58,9 +56,8 @@ export class AuthGuard implements CanActivate {
             );
 
             const {profile_id, player_id} = payload;
-            const isSystemAdmin = await this.systemAdminService.isSystemAdmin(profile_id);
 
-            if(!profile_id || (!isSystemAdmin && !player_id))
+            if(!profile_id || !player_id)
                 throw new UnauthorizedException(
                     {...errorResponse, 
                         message: 'Incorrect token provided',
@@ -68,7 +65,7 @@ export class AuthGuard implements CanActivate {
                     }
                 );
 
-            request['user'] = new User(profile_id, player_id, isSystemAdmin);
+            request['user'] = new User(profile_id, player_id);
         } catch{
             throw new UnauthorizedException(
                 {...errorResponse, 
