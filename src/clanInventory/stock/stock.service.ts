@@ -1,4 +1,4 @@
-import {forwardRef, Inject, Injectable} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
 import {Model} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {Stock} from "./stock.schema";
@@ -15,7 +15,7 @@ import ServiceError from "../../common/service/basicService/ServiceError";
 export class StockService {
     public constructor(
         @InjectModel(Stock.name) public readonly model: Model<Stock>,
-        @Inject(forwardRef(() => ItemService)) private readonly itemService: ItemService
+        private readonly itemService: ItemService
     ){
         this.refsInModel = [ModelName.CLAN, ModelName.ITEM];
         this.modelName = ModelName.STOCK;

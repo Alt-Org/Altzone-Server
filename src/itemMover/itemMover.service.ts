@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { ItemService } from "../clanInventory/item/item.service";
 import { ItemHelperService } from "../clanInventory/item/itemHelper.service";
 import { RoomService } from "../clanInventory/room/room.service";
@@ -21,9 +21,9 @@ export class ItemMoverService {
 	public constructor(
 		@InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
 		@InjectModel(Player.name) public readonly playerModel: Model<Player>,
-		@Inject(forwardRef(() => ItemService)) private readonly itemService: ItemService,
-		@Inject(forwardRef(() => ItemHelperService)) private readonly itemHelperService: ItemHelperService,
-		@Inject(forwardRef(() => RoomService)) private readonly roomService: RoomService
+		private readonly itemService: ItemService,
+		private readonly itemHelperService: ItemHelperService,
+		private readonly roomService: RoomService
 	){
 		this.clanBasicService = new BasicService(clanModel);
 		this.playerBasicService = new BasicService(playerModel);

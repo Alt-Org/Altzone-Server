@@ -1,4 +1,4 @@
-import {forwardRef, Module} from '@nestjs/common';
+import {Module} from '@nestjs/common';
 import {MongooseModule} from '@nestjs/mongoose';
 import {ClanSchema} from "./clan.schema";
 import {ClanController} from "./clan.controller";
