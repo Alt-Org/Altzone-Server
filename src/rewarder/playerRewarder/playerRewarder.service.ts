@@ -76,7 +76,7 @@ export class PlayerRewarder {
 		const messageCount = todaysMessage?.count;
 
 		if (messageCount === 3)
-			player.points += 20;
+			player.points += points[PlayerEvent.MESSAGE_SENT];
 
 		const updateResp = await this.playerService.updateOneById({ ...player, _id: player_id });
 		if (updateResp instanceof MongooseError)
