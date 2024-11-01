@@ -26,7 +26,8 @@
         "/clan": {
             "get": {
                 "tags": [
-                    "Clan"
+                    "Clan",
+                    "release-01-11-2024"
                 ],
                 "responses": {
                     "200": {
@@ -139,7 +140,8 @@
                     "required": true
                 },
                 "tags": [
-                    "Clan"
+                    "Clan",
+                    "release-01-11-2024"
                 ],
                 "responses": {
                     "204": {
@@ -184,7 +186,8 @@
                     "required": true
                 },
                 "tags": [
-                    "Clan"
+                    "Clan",
+                    "release-01-11-2024"
                 ],
                 "responses": {
                     "201": {
@@ -475,7 +478,8 @@
         "/player": {
             "get": {
                 "tags": [
-                    "Player"
+                    "Player",
+                    "release-01-11-2024"
                 ],
                 "responses": {
                     "200": {
@@ -682,7 +686,8 @@
         "/player/{_id}": {
             "get": {
                 "tags": [
-                    "Player"
+                    "Player",
+                    "release-01-11-2024"
                 ],
                 "responses": {
                     "200": {
@@ -798,7 +803,8 @@
         "/clan/{_id}": {
             "get": {
                 "tags": [
-                    "Clan"
+                    "Clan",
+                    "release-01-11-2024"
                 ],
                 "responses": {
                     "200": {
@@ -1124,7 +1130,8 @@
         "/item/{_id}": {
             "get": {
                 "tags": [
-                    "Item"
+                    "Item",
+                    "release-01-11-2024"
                 ],
                 "responses": {
                     "200": {
@@ -1984,7 +1991,8 @@
                     "required": true
                 },
                 "tags": [
-                    "Chat"
+                    "Chat",
+                    "release-01-11-2024"
                 ],
                 "responses": {
                     "204": {
@@ -2423,7 +2431,8 @@
         "/item/steal": {
             "get": {
                 "tags": [
-                    "Item"
+                    "Item",
+                    "release-01-11-2024"
                 ],
                 "parameters": [
                     {
@@ -2521,7 +2530,8 @@
                     "required": true
                 },
                 "tags": [
-                    "Item"
+                    "Item",
+                    "release-01-11-2024"
                 ],
                 "responses": {
                     "200": {
@@ -2611,7 +2621,8 @@
                     "required": true
                 },
                 "tags": [
-                    "GameData"
+                    "GameData",
+                    "release-01-11-2024"
                 ],
                 "responses": {
                     "200": {
@@ -2904,7 +2915,8 @@
                     "required": true
                 },
                 "tags": [
-                    "GameAnalytics"
+                    "GameAnalytics",
+                    "release-01-11-2024"
                 ],
                 "parameters": [
                     {
@@ -3132,7 +3144,8 @@
         "/playerTasks": {
             "get": {
                 "tags": [
-                    "PlayerTasks"
+                    "PlayerTasks",
+                    "release-01-11-2024"
                 ],
                 "responses": {
                     "200": {
@@ -3263,7 +3276,8 @@
         "/leaderboard/player": {
             "get": {
                 "tags": [
-                    "Leaderboard"
+                    "Leaderboard",
+                    "release-01-11-2024"
                 ],
                 "responses": {
                     "200": {
@@ -3352,7 +3366,8 @@
         "/leaderboard/clan": {
             "get": {
                 "tags": [
-                    "Leaderboard"
+                    "Leaderboard",
+                    "release-01-11-2024"
                 ],
                 "responses": {
                     "200": {
