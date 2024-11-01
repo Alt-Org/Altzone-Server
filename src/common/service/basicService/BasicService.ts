@@ -304,6 +304,8 @@ function convertMongooseErrorKindToReason(kind: string){
             return SEReason.NOT_ARRAY;
         case 'object':
             return SEReason.NOT_OBJECT;
+        case 'objectid':
+            return SEReason.VALIDATION;
         default:
             return SEReason.UNEXPECTED;
     }

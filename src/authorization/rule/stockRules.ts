@@ -6,8 +6,8 @@ import {RulesSetterAsync} from "../type/RulesSetter.type";
 import { ClanDto } from "../../clan/dto/clan.dto";
 import { ModelName } from "../../common/enum/modelName.enum";
 import {getClan_id} from "../util/getClan_id";
-import {StockDto} from "../../stock/dto/stock.dto";
-import {UpdateStockDto} from "../../stock/dto/updateStock.dto";
+import { StockDto } from "../../clanInventory/stock/dto/stock.dto";
+import { UpdateStockDto } from "../../clanInventory/stock/dto/updateStock.dto";
 
 type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;

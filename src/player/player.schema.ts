@@ -5,6 +5,7 @@ import {ModelName} from "../common/enum/modelName.enum";
 import {CustomCharacter} from "../customCharacter/customCharacter.schema";
 import {Profile} from "../profile/profile.schema";
 import {ExtractField} from "../common/decorator/response/ExtractField";
+import { GameStatistics } from "./gameStatistics.schema";
 
 export type PlayerDocument = HydratedDocument<Player>;
 
@@ -16,26 +17,32 @@ export class Player {
     @Prop({ type: Number, required: true })
     backpackCapacity: number;
 
+    @Prop({ type: Number, default: 0 })
+    points: number;
+
     @Prop({ type: String, required: true, unique: true })
     uniqueIdentifier: string;
 
     @Prop({ type: Boolean, default: null })
-    above13: boolean;
+    above13?: boolean;
 
     @Prop({ type: Boolean, default: null })
-    parentalAuth: boolean;
+    parentalAuth?: boolean;
 
+    @Prop({ type: GameStatistics, default: () => ({}) })
+    gameStatistics?: GameStatistics;
+    
     @ExtractField()
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.PROFILE })
-    profile_id: Profile;
+    profile_id?: string;
 
     @ExtractField()
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CLAN })
-    clan_id: Clan;
+    clan_id?: string;
 
     @ExtractField()
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CUSTOM_CHARACTER })
-    currentCustomCharacter_id: CustomCharacter;
+    currentCustomCharacter_id?: string;
 
     @ExtractField()
     _id: string;
@@ -59,3 +66,5 @@ PlayerSchema.virtual(ModelName.ROOM,{
     localField:'_id',
     foreignField:'player_id'
 })
+
+export const publicReferences = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.ROOM];

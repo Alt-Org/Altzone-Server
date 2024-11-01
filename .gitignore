@@ -113,3 +113,4 @@ testAPI/**/*spec.js.map
 
 #IDEs
 .idea/
+.vscode/

@@ -11,58 +11,72 @@ import {ProfileModule} from "./profile/profile.module";
 import { AuthModule } from './auth/auth.module';
 import {AuthGuard} from "./auth/auth.guard";
 import {APP_GUARD} from "@nestjs/core";
-import {JwtModule} from "@nestjs/jwt";
-import {jwtConstants} from "./auth/constant";
 import { AuthorizationModule } from './authorization/authorization.module';
-import { PermissionModule } from './permission/permission.module';
-import { ApiStateModule } from './common/apiState/apiState.module';
 import { SiteModule } from './site/site.module';
 import {ChatModule} from "./chat/chat.module";
-import {ItemModule} from "./item/item.module";
-import {StockModule} from "./stock/stock.module";
-import { SoulHomeModule } from './soulhome/soulhome.module';
-import { RoomModule } from './room/room.module';
-import { ClanVoteModule } from './shop/clanVote/clanVote.module';
-import { ItemShopModule } from './shop/itemShop/itemShop.module';
 import { GameDataModule } from './gameData/gameData.module';
 import { GameAnalyticsModule } from './gameAnalytics/gameAnalytics.module';
+import { PlayerTasksModule } from './playerTasks/playerTasks.module';
+import { envVars } from './common/service/envHandler/envVars';
+import { LeaderboardModule } from './leaderboard/leaderboard.module';
+import * as redisStore from 'cache-manager-redis-store';
+import { CacheModule } from '@nestjs/cache-manager';
+import { ClanInventoryModule } from './clanInventory/clanInventory.module';
+import { ItemMoverModule } from './itemMover/itemMover.module';
+import { GameEventsBrokerModule } from './gameEventsBroker/gameEventsBroker.module';
+import { RewarderModule } from './rewarder/rewarder.module';
+import { StatisticsKeeperModule } from './statisticsKeeper/statisticsKeeper.module';
 
 // Set up database connection
-const mongoUser = process.env.MONGO_USERNAME || 'rootUser';
-const mongoPassword = process.env.MONGO_PASSWORD || 'superSecretPassword';
-const mongoHost = process.env.MONGO_HOST || '127.0.0.1';
-const mongoPort = process.env.MONGO_PORT || '27017';
-const dbName = process.env.MONGO_DB_NAME || 'altzone_dev';
+const mongoUser = envVars.MONGO_USERNAME;
+const mongoPassword = envVars.MONGO_PASSWORD;
+const mongoHost = envVars.MONGO_HOST;
+const mongoPort = envVars.MONGO_PORT;
+const dbName = envVars.MONGO_DB_NAME;
 const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}`;
+
+// Set up redis connection
+const redisPassword = envVars.REDIS_PASSWORD;
+const redisHost = envVars.REDIS_HOST;
+const redisPort = parseInt(envVars.REDIS_PORT);
 
 @Module({
   imports: [
       MongooseModule.forRoot(mongoString, {dbName: dbName}),
+      CacheModule.register({
+        isGlobal: true,
+        store: redisStore,
+        host: redisHost,
+        port: redisPort,
+        password: redisPassword,
+      }),
+
+      GameDataModule,
+      ChatModule,
+
+      GameEventsBrokerModule,
+      LeaderboardModule,
+      PlayerTasksModule,
+      RewarderModule,
+      StatisticsKeeperModule,
+
       ClanModule,
       PlayerModule,
-      CharacterClassModule,
+
+      ItemMoverModule,
+
       CustomCharacterModule,
-      ItemModule,
-      StockModule,
+      ClanInventoryModule,
+      CharacterClassModule,
+      
       ProfileModule,
       SiteModule,
-      ChatModule,
-      SoulHomeModule,
-      RoomModule,
-      RequestHelperModule,
+      
       AuthModule,
-      ItemShopModule,
-      ClanVoteModule,
-      JwtModule.register({
-          global: true,
-          secret: jwtConstants.secret,
-          signOptions: { expiresIn: jwtConstants.expiresIn },
-      }),
       AuthorizationModule,
-      PermissionModule,
-      ApiStateModule,
-      GameDataModule,
-      GameAnalyticsModule
+      GameAnalyticsModule,
+
+      RequestHelperModule
   ],
   controllers: [AppController],
   providers: [

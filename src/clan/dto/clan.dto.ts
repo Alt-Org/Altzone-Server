@@ -1,9 +1,12 @@
 import {Expose, Type} from "class-transformer";
 import {PlayerDto} from "../../player/dto/player.dto";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
-import {StockDto} from "../../stock/dto/stock.dto";
 import AddType from "../../common/base/decorator/AddType.decorator";
-import { SoulHomeDto } from "../../soulhome/dto/soulhome.dto";
+import { Language } from "../../common/enum/language.enum";
+import { AgeRange } from "../enum/ageRange.enum";
+import { Goal } from "../enum/goal.enum";
+import { StockDto } from "../../clanInventory/stock/dto/stock.dto";
+import { SoulHomeDto } from "../../clanInventory/soulhome/dto/soulhome.dto";
 
 @AddType('ClanDto')
 export class ClanDto {
@@ -24,6 +27,9 @@ export class ClanDto {
     gameCoins: number;
 
     @Expose()
+    points: number;
+
+    @Expose()
     admin_ids: string[];
 
     @Expose()
@@ -34,6 +40,18 @@ export class ClanDto {
 
     @Expose()
     stockCount: number;
+
+    @Expose()
+    ageRange: AgeRange;
+
+    @Expose()
+    goal: Goal;
+
+    @Expose()
+    phrase: string;
+
+    @Expose()
+    language: Language;
 
     @Expose()
     isOpen: boolean

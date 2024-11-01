@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Game } from './game.schema';
 import { Model } from 'mongoose';
@@ -8,7 +8,6 @@ import { PlayerService } from '../player/player.service';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { JwtService } from '@nestjs/jwt';
 import { ClanService } from '../clan/clan.service';
-import { RoomService } from '../room/room.service';
 import { ModelName } from '../common/enum/modelName.enum';
 import { BattleResultDto } from './dto/battleResult.dto';
 import { User } from '../auth/user';
@@ -16,14 +15,18 @@ import { GameDto } from './dto/game.dto';
 import { BattleResponseDto } from './dto/battleResponse.dto';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
+import { RoomService } from '../clanInventory/room/room.service';
+import { GameEventsHandler } from '../gameEventsBroker/gameEventsHandler';
+import { GameEvent } from '../gameEventsBroker/enum/GameEvent.enum';
 
 @Injectable()
 export class GameDataService {
 	constructor(
 		@InjectModel(Game.name) public readonly model: Model<Game>,
-		@Inject(forwardRef(() => PlayerService)) public readonly playerService: PlayerService,
-		@Inject(forwardRef(() => ClanService)) public readonly clanService: ClanService,
-		@Inject(forwardRef(() => RoomService)) public readonly roomService: RoomService,
+		public readonly playerService: PlayerService,
+		public readonly clanService: ClanService,
+		public readonly roomService: RoomService,
+		private readonly gameEventsBroker: GameEventsHandler,
 		private readonly jwtService: JwtService,
 	){
 		this.basicService = new BasicService(model);
@@ -34,6 +37,32 @@ export class GameDataService {
 	public readonly basicService: BasicService;
 	public readonly refsInModel: ModelName[];
     public readonly modelName: ModelName;
+
+	/**
+	 * Handles the result type request.
+	 * 
+	 * @param battleResult - The battleResult of the request containing battle result data.
+	 * @param user - The user making the request.
+	 * @returns - Returns a promise that resolves to the response or an API error.
+	 */
+	async handleResultType(battleResult: BattleResultDto, user: User): Promise<any> {
+		const currentTime = new Date();
+		const winningTeam = battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
+		const playerInWinningTeam = winningTeam.includes(user.player_id);
+		await this.gameEventsBroker.handleEvent(user.player_id, GameEvent.PLAYER_PLAY_BATTLE);
+		
+		if (!playerInWinningTeam)
+			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED, message: "Player is not in the winning team and therefore is not allowed to steal" });
+
+		this.gameEventsBroker.handleEvent(user.player_id, GameEvent.PLAYER_WIN_BATTLE);
+		const [teamIds, teamIdsErrors] = await this.getClanIdForTeams([battleResult.team1[0], battleResult.team2[0]]);
+		if (teamIdsErrors)
+			return teamIdsErrors
+		
+		this.createGameIfNotExists(battleResult, teamIds, currentTime);
+		
+		return await this.generateResponse(battleResult, teamIds.team1Id, teamIds.team2Id, user)
+	}
 
 	/**
 	 * Creates a new game in DB.
@@ -187,37 +216,14 @@ export class GameDataService {
 	 * @param battleResult - The battle result data transfer object.
 	 * @param teamIds - The clan IDs for both teams.
 	 * @param currentTime - The current time.
+	 * 
+	 * @returns - A Promise that resolves into GameDto or ServiceError[]
 	 */
 	private async createGameIfNotExists(battleResult: BattleResultDto, teamIds: { team1Id: string, team2Id: string }, currentTime: Date) {
 		const existingGame = await this.gameAlreadyExists(battleResult.team1, battleResult.team2, currentTime);
 		if (!existingGame) {
 			const newGame = this.createNewGameObject(battleResult, teamIds.team1Id, teamIds.team2Id, currentTime);
-			const [_, createGameErrors] = await this.createOne(newGame);
-			if (createGameErrors)
-				console.error("Error creating new game:", createGameErrors)
+			return await this.createOne(newGame);
 		}
-	}
-
-	/**
-	 * Handles the result type request.
-	 * 
-	 * @param battleResult - The battleResult of the request containing battle result data.
-	 * @param user - The user making the request.
-	 * @returns - Returns a promise that resolves to the response or an API error.
-	 */
-	async handleResultType(battleResult: BattleResultDto, user: User): Promise<any> {
-		const currentTime = new Date();
-		const winningTeam = battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
-		const playerInWinningTeam = winningTeam.includes(user.player_id);
-		if (!playerInWinningTeam)
-			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED, message: "Invalid type field" });
-	
-		const [teamIds, teamIdsErrors] = await this.getClanIdForTeams([battleResult.team1[0], battleResult.team2[0]]);
-		if (teamIdsErrors)
-			return teamIdsErrors
-	
-		this.createGameIfNotExists(battleResult, teamIds, currentTime);
-		
-		return await this.generateResponse(battleResult, teamIds.team1Id, teamIds.team2Id, user)
 	}
 }

@@ -1,15 +1,15 @@
 import { Injectable } from "@nestjs/common";
-import { StockService } from "../../stock/stock.service";
-import { SoulHomeService } from "../../soulhome/soulhome.service";
-import { ItemService } from "../../item/item.service";
 import { getStockDefaultItems, getRoomDefaultItems } from "./defaultValues/items";
-import { RoomService } from "../../room/room.service";
-import { CreateRoomDto } from "../../room/dto/createRoom.dto";
-import { StockDto } from "../../stock/dto/stock.dto";
-import { ItemDto } from "../../item/dto/item.dto";
 import ServiceError from "../../common/service/basicService/ServiceError";
-import { SoulHomeDto } from "../../soulhome/dto/soulhome.dto";
-import { RoomDto } from "../../room/dto/room.dto";
+import { StockService } from "../../clanInventory/stock/stock.service";
+import { SoulHomeService } from "../../clanInventory/soulhome/soulhome.service";
+import { RoomService } from "../../clanInventory/room/room.service";
+import { ItemService } from "../../clanInventory/item/item.service";
+import { CreateRoomDto } from "../../clanInventory/room/dto/createRoom.dto";
+import { StockDto } from "../../clanInventory/stock/dto/stock.dto";
+import { ItemDto } from "../../clanInventory/item/dto/item.dto";
+import { SoulHomeDto } from "../../clanInventory/soulhome/dto/soulhome.dto";
+import { RoomDto } from "../../clanInventory/room/dto/room.dto";
 
 @Injectable()
 export default class ClanHelperService {

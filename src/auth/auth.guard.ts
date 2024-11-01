@@ -5,14 +5,13 @@ import {
     UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from './constant';
 import { Request } from 'express';
 import {Reflector} from "@nestjs/core";
 import {NO_AUTH_REQUIRED} from "./decorator/NoAuth.decorator";
 import {User} from "./user";
-import {SystemAdminService} from "../common/apiState/systemAdmin.service";
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
+import { envVars } from '../common/service/envHandler/envVars';
 
 //TODO: remove or change error messages to less specific for production
 
@@ -20,8 +19,7 @@ import { APIErrorReason } from '../common/controller/APIErrorReason';
 export class AuthGuard implements CanActivate {
     public constructor(
         private readonly jwtService: JwtService,
-        private readonly reflector: Reflector,
-        private readonly systemAdminService: SystemAdminService
+        private readonly reflector: Reflector
     ) {}
 
     public async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -53,14 +51,13 @@ export class AuthGuard implements CanActivate {
             const payload = await this.jwtService.verifyAsync(
                 token,
                 {
-                    secret: jwtConstants.secret
+                    secret: envVars.JWT_SECRET
                 }
             );
 
             const {profile_id, player_id} = payload;
-            const isSystemAdmin = await this.systemAdminService.isSystemAdmin(profile_id);
 
-            if(!profile_id || (!isSystemAdmin && !player_id))
+            if(!profile_id || !player_id)
                 throw new UnauthorizedException(
                     {...errorResponse, 
                         message: 'Incorrect token provided',
@@ -68,7 +65,7 @@ export class AuthGuard implements CanActivate {
                     }
                 );
 
-            request['user'] = new User(profile_id, player_id, isSystemAdmin);
+            request['user'] = new User(profile_id, player_id);
         } catch{
             throw new UnauthorizedException(
                 {...errorResponse, 

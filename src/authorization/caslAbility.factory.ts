@@ -12,8 +12,6 @@ import { UpdateCustomCharacterDto } from "../customCharacter/dto/updateCustomCha
 import { profileRules } from "./rule/profileRules";
 import { playerRules } from "./rule/playerRules";
 import { customCharacterRules } from "./rule/customCharacterRules";
-import { SystemAdminService } from "../common/apiState/systemAdmin.service";
-import { systemAdminRules } from "./rule/systemAdminRules";
 import { CharacterClassDto } from "../characterClass/dto/characterClass.dto";
 import { UpdateCharacterClassDto } from "../characterClass/dto/updateCharacterClass.dto";
 import { characterClassRules } from "./rule/characterClassRules";
@@ -26,22 +24,9 @@ import { SupportedAction } from "./authorization.interceptor";
 import { JoinDto } from "../clan/join/dto/join.dto";
 import { JoinResultDto } from "../clan/join/dto/joinResult.dto";
 import { joinRules } from "./rule/joinRequestRules";
-import { ItemDto } from "../item/dto/item.dto";
-import { UpdateItemDto } from "../item/dto/updateItem.dto";
-import { StockDto } from "../stock/dto/stock.dto";
-import { UpdateStockDto } from "../stock/dto/updateStock.dto";
-import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
-import { UpdateSoulHomeDto } from "../soulhome/dto/updateSoulHome.dto";
 import { soulHomeRules } from "./rule/soulHomeRules";
-import { RoomDto } from "../room/dto/room.dto";
-import { UpdateRoomDto } from "../room/dto/updateRoom.dto";
 import { roomRules } from "./rule/roomRules";
-import { ClanVoteDto } from "../shop/clanVote/dto/clanVote.dto";
-import { UpdateClanVoteDto } from "../shop/clanVote/dto/updateClanVote.dto";
-import { ItemShopDto } from "../shop/itemShop/dto/itemshop.dto";
-import { clanVoteRules } from "./rule/clanVoteRules";
 import { shopRules } from "./rule/shopRules";
-import { ShopItemDTO } from "../shop/itemShop/dto/shopItem.dto";
 import { RemovePlayerDTO } from "../clan/join/dto/removePlayer.dto";
 import { isType, ObjectType } from "../common/base/decorator/AddType.decorator";
 import { PlayerLeaveClanDto } from "../clan/join/dto/playerLeave.dto";
@@ -49,6 +34,14 @@ import { ChatDto } from "../chat/dto/chat.dto";
 import { UpdateChatDto } from "../chat/dto/updateChat.dto";
 import { MessageDto } from "../chat/dto/message.dto";
 import { chatRules } from "./rule/chatRules";
+import { ItemDto } from "../clanInventory/item/dto/item.dto";
+import { UpdateItemDto } from "../clanInventory/item/dto/updateItem.dto";
+import { RoomDto } from "../clanInventory/room/dto/room.dto";
+import { UpdateRoomDto } from "../clanInventory/room/dto/updateRoom.dto";
+import { SoulHomeDto } from "../clanInventory/soulhome/dto/soulhome.dto";
+import { UpdateSoulHomeDto } from "../clanInventory/soulhome/dto/updateSoulHome.dto";
+import { StockDto } from "../clanInventory/stock/dto/stock.dto";
+import { UpdateStockDto } from "../clanInventory/stock/dto/updateStock.dto";
 
 export type AllowedAction = Action.create_request | Action.read_request | Action.read_response | Action.update_request | Action.delete_request;
 
@@ -63,8 +56,6 @@ export type AllowedSubject =
     typeof JoinDto | typeof JoinResultDto | typeof PlayerLeaveClanDto | typeof RemovePlayerDTO |
     typeof SoulHomeDto | typeof UpdateSoulHomeDto |
     typeof RoomDto | typeof UpdateRoomDto |
-    typeof ClanVoteDto | typeof UpdateClanVoteDto |
-    typeof ItemShopDto | typeof ShopItemDTO |
     typeof ChatDto | typeof UpdateChatDto | typeof MessageDto;
 
 
@@ -83,14 +74,10 @@ export type AppAbility = MongoAbility<[AllowedAction | Action.manage, Subjects |
 @Injectable()
 export class CASLAbilityFactory {
     public constructor(
-        private readonly requestHelperService: RequestHelperService,
-        private readonly systemAdminService: SystemAdminService
+        private readonly requestHelperService: RequestHelperService
     ) {
     }
     public createForUser = async (user: User, subject: AllowedSubject, action: SupportedAction, subjectObj: AllowedSubject = undefined): Promise<AppAbility> => {
-        const isSystemAdmin = await this.systemAdminService.isSystemAdmin(user.profile_id);
-        if (isSystemAdmin)
-            return systemAdminRules();
 
         const obj = new subject() as unknown as ObjectType;
 
@@ -123,9 +110,6 @@ export class CASLAbilityFactory {
 
         if (isType(obj, 'RoomDto') || isType(obj, 'UpdateRoomDto'))
             return roomRules(user, subject, action, subjectObj, this.requestHelperService);
-
-        if (isType(obj, 'ClanVoteDto') || isType(obj, 'UpdateClanVoteDto'))
-            return clanVoteRules(user, subject, action, subjectObj, this.requestHelperService)
 
         if (isType(obj, 'ItemShopDto') || isType(obj, 'ShopItemDTO'))
             return shopRules(user, subject, action, subjectObj, this.requestHelperService)

@@ -15,13 +15,16 @@ import {CreateMessageDto} from "./dto/createMessage.dto";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import {IResponseShape} from "../common/interface/IResponseShape";
 import {ObjectId} from "mongodb";
+import { GameEventsHandler } from "../gameEventsBroker/gameEventsHandler";
+import { GameEvent } from "../gameEventsBroker/enum/GameEvent.enum";
 
 @Injectable()
 @AddBasicService()
 export class ChatService extends BasicServiceDummyAbstract<Chat> implements IBasicService<Chat>{
     public constructor(
         @InjectModel(Chat.name) public readonly model: Model<Chat>,
-        private readonly requestHelperService: RequestHelperService
+        private readonly requestHelperService: RequestHelperService,
+        private readonly gameEventsHandler: GameEventsHandler
     ){
         super();
         this.refsInModel = [];
@@ -31,7 +34,22 @@ export class ChatService extends BasicServiceDummyAbstract<Chat> implements IBas
     public readonly refsInModel: ModelName[];
     public readonly modelName: ModelName;
 
-    public createMessage = async (chat_id: string, input: CreateMessageDto): Promise<boolean | MongooseError> => {
+    /**
+     * Creates a new message and updates the write chat message player task.
+     * Handles the request from controllers createMessage method.
+     * 
+     * @param chat_id - ID of the chat where message will be created.
+     * @param input - The data for the new message.
+     * @param player_id - ID of the player who made the request.
+     */
+    async handleCreateMessage(chat_id: string, input: CreateMessageDto, player_id: string) {
+        const messageCreated = await this.createMessage(chat_id, input);
+        if (messageCreated) {
+            this.gameEventsHandler.handleEvent(player_id, GameEvent.PLAYER_SEND_MESSAGE);
+        }
+    }
+
+    public createMessage = async (chat_id: string, input: CreateMessageDto): Promise<boolean> => {
         const chat = await this.getChatOrThrowNotFoundError(chat_id);
         chat.messages.push(input);
         chat.markModified('messages');

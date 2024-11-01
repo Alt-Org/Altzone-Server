@@ -1,4 +1,5 @@
-import { CreateSoulHomeDto } from "../../soulhome/dto/createSoulHome.dto"
+import { CreateSoulHomeDto } from "../../clanInventory/soulhome/dto/createSoulHome.dto";
+
 
 /**
  * Get the default SoulHome object

@@ -58,6 +58,12 @@ export enum SEReason {
     MORE_THAN_MAX = 'MORE_THAN_MAX',
  
     /**
+     * Provided field is not valid. General validation error, 
+     * please use more specific error whenever it is possible
+     */
+    VALIDATION = 'VALIDATION',
+
+    /**
      * The error is unexpected
      */
     UNEXPECTED = 'UNEXPECTED',
