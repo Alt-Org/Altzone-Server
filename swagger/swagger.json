@@ -50,6 +50,7 @@
                                                             "rikkaat"
                                                         ],
                                                         "gameCoins": 0,
+                                                        "points": 0,
                                                         "admin_ids": [
                                                             "66d7067645b40dd7f491e753"
                                                         ],
@@ -207,6 +208,7 @@
                                                             "rikkaat"
                                                         ],
                                                         "gameCoins": 0,
+                                                        "points": 0,
                                                         "admin_ids": [
                                                             "66d7067645b40dd7f491e753"
                                                         ],
@@ -228,6 +230,7 @@
                                                             "rikkaat"
                                                         ],
                                                         "gameCoins": 0,
+                                                        "points": 0,
                                                         "admin_ids": [
                                                             "66d705c645b40dd7f491e6eb"
                                                         ],
@@ -487,14 +490,25 @@
                                             "data": {
                                                 "Player": [
                                                     {
-                                                        "_id": "6686cb3b71adebdb10f33ffb",
-                                                        "name": "User 2",
-                                                        "backpackCapacity": 654,
-                                                        "uniqueIdentifier": 2,
-                                                        "profile_id": "6686cb3b71adebdb10f33ff9",
+                                                        "_id": "672388e8c7f8bb9dd570e83b",
+                                                        "name": "user1",
+                                                        "points": 110,
+                                                        "uniqueIdentifier": "user1",
                                                         "above13": true,
                                                         "parentalAuth": true,
-                                                        "points": 20
+                                                        "profile_id": "672388e8c7f8bb9dd570e839",
+                                                        "clan_id": "67238943c7f8bb9dd570e850",
+                                                        "gameStatistics": {
+                                                            "playedBattles": 0,
+                                                            "wonBattles": 0,
+                                                            "messages": [
+                                                                {
+                                                                    "date": "2024-10-31T18:05:02.641Z",
+                                                                    "count": 11
+                                                                }
+                                                            ]
+                                                        },
+                                                        "id": "672388e8c7f8bb9dd570e83b"
                                                     }
                                                 ]
                                             },
@@ -682,25 +696,25 @@
                                         "value": {
                                             "data": {
                                                 "Player": {
-                                                    "_id": "6686cb3b71adebdb10f33ffb",
-                                                    "name": "User 2",
-                                                    "backpackCapacity": 654,
-                                                    "uniqueIdentifier": 2,
-                                                    "profile_id": "6686cb3b71adebdb10f33ff9",
+                                                    "_id": "672388e8c7f8bb9dd570e83b",
+                                                    "name": "user1",
+                                                    "points": 110,
+                                                    "uniqueIdentifier": "user1",
                                                     "above13": true,
                                                     "parentalAuth": true,
-                                                    "points": 20,
+                                                    "profile_id": "672388e8c7f8bb9dd570e839",
+                                                    "clan_id": "67238943c7f8bb9dd570e850",
                                                     "gameStatistics": {
-                                                        "messages": {
-                                                            "date": 1728399672,
-                                                            "count": 2
-                                                        },
-                                                        "playedBattles": 1,
-                                                        "wonBattles": 1,
-                                                        "diamondsAmount": 1,
-                                                        "startedVotings": 1,
-                                                        "participatedVotings": 1
-                                                    }
+                                                        "playedBattles": 0,
+                                                        "wonBattles": 0,
+                                                        "messages": [
+                                                            {
+                                                                "date": "2024-10-31T18:05:02.641Z",
+                                                                "count": 11
+                                                            }
+                                                        ]
+                                                    },
+                                                    "id": "672388e8c7f8bb9dd570e83b"
                                                 }
                                             },
                                             "metaData": {
@@ -726,6 +740,9 @@
                         "$ref": "#/components/responses/500"
                     }
                 },
+                "security": [
+                    {}
+                ],
                 "summary": "Get Player by _id",
                 "description": "Read Player data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
             },
@@ -804,6 +821,7 @@
                                                         "rikkaat"
                                                     ],
                                                     "gameCoins": 0,
+                                                    "points": 0,
                                                     "admin_ids": [
                                                         "66d705c645b40dd7f491e6eb"
                                                     ],
@@ -1340,8 +1358,8 @@
         "/fleaMarket": {
             "get": {
                 "tags": [
-                    "in-development",
-                    "FleaMarket"
+                    "FleaMarket",
+                    "in-development"
                 ],
                 "responses": {
                     "200": {
@@ -1488,8 +1506,8 @@
         "/fleaMarket/{_id}": {
             "get": {
                 "tags": [
-                    "in-development",
-                    "FleaMarket"
+                    "FleaMarket",
+                    "in-development"
                 ],
                 "responses": {
                     "200": {
@@ -1951,7 +1969,7 @@
                     }
                 ],
                 "summary": "Read all messages from the Chat",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nRead all messages of specified Chat. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
+                "description": "Read all messages of specified Chat. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
                 "externalDocs": {
                     "url": "https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests)"
                 }
@@ -1996,7 +2014,7 @@
                     }
                 ],
                 "summary": "Create a message",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nCreate a new Message. Message represent the object of message sent by a Player.\n\nNotice that currently there are no authorization required.\n\nNotice, that the messages does not have an usual _id field generated by data base. Instead the Photon id should be used.\n\nNotice that the messages is contained in the array of a Chat collection.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n"
+                "description": "Create a new Message. Message represent the object of message sent by a Player.\n\nNotice that currently there are no authorization required.\n\nNotice, that the messages does not have an usual _id field generated by data base. Instead the Photon id should be used.\n\nNotice that the messages is contained in the array of a Chat collection.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n"
             },
             "parameters": [
                 {
@@ -2638,7 +2656,7 @@
                     }
                 ],
                 "summary": "Inform API about battle",
-                "description": "Enpoint for notifying the API about battle events or any other data.\n\nNotice, that the field type is required and determines the type of the data.\n\nNotice that the type also determines shape of the body. Examples, for each type can be found in request examples section.\n\n## Type field\n\n### result\n\nResult of the battle, all players of the battle should send this data.\n\nAs a response for winners an access token will be returned, which can be used when stealing Items from losed Clan's SoulHome. Notice that the steal token will expire after some period of time. Losers will get 403 error = they can not get the steal token.\n\nThe steal token can be used only by the winner's Clan's members for the loser's Clan Stock.\n\nYou can see the process flow from [this diagram](https://github.com/Alt-Org/Altzone-Server/tree/dev/doc/img/game_results)"
+                "description": "Enpoint for notifying the API about battle events or any other data.\n\nNotice, that the field type is required and determines the type of the data.\n\nNotice that the type also determines shape of the body. Examples, for each type can be found in request examples section.\n\n## Type field\n\n### result\n\nResult of the battle, all players of the battle should send this data.\n\nNotice that team1 and team2 should hold game's player's _id fields.\n\nAs a response for winners an access token will be returned, which can be used when stealing Items from losed Clan's SoulHome. Notice that the steal token will expire after some period of time. Losers will get 403 error = they can not get the steal token.\n\nThe steal token can be used only by the winner's Clan's members for the loser's Clan Stock.\n\nYou can see the process flow from [this diagram](https://github.com/Alt-Org/Altzone-Server/tree/dev/doc/img/game_results)"
             }
         },
         "/item/move": {
@@ -2706,8 +2724,8 @@
                     "required": true
                 },
                 "tags": [
-                    "in-development",
-                    "FleaMarket"
+                    "FleaMarket",
+                    "in-development"
                 ],
                 "responses": {
                     "201": {
@@ -2955,8 +2973,8 @@
                     "required": true
                 },
                 "tags": [
-                    "in-development",
-                    "FleaMarket"
+                    "FleaMarket",
+                    "in-development"
                 ],
                 "responses": {
                     "201": {
@@ -3117,69 +3135,148 @@
                 }
             ]
         },
-        "/leaderboard": {
+        "/playerTasks": {
             "get": {
                 "tags": [
-                    "Leaderboard",
-                    "in-development"
+                    "PlayerTasks"
                 ],
                 "responses": {
                     "200": {
                         "content": {
                             "application/json": {
                                 "examples": {
-                                    "Clan": {
+                                    "1": {
                                         "value": {
                                             "data": {
-                                                "Clan": [
-                                                    {
-                                                        "_id": "667eedc9b3b5bf0f7a840ef1",
-                                                        "name": "User2 clan",
-                                                        "tag": "tag2",
-                                                        "gameCoins": 90,
-                                                        "admin_ids": [
-                                                            "666720806cc90102f60bd325"
-                                                        ],
-                                                        "playerCount": 1,
-                                                        "itemCount": 0,
-                                                        "stockCount": 0,
-                                                        "isOpen": true,
-                                                        "points": 20,
-                                                        "id": "667eedc9b3b5bf0f7a840ef1"
-                                                    },
-                                                    {
-                                                        "_id": "667bfec6afb8211b4bd8dbff",
-                                                        "name": "User1 clan",
-                                                        "tag": "tag1",
-                                                        "gameCoins": 4,
-                                                        "admin_ids": [
-                                                            "665df7026bf5b8f670569ea4"
-                                                        ],
-                                                        "playerCount": 1,
-                                                        "itemCount": 0,
-                                                        "stockCount": 0,
-                                                        "isOpen": true,
-                                                        "points": 10,
-                                                        "id": "667bfec6afb8211b4bd8dbff"
-                                                    }
-                                                ]
+                                                "PlayerTask": {
+                                                    "daily": [
+                                                        {
+                                                            "id": 21,
+                                                            "title": {
+                                                                "fi": "Pelaa 3 taistelua"
+                                                            },
+                                                            "content": {
+                                                                "fi": "Sun pitää pelata tänään 3 taistelua"
+                                                            },
+                                                            "amount": 3,
+                                                            "type": "play_battle",
+                                                            "coins": 30,
+                                                            "points": 60
+                                                        },
+                                                        {
+                                                            "id": 22,
+                                                            "title": {
+                                                                "fi": "Voita 5 taistelua"
+                                                            },
+                                                            "content": {
+                                                                "fi": "Sun pitää voittaa tänään 5 taistelua"
+                                                            },
+                                                            "amount": 5,
+                                                            "type": "win_battle",
+                                                            "coins": 250,
+                                                            "points": 500
+                                                        },
+                                                        {
+                                                            "id": 23,
+                                                            "title": {
+                                                                "fi": "Lähetä 10 viestiä chattiin"
+                                                            },
+                                                            "content": {
+                                                                "fi": "Sun pitää lähettää tänään 10 viestiä chattiin"
+                                                            },
+                                                            "amount": 10,
+                                                            "type": "write_chat_message",
+                                                            "coins": 45,
+                                                            "points": 90
+                                                        },
+                                                        {
+                                                            "id": 24,
+                                                            "title": {
+                                                                "fi": "Aloita taistelu eri hahmolla"
+                                                            },
+                                                            "content": {
+                                                                "fi": "Sun pitää aloittaa taistelu eri hahmolla"
+                                                            },
+                                                            "amount": 3,
+                                                            "type": "start_battle_with_new_character",
+                                                            "coins": 30,
+                                                            "points": 60
+                                                        },
+                                                        {
+                                                            "id": 25,
+                                                            "title": {
+                                                                "fi": "Äänestä 2 kertaa"
+                                                            },
+                                                            "content": {
+                                                                "fi": "Sun pitää äänestää tänään 2 kertaa"
+                                                            },
+                                                            "amount": 2,
+                                                            "type": "vote",
+                                                            "coins": 20,
+                                                            "points": 40
+                                                        }
+                                                    ]
+                                                }
                                             },
                                             "metaData": {
-                                                "dataKey": "Clan",
-                                                "modelName": "Clan",
-                                                "dataType": "Array",
-                                                "dataCount": 2
-                                            },
-                                            "paginationData": {
-                                                "currentPage": 1,
-                                                "limit": 2,
-                                                "offset": 0,
-                                                "itemCount": 2,
-                                                "pageCount": 1
+                                                "dataKey": "PlayerTask",
+                                                "modelName": "PlayerTask",
+                                                "dataType": "Object",
+                                                "dataCount": 1
                                             }
                                         }
-                                    },
-                                    "Player": {
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success, response with body"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get Player's tasks",
+                "description": "Returns a list of logged-in Player's tasks. \n\nThe period query works as follows:\n\ntoday - all tasks for today (completed and uncomleted)\n\nweek - all tasks for the current week (completed and uncomleted) including daily tasks.\n\nmonth - all tasks for the current month (completed and uncompleted), including weekly and daily tasks.\n\nYou can find the a json file of player tasks [here](https://github.com/Alt-Org/Altzone-Server/blob/dev/src/playerTasks/playerTasks.json)\n\n| Feature         | Has                     |\n| --------------- | ----------------------- |\n| Authentication  | yes                     |\n| Authorization   | only Player's own tasks |\n| Search          | yes                     | \n| Sort            | yes                     |\n| Pagination      | yes                     | \n\n## General description\n\nThe daily task is a predefined task for an individual player to perform.\n\nThere are tasks for each day, each two weeks and each month.\n\nPlayer is getting points for each completed task and each task brings different amount of points and coins.\n\nThese points and coins are going to the player's clan. The points are used to determine top clans in the game and the coins are used to purchase items from the flee market of the game."
+            },
+            "parameters": [
+                {
+                    "name": "period",
+                    "description": "Period of time for the tasks",
+                    "schema": {
+                        "enum": [
+                            "today",
+                            "week",
+                            "month"
+                        ],
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": false
+                }
+            ]
+        },
+        "/leaderboard/player": {
+            "get": {
+                "tags": [
+                    "Leaderboard"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
                                         "value": {
                                             "data": {
                                                 "Player": [
@@ -3245,86 +3342,95 @@
                                 }
                             }
                         },
-                        "description": "Success, with body"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400_New"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500_New"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Get leaderboard data",
-                "description": "Various leaderboards define the best ones in different categories, for example top Players or top Clans.\n\nNotice that the leaderboards data is updated once every 12 hours.\n\n## Leaderboard parameters\n\n### Player\n\nTop Players are defined by the amount of points that he/she has.\n\n### Clan\n\nTop Clans are defined by the amount of points that each Clan has."
-            },
-            "parameters": [
-                {
-                    "examples": {
-                        "top clans": {
-                            "value": "Clan"
-                        }
-                    },
-                    "name": "category",
-                    "description": "Category of the leaderboard",
-                    "schema": {
-                        "enum": [
-                            "Clan",
-                            "Player"
-                        ],
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": true
-                }
-            ]
-        },
-        "/playerTasks": {
-            "get": {
-                "tags": [
-                    "in-development",
-                    "PlayerTasks"
-                ],
-                "responses": {
-                    "200": {
                         "description": "Success, response with body"
                     },
                     "400": {
                         "$ref": "#/components/responses/400_New"
                     },
-                    "401": {
-                        "$ref": "#/components/responses/401_New"
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "summary": "Get player's leaderboard",
+                "description": "Leaderboard of players. Top Players are defined by the amount of points that he/she has.\n\nNotice that the leaderboards data is updated once every 12 hours."
+            }
+        },
+        "/leaderboard/clan": {
+            "get": {
+                "tags": [
+                    "Leaderboard"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Clan": [
+                                                    {
+                                                        "_id": "667eedc9b3b5bf0f7a840ef1",
+                                                        "name": "User2 clan",
+                                                        "tag": "tag2",
+                                                        "gameCoins": 90,
+                                                        "points": 10,
+                                                        "admin_ids": [
+                                                            "666720806cc90102f60bd325"
+                                                        ],
+                                                        "playerCount": 1,
+                                                        "itemCount": 0,
+                                                        "stockCount": 0,
+                                                        "isOpen": true,
+                                                        "id": "667eedc9b3b5bf0f7a840ef1"
+                                                    },
+                                                    {
+                                                        "_id": "667bfec6afb8211b4bd8dbff",
+                                                        "name": "User1 clan",
+                                                        "tag": "tag1",
+                                                        "gameCoins": 4,
+                                                        "admin_ids": [
+                                                            "665df7026bf5b8f670569ea4"
+                                                        ],
+                                                        "playerCount": 1,
+                                                        "itemCount": 0,
+                                                        "stockCount": 0,
+                                                        "isOpen": true,
+                                                        "points": 10,
+                                                        "id": "667bfec6afb8211b4bd8dbff"
+                                                    }
+                                                ]
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Clan",
+                                                "modelName": "Clan",
+                                                "dataType": "Array",
+                                                "dataCount": 2
+                                            },
+                                            "paginationData": {
+                                                "currentPage": 1,
+                                                "limit": 2,
+                                                "offset": 0,
+                                                "itemCount": 2,
+                                                "pageCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success, response with body"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
                     },
                     "500": {
                         "$ref": "#/components/responses/500_New"
                     }
                 },
-                "security": [
-                    {
-                        "JWTAuth": []
-                    }
-                ],
-                "summary": "Get Player's tasks",
-                "description": "Returns a list of logged-in Player's tasks. \n\nThe period query works as follows:\n\ntoday - all tasks for today (completed and uncomleted)\n\nweek - all tasks for the current week (completed and uncomleted) including daily tasks.\n\nmonth - all tasks for the current month (completed and uncompleted), including weekly and daily tasks\n\n| Feature         | Has                     |\n| --------------- | ----------------------- |\n| Authentication  | yes                     |\n| Authorization   | only Player's own tasks |\n| Search          | yes                     | \n| Sort            | yes                     |\n| Pagination      | yes                     | \n\n## General description\n\nThe daily task is a predefined task for an individual player to perform.\n\nThere are tasks for each day, each two weeks and each month.\n\nPlayer is getting points for each completed task and each task brings different amount of points and coins.\n\nThese points and coins are going to the player's clan. The points are used to determine top clans in the game and the coins are used to purchase items from the flee market of the game."
-            },
-            "parameters": [
-                {
-                    "name": "period",
-                    "description": "Period of time for the tasks",
-                    "schema": {
-                        "enum": [
-                            "today",
-                            "week",
-                            "month"
-                        ],
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": false
-                }
-            ]
+                "summary": "Get clans leaderboard",
+                "description": "Leaderboard of clans. Top Clans are defined by the amount of points that each Clan has.\n\nNotice that the leaderboards data is updated once every 12 hours."
+            }
         }
     },
     "components": {
@@ -3520,11 +3626,6 @@
                         "description": "The _id of the clan to be updated",
                         "type": "string",
                         "example": "667462842425aea94d0f66cb"
-                    },
-                    "tag": {
-                        "description": "The tag associated with the clan",
-                        "type": "string",
-                        "example": "my_tag"
                     },
                     "isOpen": {
                         "description": "whenever the clan is open or closed",
@@ -3750,11 +3851,6 @@
                         "description": "name of the clan, unique",
                         "type": "string",
                         "example": "my_clan"
-                    },
-                    "tag": {
-                        "description": "deprecated use labels instead, clan's tag",
-                        "type": "string",
-                        "example": "my_tag"
                     },
                     "isOpen": {
                         "description": "whenever the clan is open or closed",
@@ -5027,7 +5123,7 @@
     "tags": [
         {
             "name": "in-development",
-            "description": "endpoint is changing or not yet implemented"
+            "description": "Endpoint is currently changing or not yet implemented"
         },
         {
             "name": "Profile",
