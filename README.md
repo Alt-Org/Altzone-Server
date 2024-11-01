@@ -5,20 +5,23 @@ This is a REST API for the Altzone game. For API description see the wiki pages
 
 ## Releases
 
+- [Release notes 01.11.2024](https://github.com/Alt-Org/Altzone-Server/blob/dev/doc/release-notes/release-01-11-2024.md)
+
 - [Release notes 03.10.2024](https://github.com/Alt-Org/Altzone-Server/blob/dev/doc/release-notes/release-03-10-2024.md)
 
 - [Release notes 03.09.2024](https://github.com/Alt-Org/Altzone-Server/blob/main/doc/release-notes/release-03-09-24.md)
 
 
-## Link to the production API
+## Link to the API
 
-Server is available on https://altzone.fi/api
+Production https://altzone.fi/api (prod branch)
+Latest release https://devapi.altzone.fi/latest-release (main branch)
+Dev https://devapi.altzone.fi (dev branch)
 
 
 ## Swagger description
 
-1. [Latest swagger file version](https://github.com/Alt-Org/Altzone-Server/blob/dev/swagger/swagger.json) 
-   You can find the latest API description and changes here.
+1. [Latest swagger file version](https://github.com/Alt-Org/Altzone-Server/blob/dev/swagger/swagger.json) The most up-to-date API description
 
 2. [Swagger on web](https://swagger.altzone.fi/)
 
@@ -71,3 +74,8 @@ The server will be accessible on your machine on http://localhost:8080/
 ## DB Schema
 
 ![ERD](doc/img/ERD.png)
+
+
+## API architecture schema
+
+![architecture](doc/img/architecture/api_modules.svg)
