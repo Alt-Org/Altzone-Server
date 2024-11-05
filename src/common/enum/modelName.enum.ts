@@ -33,4 +33,5 @@ export enum ModelName {
     ITEMSHOP = 'ItemShop',
     GAME = 'Game',
     PLAYER_TASK = 'PlayerTask',
+    FLEA_MARKET_ITEM = 'FleaMarketItem',
 }
