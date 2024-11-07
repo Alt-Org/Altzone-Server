@@ -3351,6 +3351,9 @@
                         "$ref": "#/components/responses/500_New"
                     }
                 },
+                "security": [
+                    {}
+                ],
                 "summary": "Get player's leaderboard",
                 "description": "Leaderboard of players. Top Players are defined by the amount of points that he/she has.\n\nNotice that the leaderboards data is updated once every 12 hours."
             }
@@ -3428,6 +3431,9 @@
                         "$ref": "#/components/responses/500_New"
                     }
                 },
+                "security": [
+                    {}
+                ],
                 "summary": "Get clans leaderboard",
                 "description": "Leaderboard of clans. Top Clans are defined by the amount of points that each Clan has.\n\nNotice that the leaderboards data is updated once every 12 hours."
             }
