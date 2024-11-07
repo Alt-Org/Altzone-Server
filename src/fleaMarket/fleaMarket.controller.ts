@@ -14,6 +14,7 @@ export class FleaMarketController {
 	constructor(private readonly service: FleaMarketService) {}
 
 	@Get("/:_id")
+	@Serialize(FleaMarketItemDto)
 	@UniformResponse(ModelName.FLEA_MARKET_ITEM)
 	public async getOne(@Param() param: _idDto) {
 		return await this.service.readOneById(param._id);
