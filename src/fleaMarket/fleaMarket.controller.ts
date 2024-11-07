@@ -16,7 +16,7 @@ export class FleaMarketController {
 	@Get("/:_id")
 	@Serialize(FleaMarketItemDto)
 	@UniformResponse(ModelName.FLEA_MARKET_ITEM)
-	public async getOne(@Param() param: _idDto) {
+	async getOne(@Param() param: _idDto) {
 		return await this.service.readOneById(param._id);
 	}
 
@@ -24,7 +24,7 @@ export class FleaMarketController {
 	@OffsetPaginate(ModelName.FLEA_MARKET_ITEM)
 	@Serialize(FleaMarketItemDto)
 	@UniformResponse(ModelName.FLEA_MARKET_ITEM)
-	public async getAll(@GetAllQuery() query: IGetAllQuery) {
+	async getAll(@GetAllQuery() query: IGetAllQuery) {
 		return await this.service.readMany(query);
 	}
 }
