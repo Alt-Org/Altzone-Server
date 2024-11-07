@@ -33,10 +33,7 @@ export type TaskUpdateResult = {
 export class PlayerTasksService implements OnModuleInit {
 	public constructor(
 		@InjectModel(TaskProgress.name) public readonly model: Model<TaskProgress>,
-		private readonly playerService: PlayerService,
 		private readonly notifier: PlayerTaskNotifier,
-		private readonly clanRewarder: ClanRewarder,
-		private readonly playerRewarder: PlayerRewarder
 	) {
 		this.basicService = new BasicService(model);
 		this.modelName = ModelName.PLAYER_TASK;
