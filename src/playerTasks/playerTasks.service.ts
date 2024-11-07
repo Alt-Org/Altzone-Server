@@ -5,7 +5,7 @@ import { PlayerTasks } from './type/tasks.type';
 import { TaskFrequency } from './enum/taskFrequency.enum';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskProgress, TaskProgressDocument } from './playerTasks.schema';
-import { Model, MongooseError } from 'mongoose';
+import { Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { ModelName } from '../common/enum/modelName.enum';
 import { TaskName } from './enum/taskName.enum';
