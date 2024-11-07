@@ -33,6 +33,9 @@ export class FleaMarketItemDto {
 	@Expose()
 	isFurniture: boolean;
 
+	@Expose()
+	price: number;
+
 	@ExtractField()
 	@Expose()
 	clan_id: string;
