@@ -32,7 +32,7 @@ describe('Counter.decrease() test suite', () => {
 
     it('Should return false if the object does not exists in DB', async () => {
         const decreaseAmount = 2;
-        const nonExisting_id = getNonExisting_id(existingClan_id);
+        const nonExisting_id = getNonExisting_id();
         const isUpdated = await counter.decrease({_id: nonExisting_id}, decreaseAmount);
 
         expect(isUpdated).toBeFalsy();

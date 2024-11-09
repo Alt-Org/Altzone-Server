@@ -30,7 +30,7 @@ describe('Counter.decreaseOnOne() test suite', () => {
     });
 
     it('Should return false if the object does not exist in DB', async () => {
-        const nonExistingFilter = { _id: getNonExisting_id(existingClan_id) };
+        const nonExistingFilter = { _id: getNonExisting_id() };
         const isUpdated = await counter.decreaseOnOne(nonExistingFilter);
 
         expect(isUpdated).toBeFalsy();
