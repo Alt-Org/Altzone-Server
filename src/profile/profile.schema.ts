@@ -17,6 +17,8 @@ export class Profile {
     isSystemAdmin: boolean;
 
     Player?: Player;
+
+    _id: string;
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);
