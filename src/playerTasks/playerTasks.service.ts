@@ -1,25 +1,22 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import {Injectable, OnModuleInit} from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
-import { PlayerTasks } from './type/tasks.type';
-import { TaskFrequency } from './enum/taskFrequency.enum';
-import { InjectModel } from '@nestjs/mongoose';
-import { TaskProgress, TaskProgressDocument } from './playerTasks.schema';
-import { Model, MongooseError } from 'mongoose';
+import {PlayerTasks} from './type/tasks.type';
+import {TaskFrequency} from './enum/taskFrequency.enum';
+import {InjectModel} from '@nestjs/mongoose';
+import {TaskProgress, TaskProgressDocument} from './playerTasks.schema';
+import {Model} from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
-import { ModelName } from '../common/enum/modelName.enum';
-import { TaskName } from './enum/taskName.enum';
-import { Task } from './type/task.type';
-import { CreateTaskDto } from './dto/createTask.dto';
-import { SEReason } from '../common/service/basicService/SEReason';
-import { plainToClass } from 'class-transformer';
-import { validate } from 'class-validator';
+import {ModelName} from '../common/enum/modelName.enum';
+import {TaskName} from './enum/taskName.enum';
+import {Task} from './type/task.type';
+import {CreateTaskDto} from './dto/createTask.dto';
+import {SEReason} from '../common/service/basicService/SEReason';
+import {plainToClass} from 'class-transformer';
+import {validate} from 'class-validator';
 import PlayerTaskNotifier from './playerTask.notifier';
 import ServiceError from '../common/service/basicService/ServiceError';
-import { ObjectId } from 'mongodb';
-import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
-import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
-import { PlayerService } from '../player/player.service';
+import {ObjectId} from 'mongodb';
 
 type TaskUpdateStatus = 'update' | 'done';
 type TaskUpdate = { status: TaskUpdateStatus, task: Task };
@@ -33,10 +30,7 @@ export type TaskUpdateResult = {
 export class PlayerTasksService implements OnModuleInit {
 	public constructor(
 		@InjectModel(TaskProgress.name) public readonly model: Model<TaskProgress>,
-		private readonly playerService: PlayerService,
 		private readonly notifier: PlayerTaskNotifier,
-		private readonly clanRewarder: ClanRewarder,
-		private readonly playerRewarder: PlayerRewarder
 	) {
 		this.basicService = new BasicService(model);
 		this.modelName = ModelName.PLAYER_TASK;
@@ -76,9 +70,12 @@ export class PlayerTasksService implements OnModuleInit {
 			playerTasks.weekly = this.tasks.weekly;
 		}
 
-		const [tasks, errors] = await this.basicService.readMany<TaskProgress>({ filter: { playerId } });
-		if (errors)
+		let [tasks, errors] = await this.basicService.readMany<TaskProgress>({ filter: { playerId } });
+		if (errors && errors[0].reason !== SEReason.NOT_FOUND)
 			return [null, errors];
+
+		if(errors && errors[0].reason === SEReason.NOT_FOUND)
+			return [playerTasks, null];
 
 		playerTasks = this.updateTaskAmounts(tasks, playerTasks);
 

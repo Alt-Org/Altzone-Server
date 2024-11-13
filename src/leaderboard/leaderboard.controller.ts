@@ -8,7 +8,9 @@ import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.i
 import { Serialize } from "../common/interceptor/response/Serialize";
 import { PlayerDto } from "../player/dto/player.dto";
 import { ClanDto } from "../clan/dto/clan.dto";
+import {NoAuth} from "../auth/decorator/NoAuth.decorator";
 
+@NoAuth()
 @Controller("leaderboard")
 export class LeaderboardController {
 	constructor(private readonly leaderBoardService: LeaderboardService) {}

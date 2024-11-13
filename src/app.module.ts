@@ -26,6 +26,7 @@ import { ItemMoverModule } from './itemMover/itemMover.module';
 import { GameEventsBrokerModule } from './gameEventsBroker/gameEventsBroker.module';
 import { RewarderModule } from './rewarder/rewarder.module';
 import { StatisticsKeeperModule } from './statisticsKeeper/statisticsKeeper.module';
+import { FleaMarketModule } from './fleaMarket/fleaMarket.module';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -64,6 +65,7 @@ const redisPort = parseInt(envVars.REDIS_PORT);
       PlayerModule,
 
       ItemMoverModule,
+      FleaMarketModule,
 
       CustomCharacterModule,
       ClanInventoryModule,
