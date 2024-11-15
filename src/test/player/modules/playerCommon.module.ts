@@ -7,7 +7,8 @@ import {PlayerSchema} from "../../../player/player.schema";
 import {CustomCharacterModule} from "../../../customCharacter/customCharacter.module";
 import {PlayerService} from "../../../player/player.service";
 import {isPlayerExists} from "../../../player/decorator/validation/IsPlayerExists.decorator";
-import {ClanSchema} from "../../../clan/clan.schema";
+import {ClanInventoryModule} from "../../../clanInventory/clanInventory.module";
+import {ClanModule} from "../../../clan/clan.module";
 
 export default class PlayerCommonModule {
     private constructor() {
@@ -21,11 +22,12 @@ export default class PlayerCommonModule {
                 imports: [
                     MongooseModule.forRoot(mongoString, mongooseOptions),
                     MongooseModule.forFeature([
-                        {name: ModelName.PLAYER, schema: PlayerSchema},
-                        {name: ModelName.CLAN, schema: ClanSchema}
+                        {name: ModelName.PLAYER, schema: PlayerSchema}
                     ]),
                     CustomCharacterModule,
-                    RequestHelperModule
+                    RequestHelperModule,
+                    ClanInventoryModule,
+                    ClanModule
                 ],
                 providers: [
                     PlayerService, isPlayerExists
