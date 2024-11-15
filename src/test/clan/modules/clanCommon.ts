@@ -1,26 +1,27 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { MongooseModule } from '@nestjs/mongoose';
-import { RequestHelperModule } from '../../../requestHelper/requestHelper.module';
-import { PlayerSchema } from '../../../player/player.schema';
-import { ModelName } from '../../../common/enum/modelName.enum';
-import { ClanSchema } from '../../../clan_module/clan/clan.schema';
-import { ClanService } from '../../../clan_module/clan/clan.service';
-import { isClanExists } from '../../../clan_module/clan/decorator/validation/IsClanExists.decorator';
-import { PlayerCounterFactory } from '../../../clan_module/clan/clan.counters';
-import ClanHelperService from '../../../clan_module/clan/utils/clanHelper.service';
-import { JoinService } from '../../../clan_module/clan/join/join.service';
-import { mongooseOptions, mongoString } from '../../test_utils/const/db';
-import {joinSchema} from "../../../clan/join/join.schema";
+import {Test, TestingModule} from '@nestjs/testing';
+import {MongooseModule} from '@nestjs/mongoose';
+import {RequestHelperModule} from '../../../requestHelper/requestHelper.module';
+import {ModelName} from '../../../common/enum/modelName.enum';
+import {mongooseOptions, mongoString} from '../../test_utils/const/db';
 import {ClanInventoryModule} from "../../../clanInventory/clanInventory.module";
+import {ClanSchema} from "../../../clan/clan.schema";
+import {joinSchema} from "../../../clan/join/join.schema";
+import {PlayerSchema} from "../../../player/player.schema";
+import ClanHelperService from "../../../clan/utils/clanHelper.service";
+import {JoinService} from "../../../clan/join/join.service";
+import {ClanService} from "../../../clan/clan.service";
+import {isClanExists} from "../../../clan/decorator/validation/IsClanExists.decorator";
+import {PlayerCounterFactory} from "../../../clan/clan.counters";
 
 
 export default class ClanCommonModule {
-    private constructor() {}
+    private constructor() {
+    }
 
     private static module: TestingModule;
 
-    static async getModule(){
-        if(!ClanCommonModule.module)
+    static async getModule() {
+        if (!ClanCommonModule.module)
             ClanCommonModule.module = await Test.createTestingModule({
                 imports: [
                     MongooseModule.forRoot(mongoString, mongooseOptions),
@@ -38,7 +39,7 @@ export default class ClanCommonModule {
                     JoinService
                 ]
             }).compile();
-        
+
         return ClanCommonModule.module;
     }
 }

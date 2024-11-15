@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
-import { PlayerCounterFactory } from "../../../clan_module/clan/clan.counters";
-import { ClanSchema } from "../../../clan_module/clan/clan.schema";
-import { ClanService } from "../../../clan_module/clan/clan.service";
-import { isClanExists } from "../../../clan_module/clan/decorator/validation/IsClanExists.decorator";
-import { JoinService } from "../../../clan_module/clan/join/join.service";
-import ClanHelperService from "../../../clan_module/clan/utils/clanHelper.service";
 import ClanCommonModule from "./clanCommon";
 import { ModelName } from "../../../common/enum/modelName.enum";
+import {ClanSchema} from "../../../clan/clan.schema";
+import {ClanService} from "../../../clan/clan.service";
+import {PlayerCounterFactory} from "../../../clan/clan.counters";
+import ClanHelperService from "../../../clan/utils/clanHelper.service";
+import {JoinService} from "../../../clan/join/join.service";
+import {isClanExists} from "../../../clan/decorator/validation/IsClanExists.decorator";
 
 export default class ClanModule {
     private constructor() {}

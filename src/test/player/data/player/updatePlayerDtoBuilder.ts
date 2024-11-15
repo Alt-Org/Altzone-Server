@@ -2,7 +2,7 @@ import {UpdatePlayerDto} from "../../../../player/dto/updatePlayer.dto";
 
 export default class UpdatePlayerDtoBuilder {
     private readonly base: UpdatePlayerDto = {
-        _id: 'defaultId',
+        _id: undefined,
         name: undefined,
         backpackCapacity: undefined,
         uniqueIdentifier: undefined,
