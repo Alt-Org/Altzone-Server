@@ -23,6 +23,7 @@ import { StockSchema } from './stock/stock.schema';
 import { StockService } from './stock/stock.service';
 import { ClanSchema } from '../clan/clan.schema';
 import { StealTokenGuard } from './item/guards/StealToken.guard';
+import {AuthorizationModule} from "../authorization/authorization.module";
 
 @Module({
     imports: [
@@ -36,7 +37,8 @@ import { StealTokenGuard } from './item/guards/StealToken.guard';
         ]),
 
         RequestHelperModule,
-        AuthModule
+        AuthModule,
+        AuthorizationModule
     ],
     controllers: [
         StockController, ItemController,   

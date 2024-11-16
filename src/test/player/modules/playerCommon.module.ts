@@ -7,6 +7,8 @@ import {PlayerSchema} from "../../../player/player.schema";
 import {CustomCharacterModule} from "../../../customCharacter/customCharacter.module";
 import {PlayerService} from "../../../player/player.service";
 import {isPlayerExists} from "../../../player/decorator/validation/IsPlayerExists.decorator";
+import {ClanInventoryModule} from "../../../clanInventory/clanInventory.module";
+import {ClanModule} from "../../../clan/clan.module";
 
 export default class PlayerCommonModule {
     private constructor() {
@@ -19,9 +21,13 @@ export default class PlayerCommonModule {
             PlayerCommonModule.module = await Test.createTestingModule({
                 imports: [
                     MongooseModule.forRoot(mongoString, mongooseOptions),
-                    MongooseModule.forFeature([{name: ModelName.PLAYER, schema: PlayerSchema}]),
+                    MongooseModule.forFeature([
+                        {name: ModelName.PLAYER, schema: PlayerSchema}
+                    ]),
                     CustomCharacterModule,
-                    RequestHelperModule
+                    RequestHelperModule,
+                    ClanInventoryModule,
+                    ClanModule
                 ],
                 providers: [
                     PlayerService, isPlayerExists
