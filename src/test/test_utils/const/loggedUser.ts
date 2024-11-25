@@ -34,7 +34,9 @@ export default class LoggedUser {
         name: defaultPlayerName,
         uniqueIdentifier: defaultPlayerName,
         profile_id: '',
-        points: 0
+        points: 0,
+        parentalAuth: true,
+        above13: true
     };
 
     /**
