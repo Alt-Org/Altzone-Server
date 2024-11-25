@@ -7,13 +7,13 @@ export default class PlayerBuilder {
         backpackCapacity: 10,
         points: 0,
         uniqueIdentifier: 'unique-id',
-        above13: null,
-        parentalAuth: null,
+        above13: true,
+        parentalAuth: true,
         gameStatistics: { playedBattles: 0, wonBattles: 0, diamondsAmount: 0, startedVotings: 0 } as any,
-        profile_id: null,
-        clan_id: null,
-        currentCustomCharacter_id: null,
-        _id: 'defaultId'
+        profile_id: undefined,
+        clan_id: undefined,
+        currentCustomCharacter_id: undefined,
+        _id: undefined
     };
 
     build(): Player {
