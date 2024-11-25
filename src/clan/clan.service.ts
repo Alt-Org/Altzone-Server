@@ -137,10 +137,18 @@ export class ClanService{
         for (let i = 0; i < admin_ids.length; i++) {
             const player_id = admin_ids[i];
             const [player, playerErrors] = await this.playerService.readOneById<PlayerDto>(player_id);
-            if(playerErrors || !player)
+            if(playerErrors || !player || !player.clan_id)
                 continue;
 
-            player.clan_id.toString() === _id ? playersInClan.push(player_id) : playersNotInClan.push(player_id);
+            let parsedPlayerClan_id = player.clan_id;
+            if(typeof parsedPlayerClan_id !== 'string')
+                parsedPlayerClan_id = player.clan_id.toString();
+
+            let parsed_id = _id;
+            if(typeof parsed_id !== 'string')
+                parsed_id = _id.toString();
+
+            parsedPlayerClan_id === parsed_id ? playersInClan.push(player_id) : playersNotInClan.push(player_id);
         }
 
         if (playersInClan.length === 0)
