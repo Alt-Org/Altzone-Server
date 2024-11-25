@@ -9,7 +9,7 @@ export default class PlayerBuilder {
         uniqueIdentifier: 'unique-id',
         above13: null,
         parentalAuth: null,
-        gameStatistics: new GameStatistics(),
+        gameStatistics: { playedBattles: 0, wonBattles: 0, diamondsAmount: 0, startedVotings: 0 } as any,
         profile_id: null,
         clan_id: null,
         currentCustomCharacter_id: null,
