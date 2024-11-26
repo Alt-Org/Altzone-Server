@@ -5,7 +5,7 @@ import {StockService} from "../../../clanInventory/stock/stock.service";
 import {isStockExists} from "../../../clanInventory/stock/decorator/validation/IsStockExists.decorator";
 import {StockSchema} from "../../../clanInventory/stock/stock.schema";
 
-export default class RoomModule {
+export default class StockModule {
     private constructor() {
     }
 

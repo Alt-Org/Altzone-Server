@@ -5,7 +5,7 @@ import {SoulHomeService} from "../../../clanInventory/soulhome/soulhome.service"
 import SoulHomeHelperService from "../../../clanInventory/soulhome/utils/soulHomeHelper.service";
 import {SoulhomeSchema} from "../../../clanInventory/soulhome/soulhome.schema";
 
-export default class RoomModule {
+export default class SoulhomeModule {
     private constructor() {
     }
 
