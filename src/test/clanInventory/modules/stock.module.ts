@@ -19,7 +19,7 @@ export default class RoomModule {
         return await module.resolve(isStockExists);
     }
 
-    static getItemModel() {
+    static getStockModel() {
         return mongoose.model(ModelName.STOCK, StockSchema);
     }
 }

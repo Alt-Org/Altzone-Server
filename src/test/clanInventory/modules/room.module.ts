@@ -19,7 +19,7 @@ export default class RoomModule {
         return await module.resolve(RoomHelperService);
     }
 
-    static getItemModel() {
+    static getRoomModel() {
         return mongoose.model(ModelName.ROOM, RoomSchema);
     }
 }

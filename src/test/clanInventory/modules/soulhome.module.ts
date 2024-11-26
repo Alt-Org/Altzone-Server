@@ -19,7 +19,7 @@ export default class RoomModule {
         return await module.resolve(SoulHomeHelperService);
     }
 
-    static getItemModel() {
+    static getSoulhomeModel() {
         return mongoose.model(ModelName.SOULHOME, SoulhomeSchema);
     }
 }
