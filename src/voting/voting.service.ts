@@ -6,9 +6,6 @@ import BasicService from "../common/service/basicService/BasicService";
 import { CreateVotingDto } from "./dto/createVoting.dto";
 import { ItemVoteChoice } from "./enum/choiceType.enum";
 import { VotingType } from "./enum/VotingType.enum";
-import { validate } from "class-validator";
-import ServiceError from "../common/service/basicService/ServiceError";
-import { SEReason } from "../common/service/basicService/SEReason";
 import VotingNotifier from "./voting.notifier";
 
 @Injectable()
@@ -52,24 +49,16 @@ export class VotingService {
 		const newVoting: CreateVotingDto = {
 			organizer_id: playerId,
 			type: type,
-			item_id: itemId,
+			entity_id: itemId,
 		};
 
-		if (type === VotingType.SELLING_ITEM) {
-			const newVote = {
-				player_id: playerId,
-				choice: ItemVoteChoice.YES,
-			};
+		const newVote = {
+			player_id: playerId,
+			choice: ItemVoteChoice.YES,
+		};
 
-			newVoting.player_ids = [playerId];
-			newVoting.votes = [newVote];
-		}
-
-		const validationErrors = await validate(newVoting);
-		if (validationErrors.length > 0) {
-			console.error(validationErrors);
-			throw new ServiceError({ reason: SEReason.VALIDATION });
-		}
+		newVoting.player_ids = [playerId];
+		newVoting.votes = [newVote];
 
 		const [voting, errors] = await this.createOne(newVoting);
 		if (errors) throw errors;
