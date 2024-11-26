@@ -25,7 +25,7 @@ export class CreateVotingDto {
 
 	@IsMongoId()
 	@IsOptional()
-	item_id?: string;
+	entity_id?: string;
 
 	@IsArray()
 	@IsMongoId({ each: true })
