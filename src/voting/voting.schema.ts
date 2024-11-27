@@ -30,14 +30,14 @@ export class Voting {
 	@Prop({
 		type: [MongooseSchema.Types.ObjectId],
 		ref: ModelName.PLAYER,
-		required: true,
+		required: true
 	})
 	player_ids: string[];
 
 	@Prop({ type: Number, default: 51 })
 	minPercentage: number;
 
-	@Prop({ type: [Vote], default: [] })
+	@Prop({ type: Array<Vote>, default: [] })
 	votes: Vote[];
 
 	@Prop({ type: MongooseSchema.Types.ObjectId })
