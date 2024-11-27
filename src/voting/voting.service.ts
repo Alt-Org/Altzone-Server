@@ -5,8 +5,8 @@ import { Model } from "mongoose";
 import BasicService from "../common/service/basicService/BasicService";
 import { CreateVotingDto } from "./dto/createVoting.dto";
 import { ItemVoteChoice } from "./enum/choiceType.enum";
-import { VotingType } from "./enum/VotingType.enum";
 import VotingNotifier from "./voting.notifier";
+import { StartItemVotingParams } from "./type/startItemVoting.type";
 
 @Injectable()
 export class VotingService {
@@ -33,6 +33,7 @@ export class VotingService {
 	 * Initiates a new voting process for an item.
 	 * Creates a new voting entry and sends a MQTT notification.
 	 *
+	 * @param params - The parameters for starting the item voting.
 	 * @param playerId - The ID of the player initiating the voting.
 	 * @param itemId - The ID of the item being voted on.
 	 * @param clanId - The ID of the clan associated with the voting.
@@ -40,12 +41,9 @@ export class VotingService {
 	 *
 	 * @throws - Throws an error if validation fails or if there are errors creating the voting.
 	 */
-	async startItemVoting(
-		playerId: string,
-		itemId: string,
-		clanId: string,
-		type: VotingType.SELLING_ITEM | VotingType.BUYING_ITEM
-	) {
+	async startItemVoting(params: StartItemVotingParams) {
+		const { playerId, itemId, clanId, type } = params;
+
 		const newVoting: CreateVotingDto = {
 			organizer_id: playerId,
 			type: type,
