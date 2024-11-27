@@ -103,22 +103,16 @@ export class FleaMarketService {
 	 * @param itemId - The ID of the item to be moved.
 	 * @param clanId - The ID of the clan to which the item belongs to.
 	 * @param playerId - The ID of the player starting the process.
-	 * @param votingType - The type of voting to be started.
 	 */
-	async handleSellItem(
-		itemId: string,
-		clanId: string,
-		playerId: string,
-		votingType: VotingType
-	) {
+	async handleSellItem(itemId: string, clanId: string, playerId: string) {
 		const newItem = await this.createFleaMarketItem(itemId, clanId);
 		await this.moveItemToFleaMarket(newItem, itemId);
-		await this.votingService.startItemVoting(
+		await this.votingService.startItemVoting({
 			playerId,
 			itemId,
 			clanId,
-			votingType
-		);
+			type: VotingType.SELLING_ITEM,
+		});
 	}
 
 	/**

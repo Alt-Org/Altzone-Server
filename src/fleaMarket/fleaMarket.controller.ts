@@ -11,7 +11,6 @@ import { IGetAllQuery } from "../common/interface/IGetAllQuery";
 import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
 import { User } from "../auth/user";
 import { SellItemDto } from "./dto/sellItem.dto";
-import { VotingType } from "../voting/enum/VotingType.enum";
 import { APIError } from "../common/controller/APIError";
 import { APIErrorReason } from "../common/controller/APIErrorReason";
 
@@ -51,8 +50,7 @@ export class FleaMarketController {
 		await this.service.handleSellItem(
 			sellItemDto.item_id,
 			clanId,
-			user.player_id,
-			VotingType.SELLING_ITEM
+			user.player_id
 		);
 	}
 }
