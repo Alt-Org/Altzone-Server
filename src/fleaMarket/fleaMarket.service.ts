@@ -162,19 +162,29 @@ export class FleaMarketService {
 		const session: ClientSession = await this.model.db.startSession();
 		session.startTransaction();
 
-		try {
-			const [__, createErrors] = await this.createOne(newItem);
-			if (createErrors) throw createErrors;
+		const [__, createErrors] = await this.createOne(newItem);
+		if (createErrors) await this.cancelTransaction(session, createErrors);
 
-			const [_, deleteErrors] = await this.itemService.deleteOneById(oldItemId);
-			if (deleteErrors) throw deleteErrors;
+		const [_, deleteErrors] = await this.itemService.deleteOneById(oldItemId);
+		if (deleteErrors) await this.cancelTransaction(session, deleteErrors);
 
-			await session.commitTransaction();
-		} catch (error) {
-			await session.abortTransaction();
-			throw error;
-		} finally {
-			session.endSession();
-		}
+		await session.commitTransaction();
+		session.endSession();
+	}
+
+	/**
+	 * Aborts the database transaction and ends the session.
+	 *
+	 * @param session - Started database session.
+	 * @param error - The error to be thrown.
+	 * @throws Will throw an unexpected service error.
+	 */
+	private async cancelTransaction(
+		session: ClientSession,
+		error: ServiceError[]
+	) {
+		await session.abortTransaction();
+		await session.endSession();
+		throw error;
 	}
 }
