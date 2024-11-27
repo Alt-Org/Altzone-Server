@@ -30,10 +30,15 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
 
     //Lamp
     [ItemName.FLOORLAMP_TAAKKA]: { name: ItemName.FLOORLAMP_TAAKKA, weight: 2.8, price: 240, qualityLevel: QualityLevel.epic, recycling: Recycling.ELECTRICAL_EQUIPMENT, isFurniture: false },
+    [ItemName.FLOORLAMP_RAKKAUS]: { name: ItemName.FLOORLAMP_TAAKKA, weight: 2, price: 200, qualityLevel: QualityLevel.epic, recycling: Recycling.GLASS, isFurniture: false },
 
     //Tables
     [ItemName.SOFATABLE_TAAKKA]: { name: ItemName.SOFATABLE_TAAKKA, weight: 26, price: 80, qualityLevel: QualityLevel.common, recycling: Recycling.WOOD, isFurniture: true },
-    [ItemName.SIDETABLE_TAAKKA]: { name: ItemName.SIDETABLE_TAAKKA, weight: 16, price: 60, qualityLevel: QualityLevel.common, recycling: Recycling.WOOD, isFurniture: true },
+    [ItemName.DININGTABLE_RAKKAUS]: { name: ItemName.DININGTABLE_RAKKAUS, weight: 30, price: 100, qualityLevel: QualityLevel.rare, recycling: Recycling.WOOD, isFurniture: true },
+    [ItemName.SOFATABLE_RAKKAUS]: { name: ItemName.SOFATABLE_RAKKAUS, weight: 20, price: 60, qualityLevel: QualityLevel.common, recycling: Recycling.WOOD, isFurniture: true },
+
+    //Beds
+    [ItemName.BED_RAKKAUS]: { name: ItemName.BED_RAKKAUS, weight: 20, price: 200, qualityLevel: QualityLevel.rare, recycling: Recycling.MIXED_WASTE, isFurniture: true },
 
     //Carpets
     [ItemName.CARPET_SCHRODINGER]: { name: ItemName.CARPET_SCHRODINGER, weight: 6, price: 150, qualityLevel: QualityLevel.common, recycling: Recycling.MIXED_WASTE, isFurniture: false },
