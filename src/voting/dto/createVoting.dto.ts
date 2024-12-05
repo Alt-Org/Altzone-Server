@@ -1,16 +1,15 @@
-import { IsArray, IsDate, IsEnum, IsInt, IsMongoId, IsOptional } from "class-validator";
+import { IsArray, IsDate, IsEnum, IsInt, IsMongoId, IsOptional, ValidateNested } from "class-validator";
 import AddType from "../../common/base/decorator/AddType.decorator";
 import { VotingType } from "../enum/VotingType.enum";
 import { Vote } from "../vote.schema";
+import { Type } from "class-transformer";
+import { Organizer } from "./organizer.dto";
 
 @AddType("CreateVotingDto")
 export class CreateVotingDto {
-	@IsMongoId()
-	organizer_id: string;
-
-	@IsDate()
-	@IsOptional()
-	startedAt?: Date;
+	@ValidateNested()
+	@Type(() => Organizer)
+	organizer: Organizer;
 
 	@IsDate()
 	@IsOptional()
@@ -26,11 +25,6 @@ export class CreateVotingDto {
 	@IsMongoId()
 	@IsOptional()
 	entity_id?: string;
-
-	@IsArray()
-	@IsMongoId({ each: true })
-	@IsOptional()
-	player_ids?: string[];
 
 	@IsArray()
 	@IsOptional()
