@@ -24,7 +24,7 @@ export class VotingQueue {
 }
 
 @Processor("voting")
-export class TestProcessor extends WorkerHost {
+export class VotingProcessor extends WorkerHost {
     /**
      * Creates an instance of TestProcessor.
      * @param fleaMarketService - The FleaMarketService instance.

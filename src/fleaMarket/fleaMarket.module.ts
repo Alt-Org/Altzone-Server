@@ -9,7 +9,7 @@ import { PlayerModule } from "../player/player.module";
 import { ClanInventoryModule } from "../clanInventory/clanInventory.module";
 import { VotingModule } from "../voting/voting.module";
 import { ClanModule } from "../clan/clan.module";
-import { TestProcessor, VotingQueue } from "./voting.queue";
+import { VotingProcessor, VotingQueue } from "./voting.queue";
 import { BullModule } from "@nestjs/bullmq";
 import { FleaMarketHelperService } from "./fleaMarketHelper.service";
 
@@ -32,7 +32,7 @@ import { FleaMarketHelperService } from "./fleaMarketHelper.service";
 		FleaMarketService,
 		FleaMarketHelperService,
 		VotingQueue,
-		TestProcessor,
+		VotingProcessor,
 	],
 	exports: [],
 })
