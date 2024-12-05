@@ -66,6 +66,12 @@ export class VotingService {
 		return [voting, null];
 	}
 
+	/**
+	 * Checks if the voting has been successful.
+	 * 
+	 * @param voting - The voting data to check.
+	 * @returns A boolean indicating whether the voting has been successful.
+	 */
 	async checkVotingSuccess(voting: VotingDto) {
 		const yesVotes = voting.votes.filter(
 			(vote) => vote.choice === ItemVoteChoice.YES
