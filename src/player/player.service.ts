@@ -106,6 +106,20 @@ export class PlayerService
         return isPlayerCountDecreased;
     }
 
+    /**
+     * Gets the clan ID of the player.
+     * 
+     * @param playerId - The ID of the player.
+     * @returns The clan ID of the player or undefined if not set.
+     * @throws Will throw if there are errors reading the player document.
+     */
+    async getPlayerClanId(playerId: string) {
+        const [player, playerErrors] = await this.getPlayerById(playerId, { includeRefs: [ModelName.CLAN] });
+        if (playerErrors) throw playerErrors;
+
+        return player.clan_id?.toString();
+    }
+
     private clearClanReferences = async (_id: string): Promise<boolean | Error> => {
         const clansWithPlayerAsAdmin = await this.requestHelperService.getModelInstanceByCondition(
             ModelName.CLAN,
