@@ -3,8 +3,8 @@ import { NotificationGroup } from "../common/service/notificator/enum/Notificati
 import { NotificationResource } from "../common/service/notificator/enum/NotificationResource.enum";
 import { NotificationStatus } from "../common/service/notificator/enum/NotificationStatus.enum";
 import NotificationSender from "../common/service/notificator/NotificationSender";
+import { VotingDto } from "./dto/voting.dto";
 import { VotingType } from "./enum/VotingType.enum";
-import { Voting } from "./voting.schema";
 
 /**
  * Class for sending voting notifications
@@ -18,8 +18,8 @@ export default class VotingNotifier {
      * @param clan_id - The ID of the clan associated with the voting
      * @param voting - The voting details
      */
-    newVoting(clan_id: string, voting: Voting) {
-        NotificationSender.buildNotification<Voting>()
+    newVoting(clan_id: string, voting: VotingDto) {
+        NotificationSender.buildNotification<VotingDto>()
             .addGroup(this.group, clan_id)
             .addResource(this.resource, voting.type)
             .send(NotificationStatus.NEW, voting);
@@ -30,8 +30,8 @@ export default class VotingNotifier {
      * @param clan_id - The ID of the clan associated with the voting
      * @param voting - The updated voting details
      */
-    votingUpdated(clan_id: string, voting: Voting) {
-        NotificationSender.buildNotification<Voting>()
+    votingUpdated(clan_id: string, voting: VotingDto) {
+        NotificationSender.buildNotification<VotingDto>()
             .addGroup(this.group, clan_id)
             .addResource(this.resource, voting.type)
             .send(NotificationStatus.UPDATE, voting);
@@ -55,8 +55,8 @@ export default class VotingNotifier {
      * @param clan_id - The ID of the clan associated with the voting
      * @param voting - The completed voting details
      */
-    votingCompleted(clan_id: string, voting: Voting) {
-        NotificationSender.buildNotification<Voting>()
+    votingCompleted(clan_id: string, voting: VotingDto) {
+        NotificationSender.buildNotification<VotingDto>()
             .addGroup(this.group, clan_id)
             .addResource(this.resource, voting.type)
             .send(NotificationStatus.END, voting);
