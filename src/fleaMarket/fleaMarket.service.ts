@@ -15,7 +15,6 @@ import { ItemService } from "../clanInventory/item/item.service";
 import { Status } from "./enum/status.enum";
 import ServiceError from "../common/service/basicService/ServiceError";
 import { VotingType } from "../voting/enum/VotingType.enum";
-import { VotingService } from "../voting/schemas/voting.service";
 import { ClanService } from "../clan/clan.service";
 import { VotingDto } from "../voting/dto/voting.dto";
 import { notEnoughCoinsError } from "./errors/notEnoughCoins.error";
@@ -23,10 +22,10 @@ import { itemNotAvailableError } from "./errors/itemNotAvailable.error";
 import { ClanDto } from "../clan/dto/clan.dto";
 import { VotingQueue } from "./voting.queue";
 import { VotingQueueParams } from "./types/votingQueueParams.type";
-import { ItemDto } from "../clanInventory/item/dto/item.dto";
 import { ModelName } from "../common/enum/modelName.enum";
 import { itemNotInStockError } from "./errors/itemNotInStock.error";
 import { FleaMarketHelperService } from "./fleaMarketHelper.service";
+import { VotingService } from "../voting/voting.service";
 
 @Injectable()
 export class FleaMarketService {
@@ -125,7 +124,7 @@ export class FleaMarketService {
 		const newItemId = await this.moveItemToFleaMarket(newItem, itemId);
 		const [voting, errors] = await this.votingService.startItemVoting({
 			playerId,
-			itemId,
+			itemId: newItemId,
 			clanId,
 			type: VotingType.SELLING_ITEM,
 		});
