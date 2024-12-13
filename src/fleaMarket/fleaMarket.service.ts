@@ -26,6 +26,7 @@ import { ModelName } from "../common/enum/modelName.enum";
 import { itemNotInStockError } from "./errors/itemNotInStock.error";
 import { FleaMarketHelperService } from "./fleaMarketHelper.service";
 import { VotingService } from "../voting/voting.service";
+import { PlayerDto } from "../player/dto/player.dto";
 
 @Injectable()
 export class FleaMarketService {
@@ -119,12 +120,15 @@ export class FleaMarketService {
 		const [item, itemErrors] = await this.itemService.readOneById(itemId);
 		if (itemErrors) throw itemErrors;
 		if (!item.stock_id) throw itemNotInStockError;
+		
+		const [player, playerErrors] = await this.playerService.getPlayerById(playerId);
+		if (playerErrors) throw playerErrors;
 
 		const newItem = await this.helperService.itemToCreateFleaMarketItem(item, clanId);
-		const newItemId = await this.moveItemToFleaMarket(newItem, itemId);
+		const createdItem = await this.moveItemToFleaMarket(newItem, itemId);
 		const [voting, errors] = await this.votingService.startItemVoting({
-			playerId,
-			itemId: newItemId,
+			player,
+			item: createdItem,
 			clanId,
 			type: VotingType.SELLING_ITEM,
 		});
@@ -132,7 +136,7 @@ export class FleaMarketService {
 
 		this.votingQueue.addVotingCheckJob({
 			voting,
-			fleaMarketItemId: newItemId,
+			fleaMarketItemId: createdItem._id.toString(),
 			stockId: item.stock_id.toString(),
 		});
 	}
@@ -144,7 +148,7 @@ export class FleaMarketService {
 	 * @param newItem - The new flea market item to be created.
 	 * @param oldItemId - The ID of the original item to be deleted.
 	 * 
-	 * @returns The ID of the created flea market item.
+	 * @returns The the created flea market item.
 	 * 
 	 * @throws Will throw if there is an error reading from DB.
 	 */
@@ -164,7 +168,7 @@ export class FleaMarketService {
 		await session.commitTransaction();
 		session.endSession();
 
-		return created._id.toString();
+		return created
 	}
 
 	/**
@@ -321,7 +325,10 @@ export class FleaMarketService {
 		if (item.status !== Status.AVAILABLE) throw itemNotAvailableError;
 		if (clan.gameCoins < item.price) throw notEnoughCoinsError;
 
-		const voting = await this.handleBooking(clan, item, playerId);
+		const [player, playerErrors] = await this.playerService.getPlayerById(playerId);
+		if (playerErrors) throw playerErrors;
+
+		const voting = await this.handleBooking(clan, item, player);
 		this.votingQueue.addVotingCheckJob({
 			voting,
 			clanId,
@@ -414,7 +421,7 @@ export class FleaMarketService {
 	private async handleBooking(
 		clan: ClanDto,
 		item: FleaMarketItemDto,
-		playerId: string
+		player: PlayerDto
 	) {
 		const session = await this.model.startSession();
 		session.startTransaction();
@@ -425,8 +432,8 @@ export class FleaMarketService {
 		const [voting, createVotingErrors] =
 			await this.votingService.startItemVoting({
 				clanId: clan._id.toString(),
-				itemId: item._id.toString(),
-				playerId,
+				item,
+				player,
 				type: VotingType.BUYING_ITEM,
 			});
 		if (createVotingErrors) this.cancelTransaction(session, createVotingErrors);
