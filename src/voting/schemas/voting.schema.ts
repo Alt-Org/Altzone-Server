@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
 import { ModelName } from "../../common/enum/modelName.enum";
 import { VotingType } from "../enum/VotingType.enum";
-import { Vote } from "../vote.schema";
+import { Vote } from "./vote.schema";
 import { Organizer } from "./organizer.schema";
 
 export type VotingDocument = HydratedDocument<Voting>;
@@ -43,6 +43,13 @@ VotingSchema.virtual(ModelName.PLAYER, {
 VotingSchema.virtual(ModelName.CLAN, {
 	ref: ModelName.CLAN,
 	localField: "organizer.clan_id",
+	foreignField: "_id",
+	justOne: true,
+});
+
+VotingSchema.virtual(ModelName.FLEA_MARKET_ITEM, {
+	ref: ModelName.FLEA_MARKET_ITEM,
+	localField: "entity_id",
 	foreignField: "_id",
 	justOne: true,
 });
