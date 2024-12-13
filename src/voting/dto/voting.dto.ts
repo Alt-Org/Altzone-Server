@@ -1,6 +1,6 @@
 import { Expose } from "class-transformer";
 import { VotingType } from "../enum/VotingType.enum";
-import { Vote } from "../vote.schema";
+import { Vote } from "../schemas/vote.schema";
 import { ExtractField } from "../../common/decorator/response/ExtractField";
 import AddType from "../../common/base/decorator/AddType.decorator";
 import { Organizer } from "./organizer.dto";
