@@ -10,6 +10,11 @@ import { Voting } from "./schemas/voting.schema";
 import { VotingDto } from "./dto/voting.dto";
 import ServiceError from "../common/service/basicService/ServiceError";
 import { PlayerService } from "../player/player.service";
+import { Choice } from "./type/choice.type";
+import { alreadyVotedError } from "./error/alreadyVoted.error";
+import { Vote } from "./schemas/vote.schema";
+import { ModelName } from "../common/enum/modelName.enum";
+import { addVoteError } from "./error/addVote.error";
 
 @Injectable()
 export class VotingService {
@@ -48,16 +53,16 @@ export class VotingService {
 	async startItemVoting(
 		params: StartItemVotingParams
 	): Promise<[VotingDto, ServiceError[]]> {
-		const { playerId, itemId, clanId, type } = params;
+		const { player, item, clanId, type } = params;
 
 		const newVoting: CreateVotingDto = {
-			organizer: { player_id: playerId, clan_id: clanId },
+			organizer: { player_id: player._id.toString(), clan_id: clanId },
 			type: type,
-			entity_id: itemId,
+			entity_id: item._id.toString(),
 		};
 
 		const newVote = {
-			player_id: playerId,
+			player_id: player._id.toString(),
 			choice: ItemVoteChoice.YES,
 		};
 
@@ -66,7 +71,7 @@ export class VotingService {
 		const [voting, errors] = await this.createOne(newVoting);
 		if (errors) return [null, errors];
 
-		this.notifier.newVoting(clanId, voting);
+		this.notifier.newVoting(voting, item, player);
 		return [voting, null];
 	}
 
@@ -87,25 +92,49 @@ export class VotingService {
 	}
 
 	/**
-	 * Reads a voting from DB by id and checks if user has permission to view it.
-	 *
-	 * @param votingId - The ID of the voting to fetch.
+	 * Validates that player can use the voting.
+	 * Checks that voting isn't clan specific or 
+	 * voting organizer clan matches with player clan.
+	 * 
+	 * @param votingId - The ID of the voting.
 	 * @param playerId - The ID of the player.
-	 *
-	 * @returns The voting entry if the user has permission to view it, otherwise null.
-	 * @throws Will throw if there is an error reading from DB.
+	 * @returns True if player can use the voting and false is not.
+	 * @throws If there is an error fetching from DB.
 	 */
-	async getVoting(votingId: string, playerId: string) {
+	async validatePermission(votingId: string, playerId: string) {
 		const [voting, errors] = await this.basicService.readOneById<VotingDto>(
 			votingId
 		);
 		if (errors) throw errors;
 
-		if (!voting.organizer.clan_id) return voting;
+		if (!voting.organizer.clan_id) return true;
 
 		const clanId = await this.playerService.getPlayerClanId(playerId);
-		if (clanId === voting.organizer.clan_id) return voting;
+		if (clanId === voting.organizer.clan_id) return true;
 
-		return null;
+		return false;
+	}
+
+	/**
+	 * Adds a new vote to a voting.
+	 * 
+	 * @param votingId - The ID of the voting.
+	 * @param choice - The choice to vote for.
+	 * @param playerId - The ID of the voter.
+	 * @throws Throws if there is an error reading from DB.
+	 */
+	async addVote(votingId: string, choice: Choice, playerId: string) {
+		const [voting, errors] = await this.basicService.readOneById(votingId, { includeRefs: [ModelName.PLAYER, ModelName.FLEA_MARKET_ITEM] });
+		if (errors) throw errors;
+
+		voting.votes.forEach(vote => {
+			if (vote.player_id === playerId) throw alreadyVotedError;
+		})
+
+		const newVote: Vote = { player_id: playerId, choice };
+		const success = await this.basicService.updateOneById(votingId, { votes: [...voting.votes, newVote] } );
+		if (!success) throw addVoteError;
+
+		this.notifier.votingUpdated(voting, voting.FleaMarketItem, voting.Player)
 	}
 }
