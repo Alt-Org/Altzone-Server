@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from "@nestjs/common";
+import { Body, Controller, Get, Param, Put } from "@nestjs/common";
 import { VotingService } from "./voting.service";
 import { UniformResponse } from "../common/decorator/response/UniformResponse";
 import { ModelName } from "../common/enum/modelName.enum";
@@ -7,8 +7,8 @@ import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
 import { User } from "../auth/user";
 import { Serialize } from "../common/interceptor/response/Serialize";
 import { VotingDto } from "./dto/voting.dto";
-import { APIError } from "../common/controller/APIError";
-import { APIErrorReason } from "../common/controller/APIErrorReason";
+import { AddVoteDto } from "./dto/addVote.dto";
+import { noPermissionError } from "./error/noPermission.error";
 
 @Controller("voting")
 export class VotingController {
@@ -18,16 +18,24 @@ export class VotingController {
 	@Serialize(VotingDto)
 	@UniformResponse(ModelName.VOTING)
 	async getVoting(@Param() param: _idDto, @LoggedUser() user: User) {
-		const voting = await this.service.getVoting(
+		const permission = await this.service.validatePermission(
 			param._id,
 			user.player_id
 		);
-		if (!voting) {
-			return new APIError({
-				reason: APIErrorReason.NOT_ALLOWED,
-				message: "Logged in user has no permission to read this voting.",
-			});
-		}
-		return voting;
+		if (!permission) return noPermissionError;
+
+		return await this.service.basicService.readOneById(param._id);
+	}
+
+	@Put()
+	@UniformResponse()
+	async addVote(@Body() body: AddVoteDto, @LoggedUser() user: User) {
+		const permission = await this.service.validatePermission(
+			body.voting_id,
+			user.player_id
+		);
+		if (!permission) return noPermissionError;
+
+		return this.service.addVote(body.voting_id, body.choice, user.player_id);
 	}
 }
