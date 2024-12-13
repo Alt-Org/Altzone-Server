@@ -18,12 +18,14 @@ export default class VotingNotifier {
 
 	private async buildPayload(
 		voting: VotingDto,
-        item: FleaMarketItemDto,
+		item: FleaMarketItemDto,
 		status: NotificationStatus,
-        player?: PlayerDto
+		player?: PlayerDto
 	): Promise<VotingPayload> {
 		const payload: VotingPayload = {
-			topic: `/clan/${voting.organizer.clan_id}/voting/${voting._id.toString()}`,
+			topic: `/clan/${
+				voting.organizer.clan_id
+			}/voting/${voting._id.toString()}`,
 			status,
 			voting_id: voting._id.toString(),
 			type: voting.type,
@@ -40,8 +42,17 @@ export default class VotingNotifier {
 	 * Sends a notification for a new voting
 	 * @param voting - The voting details
 	 */
-	async newVoting(voting: VotingDto, item: FleaMarketItemDto, player: PlayerDto) {
-		const payload = await this.buildPayload(voting, item, NotificationStatus.NEW, player);
+	async newVoting(
+		voting: VotingDto,
+		item: FleaMarketItemDto,
+		player: PlayerDto
+	) {
+		const payload = await this.buildPayload(
+			voting,
+			item,
+			NotificationStatus.NEW,
+			player
+		);
 		NotificationSender.buildNotification<VotingPayload>()
 			.addGroup(this.group, voting.organizer.clan_id)
 			.addResource(this.resource, voting.type)
@@ -52,8 +63,17 @@ export default class VotingNotifier {
 	 * Sends a notification for an updated voting
 	 * @param voting - The updated voting details
 	 */
-	async votingUpdated(voting: VotingDto, item: FleaMarketItemDto, player: PlayerDto) {
-		const payload = await this.buildPayload(voting, item, NotificationStatus.UPDATE, player);
+	async votingUpdated(
+		voting: VotingDto,
+		item: FleaMarketItemDto,
+		player: PlayerDto
+	) {
+		const payload = await this.buildPayload(
+			voting,
+			item,
+			NotificationStatus.UPDATE,
+			player
+		);
 		NotificationSender.buildNotification<VotingPayload>()
 			.addGroup(this.group, voting.organizer.clan_id)
 			.addResource(this.resource, voting.type)
@@ -78,7 +98,11 @@ export default class VotingNotifier {
 	 * @param voting - The completed voting details
 	 */
 	async votingCompleted(voting: VotingDto, item: FleaMarketItemDto) {
-		const payload = await this.buildPayload(voting, item, NotificationStatus.END);
+		const payload = await this.buildPayload(
+			voting,
+			item,
+			NotificationStatus.END
+		);
 		NotificationSender.buildNotification<VotingPayload>()
 			.addGroup(this.group, voting.organizer.clan_id)
 			.addResource(this.resource, voting.type)
