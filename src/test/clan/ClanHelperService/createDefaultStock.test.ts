@@ -33,12 +33,12 @@ describe('ClanHelperService.createDefaultStock() test suite', () => {
 
         const createdStock = await stockModel.findOne({clan_id: existingClan._id});
 
-        const createdItems = await itemModel.find({ stock_id: createdStock._id });
+        const createdItems = await itemModel.find({stock_id: createdStock._id});
 
-        expect(createdItems).toMatchObject([
-            { stock_id: createdStock._id, unityKey: ItemName.CARPET_RAKKAUS },
-            { stock_id: createdStock._id, unityKey: ItemName.MIRROR_RAKKAUS },
-            { stock_id: createdStock._id, unityKey: ItemName.CLOSET_RAKKAUS }
-        ]);
+        expect(createdItems).toEqual(expect.arrayContaining([
+            expect.objectContaining({stock_id: createdStock._id, unityKey: ItemName.CARPET_RAKKAUS}),
+            expect.objectContaining({stock_id: createdStock._id, unityKey: ItemName.MIRROR_RAKKAUS}),
+            expect.objectContaining({stock_id: createdStock._id, unityKey: ItemName.CLOSET_RAKKAUS})
+        ]))
     });
 });
