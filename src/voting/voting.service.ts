@@ -15,6 +15,7 @@ import { alreadyVotedError } from "./error/alreadyVoted.error";
 import { Vote } from "./schemas/vote.schema";
 import { ModelName } from "../common/enum/modelName.enum";
 import { addVoteError } from "./error/addVote.error";
+import { TIServiceReadManyOptions } from "../common/service/basicService/IService";
 
 @Injectable()
 export class VotingService {
@@ -93,9 +94,9 @@ export class VotingService {
 
 	/**
 	 * Validates that player can use the voting.
-	 * Checks that voting isn't clan specific or 
+	 * Checks that voting isn't clan specific or
 	 * voting organizer clan matches with player clan.
-	 * 
+	 *
 	 * @param votingId - The ID of the voting.
 	 * @param playerId - The ID of the player.
 	 * @returns True if player can use the voting and false is not.
@@ -117,24 +118,47 @@ export class VotingService {
 
 	/**
 	 * Adds a new vote to a voting.
-	 * 
+	 *
 	 * @param votingId - The ID of the voting.
 	 * @param choice - The choice to vote for.
 	 * @param playerId - The ID of the voter.
 	 * @throws Throws if there is an error reading from DB.
 	 */
 	async addVote(votingId: string, choice: Choice, playerId: string) {
-		const [voting, errors] = await this.basicService.readOneById(votingId, { includeRefs: [ModelName.PLAYER, ModelName.FLEA_MARKET_ITEM] });
+		const [voting, errors] = await this.basicService.readOneById(votingId, {
+			includeRefs: [ModelName.PLAYER, ModelName.FLEA_MARKET_ITEM],
+		});
 		if (errors) throw errors;
 
-		voting.votes.forEach(vote => {
+		voting.votes.forEach((vote) => {
 			if (vote.player_id === playerId) throw alreadyVotedError;
-		})
+		});
 
 		const newVote: Vote = { player_id: playerId, choice };
-		const success = await this.basicService.updateOneById(votingId, { votes: [...voting.votes, newVote] } );
+		const success = await this.basicService.updateOneById(votingId, {
+			votes: [...voting.votes, newVote],
+		});
 		if (!success) throw addVoteError;
 
-		this.notifier.votingUpdated(voting, voting.FleaMarketItem, voting.Player)
+		this.notifier.votingUpdated(voting, voting.FleaMarketItem, voting.Player);
+	}
+
+	/**
+	 * Get all votings where the organizer is the player or player's clan.
+	 * 
+	 * @param playerId - The ID of the player.
+	 * @returns All the found votings or service error.
+	 */
+	async getClanVotings(playerId: string) {
+		const clanId = await this.playerService.getPlayerClanId(playerId);
+		const filter = {
+			$or: [
+				{ "organizer.clan_id": clanId },
+				{ "organizer.player_id": playerId },
+			],
+		};
+		return this.basicService.readMany<VotingDto>({
+			filter,
+		});
 	}
 }
