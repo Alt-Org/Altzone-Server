@@ -1,7 +1,7 @@
 import { IsArray, IsDate, IsEnum, IsInt, IsMongoId, IsOptional, ValidateNested } from "class-validator";
 import AddType from "../../common/base/decorator/AddType.decorator";
 import { VotingType } from "../enum/VotingType.enum";
-import { Vote } from "../vote.schema";
+import { Vote } from "../schemas/vote.schema";
 import { Type } from "class-transformer";
 import { Organizer } from "./organizer.dto";
 
