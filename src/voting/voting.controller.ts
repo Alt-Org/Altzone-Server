@@ -14,6 +14,13 @@ import { noPermissionError } from "./error/noPermission.error";
 export class VotingController {
 	constructor(private readonly service: VotingService) {}
 
+	@Get()
+	@Serialize(VotingDto)
+	@UniformResponse(ModelName.VOTING)
+	async getClanVotings(@LoggedUser() user: User) {
+		return this.service.getClanVotings(user.player_id);
+	}
+
 	@Get("/:_id")
 	@Serialize(VotingDto)
 	@UniformResponse(ModelName.VOTING)
