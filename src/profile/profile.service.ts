@@ -16,6 +16,8 @@ import {SEReason} from "../common/service/basicService/SEReason";
 import BasicService from "../common/service/basicService/BasicService";
 import {CreateProfileDto} from "./dto/createProfile.dto";
 import {ProfileDto} from "./dto/profile.dto";
+import { PlayerDto } from "../player/dto/player.dto";
+import { ClanDto } from "../clan/dto/clan.dto";
 
 const ARGON2_CONFIG = {
     type: argon2.argon2id,
@@ -83,4 +85,40 @@ export class ProfileService extends BasicServiceDummyAbstract<ProfileDocument> i
             ];
         }
     }
+
+	/**
+	 * Retrieves the logged user's profile, player, and clan information.
+	 *
+	 * @param profileId - The ID of the profile.
+	 * @param playerId - The ID of the player.
+	 * @returns An object containing the profile, player, and clan information.
+	 * @throws Will throw an error if the profile or player is not found.
+	 */
+	async getLoggedUserInfo(profileId: string, playerId: string) {
+		const profile = await this.requestHelperService.getModelInstanceById(
+			ModelName.PROFILE,
+			profileId,
+			ProfileDto
+		);
+		if (!profile) throw new ServiceError({ reason: SEReason.NOT_FOUND });
+
+		const player = await this.requestHelperService.getModelInstanceById(
+			ModelName.PLAYER,
+			playerId,
+			PlayerDto
+		);
+		if (!player) throw new ServiceError({ reason: SEReason.NOT_FOUND });
+
+		if (player?.clan_id) {
+			const clan = await this.requestHelperService.getModelInstanceById(
+				ModelName.CLAN,
+				player.clan_id,
+				ClanDto
+			);
+			player.Clan = clan;
+		}
+		profile.Player = player;
+
+		return profile;
+	}
 }
