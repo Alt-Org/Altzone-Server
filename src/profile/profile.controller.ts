@@ -25,6 +25,8 @@ import {OffsetPaginate} from "../common/interceptor/request/offsetPagination.int
 import {AddSortQuery} from "../common/interceptor/request/addSortQuery.interceptor";
 import {IResponseShape} from "../common/interface/IResponseShape";
 import {UniformResponse} from "../common/decorator/response/UniformResponse";
+import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
+import { User } from "../auth/user";
 
 @Controller('profile')
 export default class ProfileController {
@@ -63,6 +65,13 @@ export default class ProfileController {
         }
 
         return [createdProfile, errors];
+    }
+
+    @Get('/info')
+    @Serialize(ProfileDto)
+    @UniformResponse(ModelName.PROFILE)
+    async getLoggedUserInfo(@LoggedUser() user: User) {
+        return await this.service.getLoggedUserInfo(user.profile_id, user.player_id);
     }
 
     @Get('/:_id')
