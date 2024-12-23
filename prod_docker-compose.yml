@@ -11,6 +11,7 @@ services:
       - backend
       - db
       - owncloud
+      - redis
     environment:
       - HOST=altzone_api
       - PORT=8080
@@ -24,7 +25,16 @@ services:
       - OWNCLOUD_USER=user
       - OWNCLOUD_PASSWORD=password
       - OWNCLOUD_LOG_FILES_ROOT=/log-files
-
+      - REDIS_PASSWORD=mySecretPassword
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MOSQUITTO_HOST=mosquitto
+      - MOSQUITTO_PORT=1883
+      - MOSQUITTO_SUBSCRIBER_USER=subscriber
+      - MOSQUITTO_SUBSCRIBER_PASSWORD=subscriberPassword
+      - MOSQUITTO_PUBLISHER=publisher
+      - MOSQUITTO_PUBLISHER_PASSWORD=publisherPassword
+      
   site:
     image: leolab1337/altzone_web_pages:v2
     container_name: altzone_site
@@ -75,6 +85,30 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=rootUser
       - MONGO_INITDB_ROOT_PASSWORD=superSecretPassword
       - MONGO_INITDB_DATABASE=altzone
+
+  redis:
+    image: redis:7.4-bookworm
+    container_name: altzone_redis
+    environment:
+      - REDIS_PASSWORD=mySecretPassword
+      - REDIS_APPENDONLY=yes
+      - REDIS_MAXMEMORY=512mb
+      - REDIS_PORT=6379
+      - REDIS_LOGLEVEL=warning
+    volumes:
+      - altzone_redis:/data
+    networks:
+      - redis
+
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: altzone_mosquitto
+    networks:
+      - backend
+    volumes:
+      - altzone_mosquitto:/mosquitto/data
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/log:/mosquitto/log
 
   owncloud:
     image: owncloud/server:10.15
@@ -141,6 +175,8 @@ networks:
     name: altzone_backend
   db:
     name: altzone_db
+  redis:
+    name: altzone_redis
   swagger:
     name: altzone_swagger
   owncloud:
@@ -151,3 +187,5 @@ networks:
 volumes:
   altzone_db:
   owncloud_db:
+  altzone_redis:
+  altzone_mosquitto:

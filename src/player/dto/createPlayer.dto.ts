@@ -21,6 +21,7 @@ export class CreatePlayerDto {
     @IsBoolean()
     parentalAuth?: boolean;
 
+    @IsOptional()
     @IsProfileExists()
     @IsMongoId()
     profile_id?: string;

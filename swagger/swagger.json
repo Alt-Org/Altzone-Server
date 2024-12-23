@@ -41,42 +41,47 @@
                                             "data": {
                                                 "Clan": [
                                                     {
-                                                        "_id": "667eedc9b3b5bf0f7a840ef1",
-                                                        "name": "User2 clan",
-                                                        "tag": "tag2",
-                                                        "gameCoins": 90,
+                                                        "objectType": "ClanDto",
+                                                        "_id": "66d74887c988e09f4c45870a",
+                                                        "name": "clan2",
+                                                        "labels": [
+                                                            "itsenäiset",
+                                                            "oleilijat",
+                                                            "rikkaat"
+                                                        ],
+                                                        "gameCoins": 0,
+                                                        "points": 0,
                                                         "admin_ids": [
-                                                            "666720806cc90102f60bd325"
+                                                            "66d7067645b40dd7f491e753"
                                                         ],
                                                         "playerCount": 1,
                                                         "itemCount": 0,
                                                         "stockCount": 0,
-                                                        "isOpen": true,
-                                                        "labels": [
-                                                            "eläinrakkaat",
-                                                            "itsenäiset"
-                                                        ],
-                                                        "points": 20,
-                                                        "id": "667eedc9b3b5bf0f7a840ef1"
+                                                        "ageRange": "None",
+                                                        "goal": "None",
+                                                        "language": "None",
+                                                        "isOpen": true
                                                     },
                                                     {
-                                                        "_id": "667bfec6afb8211b4bd8dbff",
-                                                        "name": "User1 clan",
-                                                        "tag": "tag1",
-                                                        "gameCoins": 4,
+                                                        "objectType": "ClanDto",
+                                                        "_id": "66d70d08941f1d7be5033a3c",
+                                                        "name": "clan1",
+                                                        "labels": [
+                                                            "eläinrakkaat",
+                                                            "urheilevat",
+                                                            "rikkaat"
+                                                        ],
+                                                        "gameCoins": 0,
                                                         "admin_ids": [
-                                                            "665df7026bf5b8f670569ea4"
+                                                            "66d705c645b40dd7f491e6eb"
                                                         ],
                                                         "playerCount": 1,
                                                         "itemCount": 0,
                                                         "stockCount": 0,
-                                                        "isOpen": true,
-                                                        "labels": [
-                                                            "eläinrakkaat",
-                                                            "itsenäiset"
-                                                        ],
-                                                        "points": 20,
-                                                        "id": "667bfec6afb8211b4bd8dbff"
+                                                        "ageRange": "None",
+                                                        "goal": "None",
+                                                        "language": "None",
+                                                        "isOpen": true
                                                     }
                                                 ]
                                             },
@@ -165,7 +170,7 @@
                     }
                 ],
                 "summary": "Update a clan",
-                "description": "Update the Clan, which _id is specified in the body. \n\nOnly Clan admins can change the Clan's data, as well as add or remove admins. Notice that while removing Clan admins, its is not allowed to remove all of them, because Clan must have at least one admin.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins | \n\n\nThe labels enum values:\n\n    - 'eläinrakkaat',\n    - 'maahanmuuttomyönteiset',\n    - 'lgbtq+',\n    - 'raittiit',\n    - 'kohteliaat',\n    - 'kiusaamisenvastaiset',\n    - 'urheilevat',\n    - 'syvälliset',\n    - 'oikeudenmukaiset',\n    - 'kaikkien kaverit',\n    - 'itsenäiset',\n    - 'retkeilijät',\n    - 'suomenruotsalaiset',\n    - 'huumorintajuiset',\n    - 'rikkaat',\n    - 'ikiteinit',\n    - 'juoruilevat',\n    - 'rakastavat',\n    - 'oleilijat',\n    - 'nörtit',\n    - 'musadiggarit',\n    - 'tunteelliset',\n    - 'gamerit',\n    - 'animefanit',\n    - 'sinkut',\n    - 'monikulttuuriset',\n    - 'kauniit',\n    - 'järjestelmälliset',\n    - 'epäjärjestelmälliset',\n    - 'tasa-arvoiset',\n    - 'somepersoonat',\n    - 'kädentaitajat',\n    - 'muusikot',\n    - 'taiteilijat',\n    - 'spämmääjät',\n    - 'kasvissyöjät',\n    - 'tasapainoiset'"
+                "description": "Update the Clan, which _id is specified in the body. \n\nOnly Clan admins can change the Clan's data, as well as add or remove admins. Notice that while removing Clan admins, its is not allowed to remove all of them, because Clan must have at least one admin.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins | \n\n\nThe **labels** enum values:\n\n|                         |                            |                      |                       |\n|-------------------------|----------------------------|----------------------|-----------------------|\n| 'eläinrakkaat'          | 'maahanmuuttomyönteiset'   | 'lgbtq+'             | 'raittiit'            |\n| 'kohteliaat'            | 'kiusaamisenvastaiset'     | 'urheilevat'         | 'syvälliset'          |\n| 'oikeudenmukaiset'      | 'kaikkien kaverit'         | 'itsenäiset'         | 'retkeilijät'         |\n| 'suomenruotsalaiset'    | 'huumorintajuiset'         | 'rikkaat'            | 'ikiteinit'           |\n| 'juoruilevat'           | 'rakastavat'               | 'oleilijat'          | 'nörtit'              |\n| 'musadiggarit'          | 'tunteelliset'             | 'gamerit'            | 'animefanit'          |\n| 'sinkut'                | 'monikulttuuriset'         | 'kauniit'            | 'järjestelmälliset'   |\n| 'epäjärjestelmälliset'  | 'tasa-arvoiset'            | 'somepersoonat'      | 'kädentaitajat'       |\n| 'muusikot'              | 'taiteilijat'              | 'spämmääjät'         | 'kasvissyöjät'        |\n| 'tasapainoiset'         |                            |                      |                       |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **language** enum values:\n\n|             |           |             |               |\n|---------------------|-------------------|---------------------|-----------------------|\n| 'None'              | 'English'         | 'Finnish'           | 'Swedish'             |\n| 'Mandarin Chinese'  | 'Hindi'           | 'Spanish'           | 'French'              |\n| 'Arabic'            | 'Bengali'         | 'Russian'           | 'Portuguese'          |\n| 'Urdu'              | 'Indonesian'      | 'German'            | 'Japanese'            |\n| 'Swahili'           | 'Marathi'         |                     |                       |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **goal** enum values:\n\n|         |          |        |     |\n|-----------------|------------------|----------------|--------------|\n| 'None'          | 'Fiilistely'      | 'Grindaus'     | 'Intohimoisuus' |\n| 'Keraily'       |                  |                |              |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **ageRange** enum values:\n\n|       |       |       |   |\n|---------------|---------------|---------------|-----------|\n| 'None'        | 'Teenagers'    | 'Toddlers'    | 'Adults'  |\n| 'All'         |               |               |           |"
             },
             "post": {
                 "requestBody": {
@@ -192,43 +197,65 @@
                                     "1": {
                                         "value": {
                                             "data": {
-                                                "Clan": {
-                                                    "objectType": "ClanDto",
-                                                    "_id": "66d74887c988e09f4c45870a",
-                                                    "name": "clan2",
-                                                    "tag": "clan2",
-                                                    "gameCoins": 0,
-                                                    "admin_ids": [
-                                                        "66d7067645b40dd7f491e753"
-                                                    ],
-                                                    "playerCount": 1,
-                                                    "itemCount": 0,
-                                                    "stockCount": 0,
-                                                    "isOpen": true,
-                                                    "points": 0,
-                                                    "labels": [
-                                                        "eläinrakkaat",
-                                                        "itsenäiset"
-                                                    ],
-                                                    "Stock": {
-                                                        "objectType": "StockDto",
-                                                        "_id": "66d74887c988e09f4c45870d",
-                                                        "cellCount": 20,
-                                                        "clan_id": "66d74887c988e09f4c45870a"
-                                                    },
-                                                    "SoulHome": {
-                                                        "objectType": "SoulHomeDto",
-                                                        "_id": "66d74887c988e09f4c458715",
+                                                "Clan": [
+                                                    {
+                                                        "objectType": "ClanDto",
+                                                        "_id": "66d74887c988e09f4c45870a",
                                                         "name": "clan2",
-                                                        "clan_id": "66d74887c988e09f4c45870a"
+                                                        "labels": [
+                                                            "itsenäiset",
+                                                            "oleilijat",
+                                                            "rikkaat"
+                                                        ],
+                                                        "gameCoins": 0,
+                                                        "points": 0,
+                                                        "admin_ids": [
+                                                            "66d7067645b40dd7f491e753"
+                                                        ],
+                                                        "playerCount": 1,
+                                                        "itemCount": 0,
+                                                        "stockCount": 0,
+                                                        "ageRange": "None",
+                                                        "goal": "None",
+                                                        "language": "None",
+                                                        "isOpen": true
+                                                    },
+                                                    {
+                                                        "objectType": "ClanDto",
+                                                        "_id": "66d70d08941f1d7be5033a3c",
+                                                        "name": "clan1",
+                                                        "labels": [
+                                                            "eläinrakkaat",
+                                                            "urheilevat",
+                                                            "rikkaat"
+                                                        ],
+                                                        "gameCoins": 0,
+                                                        "points": 0,
+                                                        "admin_ids": [
+                                                            "66d705c645b40dd7f491e6eb"
+                                                        ],
+                                                        "playerCount": 1,
+                                                        "itemCount": 0,
+                                                        "stockCount": 0,
+                                                        "ageRange": "None",
+                                                        "goal": "None",
+                                                        "language": "None",
+                                                        "isOpen": true
                                                     }
-                                                }
+                                                ]
                                             },
                                             "metaData": {
                                                 "dataKey": "Clan",
                                                 "modelName": "Clan",
-                                                "dataType": "Object",
-                                                "dataCount": 1
+                                                "dataType": "Array",
+                                                "dataCount": 2
+                                            },
+                                            "paginationData": {
+                                                "currentPage": 1,
+                                                "limit": 2,
+                                                "offset": 0,
+                                                "itemCount": 2,
+                                                "pageCount": 1
                                             }
                                         }
                                     }
@@ -259,7 +286,7 @@
                     }
                 ],
                 "summary": "Create a clan",
-                "description": "Create a new Clan. The creator of the Clan becomes its admin. Notice that if Player is creating a new Clan, he/she becomes a member of it, that means that if Player is member of some Clan it can not create a new one, before leaving the old one.\n\nAlso endpoint creates Clan's Stock containing default Items, as well as Clan's SoulHome and Rooms.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | Player can be in one Clan only at one time => if Player already is in another Clan, he/she can not create a new one | \n\n"
+                "description": "Create a new Clan. The creator of the Clan becomes its admin. Notice that if Player is creating a new Clan, he/she becomes a member of it, that means that if Player is member of some Clan it can not create a new one, before leaving the old one.\n\nAlso endpoint creates Clan's Stock, as well as Clan's SoulHome and Rooms. For the created Clan a set of default Items will be added to Stock and to one of the SoulHome Rooms.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | Player can be in one Clan only at one time => if Player already is in another Clan, he/she can not create a new one | \n\nThe **labels** enum values:\n\n|                         |                            |                      |                       |\n|-------------------------|----------------------------|----------------------|-----------------------|\n| 'eläinrakkaat'          | 'maahanmuuttomyönteiset'   | 'lgbtq+'             | 'raittiit'            |\n| 'kohteliaat'            | 'kiusaamisenvastaiset'     | 'urheilevat'         | 'syvälliset'          |\n| 'oikeudenmukaiset'      | 'kaikkien kaverit'         | 'itsenäiset'         | 'retkeilijät'         |\n| 'suomenruotsalaiset'    | 'huumorintajuiset'         | 'rikkaat'            | 'ikiteinit'           |\n| 'juoruilevat'           | 'rakastavat'               | 'oleilijat'          | 'nörtit'              |\n| 'musadiggarit'          | 'tunteelliset'             | 'gamerit'            | 'animefanit'          |\n| 'sinkut'                | 'monikulttuuriset'         | 'kauniit'            | 'järjestelmälliset'   |\n| 'epäjärjestelmälliset'  | 'tasa-arvoiset'            | 'somepersoonat'      | 'kädentaitajat'       |\n| 'muusikot'              | 'taiteilijat'              | 'spämmääjät'         | 'kasvissyöjät'        |\n| 'tasapainoiset'         |                            |                      |                       |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **language** enum values:\n\n|             |           |             |               |\n|---------------------|-------------------|---------------------|-----------------------|\n| 'None'              | 'English'         | 'Finnish'           | 'Swedish'             |\n| 'Mandarin Chinese'  | 'Hindi'           | 'Spanish'           | 'French'              |\n| 'Arabic'            | 'Bengali'         | 'Russian'           | 'Portuguese'          |\n| 'Urdu'              | 'Indonesian'      | 'German'            | 'Japanese'            |\n| 'Swahili'           | 'Marathi'         |                     |                       |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **goal** enum values:\n\n|         |          |        |     |\n|-----------------|------------------|----------------|--------------|\n| 'None'          | 'Fiilistely'      | 'Grindaus'     | 'Intohimoisuus' |\n| 'Keraily'       |                  |                |              |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **ageRange** enum values:\n\n|       |       |       |   |\n|---------------|---------------|---------------|-----------|\n| 'None'        | 'Teenagers'    | 'Toddlers'    | 'Adults'  |\n| 'All'         |               |               |           |"
             }
         },
         "/profile": {
@@ -463,14 +490,25 @@
                                             "data": {
                                                 "Player": [
                                                     {
-                                                        "_id": "6686cb3b71adebdb10f33ffb",
-                                                        "name": "User 2",
-                                                        "backpackCapacity": 654,
-                                                        "uniqueIdentifier": 2,
-                                                        "profile_id": "6686cb3b71adebdb10f33ff9",
+                                                        "_id": "672388e8c7f8bb9dd570e83b",
+                                                        "name": "user1",
+                                                        "points": 110,
+                                                        "uniqueIdentifier": "user1",
                                                         "above13": true,
                                                         "parentalAuth": true,
-                                                        "points": 20
+                                                        "profile_id": "672388e8c7f8bb9dd570e839",
+                                                        "clan_id": "67238943c7f8bb9dd570e850",
+                                                        "gameStatistics": {
+                                                            "playedBattles": 0,
+                                                            "wonBattles": 0,
+                                                            "messages": [
+                                                                {
+                                                                    "date": "2024-10-31T18:05:02.641Z",
+                                                                    "count": 11
+                                                                }
+                                                            ]
+                                                        },
+                                                        "id": "672388e8c7f8bb9dd570e83b"
                                                     }
                                                 ]
                                             },
@@ -658,14 +696,25 @@
                                         "value": {
                                             "data": {
                                                 "Player": {
-                                                    "_id": "6686cb3b71adebdb10f33ffb",
-                                                    "name": "User 2",
-                                                    "backpackCapacity": 654,
-                                                    "uniqueIdentifier": 2,
-                                                    "profile_id": "6686cb3b71adebdb10f33ff9",
+                                                    "_id": "672388e8c7f8bb9dd570e83b",
+                                                    "name": "user1",
+                                                    "points": 110,
+                                                    "uniqueIdentifier": "user1",
                                                     "above13": true,
                                                     "parentalAuth": true,
-                                                    "points": 20
+                                                    "profile_id": "672388e8c7f8bb9dd570e839",
+                                                    "clan_id": "67238943c7f8bb9dd570e850",
+                                                    "gameStatistics": {
+                                                        "playedBattles": 0,
+                                                        "wonBattles": 0,
+                                                        "messages": [
+                                                            {
+                                                                "date": "2024-10-31T18:05:02.641Z",
+                                                                "count": 11
+                                                            }
+                                                        ]
+                                                    },
+                                                    "id": "672388e8c7f8bb9dd570e83b"
                                                 }
                                             },
                                             "metaData": {
@@ -691,6 +740,9 @@
                         "$ref": "#/components/responses/500"
                     }
                 },
+                "security": [
+                    {}
+                ],
                 "summary": "Get Player by _id",
                 "description": "Read Player data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
             },
@@ -760,20 +812,25 @@
                                         "value": {
                                             "data": {
                                                 "Clan": {
-                                                    "_id": "667eedc9b3b5bf0f7a840ef1",
-                                                    "name": "User1 clan",
-                                                    "tag": "tag1",
-                                                    "gameCoins": 90,
-                                                    "admin_ids": [
-                                                        "666720806cc90102f60bd325"
-                                                    ],
+                                                    "objectType": "ClanDto",
+                                                    "_id": "66d70d08941f1d7be5033a3c",
+                                                    "name": "clan1",
                                                     "labels": [
                                                         "eläinrakkaat",
-                                                        "itsenäiset"
+                                                        "urheilevat",
+                                                        "rikkaat"
+                                                    ],
+                                                    "gameCoins": 0,
+                                                    "points": 0,
+                                                    "admin_ids": [
+                                                        "66d705c645b40dd7f491e6eb"
                                                     ],
                                                     "playerCount": 1,
                                                     "itemCount": 0,
                                                     "stockCount": 0,
+                                                    "ageRange": "None",
+                                                    "goal": "None",
+                                                    "language": "None",
                                                     "isOpen": true
                                                 }
                                             },
@@ -1082,10 +1139,11 @@
                                             "data": {
                                                 "Item": {
                                                     "_id": "668a70ce91020196cb10d595",
-                                                    "name": "item1",
+                                                    "name": "Sofa_Taakka",
+                                                    "recycling": "Mixed_waste",
+                                                    "qualityLevel": "common",
+                                                    "unityKey": "Sofa_Taakka",
                                                     "weight": 67,
-                                                    "recycling": "yleinen",
-                                                    "unityKey": "unity1",
                                                     "location": [
                                                         2,
                                                         4
@@ -1122,7 +1180,7 @@
                     {}
                 ],
                 "summary": "Get Item by _id",
-                "description": "Read Item data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n\n\n## Endpoint description\n\n### General description\n\nItems are objects, which can be placed in SoulHomes' Rooms, Stocks and Shop. Item is an object, which has its value in the game and can be bought from the Shop, stolen from the Stock or placed in safe to SoulHome's Room.\n\nItems can be obtained only from Shop and then stored in Room or a Stock.\n\nItem can be a furniture or some other kind of object. The difference between furniture and not furniture is that a furniture can be placed only on a floor. Not furniture can be placed anywhere including on top of a furniture, walls, celling and floor. This data is used in game logic only and does not affect the API in any way.\n\n### Relations\n\nItem can belong to one Room. Room can have multiple Items.\n\nItem can belong to one Stock. Stock can have multiple Items.\n\nItem can belong to Shop. Shop can have multiple Items.\n\n### CRUD operations\n\nItem can not be created by Player. It can only be bought from Shop. API creates new Items automatically.\n\nItem can be read by anyone. One Item can be accessed via its _id field. Multiple Items can be accessed by requesting them within another endpoints via \"with\" or \"all\" queries (/stock/:stock_id?with=Item), since they are mostly required together with Stock, Room or Shop data.\n\nItem can not be directly updated by Players. However, Players may move Items from one place to another. They first can buy an Item from Shop and so update Item's place by moving it to the Clan's Stock. Then they can move it from SoulHome to Stock or vice versa. Item can be bought from Shop via /stock/buy enpoint (not yet implemented). Item can be moved from Room to Stock or from Stock to Room via /item/move POST endpoint.\n\nItem can not be deleted."
+                "description": "Read Item data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n\n-------------\n\nThe name field is an enum:\n\n|                |               |                 |              |\n|------------------------|-----------------------|--------------------------|-----------------------|\n| 'Sofa_Taakka'          | 'Mirror_Taakka'       | 'Floorlamp_Taakka'        | 'Toilet_Schrodinger'  |\n| 'Sink_Schrodinger'     | 'Closet_Taakka'       | 'SofaTable_Taakka'        | 'SideTable_Taakka'    |\n| 'Carpet_Schrodinger'   | 'Carpet_Rakkaus'      | 'Mirror_Schrodinger'      | 'Mirror_Rakkaus'      |\n| 'ArmChair_Taakka'      | 'Sofa_Rakkaus'        | 'ArmChair_Rakkaus'        | 'Closet_Rakkaus'      |\n| 'Chair_Neuro'          | 'Dresser_Neuro'       | 'Stool_Neuro'             |                       |\n\n-------------\n\nThe recycling field is an enum:\n\n|               |              |    |           |\n|-----------------------|-----------------------|------------|-------------------|\n| 'Mixed_waste'         | 'Electrical_Equipment'| 'Wood'     | 'Glass'           |\n| 'Metal'               | 'Landfill'            |            |                   |\n\n-------------\n\nThe qualityLevel field is an enum:\n\n|    |   |    |    |\n|------------|------------|------------|------------|\n| 'common'   | 'rare'     | 'epic'     |            |\n\n-------------\n\n## Endpoint description\n\n### General description\n\nItems are objects, which can be placed in SoulHomes' Rooms, Stocks and Shop. Item is an object, which has its value in the game and can be bought from the Shop, stolen from the Stock or placed in safe to SoulHome's Room.\n\nItems can be obtained only from Shop and then stored in Room or a Stock.\n\nItem can be a furniture or some other kind of object. The difference between furniture and not furniture is that a furniture can be placed only on a floor. Not furniture can be placed anywhere including on top of a furniture, walls, celling and floor. This data is used in game logic only and does not affect the API in any way.\n\n### Relations\n\nItem can belong to one Room. Room can have multiple Items.\n\nItem can belong to one Stock. Stock can have multiple Items.\n\nItem can belong to Shop. Shop can have multiple Items.\n\n### CRUD operations\n\nItem can not be created by Player. It can only be bought from Shop. API creates new Items automatically.\n\nItem can be read by anyone. One Item can be accessed via its _id field. Multiple Items can be accessed by requesting them within another endpoints via \"with\" or \"all\" queries (/stock/:stock_id?with=Item), since they are mostly required together with Stock, Room or Shop data.\n\nItem can not be directly updated by Players. However, Players may move Items from one place to another. They first can buy an Item from Shop and so update Item's place by moving it to the Clan's Stock. Then they can move it from SoulHome to Stock or vice versa. Item can be bought from Shop via /stock/buy enpoint (not yet implemented). Item can be moved from Room to Stock or from Stock to Room via /item/move POST endpoint.\n\nItem can not be deleted."
             },
             "parameters": [
                 {
@@ -1300,8 +1358,8 @@
         "/fleaMarket": {
             "get": {
                 "tags": [
-                    "in-development",
-                    "FleaMarket"
+                    "FleaMarket",
+                    "in-development"
                 ],
                 "responses": {
                     "200": {
@@ -1401,10 +1459,11 @@
                                                 "FleaMarketItem": [
                                                     {
                                                         "_id": "668a70ce91020196cb10d595",
-                                                        "name": "item1",
                                                         "weight": 67,
-                                                        "recycling": "yleinen",
-                                                        "unityKey": "unity1",
+                                                        "name": "Sofa_Taakka",
+                                                        "recycling": "Mixed_waste",
+                                                        "qualityLevel": "common",
+                                                        "unityKey": "Sofa_Taakka",
                                                         "isFurniture": true,
                                                         "price": 23,
                                                         "status": "Available",
@@ -1441,14 +1500,14 @@
                     }
                 ],
                 "summary": "Get all flea market items",
-                "description": "Get all FleaMarketItems of the flea market\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | \n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there.\n"
+                "description": "Get all FleaMarketItems of the flea market\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | \n\nThe name field is an enum:\n\n|                |               |                 |              |\n|------------------------|-----------------------|--------------------------|-----------------------|\n| 'Sofa_Taakka'          | 'Mirror_Taakka'       | 'Floorlamp_Taakka'        | 'Toilet_Schrodinger'  |\n| 'Sink_Schrodinger'     | 'Closet_Taakka'       | 'SofaTable_Taakka'        | 'SideTable_Taakka'    |\n| 'Carpet_Schrodinger'   | 'Carpet_Rakkaus'      | 'Mirror_Schrodinger'      | 'Mirror_Rakkaus'      |\n| 'ArmChair_Taakka'      | 'Sofa_Rakkaus'        | 'ArmChair_Rakkaus'        | 'Closet_Rakkaus'      |\n| 'Chair_Neuro'          | 'Dresser_Neuro'       | 'Stool_Neuro'             |                       |\n\n-------------\n\nThe recycling field is an enum:\n\n|               |              |    |           |\n|-----------------------|-----------------------|------------|-------------------|\n| 'Mixed_waste'         | 'Electrical_Equipment'| 'Wood'     | 'Glass'           |\n| 'Metal'               | 'Landfill'            |            |                   |\n\n-------------\n\nThe qualityLevel field is an enum:\n\n|    |   |    |    |\n|------------|------------|------------|------------|\n| 'common'   | 'rare'     | 'epic'     |            |\n\n-------------\n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there.\n"
             }
         },
         "/fleaMarket/{_id}": {
             "get": {
                 "tags": [
-                    "in-development",
-                    "FleaMarket"
+                    "FleaMarket",
+                    "in-development"
                 ],
                 "responses": {
                     "200": {
@@ -1524,10 +1583,11 @@
                                             "data": {
                                                 "FleaMarketItem": {
                                                     "_id": "668a70ce91020196cb10d595",
-                                                    "name": "item1",
                                                     "weight": 67,
-                                                    "recycling": "yleinen",
-                                                    "unityKey": "unity1",
+                                                    "name": "Sofa_Taakka",
+                                                    "recycling": "Mixed_waste",
+                                                    "qualityLevel": "common",
+                                                    "unityKey": "Sofa_Taakka",
                                                     "isFurniture": true,
                                                     "price": 23,
                                                     "status": "Available",
@@ -1563,7 +1623,7 @@
                     }
                 ],
                 "summary": "Get flea market item data by _id",
-                "description": "Get an idividual FleaMarketItem by its mongo _id field.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | \n\n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there.\n"
+                "description": "Get an idividual FleaMarketItem by its mongo _id field.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | \n\n-----------\n\nThe name field is an enum:\n\n|                |               |                 |              |\n|------------------------|-----------------------|--------------------------|-----------------------|\n| 'Sofa_Taakka'          | 'Mirror_Taakka'       | 'Floorlamp_Taakka'        | 'Toilet_Schrodinger'  |\n| 'Sink_Schrodinger'     | 'Closet_Taakka'       | 'SofaTable_Taakka'        | 'SideTable_Taakka'    |\n| 'Carpet_Schrodinger'   | 'Carpet_Rakkaus'      | 'Mirror_Schrodinger'      | 'Mirror_Rakkaus'      |\n| 'ArmChair_Taakka'      | 'Sofa_Rakkaus'        | 'ArmChair_Rakkaus'        | 'Closet_Rakkaus'      |\n| 'Chair_Neuro'          | 'Dresser_Neuro'       | 'Stool_Neuro'             |                       |\n\n-------------\n\nThe recycling field is an enum:\n\n|               |              |    |           |\n|-----------------------|-----------------------|------------|-------------------|\n| 'Mixed_waste'         | 'Electrical_Equipment'| 'Wood'     | 'Glass'           |\n| 'Metal'               | 'Landfill'            |            |                   |\n\n-------------\n\nThe qualityLevel field is an enum:\n\n|    |   |    |    |\n|------------|------------|------------|------------|\n| 'common'   | 'rare'     | 'epic'     |            |\n\n-------------\n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there.\n"
             },
             "parameters": [
                 {
@@ -1909,7 +1969,7 @@
                     }
                 ],
                 "summary": "Read all messages from the Chat",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nRead all messages of specified Chat. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
+                "description": "Read all messages of specified Chat. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
                 "externalDocs": {
                     "url": "https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests)"
                 }
@@ -1954,7 +2014,7 @@
                     }
                 ],
                 "summary": "Create a message",
-                "description": "TEMPORARY DISABLED AND RETURNS 501\n\nCreate a new Message. Message represent the object of message sent by a Player.\n\nNotice that currently there are no authorization required.\n\nNotice, that the messages does not have an usual _id field generated by data base. Instead the Photon id should be used.\n\nNotice that the messages is contained in the array of a Chat collection.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n"
+                "description": "Create a new Message. Message represent the object of message sent by a Player.\n\nNotice that currently there are no authorization required.\n\nNotice, that the messages does not have an usual _id field generated by data base. Instead the Photon id should be used.\n\nNotice that the messages is contained in the array of a Chat collection.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes |\n| Authorization   | only for Players above 13 or with parents approval |\n"
             },
             "parameters": [
                 {
@@ -1998,7 +2058,7 @@
                                                     "resistance": 40,
                                                     "attack": 55,
                                                     "defence": 14,
-                                                    "characterClass_id": "66939d9f9fdbf76f01d5dbd5",
+                                                    "hp": 120,
                                                     "player_id": "665df7026bf5b8f670569ea4"
                                                 }
                                             },
@@ -2015,6 +2075,9 @@
                         },
                         "description": "OK"
                     },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
                     "404": {
                         "$ref": "#/components/responses/404"
                     },
@@ -2023,10 +2086,12 @@
                     }
                 },
                 "security": [
-                    {}
+                    {
+                        "JWTAuth": []
+                    }
                 ],
-                "summary": "Read all custom characters",
-                "description": "Read all custom characters. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
+                "summary": "Read all custom characters of the Player",
+                "description": "Read all custom characters. Remember about the pagination\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only own |\n| Search | yes | \n| Sort | yes |\n| Pagination | yes | ",
                 "externalDocs": {
                     "url": "https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests)"
                 }
@@ -2038,11 +2103,6 @@
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/CustomCharacterUpdate"
-                            },
-                            "examples": {
-                                "CustomCharacter": {
-                                    "$ref": "#/components/examples/CustomCharacterWithId"
-                                }
                             }
                         }
                     },
@@ -2052,23 +2112,20 @@
                     "CustomCharacter"
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Success, no body"
+                    "204": {
+                        "$ref": "#/components/responses/204"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400_New"
                     },
-                    "403": {
-                        "$ref": "#/components/responses/403"
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/409"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -2077,7 +2134,7 @@
                     }
                 ],
                 "summary": "Update a custom character",
-                "description": "Update the CustomCharacter, which _id is specified in the body.\n\nOnly the Player, that owns the CustomCharacter can change it.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only for character owner |\n"
+                "description": "Update the CustomCharacter, which _id is specified in the body.\n\nOnly the Player, that owns the CustomCharacter can change it. In case the Player does not own the CustomCharacter the 404 is returned.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only for character owner |\n"
             },
             "post": {
                 "requestBody": {
@@ -2131,16 +2188,13 @@
                         "description": "Created"
                     },
                     "400": {
-                        "$ref": "#/components/responses/400"
+                        "$ref": "#/components/responses/400_New"
                     },
-                    "403": {
-                        "$ref": "#/components/responses/403"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/409"
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -2149,7 +2203,7 @@
                     }
                 ],
                 "summary": "Create a custom character",
-                "description": "Create a new CustomCharacter. CustomCharacter represents a character of the Player. Player can have many CustomCharacters, CustomCharacter can belong to only one Player.\n\nNotice, that Player can create CustomCharacters only for himself/herself not for other Players.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only own |\n"
+                "description": "Create a new CustomCharacter. CustomCharacter represents a character of the Player. Player can have many CustomCharacters, CustomCharacter can belong to only one Player.\n\nNotice that the player:id field will be determined based on the logged-in player.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only own |\n"
             }
         },
         "/customCharacter/{_id}": {
@@ -2177,7 +2231,7 @@
                                                     "resistance": 40,
                                                     "attack": 55,
                                                     "defence": 14,
-                                                    "characterClass_id": "66939d9f9fdbf76f01d5dbd5",
+                                                    "hp": 120,
                                                     "player_id": "665df7026bf5b8f670569ea4"
                                                 }
                                             },
@@ -2194,32 +2248,14 @@
                         },
                         "description": "OK"
                     },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/400_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
-                    }
-                },
-                "security": [
-                    {}
-                ],
-                "summary": "Get CustomCharacter by id",
-                "description": "Read CustomCharacter data by its _id field\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | no |\n| Authorization   | no |\n| Search | no | \n| Sort | no |\n| Pagination | no |"
-            },
-            "delete": {
-                "tags": [
-                    "CustomCharacter"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success, no body"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -2227,8 +2263,8 @@
                         "JWTAuth": []
                     }
                 ],
-                "summary": "Delete CustomCharacter",
-                "description": "Delete CustomCharacter by its _id field. Notice that only the CustomCharacter owner can delete the CustomCharacter.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for CustomCharacter |"
+                "summary": "Get CustomCharacter by id",
+                "description": "Read CustomCharacter data by its _id field.\n\nNotice that if the CustomCharacter does not belong to the logged-in Player 404 should be returned. \n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only own |\n| Search | no | \n| Sort | no |\n| Pagination | no |"
             },
             "parameters": [
                 {
@@ -2620,7 +2656,7 @@
                     }
                 ],
                 "summary": "Inform API about battle",
-                "description": "Enpoint for notifying the API about battle events or any other data.\n\nNotice, that the field type is required and determines the type of the data.\n\nNotice that the type also determines shape of the body. Examples, for each type can be found in request examples section.\n\n## Type field\n\n### result\n\nResult of the battle, all players of the battle should send this data.\n\nAs a response for winners an access token will be returned, which can be used when stealing Items from losed Clan's SoulHome. Notice that the steal token will expire after some period of time. Losers will get 403 error = they can not get the steal token.\n\nThe steal token can be used only by the winner's Clan's members for the loser's Clan Stock.\n\nYou can see the process flow from [this diagram](https://github.com/Alt-Org/Altzone-Server/tree/dev/doc/img/game_results)"
+                "description": "Enpoint for notifying the API about battle events or any other data.\n\nNotice, that the field type is required and determines the type of the data.\n\nNotice that the type also determines shape of the body. Examples, for each type can be found in request examples section.\n\n## Type field\n\n### result\n\nResult of the battle, all players of the battle should send this data.\n\nNotice that team1 and team2 should hold game's player's _id fields.\n\nAs a response for winners an access token will be returned, which can be used when stealing Items from losed Clan's SoulHome. Notice that the steal token will expire after some period of time. Losers will get 403 error = they can not get the steal token.\n\nThe steal token can be used only by the winner's Clan's members for the loser's Clan Stock.\n\nYou can see the process flow from [this diagram](https://github.com/Alt-Org/Altzone-Server/tree/dev/doc/img/game_results)"
             }
         },
         "/item/move": {
@@ -2688,8 +2724,8 @@
                     "required": true
                 },
                 "tags": [
-                    "in-development",
-                    "FleaMarket"
+                    "FleaMarket",
+                    "in-development"
                 ],
                 "responses": {
                     "201": {
@@ -2882,6 +2918,15 @@
                         },
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "name": "Battle-Id",
+                        "description": "Id of the battle to which log file belongs to",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "header",
+                        "required": false
                     }
                 ],
                 "responses": {
@@ -2907,7 +2952,7 @@
                     }
                 ],
                 "summary": "Upload a game analytics log file",
-                "description": "Enpoint uploads a log file and save on the server.\n\nThe file will be saved to the folder with name corresponding to the date when it was uploaded, i.e. 1-9-2024.\n\nFile name must be unique and therefore its name will contain date, time, Player _id and a random string, i.e. 1-9-2024_14-45-12_667eedc9b3b5bf0f7a840ef1_123456.log\n\nNotice that the request must have a Secret header which holds a password for such requests.\n\nNotice that the request must be in multipart/form-data format, where field name containing the file is \"logFile\""
+                "description": "Enpoint uploads a log file and save on the server.\n\nThe file will be saved to the folder with name corresponding to the date when it was uploaded, i.e. 1-9-2024.\n\nFile name must be unique and therefore its name will contain date, time, Player _id and a random string, i.e. 1-9-2024_14-45-12_667eedc9b3b5bf0f7a840ef1_123456.log\n\nNotice that the request must have a Secret header which holds a password for such requests.\n\nNotice that if the Battle-Id header is not defined the current timestamp will be used instead.\n\nNotice that the request must be in multipart/form-data format, where field name containing the file is \"logFile\""
             }
         },
         "/fleaMarket/sell": {
@@ -2928,8 +2973,8 @@
                     "required": true
                 },
                 "tags": [
-                    "in-development",
-                    "FleaMarket"
+                    "FleaMarket",
+                    "in-development"
                 ],
                 "responses": {
                     "201": {
@@ -3090,11 +3135,233 @@
                 }
             ]
         },
-        "/leaderboard": {
+        "/playerTasks": {
             "get": {
                 "tags": [
-                    "Leaderboard",
-                    "in-development"
+                    "PlayerTasks"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "PlayerTask": {
+                                                    "daily": [
+                                                        {
+                                                            "id": 21,
+                                                            "title": {
+                                                                "fi": "Pelaa 3 taistelua"
+                                                            },
+                                                            "content": {
+                                                                "fi": "Sun pitää pelata tänään 3 taistelua"
+                                                            },
+                                                            "amount": 3,
+                                                            "type": "play_battle",
+                                                            "coins": 30,
+                                                            "points": 60
+                                                        },
+                                                        {
+                                                            "id": 22,
+                                                            "title": {
+                                                                "fi": "Voita 5 taistelua"
+                                                            },
+                                                            "content": {
+                                                                "fi": "Sun pitää voittaa tänään 5 taistelua"
+                                                            },
+                                                            "amount": 5,
+                                                            "type": "win_battle",
+                                                            "coins": 250,
+                                                            "points": 500
+                                                        },
+                                                        {
+                                                            "id": 23,
+                                                            "title": {
+                                                                "fi": "Lähetä 10 viestiä chattiin"
+                                                            },
+                                                            "content": {
+                                                                "fi": "Sun pitää lähettää tänään 10 viestiä chattiin"
+                                                            },
+                                                            "amount": 10,
+                                                            "type": "write_chat_message",
+                                                            "coins": 45,
+                                                            "points": 90
+                                                        },
+                                                        {
+                                                            "id": 24,
+                                                            "title": {
+                                                                "fi": "Aloita taistelu eri hahmolla"
+                                                            },
+                                                            "content": {
+                                                                "fi": "Sun pitää aloittaa taistelu eri hahmolla"
+                                                            },
+                                                            "amount": 3,
+                                                            "type": "start_battle_with_new_character",
+                                                            "coins": 30,
+                                                            "points": 60
+                                                        },
+                                                        {
+                                                            "id": 25,
+                                                            "title": {
+                                                                "fi": "Äänestä 2 kertaa"
+                                                            },
+                                                            "content": {
+                                                                "fi": "Sun pitää äänestää tänään 2 kertaa"
+                                                            },
+                                                            "amount": 2,
+                                                            "type": "vote",
+                                                            "coins": 20,
+                                                            "points": 40
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "PlayerTask",
+                                                "modelName": "PlayerTask",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success, response with body"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get Player's tasks",
+                "description": "Returns a list of logged-in Player's tasks. \n\nThe period query works as follows:\n\ntoday - all tasks for today (completed and uncomleted)\n\nweek - all tasks for the current week (completed and uncomleted) including daily tasks.\n\nmonth - all tasks for the current month (completed and uncompleted), including weekly and daily tasks.\n\nYou can find the a json file of player tasks [here](https://github.com/Alt-Org/Altzone-Server/blob/dev/src/playerTasks/playerTasks.json)\n\n| Feature         | Has                     |\n| --------------- | ----------------------- |\n| Authentication  | yes                     |\n| Authorization   | only Player's own tasks |\n| Search          | yes                     | \n| Sort            | yes                     |\n| Pagination      | yes                     | \n\n## General description\n\nThe daily task is a predefined task for an individual player to perform.\n\nThere are tasks for each day, each two weeks and each month.\n\nPlayer is getting points for each completed task and each task brings different amount of points and coins.\n\nThese points and coins are going to the player's clan. The points are used to determine top clans in the game and the coins are used to purchase items from the flee market of the game."
+            },
+            "parameters": [
+                {
+                    "name": "period",
+                    "description": "Period of time for the tasks",
+                    "schema": {
+                        "enum": [
+                            "today",
+                            "week",
+                            "month"
+                        ],
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": false
+                }
+            ]
+        },
+        "/leaderboard/player": {
+            "get": {
+                "tags": [
+                    "Leaderboard"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Player": [
+                                                    {
+                                                        "_id": "6686cb3b71adebdb10f33ffb",
+                                                        "name": "User 2",
+                                                        "backpackCapacity": 654,
+                                                        "uniqueIdentifier": 2,
+                                                        "profile_id": "6686cb3b71adebdb10f33ff9",
+                                                        "above13": true,
+                                                        "parentalAuth": true,
+                                                        "points": 20,
+                                                        "gameStatistics": {
+                                                            "messages": {
+                                                                "date": 1728399672,
+                                                                "count": 2
+                                                            },
+                                                            "playedBattles": 1,
+                                                            "wonBattles": 1,
+                                                            "diamondsAmount": 1,
+                                                            "startedVotings": 1,
+                                                            "participatedVotings": 1
+                                                        }
+                                                    },
+                                                    {
+                                                        "_id": "2096cb3b71adebdb10f33ea6",
+                                                        "name": "User 1",
+                                                        "backpackCapacity": 654,
+                                                        "uniqueIdentifier": 2,
+                                                        "profile_id": "2086cb3b71adebdb10f33ff0",
+                                                        "above13": true,
+                                                        "parentalAuth": true,
+                                                        "points": 10,
+                                                        "gameStatistics": {
+                                                            "messages": {
+                                                                "date": 1728399672,
+                                                                "count": 2
+                                                            },
+                                                            "playedBattles": 0,
+                                                            "wonBattles": 1,
+                                                            "diamondsAmount": 0,
+                                                            "startedVotings": 1,
+                                                            "participatedVotings": 1
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Player",
+                                                "modelName": "Player",
+                                                "dataType": "Array",
+                                                "dataCount": 1
+                                            },
+                                            "paginationData": {
+                                                "currentPage": 1,
+                                                "limit": 2,
+                                                "offset": 0,
+                                                "itemCount": 1,
+                                                "pageCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success, response with body"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {}
+                ],
+                "summary": "Get player's leaderboard",
+                "description": "Leaderboard of players. Top Players are defined by the amount of points that he/she has.\n\nNotice that the leaderboards data is updated once every 12 hours."
+            }
+        },
+        "/leaderboard/clan": {
+            "get": {
+                "tags": [
+                    "Leaderboard"
                 ],
                 "responses": {
                     "200": {
@@ -3110,6 +3377,7 @@
                                                         "name": "User2 clan",
                                                         "tag": "tag2",
                                                         "gameCoins": 90,
+                                                        "points": 10,
                                                         "admin_ids": [
                                                             "666720806cc90102f60bd325"
                                                         ],
@@ -3117,7 +3385,6 @@
                                                         "itemCount": 0,
                                                         "stockCount": 0,
                                                         "isOpen": true,
-                                                        "points": 20,
                                                         "id": "667eedc9b3b5bf0f7a840ef1"
                                                     },
                                                     {
@@ -3155,7 +3422,7 @@
                                 }
                             }
                         },
-                        "description": "Success, with body"
+                        "description": "Success, response with body"
                     },
                     "400": {
                         "$ref": "#/components/responses/400_New"
@@ -3167,74 +3434,9 @@
                 "security": [
                     {}
                 ],
-                "summary": "Get leaderboard data",
-                "description": "Various leaderboards define the best ones in different categories, for example top Players or top Clans.\n\nNotice that the leaderboards data is updated once every 12 hours.\n\n## Leaderboard parameters\n\n### Player\n\nTop Players are defined by the amount of points that he/she has.\n\n### Clan\n\nTop Clans are defined by the amount of points that each Clan has."
-            },
-            "parameters": [
-                {
-                    "examples": {
-                        "top clans": {
-                            "value": "Clan"
-                        }
-                    },
-                    "name": "category",
-                    "description": "Category of the leaderboard",
-                    "schema": {
-                        "enum": [
-                            "Clan",
-                            "Player"
-                        ],
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": true
-                }
-            ]
-        },
-        "/playerTasks": {
-            "get": {
-                "tags": [
-                    "in-development",
-                    "PlayerTasks"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success, response with body"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400_New"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401_New"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500_New"
-                    }
-                },
-                "security": [
-                    {
-                        "JWTAuth": []
-                    }
-                ],
-                "summary": "Get Player's tasks",
-                "description": "Returns a list of logged-in Player's tasks. \n\nThe period query works as follows:\n\ntoday - all tasks for today (completed and uncomleted)\n\nweek - all tasks for the current week (completed and uncomleted) including daily tasks.\n\nmonth - all tasks for the current month (completed and uncompleted), including weekly and daily tasks\n\n| Feature         | Has                     |\n| --------------- | ----------------------- |\n| Authentication  | yes                     |\n| Authorization   | only Player's own tasks |\n| Search          | yes                     | \n| Sort            | yes                     |\n| Pagination      | yes                     | \n\n## General description\n\nThe daily task is a predefined task for an individual player to perform.\n\nThere are tasks for each day, each two weeks and each month.\n\nPlayer is getting points for each completed task and each task brings different amount of points and coins.\n\nThese points and coins are going to the player's clan. The points are used to determine top clans in the game and the coins are used to purchase items from the flee market of the game."
-            },
-            "parameters": [
-                {
-                    "name": "period",
-                    "description": "Period of time for the tasks",
-                    "schema": {
-                        "enum": [
-                            "today",
-                            "week",
-                            "month"
-                        ],
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": false
-                }
-            ]
+                "summary": "Get clans leaderboard",
+                "description": "Leaderboard of clans. Top Clans are defined by the amount of points that each Clan has.\n\nNotice that the leaderboards data is updated once every 12 hours."
+            }
         }
     },
     "components": {
@@ -3431,16 +3633,6 @@
                         "type": "string",
                         "example": "667462842425aea94d0f66cb"
                     },
-                    "gameCoins": {
-                        "description": "The number of clan coins",
-                        "type": "integer",
-                        "example": 45
-                    },
-                    "tag": {
-                        "description": "The tag associated with the clan",
-                        "type": "string",
-                        "example": "my_tag"
-                    },
                     "isOpen": {
                         "description": "whenever the clan is open or closed",
                         "type": "boolean",
@@ -3477,6 +3669,29 @@
                             "eläinrakkaat",
                             "itsenäiset"
                         ]
+                    },
+                    "ageRange": {
+                        "description": "the age range of the Clan, notice it is an enum",
+                        "default": "None",
+                        "type": "string",
+                        "example": "Adults"
+                    },
+                    "goal": {
+                        "description": "the goal of the Clan, notice it is an enum",
+                        "default": "None",
+                        "type": "string",
+                        "example": "Grindaus"
+                    },
+                    "phrase": {
+                        "description": "the motto phrase of the Clan",
+                        "type": "string",
+                        "example": "Adults"
+                    },
+                    "language": {
+                        "description": "the language that Clan primarly uses, notice it is an enum",
+                        "default": "None",
+                        "type": "string",
+                        "example": "Spanish"
                     }
                 }
             },
@@ -3633,7 +3848,8 @@
                 "required": [
                     "name",
                     "tag",
-                    "gameCoins"
+                    "labels",
+                    "phrase"
                 ],
                 "type": "object",
                 "properties": {
@@ -3642,17 +3858,6 @@
                         "type": "string",
                         "example": "my_clan"
                     },
-                    "gameCoins": {
-                        "description": "amount of clan coins",
-                        "default": 0,
-                        "type": "integer",
-                        "example": 23
-                    },
-                    "tag": {
-                        "description": "deprecated use labels instead, clan's tag",
-                        "type": "string",
-                        "example": "my_tag"
-                    },
                     "isOpen": {
                         "description": "whenever the clan is open or closed",
                         "default": true,
@@ -3660,7 +3865,7 @@
                         "example": true
                     },
                     "labels": {
-                        "description": "labels that describes the clan, notice that it is an enum",
+                        "description": "labels that describes the clan, notice that it is an enums array",
                         "default": [],
                         "type": "array",
                         "items": {
@@ -3670,6 +3875,29 @@
                             "eläinrakkaat",
                             "itsenäiset"
                         ]
+                    },
+                    "ageRange": {
+                        "description": "the age range of the Clan, notice it is an enum",
+                        "default": "None",
+                        "type": "string",
+                        "example": "Adults"
+                    },
+                    "goal": {
+                        "description": "the goal of the Clan, notice it is an enum",
+                        "default": "None",
+                        "type": "string",
+                        "example": "Grindaus"
+                    },
+                    "phrase": {
+                        "description": "the motto phrase of the Clan",
+                        "type": "string",
+                        "example": "Adults"
+                    },
+                    "language": {
+                        "description": "the language that Clan primarly uses, notice it is an enum",
+                        "default": "None",
+                        "type": "string",
+                        "example": "Spanish"
                     }
                 }
             },
@@ -3830,8 +4058,7 @@
                     "resistance",
                     "attack",
                     "defence",
-                    "characterClass_id",
-                    "player_id"
+                    "hp"
                 ],
                 "type": "object",
                 "properties": {
@@ -3841,7 +4068,7 @@
                         "example": "somekey12"
                     },
                     "name": {
-                        "description": "unique, The name of the custom character",
+                        "description": "The name of the custom character",
                         "type": "string",
                         "example": "My custom5"
                     },
@@ -3865,15 +4092,10 @@
                         "type": "integer",
                         "example": 14
                     },
-                    "characterClass_id": {
-                        "description": "reference, The ID of the character class",
-                        "type": "string",
-                        "example": "66939d9f9fdbf76f01d5dbd5"
-                    },
-                    "player_id": {
-                        "description": "reference, The ID of the player",
-                        "type": "string",
-                        "example": "665df7026bf5b8f670569ea4"
+                    "hp": {
+                        "description": "the HP of the Character",
+                        "type": "number",
+                        "example": 120
                     }
                 }
             },
@@ -3895,7 +4117,7 @@
                         "example": "somekey12"
                     },
                     "name": {
-                        "description": "unique, The name of the custom character",
+                        "description": "The name of the custom character",
                         "type": "string",
                         "example": "My custom5"
                     },
@@ -3919,15 +4141,10 @@
                         "type": "integer",
                         "example": 14
                     },
-                    "characterClass_id": {
+                    "hp": {
                         "description": "reference, The ID of the character class",
-                        "type": "string",
-                        "example": "66939d9f9fdbf76f01d5dbd5"
-                    },
-                    "player_id": {
-                        "description": "reference, The ID of the player",
-                        "type": "string",
-                        "example": "665df7026bf5b8f670569ea4"
+                        "type": "number",
+                        "example": 120
                     }
                 }
             },
@@ -4912,7 +5129,7 @@
     "tags": [
         {
             "name": "in-development",
-            "description": "endpoint is changing or not yet implemented"
+            "description": "Endpoint is currently changing or not yet implemented"
         },
         {
             "name": "Profile",

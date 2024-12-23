@@ -7,23 +7,13 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { APIError } from './common/controller/APIError';
 import { validationToAPIErrors } from './common/exceptionFilter/ValidationExceptionFilter';
+import EnvHandler from './common/service/envHandler/envHandler';
 
 async function bootstrap() {
+    // Validate that all environment variables are added to the .env file
+    new EnvHandler().validateAllEnvFound();
+
     const app = await NestFactory.create(AppModule);
-    // app.enableCors({
-    //   origin: [
-    //     'https://altzone.netlify.app',
-    //     'https://altzone.fi',
-    //     'http://localhost:5173'
-    //   ],
-    //   methods: ["GET", "PUT", "POST", "DELETE"],
-    //   allowedHeaders: [
-    //     'Content-Type',
-    //     'Access-Control-Allow-Origin',
-    //     'Authorization'
-    //   ],
-    //   credentials: true
-    // });
 
     app.useGlobalPipes(
         new ValidationPipe({ whitelist: true, transform: true, exceptionFactory: errorFactory })
@@ -36,12 +26,6 @@ async function bootstrap() {
     (await readFile(join(process.cwd(), 'swagger.json'))).toString('utf-8')
     )
     SwaggerModule.setup('swagger', app, document);
-
-    /*
-    app.use(cookieSession({
-        keys: ['fythsopih'] //key for cookie encryption
-    }));
-    */
     await app.listen(8080);
 }
 bootstrap();
@@ -71,5 +55,9 @@ function errorFactory(validationErrors: ValidationError[]) {
     return err;
 }
 function extractMessagesFromValidationErrors(errors: ValidationError[]){
-    return errors.map(error => Object.values(error.constraints));
+    return errors.map(error => Object.values(
+        error.constraints ? 
+        error.constraints : 
+        error.children.map(e => Object.values(e.constraints))
+    ));
 }

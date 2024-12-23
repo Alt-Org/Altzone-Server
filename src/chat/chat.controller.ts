@@ -32,6 +32,8 @@ import {APIObjectName} from "../common/enum/apiObjectName.enum";
 import { Serialize } from "../common/interceptor/response/Serialize";
 import { Authorize } from "../authorization/decorator/Authorize";
 import { Action } from "../authorization/enum/action.enum";
+import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
+import { User } from "../auth/user";
 
 
 @Controller('chat')
@@ -87,8 +89,8 @@ export class ChatController {
     @Authorize({action: Action.create, subject: ChatDto})
     @HttpCode(204)
     @BasicPOST(ChatDto)
-    public createMessage(@Param() param: chat_idParam, @Body() body: CreateMessageDto) {
-        return this.service.createMessage(param.chat_id, body);
+    public createMessage(@Param() param: chat_idParam, @Body() body: CreateMessageDto, @LoggedUser() user: User) {
+        return this.service.handleCreateMessage(param.chat_id, body, user.player_id);
     }
 
     @Get('/:chat_id/messages/:_id')

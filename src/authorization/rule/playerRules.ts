@@ -19,7 +19,11 @@ export const playerRules: RulesSetterAsync<Ability, Subjects> = async (user, sub
     if(action === Action.create || action === Action.read){
         can(Action.create_request, subject);
 
-        const publicFields = ['_id', 'name', 'uniqueIdentifier', 'profile_id', 'clan_id', 'Clan', 'CustomCharacter', 'above13', 'parentalAuth'];
+        const publicFields = [
+            '_id', 'name', 'uniqueIdentifier', 'profile_id', 'clan_id', 
+            'Clan', 'CustomCharacter', 'above13', 'parentalAuth', 'gameStatistics',
+            'points'
+        ];
         can(Action.read_request, subject);
         can(Action.read_response, subject, publicFields);
         can(Action.read_response, subject, {_id: user.player_id});

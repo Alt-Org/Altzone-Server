@@ -3,20 +3,20 @@ import { UpdateClanDto } from "./dto/updateClan.dto";
 import { deleteNotUniqueArrayElements } from "../common/function/deleteNotUniqueArrayElements";
 import { deleteArrayElements } from "../common/function/deleteArrayElements";
 import { PlayerDto } from "../player/dto/player.dto";
-import { StockService } from "../stock/stock.service";
 import { Injectable } from "@nestjs/common";
 import { Clan, publicReferences } from "./clan.schema";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { SoulHomeService } from "../soulhome/soulhome.service";
 import { ClanDto } from "./dto/clan.dto";
 import BasicService from "../common/service/basicService/BasicService";
 import ServiceError from "../common/service/basicService/ServiceError";
 import { Player } from "../player/player.schema";
 import ClanHelperService from "./utils/clanHelper.service";
 import { SEReason } from "../common/service/basicService/SEReason";
-import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
+import { TIServiceReadManyOptions, TIServiceUpdateOneOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 import { ModelName } from "../common/enum/modelName.enum";
+import { StockService } from "../clanInventory/stock/stock.service";
+import { SoulHomeService } from "../clanInventory/soulhome/soulhome.service";
 
 @Injectable()
 export class ClanService{
@@ -151,6 +151,17 @@ export class ClanService{
             })]];
 
         return await this.basicService.updateOneById(_id, {...fieldsToUpdate, admin_ids: playersInClan});
+    }
+
+
+    /**
+     * Updates one clan data
+     * @param updateInfo data to update
+     * @param options required options of the query
+     * @returns tuple in form [ isSuccess, errors ]
+     */
+    async updateOne(updateInfo: Partial<Clan>, options: TIServiceUpdateOneOptions){
+        return this.basicService.updateOne(updateInfo, options);
     }
 
     /**

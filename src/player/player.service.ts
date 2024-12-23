@@ -1,7 +1,7 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {Model, Types} from "mongoose";
+import {Model, Types, UpdateQuery} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
-import {Player} from "./player.schema";
+import {Player, PlayerDocument, publicReferences} from "./player.schema";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
@@ -14,7 +14,9 @@ import {IHookImplementer, PostHookFunction} from "../common/interface/IHookImple
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
 import { PlayerDto } from "./dto/player.dto";
 import BasicService from "../common/service/basicService/BasicService";
-import { TReadByIdOptions } from "../common/service/basicService/IService";
+import { TIServiceReadManyOptions, TIServiceUpdateOneOptions, TReadByIdOptions } from "../common/service/basicService/IService";
+import { Message } from "./message.schema";
+import ServiceError from "../common/service/basicService/ServiceError";
 
 @Injectable()
 @AddBasicService()
@@ -44,6 +46,22 @@ export class PlayerService
         return this.basicService.readOneById<PlayerDto>(_id, optionsToApply);
     }
 
+    /**
+     * This method is used in the LeaderboardService and serves as a replacement
+     * for the deprecated readAll method from the BasicServiceDummyAbstract.
+     * It should be renamed to readAll when the service is updated to the new way.
+     * 
+     * @param options - Options for reading players.
+     * @returns - An array of players if succeeded or an array of ServiceErrors if error occurred.
+     */
+    async getAll(options?: TIServiceReadManyOptions) {
+        let optionsToApply = options;
+        if(options?.includeRefs)
+            optionsToApply.includeRefs = options.includeRefs.filter((ref) => publicReferences.includes(ref));
+        
+        return this.basicService.readMany<PlayerDto>(optionsToApply);
+    }
+
     public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         const isClanRefCleanSuccess = await this.clearClanReferences(_id.toString());
         if(isClanRefCleanSuccess instanceof Error)
@@ -65,6 +83,16 @@ export class PlayerService
         const isPlayerCountIncreased = await changeCounterValue(ModelName.CLAN, {_id: input.clan_id}, 'playerCount', 1);
 
         return isPlayerCountIncreased;
+    }
+
+    /**
+     * Updates one player data
+     * @param updateInfo data to update
+     * @param options required options of the query
+     * @returns tuple in form [ isSuccess, errors ]
+     */
+    async updatePlayerById(_id: string, updateInfo: UpdateQuery<Player>){
+        return this.basicService.updateOneById(_id, updateInfo);
     }
 
     public deleteOnePostHook: PostHookFunction = async (input: any, oldDoc: Partial<Player>, output: Partial<Player>): Promise<boolean> => {
@@ -114,5 +142,23 @@ export class PlayerService
         }
 
         return true;
+    }
+
+    /**
+     * Increments the points, played and won battles of a specified player based on the battle outcome.
+     * 
+     * @param playerId - ID of the player to be updated.
+     * @param playerWon - A boolean indicating whether the player won or not.
+     * @throws - Will throw if the update operation fails.
+     */
+    async handlePlayedBattle(playerId: string, playerWon: boolean) {
+        const points = playerWon ? 50 : 10;
+        let update = { $inc: { 'gameStatistics.playedBattles': 1 , 'points': points } };
+        if (playerWon)
+            update.$inc['gameStatistics.wonBattles'] = 1
+
+        const [_, updateErrors] = await this.basicService.updateOneById(playerId, update);
+        if (updateErrors)
+            throw updateErrors
     }
 }

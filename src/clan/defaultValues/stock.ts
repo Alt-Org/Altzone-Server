@@ -1,4 +1,5 @@
-import { CreateStockDto } from "../../stock/dto/createStock.dto"
+import { CreateStockDto } from "../../clanInventory/stock/dto/createStock.dto";
+
 
 /**
  * Get the default Stock object

@@ -37,13 +37,41 @@ services:
     ports:
       - 8081:8081
 
+  redis:
+    image: redis:7.4-bookworm
+    container_name: altzone_redis
+    ports:
+      - 6379:6379
+    environment:
+      - REDIS_PASSWORD=mySecretPassword
+      - REDIS_APPENDONLY=yes
+      - REDIS_MAXMEMORY=256mb
+      - REDIS_PORT=6379
+      - REDIS_LOGLEVEL=notice
+    volumes:
+      - altzone_redis_dev:/data
+    networks:
+      - redis
+
+  mosquitto_dev:
+    image: eclipse-mosquitto:2.0
+    container_name: altzone_mosquitto_dev
+    ports:
+      - 1883:1883
+      - 9001:9001
+    networks:
+      - backend
+    volumes:
+      - altzone_mosquitto_dev:/mosquitto/data
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/log:/mosquitto/log
+
   proxy_dev:
     build:
       dockerfile: dev_nginx.Dockerfile
     container_name: altzone_proxy_dev
     depends_on:
       - panel_dev
-      #- api_dev
     ports:
       - 80:80
     networks:
@@ -57,7 +85,10 @@ networks:
     name: altzone_backend_dev
   db:
     name: altzone_db_dev
+  redis:
+    name: altzone_redis_dev
 
 volumes:
   altzone_db_dev:
-  node_modules:
+  altzone_redis_dev:
+  altzone_mosquitto_dev:

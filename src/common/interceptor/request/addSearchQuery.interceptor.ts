@@ -21,7 +21,7 @@ export function AddSearchQuery(dtoClass: IClass) {
  * 
  * @implements {NestInterceptor}
  */
-class AddSearchQueryInterceptor implements NestInterceptor{
+export class AddSearchQueryInterceptor implements NestInterceptor{
     public constructor(private readonly dtoClass: IClass) {
     }
 

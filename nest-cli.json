@@ -3,6 +3,12 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "deleteOutDir": false
+    "deleteOutDir": false,
+    "assets": [
+      {
+        "include": "src/playerTasks/playerTasks.json",
+        "outDir": "dist"
+      }
+    ]
   }
 }
