@@ -119,7 +119,7 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
 
         //If the last player
         if (clan.playerCount <= 1) {
-            this.clanService.deleteOneById(clan._id);
+            await this.clanService.deleteOneById(clan._id);
         } else {
             await this.playerCounter.decreaseByIdOnOne(clan_id);  
         }
