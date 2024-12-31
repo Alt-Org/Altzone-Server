@@ -119,7 +119,7 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
 
         //If the last player
         if (clan.playerCount <= 1) {
-            this.clanService.deleteOneById(clan._id);
+            await this.clanService.deleteOneById(clan._id);
         } else {
             await this.playerCounter.decreaseByIdOnOne(clan_id);  
         }
@@ -151,9 +151,9 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
 
         //If the last player
         if (clan.playerCount <= 1 ) {
-            this.clanService.deleteOneById(clan._id);
+            await this.clanService.deleteOneById(clan._id);
         } else {
-            this.playerCounter.decreaseByIdOnOne(clan_id);
+            await this.playerCounter.decreaseByIdOnOne(clan_id);
             //await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", -1) // update clan playercount    
         }
         await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, { clan_id: null }); // update clan_id for the requested player;

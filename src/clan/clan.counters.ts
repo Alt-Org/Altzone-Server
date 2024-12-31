@@ -6,6 +6,9 @@ import Counter from "../common/service/counter/Counter";
 import ICounterFactory from "../common/service/counter/ICounterFactory";
 
 @Injectable()
+/**
+ * Counter for `playerCount` field in the Clan collection
+ */
 export class PlayerCounterFactory implements ICounterFactory{
     public constructor(@InjectModel('Clan') public readonly model: Model<Clan>) {}
 
