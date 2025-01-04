@@ -3607,6 +3607,56 @@
                 "summary": "Get basic info about logged-in user",
                 "description": "Get basic info of the logged-in user:\n\n- Profile\n- Player\n- Clan"
             }
+        },
+        "/leaderboard/clan/position": {
+            "get": {
+                "tags": [
+                    "Leaderboard",
+                    "in-development"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Object": {
+                                                    "position": 1
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Object",
+                                                "modelName": "Object",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Clan's position object"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "logged-in user's clan on the leaderboard",
+                "description": "Get the logged-in user's clan position on the leaderboard.\n\nNote that if the logged-in user is not in any clan the 404 will be returned"
+            }
         }
     },
     "components": {

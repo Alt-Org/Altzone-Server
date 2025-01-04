@@ -65,6 +65,7 @@ PlayerSchema.virtual(ModelName.ROOM,{
     ref: ModelName.ROOM,
     localField:'_id',
     foreignField:'player_id'
-})
+});
+PlayerSchema.index({ points: -1 });
 
 export const publicReferences = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.ROOM];
