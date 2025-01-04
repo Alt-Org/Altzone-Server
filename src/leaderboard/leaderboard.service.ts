@@ -5,6 +5,7 @@ import { IGetAllQuery } from "../common/interface/IGetAllQuery";
 import { CACHE_MANAGER, Cache } from "@nestjs/cache-manager";
 import ServiceError from "../common/service/basicService/ServiceError";
 import { SEReason } from "../common/service/basicService/SEReason";
+import mongoose from "mongoose";
 
 @Injectable()
 export class LeaderboardService {
@@ -25,7 +26,7 @@ export class LeaderboardService {
 	async getClanLeaderboard(reqQuery: IGetAllQuery) {
 		return this.getLeaderboard(
 			"clanLeaderboard",
-			this.clanService.readAll.bind(this.clanService),
+			this.clanService.model,
 			reqQuery
 		);
 	}
@@ -41,7 +42,7 @@ export class LeaderboardService {
 	async getPlayerLeaderboard(reqQuery: IGetAllQuery) {
 		return this.getLeaderboard(
 			"playerLeaderboard",
-			this.playerService.getAll.bind(this.playerService),
+			this.playerService.model,
 			reqQuery
 		);
 	}
@@ -50,41 +51,38 @@ export class LeaderboardService {
 	 * Generic method to fetch and cache leaderboard data.
 	 *
 	 * @param cacheKey - The key to use for caching.
-	 * @param fetchFunction - The function to fetch data from the database.
+	 * @param model - The Mongoose model to fetch data from. (Player | Clan)
 	 * @param reqQuery - The query parameters containing pagination info.
 	 * @returns - A subset of the data array based on the limit and skip values.
 	 * @throws - If no data is found.
 	 */
 	private async getLeaderboard(
 		cacheKey: string,
-		fetchFunction: (query: IGetAllQuery) => Promise<[any, ServiceError[]]>,
-		reqQuery: IGetAllQuery
+		model: mongoose.Model<any>,
+		reqQuery?: IGetAllQuery
 	): Promise<object[]> {
 		let data: object[] = await this.cacheService.get(cacheKey);
 
 		if (!data) {
-			const query: IGetAllQuery = {
-				filter: {},
-				limit: 1000,
-				sort: { points: -1 },
-				skip: 0,
-			};
-			const [fetchedData, errors] = await fetchFunction(query);
-			if (errors) throw errors;
+			const fetchedData = await model.find().sort({ points: -1 }).exec();
+			if (!fetchedData) throw new ServiceError({ reason: SEReason.NOT_FOUND });
 			data = fetchedData;
 
 			// Set the data with 12 hour ttl. The { ttl: number } as any is required to overwrite the default value.
 			await this.cacheService.set(cacheKey, data, { ttl: 60 * 60 * 12 } as any);
 		}
 
-		const slicedData = this.sliceArray(data, reqQuery.limit, reqQuery.skip);
-		if (slicedData.length === 0)
-			throw new ServiceError({
-				reason: SEReason.NOT_FOUND,
-				message: "No data found for the requested page.",
-			});
+		if (reqQuery) {
+			data = this.sliceArray(data, reqQuery.limit, reqQuery.skip);
+			if (data.length === 0) {
+				throw new ServiceError({
+					reason: SEReason.NOT_FOUND,
+					message: "No data found for the requested page.",
+				});
+			}
+		}
 
-		return slicedData;
+		return data;
 	}
 
 	/**
@@ -99,5 +97,22 @@ export class LeaderboardService {
 		const start = Math.max(skip, 0);
 		const end = start + limit;
 		return data.slice(start, end);
+	}
+
+	/**
+	 * Method to get the position on the clan leaderboard.
+	 *
+	 * @param clanId - The ID of the clan.
+	 * @returns An object { position: number }
+	 */
+	async getClanPosition(clanId: string) {
+		const leaderboard = await this.getLeaderboard(
+			"clanLeaderboard",
+			this.clanService.model
+		);
+
+		const position = leaderboard.findIndex((clan) => clan["id"] == clanId) + 1;
+		if (position === 0) throw new ServiceError({ reason: SEReason.NOT_FOUND });
+		return { position };
 	}
 }
