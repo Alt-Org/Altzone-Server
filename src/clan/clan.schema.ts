@@ -76,5 +76,6 @@ ClanSchema.virtual(ModelName.SOULHOME, {
     foreignField: 'clan_id',
     justOne: true
 });
+ClanSchema.index({ points: -1 });
 
 export const publicReferences = [ ModelName.PLAYER, ModelName.STOCK, ModelName.SOULHOME ];
