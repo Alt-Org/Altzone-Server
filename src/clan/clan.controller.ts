@@ -38,6 +38,8 @@ import { Serialize } from "../common/interceptor/response/Serialize";
 import { RoomService } from "../clanInventory/room/room.service";
 import { ItemService } from "../clanInventory/item/item.service";
 import { ItemDto } from "../clanInventory/item/dto/item.dto";
+import { APIError } from "../common/controller/APIError";
+import { APIErrorReason } from "../common/controller/APIErrorReason";
 
 @Controller('clan')
 export class ClanController {
@@ -64,14 +66,18 @@ export class ClanController {
     }
     
 	@Get("/:_id/items")
-	@NoAuth()
-    @Serialize(ItemDto)
+	@Serialize(ItemDto)
 	@UniformResponse(ModelName.ITEM)
-	async getClanItems(@Param() param: _idDto) {
+	async getClanItems(@Param() param: _idDto, @LoggedUser() user: User) {
 		const [clan, clanErrors] = await this.service.readOneById(param._id, {
-			includeRefs: [ModelName.SOULHOME, ModelName.STOCK],
+			includeRefs: [...publicReferences],
 		});
 		if (clanErrors) return clanErrors;
+		if (!clan.Player.some((p) => p._id == user.player_id))
+			throw new APIError({
+				reason: APIErrorReason.NOT_AUTHORIZED,
+				message: "Logged in user is not a member of this clan.",
+			});
 		const [roomIds, roomErrors] = await this.roomService.readAllSoulHomeRooms(
 			clan.SoulHome._id
 		);
