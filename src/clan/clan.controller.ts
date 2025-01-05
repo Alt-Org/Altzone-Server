@@ -40,6 +40,8 @@ import { ItemService } from "../clanInventory/item/item.service";
 import { ItemDto } from "../clanInventory/item/dto/item.dto";
 import { APIError } from "../common/controller/APIError";
 import { APIErrorReason } from "../common/controller/APIErrorReason";
+import { PlayerService } from "../player/player.service";
+import { ClanItemsResponseDto } from "./join/dto/clanItemsResponse.dto";
 
 @Controller('clan')
 export class ClanController {
@@ -48,6 +50,7 @@ export class ClanController {
         private readonly joinService: JoinService,
         private readonly roomService: RoomService,
         private readonly itemService: ItemService,
+        private readonly playerService: PlayerService,
     ) {
     }
 
@@ -57,6 +60,30 @@ export class ClanController {
     public async create(@Body() body: CreateClanDto, @LoggedUser() user: User) {
         return await this.service.createOne(body, user.player_id);
     }
+    
+	@Get("items")
+	@Serialize(ClanItemsResponseDto)
+	@UniformResponse(ModelName.ITEM)
+	async getClanItems(@LoggedUser() user: User) {
+        const clanId = await this.playerService.getPlayerClanId(user.player_id);
+		const [clan, clanErrors] = await this.service.readOneById(clanId, {
+			includeRefs: [...publicReferences],
+		});
+		if (clanErrors) return clanErrors;
+		const [roomIds, roomErrors] = await this.roomService.readAllSoulHomeRooms(
+			clan.SoulHome._id
+		);
+		if (roomErrors) return roomErrors;
+		const [clanItems, itemErrors] = await this.itemService.readMany({
+			filter: {
+				$or: [{ stock_id: clan.Stock._id }, { room_id: { $in: roomIds } }],
+			},
+		});
+        if (itemErrors) return itemErrors;
+        const stockItems = clanItems.filter(item => item.stock_id)
+        const soulHomeItems = clanItems.filter(item => item.room_id);
+        return { stockItems, soulHomeItems }
+	}
 
     @Get('/:_id')
     @NoAuth()
@@ -64,30 +91,6 @@ export class ClanController {
     public get(@Param() param: _idDto, @IncludeQuery(publicReferences) includeRefs: ModelName[]) {
         return this.service.readOneById(param._id, { includeRefs });
     }
-    
-	@Get("/:_id/items")
-	@Serialize(ItemDto)
-	@UniformResponse(ModelName.ITEM)
-	async getClanItems(@Param() param: _idDto, @LoggedUser() user: User) {
-		const [clan, clanErrors] = await this.service.readOneById(param._id, {
-			includeRefs: [...publicReferences],
-		});
-		if (clanErrors) return clanErrors;
-		if (!clan.Player.some((p) => p._id == user.player_id))
-			throw new APIError({
-				reason: APIErrorReason.NOT_AUTHORIZED,
-				message: "Logged in user is not a member of this clan.",
-			});
-		const [roomIds, roomErrors] = await this.roomService.readAllSoulHomeRooms(
-			clan.SoulHome._id
-		);
-		if (roomErrors) return roomErrors;
-		return this.itemService.readMany({
-			filter: {
-				$or: [{ stock_id: clan.Stock._id }, { room_id: { $in: roomIds } }],
-			},
-		});
-	}
 
     @Get()
     @NoAuth()
