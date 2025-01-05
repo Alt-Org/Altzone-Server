@@ -15,8 +15,21 @@ import { ModelName } from "../enum/modelName.enum";
  */
 export default function formatResponse(data: any, modelName?: ModelName) {
     const dataType = Array.isArray(data) ? 'Array' : 'Object';
-    const dataCount = dataType === 'Array' ? data.length : 1;
     const model = modelName ?? 'Object';
+    let dataCount: number;
+
+    if (dataType === 'Object') {
+        dataCount = 0;
+        for (const key of Object.keys(data)) {
+            if (Array.isArray(data[key])) {
+                dataCount += data[key].length
+            }
+        }
+        if (dataCount === 0) dataCount ++;
+    } else {
+        dataCount = data.length;
+    }
+
     return {
         data: {
             [model]: data
