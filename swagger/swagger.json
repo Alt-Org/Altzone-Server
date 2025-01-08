@@ -3657,6 +3657,123 @@
                 "summary": "logged-in user's clan on the leaderboard",
                 "description": "Get the logged-in user's clan position on the leaderboard.\n\nNote that if the logged-in user is not in any clan the 404 will be returned"
             }
+        },
+        "/clan/items": {
+            "get": {
+                "tags": [
+                    "Clan",
+                    "in-development"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Item": {
+                                                    "stockItems": [
+                                                        {
+                                                            "objectType": "ItemDto",
+                                                            "_id": "6746e90f85763982c51af0da",
+                                                            "name": "Carpet_Rakkaus",
+                                                            "weight": 6,
+                                                            "recycling": "Mixed_waste",
+                                                            "qualityLevel": "common",
+                                                            "unityKey": "Carpet_Rakkaus",
+                                                            "price": 100,
+                                                            "location": [
+                                                                1,
+                                                                1
+                                                            ],
+                                                            "isFurniture": false,
+                                                            "stock_id": "6746e90f85763982c51af0d8"
+                                                        }
+                                                    ],
+                                                    "soulHomeItems": [
+                                                        {
+                                                            "objectType": "ItemDto",
+                                                            "_id": "6746e90f85763982c51af11f",
+                                                            "name": "Carpet_Rakkaus",
+                                                            "weight": 6,
+                                                            "recycling": "Mixed_waste",
+                                                            "qualityLevel": "common",
+                                                            "unityKey": "Carpet_Rakkaus",
+                                                            "price": 100,
+                                                            "location": [
+                                                                1,
+                                                                2
+                                                            ],
+                                                            "isFurniture": false,
+                                                            "room_id": "6746e90f85763982c51af0e2"
+                                                        },
+                                                        {
+                                                            "objectType": "ItemDto",
+                                                            "_id": "6746e90f85763982c51af11e",
+                                                            "name": "Sofa_Rakkaus",
+                                                            "weight": 27,
+                                                            "recycling": "Mixed_waste",
+                                                            "qualityLevel": "common",
+                                                            "unityKey": "Sofa_Rakkaus",
+                                                            "price": 130,
+                                                            "location": [
+                                                                1,
+                                                                1
+                                                            ],
+                                                            "isFurniture": true,
+                                                            "room_id": "6746e90f85763982c51af0e2"
+                                                        },
+                                                        {
+                                                            "objectType": "ItemDto",
+                                                            "_id": "6746e90f85763982c51af120",
+                                                            "name": "Chair_Neuro",
+                                                            "weight": 10,
+                                                            "recycling": "Mixed_waste",
+                                                            "qualityLevel": "epic",
+                                                            "unityKey": "Chair_Neuro",
+                                                            "price": 170,
+                                                            "location": [
+                                                                1,
+                                                                3
+                                                            ],
+                                                            "isFurniture": true,
+                                                            "room_id": "6746e90f85763982c51af0e2"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Item",
+                                                "modelName": "Item",
+                                                "dataType": "Object",
+                                                "dataCount": 3
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Found items of the clan into two separate arrays for stock and soulhome."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get items of the logged-in user clan",
+                "description": "Get items of the logged-in user clan.\n\nNotice that it will return 403 if the logged-in player is not in any clan."
+            }
         }
     },
     "components": {
