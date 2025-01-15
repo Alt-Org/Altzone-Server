@@ -51,11 +51,11 @@ describe('ClanHelperService.createDefaultSoulHome() test suite', () => {
         expect(createdItems).not.toBeNull();
         expect(createdItems).toEqual(expect.arrayContaining([
             expect.objectContaining({room_id: itemsRoom_id, unityKey: ItemName.SOFA_RAKKAUS}),
-            expect.objectContaining({room_id: itemsRoom_id, unityKey: ItemName.CARPET_RAKKAUS}),
-            expect.objectContaining({room_id: itemsRoom_id, unityKey: ItemName.CHAIR_NEURO}),
-            expect.objectContaining({room_id: itemsRoom_id, unityKey: ItemName.SIDETABLE_TAAKKA}),
-            expect.objectContaining({room_id: itemsRoom_id, unityKey: ItemName.FLOORLAMP_TAAKKA}),
-            expect.objectContaining({room_id: itemsRoom_id, unityKey: ItemName.SOFA_TAAKKA})
+            expect.objectContaining({room_id: itemsRoom_id, unityKey: ItemName.ARMCHAIR_RAKKAUS}),
+            expect.objectContaining({room_id: itemsRoom_id, unityKey: ItemName.FLOORLAMP_RAKKAUS}),
+            expect.objectContaining({room_id: itemsRoom_id, unityKey: ItemName.DININGTABLE_RAKKAUS}),
+            expect.objectContaining({room_id: itemsRoom_id, unityKey: ItemName.SOFATABLE_RAKKAUS}),
+            expect.objectContaining({room_id: itemsRoom_id, unityKey: ItemName.BED_RAKKAUS})
         ]))
     });
 });
