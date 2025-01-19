@@ -138,7 +138,7 @@ export class RoomService {
      * 
      * Notice that the method also removes all Items inside these Rooms
      *
-     * @param _id - The Mongo _id of the Room to delete.
+     * @param soulHome_id - The Mongo _id of the Room to delete.
      * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
     */
     async deleteAllSoulHomeRooms(soulHome_id: string): Promise<[true | null, ServiceError[] | null]> {
