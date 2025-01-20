@@ -13,8 +13,8 @@ export default class ItemBuilder {
         location: [0, 0],
         price: 10,
         isFurniture: false,
-        stock_id: undefined,
-        room_id: undefined
+        stock_id: null,
+        room_id: null
     };
 
     build() {

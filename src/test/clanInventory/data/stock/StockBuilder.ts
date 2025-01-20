@@ -1,4 +1,5 @@
 import {Stock} from "../../../../clanInventory/stock/stock.schema";
+import {ObjectId} from "mongodb";
 
 export default class StockBuilder {
     private readonly base: Partial<Stock> = {
@@ -16,13 +17,13 @@ export default class StockBuilder {
         return this;
     }
 
-    setClanId(clanId: string) {
+    setClanId(clanId: string | ObjectId) {
         this.base.clan_id = clanId as any;
         return this;
     }
 
-    setId(_id: string) {
-        this.base._id = _id;
+    setId(_id: string | ObjectId) {
+        this.base._id = _id as any;
         return this;
     }
 }

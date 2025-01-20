@@ -1,4 +1,5 @@
 import {CreateStockDto} from "../../../../clanInventory/stock/dto/createStock.dto";
+import {ObjectId} from "mongodb";
 
 export default class CreateStockDtoBuilder {
     private readonly base: Partial<CreateStockDto> = {
@@ -15,8 +16,8 @@ export default class CreateStockDtoBuilder {
         return this;
     }
 
-    setClanId(clanId: string) {
-        this.base.clan_id = clanId;
+    setClanId(clanId: string | ObjectId) {
+        this.base.clan_id = clanId as any;
         return this;
     }
 }
