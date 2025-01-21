@@ -6,6 +6,7 @@ import { QualityLevel } from './enum/qualityLevel.enum';
 import { Recycling } from './enum/recycling.enum';
 import { ItemName } from './enum/itemName.enum';
 import { ModelName } from '../../common/enum/modelName.enum';
+import {ExtractField} from "../../common/decorator/response/ExtractField";
 
 export type ItemDocument = HydratedDocument<Item>;
 
@@ -40,6 +41,9 @@ export class Item {
 
     @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.ROOM })
     room_id: Room;
+
+    @ExtractField()
+    _id: string;
 }
 
 export const ItemSchema = SchemaFactory.createForClass(Item);
