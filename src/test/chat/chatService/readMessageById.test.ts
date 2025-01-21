@@ -3,6 +3,8 @@ import { ChatService } from "../../../chat/chat.service";
 import ChatModule from "../modules/chat.module";
 import CreateChatDtoBuilder from "../data/chat/createChatDtoBuilder";
 import CreateMessageDtoBuilder from "../data/chat/createMessageDtoBuilder";
+import { IResponseShape } from "../../../common/interface/IResponseShape";
+import { Chat } from "../../../chat/chat.schema";
 
 describe("ChatService.readOneMessageById() test suite", () => {
 	let chatService: ChatService;
@@ -18,7 +20,6 @@ describe("ChatService.readOneMessageById() test suite", () => {
 	 * for the messages to be created in.
 	 */
 	beforeAll(async () => {
-		chatService = await ChatModule.getChatService();
 		const chatModel = await ChatModule.getChatModel();
 		const chat = await chatModel.create(chatToCreate);
 		chatId = chat.id;
@@ -29,22 +30,17 @@ describe("ChatService.readOneMessageById() test suite", () => {
 	});
 
 	it("Should return a message by ID if it exists", async () => {
-		const messageId = new mongo.ObjectId();
-		const messageContent = "Hello, world!";
 		const messageToCreate = messageBuilder
-			.setId(parseInt(messageId.toString(), 16))
 			.setSenderUsername("testUser")
-			.setContent(messageContent)
-			.setFeeling(5)
 			.build();
 
 		await chatService.createMessage(chatId, messageToCreate);
 
-		const message = await chatService.readOneMessageById(
+		const message = (await chatService.readOneMessageById(
 			chatId,
-			parseInt(messageId.toString(), 16)
-		);
-		expect(message["data"]["Chat"]["content"]).toBe(messageContent);
+			messageToCreate.id
+		)) as IResponseShape<Chat, object>;
+		expect(message.data.Chat).toEqual(expect.objectContaining(messageToCreate));
 	});
 
 	it("Should return null if the message does not exist", async () => {
