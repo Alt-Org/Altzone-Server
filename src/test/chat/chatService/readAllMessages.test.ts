@@ -1,4 +1,3 @@
-import { mongo } from "mongoose";
 import { ChatService } from "../../../chat/chat.service";
 import ChatModule from "../modules/chat.module";
 import CreateChatDtoBuilder from "../data/chat/createChatDtoBuilder";
@@ -12,8 +11,7 @@ describe("ChatService.readAllMessages() test suite", () => {
 	let chatId: string;
 	const messageBuilder = new CreateMessageDtoBuilder();
 	const chatBuilder = new CreateChatDtoBuilder();
-	const testChatName = "testChat";
-	const chatToCreate = chatBuilder.setName(testChatName).build();
+	const chatToCreate = chatBuilder.build();
 
 	/**
 	 * Before each test, create a chat to be used for message tests.
@@ -28,22 +26,18 @@ describe("ChatService.readAllMessages() test suite", () => {
 	});
 
 	it("Should return paginated messages", async () => {
-		const messageId1 = new mongo.ObjectId();
 		const messageContent1 = "Hello, world!";
 		const messageToCreate1 = messageBuilder
-			.setId(parseInt(messageId1.toString(), 16))
+			.setId(22)
 			.setSenderUsername("testUser1")
 			.setContent(messageContent1)
-			.setFeeling(5)
 			.build();
 
-		const messageId2 = new mongo.ObjectId();
 		const messageContent2 = "Goodbye, world!";
 		const messageToCreate2 = messageBuilder
-			.setId(parseInt(messageId2.toString(), 16))
+			.setId(23)
 			.setSenderUsername("testUser2")
 			.setContent(messageContent2)
-			.setFeeling(3)
 			.build();
 
 		await chatService.createMessage(chatId, messageToCreate1);
@@ -61,26 +55,20 @@ describe("ChatService.readAllMessages() test suite", () => {
 		)) as IResponseShape<Chat>;
 
 		expect(messages.data.Chat).toHaveLength(1);
-		expect(messages.data.Chat[0].content).toBe("Hello, world!");
+		expect(messages.data.Chat[0]).toEqual(
+			expect.objectContaining(messageToCreate1)
+		);
 	});
 
 	it("Should return all messages in the chat", async () => {
-		const messageId1 = new mongo.ObjectId();
-		const messageContent1 = "Hello, world!";
 		const messageToCreate1 = messageBuilder
-			.setId(parseInt(messageId1.toString(), 16))
 			.setSenderUsername("testUser1")
-			.setContent(messageContent1)
-			.setFeeling(5)
 			.build();
 
-		const messageId2 = new mongo.ObjectId();
 		const messageContent2 = "Goodbye, world!";
 		const messageToCreate2 = messageBuilder
-			.setId(parseInt(messageId2.toString(), 16))
 			.setSenderUsername("testUser2")
 			.setContent(messageContent2)
-			.setFeeling(3)
 			.build();
 
 		await chatService.createMessage(chatId, messageToCreate1);
@@ -98,8 +86,12 @@ describe("ChatService.readAllMessages() test suite", () => {
 		)) as IResponseShape<Chat>;
 
 		expect(messages.data.Chat).toHaveLength(2);
-		expect(messages.data.Chat[0].content).toBe(messageContent1);
-		expect(messages.data.Chat[1].content).toBe(messageContent2);
+		expect(messages.data.Chat[0]).toEqual(
+			expect.objectContaining(messageToCreate1)
+		);
+		expect(messages.data.Chat[1]).toEqual(
+			expect.objectContaining(messageToCreate2)
+		);
 	});
 
 	it("Should return an empty array if no messages match the filter", async () => {
