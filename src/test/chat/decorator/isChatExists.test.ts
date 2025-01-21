@@ -7,8 +7,7 @@ import ChatCommonModule from "../modules/chatCommon.module";
 
 describe("IsChatExists Decorator", () => {
 	const chatBuilder = new CreateChatDtoBuilder();
-	const testChatName = "testChat";
-	const chatToCreate = chatBuilder.setName(testChatName).build();
+	const chatToCreate = chatBuilder.build();
 	let module: TestingModule;
 	let chatId: string;
 
@@ -19,13 +18,16 @@ describe("IsChatExists Decorator", () => {
 		chatId = chat.id;
 	});
 
-	it("should not validate if chat does not exist", async () => {
-		const isChatExistsInstance = module.get<isChatExists>(isChatExists);
-		const isValid = await isChatExistsInstance.validate(chatId);
-		expect(isValid).toBe(true);
+    it("should validate if chat exists", async () => {
+        const isChatExistsInstance = module.get<isChatExists>(isChatExists);
+        const isValid = await isChatExistsInstance.validate(chatId);
+        expect(isValid).toBe(true);
+    });
 
-		const nonExistentId = new mongo.ObjectId().toString();
-		const isInvalid = await isChatExistsInstance.validate(nonExistentId);
-		expect(isInvalid).toBe(false);
-	});
+    it("should not validate if chat does not exist", async () => {
+        const isChatExistsInstance = module.get<isChatExists>(isChatExists);
+        const nonExistentId = new mongo.ObjectId().toString();
+        const isInvalid = await isChatExistsInstance.validate(nonExistentId);
+        expect(isInvalid).toBe(false);
+    });
 });
