@@ -3,7 +3,7 @@ import IDataBuilder from "../../../test_utils/interface/IDataBuilder";
 
 export default class CreateMessageDtoBuilder implements IDataBuilder<CreateMessageDto> {
 	private readonly base: CreateMessageDto = {
-		id: undefined,
+		id: 12,
 		senderUsername: "testSender",
 		content: "test content",
 		feeling: 420,
