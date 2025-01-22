@@ -1,9 +1,12 @@
-import { IsArray, ArrayMaxSize, IsEnum, IsInt, IsBoolean, IsOptional, IsString } from "class-validator";
+import { IsArray, ArrayMaxSize, IsEnum, IsBoolean, IsOptional, IsString, ValidateNested } from "class-validator";
 import AddType from "../../common/base/decorator/AddType.decorator";
 import { ClanLabel } from '../enum/clanLabel.enum';
 import { AgeRange } from "../enum/ageRange.enum";
 import { Language } from "../../common/enum/language.enum";
 import { Goal } from "../enum/goal.enum";
+import { Type } from "class-transformer";
+import { ClanLogoDto } from "./clanLogo.dto";
+import { ClanLogo } from "../clanLogo.schema";
 
 @AddType('CreateClanDto')
 export class CreateClanDto {
@@ -12,6 +15,11 @@ export class CreateClanDto {
 
     @IsString()
     tag: string;
+
+    @Type(() => ClanLogoDto)
+    @IsOptional()
+    @ValidateNested()
+    clanLogo: ClanLogoDto;
 
     @IsArray()
     @ArrayMaxSize(5)

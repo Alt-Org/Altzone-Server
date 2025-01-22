@@ -7,6 +7,8 @@ import { AgeRange } from "../enum/ageRange.enum";
 import { Goal } from "../enum/goal.enum";
 import { StockDto } from "../../clanInventory/stock/dto/stock.dto";
 import { SoulHomeDto } from "../../clanInventory/soulhome/dto/soulhome.dto";
+import { ClanLogo } from "../clanLogo.schema";
+import { ClanLogoDto } from "./clanLogo.dto";
 
 @AddType('ClanDto')
 export class ClanDto {
@@ -19,6 +21,10 @@ export class ClanDto {
 
     @Expose()
     tag: string;
+
+    @Type(() => ClanLogoDto)
+    @Expose()
+    clanLogo: ClanLogoDto;
 
     @Expose()
     labels: string[];
