@@ -1,10 +1,12 @@
-import { ArrayNotEmpty, IsArray, ArrayMaxSize, IsEnum, IsBoolean, IsInt, IsMongoId, IsOptional, IsString, Validate } from 'class-validator';import {IsClanExists} from "../decorator/validation/IsClanExists.decorator";
+import { ArrayNotEmpty, IsArray, ArrayMaxSize, IsEnum, IsBoolean, IsInt, IsMongoId, IsOptional, IsString, Validate, ValidateNested } from 'class-validator';import {IsClanExists} from "../decorator/validation/IsClanExists.decorator";
 import { IsPlayerExists } from "../../player/decorator/validation/IsPlayerExists.decorator";
 import AddType from "../../common/base/decorator/AddType.decorator";
 import { ClanLabel } from '../enum/clanLabel.enum';
 import { AgeRange } from '../enum/ageRange.enum';
 import { Goal } from '../enum/goal.enum';
 import { Language } from '../../common/enum/language.enum';
+import { ClanLogoDto } from './clanLogo.dto';
+import { Type } from 'class-transformer';
 
 @AddType('UpdateClanDto')
 export class UpdateClanDto {
@@ -19,6 +21,11 @@ export class UpdateClanDto {
     @IsString()
     @IsOptional()
     tag?: string;
+
+    @ValidateNested()
+    @Type(() => ClanLogoDto)
+    @IsOptional()
+    clanLogo: ClanLogoDto;
 
     @IsArray()
     @ArrayMaxSize(5)
