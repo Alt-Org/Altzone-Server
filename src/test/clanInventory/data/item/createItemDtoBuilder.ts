@@ -2,6 +2,7 @@ import {CreateItemDto} from "../../../../clanInventory/item/dto/createItem.dto";
 import {ItemName} from "../../../../clanInventory/item/enum/itemName.enum";
 import {Recycling} from "../../../../clanInventory/item/enum/recycling.enum";
 import {QualityLevel} from "../../../../clanInventory/item/enum/qualityLevel.enum";
+import {ObjectId} from "mongodb";
 
 export default class CreateItemDtoBuilder {
     private readonly base: Partial<CreateItemDto> = {
@@ -13,8 +14,8 @@ export default class CreateItemDtoBuilder {
         location: [0, 0],
         price: 10,
         isFurniture: false,
-        stock_id: undefined,
-        room_id: undefined
+        stock_id: null,
+        room_id: null
     };
 
     build() {
@@ -66,8 +67,8 @@ export default class CreateItemDtoBuilder {
         return this;
     }
 
-    setRoomId(roomId: string) {
-        this.base.room_id = roomId;
+    setRoomId(roomId: string | ObjectId) {
+        this.base.room_id = roomId as any;
         return this;
     }
 }
