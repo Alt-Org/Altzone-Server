@@ -2,6 +2,7 @@ import {QualityLevel} from "../../../../clanInventory/item/enum/qualityLevel.enu
 import {Recycling} from "../../../../clanInventory/item/enum/recycling.enum";
 import {ItemName} from "../../../../clanInventory/item/enum/itemName.enum";
 import {Item} from "../../../../clanInventory/item/item.schema";
+import {ObjectId} from "mongodb";
 
 export default class ItemBuilder {
     private readonly base: Partial<Item> = {
@@ -61,12 +62,12 @@ export default class ItemBuilder {
         return this;
     }
 
-    setStockId(stockId: string) {
+    setStockId(stockId: string | ObjectId) {
         this.base.stock_id = stockId as any;
         return this;
     }
 
-    setRoomId(roomId: string) {
+    setRoomId(roomId: string | ObjectId) {
         this.base.room_id = roomId as any;
         return this;
     }
