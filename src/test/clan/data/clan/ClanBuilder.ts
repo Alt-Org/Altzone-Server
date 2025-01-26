@@ -1,9 +1,11 @@
-import { Clan } from "../../../../clan_module/clan/clan.schema";
-import { AgeRange } from "../../../../clan_module/clan/enum/ageRange.enum";
-import { ClanLabel } from "../../../../clan_module/clan/enum/clanLabel.enum";
-import { Goal } from "../../../../clan_module/clan/enum/goal.enum";
+
 import { Language } from "../../../../common/enum/language.enum";
 import IDataBuilder from "../../../test_utils/interface/IDataBuilder";
+import {LogoType} from "../../../../clan/enum/logoType.enum";
+import {Clan} from "../../../../clan/clan.schema";
+import {ClanLabel} from "../../../../clan/enum/clanLabel.enum";
+import {AgeRange} from "../../../../clan/enum/ageRange.enum";
+import {Goal} from "../../../../clan/enum/goal.enum";
 
 export default class ClanBuilder implements IDataBuilder<Clan>{
     private readonly base: Clan = {
@@ -16,11 +18,13 @@ export default class ClanBuilder implements IDataBuilder<Clan>{
         playerCount: 0,
         itemCount: 0,
         stockCount: 0,
+        points: 0,
         isOpen: true,
         ageRange: AgeRange.ADULTS,
         goal: Goal.GRINDAUS,
         phrase: 'We are the best',
-        language: Language.ENGLISH
+        language: Language.ENGLISH,
+        clanLogo: { logoType: LogoType.HEART, pieceColors: ['#FFFFFF', '#000000'] }
     };
 
     // Returns a new Clan object with the current base properties
