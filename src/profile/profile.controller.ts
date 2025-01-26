@@ -21,8 +21,12 @@ import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
-import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
-import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
+import {OffsetPaginate} from "../common/interceptor/request/offsetPagination.interceptor";
+import {AddSortQuery} from "../common/interceptor/request/addSortQuery.interceptor";
+import {IResponseShape} from "../common/interface/IResponseShape";
+import {UniformResponse} from "../common/decorator/response/UniformResponse";
+import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
+import { User } from "../auth/user";
 
 @Controller('profile')
 export default class ProfileController {
@@ -33,32 +37,41 @@ export default class ProfileController {
     ) {
     }
 
+    //: Promise<MongooseError | IResponseShape>
     @NoAuth()
     @Post()
     @Serialize(ProfileDto)
-    @CatchCreateUpdateErrors()
+    @UniformResponse(ModelName.PROFILE)
     public async create(@Body() body: CreateProfileDto) {
         const {Player, ...profile} = body;
 
-        if(!Player)
-            return this.service.createOne(profile);
+        if (!Player)
+            return this.service.createWithHashedPassword(body);
 
-        const profileResp = await this.service.createOne(profile);
-        if(profileResp && !(profileResp instanceof MongooseError)){
-            
-            const profileDataKey = profileResp.metaData.dataKey;
-            Player['profile_id'] = profileResp.data[profileDataKey]._id;
-            try{
-                const playerResp = await this.playerService.createOne(Player);
-                if(playerResp && !(playerResp instanceof MongooseError))
-                    profileResp.data[profileDataKey].Player = playerResp.data[playerResp.metaData.dataKey];
-            } catch(e){
-                await this.service.deleteOneById(profileResp.data[profileResp.metaData.dataKey]._id);
-                throw e;
-            }
+        let [createdProfile, errors] = await this.service.createWithHashedPassword(body);
+
+        if (errors)
+            return [null, errors];
+
+        const createdProfile_id = createdProfile._id;
+        Player['profile_id'] = createdProfile_id;
+        try {
+            const playerResp = await this.playerService.createOne(Player);
+            if (playerResp && !(playerResp instanceof MongooseError))
+                createdProfile.Player = playerResp.data[playerResp.metaData.dataKey];
+        } catch (e) {
+            await this.service.deleteOneById(createdProfile_id);
+            throw e;
         }
 
-        return profileResp;
+        return [createdProfile, errors];
+    }
+
+    @Get('/info')
+    @Serialize(ProfileDto)
+    @UniformResponse(ModelName.PROFILE)
+    async getLoggedUserInfo(@LoggedUser() user: User) {
+        return await this.service.getLoggedUserInfo(user.profile_id, user.player_id);
     }
 
     @Get('/:_id')
@@ -82,7 +95,7 @@ export default class ProfileController {
     @Put()
     @Authorize({action: Action.update, subject: UpdateProfileDto})
     @BasicPUT(ModelName.PROFILE)
-    public async update(@Body() body: UpdateProfileDto){
+    public async update(@Body() body: UpdateProfileDto) {
         return this.service.updateOneById(body);
     }
 

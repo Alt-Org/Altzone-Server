@@ -1,6 +1,6 @@
-<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.17 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.17">
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/25.0.2 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="25.0.2">
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
-    <mxGraphModel dx="2083" dy="2445" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1434" dy="2053" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
@@ -101,7 +101,7 @@
           <mxGeometry width="100" height="30" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-43" value="" style="group" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1" connectable="0">
-          <mxGeometry x="700" y="480" width="290" height="170" as="geometry" />
+          <mxGeometry x="1340" y="-1050" width="290" height="170" as="geometry" />
         </mxCell>
         <mxCell id="_3Yxe7j3_LtKffiDOUv9-14" value="" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=none;" parent="xSpBKCksksXmDGPZZ2uK-43" vertex="1">
           <mxGeometry width="290" height="170" as="geometry" />
@@ -227,7 +227,7 @@
           <mxGeometry x="90" y="119.99684210526317" width="120" height="50.526315789473685" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-120" value="" style="group" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1" connectable="0">
-          <mxGeometry x="2219" y="-970" width="290" height="160" as="geometry" />
+          <mxGeometry x="2479" y="-970" width="290" height="160" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-121" value="" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=none;" parent="xSpBKCksksXmDGPZZ2uK-120" vertex="1">
           <mxGeometry width="290" height="160" as="geometry" />
@@ -239,7 +239,7 @@
           <mxGeometry width="90" height="25.263157894736842" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-124" value="" style="group" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1" connectable="0">
-          <mxGeometry x="2229" y="-760" width="290" height="160" as="geometry" />
+          <mxGeometry x="2489" y="-760" width="290" height="160" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-125" value="" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=none;" parent="xSpBKCksksXmDGPZZ2uK-124" vertex="1">
           <mxGeometry width="290" height="160" as="geometry" />
@@ -251,7 +251,7 @@
           <mxGeometry width="130" height="30" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-128" value="" style="group" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1" connectable="0">
-          <mxGeometry x="2059" y="-540" width="300" height="200" as="geometry" />
+          <mxGeometry x="2319" y="-540" width="300" height="200" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-129" value="" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=none;" parent="xSpBKCksksXmDGPZZ2uK-128" vertex="1">
           <mxGeometry width="300" height="200" as="geometry" />
@@ -266,7 +266,7 @@
           <mxGeometry x="90" y="119.99684210526317" width="120" height="50.526315789473685" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-133" value="" style="group" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1" connectable="0">
-          <mxGeometry x="2419" y="-540" width="300" height="220" as="geometry" />
+          <mxGeometry x="2679" y="-540" width="300" height="220" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-157" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="xSpBKCksksXmDGPZZ2uK-133" source="xSpBKCksksXmDGPZZ2uK-134" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -283,7 +283,7 @@
           <mxGeometry x="90" y="80" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-138" value="" style="group" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1" connectable="0">
-          <mxGeometry x="2209" y="-260" width="300" height="220" as="geometry" />
+          <mxGeometry x="2469" y="-260" width="300" height="220" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-139" value="" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=none;" parent="xSpBKCksksXmDGPZZ2uK-138" vertex="1">
           <mxGeometry width="300" height="220" as="geometry" />
@@ -298,7 +298,7 @@
           <mxGeometry x="90" y="140" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-143" value="" style="group" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1" connectable="0">
-          <mxGeometry x="1969" y="22.5" width="340" height="230" as="geometry" />
+          <mxGeometry x="2229" y="22.5" width="340" height="230" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-144" value="" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=none;" parent="xSpBKCksksXmDGPZZ2uK-143" vertex="1">
           <mxGeometry width="340" height="230" as="geometry" />
@@ -313,7 +313,7 @@
           <mxGeometry x="120" y="140" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-148" value="" style="group" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1" connectable="0">
-          <mxGeometry x="2419" y="20" width="303" height="240" as="geometry" />
+          <mxGeometry x="2679" y="20" width="303" height="240" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-149" value="" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=none;" parent="xSpBKCksksXmDGPZZ2uK-148" vertex="1">
           <mxGeometry width="303" height="240" as="geometry" />
@@ -346,28 +346,28 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-161" value="Player wins a game.&lt;div&gt;1. Save data about this game&lt;/div&gt;&lt;div&gt;2. Notify the game events broker about it&lt;/div&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="2549" y="-950" width="237" height="100" as="geometry" />
+          <mxGeometry x="2809" y="-950" width="237" height="100" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-162" value="&lt;div&gt;It knows what to do with the information:&lt;/div&gt;&lt;div&gt;1. Player task need to be registered&lt;/div&gt;&lt;div&gt;2. Player game statistics should be updated&lt;/div&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="2559" y="-740" width="270" height="100" as="geometry" />
+          <mxGeometry x="2819" y="-740" width="270" height="100" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-163" value="&lt;div&gt;1. Updates the task info&lt;/div&gt;&lt;div&gt;2. Notify the player about update&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;It knows that from a daily task some reward should be given for a Clan&lt;/div&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="1760" y="-490" width="270" height="100" as="geometry" />
+          <mxGeometry x="2020" y="-490" width="270" height="100" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-164" value="It knows the reward amount and gives rewards to player and clan as requested" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="2549" y="-200" width="270" height="100" as="geometry" />
+          <mxGeometry x="2809" y="-200" width="270" height="100" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-165" value="&lt;div&gt;1. Updates the player statistics info&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;It knows that from a won game&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp;some reward should be given for a Player&lt;/span&gt;&lt;/div&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="2750" y="-490" width="270" height="100" as="geometry" />
+          <mxGeometry x="3010" y="-490" width="270" height="100" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-166" value="Updates data of the Player in DB" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="2760" y="60" width="270" height="100" as="geometry" />
+          <mxGeometry x="3020" y="60" width="270" height="100" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-167" value="Updates data of the Clan in DB" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="1680" y="70" width="270" height="100" as="geometry" />
+          <mxGeometry x="1940" y="70" width="270" height="100" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-168" value="&lt;font style=&quot;font-size: 21px;&quot;&gt;Player won a game event flow&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="2208.5" y="-1060" width="331" height="30" as="geometry" />
+          <mxGeometry x="2468.5" y="-1060" width="331" height="30" as="geometry" />
         </mxCell>
         <mxCell id="xSpBKCksksXmDGPZZ2uK-170" value="" style="endArrow=none;html=1;rounded=0;strokeWidth=3;" parent="WIyWlLk6GJQsqaUBKTNV-1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">

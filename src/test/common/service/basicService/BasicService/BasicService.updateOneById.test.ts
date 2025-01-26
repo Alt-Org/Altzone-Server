@@ -31,7 +31,7 @@ describe('BasicService.updateOneById() test suite', () => {
     });
 
     it('Should return ServiceError NOT_FOUND if the object with the provided _id does not exist', async () => {
-        const nonExisting_id = getNonExisting_id(existingClan_id);
+        const nonExisting_id = getNonExisting_id();
         const updateData = { name: 'updatedClan' };
 
         const [wasUpdated, errors] = await basicService.updateOneById(nonExisting_id, updateData);

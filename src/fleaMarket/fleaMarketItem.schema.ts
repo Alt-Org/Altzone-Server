@@ -41,7 +41,7 @@ export class FleaMarketItem {
 	isFurniture: boolean;
 
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CLAN })
-	clan_id: Clan;
+	clan_id: string;
 }
 
 export const FleaMarketItemSchema =

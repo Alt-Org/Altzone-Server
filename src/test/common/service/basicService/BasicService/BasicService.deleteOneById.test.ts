@@ -28,7 +28,7 @@ describe('BasicService.deleteOneById() test suite', () => {
     });
 
     it('Should return ServiceError NOT_FOUND if the object with provided _id does not exist', async () => {
-        const nonExisting_id = getNonExisting_id(existingClan_id);
+        const nonExisting_id = getNonExisting_id();
         const [wasDeleted, errors] = await basicService.deleteOneById(nonExisting_id);
 
         expect(wasDeleted).toBeNull();

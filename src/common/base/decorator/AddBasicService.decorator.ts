@@ -107,7 +107,10 @@ export const AddBasicService = () => {
                 if(!entityToDelete)
                     return null;
 
-                await this.clearCollectionReferences(_id, ignoreReferences);
+                try {
+                    await this.clearCollectionReferences(_id, ignoreReferences);
+                } catch (e) {}
+                
                 const result = await this.model.deleteOne({_id});
                 if(this.deleteOnePostHook)
                     this.deleteOnePostHook(_id, entityToDelete, result);

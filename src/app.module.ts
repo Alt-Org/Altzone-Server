@@ -27,6 +27,8 @@ import { GameEventsBrokerModule } from './gameEventsBroker/gameEventsBroker.modu
 import { RewarderModule } from './rewarder/rewarder.module';
 import { StatisticsKeeperModule } from './statisticsKeeper/statisticsKeeper.module';
 import { FleaMarketModule } from './fleaMarket/fleaMarket.module';
+import { VotingModule } from './voting/voting.module';
+import { BullModule } from '@nestjs/bullmq';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -51,7 +53,12 @@ const redisPort = parseInt(envVars.REDIS_PORT);
         port: redisPort,
         password: redisPassword,
       }),
-
+      BullModule.forRoot({
+        connection: {
+          host: redisHost,
+          port: redisPort
+        }
+      }),
       GameDataModule,
       ChatModule,
 
@@ -66,6 +73,7 @@ const redisPort = parseInt(envVars.REDIS_PORT);
 
       ItemMoverModule,
       FleaMarketModule,
+      VotingModule,
 
       CustomCharacterModule,
       ClanInventoryModule,

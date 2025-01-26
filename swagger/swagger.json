@@ -326,10 +326,10 @@
                         "description": "OK"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -362,10 +362,10 @@
                         "$ref": "#/components/responses/400"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -432,10 +432,10 @@
                         "$ref": "#/components/responses/400"
                     },
                     "409": {
-                        "$ref": "#/components/responses/409"
+                        "$ref": "#/components/responses/409_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -454,13 +454,13 @@
                         "$ref": "#/components/responses/204"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403"
+                        "$ref": "#/components/responses/403_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -533,13 +533,13 @@
                         "description": "OK"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -581,19 +581,19 @@
                         "$ref": "#/components/responses/400"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403"
+                        "$ref": "#/components/responses/403_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "409": {
-                        "$ref": "#/components/responses/409"
+                        "$ref": "#/components/responses/409_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -658,16 +658,16 @@
                         "$ref": "#/components/responses/400"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/400_New"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403"
+                        "$ref": "#/components/responses/403_New"
                     },
                     "409": {
-                        "$ref": "#/components/responses/409"
+                        "$ref": "#/components/responses/409_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -734,10 +734,10 @@
                         "$ref": "#/components/responses/400"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -758,16 +758,16 @@
                         "$ref": "#/components/responses/400"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "403": {
-                        "$ref": "#/components/responses/403"
+                        "$ref": "#/components/responses/403_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -962,15 +962,13 @@
                         "$ref": "#/components/responses/204"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401",
-                        "x-last-modified": 1718901883486
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500",
-                        "x-last-modified": 1718902019444
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -1358,8 +1356,7 @@
         "/fleaMarket": {
             "get": {
                 "tags": [
-                    "FleaMarket",
-                    "in-development"
+                    "FleaMarket"
                 ],
                 "responses": {
                     "200": {
@@ -1458,16 +1455,30 @@
                                             "data": {
                                                 "FleaMarketItem": [
                                                     {
-                                                        "_id": "668a70ce91020196cb10d595",
-                                                        "weight": 67,
-                                                        "name": "Sofa_Taakka",
-                                                        "recycling": "Mixed_waste",
+                                                        "objectType": "FleaMarketItemDto",
+                                                        "_id": "67696bbabdeca182c841e46b",
+                                                        "name": "Closet_Rakkaus",
+                                                        "weight": 45,
+                                                        "recycling": "Wood",
                                                         "qualityLevel": "common",
-                                                        "unityKey": "Sofa_Taakka",
+                                                        "unityKey": "Closet_Rakkaus",
+                                                        "status": "available",
                                                         "isFurniture": true,
-                                                        "price": 23,
-                                                        "status": "Available",
-                                                        "clan_id": "668953cd4a7b6c993aed1a36"
+                                                        "price": 130,
+                                                        "clan_id": "6746e90e85763982c51af0d5"
+                                                    },
+                                                    {
+                                                        "objectType": "FleaMarketItemDto",
+                                                        "_id": "6747092424a8bd9b779aa445",
+                                                        "name": "Mirror_Rakkaus",
+                                                        "weight": 10,
+                                                        "recycling": "Glass",
+                                                        "qualityLevel": "common",
+                                                        "unityKey": "Mirror_Rakkaus",
+                                                        "status": "shipping",
+                                                        "isFurniture": false,
+                                                        "price": 170,
+                                                        "clan_id": "6746e90e85763982c51af0d5"
                                                     }
                                                 ]
                                             },
@@ -1475,7 +1486,14 @@
                                                 "dataKey": "FleaMarketItem",
                                                 "modelName": "FleaMarketItem",
                                                 "dataType": "Array",
-                                                "dataCount": 1
+                                                "dataCount": 2
+                                            },
+                                            "paginationData": {
+                                                "currentPage": 1,
+                                                "limit": 20,
+                                                "offset": 0,
+                                                "itemCount": 2,
+                                                "pageCount": 1
                                             }
                                         }
                                     }
@@ -1506,8 +1524,7 @@
         "/fleaMarket/{_id}": {
             "get": {
                 "tags": [
-                    "FleaMarket",
-                    "in-development"
+                    "FleaMarket"
                 ],
                 "responses": {
                     "200": {
@@ -1582,16 +1599,17 @@
                                         "value": {
                                             "data": {
                                                 "FleaMarketItem": {
-                                                    "_id": "668a70ce91020196cb10d595",
-                                                    "weight": 67,
-                                                    "name": "Sofa_Taakka",
-                                                    "recycling": "Mixed_waste",
+                                                    "objectType": "FleaMarketItemDto",
+                                                    "_id": "67696bbabdeca182c841e46b",
+                                                    "name": "Closet_Rakkaus",
+                                                    "weight": 45,
+                                                    "recycling": "Wood",
                                                     "qualityLevel": "common",
-                                                    "unityKey": "Sofa_Taakka",
+                                                    "unityKey": "Closet_Rakkaus",
+                                                    "status": "available",
                                                     "isFurniture": true,
-                                                    "price": 23,
-                                                    "status": "Available",
-                                                    "clan_id": "668953cd4a7b6c993aed1a36"
+                                                    "price": 130,
+                                                    "clan_id": "6746e90e85763982c51af0d5"
                                                 }
                                             },
                                             "metaData": {
@@ -1611,10 +1629,10 @@
                         "$ref": "#/components/responses/400_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -1692,10 +1710,10 @@
                         "description": "OK"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -1732,16 +1750,16 @@
                         "$ref": "#/components/responses/400"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "409": {
-                        "$ref": "#/components/responses/409"
+                        "$ref": "#/components/responses/409_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -1800,13 +1818,13 @@
                         "$ref": "#/components/responses/400"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "409": {
-                        "$ref": "#/components/responses/409"
+                        "$ref": "#/components/responses/409_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -1854,10 +1872,10 @@
                         "description": "OK"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -1877,13 +1895,13 @@
                         "$ref": "#/components/responses/204"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -1957,10 +1975,10 @@
                         "description": "OK"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -1996,16 +2014,16 @@
                         "$ref": "#/components/responses/400"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "409": {
-                        "$ref": "#/components/responses/409"
+                        "$ref": "#/components/responses/409_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -2079,10 +2097,10 @@
                         "$ref": "#/components/responses/401_New"
                     },
                     "404": {
-                        "$ref": "#/components/responses/404"
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -2724,8 +2742,7 @@
                     "required": true
                 },
                 "tags": [
-                    "FleaMarket",
-                    "in-development"
+                    "FleaMarket"
                 ],
                 "responses": {
                     "201": {
@@ -2843,10 +2860,10 @@
                         "$ref": "#/components/responses/400"
                     },
                     "401": {
-                        "$ref": "#/components/responses/401"
+                        "$ref": "#/components/responses/401_New"
                     },
                     "500": {
-                        "$ref": "#/components/responses/500"
+                        "$ref": "#/components/responses/500_New"
                     }
                 },
                 "security": [
@@ -2973,8 +2990,7 @@
                     "required": true
                 },
                 "tags": [
-                    "FleaMarket",
-                    "in-development"
+                    "FleaMarket"
                 ],
                 "responses": {
                     "201": {
@@ -3006,6 +3022,70 @@
             }
         },
         "/voting": {
+            "get": {
+                "tags": [
+                    "Voting"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Voting": [
+                                                    {
+                                                        "objectType": "VotingDto",
+                                                        "_id": "67696bbabdeca182c841e46e",
+                                                        "organizer": {
+                                                            "player_id": "67333bcf860c6e1a98eb8ee6",
+                                                            "clan_id": "6746e90e85763982c51af0d5"
+                                                        },
+                                                        "endsOn": "2024-12-23T14:05:06.541Z",
+                                                        "type": "selling_item",
+                                                        "minPercentage": 51,
+                                                        "votes": [
+                                                            {
+                                                                "player_id": "67333bcf860c6e1a98eb8ee6",
+                                                                "choice": "accept"
+                                                            }
+                                                        ],
+                                                        "entity_id": "67696d0fbdeca182c841e484"
+                                                    }
+                                                ]
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Voting",
+                                                "modelName": "Voting",
+                                                "dataType": "Array",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "All active votings"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get all votings",
+                "description": "Get all active votings of the logged user clan."
+            },
             "put": {
                 "requestBody": {
                     "content": {
@@ -3023,8 +3103,7 @@
                     "required": true
                 },
                 "tags": [
-                    "Voting",
-                    "in-development"
+                    "Voting"
                 ],
                 "responses": {
                     "204": {
@@ -3058,8 +3137,7 @@
         "/voting/{_id}": {
             "get": {
                 "tags": [
-                    "Voting",
-                    "in-development"
+                    "Voting"
                 ],
                 "responses": {
                     "200": {
@@ -3068,25 +3146,32 @@
                                 "examples": {
                                     "1": {
                                         "value": {
-                                            "_id": "668953cd4a7b6c993aed1a36",
-                                            "startedAt": 1727178420,
-                                            "organizer_id": "668d6003a9292e300e94c833",
-                                            "type": "selling_item",
-                                            "player_ids": [
-                                                "66d86147184d5f0a7c0675ca",
-                                                "668a765091020196cb10d5a3"
-                                            ],
-                                            "votes": [
-                                                {
-                                                    "player_id": "66d86147184d5f0a7c0675ca",
-                                                    "choice": "accept"
-                                                },
-                                                {
-                                                    "player_id": "668a765091020196cb10d5a3",
-                                                    "choice": "reject"
+                                            "data": {
+                                                "Voting": {
+                                                    "objectType": "VotingDto",
+                                                    "_id": "67696bbabdeca182c841e46e",
+                                                    "organizer": {
+                                                        "player_id": "67333bcf860c6e1a98eb8ee6",
+                                                        "clan_id": "6746e90e85763982c51af0d5"
+                                                    },
+                                                    "endsOn": "2024-12-23T14:05:06.541Z",
+                                                    "type": "selling_item",
+                                                    "minPercentage": 51,
+                                                    "votes": [
+                                                        {
+                                                            "player_id": "67333bcf860c6e1a98eb8ee6",
+                                                            "choice": "accept"
+                                                        }
+                                                    ],
+                                                    "entity_id": "67696bcdbdeca182c841e47a"
                                                 }
-                                            ],
-                                            "minPercentage": 51
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Voting",
+                                                "modelName": "Voting",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
                                         }
                                     }
                                 }
@@ -3436,6 +3521,91 @@
                 ],
                 "summary": "Get clans leaderboard",
                 "description": "Leaderboard of clans. Top Clans are defined by the amount of points that each Clan has.\n\nNotice that the leaderboards data is updated once every 12 hours."
+            }
+        },
+        "/profile/info": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Profile": {
+                                                    "objectType": "ProfileDto",
+                                                    "_id": "6747050be5ef6e3ffc920192",
+                                                    "username": "user2",
+                                                    "Player": {
+                                                        "objectType": "PlayerDto",
+                                                        "_id": "6747050be5ef6e3ffc920194",
+                                                        "name": "user2",
+                                                        "points": 0,
+                                                        "backpackCapacity": 90,
+                                                        "uniqueIdentifier": "user2",
+                                                        "above13": true,
+                                                        "parentalAuth": true,
+                                                        "gameStatistics": {
+                                                            "objectType": "GameStatisticsDto"
+                                                        },
+                                                        "profile_id": "6747050be5ef6e3ffc920192",
+                                                        "clan_id": "6746e90e85763982c51af0d5",
+                                                        "Clan": {
+                                                            "objectType": "ClanDto",
+                                                            "_id": "6746e90e85763982c51af0d5",
+                                                            "name": "clan1",
+                                                            "tag": "clan1",
+                                                            "labels": [
+                                                                "eläinrakkaat"
+                                                            ],
+                                                            "gameCoins": 0,
+                                                            "points": 0,
+                                                            "admin_ids": [
+                                                                "67333bcf860c6e1a98eb8ee6"
+                                                            ],
+                                                            "playerCount": 3,
+                                                            "itemCount": 0,
+                                                            "stockCount": 0,
+                                                            "ageRange": "None",
+                                                            "goal": "None",
+                                                            "phrase": "Clan 1 is the best",
+                                                            "language": "None",
+                                                            "isOpen": true
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Profile",
+                                                "modelName": "Profile",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "The logged-in profile info"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get basic info about logged-in user",
+                "description": "Get basic info of the logged-in user:\n\n- Profile\n- Player\n- Clan"
             }
         }
     },
@@ -4693,83 +4863,6 @@
                 },
                 "description": "Validation error. Some of the fields are not specified, have wrong data types or any over validation problem",
                 "x-last-modified": 1718798714047
-            },
-            "401": {
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/APIError"
-                        },
-                        "example": {
-                            "statusCode": 401,
-                            "message": "The access token is not provided. Please add `authorization` field with access token(in bearer token form): `Bearer access-token-here` to request header. The access token you can get from /auth endpoint",
-                            "error": "Unauthorized"
-                        }
-                    }
-                },
-                "description": "Not authenticated. The Authorization header is not specified or the token is expired. [Here is more about auth](https://github.com/Alt-Org/Altzone-Server/wiki/2.-Authentication-and-authorization)"
-            },
-            "403": {
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/APIError"
-                        },
-                        "example": {
-                            "statusCode": 403,
-                            "message": "The logged-in user has no permission to execute update_request action",
-                            "error": "Forbidden"
-                        }
-                    }
-                },
-                "description": "No permission. The logged-in user has no permission to execute the action. [Here is more about auth](https://github.com/Alt-Org/Altzone-Server/wiki/2.-Authentication-and-authorization)"
-            },
-            "404": {
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/APIError"
-                        },
-                        "example": {
-                            "statusCode": 404,
-                            "message": "Can not find any Chat instances",
-                            "error": "Not Found"
-                        }
-                    }
-                },
-                "description": "Not found. No object(s) found"
-            },
-            "409": {
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/APIConflictError"
-                        },
-                        "example": {
-                            "statusCode": 409,
-                            "message": [
-                                "Field 'username' with value 'user1' already exists"
-                            ],
-                            "error": "Conflict"
-                        }
-                    }
-                },
-                "description": "Some of the fields are not unique "
-            },
-            "500": {
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/APIError"
-                        },
-                        "example": {
-                            "statusCode": 500,
-                            "message": "Internal server error"
-                        }
-                    }
-                },
-                "description": "Unexpected error happened. [Please create a new issue here](https://github.com/Alt-Org/Altzone-Server/issues) and specify the endpoint, HTTP method and description if u have any",
-                "x-last-modified": 1718799573835
             },
             "200_one": {
                 "content": {
