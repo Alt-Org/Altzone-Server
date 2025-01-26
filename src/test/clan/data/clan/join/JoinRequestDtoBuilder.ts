@@ -1,5 +1,6 @@
-import { JoinRequestDto } from "../../../../../clan_module/clan/join/dto/joinRequest.dto";
+
 import IDataBuilder from "../../../../test_utils/interface/IDataBuilder";
+import {JoinRequestDto} from "../../../../../clan/join/dto/joinRequest.dto";
 
 export default class JoinRequestDtoBuilder implements IDataBuilder<JoinRequestDto> {
     private readonly base: JoinRequestDto = {

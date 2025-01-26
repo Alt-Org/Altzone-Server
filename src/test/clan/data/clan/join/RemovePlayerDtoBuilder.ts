@@ -1,5 +1,5 @@
-import { RemovePlayerDTO } from "../../../../../clan_module/clan/join/dto/removePlayer.dto";
 import IDataBuilder from "../../../../test_utils/interface/IDataBuilder";
+import {RemovePlayerDTO} from "../../../../../clan/join/dto/removePlayer.dto";
 
 export default class RemovePlayerDtoBuilder implements IDataBuilder<RemovePlayerDTO> {
     private readonly base: RemovePlayerDTO = {
