@@ -42,23 +42,31 @@
                                                 "Clan": [
                                                     {
                                                         "objectType": "ClanDto",
-                                                        "_id": "66d74887c988e09f4c45870a",
-                                                        "name": "clan2",
+                                                        "_id": "67961fbb1b3237ccb9628a44",
+                                                        "name": "clan1",
+                                                        "tag": "clan1",
+                                                        "clanLogo": {
+                                                            "objectType": "ClanLogoDto",
+                                                            "logoType": "Heart",
+                                                            "pieceColors": [
+                                                                "#FFFFFF",
+                                                                "#000000"
+                                                            ]
+                                                        },
                                                         "labels": [
-                                                            "itsenäiset",
-                                                            "oleilijat",
-                                                            "rikkaat"
+                                                            "eläinrakkaat"
                                                         ],
                                                         "gameCoins": 0,
                                                         "points": 0,
                                                         "admin_ids": [
-                                                            "66d7067645b40dd7f491e753"
+                                                            "67961be31b3237ccb9628a37"
                                                         ],
                                                         "playerCount": 1,
                                                         "itemCount": 0,
                                                         "stockCount": 0,
                                                         "ageRange": "None",
                                                         "goal": "None",
+                                                        "phrase": "Clan 1 is the best",
                                                         "language": "None",
                                                         "isOpen": true
                                                     },
@@ -81,7 +89,15 @@
                                                         "ageRange": "None",
                                                         "goal": "None",
                                                         "language": "None",
-                                                        "isOpen": true
+                                                        "isOpen": true,
+                                                        "clanLogo": {
+                                                            "objectType": "ClanLogoDto",
+                                                            "logoType": "Heart",
+                                                            "pieceColors": [
+                                                                "#FFFFFF",
+                                                                "#000000"
+                                                            ]
+                                                        }
                                                     }
                                                 ]
                                             },
@@ -197,65 +213,54 @@
                                     "1": {
                                         "value": {
                                             "data": {
-                                                "Clan": [
-                                                    {
-                                                        "objectType": "ClanDto",
-                                                        "_id": "66d74887c988e09f4c45870a",
-                                                        "name": "clan2",
-                                                        "labels": [
-                                                            "itsenäiset",
-                                                            "oleilijat",
-                                                            "rikkaat"
-                                                        ],
-                                                        "gameCoins": 0,
-                                                        "points": 0,
-                                                        "admin_ids": [
-                                                            "66d7067645b40dd7f491e753"
-                                                        ],
-                                                        "playerCount": 1,
-                                                        "itemCount": 0,
-                                                        "stockCount": 0,
-                                                        "ageRange": "None",
-                                                        "goal": "None",
-                                                        "language": "None",
-                                                        "isOpen": true
+                                                "Clan": {
+                                                    "objectType": "ClanDto",
+                                                    "_id": "67961fbb1b3237ccb9628a44",
+                                                    "name": "clan1",
+                                                    "tag": "clan1",
+                                                    "clanLogo": {
+                                                        "objectType": "ClanLogoDto",
+                                                        "logoType": "Heart",
+                                                        "pieceColors": [
+                                                            "#FFFFFF",
+                                                            "#000000"
+                                                        ]
                                                     },
-                                                    {
-                                                        "objectType": "ClanDto",
-                                                        "_id": "66d70d08941f1d7be5033a3c",
+                                                    "labels": [
+                                                        "eläinrakkaat"
+                                                    ],
+                                                    "gameCoins": 0,
+                                                    "points": 0,
+                                                    "admin_ids": [
+                                                        "67961be31b3237ccb9628a37"
+                                                    ],
+                                                    "playerCount": 1,
+                                                    "itemCount": 0,
+                                                    "stockCount": 0,
+                                                    "ageRange": "None",
+                                                    "goal": "None",
+                                                    "phrase": "Clan 1 is the best",
+                                                    "language": "None",
+                                                    "isOpen": true,
+                                                    "Stock": {
+                                                        "objectType": "StockDto",
+                                                        "_id": "67961fbb1b3237ccb9628a47",
+                                                        "cellCount": 20,
+                                                        "clan_id": "67961fbb1b3237ccb9628a44"
+                                                    },
+                                                    "SoulHome": {
+                                                        "objectType": "SoulHomeDto",
+                                                        "_id": "67961fbb1b3237ccb9628a4f",
                                                         "name": "clan1",
-                                                        "labels": [
-                                                            "eläinrakkaat",
-                                                            "urheilevat",
-                                                            "rikkaat"
-                                                        ],
-                                                        "gameCoins": 0,
-                                                        "points": 0,
-                                                        "admin_ids": [
-                                                            "66d705c645b40dd7f491e6eb"
-                                                        ],
-                                                        "playerCount": 1,
-                                                        "itemCount": 0,
-                                                        "stockCount": 0,
-                                                        "ageRange": "None",
-                                                        "goal": "None",
-                                                        "language": "None",
-                                                        "isOpen": true
+                                                        "clan_id": "67961fbb1b3237ccb9628a44"
                                                     }
-                                                ]
+                                                }
                                             },
                                             "metaData": {
                                                 "dataKey": "Clan",
                                                 "modelName": "Clan",
-                                                "dataType": "Array",
-                                                "dataCount": 2
-                                            },
-                                            "paginationData": {
-                                                "currentPage": 1,
-                                                "limit": 2,
-                                                "offset": 0,
-                                                "itemCount": 2,
-                                                "pageCount": 1
+                                                "dataType": "Object",
+                                                "dataCount": 1
                                             }
                                         }
                                     }
@@ -812,26 +817,34 @@
                                         "value": {
                                             "data": {
                                                 "Clan": {
-                                                    "objectType": "ClanDto",
-                                                    "_id": "66d70d08941f1d7be5033a3c",
+                                                    "_id": "67961fbb1b3237ccb9628a44",
                                                     "name": "clan1",
+                                                    "tag": "clan1",
+                                                    "clanLogo": {
+                                                        "logoType": "Heart",
+                                                        "pieceColors": [
+                                                            "#FFFFFF",
+                                                            "#000000"
+                                                        ]
+                                                    },
                                                     "labels": [
-                                                        "eläinrakkaat",
-                                                        "urheilevat",
-                                                        "rikkaat"
+                                                        "eläinrakkaat"
                                                     ],
                                                     "gameCoins": 0,
                                                     "points": 0,
                                                     "admin_ids": [
-                                                        "66d705c645b40dd7f491e6eb"
+                                                        "67961be31b3237ccb9628a37"
                                                     ],
                                                     "playerCount": 1,
                                                     "itemCount": 0,
                                                     "stockCount": 0,
+                                                    "isOpen": true,
                                                     "ageRange": "None",
                                                     "goal": "None",
+                                                    "phrase": "Clan 1 is the best",
                                                     "language": "None",
-                                                    "isOpen": true
+                                                    "__v": 0,
+                                                    "id": "67961fbb1b3237ccb9628a44"
                                                 }
                                             },
                                             "metaData": {
@@ -3611,8 +3624,7 @@
         "/leaderboard/clan/position": {
             "get": {
                 "tags": [
-                    "Leaderboard",
-                    "in-development"
+                    "Leaderboard"
                 ],
                 "responses": {
                     "200": {
@@ -3661,8 +3673,7 @@
         "/clan/items": {
             "get": {
                 "tags": [
-                    "Clan",
-                    "in-development"
+                    "Clan"
                 ],
                 "responses": {
                     "200": {
@@ -4029,6 +4040,35 @@
                         "default": "None",
                         "type": "string",
                         "example": "Spanish"
+                    },
+                    "clanLogo": {
+                        "required": [
+                            "logoType",
+                            "pieceColors"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "logoType": {
+                                "description": "Type of the logo",
+                                "enum": [
+                                    "Heart"
+                                ],
+                                "type": "string",
+                                "example": "Heart"
+                            },
+                            "pieceColors": {
+                                "description": "List of piece colors in hexadecimal format.",
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "example": [
+                                    "#FF5733",
+                                    "#33FF57",
+                                    "#3357FF"
+                                ]
+                            }
+                        }
                     }
                 }
             },
@@ -4235,6 +4275,35 @@
                         "default": "None",
                         "type": "string",
                         "example": "Spanish"
+                    },
+                    "clanLogo": {
+                        "required": [
+                            "logoType",
+                            "pieceColors"
+                        ],
+                        "type": "object",
+                        "properties": {
+                            "logoType": {
+                                "description": "Type of the logo",
+                                "enum": [
+                                    "Heart"
+                                ],
+                                "type": "string",
+                                "example": "Heart"
+                            },
+                            "pieceColors": {
+                                "description": "List of piece colors in hexadecimal format.",
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "example": [
+                                    "#FF5733",
+                                    "#33FF57",
+                                    "#3357FF"
+                                ]
+                            }
+                        }
                     }
                 }
             },
