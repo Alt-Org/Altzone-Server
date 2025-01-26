@@ -1,9 +1,10 @@
-import { CreateClanDto } from "../../../../clan_module/clan/dto/createClan.dto";
-import { AgeRange } from "../../../../clan_module/clan/enum/ageRange.enum";
-import { ClanLabel } from "../../../../clan_module/clan/enum/clanLabel.enum";
-import { Goal } from "../../../../clan_module/clan/enum/goal.enum";
-import { Language } from "../../../../common/enum/language.enum";
+import {Language} from "../../../../common/enum/language.enum";
 import IDataBuilder from "../../../test_utils/interface/IDataBuilder";
+import {CreateClanDto} from "../../../../clan/dto/createClan.dto";
+import {ClanLabel} from "../../../../clan/enum/clanLabel.enum";
+import {AgeRange} from "../../../../clan/enum/ageRange.enum";
+import {Goal} from "../../../../clan/enum/goal.enum";
+import {LogoType} from "../../../../clan/enum/logoType.enum";
 
 export default class CreateClanDtoBuilder implements IDataBuilder<CreateClanDto>{
     private readonly base: CreateClanDto = {
@@ -14,7 +15,8 @@ export default class CreateClanDtoBuilder implements IDataBuilder<CreateClanDto>
         isOpen: true,
         ageRange: AgeRange.ADULTS,
         goal: Goal.GRINDAUS,
-        language: Language.ENGLISH
+        language: Language.ENGLISH,
+        clanLogo: { logoType: LogoType.HEART, pieceColors: ['#FFFFFF', '#000000'] }
     }
 
     build() {

@@ -16,7 +16,8 @@ export default class UpdateClanDtoBuilder {
         ageRange: undefined,
         goal: undefined,
         phrase: undefined,
-        language: undefined
+        language: undefined,
+        clanLogo: undefined
     };
 
     build() {

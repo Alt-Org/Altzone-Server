@@ -6,7 +6,6 @@ import { Language } from "../../common/enum/language.enum";
 import { Goal } from "../enum/goal.enum";
 import { Type } from "class-transformer";
 import { ClanLogoDto } from "./clanLogo.dto";
-import { ClanLogo } from "../clanLogo.schema";
 
 @AddType('CreateClanDto')
 export class CreateClanDto {
@@ -19,7 +18,7 @@ export class CreateClanDto {
     @Type(() => ClanLogoDto)
     @IsOptional()
     @ValidateNested()
-    clanLogo: ClanLogoDto;
+    clanLogo?: ClanLogoDto;
 
     @IsArray()
     @ArrayMaxSize(5)
