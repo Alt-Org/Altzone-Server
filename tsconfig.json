@@ -2,7 +2,7 @@
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
-    "types": ["jest", "./src/test/test_utils/jest.matchers.d.ts", "node", "multer"],
+    "types": ["jest", "./src/__tests__/test_utils/jest.matchers.d.ts", "node", "multer"],
 
     /* Projects */
     "incremental": true,                                 /* Save .tsbuildinfo files to allow for incremental compilation of projects. */
