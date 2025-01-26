@@ -25,7 +25,7 @@ export class UpdateClanDto {
     @ValidateNested()
     @Type(() => ClanLogoDto)
     @IsOptional()
-    clanLogo: ClanLogoDto;
+    clanLogo?: ClanLogoDto;
 
     @IsArray()
     @ArrayMaxSize(5)
