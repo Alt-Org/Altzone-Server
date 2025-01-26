@@ -1,9 +1,9 @@
-import {StealTokenGuard} from "../../../clanInventory/item/guards/StealToken.guard";
-import AuthModule from "../modules/auth.module";
-import {AuthService} from "../../../auth/auth.service";
-import TestUtilDataFactory from "../../test_utils/data/TestUtilsDataFactory";
-import {APIError} from "../../../common/controller/APIError";
-import {APIErrorReason} from "../../../common/controller/APIErrorReason";
+import {StealTokenGuard} from "../../../../../clanInventory/item/guards/StealToken.guard";
+import AuthModule from "../../../../auth/modules/auth.module";
+import {AuthService} from "../../../../../auth/auth.service";
+import TestUtilDataFactory from "../../../../test_utils/data/TestUtilsDataFactory";
+import {APIError} from "../../../../../common/controller/APIError";
+import {APIErrorReason} from "../../../../../common/controller/APIErrorReason";
 import {UnauthorizedException} from "@nestjs/common";
 
 describe('StealTokenGuard.canActivate() test suite', () => {
