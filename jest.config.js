@@ -1,6 +1,6 @@
 const root = '<rootDir>'
 const codeDir = `${root}/src`;
-const testDir = `${root}/src/test`;
+const testDir = `${root}/src/__tests__`;
 
 /** @type {import('ts-jest').JestConfigWithTsJest} **/
 module.exports = {
@@ -11,10 +11,11 @@ module.exports = {
   
   verbose: true,
     //Get test coverage
-    // collectCoverage: true,
-    // collectCoverageFrom: [
-    //     `${codeDir}/**/*.ts`
-    // ],
+    collectCoverage: true,
+    collectCoverageFrom: [
+        `${codeDir}/**/*.ts`,
+        `!**/__tests__/**`
+    ],
 
     //Run test from this folder(s) only
     testMatch: [
