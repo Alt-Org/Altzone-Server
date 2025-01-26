@@ -5,11 +5,9 @@ This is a REST API for the Altzone game. For API description see the wiki pages
 
 ## Releases
 
+- [Release notes 26.01.2025](https://github.com/Alt-Org/Altzone-Server/blob/dev/doc/release-notes/release-26-01-2025.md)
+- [Release notes 23.12.2024](https://github.com/Alt-Org/Altzone-Server/blob/dev/doc/release-notes/release-23-12-2024.md)
 - [Release notes 01.11.2024](https://github.com/Alt-Org/Altzone-Server/blob/dev/doc/release-notes/release-01-11-2024.md)
-
-- [Release notes 03.10.2024](https://github.com/Alt-Org/Altzone-Server/blob/dev/doc/release-notes/release-03-10-2024.md)
-
-- [Release notes 03.09.2024](https://github.com/Alt-Org/Altzone-Server/blob/main/doc/release-notes/release-03-09-24.md)
 
 
 ## Link to the API
