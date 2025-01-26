@@ -11,11 +11,11 @@ module.exports = {
   
   verbose: true,
     //Get test coverage
-    collectCoverage: true,
-    collectCoverageFrom: [
-        `${codeDir}/**/*.ts`,
-        `!**/__tests__/**`
-    ],
+    // collectCoverage: true,
+    // collectCoverageFrom: [
+    //     `${codeDir}/**/*.ts`,
+    //     `!**/__tests__/**`
+    // ],
 
     //Run test from this folder(s) only
     testMatch: [
