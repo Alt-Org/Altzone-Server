@@ -26,6 +26,9 @@ export class CustomCharacter {
     @Prop({ type: Number, required: true })
     defence: number;
 
+    @Prop({ type: Number })
+    hp: number;
+
     @Prop({ type: MongooseSchema.Types.ObjectId, required: true, ref: ModelName.CHARACTER_CLASS })
     characterClass_id: CharacterClass;
 
