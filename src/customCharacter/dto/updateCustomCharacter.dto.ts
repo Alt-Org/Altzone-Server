@@ -39,6 +39,10 @@ export class UpdateCustomCharacterDto {
     @IsOptional()
     hp: number;
 
+    @IsInt()
+    @IsOptional()
+    level: number;
+
     @IsCharacterClassExists()
     @IsMongoId()
     @IsOptional()
