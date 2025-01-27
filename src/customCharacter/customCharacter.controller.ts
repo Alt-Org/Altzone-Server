@@ -16,6 +16,8 @@ import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
 import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
+import {LoggedUser} from "../common/decorator/param/LoggedUser.decorator";
+import {User} from "../auth/user";
 
 @Controller('customCharacter')
 export class CustomCharacterController{
@@ -25,8 +27,8 @@ export class CustomCharacterController{
     @Post()
     @Authorize({action: Action.create, subject: CustomCharacterDto})
     @BasicPOST(CreateCustomCharacterDto)
-    public create(@Body() body: CreateCustomCharacterDto) {
-        return this.service.createOne(body);
+    public create(@Body() body: CreateCustomCharacterDto, @LoggedUser() user: User) {
+        return this.service.createOne(body, user.player_id);
     }
 
     @Get('/:_id')
