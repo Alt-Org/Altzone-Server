@@ -1,8 +1,7 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Req} from "@nestjs/common";
+import {Body, Controller, Get, Param, Post, Put, Req} from "@nestjs/common";
 import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
 import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
 import {_idDto} from "../common/dto/_id.dto";
-import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
 import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {UpdateCustomCharacterDto} from "./dto/updateCustomCharacter.dto";
@@ -53,12 +52,5 @@ export class CustomCharacterController{
     @BasicPUT(ModelName.CUSTOM_CHARACTER)
     public update(@Body() body: UpdateCustomCharacterDto){
         return this.service.updateOneById(body);
-    }
-
-    @Delete('/:_id')
-    @Authorize({action: Action.delete, subject: UpdateCustomCharacterDto})
-    @BasicDELETE(ModelName.CUSTOM_CHARACTER)
-    public delete(@Param() param: _idDto) {
-        return this.service.deleteOneById(param._id);
     }
 }
