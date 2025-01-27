@@ -31,6 +31,9 @@ export class CustomCharacterDto {
     @Expose()
     hp: number;
 
+    @Expose()
+    level: number;
+
     @ExtractField()
     @Expose()
     characterClass_id: string;

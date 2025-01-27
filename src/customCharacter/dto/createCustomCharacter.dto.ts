@@ -26,6 +26,9 @@ export class CreateCustomCharacterDto {
     @IsInt()
     hp: number;
 
+    @IsInt()
+    level: number;
+
     @IsCharacterClassExists()
     @IsMongoId()
     characterClass_id: string;
