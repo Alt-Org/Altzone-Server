@@ -49,3 +49,5 @@ CustomCharacterSchema.virtual(ModelName.PLAYER, {
     foreignField: '_id',
     justOne: true
 });
+
+export const publicReferences = [ModelName.PLAYER];
