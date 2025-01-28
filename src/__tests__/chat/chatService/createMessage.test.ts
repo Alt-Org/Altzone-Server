@@ -1,4 +1,3 @@
-import { mongo } from "mongoose";
 import { ChatService } from "../../../chat/chat.service";
 import ChatModule from "../modules/chat.module";
 import ChatBuilderFactory from "../data/chatBuilderFactory";
@@ -36,8 +35,6 @@ describe("ChatService.createMessage() test suite", () => {
 	it("Should not create a message if content is missing", async () => {
 		const messageToCreate = messageBuilder.build();
 		messageToCreate.content = "";
-
-		console.log("MSG: ", messageToCreate);
 
 		await expect(
 			chatService.createMessage(chatId, messageToCreate)
