@@ -4,12 +4,14 @@ import {ModelName} from "../common/enum/modelName.enum";
 import {Player} from "../player/player.schema";
 import {CharacterClass} from "../characterClass/characterClass.schema";
 import {CharacterId} from "./enum/characterId.enum";
+import {ObjectId} from "mongodb";
+import {ExtractField} from "../common/decorator/response/ExtractField";
 
 export type CustomCharacterDocument = HydratedDocument<CustomCharacter>;
 
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true }})
 export class CustomCharacter {
-    @Prop({ type: String, required: true })
+    @Prop({ type: String, required: true, enum: CharacterId  })
     characterId: CharacterId;
 
     @Prop({ type: Number, required: true })
@@ -31,7 +33,12 @@ export class CustomCharacter {
     level: number;
 
     @Prop({ type: MongooseSchema.Types.ObjectId, required: true, ref: ModelName.PLAYER })
-    player_id: Player;
+    player_id: Player | ObjectId | string;
+
+    @ExtractField()
+    _id?: string;
+
+    Player?: Player;
 }
 
 export const CustomCharacterSchema = SchemaFactory.createForClass(CustomCharacter);
