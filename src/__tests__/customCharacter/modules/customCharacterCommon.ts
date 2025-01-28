@@ -7,6 +7,7 @@ import {CustomCharacterSchema} from "../../../customCharacter/customCharacter.sc
 import {AuthorizationModule} from "../../../authorization/authorization.module";
 import {CustomCharacterService} from "../../../customCharacter/customCharacter.service";
 import {isCustomCharacterExists} from "../../../customCharacter/decorator/validation/IsCustomCharacterExists.decorator";
+import {PlayerSchema} from "../../../player/player.schema";
 
 
 export default class CustomCharacterCommonModule {
@@ -21,7 +22,8 @@ export default class CustomCharacterCommonModule {
                 imports: [
                     MongooseModule.forRoot(mongoString, mongooseOptions),
                     MongooseModule.forFeature([
-                        {name: ModelName.CUSTOM_CHARACTER, schema: CustomCharacterSchema}
+                        {name: ModelName.CUSTOM_CHARACTER, schema: CustomCharacterSchema},
+                        {name: ModelName.PLAYER, schema: PlayerSchema}
                     ]),
 
                     AuthorizationModule,
