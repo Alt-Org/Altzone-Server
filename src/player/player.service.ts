@@ -66,7 +66,7 @@ export class PlayerService
         const isClanRefCleanSuccess = await this.clearClanReferences(_id.toString());
         if(isClanRefCleanSuccess instanceof Error)
             throw new BadRequestException(isClanRefCleanSuccess.message);
-        await this.customCharacterService.deleteByCondition({player_id: _id});
+        await this.customCharacterService.deleteMany({player_id: _id});
     }
 
     public updateOnePostHook: PostHookFunction = async (input: Partial<UpdatePlayerDto>, oldDoc: Partial<Player>, output: Partial<Player>): Promise<boolean> => {

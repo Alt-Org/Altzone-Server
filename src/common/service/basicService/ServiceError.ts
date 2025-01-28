@@ -23,7 +23,7 @@ type ServiceErrorArgs = {
      * Value of the field (only if the field is specified), mostly used for validation errors
      * @default null
      */
-    value?: string,
+    value?: any,
     /**
      * Message should specify why error happen, mostly used for other developers "FYI"
      * @default null
@@ -68,7 +68,7 @@ export default class ServiceError{
     /**
      * Value of the field (only if the field is specified), mostly used for validation errors
      */
-    public value: string | null;
+    public value: any | null;
     /**
      * Message should specify why error happen, mostly used for other developers "FYI"
      */

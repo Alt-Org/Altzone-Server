@@ -1,8 +1,5 @@
-import {Body, Controller, Get, Param, Post, Put, Req} from "@nestjs/common";
-import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
-import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
+import {Body, Controller, Get, Param, Post, Put} from "@nestjs/common";
 import {_idDto} from "../common/dto/_id.dto";
-import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
 import {ModelName} from "../common/enum/modelName.enum";
 import {UpdateCustomCharacterDto} from "./dto/updateCustomCharacter.dto";
 import {CustomCharacterService} from "./customCharacter.service";
@@ -10,12 +7,17 @@ import {CreateCustomCharacterDto} from "./dto/createCustomCharacter.dto";
 import {CustomCharacterDto} from "./dto/customCharacter.dto";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {Action} from "../authorization/enum/action.enum";
-import {BasicPOST} from "../common/base/decorator/BasicPOST.decorator";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
 import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
+import {LoggedUser} from "../common/decorator/param/LoggedUser.decorator";
+import {User} from "../auth/user";
+import {UniformResponse} from "../common/decorator/response/UniformResponse";
+import {Serialize} from "../common/interceptor/response/Serialize";
+import {IncludeQuery} from "../common/decorator/param/IncludeQuery.decorator";
+import {publicReferences} from "./customCharacter.schema";
 
 @Controller('customCharacter')
 export class CustomCharacterController{
@@ -24,17 +26,18 @@ export class CustomCharacterController{
 
     @Post()
     @Authorize({action: Action.create, subject: CustomCharacterDto})
-    @BasicPOST(CreateCustomCharacterDto)
-    public create(@Body() body: CreateCustomCharacterDto) {
-        return this.service.createOne(body);
+    @Serialize(CustomCharacterDto)
+    @UniformResponse(ModelName.CUSTOM_CHARACTER)
+    public create(@Body() body: CreateCustomCharacterDto, @LoggedUser() user: User) {
+        return this.service.createOne(body, user.player_id);
     }
 
     @Get('/:_id')
     @Authorize({action: Action.read, subject: CustomCharacterDto})
-    @BasicGET(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
-    @AddGetQueries()
-    public get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id, request['mongoPopulate']);
+    @Serialize(CustomCharacterDto)
+    @UniformResponse(ModelName.CUSTOM_CHARACTER)
+    public get(@Param() param: _idDto, @IncludeQuery(publicReferences) includeRefs: ModelName[]) {
+        return this.service.readOneById(param._id, { includeRefs });
     }
 
     @Get()
@@ -42,15 +45,18 @@ export class CustomCharacterController{
     @OffsetPaginate(ModelName.CUSTOM_CHARACTER)
     @AddSearchQuery(CustomCharacterDto)
     @AddSortQuery(CustomCharacterDto)
-    @BasicGET(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
+    @Serialize(CustomCharacterDto)
+    @UniformResponse(ModelName.CUSTOM_CHARACTER)
     public async getAll(@GetAllQuery() query: IGetAllQuery) {
-        return this.service.readAll(query);
+        return this.service.readMany(query);
     }
 
     @Put()
     @Authorize({action: Action.update, subject: UpdateCustomCharacterDto})
-    @BasicPUT(ModelName.CUSTOM_CHARACTER)
-    public update(@Body() body: UpdateCustomCharacterDto){
-        return this.service.updateOneById(body);
+    @UniformResponse(ModelName.CUSTOM_CHARACTER)
+    public async update(@Body() body: UpdateCustomCharacterDto){
+        const [resp, errors] = await this.service.updateOneById(body);
+        if(errors)
+            return [null, errors];
     }
 }

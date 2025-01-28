@@ -8,6 +8,7 @@ import PlayerModule from "../modules/player.module";
 describe('PlayerService.updateOneById() test suite', () => {
     let playerService: PlayerService;
     const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
+    const updatePlayerBuilder = PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
     let existingPlayer: Player;
 
     const playerModel = PlayerModule.getPlayerModel();
@@ -29,11 +30,13 @@ describe('PlayerService.updateOneById() test suite', () => {
         expect(updatedPlayer.name).toBe(updateData.name);
     });
 
+    //TODO: sometimes it fails and does not throw any error
     it('Should throw error if the name already exists', async () => {
-        const anotherPlayerData = playerBuilder.setName('anotherName').setUniqueIdentifier('anotherName').build();
+        const notUniqueName = 'anotherName'
+        const anotherPlayerData = playerBuilder.setName(notUniqueName).setUniqueIdentifier(notUniqueName).build();
         await playerModel.create(anotherPlayerData);
 
-        const updateData = {_id: existingPlayer._id, name: 'anotherName'};
+        const updateData = updatePlayerBuilder.setId(existingPlayer._id).setName(notUniqueName).build();
 
         await expect(playerService.updateOneById(updateData)).rejects.toThrow(MongoServerError);
     });

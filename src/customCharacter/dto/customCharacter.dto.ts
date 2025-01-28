@@ -3,6 +3,8 @@ import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {PlayerDto} from "../../player/dto/player.dto";
 import {CharacterClassDto} from "../../characterClass/dto/characterClass.dto";
 import AddType from "../../common/base/decorator/AddType.decorator";
+import {IsEnum, IsInt} from "class-validator";
+import {CharacterId} from "../enum/characterId.enum";
 
 @AddType('CustomCharacterDto')
 export class CustomCharacterDto {
@@ -11,19 +13,7 @@ export class CustomCharacterDto {
     _id: string;
 
     @Expose()
-    unityKey: string;
-
-    @Expose()
-    name: string;
-
-    @Expose()
-    speed: number;
-
-    @Expose()
-    resistance: number;
-
-    @Expose()
-    attack: number;
+    characterId: CharacterId;
 
     @Expose()
     defence: number;
@@ -32,19 +22,20 @@ export class CustomCharacterDto {
     hp: number;
 
     @Expose()
+    size: number;
+
+    @Expose()
+    speed: number;
+
+    @Expose()
+    attack: number;
+
+    @Expose()
     level: number;
 
     @ExtractField()
     @Expose()
-    characterClass_id: string;
-
-    @ExtractField()
-    @Expose()
     player_id: string;
-
-    @Type(() => CharacterClassDto)
-    @Expose()
-    CharacterClass: CharacterClassDto;
 
     @Type(() => PlayerDto)
     @Expose()

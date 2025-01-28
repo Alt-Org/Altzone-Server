@@ -1,8 +1,7 @@
-import {IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
-import {IsPlayerExists} from "../../player/decorator/validation/IsPlayerExists.decorator";
-import {IsCharacterClassExists} from "../../characterClass/decorator/validation/IsCharacterClassExists.decorator";
+import {IsEnum, IsInt, IsMongoId, IsOptional} from "class-validator";
 import {IsCustomCharacterExists} from "../decorator/validation/IsCustomCharacterExists.decorator";
 import AddType from "../../common/base/decorator/AddType.decorator";
+import {CharacterId} from "../enum/characterId.enum";
 
 export const UpdateCustomCharacterType = 'UpdateCustomCharacterType';
 @AddType('UpdateCustomCharacterDto')
@@ -11,45 +10,31 @@ export class UpdateCustomCharacterDto {
     @IsMongoId()
     _id: string;
 
-    @IsString()
     @IsOptional()
-    unityKey: string;
+    @IsEnum(CharacterId)
+    characterId?: CharacterId;
 
-    @IsString()
     @IsOptional()
-    name: string;
-
     @IsInt()
-    @IsOptional()
-    speed: number;
+    defence?: number;
 
+    @IsOptional()
     @IsInt()
-    @IsOptional()
-    resistance: number;
+    hp?: number;
 
+    @IsOptional()
     @IsInt()
-    @IsOptional()
-    attack: number;
+    size?: number;
 
+    @IsOptional()
     @IsInt()
-    @IsOptional()
-    defence: number;
+    attack?: number;
 
+    @IsOptional()
     @IsInt()
-    @IsOptional()
-    hp: number;
+    speed?: number;
 
+    @IsOptional()
     @IsInt()
-    @IsOptional()
-    level: number;
-
-    @IsCharacterClassExists()
-    @IsMongoId()
-    @IsOptional()
-    characterClass_id: string;
-
-    @IsPlayerExists()
-    @IsMongoId()
-    @IsOptional()
-    player_id: string;
+    level?: number;
 }
