@@ -10,7 +10,7 @@ import {getNonExisting_id} from "../../test_utils/util/getNonExisting_id";
 
 describe('CustomCharacterService.createOne() test suite', () => {
     let characterService: CustomCharacterService;
-    const characterModel = CustomCharacterModule.getCustomCharacterModule();
+    const characterModel = CustomCharacterModule.getCustomCharacterModel();
     const createCustomCharacterBuilder = CustomCharacterBuilderFactory.getBuilder('CreateCustomCharacterDto');
 
     const player = LoggedUser.getPlayer();

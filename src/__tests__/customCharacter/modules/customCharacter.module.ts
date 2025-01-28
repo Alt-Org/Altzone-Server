@@ -13,7 +13,7 @@ export default class CustomCharacterModule {
         return await module.resolve(CustomCharacterService);
     }
 
-    static getCustomCharacterModule(){
+    static getCustomCharacterModel(){
         return mongoose.model(ModelName.CUSTOM_CHARACTER, CustomCharacterSchema);
     }
 
