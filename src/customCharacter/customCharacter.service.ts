@@ -142,7 +142,9 @@ export class CustomCharacterService {
         if(!customCharacterToUpdate || !condition)
             return [ null, [new ServiceError({ reason: SEReason.REQUIRED, message: 'method params are required' })] ];
 
-        return this.basicService.updateOne(customCharacterToUpdate, condition);
+        const {_id, ...fieldsToUpdate} = {...customCharacterToUpdate, _id: null};
+
+        return this.basicService.updateOne(fieldsToUpdate, condition);
     }
 
     /**
