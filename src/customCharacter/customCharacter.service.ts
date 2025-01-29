@@ -5,14 +5,18 @@ import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
 import {CustomCharacter} from "./customCharacter.schema";
-import {IServiceReturn, TIServiceReadManyOptions, TReadByIdOptions} from "../common/service/basicService/IService";
+import {
+    IServiceReturn,
+    TIServiceReadManyOptions, TIServiceReadOneOptions, TIServiceUpdateManyOptions,
+    TIServiceUpdateOneOptions,
+    TReadByIdOptions
+} from "../common/service/basicService/IService";
 import {CreateCustomCharacterDto} from "./dto/createCustomCharacter.dto";
 import ServiceError from "../common/service/basicService/ServiceError";
 import {SEReason} from "../common/service/basicService/SEReason";
 import {Player} from "../player/player.schema";
 import BasicService from "../common/service/basicService/BasicService";
 import {CharacterBaseStats} from "./const/CharacterBaseStats";
-import {ItemDto} from "../clanInventory/item/dto/item.dto";
 import {UpdateCustomCharacterDto} from "./dto/updateCustomCharacter.dto";
 
 @Injectable()
@@ -65,14 +69,31 @@ export class CustomCharacterService {
      *
      * @returns CustomCharacter with the given _id on succeed or SE NOT_FOUND if nothing was found or REQUIRED if _id is not provided
      */
-    async readOneById(_id: string, options?: TReadByIdOptions) {
+    async readOneById(_id: string, options?: TReadByIdOptions): Promise<IServiceReturn<CustomCharacter>> {
         if(!_id)
             return [ null, [new ServiceError({ reason: SEReason.REQUIRED, message: '_id is required', field: '_id', value: _id })] ];
 
         let optionsToApply = options;
         if(options?.includeRefs)
             optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
-        return this.basicService.readOneById<ItemDto>(_id, optionsToApply);
+        return this.basicService.readOneById<CustomCharacter>(_id, optionsToApply);
+    }
+
+    /**
+     * Reads a custom character by specified condition.
+     *
+     * @param options - Options for reading the character.
+     *
+     * @returns found CustomCharacter or SE NOT_FOUND if nothing was found or REQUIRED if options param is not provided
+     */
+    async readOne(options: TIServiceReadOneOptions<CustomCharacter>): Promise<IServiceReturn<CustomCharacter>> {
+        if(!options)
+            return [ null, [new ServiceError({ reason: SEReason.REQUIRED, message: 'options param is required', field: 'options', value: options })] ];
+
+        let optionsToApply = options;
+        if(options?.includeRefs)
+            optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
+        return this.basicService.readOne<CustomCharacter>(optionsToApply);
     }
 
     /**
@@ -96,7 +117,7 @@ export class CustomCharacterService {
      *
      * @param customCharacterToUpdate - The data needs to be updated for the custom character.
      *
-     * @returns _true_ if CustomCharacter was updated successfully, _false_ if nothing was updated for the Item,
+     * @returns _true_ if CustomCharacter was updated successfully, _false_ if nothing was updated for the CustomCharacter,
      * SE REQUIRED if _id is not provided or SE NOT_FOUND if no characters were found
      */
     async updateOneById(customCharacterToUpdate: UpdateCustomCharacterDto) {
@@ -106,6 +127,22 @@ export class CustomCharacterService {
             return [ null, [new ServiceError({ reason: SEReason.REQUIRED, message: '_id is required', field: '_id', value: _id })] ];
 
         return this.basicService.updateOneById(_id, fieldsToUpdate);
+    }
+
+    /**
+     * Updates a custom character by specified condition in DB.
+     *
+     * @param customCharacterToUpdate - The data needs to be updated for the custom character.
+     * @param condition - Condition on which to update
+     *
+     * @returns _true_ if CustomCharacter was updated successfully, _false_ if nothing was updated for the CustomCharacter,
+     * SE REQUIRED if params are not provided or SE NOT_FOUND if no character were found
+     */
+    async updateOneByCondition(customCharacterToUpdate: Partial<CustomCharacter>, condition: TIServiceUpdateOneOptions<CustomCharacter>) {
+        if(!customCharacterToUpdate || !condition)
+            return [ null, [new ServiceError({ reason: SEReason.REQUIRED, message: 'method params are required' })] ];
+
+        return this.basicService.updateOne(customCharacterToUpdate, condition);
     }
 
     /**
