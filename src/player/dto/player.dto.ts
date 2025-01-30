@@ -33,6 +33,9 @@ export class PlayerDto {
     @Expose()
     gameStatistics: GameStatisticsDto;
 
+    @Expose()
+    currentAvatarId?: string;
+
     @ExtractField()
     @Expose()
     profile_id: string;
@@ -43,7 +46,7 @@ export class PlayerDto {
 
     @ExtractField()
     @Expose()
-    currentCustomCharacter_id: string;
+    currentCustomCharacter_id?: string;
 
     @Type(() => ClanDto)
     @Expose()

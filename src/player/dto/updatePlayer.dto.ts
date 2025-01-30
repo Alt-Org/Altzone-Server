@@ -12,15 +12,15 @@ export class UpdatePlayerDto {
 
     @IsString()
     @IsOptional()
-    name: string;
+    name?: string;
 
     @IsInt()
     @IsOptional()
-    backpackCapacity: number;
+    backpackCapacity?: number;
 
     @IsString()
     @IsOptional()
-    uniqueIdentifier: string;
+    uniqueIdentifier?: string;
 
     @IsOptional()
     @IsBoolean()
@@ -30,18 +30,22 @@ export class UpdatePlayerDto {
     @IsBoolean()
     parentalAuth?: boolean;
 
-    @IsClanExists()
-    @IsMongoId()
+    @IsString()
     @IsOptional()
-    clan_id: string;
+    currentAvatarId?: string;
 
     @IsClanExists()
     @IsMongoId()
     @IsOptional()
-    clan_idToDelete: string;
+    clan_id?: string;
+
+    @IsClanExists()
+    @IsMongoId()
+    @IsOptional()
+    clan_idToDelete?: string;
 
     @IsCustomCharacterExists()
     @IsMongoId()
     @IsOptional()
-    currentCustomCharacter_id: string;
+    currentCustomCharacter_id?: string;
 }
