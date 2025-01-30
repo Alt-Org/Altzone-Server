@@ -8,7 +8,9 @@ export default class CreatePlayerDtoBuilder implements IDataBuilder<CreatePlayer
         uniqueIdentifier: 'unique-id',
         above13: true,
         parentalAuth: false,
-        profile_id: undefined
+        currentAvatarId: 'defaultAvatar',
+        profile_id: undefined,
+        currentCustomCharacter_id: undefined
     };
 
     build(): CreatePlayerDto {
