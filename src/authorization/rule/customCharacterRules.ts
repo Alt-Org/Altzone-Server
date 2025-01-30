@@ -14,15 +14,20 @@ type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
 export const customCharacterRules: RulesSetterAsync<Ability, Subjects> = async (user, subject, action, subjectObj, requestHelperService) => {
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
+    //
+    // if(action === Action.create || action === Action.read){
+    //     const publicFields = ['_id', 'unityKey', 'name', 'speed', 'resistance', 'resistance', 'defence', 'player_id'];
+    //     can(Action.create_request, subject);
+    //
+    //     can(Action.read_request, subject);
+    //     can(Action.read_response, subject, publicFields);
+    //     can(Action.read_response, subject, {player_id: user.player_id});
+    // }
 
-    if(action === Action.create || action === Action.read){
-        const publicFields = ['_id', 'unityKey', 'name', 'speed', 'resistance', 'resistance', 'defence', 'player_id'];
-        can(Action.create_request, subject, {player_id: user.player_id});
+    can(Action.create_request, subject);
 
-        can(Action.read_request, subject);
-        can(Action.read_response, subject, publicFields);
-        can(Action.read_response, subject, {player_id: user.player_id});
-    }
+    can(Action.read_request, subject);
+    can(Action.read_response, subject);
 
     if(action === Action.update || action === Action.delete){
         const customCharacters = await getCustomCharacter(user, requestHelperService);

@@ -36,8 +36,8 @@ export class CustomCharacterController{
     @Authorize({action: Action.read, subject: CustomCharacterDto})
     @Serialize(CustomCharacterDto)
     @UniformResponse(ModelName.CUSTOM_CHARACTER)
-    public get(@Param() param: _idDto, @IncludeQuery(publicReferences) includeRefs: ModelName[]) {
-        return this.service.readOneById(param._id, { includeRefs });
+    public async get(@Param() param: _idDto, @IncludeQuery(publicReferences) includeRefs: ModelName[], @LoggedUser() user: User) {
+        return this.service.readOne({ includeRefs, filter: { _id: param._id, player_id: user.player_id } });
     }
 
     @Get()
@@ -47,15 +47,15 @@ export class CustomCharacterController{
     @AddSortQuery(CustomCharacterDto)
     @Serialize(CustomCharacterDto)
     @UniformResponse(ModelName.CUSTOM_CHARACTER)
-    public async getAll(@GetAllQuery() query: IGetAllQuery) {
-        return this.service.readMany(query);
+    public async getAll(@GetAllQuery() query: IGetAllQuery, @LoggedUser() user: User) {
+        return this.service.readMany({...query, filter: {...query.filter, player_id: user.player_id}});
     }
 
     @Put()
     @Authorize({action: Action.update, subject: UpdateCustomCharacterDto})
     @UniformResponse(ModelName.CUSTOM_CHARACTER)
-    public async update(@Body() body: UpdateCustomCharacterDto){
-        const [resp, errors] = await this.service.updateOneById(body);
+    public async update(@Body() body: UpdateCustomCharacterDto, @LoggedUser() user: User){
+        const [resp, errors] = await this.service.updateOneByCondition(body, { filter: { player_id:  user.player_id } });
         if(errors)
             return [null, errors];
     }
