@@ -1,5 +1,6 @@
 import {CreatePlayerDto} from "../../../../player/dto/createPlayer.dto";
 import IDataBuilder from "../../../test_utils/interface/IDataBuilder";
+import {ObjectId} from "mongodb";
 
 export default class CreatePlayerDtoBuilder implements IDataBuilder<CreatePlayerDto> {
     private readonly base: CreatePlayerDto = {
@@ -42,8 +43,18 @@ export default class CreatePlayerDtoBuilder implements IDataBuilder<CreatePlayer
         return this;
     }
 
+    setCurrentAvatarId(currentAvatarId: string) {
+        this.base.currentAvatarId = currentAvatarId;
+        return this;
+    }
+
     setProfileId(profileId: string) {
         this.base.profile_id = profileId;
+        return this;
+    }
+
+    setCurrentCustomCharacterId(characterId: string | ObjectId) {
+        this.base.currentCustomCharacter_id = characterId as any;
         return this;
     }
 }

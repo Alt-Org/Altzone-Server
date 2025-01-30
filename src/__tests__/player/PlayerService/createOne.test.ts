@@ -1,8 +1,9 @@
 import {MongooseError} from "mongoose";
-import {MongoServerError} from "mongodb";
+import {MongoServerError, ObjectId} from "mongodb";
 import PlayerBuilderFactory from "../data/playerBuilderFactory";
 import PlayerModule from "../modules/player.module";
 import {PlayerService} from "../../../player/player.service";
+import {clearDBRespDefaultFields} from "../../test_utils/util/removeDBDefaultFields";
 
 describe('PlayerService.createOne() test suite', () => {
     let playerService: PlayerService;
@@ -31,10 +32,13 @@ describe('PlayerService.createOne() test suite', () => {
 
         const resp = await playerService.createOne(playerToCreate);
 
-        const data = resp['data']['Player'].toObject();
+        const data = resp['data']['Player'];
+        const clearedData = clearDBRespDefaultFields(data);
 
-        const {profile_id, ...playerWithNoProfile} = playerToCreate;
-        expect(data).toMatchObject(playerWithNoProfile);
+        const {profile_id, currentCustomCharacter_id, ...expectedFields} = playerToCreate;
+        expect(clearedData).toEqual(expect.objectContaining({
+            ...expectedFields, _id: expect.any(ObjectId), points: expect.any(Number)
+        }));
 
         expect(resp['metaData']).toEqual({
             dataKey: 'Player',
