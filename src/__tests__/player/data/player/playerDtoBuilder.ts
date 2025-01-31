@@ -13,7 +13,7 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto>{
         uniqueIdentifier: 'unique-id',
         above13: true,
         parentalAuth: false,
-        currentAvatarId: 'defaultAvatar',
+        currentAvatarId: 101,
         gameStatistics: {
             diamondsAmount: 0,
             participatedVotings: 0,
@@ -23,7 +23,7 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto>{
         },
         profile_id: 'profile-id',
         clan_id: 'clan-id',
-        currentCustomCharacter_id: 'character-id',
+        battleCharacter_ids: [],
         Clan: undefined,
         CustomCharacter: []
     };
@@ -67,7 +67,7 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto>{
         return this;
     }
 
-    setCurrentAvatarId(currentAvatarId: string) {
+    setCurrentAvatarId(currentAvatarId: number) {
         this.base.currentAvatarId = currentAvatarId;
         return this;
     }
@@ -87,8 +87,8 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto>{
         return this;
     }
 
-    setCurrentCustomCharacterId(characterId: string) {
-        this.base.currentCustomCharacter_id = characterId;
+    setBattleCharacterIds(_ids: string[] | ObjectId[]) {
+        this.base.battleCharacter_ids = _ids as any;
         return this;
     }
 

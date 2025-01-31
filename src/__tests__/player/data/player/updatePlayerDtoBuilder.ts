@@ -12,7 +12,7 @@ export default class UpdatePlayerDtoBuilder {
         currentAvatarId: undefined,
         clan_id: undefined,
         clan_idToDelete: undefined,
-        currentCustomCharacter_id: undefined
+        battleCharacter_ids: undefined
     };
 
     build(): UpdatePlayerDto {
@@ -49,7 +49,7 @@ export default class UpdatePlayerDtoBuilder {
         return this;
     }
 
-    setCurrentAvatarId(currentAvatarId: string) {
+    setCurrentAvatarId(currentAvatarId: number) {
         this.base.currentAvatarId = currentAvatarId;
         return this;
     }
@@ -64,8 +64,8 @@ export default class UpdatePlayerDtoBuilder {
         return this;
     }
 
-    setCurrentCustomCharacterId(characterId: string | ObjectId) {
-        this.base.currentCustomCharacter_id = characterId as any;
+    setBattleCharacterIds(_ids: string[] | ObjectId[]) {
+        this.base.battleCharacter_ids = _ids as any;
         return this;
     }
 }
