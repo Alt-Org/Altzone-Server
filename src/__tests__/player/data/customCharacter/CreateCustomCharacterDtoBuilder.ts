@@ -1,5 +1,5 @@
-import {CreateCustomCharacterDto} from "../../../../customCharacter/dto/createCustomCharacter.dto";
-import {CharacterId} from "../../../../customCharacter/enum/characterId.enum";
+import {CreateCustomCharacterDto} from "../../../../player/customCharacter/dto/createCustomCharacter.dto";
+import {CharacterId} from "../../../../player/customCharacter/enum/characterId.enum";
 
 export default class CreateCustomCharacterDtoBuilder {
     private readonly base: CreateCustomCharacterDto = {

@@ -1,15 +1,15 @@
-import {CustomCharacterService} from "../../../customCharacter/customCharacter.service";
-import CustomCharacterModule from "../modules/customCharacter.module";
-import CustomCharacterBuilderFactory from "../data/customCharacterBuilderFactory";
-import {clearDBRespDefaultFields} from "../../test_utils/util/removeDBDefaultFields";
-import {getNonExisting_id} from "../../test_utils/util/getNonExisting_id";
-import {CharacterId} from "../../../customCharacter/enum/characterId.enum";
+import {CustomCharacterService} from "../../../../player/customCharacter/customCharacter.service";
+import {clearDBRespDefaultFields} from "../../../test_utils/util/removeDBDefaultFields";
+import {getNonExisting_id} from "../../../test_utils/util/getNonExisting_id";
+import {CharacterId} from "../../../../player/customCharacter/enum/characterId.enum";
 import {ObjectId} from "mongodb";
+import CustomCharacterModule from "../../modules/customCharacter.module";
+import PlayerBuilderFactory from "../../data/playerBuilderFactory";
 
 describe('CustomCharacterService.deleteMany() test suite', () => {
     let characterService: CustomCharacterService;
     const characterModel = CustomCharacterModule.getCustomCharacterModel();
-    const customCharacterBuilder = CustomCharacterBuilderFactory.getBuilder('CustomCharacter');
+    const customCharacterBuilder = PlayerBuilderFactory.getBuilder('CustomCharacter');
 
     const characterId = CharacterId.Prankster_202;
 

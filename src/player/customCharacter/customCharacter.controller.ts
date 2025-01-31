@@ -1,22 +1,22 @@
 import {Body, Controller, Get, Param, Post, Put} from "@nestjs/common";
-import {_idDto} from "../common/dto/_id.dto";
-import {ModelName} from "../common/enum/modelName.enum";
+import {_idDto} from "../../common/dto/_id.dto";
+import {ModelName} from "../../common/enum/modelName.enum";
 import {UpdateCustomCharacterDto} from "./dto/updateCustomCharacter.dto";
 import {CustomCharacterService} from "./customCharacter.service";
 import {CreateCustomCharacterDto} from "./dto/createCustomCharacter.dto";
 import {CustomCharacterDto} from "./dto/customCharacter.dto";
-import {Authorize} from "../authorization/decorator/Authorize";
-import {Action} from "../authorization/enum/action.enum";
-import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
-import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
-import {IGetAllQuery} from "../common/interface/IGetAllQuery";
-import { OffsetPaginate } from "../common/interceptor/request/offsetPagination.interceptor";
-import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interceptor";
-import {LoggedUser} from "../common/decorator/param/LoggedUser.decorator";
-import {User} from "../auth/user";
-import {UniformResponse} from "../common/decorator/response/UniformResponse";
-import {Serialize} from "../common/interceptor/response/Serialize";
-import {IncludeQuery} from "../common/decorator/param/IncludeQuery.decorator";
+import {Authorize} from "../../authorization/decorator/Authorize";
+import {Action} from "../../authorization/enum/action.enum";
+import {AddSearchQuery} from "../../common/interceptor/request/addSearchQuery.interceptor";
+import {GetAllQuery} from "../../common/decorator/param/GetAllQuery";
+import {IGetAllQuery} from "../../common/interface/IGetAllQuery";
+import { OffsetPaginate } from "../../common/interceptor/request/offsetPagination.interceptor";
+import { AddSortQuery } from "../../common/interceptor/request/addSortQuery.interceptor";
+import {LoggedUser} from "../../common/decorator/param/LoggedUser.decorator";
+import {User} from "../../auth/user";
+import {UniformResponse} from "../../common/decorator/response/UniformResponse";
+import {Serialize} from "../../common/interceptor/response/Serialize";
+import {IncludeQuery} from "../../common/decorator/param/IncludeQuery.decorator";
 import {publicReferences} from "./customCharacter.schema";
 
 @Controller('customCharacter')
@@ -49,6 +49,14 @@ export class CustomCharacterController{
     @UniformResponse(ModelName.CUSTOM_CHARACTER)
     public async getAll(@GetAllQuery() query: IGetAllQuery, @LoggedUser() user: User) {
         return this.service.readMany({...query, filter: {...query.filter, player_id: user.player_id}});
+    }
+
+    @Get()
+    @Authorize({action: Action.read, subject: CustomCharacterDto})
+    @Serialize(CustomCharacterDto)
+    @UniformResponse(ModelName.CUSTOM_CHARACTER)
+    public async getBattleCharacters(@LoggedUser() user: User) {
+        return this.service.readMany({filter: {player_id: user.player_id}});
     }
 
     @Put()

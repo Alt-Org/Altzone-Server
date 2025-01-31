@@ -6,7 +6,6 @@ import {ModelName} from "../common/enum/modelName.enum";
 import {CharacterClassController} from "./characterClass.controller";
 import {CharacterClassService} from "./characterClass.service";
 import {isCharacterClassExists} from "./decorator/validation/IsCharacterClassExists.decorator";
-import {CustomCharacterModule} from "../customCharacter/customCharacter.module";
 
 //Modules are used by Nest, just copy paste and adjust to your needs
 @Module({
@@ -14,7 +13,6 @@ import {CustomCharacterModule} from "../customCharacter/customCharacter.module";
         //What model the controller or service uses (for mongoose)
         MongooseModule.forFeature([ {name: ModelName.CHARACTER_CLASS, schema: CharacterClassSchema} ]),
         //What other modules (services etc.) this module use
-        CustomCharacterModule,
         RequestHelperModule
     ],
     controllers: [CharacterClassController],

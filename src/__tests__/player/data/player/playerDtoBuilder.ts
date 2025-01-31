@@ -1,5 +1,5 @@
 import {PlayerDto} from "../../../../player/dto/player.dto";
-import {CustomCharacterDto} from "../../../../customCharacter/dto/customCharacter.dto";
+import {CustomCharacterDto} from "../../../../player/customCharacter/dto/customCharacter.dto";
 import {ClanDto} from "../../../../clan/dto/clan.dto";
 import IDataBuilder from "../../../test_utils/interface/IDataBuilder";
 import {ObjectId} from "mongodb";

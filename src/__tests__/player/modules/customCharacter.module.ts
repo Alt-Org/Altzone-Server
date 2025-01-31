@@ -1,15 +1,15 @@
 import mongoose from "mongoose";
-import CustomCharacterCommonModule from "./customCharacterCommon";
 import { ModelName } from "../../../common/enum/modelName.enum";
-import {CustomCharacterService} from "../../../customCharacter/customCharacter.service";
-import {CustomCharacterSchema} from "../../../customCharacter/customCharacter.schema";
-import {isCustomCharacterExists} from "../../../customCharacter/decorator/validation/IsCustomCharacterExists.decorator";
+import {CustomCharacterService} from "../../../player/customCharacter/customCharacter.service";
+import {CustomCharacterSchema} from "../../../player/customCharacter/customCharacter.schema";
+import {isCustomCharacterExists} from "../../../player/customCharacter/decorator/validation/IsCustomCharacterExists.decorator";
+import PlayerCommonModule from "./playerCommon.module";
 
 export default class CustomCharacterModule {
     private constructor() {}
 
     static async getCustomCharacterService(){
-        const module = await CustomCharacterCommonModule.getModule();
+        const module = await PlayerCommonModule.getModule();
         return await module.resolve(CustomCharacterService);
     }
 
@@ -18,7 +18,7 @@ export default class CustomCharacterModule {
     }
 
     static async getIsCustomCharacterExists(){
-        const module = await CustomCharacterCommonModule.getModule();
+        const module = await PlayerCommonModule.getModule();
         return await module.resolve(isCustomCharacterExists);
     }
 }

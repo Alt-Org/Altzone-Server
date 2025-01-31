@@ -1,26 +1,21 @@
-import {UpdateCustomCharacterDto} from "../../../../customCharacter/dto/updateCustomCharacter.dto";
+import {CustomCharacter} from "../../../../player/customCharacter/customCharacter.schema";
 import {ObjectId} from "mongodb";
-import {CharacterId} from "../../../../customCharacter/enum/characterId.enum";
+import {CharacterId} from "../../../../player/customCharacter/enum/characterId.enum";
 
-export default class UpdateCustomCharacterDtoBuilder {
-    private readonly base: UpdateCustomCharacterDto = {
-        _id: undefined,
-        characterId: undefined,
-        speed: undefined,
-        size: undefined,
-        attack: undefined,
-        defence: undefined,
-        hp: undefined,
-        level: undefined
+export default class CustomCharacterBuilder {
+    private readonly base: CustomCharacter = {
+        characterId: CharacterId.Prankster_202,
+        speed: 10,
+        size: 10,
+        attack: 10,
+        defence: 10,
+        hp: 100,
+        level: 1,
+        player_id: undefined
     };
 
-    build(): UpdateCustomCharacterDto {
-        return { ...this.base } as UpdateCustomCharacterDto;
-    }
-
-    setId(_id: string | ObjectId) {
-        this.base._id = _id as any;
-        return this;
+    build(): CustomCharacter {
+        return { ...this.base } as CustomCharacter;
     }
 
     setCharacterId(characterId: CharacterId) {
@@ -55,6 +50,11 @@ export default class UpdateCustomCharacterDtoBuilder {
 
     setLevel(level: number) {
         this.base.level = level;
+        return this;
+    }
+
+    setPlayerId(playerId: string | ObjectId) {
+        this.base.player_id = playerId as any;
         return this;
     }
 }

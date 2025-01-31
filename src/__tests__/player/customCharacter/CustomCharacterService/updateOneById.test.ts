@@ -1,14 +1,14 @@
 import {ObjectId} from "mongodb";
-import {getNonExisting_id} from "../../test_utils/util/getNonExisting_id";
-import {clearDBRespDefaultFields} from "../../test_utils/util/removeDBDefaultFields";
-import {CustomCharacterService} from "../../../customCharacter/customCharacter.service";
-import CustomCharacterBuilderFactory from "../data/customCharacterBuilderFactory";
-import CustomCharacterModule from "../modules/customCharacter.module";
+import {getNonExisting_id} from "../../../test_utils/util/getNonExisting_id";
+import {clearDBRespDefaultFields} from "../../../test_utils/util/removeDBDefaultFields";
+import {CustomCharacterService} from "../../../../player/customCharacter/customCharacter.service";
+import PlayerBuilderFactory from "../../data/playerBuilderFactory";
+import CustomCharacterModule from "../../modules/customCharacter.module";
 
 describe('CustomCharacter.updateOneById() test suite', () => {
     let characterService: CustomCharacterService;
-    const characterBuilder = CustomCharacterBuilderFactory.getBuilder('CustomCharacter');
-    const characterUpdateBuilder = CustomCharacterBuilderFactory.getBuilder('UpdateCustomCharacterDto');
+    const characterBuilder = PlayerBuilderFactory.getBuilder('CustomCharacter');
+    const characterUpdateBuilder = PlayerBuilderFactory.getBuilder('UpdateCustomCharacterDto');
     const characterModel = CustomCharacterModule.getCustomCharacterModel();
     const existingCharacter = characterBuilder.setPlayerId(new ObjectId(getNonExisting_id())).setSize(10).build();
 

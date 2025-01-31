@@ -1,17 +1,17 @@
-import {CustomCharacterService} from "../../../customCharacter/customCharacter.service";
-import CustomCharacterModule from "../modules/customCharacter.module";
-import CustomCharacterBuilderFactory from "../data/customCharacterBuilderFactory";
-import {CharacterId} from "../../../customCharacter/enum/characterId.enum";
-import {clearDBRespDefaultFields} from "../../test_utils/util/removeDBDefaultFields";
-import {ModelName} from "../../../common/enum/modelName.enum";
-import LoggedUser from "../../test_utils/const/loggedUser";
-import {CustomCharacter} from "../../../customCharacter/customCharacter.schema";
+import {CustomCharacterService} from "../../../../player/customCharacter/customCharacter.service";
+import {CharacterId} from "../../../../player/customCharacter/enum/characterId.enum";
+import {clearDBRespDefaultFields} from "../../../test_utils/util/removeDBDefaultFields";
+import {ModelName} from "../../../../common/enum/modelName.enum";
+import LoggedUser from "../../../test_utils/const/loggedUser";
+import {CustomCharacter} from "../../../../player/customCharacter/customCharacter.schema";
 import {ObjectId} from "mongodb";
+import CustomCharacterModule from "../../modules/customCharacter.module";
+import PlayerBuilderFactory from "../../data/playerBuilderFactory";
 
 describe('CustomCharacterService.readMany() test suite', () => {
     let characterService: CustomCharacterService;
     const characterModel = CustomCharacterModule.getCustomCharacterModel();
-    const characterBuilder = CustomCharacterBuilderFactory.getBuilder('CustomCharacter');
+    const characterBuilder = PlayerBuilderFactory.getBuilder('CustomCharacter');
 
     const characterId = CharacterId.Prankster_202;
     const player = LoggedUser.getPlayer();

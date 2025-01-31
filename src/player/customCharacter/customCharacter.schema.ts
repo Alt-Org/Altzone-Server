@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
-import {ModelName} from "../common/enum/modelName.enum";
-import {Player} from "../player/player.schema";
+import {ModelName} from "../../common/enum/modelName.enum";
+import {Player} from "../player.schema";
 import {CharacterId} from "./enum/characterId.enum";
 import {ObjectId} from "mongodb";
-import {ExtractField} from "../common/decorator/response/ExtractField";
+import {ExtractField} from "../../common/decorator/response/ExtractField";
 
 export type CustomCharacterDocument = HydratedDocument<CustomCharacter>;
 

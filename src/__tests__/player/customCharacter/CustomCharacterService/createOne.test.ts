@@ -1,17 +1,17 @@
-import {CustomCharacterService} from "../../../customCharacter/customCharacter.service";
-import CustomCharacterModule from "../modules/customCharacter.module";
-import CustomCharacterBuilderFactory from "../data/customCharacterBuilderFactory";
-import LoggedUser from "../../test_utils/const/loggedUser";
-import {clearDBRespDefaultFields} from "../../test_utils/util/removeDBDefaultFields";
-import {CharacterId} from "../../../customCharacter/enum/characterId.enum";
-import {CharacterBaseStats} from "../../../customCharacter/const/CharacterBaseStats";
+import {CustomCharacterService} from "../../../../player/customCharacter/customCharacter.service";
+import LoggedUser from "../../../test_utils/const/loggedUser";
+import {clearDBRespDefaultFields} from "../../../test_utils/util/removeDBDefaultFields";
+import {CharacterId} from "../../../../player/customCharacter/enum/characterId.enum";
+import {CharacterBaseStats} from "../../../../player/customCharacter/const/CharacterBaseStats";
 import {ObjectId} from "mongodb";
-import {getNonExisting_id} from "../../test_utils/util/getNonExisting_id";
+import {getNonExisting_id} from "../../../test_utils/util/getNonExisting_id";
+import CustomCharacterModule from "../../modules/customCharacter.module";
+import PlayerBuilderFactory from "../../data/playerBuilderFactory";
 
 describe('CustomCharacterService.createOne() test suite', () => {
     let characterService: CustomCharacterService;
     const characterModel = CustomCharacterModule.getCustomCharacterModel();
-    const createCustomCharacterBuilder = CustomCharacterBuilderFactory.getBuilder('CreateCustomCharacterDto');
+    const createCustomCharacterBuilder = PlayerBuilderFactory.getBuilder('CreateCustomCharacterDto');
 
     const player = LoggedUser.getPlayer();
 

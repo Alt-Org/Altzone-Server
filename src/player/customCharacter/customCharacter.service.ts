@@ -1,21 +1,21 @@
 import {Injectable} from "@nestjs/common";
 import {Model, Types} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
-import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
-import {ModelName} from "../common/enum/modelName.enum";
+import {RequestHelperService} from "../../requestHelper/requestHelper.service";
+import {IgnoreReferencesType} from "../../common/type/ignoreReferences.type";
+import {ModelName} from "../../common/enum/modelName.enum";
 import {CustomCharacter} from "./customCharacter.schema";
 import {
     IServiceReturn,
     TIServiceReadManyOptions, TIServiceReadOneOptions, TIServiceUpdateManyOptions,
     TIServiceUpdateOneOptions,
     TReadByIdOptions
-} from "../common/service/basicService/IService";
+} from "../../common/service/basicService/IService";
 import {CreateCustomCharacterDto} from "./dto/createCustomCharacter.dto";
-import ServiceError from "../common/service/basicService/ServiceError";
-import {SEReason} from "../common/service/basicService/SEReason";
-import {Player} from "../player/player.schema";
-import BasicService from "../common/service/basicService/BasicService";
+import ServiceError from "../../common/service/basicService/ServiceError";
+import {SEReason} from "../../common/service/basicService/SEReason";
+import {Player} from "../player.schema";
+import BasicService from "../../common/service/basicService/BasicService";
 import {CharacterBaseStats} from "./const/CharacterBaseStats";
 import {UpdateCustomCharacterDto} from "./dto/updateCustomCharacter.dto";
 
@@ -110,6 +110,21 @@ export class CustomCharacterService {
         if(options?.includeRefs)
             optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
         return this.basicService.readMany<CustomCharacter>(optionsToApply);
+    }
+
+    /**
+     * Reads custom characters that player has chosen as a battle characters
+     *
+     * @param player_id - player _id for which characters to get
+     *
+     * @return found custom characters, or NOT_FOUND if nothing was found, or SE REQUIRED if the player_id is null or undefined
+     */
+    public readPlayerBattleCharacters = async (player_id: string): Promise<IServiceReturn<CustomCharacter[]>> => {
+        // let optionsToApply = options;
+        // if(options?.includeRefs)
+        //     optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
+        // return this.basicService.readMany<CustomCharacter>({ filter: { pla } });
+        return undefined;
     }
 
     /**
