@@ -1,9 +1,7 @@
 import {Expose, Type} from "class-transformer";
-import {ExtractField} from "../../common/decorator/response/ExtractField";
-import {PlayerDto} from "../../player/dto/player.dto";
-import {CharacterClassDto} from "../../characterClass/dto/characterClass.dto";
-import AddType from "../../common/base/decorator/AddType.decorator";
-import {IsEnum, IsInt} from "class-validator";
+import {ExtractField} from "../../../common/decorator/response/ExtractField";
+import {PlayerDto} from "../../dto/player.dto";
+import AddType from "../../../common/base/decorator/AddType.decorator";
 import {CharacterId} from "../enum/characterId.enum";
 
 @AddType('CustomCharacterDto')

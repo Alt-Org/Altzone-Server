@@ -6,7 +6,7 @@ import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
 import {ModelName} from "../common/enum/modelName.enum";
-import {CustomCharacterService} from "../customCharacter/customCharacter.service";
+import {CustomCharacterService} from "./customCharacter/customCharacter.service";
 import {BasicServiceDummyAbstract} from "../common/base/abstract/basicServiceDummy.abstract";
 import {AddBasicService} from "../common/base/decorator/AddBasicService.decorator";
 import {ClanDto} from "../clan/dto/clan.dto";

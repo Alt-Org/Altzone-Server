@@ -3,16 +3,23 @@ import PlayerDtoBuilder from "./player/playerDtoBuilder";
 import UpdatePlayerDtoBuilder from "./player/updatePlayerDtoBuilder";
 import PlayerBuilder from "./player/playerBuilder";
 import GameStatisticsBuilder from "./player/gameStatisticsBuilder";
+import CreateCustomCharacterDtoBuilder from "./customCharacter/CreateCustomCharacterDtoBuilder";
+import CustomCharacterBuilder from "./customCharacter/CustomCharacterBuilder";
+import UpdateCustomCharacterDtoBuilder from "./customCharacter/UpdateCustomCharacterDtoBuilder";
 
 type BuilderName =
-    'CreatePlayerDto' | 'PlayerDto' | 'UpdatePlayerDto' | 'Player' | 'GameStatistics';
+    'CreatePlayerDto' | 'PlayerDto' | 'UpdatePlayerDto' | 'Player' | 'GameStatistics' |
+    'CreateCustomCharacterDto' | 'CustomCharacter' | 'UpdateCustomCharacterDto';
 
 type BuilderMap = {
     CreatePlayerDto: CreatePlayerDtoBuilder,
     PlayerDto: PlayerDtoBuilder,
     UpdatePlayerDto: UpdatePlayerDtoBuilder,
     Player: PlayerBuilder,
-    GameStatistics: GameStatisticsBuilder
+    GameStatistics: GameStatisticsBuilder,
+    CreateCustomCharacterDto: CreateCustomCharacterDtoBuilder,
+    CustomCharacter: CustomCharacterBuilder,
+    UpdateCustomCharacterDto: UpdateCustomCharacterDtoBuilder
 };
 
 export default class PlayerBuilderFactory {
@@ -28,6 +35,12 @@ export default class PlayerBuilderFactory {
                 return new PlayerBuilder() as BuilderMap[T];
             case 'GameStatistics':
                 return new GameStatisticsBuilder() as BuilderMap[T];
+            case 'CreateCustomCharacterDto':
+                return new CreateCustomCharacterDtoBuilder() as BuilderMap[T];
+            case 'CustomCharacter':
+                return new CustomCharacterBuilder() as BuilderMap[T];
+            case 'UpdateCustomCharacterDto':
+                return new UpdateCustomCharacterDtoBuilder() as BuilderMap[T];
             default:
                 throw new Error(`Unknown builder name: ${builderName}`);
         }

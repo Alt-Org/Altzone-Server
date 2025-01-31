@@ -3,7 +3,7 @@ import {AbilityBuilder, createMongoAbility, ExtractSubjectType} from "@casl/abil
 import {User} from "../../auth/user";
 import {Action} from "../enum/action.enum";
 import {InferSubjects, MongoAbility} from "@casl/ability/dist/types";
-import {CustomCharacterDto} from "../../customCharacter/dto/customCharacter.dto";
+import {CustomCharacterDto} from "../../player/customCharacter/dto/customCharacter.dto";
 import {RequestHelperService} from "../../requestHelper/requestHelper.service";
 import {ModelName} from "../../common/enum/modelName.enum";
 import {RulesSetterAsync} from "../type/RulesSetter.type";

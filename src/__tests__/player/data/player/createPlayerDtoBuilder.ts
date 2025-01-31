@@ -1,5 +1,6 @@
 import {CreatePlayerDto} from "../../../../player/dto/createPlayer.dto";
 import IDataBuilder from "../../../test_utils/interface/IDataBuilder";
+import {ObjectId} from "mongodb";
 
 export default class CreatePlayerDtoBuilder implements IDataBuilder<CreatePlayerDto> {
     private readonly base: CreatePlayerDto = {
@@ -8,7 +9,9 @@ export default class CreatePlayerDtoBuilder implements IDataBuilder<CreatePlayer
         uniqueIdentifier: 'unique-id',
         above13: true,
         parentalAuth: false,
-        profile_id: undefined
+        currentAvatarId: 101,
+        profile_id: undefined,
+        battleCharacter_ids: []
     };
 
     build(): CreatePlayerDto {
@@ -40,8 +43,18 @@ export default class CreatePlayerDtoBuilder implements IDataBuilder<CreatePlayer
         return this;
     }
 
+    setCurrentAvatarId(currentAvatarId: number) {
+        this.base.currentAvatarId = currentAvatarId;
+        return this;
+    }
+
     setProfileId(profileId: string) {
         this.base.profile_id = profileId;
+        return this;
+    }
+
+    setBattleCharacterIds(_ids: string[] | ObjectId[]) {
+        this.base.battleCharacter_ids = _ids as any;
         return this;
     }
 }

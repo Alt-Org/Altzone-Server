@@ -5,8 +5,6 @@ import {MongooseModule} from "@nestjs/mongoose";
 import {ClanModule} from "./clan/clan.module";
 import {PlayerModule} from "./player/player.module";
 import {RequestHelperModule} from "./requestHelper/requestHelper.module";
-import {CharacterClassModule} from "./characterClass/characterClass.module";
-import {CustomCharacterModule} from "./customCharacter/customCharacter.module";
 import {ProfileModule} from "./profile/profile.module";
 import { AuthModule } from './auth/auth.module';
 import {AuthGuard} from "./auth/auth.guard";
@@ -75,9 +73,7 @@ const redisPort = parseInt(envVars.REDIS_PORT);
       FleaMarketModule,
       VotingModule,
 
-      CustomCharacterModule,
       ClanInventoryModule,
-      CharacterClassModule,
       
       ProfileModule,
       SiteModule,

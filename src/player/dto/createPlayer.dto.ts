@@ -1,4 +1,4 @@
-import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
+import {ArrayMaxSize, IsArray, IsBoolean, IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
 import {IsProfileExists} from "../../profile/decorator/validation/IsProfileExists.decorator";
 import AddType from "../../common/base/decorator/AddType.decorator";
 
@@ -20,6 +20,16 @@ export class CreatePlayerDto {
     @IsOptional()
     @IsBoolean()
     parentalAuth?: boolean;
+
+    @IsOptional()
+    @IsArray()
+    @ArrayMaxSize(3)
+    @IsMongoId({ each: true })
+    battleCharacter_ids?: string[];
+
+    @IsOptional()
+    @IsInt()
+    currentAvatarId?: number;
 
     @IsOptional()
     @IsProfileExists()

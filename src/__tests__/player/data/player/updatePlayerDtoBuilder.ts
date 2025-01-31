@@ -1,4 +1,5 @@
 import {UpdatePlayerDto} from "../../../../player/dto/updatePlayer.dto";
+import {ObjectId} from "mongodb";
 
 export default class UpdatePlayerDtoBuilder {
     private readonly base: UpdatePlayerDto = {
@@ -8,17 +9,18 @@ export default class UpdatePlayerDtoBuilder {
         uniqueIdentifier: undefined,
         above13: undefined,
         parentalAuth: undefined,
+        currentAvatarId: undefined,
         clan_id: undefined,
         clan_idToDelete: undefined,
-        currentCustomCharacter_id: undefined
+        battleCharacter_ids: undefined
     };
 
     build(): UpdatePlayerDto {
         return { ...this.base } as UpdatePlayerDto;
     }
 
-    setId(id: string) {
-        this.base._id = id;
+    setId(id: string | ObjectId) {
+        this.base._id = id as any;
         return this;
     }
 
@@ -47,18 +49,23 @@ export default class UpdatePlayerDtoBuilder {
         return this;
     }
 
-    setClanId(clanId: string) {
-        this.base.clan_id = clanId;
+    setCurrentAvatarId(currentAvatarId: number) {
+        this.base.currentAvatarId = currentAvatarId;
         return this;
     }
 
-    setClanIdToDelete(clanIdToDelete: string) {
-        this.base.clan_idToDelete = clanIdToDelete;
+    setClanId(clanId: string | ObjectId) {
+        this.base.clan_id = clanId as any;
         return this;
     }
 
-    setCurrentCustomCharacterId(characterId: string) {
-        this.base.currentCustomCharacter_id = characterId;
+    setClanIdToDelete(clanIdToDelete: string | ObjectId) {
+        this.base.clan_idToDelete = clanIdToDelete as any;
+        return this;
+    }
+
+    setBattleCharacterIds(_ids: string[] | ObjectId[]) {
+        this.base.battleCharacter_ids = _ids as any;
         return this;
     }
 }

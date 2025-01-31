@@ -1,5 +1,5 @@
 import {IsEnum, IsInt} from "class-validator";
-import AddType from "../../common/base/decorator/AddType.decorator";
+import AddType from "../../../common/base/decorator/AddType.decorator";
 import {CharacterId} from "../enum/characterId.enum";
 
 @AddType('CreateCustomCharacterDto')

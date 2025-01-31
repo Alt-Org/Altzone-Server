@@ -1,12 +1,7 @@
 import {Injectable} from "@nestjs/common";
-import {Model, Types} from "mongoose";
+import {Model} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
-import {RequestHelperService} from "../requestHelper/requestHelper.service";
-import {IBasicService} from "../common/base/interface/IBasicService";
-import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
-import {ModelName} from "../common/enum/modelName.enum";
 import {CharacterClass, publicReferences} from "./characterClass.schema";
-import {CustomCharacterService} from "../customCharacter/customCharacter.service";
 import BasicService from "../common/service/basicService/BasicService";
 import { UpdateCharacterClassDto } from "./dto/updateCharacterClass.dto";
 import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
@@ -22,9 +17,7 @@ import { CharacterClassDto } from "./dto/characterClass.dto";
 export class CharacterClassService {
     public constructor(
         //Nest injects mongoose model
-        @InjectModel(CharacterClass.name) public readonly model: Model<CharacterClass>,
-        //Nest can inject some other module service
-        private readonly customCharacterService: CustomCharacterService
+        @InjectModel(CharacterClass.name) public readonly model: Model<CharacterClass>
     ){
         //Preferably use this service instead of mongoose (if possible)
         this.basicService = new BasicService(model);

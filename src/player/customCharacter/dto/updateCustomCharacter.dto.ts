@@ -1,6 +1,6 @@
 import {IsEnum, IsInt, IsMongoId, IsOptional} from "class-validator";
 import {IsCustomCharacterExists} from "../decorator/validation/IsCustomCharacterExists.decorator";
-import AddType from "../../common/base/decorator/AddType.decorator";
+import AddType from "../../../common/base/decorator/AddType.decorator";
 import {CharacterId} from "../enum/characterId.enum";
 
 export const UpdateCustomCharacterType = 'UpdateCustomCharacterType';

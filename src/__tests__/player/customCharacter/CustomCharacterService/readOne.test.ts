@@ -1,18 +1,18 @@
 import { ObjectId } from "mongodb";
-import {CustomCharacterService} from "../../../customCharacter/customCharacter.service";
-import CustomCharacterModule from "../modules/customCharacter.module";
-import CustomCharacterBuilderFactory from "../data/customCharacterBuilderFactory";
-import {getNonExisting_id} from "../../test_utils/util/getNonExisting_id";
-import {clearDBRespDefaultFields} from "../../test_utils/util/removeDBDefaultFields";
-import {ModelName} from "../../../common/enum/modelName.enum";
-import LoggedUser from "../../test_utils/const/loggedUser";
+import {CustomCharacterService} from "../../../../player/customCharacter/customCharacter.service";
+import {getNonExisting_id} from "../../../test_utils/util/getNonExisting_id";
+import {clearDBRespDefaultFields} from "../../../test_utils/util/removeDBDefaultFields";
+import {ModelName} from "../../../../common/enum/modelName.enum";
+import LoggedUser from "../../../test_utils/const/loggedUser";
+import CustomCharacterModule from "../../modules/customCharacter.module";
+import PlayerBuilderFactory from "../../data/playerBuilderFactory";
 
 
 describe('CustomCharacterService.readOne() test suite', () => {
     let characterService: CustomCharacterService;
 
     const characterModel = CustomCharacterModule.getCustomCharacterModel();
-    const characterBuilder = CustomCharacterBuilderFactory.getBuilder('CustomCharacter');
+    const characterBuilder = PlayerBuilderFactory.getBuilder('CustomCharacter');
 
     const characterSize = 10;
     const filter = { size: characterSize }

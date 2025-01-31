@@ -1,16 +1,16 @@
-import {CustomCharacterService} from "../../../customCharacter/customCharacter.service";
-import CustomCharacterModule from "../modules/customCharacter.module";
-import CustomCharacterBuilderFactory from "../data/customCharacterBuilderFactory";
-import {getNonExisting_id} from "../../test_utils/util/getNonExisting_id";
+import {CustomCharacterService} from "../../../../player/customCharacter/customCharacter.service";
+import {getNonExisting_id} from "../../../test_utils/util/getNonExisting_id";
 import {ObjectId} from "mongodb";
-import {clearDBRespDefaultFields} from "../../test_utils/util/removeDBDefaultFields";
+import {clearDBRespDefaultFields} from "../../../test_utils/util/removeDBDefaultFields";
+import CustomCharacterModule from "../../modules/customCharacter.module";
+import PlayerBuilderFactory from "../../data/playerBuilderFactory";
 
 
 describe('CustomCharacterService.updateOneByCondition() test suite', () => {
     let characterService: CustomCharacterService;
 
     const characterModel = CustomCharacterModule.getCustomCharacterModel();
-    const characterBuilder = CustomCharacterBuilderFactory.getBuilder('CustomCharacter');
+    const characterBuilder = PlayerBuilderFactory.getBuilder('CustomCharacter');
 
     const filter = { size: 10 };
     const player_id = new ObjectId(getNonExisting_id());
