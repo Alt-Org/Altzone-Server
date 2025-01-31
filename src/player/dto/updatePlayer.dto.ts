@@ -1,4 +1,4 @@
-import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
+import {ArrayMaxSize, IsArray, IsBoolean, IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
 import {IsPlayerExists} from "../decorator/validation/IsPlayerExists.decorator";
 import {IsCustomCharacterExists} from "../../customCharacter/decorator/validation/IsCustomCharacterExists.decorator";
@@ -30,9 +30,15 @@ export class UpdatePlayerDto {
     @IsBoolean()
     parentalAuth?: boolean;
 
-    @IsString()
     @IsOptional()
-    currentAvatarId?: string;
+    @IsArray()
+    @ArrayMaxSize(3)
+    @IsMongoId({ each: true })
+    battleCharacter_ids?: string[];
+
+    @IsOptional()
+    @IsInt()
+    currentAvatarId?: number;
 
     @IsClanExists()
     @IsMongoId()
@@ -43,9 +49,4 @@ export class UpdatePlayerDto {
     @IsMongoId()
     @IsOptional()
     clan_idToDelete?: string;
-
-    @IsCustomCharacterExists()
-    @IsMongoId()
-    @IsOptional()
-    currentCustomCharacter_id?: string;
 }
