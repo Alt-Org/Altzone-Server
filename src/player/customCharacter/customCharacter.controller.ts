@@ -32,6 +32,14 @@ export class CustomCharacterController{
         return this.service.createOne(body, user.player_id);
     }
 
+    @Get('/battleCharacters')
+    @Authorize({action: Action.read, subject: CustomCharacterDto})
+    @Serialize(CustomCharacterDto)
+    @UniformResponse(ModelName.CUSTOM_CHARACTER)
+    public async getBattleCharacters(@LoggedUser() user: User) {
+        return this.service.readPlayerBattleCharacters(user.player_id);
+    }
+
     @Get('/:_id')
     @Authorize({action: Action.read, subject: CustomCharacterDto})
     @Serialize(CustomCharacterDto)
@@ -49,14 +57,6 @@ export class CustomCharacterController{
     @UniformResponse(ModelName.CUSTOM_CHARACTER)
     public async getAll(@GetAllQuery() query: IGetAllQuery, @LoggedUser() user: User) {
         return this.service.readMany({...query, filter: {...query.filter, player_id: user.player_id}});
-    }
-
-    @Get()
-    @Authorize({action: Action.read, subject: CustomCharacterDto})
-    @Serialize(CustomCharacterDto)
-    @UniformResponse(ModelName.CUSTOM_CHARACTER)
-    public async getBattleCharacters(@LoggedUser() user: User) {
-        return this.service.readMany({filter: {player_id: user.player_id}});
     }
 
     @Put()
