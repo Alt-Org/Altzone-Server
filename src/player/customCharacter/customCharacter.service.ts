@@ -7,7 +7,8 @@ import {ModelName} from "../../common/enum/modelName.enum";
 import {CustomCharacter} from "./customCharacter.schema";
 import {
     IServiceReturn,
-    TIServiceReadManyOptions, TIServiceReadOneOptions, TIServiceUpdateManyOptions,
+    TIServiceReadManyOptions,
+    TIServiceReadOneOptions,
     TIServiceUpdateOneOptions,
     TReadByIdOptions
 } from "../../common/service/basicService/IService";
@@ -115,16 +116,24 @@ export class CustomCharacterService {
     /**
      * Reads custom characters that player has chosen as a battle characters
      *
+     * Notice that if some characters are not found, they will be ignored.
+     *
+     * Notice that if some characters does not belong to the logged-in player they will be ignored.
+     *
      * @param player_id - player _id for which characters to get
      *
      * @return found custom characters, or NOT_FOUND if nothing was found, or SE REQUIRED if the player_id is null or undefined
      */
     public readPlayerBattleCharacters = async (player_id: string): Promise<IServiceReturn<CustomCharacter[]>> => {
-        // let optionsToApply = options;
-        // if(options?.includeRefs)
-        //     optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
-        // return this.basicService.readMany<CustomCharacter>({ filter: { pla } });
-        return undefined;
+        if(!player_id)
+            return [ null, [new ServiceError({ reason: SEReason.REQUIRED, message: 'player_id is required', field: 'player_id', value: player_id })] ];
+
+        const player = await this.playerModel.findById(player_id);
+
+        if(!player)
+            return [null, [ new ServiceError({ reason: SEReason.NOT_FOUND, field: 'player_id', value: player_id, message: 'Player with that _id does not exist' }) ] ];
+
+        return this.basicService.readMany({filter: { player_id: player._id, _id: {$in: player.battleCharacter_ids} }});
     }
 
     /**
