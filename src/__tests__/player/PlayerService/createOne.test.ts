@@ -35,7 +35,7 @@ describe('PlayerService.createOne() test suite', () => {
         const data = resp['data']['Player'];
         const clearedData = clearDBRespDefaultFields(data);
 
-        const {profile_id, currentCustomCharacter_id, ...expectedFields} = playerToCreate;
+        const {profile_id, ...expectedFields} = playerToCreate;
         expect(clearedData).toEqual(expect.objectContaining({
             ...expectedFields, _id: expect.any(ObjectId), points: expect.any(Number)
         }));
