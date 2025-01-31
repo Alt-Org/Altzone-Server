@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
 import {Player} from "../player/player.schema";
-import {CharacterClass} from "../characterClass/characterClass.schema";
 import {CharacterId} from "./enum/characterId.enum";
 import {ObjectId} from "mongodb";
 import {ExtractField} from "../common/decorator/response/ExtractField";
