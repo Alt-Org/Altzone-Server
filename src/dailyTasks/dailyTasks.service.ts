@@ -7,6 +7,7 @@ import DailyTaskNotifier from "./dailyTask.notifier";
 import { DailyTask } from "./dailyTasks.schema";
 import { TaskName } from "./enum/taskName.enum";
 import { Task } from "./type/task.type";
+import { TASK_CONSTS } from "./consts/taskConstants";
 
 @Injectable()
 export class DailyTasksService {
@@ -60,9 +61,15 @@ export class DailyTasksService {
 	 * @returns A partial Task missing the ids and startedAt fields and object containing randomly generated values.
 	 */
 	private createTaskRandomValues(): Partial<Task> {
-		const amount = Math.floor(Math.random() * 20) + 1;
-		const points = Math.floor(Math.random() * 100) + 1;
-		const coins = Math.floor(points / 2);
+		const amount =
+			Math.floor(
+				Math.random() * (TASK_CONSTS.AMOUNT.MAX - TASK_CONSTS.AMOUNT.MIN + 1)
+			) + TASK_CONSTS.AMOUNT.MIN;
+		const points =
+			Math.floor(
+				Math.random() * (TASK_CONSTS.POINTS.MAX - TASK_CONSTS.POINTS.MIN + 1)
+			) + TASK_CONSTS.POINTS.MIN;
+		const coins = Math.floor(points * TASK_CONSTS.COINS.FACTOR);
 		const taskType = this.getRandomTaskType();
 		const title = this.getTaskTitle(taskType, amount);
 
