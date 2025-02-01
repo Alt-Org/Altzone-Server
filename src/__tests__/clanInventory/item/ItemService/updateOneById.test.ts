@@ -21,8 +21,8 @@ describe('ItemService.updateOneById() test suite', () => {
     });
 
     it('Should update item in the DB and return true if the input is valid', async () => {
-        const updatedName = ItemName.SOFATABLE_RAKKAUS;
-        const updateData = itemUpdateBuilder.setId(existingItem._id).setName(updatedName).build();
+        const updatedLocation = [1,2];
+        const updateData = itemUpdateBuilder.setId(existingItem._id).setLocation(updatedLocation).build();
 
         const [wasUpdated, errors] = await itemService.updateOneById(updateData);
 
@@ -31,12 +31,12 @@ describe('ItemService.updateOneById() test suite', () => {
 
         const updatedItem = await itemModel.findById(existingItem._id);
         const clearedItem = clearDBRespDefaultFields(updatedItem);
-        expect(clearedItem).toEqual({...existingItem, name: updatedName});
+        expect(clearedItem).toEqual({...existingItem, location: updatedLocation});
     });
 
     it('Should return ServiceError NOT_FOUND if the item with provided _id does not exist', async () => {
-        const updatedName = ItemName.SOFATABLE_RAKKAUS;
-        const updateData = itemUpdateBuilder.setId(getNonExisting_id()).setName(updatedName).build();
+        const updatedLocation = [1,2];
+        const updateData = itemUpdateBuilder.setId(getNonExisting_id()).setLocation(updatedLocation).build();
 
         const [wasUpdated, errors] = await itemService.updateOneById(updateData);
 
