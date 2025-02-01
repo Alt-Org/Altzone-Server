@@ -1,13 +1,13 @@
 import BasicService from "../../../../../common/service/basicService/BasicService";
-import Factory from "../../../../clan_module/data/factory";
-import ClanModule from "../../../../clan_module/modules/clan.module";
 import { getNonExisting_id } from "../../../../test_utils/util/getNonExisting_id";
+import ClanModule from "../../../../clan/modules/clan.module";
+import ClanBuilderFactory from "../../../../clan/data/clanBuilderFactory";
 
 
 describe('BasicService.deleteOneById() test suite', () => {
     const clanModel = ClanModule.getClanModel();
     const basicService = new BasicService(clanModel);
-    const clanCreateBuilder = Factory.getBuilder('CreateClanDto');
+    const clanCreateBuilder = ClanBuilderFactory.getBuilder('CreateClanDto');
 
     const existingClan = clanCreateBuilder.setName('clan1').build();
     let existingClan_id: string;

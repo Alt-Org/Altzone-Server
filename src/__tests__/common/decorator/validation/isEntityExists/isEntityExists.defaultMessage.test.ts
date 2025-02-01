@@ -1,6 +1,6 @@
-import { Clan } from "../../../../../clan_module/clan/clan.schema";
 import { isEntityExists } from "../../../../../common/decorator/validation/isEntityExists";
 import { ModelName } from "../../../../../common/enum/modelName.enum";
+import {Clan} from "../../../../../clan/clan.schema";
 
 describe('isEntityExists.defaultMessage() test suite', () => {
     let sut: isEntityExists<Clan>;
