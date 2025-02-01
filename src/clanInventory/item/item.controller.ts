@@ -1,14 +1,12 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, UseGuards } from "@nestjs/common";
 import { ItemService } from "./item.service";
 import { ItemDto } from "./dto/item.dto";
-import { MoveItemDto } from "./dto/moveItem.dto";
 import { StealTokenGuard } from "./guards/StealToken.guard";
 import { StealToken } from "./decorator/param/StealToken.decorator";
 import { StealToken as stealToken } from "./type/stealToken.type";
 import { SoulHomeService } from "../soulhome/soulhome.service";
 import { IdMismatchError } from "./errors/playerId.errors";
 import { SoulHomeDto } from "../soulhome/dto/soulhome.dto";
-import { StealItemsDto } from "./dto/stealItems.dto";
 import { RoomService } from "../room/room.service";
 import { User } from "../../auth/user";
 import { Authorize } from "../../authorization/decorator/Authorize";
