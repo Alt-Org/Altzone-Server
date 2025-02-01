@@ -4,7 +4,7 @@ import ServiceError from "../common/service/basicService/ServiceError";
 import { PlayerEventHandler } from "./playerEventHandler";
 import { ClanEventHandler } from "./clanEventHandler";
 import { PlayerEvent } from "../rewarder/playerRewarder/enum/PlayerEvent.enum";
-import { TaskName } from "../playerTasks/enum/taskName.enum";
+import { TaskName } from "../dailyTasks/enum/taskName.enum";
 
 @Injectable()
 export class GameEventsHandler {

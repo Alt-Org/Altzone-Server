@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { PlayerTasksService, TaskUpdateResult } from '../playerTasks/playerTasks.service';
+import { PlayerTasksService, TaskUpdateResult } from '../dailyTasks/dailyTasks.service';
 import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
-import { TaskName } from '../playerTasks/enum/taskName.enum';
+import { TaskName } from '../dailyTasks/enum/taskName.enum';
 import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
 import { PlayerService } from '../player/player.service';
-import { Task } from '../playerTasks/type/task.type';
+import { Task } from '../dailyTasks/type/task.type';
 import { Reward } from '../rewarder/clanRewarder/points';
 import ServiceError from '../common/service/basicService/ServiceError';
 

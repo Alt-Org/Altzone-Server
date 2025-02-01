@@ -1,4 +1,4 @@
-import { TaskName } from "../../playerTasks/enum/taskName.enum"
+import { TaskName } from "../../dailyTasks/enum/taskName.enum"
 
 export type Reward = { points: number, coins: number }
 

@@ -32,7 +32,7 @@ export enum ModelName {
     CLANVOTE = 'ClanVote',
     ITEMSHOP = 'ItemShop',
     GAME = 'Game',
-    PLAYER_TASK = 'PlayerTask',
+    DAILY_TASK = 'DailyTask',
     FLEA_MARKET_ITEM = 'FleaMarketItem',
     VOTING = 'Voting',
 }
