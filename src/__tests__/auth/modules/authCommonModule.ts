@@ -8,6 +8,7 @@ import {ModelName} from "../../../common/enum/modelName.enum";
 import {ProfileSchema} from "../../../profile/profile.schema";
 import {PlayerSchema} from "../../../player/player.schema";
 import {ClanSchema} from "../../../clan/clan.schema";
+import {AuthGuard} from "../../../auth/auth.guard";
 
 
 export default class AuthCommonModule {
@@ -34,7 +35,7 @@ export default class AuthCommonModule {
                     RequestHelperModule
                 ],
                 providers: [
-                    AuthService
+                    AuthService, AuthGuard
                 ]
             }).compile();
 
