@@ -20,6 +20,15 @@ export class AuthService {
     ) {
     }
 
+    /**
+     * Verifies the provided credentials are valid.
+     *
+     * @param username username of the profile
+     * @param pass password of the profile
+     *
+     * @returns - access token, profile, player and clan data if password is valid.
+     * null if profile is not found, or it was not possible to verify password, or if the password is not valid
+     */
     public signIn = async (username: string, pass: string): Promise<object> | null => {
         const profile = await this.requestHelperService.getModelInstanceByCondition<any>(ModelName.PROFILE, {username: username}, ProfileDto, true);
 
@@ -63,13 +72,19 @@ export class AuthService {
         };
     }
 
+    /**
+     * Returns expiration date of the provided JWT
+     *
+     * @param token token to get expiration date of
+     *
+     * @return expiration of the token in seconds
+     */
     private getTokenExpirationTime(token: string) {
         const decodedAccessToken: any = this.jwtService.decode(token);
-        // Extract the expiration time in Unix timestamp format
+
         const expiresIn = decodedAccessToken?.exp;
         const diffInSeconds = expiresIn - Math.floor(Date.now() / 1000);
-        // Convert the Unix timestamp to a Date object
-        // return expiresIn ? new Date(expiresIn * 1000) : null;
+
         return diffInSeconds ? diffInSeconds : null;
     }
 
