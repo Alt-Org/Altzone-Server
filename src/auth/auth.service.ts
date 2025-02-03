@@ -26,7 +26,7 @@ export class AuthService {
      * @param username username of the profile
      * @param pass password of the profile
      *
-     * @returns - access token, profile, player and clan data if password is valid.
+     * @returns - access token and its expiration time, profile, player and clan data if password is valid.
      * null if profile is not found, or it was not possible to verify password, or if the password is not valid
      */
     public signIn = async (username: string, pass: string): Promise<object> | null => {
