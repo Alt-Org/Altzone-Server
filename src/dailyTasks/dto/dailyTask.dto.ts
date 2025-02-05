@@ -33,5 +33,11 @@ export class DailyTaskDto {
 	startedAt: Date;
 
 	@Expose()
+	amount: number;
+
+	@Expose()
 	amountLeft: number;
+
+	@Expose()
+	timeLimitMinutes: number;
 }
