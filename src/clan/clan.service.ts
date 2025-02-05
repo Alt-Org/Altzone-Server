@@ -17,6 +17,7 @@ import { TIServiceReadManyOptions, TIServiceUpdateOneOptions, TReadByIdOptions }
 import { ModelName } from "../common/enum/modelName.enum";
 import { StockService } from "../clanInventory/stock/stock.service";
 import { SoulHomeService } from "../clanInventory/soulhome/soulhome.service";
+import { DailyTasksService } from "../dailyTasks/dailyTasks.service";
 
 @Injectable()
 export class ClanService{
@@ -25,7 +26,8 @@ export class ClanService{
         @InjectModel(Player.name) public readonly playerModel: Model<Player>,
         private readonly stockService: StockService,
         private readonly soulhomeService: SoulHomeService,
-        private readonly clanHelperService: ClanHelperService
+        private readonly clanHelperService: ClanHelperService,
+        private readonly dailyTaskService: DailyTasksService,
     ) {
         this.basicService = new BasicService(model);
         this.playerService = new BasicService(playerModel);
@@ -63,6 +65,8 @@ export class ClanService{
 
         clan.SoulHome = soulHome.SoulHome;
         clan.Stock = stock.Stock;
+
+        this.dailyTaskService.generateTasksForNewClan(clan._id.toString());
 
         return clan;
     }

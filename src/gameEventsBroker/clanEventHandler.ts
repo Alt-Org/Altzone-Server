@@ -1,60 +1,35 @@
-import { Injectable } from '@nestjs/common';
-import { PlayerTasksService, TaskUpdateResult } from '../playerTasks/playerTasks.service';
-import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
-import { TaskName } from '../playerTasks/enum/taskName.enum';
-import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
-import { PlayerService } from '../player/player.service';
-import { Task } from '../playerTasks/type/task.type';
-import { Reward } from '../rewarder/clanRewarder/points';
-import ServiceError from '../common/service/basicService/ServiceError';
+import { Injectable } from "@nestjs/common";
+import { DailyTasksService } from "../dailyTasks/dailyTasks.service";
+import { ClanRewarder } from "../rewarder/clanRewarder/clanRewarder.service";
+import { PlayerRewarder } from "../rewarder/playerRewarder/playerRewarder.service";
+import ServiceError from "../common/service/basicService/ServiceError";
+import { DailyTaskDto } from "../dailyTasks/dto/dailyTask.dto";
 
 @Injectable()
 export class ClanEventHandler {
 	constructor(
-		private readonly playerTasks: PlayerTasksService,
+		private readonly dailyTasks: DailyTasksService,
 		private readonly clanRewarder: ClanRewarder,
 		private readonly playerRewarder: PlayerRewarder,
-		private readonly playerService: PlayerService
-	){
-		
-	}
+	) {}
 
-	async handlePlayerTask(player_id: string, task: TaskName){
-		const taskUpdate = await this.playerTasks.updateTask(player_id, task);
+	async handlePlayerTask(player_id: string) {
+		const taskUpdate = await this.dailyTasks.updateTask(player_id);
 		return this.handleClanAndPlayerReward(player_id, taskUpdate);
 	}
 
-	private async handleClanAndPlayerReward(player_id: string, taskUpdate: TaskUpdateResult): Promise<[boolean, ServiceError[]]>{
-		const { daily, weekly, monthly } = taskUpdate;
-		if(daily.status !== 'done' && weekly.status !== 'done' && monthly.status !== 'done')
-			return [ true, null ];
-		
-		const [ player, errors ] = await this.playerService.getPlayerById(player_id);
-		
-		if(errors)
-			return [ null, errors ];
+	private async handleClanAndPlayerReward(
+		player_id: string,
+		task: DailyTaskDto
+	): Promise<[boolean, ServiceError[]]> {
+		if (task.amountLeft !== 0) return [true, null];
+		await this.clanRewarder.rewardClanForPlayerTask(
+			task.clanId,
+			task.points,
+			task.coins
+		);
+		await this.playerRewarder.rewardForPlayerTask(player_id, task.points);
 
-		const { clan_id } = player;
-
-		if(daily.status === 'done'){
-			await this.clanRewarder.rewardClanForPlayerTask(clan_id, this.convertTaskToReward(daily.task));
-			await this.playerRewarder.rewardForPlayerTask(player_id, daily.task.points);
-		}
-
-		if(weekly.status === 'done'){
-			await this.clanRewarder.rewardClanForPlayerTask(clan_id, this.convertTaskToReward(weekly.task));
-			await this.playerRewarder.rewardForPlayerTask(player_id, weekly.task.points);
-		}
-
-		if(monthly.status === 'done'){
-			await this.clanRewarder.rewardClanForPlayerTask(clan_id, this.convertTaskToReward(monthly.task));
-			await this.playerRewarder.rewardForPlayerTask(player_id, monthly.task.points);
-		}
-
-		return [ true, null ];
-	}
-
-	private convertTaskToReward(task: Task): Reward{
-		return { coins: task.coins, points: task.points };
+		return [true, null];
 	}
 }

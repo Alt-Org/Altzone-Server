@@ -14,7 +14,6 @@ import { SiteModule } from './site/site.module';
 import {ChatModule} from "./chat/chat.module";
 import { GameDataModule } from './gameData/gameData.module';
 import { GameAnalyticsModule } from './gameAnalytics/gameAnalytics.module';
-import { PlayerTasksModule } from './playerTasks/playerTasks.module';
 import { envVars } from './common/service/envHandler/envVars';
 import { LeaderboardModule } from './leaderboard/leaderboard.module';
 import * as redisStore from 'cache-manager-redis-store';
@@ -27,6 +26,7 @@ import { StatisticsKeeperModule } from './statisticsKeeper/statisticsKeeper.modu
 import { FleaMarketModule } from './fleaMarket/fleaMarket.module';
 import { VotingModule } from './voting/voting.module';
 import { BullModule } from '@nestjs/bullmq';
+import { DailyTasksModule } from './dailyTasks/dailyTasks.module';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -62,7 +62,7 @@ const redisPort = parseInt(envVars.REDIS_PORT);
 
       GameEventsBrokerModule,
       LeaderboardModule,
-      PlayerTasksModule,
+      DailyTasksModule,
       RewarderModule,
       StatisticsKeeperModule,
 

@@ -1,12 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { ClanService } from "../../clan/clan.service";
-import { Reward } from "./points";
 
 @Injectable()
 export class ClanRewarder {
 	constructor(
 		private readonly clanService: ClanService,
 	) { }
+
+	clanMaxPoints = 10000; 
 
 	/**
 	 * Increases specified clan's points and coins
@@ -15,8 +16,8 @@ export class ClanRewarder {
 	 * @throws ServiceError if any occurred
 	 * @returns tuple in form [ isSuccess, errors ]
 	 */
-	async rewardClanForPlayerTask(clan_id: string, reward: Reward){
-		return this.addClanPointsAndCoins(clan_id, reward.points, reward.coins);
+	async rewardClanForPlayerTask(clan_id: string, points: number, coins: number){
+		return this.addClanPointsAndCoins(clan_id, points, coins);
 	}
 
 	/**
@@ -34,10 +35,11 @@ export class ClanRewarder {
 			throw errors;
 
 		const { points, gameCoins } = clanToUpdate;
+		const newPoints = Math.min(this.clanMaxPoints, points + pointsToAdd);
 
 		return await this.clanService.updateOne(
 			{ 
-				points: points + pointsToAdd, 
+				points: newPoints, 
 				gameCoins: gameCoins + coinsToAdd 
 			},
 			{ filter: { _id: clan_id } }

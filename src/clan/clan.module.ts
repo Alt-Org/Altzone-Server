@@ -13,6 +13,7 @@ import ClanHelperService from './utils/clanHelper.service';
 import { PlayerSchema } from '../player/player.schema';
 import { ClanInventoryModule } from '../clanInventory/clanInventory.module';
 import { PlayerModule } from '../player/player.module';
+import { DailyTasksModule } from '../dailyTasks/dailyTasks.module';
 
 @Module({
     imports: [
@@ -24,6 +25,7 @@ import { PlayerModule } from '../player/player.module';
         ClanInventoryModule,
         RequestHelperModule,
         PlayerModule,
+        DailyTasksModule,
     ],
     controllers: [ClanController],
     providers: [ ClanService, isClanExists, PlayerCounterFactory, JoinService, ClanHelperService ],
