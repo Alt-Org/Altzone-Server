@@ -28,8 +28,14 @@ export class DailyTask {
 	@Prop({ type: Number, required: true })
 	coins: number;
 
-	@Prop({ required: true })
+	@Prop({ type: Number, required: true })
+	amount: number;
+
+	@Prop({ type: Number, required: true })
 	amountLeft: number; // Amount of atomic tasks to complete. When 0 set completedAt.
+
+	@Prop({ type: Number, required: true })
+	timeLimitMinutes: number;
 }
 
 export const DailyTaskSchema = SchemaFactory.createForClass(DailyTask);
