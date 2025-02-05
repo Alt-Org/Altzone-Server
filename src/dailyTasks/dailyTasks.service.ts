@@ -38,11 +38,14 @@ export class DailyTasksService {
 	 * @returns A promise that resolves to the result of the `createMany` operation.
 	 */
 	async generateTasksForNewClan(clanId: string) {
-		const tasks: Task[] = [];
+		const tasks: Partial<Task>[] = [];
 		for (let i = 0; i < 20; i++) {
 			const partial = this.createTaskRandomValues();
-			const task: Task = {
+			const timeLimitMinutes = partial.amount * 2;
+			const task: Partial<Task> = {
 				...partial,
+				amountLeft: partial.amount,
+				timeLimitMinutes,
 				clanId,
 			};
 			tasks.push(task);
@@ -88,7 +91,7 @@ export class DailyTasksService {
 	 *
 	 * @returns A partial Task missing the ids and startedAt fields and object containing randomly generated values.
 	 */
-	private createTaskRandomValues() {
+	private createTaskRandomValues(): Partial<Task> {
 		const amount =
 			Math.floor(
 				Math.random() * (TASK_CONSTS.AMOUNT.MAX - TASK_CONSTS.AMOUNT.MIN + 1)
@@ -101,44 +104,13 @@ export class DailyTasksService {
 		const taskType = this.getRandomTaskType();
 		const titleString = this.getTaskTitle(taskType, amount);
 
-		const task = {
-			amountLeft: amount,
+		return {
+			amount,
 			points,
 			coins,
 			type: taskType,
-			title: { fi: titleString },
+			title: titleString,
 		};
-
-		return task;
-	}
-
-	/**
-	 * Handles an expired daily task by deleting it and generating new tasks if necessary.
-	 *
-	 * @param task - The expired task to handle.
-	 * @returns A promise that resolves to an array containing the new tasks or null and an error if any.
-	 *
-	 * @async
-	 * @function
-	 */
-	async handleExpiredTask(task: DailyTaskDto) {
-		await this.basicService.deleteOneById(task._id);
-		const [clanTasks, error] = await this.basicService.readMany({
-			filter: { clanId: task.clanId },
-		});
-		if (error) return [null, error];
-
-		const newTasks: Task[] = [];
-		for (let i = clanTasks.length; i < 20; i++) {
-			const partial = this.createTaskRandomValues();
-			const newTask: Task = {
-				...partial,
-				clanId: task.clanId,
-			};
-			newTasks.push(newTask);
-		}
-
-		return await this.basicService.createMany<Task, DailyTaskDto>(newTasks);
 	}
 
 	/**
@@ -158,15 +130,19 @@ export class DailyTasksService {
 		if (task.playerId) throw taskReservedError;
 
 		const startedAt = new Date();
-		const [updatedTask, updateError] = await this.basicService.updateOneById(
+		task.playerId = playerId;
+		task.startedAt = startedAt;
+
+		const [_, updateError] = await this.basicService.updateOneById(
 			taskId,
-			{ playerId, startedAt }
+			task
 		);
 		if (updateError) throw updateError;
 
-		await this.taskQueue.addDailyTask({ ...task, playerId, startedAt });
+		await this.taskQueue.addDailyTask(task);
+		await this.notifier.taskReceived(playerId, task);
 
-		return updatedTask;
+		return task;
 	}
 
 	/**
@@ -180,18 +156,17 @@ export class DailyTasksService {
 	async deleteTask(taskId: string, clanId: string, playerId: string) {
 		const newValues = this.createTaskRandomValues();
 		const filter: any = { _id: taskId, clanId };
-		filter.$or = [
-			{ playerId },
-			{ playerId: { $exists: false } },
-			{ playerId: null },
-		];
+		filter.$or = [{ playerId }, { playerId: { $exists: false } }];
 		return await this.basicService.updateOne(
 			{
-				...newValues,
-				clanId,
-				playerId: null,
-				startedAt: null,
-				completedAt: null,
+				$set: {
+					...newValues,
+					amountLeft: newValues.amount,
+				},
+				$unset: {
+					playerId: "",
+					startedAt: "",
+				},
 			},
 			{ filter }
 		);
@@ -212,15 +187,48 @@ export class DailyTasksService {
 		if (error) throw error;
 
 		task.amountLeft--;
+		
 		if (task.amountLeft === 0) {
 			await this.deleteTask(task._id.toString(), task.clanId, playerId);
+			this.notifier.taskCompleted(playerId, task);
 		} else {
 			const [_, updateError] = await this.basicService.updateOne(task, {
 				filter: { playerId },
 			});
 			if (updateError) throw updateError;
+			this.notifier.taskUpdated(playerId, task);
 		}
 
 		return task;
+	}
+
+	/**
+	 * Handles the expiration of a daily task by resetting its playerId, amountLeft and startedAt fields.
+	 *
+	 * @param task - The daily task data transfer object containing task details.
+	 *
+	 * @throws - If there is error updating the task im db.
+	 */
+	async handleExpiredTask(task: DailyTaskDto) {
+		const [_, updateError] = await this.basicService.updateOne(
+			{
+				$set: {
+					amountLeft: task.amount,
+				},
+				$unset: {
+					playerId: "",
+					startedAt: "",
+				},
+			},
+			{ filter: { _id: task._id } }
+		);
+		if (updateError) throw updateError;
+
+		const playerId = task.playerId;
+		task.amountLeft = task.amount;
+		task.playerId = undefined;
+		task.startedAt = null;
+
+		this.notifier.taskUpdated(playerId, task);
 	}
 }
