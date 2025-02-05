@@ -14,7 +14,7 @@ export class DailyTaskQueue {
 
 	async addDailyTask(task: DailyTaskDto) {
 		if (!task.playerId || !task.startedAt) return;
-		const delay = TASK_CONSTS.TIME;
+		const delay = TASK_CONSTS.TIME * task.timeLimitMinutes; // convert minutes to ms
 		await this.dailyTaskQueue.add("tasks", task, { delay });
 	}
 }
