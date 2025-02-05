@@ -15,6 +15,7 @@ import { Clan } from "../clan/clan.schema";
 import { Model } from "mongoose";
 import BasicService from "../common/service/basicService/BasicService";
 import { Player } from "../player/player.schema";
+import {tryCatch} from "bullmq";
 
 @Injectable()
 export class ItemMoverService {
@@ -119,8 +120,12 @@ export class ItemMoverService {
 		const itemSoulHomeIds: { itemId: string; soulHomeId: string }[] =
 			await Promise.all(
 				itemIds.map(async (itemId) => {
-					const soulHomeId = await this.itemHelperService.getItemSoulHomeId(itemId);
-					return { itemId, soulHomeId };
+					try{
+						const soulHomeId = await this.itemHelperService.getItemSoulHomeId(itemId);
+						return { itemId, soulHomeId };
+					} catch (e) {
+
+					}
 				})
 			);
 
