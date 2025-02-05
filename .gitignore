@@ -2,6 +2,7 @@
 strapi_test
 letsencrypt
 owncloud
+.scannerwork
 
 # Logs
 logs
