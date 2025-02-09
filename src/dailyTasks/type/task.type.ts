@@ -3,8 +3,8 @@ import { TaskName } from "../enum/taskName.enum";
 /**
  * Represents a task with its details.
  * 
- * @property clanId - The identifier for the clan this task belongs to.
- * @property playerId? - Optional id of the player who this task is assigned to.
+ * @property clan_id - The identifier for the clan this task belongs to.
+ * @property player_id? - Optional id of the player who this task is assigned to.
  * @property title - The title of the task.
  * @property amount - The amount required to complete the task.
  * @property type - The type of the task.
@@ -15,8 +15,8 @@ import { TaskName } from "../enum/taskName.enum";
  */
 export type Task = {
 	_id: string,
-	clanId: string,
-	playerId: string,
+	clan_id: string,
+	player_id: string,
 	type: TaskName,
 	title: string,
 	amount: number;

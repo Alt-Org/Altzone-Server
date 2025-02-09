@@ -24,7 +24,7 @@ export class ClanEventHandler {
 	): Promise<[boolean, ServiceError[]]> {
 		if (task.amountLeft !== 0) return [true, null];
 		await this.clanRewarder.rewardClanForPlayerTask(
-			task.clanId,
+			task.clan_id,
 			task.points,
 			task.coins
 		);

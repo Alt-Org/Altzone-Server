@@ -8,10 +8,10 @@ export type DailyTaskDocument = HydratedDocument<DailyTask>;
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
 export class DailyTask {
 	@Prop({ type: MongooseSchema.Types.ObjectId, required: true })
-	clanId: string;
+	clan_id: string;
 
 	@Prop({ type: MongooseSchema.Types.ObjectId })
-	playerId?: string;
+	player_id?: string;
 
 	@Prop({ type: Object, required: true })
 	title: { fi: string };
@@ -43,7 +43,13 @@ DailyTaskSchema.set("collection", ModelName.DAILY_TASK);
 DailyTaskSchema.index({ playerId: 1 }, { unique: true, sparse: true });
 DailyTaskSchema.virtual(ModelName.PLAYER, {
 	ref: ModelName.PLAYER,
-	localField: "playerId",
+	localField: "player_id",
+	foreignField: "_id",
+	justOne: true,
+});
+DailyTaskSchema.virtual(ModelName.CLAN, {
+	ref: ModelName.CLAN,
+	localField: "clan_id",
 	foreignField: "_id",
 	justOne: true,
 });

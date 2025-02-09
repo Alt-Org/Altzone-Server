@@ -11,11 +11,11 @@ export class DailyTaskDto {
 
 	@ExtractField()
 	@Expose()
-	clanId: string;
+	clan_id: string;
 
 	@ExtractField()
 	@Expose()
-	playerId: string;
+	player_id: string;
 
 	@Expose()
 	title: string;
