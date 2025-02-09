@@ -10,6 +10,7 @@ import { Task } from "./type/task.type";
 import { DailyTaskQueue } from "./dailyTask.queue";
 import { taskReservedError } from "./errors/taskReserved.error";
 import { TaskGeneratorService } from "./taskGenerator.service";
+import {TIServiceCreateManyOptions, TReadByIdOptions} from "../common/service/basicService/IService";
 
 @Injectable()
 export class DailyTasksService {
@@ -24,8 +25,8 @@ export class DailyTasksService {
 		this.refsInModel = [ModelName.PLAYER];
 	}
 	public readonly modelName: ModelName;
-	public readonly basicService: BasicService;
 	public readonly refsInModel: ModelName[];
+	private readonly basicService: BasicService;
 
 	/**
 	 * Generates a set of tasks for a new clan.
@@ -65,7 +66,7 @@ export class DailyTasksService {
 	 */
 	async reserveTask(playerId: string, taskId: string, clanId: string) {
 		const [task, error] = await this.basicService.readOne<DailyTaskDto>({
-			filter: { _id: taskId, clanId },
+			filter: { _id: taskId, clan_id: clanId },
 		});
 		if (error) throw error;
 		if (task.player_id) throw taskReservedError;
@@ -96,7 +97,7 @@ export class DailyTasksService {
 	 */
 	async deleteTask(taskId: string, clanId: string, playerId: string) {
 		const newValues = this.taskGenerator.createTaskRandomValues();
-		const filter: any = { _id: taskId, clanId };
+		const filter: any = { _id: taskId, clan_id: clanId };
 		filter.$or = [{ playerId }, { playerId: { $exists: false } }];
 		return await this.basicService.updateOne(
 			{
@@ -128,7 +129,7 @@ export class DailyTasksService {
 		if (error) throw error;
 
 		task.amountLeft--;
-		
+
 		if (task.amountLeft === 0) {
 			await this.deleteTask(task._id.toString(), task.clan_id, playerId);
 			this.notifier.taskCompleted(playerId, task);
@@ -141,5 +142,29 @@ export class DailyTasksService {
 		}
 
 		return task;
+	}
+
+	/**
+	 * Reads a DailyTask by its _id in DB.
+	 *
+	 * @param _id - The Mongo _id of the DailyTask to read.
+	 * @param options - Options for reading the DailyTask.
+	 * @returns DailyTask with the given _id on succeed or an array of ServiceErrors if any occurred.
+	 */
+	async readOneById(_id: string, options?: TReadByIdOptions) {
+		const optionsToApply = options;
+		if(options?.includeRefs)
+			optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
+		return this.basicService.readOneById<DailyTaskDto>(_id, optionsToApply);
+	}
+
+	/**
+	 * Reads multiple daily tasks from the database based on the provided options.
+	 *
+	 * @param options - Optional settings for the read operation.
+	 * @returns A promise that resolves to a tuple where the first element is an array of ItemDto objects, and the second element is either null or an array of ServiceError objects if something went wrong.
+	 */
+	async readMany(options?: TIServiceCreateManyOptions) {
+		return this.basicService.readMany<DailyTaskDto>(options);
 	}
 }
