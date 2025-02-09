@@ -5,19 +5,19 @@ import BasicService from "../common/service/basicService/BasicService";
 import { ModelName } from "../common/enum/modelName.enum";
 import DailyTaskNotifier from "./dailyTask.notifier";
 import { DailyTask } from "./dailyTasks.schema";
-import { TaskName } from "./enum/taskName.enum";
-import { TASK_CONSTS } from "./consts/taskConstants";
 import { DailyTaskDto } from "./dto/dailyTask.dto";
 import { Task } from "./type/task.type";
 import { DailyTaskQueue } from "./dailyTask.queue";
 import { taskReservedError } from "./errors/taskReserved.error";
+import { TaskGeneratorService } from "./taskGenerator.service";
 
 @Injectable()
 export class DailyTasksService {
 	public constructor(
 		@InjectModel(DailyTask.name) public readonly model: Model<DailyTask>,
 		private readonly notifier: DailyTaskNotifier,
-		private readonly taskQueue: DailyTaskQueue
+		private readonly taskQueue: DailyTaskQueue,
+		private readonly taskGenerator: TaskGeneratorService,
 	) {
 		this.basicService = new BasicService(model);
 		this.modelName = ModelName.DAILY_TASK;
@@ -40,77 +40,18 @@ export class DailyTasksService {
 	async generateTasksForNewClan(clanId: string) {
 		const tasks: Partial<Task>[] = [];
 		for (let i = 0; i < 20; i++) {
-			const partial = this.createTaskRandomValues();
+			const partial = this.taskGenerator.createTaskRandomValues();
 			const timeLimitMinutes = partial.amount * 2;
 			const task: Partial<Task> = {
 				...partial,
 				amountLeft: partial.amount,
 				timeLimitMinutes,
-				clanId,
+				clan_id: clanId,
 			};
 			tasks.push(task);
 		}
 
 		return await this.basicService.createMany(tasks);
-	}
-
-	/**
-	 * Retrieves a random task type from the available task names enum.
-	 *
-	 * @returns A randomly selected task name.
-	 */
-	private getRandomTaskType(): TaskName {
-		const taskTypes = Object.values(TaskName);
-		const randomIndex = Math.floor(Math.random() * taskTypes.length);
-		return taskTypes[randomIndex];
-	}
-
-	/**
-	 * Generates a task title based on the task type and amount.
-	 *
-	 * @param type - The type of the task.
-	 * @param amount - The number associated with the task.
-	 * @returns The generated task title as a string.
-	 * @throws Will throw an error if the task type is unknown.
-	 */
-	private getTaskTitle(type: TaskName, amount: number): string {
-		switch (type) {
-			case TaskName.PLAY_BATTLE:
-				return `Pelaa ${amount} taistelua`;
-			case TaskName.WIN_BATTLE:
-				return `Voita ${amount} taistelua`;
-			case TaskName.WRITE_CHAT_MESSAGE:
-				return `Lähetä ${amount} viestiä chattiin`;
-			default:
-				throw new Error("Unknown task type");
-		}
-	}
-
-	/**
-	 * Generates a random task with random values for amount, points, coins, type, and title.
-	 *
-	 * @returns A partial Task missing the ids and startedAt fields and object containing randomly generated values.
-	 */
-	private createTaskRandomValues(): Partial<Task> {
-		const amount =
-			Math.floor(
-				Math.random() * (TASK_CONSTS.AMOUNT.MAX - TASK_CONSTS.AMOUNT.MIN + 1)
-			) + TASK_CONSTS.AMOUNT.MIN;
-		const points =
-			Math.floor(
-				Math.random() * (TASK_CONSTS.POINTS.MAX - TASK_CONSTS.POINTS.MIN + 1)
-			) + TASK_CONSTS.POINTS.MIN;
-		const coins = Math.floor(points * TASK_CONSTS.COINS.FACTOR);
-		const taskType = this.getRandomTaskType();
-		const titleString = this.getTaskTitle(taskType, amount);
-
-		return {
-			amount,
-			points,
-			coins,
-			type: taskType,
-			title: titleString,
-		};
 	}
 
 	/**
@@ -127,10 +68,10 @@ export class DailyTasksService {
 			filter: { _id: taskId, clanId },
 		});
 		if (error) throw error;
-		if (task.playerId) throw taskReservedError;
+		if (task.player_id) throw taskReservedError;
 
 		const startedAt = new Date();
-		task.playerId = playerId;
+		task.player_id = playerId;
 		task.startedAt = startedAt;
 
 		const [_, updateError] = await this.basicService.updateOneById(
@@ -154,7 +95,7 @@ export class DailyTasksService {
 	 * @returns A promise that resolves to the result of the update operation.
 	 */
 	async deleteTask(taskId: string, clanId: string, playerId: string) {
-		const newValues = this.createTaskRandomValues();
+		const newValues = this.taskGenerator.createTaskRandomValues();
 		const filter: any = { _id: taskId, clanId };
 		filter.$or = [{ playerId }, { playerId: { $exists: false } }];
 		return await this.basicService.updateOne(
@@ -189,7 +130,7 @@ export class DailyTasksService {
 		task.amountLeft--;
 		
 		if (task.amountLeft === 0) {
-			await this.deleteTask(task._id.toString(), task.clanId, playerId);
+			await this.deleteTask(task._id.toString(), task.clan_id, playerId);
 			this.notifier.taskCompleted(playerId, task);
 		} else {
 			const [_, updateError] = await this.basicService.updateOne(task, {
@@ -200,35 +141,5 @@ export class DailyTasksService {
 		}
 
 		return task;
-	}
-
-	/**
-	 * Handles the expiration of a daily task by resetting its playerId, amountLeft and startedAt fields.
-	 *
-	 * @param task - The daily task data transfer object containing task details.
-	 *
-	 * @throws - If there is error updating the task im db.
-	 */
-	async handleExpiredTask(task: DailyTaskDto) {
-		const [_, updateError] = await this.basicService.updateOne(
-			{
-				$set: {
-					amountLeft: task.amount,
-				},
-				$unset: {
-					playerId: "",
-					startedAt: "",
-				},
-			},
-			{ filter: { _id: task._id } }
-		);
-		if (updateError) throw updateError;
-
-		const playerId = task.playerId;
-		task.amountLeft = task.amount;
-		task.playerId = undefined;
-		task.startedAt = null;
-
-		this.notifier.taskUpdated(playerId, task);
 	}
 }
