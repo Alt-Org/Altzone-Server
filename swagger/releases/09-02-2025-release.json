@@ -480,7 +480,8 @@
         "/player": {
             "get": {
                 "tags": [
-                    "Player"
+                    "Player",
+                    "release-09-02-2025"
                 ],
                 "responses": {
                     "200": {
@@ -576,7 +577,8 @@
                     "required": true
                 },
                 "tags": [
-                    "Player"
+                    "Player",
+                    "release-09-02-2025"
                 ],
                 "responses": {
                     "204": {
@@ -621,7 +623,8 @@
                     "required": true
                 },
                 "tags": [
-                    "Player"
+                    "Player",
+                    "release-09-02-2025"
                 ],
                 "responses": {
                     "201": {
@@ -687,7 +690,8 @@
         "/player/{_id}": {
             "get": {
                 "tags": [
-                    "Player"
+                    "Player",
+                    "release-09-02-2025"
                 ],
                 "responses": {
                     "200": {
@@ -2067,7 +2071,8 @@
         "/customCharacter": {
             "get": {
                 "tags": [
-                    "CustomCharacter"
+                    "CustomCharacter",
+                    "release-09-02-2025"
                 ],
                 "responses": {
                     "200": {
@@ -2197,7 +2202,8 @@
                     "required": true
                 },
                 "tags": [
-                    "CustomCharacter"
+                    "CustomCharacter",
+                    "release-09-02-2025"
                 ],
                 "responses": {
                     "204": {
@@ -2236,7 +2242,8 @@
                     "required": true
                 },
                 "tags": [
-                    "CustomCharacter"
+                    "CustomCharacter",
+                    "release-09-02-2025"
                 ],
                 "responses": {
                     "201": {
@@ -2297,7 +2304,8 @@
         "/customCharacter/{_id}": {
             "get": {
                 "tags": [
-                    "CustomCharacter"
+                    "CustomCharacter",
+                    "release-09-02-2025"
                 ],
                 "responses": {
                     "200": {
@@ -3293,7 +3301,8 @@
         "/dailyTasks": {
             "get": {
                 "tags": [
-                    "DailyTasks"
+                    "DailyTasks",
+                    "release-09-02-2025"
                 ],
                 "responses": {
                     "200": {
@@ -4022,7 +4031,8 @@
         "/customCharacter/battleCharacters": {
             "get": {
                 "tags": [
-                    "CustomCharacter"
+                    "CustomCharacter",
+                    "release-09-02-2025"
                 ],
                 "responses": {
                     "200": {
@@ -4106,7 +4116,8 @@
         "/dailyTasks/:_id": {
             "get": {
                 "tags": [
-                    "DailyTasks"
+                    "DailyTasks",
+                    "release-09-02-2025"
                 ],
                 "responses": {
                     "200": {
@@ -4135,7 +4146,8 @@
             },
             "delete": {
                 "tags": [
-                    "DailyTasks"
+                    "DailyTasks",
+                    "release-09-02-2025"
                 ],
                 "responses": {
                     "204": {
@@ -4166,7 +4178,8 @@
         "/dailyTasks/reserve/:_id": {
             "put": {
                 "tags": [
-                    "DailyTasks"
+                    "DailyTasks",
+                    "release-09-02-2025"
                 ],
                 "responses": {
                     "200": {
@@ -4241,7 +4254,8 @@
                     "required": true
                 },
                 "tags": [
-                    "Item"
+                    "Item",
+                    "release-09-02-2025"
                 ],
                 "responses": {
                     "204": {
@@ -6032,8 +6046,8 @@
     ],
     "tags": [
         {
-            "name": "in-development",
-            "description": "Endpoint is currently changing or not yet implemented"
+            "name": "release-09-02-2025",
+            "description": "Release made on 09.02.2025"
         },
         {
             "name": "Profile",
