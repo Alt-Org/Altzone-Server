@@ -9,7 +9,7 @@ import { Task } from "./type/task.type";
 /**
  * Class for sending player tasks (or daily tasks on game side) notifications
  */
-export default class PlayerTaskNotifier {
+export default class DailyTaskNotifier {
     private readonly group = NotificationGroup.PLAYER;
     private readonly resource = NotificationResource.DAILY_TASK;
 

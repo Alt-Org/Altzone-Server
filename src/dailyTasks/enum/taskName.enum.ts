@@ -18,10 +18,10 @@
  */
 export enum TaskName {
 	PLAY_BATTLE = "play_battle",
-	START_VOTING = "start_voting",
-	COLLECT_DIAMONDS = "collect_diamonds_in_battle",
 	WIN_BATTLE = "win_battle",
 	WRITE_CHAT_MESSAGE = "write_chat_message",
-	START_BATTLE_NEW_CHARACTER = "start_battle_with_new_character",
-	VOTE = "vote",
+	// START_VOTING = "start_voting",
+	// COLLECT_DIAMONDS = "collect_diamonds_in_battle",
+	// START_BATTLE_NEW_CHARACTER = "start_battle_with_new_character",
+	// VOTE = "vote",
 }

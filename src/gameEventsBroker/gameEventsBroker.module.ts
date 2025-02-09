@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PlayerEventHandler } from './playerEventHandler';
-import { PlayerTasksModule } from '../playerTasks/playerTasks.module';
+import { DailyTasksModule } from '../dailyTasks/dailyTasks.module';
 import { RewarderModule } from '../rewarder/rewarder.module';
 import { StatisticsKeeperModule } from '../statisticsKeeper/statisticsKeeper.module';
 import { GameEventsHandler } from './gameEventsHandler';
@@ -9,7 +9,7 @@ import { ClanEventHandler } from './clanEventHandler';
 
 @Module({
   imports: [
-    PlayerTasksModule,
+    DailyTasksModule,
     RewarderModule,
     StatisticsKeeperModule,
     PlayerModule
