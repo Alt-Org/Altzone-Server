@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, Patch } from "@nestjs/common";
+import { Controller, Delete, Get, Param, Put } from "@nestjs/common";
 import { DailyTasksService } from "./dailyTasks.service";
 import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
 import { User } from "../auth/user";
@@ -33,7 +33,7 @@ export class DailyTasksController {
 		return await this.dailyTasksService.basicService.readOneById(param._id);
 	}
 
-	@Patch("/:_id")
+	@Put("/:_id")
 	@UniformResponse()
 	async reserveTask(@Param() param: _idDto, @LoggedUser() user: User) {
 		const clanId = await this.playerService.getPlayerClanId(user.player_id);
