@@ -6,6 +6,7 @@ import { ClanLabel } from './enum/clanLabel.enum';
 import { AgeRange } from './enum/ageRange.enum';
 import { Language } from '../common/enum/language.enum';
 import { Goal } from './enum/goal.enum';
+import { ClanLogo } from './clanLogo.schema';
 
 export type ClanDocument = HydratedDocument<Clan>;
 
@@ -16,6 +17,9 @@ export class Clan {
 
     @Prop({ type: String })
     tag: string;
+
+    @Prop({ type: ClanLogo })
+    clanLogo: ClanLogo;
 
     @Prop({ type: [String], enum: ClanLabel, required: true })
     labels: string[];
@@ -76,5 +80,6 @@ ClanSchema.virtual(ModelName.SOULHOME, {
     foreignField: 'clan_id',
     justOne: true
 });
+ClanSchema.index({ points: -1 });
 
 export const publicReferences = [ ModelName.PLAYER, ModelName.STOCK, ModelName.SOULHOME ];

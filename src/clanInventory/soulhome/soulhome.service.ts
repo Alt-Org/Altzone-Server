@@ -61,8 +61,10 @@ export class SoulHomeService {
     }
 
     /**
-     * Deletes a SoulHome its _id from DB.
-     * 
+     * Deletes a SoulHome by its _id from DB.
+     *
+     * Notice that the method will also delete associated rooms.
+     *
      * @param _id - The Mongo _id of the SoulHome to delete.
      * @returns _true_ if SoulHome was removed successfully, or a ServiceError array if the SoulHome was not found or something else went wrong
      */

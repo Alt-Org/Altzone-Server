@@ -12,6 +12,7 @@ import { JoinService } from './join/join.service';
 import ClanHelperService from './utils/clanHelper.service';
 import { PlayerSchema } from '../player/player.schema';
 import { ClanInventoryModule } from '../clanInventory/clanInventory.module';
+import { PlayerModule } from '../player/player.module';
 
 @Module({
     imports: [
@@ -21,7 +22,8 @@ import { ClanInventoryModule } from '../clanInventory/clanInventory.module';
             {name: ModelName.PLAYER, schema: PlayerSchema}  
         ]),
         ClanInventoryModule,
-        RequestHelperModule
+        RequestHelperModule,
+        PlayerModule,
     ],
     controllers: [ClanController],
     providers: [ ClanService, isClanExists, PlayerCounterFactory, JoinService, ClanHelperService ],
