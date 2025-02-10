@@ -1,6 +1,5 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
-import { RewarderModule } from "../rewarder/rewarder.module";
 import DailyTaskNotifier from "./dailyTask.notifier";
 import { DailyTasksService } from "./dailyTasks.service";
 import { DailyTasksController } from "./dailyTasks.controller";
@@ -18,7 +17,6 @@ import { TaskGeneratorService } from "./taskGenerator.service";
 		BullModule.registerQueue({
 			name: "daily-tasks",
 		}),
-		RewarderModule,
 		PlayerModule,
 	],
 	providers: [DailyTasksService, TaskGeneratorService, DailyTaskNotifier, DailyTaskQueue, DailyTaskProcessor],
