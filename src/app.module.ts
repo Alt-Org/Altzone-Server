@@ -27,6 +27,7 @@ import { FleaMarketModule } from './fleaMarket/fleaMarket.module';
 import { VotingModule } from './voting/voting.module';
 import { BullModule } from '@nestjs/bullmq';
 import { DailyTasksModule } from './dailyTasks/dailyTasks.module';
+import {BoxModule} from "./box/box.module";
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -74,15 +75,17 @@ const redisPort = parseInt(envVars.REDIS_PORT);
       VotingModule,
 
       ClanInventoryModule,
-      
+
       ProfileModule,
       SiteModule,
-      
+
       AuthModule,
       AuthorizationModule,
       GameAnalyticsModule,
 
-      RequestHelperModule
+      RequestHelperModule,
+
+      BoxModule
   ],
   controllers: [AppController],
   providers: [
