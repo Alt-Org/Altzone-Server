@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
 import { ModelName } from "../common/enum/modelName.enum";
 import { TaskName } from "./enum/taskName.enum";
+import {TaskTitle} from "./type/taskTitle.type";
 
 export type DailyTaskDocument = HydratedDocument<DailyTask>;
 
@@ -14,7 +15,7 @@ export class DailyTask {
 	player_id?: string;
 
 	@Prop({ type: Object, required: true })
-	title: { fi: string };
+	title: TaskTitle;
 
 	@Prop({ type: String, enum: TaskName, required: true })
 	type: TaskName;
