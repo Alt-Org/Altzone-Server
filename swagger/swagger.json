@@ -3306,243 +3306,45 @@
                                                 "DailyTask": [
                                                     {
                                                         "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf3501",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Pelaa 17 taistelua",
-                                                        "type": "play_battle",
-                                                        "points": 92,
-                                                        "coins": 46,
-                                                        "amount": 17,
-                                                        "amountLeft": 17,
-                                                        "timeLimitMinutes": 34
+                                                        "_id": "67ac9893b069b0c43e445c43",
+                                                        "clan_id": "67ac9893b069b0c43e445bee",
+                                                        "title": {
+                                                            "fi": "Lähetä 8 viestiä chattiin"
+                                                        },
+                                                        "type": "write_chat_message",
+                                                        "points": 16,
+                                                        "coins": 8,
+                                                        "amount": 8,
+                                                        "amountLeft": 8,
+                                                        "timeLimitMinutes": 16
                                                     },
                                                     {
                                                         "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf3502",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Pelaa 2 taistelua",
-                                                        "type": "play_battle",
-                                                        "points": 71,
-                                                        "coins": 35,
-                                                        "amount": 2,
-                                                        "amountLeft": 2,
-                                                        "timeLimitMinutes": 4
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf3503",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Pelaa 9 taistelua",
-                                                        "type": "play_battle",
-                                                        "points": 32,
-                                                        "coins": 16,
-                                                        "amount": 9,
-                                                        "amountLeft": 9,
-                                                        "timeLimitMinutes": 18
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf3504",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Voita 16 taistelua",
+                                                        "_id": "67ac9893b069b0c43e445c44",
+                                                        "clan_id": "67ac9893b069b0c43e445bee",
+                                                        "title": {
+                                                            "fi": "Voita 14 taistelua"
+                                                        },
                                                         "type": "win_battle",
-                                                        "points": 50,
-                                                        "coins": 25,
-                                                        "amount": 16,
-                                                        "amountLeft": 16,
-                                                        "timeLimitMinutes": 32
+                                                        "points": 44,
+                                                        "coins": 22,
+                                                        "amount": 14,
+                                                        "amountLeft": 14,
+                                                        "timeLimitMinutes": 28
                                                     },
                                                     {
                                                         "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf3505",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Lähetä 20 viestiä chattiin",
-                                                        "type": "write_chat_message",
-                                                        "points": 23,
-                                                        "coins": 11,
-                                                        "amount": 20,
-                                                        "amountLeft": 20,
-                                                        "timeLimitMinutes": 40
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf3506",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Lähetä 4 viestiä chattiin",
-                                                        "type": "write_chat_message",
-                                                        "points": 68,
-                                                        "coins": 34,
+                                                        "_id": "67ac9893b069b0c43e445c45",
+                                                        "clan_id": "67ac9893b069b0c43e445bee",
+                                                        "title": {
+                                                            "fi": "Pelaa 4 taistelua"
+                                                        },
+                                                        "type": "play_battle",
+                                                        "points": 90,
+                                                        "coins": 45,
                                                         "amount": 4,
                                                         "amountLeft": 4,
                                                         "timeLimitMinutes": 8
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf3507",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Lähetä 3 viestiä chattiin",
-                                                        "type": "write_chat_message",
-                                                        "points": 91,
-                                                        "coins": 45,
-                                                        "amount": 3,
-                                                        "amountLeft": 3,
-                                                        "timeLimitMinutes": 6
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf3508",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Voita 19 taistelua",
-                                                        "type": "win_battle",
-                                                        "points": 83,
-                                                        "coins": 41,
-                                                        "amount": 19,
-                                                        "amountLeft": 19,
-                                                        "timeLimitMinutes": 38
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf3509",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Pelaa 15 taistelua",
-                                                        "type": "play_battle",
-                                                        "points": 55,
-                                                        "coins": 27,
-                                                        "amount": 15,
-                                                        "amountLeft": 15,
-                                                        "timeLimitMinutes": 30
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf350a",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Lähetä 5 viestiä chattiin",
-                                                        "type": "write_chat_message",
-                                                        "points": 21,
-                                                        "coins": 10,
-                                                        "amount": 5,
-                                                        "amountLeft": 5,
-                                                        "timeLimitMinutes": 10
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf350b",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Lähetä 10 viestiä chattiin",
-                                                        "type": "write_chat_message",
-                                                        "points": 91,
-                                                        "coins": 45,
-                                                        "amount": 10,
-                                                        "amountLeft": 10,
-                                                        "timeLimitMinutes": 20
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf350c",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Lähetä 5 viestiä chattiin",
-                                                        "type": "write_chat_message",
-                                                        "points": 70,
-                                                        "coins": 35,
-                                                        "amount": 5,
-                                                        "amountLeft": 5,
-                                                        "timeLimitMinutes": 10
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf350d",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Lähetä 2 viestiä chattiin",
-                                                        "type": "write_chat_message",
-                                                        "points": 21,
-                                                        "coins": 10,
-                                                        "amount": 2,
-                                                        "amountLeft": 2,
-                                                        "timeLimitMinutes": 4
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf350e",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Voita 6 taistelua",
-                                                        "type": "win_battle",
-                                                        "points": 77,
-                                                        "coins": 38,
-                                                        "amount": 6,
-                                                        "amountLeft": 6,
-                                                        "timeLimitMinutes": 12
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf350f",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Lähetä 3 viestiä chattiin",
-                                                        "type": "write_chat_message",
-                                                        "points": 38,
-                                                        "coins": 19,
-                                                        "amount": 3,
-                                                        "amountLeft": 3,
-                                                        "timeLimitMinutes": 6
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf3512",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Pelaa 13 taistelua",
-                                                        "type": "play_battle",
-                                                        "points": 93,
-                                                        "coins": 46,
-                                                        "amount": 13,
-                                                        "amountLeft": 13,
-                                                        "timeLimitMinutes": 26
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf3513",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Voita 13 taistelua",
-                                                        "type": "win_battle",
-                                                        "points": 10,
-                                                        "coins": 5,
-                                                        "amount": 13,
-                                                        "amountLeft": 13,
-                                                        "timeLimitMinutes": 26
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf3514",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Voita 5 taistelua",
-                                                        "type": "win_battle",
-                                                        "points": 17,
-                                                        "coins": 8,
-                                                        "amount": 5,
-                                                        "amountLeft": 5,
-                                                        "timeLimitMinutes": 10
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf3510",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Voita 2 taistelua",
-                                                        "type": "win_battle",
-                                                        "points": 51,
-                                                        "coins": 25,
-                                                        "amount": 2,
-                                                        "amountLeft": 2,
-                                                        "timeLimitMinutes": 4
-                                                    },
-                                                    {
-                                                        "objectType": "DailyTaskDto",
-                                                        "_id": "67a85c1c0a8da114b5bf3511",
-                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                        "title": "Pelaa 17 taistelua",
-                                                        "type": "play_battle",
-                                                        "points": 100,
-                                                        "coins": 50,
-                                                        "amount": 17,
-                                                        "amountLeft": 17,
-                                                        "timeLimitMinutes": 34
                                                     }
                                                 ]
                                             },
@@ -3550,7 +3352,7 @@
                                                 "dataKey": "DailyTask",
                                                 "modelName": "DailyTask",
                                                 "dataType": "Array",
-                                                "dataCount": 20
+                                                "dataCount": 3
                                             }
                                         }
                                     }
@@ -4110,6 +3912,38 @@
                 ],
                 "responses": {
                     "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "DailyTask": {
+                                                    "objectType": "DailyTaskDto",
+                                                    "_id": "67ac9893b069b0c43e445c43",
+                                                    "clan_id": "67ac9893b069b0c43e445bee",
+                                                    "title": {
+                                                        "fi": "Lähetä 8 viestiä chattiin"
+                                                    },
+                                                    "type": "write_chat_message",
+                                                    "points": 16,
+                                                    "coins": 8,
+                                                    "amount": 8,
+                                                    "amountLeft": 8,
+                                                    "timeLimitMinutes": 16
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "DailyTask",
+                                                "modelName": "DailyTask",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
                         "description": "Success, response with body"
                     },
                     "400": {
@@ -4177,19 +4011,21 @@
                                         "value": {
                                             "data": {
                                                 "Object": {
-                                                    "_id": "67a85c1c0a8da114b5bf3501",
-                                                    "clan_id": "67a85c1c0a8da114b5bf34ac",
-                                                    "title": "Pelaa 17 taistelua",
-                                                    "type": "play_battle",
-                                                    "points": 92,
-                                                    "coins": 46,
-                                                    "amount": 17,
-                                                    "amountLeft": 17,
-                                                    "timeLimitMinutes": 34,
+                                                    "_id": "67ac9893b069b0c43e445c43",
+                                                    "clan_id": "67ac9893b069b0c43e445bee",
+                                                    "title": {
+                                                        "fi": "Lähetä 8 viestiä chattiin"
+                                                    },
+                                                    "type": "write_chat_message",
+                                                    "points": 16,
+                                                    "coins": 8,
+                                                    "amount": 8,
+                                                    "amountLeft": 8,
+                                                    "timeLimitMinutes": 16,
                                                     "__v": 0,
                                                     "player_id": "67a85b8b0a8da114b5bf348f",
-                                                    "startedAt": "2025-02-09T08:02:08.170Z",
-                                                    "id": "67a85c1c0a8da114b5bf3501"
+                                                    "startedAt": "2025-02-12T12:54:09.151Z",
+                                                    "id": "67ac9893b069b0c43e445c43"
                                                 }
                                             },
                                             "metaData": {
