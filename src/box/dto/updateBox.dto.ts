@@ -1,6 +1,6 @@
 import {IsArray, IsEnum, IsMongoId, IsNumber, IsOptional, IsString, ValidateNested} from "class-validator";
 import {SessionStage} from "../enum/SessionStage.enum";
-import {ObjectId} from "mongoose";
+import {ObjectId} from "mongodb";
 import {Type} from "class-transformer";
 import {Tester} from "../schemas/tester.schema";
 import {DailyTask} from "../../dailyTasks/dailyTasks.schema";

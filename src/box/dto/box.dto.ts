@@ -1,7 +1,7 @@
 import {Expose, Type} from "class-transformer";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {SessionStage} from "../enum/SessionStage.enum";
-import {ObjectId} from "mongoose";
+import {ObjectId} from "mongodb";
 import {Tester} from "../schemas/tester.schema";
 import {DailyTask} from "../../dailyTasks/dailyTasks.schema";
 

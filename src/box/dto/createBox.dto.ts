@@ -7,7 +7,7 @@ import {
     ValidateNested
 } from "class-validator";
 import {SessionStage} from "../enum/SessionStage.enum";
-import { ObjectId } from "mongoose";
+import { ObjectId } from "mongodb";
 import { Tester } from "../schemas/tester.schema";
 import {Type} from "class-transformer";
 import {DailyTask} from "../../dailyTasks/dailyTasks.schema";
