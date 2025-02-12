@@ -3,8 +3,9 @@ import {MongooseModule} from '@nestjs/mongoose';
 import {ModelName} from '../../../common/enum/modelName.enum';
 import {mongooseOptions, mongoString} from '../../test_utils/const/db';
 import {BoxSchema} from "../../../box/schemas/box.schema";
-import {GroupAdminSchema} from "../../../box/schemas/groupAdmin.schema";
+import {GroupAdminSchema} from "../../../box/groupAdmin/groupAdmin.schema";
 import {BoxService} from "../../../box/box.service";
+import {GroupAdminService} from "../../../box/groupAdmin/groupAdmin.service";
 
 
 export default class BoxCommonModule {
@@ -25,7 +26,7 @@ export default class BoxCommonModule {
 
                 ],
                 providers: [
-                    BoxService
+                    BoxService, GroupAdminService
                 ]
             }).compile();
 

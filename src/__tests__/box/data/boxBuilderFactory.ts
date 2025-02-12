@@ -1,10 +1,12 @@
 import BoxBuilder from "./box/BoxBuilder";
 import CreateBoxDtoBuilder from "./box/CreateBoxDtoBuilder";
 import UpdateBoxDtoBuilder from "./box/UpdateBoxDtoBuilder";
-import GroupAdminBuilder from "./box/GroupAdminBuilder";
+import GroupAdminBuilder from "./groupAdmin/GroupAdminBuilder";
 
 
-type BuilderName = 'Box' | 'CreateBoxDto' | 'UpdateBoxDto' | 'GroupAdmin';
+type BuilderName =
+    'Box' | 'CreateBoxDto' | 'UpdateBoxDto' |
+    'GroupAdmin';
 
 type BuilderMap = {
     Box: BoxBuilder,

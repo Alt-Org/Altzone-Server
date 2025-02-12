@@ -2,9 +2,10 @@ import {Module} from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import {ModelName} from "../common/enum/modelName.enum";
 import {BoxSchema} from "./schemas/box.schema";
-import {GroupAdminSchema} from "./schemas/groupAdmin.schema";
+import {GroupAdminSchema} from "./groupAdmin/groupAdmin.schema";
 import {BoxController} from "./box.controller";
 import {BoxService} from "./box.service";
+import {GroupAdminService} from "./groupAdmin/groupAdmin.service";
 
 @Module({
     imports: [
@@ -20,7 +21,7 @@ import {BoxService} from "./box.service";
         BoxService
     ],
     exports: [
-        BoxService
+        BoxService, GroupAdminService
     ]
 })
 export class BoxModule {}
