@@ -7,5 +7,9 @@
  * @returns array of clan names
  */
 export default function generateClanNames(uniqueValue: string, nameCount: number): string[] {
-    return null;
+    const names: string[] = [];
+    for(let i = 0; i < nameCount; i++)
+        names.push(`${uniqueValue} clan ${i+1}`);
+
+    return names;
 }
