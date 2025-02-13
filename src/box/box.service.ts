@@ -44,10 +44,11 @@ export class BoxService {
      * @returns created box on success or ServiceErrors:
      *
      * - REQUIRED if the provided input is null or undefined
+     * - NOT_FOUND if anu of the resources not found: profiles, players, clans, soul homes, stocks, rooms, chat
      * - NOT_UNIQUE if a box with provided admin password already exists
      * - validation errors if input is invalid
      */
-    public async createBox(box: Box): Promise<IServiceReturn<Box>> {
+    public async createOne(box: Box): Promise<IServiceReturn<Box>> {
         return null;
     }
 
