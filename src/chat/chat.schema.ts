@@ -1,11 +1,13 @@
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
 import {HydratedDocument} from "mongoose";
 import {ModelName} from "../common/enum/modelName.enum";
+import {ExtractField} from "../common/decorator/response/ExtractField";
+import {ObjectId} from "mongodb";
 
 export type ChatDocument = HydratedDocument<Chat>;
 
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true }, _id: false, id: false})
-class Message {
+export class Message {
     @Prop({ type: Number, required: true })
     id: number;
 
@@ -28,6 +30,9 @@ export class Chat {
     //add validate func, if needed (the only way to check is _id unique)
     @Prop({type: [MessageSchema], required: true, default: [], _id: false})
     messages: Message[] = [];
+
+    @ExtractField()
+    _id: ObjectId;
 }
 
 export const ChatSchema = SchemaFactory.createForClass(Chat);
