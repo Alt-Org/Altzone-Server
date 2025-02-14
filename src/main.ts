@@ -8,12 +8,15 @@ import { join } from 'path';
 import { APIError } from './common/controller/APIError';
 import { validationToAPIErrors } from './common/exceptionFilter/ValidationExceptionFilter';
 import EnvHandler from './common/service/envHandler/envHandler';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
     // Validate that all environment variables are added to the .env file
     new EnvHandler().validateAllEnvFound();
 
     const app = await NestFactory.create(AppModule);
+
+    app.use(cookieParser());
 
     app.useGlobalPipes(
         new ValidationPipe({ whitelist: true, transform: true, exceptionFactory: errorFactory })
