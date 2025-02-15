@@ -17,8 +17,12 @@ import StockModule from "../../clanInventory/modules/stock.module";
 import ChatBuilderFactory from "../../chat/data/chatBuilderFactory";
 import ChatModule from "../../chat/modules/chat.module";
 import {getNonExisting_id} from "../../test_utils/util/getNonExisting_id";
+import {envVars} from "../../../common/service/envHandler/envVars";
+import {Environment} from "../../../common/service/envHandler/enum/environment.enum";
 
 describe('BoxService.createOne() test suite', () => {
+    envVars.ENVIRONMENT = Environment.TESTING_SESSION;
+
     let boxService: BoxService;
     const boxBuilder = BoxBuilderFactory.getBuilder('Box');
     const boxModel = BoxModule.getBoxModel();
