@@ -11,7 +11,7 @@ export class CreateBoxDto {
     adminPassword: string;
 
     @IsString()
-    playerName?: string;
+    playerName: string;
 
     @IsOptional()
     @IsArray()
