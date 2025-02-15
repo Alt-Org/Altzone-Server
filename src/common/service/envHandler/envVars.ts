@@ -1,5 +1,6 @@
 import * as dotenv from "dotenv";
 import * as process from "node:process";
+import {Environment} from "./enum/environment.enum";
 
 dotenv.config();
 
@@ -19,7 +20,7 @@ type EnvName =
  * @property PSW_MEMORY - Password setting.
  * @property PSW_TIME - Password setting.
  * @property PSW_PARALLELISM - Password setting.
- * @property ENVIRONMENT - Environment where the API runs, 'PRODUCTION' | 'TESTING_SESSION', default is PRODUCTION
+ * @property ENVIRONMENT - Environment where the API runs, see Environment enum, default is PRODUCTION
  * @property MONGO_USERNAME - The username for MongoDB authentication.
  * @property MONGO_PASSWORD - The password for MongoDB authentication.
  * @property MONGO_HOST - The MongoDB host address.
@@ -48,7 +49,7 @@ export const envVars: Record<EnvName, string> = {
     PSW_MEMORY: process.env.PSW_MEMORY,
     PSW_TIME: process.env.PSW_TIME,
     PSW_PARALLELISM: process.env.PSW_PARALLELISM,
-    ENVIRONMENT: process.env.ENVIRONMENT ?? 'PRODUCTION',
+    ENVIRONMENT: process.env.ENVIRONMENT ?? Environment.PRODUCTION,
 
     MONGO_USERNAME: process.env.MONGO_USERNAME,
     MONGO_PASSWORD: process.env.MONGO_PASSWORD,
