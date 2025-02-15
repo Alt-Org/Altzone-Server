@@ -1,6 +1,4 @@
-import {clearDBRespDefaultFields} from "../../test_utils/util/removeDBDefaultFields";
 import {ObjectId} from "mongodb";
-import {BoxService} from "../../../box/box.service";
 import BoxBuilderFactory from "../data/boxBuilderFactory";
 import BoxModule from "../modules/box.module";
 import {Box} from "../../../box/schemas/box.schema";
@@ -19,13 +17,13 @@ import ChatModule from "../../chat/modules/chat.module";
 import {getNonExisting_id} from "../../test_utils/util/getNonExisting_id";
 import {envVars} from "../../../common/service/envHandler/envVars";
 import {Environment} from "../../../common/service/envHandler/enum/environment.enum";
+import {BoxHelper} from "../../../box/util/boxHelper";
 
 describe('BoxService.createOne() test suite', () => {
     envVars.ENVIRONMENT = Environment.TESTING_SESSION;
 
-    let boxService: BoxService;
+    let boxService: BoxHelper;
     const boxBuilder = BoxBuilderFactory.getBuilder('Box');
-    const boxModel = BoxModule.getBoxModel();
     let validBox: Box;
 
     const boxAdmin = 'box-admin';
@@ -71,7 +69,7 @@ describe('BoxService.createOne() test suite', () => {
     const chatModel = ChatModule.getChatModel();
 
     beforeEach(async () => {
-        boxService = await BoxModule.getBoxService();
+        boxService = await BoxModule.getBoxHelperService();
 
         const adminResp = await adminModel.create(existingAdmin);
         existingAdmin._id = adminResp._id;
@@ -147,74 +145,37 @@ describe('BoxService.createOne() test suite', () => {
             .build();
     });
 
-    it('Should save box data to DB if input is valid', async () => {
-        await boxService.createOne(validBox);
-
-        const dbResp = await boxModel.find({ adminPassword: boxAdmin });
-        const boxInDB = dbResp[0]?.toObject();
-
-        const clearedResp = clearDBRespDefaultFields(boxInDB);
-
-        expect(dbResp).toHaveLength(1);
-        expect(clearedResp).toEqual(expect.objectContaining({
-            ...validBox, _id: expect.any(ObjectId), createdAt: expect.any(Date), updatedAt: expect.any(Date),
-            testersSharedPassword: null
-        }));
-    });
-
-    it('Should return saved box data, if input is valid', async () => {
-        const [result, errors] = await boxService.createOne(validBox);
-
-        const clearedBox = clearDBRespDefaultFields(result);
-        const clearedResp = clearDBRespDefaultFields(clearedBox);
-
-        expect(errors).toBeNull();
-        expect(clearedResp).toEqual(expect.objectContaining({
-            ...validBox, _id: expect.any(ObjectId), createdAt: expect.any(Date), updatedAt: expect.any(Date),
-            testersSharedPassword: null
-        }));
-    });
-
-    it('Should not save any box in DB, if the provided adminPassword is null', async () => {
-        const invalidBox = {...validBox, adminPassword: null} as any;
-        await boxService.createOne(invalidBox);
-
-        const dbResp = await boxModel.findOne({ adminPassword: boxAdmin });
-
-        expect(dbResp).toBeNull();
-    });
-
     it('Should return ServiceError with reason REQUIRED, if the provided adminPassword is null', async () => {
         const invalidBox = {...validBox, adminPassword: null} as any;
-        const [result, errors] = await boxService.createOne(invalidBox);
+        const [result, errors] = await boxService.validateBox(invalidBox);
 
         expect(result).toBeNull();
         expect(errors).toContainSE_REQUIRED();
     });
 
     it('Should return ServiceError REQUIRED if provided input is null', async () => {
-        const [result, errors] = await boxService.createOne(null);
+        const [result, errors] = await boxService.validateBox(null);
 
         expect(result).toBeNull();
         expect(errors).toContainSE_REQUIRED();
     });
 
     it('Should return ServiceError REQUIRED if provided input is undefined', async () => {
-        const [result, errors] = await boxService.createOne(undefined);
+        const [result, errors] = await boxService.validateBox(undefined);
 
         expect(result).toBeNull();
         expect(errors).toContainSE_REQUIRED();
     });
 
     it('Should return ServiceError with reason NOT_FOUND, if the provided adminPassword does not exists', async () => {
-        const [result, errors] = await boxService.createOne({...validBox, adminPassword: 'non-existent'});
+        const [result, errors] = await boxService.validateBox({...validBox, adminPassword: 'non-existent'});
 
         expect(result).toBeNull();
         expect(errors).toContainSE_NOT_FOUND();
     });
 
     it('Should return ServiceError with reason NOT_FOUND, if any of the provided clans does not exists', async () => {
-        const [result, errors] = await boxService.createOne({...validBox, clan_ids: [...validBox.clan_ids, new ObjectId(getNonExisting_id())]});
+        const [result, errors] = await boxService.validateBox({...validBox, clan_ids: [...validBox.clan_ids, new ObjectId(getNonExisting_id())]});
 
         expect(result).toBeNull();
         expect(errors).toContainSE_NOT_FOUND();
@@ -222,7 +183,7 @@ describe('BoxService.createOne() test suite', () => {
 
     it('Should return ServiceError with reason NOT_FOUND, if any of the provided testers does not exists', async () => {
         const nonExistingTester = { profile_id: new ObjectId(getNonExisting_id()), player_id: new ObjectId(getNonExisting_id()), isClaimed: false };
-        const [result, errors] = await boxService.createOne({
+        const [result, errors] = await boxService.validateBox({
             ...validBox,
             testers: [...validBox.testers, nonExistingTester]
         });
@@ -232,7 +193,7 @@ describe('BoxService.createOne() test suite', () => {
     });
 
     it('Should return ServiceError with reason NOT_FOUND, if the provided admin profile does not exists', async () => {
-        const [result, errors] = await boxService.createOne({
+        const [result, errors] = await boxService.validateBox({
             ...validBox,
             adminProfile_id: new ObjectId(getNonExisting_id())
         });
@@ -242,7 +203,7 @@ describe('BoxService.createOne() test suite', () => {
     });
 
     it('Should return ServiceError with reason NOT_FOUND, if the provided admin player does not exists', async () => {
-        const [result, errors] = await boxService.createOne({
+        const [result, errors] = await boxService.validateBox({
             ...validBox,
             adminPlayer_id: new ObjectId(getNonExisting_id())
         });
@@ -252,7 +213,7 @@ describe('BoxService.createOne() test suite', () => {
     });
 
     it('Should return ServiceError with reason NOT_FOUND, if the provided chat does not exists', async () => {
-        const [result, errors] = await boxService.createOne({
+        const [result, errors] = await boxService.validateBox({
             ...validBox,
             chat_id: new ObjectId(getNonExisting_id())
         });
@@ -262,7 +223,7 @@ describe('BoxService.createOne() test suite', () => {
     });
 
     it('Should return ServiceError with reason NOT_FOUND, if any of the provided stocks does not exists', async () => {
-        const [result, errors] = await boxService.createOne({
+        const [result, errors] = await boxService.validateBox({
             ...validBox,
             stock_ids: [new ObjectId(getNonExisting_id())]
         });
@@ -272,7 +233,7 @@ describe('BoxService.createOne() test suite', () => {
     });
 
     it('Should return ServiceError with reason NOT_FOUND, if any of the provided soul homes does not exists', async () => {
-        const [result, errors] = await boxService.createOne({
+        const [result, errors] = await boxService.validateBox({
             ...validBox,
             soulHome_ids: [new ObjectId(getNonExisting_id())]
         });
@@ -282,7 +243,7 @@ describe('BoxService.createOne() test suite', () => {
     });
 
     it('Should return ServiceError with reason NOT_FOUND, if any of the provided rooms does not exists', async () => {
-        const [result, errors] = await boxService.createOne({
+        const [result, errors] = await boxService.validateBox({
             ...validBox,
             room_ids: [new ObjectId(getNonExisting_id())]
         });

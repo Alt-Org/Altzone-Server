@@ -1,16 +1,18 @@
-import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import {Injectable} from "@nestjs/common";
+import {InjectModel} from "@nestjs/mongoose";
+import {Model} from "mongoose";
 import {Box, publicReferences} from "./schemas/box.schema";
 import BasicService from "../common/service/basicService/BasicService";
 import {BoxReference} from "./enum/BoxReference.enum";
 import {CreateBoxDto} from "./dto/createBox.dto";
 import {IServiceReturn} from "../common/service/basicService/IService";
+import {BoxHelper} from "./util/boxHelper";
 
 @Injectable()
 export class BoxService {
     public constructor(
         @InjectModel(Box.name) public readonly model: Model<Box>,
+        private readonly boxHelper: BoxHelper,
     ){
         this.refsInModel = publicReferences;
         this.basicService = new BasicService(model);
@@ -47,7 +49,12 @@ export class BoxService {
      * - validation errors if input is invalid
      */
     public async createOne(box: Box): Promise<IServiceReturn<Box>> {
-        return null;
+        const [isBoxValid, validationErrors] = await this.boxHelper.validateBox(box);
+
+        if(validationErrors)
+            return [null, validationErrors];
+
+        return this.basicService.createOne(box);
     }
 
     /**

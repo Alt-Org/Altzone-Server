@@ -7,22 +7,22 @@ import {DailyTask} from "../../../../dailyTasks/dailyTasks.schema";
 
 export default class UpdateBoxDtoBuilder {
     private readonly base: Partial<UpdateBoxDto> = {
-        _id: null,
-        adminPassword: null,
-        sessionStage: null,
-        testersSharedPassword: null,
-        boxRemovalTime: null,
-        sessionResetTime: null,
-        adminProfile_id: null,
-        adminPlayer_id: null,
-        clan_ids: null,
-        soulHome_ids: null,
-        room_ids: null,
-        stock_ids: null,
-        chat_id: null,
-        testers: null,
-        accountClaimersIds: null,
-        dailyTasks: null,
+        _id: undefined,
+        adminPassword: undefined,
+        sessionStage: undefined,
+        testersSharedPassword: undefined,
+        boxRemovalTime: undefined,
+        sessionResetTime: undefined,
+        adminProfile_id: undefined,
+        adminPlayer_id: undefined,
+        clan_ids: undefined,
+        soulHome_ids: undefined,
+        room_ids: undefined,
+        stock_ids: undefined,
+        chat_id: undefined,
+        testers: undefined,
+        accountClaimersIds: undefined,
+        dailyTasks: undefined,
     };
 
     build(): UpdateBoxDto {

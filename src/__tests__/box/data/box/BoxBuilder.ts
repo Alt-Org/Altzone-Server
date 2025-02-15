@@ -8,20 +8,20 @@ export default class BoxBuilder {
     private readonly base: Partial<Box> = {
         adminPassword: 'defaultAdminPassword',
         sessionStage: SessionStage.PREPARING,
-        testersSharedPassword: null,
+        testersSharedPassword: undefined,
         boxRemovalTime: Date.now() + 1000000,
         sessionResetTime: Date.now() + 500000,
-        adminProfile_id: null,
-        adminPlayer_id: null,
+        adminProfile_id: undefined,
+        adminPlayer_id: undefined,
         clan_ids: [],
         soulHome_ids: [],
         room_ids: [],
         stock_ids: [],
-        chat_id: null,
+        chat_id: undefined,
         testers: [],
         accountClaimersIds: [],
         dailyTasks: [],
-        _id: null
+        _id: undefined
     };
 
     build(): Box {

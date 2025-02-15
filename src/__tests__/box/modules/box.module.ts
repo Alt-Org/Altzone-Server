@@ -5,6 +5,7 @@ import {BoxService} from "../../../box/box.service";
 import {BoxSchema} from "../../../box/schemas/box.schema";
 import {GroupAdminSchema} from "../../../box/groupAdmin/groupAdmin.schema";
 import {GroupAdminService} from "../../../box/groupAdmin/groupAdmin.service";
+import {BoxHelper} from "../../../box/util/boxHelper";
 
 export default class BoxModule {
     private constructor() {}
@@ -25,5 +26,10 @@ export default class BoxModule {
 
     static getGroupAdminModel(){
         return mongoose.model(ModelName.GROUP_ADMIN, GroupAdminSchema);
+    }
+
+    static async getBoxHelperService(){
+        const module = await BoxCommonModule.getModule();
+        return module.resolve(BoxHelper);
     }
 }
