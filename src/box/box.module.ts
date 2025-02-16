@@ -14,6 +14,10 @@ import {RoomSchema} from "../clanInventory/room/room.schema";
 import {StockSchema} from "../clanInventory/stock/stock.schema";
 import {ChatSchema} from "../chat/chat.schema";
 import {BoxHelper} from "./util/boxHelper";
+import {ClanModule} from "../clan/clan.module";
+import {ChatModule} from "../chat/chat.module";
+import {PlayerModule} from "../player/player.module";
+import {ProfileModule} from "../profile/profile.module";
 
 @Module({
     imports: [
@@ -27,13 +31,17 @@ import {BoxHelper} from "./util/boxHelper";
             { name: ModelName.ROOM, schema: RoomSchema },
             { name: ModelName.STOCK, schema: StockSchema },
             { name: ModelName.CHAT, schema: ChatSchema }
-        ])
+        ]),
+        ClanModule,
+        ChatModule,
+        ProfileModule,
+        PlayerModule
     ],
     controllers: [
         BoxController
     ],
     providers: [
-        BoxService, GroupAdminService, BoxHelper
+        BoxService, GroupAdminService, BoxHelper,
     ],
     exports: [
         BoxService

@@ -28,7 +28,7 @@ export default class BoxModule {
         return mongoose.model(ModelName.GROUP_ADMIN, GroupAdminSchema);
     }
 
-    static async getBoxHelperService(){
+    static async getBoxHelper(){
         const module = await BoxCommonModule.getModule();
         return module.resolve(BoxHelper);
     }
