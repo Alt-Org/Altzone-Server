@@ -13,6 +13,7 @@ import {Chat} from "../../chat/chat.schema";
 import ServiceError from "../../common/service/basicService/ServiceError";
 import {SEReason} from "../../common/service/basicService/SEReason";
 import {IServiceReturn} from "../../common/service/basicService/IService";
+import BasicService from "../../common/service/basicService/BasicService";
 
 @Injectable()
 export class BoxHelper {
@@ -26,7 +27,10 @@ export class BoxHelper {
         @InjectModel(Room.name) public readonly roomModel: Model<Room>,
         @InjectModel(Stock.name) public readonly stockModel: Model<Stock>,
         @InjectModel(Chat.name) public readonly chatModel: Model<Chat>
-    ){}
+    ){
+        this.basicService = new BasicService(model);
+    }
+    private readonly basicService: BasicService;
 
     /**
      * Validates that all the data provided for the box can be found from DB
@@ -135,5 +139,17 @@ export class BoxHelper {
                 })]];
 
         return [true, null];
+    }
+
+    /**
+     * Checks whenever a box for specified group admin is already created.
+     * @param groupAdminPassword group admin password
+     *
+     * @return true if the box is registered or false if not
+     */
+    public async isBoxRegistered(groupAdminPassword: string): Promise<boolean> {
+        const [box, errors] = await this.basicService.readOne<Box>({ filter: { adminPassword: groupAdminPassword } });
+
+        return box ? true : false;
     }
 }
