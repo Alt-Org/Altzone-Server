@@ -56,8 +56,9 @@ describe('BoxService.deleteBoxReferences() test suite', () => {
         const adminProfileResp = await profileModel.create(adminProfile);
         adminProfile._id = adminProfileResp._id;
 
-        const adminPlayer = playerBuilder.setName("box-admin").setUniqueIdentifier("box-admin").build();
-        adminPlayer.profile_id = adminProfile._id;
+        const adminPlayer = playerBuilder
+            .setName("box-admin").setUniqueIdentifier("box-admin")
+            .setProfileId(adminProfile._id).build();
         const adminPlayerResp = await playerModel.create(adminPlayer);
         adminPlayer._id = adminPlayerResp._id;
 
@@ -86,12 +87,10 @@ describe('BoxService.deleteBoxReferences() test suite', () => {
         const existingRoomResp2 = await roomModel.create(existingRoom2);
         existingRoom2._id = existingRoomResp2._id;
 
-        const existingStock1 = stockBuilder.build();
-        existingStock1.clan_id = existingClan1._id as any;
+        const existingStock1 = stockBuilder.setClanId(existingClan1._id).build();
         const existingStockResp1 = await stockModel.create(existingStock1);
         existingStock1._id = existingStockResp1._id;
-        const existingStock2 = stockBuilder.build();
-        existingStock2.clan_id = existingClan2._id as any;
+        const existingStock2 = stockBuilder.setClanId(existingClan2._id).build();
         const existingStockResp2 = await stockModel.create(existingStock2);
         existingStock2._id = existingStockResp2._id;
 
@@ -124,7 +123,7 @@ describe('BoxService.deleteBoxReferences() test suite', () => {
             .setAdminPassword(existingAdmin.password)
             .setAdminPlayerId(new ObjectId(adminPlayer._id))
             .setAdminProfileId(new ObjectId(adminProfile._id))
-            .setClanIds([new ObjectId(existingClan1._id), new ObjectId(existingClan1._id)])
+            .setClanIds([new ObjectId(existingClan1._id), new ObjectId(existingClan2._id)])
             .setSoulHomeIds([new ObjectId(existingSoulHome1._id), new ObjectId(existingSoulHome2._id)])
             .setRoomIds([new ObjectId(existingRoom1._id), new ObjectId(existingRoom2._id)])
             .setStockIds([new ObjectId(existingStock1._id), new ObjectId(existingStock2._id)])

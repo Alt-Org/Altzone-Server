@@ -14,6 +14,10 @@ import {RoomSchema} from "../../../clanInventory/room/room.schema";
 import {StockSchema} from "../../../clanInventory/stock/stock.schema";
 import {ChatSchema} from "../../../chat/chat.schema";
 import {BoxHelper} from "../../../box/util/boxHelper";
+import {ClanModule} from "../../../clan/clan.module";
+import {ChatModule} from "../../../chat/chat.module";
+import {ProfileModule} from "../../../profile/profile.module";
+import {PlayerModule} from "../../../player/player.module";
 
 
 export default class BoxCommonModule {
@@ -38,7 +42,10 @@ export default class BoxCommonModule {
                         { name: ModelName.STOCK, schema: StockSchema },
                         { name: ModelName.CHAT, schema: ChatSchema }
                     ]),
-
+                    ClanModule,
+                    ChatModule,
+                    ProfileModule,
+                    PlayerModule
                 ],
                 providers: [
                     BoxService, GroupAdminService, BoxHelper

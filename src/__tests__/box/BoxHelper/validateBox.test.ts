@@ -69,7 +69,7 @@ describe('BoxService.createOne() test suite', () => {
     const chatModel = ChatModule.getChatModel();
 
     beforeEach(async () => {
-        boxService = await BoxModule.getBoxHelperService();
+        boxService = await BoxModule.getBoxHelper();
 
         const adminResp = await adminModel.create(existingAdmin);
         existingAdmin._id = adminResp._id;
