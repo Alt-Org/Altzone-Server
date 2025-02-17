@@ -1,19 +1,38 @@
 import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
-import {Model} from "mongoose";
+import {Model, MongooseError} from "mongoose";
 import {Box, publicReferences} from "./schemas/box.schema";
-import BasicService from "../common/service/basicService/BasicService";
+import BasicService, {convertMongooseToServiceErrors} from "../common/service/basicService/BasicService";
 import {BoxReference} from "./enum/BoxReference.enum";
 import {CreateBoxDto} from "./dto/createBox.dto";
 import {IServiceReturn} from "../common/service/basicService/IService";
 import {BoxHelper} from "./util/boxHelper";
+import {ClanService} from "../clan/clan.service";
+import {ChatService} from "../chat/chat.service";
+import ServiceError from "../common/service/basicService/ServiceError";
+import {ProfileService} from "../profile/profile.service";
+import {PlayerService} from "../player/player.service";
+import {SEReason} from "../common/service/basicService/SEReason";
+import {GroupAdmin} from "./groupAdmin/groupAdmin.schema";
+import {Player} from "../player/player.schema";
+import {Clan} from "../clan/clan.schema";
+import generateClanNames from "./util/generateClanNames";
+import {ClanLabel} from "../clan/enum/clanLabel.enum";
+import {ObjectId} from "mongodb";
 
 @Injectable()
 export class BoxService {
     public constructor(
         @InjectModel(Box.name) public readonly model: Model<Box>,
+        @InjectModel(Player.name) public readonly playerModel: Model<Player>,
+        @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
+        @InjectModel(GroupAdmin.name) public readonly groupAdminModel: Model<GroupAdmin>,
         private readonly boxHelper: BoxHelper,
-    ){
+        private readonly clanService: ClanService,
+        private readonly chatService: ChatService,
+        private readonly profilesService: ProfileService,
+        private readonly playerService: PlayerService,
+    ) {
         this.refsInModel = publicReferences;
         this.basicService = new BasicService(model);
     }
@@ -35,6 +54,104 @@ export class BoxService {
      * - REQUIRED if the provided input is null or undefined
      */
     public async initializeBox(boxToInit: CreateBoxDto): Promise<IServiceReturn<Box>> {
+        if (!boxToInit)
+            return [null, [new ServiceError({
+                reason: SEReason.REQUIRED, field: 'boxToInit', value: boxToInit,
+                message: 'boxToInit parameter is required'
+            })]];
+
+        const groupAdmin = await this.groupAdminModel.findOne({ password: boxToInit.adminPassword });
+        if (!groupAdmin)
+            return [null, [new ServiceError({
+                reason: SEReason.NOT_FOUND, field: 'adminPassword',
+                message: 'Provided admin password is not found'
+            })]];
+
+        const boxAlreadyCreated = await this.boxHelper.isBoxRegistered(boxToInit.adminPassword);
+        if (boxAlreadyCreated)
+            return [null, [new ServiceError({
+                reason: SEReason.NOT_UNIQUE, field: 'adminPassword', value: boxToInit.adminPassword,
+                message: 'Box for provided password is already created'
+            })]];
+
+        const boxToCreate: Partial<Box> = {};
+        boxToCreate.adminPassword = boxToInit.adminPassword;
+
+        const isAdminPlayerNameTaken = await this.playerModel.findOne({name: boxToInit.playerName});
+        if (isAdminPlayerNameTaken)
+            return [null, [new ServiceError({
+                reason: SEReason.NOT_UNIQUE, field: 'playerName', value: boxToInit.playerName,
+                message: 'Provided player name is already taken'
+            })]];
+
+        if(boxToInit.clanNames){
+            const clanWithNames = await this.clanModel.find({name: { $in: boxToInit.clanNames }});
+            const clanUniquenessErrors = clanWithNames.map(existingClan => {
+                return new ServiceError({
+                    reason: SEReason.NOT_UNIQUE, field: 'clanNames', value: existingClan.name,
+                    message: 'Provided player name is already taken'
+                });
+            });
+
+            if(clanUniquenessErrors.length > 0)
+                return [null, clanUniquenessErrors];
+        }
+
+        const adminProfile = await this.profilesService.createOne({
+            username: boxToInit.adminPassword, password: boxToInit.adminPassword
+        });
+
+        if(adminProfile instanceof MongooseError){
+            const creationErrors = convertMongooseToServiceErrors(adminProfile);
+            await this.deleteBoxReferences(boxToCreate);
+            return [null, creationErrors];
+        }
+        boxToCreate.adminProfile_id = adminProfile.data[adminProfile.metaData.dataKey]._id;
+
+        const adminPlayer = await this.playerService.createOne({
+            name: boxToInit.playerName, backpackCapacity: 0, uniqueIdentifier: boxToInit.playerName,
+            above13: true, parentalAuth: true, profile_id: adminProfile.data[adminProfile.metaData.dataKey]._id,
+        });
+        if(adminPlayer instanceof MongooseError){
+            const creationErrors = convertMongooseToServiceErrors(adminPlayer);
+            await this.deleteBoxReferences(boxToCreate);
+            return [null, creationErrors];
+        }
+        boxToCreate.adminPlayer_id = adminPlayer.data[adminPlayer.metaData.dataKey]._id;
+
+        let clanName1: string, clanName2: string;
+        if(boxToInit.clanNames){
+            clanName1 = boxToInit.clanNames[0];
+            clanName2 = boxToInit.clanNames[1];
+        } else {
+            const generatedNames = generateClanNames(boxToInit.playerName, 2);
+            clanName1 = generatedNames[0];
+            clanName2 = generatedNames[1];
+        }
+
+        const clan1Resp = await this.clanService.createOne({
+            name: clanName1, tag: '', labels: [ClanLabel.GAMERIT], phrase: 'Not-set'
+        }, boxToCreate.adminPlayer_id.toString());
+
+        if(Array.isArray(clan1Resp)) {
+            await this.deleteBoxReferences(boxToCreate);
+            return [null, clan1Resp[1]];
+        }
+        boxToCreate.clan_ids.push(new ObjectId(clan1Resp._id));
+
+        const clan2Resp = await this.clanService.createOne({
+            name: clanName2, tag: '', labels: [ClanLabel.GAMERIT], phrase: 'Not-set'
+        }, boxToCreate.adminPlayer_id.toString());
+
+        if(Array.isArray(clan2Resp)) {
+            await this.deleteBoxReferences(boxToCreate);
+            return [null, clan2Resp[1]];
+        }
+        boxToCreate.clan_ids.push(new ObjectId(clan2Resp._id));
+
+
+
+
         return null;
     }
 
@@ -51,7 +168,7 @@ export class BoxService {
     public async createOne(box: Box): Promise<IServiceReturn<Box>> {
         const [isBoxValid, validationErrors] = await this.boxHelper.validateBox(box);
 
-        if(validationErrors)
+        if (validationErrors)
             return [null, validationErrors];
 
         return this.basicService.createOne(box);
@@ -68,18 +185,42 @@ export class BoxService {
      * @returns true if references were removed or Service errors if any occurred
      */
     public async deleteBoxReferences(boxData: Partial<Box>): Promise<IServiceReturn<true>> {
-        return null;
-    }
+        const errors: ServiceError[] = [];
+        if (boxData.clan_ids) {
+            for (let i = 0; i < boxData.clan_ids.length; i++) {
+                const [isRemoved, deleteErrors] = await this.clanService.deleteOneById(boxData.clan_ids[i].toString());
+                if (deleteErrors)
+                    errors.push(...deleteErrors);
+            }
+        }
 
-    /**
-     * Checks whenever a box for specified group admin is already created.
-     * @param groupAdminPassword group admin password
-     *
-     * @return true if the box is registered or false if not
-     */
-    private async isBoxRegistered(groupAdminPassword: string): Promise<boolean> {
-        const [box, errors] = await this.basicService.readOne<Box>({ filter: { adminPassword: groupAdminPassword } });
+        if (boxData.chat_id) {
+            const resp = await this.chatService.deleteOneById(boxData.chat_id.toString());
+            if (resp instanceof MongooseError) {
+                const deleteError = convertMongooseToServiceErrors(resp);
+                errors.push(...deleteError);
+            }
+        }
 
-        return box ? true : false;
+        if (boxData.adminProfile_id) {
+            const resp = await this.profilesService.deleteOneById(boxData.adminProfile_id.toString());
+            if (resp instanceof MongooseError) {
+                const deleteError = convertMongooseToServiceErrors(resp);
+                errors.push(...deleteError);
+            }
+        }
+
+        if (boxData.testers) {
+            const testerProfiles = boxData.testers.map(tester => tester.profile_id);
+            for (let i = 0; i < testerProfiles.length; i++) {
+                const resp = await this.profilesService.deleteOneById(testerProfiles[i].toString());
+                if (resp instanceof MongooseError) {
+                    const deleteError = convertMongooseToServiceErrors(resp);
+                    errors.push(...deleteError);
+                }
+            }
+        }
+
+        return errors.length === 0 ? [true, null] : [null, errors];
     }
 }
