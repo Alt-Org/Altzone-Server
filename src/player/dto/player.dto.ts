@@ -5,10 +5,9 @@ import {CustomCharacterDto} from "../customCharacter/dto/customCharacter.dto";
 import AddType from "../../common/base/decorator/AddType.decorator";
 import { GameStatisticsDto } from "./gameStatistics.dto";
 import {ArrayMaxSize, IsArray, IsInt, IsMongoId, IsOptional} from "class-validator";
-import { Document } from "mongoose";
 
 @AddType('PlayerDto')
-export class PlayerDto extends Document {
+export class PlayerDto {
     @ExtractField()
     @Expose()
     _id: string;
