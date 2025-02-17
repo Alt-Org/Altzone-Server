@@ -2,8 +2,6 @@ import {
 	Body,
 	Controller,
 	Get,
-	Headers,
-	Ip,
 	Param,
 	Post,
 	Put,
@@ -14,6 +12,10 @@ import {
 import { BoxService } from "./box.service";
 import { Request, Response } from "express";
 import { NoAuth } from "../auth/decorator/NoAuth.decorator";
+import { Serialize } from "../common/interceptor/response/Serialize";
+import { ClaimAccountResponseDto } from "./dto/claimAccountResponse.dto";
+import { APIError } from "../common/controller/APIError";
+import { APIErrorReason } from "../common/controller/APIErrorReason";
 import { UniformResponse } from "../common/decorator/response/UniformResponse";
 
 @Controller("box")
@@ -21,27 +23,23 @@ export class BoxController {
 	public constructor(private readonly service: BoxService) {}
 
 	@NoAuth()
-	@Get("identifier")
-	@UniformResponse()
-	async getDeviceIdentifier(
-		@Query("password") password: string,
-		@Headers("user-agent") userAgent: string,
-		@Ip() ip: string,
-		@Res({ passthrough: true }) res: Response
-	) {
-		const deviceIdentifier = await this.service.setDeviceIdentifier(
-			userAgent,
-			ip,
-			password
-		);
-		res.cookie("deviceIdentifier", deviceIdentifier);
-	}
-
-	@NoAuth()
 	@Get("claim-account")
 	@UniformResponse()
-	async claimAccount(@Req() req: Request, @Query("password") password: string) {
-		const { deviceIdentifier } = req.cookies;
-		return this.service.claimAccount(password, deviceIdentifier);
+	@Serialize(ClaimAccountResponseDto)
+	async claimAccount(
+		@Req() req: Request,
+		@Res() res: Response,
+		@Query("password") password: string
+	) {
+		const { accountClaimed } = req.cookies;
+		if (accountClaimed)
+			throw new APIError({
+				reason: APIErrorReason.NOT_AUTHORIZED,
+				message: "Account already claimed from this device.",
+			});
+		
+		const data = await this.service.claimAccount(password);
+		res.cookie("accountClaimed", true, { httpOnly: false, maxAge: 15 * 60 * 1000 });
+		return res.send(data);
 	}
 }
