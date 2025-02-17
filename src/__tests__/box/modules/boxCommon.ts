@@ -18,6 +18,7 @@ import {ClanModule} from "../../../clan/clan.module";
 import {ChatModule} from "../../../chat/chat.module";
 import {ProfileModule} from "../../../profile/profile.module";
 import {PlayerModule} from "../../../player/player.module";
+import BoxCreator from "../../../box/boxCreator";
 
 
 export default class BoxCommonModule {
@@ -48,7 +49,7 @@ export default class BoxCommonModule {
                     PlayerModule
                 ],
                 providers: [
-                    BoxService, GroupAdminService, BoxHelper
+                    BoxService, GroupAdminService, BoxHelper, BoxCreator
                 ]
             }).compile();
 

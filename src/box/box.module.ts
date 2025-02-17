@@ -18,6 +18,7 @@ import {ClanModule} from "../clan/clan.module";
 import {ChatModule} from "../chat/chat.module";
 import {PlayerModule} from "../player/player.module";
 import {ProfileModule} from "../profile/profile.module";
+import BoxCreator from "./boxCreator";
 
 @Module({
     imports: [
@@ -41,7 +42,7 @@ import {ProfileModule} from "../profile/profile.module";
         BoxController
     ],
     providers: [
-        BoxService, GroupAdminService, BoxHelper,
+        BoxService, GroupAdminService, BoxHelper, BoxCreator
     ],
     exports: [
         BoxService

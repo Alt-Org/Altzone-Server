@@ -17,11 +17,12 @@ import PlayerBuilderFactory from "../../player/data/playerBuilderFactory";
 import {getRoomDefaultItems, getStockDefaultItems} from "../../../clan/utils/defaultValues/items";
 import ItemModule from "../../clanInventory/modules/item.module";
 import LoggedUser from "../../test_utils/const/loggedUser";
+import BoxCreator from "../../../box/boxCreator";
 
-describe('BoxService.initializeBox() test suite', () => {
+describe('BoxCreator.createBox() test suite', () => {
     envVars.ENVIRONMENT = Environment.TESTING_SESSION;
 
-    let boxService: BoxService;
+    let boxCreator: BoxCreator;
 
     const boxAdmin = 'box-admin';
     const adminName = 'box-admin';
@@ -48,14 +49,14 @@ describe('BoxService.initializeBox() test suite', () => {
     const chatModel = ChatModule.getChatModel();
 
     beforeEach(async () => {
-        boxService = await BoxModule.getBoxService();
+        boxCreator = await BoxModule.getBoxCreator();
 
         const adminResp = await adminModel.create(existingAdmin);
         existingAdmin._id = adminResp._id;
     });
 
     it('Should create box in DB if input is valid', async () => {
-        await boxService.initializeBox(boxToCreate);
+        await boxCreator.createBox(boxToCreate);
 
         const dbResp = await boxModel.find({ adminPassword: boxAdmin });
         const boxInDB = dbResp[0]?.toObject();
@@ -67,14 +68,31 @@ describe('BoxService.initializeBox() test suite', () => {
     });
 
     it('Should return created box data, if input is valid', async () => {
-        const [result, errors] = await boxService.initializeBox(boxToCreate);
+        const [result, errors] = await boxCreator.createBox(boxToCreate);
 
         expect(errors).toBeNull();
         expect(result.adminPassword).toBe(boxAdmin);
     });
 
+    it('Should create group admin profile', async () => {
+        const [result, errors] = await boxCreator.createBox(boxToCreate);
+
+        const profileInDB = await profileModel.findById(result.adminProfile_id);
+
+        expect(profileInDB.username).toBe(boxAdmin);
+    });
+
+    it('Should create group admin player', async () => {
+        const [result, errors] = await boxCreator.createBox(boxToCreate);
+
+        const playerInDB = await playerModel.findById(result.adminPlayer_id);
+
+        expect(playerInDB.name).toBe(boxToCreate.playerName);
+        expect(playerInDB.profile_id).toEqual(result.adminProfile_id);
+    });
+
     it('Should create 2 clans with auto generated names, if input is without clan names', async () => {
-        const [result, errors] = await boxService.initializeBox(boxToCreate);
+        const [result, errors] = await boxCreator.createBox(boxToCreate);
 
         const expectedClanName1 = `${boxToCreate.playerName} clan 1`;
         const expectedClanName2 = `${boxToCreate.playerName} clan 2`;
@@ -92,7 +110,7 @@ describe('BoxService.initializeBox() test suite', () => {
     it('Should create 2 clans with provided names', async () => {
         const clan1Name = 'box-clan-1';
         const clan2Name = 'box-clan-2';
-        const [result, errors] = await boxService.initializeBox({...boxToCreate, clanNames: [clan1Name, clan2Name]});
+        const [result, errors] = await boxCreator.createBox({...boxToCreate, clanNames: [clan1Name, clan2Name]});
 
         const clansInDB = await clanModel.find({ _id: { $in: result.clan_ids } }).select(['name']);
         const clearedClans = clearDBRespDefaultFields(clansInDB);
@@ -105,7 +123,7 @@ describe('BoxService.initializeBox() test suite', () => {
     });
 
     it('Should create soul home for each clan', async () => {
-        const [result, errors] = await boxService.initializeBox(boxToCreate);
+        const [result, errors] = await boxCreator.createBox(boxToCreate);
 
         const soulHomesInDB = await soulHomeModel.find({ clan_id: { $in: result.clan_ids } });
 
@@ -113,7 +131,7 @@ describe('BoxService.initializeBox() test suite', () => {
     });
 
     it('Should create 30 rooms for each soul home', async () => {
-        const [result, errors] = await boxService.initializeBox(boxToCreate);
+        const [result, errors] = await boxCreator.createBox(boxToCreate);
 
         const soulHome1Rooms = await roomModel.find({ soulHome_id: { $in: result.soulHome_ids[0] } });
         const soulHome2Rooms = await roomModel.find({ soulHome_id: { $in: result.soulHome_ids[1] } });
@@ -123,19 +141,24 @@ describe('BoxService.initializeBox() test suite', () => {
     });
 
     it('Should create default items for each soul home', async () => {
-        const [result, errors] = await boxService.initializeBox(boxToCreate);
+        const [result, errors] = await boxCreator.createBox(boxToCreate);
 
         const defaultItemsCount = getRoomDefaultItems('').length;
 
-        const soulHome1Items = await itemModel.find({ room_id: { $in: result.room_ids[0] } });
-        const soulHome2Items = await itemModel.find({ room_id: { $in: result.room_ids[1] } });
+        const soulHome1Rooms = await roomModel.find({ soulHome_id: { $in: result.soulHome_ids[0] } }).select(['_id']);
+        const soulHome1Rooms_ids = soulHome1Rooms.map(room => room._id);
+        const soulHome2Rooms = await roomModel.find({ soulHome_id: { $in: result.soulHome_ids[1] } });
+        const soulHome2Rooms_ids = soulHome2Rooms.map(room => room._id);
+
+        const soulHome1Items = await itemModel.find({ room_id: { $in: soulHome1Rooms_ids } });
+        const soulHome2Items = await itemModel.find({ room_id: { $in: soulHome2Rooms_ids } });
 
         expect(soulHome1Items).toHaveLength(defaultItemsCount);
         expect(soulHome2Items).toHaveLength(defaultItemsCount);
     });
 
     it('Should create stock for each clan', async () => {
-        const [result, errors] = await boxService.initializeBox(boxToCreate);
+        const [result, errors] = await boxCreator.createBox(boxToCreate);
 
         const stocksInDB = await stockModel.find({ clan_id: { $in: result.clan_ids } });
 
@@ -143,7 +166,7 @@ describe('BoxService.initializeBox() test suite', () => {
     });
 
     it('Should create default items for each stock', async () => {
-        const [result, errors] = await boxService.initializeBox(boxToCreate);
+        const [result, errors] = await boxCreator.createBox(boxToCreate);
 
         const defaultItemsCount = getStockDefaultItems('').length;
 
@@ -155,15 +178,37 @@ describe('BoxService.initializeBox() test suite', () => {
     });
 
     it('Should create a chat', async () => {
-        const [result, errors] = await boxService.initializeBox(boxToCreate);
+        const [result, errors] = await boxCreator.createBox(boxToCreate);
 
         const chatInDB = await chatModel.findById(result.chat_id);
 
         expect(chatInDB).not.toBeNull();
     });
 
+    it('Should set session reset time to 7 days from now', async () => {
+        const [result, errors] = await boxCreator.createBox(boxToCreate);
+
+        const boxInDB = await boxModel.findById(result._id);
+
+        const weekMs = new Date().getTime() + 1000 * 60 * 60 * 24 * 7;
+        const difference = Math.abs(weekMs - boxInDB.sessionResetTime);
+        const minMs = 1000*60;
+        expect(difference).toBeLessThan(minMs);
+    });
+
+    it('Should set box removal time to 30 days from now', async () => {
+        const [result, errors] = await boxCreator.createBox(boxToCreate);
+
+        const boxInDB = await boxModel.findById(result._id);
+
+        const monthMs = new Date().getTime() + 1000 * 60 * 60 * 24 * 30;
+        const difference = Math.abs(monthMs - boxInDB.boxRemovalTime);
+        const minMs = 1000*60;
+        expect(difference).toBeLessThan(minMs);
+    });
+
     it('Should not save any box in DB, if the provided input is null', async () => {
-        await boxService.initializeBox(null);
+        await boxCreator.createBox(null);
 
         const dbResp = await boxModel.findOne({ adminPassword: undefined });
         expect(dbResp).toBeNull();
@@ -173,14 +218,14 @@ describe('BoxService.initializeBox() test suite', () => {
     });
 
     it('Should return ServiceError with reason REQUIRED, if the provided input is null', async () => {
-        const [result, errors] = await boxService.initializeBox(null);
+        const [result, errors] = await boxCreator.createBox(null);
 
         expect(result).toBeNull();
         expect(errors).toContainSE_REQUIRED();
     });
 
     it('Should not save any box in DB, if the provided input is undefined', async () => {
-        await boxService.initializeBox(undefined);
+        await boxCreator.createBox(undefined);
 
         const dbResp = await boxModel.findOne({ adminPassword: undefined });
         expect(dbResp).toBeNull();
@@ -190,21 +235,21 @@ describe('BoxService.initializeBox() test suite', () => {
     });
 
     it('Should return ServiceError with reason REQUIRED, if the provided input is undefined', async () => {
-        const [result, errors] = await boxService.initializeBox(undefined);
+        const [result, errors] = await boxCreator.createBox(undefined);
 
         expect(result).toBeNull();
         expect(errors).toContainSE_REQUIRED();
     });
 
     it('Should return ServiceError with reason NOT_FOUND, if the provided adminPassword does not exists', async () => {
-        const [result, errors] = await boxService.initializeBox({...boxToCreate, adminPassword: 'non-existent'});
+        const [result, errors] = await boxCreator.createBox({...boxToCreate, adminPassword: 'non-existent'});
 
         expect(result).toBeNull();
         expect(errors).toContainSE_NOT_FOUND();
     });
 
     it('Should not save any box data, if the provided adminPassword does not exists', async () => {
-        await boxService.initializeBox({...boxToCreate, adminPassword: 'non-existent'});
+        await boxCreator.createBox({...boxToCreate, adminPassword: 'non-existent'});
 
         const dataLeft = await isBoxDataLeft();
         expect(dataLeft).toBeNull();
@@ -217,7 +262,7 @@ describe('BoxService.initializeBox() test suite', () => {
             .setChatId(new ObjectId())
             .build();
         await boxModel.create(existingBox);
-        const [result, errors] = await boxService.initializeBox(boxToCreate);
+        const [result, errors] = await boxCreator.createBox(boxToCreate);
 
         expect(result).toBeNull();
         expect(errors).toContainSE_NOT_UNIQUE();
@@ -232,7 +277,7 @@ describe('BoxService.initializeBox() test suite', () => {
             .setChatId(new ObjectId())
             .build();
         await boxModel.create(existingBox);
-        await boxService.initializeBox(boxToCreate);
+        await boxCreator.createBox(boxToCreate);
 
         const dataLeft = await isBoxDataLeft();
         const {Box, ...otherData} = dataLeft;
@@ -246,7 +291,7 @@ describe('BoxService.initializeBox() test suite', () => {
         const existingClan = clanBuilder.setName(existingClanName).build();
         await clanModel.create(existingClan);
 
-        const [result, errors] = await boxService.initializeBox({...boxToCreate, clanNames: [existingClanName, 'non-existent-clan']});
+        const [result, errors] = await boxCreator.createBox({...boxToCreate, clanNames: [existingClanName, 'non-existent-clan']});
 
         expect(result).toBeNull();
         expect(errors).toContainSE_NOT_UNIQUE();
@@ -259,7 +304,7 @@ describe('BoxService.initializeBox() test suite', () => {
         const existingClan = clanBuilder.setName(existingClanName).build();
         await clanModel.create(existingClan);
 
-        await boxService.initializeBox({...boxToCreate, clanNames: [existingClanName, 'non-existent-clan']});
+        await boxCreator.createBox({...boxToCreate, clanNames: [existingClanName, 'non-existent-clan']});
 
         const dataLeft = await isBoxDataLeft();
         const {Clan, ...otherData} = dataLeft;
@@ -276,7 +321,7 @@ describe('BoxService.initializeBox() test suite', () => {
         await clanModel.create(existingClan1);
         await clanModel.create(existingClan2);
 
-        const [result, errors] = await boxService.initializeBox({...boxToCreate, clanNames: [existingClanName1, existingClanName2]});
+        const [result, errors] = await boxCreator.createBox({...boxToCreate, clanNames: [existingClanName1, existingClanName2]});
 
         expect(result).toBeNull();
         expect(errors).toHaveLength(2);
@@ -297,7 +342,7 @@ describe('BoxService.initializeBox() test suite', () => {
         await clanModel.create(existingClan1);
         await clanModel.create(existingClan2);
 
-        await boxService.initializeBox({...boxToCreate, clanNames: [existingClanName1, existingClanName2]});
+        await boxCreator.createBox({...boxToCreate, clanNames: [existingClanName1, existingClanName2]});
 
         const dataLeft = await isBoxDataLeft();
         const {Clan, ...otherData} = dataLeft;
@@ -309,7 +354,7 @@ describe('BoxService.initializeBox() test suite', () => {
         const existingPlayer = playerBuilder.setName(boxToCreate.playerName).build();
         await playerModel.create(existingPlayer);
 
-        const [result, errors] = await boxService.initializeBox(boxToCreate);
+        const [result, errors] = await boxCreator.createBox(boxToCreate);
 
         expect(result).toBeNull();
         expect(errors).toContainSE_NOT_UNIQUE();
@@ -321,7 +366,7 @@ describe('BoxService.initializeBox() test suite', () => {
         const existingPlayer = playerBuilder.setName(boxToCreate.playerName).build();
         await playerModel.create(existingPlayer);
 
-        await boxService.initializeBox(boxToCreate);
+        await boxCreator.createBox(boxToCreate);
 
         const dataLeft = await isBoxDataLeft();
         const {Player, ...otherData} = dataLeft;
