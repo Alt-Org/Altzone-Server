@@ -1,15 +1,28 @@
-import {Body, Controller, Delete, Get, Param, Post} from "@nestjs/common";
-import {BoxService} from "./box.service";
-import {Serialize} from "../common/interceptor/response/Serialize";
-import {UniformResponse} from "../common/decorator/response/UniformResponse";
-import {ModelName} from "../common/enum/modelName.enum";
-import {CreatedBoxDto} from "./dto/createdBox.dto";
-import {NoAuth} from "../auth/decorator/NoAuth.decorator";
+import {
+    Body,
+    Controller, Delete,
+    Get,
+    Param,
+    Post,
+    Query,
+    Req,
+    Res,
+} from "@nestjs/common";
+import { BoxService } from "./box.service";
+import { Request, Response } from "express";
+import { NoAuth } from "../auth/decorator/NoAuth.decorator";
+import { Serialize } from "../common/interceptor/response/Serialize";
+import { ClaimAccountResponseDto } from "./dto/claimAccountResponse.dto";
+import { APIError } from "../common/controller/APIError";
+import { APIErrorReason } from "../common/controller/APIErrorReason";
+import { UniformResponse } from "../common/decorator/response/UniformResponse";
 import BoxCreator from "./boxCreator";
-import {CreateBoxDto} from "./dto/createBox.dto";
 import BoxAuthHandler from "./auth/BoxAuthHandler";
-import {_idDto} from "../common/dto/_id.dto";
+import {CreatedBoxDto} from "./dto/createdBox.dto";
+import {ModelName} from "../common/enum/modelName.enum";
+import {CreateBoxDto} from "./dto/createBox.dto";
 import {IncludeQuery} from "../common/decorator/param/IncludeQuery.decorator";
+import {_idDto} from "../common/dto/_id.dto";
 import {publicReferences} from "./schemas/box.schema";
 
 @Controller('box')
@@ -20,6 +33,27 @@ export class BoxController {
         private readonly authHandler: BoxAuthHandler
     ) {
     }
+
+	@NoAuth()
+	@Get("claim-account")
+	@UniformResponse()
+	@Serialize(ClaimAccountResponseDto)
+	async claimAccount(
+		@Req() req: Request,
+		@Res() res: Response,
+		@Query("password") password: string
+	) {
+		const { accountClaimed } = req.cookies;
+		if (accountClaimed)
+			throw new APIError({
+				reason: APIErrorReason.NOT_AUTHORIZED,
+				message: "Account already claimed from this device.",
+			});
+
+		const data = await this.service.claimAccount(password);
+		res.cookie("accountClaimed", true, { httpOnly: false, maxAge: 15 * 60 * 1000 });
+		return res.send(data);
+	}
 
     @NoAuth()
     @Post()
@@ -52,8 +86,8 @@ export class BoxController {
     @NoAuth()
     @Delete('/:_id')
     @UniformResponse(ModelName.BOX)
-    async deleteBox(@Param() _id: string) {
-        const [isSuccess, errors] = await this.service.deleteOneById(_id);
+    async deleteBox(@Param() param: _idDto) {
+        const [isSuccess, errors] = await this.service.deleteOneById(param._id);
 
         if (errors)
             return [null, errors];
