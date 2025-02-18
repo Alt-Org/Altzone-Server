@@ -1,6 +1,5 @@
 import {clearDBRespDefaultFields} from "../../test_utils/util/removeDBDefaultFields";
 import {ObjectId} from "mongodb";
-import {BoxService} from "../../../box/box.service";
 import BoxBuilderFactory from "../data/boxBuilderFactory";
 import BoxModule from "../modules/box.module";
 import ProfileModule from "../../profile/modules/profile.module";
@@ -70,8 +69,22 @@ describe('BoxCreator.createBox() test suite', () => {
     it('Should return created box data, if input is valid', async () => {
         const [result, errors] = await boxCreator.createBox(boxToCreate);
 
+        const boxClans = await clanModel.find({_id: { $in: result.clan_ids }});
+        const clearedClans = clearDBRespDefaultFields(boxClans);
+
+        const boxAdminPlayer = await playerModel.findById(result.adminPlayer_id);
+        const {clan_id, ...clearedPlayer} = clearDBRespDefaultFields(boxAdminPlayer);
+
+        const boxChat = await chatModel.findById(result.chat_id);
+        const clearedChat = clearDBRespDefaultFields(boxChat);
+
         expect(errors).toBeNull();
         expect(result.adminPassword).toBe(boxAdmin);
+        expect(result.clans).toEqual(expect.arrayContaining([
+            expect.objectContaining(clearedClans[0]), expect.objectContaining(clearedClans[1])
+        ]));
+        expect(result.adminPlayer).toEqual(expect.objectContaining(clearedPlayer));
+        expect(result.chat).toEqual(expect.objectContaining(clearedChat));
     });
 
     it('Should create group admin profile', async () => {
