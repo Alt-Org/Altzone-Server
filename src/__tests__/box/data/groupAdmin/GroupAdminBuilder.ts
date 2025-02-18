@@ -1,5 +1,5 @@
 import {ObjectId} from "mongodb";
-import {GroupAdmin} from "../../../../box/schemas/groupAdmin.schema";
+import {GroupAdmin} from "../../../../box/groupAdmin/groupAdmin.schema";
 
 export default class GroupAdminBuilder {
     private readonly base: Partial<GroupAdmin> = {
