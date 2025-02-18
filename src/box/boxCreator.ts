@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {CreateBoxDto} from "./dto/createBox.dto";
 import {IServiceReturn} from "../common/service/basicService/IService";
 import {InjectModel} from "@nestjs/mongoose";
-import {Box} from "./schemas/box.schema";
+import {Box, BoxDocument} from "./schemas/box.schema";
 import {Model, MongooseError} from "mongoose";
 import {Player} from "../player/player.schema";
 import {Clan} from "../clan/clan.schema";
@@ -10,7 +10,7 @@ import {Room} from "../clanInventory/room/room.schema";
 import {GroupAdmin} from "./groupAdmin/groupAdmin.schema";
 import {BoxHelper} from "./util/boxHelper";
 import ServiceError from "../common/service/basicService/ServiceError";
-import { SEReason } from "../common/service/basicService/SEReason";
+import {SEReason} from "../common/service/basicService/SEReason";
 import {ObjectId} from "mongodb";
 import {ClanService} from "../clan/clan.service";
 import {ChatService} from "../chat/chat.service";
@@ -23,6 +23,7 @@ import {ClanDto} from "../clan/dto/clan.dto";
 import {Chat} from "../chat/chat.schema";
 import generateClanNames from "./util/generateClanNames";
 import {BoxService} from "./box.service";
+import {CreatedBox} from "./payloads/CreatedBox";
 
 @Injectable()
 export default class BoxCreator {
@@ -54,7 +55,7 @@ export default class BoxCreator {
      * - NOT_FOUND if the provided admin password does not exist
      * - REQUIRED if the provided input is null or undefined
      */
-    public async createBox(boxToInit: CreateBoxDto): Promise<IServiceReturn<Box>> {
+    public async createBox(boxToInit: CreateBoxDto): Promise<IServiceReturn<CreatedBox>> {
         if (!boxToInit)
             return [null, [new ServiceError({
                 reason: SEReason.REQUIRED, field: 'boxToInit', value: boxToInit,
@@ -63,14 +64,14 @@ export default class BoxCreator {
 
         const [isBoxDataValid, boxValidationErrors] = await this.validateBox(boxToInit);
 
-        if(boxValidationErrors)
-            return [ null, boxValidationErrors ]
+        if (boxValidationErrors)
+            return [null, boxValidationErrors]
 
         const boxToCreate: Partial<Box> = {};
         boxToCreate.adminPassword = boxToInit.adminPassword;
 
         const [adminProfile, adminProfileErrors] = await this.createAdminProfile(boxToInit.adminPassword);
-        if(adminProfileErrors){
+        if (adminProfileErrors) {
             await this.boxService.deleteBoxReferences(boxToCreate);
             return [null, adminProfileErrors];
         }
@@ -80,14 +81,14 @@ export default class BoxCreator {
             name: boxToInit.playerName, backpackCapacity: 0, uniqueIdentifier: boxToInit.playerName,
             above13: true, parentalAuth: true, profile_id: adminProfile._id,
         });
-        if(adminPlayerErrors){
+        if (adminPlayerErrors) {
             await this.boxService.deleteBoxReferences(boxToCreate);
             return [null, adminPlayerErrors];
         }
         boxToCreate.adminPlayer_id = adminPlayer._id as unknown as ObjectId;
 
         let clanName1: string, clanName2: string;
-        if(boxToInit.clanNames){
+        if (boxToInit.clanNames) {
             clanName1 = boxToInit.clanNames[0];
             clanName2 = boxToInit.clanNames[1];
         } else {
@@ -97,7 +98,7 @@ export default class BoxCreator {
         }
 
         const [clans, clanErrors] = await this.createBoxClans(clanName1, clanName2, boxToCreate.adminPlayer_id);
-        if(clanErrors){
+        if (clanErrors) {
             await this.boxService.deleteBoxReferences(boxToCreate);
             return [null, clanErrors];
         }
@@ -107,14 +108,14 @@ export default class BoxCreator {
         boxToCreate.soulHome_ids = [new ObjectId(clan1.SoulHome._id), new ObjectId(clan2.SoulHome._id)];
         boxToCreate.stock_ids = [new ObjectId(clan1.Stock._id), new ObjectId(clan2.Stock._id)];
 
-        const soulHome1Rooms = await this.roomModel.find({soulHome_id: clan1.SoulHome._id }).select(['_id']);
+        const soulHome1Rooms = await this.roomModel.find({soulHome_id: clan1.SoulHome._id}).select(['_id']);
         const soulHome1Rooms_ids = soulHome1Rooms.map(room => room._id) as unknown as ObjectId[];
-        const soulHome2Rooms = await this.roomModel.find({soulHome_id: clan2.SoulHome._id }).select(['_id']);
+        const soulHome2Rooms = await this.roomModel.find({soulHome_id: clan2.SoulHome._id}).select(['_id']);
         const soulHome2Rooms_ids = soulHome2Rooms.map(room => room._id) as unknown as ObjectId[];
         boxToCreate.room_ids = [...soulHome1Rooms_ids, ...soulHome2Rooms_ids];
 
         const [chat, chatErrors] = await this.createBoxChat();
-        if(chatErrors){
+        if (chatErrors) {
             await this.boxService.deleteBoxReferences(boxToCreate);
             return [null, chatErrors];
         }
@@ -125,7 +126,17 @@ export default class BoxCreator {
         const monthMs = 1000 * 60 * 60 * 24 * 30;
         boxToCreate.boxRemovalTime = new Date().getTime() + monthMs;
 
-        return this.boxService.createOne(boxToCreate as Box);
+        const [createdBox, errors] = await this.boxService.createOne(boxToCreate as BoxDocument);
+
+        if (errors)
+            return [null, errors];
+
+        const {Stock: stock1, SoulHome: soulHome1, ...createdClan1} = (clan1 as any).toObject();
+        const {Stock: stock2, SoulHome: soulHome2, ...createdClan2} = (clan2 as any).toObject();
+        const {__v, id, ...createdAdminPlayer} = (adminPlayer as any).toObject();
+        const {__v: chat_v, id: chat_id, ...createdChat} = (chat as any).toObject();
+
+        return [{...createdBox.toObject(), adminPlayer: createdAdminPlayer, clans: [createdClan1, createdClan2], chat: createdChat}, null];
     }
 
     /**
@@ -138,7 +149,7 @@ export default class BoxCreator {
      * - NOT_FOUND if the provided admin password does not exist
      */
     private async validateBox(boxToValidate: CreateBoxDto): Promise<IServiceReturn<true>> {
-        const groupAdmin = await this.groupAdminModel.findOne({ password: boxToValidate.adminPassword });
+        const groupAdmin = await this.groupAdminModel.findOne({password: boxToValidate.adminPassword});
         if (!groupAdmin)
             return [null, [new ServiceError({
                 reason: SEReason.NOT_FOUND, field: 'adminPassword',
@@ -159,8 +170,8 @@ export default class BoxCreator {
                 message: 'Provided player name is already taken'
             })]];
 
-        if(boxToValidate.clanNames){
-            const clanWithNames = await this.clanModel.find({name: { $in: boxToValidate.clanNames }});
+        if (boxToValidate.clanNames) {
+            const clanWithNames = await this.clanModel.find({name: {$in: boxToValidate.clanNames}});
             const clanUniquenessErrors = clanWithNames.map(existingClan => {
                 return new ServiceError({
                     reason: SEReason.NOT_UNIQUE, field: 'clanNames', value: existingClan.name,
@@ -168,7 +179,7 @@ export default class BoxCreator {
                 });
             });
 
-            if(clanUniquenessErrors.length > 0)
+            if (clanUniquenessErrors.length > 0)
                 return [null, clanUniquenessErrors];
         }
 
@@ -180,17 +191,17 @@ export default class BoxCreator {
      * @param adminPassword admin password to set
      * @returns created admin profile or ServiceErrors if any occurred
      */
-    private async createAdminProfile(adminPassword: string): Promise<IServiceReturn<Profile>>{
+    private async createAdminProfile(adminPassword: string): Promise<IServiceReturn<Profile>> {
         const adminProfile = await this.profilesService.createOne({
             username: adminPassword, password: adminPassword
         });
 
-        if(adminProfile instanceof MongooseError){
+        if (adminProfile instanceof MongooseError) {
             const creationErrors = convertMongooseToServiceErrors(adminProfile);
             return [null, creationErrors];
         }
 
-        return [ adminProfile.data[adminProfile.metaData.dataKey], null ];
+        return [adminProfile.data[adminProfile.metaData.dataKey], null];
     }
 
     /**
@@ -198,14 +209,14 @@ export default class BoxCreator {
      * @param playerToCreate admin player to create
      * @returns created admin player or ServiceErrors if any occurred
      */
-    private async createAdminPlayer(playerToCreate: Partial<Player>): Promise<IServiceReturn<Player>>{
+    private async createAdminPlayer(playerToCreate: Partial<Player>): Promise<IServiceReturn<Player>> {
         const adminPlayer = await this.playerService.createOne(playerToCreate);
-        if(adminPlayer instanceof MongooseError){
+        if (adminPlayer instanceof MongooseError) {
             const creationErrors = convertMongooseToServiceErrors(adminPlayer);
             return [null, creationErrors];
         }
 
-        return [ adminPlayer.data[adminPlayer.metaData.dataKey], null ];
+        return [adminPlayer.data[adminPlayer.metaData.dataKey], null];
     }
 
     /**
@@ -219,21 +230,21 @@ export default class BoxCreator {
      *
      * @returns created clans or ServiceErrors if any occurred
      */
-    private async createBoxClans(clanName1, clanName2, adminPlayer_id: ObjectId): Promise<IServiceReturn<ClanDto[]>>{
+    private async createBoxClans(clanName1, clanName2, adminPlayer_id: ObjectId): Promise<IServiceReturn<ClanDto[]>> {
         const defaultClanData = {tag: '', labels: [ClanLabel.GAMERIT], phrase: 'Not-set'};
 
         const clan1Resp = await this.clanService.createOne({
             name: clanName1, ...defaultClanData
         }, adminPlayer_id.toString());
 
-        if(Array.isArray(clan1Resp))
+        if (Array.isArray(clan1Resp))
             return [null, clan1Resp[1]];
 
         const clan2Resp = await this.clanService.createOne({
             name: clanName2, ...defaultClanData
         }, adminPlayer_id.toString());
 
-        if(Array.isArray(clan2Resp))
+        if (Array.isArray(clan2Resp))
             return [null, clan2Resp[1]];
 
         return [[clan1Resp, clan2Resp], null];
@@ -243,9 +254,9 @@ export default class BoxCreator {
      * Creates a chat for a box, which contains no messages
      * @returns created chat or ServiceErrors if any occurred
      */
-    private async createBoxChat(): Promise<IServiceReturn<Chat>>{
+    private async createBoxChat(): Promise<IServiceReturn<Chat>> {
         const chatResp = await this.chatService.createOne({messages: []});
-        if(chatResp instanceof MongooseError){
+        if (chatResp instanceof MongooseError) {
             const creationErrors = convertMongooseToServiceErrors(chatResp);
             return [null, creationErrors];
         }
