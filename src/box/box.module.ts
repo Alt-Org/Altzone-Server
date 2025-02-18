@@ -19,6 +19,7 @@ import {ChatModule} from "../chat/chat.module";
 import {PlayerModule} from "../player/player.module";
 import {ProfileModule} from "../profile/profile.module";
 import BoxCreator from "./boxCreator";
+import BoxAuthHandler from "./auth/BoxAuthHandler";
 
 @Module({
     imports: [
@@ -42,7 +43,7 @@ import BoxCreator from "./boxCreator";
         BoxController
     ],
     providers: [
-        BoxService, GroupAdminService, BoxHelper, BoxCreator
+        BoxService, GroupAdminService, BoxHelper, BoxCreator, BoxAuthHandler
     ],
     exports: [
         BoxService
