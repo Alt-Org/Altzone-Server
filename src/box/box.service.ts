@@ -1,10 +1,10 @@
 import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model, MongooseError} from "mongoose";
-import {Box, publicReferences} from "./schemas/box.schema";
+import {Box, BoxDocument, publicReferences} from "./schemas/box.schema";
 import BasicService, {convertMongooseToServiceErrors} from "../common/service/basicService/BasicService";
 import {BoxReference} from "./enum/BoxReference.enum";
-import {IServiceReturn} from "../common/service/basicService/IService";
+import {IServiceReturn, TReadByIdOptions} from "../common/service/basicService/IService";
 import {BoxHelper} from "./util/boxHelper";
 import {ClanService} from "../clan/clan.service";
 import {ChatService} from "../chat/chat.service";
@@ -46,13 +46,46 @@ export class BoxService {
      * - NOT_UNIQUE if a box with provided admin password already exists
      * - validation errors if input is invalid
      */
-    public async createOne(box: Box): Promise<IServiceReturn<Box>> {
+    public async createOne(box: Box): Promise<IServiceReturn<BoxDocument>> {
         const [isBoxValid, validationErrors] = await this.boxHelper.validateBox(box);
 
         if (validationErrors)
             return [null, validationErrors];
 
         return this.basicService.createOne(box);
+    }
+
+    /**
+     * Reads a Box by its _id in DB.
+     *
+     * @param _id - The Mongo _id of the Box to read.
+     * @param options - Options for reading the Box.
+     * @returns Box with the given _id on succeed or an array of ServiceErrors if any occurred.
+     */
+    async readOneById(_id: string, options?: TReadByIdOptions) {
+        let optionsToApply = options;
+        if(options?.includeRefs)
+            optionsToApply.includeRefs = options.includeRefs.filter((ref: any) => publicReferences.includes(ref));
+
+        return this.basicService.readOneById<BoxDocument>(_id, optionsToApply);
+    }
+
+    /**
+     * Removes box data from DB and its references
+     * @param _id _id of the box to be removed
+     *
+     * @returns true if box data was removed successfully or ServiceErrors if any occurred
+     */
+    public async deleteOneById(_id: string): Promise<IServiceReturn<true>> {
+        const [boxToRemove, boxReadErrors] = await this.basicService.readOneById<BoxDocument>(_id);
+        if(boxReadErrors)
+            return [null, boxReadErrors];
+
+        const [isSuccess, boxRefRemoveErrors] = await this.deleteBoxReferences(boxToRemove.toObject());
+        if(boxRefRemoveErrors)
+            return [null, boxRefRemoveErrors];
+
+        return this.basicService.deleteOneById(_id);
     }
 
     /**
