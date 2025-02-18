@@ -92,6 +92,7 @@ export class BoxService {
 		const accessToken = await this.jwtService.signAsync({
 			player_id: account.player_id,
 			profile_id: account.profile_id,
+			box_id: box._id,
 		});
 
         const response: ClaimAccountResponseDto = {
