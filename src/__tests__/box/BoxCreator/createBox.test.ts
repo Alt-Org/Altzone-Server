@@ -279,8 +279,8 @@ describe('BoxCreator.createBox() test suite', () => {
 
         expect(result).toBeNull();
         expect(errors).toContainSE_NOT_UNIQUE();
-        expect(errors[0].field).toEqual('adminPassword');
-        expect(errors[0].value).toEqual(boxToCreate.adminPassword);
+        expect(errors[0].field).toBe('adminPassword');
+        expect(errors[0].value).toBeNull();
     });
 
     it('Should not save any box data, if box with provided adminPassword already registered', async () => {
