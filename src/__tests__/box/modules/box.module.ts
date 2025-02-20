@@ -7,6 +7,7 @@ import {GroupAdminSchema} from "../../../box/groupAdmin/groupAdmin.schema";
 import {GroupAdminService} from "../../../box/groupAdmin/groupAdmin.service";
 import {BoxHelper} from "../../../box/util/boxHelper";
 import BoxCreator from "../../../box/boxCreator";
+import BoxAuthHandler from "../../../box/auth/BoxAuthHandler";
 
 export default class BoxModule {
     private constructor() {}
@@ -37,5 +38,10 @@ export default class BoxModule {
     static async getBoxCreator(){
         const module = await BoxCommonModule.getModule();
         return module.resolve(BoxCreator);
+    }
+
+    static async getBoxAuthHandler(){
+        const module = await BoxCommonModule.getModule();
+        return module.resolve(BoxAuthHandler);
     }
 }
