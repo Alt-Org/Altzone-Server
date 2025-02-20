@@ -4,7 +4,7 @@ import {GroupAdmin} from "../../../../box/groupAdmin/groupAdmin.schema";
 export default class GroupAdminBuilder {
     private readonly base: Partial<GroupAdmin> = {
         password: 'defaultPassword',
-        _id: null,
+        _id: undefined,
     };
 
     build(): GroupAdmin {
