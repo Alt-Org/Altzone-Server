@@ -3,18 +3,21 @@ import CreateBoxDtoBuilder from "./box/CreateBoxDtoBuilder";
 import UpdateBoxDtoBuilder from "./box/UpdateBoxDtoBuilder";
 import GroupAdminBuilder from "./groupAdmin/GroupAdminBuilder";
 import TesterBuilder from "./box/TesterBuilder";
+import BoxUserBuilder from "./box/BoxUserBuilder";
 
 
 type BuilderName =
     'Box' | 'CreateBoxDto' | 'UpdateBoxDto' |
-    'GroupAdmin' | 'Tester';
+    'GroupAdmin' | 'Tester' |
+    'BoxUser';
 
 type BuilderMap = {
     Box: BoxBuilder,
     CreateBoxDto: CreateBoxDtoBuilder,
     UpdateBoxDto: UpdateBoxDtoBuilder,
     GroupAdmin: GroupAdminBuilder,
-    Tester: TesterBuilder
+    Tester: TesterBuilder,
+    BoxUser: BoxUserBuilder
 };
 
 export default class BoxBuilderFactory {
@@ -30,6 +33,8 @@ export default class BoxBuilderFactory {
                 return new GroupAdminBuilder() as BuilderMap[T];
             case 'Tester':
                 return new TesterBuilder() as BuilderMap[T];
+            case 'BoxUser':
+                return new BoxUserBuilder() as BuilderMap[T];
             default:
                 throw new Error(`Unknown builder name: ${builderName}`);
         }
