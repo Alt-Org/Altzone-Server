@@ -14,5 +14,5 @@ export class CreateProfileDto {
     @IsOptional()
     @ValidateNested()
     @Type(() => CreatePlayerDto)
-    Player: CreatePlayerDto;
+    Player?: CreatePlayerDto;
 }
