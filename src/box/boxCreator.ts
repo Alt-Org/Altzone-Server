@@ -24,6 +24,7 @@ import {Chat} from "../chat/chat.schema";
 import generateClanNames from "./util/generateClanNames";
 import {BoxService} from "./box.service";
 import {CreatedBox} from "./payloads/CreatedBox";
+import {ProfileDto} from "../profile/dto/profile.dto";
 
 @Injectable()
 export default class BoxCreator {
@@ -159,7 +160,7 @@ export default class BoxCreator {
         const boxAlreadyCreated = await this.boxHelper.isBoxRegistered(boxToValidate.adminPassword);
         if (boxAlreadyCreated)
             return [null, [new ServiceError({
-                reason: SEReason.NOT_UNIQUE, field: 'adminPassword', value: boxToValidate.adminPassword,
+                reason: SEReason.NOT_UNIQUE, field: 'adminPassword',
                 message: 'Box for provided password is already created'
             })]];
 
@@ -191,17 +192,10 @@ export default class BoxCreator {
      * @param adminPassword admin password to set
      * @returns created admin profile or ServiceErrors if any occurred
      */
-    private async createAdminProfile(adminPassword: string): Promise<IServiceReturn<Profile>> {
-        const adminProfile = await this.profilesService.createOne({
+    private async createAdminProfile(adminPassword: string): Promise<IServiceReturn<ProfileDto>> {
+        return this.profilesService.createWithHashedPassword({
             username: adminPassword, password: adminPassword
         });
-
-        if (adminProfile instanceof MongooseError) {
-            const creationErrors = convertMongooseToServiceErrors(adminProfile);
-            return [null, creationErrors];
-        }
-
-        return [adminProfile.data[adminProfile.metaData.dataKey], null];
     }
 
     /**
