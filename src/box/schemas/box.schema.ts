@@ -2,11 +2,11 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {HydratedDocument} from "mongoose";
 import {ModelName} from "../../common/enum/modelName.enum";
 import {ObjectId} from "mongodb";
-import {DailyTask} from "../../dailyTasks/dailyTasks.schema";
 import {SessionStage} from "../enum/SessionStage.enum";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {Tester} from "./tester.schema";
 import {BoxReference} from "../enum/BoxReference.enum";
+import {PredefinedDailyTask} from "../payloads/PredefinedDailyTask";
 
 export type BoxDocument = HydratedDocument<Box>;
 
@@ -109,8 +109,8 @@ export class Box {
     /**
      * array of predefined by the group admin tasks
      */
-    @Prop({ type: Array<DailyTask>, required: true, default: [] })
-    dailyTasks: DailyTask[];
+    @Prop({ type: Array<PredefinedDailyTask>, required: true, default: [] })
+    dailyTasks: PredefinedDailyTask[];
 
 
     @ExtractField()
