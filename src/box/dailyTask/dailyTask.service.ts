@@ -6,7 +6,7 @@ import { BoxReference } from "../enum/BoxReference.enum";
 import BasicService from "../../common/service/basicService/BasicService";
 import {IServiceReturn} from "../../common/service/basicService/IService";
 import {ObjectId} from "mongodb";
-import { PredefinedDailyTask } from "./predefinedDailyTask.schema";
+import {PredefinedDailyTask, PredefinedDailyTaskDoc} from "./predefinedDailyTask.schema";
 import {CreateDailyTask} from "./payloads/CreateDailyTask";
 
 @Injectable()
@@ -30,7 +30,7 @@ export class DailyTaskService{
      * - NOT_FOUND if the box was not found
      * - REQUIRED if box_id is null, undefined or empty string, or task is null or undefined
      */
-    async addDailyTask(box_id: string | ObjectId, task: CreateDailyTask): Promise<IServiceReturn<PredefinedDailyTask>> {
+    async addOne(box_id: string | ObjectId, task: CreateDailyTask): Promise<IServiceReturn<PredefinedDailyTaskDoc>> {
         return null;
     }
 
@@ -43,7 +43,7 @@ export class DailyTaskService{
      * - NOT_FOUND if the box was not found
      * - REQUIRED if box_id is null, undefined or empty string, or tasks is null, undefined or empty array
      */
-    async addMultipleDailyTasks(box_id: string | ObjectId, tasks: CreateDailyTask[]): Promise<IServiceReturn<PredefinedDailyTask[]>> {
+    async addMultiple(box_id: string | ObjectId, tasks: CreateDailyTask[]): Promise<IServiceReturn<PredefinedDailyTaskDoc[]>> {
         return null;
     }
 
@@ -53,10 +53,10 @@ export class DailyTaskService{
      * @param task task to update with _id field
      *
      * @returns true if the task was updated, or ServiceError:
-     * - NOT_FOUND if the box was not found
+     * - NOT_FOUND if the box or task was not found
      * - REQUIRED if box_id is null, undefined or empty string, or task is null, undefined or without _id
      */
-    async updateDailyTask(box_id: string | ObjectId, task: Partial<PredefinedDailyTask>): Promise<IServiceReturn<true>> {
+    async updateOneById(box_id: string | ObjectId, task: Partial<PredefinedDailyTask>): Promise<IServiceReturn<true>> {
         return null;
     }
 
@@ -69,7 +69,7 @@ export class DailyTaskService{
      * - NOT_FOUND if the box or task was not found
      * - REQUIRED if box_id is null, undefined or empty string, or task is null or undefined
      */
-    async deleteDailyTask(box_id: string | ObjectId, task_id: string | ObjectId): Promise<IServiceReturn<true>> {
+    async deleteOneById(box_id: string | ObjectId, task_id: string | ObjectId): Promise<IServiceReturn<true>> {
         return null;
     }
 }

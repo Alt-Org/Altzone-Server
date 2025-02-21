@@ -2,8 +2,7 @@ import {SessionStage} from "../../../../box/enum/SessionStage.enum";
 import {Box} from "../../../../box/schemas/box.schema";
 import {ObjectId} from "mongodb";
 import {Tester} from "../../../../box/schemas/tester.schema";
-import {DailyTask} from "../../../../dailyTasks/dailyTasks.schema";
-import {CreateDailyTask} from "../../../../box/dailyTask/payloads/CreateDailyTask";
+import {PredefinedDailyTask} from "../../../../box/dailyTask/predefinedDailyTask.schema";
 
 export default class BoxBuilder {
     private readonly base: Partial<Box> = {
@@ -99,7 +98,7 @@ export default class BoxBuilder {
         return this;
     }
 
-    setDailyTasks(dailyTasks: CreateDailyTask[]) {
+    setDailyTasks(dailyTasks: PredefinedDailyTask[]) {
         this.base.dailyTasks = dailyTasks;
         return this;
     }
