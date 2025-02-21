@@ -6,7 +6,7 @@ import {SessionStage} from "../enum/SessionStage.enum";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
 import {Tester} from "./tester.schema";
 import {BoxReference} from "../enum/BoxReference.enum";
-import {PredefinedDailyTask} from "../payloads/PredefinedDailyTask";
+import {PredefinedDailyTask, PredefinedDailyTaskSchema} from "../dailyTask/predefinedDailyTask.schema";
 
 export type BoxDocument = HydratedDocument<Box>;
 
@@ -109,7 +109,7 @@ export class Box {
     /**
      * array of predefined by the group admin tasks
      */
-    @Prop({ type: Array<PredefinedDailyTask>, required: true, default: [] })
+    @Prop({ type: [PredefinedDailyTaskSchema], required: true, default: [] })
     dailyTasks: PredefinedDailyTask[];
 
 

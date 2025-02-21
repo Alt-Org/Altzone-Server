@@ -20,6 +20,8 @@ import {PlayerModule} from "../player/player.module";
 import {ProfileModule} from "../profile/profile.module";
 import BoxCreator from "./boxCreator";
 import BoxAuthHandler from "./auth/BoxAuthHandler";
+import {DailyTaskController} from "./dailyTask/dailyTask.controller";
+import {DailyTaskService} from "./dailyTask/dailyTask.service";
 
 @Module({
     imports: [
@@ -40,10 +42,11 @@ import BoxAuthHandler from "./auth/BoxAuthHandler";
         PlayerModule
     ],
     controllers: [
-        BoxController
+        BoxController, DailyTaskController
     ],
     providers: [
-        BoxService, GroupAdminService, BoxHelper, BoxCreator, BoxAuthHandler
+        BoxService, GroupAdminService, BoxHelper, BoxCreator, BoxAuthHandler,
+        DailyTaskService
     ],
     exports: [
         BoxService

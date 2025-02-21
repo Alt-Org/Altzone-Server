@@ -1,6 +1,6 @@
-import {TaskName} from "../../dailyTasks/enum/taskName.enum";
+import {TaskName} from "../../../dailyTasks/enum/taskName.enum";
 
-export class PredefinedDailyTask {
+export class CreateDailyTask {
     type: TaskName;
     title: string;
     amount: number;
