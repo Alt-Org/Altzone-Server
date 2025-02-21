@@ -75,7 +75,7 @@ describe('DailyTaskService.addMultiple() test suite', () => {
         expect(result).toBeNull();
         expect(errors).toContainSE_REQUIRED();
         expect(errors[0].field).toBe('box_id');
-        expect(errors[0].value).toBe(undefined);
+        expect(errors[0].value).toBe(null);
     });
 
     it('Should return ServiceError REQUIRED, if the provided box _id is empty string', async () => {
@@ -102,7 +102,7 @@ describe('DailyTaskService.addMultiple() test suite', () => {
         expect(result).toBeNull();
         expect(errors).toContainSE_REQUIRED();
         expect(errors[0].field).toBe('tasks');
-        expect(errors[0].value).toBe(undefined);
+        expect(errors[0].value).toBe(null);
     });
 
     it('Should return ServiceError REQUIRED, if the provided tasks are empty array', async () => {
@@ -111,6 +111,6 @@ describe('DailyTaskService.addMultiple() test suite', () => {
         expect(result).toBeNull();
         expect(errors).toContainSE_REQUIRED();
         expect(errors[0].field).toBe('tasks');
-        expect(errors[0].value).toBe([]);
+        expect(errors[0].value).toEqual ([]);
     });
 });

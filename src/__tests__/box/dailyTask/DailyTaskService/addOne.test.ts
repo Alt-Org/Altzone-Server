@@ -72,7 +72,7 @@ describe('DailyTaskService.addOne() test suite', () => {
         expect(result).toBeNull();
         expect(errors).toContainSE_REQUIRED();
         expect(errors[0].field).toBe('box_id');
-        expect(errors[0].value).toBe(undefined);
+        expect(errors[0].value).toBe(null);
     });
 
     it('Should return ServiceError REQUIRED, if the provided box _id is an empty string', async () => {
@@ -99,6 +99,6 @@ describe('DailyTaskService.addOne() test suite', () => {
         expect(result).toBeNull();
         expect(errors).toContainSE_REQUIRED();
         expect(errors[0].field).toBe('task');
-        expect(errors[0].value).toBe(undefined);
+        expect(errors[0].value).toBe(null);
     });
 });
