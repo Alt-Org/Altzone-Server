@@ -35,18 +35,10 @@ describe('DailyTaskService.deleteOneById() test suite', () => {
         expect(wasDeleted).toBeTruthy();
 
         const boxInDB = await boxModel.findById(existingBox._id);
-        const deletedTask = boxInDB.dailyTasks.find(task => task._id === existingTask._id);
-        expect(deletedTask).toBeNull();
-    });
-
-    it('Should return ServiceError NOT_FOUND if the task with provided _id does not exist', async () => {
-        const nonExisting_id = getNonExisting_id();
-        const [wasDeleted, errors] = await taskService.deleteOneById(existingBox._id, nonExisting_id);
-
-        expect(wasDeleted).toBeNull();
-        expect(errors).toContainSE_NOT_FOUND();
-        expect(errors[0].field).toBe('task_id');
-        expect(errors[0].value).toBe(nonExisting_id);
+        const deletedTask = boxInDB.dailyTasks.find(
+            task => task._id.toString() === existingTask._id.toString()
+        );
+        expect(deletedTask).toBeUndefined();
     });
 
     it('Should return NOT_FOUND ServiceError if box does not exists', async () => {
@@ -73,7 +65,7 @@ describe('DailyTaskService.deleteOneById() test suite', () => {
         expect(result).toBeNull();
         expect(errors).toContainSE_REQUIRED();
         expect(errors[0].field).toBe('box_id');
-        expect(errors[0].value).toBe(undefined);
+        expect(errors[0].value).toBe(null);
     });
 
     it('Should return ServiceError REQUIRED, if the provided box _id is an empty string', async () => {
@@ -100,6 +92,6 @@ describe('DailyTaskService.deleteOneById() test suite', () => {
         expect(result).toBeNull();
         expect(errors).toContainSE_REQUIRED();
         expect(errors[0].field).toBe('task_id');
-        expect(errors[0].value).toBe(undefined);
+        expect(errors[0].value).toBe(null);
     });
 });

@@ -177,7 +177,31 @@ export class DailyTaskService {
      * - REQUIRED if box_id is null, undefined or empty string, or task is null or undefined
      */
     async deleteOneById(box_id: string | ObjectId, task_id: string | ObjectId): Promise<IServiceReturn<true>> {
-        return null;
+        if (!box_id)
+            return [null, [new ServiceError({
+                reason: SEReason.REQUIRED, field: 'box_id', value: box_id,
+                message: 'box_id is required'
+            })]];
+
+        if (!task_id)
+            return [null, [new ServiceError({
+                reason: SEReason.REQUIRED, field: 'task_id', value: task_id,
+                message: 'task_id is required'
+            })]];
+
+        const doesBoxExists = await this.model.findById(box_id);
+        if (!doesBoxExists)
+            return [null, [new ServiceError({
+                reason: SEReason.NOT_FOUND, field: 'box_id', value: box_id.toString(),
+                message: 'Box with provided _id not found'
+            })]];
+
+        await this.model.updateOne(
+            { _id: box_id },
+            { $pull: { dailyTasks: { _id: task_id } } }
+        );
+
+        return [true, null];
     }
 
     /**
