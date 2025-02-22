@@ -108,10 +108,10 @@ export class DailyTaskService {
             return [null, readErrors];
 
         const createdTasks: PredefinedDailyTask[] = [];
-        for(let i=0; i<tasks.length; i++){
+        for (let i = 0; i < tasks.length; i++) {
             const currTask = tasks[i];
             const createdTask = updatedBox.dailyTasks.find(dTask => this.areSameTasks(dTask, currTask));
-            if(createdTask)
+            if (createdTask)
                 createdTasks.push(createdTask);
         }
 
@@ -128,7 +128,43 @@ export class DailyTaskService {
      * - REQUIRED if box_id is null, undefined or empty string, or task is null, undefined or without _id
      */
     async updateOneById(box_id: string | ObjectId, task: Partial<PredefinedDailyTask>): Promise<IServiceReturn<true>> {
-        return null;
+        if (!box_id)
+            return [null, [new ServiceError({
+                reason: SEReason.REQUIRED, field: 'box_id', value: box_id,
+                message: 'box_id is required'
+            })]];
+
+        if (!task)
+            return [null, [new ServiceError({
+                reason: SEReason.REQUIRED, field: 'task', value: task,
+                message: 'task is required'
+            })]];
+
+        if (!task._id)
+            return [null, [new ServiceError({
+                reason: SEReason.REQUIRED, field: 'task_id', value: task._id,
+                message: 'task _id is required'
+            })]];
+
+        const doesBoxExists = await this.model.findById(box_id);
+        if (!doesBoxExists)
+            return [null, [new ServiceError({
+                reason: SEReason.NOT_FOUND, field: 'box_id', value: box_id.toString(),
+                message: 'Box with provided _id not found'
+            })]];
+
+        const taskUpdateResp = await this.model.updateOne(
+            { _id: box_id, 'dailyTasks._id': task._id },
+            { $set: { 'dailyTasks.$': task } },
+        );
+
+        if (taskUpdateResp.modifiedCount === 0)
+            return [null, [new ServiceError({
+                reason: SEReason.NOT_FOUND, field: 'task_id', value: task._id.toString(),
+                message: 'Task with provided _id not found'
+            })]]
+
+        return [true, null];
     }
 
     /**
@@ -144,6 +180,13 @@ export class DailyTaskService {
         return null;
     }
 
+    /**
+     * Defines whenever values of the both tasks are the same
+     * Notice that method will ignore the _id field
+     * @param task1 first task to compare
+     * @param task2 second task to compare
+     * @returns true if 
+     */
     private areSameTasks(task1: Partial<PredefinedDailyTask>, task2: Partial<PredefinedDailyTask>) {
         return task1.amount === task2.amount &&
             task1.coins === task2.coins &&
