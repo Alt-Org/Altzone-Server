@@ -4104,6 +4104,735 @@
                 "summary": "Update item",
                 "description": "Update item by specified _id"
             }
+        },
+        "/box": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "adminPassword": "kissa-juo-maito",
+                                        "playerName": "groupAdmin1"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Box"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Box": {
+                                                    "_id": "67bb4ba6252754947baa215b",
+                                                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcm9maWxlX2lkIjoiNjdiYjRiYTYyNTI3NTQ5NDdiYWEyMDUxIiwicGxheWVyX2lkIjoiNjdiYjRiYTYyNTI3NTQ5NDdiYWEyMDUzIiwiYm94X2lkIjoiNjdiYjRiYTYyNTI3NTQ5NDdiYWEyMTViIiwiZ3JvdXBBZG1pbiI6dHJ1ZSwiaWF0IjoxNzQwMzI3ODQ2LCJleHAiOjE3NDI5MTk4NDZ9.peNbcuXUzgzX5X-Va9ezpIDtLvhsoB2tGF89uPiylzU",
+                                                    "sessionStage": "Preparing",
+                                                    "boxRemovalTime": 1742919846482,
+                                                    "sessionResetTime": 1740932646482,
+                                                    "adminProfile_id": "67bb4ba6252754947baa215e",
+                                                    "adminPlayer_id": "67bb4ba6252754947baa215f",
+                                                    "clan_ids": [
+                                                        "67bb4ba6252754947baa2160",
+                                                        "67bb4ba6252754947baa2161"
+                                                    ],
+                                                    "soulHome_ids": [
+                                                        "67bb4ba6252754947baa2162",
+                                                        "67bb4ba6252754947baa2163"
+                                                    ],
+                                                    "room_ids": [
+                                                        "67bb4ba6252754947baa2164",
+                                                        "67bb4ba6252754947baa2165",
+                                                        "67bb4ba6252754947baa2166",
+                                                        "67bb4ba6252754947baa2167",
+                                                        "67bb4ba6252754947baa2168",
+                                                        "67bb4ba6252754947baa2169",
+                                                        "67bb4ba6252754947baa216a",
+                                                        "67bb4ba6252754947baa216b",
+                                                        "67bb4ba6252754947baa216c",
+                                                        "67bb4ba6252754947baa216d",
+                                                        "67bb4ba6252754947baa216e",
+                                                        "67bb4ba6252754947baa216f",
+                                                        "67bb4ba6252754947baa2170",
+                                                        "67bb4ba6252754947baa2171",
+                                                        "67bb4ba6252754947baa2172",
+                                                        "67bb4ba6252754947baa2173",
+                                                        "67bb4ba6252754947baa2174",
+                                                        "67bb4ba6252754947baa2175",
+                                                        "67bb4ba6252754947baa2176",
+                                                        "67bb4ba6252754947baa2177",
+                                                        "67bb4ba6252754947baa2178",
+                                                        "67bb4ba6252754947baa2179",
+                                                        "67bb4ba6252754947baa217a",
+                                                        "67bb4ba6252754947baa217b",
+                                                        "67bb4ba6252754947baa217c",
+                                                        "67bb4ba6252754947baa217d",
+                                                        "67bb4ba6252754947baa217e",
+                                                        "67bb4ba6252754947baa217f",
+                                                        "67bb4ba6252754947baa2180",
+                                                        "67bb4ba6252754947baa2181",
+                                                        "67bb4ba6252754947baa2182",
+                                                        "67bb4ba6252754947baa2183",
+                                                        "67bb4ba6252754947baa2184",
+                                                        "67bb4ba6252754947baa2185",
+                                                        "67bb4ba6252754947baa2186",
+                                                        "67bb4ba6252754947baa2187",
+                                                        "67bb4ba6252754947baa2188",
+                                                        "67bb4ba6252754947baa2189",
+                                                        "67bb4ba6252754947baa218a",
+                                                        "67bb4ba6252754947baa218b",
+                                                        "67bb4ba6252754947baa218c",
+                                                        "67bb4ba6252754947baa218d",
+                                                        "67bb4ba6252754947baa218e",
+                                                        "67bb4ba6252754947baa218f",
+                                                        "67bb4ba6252754947baa2190",
+                                                        "67bb4ba6252754947baa2191",
+                                                        "67bb4ba6252754947baa2192",
+                                                        "67bb4ba6252754947baa2193",
+                                                        "67bb4ba6252754947baa2194",
+                                                        "67bb4ba6252754947baa2195",
+                                                        "67bb4ba6252754947baa2196",
+                                                        "67bb4ba6252754947baa2197",
+                                                        "67bb4ba6252754947baa2198",
+                                                        "67bb4ba6252754947baa2199",
+                                                        "67bb4ba6252754947baa219a",
+                                                        "67bb4ba6252754947baa219b",
+                                                        "67bb4ba6252754947baa219c",
+                                                        "67bb4ba6252754947baa219d",
+                                                        "67bb4ba6252754947baa219e",
+                                                        "67bb4ba6252754947baa219f"
+                                                    ],
+                                                    "stock_ids": [
+                                                        "67bb4ba6252754947baa21a0",
+                                                        "67bb4ba6252754947baa21a1"
+                                                    ],
+                                                    "chat_id": "67bb4ba6252754947baa21a2",
+                                                    "adminPlayer": {
+                                                        "objectType": "PlayerDto",
+                                                        "_id": "67bb4ba6252754947baa2053",
+                                                        "name": "groupAdmin1",
+                                                        "points": 0,
+                                                        "backpackCapacity": 0,
+                                                        "uniqueIdentifier": "groupAdmin1",
+                                                        "above13": true,
+                                                        "parentalAuth": true,
+                                                        "battleCharacter_ids": [],
+                                                        "profile_id": "67bb4ba6252754947baa2051"
+                                                    },
+                                                    "clans": [
+                                                        {
+                                                            "objectType": "ClanDto",
+                                                            "_id": "67bb4ba6252754947baa2055",
+                                                            "name": "groupAdmin1 clan 1",
+                                                            "tag": "",
+                                                            "labels": [
+                                                                "gamerit"
+                                                            ],
+                                                            "gameCoins": 0,
+                                                            "points": 0,
+                                                            "admin_ids": [
+                                                                "67bb4ba6252754947baa2053"
+                                                            ],
+                                                            "playerCount": 1,
+                                                            "itemCount": 0,
+                                                            "stockCount": 0,
+                                                            "ageRange": "None",
+                                                            "goal": "None",
+                                                            "phrase": "Not-set",
+                                                            "language": "None",
+                                                            "isOpen": true
+                                                        },
+                                                        {
+                                                            "objectType": "ClanDto",
+                                                            "_id": "67bb4ba6252754947baa20be",
+                                                            "name": "groupAdmin1 clan 2",
+                                                            "tag": "",
+                                                            "labels": [
+                                                                "gamerit"
+                                                            ],
+                                                            "gameCoins": 0,
+                                                            "points": 0,
+                                                            "admin_ids": [
+                                                                "67bb4ba6252754947baa2053"
+                                                            ],
+                                                            "playerCount": 1,
+                                                            "itemCount": 0,
+                                                            "stockCount": 0,
+                                                            "ageRange": "None",
+                                                            "goal": "None",
+                                                            "phrase": "Not-set",
+                                                            "language": "None",
+                                                            "isOpen": true
+                                                        }
+                                                    ],
+                                                    "chat": {
+                                                        "objectType": "ChatDto",
+                                                        "_id": "67bb4ba6252754947baa2151"
+                                                    }
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Box",
+                                                "modelName": "Box",
+                                                "dataType": "Object",
+                                                "dataCount": 68
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {}
+                ],
+                "summary": "Create a testing box",
+                "description": "Create a testing box.\n\nNotice that in order t ocreate the testing box a group admin password need to be obtained from backend team"
+            }
+        },
+        "/box/claim-account": {
+            "get": {
+                "tags": [
+                    "Box"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "_id": "67bb4d6f252754947baa21aa",
+                                            "points": 0,
+                                            "backpackCapacity": 10,
+                                            "above13": true,
+                                            "parentalAuth": true,
+                                            "gameStatistics": {},
+                                            "battleCharacter_ids": [],
+                                            "profile_id": "67bb4d6f252754947baa21a8",
+                                            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwbGF5ZXJfaWQiOiI2N2JiNGQ2ZjI1Mjc1NDk0N2JhYTIxYWEiLCJwcm9maWxlX2lkIjoiNjdiYjRkNmYyNTI3NTQ5NDdiYWEyMWE4IiwiYm94X2lkIjoiNjdiYjRiYTYyNTI3NTQ5NDdiYWEyMTViIiwiaWF0IjoxNzQwMzI4NDI3LCJleHAiOjE3NDI5MjA0Mjd9.B8S9C9UikRlvbW7RbM_BEUpx9AR8CTATo2zQETAImg0",
+                                            "password": "tester1"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {}
+                ],
+                "summary": "Claim tester account",
+                "description": "Tester can claim his/her account for the testing box.\n\nNotice that the tester should know the shared testers password in order to be able to clain the account. This password is available after the group admin has started the session.\n\nNotice that the endpoint should be called only from browser, since a cookie should be added by the API"
+            },
+            "parameters": [
+                {
+                    "name": "password",
+                    "description": "Testers shared password, which can be obtained from group admin after testing session starts",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                }
+            ]
+        },
+        "/box/{_id}": {
+            "get": {
+                "tags": [
+                    "Box"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Box": {
+                                                    "_id": "67bb4ba6252754947baa215b",
+                                                    "adminPassword": "kissa-juo-maito",
+                                                    "sessionStage": "Preparing",
+                                                    "testersSharedPassword": "lol",
+                                                    "boxRemovalTime": 1742919846482,
+                                                    "sessionResetTime": 1740932646482,
+                                                    "adminProfile_id": "67bb4ba6252754947baa2051",
+                                                    "adminPlayer_id": "67bb4ba6252754947baa2053",
+                                                    "clan_ids": [
+                                                        "67bb4ba6252754947baa2055",
+                                                        "67bb4ba6252754947baa20be"
+                                                    ],
+                                                    "soulHome_ids": [
+                                                        "67bb4ba6252754947baa2060",
+                                                        "67bb4ba6252754947baa20dd"
+                                                    ],
+                                                    "room_ids": [
+                                                        "67bb4ba6252754947baa2062",
+                                                        "67bb4ba6252754947baa2063",
+                                                        "67bb4ba6252754947baa2064",
+                                                        "67bb4ba6252754947baa2065",
+                                                        "67bb4ba6252754947baa2066",
+                                                        "67bb4ba6252754947baa2067",
+                                                        "67bb4ba6252754947baa2068",
+                                                        "67bb4ba6252754947baa2069",
+                                                        "67bb4ba6252754947baa206a",
+                                                        "67bb4ba6252754947baa206b",
+                                                        "67bb4ba6252754947baa206c",
+                                                        "67bb4ba6252754947baa206d",
+                                                        "67bb4ba6252754947baa206e",
+                                                        "67bb4ba6252754947baa206f",
+                                                        "67bb4ba6252754947baa2070",
+                                                        "67bb4ba6252754947baa2073",
+                                                        "67bb4ba6252754947baa2074",
+                                                        "67bb4ba6252754947baa2075",
+                                                        "67bb4ba6252754947baa2076",
+                                                        "67bb4ba6252754947baa2077",
+                                                        "67bb4ba6252754947baa2078",
+                                                        "67bb4ba6252754947baa2079",
+                                                        "67bb4ba6252754947baa207a",
+                                                        "67bb4ba6252754947baa207b",
+                                                        "67bb4ba6252754947baa207c",
+                                                        "67bb4ba6252754947baa207d",
+                                                        "67bb4ba6252754947baa207e",
+                                                        "67bb4ba6252754947baa207f",
+                                                        "67bb4ba6252754947baa2071",
+                                                        "67bb4ba6252754947baa2072",
+                                                        "67bb4ba6252754947baa20df",
+                                                        "67bb4ba6252754947baa20e0",
+                                                        "67bb4ba6252754947baa20e1",
+                                                        "67bb4ba6252754947baa20e2",
+                                                        "67bb4ba6252754947baa20e3",
+                                                        "67bb4ba6252754947baa20e4",
+                                                        "67bb4ba6252754947baa20e5",
+                                                        "67bb4ba6252754947baa20e6",
+                                                        "67bb4ba6252754947baa20e7",
+                                                        "67bb4ba6252754947baa20e8",
+                                                        "67bb4ba6252754947baa20e9",
+                                                        "67bb4ba6252754947baa20ea",
+                                                        "67bb4ba6252754947baa20eb",
+                                                        "67bb4ba6252754947baa20ec",
+                                                        "67bb4ba6252754947baa20ed",
+                                                        "67bb4ba6252754947baa20ee",
+                                                        "67bb4ba6252754947baa20ef",
+                                                        "67bb4ba6252754947baa20f1",
+                                                        "67bb4ba6252754947baa20f2",
+                                                        "67bb4ba6252754947baa20f4",
+                                                        "67bb4ba6252754947baa20f5",
+                                                        "67bb4ba6252754947baa20f6",
+                                                        "67bb4ba6252754947baa20f7",
+                                                        "67bb4ba6252754947baa20f8",
+                                                        "67bb4ba6252754947baa20f9",
+                                                        "67bb4ba6252754947baa20fa",
+                                                        "67bb4ba6252754947baa20fb",
+                                                        "67bb4ba6252754947baa20fc",
+                                                        "67bb4ba6252754947baa20f0",
+                                                        "67bb4ba6252754947baa20f3"
+                                                    ],
+                                                    "stock_ids": [
+                                                        "67bb4ba6252754947baa2058",
+                                                        "67bb4ba6252754947baa20d5"
+                                                    ],
+                                                    "chat_id": "67bb4ba6252754947baa2151",
+                                                    "testers": [
+                                                        {
+                                                            "profile_id": "67bb4d6f252754947baa21a8",
+                                                            "player_id": "67bb4d6f252754947baa21aa",
+                                                            "isClaimed": true,
+                                                            "_id": "67bb4deb252754947baa21b1",
+                                                            "id": "67bb4deb252754947baa21b1"
+                                                        }
+                                                    ],
+                                                    "accountClaimersIds": [],
+                                                    "dailyTasks": [],
+                                                    "createdAt": "2025-02-23T16:24:06.491Z",
+                                                    "updatedAt": "2025-02-23T16:33:47.188Z",
+                                                    "__v": 0,
+                                                    "id": "67bb4ba6252754947baa215b"
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Box",
+                                                "modelName": "Box",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {}
+                ],
+                "summary": "Get box data by _id",
+                "description": "Temporary endpoint for development stage, which lets get any box data by its _id"
+            },
+            "delete": {
+                "tags": [
+                    "Box"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {}
+                ],
+                "summary": "Delete box by _id",
+                "description": "Delete a box by its _id.\n\nNotice that it is a temporary endpoint for the development stage"
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "1": {
+                            "value": "67bb4ba6252754947baa215b"
+                        }
+                    },
+                    "name": "_id",
+                    "description": "box _id",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/box/dailyTask": {
+            "put": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "_id": "67bb5142252754947baa21ce",
+                                        "type": "play_battle",
+                                        "title": "Play 1 battles",
+                                        "amount": 1,
+                                        "points": 10,
+                                        "coins": 10,
+                                        "timeLimitMinutes": 10
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Box"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Update box daily task",
+                "description": "Update a predefined daily task of a box by its _id.\n\nNotice that only group admin can update the tasks"
+            },
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "type": "play_battle",
+                                        "title": "Play 10 battles",
+                                        "amount": 10,
+                                        "points": 100,
+                                        "coins": 10,
+                                        "timeLimitMinutes": 10
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Box"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "DailyTask": {
+                                                    "_id": "67bb5142252754947baa21ce",
+                                                    "type": "play_battle",
+                                                    "title": "Play 10 battles",
+                                                    "amount": 10,
+                                                    "points": 100,
+                                                    "coins": 10,
+                                                    "timeLimitMinutes": 10
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "DailyTask",
+                                                "modelName": "DailyTask",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Add a daily task to box",
+                "description": "Add a daily task to array of predefined daily tasks.\n\nNotice that the logged-in player has to be a group admin"
+            }
+        },
+        "/box/multiple": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": [
+                                        {
+                                            "type": "play_battle",
+                                            "title": "Play 7 battles",
+                                            "amount": 7,
+                                            "points": 70,
+                                            "coins": 70,
+                                            "timeLimitMinutes": 70
+                                        },
+                                        {
+                                            "type": "win_battle",
+                                            "title": "Win 5 battles",
+                                            "amount": 5,
+                                            "points": 50,
+                                            "coins": 20,
+                                            "timeLimitMinutes": 50
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Box"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "DailyTask": [
+                                                    {
+                                                        "_id": "67bb524b252754947baa21dc",
+                                                        "type": "play_battle",
+                                                        "title": "Play 7 battles",
+                                                        "amount": 7,
+                                                        "points": 70,
+                                                        "coins": 70,
+                                                        "timeLimitMinutes": 70
+                                                    },
+                                                    {
+                                                        "_id": "67bb524b252754947baa21dd",
+                                                        "type": "win_battle",
+                                                        "title": "Win 5 battles",
+                                                        "amount": 5,
+                                                        "points": 50,
+                                                        "coins": 20,
+                                                        "timeLimitMinutes": 50
+                                                    }
+                                                ]
+                                            },
+                                            "metaData": {
+                                                "dataKey": "DailyTask",
+                                                "modelName": "DailyTask",
+                                                "dataType": "Array",
+                                                "dataCount": 2
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Create multiple daily tasks",
+                "description": "Add multiple daily tasks at once to daily tasks array of the box.\n\nNotice that only group admin can add the tasks."
+            }
+        },
+        "/box/dailyTask/{_id}": {
+            "delete": {
+                "tags": [
+                    "Box"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Delete daily task by _id",
+                "description": "Delete daily task from predefined daily tasks array of the box.\n\nNotice that only group admin can delete the tasks"
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "1": {
+                            "value": "67bb088ddea70844c03e05ed"
+                        }
+                    },
+                    "name": "_id",
+                    "description": "daily task _id",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
         }
     },
     "components": {
@@ -5930,6 +6659,10 @@
         {
             "name": "DailyTasks",
             "description": "In-game tasks for Player to do daily, weekly, monthly"
+        },
+        {
+            "name": "Box",
+            "description": "Testing box data"
         }
     ],
     "externalDocs": {
