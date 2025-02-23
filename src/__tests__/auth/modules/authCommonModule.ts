@@ -4,6 +4,11 @@ import {JwtModule} from "@nestjs/jwt";
 import {AuthService} from "../../../auth/auth.service";
 import {MongooseModule} from "@nestjs/mongoose";
 import {mongooseOptions, mongoString} from "../../test_utils/const/db";
+import {ModelName} from "../../../common/enum/modelName.enum";
+import {ProfileSchema} from "../../../profile/profile.schema";
+import {PlayerSchema} from "../../../player/player.schema";
+import {ClanSchema} from "../../../clan/clan.schema";
+import {AuthGuard} from "../../../auth/auth.guard";
 
 
 export default class AuthCommonModule {
@@ -17,6 +22,11 @@ export default class AuthCommonModule {
             AuthCommonModule.module = await Test.createTestingModule({
                 imports: [
                     MongooseModule.forRoot(mongoString, mongooseOptions),
+                    MongooseModule.forFeature([
+                        {name: ModelName.PROFILE, schema: ProfileSchema},
+                        {name: ModelName.PLAYER, schema: PlayerSchema},
+                        {name: ModelName.CLAN, schema: ClanSchema}
+                    ]),
                     JwtModule.register({
                         global: true,
                         secret: 'jwt-secret',
@@ -25,7 +35,7 @@ export default class AuthCommonModule {
                     RequestHelperModule
                 ],
                 providers: [
-                    AuthService
+                    AuthService, AuthGuard
                 ]
             }).compile();
 

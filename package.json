@@ -16,7 +16,8 @@
     "test-w": "jest --watch",
     "test:e2e": "echo \"Start build...\" && nest build && echo \"Build success! Start docker\" && docker compose -f test_docker-compose.yml up -d && echo \"Docker started! Start tests...\" && (jest -i --config ./testAPI/jest-e2e.json || echo \"Some of the tests failed!\") && echo \"Tests completed! Stop docker...\" && docker compose -f test_docker-compose.yml down && docker image rm altzone-server-api_test && docker volume prune && echo \"Test volumes removed! E2E tests complete!\"",
     "dev": "nodemon dist/index.js",
-    "docker_dev": "nodemon -L dist/index.js"
+    "docker_dev": "nodemon -L dist/index.js",
+    "sonar:analize": "docker compose -f sonar_docker-compose.yml up -d && sonar-scanner \\\n  -Dsonar.projectKey=AltzoneLocal \\\n  -Dsonar.sources=. \\\n  -Dsonar.host.url=http://localhost:9000 \\\n  -Dsonar.login=sqp_d0d523f9a2cf5e1e8f7587e0da315df0adc86568 \\\n  && echo \"Remember to stop the sonar server with: \\n docker compose -f sonar_docker-compose.yml down\"\n"
   },
   "keywords": [],
   "author": "",

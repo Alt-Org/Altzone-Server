@@ -2080,24 +2080,81 @@
                                     "1": {
                                         "value": {
                                             "data": {
-                                                "CustomCharacter": {
-                                                    "objectType": "CustomCharacterDto",
-                                                    "_id": "66939de4db98c5ba6bb192f1",
-                                                    "unityKey": "somekey12",
-                                                    "name": "My custom5",
-                                                    "speed": 37,
-                                                    "resistance": 40,
-                                                    "attack": 55,
-                                                    "defence": 14,
-                                                    "hp": 120,
-                                                    "player_id": "665df7026bf5b8f670569ea4"
-                                                }
+                                                "CustomCharacter": [
+                                                    {
+                                                        "objectType": "CustomCharacterDto",
+                                                        "_id": "67a854de7daa100af3fac4ac",
+                                                        "characterId": "401",
+                                                        "defence": 10,
+                                                        "hp": 3,
+                                                        "size": 8,
+                                                        "speed": 4,
+                                                        "attack": 7,
+                                                        "level": 1,
+                                                        "player_id": "679cd4db27a90a33d0985f4e"
+                                                    },
+                                                    {
+                                                        "objectType": "CustomCharacterDto",
+                                                        "_id": "679cd52327a90a33d0985f6b",
+                                                        "characterId": "401",
+                                                        "defence": 10,
+                                                        "hp": 3,
+                                                        "size": 8,
+                                                        "speed": 4,
+                                                        "attack": 7,
+                                                        "level": 1,
+                                                        "player_id": "679cd4db27a90a33d0985f4e"
+                                                    },
+                                                    {
+                                                        "objectType": "CustomCharacterDto",
+                                                        "_id": "679cd51827a90a33d0985f65",
+                                                        "characterId": "202",
+                                                        "defence": 3,
+                                                        "hp": 2,
+                                                        "size": 4,
+                                                        "speed": 10,
+                                                        "attack": 8,
+                                                        "level": 1,
+                                                        "player_id": "679cd4db27a90a33d0985f4e"
+                                                    },
+                                                    {
+                                                        "objectType": "CustomCharacterDto",
+                                                        "_id": "679cd50f27a90a33d0985f5f",
+                                                        "characterId": "201",
+                                                        "defence": 5,
+                                                        "hp": 2,
+                                                        "size": 6,
+                                                        "speed": 10,
+                                                        "attack": 7,
+                                                        "level": 1,
+                                                        "player_id": "679cd4db27a90a33d0985f4e"
+                                                    },
+                                                    {
+                                                        "objectType": "CustomCharacterDto",
+                                                        "_id": "679cd50a27a90a33d0985f59",
+                                                        "characterId": "401",
+                                                        "defence": 20,
+                                                        "hp": 10,
+                                                        "size": 10,
+                                                        "speed": 10,
+                                                        "attack": 50,
+                                                        "level": 2,
+                                                        "player_id": "679cd4db27a90a33d0985f4e"
+                                                    }
+                                                ]
                                             },
                                             "metaData": {
                                                 "dataKey": "CustomCharacter",
                                                 "modelName": "CustomCharacter",
-                                                "dataType": "Object",
-                                                "dataCount": 1
+                                                "dataType": "Array",
+                                                "dataCount": 5
+                                            },
+                                            "paginationData": {
+                                                "currentPage": 1,
+                                                "limit": 20,
+                                                "offset": 0,
+                                                "itemCount": 5,
+                                                "pageCount": 1
                                             }
                                         }
                                     }
@@ -2194,15 +2251,15 @@
                                             "data": {
                                                 "CustomCharacter": {
                                                     "objectType": "CustomCharacterDto",
-                                                    "_id": "66939de4db98c5ba6bb192f1",
-                                                    "unityKey": "somekey12",
-                                                    "name": "My custom5",
-                                                    "speed": 37,
-                                                    "resistance": 40,
-                                                    "attack": 55,
-                                                    "defence": 14,
-                                                    "characterClass_id": "66939d9f9fdbf76f01d5dbd5",
-                                                    "player_id": "665df7026bf5b8f670569ea4"
+                                                    "_id": "67a854de7daa100af3fac4ac",
+                                                    "characterId": "401",
+                                                    "defence": 10,
+                                                    "hp": 3,
+                                                    "size": 8,
+                                                    "speed": 4,
+                                                    "attack": 7,
+                                                    "level": 1,
+                                                    "player_id": "679cd4db27a90a33d0985f4e"
                                                 }
                                             },
                                             "metaData": {
@@ -2255,15 +2312,15 @@
                                             "data": {
                                                 "CustomCharacter": {
                                                     "objectType": "CustomCharacterDto",
-                                                    "_id": "66939de4db98c5ba6bb192f1",
-                                                    "unityKey": "somekey12",
-                                                    "name": "My custom5",
-                                                    "speed": 37,
-                                                    "resistance": 40,
-                                                    "attack": 55,
-                                                    "defence": 14,
-                                                    "hp": 120,
-                                                    "player_id": "665df7026bf5b8f670569ea4"
+                                                    "_id": "67a854de7daa100af3fac4ac",
+                                                    "characterId": "401",
+                                                    "defence": 10,
+                                                    "hp": 3,
+                                                    "size": 8,
+                                                    "speed": 4,
+                                                    "attack": 7,
+                                                    "level": 1,
+                                                    "player_id": "679cd4db27a90a33d0985f4e"
                                                 }
                                             },
                                             "metaData": {
@@ -3233,10 +3290,10 @@
                 }
             ]
         },
-        "/playerTasks": {
+        "/dailyTasks": {
             "get": {
                 "tags": [
-                    "PlayerTasks"
+                    "DailyTasks"
                 ],
                 "responses": {
                     "200": {
@@ -3246,81 +3303,254 @@
                                     "1": {
                                         "value": {
                                             "data": {
-                                                "PlayerTask": {
-                                                    "daily": [
-                                                        {
-                                                            "id": 21,
-                                                            "title": {
-                                                                "fi": "Pelaa 3 taistelua"
-                                                            },
-                                                            "content": {
-                                                                "fi": "Sun pitää pelata tänään 3 taistelua"
-                                                            },
-                                                            "amount": 3,
-                                                            "type": "play_battle",
-                                                            "coins": 30,
-                                                            "points": 60
-                                                        },
-                                                        {
-                                                            "id": 22,
-                                                            "title": {
-                                                                "fi": "Voita 5 taistelua"
-                                                            },
-                                                            "content": {
-                                                                "fi": "Sun pitää voittaa tänään 5 taistelua"
-                                                            },
-                                                            "amount": 5,
-                                                            "type": "win_battle",
-                                                            "coins": 250,
-                                                            "points": 500
-                                                        },
-                                                        {
-                                                            "id": 23,
-                                                            "title": {
-                                                                "fi": "Lähetä 10 viestiä chattiin"
-                                                            },
-                                                            "content": {
-                                                                "fi": "Sun pitää lähettää tänään 10 viestiä chattiin"
-                                                            },
-                                                            "amount": 10,
-                                                            "type": "write_chat_message",
-                                                            "coins": 45,
-                                                            "points": 90
-                                                        },
-                                                        {
-                                                            "id": 24,
-                                                            "title": {
-                                                                "fi": "Aloita taistelu eri hahmolla"
-                                                            },
-                                                            "content": {
-                                                                "fi": "Sun pitää aloittaa taistelu eri hahmolla"
-                                                            },
-                                                            "amount": 3,
-                                                            "type": "start_battle_with_new_character",
-                                                            "coins": 30,
-                                                            "points": 60
-                                                        },
-                                                        {
-                                                            "id": 25,
-                                                            "title": {
-                                                                "fi": "Äänestä 2 kertaa"
-                                                            },
-                                                            "content": {
-                                                                "fi": "Sun pitää äänestää tänään 2 kertaa"
-                                                            },
-                                                            "amount": 2,
-                                                            "type": "vote",
-                                                            "coins": 20,
-                                                            "points": 40
-                                                        }
-                                                    ]
-                                                }
+                                                "DailyTask": [
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf3501",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Pelaa 17 taistelua",
+                                                        "type": "play_battle",
+                                                        "points": 92,
+                                                        "coins": 46,
+                                                        "amount": 17,
+                                                        "amountLeft": 17,
+                                                        "timeLimitMinutes": 34
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf3502",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Pelaa 2 taistelua",
+                                                        "type": "play_battle",
+                                                        "points": 71,
+                                                        "coins": 35,
+                                                        "amount": 2,
+                                                        "amountLeft": 2,
+                                                        "timeLimitMinutes": 4
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf3503",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Pelaa 9 taistelua",
+                                                        "type": "play_battle",
+                                                        "points": 32,
+                                                        "coins": 16,
+                                                        "amount": 9,
+                                                        "amountLeft": 9,
+                                                        "timeLimitMinutes": 18
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf3504",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Voita 16 taistelua",
+                                                        "type": "win_battle",
+                                                        "points": 50,
+                                                        "coins": 25,
+                                                        "amount": 16,
+                                                        "amountLeft": 16,
+                                                        "timeLimitMinutes": 32
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf3505",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Lähetä 20 viestiä chattiin",
+                                                        "type": "write_chat_message",
+                                                        "points": 23,
+                                                        "coins": 11,
+                                                        "amount": 20,
+                                                        "amountLeft": 20,
+                                                        "timeLimitMinutes": 40
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf3506",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Lähetä 4 viestiä chattiin",
+                                                        "type": "write_chat_message",
+                                                        "points": 68,
+                                                        "coins": 34,
+                                                        "amount": 4,
+                                                        "amountLeft": 4,
+                                                        "timeLimitMinutes": 8
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf3507",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Lähetä 3 viestiä chattiin",
+                                                        "type": "write_chat_message",
+                                                        "points": 91,
+                                                        "coins": 45,
+                                                        "amount": 3,
+                                                        "amountLeft": 3,
+                                                        "timeLimitMinutes": 6
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf3508",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Voita 19 taistelua",
+                                                        "type": "win_battle",
+                                                        "points": 83,
+                                                        "coins": 41,
+                                                        "amount": 19,
+                                                        "amountLeft": 19,
+                                                        "timeLimitMinutes": 38
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf3509",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Pelaa 15 taistelua",
+                                                        "type": "play_battle",
+                                                        "points": 55,
+                                                        "coins": 27,
+                                                        "amount": 15,
+                                                        "amountLeft": 15,
+                                                        "timeLimitMinutes": 30
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf350a",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Lähetä 5 viestiä chattiin",
+                                                        "type": "write_chat_message",
+                                                        "points": 21,
+                                                        "coins": 10,
+                                                        "amount": 5,
+                                                        "amountLeft": 5,
+                                                        "timeLimitMinutes": 10
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf350b",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Lähetä 10 viestiä chattiin",
+                                                        "type": "write_chat_message",
+                                                        "points": 91,
+                                                        "coins": 45,
+                                                        "amount": 10,
+                                                        "amountLeft": 10,
+                                                        "timeLimitMinutes": 20
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf350c",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Lähetä 5 viestiä chattiin",
+                                                        "type": "write_chat_message",
+                                                        "points": 70,
+                                                        "coins": 35,
+                                                        "amount": 5,
+                                                        "amountLeft": 5,
+                                                        "timeLimitMinutes": 10
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf350d",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Lähetä 2 viestiä chattiin",
+                                                        "type": "write_chat_message",
+                                                        "points": 21,
+                                                        "coins": 10,
+                                                        "amount": 2,
+                                                        "amountLeft": 2,
+                                                        "timeLimitMinutes": 4
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf350e",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Voita 6 taistelua",
+                                                        "type": "win_battle",
+                                                        "points": 77,
+                                                        "coins": 38,
+                                                        "amount": 6,
+                                                        "amountLeft": 6,
+                                                        "timeLimitMinutes": 12
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf350f",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Lähetä 3 viestiä chattiin",
+                                                        "type": "write_chat_message",
+                                                        "points": 38,
+                                                        "coins": 19,
+                                                        "amount": 3,
+                                                        "amountLeft": 3,
+                                                        "timeLimitMinutes": 6
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf3512",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Pelaa 13 taistelua",
+                                                        "type": "play_battle",
+                                                        "points": 93,
+                                                        "coins": 46,
+                                                        "amount": 13,
+                                                        "amountLeft": 13,
+                                                        "timeLimitMinutes": 26
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf3513",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Voita 13 taistelua",
+                                                        "type": "win_battle",
+                                                        "points": 10,
+                                                        "coins": 5,
+                                                        "amount": 13,
+                                                        "amountLeft": 13,
+                                                        "timeLimitMinutes": 26
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf3514",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Voita 5 taistelua",
+                                                        "type": "win_battle",
+                                                        "points": 17,
+                                                        "coins": 8,
+                                                        "amount": 5,
+                                                        "amountLeft": 5,
+                                                        "timeLimitMinutes": 10
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf3510",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Voita 2 taistelua",
+                                                        "type": "win_battle",
+                                                        "points": 51,
+                                                        "coins": 25,
+                                                        "amount": 2,
+                                                        "amountLeft": 2,
+                                                        "timeLimitMinutes": 4
+                                                    },
+                                                    {
+                                                        "objectType": "DailyTaskDto",
+                                                        "_id": "67a85c1c0a8da114b5bf3511",
+                                                        "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                        "title": "Pelaa 17 taistelua",
+                                                        "type": "play_battle",
+                                                        "points": 100,
+                                                        "coins": 50,
+                                                        "amount": 17,
+                                                        "amountLeft": 17,
+                                                        "timeLimitMinutes": 34
+                                                    }
+                                                ]
                                             },
                                             "metaData": {
-                                                "dataKey": "PlayerTask",
-                                                "modelName": "PlayerTask",
-                                                "dataType": "Object",
-                                                "dataCount": 1
+                                                "dataKey": "DailyTask",
+                                                "modelName": "DailyTask",
+                                                "dataType": "Array",
+                                                "dataCount": 20
                                             }
                                         }
                                     }
@@ -3334,6 +3564,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/401_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
                     },
                     "500": {
                         "$ref": "#/components/responses/500_New"
@@ -3785,6 +4018,256 @@
                 "summary": "Get items of the logged-in user clan",
                 "description": "Get items of the logged-in user clan.\n\nNotice that it will return 403 if the logged-in player is not in any clan."
             }
+        },
+        "/customCharacter/battleCharacters": {
+            "get": {
+                "tags": [
+                    "CustomCharacter"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "CustomCharacter": [
+                                                    {
+                                                        "objectType": "CustomCharacterDto",
+                                                        "_id": "679cd50f27a90a33d0985f5f",
+                                                        "characterId": "201",
+                                                        "defence": 5,
+                                                        "hp": 2,
+                                                        "size": 6,
+                                                        "speed": 10,
+                                                        "attack": 7,
+                                                        "level": 1,
+                                                        "player_id": "679cd4db27a90a33d0985f4e"
+                                                    },
+                                                    {
+                                                        "objectType": "CustomCharacterDto",
+                                                        "_id": "679cd51827a90a33d0985f65",
+                                                        "characterId": "202",
+                                                        "defence": 3,
+                                                        "hp": 2,
+                                                        "size": 4,
+                                                        "speed": 10,
+                                                        "attack": 8,
+                                                        "level": 1,
+                                                        "player_id": "679cd4db27a90a33d0985f4e"
+                                                    },
+                                                    {
+                                                        "objectType": "CustomCharacterDto",
+                                                        "_id": "679cd52327a90a33d0985f6b",
+                                                        "characterId": "401",
+                                                        "defence": 10,
+                                                        "hp": 3,
+                                                        "size": 8,
+                                                        "speed": 4,
+                                                        "attack": 7,
+                                                        "level": 1,
+                                                        "player_id": "679cd4db27a90a33d0985f4e"
+                                                    }
+                                                ]
+                                            },
+                                            "metaData": {
+                                                "dataKey": "CustomCharacter",
+                                                "modelName": "CustomCharacter",
+                                                "dataType": "Array",
+                                                "dataCount": 3
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success, response with body"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get logged-in player chosen CustomCharacters",
+                "description": "Get logged-in player chosen CustomCharacters for a battle"
+            }
+        },
+        "/dailyTasks/:_id": {
+            "get": {
+                "tags": [
+                    "DailyTasks"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, response with body"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get daily task by _id",
+                "description": "Get specific daily task by _id"
+            },
+            "delete": {
+                "tags": [
+                    "DailyTasks"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Delete daily task by _id",
+                "description": "Delete task by specified _id.\n\nNotice that a new task will be generated to replace the old one."
+            }
+        },
+        "/dailyTasks/reserve/:_id": {
+            "put": {
+                "tags": [
+                    "DailyTasks"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Object": {
+                                                    "_id": "67a85c1c0a8da114b5bf3501",
+                                                    "clan_id": "67a85c1c0a8da114b5bf34ac",
+                                                    "title": "Pelaa 17 taistelua",
+                                                    "type": "play_battle",
+                                                    "points": 92,
+                                                    "coins": 46,
+                                                    "amount": 17,
+                                                    "amountLeft": 17,
+                                                    "timeLimitMinutes": 34,
+                                                    "__v": 0,
+                                                    "player_id": "67a85b8b0a8da114b5bf348f",
+                                                    "startedAt": "2025-02-09T08:02:08.170Z",
+                                                    "id": "67a85c1c0a8da114b5bf3501"
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Object",
+                                                "modelName": "Object",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success, response with body"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Reserve a daily task",
+                "description": "Reserve a daily task for the loged-in player.\n\nReserved task can not be taken by other clan members.\n\nNotice that clan members will get a notification about the task was reserved"
+            }
+        },
+        "/item": {
+            "put": {
+                "requestBody": {
+                    "description": "Update item",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ItemUpdate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Item"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Update item",
+                "description": "Update item by specified _id"
+            }
         }
     },
     "components": {
@@ -3947,24 +4430,46 @@
                         "type": "object",
                         "properties": {
                             "name": {
-                                "description": "The name of the Player, unique",
+                                "description": "The name of the player",
                                 "type": "string",
-                                "example": "User 1"
+                                "example": "PlayerOne"
                             },
                             "backpackCapacity": {
-                                "description": "The capacity of the Player's backpack",
+                                "description": "The capacity of the player’s backpack",
                                 "type": "integer",
-                                "example": 453
+                                "example": 50
                             },
                             "uniqueIdentifier": {
-                                "description": "The identifier for the player, unique",
+                                "description": "A unique identifier for the player",
                                 "type": "string",
-                                "example": "1"
+                                "example": "player-12345"
                             },
                             "above13": {
-                                "description": "Is Player age 13 or above",
+                                "description": "Indicates if the player is above 13 years old",
                                 "type": "boolean",
                                 "example": true
+                            },
+                            "parentalAuth": {
+                                "description": "Indicates if parental authorization is required",
+                                "type": "boolean",
+                                "example": false
+                            },
+                            "battleCharacter_ids": {
+                                "description": "An array of up to 3 battle character MongoDB IDs",
+                                "maxItems": 3,
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "example": [
+                                    "60c72b2f5f1b2c001c8e4d60",
+                                    "60c72b2f5f1b2c001c8e4d61"
+                                ]
+                            },
+                            "currentAvatarId": {
+                                "description": "The current avatar ID of the player",
+                                "type": "integer",
+                                "example": 101
                             }
                         }
                     }
@@ -4145,79 +4650,127 @@
                 }
             },
             "PlayerCreate": {
-                "description": "",
+                "description": "Create a new player",
+                "required": [
+                    "name",
+                    "backpackCapacity",
+                    "uniqueIdentifier"
+                ],
                 "type": "object",
                 "properties": {
                     "name": {
-                        "description": "The name of the Player, unique",
+                        "description": "The name of the player",
                         "type": "string",
-                        "example": "User 1"
-                    },
-                    "uniqueIdentifier": {
-                        "description": "The identifier for the Player, unique",
-                        "type": "string",
-                        "example": "1"
+                        "example": "PlayerOne"
                     },
                     "backpackCapacity": {
-                        "description": "The capacity of the Player's backpack",
+                        "description": "The capacity of the player’s backpack",
                         "type": "integer",
-                        "example": 34
+                        "example": 50
                     },
-                    "profile_id": {
-                        "description": "The id of the associated Profile",
+                    "uniqueIdentifier": {
+                        "description": "A unique identifier for the player",
                         "type": "string",
-                        "example": "6686cac271adebdb10f33fee"
+                        "example": "player-12345"
                     },
                     "above13": {
-                        "description": "Is Player age 13 or above, default null",
+                        "description": "Indicates if the player is above 13 years old",
                         "type": "boolean",
                         "example": true
                     },
                     "parentalAuth": {
-                        "description": "Is Player got parents approval, default null",
+                        "description": "Indicates if parental authorization is required",
                         "type": "boolean",
-                        "example": true
+                        "example": false
+                    },
+                    "battleCharacter_ids": {
+                        "description": "An array of up to 3 battle character MongoDB IDs",
+                        "maxItems": 3,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "60c72b2f5f1b2c001c8e4d60",
+                            "60c72b2f5f1b2c001c8e4d61"
+                        ]
+                    },
+                    "currentAvatarId": {
+                        "description": "The current avatar ID of the player",
+                        "type": "integer",
+                        "example": 101
+                    },
+                    "profile_id": {
+                        "description": "The MongoDB ID of the player’s profile",
+                        "type": "string",
+                        "example": "60c72b2f5f1b2c001c8e4d62"
                     }
                 }
             },
             "PlayerUpdate": {
-                "description": "",
+                "description": "Update an existing player",
+                "required": [
+                    "_id"
+                ],
                 "type": "object",
                 "properties": {
                     "_id": {
-                        "description": "The _id of the Player, readonly",
+                        "description": "The unique MongoDB ID of the player",
                         "type": "string",
-                        "example": "6686cb3b71adebdb10f33ffb"
+                        "example": "60c72b2f5f1b2c001c8e4d63"
                     },
                     "name": {
-                        "description": "The name of the Player, unique",
+                        "description": "The updated name of the player",
                         "type": "string",
-                        "example": "User 1"
-                    },
-                    "uniqueIdentifier": {
-                        "description": "The identifier for the Player, unique",
-                        "type": "string",
-                        "example": "1"
+                        "example": "UpdatedPlayerOne"
                     },
                     "backpackCapacity": {
-                        "description": "The capacity of the Player's backpack",
+                        "description": "The updated backpack capacity",
                         "type": "integer",
-                        "example": 34
+                        "example": 60
                     },
-                    "profile_id": {
-                        "description": "The id of the associated Profile",
+                    "uniqueIdentifier": {
+                        "description": "The updated unique identifier for the player",
                         "type": "string",
-                        "example": "6686cac271adebdb10f33fee"
+                        "example": "updated-player-12345"
                     },
                     "above13": {
-                        "description": "Is Player age 13 or above",
+                        "description": "Updated indicator if the player is above 13 years old",
                         "type": "boolean",
                         "example": true
                     },
                     "parentalAuth": {
-                        "description": "Is Player got parents approval, default null",
+                        "description": "Updated indicator if parental authorization is required",
                         "type": "boolean",
-                        "example": true
+                        "example": false
+                    },
+                    "battleCharacter_ids": {
+                        "description": "Updated list of up to 3 battle character MongoDB IDs",
+                        "maxItems": 3,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "60c72b2f5f1b2c001c8e4d64",
+                            "60c72b2f5f1b2c001c8e4d65",
+                            "73972b2f5f1b2c001c8e4a30"
+                        ]
+                    },
+                    "currentAvatarId": {
+                        "description": "Updated current avatar ID",
+                        "type": "integer",
+                        "example": 202
+                    },
+                    "clan_id": {
+                        "description": "The MongoDB ID of the player’s clan",
+                        "type": "string",
+                        "example": "60c72b2f5f1b2c001c8e4d66"
+                    },
+                    "clan_idToDelete": {
+                        "description": "The MongoDB ID of the clan to be removed",
+                        "type": "string",
+                        "example": "60c72b2f5f1b2c001c8e4d67"
                     }
                 }
             },
@@ -4456,101 +5009,95 @@
                 }
             },
             "CustomCharacterCreate": {
-                "description": "",
+                "description": "Create new CustomCharacter",
                 "required": [
-                    "unityKey",
-                    "name",
-                    "speed",
-                    "resistance",
-                    "attack",
-                    "defence",
-                    "hp"
+                    "characterId",
+                    "level"
                 ],
                 "type": "object",
                 "properties": {
-                    "unityKey": {
-                        "description": "The Unity key of the custom character",
+                    "characterId": {
+                        "description": "The CharacterId enum value, which determines what type of the character is",
+                        "enum": [
+                            101,
+                            201,
+                            202,
+                            301,
+                            401,
+                            501,
+                            502,
+                            601,
+                            603,
+                            701
+                        ],
                         "type": "string",
-                        "example": "somekey12"
+                        "example": 201
                     },
-                    "name": {
-                        "description": "The name of the custom character",
-                        "type": "string",
-                        "example": "My custom5"
-                    },
-                    "speed": {
-                        "description": "The speed attribute of the custom character",
+                    "level": {
+                        "description": "The level of the custom character",
                         "type": "integer",
-                        "example": 37
-                    },
-                    "resistance": {
-                        "description": "The resistance attribute of the custom character",
-                        "type": "integer",
-                        "example": 40
-                    },
-                    "attack": {
-                        "description": "The attack attribute of the custom character",
-                        "type": "integer",
-                        "example": 55
-                    },
-                    "defence": {
-                        "description": "The defence attribute of the custom character",
-                        "type": "integer",
-                        "example": 14
-                    },
-                    "hp": {
-                        "description": "the HP of the Character",
-                        "type": "number",
-                        "example": 120
+                        "example": 201
                     }
                 }
             },
             "CustomCharacterUpdate": {
-                "description": "",
+                "description": "Update an existing custom character",
                 "required": [
                     "_id"
                 ],
                 "type": "object",
                 "properties": {
                     "_id": {
-                        "description": "The CustomCharacter _id to update",
+                        "description": "The unique MongoDB ID of the custom character",
                         "type": "string",
-                        "example": "somekey12"
+                        "example": "60c72b2f5f1b2c001c8e4d60"
                     },
-                    "unityKey": {
-                        "description": "The Unity key of the custom character",
+                    "characterId": {
+                        "description": "Optional updated CharacterId enum value",
+                        "enum": [
+                            101,
+                            201,
+                            202,
+                            301,
+                            401,
+                            501,
+                            502,
+                            601,
+                            603,
+                            701
+                        ],
                         "type": "string",
-                        "example": "somekey12"
-                    },
-                    "name": {
-                        "description": "The name of the custom character",
-                        "type": "string",
-                        "example": "My custom5"
-                    },
-                    "speed": {
-                        "description": "The speed attribute of the custom character",
-                        "type": "integer",
-                        "example": 37
-                    },
-                    "resistance": {
-                        "description": "The resistance attribute of the custom character",
-                        "type": "integer",
-                        "example": 40
-                    },
-                    "attack": {
-                        "description": "The attack attribute of the custom character",
-                        "type": "integer",
-                        "example": 55
+                        "example": 201
                     },
                     "defence": {
-                        "description": "The defence attribute of the custom character",
+                        "description": "Optional updated defence value",
                         "type": "integer",
-                        "example": 14
+                        "example": 50
                     },
                     "hp": {
-                        "description": "reference, The ID of the character class",
-                        "type": "number",
-                        "example": 120
+                        "description": "Optional updated HP value",
+                        "type": "integer",
+                        "example": 150
+                    },
+                    "size": {
+                        "description": "Optional updated size value",
+                        "type": "integer",
+                        "example": 180
+                    },
+                    "attack": {
+                        "description": "Optional updated attack value",
+                        "type": "integer",
+                        "example": 75
+                    },
+                    "speed": {
+                        "description": "Optional updated speed value",
+                        "type": "integer",
+                        "example": 30
+                    },
+                    "level": {
+                        "description": "Optional updated level value",
+                        "type": "integer",
+                        "example": 10
                     }
                 }
             },
@@ -4991,6 +5538,34 @@
                         "description": "the Player _id which need to be excluded from the clan",
                         "type": "string",
                         "example": "666720806cc90102f60bd325"
+                    }
+                }
+            },
+            "ItemUpdate": {
+                "description": "Update an existing item",
+                "required": [
+                    "_id",
+                    "location"
+                ],
+                "type": "object",
+                "properties": {
+                    "_id": {
+                        "description": "MongoDB ID of the item",
+                        "type": "string",
+                        "example": "60c72b2f5f1b2c001c8e4d70"
+                    },
+                    "location": {
+                        "description": "An array containing exactly 2 numeric values representing coordinates",
+                        "maxItems": 2,
+                        "minItems": 2,
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        },
+                        "example": [
+                            2,
+                            3
+                        ]
                     }
                 }
             }
@@ -5517,7 +6092,7 @@
             "description": "Leaderboards of different categories"
         },
         {
-            "name": "PlayerTasks",
+            "name": "DailyTasks",
             "description": "In-game tasks for Player to do daily, weekly, monthly"
         }
     ],

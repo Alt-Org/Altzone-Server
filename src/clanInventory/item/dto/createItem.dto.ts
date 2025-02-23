@@ -1,4 +1,14 @@
-import {IsBoolean, IsInt, IsMongoId, IsOptional, IsString, IsArray, IsEnum } from "class-validator";
+import {
+    IsBoolean,
+    IsInt,
+    IsMongoId,
+    IsOptional,
+    IsString,
+    IsArray,
+    IsEnum,
+    ArrayMinSize,
+    ArrayMaxSize
+} from "class-validator";
 import {IsStockExists} from "../../stock/decorator/validation/IsStockExists.decorator";
 import { QualityLevel } from "../enum/qualityLevel.enum";
 import { Recycling } from "../enum/recycling.enum";
@@ -23,6 +33,8 @@ export class CreateItemDto {
     unityKey: string;
 
     @IsArray()
+    @ArrayMinSize(2)
+    @ArrayMaxSize(2)
     location: Array<number>;
 
     @IsInt()

@@ -1,7 +1,8 @@
 import {PlayerDto} from "../../../../player/dto/player.dto";
-import {CustomCharacterDto} from "../../../../customCharacter/dto/customCharacter.dto";
+import {CustomCharacterDto} from "../../../../player/customCharacter/dto/customCharacter.dto";
 import {ClanDto} from "../../../../clan/dto/clan.dto";
 import IDataBuilder from "../../../test_utils/interface/IDataBuilder";
+import {ObjectId} from "mongodb";
 
 export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto>{
     private readonly base: PlayerDto = {
@@ -12,6 +13,7 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto>{
         uniqueIdentifier: 'unique-id',
         above13: true,
         parentalAuth: false,
+        currentAvatarId: 101,
         gameStatistics: {
             diamondsAmount: 0,
             participatedVotings: 0,
@@ -21,7 +23,7 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto>{
         },
         profile_id: 'profile-id',
         clan_id: 'clan-id',
-        currentCustomCharacter_id: 'character-id',
+        battleCharacter_ids: [],
         Clan: undefined,
         CustomCharacter: []
     };
@@ -30,8 +32,8 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto>{
         return { ...this.base };
     }
 
-    setId(id: string) {
-        this.base._id = id;
+    setId(id: string | ObjectId) {
+        this.base._id = id as any;
         return this;
     }
 
@@ -65,23 +67,28 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto>{
         return this;
     }
 
+    setCurrentAvatarId(currentAvatarId: number) {
+        this.base.currentAvatarId = currentAvatarId;
+        return this;
+    }
+
     setGameStatistics(gameStatistics: any) {
         this.base.gameStatistics = gameStatistics;
         return this;
     }
 
-    setProfileId(profileId: string) {
-        this.base.profile_id = profileId;
+    setProfileId(profileId: string | ObjectId) {
+        this.base.profile_id = profileId as any;
         return this;
     }
 
-    setClanId(clanId: string) {
-        this.base.clan_id = clanId;
+    setClanId(clanId: string | ObjectId) {
+        this.base.clan_id = clanId as any;
         return this;
     }
 
-    setCurrentCustomCharacterId(characterId: string) {
-        this.base.currentCustomCharacter_id = characterId;
+    setBattleCharacterIds(_ids: string[] | ObjectId[]) {
+        this.base.battleCharacter_ids = _ids as any;
         return this;
     }
 

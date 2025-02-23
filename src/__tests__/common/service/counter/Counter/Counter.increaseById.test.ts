@@ -1,12 +1,12 @@
 import Counter from "../../../../../common/service/counter/Counter";
-import Factory from "../../../../clan_module/data/factory";
-import ClanModule from "../../../../clan_module/modules/clan.module";
 import { getNonExisting_id } from "../../../../test_utils/util/getNonExisting_id";
+import ClanModule from "../../../../clan/modules/clan.module";
+import ClanBuilderFactory from "../../../../clan/data/clanBuilderFactory";
 
 describe('Counter.increaseById() test suite', () => {
     const clanModel = ClanModule.getClanModel();
     const counter = new Counter({ model: clanModel, counterField: 'playerCount' });
-    const clanCreateBuilder = Factory.getBuilder('Clan');
+    const clanCreateBuilder = ClanBuilderFactory.getBuilder('Clan');
 
     const startingValue = 10;
     const existingClan = clanCreateBuilder.setPlayerCount(startingValue).build();

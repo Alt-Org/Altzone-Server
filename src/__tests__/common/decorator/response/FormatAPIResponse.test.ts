@@ -4,9 +4,9 @@ import formatResponse from "../../../../common/controller/formatResponse";
 import { FormatAPIResponse } from "../../../../common/decorator/response/FormatAPIResponse";
 import { ModelName } from "../../../../common/enum/modelName.enum";
 import ServiceError from "../../../../common/service/basicService/ServiceError";
-import Factory from "../../../clan_module/data/factory";
 import { SEReason } from "../../../../common/service/basicService/SEReason";
 import { APIErrorReason } from "../../../../common/controller/APIErrorReason";
+import ClanBuilderFactory from "../../../clan/data/clanBuilderFactory";
 
 
 jest.mock("../../../../common/controller/formatResponse");
@@ -14,7 +14,7 @@ jest.mock("../../../../common/controller/formatResponse");
 describe('FormatAPIResponse() test suite', () => {
     let mockDescriptor: PropertyDescriptor;
     let mockOriginalMethod: jest.Mock;
-    const clanBuilder = Factory.getBuilder('Clan');
+    const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
     const modelName = ModelName.CLAN; 
 
     beforeEach(() => {

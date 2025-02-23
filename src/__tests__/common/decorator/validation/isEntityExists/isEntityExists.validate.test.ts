@@ -1,9 +1,9 @@
 import { Model } from "mongoose";
-import ClanModule from "../../../../clan_module/modules/clan.module";
-import { Clan } from "../../../../../clan_module/clan/clan.schema";
 import { isEntityExists } from "../../../../../common/decorator/validation/isEntityExists";
 import { ModelName } from "../../../../../common/enum/modelName.enum";
-import Factory from "../../../../clan_module/data/factory";
+import {Clan} from "../../../../../clan/clan.schema";
+import ClanModule from "../../../../clan/modules/clan.module";
+import ClanBuilderFactory from "../../../../clan/data/clanBuilderFactory";
 
 describe('isEntityExists.validate() test suite', () => {
     let model: Model<Clan>;
@@ -36,7 +36,7 @@ describe('isEntityExists.validate() test suite', () => {
     });
 
     it('Should return true if item with this _id found', async () => {
-        const clanBuilder = Factory.getBuilder('CreateClanDto');
+        const clanBuilder = ClanBuilderFactory.getBuilder('CreateClanDto');
         const existingClan = await model.create(clanBuilder.build());
         const existingClan_id = existingClan._id.toString();
         

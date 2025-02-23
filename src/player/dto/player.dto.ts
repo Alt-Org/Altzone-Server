@@ -1,9 +1,10 @@
 import {Expose, Type} from "class-transformer";
 import {ClanDto} from "../../clan/dto/clan.dto";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
-import {CustomCharacterDto} from "../../customCharacter/dto/customCharacter.dto";
+import {CustomCharacterDto} from "../customCharacter/dto/customCharacter.dto";
 import AddType from "../../common/base/decorator/AddType.decorator";
 import { GameStatisticsDto } from "./gameStatistics.dto";
+import {ArrayMaxSize, IsArray, IsInt, IsMongoId, IsOptional} from "class-validator";
 
 @AddType('PlayerDto')
 export class PlayerDto {
@@ -33,6 +34,12 @@ export class PlayerDto {
     @Expose()
     gameStatistics: GameStatisticsDto;
 
+    @Expose()
+    battleCharacter_ids?: string[];
+
+    @Expose()
+    currentAvatarId?: number;
+
     @ExtractField()
     @Expose()
     profile_id: string;
@@ -40,10 +47,6 @@ export class PlayerDto {
     @ExtractField()
     @Expose()
     clan_id: string;
-
-    @ExtractField()
-    @Expose()
-    currentCustomCharacter_id: string;
 
     @Type(() => ClanDto)
     @Expose()

@@ -1,12 +1,12 @@
 import BasicService from "../../../../../common/service/basicService/BasicService";
-import Factory from "../../../../clan_module/data/factory";
-import ClanModule from "../../../../clan_module/modules/clan.module";
+import ClanModule from "../../../../clan/modules/clan.module";
+import ClanBuilderFactory from "../../../../clan/data/clanBuilderFactory";
 
 
 describe('BasicService.createOne() test suite', () => {
     const clanModel = ClanModule.getClanModel();
     const basicService = new BasicService(clanModel);
-    const clanCreateBuilder = Factory.getBuilder('CreateClanDto');
+    const clanCreateBuilder = ClanBuilderFactory.getBuilder('CreateClanDto');
     const clanToCreate = clanCreateBuilder.build();
 
     it('Should save data to DB if it is valid', async () => {

@@ -1,13 +1,13 @@
 import BasicService from "../../../../../common/service/basicService/BasicService";
-import Factory from "../../../../clan_module/data/factory";
-import ClanModule from "../../../../clan_module/modules/clan.module";
 import { ModelName } from "../../../../../common/enum/modelName.enum";
+import ClanModule from "../../../../clan/modules/clan.module";
+import ClanBuilderFactory from "../../../../clan/data/clanBuilderFactory";
 
 
 describe('BasicService.readMany() test suite', () => {
     const clanModel = ClanModule.getClanModel();
     const basicService = new BasicService(clanModel);
-    const clanCreateBuilder = Factory.getBuilder('CreateClanDto');
+    const clanCreateBuilder = ClanBuilderFactory.getBuilder('CreateClanDto');
 
     const clan1 = clanCreateBuilder.setName('clan1').build();
     const clan2 = clanCreateBuilder.setName('clan2').build();

@@ -101,6 +101,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
         expect(dbData).toBeNull();
     });
 
+    //TODO: sometimes fails, because the old clan is not removed
     it('Should remove clan if the last player of it make a join request to another open clan', async () => {
         const oldClanToCreate = clanBuilder.setName('oldClan').build();
         const oldClan = await clanModel.create(oldClanToCreate);

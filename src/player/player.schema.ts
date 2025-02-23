@@ -1,11 +1,9 @@
 import {HydratedDocument, Schema as MongooseSchema} from "mongoose";
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
-import {Clan} from "../clan/clan.schema";
 import {ModelName} from "../common/enum/modelName.enum";
-import {CustomCharacter} from "../customCharacter/customCharacter.schema";
-import {Profile} from "../profile/profile.schema";
 import {ExtractField} from "../common/decorator/response/ExtractField";
 import { GameStatistics } from "./gameStatistics.schema";
+import {ObjectId} from "mongodb";
 
 export type PlayerDocument = HydratedDocument<Player>;
 
@@ -29,6 +27,9 @@ export class Player {
     @Prop({ type: Boolean, default: null })
     parentalAuth?: boolean;
 
+    @Prop({ type: Number, default: null })
+    currentAvatarId?: number;
+
     @Prop({ type: GameStatistics, default: () => ({}) })
     gameStatistics?: GameStatistics;
     
@@ -41,8 +42,8 @@ export class Player {
     clan_id?: string;
 
     @ExtractField()
-    @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CUSTOM_CHARACTER })
-    currentCustomCharacter_id?: string;
+    @Prop({ type: Array<ObjectId>, default: [] })
+    battleCharacter_ids?: string[] | ObjectId[];
 
     @ExtractField()
     _id: string;

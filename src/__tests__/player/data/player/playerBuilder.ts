@@ -1,5 +1,6 @@
 import {GameStatistics} from "../../../../player/gameStatistics.schema";
 import {Player} from "../../../../player/player.schema";
+import {ObjectId} from "mongodb";
 
 export default class PlayerBuilder {
     private readonly base: Player = {
@@ -9,10 +10,11 @@ export default class PlayerBuilder {
         uniqueIdentifier: 'unique-id',
         above13: true,
         parentalAuth: true,
+        currentAvatarId: 101,
         gameStatistics: { playedBattles: 0, wonBattles: 0, diamondsAmount: 0, startedVotings: 0 } as any,
         profile_id: undefined,
         clan_id: undefined,
-        currentCustomCharacter_id: undefined,
+        battleCharacter_ids: [],
         _id: undefined
     };
 
@@ -20,8 +22,8 @@ export default class PlayerBuilder {
         return { ...this.base } as Player;
     }
 
-    setId(id: string) {
-        this.base._id = id;
+    setId(id: string | ObjectId) {
+        this.base._id = id as any;
         return this;
     }
 
@@ -55,23 +57,28 @@ export default class PlayerBuilder {
         return this;
     }
 
+    setCurrentAvatarId(currentAvatarId: number) {
+        this.base.currentAvatarId = currentAvatarId;
+        return this;
+    }
+
     setGameStatistics(gameStatistics: GameStatistics) {
         this.base.gameStatistics = gameStatistics;
         return this;
     }
 
-    setProfileId(profileId: string) {
-        this.base.profile_id = profileId;
+    setProfileId(profileId: string | ObjectId) {
+        this.base.profile_id = profileId as any;
         return this;
     }
 
-    setClanId(clanId: string) {
-        this.base.clan_id = clanId;
+    setClanId(clanId: string | ObjectId) {
+        this.base.clan_id = clanId as any;
         return this;
     }
 
-    setCurrentCustomCharacterId(characterId: string) {
-        this.base.currentCustomCharacter_id = characterId;
+    setBattleCharacterIds(_ids: string[] | ObjectId[]) {
+        this.base.battleCharacter_ids = _ids as any;
         return this;
     }
 }
