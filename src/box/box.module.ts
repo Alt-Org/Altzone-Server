@@ -22,6 +22,7 @@ import BoxCreator from "./boxCreator";
 import BoxAuthHandler from "./auth/BoxAuthHandler";
 import {DailyTaskController} from "./dailyTask/dailyTask.controller";
 import {DailyTaskService} from "./dailyTask/dailyTask.service";
+import {GroupAdminGuard} from "./auth/decorator/groupAdmin.guard";
 
 @Module({
     imports: [
@@ -45,11 +46,12 @@ import {DailyTaskService} from "./dailyTask/dailyTask.service";
         BoxController, DailyTaskController
     ],
     providers: [
-        BoxService, GroupAdminService, BoxHelper, BoxCreator, BoxAuthHandler,
-        DailyTaskService
+        BoxService, GroupAdminService, BoxHelper, BoxCreator,
+        DailyTaskService,
+        BoxAuthHandler, GroupAdminGuard
     ],
     exports: [
-        BoxService
+        BoxService, GroupAdminGuard
     ]
 })
 export class BoxModule {}

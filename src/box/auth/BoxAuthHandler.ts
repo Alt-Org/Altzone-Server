@@ -8,6 +8,7 @@ import {Model} from "mongoose";
 import {GroupAdmin} from "../groupAdmin/groupAdmin.schema";
 import ServiceError from "../../common/service/basicService/ServiceError";
 import {SEReason} from "../../common/service/basicService/SEReason";
+import {ObjectId} from "mongodb";
 
 type AuthTokenPayload = { profile_id: string; player_id: string, box_id: string };
 
@@ -56,6 +57,9 @@ export default class BoxAuthHandler {
                 field: 'BoxUser.box_id',
                 message: 'Box for that group admin is not found'
             })]];
+
+        if(box.adminProfile_id.toString() !== user.profile_id)
+            return [false, null];
 
         const admin = await this.groupAdminModel.findOne({password: box.adminPassword});
         if (!admin)
