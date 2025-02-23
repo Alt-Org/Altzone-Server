@@ -4,7 +4,7 @@ import {ModelName} from "../../common/enum/modelName.enum";
 import {ObjectId} from "mongodb";
 import {SessionStage} from "../enum/SessionStage.enum";
 import {ExtractField} from "../../common/decorator/response/ExtractField";
-import {Tester} from "./tester.schema";
+import {Tester, TesterSchema} from "./tester.schema";
 import {BoxReference} from "../enum/BoxReference.enum";
 import {PredefinedDailyTask, PredefinedDailyTaskSchema} from "../dailyTask/predefinedDailyTask.schema";
 
@@ -95,7 +95,7 @@ export class Box {
     /**
      * Testers that are related to the box and should have access to the box resources
      */
-    @Prop({ type: Array<Tester>, required: true, default: [] })
+    @Prop({ type: [TesterSchema], required: true, default: [] })
     testers: Tester[];
 
     /**

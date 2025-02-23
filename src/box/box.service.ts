@@ -22,6 +22,7 @@ import {ClanService} from "../clan/clan.service";
 import {ChatService} from "../chat/chat.service";
 import {ProfileService} from "../profile/profile.service";
 import {IServiceReturn, TReadByIdOptions} from "../common/service/basicService/IService";
+import {Profile} from "../profile/profile.schema";
 
 @Injectable()
 export class BoxService {
@@ -65,12 +66,12 @@ export class BoxService {
     }
 
     /**
-     * Updates the box with the provided and testers.
+     * Updates the box testers.
      *
      * @param box - The box to update.
      * @throws Will throw an error if the box cannot be updated.
      */
-    async updateBoxIdentifierAndTesters(
+    async updateBoxTesters(
         box: BoxDto,
     ): Promise<void> {
         const [_, updateErrors] = await this.basicService.updateOneById(box._id, {
@@ -83,23 +84,22 @@ export class BoxService {
      * Claims an account based on the provided password and identifier.
      *
      * @param password - The password to authenticate the request.
-     * @param identifier - The identifier to claim the account.
      * @returns The claimed account data.
      * @throws Will throw an error if the account cannot be claimed.
      */
     async claimAccount(password: string): Promise<ClaimAccountResponseDto> {
         const box = await this.getBoxWithTesters(password);
-        const testerProfiles = box['TesterProfiles'];
-        const testerPlayers = box['TesterPlayers'];
+        const testerProfiles = box[BoxReference.TESTER_PROFILES] as Profile[];
+        const testerPlayers = box[BoxReference.TESTER_PLAYERS] as PlayerDto[];
 
         const account = this.getTesterAccount(box);
         account.isClaimed = true;
 
-        const profile = testerProfiles.find((profile) => {
-            return profile._id.toString() === account.profile_id.toString();
-        });
+        const testerProfile = testerProfiles.find(profile =>
+            profile._id.toString() === account.profile_id.toString()
+        );
 
-        await this.updateBoxIdentifierAndTesters(box);
+        await this.updateBoxTesters(box);
 
         const playerData = this.getTesterPlayerData(
             testerPlayers,
@@ -112,7 +112,7 @@ export class BoxService {
             box_id: box._id,
         });
 
-        const response: ClaimAccountResponseDto = {
+        return {
             _id: playerData._id,
             points: playerData.points,
             backpackCapacity: playerData.backpackCapacity,
@@ -126,10 +126,8 @@ export class BoxService {
             Clan: playerData.Clan,
             CustomCharacter: playerData.CustomCharacter,
             accessToken: accessToken,
-            password: profile.password,
+            password: testerProfile.username
         };
-
-        return response;
     }
 
     /**

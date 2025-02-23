@@ -24,7 +24,7 @@ const MessageSchema = SchemaFactory.createForClass(Message);
 
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true }})
 export class Chat {
-    @Prop({ type: String, required: false, unique: true })
+    @Prop({ type: String, required: false })
     name: string;
 
     //add validate func, if needed (the only way to check is _id unique)

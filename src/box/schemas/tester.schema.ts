@@ -1,4 +1,4 @@
-import { Prop, Schema } from '@nestjs/mongoose';
+import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
 import {ObjectId} from "mongodb";
 import {ModelName} from "../../common/enum/modelName.enum";
 
@@ -25,3 +25,5 @@ export class Tester {
     @Prop({ type: Boolean, default: false })
     isClaimed: boolean;
 }
+
+export const TesterSchema = SchemaFactory.createForClass(Tester);

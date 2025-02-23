@@ -17,7 +17,6 @@ import {ChatService} from "../chat/chat.service";
 import {ProfileService} from "../profile/profile.service";
 import {PlayerService} from "../player/player.service";
 import {convertMongooseToServiceErrors} from "../common/service/basicService/BasicService";
-import {Profile} from "../profile/profile.schema";
 import {ClanLabel} from "../clan/enum/clanLabel.enum";
 import {ClanDto} from "../clan/dto/clan.dto";
 import {Chat} from "../chat/chat.schema";

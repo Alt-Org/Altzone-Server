@@ -9,7 +9,7 @@ export enum BoxReference {
     SOUL_HOMES = 'SoulHomes',
     ROOMS = 'Rooms',
     STOCKS = 'Stocks',
-    CHAT = 'CHAT',
+    CHAT = 'Chat',
     TESTER_PROFILES = 'TesterProfiles',
     TESTER_PLAYERS = 'TesterPlayers',
     DAILY_TASKS = 'DailyTasks'
