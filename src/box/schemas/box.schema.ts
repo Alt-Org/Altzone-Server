@@ -180,7 +180,7 @@ BoxSchema.virtual(BoxReference.TESTER_PLAYERS, {
 
 BoxSchema.virtual(BoxReference.DAILY_TASKS, {
     ref: ModelName.DAILY_TASK,
-    localField : "dailyTasks",
+    localField : "dailyTasks._id",
     foreignField :"_id"
 });
 
