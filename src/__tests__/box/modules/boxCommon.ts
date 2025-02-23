@@ -19,6 +19,9 @@ import {ChatModule} from "../../../chat/chat.module";
 import {ProfileModule} from "../../../profile/profile.module";
 import {PlayerModule} from "../../../player/player.module";
 import BoxCreator from "../../../box/boxCreator";
+import {JwtModule} from "@nestjs/jwt";
+import BoxAuthHandler from "../../../box/auth/BoxAuthHandler";
+import {DailyTaskService} from "../../../box/dailyTask/dailyTask.service";
 
 
 export default class BoxCommonModule {
@@ -46,10 +49,12 @@ export default class BoxCommonModule {
                     ClanModule,
                     ChatModule,
                     ProfileModule,
-                    PlayerModule
+                    PlayerModule,
+                    JwtModule
                 ],
                 providers: [
-                    BoxService, GroupAdminService, BoxHelper, BoxCreator
+                    BoxService, GroupAdminService, BoxHelper, BoxCreator, BoxAuthHandler,
+                    DailyTaskService
                 ]
             }).compile();
 

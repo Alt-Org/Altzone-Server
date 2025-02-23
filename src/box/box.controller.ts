@@ -77,7 +77,7 @@ export class BoxController {
     @NoAuth()
     @Get('/:_id')
     @NoAuth()
-    @UniformResponse(ModelName.CLAN)
+    @UniformResponse(ModelName.BOX)
     public getOne(@Param() param: _idDto, @IncludeQuery(publicReferences as any) includeRefs: ModelName[]) {
         return this.service.readOneById(param._id, { includeRefs });
     }

@@ -64,7 +64,7 @@ export const FormatAPIResponse = (modelName?: ModelName): any => {
  * Converts any error and throws it as a HttpException
  * @param error to be thrown
  */
-function throwAPIError(error: any) {
+export function throwAPIError(error: any) {
     const resp: {errors: APIError[], statusCode: number} = {errors: [], statusCode: 0};
     if(Array.isArray(error))
         for(let i=0, l=error.length; i<l; i++)
