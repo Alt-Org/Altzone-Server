@@ -173,7 +173,7 @@ export class DailyTaskService {
      * @param task_id task _id to delete
      *
      * @returns true if the task was deleted, or ServiceError:
-     * - NOT_FOUND if the box or task was not found
+     * - NOT_FOUND if the box was not found
      * - REQUIRED if box_id is null, undefined or empty string, or task is null or undefined
      */
     async deleteOneById(box_id: string | ObjectId, task_id: string | ObjectId): Promise<IServiceReturn<true>> {
