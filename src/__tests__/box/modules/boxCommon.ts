@@ -22,6 +22,8 @@ import BoxCreator from "../../../box/boxCreator";
 import {JwtModule} from "@nestjs/jwt";
 import BoxAuthHandler from "../../../box/auth/BoxAuthHandler";
 import {DailyTaskService} from "../../../box/dailyTask/dailyTask.service";
+import {GroupAdminGuard} from "../../../box/auth/decorator/groupAdmin.guard";
+import {PasswordGenerator} from "../../../box/tester/passwordGenerator";
 
 
 export default class BoxCommonModule {
@@ -53,8 +55,10 @@ export default class BoxCommonModule {
                     JwtModule
                 ],
                 providers: [
-                    BoxService, GroupAdminService, BoxHelper, BoxCreator, BoxAuthHandler,
-                    DailyTaskService
+                    BoxService, GroupAdminService, BoxHelper, BoxCreator,
+                    DailyTaskService,
+                    BoxAuthHandler, GroupAdminGuard,
+                    PasswordGenerator
                 ]
             }).compile();
 

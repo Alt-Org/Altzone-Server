@@ -23,6 +23,7 @@ import BoxAuthHandler from "./auth/BoxAuthHandler";
 import {DailyTaskController} from "./dailyTask/dailyTask.controller";
 import {DailyTaskService} from "./dailyTask/dailyTask.service";
 import {GroupAdminGuard} from "./auth/decorator/groupAdmin.guard";
+import {PasswordGenerator} from "./tester/passwordGenerator";
 
 @Module({
     imports: [
@@ -48,7 +49,8 @@ import {GroupAdminGuard} from "./auth/decorator/groupAdmin.guard";
     providers: [
         BoxService, GroupAdminService, BoxHelper, BoxCreator,
         DailyTaskService,
-        BoxAuthHandler, GroupAdminGuard
+        BoxAuthHandler, GroupAdminGuard,
+        PasswordGenerator
     ],
     exports: [
         BoxService, GroupAdminGuard
