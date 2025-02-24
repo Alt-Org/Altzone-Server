@@ -9,6 +9,7 @@ import {BoxHelper} from "../../../box/util/boxHelper";
 import BoxCreator from "../../../box/boxCreator";
 import BoxAuthHandler from "../../../box/auth/BoxAuthHandler";
 import {DailyTaskService} from "../../../box/dailyTask/dailyTask.service";
+import {PasswordGenerator} from "../../../box/tester/passwordGenerator";
 
 export default class BoxModule {
     private constructor() {
@@ -50,5 +51,10 @@ export default class BoxModule {
     static async getDailyTaskService() {
         const module = await BoxCommonModule.getModule();
         return module.resolve(DailyTaskService);
+    }
+
+    static async getPasswordGenerator() {
+        const module = await BoxCommonModule.getModule();
+        return module.resolve(PasswordGenerator);
     }
 }
