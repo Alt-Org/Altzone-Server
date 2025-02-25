@@ -1,5 +1,5 @@
 import {Module} from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import {MongooseModule} from '@nestjs/mongoose';
 import {ModelName} from "../common/enum/modelName.enum";
 import {BoxSchema} from "./schemas/box.schema";
 import {GroupAdminSchema} from "./groupAdmin/groupAdmin.schema";
@@ -24,19 +24,20 @@ import {DailyTaskController} from "./dailyTask/dailyTask.controller";
 import {DailyTaskService} from "./dailyTask/dailyTask.service";
 import {GroupAdminGuard} from "./auth/decorator/groupAdmin.guard";
 import {PasswordGenerator} from "./tester/passwordGenerator";
+import {TesterService} from "./tester/tester.service";
 
 @Module({
     imports: [
         MongooseModule.forFeature([
-            { name: ModelName.BOX, schema: BoxSchema },
-            { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
-            { name: ModelName.PROFILE, schema: ProfileSchema },
-            { name: ModelName.PLAYER, schema: PlayerSchema },
-            { name: ModelName.CLAN, schema: ClanSchema },
-            { name: ModelName.SOULHOME, schema: SoulhomeSchema },
-            { name: ModelName.ROOM, schema: RoomSchema },
-            { name: ModelName.STOCK, schema: StockSchema },
-            { name: ModelName.CHAT, schema: ChatSchema }
+            {name: ModelName.BOX, schema: BoxSchema},
+            {name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema},
+            {name: ModelName.PROFILE, schema: ProfileSchema},
+            {name: ModelName.PLAYER, schema: PlayerSchema},
+            {name: ModelName.CLAN, schema: ClanSchema},
+            {name: ModelName.SOULHOME, schema: SoulhomeSchema},
+            {name: ModelName.ROOM, schema: RoomSchema},
+            {name: ModelName.STOCK, schema: StockSchema},
+            {name: ModelName.CHAT, schema: ChatSchema}
         ]),
         ClanModule,
         ChatModule,
@@ -50,10 +51,11 @@ import {PasswordGenerator} from "./tester/passwordGenerator";
         BoxService, GroupAdminService, BoxHelper, BoxCreator,
         DailyTaskService,
         BoxAuthHandler, GroupAdminGuard,
-        PasswordGenerator
+        PasswordGenerator, TesterService
     ],
     exports: [
         BoxService, GroupAdminGuard
     ]
 })
-export class BoxModule {}
+export class BoxModule {
+}
