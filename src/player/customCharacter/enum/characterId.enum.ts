@@ -3,9 +3,11 @@
  */
 export enum CharacterId {
     Racist_101 = '101',
+    BodyBuilder_102 = '102',
 
     Joker_201 = '201',
     Prankster_202 = '202',
+    Conman_203 = '203',
 
     CaseHardened_301 = '301',
     Provocateur_401 = '401',
