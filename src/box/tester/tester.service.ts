@@ -56,7 +56,7 @@ export class TesterService {
      * Removes the specified amount of tester profiles and players from DB. As well as removes their data from box and clans.
      * The testers will be removed evenly from clans, so that in the end there will be the same amount of testers in each clan.
      *
-     * Notice that the method will not remove any other data associated with the testers.
+     * Notice that the method will not remove any other data associated with the testers
      *
      * @param box_id box _id where the testers should be added
      * @param amount amount of testers to be removed
@@ -64,7 +64,7 @@ export class TesterService {
      * @returns created testers or ServiceError:
      *  - NOT_ALLOWED if the amount is negative number or equals zero
      *  - REQUIRED if the box_id is null, undefined or an empty string or if amount is null or undefined
-     *  - NOT_FOUND if the box with provided _id is not found
+     *  - NOT_FOUND if the box with provided _id is not found, or if the specified amount is larger than the actual amount of testers
      */
     async deleteTesters(box_id: ObjectId | string, amount: number): Promise<IServiceReturn<true>> {
         return null;

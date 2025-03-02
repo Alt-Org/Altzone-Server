@@ -58,6 +58,7 @@ describe('TesterService.addTestersToClans() test suite', () => {
             .setAdminPlayerId(new ObjectId()).setAdminProfileId(new ObjectId())
             .setClanIds([boxClan1._id as any, boxClan2._id as any])
             .setChatId(new ObjectId())
+            .setTesters([tester1, tester2, tester3, tester4, tester5])
             .build();
         const boxResp = await boxModel.create(existingBox);
         existingBox._id = boxResp._id;
@@ -187,5 +188,15 @@ describe('TesterService.addTestersToClans() test suite', () => {
         expect(errors).toContainSE_NOT_FOUND();
         expect(errors[0].field).toBe('box_id');
         expect(errors[0].value).toEqual(nonExisting_id);
+    });
+
+    it('Should return NOT_FOUND ServiceError if box does not have 2 clans', async () => {
+        await boxModel.findByIdAndUpdate(existingBox._id, { clan_ids: [boxClan1._id] });
+        const [areAdded, errors] = await service.addTestersToBox(existingBox._id, [tester1]);
+
+        expect(areAdded).toBeNull();
+        expect(errors).toContainSE_NOT_FOUND();
+        expect(errors[0].field).toBe('clan_ids');
+        expect(errors[0].value).toEqual([]);
     });
 });

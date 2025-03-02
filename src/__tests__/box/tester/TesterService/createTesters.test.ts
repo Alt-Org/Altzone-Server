@@ -67,7 +67,7 @@ describe('TesterService.createTesters() test suite', () => {
         expect(errors[0].value).toBe(amount);
     });
 
-    it('Should not created and profiles and players if amount is a negative number', async () => {
+    it('Should not create any profiles and players if amount is a negative number', async () => {
         const amount = -5;
 
         await service.createTesters(amount);
@@ -90,7 +90,7 @@ describe('TesterService.createTesters() test suite', () => {
         expect(errors[0].value).toBe(amount);
     });
 
-    it('Should not created and profiles and players if amount is zero', async () => {
+    it('Should not create any profiles and players if amount is zero', async () => {
         const amount = 0;
 
         await service.createTesters(amount);
