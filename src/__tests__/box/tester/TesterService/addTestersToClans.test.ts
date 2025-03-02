@@ -83,6 +83,8 @@ describe('TesterService.addTestersToClans() test suite', () => {
             player2InDB.clan_id.toString() === boxClan1._id.toString() ||
             player2InDB.clan_id.toString() === boxClan2._id.toString();
         expect(player2HasRightClan_id).toBeTruthy();
+
+        expect(player1InDB.clan_id.toString()).not.toBe(player2InDB.clan_id.toString());
     });
 
     it('Should add testers evenly to the box clans if the amount of testers is even', async () => {
@@ -93,15 +95,16 @@ describe('TesterService.addTestersToClans() test suite', () => {
         const playersInDB = await playerModel.find({_id: { $in: testerPlayer_ids }}).exec();
 
         const amountOfPlayersInClan1 = playersInDB.reduce(
-            (prevAmount, player) => player.clan_id?.toString() === boxClan1._id.toString() ? prevAmount++ : prevAmount,
+            (prevAmount, player) => player.clan_id.toString() === boxClan1._id.toString() ? ++prevAmount : prevAmount,
             0
         );
 
         const amountOfPlayersInClan2 = playersInDB.reduce(
-            (prevAmount, player) => player.clan_id?.toString() === boxClan2._id.toString() ? prevAmount++ : prevAmount,
+            (prevAmount, player) => player.clan_id.toString() === boxClan2._id.toString() ? ++prevAmount : prevAmount,
             0
         );
 
+        expect(amountOfPlayersInClan1+amountOfPlayersInClan2).toBe(testersToAdd.length);
         expect(amountOfPlayersInClan1).toBe(amountOfPlayersInClan2);
     });
 
@@ -113,21 +116,22 @@ describe('TesterService.addTestersToClans() test suite', () => {
         const playersInDB = await playerModel.find({_id: { $in: testerPlayer_ids }}).exec();
 
         const amountOfPlayersInClan1 = playersInDB.reduce(
-            (prevAmount, player) => player.clan_id?.toString() === boxClan1._id.toString() ? prevAmount++ : prevAmount,
+            (prevAmount, player) => player.clan_id.toString() === boxClan1._id.toString() ? ++prevAmount : prevAmount,
             0
         );
 
         const amountOfPlayersInClan2 = playersInDB.reduce(
-            (prevAmount, player) => player.clan_id?.toString() === boxClan2._id.toString() ? prevAmount++ : prevAmount,
+            (prevAmount, player) => player.clan_id.toString() === boxClan2._id.toString() ? ++prevAmount : prevAmount,
             0
         );
 
+        expect(amountOfPlayersInClan1+amountOfPlayersInClan2).toBe(testersToAdd.length);
         const playerAmountDifference = Math.abs(amountOfPlayersInClan1-amountOfPlayersInClan2);
         expect(playerAmountDifference).toBe(1);
     });
 
     it('Should return REQUIRED ServiceError if box_id is null', async () => {
-        const [areAdded, errors] = await service.addTestersToBox(null, [tester1]);
+        const [areAdded, errors] = await service.addTestersToClans(null, [tester1]);
 
         expect(areAdded).toBeNull();
         expect(errors).toContainSE_REQUIRED();
@@ -136,7 +140,7 @@ describe('TesterService.addTestersToClans() test suite', () => {
     });
 
     it('Should return REQUIRED ServiceError if box_id is undefined', async () => {
-        const [areAdded, errors] = await service.addTestersToBox(undefined, [tester1]);
+        const [areAdded, errors] = await service.addTestersToClans(undefined, [tester1]);
 
         expect(areAdded).toBeNull();
         expect(errors).toContainSE_REQUIRED();
@@ -145,7 +149,7 @@ describe('TesterService.addTestersToClans() test suite', () => {
     });
 
     it('Should return REQUIRED ServiceError if box_id is an empty string', async () => {
-        const [areAdded, errors] = await service.addTestersToBox(undefined, [tester1]);
+        const [areAdded, errors] = await service.addTestersToClans('', [tester1]);
 
         expect(areAdded).toBeNull();
         expect(errors).toContainSE_REQUIRED();
@@ -154,7 +158,7 @@ describe('TesterService.addTestersToClans() test suite', () => {
     });
 
     it('Should return REQUIRED ServiceError if testers is null', async () => {
-        const [areAdded, errors] = await service.addTestersToBox(existingBox._id, null);
+        const [areAdded, errors] = await service.addTestersToClans(existingBox._id, null);
 
         expect(areAdded).toBeNull();
         expect(errors).toContainSE_REQUIRED();
@@ -163,7 +167,7 @@ describe('TesterService.addTestersToClans() test suite', () => {
     });
 
     it('Should return REQUIRED ServiceError if testers is undefined', async () => {
-        const [areAdded, errors] = await service.addTestersToBox(existingBox._id, undefined);
+        const [areAdded, errors] = await service.addTestersToClans(existingBox._id, undefined);
 
         expect(areAdded).toBeNull();
         expect(errors).toContainSE_REQUIRED();
@@ -172,7 +176,7 @@ describe('TesterService.addTestersToClans() test suite', () => {
     });
 
     it('Should return REQUIRED ServiceError if testers is an empty array', async () => {
-        const [areAdded, errors] = await service.addTestersToBox(existingBox._id, []);
+        const [areAdded, errors] = await service.addTestersToClans(existingBox._id, []);
 
         expect(areAdded).toBeNull();
         expect(errors).toContainSE_REQUIRED();
@@ -182,7 +186,7 @@ describe('TesterService.addTestersToClans() test suite', () => {
 
     it('Should return NOT_FOUND ServiceError if box with provided _id does not exists', async () => {
         const nonExisting_id = new ObjectId(getNonExisting_id());
-        const [areAdded, errors] = await service.addTestersToBox(nonExisting_id, [tester1]);
+        const [areAdded, errors] = await service.addTestersToClans(nonExisting_id, [tester1]);
 
         expect(areAdded).toBeNull();
         expect(errors).toContainSE_NOT_FOUND();
@@ -191,12 +195,13 @@ describe('TesterService.addTestersToClans() test suite', () => {
     });
 
     it('Should return NOT_FOUND ServiceError if box does not have 2 clans', async () => {
-        await boxModel.findByIdAndUpdate(existingBox._id, { clan_ids: [boxClan1._id] });
-        const [areAdded, errors] = await service.addTestersToBox(existingBox._id, [tester1]);
+        const box_clans = [boxClan1._id];
+        await boxModel.findByIdAndUpdate(existingBox._id, { clan_ids: box_clans });
+        const [areAdded, errors] = await service.addTestersToClans(existingBox._id, [tester1]);
 
         expect(areAdded).toBeNull();
         expect(errors).toContainSE_NOT_FOUND();
         expect(errors[0].field).toBe('clan_ids');
-        expect(errors[0].value).toEqual([]);
+        expect(errors[0].value).toEqual(box_clans);
     });
 });

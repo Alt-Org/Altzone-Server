@@ -32,9 +32,13 @@ describe('TesterService.addTestersToBox() test suite', () => {
 
         const boxInDB = await boxModel.findById(existingBox._id);
 
+        const testersInDB = boxInDB.testers.map(tester => {
+            return { profile_id: tester.profile_id, player_id: tester.player_id, isClaimed: tester.isClaimed }
+        });
+
         expect(errors).toBeNull();
         expect(areAdded).toBeTruthy();
-        expect(boxInDB.testers).toContain(testersToAdd);
+        expect(testersInDB).toEqual(testersToAdd);
     });
 
     it('Should not remove any old testers data from the box', async () => {
@@ -43,10 +47,11 @@ describe('TesterService.addTestersToBox() test suite', () => {
 
         await service.addTestersToBox(existingBox._id, testersToAdd);
 
-        const boxInDB = await boxModel.findById(existingBox._id);
+        const boxInDB = await boxModel.findById(existingBox._id).exec();
+        const oldTester = boxInDB.testers.find(tester => tester.profile_id.toString() === anotherTester.profile_id.toString());
 
         expect(boxInDB.testers).toHaveLength(1 + testersToAdd.length);
-        expect(boxInDB.testers).toContain(anotherTester);
+        expect(oldTester).not.toBeNull();
     });
 
     it('Should return REQUIRED ServiceError if box_id is null', async () => {
@@ -68,7 +73,7 @@ describe('TesterService.addTestersToBox() test suite', () => {
     });
 
     it('Should return REQUIRED ServiceError if box_id is an empty string', async () => {
-        const [areAdded, errors] = await service.addTestersToBox(undefined, testersToAdd);
+        const [areAdded, errors] = await service.addTestersToBox('', testersToAdd);
 
         expect(areAdded).toBeNull();
         expect(errors).toContainSE_REQUIRED();
