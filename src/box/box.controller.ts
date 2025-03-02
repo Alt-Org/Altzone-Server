@@ -3,10 +3,12 @@ import {
     Controller, Delete,
     Get,
     Param,
+    Patch,
     Post,
     Query,
     Req,
     Res,
+    UseGuards,
 } from "@nestjs/common";
 import { BoxService } from "./box.service";
 import { Request, Response } from "express";
@@ -24,8 +26,13 @@ import {CreateBoxDto} from "./dto/createBox.dto";
 import {IncludeQuery} from "../common/decorator/param/IncludeQuery.decorator";
 import {_idDto} from "../common/dto/_id.dto";
 import {publicReferences} from "./schemas/box.schema";
+import { IsGroupAdmin } from "./auth/decorator/IsGroupAdmin";
+import { BoxUser } from "./auth/BoxUser";
+import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
+import { BoxAuthGuard } from "./auth/boxAuth.guard";
 
 @Controller('box')
+@UseGuards(BoxAuthGuard)
 export class BoxController {
     public constructor(
         private readonly service: BoxService,
@@ -72,6 +79,26 @@ export class BoxController {
 
         return [{...createdBox, accessToken: groupAdminAccessToken}, null];
     }
+
+    @Patch("reset")
+    @UniformResponse(ModelName.BOX)
+    @IsGroupAdmin()
+	async resetTestingSession(@LoggedUser() user: BoxUser) {
+        const boxToCreate = await this.service.getBoxResetData(user.box_id);
+        const [_, deleteError] = await this.service.deleteOneById(user.box_id);
+        if (deleteError) return deleteError;
+
+		const [createdBox, createError] = await this.boxCreator.createBox(boxToCreate);
+        if (createError) return createError;
+
+		const groupAdminAccessToken = await this.authHandler.getGroupAdminToken({
+			box_id: createdBox._id.toString(),
+			player_id: createdBox.adminPlayer_id.toString(),
+			profile_id: createdBox.adminProfile_id.toString(),
+		});
+
+		return [{ ...createdBox, accessToken: groupAdminAccessToken }, null];
+	}
 
     //For time of development only
     @NoAuth()
