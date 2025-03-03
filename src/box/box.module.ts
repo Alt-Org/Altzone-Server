@@ -25,6 +25,7 @@ import {DailyTaskService} from "./dailyTask/dailyTask.service";
 import {GroupAdminGuard} from "./auth/decorator/groupAdmin.guard";
 import {PasswordGenerator} from "./tester/passwordGenerator";
 import {TesterService} from "./tester/tester.service";
+import {TesterController} from "./tester/tester.controller";
 
 @Module({
     imports: [
@@ -45,7 +46,7 @@ import {TesterService} from "./tester/tester.service";
         PlayerModule
     ],
     controllers: [
-        BoxController, DailyTaskController
+        BoxController, DailyTaskController, TesterController
     ],
     providers: [
         BoxService, GroupAdminService, BoxHelper, BoxCreator,
