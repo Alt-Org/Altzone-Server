@@ -204,7 +204,45 @@ export class TesterService {
                 message: 'The amount of testers to remove could not be more than the amount of existing testers in the box'
             })]];
 
-        return null;
+        const [clan1_id, clan2_id] = box.clan_ids;
+
+        const clan1Players = await this.playerModel.find({clan_id: {$in: clan1_id}});
+        const clan2Players = await this.playerModel.find({clan_id: {$in: clan2_id}});
+
+        const largerAmountToRemove = Math.ceil(amount / 2);
+        const smallerAmountToRemove = amount - largerAmountToRemove;
+
+        if (clan1Players.length >= clan2Players.length) {
+            const clan1PlayersToRemove = clan1Players.slice(0, largerAmountToRemove);
+            const clan2PlayersToRemove = clan2Players.slice(0, smallerAmountToRemove);
+            const playersToRemove = clan1PlayersToRemove.concat(clan2PlayersToRemove);
+            const player_idsToRemove = playersToRemove.map(player => player._id.toString());
+            const testersToRemove = box.testers.filter(tester => player_idsToRemove.includes(tester.player_id.toString()));
+            const profile_idsToRemove = testersToRemove.map(tester => tester.profile_id);
+
+            await this.playerModel.deleteMany({_id: {$in: player_idsToRemove}});
+            await this.profileModel.deleteMany({_id: {$in: profile_idsToRemove}});
+            await this.boxModel.updateOne(
+                { _id: box_id },
+                { $pull: { testers: { profile_id: profile_idsToRemove } } }
+            );
+        } else {
+            const clan1PlayersToRemove = clan1Players.slice(0, smallerAmountToRemove);
+            const clan2PlayersToRemove = clan2Players.slice(0, largerAmountToRemove);
+            const playersToRemove = clan1PlayersToRemove.concat(clan2PlayersToRemove);
+            const player_idsToRemove = playersToRemove.map(player => player._id.toString());
+            const testersToRemove = box.testers.filter(tester => player_idsToRemove.includes(tester.player_id.toString()));
+            const profile_idsToRemove = testersToRemove.map(tester => tester.profile_id);
+
+            await this.playerModel.deleteMany({_id: {$in: player_idsToRemove}});
+            await this.profileModel.deleteMany({_id: {$in: profile_idsToRemove}});
+            await this.boxModel.updateOne(
+                { _id: box_id },
+                { $pull: { testers: { profile_id: profile_idsToRemove } } }
+            );
+        }
+
+        return [true, null];
     }
 
     /**
