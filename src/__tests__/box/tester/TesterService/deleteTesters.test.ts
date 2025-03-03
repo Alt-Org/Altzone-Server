@@ -11,6 +11,7 @@ import ClanBuilderFactory from "../../../clan/data/clanBuilderFactory";
 import {getNonExisting_id} from "../../../test_utils/util/getNonExisting_id";
 import {Tester} from "../../../../box/schemas/tester.schema";
 import PlayerBuilderFactory from "../../../player/data/playerBuilderFactory";
+import ProfileBuilderFactory from "../../../profile/data/profileBuilderFactory";
 
 describe('TesterService.deleteTesters() test suite', () => {
     let service: TesterService;
@@ -26,6 +27,7 @@ describe('TesterService.deleteTesters() test suite', () => {
     let existingBox: Box;
 
     const profileModel = ProfileModule.getProfileModel();
+    const profileBuilder = ProfileBuilderFactory.getBuilder('Profile');
     const playerModel = PlayerModule.getPlayerModel();
     const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
     const clanModel = ClanModule.getClanModel();
@@ -44,13 +46,18 @@ describe('TesterService.deleteTesters() test suite', () => {
 
         const testersToCreate: Tester[] = [];
         for (let i = 0; i < 5; i++) {
+            let clan_id = i < 3 ? boxClan1._id : boxClan2._id;
+
+            const profileToCreate = profileBuilder.setUsername(`player${i}`).build();
+            const profileResp = await profileModel.create(profileToCreate);
+
             const playerToCreate = playerBuilder
                 .setName(`player${i}`).setUniqueIdentifier(`player${i}`)
-                .setProfileId(new ObjectId())
+                .setProfileId(profileResp._id).setClanId(clan_id)
                 .build();
             const playerResp = await playerModel.create(playerToCreate);
 
-            testersToCreate.push(testerBuilder.setProfileId(new ObjectId()).setPlayerId(playerResp._id as any).build());
+            testersToCreate.push(testerBuilder.setProfileId(profileResp._id as any).setPlayerId(playerResp._id as any).build());
         }
         [tester1, tester2, tester3, tester4, tester5] = testersToCreate;
 
@@ -156,7 +163,7 @@ describe('TesterService.deleteTesters() test suite', () => {
         );
 
         const playerAmountDifference = amountOfPlayersInClan2-amountOfPlayersInClan1;
-        expect(playerAmountDifference).toBe(1);
+        expect(playerAmountDifference).toBe(0);
     });
 
     it('Should return ServiceError NOT_ALLOWED if amount is a negative number', async () => {
