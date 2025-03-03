@@ -103,12 +103,12 @@ describe('TesterService.deleteTesters() test suite', () => {
         const playersInDB = await playerModel.find({_id: { $in: testerPlayer_ids }}).exec();
 
         const amountOfPlayersInClan1 = playersInDB.reduce(
-            (prevAmount, player) => player.clan_id?.toString() === boxClan1._id.toString() ? prevAmount++ : prevAmount,
+            (prevAmount, player) => player.clan_id?.toString() === boxClan1._id.toString() ? ++prevAmount : prevAmount,
             0
         );
 
         const amountOfPlayersInClan2 = playersInDB.reduce(
-            (prevAmount, player) => player.clan_id?.toString() === boxClan2._id.toString() ? prevAmount++ : prevAmount,
+            (prevAmount, player) => player.clan_id?.toString() === boxClan2._id.toString() ? ++prevAmount : prevAmount,
             0
         );
 
@@ -124,12 +124,12 @@ describe('TesterService.deleteTesters() test suite', () => {
         const playersInDB = await playerModel.find({_id: { $in: testerPlayer_ids }}).exec();
 
         const amountOfPlayersInClan1 = playersInDB.reduce(
-            (prevAmount, player) => player.clan_id?.toString() === boxClan1._id.toString() ? prevAmount++ : prevAmount,
+            (prevAmount, player) => player.clan_id?.toString() === boxClan1._id.toString() ? ++prevAmount : prevAmount,
             0
         );
 
         const amountOfPlayersInClan2 = playersInDB.reduce(
-            (prevAmount, player) => player.clan_id?.toString() === boxClan2._id.toString() ? prevAmount++ : prevAmount,
+            (prevAmount, player) => player.clan_id?.toString() === boxClan2._id.toString() ? ++prevAmount : prevAmount,
             0
         );
 
@@ -146,16 +146,16 @@ describe('TesterService.deleteTesters() test suite', () => {
         const playersInDB = await playerModel.find({_id: { $in: testerPlayer_ids }}).exec();
 
         const amountOfPlayersInClan1 = playersInDB.reduce(
-            (prevAmount, player) => player.clan_id?.toString() === boxClan1._id.toString() ? prevAmount++ : prevAmount,
+            (prevAmount, player) => player.clan_id?.toString() === boxClan1._id.toString() ? ++prevAmount : prevAmount,
             0
         );
 
         const amountOfPlayersInClan2 = playersInDB.reduce(
-            (prevAmount, player) => player.clan_id?.toString() === boxClan2._id.toString() ? prevAmount++ : prevAmount,
+            (prevAmount, player) => player.clan_id?.toString() === boxClan2._id.toString() ? ++prevAmount : prevAmount,
             0
         );
 
-        const playerAmountDifference = Math.abs(amountOfPlayersInClan1-amountOfPlayersInClan2);
+        const playerAmountDifference = amountOfPlayersInClan2-amountOfPlayersInClan1;
         expect(playerAmountDifference).toBe(1);
     });
 
@@ -226,7 +226,7 @@ describe('TesterService.deleteTesters() test suite', () => {
     });
 
     it('Should return REQUIRED ServiceError if box_id is an empty string', async () => {
-        const [areAdded, errors] = await service.deleteTesters(undefined, 1);
+        const [areAdded, errors] = await service.deleteTesters('', 1);
 
         expect(areAdded).toBeNull();
         expect(errors).toContainSE_REQUIRED();

@@ -173,6 +173,37 @@ export class TesterService {
      *  - NOT_FOUND if the box with provided _id is not found, or if the specified amount is larger than the actual amount of testers
      */
     async deleteTesters(box_id: ObjectId | string, amount: number): Promise<IServiceReturn<true>> {
+        if (!box_id)
+            return [null, [new ServiceError({
+                reason: SEReason.REQUIRED, field: 'box_id', value: box_id,
+                message: 'Box _id is required'
+            })]];
+
+        if (amount === undefined || amount === null)
+            return [null, [new ServiceError({
+                reason: SEReason.REQUIRED, field: 'amount', value: amount,
+                message: 'Amount of testers is required'
+            })]];
+
+        if (amount <= 0)
+            return [null, [new ServiceError({
+                reason: SEReason.NOT_ALLOWED, field: 'amount', value: amount,
+                message: 'Amount of testers must be greater than 0'
+            })]];
+
+        const box = await this.boxModel.findById(box_id);
+        if (!box)
+            return [null, [new ServiceError({
+                reason: SEReason.NOT_FOUND, field: 'box_id', value: box_id,
+                message: 'Box with provided _id is not found'
+            })]];
+
+        if (box.testers.length < amount)
+            return [null, [new ServiceError({
+                reason: SEReason.NOT_FOUND, field: 'amount', value: amount,
+                message: 'The amount of testers to remove could not be more than the amount of existing testers in the box'
+            })]];
+
         return null;
     }
 
