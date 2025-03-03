@@ -23,6 +23,8 @@ import {ChatService} from "../chat/chat.service";
 import {ProfileService} from "../profile/profile.service";
 import {IServiceReturn, TReadByIdOptions} from "../common/service/basicService/IService";
 import {Profile} from "../profile/profile.schema";
+import { cancelTransaction } from "../common/function/cancelTransaction";
+import { CreateBoxDto } from "./dto/createBox.dto";
 
 @Injectable()
 export class BoxService {
@@ -263,12 +265,13 @@ export class BoxService {
      * @returns true if references were removed or Service errors if any occurred
      */
     public async deleteBoxReferences(boxData: Partial<Box>): Promise<IServiceReturn<true>> {
-        const errors: ServiceError[] = [];
+		const session = await this.model.startSession();
+		session.startTransaction();
+		
         if (boxData.clan_ids) {
             for (let i = 0; i < boxData.clan_ids.length; i++) {
                 const [isRemoved, deleteErrors] = await this.clanService.deleteOneById(boxData.clan_ids[i].toString());
-                if (deleteErrors)
-                    errors.push(...deleteErrors);
+                if (deleteErrors) await cancelTransaction(session, deleteErrors);
             }
         }
 
@@ -276,7 +279,7 @@ export class BoxService {
             const resp = await this.chatService.deleteOneById(boxData.chat_id.toString());
             if (resp instanceof MongooseError) {
                 const deleteError = convertMongooseToServiceErrors(resp);
-                errors.push(...deleteError);
+				await cancelTransaction(session, deleteError);
             }
         }
 
@@ -284,7 +287,7 @@ export class BoxService {
             const resp = await this.profilesService.deleteOneById(boxData.adminProfile_id.toString());
             if (resp instanceof MongooseError) {
                 const deleteError = convertMongooseToServiceErrors(resp);
-                errors.push(...deleteError);
+				await cancelTransaction(session, deleteError);
             }
         }
 
@@ -294,11 +297,39 @@ export class BoxService {
                 const resp = await this.profilesService.deleteOneById(testerProfiles[i].toString());
                 if (resp instanceof MongooseError) {
                     const deleteError = convertMongooseToServiceErrors(resp);
-                    errors.push(...deleteError);
+					await cancelTransaction(session, deleteError);
                 }
             }
         }
 
-        return errors.length === 0 ? [true, null] : [null, errors];
+		await session.commitTransaction()
+		await session.endSession();
+
+		return [true, null]
     }
+
+	/**
+	 * Retrieves the reset data for a box.
+	 *
+	 * @param boxId - The ID of the box to retrieve reset data for.
+	 * @returns The reset data for the box.
+	 * @throws Will throw an error if the box cannot be found.
+	 */
+	async getBoxResetData(boxId: string) {
+		const [box, error] = await this.readOneById(boxId, {
+			includeRefs: [
+				BoxReference.CLANS,
+				BoxReference.ADMIN_PLAYER,
+			] as string[] as ModelName[],
+		});
+		if (error) throw error;
+
+		const boxToCreate = new CreateBoxDto();
+		boxToCreate.adminPassword = box.adminPassword;
+		boxToCreate.playerName = box["AdminPlayer"]["name"];
+		const clans = box["Clans"];
+		if (clans) boxToCreate.clanNames = [clans[0]["name"], clans[1]["name"]];
+
+		return boxToCreate;
+	}
 }
