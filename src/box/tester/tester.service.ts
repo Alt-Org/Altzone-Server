@@ -146,14 +146,31 @@ export class TesterService {
                 message: 'Box does not have 2 clans'
             })]];
 
-        const clan1TesterLastIndex = Math.ceil(testers.length / 2);
-        const clan1Testers = testers.slice(0, clan1TesterLastIndex);
-        const clan1Tester_ids = clan1Testers.map(tester => tester.player_id);
-        const clan2Testers = testers.slice(clan1TesterLastIndex);
-        const clan2Tester_ids = clan2Testers.map(tester => tester.player_id);
+        const amount = testers.length;
+        const boxPlayer_ids = box.testers.map(tester => tester.player_id);
+        const boxPlayers = await this.playerModel.find({_id: {$in: boxPlayer_ids}}).exec();
+        const [clan1_id, clan2_id] = box.clan_ids;
 
-        await this.playerModel.updateMany({_id: {$in: clan1Tester_ids}}, {clan_id: box.clan_ids[0]});
-        await this.playerModel.updateMany({_id: {$in: clan2Tester_ids}}, {clan_id: box.clan_ids[1]});
+        const clan1Players = boxPlayers.filter(player => player.clan_id && player.clan_id.toString() === clan1_id.toString());
+        const clan2Players = boxPlayers.filter(player => player.clan_id && player.clan_id.toString() === clan2_id.toString());
+
+        const largerAmountToAdd = Math.ceil(amount / 2);
+
+        if (clan1Players.length < clan2Players.length) {
+            const clan1TestersToAdd = testers.slice(0, largerAmountToAdd);
+            const clan2TestersToAdd = testers.slice(largerAmountToAdd);
+            const clan1Tester_ids = clan1TestersToAdd.map(tester => tester.player_id);
+            const clan2Tester_ids = clan2TestersToAdd.map(tester => tester.player_id);
+            await this.playerModel.updateMany({_id: {$in: clan1Tester_ids}}, {clan_id: clan1_id});
+            await this.playerModel.updateMany({_id: {$in: clan2Tester_ids}}, {clan_id: clan2_id});
+        } else {
+            const clan2TestersToAdd = testers.slice(0, largerAmountToAdd);
+            const clan1TestersToAdd = testers.slice(largerAmountToAdd);
+            const clan1Tester_ids = clan1TestersToAdd.map(tester => tester.player_id);
+            const clan2Tester_ids = clan2TestersToAdd.map(tester => tester.player_id);
+            await this.playerModel.updateMany({_id: {$in: clan1Tester_ids}}, {clan_id: clan1_id});
+            await this.playerModel.updateMany({_id: {$in: clan2Tester_ids}}, {clan_id: clan2_id});
+        }
 
         return [true, null];
     }
@@ -204,10 +221,12 @@ export class TesterService {
                 message: 'The amount of testers to remove could not be more than the amount of existing testers in the box'
             })]];
 
+        const boxPlayer_ids = box.testers.map(tester => tester.player_id);
+        const boxPlayers = await this.playerModel.find({_id: {$in: boxPlayer_ids}}).exec();
         const [clan1_id, clan2_id] = box.clan_ids;
 
-        const clan1Players = await this.playerModel.find({clan_id: {$in: clan1_id}});
-        const clan2Players = await this.playerModel.find({clan_id: {$in: clan2_id}});
+        const clan1Players = boxPlayers.filter(player => player.clan_id.toString() === clan1_id.toString());
+        const clan2Players = boxPlayers.filter(player => player.clan_id.toString() === clan2_id.toString());
 
         const largerAmountToRemove = Math.ceil(amount / 2);
         const smallerAmountToRemove = amount - largerAmountToRemove;
@@ -223,8 +242,8 @@ export class TesterService {
             await this.playerModel.deleteMany({_id: {$in: player_idsToRemove}});
             await this.profileModel.deleteMany({_id: {$in: profile_idsToRemove}});
             await this.boxModel.updateOne(
-                { _id: box_id },
-                { $pull: { testers: { profile_id: profile_idsToRemove } } }
+                {_id: box_id},
+                {$pull: {testers: {profile_id: profile_idsToRemove}}}
             );
         } else {
             const clan1PlayersToRemove = clan1Players.slice(0, smallerAmountToRemove);
@@ -237,8 +256,8 @@ export class TesterService {
             await this.playerModel.deleteMany({_id: {$in: player_idsToRemove}});
             await this.profileModel.deleteMany({_id: {$in: profile_idsToRemove}});
             await this.boxModel.updateOne(
-                { _id: box_id },
-                { $pull: { testers: { profile_id: profile_idsToRemove } } }
+                {_id: box_id},
+                {$pull: {testers: {profile_id: profile_idsToRemove}}}
             );
         }
 
