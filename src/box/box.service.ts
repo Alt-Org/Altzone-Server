@@ -42,10 +42,12 @@ export class BoxService {
     ) {
         this.refsInModel = publicReferences;
         this.basicService = new BasicService(model);
+        this.adminBasicService = new BasicService(groupAdminModel);
     }
 
     public readonly refsInModel: BoxReference[];
     private readonly basicService: BasicService;
+    private readonly adminBasicService: BasicService;
 
     /**
      * Retrieves the box with populated testers based on the provided password.
@@ -331,5 +333,31 @@ export class BoxService {
 		if (clans) boxToCreate.clanNames = [clans[0]["name"], clans[1]["name"]];
 
 		return boxToCreate;
+	}
+
+    /**
+     * Deletes the box and group admin and all the associated data.
+     * 
+     * @param boxId - The ID of the box to delete.
+     * @returns void promise.
+     * @throws Will throw an error if the deletion fails.
+     */
+	async deleteBox(boxId: string) {
+		const session = await this.model.db.startSession();
+		session.startTransaction();
+
+		const [box, boxError] = await this.readOneById(boxId);
+		if (boxError) await cancelTransaction(session, boxError);
+
+		const [, deleteBoxError] = await this.deleteOneById(boxId);
+		if (deleteBoxError) await cancelTransaction(session, deleteBoxError);
+
+		const [, adminDeleteError] = await this.adminBasicService.deleteOne({
+			filter: { password: box.adminPassword },
+		});
+		if (adminDeleteError) await cancelTransaction(session, adminDeleteError);
+
+		session.commitTransaction();
+		session.endSession();
 	}
 }
