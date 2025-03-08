@@ -404,7 +404,7 @@ export class TesterService {
             };
             playersToCreate.push(player);
         }
-        const createdPlayers = await this.playerModel.insertMany(playersToCreate);
+        const createdPlayers = await this.playerModel.insertMany(playersToCreate) as Player[];
 
         return [createdPlayers, null];
     }
