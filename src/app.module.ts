@@ -30,6 +30,7 @@ import {DailyTasksModule} from './dailyTasks/dailyTasks.module';
 import {BoxModule} from "./box/box.module";
 import {BoxAuthGuard} from "./box/auth/boxAuth.guard";
 import isTestingSession from "./box/util/isTestingSession";
+import { ScheduleModule } from '@nestjs/schedule';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -48,6 +49,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
 
 @Module({
     imports: [
+        ScheduleModule.forRoot(),
         MongooseModule.forRoot(mongoString, {dbName: dbName}),
         CacheModule.register({
             isGlobal: true,
