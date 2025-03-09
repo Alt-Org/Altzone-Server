@@ -18,6 +18,7 @@ import { Box } from "../../../box/schemas/box.schema";
 import { envVars } from "../../../common/service/envHandler/envVars";
 import { Environment } from "../../../common/service/envHandler/enum/environment.enum";
 import { SEReason } from "../../../common/service/basicService/SEReason";
+import ItemModule from "../../clanInventory/modules/item.module";
 
 describe("BoxService.deleteBox() test suite", () => {
 	envVars.ENVIRONMENT = Environment.TESTING_SESSION;
@@ -35,6 +36,7 @@ describe("BoxService.deleteBox() test suite", () => {
 	const roomModel = RoomModule.getRoomModel();
 	const stockModel = StockModule.getStockModel();
 	const chatModel = ChatModule.getChatModel();
+	const itemModel = ItemModule.getItemModel();
 
 	const adminBuilder = BoxBuilderFactory.getBuilder("GroupAdmin");
 	const testerBuilder = BoxBuilderFactory.getBuilder("Tester");
@@ -162,54 +164,69 @@ describe("BoxService.deleteBox() test suite", () => {
 		existingBox._id = boxResp._id;
 	});
 
-	it("Should delete the box and all associated data", async () => {
-		await boxService.deleteBox(existingBox._id.toString());
-
-		const boxInDB = await boxModel.findById(existingBox._id);
-		expect(boxInDB).toBeNull();
-
-		const clansInDB = await clanModel.find({
-			_id: { $in: existingBox.clan_ids },
+	describe("When deleting a box", () => {
+		beforeEach(async () => {
+			await boxService.deleteBox(existingBox._id.toString());
 		});
-		expect(clansInDB).toHaveLength(0);
 
-		const adminPlayerInDB = await playerModel.find({
-			_id: existingBox.adminPlayer_id,
+		it("Should remove the box itself", async () => {
+			const boxInDB = await boxModel.findById(existingBox._id);
+			expect(boxInDB).toBeNull();
 		});
-		expect(adminPlayerInDB).toHaveLength(0);
 
-		const profileInDB = await profileModel.find({
-			_id: existingBox.adminProfile_id,
+		it("Should remove all clans associated with the box", async () => {
+			const clansInDB = await clanModel.find({
+				_id: { $in: existingBox.clan_ids },
+			});
+			expect(clansInDB).toHaveLength(0);
 		});
-		expect(profileInDB).toHaveLength(0);
 
-		const soulHomesInDB = await soulHomeModel.find({
-			_id: { $in: existingBox.soulHome_ids },
+		it("Should remove the admin player", async () => {
+			const adminPlayerInDB = await playerModel.find({
+				_id: existingBox.adminPlayer_id,
+			});
+			expect(adminPlayerInDB).toHaveLength(0);
 		});
-		expect(soulHomesInDB).toHaveLength(0);
 
-		const roomsInDB = await roomModel.find({
-			_id: { $in: existingBox.room_ids },
+		it("Should remove the admin profile", async () => {
+			const profileInDB = await profileModel.find({
+				_id: existingBox.adminProfile_id,
+			});
+			expect(profileInDB).toHaveLength(0);
 		});
-		expect(roomsInDB).toHaveLength(0);
 
-		const stocksInDB = await stockModel.find({
-			_id: { $in: existingBox.stock_ids },
+		it("Should remove all soul homes", async () => {
+			const soulHomesInDB = await soulHomeModel.find({
+				_id: { $in: existingBox.soulHome_ids },
+			});
+			expect(soulHomesInDB).toHaveLength(0);
 		});
-		expect(stocksInDB).toHaveLength(0);
 
-		const chatInDB = await chatModel.findById(existingBox.chat_id);
-		expect(chatInDB).toBeNull();
-
-		const testerProfilesInDB = await profileModel.find({
-			_id: { $in: existingBox.testers.map((tester) => tester.profile_id) },
+		it("Should remove all rooms associated with soul homes", async () => {
+			const roomsInDB = await roomModel.find({
+				_id: { $in: existingBox.room_ids },
+			});
+			expect(roomsInDB).toHaveLength(0);
 		});
-		expect(testerProfilesInDB).toHaveLength(0);
 
-		const testerPlayersInDB = await playerModel.find({
-			_id: { $in: existingBox.testers.map((tester) => tester.player_id) },
+		it("Should remove all stocks", async () => {
+			const stocksInDB = await stockModel.find({
+				_id: { $in: existingBox.stock_ids },
+			});
+			expect(stocksInDB).toHaveLength(0);
 		});
-		expect(testerPlayersInDB).toHaveLength(0);
+
+		it("Should remove the chat", async () => {
+			const chatInDB = await chatModel.findById(existingBox.chat_id);
+			expect(chatInDB).toBeNull();
+		});
+
+		it("Should remove all tester profiles", async () => {
+			const testerProfilesInDB = await profileModel.find({
+				_id: { $in: existingBox.testers.map((tester) => tester.profile_id) },
+			});
+			expect(testerProfilesInDB).toHaveLength(0);
+		});
 	});
 
 	it("Should throw an error if the box does not exist", async () => {
@@ -224,5 +241,21 @@ describe("BoxService.deleteBox() test suite", () => {
 				}),
 			])
 		);
+	});
+
+	it("Should remove all items in the soul homes", async () => {
+		// Assuming you have a model or method to query soul home items
+		const soulHomeItems = await itemModel.find({
+			soulHome_id: { $in: existingBox.soulHome_ids },
+		});
+		expect(soulHomeItems).toHaveLength(0);
+	});
+
+	it("Should remove all items in the stocks", async () => {
+		// Assuming you have a model or method to query stock items
+		const stockItems = await itemModel.find({
+			stock_id: { $in: existingBox.stock_ids },
+		});
+		expect(stockItems).toHaveLength(0);
 	});
 });
