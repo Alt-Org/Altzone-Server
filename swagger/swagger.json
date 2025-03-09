@@ -4308,6 +4308,35 @@
                 ],
                 "summary": "Create a testing box",
                 "description": "Create a testing box.\n\nNotice that in order t ocreate the testing box a group admin password need to be obtained from backend team"
+            },
+            "delete": {
+                "tags": [
+                    "Box"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Delete box data",
+                "description": "Delete box data associated with the logged-in user.\n\nNotice that the box can be removed only by the box admin."
             }
         },
         "/box/claim-account": {
@@ -4683,7 +4712,7 @@
                 "description": "Add a daily task to array of predefined daily tasks.\n\nNotice that the logged-in player has to be a group admin"
             }
         },
-        "/box/multiple": {
+        "/box/dailyTask/multiple": {
             "post": {
                 "requestBody": {
                     "content": {
@@ -4833,6 +4862,263 @@
                     "required": true
                 }
             ]
+        },
+        "/box/reset": {
+            "put": {
+                "tags": [
+                    "Box"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Box": {
+                                                    "adminPassword": "kissa-juo-maitoa",
+                                                    "sessionStage": "Preparing",
+                                                    "boxRemovalTime": 1744117361484,
+                                                    "sessionResetTime": 1742130161484,
+                                                    "adminProfile_id": "67cd9171a4c36afca0ac6033",
+                                                    "adminPlayer_id": "67cd9171a4c36afca0ac6035",
+                                                    "clan_ids": [
+                                                        "67cd9171a4c36afca0ac6037",
+                                                        "67cd9171a4c36afca0ac60a0"
+                                                    ],
+                                                    "soulHome_ids": [
+                                                        "67cd9171a4c36afca0ac6042",
+                                                        "67cd9171a4c36afca0ac60bf"
+                                                    ],
+                                                    "room_ids": [
+                                                        "67cd9171a4c36afca0ac6044",
+                                                        "67cd9171a4c36afca0ac6045",
+                                                        "67cd9171a4c36afca0ac6046",
+                                                        "67cd9171a4c36afca0ac6047",
+                                                        "67cd9171a4c36afca0ac6048",
+                                                        "67cd9171a4c36afca0ac604b",
+                                                        "67cd9171a4c36afca0ac604c",
+                                                        "67cd9171a4c36afca0ac604d",
+                                                        "67cd9171a4c36afca0ac604e",
+                                                        "67cd9171a4c36afca0ac604f",
+                                                        "67cd9171a4c36afca0ac6050",
+                                                        "67cd9171a4c36afca0ac6051",
+                                                        "67cd9171a4c36afca0ac6052",
+                                                        "67cd9171a4c36afca0ac6053",
+                                                        "67cd9171a4c36afca0ac6054",
+                                                        "67cd9171a4c36afca0ac6055",
+                                                        "67cd9171a4c36afca0ac6056",
+                                                        "67cd9171a4c36afca0ac6057",
+                                                        "67cd9171a4c36afca0ac6058",
+                                                        "67cd9171a4c36afca0ac6059",
+                                                        "67cd9171a4c36afca0ac605a",
+                                                        "67cd9171a4c36afca0ac605b",
+                                                        "67cd9171a4c36afca0ac605c",
+                                                        "67cd9171a4c36afca0ac605d",
+                                                        "67cd9171a4c36afca0ac605e",
+                                                        "67cd9171a4c36afca0ac605f",
+                                                        "67cd9171a4c36afca0ac6060",
+                                                        "67cd9171a4c36afca0ac6061",
+                                                        "67cd9171a4c36afca0ac6049",
+                                                        "67cd9171a4c36afca0ac604a",
+                                                        "67cd9171a4c36afca0ac60c1",
+                                                        "67cd9171a4c36afca0ac60c2",
+                                                        "67cd9171a4c36afca0ac60c3",
+                                                        "67cd9171a4c36afca0ac60c4",
+                                                        "67cd9171a4c36afca0ac60c5",
+                                                        "67cd9171a4c36afca0ac60c6",
+                                                        "67cd9171a4c36afca0ac60c7",
+                                                        "67cd9171a4c36afca0ac60c8",
+                                                        "67cd9171a4c36afca0ac60c9",
+                                                        "67cd9171a4c36afca0ac60cc",
+                                                        "67cd9171a4c36afca0ac60cd",
+                                                        "67cd9171a4c36afca0ac60ce",
+                                                        "67cd9171a4c36afca0ac60cf",
+                                                        "67cd9171a4c36afca0ac60d0",
+                                                        "67cd9171a4c36afca0ac60d1",
+                                                        "67cd9171a4c36afca0ac60d2",
+                                                        "67cd9171a4c36afca0ac60d3",
+                                                        "67cd9171a4c36afca0ac60d4",
+                                                        "67cd9171a4c36afca0ac60d5",
+                                                        "67cd9171a4c36afca0ac60d6",
+                                                        "67cd9171a4c36afca0ac60d7",
+                                                        "67cd9171a4c36afca0ac60d8",
+                                                        "67cd9171a4c36afca0ac60d9",
+                                                        "67cd9171a4c36afca0ac60da",
+                                                        "67cd9171a4c36afca0ac60db",
+                                                        "67cd9171a4c36afca0ac60dc",
+                                                        "67cd9171a4c36afca0ac60dd",
+                                                        "67cd9171a4c36afca0ac60de",
+                                                        "67cd9171a4c36afca0ac60ca",
+                                                        "67cd9171a4c36afca0ac60cb"
+                                                    ],
+                                                    "stock_ids": [
+                                                        "67cd9171a4c36afca0ac603a",
+                                                        "67cd9171a4c36afca0ac60b7"
+                                                    ],
+                                                    "chat_id": "67cd9171a4c36afca0ac6133",
+                                                    "_id": "67cd9171a4c36afca0ac613d",
+                                                    "testers": [],
+                                                    "accountClaimersIds": [],
+                                                    "dailyTasks": [],
+                                                    "createdAt": "2025-03-09T13:02:41.492Z",
+                                                    "updatedAt": "2025-03-09T13:02:41.492Z",
+                                                    "__v": 0,
+                                                    "id": "67cd9171a4c36afca0ac613d",
+                                                    "adminPlayer": {
+                                                        "name": "groupAdmin1",
+                                                        "backpackCapacity": 0,
+                                                        "points": 0,
+                                                        "uniqueIdentifier": "groupAdmin1",
+                                                        "above13": true,
+                                                        "parentalAuth": true,
+                                                        "profile_id": "67cd9171a4c36afca0ac6033",
+                                                        "_id": "67cd9171a4c36afca0ac6035",
+                                                        "battleCharacter_ids": []
+                                                    },
+                                                    "clans": [
+                                                        {
+                                                            "name": "groupAdmin1 clan 1",
+                                                            "tag": "",
+                                                            "labels": [
+                                                                "gamerit"
+                                                            ],
+                                                            "gameCoins": 0,
+                                                            "points": 0,
+                                                            "admin_ids": [
+                                                                "67cd9171a4c36afca0ac6035"
+                                                            ],
+                                                            "playerCount": 1,
+                                                            "itemCount": 0,
+                                                            "stockCount": 0,
+                                                            "isOpen": true,
+                                                            "ageRange": "None",
+                                                            "goal": "None",
+                                                            "phrase": "Not-set",
+                                                            "language": "None",
+                                                            "_id": "67cd9171a4c36afca0ac6037",
+                                                            "__v": 0,
+                                                            "id": "67cd9171a4c36afca0ac6037"
+                                                        },
+                                                        {
+                                                            "name": "groupAdmin1 clan 2",
+                                                            "tag": "",
+                                                            "labels": [
+                                                                "gamerit"
+                                                            ],
+                                                            "gameCoins": 0,
+                                                            "points": 0,
+                                                            "admin_ids": [
+                                                                "67cd9171a4c36afca0ac6035"
+                                                            ],
+                                                            "playerCount": 1,
+                                                            "itemCount": 0,
+                                                            "stockCount": 0,
+                                                            "isOpen": true,
+                                                            "ageRange": "None",
+                                                            "goal": "None",
+                                                            "phrase": "Not-set",
+                                                            "language": "None",
+                                                            "_id": "67cd9171a4c36afca0ac60a0",
+                                                            "__v": 0,
+                                                            "id": "67cd9171a4c36afca0ac60a0"
+                                                        }
+                                                    ],
+                                                    "chat": {
+                                                        "messages": [],
+                                                        "_id": "67cd9171a4c36afca0ac6133"
+                                                    },
+                                                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcm9maWxlX2lkIjoiNjdjZDkxNzFhNGMzNmFmY2EwYWM2MDMzIiwicGxheWVyX2lkIjoiNjdjZDkxNzFhNGMzNmFmY2EwYWM2MDM1IiwiYm94X2lkIjoiNjdjZDkxNzFhNGMzNmFmY2EwYWM2MTNkIiwiZ3JvdXBBZG1pbiI6dHJ1ZSwiaWF0IjoxNzQxNTI1MzYxLCJleHAiOjE3NDQxMTczNjF9.ghUXPuUO0xh86G8R2_6G4wdqUpDAiQDTl4hqcMeL4_w"
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Box",
+                                                "modelName": "Box",
+                                                "dataType": "Object",
+                                                "dataCount": 68
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success, reset session data"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Reset testing box",
+                "description": "Reset testing box data, which means removing all the data created during the testing session and returning the box state to the PREPARING stage. For more information refer to the testing box documentation.\n\nNotice that only box admin can do the action."
+            }
+        },
+        "/box/testers": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "decrease": {
+                                    "value": {
+                                        "amountToRemove": 2
+                                    }
+                                },
+                                "increase": {
+                                    "value": {
+                                        "amountToAdd": 2
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Box"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Define testers amount",
+                "description": "Endpoint for adjusting amount of testers in the box. Notice that only box admin can do it"
+            }
         }
     },
     "components": {
@@ -5585,6 +5871,8 @@
                         "description": "The CharacterId enum value, which determines what type of the character is",
                         "enum": [
                             101,
+                            102,
+                            103,
                             201,
                             202,
                             301,
@@ -5621,6 +5909,8 @@
                         "description": "Optional updated CharacterId enum value",
                         "enum": [
                             101,
+                            102,
+                            103,
                             201,
                             202,
                             301,
