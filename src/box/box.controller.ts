@@ -100,6 +100,13 @@ export class BoxController {
 		return [{ ...createdBox, accessToken: groupAdminAccessToken }, null];
 	}
 
+    @Delete()
+    @IsGroupAdmin()
+    @UniformResponse()
+    async deleteBoxAndAdmin(@LoggedUser() user: BoxUser) {
+        return await this.service.deleteBox(user.box_id);
+    }
+
     //For time of development only
     @NoAuth()
     @Get('/:_id')
