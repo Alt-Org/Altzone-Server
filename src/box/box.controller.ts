@@ -3,8 +3,7 @@ import {
     Controller, Delete,
     Get,
     Param,
-    Patch,
-    Post,
+    Post, Put,
     Query,
     Req,
     Res,
@@ -80,7 +79,7 @@ export class BoxController {
         return [{...createdBox, accessToken: groupAdminAccessToken}, null];
     }
 
-    @Patch("reset")
+    @Put("reset")
     @UniformResponse(ModelName.BOX)
     @IsGroupAdmin()
 	async resetTestingSession(@LoggedUser() user: BoxUser) {
