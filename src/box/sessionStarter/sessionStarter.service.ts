@@ -13,7 +13,7 @@ export default class SessionStarterService {
      * - Creates predefined daily tasks for each clan
      * - Defines clan admins from the testers
      * - Generates and sets testers shared password
-     * - Sets testing session status to TESTING
+     * - Sets testing session stage to TESTING
      * - Sets reset and removal times of the box
      *
      * @param box_id _id of the box where to start the session

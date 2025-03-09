@@ -25,6 +25,7 @@ import {DailyTaskService} from "../../../box/dailyTask/dailyTask.service";
 import {GroupAdminGuard} from "../../../box/auth/decorator/groupAdmin.guard";
 import {PasswordGenerator} from "../../../box/tester/passwordGenerator";
 import {TesterService} from "../../../box/tester/tester.service";
+import SessionStarterService from "../../../box/sessionStarter/sessionStarter.service";
 
 
 export default class BoxCommonModule {
@@ -59,7 +60,7 @@ export default class BoxCommonModule {
                     BoxService, GroupAdminService, BoxHelper, BoxCreator,
                     DailyTaskService,
                     BoxAuthHandler, GroupAdminGuard,
-                    PasswordGenerator, TesterService
+                    PasswordGenerator, TesterService, SessionStarterService
                 ]
             }).compile();
 
