@@ -26,13 +26,12 @@ export enum ModelName {
     PROFILE = 'Profile',
     CHAT = 'Chat',
     JOIN = 'Join',
-    CLAN_META = 'ClanMeta',
     ROOM = 'Room',
     SOULHOME = 'SoulHome',
-    CLANVOTE = 'ClanVote',
-    ITEMSHOP = 'ItemShop',
     GAME = 'Game',
     DAILY_TASK = 'DailyTask',
     FLEA_MARKET_ITEM = 'FleaMarketItem',
     VOTING = 'Voting',
+    BOX = 'Box',
+    GROUP_ADMIN = 'GroupAdmin'
 }

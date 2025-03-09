@@ -114,7 +114,7 @@ export class AuthService {
      * @param hashedPassword - hashed password
      * @returns true if the passwords are the same, false if not or ServiceError if something went wrong
      */
-    private async verifyPassword(password: string, hashedPassword: string): Promise<[boolean | null, ServiceError[] | null]> {
+    protected async verifyPassword(password: string, hashedPassword: string): Promise<[boolean | null, ServiceError[] | null]> {
         try {
             const isRight = await argon2.verify(hashedPassword, password);
             return [isRight, null];

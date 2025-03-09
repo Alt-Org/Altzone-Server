@@ -1,4 +1,5 @@
 import { TaskName } from "../enum/taskName.enum";
+import {TaskTitle} from "./taskTitle.type";
 
 /**
  * Represents a task with its details.
@@ -18,7 +19,7 @@ export type Task = {
 	clan_id: string,
 	player_id: string,
 	type: TaskName,
-	title: string,
+	title: TaskTitle,
 	amount: number;
 	amountLeft: number;
 	points: number;

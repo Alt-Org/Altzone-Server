@@ -3,14 +3,7 @@
 This is a REST API for the Altzone game. For API description see the wiki pages
 
 
-## Releases
-
-- [Release notes 09.02.2025](https://github.com/Alt-Org/Altzone-Server/blob/dev/doc/release-notes/release-09-02-2025.md)
-- [Release notes 26.01.2025](https://github.com/Alt-Org/Altzone-Server/blob/dev/doc/release-notes/release-26-01-2025.md)
-- [Release notes 23.12.2024](https://github.com/Alt-Org/Altzone-Server/blob/dev/doc/release-notes/release-23-12-2024.md)
-
-
-## Link to the API
+## Links to APIs
 
 Production https://altzone.fi/api (prod branch)
 Latest release https://devapi.altzone.fi/latest-release (main branch)
@@ -23,24 +16,6 @@ Dev https://devapi.altzone.fi (dev branch)
 
 2. [Swagger on web](https://swagger.altzone.fi/)
 
-## Wiki pages quick access
-
-### Client side docs (game and webpages teams):
-
-#### [General info](https://github.com/Alt-Org/Altzone-Server/wiki)
-#### [Authentication and authorization](https://github.com/Alt-Org/Altzone-Server/wiki/2.-Authentication-and-authorization)
-#### [Data fetching (GET requests)](https://github.com/Alt-Org/Altzone-Server/wiki/3.-Data-fetching-(GET-requests))
-
-### API developers pages:
-
-#### [Development process](https://github.com/Alt-Org/Altzone-Server/wiki/Development-process)
-#### [Branches](https://github.com/Alt-Org/Altzone-Server/wiki/Branches)
-#### [JSDocs](https://github.com/Alt-Org/Altzone-Server/wiki/JSDocs)
-#### [Tests](https://github.com/Alt-Org/Altzone-Server/wiki/Tests)
-#### [Pull request check list](https://github.com/Alt-Org/Altzone-Server/wiki/Pull-request-check-list)
-#### [Documentation](https://github.com/Alt-Org/Altzone-Server/wiki/Documentation)
-#### [Files that should not be modified](https://github.com/Alt-Org/Altzone-Server/wiki/Files-that-should-not-be-modified)
-#### [What to do if](https://github.com/Alt-Org/Altzone-Server/wiki/What-to-do-if)
 
 ## Getting started
 
@@ -61,7 +36,7 @@ Start the API in dev (watch) mode by running ```npm run start:dev``` in a new te
 
 This command will compile TS to JS and create a dist folder. This folder should not be removed.
 
-The server will be accessible on your machine on http://localhost:8080/
+The API will be accessible on your machine on http://localhost:8080/
 
 ### Stop API and DB
 

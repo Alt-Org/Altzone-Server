@@ -2,6 +2,7 @@ import { Expose } from "class-transformer";
 import { ExtractField } from "../../common/decorator/response/ExtractField";
 import { TaskName } from "../enum/taskName.enum";
 import AddType from "../../common/base/decorator/AddType.decorator";
+import {TaskTitle} from "../type/taskTitle.type";
 
 @AddType("DailyTaskDto")
 export class DailyTaskDto {
@@ -18,7 +19,7 @@ export class DailyTaskDto {
 	player_id: string;
 
 	@Expose()
-	title: string;
+	title: TaskTitle;
 
 	@Expose()
 	type: TaskName;
