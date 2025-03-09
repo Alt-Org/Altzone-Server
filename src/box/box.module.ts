@@ -26,6 +26,7 @@ import {GroupAdminGuard} from "./auth/decorator/groupAdmin.guard";
 import {PasswordGenerator} from "./tester/passwordGenerator";
 import {TesterService} from "./tester/tester.service";
 import {TesterController} from "./tester/tester.controller";
+import SessionStarterService from "./sessionStarter/sessionStarter.service";
 
 @Module({
     imports: [
@@ -52,7 +53,7 @@ import {TesterController} from "./tester/tester.controller";
         BoxService, GroupAdminService, BoxHelper, BoxCreator,
         DailyTaskService,
         BoxAuthHandler, GroupAdminGuard,
-        PasswordGenerator, TesterService
+        PasswordGenerator, TesterService, SessionStarterService
     ],
     exports: [
         BoxService, GroupAdminGuard
