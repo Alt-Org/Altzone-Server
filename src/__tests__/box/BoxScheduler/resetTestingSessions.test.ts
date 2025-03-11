@@ -1,5 +1,4 @@
 import { ObjectId } from "mongodb";
-import { BoxService } from "../../../box/box.service";
 import BoxBuilderFactory from "../data/boxBuilderFactory";
 import BoxModule from "../modules/box.module";
 import ProfileModule from "../../profile/modules/profile.module";
@@ -15,12 +14,11 @@ import StockModule from "../../clanInventory/modules/stock.module";
 import ChatBuilderFactory from "../../chat/data/chatBuilderFactory";
 import ChatModule from "../../chat/modules/chat.module";
 import { Box } from "../../../box/schemas/box.schema";
-import { SessionStage } from "../../../box/enum/SessionStage.enum";
+import { BoxScheduler } from "../../../box/box.scheduler";
 
-describe("BoxService.resetTestingSessions() test suite", () => {
-	let boxService: BoxService;
+describe("BoxScheduler.resetTestingSessions() test suite", () => {
+	let boxScheduler: BoxScheduler;
 	let boxToDelete: Box;
-	let boxToKeep: Box;
 
 	const boxBuilder = BoxBuilderFactory.getBuilder("Box");
 	const boxModel = BoxModule.getBoxModel();
@@ -44,36 +42,36 @@ describe("BoxService.resetTestingSessions() test suite", () => {
 	const chatBuilder = ChatBuilderFactory.getBuilder("Chat");
 
 	beforeEach(async () => {
-		boxService = await BoxModule.getBoxService();
+		boxScheduler = await BoxModule.getBoxScheduler();
 
-		const existingAdmin = adminBuilder.setPassword("cronPassword").build();
+		const existingAdmin = adminBuilder.setPassword("adminPassword22").build();
 		const adminResp = await adminModel.create(existingAdmin);
 		existingAdmin._id = adminResp._id;
 
-		const adminProfile = profileBuilder.setUsername("cronAdmin").build();
+		const adminProfile = profileBuilder.setUsername("adminUser22").build();
 		const adminProfileResp = await profileModel.create(adminProfile);
 		adminProfile._id = adminProfileResp._id;
 
 		const adminPlayer = playerBuilder
-			.setName("cronAdminPlayer")
-			.setUniqueIdentifier("cronAdmin")
+			.setName("adminPlayer22")
+			.setUniqueIdentifier("admin22")
 			.setProfileId(adminProfile._id)
 			.build();
 		const adminPlayerResp = await playerModel.create(adminPlayer);
 		adminPlayer._id = adminPlayerResp._id;
 
-		const existingClan1 = clanBuilder.setName("cronTestClanOne").build();
+		const existingClan1 = clanBuilder.setName("testClanOne22").build();
 		const existingClanResp1 = await clanModel.create(existingClan1);
 		existingClan1._id = existingClanResp1._id;
-		const existingClan2 = clanBuilder.setName("cronTestClanTwo").build();
+		const existingClan2 = clanBuilder.setName("testClanTwo22").build();
 		const existingClanResp2 = await clanModel.create(existingClan2);
 		existingClan2._id = existingClanResp2._id;
 
-		const existingSoulHome1 = soulHomeBuilder.setName("cronTestSoulHome1").build();
+		const existingSoulHome1 = soulHomeBuilder.setName("testSoulHome122").build();
 		existingSoulHome1.clan_id = existingClan1._id;
 		const existingSoulHomeResp1 = await soulHomeModel.create(existingSoulHome1);
 		existingSoulHome1._id = existingSoulHomeResp1._id;
-		const existingSoulHome2 = soulHomeBuilder.setName("cronTestSoulHome2").build();
+		const existingSoulHome2 = soulHomeBuilder.setName("testSoulHome222").build();
 		existingSoulHome2.clan_id = existingClan2._id;
 		const existingSoulHomeResp2 = await soulHomeModel.create(existingSoulHome2);
 		existingSoulHome2._id = existingSoulHomeResp2._id;
@@ -98,8 +96,8 @@ describe("BoxService.resetTestingSessions() test suite", () => {
 		const existingChatResp = await chatModel.create(existingChat);
 		existingChat._id = existingChatResp._id;
 
-		const testerName1 = "cronTesterOne";
-		const testerName2 = "cronTesterTwo";
+		const testerName1 = "testerOne22";
+		const testerName2 = "testerTwo22";
 		const testerProfile1 = profileBuilder.setUsername(testerName1).build();
 		const testerProfileResp1 = await profileModel.create(testerProfile1);
 		testerProfile1._id = testerProfileResp1._id;
@@ -132,34 +130,6 @@ describe("BoxService.resetTestingSessions() test suite", () => {
 			.build();
 
 		boxToDelete = boxBuilder
-			.setSessionStage(SessionStage.END)
-			.setAdminPassword(existingAdmin.password+"2")
-			.setAdminPlayerId(new ObjectId(adminPlayer._id))
-			.setAdminProfileId(new ObjectId(adminProfile._id))
-			.setClanIds([
-				new ObjectId(existingClan1._id),
-				new ObjectId(existingClan2._id),
-			])
-			.setSoulHomeIds([
-				new ObjectId(existingSoulHome1._id),
-				new ObjectId(existingSoulHome2._id),
-			])
-			.setRoomIds([
-				new ObjectId(existingRoom1._id),
-				new ObjectId(existingRoom2._id),
-			])
-			.setStockIds([
-				new ObjectId(existingStock1._id),
-				new ObjectId(existingStock2._id),
-			])
-			.setChatId(new ObjectId(existingChat._id))
-			.setTesters([tester1, tester2])
-			.build();
-		const boxToDeleteResp = await boxModel.create(boxToDelete);
-		boxToDelete._id = boxToDeleteResp._id;
-
-		boxToKeep = boxBuilder
-			.setSessionStage(SessionStage.TESTING)
 			.setAdminPassword(existingAdmin.password)
 			.setAdminPlayerId(new ObjectId(adminPlayer._id))
 			.setAdminProfileId(new ObjectId(adminProfile._id))
@@ -181,18 +151,147 @@ describe("BoxService.resetTestingSessions() test suite", () => {
 			])
 			.setChatId(new ObjectId(existingChat._id))
 			.setTesters([tester1, tester2])
+			.setBoxRemovalTime(new Date().getTime())
+			.setSessionResetTime(new Date().getTime() + 10000)
 			.build();
-		const boxToKeepResp = await boxModel.create(boxToKeep);
-		boxToKeep._id = boxToKeepResp._id;
+
+		const boxResp = await boxModel.create(boxToDelete);
+		boxToDelete._id = boxResp._id;
 	});
 
-	it("Should delete boxes with sessionStage END and keep others", async () => {
-		await boxService.resetTestingSessions();
+	it("Should delete boxes with expired removal time and associated clan models", async () => {
+		await boxScheduler.resetTestingSessions();
 
 		const boxToDeleteInDB = await boxModel.findById(boxToDelete._id);
 		expect(boxToDeleteInDB).toBeNull();
 
-		const boxToKeepInDB = await boxModel.findById(boxToKeep._id);
-		expect(boxToKeepInDB).not.toBeNull();
+		const adminPlayer = await playerModel.findById(boxToDelete.adminPlayer_id);
+		expect(adminPlayer).toBeNull();
+
+		const adminProfile = await profileModel.findById(
+			boxToDelete.adminProfile_id
+		);
+		expect(adminProfile).toBeNull();
+
+		for (const clanId of boxToDelete.clan_ids) {
+			const clan = await clanModel.findById(clanId);
+			expect(clan).toBeNull();
+		}
+
+		for (const soulHomeId of boxToDelete.soulHome_ids) {
+			const soulHome = await soulHomeModel.findById(soulHomeId);
+			expect(soulHome).toBeNull();
+		}
+
+		for (const roomId of boxToDelete.room_ids) {
+			const room = await roomModel.findById(roomId);
+			expect(room).toBeNull();
+		}
+
+		for (const stockId of boxToDelete.stock_ids) {
+			const stock = await stockModel.findById(stockId);
+			expect(stock).toBeNull();
+		}
+
+		const chat = await chatModel.findById(boxToDelete.chat_id);
+		expect(chat).toBeNull();
+
+		for (const tester of boxToDelete.testers) {
+			const testerProfile = await profileModel.findById(tester.profile_id);
+			expect(testerProfile).toBeNull();
+
+			const testerPlayer = await playerModel.findById(tester.player_id);
+			expect(testerPlayer).toBeNull();
+		}
+	});
+
+	it("Should not delete boxes with not expired removal time", async () => {
+		await boxModel.updateOne(
+			{ _id: boxToDelete._id },
+			{ $set: { boxRemovalTime: new Date().getTime() + 10000 } }
+		);
+		await boxScheduler.resetTestingSessions();
+
+		const boxToKeep = await boxModel.findById(boxToDelete._id);
+		expect(boxToKeep).not.toBeNull();
+		expect(boxToKeep.adminPassword).toBe(boxToDelete.adminPassword);
+		expect(boxToKeep.adminPlayer_id.toString()).toBe(
+			boxToDelete.adminPlayer_id.toString()
+		);
+		expect(boxToKeep.adminProfile_id.toString()).toBe(
+			boxToDelete.adminProfile_id.toString()
+		);
+		expect(boxToKeep.clan_ids.map((id) => id.toString())).toEqual(
+			boxToDelete.clan_ids.map((id) => id.toString())
+		);
+		expect(boxToKeep.soulHome_ids.map((id) => id.toString())).toEqual(
+			boxToDelete.soulHome_ids.map((id) => id.toString())
+		);
+		expect(boxToKeep.room_ids.map((id) => id.toString())).toEqual(
+			boxToDelete.room_ids.map((id) => id.toString())
+		);
+		expect(boxToKeep.stock_ids.map((id) => id.toString())).toEqual(
+			boxToDelete.stock_ids.map((id) => id.toString())
+		);
+		expect(boxToKeep.chat_id.toString()).toBe(boxToDelete.chat_id.toString());
+		expect(
+			boxToKeep.testers.map((tester) => tester.profile_id.toString())
+		).toEqual(
+			boxToDelete.testers.map((tester) => tester.profile_id.toString())
+		);
+		expect(
+			boxToKeep.testers.map((tester) => tester.player_id.toString())
+		).toEqual(boxToDelete.testers.map((tester) => tester.player_id.toString()));
+	});
+
+	it("Should reset the box with expired reset time", async () => {
+		await boxModel.updateOne(
+			{ _id: boxToDelete._id },
+			{
+				$set: {
+					sessionResetTime: new Date().getTime(),
+					boxRemovalTime: new Date().getTime() + 10000,
+				},
+			}
+		);
+		await boxScheduler.resetTestingSessions();
+
+		const boxToReset = await boxModel.findOne({
+			adminPassword: boxToDelete.adminPassword,
+		});
+		expect(boxToReset).not.toBeNull();
+		expect(boxToReset._id.toString()).not.toBe(boxToDelete._id.toString());
+		expect(boxToReset.adminPassword).toBe(boxToDelete.adminPassword);
+		expect(boxToReset.adminPlayer_id.toString()).not.toBe(
+			boxToDelete.adminPlayer_id.toString()
+		);
+		expect(boxToReset.adminProfile_id.toString()).not.toBe(
+			boxToDelete.adminProfile_id.toString()
+		);
+		expect(boxToReset.clan_ids.map((id) => id.toString())).not.toEqual(
+			boxToDelete.clan_ids.map((id) => id.toString())
+		);
+		expect(boxToReset.soulHome_ids.map((id) => id.toString())).not.toEqual(
+			boxToDelete.soulHome_ids.map((id) => id.toString())
+		);
+		expect(boxToReset.room_ids.map((id) => id.toString())).not.toEqual(
+			boxToDelete.room_ids.map((id) => id.toString())
+		);
+		expect(boxToReset.stock_ids.map((id) => id.toString())).not.toEqual(
+			boxToDelete.stock_ids.map((id) => id.toString())
+		);
+		expect(boxToReset.chat_id.toString()).not.toBe(
+			boxToDelete.chat_id.toString()
+		);
+		expect(
+			boxToReset.testers.map((tester) => tester.profile_id.toString())
+		).not.toEqual(
+			boxToDelete.testers.map((tester) => tester.profile_id.toString())
+		);
+		expect(
+			boxToReset.testers.map((tester) => tester.player_id.toString())
+		).not.toEqual(
+			boxToDelete.testers.map((tester) => tester.player_id.toString())
+		);
 	});
 });
