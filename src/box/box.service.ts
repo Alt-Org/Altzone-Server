@@ -25,8 +25,6 @@ import {IServiceReturn, TReadByIdOptions} from "../common/service/basicService/I
 import {Profile} from "../profile/profile.schema";
 import { cancelTransaction } from "../common/function/cancelTransaction";
 import { CreateBoxDto } from "./dto/createBox.dto";
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { SessionStage } from "./enum/SessionStage.enum";
 
 @Injectable()
 export class BoxService {
@@ -364,22 +362,21 @@ export class BoxService {
 	}
 
     /**
-     * Resets testing sessions by deleting all boxes that have reached the end session stage.
-     * 
-     * This method performs the following steps:
-     * 1. Reads all boxes with a session stage of `SessionStage.END`.
-     * 2. If there are no errors, deletes each box by its ID.
-     * 
-     * @returns A promise that resolves when the operation is complete.
+     * Retrieves expired boxes based on the current time.
+     * A box is considered expired if either its removal time or session reset time
+     * is less than or equal to the provided current time.
+     *
+     * @param currentTime - The current date and time to compare against box expiration times.
+     * @returns A promise that resolves to a service return object containing an array of expired box documents.
      */
-    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-    async resetTestingSessions() {
-        const [boxes, boxErrors] = await this.basicService.readMany<BoxDocument>({ filter: { sessionStage: SessionStage.END } })
-
-        if (boxErrors) return;
-
-        await Promise.all(
-            boxes.map(box => this.deleteOneById(box._id.toString()))
-        );
+    async getExpiredBoxes(currentTime: Date): Promise<IServiceReturn<BoxDocument[]>> {
+        return await this.basicService.readMany<BoxDocument>({
+            filter: {
+                $or: [
+                    { boxRemovalTime: { $lte: currentTime.getTime() } },
+                    { sessionResetTime: { $lte: currentTime.getTime() } }
+                ]
+            }
+        });
     }
 }
