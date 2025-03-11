@@ -44,6 +44,12 @@ export class DailyTasksController {
 		);
 	}
 
+	@Put("/unreserve")
+	@UniformResponse()
+	async unreserveTask(@LoggedUser() user: User) {
+		return this.dailyTasksService.unreserveTask(user.player_id);
+	}
+
 	@HttpCode(204)
 	@Delete("/:_id")
 	@Serialize(DailyTaskDto)
