@@ -3,6 +3,8 @@ import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
 import { ModelName } from "../common/enum/modelName.enum";
 import { TaskName } from "./enum/taskName.enum";
 import {TaskTitle} from "./type/taskTitle.type";
+import {ExtractField} from "../common/decorator/response/ExtractField";
+import {ObjectId} from "mongodb";
 
 export type DailyTaskDocument = HydratedDocument<DailyTask>;
 
@@ -37,6 +39,9 @@ export class DailyTask {
 
 	@Prop({ type: Number, required: true })
 	timeLimitMinutes: number;
+
+	@ExtractField()
+	_id?: string | ObjectId;
 }
 
 export const DailyTaskSchema = SchemaFactory.createForClass(DailyTask);

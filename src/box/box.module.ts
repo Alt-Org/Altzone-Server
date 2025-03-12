@@ -26,6 +26,8 @@ import {GroupAdminGuard} from "./auth/decorator/groupAdmin.guard";
 import {PasswordGenerator} from "./tester/passwordGenerator";
 import {TesterService} from "./tester/tester.service";
 import {TesterController} from "./tester/tester.controller";
+import SessionStarterService from "./sessionStarter/sessionStarter.service";
+import {DailyTasksModule} from "../dailyTasks/dailyTasks.module";
 import { BoxScheduler } from './box.scheduler';
 
 @Module({
@@ -45,6 +47,8 @@ import { BoxScheduler } from './box.scheduler';
         ChatModule,
         ProfileModule,
         PlayerModule,
+        DailyTasksModule,
+        PlayerModule
     ],
     controllers: [
         BoxController, DailyTaskController, TesterController
@@ -53,7 +57,7 @@ import { BoxScheduler } from './box.scheduler';
         BoxService, GroupAdminService, BoxHelper, BoxCreator,
         BoxScheduler, DailyTaskService,
         BoxAuthHandler, GroupAdminGuard,
-        PasswordGenerator, TesterService
+        PasswordGenerator, TesterService, SessionStarterService
     ],
     exports: [
         BoxService, GroupAdminGuard

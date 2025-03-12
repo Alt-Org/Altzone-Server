@@ -16,19 +16,20 @@ import { cancelTransaction } from "../common/function/cancelTransaction";
 
 @Injectable()
 export class DailyTasksService {
-	public constructor(
-		@InjectModel(DailyTask.name) public readonly model: Model<DailyTask>,
-		private readonly notifier: DailyTaskNotifier,
-		private readonly taskQueue: DailyTaskQueue,
-		private readonly taskGenerator: TaskGeneratorService,
-	) {
-		this.basicService = new BasicService(model);
-		this.modelName = ModelName.DAILY_TASK;
-		this.refsInModel = [ModelName.PLAYER];
-	}
-	public readonly modelName: ModelName;
-	public readonly refsInModel: ModelName[];
-	private readonly basicService: BasicService;
+    public constructor(
+        @InjectModel(DailyTask.name) public readonly model: Model<DailyTask>,
+        private readonly notifier: DailyTaskNotifier,
+        private readonly taskQueue: DailyTaskQueue,
+        private readonly taskGenerator: TaskGeneratorService,
+    ) {
+        this.basicService = new BasicService(model);
+        this.modelName = ModelName.DAILY_TASK;
+        this.refsInModel = [ModelName.PLAYER];
+    }
+
+    public readonly modelName: ModelName;
+    public readonly refsInModel: ModelName[];
+    private readonly basicService: BasicService;
 
 	/**
 	 * Generates a set of tasks for a new clan.
@@ -185,13 +186,35 @@ export class DailyTasksService {
 		return this.basicService.readOneById<DailyTaskDto>(_id, optionsToApply);
 	}
 
-	/**
-	 * Reads multiple daily tasks from the database based on the provided options.
-	 *
-	 * @param options - Optional settings for the read operation.
-	 * @returns A promise that resolves to a tuple where the first element is an array of ItemDto objects, and the second element is either null or an array of ServiceError objects if something went wrong.
-	 */
-	async readMany(options?: TIServiceCreateManyOptions) {
-		return this.basicService.readMany<DailyTaskDto>(options);
-	}
+    /**
+     * Reads multiple daily tasks from the database based on the provided options.
+     *
+     * @param options - Optional settings for the read operation.
+     * @returns A promise that resolves to a tuple where the first element is an array of ItemDto objects, and the second element is either null or an array of ServiceError objects if something went wrong.
+     */
+    async readMany(options?: TIServiceCreateManyOptions) {
+        return this.basicService.readMany<DailyTaskDto>(options);
+    }
+
+    /**
+     * Creates a new daily task in DB.
+     *
+     * @param dailyTaskToCreate daily task to create
+     *
+     * @returns created daily task or ServiceError if any occurred
+     */
+    async createOne(dailyTaskToCreate: Omit<DailyTask, '_id'>) {
+        return this.basicService.createOne(dailyTaskToCreate);
+    }
+
+    /**
+     * Creates multiple daily tasks in DB.
+     *
+     * @param dailyTasksToCreate daily tasks to create
+     *
+     * @returns created daily task or ServiceError if any occurred
+     */
+    async createMany(dailyTasksToCreate: Omit<DailyTask, '_id'>[]) {
+        return this.basicService.createMany(dailyTasksToCreate);
+    }
 }
