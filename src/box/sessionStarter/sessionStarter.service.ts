@@ -66,7 +66,7 @@ export default class SessionStarterService {
         if(clanAdminsErrors)
             return [null, clanAdminsErrors];
 
-        const randNumber = 1 + (Math.random() * 99);
+        const randNumber = Math.floor(1 + (Math.random() * 99));
         const testersPassword = this.passwordGenerator.generatePassword('fi') + `-${randNumber}`;
 
         const now = new Date().getTime();
