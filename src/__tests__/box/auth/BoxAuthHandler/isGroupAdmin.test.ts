@@ -52,8 +52,8 @@ describe('BoxAuthHandler.isGroupAdmin() test suite', () => {
         existingBox._id = boxResp._id;
 
         boxAdminUser = boxUserBuilder
-            .setBoxId(existingBox._id)
-            .setPlayerId(existingPlayer._id).setProfileId(existingProfile._id).setGroupAdmin(true)
+            .setBoxId(existingBox._id.toString())
+            .setPlayerId(existingPlayer._id.toString()).setProfileId(existingProfile._id.toString()).setGroupAdmin(true)
             .build();
     });
 

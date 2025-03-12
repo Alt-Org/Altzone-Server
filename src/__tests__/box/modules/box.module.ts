@@ -12,6 +12,7 @@ import {DailyTaskService} from "../../../box/dailyTask/dailyTask.service";
 import {PasswordGenerator} from "../../../box/tester/passwordGenerator";
 import {TesterService} from "../../../box/tester/tester.service";
 import SessionStarterService from "../../../box/sessionStarter/sessionStarter.service";
+import { BoxScheduler } from "../../../box/box.scheduler";
 
 export default class BoxModule {
     private constructor() {
@@ -68,5 +69,10 @@ export default class BoxModule {
     static async getSessionStarterService() {
         const module = await BoxCommonModule.getModule();
         return module.resolve(SessionStarterService);
+    }
+
+    static async getBoxScheduler() {
+        const module = await BoxCommonModule.getModule();
+        return module.resolve(BoxScheduler);
     }
 }

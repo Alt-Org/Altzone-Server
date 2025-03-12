@@ -2197,7 +2197,8 @@
                     "required": true
                 },
                 "tags": [
-                    "CustomCharacter"
+                    "CustomCharacter",
+                    "release-09-03-2025"
                 ],
                 "responses": {
                     "204": {
@@ -2236,7 +2237,8 @@
                     "required": true
                 },
                 "tags": [
-                    "CustomCharacter"
+                    "CustomCharacter",
+                    "release-09-03-2025"
                 ],
                 "responses": {
                     "201": {
@@ -4311,7 +4313,8 @@
             },
             "delete": {
                 "tags": [
-                    "Box"
+                    "Box",
+                    "release-09-03-2025"
                 ],
                 "responses": {
                     "204": {
@@ -4866,7 +4869,8 @@
         "/box/reset": {
             "put": {
                 "tags": [
-                    "Box"
+                    "Box",
+                    "release-09-03-2025"
                 ],
                 "responses": {
                     "200": {
@@ -5089,7 +5093,8 @@
                     "required": true
                 },
                 "tags": [
-                    "Box"
+                    "Box",
+                    "release-09-03-2025"
                 ],
                 "responses": {
                     "204": {
@@ -6886,6 +6891,10 @@
         }
     ],
     "tags": [
+        {
+            "name": "release-09-03-2025",
+            "description": "Endpoints changed on 09.03.2025 release"
+        },
         {
             "name": "in-development",
             "description": "Endpoint is currently changing or not yet implemented"

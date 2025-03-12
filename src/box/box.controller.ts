@@ -3,8 +3,7 @@ import {
     Controller, Delete,
     Get,
     Param,
-    Patch,
-    Post,
+    Post, Put,
     Query,
     Req,
     Res,
@@ -82,7 +81,7 @@ export class BoxController {
         return [{...createdBox, accessToken: groupAdminAccessToken}, null];
     }
 
-    @Patch("reset")
+    @Put("reset")
     @UniformResponse(ModelName.BOX)
     @IsGroupAdmin()
 	async resetTestingSession(@LoggedUser() user: BoxUser) {
@@ -101,6 +100,13 @@ export class BoxController {
 
 		return [{ ...createdBox, accessToken: groupAdminAccessToken }, null];
 	}
+
+    @Delete()
+    @IsGroupAdmin()
+    @UniformResponse()
+    async deleteBoxAndAdmin(@LoggedUser() user: BoxUser) {
+        return await this.service.deleteBox(user.box_id);
+    }
 
     @Post('/start')
     @UniformResponse(ModelName.BOX)

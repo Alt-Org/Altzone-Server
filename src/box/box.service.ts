@@ -42,10 +42,12 @@ export class BoxService {
     ) {
         this.refsInModel = publicReferences;
         this.basicService = new BasicService(model);
+        this.adminBasicService = new BasicService(groupAdminModel);
     }
 
     public readonly refsInModel: BoxReference[];
     private readonly basicService: BasicService;
+    private readonly adminBasicService: BasicService;
 
     /**
      * Retrieves the box with populated testers based on the provided password.
@@ -332,4 +334,49 @@ export class BoxService {
 
 		return boxToCreate;
 	}
+
+    /**
+     * Deletes the box and group admin and all the associated data.
+     * 
+     * @param boxId - The ID of the box to delete.
+     * @returns void promise.
+     * @throws Will throw an error if the deletion fails.
+     */
+	async deleteBox(boxId: string) {
+		const session = await this.model.db.startSession();
+		session.startTransaction();
+
+		const [box, boxError] = await this.readOneById(boxId);
+		if (boxError) await cancelTransaction(session, boxError);
+
+		const [, deleteBoxError] = await this.deleteOneById(boxId);
+		if (deleteBoxError) await cancelTransaction(session, deleteBoxError);
+
+		const [, adminDeleteError] = await this.adminBasicService.deleteOne({
+			filter: { password: box.adminPassword },
+		});
+		if (adminDeleteError) await cancelTransaction(session, adminDeleteError);
+
+		session.commitTransaction();
+		session.endSession();
+	}
+
+    /**
+     * Retrieves expired boxes based on the current time.
+     * A box is considered expired if either its removal time or session reset time
+     * is less than or equal to the provided current time.
+     *
+     * @param currentTime - The current date and time to compare against box expiration times.
+     * @returns A promise that resolves to a service return object containing an array of expired box documents.
+     */
+    async getExpiredBoxes(currentTime: Date): Promise<IServiceReturn<BoxDocument[]>> {
+        return await this.basicService.readMany<BoxDocument>({
+            filter: {
+                $or: [
+                    { boxRemovalTime: { $lte: currentTime.getTime() } },
+                    { sessionResetTime: { $lte: currentTime.getTime() } }
+                ]
+            }
+        });
+    }
 }

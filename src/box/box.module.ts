@@ -28,6 +28,7 @@ import {TesterService} from "./tester/tester.service";
 import {TesterController} from "./tester/tester.controller";
 import SessionStarterService from "./sessionStarter/sessionStarter.service";
 import {DailyTasksModule} from "../dailyTasks/dailyTasks.module";
+import { BoxScheduler } from './box.scheduler';
 
 @Module({
     imports: [
@@ -46,14 +47,15 @@ import {DailyTasksModule} from "../dailyTasks/dailyTasks.module";
         ChatModule,
         ProfileModule,
         PlayerModule,
-        DailyTasksModule
+        DailyTasksModule,
+        PlayerModule
     ],
     controllers: [
         BoxController, DailyTaskController, TesterController
     ],
     providers: [
         BoxService, GroupAdminService, BoxHelper, BoxCreator,
-        DailyTaskService,
+        BoxScheduler, DailyTaskService,
         BoxAuthHandler, GroupAdminGuard,
         PasswordGenerator, TesterService, SessionStarterService
     ],
