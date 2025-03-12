@@ -84,19 +84,19 @@ describe('SessionStarterService.start() test suite', () => {
         expect(clansInDB[1].admin_ids).toHaveLength(1);
 
         const clan1Admin_id = clansInDB[0].admin_ids[0];
-        const clan2Admin_id = clansInDB[0].admin_ids[1];
+        const clan2Admin_id = clansInDB[1].admin_ids[0];
 
-        const boxPlayer_ids = existingBox.testers.map(tester => tester.player_id);
+        const boxPlayer_ids = existingBox.testers.map(tester => tester.player_id.toString());
 
         expect(boxPlayer_ids).toContain(clan1Admin_id);
         expect(boxPlayer_ids).toContain(clan2Admin_id);
 
         const clan1Admin = await playerModel.findById(clan1Admin_id);
         const clan1 = await clanModel.findById(existingBox.clan_ids[0]);
-        expect(clan1Admin.clan_id).toBe(clan1._id);
+        expect(clan1Admin.clan_id.toString()).toBe(clan1._id.toString());
         const clan2Admin = await playerModel.findById(clan2Admin_id);
         const clan2 = await clanModel.findById(existingBox.clan_ids[1]);
-        expect(clan2Admin.clan_id).toBe(clan2._id);
+        expect(clan2Admin.clan_id.toString()).toBe(clan2._id.toString());
     });
 
     it('Should set testers shared password for a box', async () => {

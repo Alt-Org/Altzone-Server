@@ -27,6 +27,7 @@ import {PasswordGenerator} from "./tester/passwordGenerator";
 import {TesterService} from "./tester/tester.service";
 import {TesterController} from "./tester/tester.controller";
 import SessionStarterService from "./sessionStarter/sessionStarter.service";
+import {DailyTasksModule} from "../dailyTasks/dailyTasks.module";
 
 @Module({
     imports: [
@@ -44,7 +45,8 @@ import SessionStarterService from "./sessionStarter/sessionStarter.service";
         ClanModule,
         ChatModule,
         ProfileModule,
-        PlayerModule
+        PlayerModule,
+        DailyTasksModule
     ],
     controllers: [
         BoxController, DailyTaskController, TesterController
