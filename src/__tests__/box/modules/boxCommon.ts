@@ -25,6 +25,7 @@ import {DailyTaskService} from "../../../box/dailyTask/dailyTask.service";
 import {GroupAdminGuard} from "../../../box/auth/decorator/groupAdmin.guard";
 import {PasswordGenerator} from "../../../box/tester/passwordGenerator";
 import {TesterService} from "../../../box/tester/tester.service";
+import { BoxScheduler } from '../../../box/box.scheduler';
 
 
 export default class BoxCommonModule {
@@ -56,7 +57,7 @@ export default class BoxCommonModule {
                     JwtModule
                 ],
                 providers: [
-                    BoxService, GroupAdminService, BoxHelper, BoxCreator,
+                    BoxService, GroupAdminService, BoxHelper, BoxCreator, BoxScheduler,
                     DailyTaskService,
                     BoxAuthHandler, GroupAdminGuard,
                     PasswordGenerator, TesterService

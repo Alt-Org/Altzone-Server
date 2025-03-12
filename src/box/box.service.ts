@@ -360,4 +360,23 @@ export class BoxService {
 		session.commitTransaction();
 		session.endSession();
 	}
+
+    /**
+     * Retrieves expired boxes based on the current time.
+     * A box is considered expired if either its removal time or session reset time
+     * is less than or equal to the provided current time.
+     *
+     * @param currentTime - The current date and time to compare against box expiration times.
+     * @returns A promise that resolves to a service return object containing an array of expired box documents.
+     */
+    async getExpiredBoxes(currentTime: Date): Promise<IServiceReturn<BoxDocument[]>> {
+        return await this.basicService.readMany<BoxDocument>({
+            filter: {
+                $or: [
+                    { boxRemovalTime: { $lte: currentTime.getTime() } },
+                    { sessionResetTime: { $lte: currentTime.getTime() } }
+                ]
+            }
+        });
+    }
 }
