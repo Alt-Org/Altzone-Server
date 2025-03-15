@@ -67,6 +67,12 @@ PlayerSchema.virtual(ModelName.ROOM,{
     localField:'_id',
     foreignField:'player_id'
 });
+PlayerSchema.virtual(ModelName.DAILY_TASK, {
+    ref: ModelName.DAILY_TASK,
+    localField: '_id',
+    foreignField: 'player_id',
+    justOne: true
+})
 PlayerSchema.index({ points: -1 });
 
-export const publicReferences = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.ROOM];
+export const publicReferences = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.ROOM, ModelName.DAILY_TASK];

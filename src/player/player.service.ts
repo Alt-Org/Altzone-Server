@@ -30,7 +30,7 @@ export class PlayerService
     ){
         super();
         this.basicService = new BasicService(model);
-        this.refsInModel = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.ROOM];
+        this.refsInModel = publicReferences;
         this.modelName = ModelName.PLAYER;
     }
 
@@ -38,6 +38,13 @@ export class PlayerService
     public readonly modelName: ModelName;
     private readonly basicService: BasicService;
 
+    /**
+     * Retrieves a player by their unique identifier.
+     * 
+     * @param _id - The unique identifier of the player.
+     * @param options - Optional settings for retrieving the player.
+     * @returns An PlayerDTO if succeeded or an array of ServiceErrors.
+     */
     async getPlayerById(_id: string, options?: TReadByIdOptions) {
         let optionsToApply = options;
         if (options?.includeRefs) {
