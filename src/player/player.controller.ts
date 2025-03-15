@@ -1,10 +1,9 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Req} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put} from "@nestjs/common";
 import {PlayerService} from "./player.service";
 import {CreatePlayerDto} from "./dto/createPlayer.dto";
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
 import {PlayerDto} from "./dto/player.dto";
 import {BasicGET} from "../common/base/decorator/BasicGET.decorator";
-import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
 import {_idDto} from "../common/dto/_id.dto";
 import {BasicDELETE} from "../common/base/decorator/BasicDELETE.decorator";
 import {BasicPUT} from "../common/base/decorator/BasicPUT.decorator";
@@ -19,6 +18,7 @@ import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.inter
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import {AddSortQuery} from "../common/interceptor/request/addSortQuery.interceptor";
+import { UniformResponse } from "../common/decorator/response/UniformResponse";
 
 @Controller('player')
 export default class PlayerController{
@@ -32,13 +32,13 @@ export default class PlayerController{
     public create(@Body() body: CreatePlayerDto) {
         return this.service.createOne(body);
     }
-
+ 
     @Get('/:_id')
+    @Serialize(PlayerDto)
+    @UniformResponse(ModelName.PLAYER)
     @Authorize({action: Action.read, subject: PlayerDto})
-    @AddGetQueries()
-    @BasicGET(ModelName.PLAYER, PlayerDto)
-    public async get(@Param() param: _idDto, @Req() request: Request) {
-        return this.service.readOneById(param._id, request['mongoPopulate']);
+    public async get(@Param() param: _idDto) {
+        return this.service.getPlayerById(param._id, { includeRefs: [ModelName.DAILY_TASK] });
     }
 
     @Get()
