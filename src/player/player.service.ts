@@ -30,7 +30,7 @@ export class PlayerService
     ){
         super();
         this.basicService = new BasicService(model);
-        this.refsInModel = [ModelName.CLAN, ModelName.CUSTOM_CHARACTER, ModelName.ROOM];
+        this.refsInModel = publicReferences;
         this.modelName = ModelName.PLAYER;
     }
 
