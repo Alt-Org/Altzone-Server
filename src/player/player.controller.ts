@@ -20,6 +20,7 @@ import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import {AddSortQuery} from "../common/interceptor/request/addSortQuery.interceptor";
 import { UniformResponse } from "../common/decorator/response/UniformResponse";
 import { publicReferences } from "./player.schema";
+import {IncludeQuery} from "../common/decorator/param/IncludeQuery.decorator";
 
 @Controller('player')
 export default class PlayerController{
@@ -38,8 +39,8 @@ export default class PlayerController{
     @Serialize(PlayerDto)
     @UniformResponse(ModelName.PLAYER)
     @Authorize({action: Action.read, subject: PlayerDto})
-    public async get(@Param() param: _idDto) {
-        return this.service.getPlayerById(param._id, { includeRefs: publicReferences });
+    public async get(@Param() param: _idDto, @IncludeQuery(publicReferences) includeRefs: ModelName[]) {
+        return this.service.getPlayerById(param._id, { includeRefs });
     }
 
     @Get()
