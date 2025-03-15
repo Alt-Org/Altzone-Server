@@ -19,6 +19,7 @@ import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import {AddSortQuery} from "../common/interceptor/request/addSortQuery.interceptor";
 import { UniformResponse } from "../common/decorator/response/UniformResponse";
+import { publicReferences } from "./player.schema";
 
 @Controller('player')
 export default class PlayerController{
@@ -38,7 +39,7 @@ export default class PlayerController{
     @UniformResponse(ModelName.PLAYER)
     @Authorize({action: Action.read, subject: PlayerDto})
     public async get(@Param() param: _idDto) {
-        return this.service.getPlayerById(param._id, { includeRefs: [ModelName.DAILY_TASK] });
+        return this.service.getPlayerById(param._id, { includeRefs: publicReferences });
     }
 
     @Get()
