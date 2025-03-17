@@ -18,4 +18,4 @@ import { ClanEventHandler } from './clanEventHandler';
   controllers: [],
   exports: [ GameEventsHandler ]
 })
-export class GameEventsBrokerModule { }
+export class GameEventsHandlerModule { }
