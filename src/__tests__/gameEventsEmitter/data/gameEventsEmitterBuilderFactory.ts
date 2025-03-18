@@ -1,4 +1,4 @@
-import GameEventBuilder from './gameEventsHandler/GameEventBuilder';
+import GameEventBuilder from './gameEventsEmitter/GameEventBuilder';
 
 type BuilderName = 'GameEvent';
 
@@ -6,7 +6,7 @@ type BuilderMap = {
     GameEvent: GameEventBuilder
 };
 
-export default class GameEventsHandlerBuilderFactory {
+export default class GameEventsEmitterBuilderFactory {
     static getBuilder<T extends BuilderName>(builderName: T): BuilderMap[T] {
         switch (builderName) {
             case 'GameEvent':
