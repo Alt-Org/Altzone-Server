@@ -19,6 +19,7 @@ import {Player} from "../player.schema";
 import BasicService from "../../common/service/basicService/BasicService";
 import {CharacterBaseStats} from "./const/CharacterBaseStats";
 import {UpdateCustomCharacterDto} from "./dto/updateCustomCharacter.dto";
+import {ObjectId} from "mongodb";
 
 @Injectable()
 export class CustomCharacterService {
@@ -54,6 +55,19 @@ export class CustomCharacterService {
                 reason: SEReason.NOT_FOUND, field: 'owner_id', value: owner_id,
                 message: 'Player with that _id does not exist'
             })]];
+
+            const isCustomCharacterExists = await this.customCharacterModel.findOne(
+                { "characterId": customCharacterToCreate.characterId, 
+                    "player_id": new ObjectId(owner_id) });
+                
+            if(isCustomCharacterExists)
+            {
+                console.log('Custom character already exists');
+                return [null, [new ServiceError({
+                    reason: SEReason.NOT_UNIQUE, field: 'characterId', value: owner_id,
+                    message: 'Custom character already exists with this characterId'
+                })]];
+            }
 
         const expectedSpecs = CharacterBaseStats[customCharacterToCreate.characterId];
 
