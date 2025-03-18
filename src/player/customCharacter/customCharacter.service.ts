@@ -23,13 +23,13 @@ import {UpdateCustomCharacterDto} from "./dto/updateCustomCharacter.dto";
 @Injectable()
 export class CustomCharacterService {
     public constructor(
-        @InjectModel(CustomCharacter.name) public readonly model: Model<CustomCharacter>,
+        @InjectModel(CustomCharacter.name) public readonly customCharacterModel: Model<CustomCharacter>,
         @InjectModel(Player.name) public readonly playerModel: Model<Player>,
         private readonly requestHelperService: RequestHelperService
     ){
         this.refsInModel = [ModelName.PLAYER];
         this.modelName = ModelName.CUSTOM_CHARACTER;
-        this.basicService = new BasicService(model);
+        this.basicService = new BasicService(customCharacterModel);
     }
 
     public readonly refsInModel: ModelName[];
