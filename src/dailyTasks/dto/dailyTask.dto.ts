@@ -1,6 +1,6 @@
 import { Expose } from "class-transformer";
 import { ExtractField } from "../../common/decorator/response/ExtractField";
-import { TaskName } from "../enum/taskName.enum";
+import { ServerTaskName } from "../enum/serverTaskName.enum";
 import AddType from "../../common/base/decorator/AddType.decorator";
 import {TaskTitle} from "../type/taskTitle.type";
 
@@ -22,7 +22,7 @@ export class DailyTaskDto {
 	title: TaskTitle;
 
 	@Expose()
-	type: TaskName;
+	type: ServerTaskName;
 
 	@Expose()
 	points: number;

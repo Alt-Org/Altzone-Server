@@ -1,7 +1,7 @@
-import {TaskName} from "../../../dailyTasks/enum/taskName.enum";
+import {ServerTaskName} from "../../../dailyTasks/enum/serverTaskName.enum";
 
 export class CreateDailyTask {
-    type: TaskName;
+    type: ServerTaskName;
     title: string;
     amount: number;
     points: number;

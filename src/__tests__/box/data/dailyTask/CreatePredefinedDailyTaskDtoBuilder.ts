@@ -1,9 +1,9 @@
 import {CreatePredefinedDailyTaskDto} from "../../../../box/dailyTask/dto/createPredefinedDailyTask.dto";
-import {TaskName} from "../../../../dailyTasks/enum/taskName.enum";
+import {ServerTaskName} from "../../../../dailyTasks/enum/serverTaskName.enum";
 
 export default class CreatePredefinedDailyTaskDtoBuilder {
     private readonly base: Partial<CreatePredefinedDailyTaskDto> = {
-        type: TaskName.PLAY_BATTLE,
+        type: ServerTaskName.PLAY_BATTLE,
         title: 'Default Predefined Task Title',
         amount: 1,
         points: 10,
@@ -15,7 +15,7 @@ export default class CreatePredefinedDailyTaskDtoBuilder {
         return { ...this.base } as CreatePredefinedDailyTaskDto;
     }
 
-    setType(type: TaskName) {
+    setType(type: ServerTaskName) {
         this.base.type = type;
         return this;
     }

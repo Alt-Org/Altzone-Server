@@ -1,4 +1,4 @@
-import { TaskName } from "../enum/taskName.enum";
+import { ServerTaskName } from "../enum/serverTaskName.enum";
 import {TaskTitle} from "./taskTitle.type";
 
 /**
@@ -18,7 +18,7 @@ export type Task = {
 	_id: string,
 	clan_id: string,
 	player_id: string,
-	type: TaskName,
+	type: ServerTaskName,
 	title: TaskTitle,
 	amount: number;
 	amountLeft: number;

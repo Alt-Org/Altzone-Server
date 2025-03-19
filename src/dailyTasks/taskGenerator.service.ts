@@ -1,5 +1,5 @@
 import {Injectable} from "@nestjs/common";
-import {TaskName} from "./enum/taskName.enum";
+import {ServerTaskName} from "./enum/serverTaskName.enum";
 import {Task} from "./type/task.type";
 import {TASK_CONSTS} from "./consts/taskConstants";
 import {TaskTitle} from "./type/taskTitle.type";
@@ -14,8 +14,8 @@ export class TaskGeneratorService {
      *
      * @returns A randomly selected task name.
      */
-    getRandomTaskType(): TaskName {
-        const taskTypes = Object.values(TaskName);
+    getRandomTaskType(): ServerTaskName {
+        const taskTypes = Object.values(ServerTaskName);
         const randomIndex = Math.floor(Math.random() * taskTypes.length);
         return taskTypes[randomIndex];
     }
@@ -28,13 +28,13 @@ export class TaskGeneratorService {
      * @returns The generated task title as a string.
      * @throws Will throw an error if the task type is unknown.
      */
-    getTaskTitle(type: TaskName, amount: number): TaskTitle {
+    getTaskTitle(type: ServerTaskName, amount: number): TaskTitle {
         switch (type) {
-            case TaskName.PLAY_BATTLE:
+            case ServerTaskName.PLAY_BATTLE:
                 return {fi: `Pelaa ${amount} taistelua`};
-            case TaskName.WIN_BATTLE:
+            case ServerTaskName.WIN_BATTLE:
                 return {fi: `Voita ${amount} taistelua`};
-            case TaskName.WRITE_CHAT_MESSAGE:
+            case ServerTaskName.WRITE_CHAT_MESSAGE:
                 return {fi: `Lähetä ${amount} viestiä chattiin`};
             default:
                 throw new Error("Unknown task type");

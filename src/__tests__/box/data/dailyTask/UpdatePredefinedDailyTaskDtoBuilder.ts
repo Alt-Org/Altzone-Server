@@ -1,5 +1,5 @@
 import {UpdatePredefinedDailyTaskDto} from "../../../../box/dailyTask/dto/updatePredefinedDailyTask.dto";
-import {TaskName} from "../../../../dailyTasks/enum/taskName.enum";
+import {ServerTaskName} from "../../../../dailyTasks/enum/serverTaskName.enum";
 
 export default class UpdatePredefinedDailyTaskDtoBuilder {
     private readonly base: Partial<UpdatePredefinedDailyTaskDto> = {
@@ -21,7 +21,7 @@ export default class UpdatePredefinedDailyTaskDtoBuilder {
         return this;
     }
 
-    setType(type: TaskName) {
+    setType(type: ServerTaskName) {
         this.base.type = type;
         return this;
     }

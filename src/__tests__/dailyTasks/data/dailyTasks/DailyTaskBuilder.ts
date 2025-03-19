@@ -1,5 +1,5 @@
 import {DailyTask} from "../../../../dailyTasks/dailyTasks.schema";
-import {TaskName} from "../../../../dailyTasks/enum/taskName.enum";
+import {ServerTaskName} from "../../../../dailyTasks/enum/serverTaskName.enum";
 import {TaskTitle} from "../../../../dailyTasks/type/taskTitle.type";
 import {ObjectId} from "mongodb";
 
@@ -9,7 +9,7 @@ export default class DailyTaskBuilder {
         clan_id: null,
         player_id: null,
         title: {fi: 'Default task title'},
-        type: TaskName.PLAY_BATTLE,
+        type: ServerTaskName.PLAY_BATTLE,
         startedAt: null,
         points: 10,
         coins: 5,
@@ -42,7 +42,7 @@ export default class DailyTaskBuilder {
         return this;
     }
 
-    setType(type: TaskName) {
+    setType(type: ServerTaskName) {
         this.base.type = type;
         return this;
     }
