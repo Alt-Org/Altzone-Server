@@ -8,12 +8,14 @@ import { PlayerService } from "../player/player.service";
 import { DailyTaskDto } from "./dto/dailyTask.dto";
 import { Serialize } from "../common/interceptor/response/Serialize";
 import { _idDto } from "../common/dto/_id.dto";
+import GameEventEmitter from "../gameEventsEmitter/gameEventEmitter";
 
 @Controller("dailyTasks")
 export class DailyTasksController {
 	constructor(
 		private readonly dailyTasksService: DailyTasksService,
-		private readonly playerService: PlayerService
+		private readonly playerService: PlayerService,
+		private readonly emitter: GameEventEmitter
 	) {}
 
 	@Get()
@@ -48,6 +50,12 @@ export class DailyTasksController {
 	@UniformResponse()
 	async unreserveTask(@LoggedUser() user: User) {
 		return this.dailyTasksService.unreserveTask(user.player_id);
+	}
+
+	@Put("/uiDailyTask")
+	@UniformResponse()
+	async updateUIDailyTask(@LoggedUser() user: User) {
+		this.emitter.emitAsync('dailyTask.updateUIBasicTask', { task_id: 'task_id', player_id: user.player_id, amount: 1 });
 	}
 
 	@HttpCode(204)

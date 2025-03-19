@@ -6,6 +6,7 @@ import { StatisticsKeeperModule } from '../statisticsKeeper/statisticsKeeper.mod
 import { GameEventsHandler } from './gameEventsHandler';
 import { PlayerModule } from '../player/player.module';
 import { ClanEventHandler } from './clanEventHandler';
+import UiDailyTaskHandler from "./uiDailyTaskHandler";
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { ClanEventHandler } from './clanEventHandler';
     StatisticsKeeperModule,
     PlayerModule
   ],
-  providers: [ PlayerEventHandler, ClanEventHandler, GameEventsHandler ],
+  providers: [ PlayerEventHandler, ClanEventHandler, GameEventsHandler, UiDailyTaskHandler ],
   controllers: [],
   exports: [ GameEventsHandler ]
 })

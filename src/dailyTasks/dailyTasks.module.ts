@@ -8,6 +8,7 @@ import { BullModule } from "@nestjs/bullmq";
 import { DailyTaskProcessor, DailyTaskQueue } from "./dailyTask.queue";
 import { PlayerModule } from "../player/player.module";
 import { TaskGeneratorService } from "./taskGenerator.service";
+import {GameEventsEmitterModule} from "../gameEventsEmitter/gameEventsEmitter.module";
 
 @Module({
 	imports: [
@@ -18,6 +19,7 @@ import { TaskGeneratorService } from "./taskGenerator.service";
 			name: "daily-tasks",
 		}),
 		PlayerModule,
+		GameEventsEmitterModule
 	],
 	providers: [DailyTasksService, TaskGeneratorService, DailyTaskNotifier, DailyTaskQueue, DailyTaskProcessor],
 	controllers: [DailyTasksController],
