@@ -47,10 +47,9 @@ export class CustomCharacterService {
      */
     public createOne = async (customCharacterToCreate: CreateCustomCharacterDto, owner_id: string): Promise<IServiceReturn<CustomCharacter>> => {
         
-        const customCharacterValidation = await this.validateCustomCharacter(customCharacterToCreate, owner_id);
-        if(customCharacterValidation[1].length > 0)
-        {
-            return customCharacterValidation;
+        const [isCharacterValid, characterValidationErrors]= await this.validateCustomCharacter(customCharacterToCreate, owner_id);
+        if(!isCharacterValid) {
+            return [null, characterValidationErrors];
         }
 
         const expectedSpecs = CharacterBaseStats[customCharacterToCreate.characterId];
@@ -64,35 +63,34 @@ export class CustomCharacterService {
      * Validate the CustomCharacter creation request.
      *
      * @param customCharacterToCreate  custom character data to validate
-     * @param owner_id player _id, which will own the character
+     * @param characterId player _id, which will own the character
      *
      * @return validate CustomCharacter or ServiceErrors if any occurred
      */
-    private validateCustomCharacter = async (customCharacterToCreate: CreateCustomCharacterDto, owner_id: string): Promise<IServiceReturn<CustomCharacter>> => {
-        if(!customCharacterToCreate || !owner_id)
+    private validateCustomCharacter = async (customCharacterToCreate: CreateCustomCharacterDto, characterId: string): Promise<IServiceReturn<true>> => {
+        if(!customCharacterToCreate || !characterId)
             return [ null, [new ServiceError({ reason: SEReason.REQUIRED, message: 'method params are required' })] ];
 
-        const isPlayerExists = await this.playerModel.findById(owner_id);
+        const isPlayerExists = await this.playerModel.findById(characterId);
         if(!isPlayerExists)
             return [null, [new ServiceError({
-                reason: SEReason.NOT_FOUND, field: 'owner_id', value: owner_id,
+                reason: SEReason.NOT_FOUND, field: 'owner_id', value: characterId,
                 message: 'Player with that _id does not exist'
             })]];
 
         const isCustomCharacterExists = await this.customCharacterModel.findOne({
                 "characterId": customCharacterToCreate.characterId, 
-                "player_id": new ObjectId(owner_id)
+                "player_id": new ObjectId(characterId)
              });
             
-        if(isCustomCharacterExists)
-        {
+        if(isCustomCharacterExists) {
             return [null, [new ServiceError({
-                reason: SEReason.NOT_UNIQUE, field: 'characterId', value: owner_id,
+                reason: SEReason.NOT_UNIQUE, field: 'characterId', value: characterId,
                 message: 'Custom character already exists with this characterId'
             })]];
         }
 
-        return [null, []];
+        return [true, null];
     }
 
     /**
