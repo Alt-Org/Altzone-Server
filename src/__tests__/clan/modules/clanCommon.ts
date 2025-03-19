@@ -33,8 +33,7 @@ export default class ClanCommonModule {
                     ]),
 
                     ClanInventoryModule,
-                    RequestHelperModule,
-                    DailyTasksModule
+                    RequestHelperModule
                 ],
                 providers: [
                     ClanService, isClanExists, PlayerCounterFactory, ClanHelperService,
