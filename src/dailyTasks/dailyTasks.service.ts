@@ -6,11 +6,10 @@ import { ModelName } from "../common/enum/modelName.enum";
 import DailyTaskNotifier from "./dailyTask.notifier";
 import { DailyTask } from "./dailyTasks.schema";
 import { DailyTaskDto } from "./dto/dailyTask.dto";
-import { Task } from "./type/task.type";
 import { DailyTaskQueue } from "./dailyTask.queue";
 import { taskReservedError } from "./errors/taskReserved.error";
 import { TaskGeneratorService } from "./taskGenerator.service";
-import {TIServiceCreateManyOptions, TReadByIdOptions} from "../common/service/basicService/IService";
+import {IServiceReturn, TIServiceCreateManyOptions, TReadByIdOptions} from "../common/service/basicService/IService";
 import { SEReason } from "../common/service/basicService/SEReason";
 import { cancelTransaction } from "../common/function/cancelTransaction";
 
@@ -36,26 +35,27 @@ export class DailyTasksService {
 	 *
 	 * This method creates 20 tasks with random values and assigns them to the specified clan.
 	 * Each task is created by calling `createTaskRandomValues` and then adding the `clanId`.
-	 * The tasks are then saved using the `basicService.createMany` method.
 	 *
 	 * @param clanId - The ID of the clan for which tasks are being generated.
-	 * @returns A promise that resolves to the result of the `createMany` operation.
+	 * @returns generated random tasks.
 	 */
-	async generateTasksForNewClan(clanId: string) {
-		const tasks: Partial<Task>[] = [];
+	generateServerTasksForNewClan(clanId: string): IServiceReturn<Omit<DailyTask, '_id'>[]> {
+		const tasks: Omit<DailyTask, '_id'>[] = [];
 		for (let i = 0; i < 20; i++) {
 			const partial = this.taskGenerator.createTaskRandomValues();
 			const timeLimitMinutes = partial.amount * 2;
-			const task: Partial<Task> = {
+			const task: Omit<DailyTask, '_id'> = {
 				...partial,
 				amountLeft: partial.amount,
 				timeLimitMinutes,
 				clan_id: clanId,
+				player_id: null,
+				startedAt: null
 			};
 			tasks.push(task);
 		}
 
-		return await this.basicService.createMany(tasks);
+		return [tasks, null];
 	}
 
 	/**
