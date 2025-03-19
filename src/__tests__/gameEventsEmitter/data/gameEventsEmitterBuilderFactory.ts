@@ -3,7 +3,7 @@ import GameEventBuilder from './gameEventsEmitter/GameEventBuilder';
 type BuilderName = 'GameEvent';
 
 type BuilderMap = {
-    GameEvent: GameEventBuilder
+    GameEvent: GameEventBuilder<any>
 };
 
 export default class GameEventsEmitterBuilderFactory {

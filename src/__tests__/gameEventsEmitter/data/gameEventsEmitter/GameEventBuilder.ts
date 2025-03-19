@@ -1,23 +1,21 @@
 import GameEvent from "../../../../gameEventsEmitter/gameEvent";
-import {EventName} from "../../../../gameEventsEmitter/event.types";
+import {EventName, EventPayload} from "../../../../gameEventsEmitter/event.types";
 
-export default class GameEventBuilder {
-    private readonly base = {
-        eventName: 'game.winBattle',
-        info: {playerId: "", gameId: "", pointsEarned: 0},
-    };
+export default class GameEventBuilder<T extends EventName> {
+    private eventName: EventName = 'game.winBattle';
+    private info = {};
 
-    build(): GameEvent<'game.winBattle'> {
-        return new GameEvent(this.base.eventName as any, this.base.info as any);
+    build(): GameEvent<T> {
+        return new GameEvent<any>(this.eventName, this.info);
     }
 
-    setEventName(eventName: EventName) {
-        this.base.eventName = eventName;
+    setEventName(eventName: T) {
+        this.eventName = eventName;
         return this;
     }
 
-    setInfo(info: any) {
-        this.base.info = info;
+    setInfo(info: EventPayload<T>) {
+        this.info = info as any;
         return this;
     }
 }

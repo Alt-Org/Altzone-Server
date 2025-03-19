@@ -6,6 +6,9 @@ import {PlayerModule} from "../../../player/player.module";
 import {PlayerEventHandler} from "../../../gameEventsHandler/playerEventHandler";
 import {ClanEventHandler} from "../../../gameEventsHandler/clanEventHandler";
 import {GameEventsHandler} from "../../../gameEventsHandler/gameEventsHandler";
+import {RequestHelperModule} from "../../../requestHelper/requestHelper.module";
+import {MongooseModule} from "@nestjs/mongoose";
+import {mongooseOptions, mongoString} from "../../test_utils/const/db";
 
 
 export default class GameEventsHandlerCommonModule {
@@ -18,10 +21,12 @@ export default class GameEventsHandlerCommonModule {
         if (!GameEventsHandlerCommonModule.module)
             GameEventsHandlerCommonModule.module = await Test.createTestingModule({
                 imports: [
+                    MongooseModule.forRoot(mongoString, mongooseOptions),
                     DailyTasksModule,
                     RewarderModule,
                     StatisticsKeeperModule,
-                    PlayerModule
+                    PlayerModule,
+                    RequestHelperModule
                 ],
 
                 providers: [PlayerEventHandler, ClanEventHandler, GameEventsHandler]
