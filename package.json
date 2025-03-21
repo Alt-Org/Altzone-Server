@@ -28,6 +28,7 @@
     "@nestjs/cache-manager": "^2.2.2",
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
+    "@nestjs/event-emitter": "^2.1.1",
     "@nestjs/jwt": "^10.1.0",
     "@nestjs/mongoose": "^10.0.0",
     "@nestjs/platform-express": "^9.0.0",

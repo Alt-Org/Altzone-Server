@@ -6,7 +6,7 @@ import { Game, GameSchema } from './game.schema';
 import { PlayerModule } from '../player/player.module';
 import { ClanModule } from '../clan/clan.module';
 import { ClanInventoryModule } from '../clanInventory/clanInventory.module';
-import { GameEventsBrokerModule } from '../gameEventsBroker/gameEventsBroker.module';
+import { GameEventsHandlerModule } from '../gameEventsHandler/gameEventsHandler.module';
 
 @Module({
   imports: [
@@ -14,7 +14,7 @@ import { GameEventsBrokerModule } from '../gameEventsBroker/gameEventsBroker.mod
     PlayerModule,
     ClanModule,
     ClanInventoryModule,
-    GameEventsBrokerModule
+    GameEventsHandlerModule
   ],
   providers: [GameDataService],
   controllers: [GameDataController]

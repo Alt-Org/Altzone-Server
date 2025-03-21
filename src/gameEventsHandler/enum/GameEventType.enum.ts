@@ -1,7 +1,7 @@
 /**
  * Enum with events happen during the game
  */
-export enum GameEvent {
+export enum GameEventType {
     /**
      * Triggered when a player wins a battle.
      */
@@ -35,5 +35,11 @@ export enum GameEvent {
     /**
      * Triggered when a player starts a battle using a new character.
      */
-    PLAYER_START_BATTLE_NEW_CHARACTER = "player_start_battle_new_character"
+    PLAYER_START_BATTLE_NEW_CHARACTER = "player_start_battle_new_character",
+
+    /**
+     * Triggered when a player completes a daily task, which is registered by UI.
+     * For example when the daily task is to press some button in the game.
+     */
+    PLAYER_COMPLETE_UI_DAILY_TASK = "player_complete_ui_daily_task"
 }

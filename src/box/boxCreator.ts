@@ -226,19 +226,19 @@ export default class BoxCreator {
     private async createBoxClans(clanName1, clanName2, adminPlayer_id: ObjectId): Promise<IServiceReturn<ClanDto[]>> {
         const defaultClanData = {tag: '', labels: [ClanLabel.GAMERIT], phrase: 'Not-set'};
 
-        const clan1Resp = await this.clanService.createOne({
+        const [clan1Resp, clan1Errors] = await this.clanService.createOne({
             name: clanName1, ...defaultClanData
         }, adminPlayer_id.toString());
 
-        if (Array.isArray(clan1Resp))
-            return [null, clan1Resp[1]];
+        if (clan1Errors)
+            return [null, clan1Errors];
 
-        const clan2Resp = await this.clanService.createOne({
+        const [clan2Resp, clan2Errors] = await this.clanService.createOne({
             name: clanName2, ...defaultClanData
         }, adminPlayer_id.toString());
 
-        if (Array.isArray(clan2Resp))
-            return [null, clan2Resp[1]];
+        if (clan2Errors)
+            return [null, clan2Errors];
 
         return [[clan1Resp, clan2Resp], null];
     }

@@ -7,6 +7,9 @@ import {DailyTasksService} from "../../../dailyTasks/dailyTasks.service";
 import {TaskGeneratorService} from "../../../dailyTasks/taskGenerator.service";
 import DailyTaskNotifier from "../../../dailyTasks/dailyTask.notifier";
 import {DailyTaskProcessor, DailyTaskQueue} from "../../../dailyTasks/dailyTask.queue";
+import UiDailyTasksService from "../../../dailyTasks/uiDailyTasks/uiDailyTasks.service";
+import {RequestHelperModule} from "../../../requestHelper/requestHelper.module";
+import {mongooseOptions, mongoString} from "../../test_utils/const/db";
 
 export default class DailyTasksCommonModule {
     private constructor() {
@@ -18,6 +21,7 @@ export default class DailyTasksCommonModule {
         if (!DailyTasksCommonModule.module)
             DailyTasksCommonModule.module = await Test.createTestingModule({
                 imports: [
+                    MongooseModule.forRoot(mongoString, mongooseOptions),
                     MongooseModule.forFeature([
                         {name: DailyTask.name, schema: DailyTaskSchema},
                     ]),
@@ -25,10 +29,12 @@ export default class DailyTasksCommonModule {
                         name: "daily-tasks",
                     }),
                     PlayerModule,
+                    RequestHelperModule
                 ],
 
                 providers: [
-                    DailyTasksService, DailyTaskNotifier, TaskGeneratorService,
+                    DailyTasksService, TaskGeneratorService, UiDailyTasksService,
+                    DailyTaskNotifier,
                     DailyTaskQueue, DailyTaskProcessor
                 ]
             }).compile();

@@ -3,6 +3,7 @@ import DailyTasksCommonModule from "./dailyTasksCommon.module";
 import {ModelName} from "../../../common/enum/modelName.enum";
 import {DailyTaskSchema} from "../../../dailyTasks/dailyTasks.schema";
 import {DailyTaskService} from "../../../box/dailyTask/dailyTask.service";
+import UiDailyTasksService from "../../../dailyTasks/uiDailyTasks/uiDailyTasks.service";
 
 export default class DailyTasksModule {
     private constructor() {
@@ -10,7 +11,12 @@ export default class DailyTasksModule {
 
     static async getDailyService() {
         const module = await DailyTasksCommonModule.getModule();
-        return await module.resolve(DailyTaskService);
+        return module.resolve(DailyTaskService);
+    }
+
+    static async getUiDailyTasksService() {
+        const module = await DailyTasksCommonModule.getModule();
+        return module.resolve(UiDailyTasksService);
     }
 
     static getDailyTaskModel() {

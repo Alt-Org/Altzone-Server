@@ -16,8 +16,8 @@ import { BattleResponseDto } from './dto/battleResponse.dto';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { RoomService } from '../clanInventory/room/room.service';
-import { GameEventsHandler } from '../gameEventsBroker/gameEventsHandler';
-import { GameEvent } from '../gameEventsBroker/enum/GameEvent.enum';
+import { GameEventsHandler } from '../gameEventsHandler/gameEventsHandler';
+import { GameEventType } from '../gameEventsHandler/enum/GameEventType.enum';
 
 @Injectable()
 export class GameDataService {
@@ -49,12 +49,12 @@ export class GameDataService {
 		const currentTime = new Date();
 		const winningTeam = battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
 		const playerInWinningTeam = winningTeam.includes(user.player_id);
-		await this.gameEventsBroker.handleEvent(user.player_id, GameEvent.PLAYER_PLAY_BATTLE);
+		await this.gameEventsBroker.handleEvent(user.player_id, GameEventType.PLAYER_PLAY_BATTLE);
 		
 		if (!playerInWinningTeam)
 			return new APIError({ reason: APIErrorReason.NOT_AUTHORIZED, message: "Player is not in the winning team and therefore is not allowed to steal" });
 
-		this.gameEventsBroker.handleEvent(user.player_id, GameEvent.PLAYER_WIN_BATTLE);
+		this.gameEventsBroker.handleEvent(user.player_id, GameEventType.PLAYER_WIN_BATTLE);
 		const [teamIds, teamIdsErrors] = await this.getClanIdForTeams([battleResult.team1[0], battleResult.team2[0]]);
 		if (teamIdsErrors)
 			return teamIdsErrors

@@ -20,7 +20,7 @@ import * as redisStore from 'cache-manager-redis-store';
 import {CacheModule} from '@nestjs/cache-manager';
 import {ClanInventoryModule} from './clanInventory/clanInventory.module';
 import {ItemMoverModule} from './itemMover/itemMover.module';
-import {GameEventsBrokerModule} from './gameEventsBroker/gameEventsBroker.module';
+import {GameEventsHandlerModule} from './gameEventsHandler/gameEventsHandler.module';
 import {RewarderModule} from './rewarder/rewarder.module';
 import {StatisticsKeeperModule} from './statisticsKeeper/statisticsKeeper.module';
 import {FleaMarketModule} from './fleaMarket/fleaMarket.module';
@@ -67,7 +67,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
         GameDataModule,
         ChatModule,
 
-        GameEventsBrokerModule,
+        GameEventsHandlerModule,
         LeaderboardModule,
         DailyTasksModule,
         RewarderModule,
