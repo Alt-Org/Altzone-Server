@@ -37,11 +37,11 @@ describe('CustomCharacterService.createOne() test suite', () => {
         });
     });
 
-    it('Should return created custom character if the input is valid and should return NOT_UNIQUE if already exists with this characterId', async () => {
+    it('Should return created custom character if the input is valid', async () => {
         const characterId = CharacterId.Prankster_202;
         const characterToCreate = createCustomCharacterBuilder.setCharacterId(characterId).build();
 
-        let [createdCharacter, errors] = await characterService.createOne(characterToCreate, player._id);
+        const [createdCharacter, errors] = await characterService.createOne(characterToCreate, player._id);
 
         const expectedSpecs = CharacterBaseStats[characterId];
 
@@ -50,9 +50,15 @@ describe('CustomCharacterService.createOne() test suite', () => {
             ...characterToCreate, ...expectedSpecs,
             player_id: new ObjectId(player._id), _id: expect.any(ObjectId)
         }));
+    });
 
-        // Create another character with the same characterId
-        [createdCharacter, errors] = await characterService.createOne(characterToCreate, player._id);
+    it('Should return NOT_UNIQUE ServiceErrors if character with same player_id and characterId already exists', async () => {
+        const characterId = CharacterId.Prankster_202;
+        const characterToCreate = createCustomCharacterBuilder.setCharacterId(characterId).build();
+
+        await characterService.createOne(characterToCreate, player._id);
+
+        const [createdCharacter, errors] = await characterService.createOne(characterToCreate, player._id);
 
         expect(createdCharacter).toBeNull();
         expect(errors).toContainSE_NOT_UNIQUE();
