@@ -10,7 +10,7 @@ import {uiDailyTasks} from "../../../dailyTasks/uiDailyTasks/uiDailyTasks";
 describe('ClanEventHandler.handleClanCreation() test suite', () => {
     let clanEventHandler: ClanEventHandler;
 
-    const eventPayloadBuilder: GameEventBuilder<'clan.create'> = GameEventsEmitterBuilderFactory.getBuilder('GameEvent');
+    const eventPayloadBuilder = GameEventsEmitterBuilderFactory.getBuilder('GameEvent') as GameEventBuilder<'clan.create'>;
 
     const dailyTaskModel = DailyTasksModule.getDailyTaskModel();
 
