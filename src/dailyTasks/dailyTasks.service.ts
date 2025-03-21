@@ -126,15 +126,15 @@ export class DailyTasksService {
 	async deleteTask(taskId: string, clanId: string, playerId: string) {
 		const newValues = this.taskGenerator.createTaskRandomValues();
 		const filter: any = { _id: taskId, clan_id: clanId };
-		filter.$or = [{ playerId }, { playerId: { $exists: false } }];
-		return await this.basicService.updateOne(
+		filter.$or = [{ player_id: playerId }, { player_id: { $exists: false } }];
+		return this.basicService.updateOne(
 			{
 				$set: {
 					...newValues,
 					amountLeft: newValues.amount,
 				},
 				$unset: {
-					playerId: "",
+					player_id: "",
 					startedAt: "",
 				},
 			},
@@ -152,18 +152,18 @@ export class DailyTasksService {
 	 */
 	async updateTask(playerId: string) {
 		const [task, error] = await this.basicService.readOne<DailyTaskDto>({
-			filter: { playerId },
+			filter: { player_id: playerId },
 		});
 		if (error) throw error;
 
 		task.amountLeft--;
 
-		if (task.amountLeft === 0) {
+		if (task.amountLeft <= 0) {
 			await this.deleteTask(task._id.toString(), task.clan_id, playerId);
 			this.notifier.taskCompleted(playerId, task);
 		} else {
 			const [_, updateError] = await this.basicService.updateOne(task, {
-				filter: { playerId },
+				filter: { player_id: playerId },
 			});
 			if (updateError) throw updateError;
 			this.notifier.taskUpdated(playerId, task);
