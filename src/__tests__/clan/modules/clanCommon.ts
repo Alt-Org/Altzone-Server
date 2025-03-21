@@ -12,7 +12,7 @@ import {JoinService} from "../../../clan/join/join.service";
 import {ClanService} from "../../../clan/clan.service";
 import {isClanExists} from "../../../clan/decorator/validation/IsClanExists.decorator";
 import {PlayerCounterFactory} from "../../../clan/clan.counters";
-import {DailyTasksModule} from "../../../dailyTasks/dailyTasks.module";
+import {GameEventsEmitterModule} from "../../../gameEventsEmitter/gameEventsEmitter.module";
 
 
 export default class ClanCommonModule {
@@ -33,7 +33,8 @@ export default class ClanCommonModule {
                     ]),
 
                     ClanInventoryModule,
-                    RequestHelperModule
+                    RequestHelperModule,
+                    GameEventsEmitterModule
                 ],
                 providers: [
                     ClanService, isClanExists, PlayerCounterFactory, ClanHelperService,
