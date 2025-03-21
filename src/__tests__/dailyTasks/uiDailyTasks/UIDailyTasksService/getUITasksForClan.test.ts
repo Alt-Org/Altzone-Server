@@ -1,6 +1,6 @@
-import UIDailyTasksService from "../../../dailyTasks/uiDailyTasks/uiDailyTasks.service";
-import DailyTasksModule from "../modules/dailyTasks.module";
-import {uiDailyTasks} from "../../../dailyTasks/uiDailyTasks/uiDailyTasks";
+import UIDailyTasksService from "../../../../dailyTasks/uiDailyTasks/uiDailyTasks.service";
+import DailyTasksModule from "../../modules/dailyTasks.module";
+import {uiDailyTasks} from "../../../../dailyTasks/uiDailyTasks/uiDailyTasks";
 import {ObjectId} from "mongodb";
 
 describe('UIDailyTasksService.getUITasksForClan() test suite', () => {
