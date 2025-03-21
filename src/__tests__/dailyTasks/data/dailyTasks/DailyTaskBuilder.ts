@@ -2,6 +2,7 @@ import {DailyTask} from "../../../../dailyTasks/dailyTasks.schema";
 import {ServerTaskName} from "../../../../dailyTasks/enum/serverTaskName.enum";
 import {TaskTitle} from "../../../../dailyTasks/type/taskTitle.type";
 import {ObjectId} from "mongodb";
+import {UITaskName} from "../../../../dailyTasks/enum/uiTaskName.enum";
 
 export default class DailyTaskBuilder {
     private readonly base: Partial<DailyTask> = {
@@ -42,7 +43,7 @@ export default class DailyTaskBuilder {
         return this;
     }
 
-    setType(type: ServerTaskName) {
+    setType(type: ServerTaskName | UITaskName) {
         this.base.type = type;
         return this;
     }
