@@ -19,17 +19,18 @@ import {Player} from "../player.schema";
 import BasicService from "../../common/service/basicService/BasicService";
 import {CharacterBaseStats} from "./const/CharacterBaseStats";
 import {UpdateCustomCharacterDto} from "./dto/updateCustomCharacter.dto";
+import {ObjectId} from "mongodb";
 
 @Injectable()
 export class CustomCharacterService {
     public constructor(
-        @InjectModel(CustomCharacter.name) public readonly model: Model<CustomCharacter>,
+        @InjectModel(CustomCharacter.name) public readonly customCharacterModel: Model<CustomCharacter>,
         @InjectModel(Player.name) public readonly playerModel: Model<Player>,
         private readonly requestHelperService: RequestHelperService
     ){
         this.refsInModel = [ModelName.PLAYER];
         this.modelName = ModelName.CUSTOM_CHARACTER;
-        this.basicService = new BasicService(model);
+        this.basicService = new BasicService(customCharacterModel);
     }
 
     public readonly refsInModel: ModelName[];
@@ -45,21 +46,51 @@ export class CustomCharacterService {
      * @return created CustomCharacter or ServiceErrors if any occurred
      */
     public createOne = async (customCharacterToCreate: CreateCustomCharacterDto, owner_id: string): Promise<IServiceReturn<CustomCharacter>> => {
-        if(!customCharacterToCreate || !owner_id)
-            return [ null, [new ServiceError({ reason: SEReason.REQUIRED, message: 'method params are required' })] ];
-
-        const isPlayerExists = await this.playerModel.findById(owner_id);
-        if(!isPlayerExists)
-            return [null, [new ServiceError({
-                reason: SEReason.NOT_FOUND, field: 'owner_id', value: owner_id,
-                message: 'Player with that _id does not exist'
-            })]];
+        
+        const [isCharacterValid, characterValidationErrors]= await this.validateCustomCharacter(customCharacterToCreate, owner_id);
+        if(!isCharacterValid) {
+            return [null, characterValidationErrors];
+        }
 
         const expectedSpecs = CharacterBaseStats[customCharacterToCreate.characterId];
 
         const newCharacter: CustomCharacter = {...expectedSpecs, ...customCharacterToCreate, player_id: (owner_id as any)}
 
         return this.basicService.createOne<CustomCharacter, CustomCharacter>(newCharacter);
+    }
+
+    /**
+     * Validate the CustomCharacter creation request.
+     *
+     * @param customCharacterToCreate  custom character data to validate
+     * @param characterId player _id, which will own the character
+     *
+     * @return validate CustomCharacter or ServiceErrors if any occurred
+     */
+    private validateCustomCharacter = async (customCharacterToCreate: CreateCustomCharacterDto, characterId: string): Promise<IServiceReturn<true>> => {
+        if(!customCharacterToCreate || !characterId)
+            return [ null, [new ServiceError({ reason: SEReason.REQUIRED, message: 'method params are required' })] ];
+
+        const isPlayerExists = await this.playerModel.findById(characterId);
+        if(!isPlayerExists)
+            return [null, [new ServiceError({
+                reason: SEReason.NOT_FOUND, field: 'owner_id', value: characterId,
+                message: 'Player with that _id does not exist'
+            })]];
+
+        const isCustomCharacterExists = await this.customCharacterModel.findOne({
+                "characterId": customCharacterToCreate.characterId, 
+                "player_id": new ObjectId(characterId)
+             });
+            
+        if(isCustomCharacterExists) {
+            return [null, [new ServiceError({
+                reason: SEReason.NOT_UNIQUE, field: 'characterId', value: characterId,
+                message: 'Custom character already exists with this characterId'
+            })]];
+        }
+
+        return [true, null];
     }
 
     /**
