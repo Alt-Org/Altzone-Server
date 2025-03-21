@@ -1,5 +1,6 @@
 import { ServerTaskName } from "../enum/serverTaskName.enum";
 import {TaskTitle} from "./taskTitle.type";
+import {UITaskName} from "../enum/uiTaskName.enum";
 
 /**
  * Represents a task with its details.
@@ -18,7 +19,7 @@ export type Task = {
 	_id: string,
 	clan_id: string,
 	player_id: string,
-	type: ServerTaskName,
+	type: ServerTaskName | UITaskName,
 	title: TaskTitle,
 	amount: number;
 	amountLeft: number;

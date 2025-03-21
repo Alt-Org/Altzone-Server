@@ -3,6 +3,7 @@ import { ExtractField } from "../../common/decorator/response/ExtractField";
 import { ServerTaskName } from "../enum/serverTaskName.enum";
 import AddType from "../../common/base/decorator/AddType.decorator";
 import {TaskTitle} from "../type/taskTitle.type";
+import {UITaskName} from "../enum/uiTaskName.enum";
 
 @AddType("DailyTaskDto")
 export class DailyTaskDto {
@@ -22,7 +23,7 @@ export class DailyTaskDto {
 	title: TaskTitle;
 
 	@Expose()
-	type: ServerTaskName;
+	type: ServerTaskName | UITaskName;
 
 	@Expose()
 	points: number;
