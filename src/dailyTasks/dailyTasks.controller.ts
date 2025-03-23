@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, HttpCode, Param, Put} from "@nestjs/common";
+import {Body, Controller, Delete, Get, HttpCode, Param, Post, Put} from "@nestjs/common";
 import {DailyTasksService} from "./dailyTasks.service";
 import {LoggedUser} from "../common/decorator/param/LoggedUser.decorator";
 import {User} from "../auth/user";
@@ -13,13 +13,15 @@ import {UpdateUIDailyTaskDto} from "./dto/updateUIDailyTask.dto";
 import {UITaskName} from "./enum/uiTaskName.enum";
 import {APIError} from "../common/controller/APIError";
 import {APIErrorReason} from "../common/controller/APIErrorReason";
+import UIDailyTasksService from "./uiDailyTasks/uiDailyTasks.service";
 
 @Controller("dailyTasks")
 export class DailyTasksController {
 	constructor(
 		private readonly dailyTasksService: DailyTasksService,
 		private readonly playerService: PlayerService,
-		private readonly emitter: GameEventEmitter
+		private readonly emitter: GameEventEmitter,
+		private readonly uiDailyTasksService: UIDailyTasksService,
 	) {}
 
 	@Get()
@@ -37,6 +39,12 @@ export class DailyTasksController {
 	@UniformResponse(ModelName.DAILY_TASK)
 	async getTask(@Param() param: _idDto) {
 		return this.dailyTasksService.readOneById(param._id);
+	}
+
+	@Post("/progress")
+	@UniformResponse(ModelName.DAILY_TASK)
+	async progressTask(@LoggedUser() user: User, @Body() body: { progressAmount: number }) {
+		return this.uiDailyTasksService.progressTask(user.player_id, body.progressAmount);
 	}
 
 	@Put("/reserve/:_id")
