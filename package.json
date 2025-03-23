@@ -6,6 +6,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"",
     "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
     "lint:file": "eslint",
     "start": "nest start",
     "start:dev": "nest start --watch",
