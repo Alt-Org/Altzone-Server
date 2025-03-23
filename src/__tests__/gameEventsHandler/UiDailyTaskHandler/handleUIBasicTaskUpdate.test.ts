@@ -13,6 +13,7 @@ import {uiDailyTasks} from "../../../dailyTasks/uiDailyTasks/uiDailyTasks";
 import {UITaskName} from "../../../dailyTasks/enum/uiTaskName.enum";
 import {ObjectId} from "mongodb";
 import {ServerTaskName} from "../../../dailyTasks/enum/serverTaskName.enum";
+import { SEReason } from "../../../common/service/basicService/SEReason";
 
 describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
     let handler: UiDailyTaskHandler;
@@ -166,7 +167,7 @@ describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
 
         const throwingCall = async () => handler.handleUIBasicTaskUpdate(event);
 
-        await expect(throwingCall).rejects.toThrow();
+        await expect(throwingCall()).rejects.toBeSE(SEReason.NOT_FOUND);
     });
 
     it('Should throw WRONG_ENUM if task has other type than UI task name', async () => {
