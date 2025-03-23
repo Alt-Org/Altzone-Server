@@ -14,6 +14,10 @@ export default [
     rules: {
       'no-console': ['error', { allow: ['warn', 'error'] }], // Don't allow console.log but allow console.warn and console.error
       '@typescript-eslint/no-explicit-any': 'off', // Allow the use of 'any' types
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }, // Ignore variables and arguments starting with "_"
+      ],
     },
   },
 ];
