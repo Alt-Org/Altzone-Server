@@ -47,12 +47,14 @@ export default class UiDailyTaskHandler {
         const task_idStr = info.task_id.toString();
         const player_idStr = info.player_id.toString();
 
-        const [[status, task], errors] = await this.taskService.updateTask(task_idStr, player_idStr, info.amount ?? 1);
+        const [res, errors] = await this.taskService.updateTask(player_idStr, info.amount ?? 1);
 
         if (errors)
             throw new ServiceError({
                 ...errors[0], message: 'Failed to update UI daily task'
             });
+
+        const [status, task] = res;
 
         if (status === 'updated') {
             this.notifier.taskUpdated(player_idStr, task);
@@ -60,7 +62,7 @@ export default class UiDailyTaskHandler {
         }
 
         this.notifier.taskCompleted(player_idStr, task);
-        const [wasDeleted, deletionErrors] = await this.basicService.deleteOneById(task_idStr);
+        const [, deletionErrors] = await this.basicService.deleteOneById(task_idStr);
 
         if (deletionErrors)
             throw new ServiceError({
