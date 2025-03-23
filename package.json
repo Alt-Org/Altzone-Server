@@ -4,7 +4,7 @@
   "description": "REST API",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\" \"",
     "lint": "eslint \"src/**/*.ts\"",
     "lint:file": "eslint",
     "start": "nest start",
@@ -78,6 +78,7 @@
     "jest": "^29.7.0",
     "mongodb-memory-server": "^10.1.2",
     "nodemon": "^2.0.20",
+    "prettier": "^3.5.3",
     "source-map-support": "^0.5.20",
     "supertest": "^6.3.3",
     "ts-jest": "^29.2.5",
