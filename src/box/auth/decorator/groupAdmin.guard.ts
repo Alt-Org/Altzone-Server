@@ -5,7 +5,7 @@ import {IS_GROUP_ADMIN} from "./IsGroupAdmin";
 import {APIError} from "../../../common/controller/APIError";
 import {APIErrorReason} from "../../../common/controller/APIErrorReason";
 import {BoxUser} from "../BoxUser";
-import {throwAPIError} from "../../../common/decorator/response/FormatAPIResponse";
+import {throwAPIError} from "../../../common/interceptor/response/FormatAPIResponse";
 
 /**
  * The class checks whenever the logged-in user a group admin of a testing session based on the provided JWT auth token
