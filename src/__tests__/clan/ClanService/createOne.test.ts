@@ -29,9 +29,9 @@ describe('ClanService.createOne() test suite', () => {
     });
 
     it('Should return saved clan data, if input is valid', async () => {
-        const result = await clanService.createOne(clanToCreate, loggedPlayer._id);
+        const [result, errors] = await clanService.createOne(clanToCreate, loggedPlayer._id);
 
-        expect(result).not.toBeInstanceOf(ServiceError);
+        expect(errors).toBeNull();
         expect(result).toEqual(expect.objectContaining({...clanToCreate}));
     });
 

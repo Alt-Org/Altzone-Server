@@ -1,9 +1,9 @@
 import {IsEnum, IsNumber, IsString} from "class-validator";
-import {TaskName} from "../../../dailyTasks/enum/taskName.enum";
+import {ServerTaskName} from "../../../dailyTasks/enum/serverTaskName.enum";
 
 export class CreatePredefinedDailyTaskDto {
-    @IsEnum(TaskName)
-    type: TaskName;
+    @IsEnum(ServerTaskName)
+    type: ServerTaskName;
 
     @IsString()
     title: string;

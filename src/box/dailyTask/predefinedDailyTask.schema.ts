@@ -1,5 +1,5 @@
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
-import {TaskName} from "../../dailyTasks/enum/taskName.enum";
+import {ServerTaskName} from "../../dailyTasks/enum/serverTaskName.enum";
 import {HydratedDocument} from "mongoose";
 import {ObjectId} from "mongodb";
 
@@ -7,8 +7,8 @@ export type PredefinedDailyTaskDoc = HydratedDocument<PredefinedDailyTask>;
 
 @Schema({ _id: true, toJSON: { virtuals: true }, toObject: { virtuals: true } })
 export class PredefinedDailyTask {
-    @Prop({ type: String, required: true, enum: TaskName })
-    type: TaskName;
+    @Prop({ type: String, required: true, enum: ServerTaskName })
+    type: ServerTaskName;
 
     @Prop({ type: String, required: true })
     title: string;

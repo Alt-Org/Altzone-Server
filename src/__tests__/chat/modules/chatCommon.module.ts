@@ -6,7 +6,7 @@ import { ChatSchema } from "../../../chat/chat.schema";
 import { RequestHelperModule } from "../../../requestHelper/requestHelper.module";
 import { ChatService } from "../../../chat/chat.service";
 import { isChatExists } from "../../../chat/decorator/validation/IsChatExists.decorator";
-import { GameEventsBrokerModule } from "../../../gameEventsBroker/gameEventsBroker.module";
+import { GameEventsHandlerModule } from "../../../gameEventsHandler/gameEventsHandler.module";
 
 export default class ChatCommonModule {
 	private constructor() {}
@@ -23,7 +23,7 @@ export default class ChatCommonModule {
 					]),
 
 					RequestHelperModule,
-					GameEventsBrokerModule
+					GameEventsHandlerModule
 				],
 				providers: [ChatService, isChatExists],
 			}).compile();

@@ -5,6 +5,7 @@ import {CustomCharacterDto} from "../customCharacter/dto/customCharacter.dto";
 import AddType from "../../common/base/decorator/AddType.decorator";
 import { GameStatisticsDto } from "./gameStatistics.dto";
 import {ArrayMaxSize, IsArray, IsInt, IsMongoId, IsOptional} from "class-validator";
+import { TaskDto } from "./task.dto";
 
 @AddType('PlayerDto')
 export class PlayerDto {
@@ -55,4 +56,8 @@ export class PlayerDto {
     @Type(() => CustomCharacterDto)
     @Expose()
     CustomCharacter: CustomCharacterDto[];
+
+    @Type(() => TaskDto)
+    @Expose()
+    DailyTask?: TaskDto;
 }

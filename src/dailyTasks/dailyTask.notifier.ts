@@ -3,7 +3,7 @@ import { NotificationGroup } from "../common/service/notificator/enum/Notificati
 import { NotificationResource } from "../common/service/notificator/enum/NotificationResource.enum";
 import { NotificationStatus } from "../common/service/notificator/enum/NotificationStatus.enum";
 import NotificationSender from "../common/service/notificator/NotificationSender";
-import { TaskName } from "./enum/taskName.enum";
+import { ServerTaskName } from "./enum/serverTaskName.enum";
 import { Task } from "./type/task.type";
 
 /**
@@ -44,7 +44,7 @@ export default class DailyTaskNotifier {
      * @param player_id the DB _id of the player for whom notification is addressed
      * @param error error happen
      */
-    taskError(player_id: string, taskType: TaskName, error: APIError){
+    taskError(player_id: string, taskType: ServerTaskName, error: APIError){
         NotificationSender
             .buildNotification<APIError>()
             .addGroup(this.group, player_id)

@@ -1,8 +1,15 @@
 import {Injectable} from "@nestjs/common";
-import {TaskName} from "./enum/taskName.enum";
-import {Task} from "./type/task.type";
+import {ServerTaskName} from "./enum/serverTaskName.enum";
 import {TASK_CONSTS} from "./consts/taskConstants";
 import {TaskTitle} from "./type/taskTitle.type";
+
+type TaskInfo = {
+    title: TaskTitle;
+    type: ServerTaskName;
+    points: number;
+    coins: number;
+    amount: number;
+}
 
 @Injectable()
 export class TaskGeneratorService {
@@ -14,8 +21,10 @@ export class TaskGeneratorService {
      *
      * @returns A randomly selected task name.
      */
-    getRandomTaskType(): TaskName {
-        const taskTypes = Object.values(TaskName);
+    getRandomTaskType(): ServerTaskName {
+        //TODO: Differentiate the task, that can be auto generated and the tasks that need to be predefined, when the daily tasks logic will be defined properly
+        // const taskTypes = Object.values(ServerTaskName);
+        const taskTypes = [ServerTaskName.PLAY_BATTLE, ServerTaskName.WIN_BATTLE, ServerTaskName.WRITE_CHAT_MESSAGE];
         const randomIndex = Math.floor(Math.random() * taskTypes.length);
         return taskTypes[randomIndex];
     }
@@ -28,13 +37,13 @@ export class TaskGeneratorService {
      * @returns The generated task title as a string.
      * @throws Will throw an error if the task type is unknown.
      */
-    getTaskTitle(type: TaskName, amount: number): TaskTitle {
+    getTaskTitle(type: ServerTaskName, amount: number): TaskTitle {
         switch (type) {
-            case TaskName.PLAY_BATTLE:
+            case ServerTaskName.PLAY_BATTLE:
                 return {fi: `Pelaa ${amount} taistelua`};
-            case TaskName.WIN_BATTLE:
+            case ServerTaskName.WIN_BATTLE:
                 return {fi: `Voita ${amount} taistelua`};
-            case TaskName.WRITE_CHAT_MESSAGE:
+            case ServerTaskName.WRITE_CHAT_MESSAGE:
                 return {fi: `Lähetä ${amount} viestiä chattiin`};
             default:
                 throw new Error("Unknown task type");
@@ -46,7 +55,7 @@ export class TaskGeneratorService {
      *
      * @returns A partial Task missing the ids and startedAt fields and object containing randomly generated values.
      */
-    createTaskRandomValues(): Partial<Task> {
+    createTaskRandomValues(): TaskInfo {
         const amount =
             Math.floor(
                 Math.random() * (TASK_CONSTS.AMOUNT.MAX - TASK_CONSTS.AMOUNT.MIN + 1)
@@ -64,7 +73,7 @@ export class TaskGeneratorService {
             points,
             coins,
             type: taskType,
-            title: titleString,
+            title: titleString
         };
     }
 }

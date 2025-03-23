@@ -13,11 +13,17 @@ import ServiceError from "../common/service/basicService/ServiceError";
 import { Player } from "../player/player.schema";
 import ClanHelperService from "./utils/clanHelper.service";
 import { SEReason } from "../common/service/basicService/SEReason";
-import { TIServiceReadManyOptions, TIServiceUpdateOneOptions, TReadByIdOptions } from "../common/service/basicService/IService";
+import {
+    IServiceReturn,
+    TIServiceReadManyOptions,
+    TIServiceUpdateOneOptions,
+    TReadByIdOptions
+} from "../common/service/basicService/IService";
 import { ModelName } from "../common/enum/modelName.enum";
 import { StockService } from "../clanInventory/stock/stock.service";
 import { SoulHomeService } from "../clanInventory/soulhome/soulhome.service";
 import { DailyTasksService } from "../dailyTasks/dailyTasks.service";
+import GameEventEmitter from "../gameEventsEmitter/gameEventEmitter";
 
 @Injectable()
 export class ClanService{
@@ -27,7 +33,7 @@ export class ClanService{
         private readonly stockService: StockService,
         private readonly soulhomeService: SoulHomeService,
         private readonly clanHelperService: ClanHelperService,
-        private readonly dailyTaskService: DailyTasksService,
+        private readonly emitter: GameEventEmitter
     ) {
         this.basicService = new BasicService(model);
         this.playerService = new BasicService(playerModel);
@@ -42,9 +48,9 @@ export class ClanService{
      * These objects are a Stock with its Items given to each new Clan, as well as a SoulHome with one Room
      * @param clanToCreate 
      * @param player_id the player_id of the Clan creator, and who is also will be the admin of the Clan
-     * @returns 
+     * @returns created clan or ServiceErrors if any occurred
      */
-    public async createOne(clanToCreate: CreateClanDto, player_id: string) {
+    public async createOne(clanToCreate: CreateClanDto, player_id: string): Promise<IServiceReturn<ClanDto>> {
         const clanWithAdmin = {...clanToCreate, admin_ids: [player_id]};
         let [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>(clanWithAdmin);
 
@@ -66,9 +72,9 @@ export class ClanService{
         clan.SoulHome = soulHome.SoulHome;
         clan.Stock = stock.Stock;
 
-        this.dailyTaskService.generateTasksForNewClan(clan._id.toString());
+        this.emitter.emitAsync('clan.create', {clan_id: clan._id});
 
-        return clan;
+        return [clan, null];
     }
 
     /**

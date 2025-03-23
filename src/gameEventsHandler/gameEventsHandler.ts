@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { GameEvent } from "./enum/GameEvent.enum";
+import { GameEventType } from "./enum/GameEventType.enum";
 import ServiceError from "../common/service/basicService/ServiceError";
 import { PlayerEventHandler } from "./playerEventHandler";
 import { ClanEventHandler } from "./clanEventHandler";
@@ -12,21 +12,21 @@ export class GameEventsHandler {
 		private readonly clanEventHandler: ClanEventHandler
 	){}
 
-	async handleEvent(player_id: string, event: GameEvent) {
+	async handleEvent(player_id: string, event: GameEventType) {
         switch (event) {
-			case GameEvent.PLAYER_WIN_BATTLE:
+			case GameEventType.PLAYER_WIN_BATTLE:
 				return this.handleWinBattle(player_id);
-			case GameEvent.PLAYER_PLAY_BATTLE:
+			case GameEventType.PLAYER_PLAY_BATTLE:
 				return this.handlePlayBattle(player_id);
-			case GameEvent.PLAYER_SEND_MESSAGE:
+			case GameEventType.PLAYER_SEND_MESSAGE:
 				return this.handleSendMessage(player_id);
-			case GameEvent.PLAYER_VOTE:
+			case GameEventType.PLAYER_VOTE:
 				return this.handleVote(player_id);
-			case GameEvent.PLAYER_START_VOTING:
+			case GameEventType.PLAYER_START_VOTING:
 				return this.handleStartVoting(player_id);
-			case GameEvent.PLAYER_COLLECT_DIAMONDS:
+			case GameEventType.PLAYER_COLLECT_DIAMONDS:
 				return this.handleCollectDiamonds(player_id);
-			case GameEvent.PLAYER_START_BATTLE_NEW_CHARACTER:
+			case GameEventType.PLAYER_START_BATTLE_NEW_CHARACTER:
 				return this.handleNewCharacter(player_id);
 		
 			default:

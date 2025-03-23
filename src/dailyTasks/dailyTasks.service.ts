@@ -6,70 +6,81 @@ import { ModelName } from "../common/enum/modelName.enum";
 import DailyTaskNotifier from "./dailyTask.notifier";
 import { DailyTask } from "./dailyTasks.schema";
 import { DailyTaskDto } from "./dto/dailyTask.dto";
-import { Task } from "./type/task.type";
 import { DailyTaskQueue } from "./dailyTask.queue";
 import { taskReservedError } from "./errors/taskReserved.error";
 import { TaskGeneratorService } from "./taskGenerator.service";
-import {TIServiceCreateManyOptions, TReadByIdOptions} from "../common/service/basicService/IService";
+import {IServiceReturn, TIServiceCreateManyOptions, TReadByIdOptions} from "../common/service/basicService/IService";
+import { SEReason } from "../common/service/basicService/SEReason";
+import { cancelTransaction } from "../common/function/cancelTransaction";
 
 @Injectable()
 export class DailyTasksService {
-	public constructor(
-		@InjectModel(DailyTask.name) public readonly model: Model<DailyTask>,
-		private readonly notifier: DailyTaskNotifier,
-		private readonly taskQueue: DailyTaskQueue,
-		private readonly taskGenerator: TaskGeneratorService,
-	) {
-		this.basicService = new BasicService(model);
-		this.modelName = ModelName.DAILY_TASK;
-		this.refsInModel = [ModelName.PLAYER];
-	}
-	public readonly modelName: ModelName;
-	public readonly refsInModel: ModelName[];
-	private readonly basicService: BasicService;
+    public constructor(
+        @InjectModel(DailyTask.name) public readonly model: Model<DailyTask>,
+        private readonly notifier: DailyTaskNotifier,
+        private readonly taskQueue: DailyTaskQueue,
+        private readonly taskGenerator: TaskGeneratorService,
+    ) {
+        this.basicService = new BasicService(model);
+        this.modelName = ModelName.DAILY_TASK;
+        this.refsInModel = [ModelName.PLAYER];
+    }
+
+    public readonly modelName: ModelName;
+    public readonly refsInModel: ModelName[];
+    private readonly basicService: BasicService;
 
 	/**
 	 * Generates a set of tasks for a new clan.
 	 *
 	 * This method creates 20 tasks with random values and assigns them to the specified clan.
 	 * Each task is created by calling `createTaskRandomValues` and then adding the `clanId`.
-	 * The tasks are then saved using the `basicService.createMany` method.
 	 *
 	 * @param clanId - The ID of the clan for which tasks are being generated.
-	 * @returns A promise that resolves to the result of the `createMany` operation.
+	 * @returns generated random tasks.
 	 */
-	async generateTasksForNewClan(clanId: string) {
-		const tasks: Partial<Task>[] = [];
+	generateServerTasksForNewClan(clanId: string): IServiceReturn<Omit<DailyTask, '_id'>[]> {
+		const tasks: Omit<DailyTask, '_id'>[] = [];
 		for (let i = 0; i < 20; i++) {
 			const partial = this.taskGenerator.createTaskRandomValues();
 			const timeLimitMinutes = partial.amount * 2;
-			const task: Partial<Task> = {
+			const task: Omit<DailyTask, '_id'> = {
 				...partial,
 				amountLeft: partial.amount,
 				timeLimitMinutes,
 				clan_id: clanId,
+				player_id: null,
+				startedAt: null
 			};
 			tasks.push(task);
 		}
 
-		return await this.basicService.createMany(tasks);
+		return [tasks, null];
 	}
 
 	/**
-	 * Reserves a daily task for a player.
+	 * Reserves a task for a player. If the player already has a reserved task, it will unreserve the existing task
+	 * and reserve the new one. This method ensures that a player can only have one reserved task at a time.
 	 *
 	 * @param playerId - The ID of the player reserving the task.
 	 * @param taskId - The ID of the task to be reserved.
 	 * @param clanId - The ID of the clan to which the task belongs.
-	 * @throws Will throw an error if the task cannot be read or updated.
-	 * @throws Will throw an error if the task is already reserved by another player.
+	 * @returns The reserved task.
+	 * @throws Will throw an error if the task is already reserved by another player or if any database operation fails.
 	 */
 	async reserveTask(playerId: string, taskId: string, clanId: string) {
 		const [task, error] = await this.basicService.readOne<DailyTaskDto>({
 			filter: { _id: taskId, clan_id: clanId },
 		});
 		if (error) throw error;
-		if (task.player_id) throw taskReservedError;
+		if (task.player_id && task.player_id !== playerId) throw taskReservedError;
+
+		const session = await this.model.db.startSession();
+		session.startTransaction();
+
+		const [, unreserveError] = await this.unreserveTask(playerId);
+		if (unreserveError && unreserveError[0].reason !== SEReason.NOT_FOUND)
+			await cancelTransaction(session, unreserveError);
 
 		const startedAt = new Date();
 		task.player_id = playerId;
@@ -79,12 +90,29 @@ export class DailyTasksService {
 			taskId,
 			task
 		);
-		if (updateError) throw updateError;
+		if (updateError) await cancelTransaction(session, updateError);
+
+		session.commitTransaction();
+		session.endSession();
 
 		await this.taskQueue.addDailyTask(task);
 		await this.notifier.taskReceived(playerId, task);
 
 		return task;
+	}
+
+
+	/**
+	 * Unreserve a task for a given player by unsetting the player_id field.
+	 *
+	 * @param playerId - The ID of the player whose task should be unreserved.
+	 * @returns A promise that resolves with the result of the update operation.
+	 */
+	async unreserveTask(playerId: string) {
+		return await this.basicService.updateOne(
+			{ $unset: { player_id: "", startedAt: "" } },
+			{ filter: { player_id: playerId } }
+		);
 	}
 
 	/**
@@ -98,15 +126,15 @@ export class DailyTasksService {
 	async deleteTask(taskId: string, clanId: string, playerId: string) {
 		const newValues = this.taskGenerator.createTaskRandomValues();
 		const filter: any = { _id: taskId, clan_id: clanId };
-		filter.$or = [{ playerId }, { playerId: { $exists: false } }];
-		return await this.basicService.updateOne(
+		filter.$or = [{ player_id: playerId }, { player_id: { $exists: false } }];
+		return this.basicService.updateOne(
 			{
 				$set: {
 					...newValues,
 					amountLeft: newValues.amount,
 				},
 				$unset: {
-					playerId: "",
+					player_id: "",
 					startedAt: "",
 				},
 			},
@@ -124,18 +152,18 @@ export class DailyTasksService {
 	 */
 	async updateTask(playerId: string) {
 		const [task, error] = await this.basicService.readOne<DailyTaskDto>({
-			filter: { playerId },
+			filter: { player_id: playerId },
 		});
 		if (error) throw error;
 
 		task.amountLeft--;
 
-		if (task.amountLeft === 0) {
+		if (task.amountLeft <= 0) {
 			await this.deleteTask(task._id.toString(), task.clan_id, playerId);
 			this.notifier.taskCompleted(playerId, task);
 		} else {
 			const [_, updateError] = await this.basicService.updateOne(task, {
-				filter: { playerId },
+				filter: { player_id: playerId },
 			});
 			if (updateError) throw updateError;
 			this.notifier.taskUpdated(playerId, task);
@@ -158,13 +186,35 @@ export class DailyTasksService {
 		return this.basicService.readOneById<DailyTaskDto>(_id, optionsToApply);
 	}
 
-	/**
-	 * Reads multiple daily tasks from the database based on the provided options.
-	 *
-	 * @param options - Optional settings for the read operation.
-	 * @returns A promise that resolves to a tuple where the first element is an array of ItemDto objects, and the second element is either null or an array of ServiceError objects if something went wrong.
-	 */
-	async readMany(options?: TIServiceCreateManyOptions) {
-		return this.basicService.readMany<DailyTaskDto>(options);
-	}
+    /**
+     * Reads multiple daily tasks from the database based on the provided options.
+     *
+     * @param options - Optional settings for the read operation.
+     * @returns A promise that resolves to a tuple where the first element is an array of ItemDto objects, and the second element is either null or an array of ServiceError objects if something went wrong.
+     */
+    async readMany(options?: TIServiceCreateManyOptions) {
+        return this.basicService.readMany<DailyTaskDto>(options);
+    }
+
+    /**
+     * Creates a new daily task in DB.
+     *
+     * @param dailyTaskToCreate daily task to create
+     *
+     * @returns created daily task or ServiceError if any occurred
+     */
+    async createOne(dailyTaskToCreate: Omit<DailyTask, '_id'>) {
+        return this.basicService.createOne(dailyTaskToCreate);
+    }
+
+    /**
+     * Creates multiple daily tasks in DB.
+     *
+     * @param dailyTasksToCreate daily tasks to create
+     *
+     * @returns created daily task or ServiceError if any occurred
+     */
+    async createMany(dailyTasksToCreate: Omit<DailyTask, '_id'>[]) {
+        return this.basicService.createMany(dailyTasksToCreate);
+    }
 }

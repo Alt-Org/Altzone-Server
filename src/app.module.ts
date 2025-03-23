@@ -20,7 +20,7 @@ import * as redisStore from 'cache-manager-redis-store';
 import {CacheModule} from '@nestjs/cache-manager';
 import {ClanInventoryModule} from './clanInventory/clanInventory.module';
 import {ItemMoverModule} from './itemMover/itemMover.module';
-import {GameEventsBrokerModule} from './gameEventsBroker/gameEventsBroker.module';
+import {GameEventsHandlerModule} from './gameEventsHandler/gameEventsHandler.module';
 import {RewarderModule} from './rewarder/rewarder.module';
 import {StatisticsKeeperModule} from './statisticsKeeper/statisticsKeeper.module';
 import {FleaMarketModule} from './fleaMarket/fleaMarket.module';
@@ -30,6 +30,7 @@ import {DailyTasksModule} from './dailyTasks/dailyTasks.module';
 import {BoxModule} from "./box/box.module";
 import {BoxAuthGuard} from "./box/auth/boxAuth.guard";
 import isTestingSession from "./box/util/isTestingSession";
+import { ScheduleModule } from '@nestjs/schedule';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -48,6 +49,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
 
 @Module({
     imports: [
+        ScheduleModule.forRoot(),
         MongooseModule.forRoot(mongoString, {dbName: dbName}),
         CacheModule.register({
             isGlobal: true,
@@ -65,7 +67,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
         GameDataModule,
         ChatModule,
 
-        GameEventsBrokerModule,
+        GameEventsHandlerModule,
         LeaderboardModule,
         DailyTasksModule,
         RewarderModule,
