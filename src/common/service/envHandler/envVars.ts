@@ -1,16 +1,38 @@
-import * as dotenv from "dotenv";
-import * as process from "node:process";
-import {Environment} from "./enum/environment.enum";
+import * as dotenv from 'dotenv';
+import * as process from 'node:process';
+import { Environment } from './enum/environment.enum';
 
 dotenv.config();
 
 // Please remember to add env name here, before you add it to the record
 type EnvName =
-    'PORT' | 'JWT_SECRET' | 'JWT_EXPIRES' | 'PSW_MEMORY' | 'PSW_TIME' | 'PSW_PARALLELISM' | 'ENVIRONMENT' |
-    'MONGO_USERNAME' | 'MONGO_PASSWORD' | 'MONGO_HOST' | 'MONGO_PORT' | 'MONGO_DB_NAME' |
-    'OWNCLOUD_HOST' | 'OWNCLOUD_PORT' | 'OWNCLOUD_USER' | 'OWNCLOUD_PASSWORD' | 'OWNCLOUD_LOG_FILES_SECRET' | 'OWNCLOUD_LOG_FILES_ROOT' |
-    'REDIS_PASSWORD' | 'REDIS_HOST' | 'REDIS_PORT' |
-    'MOSQUITTO_HOST' | 'MOSQUITTO_PORT' | 'MOSQUITTO_SUBSCRIBER' | 'MOSQUITTO_SUBSCRIBER_PASSWORD' | 'MOSQUITTO_PUBLISHER' | 'MOSQUITTO_PUBLISHER_PASSWORD';
+  | 'PORT'
+  | 'JWT_SECRET'
+  | 'JWT_EXPIRES'
+  | 'PSW_MEMORY'
+  | 'PSW_TIME'
+  | 'PSW_PARALLELISM'
+  | 'ENVIRONMENT'
+  | 'MONGO_USERNAME'
+  | 'MONGO_PASSWORD'
+  | 'MONGO_HOST'
+  | 'MONGO_PORT'
+  | 'MONGO_DB_NAME'
+  | 'OWNCLOUD_HOST'
+  | 'OWNCLOUD_PORT'
+  | 'OWNCLOUD_USER'
+  | 'OWNCLOUD_PASSWORD'
+  | 'OWNCLOUD_LOG_FILES_SECRET'
+  | 'OWNCLOUD_LOG_FILES_ROOT'
+  | 'REDIS_PASSWORD'
+  | 'REDIS_HOST'
+  | 'REDIS_PORT'
+  | 'MOSQUITTO_HOST'
+  | 'MOSQUITTO_PORT'
+  | 'MOSQUITTO_SUBSCRIBER'
+  | 'MOSQUITTO_SUBSCRIBER_PASSWORD'
+  | 'MOSQUITTO_PUBLISHER'
+  | 'MOSQUITTO_PUBLISHER_PASSWORD';
 
 /**
  * Record with all environment variables required by the API and loaded from .env file
@@ -43,35 +65,35 @@ type EnvName =
  * @property MOSQUITTO_PUBLISHER_PASSWORD - The password for the Mosquitto publisher.
  */
 export const envVars: Record<EnvName, string> = {
-    PORT: process.env.PORT,
-    JWT_SECRET: process.env.JWT_SECRET,
-    JWT_EXPIRES: process.env.JWT_EXPIRES,
-    PSW_MEMORY: process.env.PSW_MEMORY,
-    PSW_TIME: process.env.PSW_TIME,
-    PSW_PARALLELISM: process.env.PSW_PARALLELISM,
-    ENVIRONMENT: process.env.ENVIRONMENT ?? Environment.PRODUCTION,
+  PORT: process.env.PORT,
+  JWT_SECRET: process.env.JWT_SECRET,
+  JWT_EXPIRES: process.env.JWT_EXPIRES,
+  PSW_MEMORY: process.env.PSW_MEMORY,
+  PSW_TIME: process.env.PSW_TIME,
+  PSW_PARALLELISM: process.env.PSW_PARALLELISM,
+  ENVIRONMENT: process.env.ENVIRONMENT ?? Environment.PRODUCTION,
 
-    MONGO_USERNAME: process.env.MONGO_USERNAME,
-    MONGO_PASSWORD: process.env.MONGO_PASSWORD,
-    MONGO_HOST: process.env.MONGO_HOST,
-    MONGO_PORT: process.env.MONGO_PORT,
-    MONGO_DB_NAME: process.env.MONGO_DB_NAME,
+  MONGO_USERNAME: process.env.MONGO_USERNAME,
+  MONGO_PASSWORD: process.env.MONGO_PASSWORD,
+  MONGO_HOST: process.env.MONGO_HOST,
+  MONGO_PORT: process.env.MONGO_PORT,
+  MONGO_DB_NAME: process.env.MONGO_DB_NAME,
 
-    OWNCLOUD_HOST: process.env.OWNCLOUD_HOST,
-    OWNCLOUD_PORT: process.env.OWNCLOUD_PORT,
-    OWNCLOUD_USER: process.env.OWNCLOUD_USER,
-    OWNCLOUD_PASSWORD: process.env.OWNCLOUD_PASSWORD,
-    OWNCLOUD_LOG_FILES_SECRET: process.env.OWNCLOUD_LOG_FILES_SECRET,
-    OWNCLOUD_LOG_FILES_ROOT: process.env.OWNCLOUD_LOG_FILES_ROOT,
+  OWNCLOUD_HOST: process.env.OWNCLOUD_HOST,
+  OWNCLOUD_PORT: process.env.OWNCLOUD_PORT,
+  OWNCLOUD_USER: process.env.OWNCLOUD_USER,
+  OWNCLOUD_PASSWORD: process.env.OWNCLOUD_PASSWORD,
+  OWNCLOUD_LOG_FILES_SECRET: process.env.OWNCLOUD_LOG_FILES_SECRET,
+  OWNCLOUD_LOG_FILES_ROOT: process.env.OWNCLOUD_LOG_FILES_ROOT,
 
-    REDIS_PASSWORD: process.env.REDIS_PASSWORD ?? "mySecretPassword",
-    REDIS_HOST: process.env.REDIS_HOST ?? "localhost",
-    REDIS_PORT: process.env.REDIS_PORT ?? "6379",
+  REDIS_PASSWORD: process.env.REDIS_PASSWORD ?? 'mySecretPassword',
+  REDIS_HOST: process.env.REDIS_HOST ?? 'localhost',
+  REDIS_PORT: process.env.REDIS_PORT ?? '6379',
 
-    MOSQUITTO_HOST: process.env.MOSQUITTO_HOST,
-    MOSQUITTO_PORT: process.env.MOSQUITTO_PORT,
-    MOSQUITTO_SUBSCRIBER: process.env.MOSQUITTO_SUBSCRIBER,
-    MOSQUITTO_SUBSCRIBER_PASSWORD: process.env.MOSQUITTO_SUBSCRIBER_PASSWORD,
-    MOSQUITTO_PUBLISHER: process.env.MOSQUITTO_PUBLISHER,
-    MOSQUITTO_PUBLISHER_PASSWORD: process.env.MOSQUITTO_PUBLISHER_PASSWORD
-}
+  MOSQUITTO_HOST: process.env.MOSQUITTO_HOST,
+  MOSQUITTO_PORT: process.env.MOSQUITTO_PORT,
+  MOSQUITTO_SUBSCRIBER: process.env.MOSQUITTO_SUBSCRIBER,
+  MOSQUITTO_SUBSCRIBER_PASSWORD: process.env.MOSQUITTO_SUBSCRIBER_PASSWORD,
+  MOSQUITTO_PUBLISHER: process.env.MOSQUITTO_PUBLISHER,
+  MOSQUITTO_PUBLISHER_PASSWORD: process.env.MOSQUITTO_PUBLISHER_PASSWORD,
+};

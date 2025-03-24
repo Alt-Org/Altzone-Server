@@ -1,16 +1,16 @@
-import {IsInt, IsMongoId} from "class-validator";
-import AddType from "../../common/base/decorator/AddType.decorator";
+import { IsInt, IsMongoId } from 'class-validator';
+import AddType from '../../common/base/decorator/AddType.decorator';
 
 @AddType('messageParam')
 export class messageParam {
-    @IsMongoId()
-    chat_id: string;
+  @IsMongoId()
+  chat_id: string;
 
-    @IsInt()
-    _id: number;
+  @IsInt()
+  _id: number;
 }
 
 export class chat_idParam {
-    @IsMongoId()
-    chat_id: string;
+  @IsMongoId()
+  chat_id: string;
 }

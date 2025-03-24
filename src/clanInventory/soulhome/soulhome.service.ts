@@ -1,75 +1,78 @@
-import { Injectable } from "@nestjs/common";
-import { publicReferences, SoulHome } from "./soulhome.schema";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { RoomService } from "../room/room.service";
-import { SoulHomeDto } from "./dto/soulhome.dto";
-import { CreateSoulHomeDto } from "./dto/createSoulHome.dto";
-import { UpdateSoulHomeDto } from "./dto/updateSoulHome.dto";
-import { ModelName } from "../../common/enum/modelName.enum";
-import BasicService from "../../common/service/basicService/BasicService";
-import { TReadByIdOptions } from "../../common/service/basicService/IService";
+import { Injectable } from '@nestjs/common';
+import { publicReferences, SoulHome } from './soulhome.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { RoomService } from '../room/room.service';
+import { SoulHomeDto } from './dto/soulhome.dto';
+import { CreateSoulHomeDto } from './dto/createSoulHome.dto';
+import { UpdateSoulHomeDto } from './dto/updateSoulHome.dto';
+import { ModelName } from '../../common/enum/modelName.enum';
+import BasicService from '../../common/service/basicService/BasicService';
+import { TReadByIdOptions } from '../../common/service/basicService/IService';
 
 @Injectable()
 export class SoulHomeService {
+  public constructor(
+    @InjectModel(SoulHome.name) public readonly model: Model<SoulHome>,
+    private readonly roomService: RoomService,
+  ) {
+    this.basicService = new BasicService(model);
+  }
 
-    public constructor(
-        @InjectModel(SoulHome.name) public readonly model: Model<SoulHome>,
-        private readonly roomService: RoomService
-    ) {
-        this.basicService = new BasicService(model);
-    }
+  public readonly basicService: BasicService;
+  public readonly modelName: ModelName;
 
-    public readonly basicService: BasicService;
-    public readonly modelName: ModelName;
+  /**
+   * Creates a new SoulHome in DB.
+   *
+   * @param soulHome - The SoulHome data to create.
+   * @returns  created SoulHome or an array of service errors if any occurred.
+   */
+  async createOne(soulHome: CreateSoulHomeDto) {
+    return this.basicService.createOne<CreateSoulHomeDto, SoulHomeDto>(
+      soulHome,
+    );
+  }
 
-    /**
-     * Creates a new SoulHome in DB.
-     * 
-     * @param soulHome - The SoulHome data to create.
-     * @returns  created SoulHome or an array of service errors if any occurred.
-     */
-    async createOne(soulHome: CreateSoulHomeDto) {
-        return this.basicService.createOne<CreateSoulHomeDto, SoulHomeDto>(soulHome);
-    }
+  /**
+   * Reads a SoulHome by its _id in DB.
+   *
+   * @param _id - The Mongo _id of the SoulHome to read.
+   * @param options - Options for reading the SoulHome.
+   * @returns SoulHome with the given _id on succeed or an array of ServiceErrors if any occurred.
+   */
+  async readOneById(_id: string, options?: TReadByIdOptions) {
+    const optionsToApply = options;
+    if (options?.includeRefs)
+      optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
+        publicReferences.includes(ref),
+      );
 
-    /**
-     * Reads a SoulHome by its _id in DB.
-     * 
-     * @param _id - The Mongo _id of the SoulHome to read.
-     * @param options - Options for reading the SoulHome.
-     * @returns SoulHome with the given _id on succeed or an array of ServiceErrors if any occurred.
-     */
-    async readOneById(_id: string, options?: TReadByIdOptions) {
-        const optionsToApply = options;
-        if(options?.includeRefs)
-            optionsToApply.includeRefs = options.includeRefs.filter((ref) => publicReferences.includes(ref));
+    return this.basicService.readOneById<SoulHomeDto>(_id, optionsToApply);
+  }
 
-        return this.basicService.readOneById<SoulHomeDto>(_id, optionsToApply);
-    }
+  /**
+   * Updates a SoulHome by its _id in DB. The _id field is read-only and must be found from the parameter
+   *
+   * @param soulHome - The data needs to be updated for the SoulHome.
+   * @returns _true_ if SoulHome was updated successfully, _false_ if nothing was updated for the SoulHome,
+   * or a ServiceError array if SoulHome was not found or something else went wrong.
+   */
+  async updateOneById(soulHome: UpdateSoulHomeDto) {
+    const { _id, ...fieldsToUpdate } = soulHome;
+    return this.basicService.updateOneById(_id, fieldsToUpdate);
+  }
 
-    /**
-     * Updates a SoulHome by its _id in DB. The _id field is read-only and must be found from the parameter
-     * 
-     * @param soulHome - The data needs to be updated for the SoulHome.
-     * @returns _true_ if SoulHome was updated successfully, _false_ if nothing was updated for the SoulHome, 
-     * or a ServiceError array if SoulHome was not found or something else went wrong.
-     */
-    async updateOneById(soulHome: UpdateSoulHomeDto) {
-        const {_id, ...fieldsToUpdate} = soulHome;
-        return this.basicService.updateOneById(_id, fieldsToUpdate);
-    }
-
-    /**
-     * Deletes a SoulHome by its _id from DB.
-     *
-     * Notice that the method will also delete associated rooms.
-     *
-     * @param _id - The Mongo _id of the SoulHome to delete.
-     * @returns _true_ if SoulHome was removed successfully, or a ServiceError array if the SoulHome was not found or something else went wrong
-     */
-    async deleteOneById(_id: string) {
-        await this.roomService.deleteAllSoulHomeRooms(_id);
-        return this.basicService.deleteOneById(_id);
-    }
+  /**
+   * Deletes a SoulHome by its _id from DB.
+   *
+   * Notice that the method will also delete associated rooms.
+   *
+   * @param _id - The Mongo _id of the SoulHome to delete.
+   * @returns _true_ if SoulHome was removed successfully, or a ServiceError array if the SoulHome was not found or something else went wrong
+   */
+  async deleteOneById(_id: string) {
+    await this.roomService.deleteAllSoulHomeRooms(_id);
+    return this.basicService.deleteOneById(_id);
+  }
 }

@@ -1,16 +1,16 @@
-import {IsInt, IsOptional, IsString} from "class-validator";
-import AddType from "../../common/base/decorator/AddType.decorator";
+import { IsInt, IsOptional, IsString } from 'class-validator';
+import AddType from '../../common/base/decorator/AddType.decorator';
 
 @AddType('UpdateMessageDto')
 export class UpdateMessageDto {
-    @IsInt()
-    id: number;
+  @IsInt()
+  id: number;
 
-    @IsOptional()
-    @IsString()
-    content?: string;
+  @IsOptional()
+  @IsString()
+  content?: string;
 
-    @IsOptional()
-    @IsInt()
-    feeling?: number;
+  @IsOptional()
+  @IsInt()
+  feeling?: number;
 }

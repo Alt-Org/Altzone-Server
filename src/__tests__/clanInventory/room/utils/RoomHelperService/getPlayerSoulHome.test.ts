@@ -1,64 +1,70 @@
-import ClanInventoryBuilderFactory from "../../../data/clanInventoryBuilderFactory";
-import SoulhomeModule from "../../../modules/soulhome.module";
-import {getNonExisting_id} from "../../../../test_utils/util/getNonExisting_id";
-import ClanModule from "../../../../clan/modules/clan.module";
-import ClanBuilderFactory from "../../../../clan/data/clanBuilderFactory";
-import LoggedUser from "../../../../test_utils/const/loggedUser";
-import PlayerModule from "../../../../player/modules/player.module";
-import {clearDBRespDefaultFields} from "../../../../test_utils/util/removeDBDefaultFields";
-import RoomHelperService from "../../../../../clanInventory/room/utils/room.helper.service";
-import RoomModule from "../../../modules/room.module";
-
+import ClanInventoryBuilderFactory from '../../../data/clanInventoryBuilderFactory';
+import SoulhomeModule from '../../../modules/soulhome.module';
+import { getNonExisting_id } from '../../../../test_utils/util/getNonExisting_id';
+import ClanModule from '../../../../clan/modules/clan.module';
+import ClanBuilderFactory from '../../../../clan/data/clanBuilderFactory';
+import LoggedUser from '../../../../test_utils/const/loggedUser';
+import PlayerModule from '../../../../player/modules/player.module';
+import { clearDBRespDefaultFields } from '../../../../test_utils/util/removeDBDefaultFields';
+import RoomHelperService from '../../../../../clanInventory/room/utils/room.helper.service';
+import RoomModule from '../../../modules/room.module';
 
 describe('RoomHelperService.getPlayerSoulHome() test suite', () => {
-    let roomHelperService: RoomHelperService;
-    const soulHomeBuilder = ClanInventoryBuilderFactory.getBuilder('SoulHome');
-    const soulHomeModel = SoulhomeModule.getSoulhomeModel();
-    const existingSoulHome = soulHomeBuilder.build();
+  let roomHelperService: RoomHelperService;
+  const soulHomeBuilder = ClanInventoryBuilderFactory.getBuilder('SoulHome');
+  const soulHomeModel = SoulhomeModule.getSoulhomeModel();
+  const existingSoulHome = soulHomeBuilder.build();
 
-    const clanModel = ClanModule.getClanModel();
-    const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
-    const existingClan = clanBuilder.build();
+  const clanModel = ClanModule.getClanModel();
+  const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
+  const existingClan = clanBuilder.build();
 
-    const existingPlayer = LoggedUser.getPlayer();
-    const playerModel = PlayerModule.getPlayerModel();
+  const existingPlayer = LoggedUser.getPlayer();
+  const playerModel = PlayerModule.getPlayerModel();
 
-    beforeEach(async () => {
-        roomHelperService = await RoomModule.getRoomHelperService();
+  beforeEach(async () => {
+    roomHelperService = await RoomModule.getRoomHelperService();
 
-        const clanResp = await clanModel.create(existingClan);
-        existingClan._id = clanResp._id.toString();
+    const clanResp = await clanModel.create(existingClan);
+    existingClan._id = clanResp._id.toString();
 
-        await playerModel.findByIdAndUpdate(existingPlayer._id, { clan_id: existingClan._id });
-        existingPlayer.clan_id = existingClan._id;
-
-        existingSoulHome.clan_id = existingClan._id;
-        const createdSoulHome = await soulHomeModel.create(existingSoulHome);
-        existingSoulHome._id = createdSoulHome._id;
+    await playerModel.findByIdAndUpdate(existingPlayer._id, {
+      clan_id: existingClan._id,
     });
+    existingPlayer.clan_id = existingClan._id;
 
-    it('Should find existing soul home from DB', async () => {
-        const [soulHome, errors] = await roomHelperService.getPlayerSoulHome(existingPlayer._id);
+    existingSoulHome.clan_id = existingClan._id;
+    const createdSoulHome = await soulHomeModel.create(existingSoulHome);
+    existingSoulHome._id = createdSoulHome._id;
+  });
 
-        const clearedSoulHome = clearDBRespDefaultFields(soulHome);
+  it('Should find existing soul home from DB', async () => {
+    const [soulHome, errors] = await roomHelperService.getPlayerSoulHome(
+      existingPlayer._id,
+    );
 
-        expect(errors).toBeNull();
-        expect(clearedSoulHome).toEqual(expect.objectContaining(existingSoulHome));
-    });
+    const clearedSoulHome = clearDBRespDefaultFields(soulHome);
 
-    it('Should return NOT_FOUND if player does not exists', async () => {
-        const [soulHome, errors] = await roomHelperService.getPlayerSoulHome(getNonExisting_id());
+    expect(errors).toBeNull();
+    expect(clearedSoulHome).toEqual(expect.objectContaining(existingSoulHome));
+  });
 
-        expect(soulHome).toBeNull();
-        expect(errors).toContainSE_NOT_FOUND();
-    });
+  it('Should return NOT_FOUND if player does not exists', async () => {
+    const [soulHome, errors] =
+      await roomHelperService.getPlayerSoulHome(getNonExisting_id());
 
-    it('Should return NOT_FOUND if player does not belong to any Clan', async () => {
-        await playerModel.findByIdAndUpdate(existingPlayer._id, { clan_id: null });
+    expect(soulHome).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
+  });
 
-        const [soulHome, errors] = await roomHelperService.getPlayerSoulHome(existingPlayer._id);
+  it('Should return NOT_FOUND if player does not belong to any Clan', async () => {
+    await playerModel.findByIdAndUpdate(existingPlayer._id, { clan_id: null });
 
-        expect(soulHome).toBeNull();
-        expect(errors).toContainSE_NOT_FOUND();
-    });
+    const [soulHome, errors] = await roomHelperService.getPlayerSoulHome(
+      existingPlayer._id,
+    );
+
+    expect(soulHome).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
+  });
 });

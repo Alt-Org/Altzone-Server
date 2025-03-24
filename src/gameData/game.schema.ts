@@ -7,25 +7,41 @@ export type GameDocument = HydratedDocument<Game>;
 
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
 export class Game {
-  @Prop({ type: [MongooseSchema.Types.ObjectId], required: true, ref: ModelName.PLAYER })
+  @Prop({
+    type: [MongooseSchema.Types.ObjectId],
+    required: true,
+    ref: ModelName.PLAYER,
+  })
   team1: string[];
 
-  @Prop({ type: [MongooseSchema.Types.ObjectId], required: true, ref: ModelName.PLAYER })
+  @Prop({
+    type: [MongooseSchema.Types.ObjectId],
+    required: true,
+    ref: ModelName.PLAYER,
+  })
   team2: string[];
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, required: true, ref: ModelName.CLAN })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    required: true,
+    ref: ModelName.CLAN,
+  })
   team1Clan: string;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, required: true, ref: ModelName.CLAN })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    required: true,
+    ref: ModelName.CLAN,
+  })
   team2Clan: string;
 
   @Prop({ type: Number, enum: [1, 2], required: true })
   winner: number;
 
-  @Prop ({ type: Date, required: true })
+  @Prop({ type: Date, required: true })
   startedAt: Date;
 
-  @Prop ({ type: Date, required: true })
+  @Prop({ type: Date, required: true })
   endedAt: Date;
 
   @ExtractField()

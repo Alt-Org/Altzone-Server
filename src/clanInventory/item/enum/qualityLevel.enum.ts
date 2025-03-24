@@ -4,5 +4,5 @@
 export enum QualityLevel {
   common = 'common',
   rare = 'rare',
-  epic = 'epic'
+  epic = 'epic',
 }

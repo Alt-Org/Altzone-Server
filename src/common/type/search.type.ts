@@ -13,34 +13,34 @@ export type Operator = 'AND' | 'OR';
 
 /**
  * Object containing Mongo DB search queries syntax
- * and their according search parameters used in url query part on the client side 
+ * and their according search parameters used in url query part on the client side
  */
 export const dbToQuery: Record<DBSelector, QuerySelector> = {
-    '$eq' : '=' ,
-    '$gt' : '>' ,
-    '$gte' : '>=' ,
-    '$lt' : '<' ,
-    '$lte' : '<='
-}
+  $eq: '=',
+  $gt: '>',
+  $gte: '>=',
+  $lt: '<',
+  $lte: '<=',
+};
 /**
- * Object containing search parameters used in url query part on the client side 
+ * Object containing search parameters used in url query part on the client side
  * and their according values in Mongo DB syntax
  */
 export const queryToDB: Record<QuerySelector, DBSelector> = {
-    '=' : '$eq',
-    '>' : '$gt',
-    '>=' : '$gte',
-    '<' : '$lt',
-    '<=' : '$lte'
-}
+  '=': '$eq',
+  '>': '$gt',
+  '>=': '$gte',
+  '<': '$lt',
+  '<=': '$lte',
+};
 
 /**
  * Object containing URL search query operators
  */
 export const operators: Record<Operator, string> = {
-    OR: 'OR',
-    AND: 'AND'
-}
+  OR: 'OR',
+  AND: 'AND',
+};
 /**
  * Array of URL search query parameters
  */

@@ -1,222 +1,338 @@
-import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { Box, BoxDocument, publicReferences } from "../schemas/box.schema";
-import { BoxReference } from "../enum/BoxReference.enum";
-import BasicService from "../../common/service/basicService/BasicService";
-import { IServiceReturn } from "../../common/service/basicService/IService";
-import { ObjectId } from "mongodb";
-import { PredefinedDailyTask } from "./predefinedDailyTask.schema";
-import { CreateDailyTask } from "./payloads/CreateDailyTask";
-import ServiceError from "../../common/service/basicService/ServiceError";
-import { SEReason } from "../../common/service/basicService/SEReason";
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Box, BoxDocument, publicReferences } from '../schemas/box.schema';
+import { BoxReference } from '../enum/BoxReference.enum';
+import BasicService from '../../common/service/basicService/BasicService';
+import { IServiceReturn } from '../../common/service/basicService/IService';
+import { ObjectId } from 'mongodb';
+import { PredefinedDailyTask } from './predefinedDailyTask.schema';
+import { CreateDailyTask } from './payloads/CreateDailyTask';
+import ServiceError from '../../common/service/basicService/ServiceError';
+import { SEReason } from '../../common/service/basicService/SEReason';
 
 @Injectable()
 export class DailyTaskService {
-    public constructor(
-        @InjectModel(Box.name) public readonly model: Model<Box>,
-    ) {
-        this.refsInModel = publicReferences;
-        this.basicService = new BasicService(model);
+  public constructor(@InjectModel(Box.name) public readonly model: Model<Box>) {
+    this.refsInModel = publicReferences;
+    this.basicService = new BasicService(model);
+  }
+
+  public readonly refsInModel: BoxReference[];
+  private readonly basicService: BasicService;
+
+  /**
+   * Adds a new daily task to box daily tasks array
+   * @param box_id _id of the box
+   * @param task task to add
+   *
+   * @returns created task, or ServiceError:
+   * - NOT_FOUND if the box was not found
+   * - REQUIRED if box_id is null, undefined or empty string, or task is null or undefined
+   */
+  async addOne(
+    box_id: string | ObjectId,
+    task: CreateDailyTask,
+  ): Promise<IServiceReturn<PredefinedDailyTask>> {
+    if (!box_id)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'box_id',
+            value: box_id,
+            message: 'box_id is required',
+          }),
+        ],
+      ];
+
+    if (!task)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'task',
+            value: task,
+            message: 'task is required',
+          }),
+        ],
+      ];
+
+    const convertedBox_id =
+      typeof box_id === 'string' ? box_id : box_id.toString();
+
+    const [, updateErrors] = await this.basicService.updateOneById(
+      convertedBox_id,
+      { $push: { dailyTasks: task } },
+    );
+    if (updateErrors && updateErrors[0].reason === SEReason.NOT_FOUND)
+      return [
+        null,
+        [
+          new ServiceError({
+            ...updateErrors[0],
+            field: 'box_id',
+            message: 'Box with this _id not found',
+          }),
+        ],
+      ];
+
+    if (updateErrors) return [null, updateErrors];
+
+    const [updatedBox, readErrors] =
+      await this.basicService.readOneById<BoxDocument>(convertedBox_id);
+    if (readErrors) return [null, readErrors];
+
+    const createdTask = updatedBox.dailyTasks.find((dTask) =>
+      this.areSameTasks(dTask, task),
+    );
+    return [createdTask, null];
+  }
+
+  /**
+   * Adds multiple daily tasks to box daily tasks
+   * @param box_id _id of the box
+   * @param tasks tasks to add
+   *
+   * @returns created tasks, or ServiceError:
+   * - NOT_FOUND if the box was not found
+   * - REQUIRED if box_id is null, undefined or empty string, or tasks is null, undefined or empty array
+   */
+  async addMultiple(
+    box_id: string | ObjectId,
+    tasks: CreateDailyTask[],
+  ): Promise<IServiceReturn<PredefinedDailyTask[]>> {
+    if (!box_id)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'box_id',
+            value: box_id,
+            message: 'box_id is required',
+          }),
+        ],
+      ];
+
+    if (!tasks || tasks.length === 0)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'tasks',
+            value: tasks,
+            message: 'task is required',
+          }),
+        ],
+      ];
+
+    const convertedBox_id =
+      typeof box_id === 'string' ? box_id : box_id.toString();
+
+    const [, updateErrors] = await this.basicService.updateOneById(
+      convertedBox_id,
+      { $push: { dailyTasks: tasks } },
+    );
+    if (updateErrors && updateErrors[0].reason === SEReason.NOT_FOUND)
+      return [
+        null,
+        [
+          new ServiceError({
+            ...updateErrors[0],
+            field: 'box_id',
+            message: 'Box with this _id not found',
+          }),
+        ],
+      ];
+
+    if (updateErrors) return [null, updateErrors];
+
+    const [updatedBox, readErrors] =
+      await this.basicService.readOneById<BoxDocument>(convertedBox_id);
+    if (readErrors) return [null, readErrors];
+
+    const createdTasks: PredefinedDailyTask[] = [];
+    for (let i = 0; i < tasks.length; i++) {
+      const currTask = tasks[i];
+      const createdTask = updatedBox.dailyTasks.find((dTask) =>
+        this.areSameTasks(dTask, currTask),
+      );
+      if (createdTask) createdTasks.push(createdTask);
     }
 
-    public readonly refsInModel: BoxReference[];
-    private readonly basicService: BasicService;
+    return [createdTasks, null];
+  }
 
-    /**
-     * Adds a new daily task to box daily tasks array
-     * @param box_id _id of the box
-     * @param task task to add
-     *
-     * @returns created task, or ServiceError:
-     * - NOT_FOUND if the box was not found
-     * - REQUIRED if box_id is null, undefined or empty string, or task is null or undefined
-     */
-    async addOne(box_id: string | ObjectId, task: CreateDailyTask): Promise<IServiceReturn<PredefinedDailyTask>> {
-        if (!box_id)
-            return [null, [new ServiceError({
-                reason: SEReason.REQUIRED, field: 'box_id', value: box_id,
-                message: 'box_id is required'
-            })]];
+  /**
+   * Updates a daily task in the box daily tasks array
+   * @param box_id _id of the box
+   * @param task task to update with _id field
+   *
+   * @returns true if the task was updated, or ServiceError:
+   * - NOT_FOUND if the box or task was not found
+   * - REQUIRED if box_id is null, undefined or empty string, or task is null, undefined or without _id
+   */
+  async updateOneById(
+    box_id: string | ObjectId,
+    task: Partial<PredefinedDailyTask>,
+  ): Promise<IServiceReturn<true>> {
+    if (!box_id)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'box_id',
+            value: box_id,
+            message: 'box_id is required',
+          }),
+        ],
+      ];
 
-        if (!task)
-            return [null, [new ServiceError({
-                reason: SEReason.REQUIRED, field: 'task', value: task,
-                message: 'task is required'
-            })]];
+    if (!task)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'task',
+            value: task,
+            message: 'task is required',
+          }),
+        ],
+      ];
 
-        const convertedBox_id = typeof box_id === 'string' ? box_id : box_id.toString();
+    if (!task._id)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'task_id',
+            value: task._id,
+            message: 'task _id is required',
+          }),
+        ],
+      ];
 
-        const [, updateErrors] = await this.basicService.updateOneById(convertedBox_id, { $push: { dailyTasks: task } });
-        if (updateErrors && updateErrors[0].reason === SEReason.NOT_FOUND)
-            return [null, [
-                new ServiceError({
-                    ...updateErrors[0], field: 'box_id',
-                    message: 'Box with this _id not found'
-                })
-            ]];
+    const doesBoxExists = await this.model.findById(box_id);
+    if (!doesBoxExists)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'box_id',
+            value: box_id.toString(),
+            message: 'Box with provided _id not found',
+          }),
+        ],
+      ];
 
-        if (updateErrors)
-            return [null, updateErrors];
+    const taskUpdateResp = await this.model.updateOne(
+      { _id: box_id, 'dailyTasks._id': task._id },
+      { $set: { 'dailyTasks.$': task } },
+    );
 
-        const [updatedBox, readErrors] = await this.basicService.readOneById<BoxDocument>(convertedBox_id);
-        if (readErrors)
-            return [null, readErrors];
+    if (taskUpdateResp.modifiedCount === 0)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'task_id',
+            value: task._id.toString(),
+            message: 'Task with provided _id not found',
+          }),
+        ],
+      ];
 
-        const createdTask = updatedBox.dailyTasks.find(dTask => this.areSameTasks(dTask, task));
-        return [createdTask, null];
-    }
+    return [true, null];
+  }
 
-    /**
-     * Adds multiple daily tasks to box daily tasks
-     * @param box_id _id of the box
-     * @param tasks tasks to add
-     *
-     * @returns created tasks, or ServiceError:
-     * - NOT_FOUND if the box was not found
-     * - REQUIRED if box_id is null, undefined or empty string, or tasks is null, undefined or empty array
-     */
-    async addMultiple(box_id: string | ObjectId, tasks: CreateDailyTask[]): Promise<IServiceReturn<PredefinedDailyTask[]>> {
-        if (!box_id)
-            return [null, [new ServiceError({
-                reason: SEReason.REQUIRED, field: 'box_id', value: box_id,
-                message: 'box_id is required'
-            })]];
+  /**
+   * Deletes a daily task from box by _id
+   * @param box_id _id of the box
+   * @param task_id task _id to delete
+   *
+   * @returns true if the task was deleted, or ServiceError:
+   * - NOT_FOUND if the box was not found
+   * - REQUIRED if box_id is null, undefined or empty string, or task is null or undefined
+   */
+  async deleteOneById(
+    box_id: string | ObjectId,
+    task_id: string | ObjectId,
+  ): Promise<IServiceReturn<true>> {
+    if (!box_id)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'box_id',
+            value: box_id,
+            message: 'box_id is required',
+          }),
+        ],
+      ];
 
-        if (!tasks || tasks.length === 0)
-            return [null, [new ServiceError({
-                reason: SEReason.REQUIRED, field: 'tasks', value: tasks,
-                message: 'task is required'
-            })]];
+    if (!task_id)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'task_id',
+            value: task_id,
+            message: 'task_id is required',
+          }),
+        ],
+      ];
 
-        const convertedBox_id = typeof box_id === 'string' ? box_id : box_id.toString();
+    const doesBoxExists = await this.model.findById(box_id);
+    if (!doesBoxExists)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'box_id',
+            value: box_id.toString(),
+            message: 'Box with provided _id not found',
+          }),
+        ],
+      ];
 
-        const [, updateErrors] = await this.basicService.updateOneById(convertedBox_id, { $push: { dailyTasks: tasks } });
-        if (updateErrors && updateErrors[0].reason === SEReason.NOT_FOUND)
-            return [null, [
-                new ServiceError({
-                    ...updateErrors[0], field: 'box_id',
-                    message: 'Box with this _id not found'
-                })
-            ]];
+    await this.model.updateOne(
+      { _id: box_id },
+      { $pull: { dailyTasks: { _id: task_id } } },
+    );
 
-        if (updateErrors)
-            return [null, updateErrors];
+    return [true, null];
+  }
 
-        const [updatedBox, readErrors] = await this.basicService.readOneById<BoxDocument>(convertedBox_id);
-        if (readErrors)
-            return [null, readErrors];
-
-        const createdTasks: PredefinedDailyTask[] = [];
-        for (let i = 0; i < tasks.length; i++) {
-            const currTask = tasks[i];
-            const createdTask = updatedBox.dailyTasks.find(dTask => this.areSameTasks(dTask, currTask));
-            if (createdTask)
-                createdTasks.push(createdTask);
-        }
-
-        return [createdTasks, null];
-    }
-
-    /**
-     * Updates a daily task in the box daily tasks array
-     * @param box_id _id of the box
-     * @param task task to update with _id field
-     *
-     * @returns true if the task was updated, or ServiceError:
-     * - NOT_FOUND if the box or task was not found
-     * - REQUIRED if box_id is null, undefined or empty string, or task is null, undefined or without _id
-     */
-    async updateOneById(box_id: string | ObjectId, task: Partial<PredefinedDailyTask>): Promise<IServiceReturn<true>> {
-        if (!box_id)
-            return [null, [new ServiceError({
-                reason: SEReason.REQUIRED, field: 'box_id', value: box_id,
-                message: 'box_id is required'
-            })]];
-
-        if (!task)
-            return [null, [new ServiceError({
-                reason: SEReason.REQUIRED, field: 'task', value: task,
-                message: 'task is required'
-            })]];
-
-        if (!task._id)
-            return [null, [new ServiceError({
-                reason: SEReason.REQUIRED, field: 'task_id', value: task._id,
-                message: 'task _id is required'
-            })]];
-
-        const doesBoxExists = await this.model.findById(box_id);
-        if (!doesBoxExists)
-            return [null, [new ServiceError({
-                reason: SEReason.NOT_FOUND, field: 'box_id', value: box_id.toString(),
-                message: 'Box with provided _id not found'
-            })]];
-
-        const taskUpdateResp = await this.model.updateOne(
-            { _id: box_id, 'dailyTasks._id': task._id },
-            { $set: { 'dailyTasks.$': task } },
-        );
-
-        if (taskUpdateResp.modifiedCount === 0)
-            return [null, [new ServiceError({
-                reason: SEReason.NOT_FOUND, field: 'task_id', value: task._id.toString(),
-                message: 'Task with provided _id not found'
-            })]]
-
-        return [true, null];
-    }
-
-    /**
-     * Deletes a daily task from box by _id
-     * @param box_id _id of the box
-     * @param task_id task _id to delete
-     *
-     * @returns true if the task was deleted, or ServiceError:
-     * - NOT_FOUND if the box was not found
-     * - REQUIRED if box_id is null, undefined or empty string, or task is null or undefined
-     */
-    async deleteOneById(box_id: string | ObjectId, task_id: string | ObjectId): Promise<IServiceReturn<true>> {
-        if (!box_id)
-            return [null, [new ServiceError({
-                reason: SEReason.REQUIRED, field: 'box_id', value: box_id,
-                message: 'box_id is required'
-            })]];
-
-        if (!task_id)
-            return [null, [new ServiceError({
-                reason: SEReason.REQUIRED, field: 'task_id', value: task_id,
-                message: 'task_id is required'
-            })]];
-
-        const doesBoxExists = await this.model.findById(box_id);
-        if (!doesBoxExists)
-            return [null, [new ServiceError({
-                reason: SEReason.NOT_FOUND, field: 'box_id', value: box_id.toString(),
-                message: 'Box with provided _id not found'
-            })]];
-
-        await this.model.updateOne(
-            { _id: box_id },
-            { $pull: { dailyTasks: { _id: task_id } } }
-        );
-
-        return [true, null];
-    }
-
-    /**
-     * Defines whenever values of the both tasks are the same
-     * Notice that method will ignore the _id field
-     * @param task1 first task to compare
-     * @param task2 second task to compare
-     * @returns true if 
-     */
-    private areSameTasks(task1: Partial<PredefinedDailyTask>, task2: Partial<PredefinedDailyTask>) {
-        return task1.amount === task2.amount &&
-            task1.coins === task2.coins &&
-            task1.points === task2.points &&
-            task1.timeLimitMinutes === task2.timeLimitMinutes &&
-            task1.title === task2.title &&
-            task1.type === task2.type;
-    }
+  /**
+   * Defines whenever values of the both tasks are the same
+   * Notice that method will ignore the _id field
+   * @param task1 first task to compare
+   * @param task2 second task to compare
+   * @returns true if
+   */
+  private areSameTasks(
+    task1: Partial<PredefinedDailyTask>,
+    task2: Partial<PredefinedDailyTask>,
+  ) {
+    return (
+      task1.amount === task2.amount &&
+      task1.coins === task2.coins &&
+      task1.points === task2.points &&
+      task1.timeLimitMinutes === task2.timeLimitMinutes &&
+      task1.title === task2.title &&
+      task1.type === task2.type
+    );
+  }
 }

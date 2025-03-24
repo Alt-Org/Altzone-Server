@@ -1,5 +1,5 @@
-import UIBasicDailyTask from "./payloads/UIBasicDailyTask";
-import CreatedClan from "./payloads/CreatedClan";
+import UIBasicDailyTask from './payloads/UIBasicDailyTask';
+import CreatedClan from './payloads/CreatedClan';
 
 /**
  * Record containing all possible event resources with their supported actions.
@@ -10,13 +10,13 @@ import CreatedClan from "./payloads/CreatedClan";
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const EventNamesMap = {
-    game: ['winBattle', 'playBattle'] as const,
-    message: ['send'] as const,
-    voting: ['sendVote', 'start'] as const,
-    diamond: ['collect'] as const,
-    character: ['startBattle'] as const,
-    dailyTask: ['updateUIBasicTask'] as const,
-    clan: ['create'] as const
+  game: ['winBattle', 'playBattle'] as const,
+  message: ['send'] as const,
+  voting: ['sendVote', 'start'] as const,
+  diamond: ['collect'] as const,
+  character: ['startBattle'] as const,
+  dailyTask: ['updateUIBasicTask'] as const,
+  clan: ['create'] as const,
 } as const;
 
 /**
@@ -24,15 +24,15 @@ const EventNamesMap = {
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const EventsPayloadMap = {
-    "game.winBattle": {},
-    "game.playBattle": {},
-    "message.send": {},
-    "voting.sendVote": {},
-    "voting.start": {},
-    "diamond.collect": {},
-    "character.startBattle": {},
-    "dailyTask.updateUIBasicTask": {} as UIBasicDailyTask,
-    "clan.create": {} as CreatedClan,
+  'game.winBattle': {},
+  'game.playBattle': {},
+  'message.send': {},
+  'voting.sendVote': {},
+  'voting.start': {},
+  'diamond.collect': {},
+  'character.startBattle': {},
+  'dailyTask.updateUIBasicTask': {} as UIBasicDailyTask,
+  'clan.create': {} as CreatedClan,
 } as const;
 
 /**
@@ -41,11 +41,13 @@ const EventsPayloadMap = {
  * It determines a unique name for an event.
  */
 export type EventName = {
-    [K in keyof typeof EventNamesMap]: `${K}.${(typeof EventNamesMap)[K][number]}`
+  [K in keyof typeof EventNamesMap]: `${K}.${(typeof EventNamesMap)[K][number]}`;
 }[keyof typeof EventNamesMap];
-
 
 /**
  * Payload of an event, which contains some data of the event
  */
-export type EventPayload<T extends EventName> = T extends keyof typeof EventsPayloadMap ? typeof EventsPayloadMap[T] : never;
+export type EventPayload<T extends EventName> =
+  T extends keyof typeof EventsPayloadMap
+    ? (typeof EventsPayloadMap)[T]
+    : never;

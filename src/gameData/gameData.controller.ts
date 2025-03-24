@@ -11,24 +11,25 @@ import { RequestTypeDto } from './dto/resultType.dto';
 
 @Controller('gameData')
 export class GameDataController {
-	constructor(
-		private readonly service: GameDataService,
-	){}
+  constructor(private readonly service: GameDataService) {}
 
-	@Post('battle')
-	@UniformResponse()
-	async handleBattleResult(@Body() body: any, @LoggedUser() user: User) {
-		const typeDto = new RequestTypeDto
-		typeDto.type = body.type
-		const errors = await validate(typeDto);
-		if (errors.length > 0)
-			return new APIError({ reason: APIErrorReason.WRONG_ENUM, message: "Invalid type" });
+  @Post('battle')
+  @UniformResponse()
+  async handleBattleResult(@Body() body: any, @LoggedUser() user: User) {
+    const typeDto = new RequestTypeDto();
+    typeDto.type = body.type;
+    const errors = await validate(typeDto);
+    if (errors.length > 0)
+      return new APIError({
+        reason: APIErrorReason.WRONG_ENUM,
+        message: 'Invalid type',
+      });
 
-		switch (typeDto.type) {
-			case RequestType.RESULT:
-				return await this.service.handleResultType(body, user)
-			default:
-				return new APIError({ reason: APIErrorReason.BAD_REQUEST })
-		}
-	} 
+    switch (typeDto.type) {
+      case RequestType.RESULT:
+        return await this.service.handleResultType(body, user);
+      default:
+        return new APIError({ reason: APIErrorReason.BAD_REQUEST });
+    }
+  }
 }

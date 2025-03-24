@@ -1,4 +1,4 @@
 export enum MoveTo {
-	STOCK = "Stock",
-	ROOM = "Room"
+  STOCK = 'Stock',
+  ROOM = 'Room',
 }

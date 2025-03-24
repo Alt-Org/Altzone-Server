@@ -1,4 +1,4 @@
-import {Module} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ClanInventoryModule } from '../clanInventory/clanInventory.module';
 import { ItemMoverService } from './itemMover.service';
 import { ItemMoverController } from './itemMover.controller';
@@ -10,24 +10,18 @@ import { SoulhomeSchema } from '../clanInventory/soulhome/soulhome.schema';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([
-            { name: ModelName.PLAYER, schema: PlayerSchema },
-            {name: ModelName.CLAN, schema: ClanSchema },
-            {name: ModelName.SOULHOME, schema: SoulhomeSchema }
-        ]),
-        
-        ClanInventoryModule,
-        AuthModule
-    ],
-    controllers: [
-        ItemMoverController
-    ],
-    providers: [ 
-        ItemMoverService
-    ],
-    exports: [
-        ItemMoverService
-    ]
+  imports: [
+    MongooseModule.forFeature([
+      { name: ModelName.PLAYER, schema: PlayerSchema },
+      { name: ModelName.CLAN, schema: ClanSchema },
+      { name: ModelName.SOULHOME, schema: SoulhomeSchema },
+    ]),
+
+    ClanInventoryModule,
+    AuthModule,
+  ],
+  controllers: [ItemMoverController],
+  providers: [ItemMoverService],
+  exports: [ItemMoverService],
 })
 export class ItemMoverModule {}

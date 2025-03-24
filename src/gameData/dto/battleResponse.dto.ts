@@ -1,5 +1,5 @@
 export type BattleResponseDto = {
-	stealToken: string;
-	soulHome_id: string;
-	roomIds: string[];
-}
+  stealToken: string;
+  soulHome_id: string;
+  roomIds: string[];
+};

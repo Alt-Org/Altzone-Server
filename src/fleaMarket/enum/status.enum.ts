@@ -4,7 +4,7 @@
  * Used in the status field.
  */
 export enum Status {
-	AVAILABLE = "available",
-	SHIPPING = "shipping",
-	BOOKED = "booked",
+  AVAILABLE = 'available',
+  SHIPPING = 'shipping',
+  BOOKED = 'booked',
 }

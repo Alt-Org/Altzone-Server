@@ -1,21 +1,27 @@
-import { IsBoolean, IsMongoId, IsNumber, IsOptional, IsString } from "class-validator";
-import AddType from "../../../common/base/decorator/AddType.decorator";
+import {
+  IsBoolean,
+  IsMongoId,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import AddType from '../../../common/base/decorator/AddType.decorator';
 
 @AddType('CreateRoomDto')
 export class CreateRoomDto {
-    @IsString() 
-    floorType: string;
+  @IsString()
+  floorType: string;
 
-    @IsString()
-    wallType: string;
+  @IsString()
+  wallType: string;
 
-    @IsBoolean()
-    @IsOptional()
-    hasLift: boolean;
+  @IsBoolean()
+  @IsOptional()
+  hasLift: boolean;
 
-    @IsNumber()
-    cellCount: number;
+  @IsNumber()
+  cellCount: number;
 
-    @IsMongoId()
-    soulHome_id: string;
+  @IsMongoId()
+  soulHome_id: string;
 }

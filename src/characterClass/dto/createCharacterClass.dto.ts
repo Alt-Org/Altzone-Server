@@ -1,6 +1,6 @@
-import {IsEnum, IsInt, IsString} from "class-validator";
-import {GestaltCycle} from "../../common/enum/gestaltCycle.enum";
-import AddType from "../../common/base/decorator/AddType.decorator";
+import { IsEnum, IsInt, IsString } from 'class-validator';
+import { GestaltCycle } from '../../common/enum/gestaltCycle.enum';
+import AddType from '../../common/base/decorator/AddType.decorator';
 
 /**
  * This class is used for validation incoming requests while creating a CharacterClass.
@@ -10,22 +10,22 @@ import AddType from "../../common/base/decorator/AddType.decorator";
  */
 @AddType('CreateCharacterClassDto')
 export class CreateCharacterClassDto {
-    //class-validator decorator for checking is the provided field string or not
-    @IsString()
-    name: string;
+  //class-validator decorator for checking is the provided field string or not
+  @IsString()
+  name: string;
 
-    @IsEnum(GestaltCycle)
-    gestaltCycle: GestaltCycle;
+  @IsEnum(GestaltCycle)
+  gestaltCycle: GestaltCycle;
 
-    @IsInt()
-    speed: number;
+  @IsInt()
+  speed: number;
 
-    @IsInt()
-    resistance: number;
+  @IsInt()
+  resistance: number;
 
-    @IsInt()
-    attack: number;
+  @IsInt()
+  attack: number;
 
-    @IsInt()
-    defence: number;
+  @IsInt()
+  defence: number;
 }

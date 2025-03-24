@@ -1,11 +1,11 @@
-import {IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
+import { IsInt, IsMongoId, IsOptional, IsString } from 'class-validator';
 
 export class UpdateUIDailyTaskDto {
-    @IsString()
-    @IsMongoId()
-    _id: string;
+  @IsString()
+  @IsMongoId()
+  _id: string;
 
-    @IsOptional()
-    @IsInt()
-    amount: number;
+  @IsOptional()
+  @IsInt()
+  amount: number;
 }
