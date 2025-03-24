@@ -7,7 +7,7 @@ import {RulesSetterAsync} from "../type/RulesSetter.type";
 type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
 
-export const itemRules: RulesSetterAsync<Ability, Subjects> = async (user, subject: any, action, subjectObj: any, requestHelperService) => {
+export const itemRules: RulesSetterAsync<Ability, Subjects> = async (_user, subject: any) => {
     const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
     can(Action.create_request, subject);

@@ -2,7 +2,7 @@ import { APIErrorFilter } from "../../../../common/exceptionFilter/APIErrorFilte
 import TestUtilDataFactory from "../../../test_utils/data/TestUtilsDataFactory";
 
 describe('APIErrorFilter.catch() class test suite', () => {
-    let filter = new APIErrorFilter();
+    const filter = new APIErrorFilter();
     const apiErrorBuilder = TestUtilDataFactory.getBuilder('APIError');
     const apiError = apiErrorBuilder
         .setMessage('Something is not right')
@@ -11,7 +11,7 @@ describe('APIErrorFilter.catch() class test suite', () => {
 
     const jsonMock = jest.fn();
     const responseMock = {
-        status: jest.fn((statusCode: number) => {
+        status: jest.fn((_statusCode: number) => {
             return {
                 json: jsonMock
             }

@@ -1,5 +1,5 @@
 import {HttpException} from "@nestjs/common/exceptions/http.exception";
-import ServiceError, { isServiceError } from "../../../common/service/basicService/ServiceError";
+import { isServiceError } from "../../../common/service/basicService/ServiceError";
 import { APIError, convertToAPIError, isAPIError } from "../../../common/controller/APIError";
 import formatResponse from "../../../common/controller/formatResponse";
 import { ModelName } from "../../../common/enum/modelName.enum";

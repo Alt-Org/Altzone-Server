@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from "@nestjs/common";
+import { Controller, Get } from "@nestjs/common";
 import { LeaderboardService } from "./leaderboard.service";
 import { UniformResponse } from "../common/decorator/response/UniformResponse";
 import { ModelName } from "../common/enum/modelName.enum";

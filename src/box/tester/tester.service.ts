@@ -54,8 +54,8 @@ export class TesterService {
             })]];
 
         const passwords = this.generateUniquePasswords(amount);
-        const [createdProfiles, profilesCreationErrors] = await this.createProfiles(passwords);
-        const [createdPlayers, playerCreationErrors] = await this.createPlayers(passwords, createdProfiles);
+        const [createdProfiles,] = await this.createProfiles(passwords);
+        const [createdPlayers,] = await this.createPlayers(passwords, createdProfiles);
 
         const testers: Tester[] = [];
         for (let i = 0; i < createdProfiles.length; i++) {

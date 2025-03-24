@@ -47,7 +47,7 @@ export class DailyTaskService {
 
         const convertedBox_id = typeof box_id === 'string' ? box_id : box_id.toString();
 
-        const [isUpdated, updateErrors] = await this.basicService.updateOneById(convertedBox_id, { $push: { dailyTasks: task } });
+        const [, updateErrors] = await this.basicService.updateOneById(convertedBox_id, { $push: { dailyTasks: task } });
         if (updateErrors && updateErrors[0].reason === SEReason.NOT_FOUND)
             return [null, [
                 new ServiceError({
@@ -91,7 +91,7 @@ export class DailyTaskService {
 
         const convertedBox_id = typeof box_id === 'string' ? box_id : box_id.toString();
 
-        const [isUpdated, updateErrors] = await this.basicService.updateOneById(convertedBox_id, { $push: { dailyTasks: tasks } });
+        const [, updateErrors] = await this.basicService.updateOneById(convertedBox_id, { $push: { dailyTasks: tasks } });
         if (updateErrors && updateErrors[0].reason === SEReason.NOT_FOUND)
             return [null, [
                 new ServiceError({

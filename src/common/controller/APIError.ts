@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from "@nestjs/common";
+import { HttpException } from "@nestjs/common";
 import AddType, { isType } from "../base/decorator/AddType.decorator";
 import { SERVICE_ERROR_TYPE } from "../service/basicService/ServiceError";
 import {APIErrorReason} from "./APIErrorReason";

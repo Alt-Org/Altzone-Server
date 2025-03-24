@@ -48,13 +48,13 @@ afterAll(async () => {
 async function initDB() {
     const profileModel = mongoose.model(ModelName.PROFILE, ProfileSchema);
     const defaultProfile = LoggedUser.getProfile();
-    const {_id: profileId, ...profileToCreate} = defaultProfile;
+    const {_id: _profileId, ...profileToCreate} = defaultProfile;
     const profileResp = await profileModel.create(profileToCreate);
     LoggedUser.setProfile_id(profileResp._id.toString());
 
     const playerModel = mongoose.model(ModelName.PLAYER, PlayerSchema);
     const defaultPlayer = LoggedUser.getPlayer();
-    const {_id: playerId, ...playerToCreate} = defaultPlayer;
+    const {_id: _playerId, ...playerToCreate} = defaultPlayer;
     const playerResp = await playerModel.create(playerToCreate);
     LoggedUser.setPlayer_id(playerResp._id.toString());
 }

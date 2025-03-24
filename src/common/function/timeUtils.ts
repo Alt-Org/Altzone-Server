@@ -5,7 +5,7 @@
  * @returns The time elapsed since the given timestamp, in milliseconds.
  */
 export function getTimeSince(timeStamp: number) {
-    let date = Date.now();
+    const date = Date.now();
     return  date - timeStamp;
 }
 
@@ -17,6 +17,6 @@ export function getTimeSince(timeStamp: number) {
  * @returns `true` if the specified amount of time has passed since the timestamp, otherwise `false`.
  */
 export function passed(timeStamp:number,ms : number) {
-    let date = Date.now();
+    const date = Date.now();
     return date - timeStamp >= ms;
 }

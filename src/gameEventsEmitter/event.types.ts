@@ -8,6 +8,7 @@ import CreatedClan from "./payloads/CreatedClan";
  *
  * Action of an event represents what happen, such as start
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const EventNamesMap = {
     game: ['winBattle', 'playBattle'] as const,
     message: ['send'] as const,
@@ -21,6 +22,7 @@ const EventNamesMap = {
 /**
  * Defines a payload for each event name
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const EventsPayloadMap = {
     "game.winBattle": {},
     "game.playBattle": {},

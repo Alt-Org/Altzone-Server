@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, HttpException, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { GameDataService } from './gameData.service';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';

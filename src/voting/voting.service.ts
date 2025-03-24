@@ -15,7 +15,6 @@ import { alreadyVotedError } from "./error/alreadyVoted.error";
 import { Vote } from "./schemas/vote.schema";
 import { ModelName } from "../common/enum/modelName.enum";
 import { addVoteError } from "./error/addVote.error";
-import { TIServiceReadManyOptions } from "../common/service/basicService/IService";
 
 @Injectable()
 export class VotingService {

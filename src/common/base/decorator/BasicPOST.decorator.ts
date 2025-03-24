@@ -5,7 +5,7 @@ import {CatchCreateUpdateErrors} from "../../decorator/response/CatchCreateUpdat
 /**
  * @deprecated 
  */
-export function BasicPOST(responseDTO: IClass) {
+export function BasicPOST(_responseDTO: IClass) {
     return applyDecorators(
         CatchCreateUpdateErrors()
     );

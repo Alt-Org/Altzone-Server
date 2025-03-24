@@ -83,7 +83,7 @@ export class DailyTasksController {
 	@UniformResponse(ModelName.DAILY_TASK)
 	async deleteTask(@Param() param: _idDto, @LoggedUser() user: User) {
 		const clanId = await this.playerService.getPlayerClanId(user.player_id);
-		const [result, errors] = await this.dailyTasksService.deleteTask(param._id, clanId, user.player_id);
+		const [, errors] = await this.dailyTasksService.deleteTask(param._id, clanId, user.player_id);
 		if(errors)
 			return [null, errors];
 	}

@@ -25,6 +25,6 @@ function clearObject<TResponse>(dbObject: TResponse){
     if(dbObject instanceof Document)
         dbObject = dbObject.toObject();
 
-    const {id, __v, ...clearedResponse} = {...dbObject, id: undefined, __v: undefined};
+    const {id: _, __v, ...clearedResponse} = {...dbObject, id: undefined, __v: undefined};
     return clearedResponse as TResponse;
 }

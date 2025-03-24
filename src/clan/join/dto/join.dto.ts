@@ -1,8 +1,6 @@
-import { Expose, Type } from "class-transformer";
-import { IsClanExists } from "../../../clan/decorator/validation/IsClanExists.decorator";
+import { Expose } from "class-transformer";
 import AddType from "../../../common/base/decorator/AddType.decorator";
 import { ExtractField } from "../../../common/decorator/response/ExtractField";
-import { PlayerDto } from "../../../player/dto/player.dto";
 
 @AddType('JoinDto')
 export class JoinDto {

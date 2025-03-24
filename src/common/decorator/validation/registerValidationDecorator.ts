@@ -2,6 +2,7 @@ import {registerDecorator, ValidationOptions, ValidatorConstraintInterface} from
 
 export function registerValidationDecorator (
     decoratorName: string,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     validatorFunction: Function | ValidatorConstraintInterface,
     object: any,
     propertyName: string,

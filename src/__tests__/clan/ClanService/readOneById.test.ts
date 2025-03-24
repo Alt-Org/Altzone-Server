@@ -17,7 +17,7 @@ describe('ClanService.readOneById() test suite', () => {
     const existingClanName = 'clan1';
     let existingClan: Clan;
 
-    let loggedPlayer = LoggedUser.getPlayer();
+    const loggedPlayer = LoggedUser.getPlayer();
     const playerBuilder = PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
     const playerModel = PlayerModule.getPlayerModel();
 

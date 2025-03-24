@@ -48,11 +48,11 @@ export class isEntityExists<T> implements ValidatorConstraintInterface{
             }
         }
 
-        const condition: {} = {[this.searchField]: parsedValue};
+        const condition: object = {[this.searchField]: parsedValue};
         return await this.entityModel.findOne(condition) != null;
     }
 
-    public defaultMessage(args: ValidationArguments) {
+    public defaultMessage(_args: ValidationArguments) {
         return `${this.entityName} with that ${this.searchField} does not exists`;
     }
 

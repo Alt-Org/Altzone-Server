@@ -15,8 +15,8 @@ describe('StockService.deleteOneById() test suite', () => {
 
     const itemBuilder = ClanInventoryBuilderFactory.getBuilder('Item');
     const itemModel = ItemModule.getItemModel();
-    let existingItem1 = itemBuilder.build();
-    let existingItem2 = itemBuilder.build();
+    const existingItem1 = itemBuilder.build();
+    const existingItem2 = itemBuilder.build();
 
     beforeEach(async () => {
         stockService = await StockModule.getStockService();

@@ -46,7 +46,7 @@ describe('TesterService.deleteTesters() test suite', () => {
 
         const testersToCreate: Tester[] = [];
         for (let i = 0; i < 5; i++) {
-            let clan_id = i < 3 ? boxClan1._id : boxClan2._id;
+            const clan_id = i < 3 ? boxClan1._id : boxClan2._id;
 
             const profileToCreate = profileBuilder.setUsername(`player${i}`).build();
             const profileResp = await profileModel.create(profileToCreate);

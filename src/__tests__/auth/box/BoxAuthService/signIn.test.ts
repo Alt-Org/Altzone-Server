@@ -1,4 +1,3 @@
-import * as argon2 from "argon2";
 import {JwtService} from "@nestjs/jwt";
 import ProfileModule from "../../../profile/modules/profile.module";
 import ProfileBuilderFactory from "../../../profile/data/profileBuilderFactory";

@@ -44,7 +44,7 @@ export class StockService {
       * @returns Stock with the given _id on succeed or an array of ServiceErrors if any occurred.
     */
     async readOneById(_id: string, options?: TReadByIdOptions) {
-        let optionsToApply = options;
+        const optionsToApply = options;
         if(options?.includeRefs)
             optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
         return this.basicService.readOneById<StockDto>(_id, optionsToApply);
@@ -57,7 +57,7 @@ export class StockService {
       * @returns An array of Stocks if succeed or an array of ServiceErrors if any occurred.
      */
      async readAll(options?: TIServiceReadManyOptions) {
-         let optionsToApply = options;
+         const optionsToApply = options;
          if(options?.includeRefs)
              optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
  

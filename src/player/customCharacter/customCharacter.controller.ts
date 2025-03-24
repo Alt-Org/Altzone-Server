@@ -63,7 +63,7 @@ export class CustomCharacterController{
     @Authorize({action: Action.update, subject: UpdateCustomCharacterDto})
     @UniformResponse(ModelName.CUSTOM_CHARACTER)
     public async update(@Body() body: UpdateCustomCharacterDto, @LoggedUser() user: User){
-        const [resp, errors] = await this.service.updateOneByCondition(body, { filter: { player_id: user.player_id, _id: body._id } });
+        const [, errors] = await this.service.updateOneByCondition(body, { filter: { player_id: user.player_id, _id: body._id } });
         if(errors)
             return [null, errors];
     }

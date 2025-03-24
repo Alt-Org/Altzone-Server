@@ -24,15 +24,15 @@ export class PlayerMocker {
         const validObj = this.getValid() as PlayerDto;
         return this.commonMocker.removeObjectFields<PlayerDto>(validObj, fieldsToEscape);
     }
-    public getWrongDT(fieldsToBeWrong?: string[], options?: GetWrongFieldDTOptions): Object[]{
+    public getWrongDT(fieldsToBeWrong?: string[], options?: GetWrongFieldDTOptions): unknown[] {
         const validObj = this.getValid();
         const resp = this.commonMocker.generateWrongDataTypesResponse(validObj, fieldsToBeWrong);
         const req = this.commonMocker.generateObjWithWrongDT(validObj, fieldsToBeWrong, options);
         return [req, resp];
     }
 
-    public getNotUnique(existingObj: Object, notUniqueField: 'name' | 'uniqueIdentifier'): Object[]{
-        let req = this.getValid();
+    public getNotUnique(existingObj: object, notUniqueField: 'name' | 'uniqueIdentifier'): object[]{
+        const req = this.getValid();
         req['profile_id'] = existingObj['profile_id'];
         req[notUniqueField] = existingObj[notUniqueField];
         const resp = this.commonMocker.generateNotUniqueFieldsResponse({[notUniqueField]: existingObj[notUniqueField]});

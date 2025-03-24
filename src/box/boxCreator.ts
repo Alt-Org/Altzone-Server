@@ -62,7 +62,7 @@ export default class BoxCreator {
                 message: 'boxToInit parameter is required'
             })]];
 
-        const [isBoxDataValid, boxValidationErrors] = await this.validateBox(boxToInit);
+        const [, boxValidationErrors] = await this.validateBox(boxToInit);
 
         if (boxValidationErrors)
             return [null, boxValidationErrors]
@@ -131,10 +131,10 @@ export default class BoxCreator {
         if (errors)
             return [null, errors];
 
-        const {Stock: stock1, SoulHome: soulHome1, ...createdClan1} = (clan1 as any).toObject();
-        const {Stock: stock2, SoulHome: soulHome2, ...createdClan2} = (clan2 as any).toObject();
-        const {__v, id, ...createdAdminPlayer} = (adminPlayer as any).toObject();
-        const {__v: chat_v, id: chat_id, ...createdChat} = (chat as any).toObject();
+        const {Stock: _stock1, SoulHome: _soulHome1, ...createdClan1} = (clan1 as any).toObject();
+        const {Stock: _stock2, SoulHome: _soulHome2, ...createdClan2} = (clan2 as any).toObject();
+        const {__v, id: _id, ...createdAdminPlayer} = (adminPlayer as any).toObject();
+        const {__v: _chat_v, id: _chat_id, ...createdChat} = (chat as any).toObject();
 
         return [{...createdBox.toObject(), adminPlayer: createdAdminPlayer, clans: [createdClan1, createdClan2], chat: createdChat}, null];
     }

@@ -104,7 +104,7 @@ export class ClanController {
     @Authorize({action: Action.update, subject: UpdateClanDto})
     @UniformResponse()
     public async update(@Body() body: UpdateClanDto) {
-        const [resp, errors] = await this.service.updateOneById(body);
+        const [, errors] = await this.service.updateOneById(body);
         if (errors)
             return [null, errors];
     }
@@ -113,7 +113,7 @@ export class ClanController {
     @Authorize({action: Action.delete, subject: UpdateClanDto})
     @UniformResponse()
     public async delete(@Param() param: _idDto) {
-        const [resp, errors] = await this.service.deleteOneById(param._id);
+        const [, errors] = await this.service.deleteOneById(param._id);
         if (errors)
             return [null, errors];
     }

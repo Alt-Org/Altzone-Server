@@ -61,7 +61,7 @@ export class FleaMarketController {
 	@Post("buy")
 	@UniformResponse()
 	async buy(@Body() itemIdDto: ItemIdDto, @LoggedUser() user: User) {
-		const p = await this.playerService.readOneById(user.player_id);
+		await this.playerService.readOneById(user.player_id);
 
 		const clanId = await this.playerService.getPlayerClanId(user.player_id);
 		if (!clanId)

@@ -3,7 +3,6 @@ import SoulhomeModule from "../../modules/soulhome.module";
 import RoomModule from "../../modules/room.module";
 import {clearDBRespDefaultFields} from "../../../test_utils/util/removeDBDefaultFields";
 import {getNonExisting_id} from "../../../test_utils/util/getNonExisting_id";
-import {ModelName} from "../../../../common/enum/modelName.enum";
 import {RoomService} from "../../../../clanInventory/room/room.service";
 import LoggedUser from "../../../test_utils/const/loggedUser";
 import PlayerModule from "../../../player/modules/player.module";

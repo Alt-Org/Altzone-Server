@@ -21,7 +21,7 @@ describe('ClanService.deleteOneById() test suite', () => {
     let existingClan_id: string;
     let existingClan: Clan;
 
-    let loggedPlayer = LoggedUser.getPlayer();
+    const loggedPlayer = LoggedUser.getPlayer();
     const playerUpdateBuilder = PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
     const playerModel = PlayerModule.getPlayerModel();
 

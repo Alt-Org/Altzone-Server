@@ -112,7 +112,7 @@ export class BoxController {
     @UniformResponse(ModelName.BOX)
     @IsGroupAdmin()
     async startTestingSession(@LoggedUser() user: BoxUser) {
-        const [wasStarted, errors] = await this.sessionStarter.start(user.box_id);
+        const [, errors] = await this.sessionStarter.start(user.box_id);
         if (errors)
             return [null, errors];
     }
@@ -131,7 +131,7 @@ export class BoxController {
     @Delete('/:_id')
     @UniformResponse(ModelName.BOX)
     async deleteBox(@Param() param: _idDto) {
-        const [isSuccess, errors] = await this.service.deleteOneById(param._id);
+        const [, errors] = await this.service.deleteOneById(param._id);
 
         if (errors)
             return [null, errors];

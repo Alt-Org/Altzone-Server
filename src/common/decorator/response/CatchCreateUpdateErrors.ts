@@ -3,7 +3,6 @@ import {
     BadRequestException,
     ConflictException,
     InternalServerErrorException,
-    UnprocessableEntityException
 } from "@nestjs/common";
 import {HttpException} from "@nestjs/common/exceptions/http.exception";
 import { APIError } from "../../controller/APIError";

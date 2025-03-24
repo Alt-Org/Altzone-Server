@@ -50,7 +50,7 @@ export class RoomController {
     @Authorize({action: Action.update, subject: UpdateRoomDto })
     @UniformResponse()
     public async update(@Body() body: UpdateRoomDto) {
-        const [resp, errors] = await this.service.updateOneById(body);
+        const [, errors] = await this.service.updateOneById(body);
         if(errors)
             return [null, errors];
     }

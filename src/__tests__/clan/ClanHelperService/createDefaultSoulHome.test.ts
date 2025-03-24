@@ -41,7 +41,7 @@ describe('ClanHelperService.createDefaultSoulHome() test suite', () => {
     });
 
     it('Should add default items to the first SoulHome room', async () => {
-        const [result, errors] = await clanHelperService.createDefaultSoulHome(existingClan._id, 'soulhome1');
+        const [result, ] = await clanHelperService.createDefaultSoulHome(existingClan._id, 'soulhome1');
 
         const {Item} = result;
         const itemsRoom_id = Item[0].room_id;

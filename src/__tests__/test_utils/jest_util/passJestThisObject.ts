@@ -4,6 +4,7 @@
  * @param {Function} fn function to which the dummy this object will be bind
  * @returns {Function} same function, but with dummy jest _this_ object available
  */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export default function passJestThis(fn: Function) {
     const jestThisMock = {
         utils: {

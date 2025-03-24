@@ -25,7 +25,7 @@ export default class ExecutionContextBuilder {
             } as WsArgumentsHost;
         },
 
-        //@ts-ignore
+        //@ts-expect-error: The base object is a Partial<ExecutionContext>, so some methods may not fully match the ExecutionContext interface.
         getType: function () {
             return 'http';
         },
@@ -111,13 +111,14 @@ export default class ExecutionContextBuilder {
     }
 
     setType(type: ContextType) {
-        //@ts-ignore
+        //@ts-expect-error: The base object is a Partial<ExecutionContext>, so assigning a new getType method may not fully match the ExecutionContext interface.
         this.base.getType = function () {
             return type;
         };
         return this;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     setHandler(handler: Function) {
         this.base.getHandler = function () {
             return handler;

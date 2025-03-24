@@ -49,7 +49,7 @@ describe('JoinService.removePlayerFromClan() test suite', () => {
 
         try{
             await joinService.removePlayerFromClan(player._id, nonExisting_id);
-        }catch (e) {}
+        }catch (e) { void e }
 
         const playerInDB = await playerModel.findById(player._id);
 

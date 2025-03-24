@@ -13,7 +13,7 @@ import {Action} from "./enum/action.enum";
 import {AllowedSubject, CASLAbilityFactory} from "./caslAbility.factory";
 import {map} from "rxjs/operators";
 import {User} from "../auth/user";
-import {instanceToPlain, plainToInstance} from "class-transformer";
+import {plainToInstance} from "class-transformer";
 import {ObjectId} from "mongodb";
 import {Reflector} from "@nestjs/core";
 import {PERMISSION_METADATA} from "./decorator/SetAuthorizationFor";
@@ -99,7 +99,7 @@ export class AuthorizationInterceptor implements NestInterceptor{
         //check if user is trying to create subject for another user
         //For example character with player_id different from that logged-in user has
         if(action === Action.create){
-            //@ts-ignore
+            //@ts-expect-error: The `plainToInstance` function may not strictly match the expected type of `subject` at runtime
             const dataClass: typeof subject = plainToInstance(subject, request.body);
             if(!userAbility.can(requestAction, dataClass))
                 throw requestForbiddenError;
@@ -112,7 +112,7 @@ export class AuthorizationInterceptor implements NestInterceptor{
 
             //if read one
             if(Object.keys(params).length !== 0){
-                //@ts-ignore
+                //@ts-expect-error: The `plainToInstance` function may not strictly match the expected type of `subject` at runtime
                 const subjectClass: typeof subject = plainToInstance(subject, params);
 
                 if(action === Action.delete && !userAbility.can(requestAction, subjectClass))
@@ -128,7 +128,7 @@ export class AuthorizationInterceptor implements NestInterceptor{
         //Filter out all fields that logged user can not update
         //Basically create a new request body
         if(action === Action.update){
-            //@ts-ignore
+            //@ts-expect-error: The `plainToInstance` function may not strictly match the expected type of `subject` at runtime
             const dataClass: typeof subject = plainToInstance(subject, request.body);
             if(!userAbility.can(requestAction, dataClass))
                 throw requestForbiddenError;
@@ -160,15 +160,15 @@ export class AuthorizationInterceptor implements NestInterceptor{
 
             //Create one and read one response object serialization
             if(action === Action.create || action === Action.read){
-                //@ts-ignore
+                // @ts-expect-error Ensure the response data is properly serialized and filtered
                 const dataClass: typeof subject = plainToInstance(subject, respData, {
                     excludeExtraneousValues: true
                 });
-                //@ts-ignore
+                //@ts-expect-error: The `plainToInstance` function may not strictly match the expected type of `subject` at runtime
                 const dataClass_id = dataClass._id;
 
                 if(dataClass_id && dataClass_id instanceof ObjectId)
-                    //@ts-ignore
+                    //@ts-expect-error: The `_id` property may not strictly match the expected type of `dataClass_id` at runtime
                     dataClass._id = dataClass_id.toString();
 
                 //get all fields that can be read

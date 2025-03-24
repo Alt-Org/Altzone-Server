@@ -12,8 +12,6 @@ import {AuthService} from "../auth.service";
 import {Box} from "../../box/schemas/box.schema";
 import {GroupAdmin} from "../../box/groupAdmin/groupAdmin.schema";
 
-type AuthTokenPayload = { profile_id: string; player_id: string, box_id: string };
-
 @Injectable()
 export default class BoxAuthService extends AuthService {
     constructor(
@@ -83,7 +81,7 @@ export default class BoxAuthService extends AuthService {
         if (clan)
             profile['Clan'] = clan;
 
-        const {password, isSystemAdmin, ...serializedProfile} = profile;
+        const {password: _p, isSystemAdmin: _a, ...serializedProfile} = profile;
 
         return {
             ...serializedProfile,

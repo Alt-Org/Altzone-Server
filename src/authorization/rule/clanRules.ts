@@ -4,7 +4,6 @@ import {Action} from "../enum/action.enum";
 import {InferSubjects, MongoAbility} from "@casl/ability/dist/types";
 import {RulesSetterAsync} from "../type/RulesSetter.type";
 import {ClanDto} from "../../clan/dto/clan.dto";
-import {UpdateClanDto} from "../../clan/dto/updateClan.dto";
 import {ModelName} from "../../common/enum/modelName.enum";
 import {ForbiddenException, NotFoundException} from "@nestjs/common";
 import {PlayerDto} from "../../player/dto/player.dto";

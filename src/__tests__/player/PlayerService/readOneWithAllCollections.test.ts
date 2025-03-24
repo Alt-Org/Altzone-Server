@@ -16,7 +16,7 @@ describe('PlayerService.readOneWithAllCollections() test suite', () => {
     let existingPlayer: PlayerDto;
 
     const clanBuilder = ClanBuilderFactory.getBuilder('CreateClanDto');
-    let clanModel = ClanModule.getClanModel();
+    const clanModel = ClanModule.getClanModel();
     let existingClan: Clan;
 
     beforeEach(async () => {

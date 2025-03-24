@@ -38,7 +38,7 @@ describe('EnvHandler.validateAllEnvFound() test suite', () => {
 
         try {
             envHandler.validateAllEnvFound();
-        } catch (error) {}
+        } catch (error) { void error }
         expect(consoleErrorSpy).toHaveBeenCalledWith('EnvHandler: The environment variable PORT is missing or undefined in the .env file. Please add it to the .env file and restart the API');
         envVars.PORT = originalValue;
     });

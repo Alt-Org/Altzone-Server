@@ -23,7 +23,7 @@ describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
     const existingClan = clanBuilder.setName('clan1').build();
 
     const playerBuilder = PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
-    let loggedPlayer = LoggedUser.getPlayer();
+    const loggedPlayer = LoggedUser.getPlayer();
     const playerModel = PlayerModule.getPlayerModel();
 
     const taskBuilder = DailyTaskBuilderFactory.getBuilder('DailyTask');

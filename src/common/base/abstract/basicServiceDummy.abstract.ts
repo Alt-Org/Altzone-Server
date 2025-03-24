@@ -16,17 +16,17 @@ export abstract class BasicServiceDummyAbstract<T=object> implements IBasicServi
     public readonly discriminators = [Discriminator.IBasicService];
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    createOne(input: any): Promise<IResponseShape<T> | null | MongooseError> {
+    createOne(_input: any): Promise<IResponseShape<T> | null | MongooseError> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readAll(query: IGetAllQuery): Promise<IResponseShape<T> | null | MongooseError> {
+    readAll(_query: IGetAllQuery): Promise<IResponseShape<T> | null | MongooseError> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readOneById(_id: string, includeRefs?: ModelName[], metaData?: string[]): Promise<IResponseShape<T> | null | MongooseError> {
+    readOneById(_id: string, _includeRefs?: ModelName[], _metaData?: string[]): Promise<IResponseShape<T> | null | MongooseError> {
         return Promise.resolve(undefined);
     }
 
@@ -36,22 +36,22 @@ export abstract class BasicServiceDummyAbstract<T=object> implements IBasicServi
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    readOneWithCollections(_id: string, withQuery: string): Promise<IResponseShape<T> | null | MongooseError> {
+    readOneWithCollections(_id: string, _withQuery: string): Promise<IResponseShape<T> | null | MongooseError> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    updateOneById(input: any): Promise<object | MongooseError> {
+    updateOneById(_input: any): Promise<object | MongooseError> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    deleteOneById(_id: string, ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError> {
+    deleteOneById(_id: string, _ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError> {
         return Promise.resolve(undefined);
     }
 
     @ThrowNotImplementedMethod(BasicServiceDummyAbstract.name, 'AddBasicService')
-    deleteByCondition(condition: object, options?: DeleteOptionsType, ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError> {
+    deleteByCondition(_condition: object, _options?: DeleteOptionsType, _ignoreReferences?: IgnoreReferencesType): Promise<object | MongooseError> {
         return Promise.resolve(undefined);
     }
 }

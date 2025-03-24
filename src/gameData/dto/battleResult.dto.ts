@@ -1,4 +1,4 @@
-import { IsArray, IsEnum, IsInt, IsMongoId, IsPositive, IsString, Matches, Max, Min } from "class-validator";
+import { IsArray, IsEnum, IsInt, IsMongoId, IsPositive, Max, Min } from "class-validator";
 import { RequestType } from "../enum/requestType.enum";
 
 export class BattleResultDto {

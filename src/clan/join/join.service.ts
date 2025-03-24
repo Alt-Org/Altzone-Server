@@ -182,11 +182,11 @@ export class JoinService extends BasicServiceDummyAbstract<Join> implements IBas
         return true;
     }
 
-    public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
+    public clearCollectionReferences = async (_id: Types.ObjectId, _ignoreReferences?: IgnoreReferencesType): Promise<void> => {
     }
 
     private async joinClan(player_id: string, clan_id: string) { // func to join a clan
-        const soulhome = await this.requestHelperService.getModelInstanceByCondition(
+        await this.requestHelperService.getModelInstanceByCondition(
             ModelName.SOULHOME, 
             {clan_id: clan_id},
             SoulHomeDto, true

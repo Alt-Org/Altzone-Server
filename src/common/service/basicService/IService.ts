@@ -5,11 +5,11 @@ import { FilterQuery } from "mongoose";
 /**
  * Currently not in use
  */
-export type TIServiceCreateOneOptions = {}
+export type TIServiceCreateOneOptions = object
 /**
  * Currently not in use
  */
-export type TIServiceCreateManyOptions = {}
+export type TIServiceCreateManyOptions = object
 
 export type TReadByIdOptions = {
     /**
@@ -174,7 +174,7 @@ export type TIServiceReadManyOptions<TObject = any> = {
 /**
  * Currently not in use
  */
-export type TIServiceUpdateByIdOptions = {}
+export type TIServiceUpdateByIdOptions = object
 
 export type TIServiceUpdateOneOptions<TObject = any> = {
     /**
@@ -233,7 +233,7 @@ export type TIServiceUpdateManyOptions<TObject = any> = {
 /**
  * Currently not in use
  */
-export type TIServiceDeleteByIdOptions = {}
+export type TIServiceDeleteByIdOptions = object
 
 export type TIServiceDeleteOneOptions<TObject = any> = {
     /**

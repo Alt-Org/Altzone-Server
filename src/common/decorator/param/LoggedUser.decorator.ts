@@ -6,6 +6,7 @@ import { User } from "../../../auth/user";
 import {BoxUser} from "../../../box/auth/BoxUser";
 import isTestingSession from "../../../box/util/isTestingSession";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const LoggedUserClass = isTestingSession() ? BoxUser : User;
 
 /**

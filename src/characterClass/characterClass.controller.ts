@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Req} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put} from "@nestjs/common";
 import {_idDto} from "../common/dto/_id.dto";
 import {ModelName} from "../common/enum/modelName.enum";
 import {CharacterClassService} from "./characterClass.service";
@@ -15,11 +15,8 @@ import { AddSortQuery } from "../common/interceptor/request/addSortQuery.interce
 import { NoAuth } from "../auth/decorator/NoAuth.decorator";
 import { UniformResponse } from "../common/decorator/response/UniformResponse";
 import { Serialize } from "../common/interceptor/response/Serialize";
-import { isServiceError } from "../common/service/basicService/ServiceError";
 import { IncludeQuery } from "../common/decorator/param/IncludeQuery.decorator";
 import { publicReferences } from "./characterClass.schema";
-import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
-import { User } from "../auth/user";
 
 //The endpoint to use. Controller classes will be registered for this endpoint automatically (/characterClass)
 @Controller('characterClass')
@@ -76,7 +73,7 @@ export class CharacterClassController{
     @UniformResponse()
     public async update(@Body() body: UpdateCharacterClassDto){
         //Usually you do not want to return anything for put and delete if it was success (204 response)
-        const [resp, errors] = await this.service.updateOneById(body);
+        const [, errors] = await this.service.updateOneById(body);
         if(errors)
             return [null, errors];
     }
@@ -85,8 +82,8 @@ export class CharacterClassController{
     @Authorize({action: Action.delete, subject: UpdateCharacterClassDto})
     @UniformResponse()
     //You can get a logged-in user with LoggedUser decorator
-    public async delete(@Param() param: _idDto, @LoggedUser() user: User) {
-        const [resp, errors] = await this.service.deleteOneById(param._id);
+    public async delete(@Param() param: _idDto) {
+        const [, errors] = await this.service.deleteOneById(param._id);
         if(errors)
             return [null, errors];
     }

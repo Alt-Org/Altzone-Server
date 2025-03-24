@@ -5,5 +5,5 @@
  * a parameter provided into method is a class = has a constructor method
  */
 export interface IClass {
-    new (...args: any[]): {};
+    new (...args: any[]): object;
 }

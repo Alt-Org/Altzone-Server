@@ -22,7 +22,6 @@ import {
 import { ModelName } from "../common/enum/modelName.enum";
 import { StockService } from "../clanInventory/stock/stock.service";
 import { SoulHomeService } from "../clanInventory/soulhome/soulhome.service";
-import { DailyTasksService } from "../dailyTasks/dailyTasks.service";
 import GameEventEmitter from "../gameEventsEmitter/gameEventEmitter";
 
 @Injectable()
@@ -52,12 +51,12 @@ export class ClanService{
      */
     public async createOne(clanToCreate: CreateClanDto, player_id: string): Promise<IServiceReturn<ClanDto>> {
         const clanWithAdmin = {...clanToCreate, admin_ids: [player_id]};
-        let [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>(clanWithAdmin);
+        const [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>(clanWithAdmin);
 
         if(clanErrors || !clan)
             return [null, clanErrors];
 
-        const [isPlayerUpdated, playerErrors] = await this.playerService.updateOneById(player_id, { clan_id: clan._id });
+        const [, playerErrors] = await this.playerService.updateOneById(player_id, { clan_id: clan._id });
         if(playerErrors)
             return [null, playerErrors];
 
@@ -85,7 +84,7 @@ export class ClanService{
      * @returns Clan with the given _id on succeed or an array of ServiceErrors if any occurred.
      */
     async readOneById(_id: string, options?: TReadByIdOptions) {
-        let optionsToApply = options;
+        const optionsToApply = options;
         if(options?.includeRefs)
             optionsToApply.includeRefs = options.includeRefs.filter((ref) => publicReferences.includes(ref));
 
@@ -99,7 +98,7 @@ export class ClanService{
      * @returns An array of Clans if succeeded or an array of ServiceErrors if error occurred.
      */
     async readAll(options?: TIServiceReadManyOptions) {
-        let optionsToApply = options;
+        const optionsToApply = options;
         if(options?.includeRefs)
             optionsToApply.includeRefs = options.includeRefs.filter((ref) => publicReferences.includes(ref));
 
@@ -158,7 +157,11 @@ export class ClanService{
             if(typeof parsed_id !== 'string')
                 parsed_id = _id.toString();
 
-            parsedPlayerClan_id === parsed_id ? playersInClan.push(player_id) : playersNotInClan.push(player_id);
+            if (parsedPlayerClan_id === parsed_id) {
+                playersInClan.push(player_id);
+            } else {
+                playersNotInClan.push(player_id);
+            }
         }
 
         if (playersInClan.length === 0)

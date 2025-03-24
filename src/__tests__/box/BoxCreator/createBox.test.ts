@@ -73,7 +73,7 @@ describe('BoxCreator.createBox() test suite', () => {
         const clearedClans = clearDBRespDefaultFields(boxClans);
 
         const boxAdminPlayer = await playerModel.findById(result.adminPlayer_id);
-        const {clan_id, ...clearedPlayer} = clearDBRespDefaultFields(boxAdminPlayer);
+        const {clan_id: _, ...clearedPlayer} = clearDBRespDefaultFields(boxAdminPlayer);
 
         const boxChat = await chatModel.findById(result.chat_id);
         const clearedChat = clearDBRespDefaultFields(boxChat);
@@ -88,7 +88,7 @@ describe('BoxCreator.createBox() test suite', () => {
     });
 
     it('Should create group admin profile', async () => {
-        const [result, errors] = await boxCreator.createBox(boxToCreate);
+        const [result, ] = await boxCreator.createBox(boxToCreate);
 
         const profileInDB = await profileModel.findById(result.adminProfile_id);
 
@@ -96,7 +96,7 @@ describe('BoxCreator.createBox() test suite', () => {
     });
 
     it('Should create group admin player', async () => {
-        const [result, errors] = await boxCreator.createBox(boxToCreate);
+        const [result, ] = await boxCreator.createBox(boxToCreate);
 
         const playerInDB = await playerModel.findById(result.adminPlayer_id);
 
@@ -105,7 +105,7 @@ describe('BoxCreator.createBox() test suite', () => {
     });
 
     it('Should create 2 clans with auto generated names, if input is without clan names', async () => {
-        const [result, errors] = await boxCreator.createBox(boxToCreate);
+        const [result, ] = await boxCreator.createBox(boxToCreate);
 
         const expectedClanName1 = `${boxToCreate.playerName} clan 1`;
         const expectedClanName2 = `${boxToCreate.playerName} clan 2`;
@@ -123,7 +123,7 @@ describe('BoxCreator.createBox() test suite', () => {
     it('Should create 2 clans with provided names', async () => {
         const clan1Name = 'box-clan-1';
         const clan2Name = 'box-clan-2';
-        const [result, errors] = await boxCreator.createBox({...boxToCreate, clanNames: [clan1Name, clan2Name]});
+        const [result,] = await boxCreator.createBox({...boxToCreate, clanNames: [clan1Name, clan2Name]});
 
         const clansInDB = await clanModel.find({ _id: { $in: result.clan_ids } }).select(['name']);
         const clearedClans = clearDBRespDefaultFields(clansInDB);
@@ -136,7 +136,7 @@ describe('BoxCreator.createBox() test suite', () => {
     });
 
     it('Should create soul home for each clan', async () => {
-        const [result, errors] = await boxCreator.createBox(boxToCreate);
+        const [result,] = await boxCreator.createBox(boxToCreate);
 
         const soulHomesInDB = await soulHomeModel.find({ clan_id: { $in: result.clan_ids } });
 
@@ -144,7 +144,7 @@ describe('BoxCreator.createBox() test suite', () => {
     });
 
     it('Should create 30 rooms for each soul home', async () => {
-        const [result, errors] = await boxCreator.createBox(boxToCreate);
+        const [result,] = await boxCreator.createBox(boxToCreate);
 
         const soulHome1Rooms = await roomModel.find({ soulHome_id: { $in: result.soulHome_ids[0] } });
         const soulHome2Rooms = await roomModel.find({ soulHome_id: { $in: result.soulHome_ids[1] } });
@@ -154,7 +154,7 @@ describe('BoxCreator.createBox() test suite', () => {
     });
 
     it('Should create default items for each soul home', async () => {
-        const [result, errors] = await boxCreator.createBox(boxToCreate);
+        const [result,] = await boxCreator.createBox(boxToCreate);
 
         const defaultItemsCount = getRoomDefaultItems('').length;
 
@@ -171,7 +171,7 @@ describe('BoxCreator.createBox() test suite', () => {
     });
 
     it('Should create stock for each clan', async () => {
-        const [result, errors] = await boxCreator.createBox(boxToCreate);
+        const [result,] = await boxCreator.createBox(boxToCreate);
 
         const stocksInDB = await stockModel.find({ clan_id: { $in: result.clan_ids } });
 
@@ -179,7 +179,7 @@ describe('BoxCreator.createBox() test suite', () => {
     });
 
     it('Should create default items for each stock', async () => {
-        const [result, errors] = await boxCreator.createBox(boxToCreate);
+        const [result,] = await boxCreator.createBox(boxToCreate);
 
         const defaultItemsCount = getStockDefaultItems('').length;
 
@@ -191,7 +191,7 @@ describe('BoxCreator.createBox() test suite', () => {
     });
 
     it('Should create a chat', async () => {
-        const [result, errors] = await boxCreator.createBox(boxToCreate);
+        const [result,] = await boxCreator.createBox(boxToCreate);
 
         const chatInDB = await chatModel.findById(result.chat_id);
 
@@ -199,7 +199,7 @@ describe('BoxCreator.createBox() test suite', () => {
     });
 
     it('Should set session reset time to 7 days from now', async () => {
-        const [result, errors] = await boxCreator.createBox(boxToCreate);
+        const [result,] = await boxCreator.createBox(boxToCreate);
 
         const boxInDB = await boxModel.findById(result._id);
 
@@ -210,7 +210,7 @@ describe('BoxCreator.createBox() test suite', () => {
     });
 
     it('Should set box removal time to 30 days from now', async () => {
-        const [result, errors] = await boxCreator.createBox(boxToCreate);
+        const [result,] = await boxCreator.createBox(boxToCreate);
 
         const boxInDB = await boxModel.findById(result._id);
 

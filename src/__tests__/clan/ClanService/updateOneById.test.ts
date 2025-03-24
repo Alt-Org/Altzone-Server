@@ -3,7 +3,6 @@ import {getNonExisting_id} from "../../test_utils/util/getNonExisting_id";
 import ClanBuilderFactory from "../data/clanBuilderFactory";
 import ClanModule from "../modules/clan.module";
 import {Clan} from "../../../clan/clan.schema";
-import LoggedUser from "../../test_utils/const/loggedUser";
 import PlayerBuilderFactory from "../../player/data/playerBuilderFactory";
 import PlayerModule from "../../player/modules/player.module";
 
@@ -16,7 +15,6 @@ describe('ClanService.updateOneById() test suite', () => {
     const existingClanName = 'clan1';
     let existingClan: Clan;
 
-    let loggedPlayer = LoggedUser.getPlayer();
     const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
     const playerModel = PlayerModule.getPlayerModel();
 
@@ -130,7 +128,7 @@ describe('ClanService.updateOneById() test suite', () => {
         const adminsToDelete = [admin1._id.toString()];
         const updateData = clanUpdateBuilder.setId(existingClan._id).setAdminIdsToDelete(adminsToDelete).build();
 
-        const [wasUpdated, errors] = await clanService.updateOneById(updateData);
+        const [, errors] = await clanService.updateOneById(updateData);
 
         expect(errors).toBeNull();
         // expect(wasUpdated).toBeTruthy();

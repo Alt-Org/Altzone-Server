@@ -188,7 +188,7 @@ export class BoxService {
      * - validation errors if input is invalid
      */
     public async createOne(box: Box): Promise<IServiceReturn<BoxDocument>> {
-        const [isBoxValid, validationErrors] = await this.boxHelper.validateBox(box);
+        const [, validationErrors] = await this.boxHelper.validateBox(box);
 
         if (validationErrors)
             return [null, validationErrors];
@@ -204,7 +204,7 @@ export class BoxService {
      * @returns Box with the given _id on succeed or an array of ServiceErrors if any occurred.
      */
     async readOneById(_id: string, options?: TReadByIdOptions) {
-        let optionsToApply = options;
+        const optionsToApply = options;
         if (options?.includeRefs)
             optionsToApply.includeRefs = options.includeRefs.filter((ref: any) => publicReferences.includes(ref));
 
@@ -249,7 +249,7 @@ export class BoxService {
         if (boxReadErrors)
             return [null, boxReadErrors];
 
-        const [isSuccess, boxRefRemoveErrors] = await this.deleteBoxReferences(boxToRemove.toObject());
+        const [, boxRefRemoveErrors] = await this.deleteBoxReferences(boxToRemove.toObject());
         if (boxRefRemoveErrors)
             return [null, boxRefRemoveErrors];
 
@@ -272,7 +272,7 @@ export class BoxService {
 		
         if (boxData.clan_ids) {
             for (let i = 0; i < boxData.clan_ids.length; i++) {
-                const [isRemoved, deleteErrors] = await this.clanService.deleteOneById(boxData.clan_ids[i].toString());
+                const [, deleteErrors] = await this.clanService.deleteOneById(boxData.clan_ids[i].toString());
                 if (deleteErrors) await cancelTransaction(session, deleteErrors);
             }
         }

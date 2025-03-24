@@ -44,7 +44,7 @@ export const AddBasicService = () => {
                 return this.configureResponse(createResp);
             }
 
-            public readOneById = async (_id: string, includeRefs?: ModelName[], metaData?: string[]): Promise<IResponseShape | null | MongooseError> => {
+            public readOneById = async (_id: string, includeRefs?: ModelName[], _metaData?: string[]): Promise<IResponseShape | null | MongooseError> => {
                 const data = includeRefs ? await this.model.findById(_id).populate(includeRefs).exec() : await this.model.findById(_id).exec();
                 if(this.readOnePostHook) 
                     this.readOnePostHook(data)
@@ -102,14 +102,14 @@ export const AddBasicService = () => {
                 return true;
             }
 
-            public deleteOneById = async (_id: string, ignoreReferences?: IgnoreReferencesType): Promise<Object | null | MongooseError> => {
+            public deleteOneById = async (_id: string, ignoreReferences?: IgnoreReferencesType): Promise<object | null | MongooseError> => {
                 const entityToDelete = await this.model.findById(_id);
                 if(!entityToDelete)
                     return null;
 
                 try {
                     await this.clearCollectionReferences(_id, ignoreReferences);
-                } catch (e) {}
+                } catch (e) {void e}
                 
                 const result = await this.model.deleteOne({_id});
                 if(this.deleteOnePostHook)
@@ -118,7 +118,7 @@ export const AddBasicService = () => {
                 return result;
             }
 
-            public deleteByCondition = async (condition: object, options?: DeleteOptionsType, ignoreReferences?: IgnoreReferencesType): Promise<Object | null | MongooseError> => {
+            public deleteByCondition = async (condition: object, options?: DeleteOptionsType, ignoreReferences?: IgnoreReferencesType): Promise<object | null | MongooseError> => {
                 if(options?.isOne){
                     const entityToDelete = await this.model.findOne(condition);
                     if(!entityToDelete)

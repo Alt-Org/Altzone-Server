@@ -1,4 +1,4 @@
-import {applyDecorators, UseFilters, UseInterceptors} from '@nestjs/common';
+import { UseFilters } from '@nestjs/common';
 import { ValidationExceptionFilter } from '../../exceptionFilter/ValidationExceptionFilter';
 import { FormatAPIResponse } from './FormatAPIResponse';
 import { ModelName } from '../../enum/modelName.enum';
@@ -23,7 +23,7 @@ export function UniformResponse(modelName?: ModelName) {
         FormatAPIResponse(modelName)
     ];
 
-    return function (target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
+    return function (target: object, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
         decorators.reverse().forEach(decorator => {
             decorator(target, propertyKey, descriptor);
         });

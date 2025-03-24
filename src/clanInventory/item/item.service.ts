@@ -62,7 +62,7 @@ export class ItemService {
 	 * @returns Item with the given _id on succeed or an array of ServiceErrors if any occurred.
 	 */
 	async readOneById(_id: string, options?: TReadByIdOptions) {
-		let optionsToApply = options;
+		const optionsToApply = options;
 		if(options?.includeRefs)
 			optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
 		return this.basicService.readOneById<ItemDto>(_id, optionsToApply);

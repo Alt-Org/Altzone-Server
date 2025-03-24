@@ -112,7 +112,7 @@ export class ChatService extends BasicServiceDummyAbstract<Chat> implements IBas
             { $limit: limit }
         ]);
 
-        let resp = this.configureResponse(data) as any;
+        const resp = this.configureResponse(data) as any;
         if(messagesFound && messagesFound.length !== 0){
             resp.paginationData = {};
             resp.paginationData.itemCount = messagesFound[0]?.id;
@@ -129,7 +129,7 @@ export class ChatService extends BasicServiceDummyAbstract<Chat> implements IBas
     //     return null;
     // }
 
-    public clearCollectionReferences: ClearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
+    public clearCollectionReferences: ClearCollectionReferences = async (_id: Types.ObjectId, _ignoreReferences?: IgnoreReferencesType): Promise<void> => {
     }
 
     private configureResponse = (data: any): IResponseShape => {

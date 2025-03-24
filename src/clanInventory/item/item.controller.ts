@@ -77,7 +77,7 @@ export class ItemController {
 				reason: APIErrorReason.NOT_FOUND, field: '_id', value: item._id, message: 'Item with that _id not found'
 			})];
 
-		const [resp, updateErrors] = await this.itemService.updateOneById(item);
+		const [, updateErrors] = await this.itemService.updateOneById(item);
 		if(updateErrors)
 			return [null, updateErrors];
 	}

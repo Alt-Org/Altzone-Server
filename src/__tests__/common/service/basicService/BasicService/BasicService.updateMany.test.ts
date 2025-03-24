@@ -11,18 +11,12 @@ describe('BasicService.updateMany() test suite', () => {
     const clan1 = clanCreateBuilder.setName('clan1').build();
     const clan2 = clanCreateBuilder.setName('clan2').build();
     const clan3 = clanCreateBuilder.setName('clan3').build();
-    let clan1_id: string;
-    let clan2_id: string;
-    let clan3_id: string;
     const clansFilter = { name: { $regex: 'clan' } };
 
     beforeEach(async () => {
-        const dbResp1 = await clanModel.create(clan1);
-        const dbResp2 = await clanModel.create(clan2);
-        const dbResp3 = await clanModel.create(clan3);
-        clan1_id = dbResp1._id.toString();
-        clan2_id = dbResp2._id.toString();
-        clan3_id = dbResp3._id.toString();
+        await clanModel.create(clan1);
+        await clanModel.create(clan2);
+        await clanModel.create(clan3);
     });
 
     it('Should update all objects that match the provided filter', async () => {

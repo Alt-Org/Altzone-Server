@@ -19,7 +19,7 @@ export function getDefaultSoulHome(clan_id: string): CreateSoulHomeDto {
  * @param player_id to which the Room belongs to
  * @returns 
  */
-export function getDefaultRoom(soulHome_id: string, player_id: string){ //: CreateRoomDto {
+export function getDefaultRoom(_soulHome_id: string, _player_id: string){ //: CreateRoomDto {
     // return {
     //     floorType: "placeholder",
     //     wallType: "placeholder",

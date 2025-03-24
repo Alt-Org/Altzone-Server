@@ -12,15 +12,15 @@ export enum DataType {
 
 export class CommonMocker {
 
-    public generateNotUniqueFieldsResponse(values: Object){
+    public generateNotUniqueFieldsResponse(values: object){
         const errorArray: string[] = [];
-        for(let field in values){
+        for(const field in values){
             errorArray.push(`Field '${field}' with value '${values[field]}' already exists`);
         }
         return { statusCode: 409, message: errorArray, error: 'Conflict' };
     }
 
-    public generateWrongDataTypesResponse<T=Object>(rightObject: T, wrongFields?: string[]){
+    public generateWrongDataTypesResponse<T=object>(rightObject: T, wrongFields?: string[]){
         if(wrongFields){
             const errorArray: string[] = [];
             for(let i=0; i<wrongFields.length; i++){
@@ -33,7 +33,7 @@ export class CommonMocker {
         }
 
         const errorArray: string[] = [];
-        for(let field in rightObject){
+        for(const field in rightObject){
             const value = rightObject[field];
             errorArray.push(this.getWrongDTErrorString(field, value));
         }
@@ -42,8 +42,8 @@ export class CommonMocker {
     }
 
     public removeObjectFields<T=any>(obj: T, fieldsToRemove: string[]): Partial<T> {
-        let result: Partial<T> = {};
-        for(let field in obj){
+        const result: Partial<T> = {};
+        for(const field in obj){
             if(!fieldsToRemove.includes(field))
                 result[field] = obj[field];
         }
@@ -51,7 +51,7 @@ export class CommonMocker {
         return result;
     }
 
-    public generateObjWithWrongDT<T=Object>(obj: T, fieldsToBeWrong?: string[], options?: GetWrongFieldDTOptions): {}{
+    public generateObjWithWrongDT<T=object>(obj: T, fieldsToBeWrong?: string[], options?: GetWrongFieldDTOptions): unknown {
         if(fieldsToBeWrong){
             for(let i=0; i<fieldsToBeWrong.length; i++){
                 const field = fieldsToBeWrong[i];
@@ -65,7 +65,7 @@ export class CommonMocker {
             return obj;
         }
 
-        for(let field in obj){
+        for(const field in obj){
             const value = obj[field];
             if(typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string')
                 obj[field] = this.getWrongFieldDataType(value);
@@ -124,7 +124,7 @@ export class CommonMocker {
 
         const collections = await db.connection.db.collections();
 
-        for (let collection of collections) {
+        for (const collection of collections) {
             await collection.deleteMany({});
         }
 

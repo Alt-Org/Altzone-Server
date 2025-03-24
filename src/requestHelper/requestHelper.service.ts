@@ -93,7 +93,7 @@ export class RequestHelperService {
         return isCountModified;
     }
 
-    public updateOneById = async (modelName: ModelName, _id: string | Types.ObjectId, updateObject: Object) => {
+    public updateOneById = async (modelName: ModelName, _id: string | Types.ObjectId, updateObject: object) => {
         return this.connection.model(modelName).updateOne({_id}, updateObject);
     }
 

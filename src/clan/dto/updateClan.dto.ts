@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsArray, ArrayMaxSize, IsEnum, IsBoolean, IsInt, IsMongoId, IsOptional, IsString, Validate, ValidateNested } from 'class-validator';import {IsClanExists} from "../decorator/validation/IsClanExists.decorator";
+import { ArrayNotEmpty, IsArray, ArrayMaxSize, IsEnum, IsBoolean, IsMongoId, IsOptional, IsString, Validate, ValidateNested } from 'class-validator';import {IsClanExists} from "../decorator/validation/IsClanExists.decorator";
 import { IsPlayerExists } from "../../player/decorator/validation/IsPlayerExists.decorator";
 import AddType from "../../common/base/decorator/AddType.decorator";
 import { ClanLabel } from '../enum/clanLabel.enum';

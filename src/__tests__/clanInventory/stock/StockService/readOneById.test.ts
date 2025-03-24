@@ -16,7 +16,7 @@ describe('StockService.readOneById() test suite', () => {
 
     const itemBuilder = ClanInventoryBuilderFactory.getBuilder('Item');
     const itemModel = ItemModule.getItemModel();
-    let existingItem = itemBuilder.build();
+    const existingItem = itemBuilder.build();
 
     beforeEach(async () => {
         stockService = await StockModule.getStockService();

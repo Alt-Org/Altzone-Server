@@ -47,7 +47,7 @@ export default class SessionStarterService {
      * - NOT_FOUND if the box with that _id does not exist
      */
     async start(box_id: ObjectId | string): Promise<IServiceReturn<true>> {
-        const [isBox_idValid, validationErrors] = this.validateBox_id(box_id);
+        const [, validationErrors] = this.validateBox_id(box_id);
         if (validationErrors)
             return [null, validationErrors];
 
@@ -58,11 +58,11 @@ export default class SessionStarterService {
             return [null, errors];
 
         const dailyTasksToCreate = boxInDB.dailyTasks.map(task => task['_doc']);
-        const [wasTasksCreated, tasksCreationErrors] = await this.createDailyTasks(dailyTasksToCreate, boxInDB.clan_ids[0], boxInDB.clan_ids[1]);
+        const [, tasksCreationErrors] = await this.createDailyTasks(dailyTasksToCreate, boxInDB.clan_ids[0], boxInDB.clan_ids[1]);
         if (tasksCreationErrors)
             return [null, tasksCreationErrors];
 
-        const [clanAdminsAreSet, clanAdminsErrors] = await this.setClanAdmins(boxInDB.adminPlayer_id, boxInDB.clan_ids[0], boxInDB.clan_ids[1]);
+        const [, clanAdminsErrors] = await this.setClanAdmins(boxInDB.adminPlayer_id, boxInDB.clan_ids[0], boxInDB.clan_ids[1]);
         if(clanAdminsErrors)
             return [null, clanAdminsErrors];
 
@@ -73,7 +73,7 @@ export default class SessionStarterService {
         const timeAfterWeek = now + 60 * 60 * 24 * 7;
         const timeAfterMonth = now + 60 * 60 * 24 * 30;
 
-        const [wasUpdated, boxUpdateErrors] = await this.basicService.updateOneById<Partial<Box>>(box_id.toString(), {
+        const [, boxUpdateErrors] = await this.basicService.updateOneById<Partial<Box>>(box_id.toString(), {
             sessionStage: SessionStage.TESTING, testersSharedPassword: testersPassword,
             sessionResetTime: timeAfterWeek, boxRemovalTime: timeAfterMonth
         });
@@ -113,11 +113,11 @@ export default class SessionStarterService {
             return {...dailyTask, clan_id: clan2_id as any};
         });
 
-        const [clan1CreatedTasks, clan1TasksCreationErrors] = await this.dailyTasksService.createMany(clan1Tasks);
+        const [, clan1TasksCreationErrors] = await this.dailyTasksService.createMany(clan1Tasks);
         if (clan1TasksCreationErrors)
             return [null, clan1TasksCreationErrors];
 
-        const [clan2CreatedTasks, clan2TasksCreationErrors] = await this.dailyTasksService.createMany(clan2Tasks);
+        const [, clan2TasksCreationErrors] = await this.dailyTasksService.createMany(clan2Tasks);
         if (clan2TasksCreationErrors)
             return [null, clan2TasksCreationErrors];
 

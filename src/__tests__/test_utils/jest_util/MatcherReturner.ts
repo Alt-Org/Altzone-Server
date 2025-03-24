@@ -61,8 +61,6 @@ export default class MatcherReturner{
         if((options && options.onlyMessage) || !this.utils)
             return message;
 
-        let messageToPrint = message;
-
         const expected = options?.expected ?? this.expected;
 
         const expectedMsg = expected ? `\nExpected ${this.utils.printReceived(expected)}` : '';

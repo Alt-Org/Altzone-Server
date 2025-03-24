@@ -8,7 +8,6 @@ import {Model} from "mongoose";
 import {GroupAdmin} from "../groupAdmin/groupAdmin.schema";
 import ServiceError from "../../common/service/basicService/ServiceError";
 import {SEReason} from "../../common/service/basicService/SEReason";
-import {ObjectId} from "mongodb";
 
 type AuthTokenPayload = { profile_id: string; player_id: string, box_id: string };
 

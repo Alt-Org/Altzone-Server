@@ -1,5 +1,5 @@
 import { Error, Model } from "mongoose";
-import { IService, IServiceReturn, TIServiceCreateManyOptions, TIServiceCreateOneOptions, TIServiceDeleteByIdOptions, TIServiceDeleteManyOptions, TIServiceDeleteOneOptions, TIServiceReadManyOptions, TIServiceReadOneOptions, TIServiceUpdateByIdOptions, TIServiceUpdateManyOptions, TIServiceUpdateOneOptions, TReadByIdOptions } from "./IService";
+import { IService, IServiceReturn, TIServiceDeleteManyOptions, TIServiceDeleteOneOptions, TIServiceReadManyOptions, TIServiceReadOneOptions, TIServiceUpdateManyOptions, TIServiceUpdateOneOptions, TReadByIdOptions } from "./IService";
 import ServiceError from "./ServiceError";
 import { SEReason } from "./SEReason";
 
@@ -20,7 +20,7 @@ export default class BasicService implements IService{
     ){
     }
 
-    async createOne<TInput = any, TOutput = any>(input: TInput, options?: TIServiceCreateOneOptions): Promise<IServiceReturn<TOutput>> {
+    async createOne<TInput = any, TOutput = any>(input: TInput): Promise<IServiceReturn<TOutput>> {
         try {
             const data = await this.model.create(input);
             return [data, null];
@@ -30,7 +30,7 @@ export default class BasicService implements IService{
         }
     }
 
-    async createMany<TInput = any, TOutput = any>(input: TInput[], options?: TIServiceCreateManyOptions): Promise<IServiceReturn<TOutput[]>> {
+    async createMany<TInput = any, TOutput = any>(input: TInput[]): Promise<IServiceReturn<TOutput[]>> {
         try {
             const data = await this.model.create(input);
             return [data, null];
@@ -101,7 +101,7 @@ export default class BasicService implements IService{
     }
 
 
-    async updateOneById<TInput = any>(_id: string, input: TInput, options?: TIServiceUpdateByIdOptions): Promise<IServiceReturn<boolean>> {
+    async updateOneById<TInput = any>(_id: string, input: TInput): Promise<IServiceReturn<boolean>> {
         try {
             const resp = await this.model.updateOne({_id}, input);
             if(resp.matchedCount === 0)
@@ -160,7 +160,7 @@ export default class BasicService implements IService{
     }
 
 
-    async deleteOneById(_id: string, options?: TIServiceDeleteByIdOptions): Promise<IServiceReturn<true>> {
+    async deleteOneById(_id: string): Promise<IServiceReturn<true>> {
         try {
             const resp = await this.model.deleteOne({_id});
             if(resp.deletedCount === 0)

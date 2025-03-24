@@ -29,17 +29,17 @@ export class TesterController {
             if (creationErrors)
                 return [null, creationErrors];
 
-            const [wereAddedToBox, boxAdditionErrors] = await this.testerService.addTestersToBox(user.box_id, createdTesters);
+            const [, boxAdditionErrors] = await this.testerService.addTestersToBox(user.box_id, createdTesters);
             if (boxAdditionErrors)
                 return [null, boxAdditionErrors];
 
-            const [wereAddedToClans, clanAdditionErrors] = await this.testerService.addTestersToClans(user.box_id, createdTesters);
+            const [, clanAdditionErrors] = await this.testerService.addTestersToClans(user.box_id, createdTesters);
             if (clanAdditionErrors)
                 return [null, boxAdditionErrors];
         }
 
         if (body.amountToRemove) {
-            const [wereRemoved, removalErrors] = await this.testerService.deleteTesters(user.box_id, body.amountToRemove);
+            const [, removalErrors] = await this.testerService.deleteTesters(user.box_id, body.amountToRemove);
             if (removalErrors)
                 return [null, removalErrors];
         }

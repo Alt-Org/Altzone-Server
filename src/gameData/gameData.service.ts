@@ -202,7 +202,6 @@ export class GameDataService {
 	private async getRoomIds(soulHomeId: string): Promise<[string[], ServiceError[]]> {
 		const [rooms, roomErrors] = await this.roomService.readAllSoulHomeRooms(soulHomeId);
 		if (roomErrors) {
-			console.log("getRoomIds:", roomErrors);
 			return [null, roomErrors];
 		}
 

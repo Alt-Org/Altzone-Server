@@ -61,8 +61,7 @@ describe('JoinService.createOne() test suite', () => {
 
         try {
             await joinService.createOne(invalidJoin);
-        } catch (e) {
-        }
+        } catch (e) { void e }
 
         const dbData1 = await joinModel.findOne({clan_id: undefined});
 

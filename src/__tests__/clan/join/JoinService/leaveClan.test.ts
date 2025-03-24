@@ -49,7 +49,7 @@ describe('JoinService.leaveClan() test suite', () => {
 
         try{
             await joinService.leaveClan(player._id);
-        }catch (e) {}
+        }catch (e) {void e}
 
         const playerInDB = await playerModel.findById(player._id);
 

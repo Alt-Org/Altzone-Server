@@ -36,7 +36,7 @@ describe('BasicService.readOneById() test suite', () => {
         const expected = { goal: exitingClan.goal, name: exitingClan.name };
 
         const [result, errors] = await basicService.readOneById(existingClan_id, { select: ['goal', 'name'] });
-        const { _id, id, ...resultWithoutIds } = result.toObject();
+        const { _id, id: __id, ...resultWithoutIds } = result.toObject();
 
         expect(errors).toBeNull();
         expect(resultWithoutIds).toEqual(expected);
@@ -55,7 +55,7 @@ describe('BasicService.readOneById() test suite', () => {
         const expected = { goal: exitingClan.goal, name: exitingClan.name, Player: [] };
 
         const [result, errors] = await basicService.readOneById(existingClan_id, { select: ['goal', 'name'], includeRefs: [ModelName.PLAYER] });
-        const { _id, id, ...resultWithoutIds } = result.toObject();
+        const { _id, id: __id, ...resultWithoutIds } = result.toObject();
 
         expect(errors).toBeNull();
         expect(resultWithoutIds).toEqual(expected);

@@ -47,8 +47,7 @@ describe('ProfileService.createOne() test suite', () => {
 
         try {
             await profileService.createOne(invalidProfile);
-        } catch (e) {
-        }
+        } catch (e) {void e}
 
         const dbData1 = await profileModel.findOne({username: false});
         const dbData2 = await profileModel.findOne({username: 'false'});
@@ -86,7 +85,7 @@ describe('ProfileService.createOne() test suite', () => {
 
         try{
             await profileService.createOne(profileToCreate);
-        } catch (e: any) {}
+        } catch (e: any) { void e }
 
         const { _id: _idAfter} = await profileModel.findOne({username: profileUsername});
 

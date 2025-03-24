@@ -1,5 +1,3 @@
-import { IResponseShape } from "./IResponseShape";
-
 export type PreHookFunction<Input = any> = (input: Input) => boolean | Promise<boolean>;
 export type PostCreateHookFunction<Input = any, Output = any> = (input: Input, output: Output) => boolean | Promise<boolean>;
 export type PostHookFunction<Input = any, OldDoc = any, Output = any> = (input: Input, oldDoc: OldDoc, output: Output) => boolean | Promise<boolean>;

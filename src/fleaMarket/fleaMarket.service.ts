@@ -66,7 +66,7 @@ export class FleaMarketService {
 	 * @returns A promise that resolves into an item with the given _id or array of service errors.
 	 */
 	async readOneById(_id: string, options?: TReadByIdOptions) {
-		let optionsToApply = options;
+		const optionsToApply = options;
 		if (optionsToApply?.includeRefs)
 			optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
 				publicReferences.includes(ref)
@@ -353,15 +353,19 @@ export class FleaMarketService {
 		const votePassed = await this.votingService.checkVotingSuccess(voting);
 
 		if (voting.type === VotingType.BUYING_ITEM) {
-			votePassed
-				? this.handlePassedBuyVoting(voting, stockId)
-				: this.handleRejectedBuyVoting(voting, clanId, price);
+			if (votePassed) {
+				await this.handlePassedBuyVoting(voting, stockId);
+			} else {
+				await this.handleRejectedBuyVoting(voting, clanId, price);
+			}
 		}
 
 		if (voting.type === VotingType.SELLING_ITEM) {
-			votePassed
-				? this.handlePassedSellVoting(fleaMarketItemId)
-				: this.handleRejectedSellVoting(fleaMarketItemId, stockId);
+			if (votePassed) {
+				await this.handlePassedSellVoting(fleaMarketItemId);
+			} else {
+				await this.handleRejectedSellVoting(fleaMarketItemId, stockId);
+			}
 		}
 
 		await this.votingService.basicService.deleteOneById(voting._id);

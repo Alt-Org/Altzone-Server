@@ -11,19 +11,16 @@ import {NoAuth} from "../auth/decorator/NoAuth.decorator";
 import {Action} from "../authorization/enum/action.enum";
 import {CheckPermissions} from "../authorization/authorization.interceptor";
 import {AddGetQueries} from "../common/decorator/request/AddGetQueries.decorator";
-import {CatchCreateUpdateErrors} from "../common/decorator/response/CatchCreateUpdateErrors";
 import {Serialize} from "../common/interceptor/response/Serialize";
 import {Authorize} from "../authorization/decorator/Authorize";
 import {_idDto} from "../common/dto/_id.dto";
 import {MongooseError} from "mongoose";
 import {PlayerService} from "../player/player.service";
-import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {AddSearchQuery} from "../common/interceptor/request/addSearchQuery.interceptor";
 import {GetAllQuery} from "../common/decorator/param/GetAllQuery";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import {OffsetPaginate} from "../common/interceptor/request/offsetPagination.interceptor";
 import {AddSortQuery} from "../common/interceptor/request/addSortQuery.interceptor";
-import {IResponseShape} from "../common/interface/IResponseShape";
 import {UniformResponse} from "../common/decorator/response/UniformResponse";
 import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
 import { User } from "../auth/user";
@@ -33,7 +30,6 @@ export default class ProfileController {
     public constructor(
         private readonly service: ProfileService,
         private readonly playerService: PlayerService,
-        private readonly requestHelperService: RequestHelperService
     ) {
     }
 
@@ -43,12 +39,12 @@ export default class ProfileController {
     @Serialize(ProfileDto)
     @UniformResponse(ModelName.PROFILE)
     public async create(@Body() body: CreateProfileDto) {
-        const {Player, ...profile} = body;
+        const { Player } = body;
 
         if (!Player)
             return this.service.createWithHashedPassword(body);
 
-        let [createdProfile, errors] = await this.service.createWithHashedPassword(body);
+        const [createdProfile, errors] = await this.service.createWithHashedPassword(body);
 
         if (errors)
             return [null, errors];

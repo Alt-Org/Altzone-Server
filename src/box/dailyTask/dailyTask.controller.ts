@@ -50,7 +50,7 @@ export class DailyTaskController {
     @IsGroupAdmin()
     @UniformResponse(ModelName.DAILY_TASK)
     async updateDailyTask(@Body() body: UpdatePredefinedDailyTaskDto, @LoggedUser() user: BoxUser) {
-        const [isUpdated, errors] = await this.taskService.updateOneById(user.box_id, {
+        const [, errors] = await this.taskService.updateOneById(user.box_id, {
             ...body,
             _id: new ObjectId(body._id)
         });
@@ -62,7 +62,7 @@ export class DailyTaskController {
     @IsGroupAdmin()
     @UniformResponse(ModelName.DAILY_TASK)
     async deleteDailyTask(@Param() param: _idDto, @LoggedUser() user: BoxUser) {
-        const [isDeleted, errors] = await this.taskService.deleteOneById(user.box_id, param._id);
+        const [, errors] = await this.taskService.deleteOneById(user.box_id, param._id);
         if (errors)
             return [null, errors];
     }

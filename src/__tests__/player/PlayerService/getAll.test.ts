@@ -19,7 +19,7 @@ describe('PlayerService.getAll() test suite', () => {
     let player2: PlayerDto;
 
     const clanBuilder = ClanBuilderFactory.getBuilder('CreateClanDto');
-    let clanModel = ClanModule.getClanModel();
+    const clanModel = ClanModule.getClanModel();
     let existingClan: Clan;
 
     beforeEach(async () => {

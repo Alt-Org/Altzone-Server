@@ -1,7 +1,6 @@
 import {ArrayMaxSize, IsArray, IsBoolean, IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
 import {IsClanExists} from "../../clan/decorator/validation/IsClanExists.decorator";
 import {IsPlayerExists} from "../decorator/validation/IsPlayerExists.decorator";
-import {IsCustomCharacterExists} from "../customCharacter/decorator/validation/IsCustomCharacterExists.decorator";
 import AddType from "../../common/base/decorator/AddType.decorator";
 
 @AddType('UpdatePlayerDto')

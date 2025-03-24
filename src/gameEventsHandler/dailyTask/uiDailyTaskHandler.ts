@@ -60,7 +60,7 @@ export default class UiDailyTaskHandler {
         }
 
         this.notifier.taskCompleted(player_idStr, task);
-        const [wasDeleted, deletionErrors] = await this.basicService.deleteOneById(task_idStr);
+        const [, deletionErrors] = await this.basicService.deleteOneById(task_idStr);
 
         if (deletionErrors)
             throw new ServiceError({

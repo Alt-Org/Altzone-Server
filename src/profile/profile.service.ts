@@ -1,5 +1,5 @@
 import {Injectable} from "@nestjs/common";
-import {Model, MongooseError, Types} from "mongoose";
+import {Model, Types} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {Profile, ProfileDocument} from "./profile.schema";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
@@ -59,7 +59,7 @@ export class ProfileService extends BasicServiceDummyAbstract<ProfileDocument> i
         return this.basicService.createOne<CreateProfileDto, ProfileDto>({...profile, password: hashedPassword});
     }
 
-    public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
+    public clearCollectionReferences = async (_id: Types.ObjectId, _ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         await this.playerService.deleteByCondition({profile_id: _id}, {isOne: true});
     }
 

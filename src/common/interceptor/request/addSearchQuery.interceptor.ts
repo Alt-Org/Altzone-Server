@@ -58,10 +58,10 @@ export class AddSearchQueryInterceptor implements NestInterceptor{
         andGroups.push(searchParts.slice(andGroupStart));
 
         //Generate { $and: [] } mongo queries
-        const andQueries: Object[] = [];
+        const andQueries: object[] = [];
         for(let i=0; i<andGroups.length; i++){
             const group = andGroups[i];
-            let andQuery = { $and: [] };
+            const andQuery = { $and: [] };
             for(let i=0; i<group.length; i+=2){
                 const query = unpackSearchPair(group[i], possibleFields);
                 if(!query)

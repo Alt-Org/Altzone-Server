@@ -4,7 +4,6 @@ import { ModelName } from "../common/enum/modelName.enum";
 import { ItemName } from "../clanInventory/item/enum/itemName.enum";
 import { Recycling } from "../clanInventory/item/enum/recycling.enum";
 import { QualityLevel } from "../clanInventory/item/enum/qualityLevel.enum";
-import { Clan } from "../clan/clan.schema";
 import { Status } from "./enum/status.enum";
 
 export type FleaMarketItemDocument = HydratedDocument<FleaMarketItem>;

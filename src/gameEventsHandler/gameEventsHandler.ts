@@ -35,8 +35,8 @@ export class GameEventsHandler {
     }
 
 	private async handleWinBattle(player_id: string){
-		const [ playerSuccess, playerErrors ] = await this.playerEventHandler.handlePlayerEvent(player_id, PlayerEvent.BATTLE_WON);
-		const [ clanSuccess, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id);
+		const [, playerErrors ] = await this.playerEventHandler.handlePlayerEvent(player_id, PlayerEvent.BATTLE_WON);
+		const [, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id);
 
 		if(playerErrors || clanErrors)
 			return [ null, this.concatArrays(playerErrors, clanErrors) ];
@@ -45,8 +45,8 @@ export class GameEventsHandler {
 	}
 
 	private async handlePlayBattle(player_id: string){
-		const [ playerSuccess, playerErrors ] = await this.playerEventHandler.handlePlayerEvent(player_id, PlayerEvent.BATTLE_PLAYED);
-		const [ clanSuccess, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id);
+		const [, playerErrors ] = await this.playerEventHandler.handlePlayerEvent(player_id, PlayerEvent.BATTLE_PLAYED);
+		const [, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id);
 
 		if(playerErrors || clanErrors)
 			return [ null, this.concatArrays(playerErrors, clanErrors) ];
@@ -55,8 +55,8 @@ export class GameEventsHandler {
 	}
 
 	private async handleSendMessage(player_id: string){
-		const [ playerSuccess, playerErrors ] = await this.playerEventHandler.handlePlayerEvent(player_id, PlayerEvent.MESSAGE_SENT);
-		const [ clanSuccess, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id);
+		const [, playerErrors ] = await this.playerEventHandler.handlePlayerEvent(player_id, PlayerEvent.MESSAGE_SENT);
+		const [, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id);
 
 		if(playerErrors || clanErrors)
 			return [ null, this.concatArrays(playerErrors, clanErrors) ];
@@ -65,8 +65,8 @@ export class GameEventsHandler {
 	}
 
 	private async handleVote(player_id: string){
-		const [ playerSuccess, playerErrors ] = await this.playerEventHandler.handlePlayerEvent(player_id, PlayerEvent.VOTE_MADE);
-		const [ clanSuccess, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id);
+		const [, playerErrors ] = await this.playerEventHandler.handlePlayerEvent(player_id, PlayerEvent.VOTE_MADE);
+		const [, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id);
 
 		if(playerErrors || clanErrors)
 			return [ null, this.concatArrays(playerErrors, clanErrors) ];
@@ -75,7 +75,7 @@ export class GameEventsHandler {
 	}
 
 	private async handleStartVoting(player_id: string){
-		const [ clanSuccess, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id);
+		const [, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id);
 
 		if(clanErrors)
 			return [ null, clanErrors ];
@@ -84,7 +84,7 @@ export class GameEventsHandler {
 	}
 
 	private async handleCollectDiamonds(player_id: string){
-		const [ clanSuccess, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id);
+		const [, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id);
 
 		if(clanErrors)
 			return [ null, clanErrors ];
@@ -93,7 +93,7 @@ export class GameEventsHandler {
 	}
 
 	private async handleNewCharacter(player_id: string){
-		const [ clanSuccess, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id);
+		const [, clanErrors ] = await this.clanEventHandler.handlePlayerTask(player_id);
 
 		if(clanErrors)
 			return [ null, clanErrors ];

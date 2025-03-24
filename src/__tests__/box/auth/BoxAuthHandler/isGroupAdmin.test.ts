@@ -73,7 +73,7 @@ describe('BoxAuthHandler.isGroupAdmin() test suite', () => {
     });
 
     it('Should return NOT_FOUND ServiceError if the user group admin, but the admin password is not valid', async () => {
-        const result = await groupAdminModel.findByIdAndUpdate(existingAdmin._id, { password: 'other-password' });
+        await groupAdminModel.findByIdAndUpdate(existingAdmin._id, { password: 'other-password' });
 
         const [isAdmin, errors] = await boxAuthHandler.isGroupAdmin(boxAdminUser);
 

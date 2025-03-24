@@ -56,7 +56,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
 
         try{
             await joinService.handleJoinRequest(joinToCreate);
-        }catch (e) {}
+        }catch (e) {void e}
 
         const dbData = await joinModel.findOne({clan_id: nonExisting_id, player_id: player._id});
 
@@ -76,7 +76,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
 
         try{
             await joinService.handleJoinRequest(joinToCreate);
-        }catch (e) {}
+        }catch (e) { void e }
 
         const dbData = await joinModel.findOne({clan_id: openClan._id, player_id: nonExisting_id});
 
@@ -94,7 +94,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
 
         try{
             await joinService.handleJoinRequest(joinToCreate);
-        }catch (e) {}
+        }catch (e) { void e }
 
         const dbData = await joinModel.findOne({clan_id: openClan._id, player_id: player._id});
 

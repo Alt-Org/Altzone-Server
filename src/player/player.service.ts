@@ -1,7 +1,7 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {Model, Types, UpdateQuery} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
-import {Player, PlayerDocument, publicReferences} from "./player.schema";
+import {Player, publicReferences} from "./player.schema";
 import {RequestHelperService} from "../requestHelper/requestHelper.service";
 import {IBasicService} from "../common/base/interface/IBasicService";
 import {IgnoreReferencesType} from "../common/type/ignoreReferences.type";
@@ -14,9 +14,7 @@ import {IHookImplementer, PostHookFunction} from "../common/interface/IHookImple
 import {UpdatePlayerDto} from "./dto/updatePlayer.dto";
 import { PlayerDto } from "./dto/player.dto";
 import BasicService from "../common/service/basicService/BasicService";
-import { TIServiceReadManyOptions, TIServiceUpdateOneOptions, TReadByIdOptions } from "../common/service/basicService/IService";
-import { Message } from "./message.schema";
-import ServiceError from "../common/service/basicService/ServiceError";
+import { TIServiceReadManyOptions, TReadByIdOptions } from "../common/service/basicService/IService";
 
 @Injectable()
 @AddBasicService()
@@ -46,7 +44,7 @@ export class PlayerService
      * @returns An PlayerDTO if succeeded or an array of ServiceErrors.
      */
     async getPlayerById(_id: string, options?: TReadByIdOptions) {
-        let optionsToApply = options;
+        const optionsToApply = options;
         if (options?.includeRefs) {
             optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
         }
@@ -62,21 +60,21 @@ export class PlayerService
      * @returns - An array of players if succeeded or an array of ServiceErrors if error occurred.
      */
     async getAll(options?: TIServiceReadManyOptions) {
-        let optionsToApply = options;
+        const optionsToApply = options;
         if(options?.includeRefs)
             optionsToApply.includeRefs = options.includeRefs.filter((ref) => publicReferences.includes(ref));
         
         return this.basicService.readMany<PlayerDto>(optionsToApply);
     }
 
-    public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
+    public clearCollectionReferences = async (_id: Types.ObjectId, _ignoreReferences?: IgnoreReferencesType): Promise<void> => {
         const isClanRefCleanSuccess = await this.clearClanReferences(_id.toString());
         if(isClanRefCleanSuccess instanceof Error)
             throw new BadRequestException(isClanRefCleanSuccess.message);
         await this.customCharacterService.deleteMany({player_id: _id});
     }
 
-    public updateOnePostHook: PostHookFunction = async (input: Partial<UpdatePlayerDto>, oldDoc: Partial<Player>, output: Partial<Player>): Promise<boolean> => {
+    public updateOnePostHook: PostHookFunction = async (input: Partial<UpdatePlayerDto>, oldDoc: Partial<Player>, _output: Partial<Player>): Promise<boolean> => {
         if(!input?.clan_id)
             return true;
 
@@ -102,7 +100,7 @@ export class PlayerService
         return this.basicService.updateOneById(_id, updateInfo);
     }
 
-    public deleteOnePostHook: PostHookFunction = async (input: any, oldDoc: Partial<Player>, output: Partial<Player>): Promise<boolean> => {
+    public deleteOnePostHook: PostHookFunction = async (input: any, oldDoc: Partial<Player>): Promise<boolean> => {
         const clan_id = oldDoc.clan_id;
 
         if(!clan_id)
@@ -174,7 +172,7 @@ export class PlayerService
      */
     async handlePlayedBattle(playerId: string, playerWon: boolean) {
         const points = playerWon ? 50 : 10;
-        let update = { $inc: { 'gameStatistics.playedBattles': 1 , 'points': points } };
+        const update = { $inc: { 'gameStatistics.playedBattles': 1 , 'points': points } };
         if (playerWon)
             update.$inc['gameStatistics.wonBattles'] = 1
 

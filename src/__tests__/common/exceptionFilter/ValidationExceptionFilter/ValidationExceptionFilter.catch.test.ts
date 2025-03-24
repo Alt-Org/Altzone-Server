@@ -2,7 +2,7 @@ import { ValidationExceptionFilter } from "../../../../common/exceptionFilter/Va
 import TestUtilDataFactory from "../../../test_utils/data/TestUtilsDataFactory";
 
 describe('ValidationExceptionFilter.catch() class test suite', () => {
-    let filter = new ValidationExceptionFilter();
+    const filter = new ValidationExceptionFilter();
 
     const validationErrorBuilder = TestUtilDataFactory.getBuilder('ValidationError');
     const validationError = validationErrorBuilder
@@ -19,7 +19,7 @@ describe('ValidationExceptionFilter.catch() class test suite', () => {
 
     const jsonMock = jest.fn();
     const responseMock = {
-        status: jest.fn((statusCode: number) => {
+        status: jest.fn((_statusCode: number) => {
             return {
                 json: jsonMock
             }

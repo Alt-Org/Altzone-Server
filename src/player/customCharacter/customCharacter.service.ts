@@ -105,7 +105,7 @@ export class CustomCharacterService {
         if(!_id)
             return [ null, [new ServiceError({ reason: SEReason.REQUIRED, message: '_id is required', field: '_id', value: _id })] ];
 
-        let optionsToApply = options;
+        const optionsToApply = options;
         if(options?.includeRefs)
             optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
         return this.basicService.readOneById<CustomCharacter>(_id, optionsToApply);
@@ -122,7 +122,7 @@ export class CustomCharacterService {
         if(!options)
             return [ null, [new ServiceError({ reason: SEReason.REQUIRED, message: 'options param is required', field: 'options', value: options })] ];
 
-        let optionsToApply = options;
+        const optionsToApply = options;
         if(options?.includeRefs)
             optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
         return this.basicService.readOne<CustomCharacter>(optionsToApply);
@@ -138,7 +138,7 @@ export class CustomCharacterService {
      * @return found custom characters, or NOT_FOUND if nothing was found
      */
     public readMany = async (options: TIServiceReadManyOptions): Promise<IServiceReturn<CustomCharacter[]>> => {
-        let optionsToApply = options;
+        const optionsToApply = options;
         if(options?.includeRefs)
             optionsToApply.includeRefs = options.includeRefs.filter((ref) => this.refsInModel.includes(ref));
         return this.basicService.readMany<CustomCharacter>(optionsToApply);
@@ -219,6 +219,6 @@ export class CustomCharacterService {
         return this.basicService.deleteMany({filter});
     }
 
-    public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
+    public clearCollectionReferences = async (_id: Types.ObjectId, _ignoreReferences?: IgnoreReferencesType): Promise<void> => {
     }
 }

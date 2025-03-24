@@ -1,4 +1,4 @@
-import { IsBoolean, IsEnum, IsInt, IsMongoId, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsString } from "class-validator";
 import AddType from "../../common/base/decorator/AddType.decorator";
 import { ItemName } from "../../clanInventory/item/enum/itemName.enum";
 import { Recycling } from "../../clanInventory/item/enum/recycling.enum";

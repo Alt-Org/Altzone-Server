@@ -13,7 +13,7 @@ describe('ClanService.readAll() test suite', () => {
     const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
     const clanModel = ClanModule.getClanModel();
 
-    let loggedPlayer = LoggedUser.getPlayer();
+    const loggedPlayer = LoggedUser.getPlayer();
     const playerBuilder = PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
     const playerModel = PlayerModule.getPlayerModel();
 

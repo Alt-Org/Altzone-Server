@@ -1,4 +1,4 @@
-import {IsInt, IsMongoId, IsOptional, IsString} from "class-validator";
+import {IsInt, IsOptional, IsString} from "class-validator";
 import AddType from "../../common/base/decorator/AddType.decorator";
 
 @AddType('UpdateMessageDto')

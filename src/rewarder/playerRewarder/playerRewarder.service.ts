@@ -71,7 +71,7 @@ export class PlayerRewarder {
 
 		const player = playerResp.data[playerResp.metaData.dataKey];
 		const messages: Message[] = player.gameStatistics.messages || [];
-		let todaysMessage: Message = messages.find(message => message.date.toDateString() === today.toDateString());
+		const todaysMessage: Message = messages.find(message => message.date.toDateString() === today.toDateString());
 
 		const messageCount = todaysMessage?.count;
 

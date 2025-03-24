@@ -63,7 +63,7 @@ export class AuthService {
         if (clan)
             profile['Clan'] = clan;
 
-        const {password, isSystemAdmin, ...serializedProfile} = profile;
+        const {password: _p, isSystemAdmin: _a, ...serializedProfile} = profile;
 
         return {
             ...serializedProfile,
@@ -99,6 +99,7 @@ export class AuthService {
         try {
             return await this.jwtService.verifyAsync(token);
         } catch (error) {
+            void error;
             const expTime = this.getTokenExpirationTime(token);
             const errorMsg = expTime <= 0 ? "Token has expired" : "Invalid token";
             throw new UnauthorizedException({

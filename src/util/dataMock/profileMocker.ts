@@ -27,7 +27,7 @@ export class ProfileMocker{
         return newValidObj;
     }
 
-    public getNotUnique(existingObj: Object): Object[]{
+    public getNotUnique(existingObj: object): object[]{
         const resp = this.commonMocker.generateNotUniqueFieldsResponse(['username']);
         return [existingObj, resp];
     }
@@ -36,7 +36,7 @@ export class ProfileMocker{
         const validObj = this.getValid() as ProfileDto;
         return this.commonMocker.removeObjectFields(validObj, fieldsToEscape);
     }
-    public getWrongDT(fieldsToBeWrong?: string[], options?: GetWrongFieldDTOptions): Object[]{
+    public getWrongDT(fieldsToBeWrong?: string[], options?: GetWrongFieldDTOptions): unknown[] {
         const validObj = this.getValid();
         const resp = this.commonMocker.generateWrongDataTypesResponse(validObj, fieldsToBeWrong);
         const req = this.commonMocker.generateObjWithWrongDT(validObj, fieldsToBeWrong, options);

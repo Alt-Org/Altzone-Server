@@ -42,7 +42,7 @@ describe('BasicService.readOne() test suite', () => {
         const expected = { goal: existingClan.goal, name: existingClan.name };
 
         const [result, errors] = await basicService.readOne({ filter, select: ['goal', 'name'] });
-        const { _id, id, ...resultWithoutIds } = result.toObject();
+        const { _id, id: __id, ...resultWithoutIds } = result.toObject();
 
         expect(errors).toBeNull();
         expect(resultWithoutIds).toEqual(expected);
@@ -63,7 +63,7 @@ describe('BasicService.readOne() test suite', () => {
         const expected = { goal: existingClan.goal, name: existingClan.name, Player: [] };
 
         const [result, errors] = await basicService.readOne({ filter, select: ['goal', 'name'], includeRefs: [ModelName.PLAYER] });
-        const { _id, id, ...resultWithoutIds } = result.toObject();
+        const { _id, id: __id, ...resultWithoutIds } = result.toObject();
 
         expect(errors).toBeNull();
         expect(resultWithoutIds).toEqual(expected);

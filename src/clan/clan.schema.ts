@@ -43,7 +43,7 @@ export class Clan {
     stockCount: number;
 
     @Prop({type: Boolean, default: true})
-    isOpen: Boolean;
+    isOpen: boolean;
 
     @Prop({type: String, enum: AgeRange, default: AgeRange.NONE})
     ageRange: AgeRange;

@@ -35,7 +35,7 @@ describe('PlayerService.createOne() test suite', () => {
         const data = resp['data']['Player'];
         const clearedData = clearDBRespDefaultFields(data);
 
-        const {profile_id, ...expectedFields} = playerToCreate;
+        const {profile_id: _, ...expectedFields} = playerToCreate;
         expect(clearedData).toEqual(expect.objectContaining({
             ...expectedFields, _id: expect.any(ObjectId), points: expect.any(Number)
         }));
@@ -53,8 +53,7 @@ describe('PlayerService.createOne() test suite', () => {
 
         try {
             await playerService.createOne(invalidPlayer);
-        } catch (e) {
-        }
+        } catch (e) {void e}
 
         const dbData1 = await playerModel.findOne({name: false});
         const dbData2 = await playerModel.findOne({name: 'false'});
@@ -92,7 +91,7 @@ describe('PlayerService.createOne() test suite', () => {
 
         try{
             await playerService.createOne(playerToCreate);
-        } catch (e: any) {}
+        } catch (e) {void e}
 
         const { _id: _idAfter} = await playerModel.findOne({name: playerName});
 

@@ -1,5 +1,4 @@
 import { ClanService } from "../../../clan/clan.service";
-import ServiceError from "../../../common/service/basicService/ServiceError";
 import LoggedUser from "../../test_utils/const/loggedUser";
 import { getNonExisting_id } from "../../test_utils/util/getNonExisting_id";
 import ClanBuilderFactory from "../data/clanBuilderFactory";

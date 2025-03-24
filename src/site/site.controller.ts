@@ -10,8 +10,7 @@ export class SiteController{
     }
 
     @Get('/:folder')
-    public getImagesData(@Param() param: any) {
-        console.log(param);
+    public getImagesData(@Param() _param: any) {
         return null;
     }
 }

@@ -40,7 +40,7 @@ describe('SoulHomeService.createOne() test suite', () => {
     });
 
     it('Should return saved soul home data, if input is valid', async () => {
-        const [result, errors] = await soulHomeService.createOne(soulHomeToCreate);
+        const [result,] = await soulHomeService.createOne(soulHomeToCreate);
 
         expect(result).not.toBeInstanceOf(ServiceError);
         expect(result).toEqual(expect.objectContaining({...soulHomeToCreate, _id: expect.any(ObjectId)}));

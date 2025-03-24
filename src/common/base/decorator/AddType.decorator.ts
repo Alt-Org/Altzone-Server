@@ -16,7 +16,7 @@ export interface ObjectType {
  * @param type class objectType field to be added
  */
 export default function AddType(type: string) {
-    return function <T extends { new(...args: any[]): {} }>(constructor: T) {
+    return function <T extends { new(...args: any[]): object }>(constructor: T) {
         return class extends constructor {
             objectType = type;
     

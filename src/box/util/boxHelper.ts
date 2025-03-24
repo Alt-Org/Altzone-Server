@@ -148,7 +148,7 @@ export class BoxHelper {
      * @return true if the box is registered or false if not
      */
     public async isBoxRegistered(groupAdminPassword: string): Promise<boolean> {
-        const [box, errors] = await this.basicService.readOne<Box>({ filter: { adminPassword: groupAdminPassword } });
+        const [box,] = await this.basicService.readOne<Box>({ filter: { adminPassword: groupAdminPassword } });
 
         return box ? true : false;
     }

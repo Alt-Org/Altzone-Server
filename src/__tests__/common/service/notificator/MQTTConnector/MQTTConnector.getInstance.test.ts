@@ -1,6 +1,5 @@
 import mqtt from "mqtt";
 import MQTTConnector from "../../../../../common/service/notificator/MQTTConnector";
-import { envVars } from "../../../../../common/service/envHandler/envVars";
 
 jest.mock('mqtt', () => ({
     connect: jest.fn(),

@@ -39,7 +39,7 @@ export class GameAnalyticsController {
                 new APIError({reason: APIErrorReason.REQUIRED, message: 'Could not define a file sent. The file is required'})
             ]];
 
-        const [resp, errors] = await this.logFileService.saveFile(file, user.player_id, battleId);
+        const [, errors] = await this.logFileService.saveFile(file, user.player_id, battleId);
         if(errors)
             return [null, errors];
     }

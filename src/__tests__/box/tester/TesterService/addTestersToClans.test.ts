@@ -25,7 +25,7 @@ describe('TesterService.addTestersToClans() test suite', () => {
     const boxBuilder = BoxBuilderFactory.getBuilder('Box');
     let existingBox: Box;
 
-    const profileModel = ProfileModule.getProfileModel();
+    ProfileModule.getProfileModel();
     const playerModel = PlayerModule.getPlayerModel();
     const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
     const clanModel = ClanModule.getClanModel();

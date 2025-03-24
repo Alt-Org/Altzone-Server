@@ -6,7 +6,6 @@ import ProfileBuilderFactory from "../../profile/data/profileBuilderFactory";
 import ClanBuilderFactory from "../../clan/data/clanBuilderFactory";
 import PlayerBuilderFactory from "../../player/data/playerBuilderFactory";
 import AuthModule from "../modules/auth.module";
-import * as argon2 from "argon2";
 import {JwtService} from "@nestjs/jwt";
 import {clearDBRespDefaultFields} from "../../test_utils/util/removeDBDefaultFields";
 
