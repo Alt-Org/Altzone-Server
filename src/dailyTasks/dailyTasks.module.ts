@@ -10,7 +10,6 @@ import {PlayerModule} from "../player/player.module";
 import {TaskGeneratorService} from "./taskGenerator.service";
 import {GameEventsEmitterModule} from "../gameEventsEmitter/gameEventsEmitter.module";
 import UiDailyTasksService from "./uiDailyTasks/uiDailyTasks.service";
-import { PlayerRewarder } from "../rewarder/playerRewarder/playerRewarder.service";
 
 @Module({
     imports: [
@@ -26,7 +25,7 @@ import { PlayerRewarder } from "../rewarder/playerRewarder/playerRewarder.servic
     providers: [
         DailyTasksService, TaskGeneratorService, UiDailyTasksService,
         DailyTaskNotifier,
-        DailyTaskQueue, DailyTaskProcessor, PlayerRewarder
+        DailyTaskQueue, DailyTaskProcessor
     ],
     controllers: [DailyTasksController],
     exports: [DailyTasksService, UiDailyTasksService],

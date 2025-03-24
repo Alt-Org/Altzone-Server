@@ -10,9 +10,6 @@ import {Serialize} from "../common/interceptor/response/Serialize";
 import {_idDto} from "../common/dto/_id.dto";
 import GameEventEmitter from "../gameEventsEmitter/gameEventEmitter";
 import {UpdateUIDailyTaskDto} from "./dto/updateUIDailyTask.dto";
-import {UITaskName} from "./enum/uiTaskName.enum";
-import {APIError} from "../common/controller/APIError";
-import {APIErrorReason} from "../common/controller/APIErrorReason";
 import UIDailyTasksService from "./uiDailyTasks/uiDailyTasks.service";
 
 @Controller("dailyTasks")
@@ -41,12 +38,6 @@ export class DailyTasksController {
 		return this.dailyTasksService.readOneById(param._id);
 	}
 
-	@Post("/progress")
-	@UniformResponse(ModelName.DAILY_TASK)
-	async progressTask(@LoggedUser() user: User, @Body() body: { progressAmount: number }) {
-		return this.uiDailyTasksService.progressTask(user.player_id, body.progressAmount);
-	}
-
 	@Put("/reserve/:_id")
 	@UniformResponse()
 	async reserveTask(@Param() param: _idDto, @LoggedUser() user: User) {
@@ -67,21 +58,12 @@ export class DailyTasksController {
 	@Put("/uiDailyTask")
 	@UniformResponse()
 	async updateUIDailyTask(@LoggedUser() user: User, @Body() body: UpdateUIDailyTaskDto) {
-		const [task, errors] = await this.dailyTasksService.readOneById(body._id);
+		const [[status, task], errors] = await this.uiDailyTasksService.updateTask(user.player_id, body.amount);
 		if(errors)
 			return [null, errors];
 
-		const isUITask = Object.values(UITaskName).find(uiTaskName => uiTaskName === task.type);
-		if(!isUITask)
-			return [null, [ new APIError({
-				reason: APIErrorReason.WRONG_ENUM, field: 'type', value: task.type,
-				message: 'The task type is not one of the UI daily tasks'
-			})]];
-
 		await this.emitter.emitAsync('dailyTask.updateUIBasicTask', {
-			task_id: body._id,
-			player_id: user.player_id,
-			amount: body.amount ?? 1
+			status, task
 		});
 	}
 
