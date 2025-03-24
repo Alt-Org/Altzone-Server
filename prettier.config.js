@@ -12,4 +12,4 @@ const config = {
     printWidth: 80,
 };
 
-module.exports = config;
+export default config;
