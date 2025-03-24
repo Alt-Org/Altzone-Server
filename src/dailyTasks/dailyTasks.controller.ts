@@ -18,9 +18,7 @@ import { Serialize } from '../common/interceptor/response/Serialize';
 import { _idDto } from '../common/dto/_id.dto';
 import GameEventEmitter from '../gameEventsEmitter/gameEventEmitter';
 import { UpdateUIDailyTaskDto } from './dto/updateUIDailyTask.dto';
-import { UITaskName } from './enum/uiTaskName.enum';
-import { APIError } from '../common/controller/APIError';
-import { APIErrorReason } from '../common/controller/APIErrorReason';
+import UIDailyTasksService from './uiDailyTasks/uiDailyTasks.service';
 
 @Controller('dailyTasks')
 export class DailyTasksController {
@@ -28,6 +26,7 @@ export class DailyTasksController {
     private readonly dailyTasksService: DailyTasksService,
     private readonly playerService: PlayerService,
     private readonly emitter: GameEventEmitter,
+    private readonly uiDailyTasksService: UIDailyTasksService,
   ) {}
 
   @Get()
@@ -61,7 +60,10 @@ export class DailyTasksController {
   @Put('/unreserve')
   @UniformResponse()
   async unreserveTask(@LoggedUser() user: User) {
-    return this.dailyTasksService.unreserveTask(user.player_id);
+    const [_isSuccess, errors] = await this.dailyTasksService.unreserveTask(
+      user.player_id,
+    );
+    if (errors) return [null, errors];
   }
 
   @Put('/uiDailyTask')
@@ -70,29 +72,15 @@ export class DailyTasksController {
     @LoggedUser() user: User,
     @Body() body: UpdateUIDailyTaskDto,
   ) {
-    const [task, errors] = await this.dailyTasksService.readOneById(body._id);
+    const [[status, task], errors] = await this.uiDailyTasksService.updateTask(
+      user.player_id,
+      body.amount,
+    );
     if (errors) return [null, errors];
 
-    const isUITask = Object.values(UITaskName).find(
-      (uiTaskName) => uiTaskName === task.type,
-    );
-    if (!isUITask)
-      return [
-        null,
-        [
-          new APIError({
-            reason: APIErrorReason.WRONG_ENUM,
-            field: 'type',
-            value: task.type,
-            message: 'The task type is not one of the UI daily tasks',
-          }),
-        ],
-      ];
-
     await this.emitter.emitAsync('dailyTask.updateUIBasicTask', {
-      task_id: body._id,
-      player_id: user.player_id,
-      amount: body.amount ?? 1,
+      status,
+      task,
     });
   }
 
@@ -102,7 +90,7 @@ export class DailyTasksController {
   @UniformResponse(ModelName.DAILY_TASK)
   async deleteTask(@Param() param: _idDto, @LoggedUser() user: User) {
     const clanId = await this.playerService.getPlayerClanId(user.player_id);
-    const [, errors] = await this.dailyTasksService.deleteTask(
+    const [_result, errors] = await this.dailyTasksService.deleteTask(
       param._id,
       clanId,
       user.player_id,

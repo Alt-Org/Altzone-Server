@@ -26,6 +26,7 @@ export function Serialize(dto: IClass) {
  */
 export class SerializeInterceptor implements NestInterceptor {
   public constructor(private readonly dto: IClass) {}
+
   public intercept(
     context: ExecutionContext,
     next: CallHandler<any>,
@@ -36,14 +37,25 @@ export class SerializeInterceptor implements NestInterceptor {
 
         const parsedData = await data;
 
-        const serializedData = plainToInstance(
-          this.dto,
-          parsedData.data[parsedData.metaData.dataKey],
-          {
-            excludeExtraneousValues: true,
-          },
-        );
-        parsedData.data[parsedData.metaData.dataKey] = serializedData;
+        if (parsedData.metaData?.dataKey) {
+          parsedData.data[parsedData.metaData.dataKey] = plainToInstance(
+            this.dto,
+            parsedData.data[parsedData.metaData.dataKey],
+            {
+              excludeExtraneousValues: true,
+            },
+          );
+          return parsedData;
+        }
+
+        const serializedData = plainToInstance(this.dto, parsedData, {
+          excludeExtraneousValues: true,
+        });
+
+        const dataKey = 'Object';
+        parsedData.data = {};
+
+        parsedData['data'][dataKey] = serializedData;
         return parsedData;
       }),
     );

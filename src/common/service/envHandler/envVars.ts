@@ -4,67 +4,97 @@ import { Environment } from './enum/environment.enum';
 
 dotenv.config();
 
-// Please remember to add env name here, before you add it to the record
-type EnvName =
-  | 'PORT'
-  | 'JWT_SECRET'
-  | 'JWT_EXPIRES'
-  | 'PSW_MEMORY'
-  | 'PSW_TIME'
-  | 'PSW_PARALLELISM'
-  | 'ENVIRONMENT'
-  | 'MONGO_USERNAME'
-  | 'MONGO_PASSWORD'
-  | 'MONGO_HOST'
-  | 'MONGO_PORT'
-  | 'MONGO_DB_NAME'
-  | 'OWNCLOUD_HOST'
-  | 'OWNCLOUD_PORT'
-  | 'OWNCLOUD_USER'
-  | 'OWNCLOUD_PASSWORD'
-  | 'OWNCLOUD_LOG_FILES_SECRET'
-  | 'OWNCLOUD_LOG_FILES_ROOT'
-  | 'REDIS_PASSWORD'
-  | 'REDIS_HOST'
-  | 'REDIS_PORT'
-  | 'MOSQUITTO_HOST'
-  | 'MOSQUITTO_PORT'
-  | 'MOSQUITTO_SUBSCRIBER'
-  | 'MOSQUITTO_SUBSCRIBER_PASSWORD'
-  | 'MOSQUITTO_PUBLISHER'
-  | 'MOSQUITTO_PUBLISHER_PASSWORD';
+// Please remember to add env name here with its description, before you add it to the record
+interface EnvVars {
+  /** The port on which the API runs. */
+  PORT: string;
+
+  /** Secret for JWT signings. */
+  JWT_SECRET: string;
+
+  /** For how long JWT is valid. */
+  JWT_EXPIRES: string;
+
+  /** Password setting. */
+  PSW_MEMORY: string;
+
+  /** Password setting. */
+  PSW_TIME: string;
+
+  /** Password setting. */
+  PSW_PARALLELISM: string;
+
+  /** Environment where the API runs, see Environment enum, default is PRODUCTION */
+  ENVIRONMENT: string;
+
+  /** Path where the generated swagger should be hosted, i.e. "swagger" => localhost:8080/swagger */
+  SWAGGER_PATH: string;
+
+  /** The username for MongoDB authentication. */
+  MONGO_USERNAME: string;
+
+  /** The password for MongoDB authentication. */
+  MONGO_PASSWORD: string;
+
+  /** The MongoDB host address. */
+  MONGO_HOST: string;
+
+  /** The MongoDB port number. */
+  MONGO_PORT: string;
+
+  /** The name of the MongoDB database. */
+  MONGO_DB_NAME: string;
+
+  /** The OwnCloud server host. */
+  OWNCLOUD_HOST: string;
+
+  /** The OwnCloud server port. */
+  OWNCLOUD_PORT: string;
+
+  /** The username for OwnCloud authentication. */
+  OWNCLOUD_USER: string;
+
+  /** The password for OwnCloud authentication. */
+  OWNCLOUD_PASSWORD: string;
+
+  /** Secret key for writing log files in OwnCloud. */
+  OWNCLOUD_LOG_FILES_SECRET: string;
+
+  /** The root directory in OwnCloud for log files. */
+  OWNCLOUD_LOG_FILES_ROOT: string;
+
+  /** The password for Redis authentication. */
+  REDIS_PASSWORD: string;
+
+  /** The Redis server host. */
+  REDIS_HOST: string;
+
+  /** The Redis server port. */
+  REDIS_PORT: string;
+
+  /** The Mosquitto broker host. */
+  MOSQUITTO_HOST: string;
+
+  /** The Mosquitto broker port. */
+  MOSQUITTO_PORT: string;
+
+  /** The subscriber username for Mosquitto. */
+  MOSQUITTO_SUBSCRIBER: string;
+
+  /** The password for the Mosquitto subscriber. */
+  MOSQUITTO_SUBSCRIBER_PASSWORD: string;
+
+  /** The publisher username for Mosquitto. */
+  MOSQUITTO_PUBLISHER: string;
+
+  /** The password for the Mosquitto publisher. */
+  MOSQUITTO_PUBLISHER_PASSWORD: string;
+}
 
 /**
  * Record with all environment variables required by the API and loaded from .env file
- * @property PORT - The port on which the API runs.
- * @property JWT_SECRET - Secret for JWT signings.
- * @property JWT_EXPIRES - For how long JWT is valid.
- * @property PSW_MEMORY - Password setting.
- * @property PSW_TIME - Password setting.
- * @property PSW_PARALLELISM - Password setting.
- * @property ENVIRONMENT - Environment where the API runs, see Environment enum, default is PRODUCTION
- * @property MONGO_USERNAME - The username for MongoDB authentication.
- * @property MONGO_PASSWORD - The password for MongoDB authentication.
- * @property MONGO_HOST - The MongoDB host address.
- * @property MONGO_PORT - The MongoDB port number.
- * @property MONGO_DB_NAME - The name of the MongoDB database.
- * @property OWNCLOUD_HOST - The OwnCloud server host.
- * @property OWNCLOUD_PORT - The OwnCloud server port.
- * @property OWNCLOUD_USER - The username for OwnCloud authentication.
- * @property OWNCLOUD_PASSWORD - The password for OwnCloud authentication.
- * @property OWNCLOUD_LOG_FILES_SECRET - Secret key for writing log files in OwnCloud.
- * @property OWNCLOUD_LOG_FILES_ROOT - The root directory in OwnCloud for log files.
- * @property REDIS_PASSWORD - The password for Redis authentication.
- * @property REDIS_HOST - The Redis server host.
- * @property REDIS_PORT - The Redis server port.
- * @property MOSQUITTO_HOST - The Mosquitto broker host.
- * @property MOSQUITTO_PORT - The Mosquitto broker port.
- * @property MOSQUITTO_SUBSCRIBER - The subscriber username for Mosquitto.
- * @property MOSQUITTO_SUBSCRIBER_PASSWORD - The password for the Mosquitto subscriber.
- * @property MOSQUITTO_PUBLISHER - The publisher username for Mosquitto.
- * @property MOSQUITTO_PUBLISHER_PASSWORD - The password for the Mosquitto publisher.
  */
-export const envVars: Record<EnvName, string> = {
+export const envVars: EnvVars = {
   PORT: process.env.PORT,
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRES: process.env.JWT_EXPIRES,
@@ -72,6 +102,7 @@ export const envVars: Record<EnvName, string> = {
   PSW_TIME: process.env.PSW_TIME,
   PSW_PARALLELISM: process.env.PSW_PARALLELISM,
   ENVIRONMENT: process.env.ENVIRONMENT ?? Environment.PRODUCTION,
+  SWAGGER_PATH: process.env.SWAGGER_PATH,
 
   MONGO_USERNAME: process.env.MONGO_USERNAME,
   MONGO_PASSWORD: process.env.MONGO_PASSWORD,

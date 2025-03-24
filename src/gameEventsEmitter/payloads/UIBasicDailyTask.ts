@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb';
+import { DailyTask } from '../../dailyTasks/dailyTasks.schema';
 
 /**
  * Basic daily task handled by UI side. For example press a button 1 time.
@@ -7,17 +7,12 @@ import { ObjectId } from 'mongodb';
  */
 export default class UIBasicDailyTask {
   /**
-   * _id of the completed task
+   * Daily task, which was updated
    */
-  task_id: string | ObjectId;
+  task: DailyTask;
 
   /**
-   * player, who have completed the task
+   * Status of the daily task, whether it's progress was updated or the daily task was completed
    */
-  player_id: string | ObjectId;
-
-  /**
-   * How much of atomic tasks was completed, default 1
-   */
-  amount?: number;
+  status: 'updated' | 'completed';
 }

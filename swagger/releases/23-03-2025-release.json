@@ -687,7 +687,8 @@
         "/player/{_id}": {
             "get": {
                 "tags": [
-                    "Player"
+                    "Player",
+                    "release-23-03-2025"
                 ],
                 "responses": {
                     "200": {
@@ -2236,7 +2237,8 @@
                     "required": true
                 },
                 "tags": [
-                    "CustomCharacter"
+                    "CustomCharacter",
+                    "release-23-03-2025"
                 ],
                 "responses": {
                     "201": {
@@ -5126,7 +5128,8 @@
                     "description": "No body required"
                 },
                 "tags": [
-                    "Box"
+                    "Box",
+                    "release-23-03-2025"
                 ],
                 "responses": {
                     "204": {
@@ -5157,7 +5160,8 @@
         "/dailyTasks/unreserve": {
             "put": {
                 "tags": [
-                    "DailyTasks"
+                    "DailyTasks",
+                    "release-23-03-2025"
                 ],
                 "responses": {
                     "204": {
@@ -5199,7 +5203,8 @@
                     "required": true
                 },
                 "tags": [
-                    "DailyTasks"
+                    "DailyTasks",
+                    "release-23-03-2025"
                 ],
                 "responses": {
                     "204": {
@@ -6993,6 +6998,10 @@
         }
     ],
     "tags": [
+        {
+            "name": "release-23-03-2025",
+            "description": "Release made on 23.03.2025"
+        },
         {
             "name": "in-development",
             "description": "Endpoint is currently changing or not yet implemented"

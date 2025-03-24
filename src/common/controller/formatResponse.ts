@@ -1,5 +1,3 @@
-import { ModelName } from '../enum/modelName.enum';
-
 /**
  * Format the provided data to the uniform response form, which can be understood by all decorators in the pipe
  * @param data data to send
@@ -13,7 +11,7 @@ import { ModelName } from '../enum/modelName.enum';
  * ```
  * @returns formatted response object
  */
-export default function formatResponse(data: any, modelName?: ModelName) {
+export default function formatResponse(data: any, modelName?: string) {
   const dataType = Array.isArray(data) ? 'Array' : 'Object';
   const model = modelName ?? 'Object';
   let dataCount: number;

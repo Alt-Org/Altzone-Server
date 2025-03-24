@@ -114,7 +114,7 @@ export class DailyTasksService {
    * @returns A promise that resolves with the result of the update operation.
    */
   async unreserveTask(playerId: string) {
-    return await this.basicService.updateOne(
+    return this.basicService.updateOne(
       { $unset: { player_id: '', startedAt: '' } },
       { filter: { player_id: playerId } },
     );
