@@ -158,7 +158,7 @@ describe('BoxService.createOne() test suite', () => {
         expect(dbResp).toHaveLength(1);
         expect(clearedResp).toEqual(expect.objectContaining({
             ...validBox, _id: expect.any(ObjectId), createdAt: expect.any(Date), updatedAt: expect.any(Date),
-            testersSharedPassword: null
+            testersSharedPassword: null, testers: expect.any(Array)
         }));
     });
 
@@ -171,7 +171,7 @@ describe('BoxService.createOne() test suite', () => {
         expect(errors).toBeNull();
         expect(clearedResp).toEqual(expect.objectContaining({
             ...validBox, _id: expect.any(ObjectId), createdAt: expect.any(Date), updatedAt: expect.any(Date),
-            testersSharedPassword: null
+            testersSharedPassword: null, testers: expect.any(Array)
         }));
     });
 

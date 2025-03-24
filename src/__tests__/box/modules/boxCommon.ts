@@ -22,6 +22,9 @@ import BoxCreator from "../../../box/boxCreator";
 import {JwtModule} from "@nestjs/jwt";
 import BoxAuthHandler from "../../../box/auth/BoxAuthHandler";
 import {DailyTaskService} from "../../../box/dailyTask/dailyTask.service";
+import {GroupAdminGuard} from "../../../box/auth/decorator/groupAdmin.guard";
+import {PasswordGenerator} from "../../../box/tester/passwordGenerator";
+import {TesterService} from "../../../box/tester/tester.service";
 
 
 export default class BoxCommonModule {
@@ -36,15 +39,15 @@ export default class BoxCommonModule {
                 imports: [
                     MongooseModule.forRoot(mongoString, mongooseOptions),
                     MongooseModule.forFeature([
-                        { name: ModelName.BOX, schema: BoxSchema },
-                        { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
-                        { name: ModelName.PROFILE, schema: ProfileSchema },
-                        { name: ModelName.PLAYER, schema: PlayerSchema },
-                        { name: ModelName.CLAN, schema: ClanSchema },
-                        { name: ModelName.SOULHOME, schema: SoulhomeSchema },
-                        { name: ModelName.ROOM, schema: RoomSchema },
-                        { name: ModelName.STOCK, schema: StockSchema },
-                        { name: ModelName.CHAT, schema: ChatSchema }
+                        {name: ModelName.BOX, schema: BoxSchema},
+                        {name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema},
+                        {name: ModelName.PROFILE, schema: ProfileSchema},
+                        {name: ModelName.PLAYER, schema: PlayerSchema},
+                        {name: ModelName.CLAN, schema: ClanSchema},
+                        {name: ModelName.SOULHOME, schema: SoulhomeSchema},
+                        {name: ModelName.ROOM, schema: RoomSchema},
+                        {name: ModelName.STOCK, schema: StockSchema},
+                        {name: ModelName.CHAT, schema: ChatSchema}
                     ]),
                     ClanModule,
                     ChatModule,
@@ -53,8 +56,10 @@ export default class BoxCommonModule {
                     JwtModule
                 ],
                 providers: [
-                    BoxService, GroupAdminService, BoxHelper, BoxCreator, BoxAuthHandler,
-                    DailyTaskService
+                    BoxService, GroupAdminService, BoxHelper, BoxCreator,
+                    DailyTaskService,
+                    BoxAuthHandler, GroupAdminGuard,
+                    PasswordGenerator, TesterService
                 ]
             }).compile();
 

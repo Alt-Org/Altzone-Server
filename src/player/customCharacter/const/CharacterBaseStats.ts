@@ -16,9 +16,11 @@ type Stats = {
  */
 export const CharacterBaseStats: Record<CharacterId, Stats> = {
     [CharacterId.Racist_101]: { defence: 14, hp: 1, size: 8, attack: 6, speed: 3 },
+    [CharacterId.BodyBuilder_102]: { defence: 12, hp: 1, size: 8, attack: 6, speed: 3 },
 
     [CharacterId.Joker_201]: { defence: 5, hp: 2, size: 6, attack: 7, speed: 10 },
     [CharacterId.Prankster_202]: { defence: 3, hp: 2, size: 4, attack: 8, speed: 10 },
+    [CharacterId.Conman_203]: { defence: 5, hp: 2, size: 6, attack: 7, speed: 10 },
 
     [CharacterId.CaseHardened_301]: { defence: 10, hp: 10, size: 10, attack: 10, speed: 10 },
 
