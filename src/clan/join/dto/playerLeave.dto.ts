@@ -1,5 +1,4 @@
-import AddType from "../../../common/base/decorator/AddType.decorator";
+import AddType from '../../../common/base/decorator/AddType.decorator';
 
 @AddType('PlayerLeaveClan')
-export class PlayerLeaveClanDto{
-}
+export class PlayerLeaveClanDto {}

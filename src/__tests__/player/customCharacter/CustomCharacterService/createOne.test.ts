@@ -1,119 +1,159 @@
-import {CustomCharacterService} from "../../../../player/customCharacter/customCharacter.service";
-import LoggedUser from "../../../test_utils/const/loggedUser";
-import {clearDBRespDefaultFields} from "../../../test_utils/util/removeDBDefaultFields";
-import {CharacterId} from "../../../../player/customCharacter/enum/characterId.enum";
-import {CharacterBaseStats} from "../../../../player/customCharacter/const/CharacterBaseStats";
-import {ObjectId} from "mongodb";
-import {getNonExisting_id} from "../../../test_utils/util/getNonExisting_id";
-import CustomCharacterModule from "../../modules/customCharacter.module";
-import PlayerBuilderFactory from "../../data/playerBuilderFactory";
+import { CustomCharacterService } from '../../../../player/customCharacter/customCharacter.service';
+import LoggedUser from '../../../test_utils/const/loggedUser';
+import { clearDBRespDefaultFields } from '../../../test_utils/util/removeDBDefaultFields';
+import { CharacterId } from '../../../../player/customCharacter/enum/characterId.enum';
+import { CharacterBaseStats } from '../../../../player/customCharacter/const/CharacterBaseStats';
+import { ObjectId } from 'mongodb';
+import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
+import CustomCharacterModule from '../../modules/customCharacter.module';
+import PlayerBuilderFactory from '../../data/playerBuilderFactory';
 
 describe('CustomCharacterService.createOne() test suite', () => {
-    let characterService: CustomCharacterService;
-    const characterModel = CustomCharacterModule.getCustomCharacterModel();
-    const createCustomCharacterBuilder = PlayerBuilderFactory.getBuilder('CreateCustomCharacterDto');
+  let characterService: CustomCharacterService;
+  const characterModel = CustomCharacterModule.getCustomCharacterModel();
+  const createCustomCharacterBuilder = PlayerBuilderFactory.getBuilder(
+    'CreateCustomCharacterDto',
+  );
 
-    const player = LoggedUser.getPlayer();
+  const player = LoggedUser.getPlayer();
 
-    beforeEach(async () => {
-        characterService = await CustomCharacterModule.getCustomCharacterService();
+  beforeEach(async () => {
+    characterService = await CustomCharacterModule.getCustomCharacterService();
+  });
+
+  it('Should create a custom character in DB if the input is valid', async () => {
+    const characterId = CharacterId.Prankster_202;
+    const characterToCreate = createCustomCharacterBuilder
+      .setCharacterId(characterId)
+      .build();
+
+    await characterService.createOne(characterToCreate, player._id);
+
+    const createdCharacter = await characterModel.find({
+      player_id: player._id,
+    });
+    const clearedCharacter = clearDBRespDefaultFields(createdCharacter);
+
+    const expectedSpecs = CharacterBaseStats[characterId];
+
+    expect(clearedCharacter).toHaveLength(1);
+    expect(clearedCharacter[0]).toEqual({
+      ...characterToCreate,
+      ...expectedSpecs,
+      player_id: new ObjectId(player._id),
+      _id: expect.any(ObjectId),
+    });
+  });
+
+  it('Should return created custom character if the input is valid', async () => {
+    const characterId = CharacterId.Prankster_202;
+    const characterToCreate = createCustomCharacterBuilder
+      .setCharacterId(characterId)
+      .build();
+
+    const [createdCharacter, errors] = await characterService.createOne(
+      characterToCreate,
+      player._id,
+    );
+
+    const expectedSpecs = CharacterBaseStats[characterId];
+
+    expect(errors).toBeNull();
+    expect(createdCharacter).toEqual(
+      expect.objectContaining({
+        ...characterToCreate,
+        ...expectedSpecs,
+        player_id: new ObjectId(player._id),
+        _id: expect.any(ObjectId),
+      }),
+    );
+  });
+
+  it('Should return NOT_UNIQUE ServiceErrors if character with same player_id and characterId already exists', async () => {
+    const characterId = CharacterId.Prankster_202;
+    const characterToCreate = createCustomCharacterBuilder
+      .setCharacterId(characterId)
+      .build();
+
+    await characterService.createOne(characterToCreate, player._id);
+
+    const [createdCharacter, errors] = await characterService.createOne(
+      characterToCreate,
+      player._id,
+    );
+
+    expect(createdCharacter).toBeNull();
+    expect(errors).toContainSE_NOT_UNIQUE();
+  });
+
+  it('Should return WRONG_ENUM if the level value is not a number', async () => {
+    const invalid_level = 'not-a-number' as any;
+    const characterToCreate = createCustomCharacterBuilder
+      .setLevel(invalid_level)
+      .build();
+
+    const [createdCharacter, errors] = await characterService.createOne(
+      characterToCreate,
+      player._id,
+    );
+
+    expect(createdCharacter).toBeNull();
+    expect(errors).toContainSE_NOT_NUMBER();
+  });
+
+  it('Should not create a custom character if the characterId is not in enum list', async () => {
+    const characterId = 'non-enum-value' as any;
+    const characterToCreate = createCustomCharacterBuilder
+      .setCharacterId(characterId)
+      .build();
+
+    await characterService.createOne(characterToCreate, player._id);
+
+    const createdCharacter = await characterModel.find({
+      player_id: player._id,
     });
 
-    it('Should create a custom character in DB if the input is valid', async () => {
-        const characterId = CharacterId.Prankster_202;
-        const characterToCreate = createCustomCharacterBuilder.setCharacterId(characterId).build();
+    expect(createdCharacter).toHaveLength(0);
+  });
 
-        await characterService.createOne(characterToCreate, player._id);
+  it('Should not create a custom character if the player with provided _id does not exist', async () => {
+    const nonExistingPlayer = getNonExisting_id();
+    const characterToCreate = createCustomCharacterBuilder.build();
 
-        const createdCharacter = await characterModel.find({player_id: player._id});
-        const clearedCharacter = clearDBRespDefaultFields(createdCharacter);
+    await characterService.createOne(characterToCreate, nonExistingPlayer);
 
-        const expectedSpecs = CharacterBaseStats[characterId];
-
-        expect(clearedCharacter).toHaveLength(1);
-        expect(clearedCharacter[0]).toEqual({
-            ...characterToCreate, ...expectedSpecs,
-            player_id: new ObjectId(player._id), _id: expect.any(ObjectId)
-        });
+    const createdCharacter = await characterModel.find({
+      player_id: nonExistingPlayer,
     });
 
-    it('Should return created custom character if the input is valid', async () => {
-        const characterId = CharacterId.Prankster_202;
-        const characterToCreate = createCustomCharacterBuilder.setCharacterId(characterId).build();
+    expect(createdCharacter).toHaveLength(0);
+  });
 
-        const [createdCharacter, errors] = await characterService.createOne(characterToCreate, player._id);
+  it('Should return NOT_FOUND if the player with provided _id does not exist', async () => {
+    const nonExistingPlayer = getNonExisting_id();
+    const characterToCreate = createCustomCharacterBuilder.build();
 
-        const expectedSpecs = CharacterBaseStats[characterId];
+    const [createdCharacter, errors] = await characterService.createOne(
+      characterToCreate,
+      nonExistingPlayer,
+    );
 
-        expect(errors).toBeNull();
-        expect(createdCharacter).toEqual(expect.objectContaining({
-            ...characterToCreate, ...expectedSpecs,
-            player_id: new ObjectId(player._id), _id: expect.any(ObjectId)
-        }));
-    });
+    expect(createdCharacter).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
+  });
 
-    it('Should return NOT_UNIQUE ServiceErrors if character with same player_id and characterId already exists', async () => {
-        const characterId = CharacterId.Prankster_202;
-        const characterToCreate = createCustomCharacterBuilder.setCharacterId(characterId).build();
+  it('Should return SE REQUIRED if the input is null or undefined', async () => {
+    const [createdCharacterUndef, errorsUndef] =
+      await characterService.createOne(undefined, player._id);
+    const [createdCharacterNull, errorsNull] = await characterService.createOne(
+      null,
+      player._id,
+    );
 
-        await characterService.createOne(characterToCreate, player._id);
+    expect(createdCharacterUndef).toBeNull();
+    expect(errorsUndef).toContainSE_REQUIRED();
 
-        const [createdCharacter, errors] = await characterService.createOne(characterToCreate, player._id);
-
-        expect(createdCharacter).toBeNull();
-        expect(errors).toContainSE_NOT_UNIQUE();
-    });
-
-    it('Should return WRONG_ENUM if the level value is not a number', async () => {
-        const invalid_level = 'not-a-number' as any;
-        const characterToCreate = createCustomCharacterBuilder.setLevel(invalid_level).build();
-
-        const [createdCharacter, errors] = await characterService.createOne(characterToCreate, player._id);
-
-        expect(createdCharacter).toBeNull();
-        expect(errors).toContainSE_NOT_NUMBER();
-    });
-
-    it('Should not create a custom character if the characterId is not in enum list', async () => {
-        const characterId = 'non-enum-value' as any;
-        const characterToCreate = createCustomCharacterBuilder.setCharacterId(characterId).build();
-
-        await characterService.createOne(characterToCreate, player._id);
-
-        const createdCharacter = await characterModel.find({player_id: player._id});
-
-        expect(createdCharacter).toHaveLength(0);
-    });
-
-    it('Should not create a custom character if the player with provided _id does not exist', async () => {
-        const nonExistingPlayer = getNonExisting_id();
-        const characterToCreate = createCustomCharacterBuilder.build();
-
-        await characterService.createOne(characterToCreate, nonExistingPlayer);
-
-        const createdCharacter = await characterModel.find({player_id: nonExistingPlayer});
-
-        expect(createdCharacter).toHaveLength(0);
-    });
-
-    it('Should return NOT_FOUND if the player with provided _id does not exist', async () => {
-        const nonExistingPlayer = getNonExisting_id();
-        const characterToCreate = createCustomCharacterBuilder.build();
-
-        const [createdCharacter, errors] = await characterService.createOne(characterToCreate, nonExistingPlayer);
-
-        expect(createdCharacter).toBeNull();
-        expect(errors).toContainSE_NOT_FOUND();
-    });
-
-    it('Should return SE REQUIRED if the input is null or undefined', async () => {
-        const [createdCharacterUndef, errorsUndef] = await characterService.createOne(undefined, player._id);
-        const [createdCharacterNull, errorsNull] = await characterService.createOne(null, player._id);
-
-        expect(createdCharacterUndef).toBeNull();
-        expect(errorsUndef).toContainSE_REQUIRED();
-
-        expect(createdCharacterNull).toBeNull();
-        expect(errorsNull).toContainSE_REQUIRED();
-    });
+    expect(createdCharacterNull).toBeNull();
+    expect(errorsNull).toContainSE_REQUIRED();
+  });
 });

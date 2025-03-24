@@ -1,9 +1,9 @@
-import {UseFilters, UseInterceptors} from '@nestjs/common';
-import {ValidationExceptionFilter} from '../../exceptionFilter/ValidationExceptionFilter';
-import {FormatAPIResponseInterceptor} from '../../interceptor/response/FormatAPIResponse';
-import {ModelName} from '../../enum/modelName.enum';
-import {Send204OnEmptyRes} from '../../interceptor/response/Send204OnEmptyRes';
-import {APIErrorFilter} from '../../exceptionFilter/APIErrorFilter';
+import { UseFilters, UseInterceptors } from '@nestjs/common';
+import { ValidationExceptionFilter } from '../../exceptionFilter/ValidationExceptionFilter';
+import { FormatAPIResponseInterceptor } from '../../interceptor/response/FormatAPIResponse';
+import { ModelName } from '../../enum/modelName.enum';
+import { Send204OnEmptyRes } from '../../interceptor/response/Send204OnEmptyRes';
+import { APIErrorFilter } from '../../exceptionFilter/APIErrorFilter';
 
 /**
  * Uniform response sent to the client side as follows
@@ -17,15 +17,19 @@ import {APIErrorFilter} from '../../exceptionFilter/APIErrorFilter';
  * @returns
  */
 export function UniformResponse(modelName?: ModelName) {
-    const decorators = [
-        Send204OnEmptyRes(),
-        UseFilters(new ValidationExceptionFilter(), new APIErrorFilter()),
-        UseInterceptors(new FormatAPIResponseInterceptor(modelName))
-    ];
+  const decorators = [
+    Send204OnEmptyRes(),
+    UseFilters(new ValidationExceptionFilter(), new APIErrorFilter()),
+    UseInterceptors(new FormatAPIResponseInterceptor(modelName)),
+  ];
 
-    return function (target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
-        decorators.reverse().forEach(decorator => {
-            decorator(target, propertyKey, descriptor);
-        });
-    };
+  return function (
+    target: any,
+    propertyKey: string | symbol,
+    descriptor: PropertyDescriptor,
+  ) {
+    decorators.reverse().forEach((decorator) => {
+      decorator(target, propertyKey, descriptor);
+    });
+  };
 }

@@ -10,13 +10,13 @@ import { GameEventsHandlerModule } from '../gameEventsHandler/gameEventsHandler.
 
 @Module({
   imports: [
-    MongooseModule.forFeature([ { name: Game.name, schema: GameSchema } ]),
+    MongooseModule.forFeature([{ name: Game.name, schema: GameSchema }]),
     PlayerModule,
     ClanModule,
     ClanInventoryModule,
-    GameEventsHandlerModule
+    GameEventsHandlerModule,
   ],
   providers: [GameDataService],
-  controllers: [GameDataController]
+  controllers: [GameDataController],
 })
 export class GameDataModule {}

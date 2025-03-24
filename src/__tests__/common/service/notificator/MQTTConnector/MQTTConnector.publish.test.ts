@@ -1,25 +1,28 @@
-import mqtt from "mqtt";
-import MQTTConnector from "../../../../../common/service/notificator/MQTTConnector";
+import mqtt from 'mqtt';
+import MQTTConnector from '../../../../../common/service/notificator/MQTTConnector';
 
 jest.mock('mqtt', () => ({
-    connect: jest.fn(),
+  connect: jest.fn(),
 }));
 
 describe('MQTTConnector.publish() test suite', () => {
-    it('Should call MqttClient.publishAsync() with valid arguments', () => {
-        const topicToPublish = 'my-topic';
-        const payloadsToPublish = 'Some msg';
+  it('Should call MqttClient.publishAsync() with valid arguments', () => {
+    const topicToPublish = 'my-topic';
+    const payloadsToPublish = 'Some msg';
 
-        const mockClient = {
-            publishAsync: jest.fn().mockResolvedValue(undefined),
-        };
-        
-        (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
+    const mockClient = {
+      publishAsync: jest.fn().mockResolvedValue(undefined),
+    };
 
-        const connector = MQTTConnector.getInstance();
+    (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
 
-        connector.publish(topicToPublish, payloadsToPublish);
+    const connector = MQTTConnector.getInstance();
 
-        expect(mockClient.publishAsync).toHaveBeenCalledWith(topicToPublish, payloadsToPublish);
-    });
+    connector.publish(topicToPublish, payloadsToPublish);
+
+    expect(mockClient.publishAsync).toHaveBeenCalledWith(
+      topicToPublish,
+      payloadsToPublish,
+    );
+  });
 });

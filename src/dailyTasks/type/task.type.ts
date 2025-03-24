@@ -1,10 +1,10 @@
-import { ServerTaskName } from "../enum/serverTaskName.enum";
-import {TaskTitle} from "./taskTitle.type";
-import {UITaskName} from "../enum/uiTaskName.enum";
+import { ServerTaskName } from '../enum/serverTaskName.enum';
+import { TaskTitle } from './taskTitle.type';
+import { UITaskName } from '../enum/uiTaskName.enum';
 
 /**
  * Represents a task with its details.
- * 
+ *
  * @property clan_id - The identifier for the clan this task belongs to.
  * @property player_id? - Optional id of the player who this task is assigned to.
  * @property title - The title of the task.
@@ -16,15 +16,15 @@ import {UITaskName} from "../enum/uiTaskName.enum";
  * @property timeLimitMinutes - Time limit to complete the task in.
  */
 export type Task = {
-	_id: string,
-	clan_id: string,
-	player_id: string,
-	type: ServerTaskName | UITaskName,
-	title: TaskTitle,
-	amount: number;
-	amountLeft: number;
-	points: number;
-	coins: number;
-	startedAt: Date;
-	timeLimitMinutes: number;
-}
+  _id: string;
+  clan_id: string;
+  player_id: string;
+  type: ServerTaskName | UITaskName;
+  title: TaskTitle;
+  amount: number;
+  amountLeft: number;
+  points: number;
+  coins: number;
+  startedAt: Date;
+  timeLimitMinutes: number;
+};

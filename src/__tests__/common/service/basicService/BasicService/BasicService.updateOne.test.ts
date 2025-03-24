@@ -1,50 +1,55 @@
-import BasicService from "../../../../../common/service/basicService/BasicService";
-import ClanModule from "../../../../clan/modules/clan.module";
-import ClanBuilderFactory from "../../../../clan/data/clanBuilderFactory";
-
+import BasicService from '../../../../../common/service/basicService/BasicService';
+import ClanModule from '../../../../clan/modules/clan.module';
+import ClanBuilderFactory from '../../../../clan/data/clanBuilderFactory';
 
 describe('BasicService.updateOne() test suite', () => {
-    const clanModel = ClanModule.getClanModel();
-    const basicService = new BasicService(clanModel);
-    const clanCreateBuilder = ClanBuilderFactory.getBuilder('CreateClanDto');
+  const clanModel = ClanModule.getClanModel();
+  const basicService = new BasicService(clanModel);
+  const clanCreateBuilder = ClanBuilderFactory.getBuilder('CreateClanDto');
 
-    const existingClan = clanCreateBuilder.setName('clan1').build();
-    let existingClan_id: string;
+  const existingClan = clanCreateBuilder.setName('clan1').build();
+  let existingClan_id: string;
 
-    beforeEach(async () => {
-        const dbResp1 = await clanModel.create(existingClan);
-        existingClan_id = dbResp1._id.toString();
+  beforeEach(async () => {
+    const dbResp1 = await clanModel.create(existingClan);
+    existingClan_id = dbResp1._id.toString();
+  });
+
+  it('Should update the object that matches the provided filter and return true', async () => {
+    const filter = { name: existingClan.name };
+    const newName = 'updatedClan1';
+    const updateData = { name: newName };
+
+    const [wasUpdated, errors] = await basicService.updateOne(updateData, {
+      filter,
     });
 
-    it('Should update the object that matches the provided filter and return true', async () => {
-        const filter = { name: existingClan.name };
-        const newName = 'updatedClan1';
-        const updateData = { name: newName };
+    expect(errors).toBeNull();
+    expect(wasUpdated).toBe(true);
 
-        const [wasUpdated, errors] = await basicService.updateOne(updateData, { filter });
+    const updatedClan = await clanModel.findById(existingClan_id);
+    expect(updatedClan).toHaveProperty('name', newName);
+  });
 
-        expect(errors).toBeNull();
-        expect(wasUpdated).toBe(true);
+  it('Should return ServiceError NOT_FOUND if no object matches the provided filter', async () => {
+    const filter = { name: 'non-existing-clan' };
+    const updateData = { name: 'updatedClan' };
 
-        const updatedClan = await clanModel.findById(existingClan_id);
-        expect(updatedClan).toHaveProperty('name', newName);
+    const [wasUpdated, errors] = await basicService.updateOne(updateData, {
+      filter,
     });
 
-    it('Should return ServiceError NOT_FOUND if no object matches the provided filter', async () => {
-        const filter = { name: 'non-existing-clan' };
-        const updateData = { name: 'updatedClan' };
+    expect(wasUpdated).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
+  });
 
-        const [wasUpdated, errors] = await basicService.updateOne(updateData, { filter });
+  it('Should not throw any error if input is null or undefined', async () => {
+    const nullInput = async () =>
+      await basicService.updateOne(null, { filter: { name: 'clan1' } });
+    const undefinedInput = async () =>
+      await basicService.updateOne(undefined, { filter: { name: 'clan1' } });
 
-        expect(wasUpdated).toBeNull();
-        expect(errors).toContainSE_NOT_FOUND();
-    });
-
-    it('Should not throw any error if input is null or undefined', async () => {
-        const nullInput = async () => await basicService.updateOne(null, { filter: { name: 'clan1' } });
-        const undefinedInput = async () => await basicService.updateOne(undefined, { filter: { name: 'clan1' } });
-
-        expect(nullInput).not.toThrow();
-        expect(undefinedInput).not.toThrow();
-    });
+    expect(nullInput).not.toThrow();
+    expect(undefinedInput).not.toThrow();
+  });
 });

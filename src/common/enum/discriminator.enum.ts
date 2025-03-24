@@ -2,6 +2,6 @@
  * @deprecated
  */
 export enum Discriminator {
-    IBasicService = 'IBasicService',
-    IConditionService = 'IConditionService'
+  IBasicService = 'IBasicService',
+  IConditionService = 'IConditionService',
 }

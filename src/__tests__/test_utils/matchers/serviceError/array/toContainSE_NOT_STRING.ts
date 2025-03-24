@@ -1,25 +1,33 @@
-import { SEReason } from "../../../../../common/service/basicService/SEReason";
-import MatcherReturner from "../../../jest_util/MatcherReturner";
-import { isErrorWithReason } from "../isErrorWithReason";
-import type {MatcherFunction} from 'expect';
+import { SEReason } from '../../../../../common/service/basicService/SEReason';
+import MatcherReturner from '../../../jest_util/MatcherReturner';
+import { isErrorWithReason } from '../isErrorWithReason';
+import type { MatcherFunction } from 'expect';
 
 /**
- * Jest matcher checks whenever provided param is an array 
+ * Jest matcher checks whenever provided param is an array
  * containing at least one ServiceError with reason NOT_STRING
  * @param {*} object object to check
  * @returns {{ message: () => string, pass: boolean }}
  */
-export const toContainSE_NOT_STRING: MatcherFunction<[object: any]> = function (object) {
-    const returner = new MatcherReturner({received: object, utils: this.utils});
+export const toContainSE_NOT_STRING: MatcherFunction<[object: any]> = function (
+  object,
+) {
+  const returner = new MatcherReturner({ received: object, utils: this.utils });
 
-    if(!object || !Array.isArray(object))
-        return returner.passFalse('Received object is not array');
-    
-    const isValid = object.find(item => isErrorWithReason(item, SEReason.NOT_STRING));
+  if (!object || !Array.isArray(object))
+    return returner.passFalse('Received object is not array');
 
-    return isValid ?
-        returner.passTrue('Expected to not receive an array containing any ServiceErrors with reason NOT_STRING') :
-        returner.passFalse('Expected to receive an array containing at least one ServiceError with reason NOT_STRING')
-}
+  const isValid = object.find((item) =>
+    isErrorWithReason(item, SEReason.NOT_STRING),
+  );
 
-expect.extend({toContainSE_NOT_STRING});
+  return isValid
+    ? returner.passTrue(
+        'Expected to not receive an array containing any ServiceErrors with reason NOT_STRING',
+      )
+    : returner.passFalse(
+        'Expected to receive an array containing at least one ServiceError with reason NOT_STRING',
+      );
+};
+
+expect.extend({ toContainSE_NOT_STRING });

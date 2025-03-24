@@ -1,31 +1,37 @@
-import {IsEnum, IsMongoId, IsNumber, IsOptional, IsString} from "class-validator";
-import {ServerTaskName} from "../../../dailyTasks/enum/serverTaskName.enum";
+import {
+  IsEnum,
+  IsMongoId,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { ServerTaskName } from '../../../dailyTasks/enum/serverTaskName.enum';
 
 export class UpdatePredefinedDailyTaskDto {
-    @IsMongoId()
-    _id: string;
+  @IsMongoId()
+  _id: string;
 
-    @IsOptional()
-    @IsEnum(ServerTaskName)
-    type?: ServerTaskName;
+  @IsOptional()
+  @IsEnum(ServerTaskName)
+  type?: ServerTaskName;
 
-    @IsOptional()
-    @IsString()
-    title?: string;
+  @IsOptional()
+  @IsString()
+  title?: string;
 
-    @IsOptional()
-    @IsNumber()
-    amount?: number;
+  @IsOptional()
+  @IsNumber()
+  amount?: number;
 
-    @IsOptional()
-    @IsNumber()
-    points?: number;
+  @IsOptional()
+  @IsNumber()
+  points?: number;
 
-    @IsOptional()
-    @IsNumber()
-    coins?: number;
+  @IsOptional()
+  @IsNumber()
+  coins?: number;
 
-    @IsOptional()
-    @IsNumber()
-    timeLimitMinutes?: number;
+  @IsOptional()
+  @IsNumber()
+  timeLimitMinutes?: number;
 }

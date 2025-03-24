@@ -4,7 +4,10 @@
   "description": "REST API",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+    "lint:file": "eslint",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:docker_dev": "nodemon -L dist/main.js",
@@ -17,7 +20,8 @@
     "test:e2e": "echo \"Start build...\" && nest build && echo \"Build success! Start docker\" && docker compose -f test_docker-compose.yml up -d && echo \"Docker started! Start tests...\" && (jest -i --config ./testAPI/jest-e2e.json || echo \"Some of the tests failed!\") && echo \"Tests completed! Stop docker...\" && docker compose -f test_docker-compose.yml down && docker image rm altzone-server-api_test && docker volume prune && echo \"Test volumes removed! E2E tests complete!\"",
     "dev": "nodemon dist/index.js",
     "docker_dev": "nodemon -L dist/index.js",
-    "sonar:analize": "docker compose -f sonar_docker-compose.yml up -d && sonar-scanner \\\n  -Dsonar.projectKey=AltzoneLocal \\\n  -Dsonar.sources=. \\\n  -Dsonar.host.url=http://localhost:9000 \\\n  -Dsonar.login=sqp_d0d523f9a2cf5e1e8f7587e0da315df0adc86568 \\\n  && echo \"Remember to stop the sonar server with: \\n docker compose -f sonar_docker-compose.yml down\"\n"
+    "sonar:analize": "docker compose -f sonar_docker-compose.yml up -d && sonar-scanner \\\n  -Dsonar.projectKey=AltzoneLocal \\\n  -Dsonar.sources=. \\\n  -Dsonar.host.url=http://localhost:9000 \\\n  -Dsonar.login=sqp_d0d523f9a2cf5e1e8f7587e0da315df0adc86568 \\\n  && echo \"Remember to stop the sonar server with: \\n docker compose -f sonar_docker-compose.yml down\"\n",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -57,6 +61,7 @@
     "webdav": "4.11.4"
   },
   "devDependencies": {
+    "@eslint/js": "^9.21.0",
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.4.3",
@@ -69,15 +74,21 @@
     "@types/node": "^18.14.2",
     "@types/supertest": "^2.0.14",
     "@types/swagger-ui-express": "^4.1.3",
+    "eslint": "^9.21.0",
+    "eslint-config-prettier": "^10.1.1",
+    "globals": "^16.0.0",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "mongodb-memory-server": "^10.1.2",
     "nodemon": "^2.0.20",
+    "prettier": "^3.5.3",
     "source-map-support": "^0.5.20",
     "supertest": "^6.3.3",
     "ts-jest": "^29.2.5",
     "ts-loader": "^9.2.3",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "4.2.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.26.0"
   }
 }

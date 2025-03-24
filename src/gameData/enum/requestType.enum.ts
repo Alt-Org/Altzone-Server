@@ -1,3 +1,3 @@
 export enum RequestType {
-	RESULT = "result",
+  RESULT = 'result',
 }

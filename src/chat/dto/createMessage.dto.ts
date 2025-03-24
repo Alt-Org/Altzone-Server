@@ -1,17 +1,17 @@
-import {IsInt, IsString} from "class-validator";
-import AddType from "../../common/base/decorator/AddType.decorator";
+import { IsInt, IsString } from 'class-validator';
+import AddType from '../../common/base/decorator/AddType.decorator';
 
 @AddType('CreateMessageDto')
 export class CreateMessageDto {
-    @IsInt()
-    id: number;
+  @IsInt()
+  id: number;
 
-    @IsString()
-    senderUsername: string;
+  @IsString()
+  senderUsername: string;
 
-    @IsString()
-    content: string;
+  @IsString()
+  content: string;
 
-    @IsInt()
-    feeling: number;
+  @IsInt()
+  feeling: number;
 }

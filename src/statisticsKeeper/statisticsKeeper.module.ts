@@ -3,11 +3,9 @@ import { PlayerModule } from '../player/player.module';
 import { PlayerStatisticService } from './playerStatisticKeeper/playerStatisticKeeper.service';
 
 @Module({
-  imports: [
-    PlayerModule
-  ],
-  providers: [ PlayerStatisticService ],
+  imports: [PlayerModule],
+  providers: [PlayerStatisticService],
   controllers: [],
-  exports: [ PlayerStatisticService ]
+  exports: [PlayerStatisticService],
 })
-export class StatisticsKeeperModule { }
+export class StatisticsKeeperModule {}
