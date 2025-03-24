@@ -10,7 +10,6 @@ import {DailyTaskProcessor, DailyTaskQueue} from "../../../dailyTasks/dailyTask.
 import UiDailyTasksService from "../../../dailyTasks/uiDailyTasks/uiDailyTasks.service";
 import {RequestHelperModule} from "../../../requestHelper/requestHelper.module";
 import {mongooseOptions, mongoString} from "../../test_utils/const/db";
-import { PlayerRewarder } from "../../../rewarder/playerRewarder/playerRewarder.service";
 
 export default class DailyTasksCommonModule {
     private constructor() {
@@ -36,7 +35,7 @@ export default class DailyTasksCommonModule {
                 providers: [
                     DailyTasksService, TaskGeneratorService, UiDailyTasksService,
                     DailyTaskNotifier,
-                    DailyTaskQueue, DailyTaskProcessor, PlayerRewarder
+                    DailyTaskQueue, DailyTaskProcessor
                 ]
             }).compile();
 
