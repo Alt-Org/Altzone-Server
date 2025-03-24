@@ -7,6 +7,8 @@ import DailyTaskBuilderFactory from "../../data/dailyTaskBuilderFactory";
 import DailyTasksModule from "../../modules/dailyTasks.module";
 import {ObjectId} from "mongodb";
 import UIDailyTasksService from "../../../../dailyTasks/uiDailyTasks/uiDailyTasks.service";
+import { UITaskName } from "../../../../dailyTasks/enum/uiTaskName.enum";
+import {ServerTaskName} from "../../../../dailyTasks/enum/serverTaskName.enum";
 
 describe('UIDailyTasksService.updateTask() test suite', () => {
     let uiDailyTasksService: UIDailyTasksService;
@@ -38,13 +40,13 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
         const completedAmount = 3;
 
         const dailyTaskToCreate = taskBuilder
-            .setClanId(existingClan._id).setPlayerId(loggedPlayer._id)
+            .setClanId(existingClan._id).setPlayerId(loggedPlayer._id).setType(UITaskName.CHANGE_LANGUAGE)
             .setAmount(initialAmount).setAmountLeft(initialAmount)
             .setPlayerId(loggedPlayer._id).setClanId(existingClan._id)
             .build();
         const createdTask = await taskModel.create(dailyTaskToCreate);
 
-        await uiDailyTasksService.updateTask(createdTask._id, loggedPlayer._id, completedAmount);
+        await uiDailyTasksService.updateTask(loggedPlayer._id, completedAmount);
 
         const updatedTask = await taskModel.findById(createdTask._id);
 
@@ -61,7 +63,7 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
             .build();
         const createdTask = await taskModel.create(dailyTaskToCreate);
 
-        await uiDailyTasksService.updateTask(createdTask._id, loggedPlayer._id);
+        await uiDailyTasksService.updateTask(loggedPlayer._id);
 
         const updatedTask = await taskModel.findById(createdTask._id);
 
@@ -76,7 +78,7 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
             .build();
         const createdTask = await taskModel.create(dailyTaskToCreate);
 
-        const [[status]] = await uiDailyTasksService.updateTask(createdTask._id, loggedPlayer._id, 1);
+        const [[status]] = await uiDailyTasksService.updateTask(loggedPlayer._id, 1);
 
         expect(status).toBe('updated');
     });
@@ -87,11 +89,27 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
             .setAmount(1).setAmountLeft(1)
             .setPlayerId(loggedPlayer._id).setClanId(existingClan._id)
             .build();
-        const createdTask = await taskModel.create(dailyTaskToCreate);
+        await taskModel.create(dailyTaskToCreate);
 
-        const [[status]] = await uiDailyTasksService.updateTask(createdTask._id, loggedPlayer._id, 1);
+        const [[status]] = await uiDailyTasksService.updateTask(loggedPlayer._id, 1);
 
         expect(status).toBe('completed');
+    });
+
+    it('Should remove the daily task if the task is completed', async () => {
+        const dailyTaskToCreate = taskBuilder
+            .setClanId(existingClan._id).setPlayerId(loggedPlayer._id)
+            .setAmount(1).setAmountLeft(1)
+            .setType(UITaskName.PRESS_FAMOUS_CHARACTER)
+            .setPlayerId(loggedPlayer._id).setClanId(existingClan._id)
+            .build();
+        const createdTask = await taskModel.create(dailyTaskToCreate);
+
+        await uiDailyTasksService.updateTask(loggedPlayer._id, 1);
+
+        const updatedTask = await taskModel.findById(createdTask._id);
+
+        expect(updatedTask).toBeNull();
     });
 
     it('Should should return ServiceError NOT_FOUND if it could not find task', async () => {
@@ -104,9 +122,22 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
 
         await clanModel.findByIdAndDelete(existingClan._id);
 
-        const [result, errors] = await uiDailyTasksService.updateTask(new ObjectId().toString(), loggedPlayer._id, 1);
+        const [result, errors] = await uiDailyTasksService.updateTask(new ObjectId().toString(), 1);
 
         expect(result).toBeNull();
         expect(errors).toContainSE_NOT_FOUND();
+    });
+
+    it('Should return WRONG_ENUM ServiceError if the task type is not a UI task', async () => {
+        const dailyTaskToCreate = taskBuilder
+            .setClanId(existingClan._id).setPlayerId(loggedPlayer._id).setType(ServerTaskName.ADD_FRIEND)
+            .setAmount(5).setAmountLeft(5)
+            .setPlayerId(loggedPlayer._id).setClanId(existingClan._id)
+            .build();
+        await taskModel.create(dailyTaskToCreate);
+
+        const [result, errors] = await uiDailyTasksService.updateTask(loggedPlayer._id, 1);
+        expect(result).toBeNull();
+        expect(errors).toContainSE_WRONG_ENUM();
     });
 });

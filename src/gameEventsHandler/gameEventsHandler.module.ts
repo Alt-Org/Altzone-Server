@@ -7,16 +7,10 @@ import {GameEventsHandler} from './gameEventsHandler';
 import {PlayerModule} from '../player/player.module';
 import {ClanEventHandler} from './clanEventHandler';
 import UiDailyTaskHandler from "./dailyTask/uiDailyTaskHandler";
-import {MongooseModule} from "@nestjs/mongoose";
-import {DailyTask, DailyTaskSchema} from "../dailyTasks/dailyTasks.schema";
 import DailyTaskNotifier from "./dailyTask/DailyTaskNotifier";
 
 @Module({
     imports: [
-        MongooseModule.forFeature([
-            {name: DailyTask.name, schema: DailyTaskSchema},
-        ]),
-
         DailyTasksModule,
         RewarderModule,
         StatisticsKeeperModule,
