@@ -52,7 +52,9 @@ export class DailyTasksController {
 	@Put("/unreserve")
 	@UniformResponse()
 	async unreserveTask(@LoggedUser() user: User) {
-		return this.dailyTasksService.unreserveTask(user.player_id);
+		const [isSuccess, errors] = await this.dailyTasksService.unreserveTask(user.player_id);
+		if(errors)
+			return [null, errors];
 	}
 
 	@Put("/uiDailyTask")
