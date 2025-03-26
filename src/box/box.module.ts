@@ -7,7 +7,7 @@ import { BoxController } from './box.controller';
 import { BoxService } from './box.service';
 import { GroupAdminService } from './groupAdmin/groupAdmin.service';
 import { ProfileSchema } from '../profile/profile.schema';
-import { PlayerSchema } from '../player/player.schema';
+import { PlayerSchema } from '../player/schemas/player.schema';
 import { ClanSchema } from '../clan/clan.schema';
 import { SoulhomeSchema } from '../clanInventory/soulhome/soulhome.schema';
 import { RoomSchema } from '../clanInventory/room/room.schema';

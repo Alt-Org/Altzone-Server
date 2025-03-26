@@ -15,7 +15,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PlayerDto } from '../player/dto/player.dto';
 import { ClaimAccountResponseDto } from './dto/claimAccountResponse.dto';
 import { Tester } from './schemas/tester.schema';
-import { Player } from '../player/player.schema';
+import { Player } from '../player/schemas/player.schema';
 import { Clan } from '../clan/clan.schema';
 import { Room } from '../clanInventory/room/room.schema';
 import { GroupAdmin } from './groupAdmin/groupAdmin.schema';

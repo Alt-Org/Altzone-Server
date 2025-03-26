@@ -2,7 +2,7 @@ import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 import { MongoServerError } from 'mongodb';
 import { PlayerService } from '../../../player/player.service';
 import PlayerBuilderFactory from '../data/playerBuilderFactory';
-import { Player } from '../../../player/player.schema';
+import { Player } from '../../../player/schemas/player.schema';
 import PlayerModule from '../modules/player.module';
 
 describe('PlayerService.updateOneById() test suite', () => {

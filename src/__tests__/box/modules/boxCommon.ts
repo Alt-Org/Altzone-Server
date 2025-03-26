@@ -7,7 +7,7 @@ import { GroupAdminSchema } from '../../../box/groupAdmin/groupAdmin.schema';
 import { BoxService } from '../../../box/box.service';
 import { GroupAdminService } from '../../../box/groupAdmin/groupAdmin.service';
 import { ProfileSchema } from '../../../profile/profile.schema';
-import { PlayerSchema } from '../../../player/player.schema';
+import { PlayerSchema } from '../../../player/schemas/player.schema';
 import { ClanSchema } from '../../../clan/clan.schema';
 import { SoulhomeSchema } from '../../../clanInventory/soulhome/soulhome.schema';
 import { RoomSchema } from '../../../clanInventory/room/room.schema';

@@ -10,7 +10,7 @@ import { PlayerCounterFactory } from './clan.counters';
 import { joinSchema } from './join/join.schema';
 import { JoinService } from './join/join.service';
 import ClanHelperService from './utils/clanHelper.service';
-import { PlayerSchema } from '../player/player.schema';
+import { PlayerSchema } from '../player/schemas/player.schema';
 import { ClanInventoryModule } from '../clanInventory/clanInventory.module';
 import { PlayerModule } from '../player/player.module';
 import { GameEventsEmitterModule } from '../gameEventsEmitter/gameEventsEmitter.module';

@@ -10,7 +10,7 @@ import { Model } from 'mongoose';
 import { ClanDto } from './dto/clan.dto';
 import BasicService from '../common/service/basicService/BasicService';
 import ServiceError from '../common/service/basicService/ServiceError';
-import { Player } from '../player/player.schema';
+import { Player } from '../player/schemas/player.schema';
 import ClanHelperService from './utils/clanHelper.service';
 import { SEReason } from '../common/service/basicService/SEReason';
 import {

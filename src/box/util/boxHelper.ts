@@ -4,7 +4,7 @@ import { Box } from '../schemas/box.schema';
 import { Model } from 'mongoose';
 import { GroupAdmin } from '../groupAdmin/groupAdmin.schema';
 import { Profile } from '../../profile/profile.schema';
-import { Player } from '../../player/player.schema';
+import { Player } from '../../player/schemas/player.schema';
 import { Clan } from '../../clan/clan.schema';
 import { SoulHome } from '../../clanInventory/soulhome/soulhome.schema';
 import { Room } from '../../clanInventory/room/room.schema';

@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { mongooseOptions, mongoString } from '../../test_utils/const/db';
 import { ModelName } from '../../../common/enum/modelName.enum';
 import { RequestHelperModule } from '../../../requestHelper/requestHelper.module';
-import { PlayerSchema } from '../../../player/player.schema';
+import { PlayerSchema } from '../../../player/schemas/player.schema';
 import { PlayerService } from '../../../player/player.service';
 import { isPlayerExists } from '../../../player/decorator/validation/IsPlayerExists.decorator';
 import { CustomCharacterSchema } from '../../../player/customCharacter/customCharacter.schema';

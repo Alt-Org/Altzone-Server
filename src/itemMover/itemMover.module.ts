@@ -4,7 +4,7 @@ import { ItemMoverService } from './itemMover.service';
 import { ItemMoverController } from './itemMover.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
-import { PlayerSchema } from '../player/player.schema';
+import { PlayerSchema } from '../player/schemas/player.schema';
 import { ClanSchema } from '../clan/clan.schema';
 import { SoulhomeSchema } from '../clanInventory/soulhome/soulhome.schema';
 import { AuthModule } from '../auth/auth.module';

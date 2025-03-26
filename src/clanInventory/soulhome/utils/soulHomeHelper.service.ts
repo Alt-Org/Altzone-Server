@@ -6,7 +6,7 @@ import { Injectable } from '@nestjs/common';
 import BasicService from '../../../common/service/basicService/BasicService';
 import ServiceError from '../../../common/service/basicService/ServiceError';
 import { PlayerDto } from '../../../player/dto/player.dto';
-import { Player } from '../../../player/player.schema';
+import { Player } from '../../../player/schemas/player.schema';
 
 /**
  * Class holds helper methods, that can be used in th SoulHome module

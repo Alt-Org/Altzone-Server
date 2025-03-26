@@ -1,7 +1,7 @@
 import { HydratedDocument } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
-import { Player } from '../player/player.schema';
+import { Player } from '../player/schemas/player.schema';
 
 export type ProfileDocument = HydratedDocument<Profile>;
 

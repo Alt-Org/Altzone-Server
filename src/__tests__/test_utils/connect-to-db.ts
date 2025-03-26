@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { ProfileSchema } from '../../profile/profile.schema';
 import LoggedUser from './const/loggedUser';
-import { PlayerSchema } from '../../player/player.schema';
+import { PlayerSchema } from '../../player/schemas/player.schema';
 import './jest.matchers.d';
 import { mongooseOptions, mongoString } from './const/db';
 

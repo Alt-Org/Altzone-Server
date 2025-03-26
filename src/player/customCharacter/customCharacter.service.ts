@@ -15,7 +15,7 @@ import {
 import { CreateCustomCharacterDto } from './dto/createCustomCharacter.dto';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
-import { Player } from '../player.schema';
+import { Player } from '../schemas/player.schema';
 import BasicService from '../../common/service/basicService/BasicService';
 import { CharacterBaseStats } from './const/CharacterBaseStats';
 import { UpdateCustomCharacterDto } from './dto/updateCustomCharacter.dto';

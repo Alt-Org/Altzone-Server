@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
-import { PlayerSchema } from '../player/player.schema';
+import { PlayerSchema } from '../player/schemas/player.schema';
 import { RequestHelperModule } from '../requestHelper/requestHelper.module';
 import { AuthModule } from '../auth/auth.module';
 import { isItemExists } from './item/decorator/validation/IsItemExists.decorator';

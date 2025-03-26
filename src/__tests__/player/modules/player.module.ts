@@ -3,7 +3,7 @@ import { ModelName } from '../../../common/enum/modelName.enum';
 import PlayerCommonModule from './playerCommon.module';
 import { PlayerService } from '../../../player/player.service';
 import { isPlayerExists } from '../../../player/decorator/validation/IsPlayerExists.decorator';
-import { PlayerSchema } from '../../../player/player.schema';
+import { PlayerSchema } from '../../../player/schemas/player.schema';
 
 export default class PlayerModule {
   private constructor() {}
