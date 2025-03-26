@@ -4,6 +4,7 @@ import { ModelName } from '../../common/enum/modelName.enum';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { GameStatistics } from '../gameStatistics.schema';
 import { ObjectId } from 'mongodb';
+import { Avatar, AvatarSchema } from './avatar.schema';
 
 export type PlayerDocument = HydratedDocument<Player>;
 
@@ -47,6 +48,9 @@ export class Player {
   @ExtractField()
   @Prop({ type: Array<ObjectId>, default: [] })
   battleCharacter_ids?: string[] | ObjectId[];
+
+  @Prop({ type: [AvatarSchema], required: true, default: [] })
+  avatars: Avatar[];
 
   @ExtractField()
   _id: string;

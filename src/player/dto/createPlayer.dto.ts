@@ -9,6 +9,8 @@ import {
 } from 'class-validator';
 import { IsProfileExists } from '../../profile/decorator/validation/IsProfileExists.decorator';
 import AddType from '../../common/base/decorator/AddType.decorator';
+import { Avatar } from '../schemas/avatar.schema';
+import { Type } from 'class-transformer';
 
 @AddType('CreatePlayerDto')
 export class CreatePlayerDto {
@@ -43,4 +45,7 @@ export class CreatePlayerDto {
   @IsProfileExists()
   @IsMongoId()
   profile_id?: string;
+
+  @Type(() => Avatar)
+  avatars: Avatar[];
 }

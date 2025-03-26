@@ -10,6 +10,8 @@ import {
 import { IsClanExists } from '../../clan/decorator/validation/IsClanExists.decorator';
 import { IsPlayerExists } from '../decorator/validation/IsPlayerExists.decorator';
 import AddType from '../../common/base/decorator/AddType.decorator';
+import { Avatar } from '../schemas/avatar.schema';
+import { Type } from 'class-transformer';
 
 @AddType('UpdatePlayerDto')
 export class UpdatePlayerDto {
@@ -56,4 +58,7 @@ export class UpdatePlayerDto {
   @IsMongoId()
   @IsOptional()
   clan_idToDelete?: string;
+
+  @Type(() => Avatar)
+   avatars: Avatar[];
 }

@@ -5,6 +5,7 @@ import { CustomCharacterDto } from '../customCharacter/dto/customCharacter.dto';
 import AddType from '../../common/base/decorator/AddType.decorator';
 import { GameStatisticsDto } from './gameStatistics.dto';
 import { TaskDto } from './task.dto';
+import { Avatar } from '../schemas/avatar.schema';
 
 @AddType('PlayerDto')
 export class PlayerDto {
@@ -59,4 +60,8 @@ export class PlayerDto {
   @Type(() => TaskDto)
   @Expose()
   DailyTask?: TaskDto;
+
+  @Expose()
+  @Type(() => Avatar)
+  avatars: Avatar[];
 }
