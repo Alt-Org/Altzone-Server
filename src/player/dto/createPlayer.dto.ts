@@ -46,6 +46,6 @@ export class CreatePlayerDto {
   @IsMongoId()
   profile_id?: string;
 
-  @Type(() => Avatar)
-  avatars: Avatar[];
+  @IsOptional()
+  avatar: Avatar;
 }

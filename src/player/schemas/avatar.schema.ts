@@ -30,7 +30,7 @@ export class Avatar {
     @Prop({ type: Number, required: true })
     hands: number;
 
-    @Prop({ type: Number, required: true })
+    @Prop({ type: String, required: true })
     skinColor: string;
 
     _id: ObjectId;

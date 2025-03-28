@@ -59,6 +59,6 @@ export class UpdatePlayerDto {
   @IsOptional()
   clan_idToDelete?: string;
 
-  @Type(() => Avatar)
-   avatars: Avatar[];
+  @IsOptional()
+   avatar: Avatar;
 }

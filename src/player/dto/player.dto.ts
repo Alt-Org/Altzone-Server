@@ -63,5 +63,5 @@ export class PlayerDto {
 
   @Expose()
   @Type(() => Avatar)
-  avatars: Avatar[];
+  avatar: Avatar;
 }
