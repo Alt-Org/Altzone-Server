@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   ValidateNested,
+  MaxLength,
 } from 'class-validator';
 import AddType from '../../common/base/decorator/AddType.decorator';
 import { ClanLabel } from '../enum/clanLabel.enum';
@@ -18,6 +19,7 @@ import { ClanLogoDto } from './clanLogo.dto';
 @AddType('CreateClanDto')
 export class CreateClanDto {
   @IsString()
+  @MaxLength(20)
   name: string;
 
   @IsString()
