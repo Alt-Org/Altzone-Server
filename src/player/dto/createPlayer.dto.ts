@@ -47,5 +47,5 @@ export class CreatePlayerDto {
   profile_id?: string;
 
   @IsOptional()
-  avatar: Avatar;
+  avatar?: Avatar;
 }

@@ -63,5 +63,5 @@ export class PlayerDto {
 
   @Expose()
   @Type(() => Avatar)
-  avatar: Avatar;
+  avatar?: Avatar;
 }
