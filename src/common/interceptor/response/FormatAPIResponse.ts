@@ -14,6 +14,8 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { Error } from 'mongoose';
+import { convertMongooseToServiceErrors } from '../../service/basicService/BasicService';
 
 /**
  * Formats the method return value to uniform shape for sending it to client side.
@@ -78,13 +80,28 @@ export function throwAPIError(error: any) {
     errors: [],
     statusCode: 0,
   };
-  if (Array.isArray(error))
-    for (let i = 0, l = error.length; i < l; i++)
-      resp.errors.push(convertToAPIError(error[i]));
-  else resp.errors.push(convertToAPIError(error));
+
+  let convertedError = error;
+  if (isMongooseError(error))
+    convertedError = convertMongooseToServiceErrors(error);
+
+  if (Array.isArray(convertedError))
+    for (let i = 0, l = convertedError.length; i < l; i++)
+      resp.errors.push(convertToAPIError(convertedError[i]));
+  else resp.errors.push(convertToAPIError(convertedError));
 
   const respStatusCode = resp.errors[0].statusCode;
   resp.statusCode = respStatusCode;
 
   throw new HttpException(resp, respStatusCode);
+}
+
+function isMongooseError(error: any): boolean {
+  if (!error) return false;
+
+  return (
+    error?.code === 11000 ||
+    (error?.name === 'StrictPopulateError' && error?.path) ||
+    error instanceof Error.ValidationError
+  );
 }
