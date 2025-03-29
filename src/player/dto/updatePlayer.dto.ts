@@ -6,12 +6,13 @@ import {
   IsMongoId,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
 import { IsClanExists } from '../../clan/decorator/validation/IsClanExists.decorator';
 import { IsPlayerExists } from '../decorator/validation/IsPlayerExists.decorator';
 import AddType from '../../common/base/decorator/AddType.decorator';
-import { Avatar } from '../schemas/avatar.schema';
 import { Type } from 'class-transformer';
+import { ModifyAvatarDto } from './modifyAvatar.dto';
 
 @AddType('UpdatePlayerDto')
 export class UpdatePlayerDto {
@@ -60,5 +61,7 @@ export class UpdatePlayerDto {
   clan_idToDelete?: string;
 
   @IsOptional()
-   avatar?: Avatar;
+  @ValidateNested()
+  @Type(() => ModifyAvatarDto)
+  avatar?: ModifyAvatarDto;
 }
