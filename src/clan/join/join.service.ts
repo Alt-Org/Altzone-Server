@@ -27,6 +27,7 @@ import { PlayerCounterFactory } from '../clan.counters';
 import ICounter from '../../common/service/counter/ICounter';
 import { RoomService } from '../../clanInventory/room/room.service';
 import { SoulHomeDto } from '../../clanInventory/soulhome/dto/soulhome.dto';
+import { Player } from '../../player/schemas/player.schema';
 
 @Injectable()
 @AddBasicService()
@@ -40,6 +41,7 @@ export class JoinService
     private readonly requestHelperService: RequestHelperService,
     private readonly clanService: ClanService,
     private readonly roomService: RoomService,
+    @InjectModel(Player.name) public readonly playerModel: Model<Player>,
   ) {
     super();
     this.refsInModel = [];
@@ -66,15 +68,16 @@ export class JoinService
     const clan = await this.getClan(clan_id);
     if (!clan) throw new NotFoundException('Clan with that _id is not found');
 
-    const player = await this.requestHelperService.getModelInstanceByCondition(
-      // get the player Joining
-      ModelName.PLAYER,
-      { _id: player_id },
-      PlayerDto,
-      true,
-    );
-    if (!player)
+    const playerResp = await this.playerModel.findOne({ _id: player_id });
+
+    if (!playerResp)
       throw new NotFoundException('Player with that _id is not found');
+
+    const player = {
+      ...playerResp.toObject(),
+      _id: playerResp._id.toString(),
+      clan_id: playerResp.clan_id?.toString(),
+    };
 
     // check if clan to join is open
     if (clan.isOpen) {
@@ -108,14 +111,16 @@ export class JoinService
    */
   public async leaveClan(player_id: string) {
     // get the player leaving
-    const player = await this.requestHelperService.getModelInstanceByCondition(
-      ModelName.PLAYER,
-      { _id: player_id },
-      PlayerDto,
-      true,
-    );
+    const playerResp = await this.playerModel.findOne({ _id: player_id });
 
-    if (!player) throw new NotFoundException('Player with that _id not found');
+    if (!playerResp)
+      throw new NotFoundException('Player with that _id is not found');
+
+    const player = {
+      ...playerResp.toObject(),
+      _id: playerResp._id.toString(),
+      clan_id: playerResp.clan_id?.toString(),
+    };
 
     const clan_id = player.clan_id;
     if (!clan_id)
@@ -144,14 +149,10 @@ export class JoinService
    */
   public async removePlayerFromClan(player_id: string, clan_id: string) {
     // get the player to remove
-    const player = await this.requestHelperService.getModelInstanceByCondition(
-      ModelName.PLAYER,
-      { _id: player_id },
-      PlayerDto,
-      true,
-    );
+    const playerResp = await this.playerModel.findOne({ _id: player_id });
 
-    if (!player) throw new NotFoundException('Player with that _id not found');
+    if (!playerResp)
+      throw new NotFoundException('Player with that _id is not found');
 
     const clan = await this.getClan(clan_id);
 
@@ -177,12 +178,16 @@ export class JoinService
       return true;
     }
 
-    const player = await this.requestHelperService.getModelInstanceByCondition(
-      ModelName.PLAYER,
-      { _id: oldDoc.player_id },
-      PlayerDto,
-      true,
-    );
+    const playerResp = await this.playerModel.findOne({
+      _id: oldDoc.player_id,
+    });
+    let player = null;
+    if (playerResp) {
+      player = {
+        ...playerResp.toObject(),
+        clan_id: playerResp.clan_id?.toString(),
+      };
+    }
 
     if (input.accepted) {
       // if player was accepted join the clan

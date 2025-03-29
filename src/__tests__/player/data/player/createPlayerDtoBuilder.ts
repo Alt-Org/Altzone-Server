@@ -1,6 +1,7 @@
 import { CreatePlayerDto } from '../../../../player/dto/createPlayer.dto';
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 import { ObjectId } from 'mongodb';
+import { ModifyAvatarDto } from '../../../../player/dto/modifyAvatar.dto';
 
 export default class CreatePlayerDtoBuilder
   implements IDataBuilder<CreatePlayerDto>
@@ -14,6 +15,18 @@ export default class CreatePlayerDtoBuilder
     currentAvatarId: 101,
     profile_id: undefined,
     battleCharacter_ids: [],
+    avatar: {
+      head: 1,
+      hair: 1,
+      eyes: 1,
+      nose: 1,
+      mouth: 1,
+      eyebrows: 1,
+      clothes: 1,
+      feet: 1,
+      hands: 1,
+      skinColor: '#f5cba7',
+    },
   };
 
   build(): CreatePlayerDto {
@@ -47,6 +60,11 @@ export default class CreatePlayerDtoBuilder
 
   setCurrentAvatarId(currentAvatarId: number) {
     this.base.currentAvatarId = currentAvatarId;
+    return this;
+  }
+
+  setAvatar(avatar: ModifyAvatarDto) {
+    this.base.avatar = avatar;
     return this;
   }
 

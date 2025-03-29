@@ -52,11 +52,23 @@ export class AuthService {
 
     if (errors || !isValidPassword) return null;
 
-    const player = await this.playerModel.findOne({ profile_id: profile._id });
+    const playerResp = await this.playerModel.findOne({
+      profile_id: profile._id,
+    });
 
     //TODO: throw meaningful errors, i.e. !player => no player found for that profile
-    if (player instanceof MongooseError || (!profile.isSystemAdmin && !player))
+    if (
+      playerResp instanceof MongooseError ||
+      (!profile.isSystemAdmin && !playerResp)
+    )
       return null;
+
+    const player = {
+      ...playerResp.toObject(),
+      _id: playerResp._id.toString(),
+      profile_id: playerResp.profile_id.toString(),
+      clan_id: playerResp.clan_id.toString(),
+    };
 
     const payload = {
       profile_id: profile._id,

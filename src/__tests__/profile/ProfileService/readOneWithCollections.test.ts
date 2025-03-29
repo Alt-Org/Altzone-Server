@@ -39,7 +39,7 @@ describe('ProfileService.readWithCollections() test suite', () => {
       ModelName.PLAYER,
     );
 
-    const data = resp['data']['Profile'];
+    const data = resp['data']['Profile'].toObject();
 
     expect(data.Player).toEqual(expect.objectContaining(existingPlayer));
   });

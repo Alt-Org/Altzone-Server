@@ -61,8 +61,12 @@ describe('PlayerService.getAll() test suite', () => {
   it('Should find all existing players in DB', async () => {
     const [players, errors] = await playerService.getAll();
 
+    const returnedPlayers = [];
+    for (const player of players)
+      returnedPlayers.push((player as any).toObject());
+
     expect(errors).toBeNull();
-    expect(players).toEqual([
+    expect(returnedPlayers).toEqual([
       expect.objectContaining(player1),
       expect.objectContaining(player2),
     ]);

@@ -3,6 +3,7 @@ import { CustomCharacterDto } from '../../../../player/customCharacter/dto/custo
 import { ClanDto } from '../../../../clan/dto/clan.dto';
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 import { ObjectId } from 'mongodb';
+import { AvatarDto } from '../../../../player/dto/avatar.dto';
 
 export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
   private readonly base: PlayerDto = {
@@ -14,6 +15,18 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
     above13: true,
     parentalAuth: false,
     currentAvatarId: 101,
+    avatar: {
+      head: 1,
+      hair: 1,
+      eyes: 1,
+      nose: 1,
+      mouth: 1,
+      eyebrows: 1,
+      clothes: 1,
+      feet: 1,
+      hands: 1,
+      skinColor: '#f5cba7',
+    },
     gameStatistics: {
       diamondsAmount: 0,
       participatedVotings: 0,
@@ -69,6 +82,11 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
 
   setCurrentAvatarId(currentAvatarId: number) {
     this.base.currentAvatarId = currentAvatarId;
+    return this;
+  }
+
+  setAvatar(avatar: AvatarDto) {
+    this.base.avatar = avatar;
     return this;
   }
 

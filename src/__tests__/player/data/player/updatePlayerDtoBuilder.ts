@@ -1,5 +1,6 @@
 import { UpdatePlayerDto } from '../../../../player/dto/updatePlayer.dto';
 import { ObjectId } from 'mongodb';
+import { ModifyAvatarDto } from '../../../../player/dto/modifyAvatar.dto';
 
 export default class UpdatePlayerDtoBuilder {
   private readonly base: UpdatePlayerDto = {
@@ -13,6 +14,7 @@ export default class UpdatePlayerDtoBuilder {
     clan_id: undefined,
     clan_idToDelete: undefined,
     battleCharacter_ids: undefined,
+    avatar: undefined,
   };
 
   build(): UpdatePlayerDto {
@@ -51,6 +53,11 @@ export default class UpdatePlayerDtoBuilder {
 
   setCurrentAvatarId(currentAvatarId: number) {
     this.base.currentAvatarId = currentAvatarId;
+    return this;
+  }
+
+  setAvatar(avatar: ModifyAvatarDto) {
+    this.base.avatar = avatar;
     return this;
   }
 

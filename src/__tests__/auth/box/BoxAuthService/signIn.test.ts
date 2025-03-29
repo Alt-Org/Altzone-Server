@@ -98,21 +98,18 @@ describe('BoxAuthService.signIn() test suite', () => {
     const playerDBFinal = {
       ...clearedPlayer,
       _id: clearedPlayer._id.toString(),
-      Clan: undefined,
-      CustomCharacter: undefined,
-      gameStatistics: {
-        ...clearedPlayer.gameStatistics,
-        objectType: 'GameStatisticsDto',
-        participatedVotings: undefined,
-      },
-      objectType: 'PlayerDto',
       clan_id: clearedPlayer.clan_id.toString(),
       profile_id: clearedPlayer.profile_id.toString(),
     };
 
     const result = await boxAuthService.signIn(validUsername, validPassword);
     const clearedResult = clearDBRespDefaultFields(result);
-    const clearedPlayerResult = clearDBRespDefaultFields(result['Player']);
+    const clearedPlayerResult = {
+      ...clearDBRespDefaultFields(result['Player']),
+      _id: result['Player']._id.toString(),
+      profile_id: result['Player'].profile_id.toString(),
+      clan_id: result['Player'].clan_id.toString(),
+    };
     const clearedClanResult = clearDBRespDefaultFields(result['Clan']);
 
     const expectedResult = {

@@ -52,10 +52,23 @@ export default class BoxAuthService extends AuthService {
 
     if (errors || !isValidPassword) return null;
 
-    const player = await this.playerModel.findOne({ profile_id: profile._id });
+    const playerResp = await this.playerModel.findOne({
+      profile_id: profile._id,
+    });
 
-    if (player instanceof MongooseError || (!profile.isSystemAdmin && !player))
+    //TODO: throw meaningful errors, i.e. !player => no player found for that profile
+    if (
+      playerResp instanceof MongooseError ||
+      (!profile.isSystemAdmin && !playerResp)
+    )
       return null;
+
+    const player = {
+      ...playerResp.toObject(),
+      _id: playerResp._id.toString(),
+      profile_id: playerResp.profile_id.toString(),
+      clan_id: playerResp.clan_id.toString(),
+    };
 
     let box_id: string,
       groupAdmin = false;
