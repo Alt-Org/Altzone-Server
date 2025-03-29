@@ -49,7 +49,7 @@ export class Player {
   @Prop({ type: Array<ObjectId>, default: [] })
   battleCharacter_ids?: string[] | ObjectId[];
 
-  @Prop({ type: AvatarSchema, required: false, default: () => ({}) })
+  @Prop({ type: AvatarSchema, default: null })
   avatar?: Avatar;
 
   @ExtractField()
