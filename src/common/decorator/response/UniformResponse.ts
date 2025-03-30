@@ -32,8 +32,6 @@ export function UniformResponse(
     ),
   ];
 
-  // if (serializationShape) decorators.push(Serialize2(serializationShape));
-
   return function (
     target: any,
     propertyKey: string | symbol,
