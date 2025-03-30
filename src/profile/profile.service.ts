@@ -18,6 +18,7 @@ import { CreateProfileDto } from './dto/createProfile.dto';
 import { ProfileDto } from './dto/profile.dto';
 import { PlayerDto } from '../player/dto/player.dto';
 import { ClanDto } from '../clan/dto/clan.dto';
+import { IServiceReturn } from '../common/service/basicService/IService';
 
 const ARGON2_CONFIG = {
   type: argon2.argon2id,
@@ -55,7 +56,7 @@ export class ProfileService
    */
   async createWithHashedPassword(
     profile: CreateProfileDto,
-  ): Promise<[ProfileDto | null, ServiceError[] | null]> {
+  ): Promise<IServiceReturn<ProfileDto>> {
     const [hashedPassword, errors] = await this.hashPassword(profile.password);
 
     if (errors) return [null, errors];
@@ -109,20 +110,45 @@ export class ProfileService
    * @returns An object containing the profile, player, and clan information.
    * @throws Will throw an error if the profile or player is not found.
    */
-  async getLoggedUserInfo(profileId: string, playerId: string) {
+  async getLoggedUserInfo(
+    profileId: string,
+    playerId: string,
+  ): Promise<IServiceReturn<ProfileDto>> {
     const profile = await this.requestHelperService.getModelInstanceById(
       ModelName.PROFILE,
       profileId,
       ProfileDto,
     );
-    if (!profile) throw new ServiceError({ reason: SEReason.NOT_FOUND });
+    if (!profile)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: '_id',
+            value: profileId,
+            message: 'Could not find profile with that _id',
+          }),
+        ],
+      ];
 
     const player = await this.requestHelperService.getModelInstanceById(
       ModelName.PLAYER,
       playerId,
       PlayerDto,
     );
-    if (!player) throw new ServiceError({ reason: SEReason.NOT_FOUND });
+    if (!player)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: '_id',
+            value: playerId,
+            message: 'Could not find player with that _id',
+          }),
+        ],
+      ];
 
     if (player?.clan_id) {
       const clan = await this.requestHelperService.getModelInstanceById(
@@ -134,6 +160,6 @@ export class ProfileService
     }
     profile.Player = player;
 
-    return profile;
+    return [profile, null];
   }
 }
