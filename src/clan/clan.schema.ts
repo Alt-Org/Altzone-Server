@@ -12,7 +12,7 @@ export type ClanDocument = HydratedDocument<Clan>;
 
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
 export class Clan {
-  @Prop({ type: String, required: true, unique: true })
+  @Prop({ type: String, required: true, unique: true, maxlength: 20 })
   name: string;
 
   @Prop({ type: String })

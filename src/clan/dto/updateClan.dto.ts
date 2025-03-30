@@ -9,6 +9,7 @@ import {
   IsString,
   Validate,
   ValidateNested,
+  MaxLength,
 } from 'class-validator';
 import { IsClanExists } from '../decorator/validation/IsClanExists.decorator';
 import { IsPlayerExists } from '../../player/decorator/validation/IsPlayerExists.decorator';
@@ -28,6 +29,7 @@ export class UpdateClanDto {
 
   @IsString()
   @IsOptional()
+  @MaxLength(20)
   name?: string;
 
   @IsString()
