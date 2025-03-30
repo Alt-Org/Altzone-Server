@@ -20,7 +20,6 @@ import { NoAuth } from '../auth/decorator/NoAuth.decorator';
 import { Action } from '../authorization/enum/action.enum';
 import { CheckPermissions } from '../authorization/authorization.interceptor';
 import { AddGetQueries } from '../common/decorator/request/AddGetQueries.decorator';
-import { Serialize } from '../common/interceptor/response/Serialize';
 import { Authorize } from '../authorization/decorator/Authorize';
 import { _idDto } from '../common/dto/_id.dto';
 import { MongooseError } from 'mongoose';
@@ -41,11 +40,9 @@ export default class ProfileController {
     private readonly playerService: PlayerService,
   ) {}
 
-  //: Promise<MongooseError | IResponseShape>
   @NoAuth()
   @Post()
-  @Serialize(ProfileDto)
-  @UniformResponse(ModelName.PROFILE)
+  @UniformResponse(ModelName.PROFILE, ProfileDto)
   public async create(@Body() body: CreateProfileDto) {
     const { Player } = body;
 
@@ -71,13 +68,9 @@ export default class ProfileController {
   }
 
   @Get('/info')
-  @Serialize(ProfileDto)
-  @UniformResponse(ModelName.PROFILE)
+  @UniformResponse(ModelName.PROFILE, ProfileDto)
   async getLoggedUserInfo(@LoggedUser() user: User) {
-    return await this.service.getLoggedUserInfo(
-      user.profile_id,
-      user.player_id,
-    );
+    return this.service.getLoggedUserInfo(user.profile_id, user.player_id);
   }
 
   @Get('/:_id')
