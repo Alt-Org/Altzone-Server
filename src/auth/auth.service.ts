@@ -67,7 +67,7 @@ export class AuthService {
       ...playerResp.toObject(),
       _id: playerResp._id.toString(),
       profile_id: playerResp.profile_id.toString(),
-      clan_id: playerResp.clan_id.toString(),
+      clan_id: playerResp.clan_id?.toString(),
     };
 
     const payload = {
