@@ -4,7 +4,7 @@ import { RequestHelperModule } from '../../../requestHelper/requestHelper.module
 import { ModelName } from '../../../common/enum/modelName.enum';
 import { mongooseOptions, mongoString } from '../../test_utils/const/db';
 import { ClanSchema } from '../../../clan/clan.schema';
-import { PlayerSchema } from '../../../player/player.schema';
+import { PlayerSchema } from '../../../player/schemas/player.schema';
 import { ItemSchema } from '../../../clanInventory/item/item.schema';
 import { StockSchema } from '../../../clanInventory/stock/stock.schema';
 import { RoomSchema } from '../../../clanInventory/room/room.schema';

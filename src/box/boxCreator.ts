@@ -4,7 +4,7 @@ import { IServiceReturn } from '../common/service/basicService/IService';
 import { InjectModel } from '@nestjs/mongoose';
 import { Box, BoxDocument } from './schemas/box.schema';
 import { Model, MongooseError } from 'mongoose';
-import { Player } from '../player/player.schema';
+import { Player } from '../player/schemas/player.schema';
 import { Clan } from '../clan/clan.schema';
 import { Room } from '../clanInventory/room/room.schema';
 import { GroupAdmin } from './groupAdmin/groupAdmin.schema';

@@ -27,7 +27,7 @@ import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
 import { IGetAllQuery } from '../common/interface/IGetAllQuery';
 import { AddSortQuery } from '../common/interceptor/request/addSortQuery.interceptor';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
-import { publicReferences } from './player.schema';
+import { publicReferences } from './schemas/player.schema';
 import { IncludeQuery } from '../common/decorator/param/IncludeQuery.decorator';
 
 @Controller('player')

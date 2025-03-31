@@ -19,7 +19,7 @@ import { ItemHelperService } from './itemHelper.service';
 import { UpdateItemDto } from './dto/updateItem.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Player } from '../../player/player.schema';
+import { Player } from '../../player/schemas/player.schema';
 import { APIError } from '../../common/controller/APIError';
 import { APIErrorReason } from '../../common/controller/APIErrorReason';
 

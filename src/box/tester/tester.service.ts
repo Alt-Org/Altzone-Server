@@ -8,7 +8,7 @@ import { PasswordGenerator } from './passwordGenerator';
 import { Profile, ProfileDocument } from '../../profile/profile.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Player, PlayerDocument } from '../../player/player.schema';
+import { Player, PlayerDocument } from '../../player/schemas/player.schema';
 import { ProfileService } from '../../profile/profile.service';
 import { ProfileDto } from '../../profile/dto/profile.dto';
 import { Box, BoxDocument } from '../schemas/box.schema';

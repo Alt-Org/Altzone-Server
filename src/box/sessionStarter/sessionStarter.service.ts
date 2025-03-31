@@ -8,7 +8,7 @@ import { Box, BoxDocument } from '../schemas/box.schema';
 import { Model } from 'mongoose';
 import BasicService from '../../common/service/basicService/BasicService';
 import { DailyTasksService } from '../../dailyTasks/dailyTasks.service';
-import { Player } from '../../player/player.schema';
+import { Player } from '../../player/schemas/player.schema';
 import { Clan } from '../../clan/clan.schema';
 import { PasswordGenerator } from '../tester/passwordGenerator';
 import { SessionStage } from '../enum/SessionStage.enum';

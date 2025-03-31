@@ -1,4 +1,4 @@
-import { Player } from '../../../player/player.schema';
+import { Player } from '../../../player/schemas/player.schema';
 import { Profile } from '../../../profile/profile.schema';
 
 /**

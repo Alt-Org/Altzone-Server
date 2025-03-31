@@ -11,7 +11,7 @@ import BasicService from '../../../common/service/basicService/BasicService';
 import { SEReason } from '../../../common/service/basicService/SEReason';
 import ServiceError from '../../../common/service/basicService/ServiceError';
 import { PlayerDto } from '../../../player/dto/player.dto';
-import { Player } from '../../../player/player.schema';
+import { Player } from '../../../player/schemas/player.schema';
 
 /**
  * Class containing helper methods used in the module service(s)

@@ -1,6 +1,7 @@
 import { GameStatistics } from '../../../../player/gameStatistics.schema';
-import { Player } from '../../../../player/player.schema';
+import { Player } from '../../../../player/schemas/player.schema';
 import { ObjectId } from 'mongodb';
+import { Avatar } from '../../../../player/schemas/avatar.schema';
 
 export default class PlayerBuilder {
   private readonly base: Player = {
@@ -20,6 +21,18 @@ export default class PlayerBuilder {
     profile_id: undefined,
     clan_id: undefined,
     battleCharacter_ids: [],
+    avatar: {
+      head: 1,
+      hair: 1,
+      eyes: 1,
+      nose: 1,
+      mouth: 1,
+      eyebrows: 1,
+      clothes: 1,
+      feet: 1,
+      hands: 1,
+      skinColor: '#f5cba7',
+    },
     _id: undefined,
   };
 
@@ -64,6 +77,11 @@ export default class PlayerBuilder {
 
   setCurrentAvatarId(currentAvatarId: number) {
     this.base.currentAvatarId = currentAvatarId;
+    return this;
+  }
+
+  setAvatar(avatar: Avatar) {
+    this.base.avatar = avatar;
     return this;
   }
 

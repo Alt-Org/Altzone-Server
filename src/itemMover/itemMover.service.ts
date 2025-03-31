@@ -14,7 +14,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Clan } from '../clan/clan.schema';
 import { Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
-import { Player } from '../player/player.schema';
+import { Player } from '../player/schemas/player.schema';
 
 @Injectable()
 export class ItemMoverService {

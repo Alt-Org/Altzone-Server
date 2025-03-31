@@ -45,7 +45,9 @@ describe('PlayerService.getPlayerById() test suite', () => {
     );
 
     expect(errors).toBeNull();
-    expect(player).toEqual(expect.objectContaining(existingPlayer));
+    expect((player as any).toObject()).toEqual(
+      expect.objectContaining(existingPlayer),
+    );
   });
 
   it('Should return NOT_FOUND ServiceError for non-existing player', async () => {

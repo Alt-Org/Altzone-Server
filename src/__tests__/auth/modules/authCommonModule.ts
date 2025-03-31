@@ -12,7 +12,7 @@ import { BoxSchema } from '../../../box/schemas/box.schema';
 import { GroupAdminSchema } from '../../../box/groupAdmin/groupAdmin.schema';
 import BoxAuthService from '../../../auth/box/BoxAuthService';
 import { ProfileSchema } from '../../../profile/profile.schema';
-import { PlayerSchema } from '../../../player/player.schema';
+import { PlayerSchema } from '../../../player/schemas/player.schema';
 import { ClanSchema } from '../../../clan/clan.schema';
 
 export default class AuthCommonModule {

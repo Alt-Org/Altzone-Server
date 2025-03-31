@@ -6,7 +6,7 @@ import { mongooseOptions, mongoString } from '../../test_utils/const/db';
 import { ClanInventoryModule } from '../../../clanInventory/clanInventory.module';
 import { ClanSchema } from '../../../clan/clan.schema';
 import { joinSchema } from '../../../clan/join/join.schema';
-import { PlayerSchema } from '../../../player/player.schema';
+import { PlayerSchema } from '../../../player/schemas/player.schema';
 import ClanHelperService from '../../../clan/utils/clanHelper.service';
 import { JoinService } from '../../../clan/join/join.service';
 import { ClanService } from '../../../clan/clan.service';

@@ -6,9 +6,12 @@ import {
   IsMongoId,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
 import { IsProfileExists } from '../../profile/decorator/validation/IsProfileExists.decorator';
 import AddType from '../../common/base/decorator/AddType.decorator';
+import { Type } from 'class-transformer';
+import { ModifyAvatarDto } from './modifyAvatar.dto';
 
 @AddType('CreatePlayerDto')
 export class CreatePlayerDto {
@@ -43,4 +46,9 @@ export class CreatePlayerDto {
   @IsProfileExists()
   @IsMongoId()
   profile_id?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ModifyAvatarDto)
+  avatar?: ModifyAvatarDto;
 }

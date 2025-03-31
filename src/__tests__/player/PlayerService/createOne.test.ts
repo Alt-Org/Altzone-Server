@@ -23,7 +23,11 @@ describe('PlayerService.createOne() test suite', () => {
 
     const dbData = await playerModel.findOne({ name: playerName });
 
-    expect(dbData).toEqual(expect.objectContaining(playerToCreate));
+    const clearedResp = clearDBRespDefaultFields(dbData);
+
+    const { profile_id, ...expectedPlayer } = { ...playerToCreate, points: 0 };
+
+    expect(clearedResp).toEqual(expect.objectContaining(expectedPlayer));
   });
 
   it('Should return response in appropriate shape', async () => {

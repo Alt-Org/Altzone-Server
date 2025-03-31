@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Model, Types, UpdateQuery } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Player, publicReferences } from './player.schema';
+import { Player, publicReferences } from './schemas/player.schema';
 import { RequestHelperService } from '../requestHelper/requestHelper.service';
 import { IBasicService } from '../common/base/interface/IBasicService';
 import { IgnoreReferencesType } from '../common/type/ignoreReferences.type';

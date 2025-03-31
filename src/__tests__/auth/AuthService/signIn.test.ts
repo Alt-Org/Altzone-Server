@@ -71,14 +71,6 @@ describe('AuthService.signIn() test suite', () => {
     const playerDBFinal = {
       ...clearedPlayer,
       _id: clearedPlayer._id.toString(),
-      Clan: undefined,
-      CustomCharacter: undefined,
-      gameStatistics: {
-        ...clearedPlayer.gameStatistics,
-        objectType: 'GameStatisticsDto',
-        participatedVotings: undefined,
-      },
-      objectType: 'PlayerDto',
       clan_id: clearedPlayer.clan_id.toString(),
       profile_id: clearedPlayer.profile_id.toString(),
     };

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MongooseModule } from '@nestjs/mongoose';
 import { mongooseOptions, mongoString } from '../../test_utils/const/db';
 import { ModelName } from '../../../common/enum/modelName.enum';
-import { PlayerSchema } from '../../../player/player.schema';
+import { PlayerSchema } from '../../../player/schemas/player.schema';
 import { ClanSchema } from '../../../clan/clan.schema';
 import { SoulhomeSchema } from '../../../clanInventory/soulhome/soulhome.schema';
 import { ClanInventoryModule } from '../../../clanInventory/clanInventory.module';

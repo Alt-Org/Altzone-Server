@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { MongooseError } from 'mongoose';
+import { Model, MongooseError } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { ModelName } from '../common/enum/modelName.enum';
 import { RequestHelperService } from '../requestHelper/requestHelper.service';
@@ -11,12 +11,15 @@ import { APIErrorReason } from '../common/controller/APIErrorReason';
 import ServiceError from '../common/service/basicService/ServiceError';
 import * as argon2 from 'argon2';
 import { SEReason } from '../common/service/basicService/SEReason';
+import { InjectModel } from '@nestjs/mongoose';
+import { Player } from '../player/schemas/player.schema';
 
 @Injectable()
 export class AuthService {
   public constructor(
     private readonly requestHelperService: RequestHelperService,
     private readonly jwtService: JwtService,
+    @InjectModel(Player.name) public readonly playerModel: Model<Player>,
   ) {}
 
   /**
@@ -49,16 +52,23 @@ export class AuthService {
 
     if (errors || !isValidPassword) return null;
 
-    const player = await this.requestHelperService.getModelInstanceByCondition(
-      ModelName.PLAYER,
-      { profile_id: profile._id },
-      PlayerDto,
-      true,
-    );
+    const playerResp = await this.playerModel.findOne({
+      profile_id: profile._id,
+    });
 
     //TODO: throw meaningful errors, i.e. !player => no player found for that profile
-    if (player instanceof MongooseError || (!profile.isSystemAdmin && !player))
+    if (
+      playerResp instanceof MongooseError ||
+      (!profile.isSystemAdmin && !playerResp)
+    )
       return null;
+
+    const player = {
+      ...playerResp.toObject(),
+      _id: playerResp._id.toString(),
+      profile_id: playerResp.profile_id.toString(),
+      clan_id: playerResp.clan_id?.toString(),
+    };
 
     const payload = {
       profile_id: profile._id,

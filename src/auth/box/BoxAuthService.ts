@@ -4,24 +4,25 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, MongooseError } from 'mongoose';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { ProfileDto } from '../../profile/dto/profile.dto';
-import { PlayerDto } from '../../player/dto/player.dto';
 import { ClanDto } from '../../clan/dto/clan.dto';
 import { RequestHelperService } from '../../requestHelper/requestHelper.service';
 import { ObjectId } from 'mongodb';
 import { AuthService } from '../auth.service';
 import { Box } from '../../box/schemas/box.schema';
 import { GroupAdmin } from '../../box/groupAdmin/groupAdmin.schema';
+import { Player } from '../../player/schemas/player.schema';
 
 @Injectable()
 export default class BoxAuthService extends AuthService {
   constructor(
     private readonly helperService: RequestHelperService,
     private readonly jwt: JwtService,
+    @InjectModel(Player.name) public readonly playerModel: Model<Player>,
     @InjectModel(Box.name) public readonly boxModel: Model<Box>,
     @InjectModel(GroupAdmin.name)
     public readonly groupAdminModel: Model<GroupAdmin>,
   ) {
-    super(helperService, jwt);
+    super(helperService, jwt, playerModel);
   }
 
   /**
@@ -51,15 +52,23 @@ export default class BoxAuthService extends AuthService {
 
     if (errors || !isValidPassword) return null;
 
-    const player = await this.helperService.getModelInstanceByCondition(
-      ModelName.PLAYER,
-      { profile_id: profile._id },
-      PlayerDto,
-      true,
-    );
+    const playerResp = await this.playerModel.findOne({
+      profile_id: profile._id,
+    });
 
-    if (player instanceof MongooseError || (!profile.isSystemAdmin && !player))
+    //TODO: throw meaningful errors, i.e. !player => no player found for that profile
+    if (
+      playerResp instanceof MongooseError ||
+      (!profile.isSystemAdmin && !playerResp)
+    )
       return null;
+
+    const player = {
+      ...playerResp.toObject(),
+      _id: playerResp._id.toString(),
+      profile_id: playerResp.profile_id.toString(),
+      clan_id: playerResp.clan_id.toString(),
+    };
 
     let box_id: string,
       groupAdmin = false;
