@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ClanService } from '../../clan/clan.service';
+import ServiceError from '../../common/service/basicService/ServiceError';
+import { SEReason } from '../../common/service/basicService/SEReason';
 
 /**
  * Handles clan rewarding logic
@@ -28,6 +30,32 @@ export class ClanRewarder {
     points: number,
     coins: number,
   ) {
+    if (points < 0)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.LESS_THAN_MIN,
+            field: 'points',
+            value: points,
+            message: 'Points amount can not be less than 0',
+          }),
+        ],
+      ];
+
+    if (coins < 0)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.LESS_THAN_MIN,
+            field: 'coins',
+            value: coins,
+            message: 'Coins amount can not be less than 0',
+          }),
+        ],
+      ];
+
     return this.addClanPointsAndCoins(clan_id, points, coins);
   }
 
