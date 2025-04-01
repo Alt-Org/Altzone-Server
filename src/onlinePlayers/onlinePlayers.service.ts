@@ -21,17 +21,24 @@ export class OnlinePlayersService {
   }
 
   /**
-   * Retrieves the total number of online players.
+   * Gets all the online players and returns their IDs.
    *
    * This method fetches all keys from the cache that match the pattern
-   * for online players and calculates the total count of online players.
+   * for online players and returns the player IDs.
    *
-   * @returns An object containing the total number of online players.
+   * @returns Array of player IDs.
    */
-  async getAllOnlinePlayers() {
+  async getAllOnlinePlayers(): Promise<string[]> {
     const players = await this.cacheService.store.keys(
       `${this.ONLINE_PLAYERS_KEY}:*`,
     );
-    return { onlinePlayers: players.length };
+
+    if (!players) return [];
+
+    const ids = players.map((player) => {
+      return player.replace(`${this.ONLINE_PLAYERS_KEY}:`, '');
+    });
+
+    return ids;
   }
 }
