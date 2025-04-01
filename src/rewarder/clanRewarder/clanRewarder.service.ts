@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ClanService } from '../../clan/clan.service';
 
+/**
+ * Handles clan rewarding logic
+ */
 @Injectable()
 export class ClanRewarder {
   constructor(private readonly clanService: ClanService) {}
@@ -8,11 +11,17 @@ export class ClanRewarder {
   clanMaxPoints = 10000;
 
   /**
-   * Increases specified clan's points and coins
+   * Increases specified clan points and coins amounts.
+   *
+   * Notice that clan can have 10000 points at max
+   *
    * @param clan_id clan _id for which to increase
-   * @param reward reward object with points and coins amounts
-   * @throws ServiceError if any occurred
-   * @returns tuple in form [ isSuccess, errors ]
+   * @param points amount of points to add, default 0
+   * @param coins amount of coins to add, default 0
+   * @throws ServiceError if clan can not be found during the clan data fetching
+   *
+   * @returns true if the clan was rewarder successfully or ServiceErrors:
+   * - NOT_FOUND if the clan can not be found during the update
    */
   async rewardClanForPlayerTask(
     clan_id: string,
@@ -23,17 +32,22 @@ export class ClanRewarder {
   }
 
   /**
-   * Increases specified clan points and coins amount
+   * Increases specified clan points and coins amounts.
+   *
+   * Notice that clan can have 10000 points at max
+   *
    * @param clan_id clan _id for which to increase
    * @param pointsToAdd amount of points to add, default 0
-   * @param consToAdd amount of coins to add, default 0
-   * @throws ServiceError if any occurred
-   * @returns tuple in form [ isSuccess, errors ]
+   * @param coinsToAdd amount of coins to add, default 0
+   * @throws ServiceError if clan can not be found during the clan data fetching
+   *
+   * @returns true if the clan was rewarder successfully or ServiceErrors:
+   * - NOT_FOUND if the clan can not be found during the update
    */
   private async addClanPointsAndCoins(
     clan_id: string,
-    pointsToAdd: number = 0,
-    coinsToAdd: number = 0,
+    pointsToAdd = 0,
+    coinsToAdd = 0,
   ) {
     const [clanToUpdate, errors] = await this.clanService.readOneById(clan_id);
 
