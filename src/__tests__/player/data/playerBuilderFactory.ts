@@ -6,6 +6,7 @@ import GameStatisticsBuilder from './player/gameStatisticsBuilder';
 import CreateCustomCharacterDtoBuilder from './customCharacter/CreateCustomCharacterDtoBuilder';
 import CustomCharacterBuilder from './customCharacter/CustomCharacterBuilder';
 import UpdateCustomCharacterDtoBuilder from './customCharacter/UpdateCustomCharacterDtoBuilder';
+import MessageBuilder from './message/MessageBuilder';
 
 type BuilderName =
   | 'CreatePlayerDto'
@@ -15,7 +16,8 @@ type BuilderName =
   | 'GameStatistics'
   | 'CreateCustomCharacterDto'
   | 'CustomCharacter'
-  | 'UpdateCustomCharacterDto';
+  | 'UpdateCustomCharacterDto'
+  | 'Message';
 
 type BuilderMap = {
   CreatePlayerDto: CreatePlayerDtoBuilder;
@@ -26,6 +28,7 @@ type BuilderMap = {
   CreateCustomCharacterDto: CreateCustomCharacterDtoBuilder;
   CustomCharacter: CustomCharacterBuilder;
   UpdateCustomCharacterDto: UpdateCustomCharacterDtoBuilder;
+  Message: MessageBuilder;
 };
 
 export default class PlayerBuilderFactory {
@@ -47,6 +50,8 @@ export default class PlayerBuilderFactory {
         return new CustomCharacterBuilder() as BuilderMap[T];
       case 'UpdateCustomCharacterDto':
         return new UpdateCustomCharacterDtoBuilder() as BuilderMap[T];
+      case 'Message':
+        return new MessageBuilder() as BuilderMap[T];
       default:
         throw new Error(`Unknown builder name: ${builderName}`);
     }
