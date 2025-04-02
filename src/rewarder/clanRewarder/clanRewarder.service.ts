@@ -56,38 +56,17 @@ export class ClanRewarder {
         ],
       ];
 
-    return this.addClanPointsAndCoins(clan_id, points, coins);
-  }
-
-  /**
-   * Increases specified clan points and coins amounts.
-   *
-   * Notice that clan can have 10000 points at max
-   *
-   * @param clan_id clan _id for which to increase
-   * @param pointsToAdd amount of points to add, default 0
-   * @param coinsToAdd amount of coins to add, default 0
-   * @throws ServiceError if clan can not be found during the clan data fetching
-   *
-   * @returns true if the clan was rewarder successfully or ServiceErrors:
-   * - NOT_FOUND if the clan can not be found during the update
-   */
-  private async addClanPointsAndCoins(
-    clan_id: string,
-    pointsToAdd = 0,
-    coinsToAdd = 0,
-  ) {
     const [clanToUpdate, errors] = await this.clanService.readOneById(clan_id);
 
     if (errors) throw errors;
 
-    const { points, gameCoins } = clanToUpdate;
-    const newPoints = Math.min(this.clanMaxPoints, points + pointsToAdd);
+    const { points: clanPoints, gameCoins } = clanToUpdate;
+    const newPoints = Math.min(this.clanMaxPoints, clanPoints + points);
 
-    return await this.clanService.updateOne(
+    return this.clanService.updateOne(
       {
         points: newPoints,
-        gameCoins: gameCoins + coinsToAdd,
+        gameCoins: gameCoins + coins,
       },
       { filter: { _id: clan_id } },
     );
