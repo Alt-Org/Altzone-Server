@@ -12,12 +12,12 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
     name: 'clan',
     tag: 'my_tag',
     labels: [ClanLabel.ANIMEFANIT, ClanLabel.ELÄINRAKKAAT],
-    gameCoins: 0,
     admin_ids: [],
     playerCount: 0,
     itemCount: 0,
     stockCount: 0,
     points: 0,
+    gameCoins: 0,
     isOpen: true,
     ageRange: AgeRange.ADULTS,
     goal: Goal.GRINDAUS,
@@ -53,6 +53,11 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
 
   setGameCoins(gameCoins: number) {
     this.base.gameCoins = gameCoins;
+    return this;
+  }
+
+  setPoints(points: number) {
+    this.base.points = points;
     return this;
   }
 

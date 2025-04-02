@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { Message } from '../../player/message.schema';
+import { IServiceReturn } from '../../common/service/basicService/IService';
 
 @Injectable()
 export class PlayerRewarder {
@@ -18,11 +19,27 @@ export class PlayerRewarder {
    * @throws MongooseError if any occurred
    * @returns true if player was rewarded successfully
    */
-  async rewardForPlayerEvent(player_id: string, playerEvent: PlayerEvent) {
+  async rewardForPlayerEvent(
+    player_id: string,
+    playerEvent: PlayerEvent,
+  ): Promise<[boolean, ServiceError[] | MongooseError]> {
     if (playerEvent === PlayerEvent.MESSAGE_SENT)
       return this.rewardSendMessages(player_id);
 
     const pointAmount = points[playerEvent];
+    if (pointAmount === undefined)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.WRONG_ENUM,
+            field: 'playerEvent',
+            value: playerEvent,
+            message: 'This playerEvent does not exist',
+          }),
+        ],
+      ];
+
     return this.increasePlayerPoints(player_id, pointAmount);
   }
 
@@ -33,7 +50,23 @@ export class PlayerRewarder {
    * @throws MongooseError if any occurred
    * @returns true if player was rewarded successfully
    */
-  async rewardForPlayerTask(player_id: string, points: number) {
+  async rewardForPlayerTask(
+    player_id: string,
+    points: number,
+  ): Promise<IServiceReturn<true>> {
+    if (points < 0)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.LESS_THAN_MIN,
+            field: 'points',
+            value: points,
+            message: 'Points amount can not be less than 0',
+          }),
+        ],
+      ];
+
     return this.increasePlayerPoints(player_id, points);
   }
 
@@ -44,7 +77,10 @@ export class PlayerRewarder {
    * @throws MongooseError if any occurred
    * @returns true if player was rewarded successfully
    */
-  private async increasePlayerPoints(player_id: string, points: number) {
+  private async increasePlayerPoints(
+    player_id: string,
+    points: number,
+  ): Promise<IServiceReturn<true>> {
     const result = await this.playerService.updateOneById({
       _id: player_id,
       $inc: { points },
