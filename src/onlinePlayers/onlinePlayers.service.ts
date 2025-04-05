@@ -1,9 +1,10 @@
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
+import { CacheKeys } from '../common/enum/cacheKeys.enum';
 
 @Injectable()
 export class OnlinePlayersService {
-  private readonly ONLINE_PLAYERS_KEY = 'online_players';
+  private readonly ONLINE_PLAYERS_KEY = CacheKeys.ONLINE_PLAYERS;
   private readonly PLAYER_TTL = 300; // Time-to-live in seconds (5 minutes)
 
   constructor(@Inject(CACHE_MANAGER) private cacheService: Cache) {}

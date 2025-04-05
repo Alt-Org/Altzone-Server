@@ -6,6 +6,7 @@ import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import mongoose from 'mongoose';
+import { CacheKeys } from '../common/enum/cacheKeys.enum';
 
 @Injectable()
 export class LeaderboardService {
@@ -25,7 +26,7 @@ export class LeaderboardService {
    */
   async getClanLeaderboard(reqQuery: IGetAllQuery) {
     return this.getLeaderboard(
-      'clanLeaderboard',
+      CacheKeys.CLAN_LEADERBOARD,
       this.clanService.model,
       reqQuery,
     );
@@ -41,7 +42,7 @@ export class LeaderboardService {
    */
   async getPlayerLeaderboard(reqQuery: IGetAllQuery) {
     return this.getLeaderboard(
-      'playerLeaderboard',
+      CacheKeys.PLAYER_LEADERBOARD,
       this.playerService.model,
       reqQuery,
     );
@@ -107,7 +108,7 @@ export class LeaderboardService {
    */
   async getClanPosition(clanId: string) {
     const leaderboard = await this.getLeaderboard(
-      'clanLeaderboard',
+      CacheKeys.CLAN_LEADERBOARD,
       this.clanService.model,
     );
 
