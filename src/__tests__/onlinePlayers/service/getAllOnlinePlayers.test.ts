@@ -9,7 +9,7 @@ describe('OnlinePlayersService', () => {
   let cacheManager: Cache;
 
   beforeEach(async () => {
-    service = await OnlinePlayersModule.getService();
+    service = await OnlinePlayersModule.getOnlinePlayersService();
     cacheManager = await OnlinePlayersModule.getCacheManager();
   });
 
@@ -32,12 +32,29 @@ describe('OnlinePlayersService', () => {
     it('should return zero players if TTL has expired', async () => {
       const playerId = new ObjectId().toString();
 
+      jest
+        .spyOn(cacheManager, 'set')
+        .mockImplementation((key, value, options: any) => {
+          const ttl = options.ttl * 1000;
+          const expiresAt = Date.now() + ttl;
+          cacheManager.store[key] = { value, expiresAt };
+          return Promise.resolve();
+        });
+
+      jest.spyOn(cacheManager.store, 'keys').mockImplementation(async () => {
+        const now = Date.now();
+        return Object.keys(cacheManager.store).filter(
+          (key) => cacheManager.store[key].expiresAt > now,
+        );
+      });
+
       jest.spyOn(Date, 'now').mockReturnValue(0);
 
       await service.addPlayerOnline(playerId);
 
       // Mock Date.now() to simulate a time after the TTL has expired
       jest.spyOn(Date, 'now').mockReturnValue(301 * 1000); // 301 seconds later
+
       const result = await service.getAllOnlinePlayers();
 
       expect(result).toEqual([]);
