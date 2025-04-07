@@ -1,5 +1,3 @@
-import { MongooseError } from 'mongoose';
-import { MongoServerError, ObjectId } from 'mongodb';
 import VotingBuilderFactory from '../data/createVotingDtoBuilder';
 import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
@@ -32,4 +30,17 @@ describe('VotingService.createOne() test suite', () => {
     expect(clearedResp).toEqual(expect.objectContaining(expectedVoting));
   });
 
+  it('Should not create a voting in DB if input is invalidvalid', async () => {
+    const minPercentage = 1;
+    const invalidId = 'invalidId'; // Invalid ObjectId
+    const votingToCreate = votingBuilder
+      .setMinPercentage(minPercentage)
+      .setEntityId(invalidId) // Invalid ObjectId
+      .build();
+
+      const [voting, errors] = await votingService.createOne(votingToCreate);
+      expect(voting).toBeNull();
+      expect(errors[0].field).toBe('entity_id');
+      expect(errors[0].value).toBe(invalidId);
+  });
 });
