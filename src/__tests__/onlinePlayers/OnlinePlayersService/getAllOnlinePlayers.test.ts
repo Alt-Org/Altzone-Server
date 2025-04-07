@@ -42,4 +42,33 @@ describe('OnlinePlayersService.getAllOnlinePlayers() test suite', () => {
 
     expect(player_ids).not.toContain(_id1);
   });
+
+  it('should return zero players if TTL has expired', async () => {
+    jest
+      .spyOn(cacheManager, 'set')
+      .mockImplementation((key, value, options: any) => {
+        const ttl = options.ttl * 1000;
+        const expiresAt = Date.now() + ttl;
+        cacheManager.store[key] = { value, expiresAt };
+        return Promise.resolve();
+      });
+
+    jest.spyOn(cacheManager.store, 'keys').mockImplementation(async () => {
+      const now = Date.now();
+      return Object.keys(cacheManager.store).filter(
+        (key) => cacheManager.store[key].expiresAt > now,
+      );
+    });
+
+    jest.spyOn(Date, 'now').mockReturnValue(0);
+
+    await service.addPlayerOnline(_id1);
+
+    // Mock Date.now() to simulate a time after the TTL has expired
+    jest.spyOn(Date, 'now').mockReturnValue(301 * 1000); // 301 seconds later
+
+    const result = await service.getAllOnlinePlayers();
+
+    expect(result).toEqual([]);
+  });
 });
