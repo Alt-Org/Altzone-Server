@@ -1,4 +1,5 @@
 import { ItemName } from '../enum/itemName.enum';
+import { Material } from '../enum/material.enum';
 import { Rarity } from '../enum/rarity.enum';
 import { Recycling } from '../enum/recycling.enum';
 
@@ -12,6 +13,7 @@ export type ItemProperty = {
   rarity: Rarity;
   recycling: Recycling;
   isFurniture: boolean;
+  material: Material[];
 };
 
 /**
@@ -26,6 +28,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.PUU, Material.POLYESTERI],
   },
   [ItemName.SOFA_RAKKAUS]: {
     name: ItemName.SOFA_RAKKAUS,
@@ -34,6 +37,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.PUU, Material.POLYESTERI],
   },
   [ItemName.SOFA_MUISTOJA]: {
     name: ItemName.SOFA_MUISTOJA,
@@ -42,6 +46,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.WOOD,
     isFurniture: true,
+    material: [Material.PUU, Material.TEKONAHKA],
   },
   [ItemName.SOFA_UNI]: {
     name: ItemName.SOFA_UNI,
@@ -50,6 +55,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.ALUMIINI, Material.PUUVILLA, Material.VILLA],
   },
   [ItemName.SOFA_KIPU]: {
     name: ItemName.SOFA_KIPU,
@@ -58,6 +64,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.PUU, Material.NAHKA],
   },
   [ItemName.SOFA_KYLMÄ_TULEVAISUUS]: {
     name: ItemName.SOFA_KYLMÄ_TULEVAISUUS,
@@ -66,6 +73,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.TEKONAHKA],
   },
 
   // CHAIRS
@@ -76,6 +84,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.POLYESTERI, Material.PUU],
   },
   [ItemName.ARMCHAIR_RAKKAUS]: {
     name: ItemName.ARMCHAIR_RAKKAUS,
@@ -84,6 +93,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.PUU, Material.POLYESTERI],
   },
   [ItemName.CHAIR_NEURO]: {
     name: ItemName.CHAIR_NEURO,
@@ -92,6 +102,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.epic,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.ALUMIINI, Material.TEKONAHKA],
   },
   [ItemName.STOOL_NEURO]: {
     name: ItemName.STOOL_NEURO,
@@ -100,6 +111,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.ALUMIINI, Material.TEKONAHKA],
   },
   [ItemName.CHAIR_POLARITY]: {
     name: ItemName.CHAIR_POLARITY,
@@ -108,6 +120,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.ALUMIINI],
   },
   [ItemName.ARMCHAIR_MUISTOJA]: {
     name: ItemName.ARMCHAIR_MUISTOJA,
@@ -116,6 +129,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.PUU, Material.TEKONAHKA],
   },
   [ItemName.ARMCHAIR_KYLMÄ_TULEVAISUUS]: {
     name: ItemName.ARMCHAIR_KYLMÄ_TULEVAISUUS,
@@ -124,6 +138,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.TEKONAHKA],
   },
   [ItemName.CHAIR_KIPU]: {
     name: ItemName.CHAIR_KIPU,
@@ -132,6 +147,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.PUU, Material.TEKONAHKA],
   },
   [ItemName.HANGINGCHAIR_UNI]: {
     name: ItemName.HANGINGCHAIR_UNI,
@@ -139,7 +155,8 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     price: 240,
     rarity: Rarity.epic,
     recycling: undefined,
-    isFurniture: undefined,
+    isFurniture: true,
+    material: [],
   },
 
   // LAMPS
@@ -150,6 +167,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.epic,
     recycling: Recycling.ELECTRICAL_EQUIPMENT,
     isFurniture: false,
+    material: [Material.ALUMIINI],
   },
   [ItemName.LAMP_RAKKAUS]: {
     name: ItemName.LAMP_RAKKAUS,
@@ -158,6 +176,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.epic,
     recycling: Recycling.GLASS,
     isFurniture: false,
+    material: [Material.LASI],
   },
   [ItemName.TABLELAMP_UNI]: {
     name: ItemName.TABLELAMP_UNI,
@@ -165,7 +184,8 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     price: undefined,
     rarity: Rarity.epic,
     recycling: undefined,
-    isFurniture: undefined,
+    isFurniture: false,
+    material: [],
   },
   [ItemName.CEILINGLAMP_UNI]: {
     name: ItemName.CEILINGLAMP_UNI,
@@ -173,7 +193,8 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     price: undefined,
     rarity: Rarity.epic,
     recycling: undefined,
-    isFurniture: undefined,
+    isFurniture: false,
+    material: [],
   },
 
   // PLANTS
@@ -184,6 +205,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
+    material: [Material.KASVI, Material.MUOVI, Material.SAVI],
   },
   [ItemName.FLOWERS_MUISTOJA]: {
     name: ItemName.FLOWERS_MUISTOJA,
@@ -192,6 +214,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
+    material: [Material.KASVI, Material.MUOVI, Material.LASI],
   },
 
   // TABLES
@@ -202,6 +225,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.METALLI, Material.LAMINAATTI, Material.MUOVI],
   },
   [ItemName.SOFATABLE_TAAKKA]: {
     name: ItemName.SOFATABLE_TAAKKA,
@@ -210,6 +234,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.WOOD,
     isFurniture: true,
+    material: [Material.MELAMIINI, Material.KALUSTELEVY],
   },
   [ItemName.SIDETABLE_TAAKKA]: {
     name: ItemName.SIDETABLE_TAAKKA,
@@ -218,6 +243,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.WOOD,
     isFurniture: true,
+    material: [Material.MELAMIINI, Material.KALUSTELEVY],
   },
   [ItemName.DININGTABLE_RAKKAUS]: {
     name: ItemName.DININGTABLE_RAKKAUS,
@@ -226,6 +252,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: Recycling.WOOD,
     isFurniture: true,
+    material: [Material.PUU],
   },
   [ItemName.SOFATABLE_RAKKAUS]: {
     name: ItemName.SOFATABLE_RAKKAUS,
@@ -234,6 +261,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.WOOD,
     isFurniture: true,
+    material: [Material.PUU],
   },
   [ItemName.COFFEETABLE_MUISTOJA]: {
     name: ItemName.COFFEETABLE_MUISTOJA,
@@ -242,6 +270,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.WOOD,
     isFurniture: true,
+    material: [Material.PUU, Material.PAPERI],
   },
   [ItemName.DRESSER_MUISTOJA]: {
     name: ItemName.DRESSER_MUISTOJA,
@@ -250,6 +279,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: Recycling.WOOD,
     isFurniture: true,
+    material: [Material.PUU, Material.PAPERI, Material.KANGAS],
   },
   [ItemName.TABLE_POLARITY]: {
     name: ItemName.TABLE_POLARITY,
@@ -258,6 +288,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.METAL,
     isFurniture: true,
+    material: [Material.ALUMIINI],
   },
   [ItemName.SOFATABLE_UNI]: {
     name: ItemName.SOFATABLE_UNI,
@@ -266,6 +297,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: undefined,
     isFurniture: true,
+    material: [],
   },
   [ItemName.NIGHTSTAND_UNI]: {
     name: ItemName.NIGHTSTAND_UNI,
@@ -274,6 +306,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: undefined,
     isFurniture: true,
+    material: [],
   },
   [ItemName.TABLE_KIPU]: {
     name: ItemName.TABLE_KIPU,
@@ -282,6 +315,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: undefined,
     isFurniture: true,
+    material: [Material.PUU, Material.NAHKA],
   },
 
   // BEDS
@@ -292,6 +326,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.PUU, Material.POLYESTERI],
   },
   [ItemName.BED_UNI]: {
     name: ItemName.BED_UNI,
@@ -300,6 +335,12 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [
+      Material.ALUMIINI,
+      Material.PUUVILLA,
+      Material.VILLA,
+      Material.ELEKTRONIIKKA,
+    ],
   },
 
   // CARPETS
@@ -310,6 +351,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
+    material: [Material.KANGAS],
   },
   [ItemName.CARPET_RAKKAUS]: {
     name: ItemName.CARPET_RAKKAUS,
@@ -318,6 +360,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
+    material: [Material.KANGAS],
   },
   [ItemName.CARPET_OLD_MUISTOJA]: {
     name: ItemName.CARPET_OLD_MUISTOJA,
@@ -326,6 +369,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
+    material: [Material.KANGAS],
   },
   [ItemName.CARPET_NEW_MUISTOJA]: {
     name: ItemName.CARPET_NEW_MUISTOJA,
@@ -334,6 +378,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
+    material: [Material.KANGAS],
   },
   [ItemName.CARPET_UNI]: {
     name: ItemName.CARPET_UNI,
@@ -342,6 +387,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
+    material: [Material.PUUVILLA],
   },
 
   // WALL DECOR
@@ -352,6 +398,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.GLASS,
     isFurniture: false,
+    material: [Material.LASI],
   },
   [ItemName.MIRROR_RAKKAUS]: {
     name: ItemName.MIRROR_RAKKAUS,
@@ -360,6 +407,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.GLASS,
     isFurniture: false,
+    material: [Material.LASI, Material.METALLI],
   },
   [ItemName.CLOCK_NEURO]: {
     name: ItemName.CLOCK_NEURO,
@@ -368,6 +416,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.ELECTRICAL_EQUIPMENT,
     isFurniture: false,
+    material: [Material.ALUMIINI, Material.ELEKTRONIIKKA],
   },
   [ItemName.PAINTING_MUISTOJA]: {
     name: ItemName.PAINTING_MUISTOJA,
@@ -376,6 +425,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
+    material: [Material.PUU, Material.MAALI],
   },
   [ItemName.DRAWINGS_MUISTOJA]: {
     name: ItemName.DRAWINGS_MUISTOJA,
@@ -384,6 +434,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
+    material: [Material.PAPERI, Material.TEIPPI],
   },
   [ItemName.PICTURES_MUISTOJA]: {
     name: ItemName.PICTURES_MUISTOJA,
@@ -392,6 +443,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
+    material: [Material.PUU],
   },
   [ItemName.WINDOW_MUISTOJA]: {
     name: ItemName.WINDOW_MUISTOJA,
@@ -400,6 +452,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.GLASS,
     isFurniture: false,
+    material: [Material.LASI, Material.KANGAS],
   },
   [ItemName.WINDOW_UNI]: {
     name: ItemName.WINDOW_UNI,
@@ -408,6 +461,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: undefined,
     isFurniture: false,
+    material: [],
   },
   [ItemName.PICTURES_UNI]: {
     name: ItemName.PICTURES_UNI,
@@ -416,6 +470,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: undefined,
     isFurniture: false,
+    material: [],
   },
 
   // BIG MIRRORS, STATUES ETC...
@@ -426,6 +481,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.GLASS,
     isFurniture: false,
+    material: [Material.LASI, Material.PUU],
   },
 
   // BATHROOM
@@ -436,6 +492,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.LANDFILL,
     isFurniture: false,
+    material: [Material.POSLIINI],
   },
   [ItemName.SINK_SCHRODINGER]: {
     name: ItemName.SINK_SCHRODINGER,
@@ -444,6 +501,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.LANDFILL,
     isFurniture: false,
+    material: [Material.POSLIINI, Material.TERÄS],
   },
   [ItemName.BATHTUB_SCHRODINGER]: {
     name: ItemName.BATHTUB_SCHRODINGER,
@@ -452,6 +510,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.epic,
     recycling: Recycling.LANDFILL,
     isFurniture: false,
+    material: [Material.POSLIINI, Material.TERÄS],
   },
 
   // CLOSETS AND SHELVES
@@ -462,6 +521,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: Recycling.WOOD,
     isFurniture: true,
+    material: [Material.PUU],
   },
   [ItemName.CLOSET_RAKKAUS]: {
     name: ItemName.CLOSET_RAKKAUS,
@@ -470,6 +530,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.WOOD,
     isFurniture: true,
+    material: [Material.PUU],
   },
   [ItemName.DRESSER_NEURO]: {
     name: ItemName.DRESSER_NEURO,
@@ -478,6 +539,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: Recycling.WOOD,
     isFurniture: true,
+    material: [Material.LASTULEVY, Material.ALUMIINI],
   },
   [ItemName.BOOKSHELF_POLARITY]: {
     name: ItemName.BOOKSHELF_POLARITY,
@@ -486,6 +548,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: Recycling.METAL,
     isFurniture: true,
+    material: [Material.ALUMIINI],
   },
   [ItemName.CLOSET_UNI]: {
     name: ItemName.CLOSET_UNI,
@@ -494,6 +557,12 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.epic,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [
+      Material.PUU,
+      Material.VILLA,
+      Material.METALLI,
+      Material.ELEKTRONIIKKA,
+    ],
   },
   [ItemName.CLOSET_KIPU]: {
     name: ItemName.CLOSET_KIPU,
@@ -502,6 +571,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
+    material: [Material.PUU, Material.NAHKA],
   },
 
   // MISC
@@ -512,6 +582,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
+    material: [Material.KANGAS],
   },
   [ItemName.CANDLES_RAKKAUS]: {
     name: ItemName.CANDLES_RAKKAUS,
@@ -520,6 +591,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
+    material: [Material.VAHA],
   },
   [ItemName.BOOK_PILE_RAKKAUS]: {
     name: ItemName.BOOK_PILE_RAKKAUS,
@@ -528,6 +600,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.rare,
     recycling: undefined,
     isFurniture: false,
+    material: [Material.PAPERI],
   },
   [ItemName.ELEPHANT_RAKKAUS]: {
     name: ItemName.ELEPHANT_RAKKAUS,
@@ -536,6 +609,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.epic,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
+    material: [Material.POLYESTERI],
   },
   [ItemName.FLOWER_RAKKAUS]: {
     name: ItemName.FLOWER_RAKKAUS,
@@ -544,6 +618,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: undefined,
     isFurniture: false,
+    material: [],
   },
   [ItemName.BOOK_RAKKAUS]: {
     name: ItemName.BOOK_RAKKAUS,
@@ -552,6 +627,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: undefined,
     isFurniture: false,
+    material: [Material.PAPERI],
   },
   [ItemName.PILLOW_RAKKAUS]: {
     name: ItemName.PILLOW_RAKKAUS,
@@ -560,6 +636,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
+    material: [Material.POLYESTERI],
   },
   [ItemName.PLANT_KIPU]: {
     name: ItemName.PLANT_KIPU,
@@ -568,6 +645,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.common,
     recycling: undefined,
     isFurniture: false,
+    material: [],
   },
   [ItemName.HOLOGRAM_KYLMÄ_TULEVAISUUS]: {
     name: ItemName.HOLOGRAM_KYLMÄ_TULEVAISUUS,
@@ -576,5 +654,6 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     rarity: Rarity.epic,
     recycling: undefined,
     isFurniture: false,
+    material: [Material.VALO],
   },
 };
