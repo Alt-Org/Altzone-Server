@@ -1,8 +1,11 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MongooseSchema } from "mongoose";
 import { ModelName } from "../common/enum/modelName.enum";
-import { TaskName } from "./enum/taskName.enum";
 import {TaskTitle} from "./type/taskTitle.type";
+import {ExtractField} from "../common/decorator/response/ExtractField";
+import {ObjectId} from "mongodb";
+import {UITaskName} from "./enum/uiTaskName.enum";
+import {ServerTaskName} from "./enum/serverTaskName.enum";
 
 export type DailyTaskDocument = HydratedDocument<DailyTask>;
 
@@ -17,8 +20,8 @@ export class DailyTask {
 	@Prop({ type: Object, required: true })
 	title: TaskTitle;
 
-	@Prop({ type: String, enum: TaskName, required: true })
-	type: TaskName;
+	@Prop({ type: String, enum: [...Object.values(ServerTaskName), ...Object.values(UITaskName)], required: true })
+	type: ServerTaskName | UITaskName;
 
 	@Prop({ type: Date })
 	startedAt?: Date;
@@ -37,6 +40,9 @@ export class DailyTask {
 
 	@Prop({ type: Number, required: true })
 	timeLimitMinutes: number;
+
+	@ExtractField()
+	_id?: string | ObjectId;
 }
 
 export const DailyTaskSchema = SchemaFactory.createForClass(DailyTask);

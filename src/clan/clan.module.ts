@@ -13,7 +13,7 @@ import ClanHelperService from './utils/clanHelper.service';
 import { PlayerSchema } from '../player/player.schema';
 import { ClanInventoryModule } from '../clanInventory/clanInventory.module';
 import { PlayerModule } from '../player/player.module';
-import { DailyTasksModule } from '../dailyTasks/dailyTasks.module';
+import {GameEventsEmitterModule} from "../gameEventsEmitter/gameEventsEmitter.module";
 
 @Module({
     imports: [
@@ -25,7 +25,7 @@ import { DailyTasksModule } from '../dailyTasks/dailyTasks.module';
         ClanInventoryModule,
         RequestHelperModule,
         PlayerModule,
-        DailyTasksModule,
+        GameEventsEmitterModule
     ],
     controllers: [ClanController],
     providers: [ ClanService, isClanExists, PlayerCounterFactory, JoinService, ClanHelperService ],

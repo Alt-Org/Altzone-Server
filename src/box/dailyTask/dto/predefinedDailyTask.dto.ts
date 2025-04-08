@@ -1,5 +1,5 @@
 import {Expose} from "class-transformer";
-import {TaskName} from "../../../dailyTasks/enum/taskName.enum";
+import {ServerTaskName} from "../../../dailyTasks/enum/serverTaskName.enum";
 import {ExtractField} from "../../../common/decorator/response/ExtractField";
 
 export class PredefinedDailyTaskDto {
@@ -8,7 +8,7 @@ export class PredefinedDailyTaskDto {
     _id: string;
 
     @Expose()
-    type: TaskName;
+    type: ServerTaskName;
 
     @Expose()
     title: string;

@@ -41,6 +41,7 @@ describe('ItemHelperService.getItemSoulHomeId() test suite', () => {
     });
 
     it('Should throw NOT_FOUND SE if item is not in any soul home room', async () => {
+        await itemModel.updateOne({_id: existingItem._id}, {room_id: null});
         const throwNotFound = async () => await itemHelperService.getItemSoulHomeId(existingItem._id);
 
         expect(throwNotFound).rejects.toContainSE_NOT_FOUND();

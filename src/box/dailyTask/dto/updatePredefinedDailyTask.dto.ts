@@ -1,13 +1,13 @@
 import {IsEnum, IsMongoId, IsNumber, IsOptional, IsString} from "class-validator";
-import {TaskName} from "../../../dailyTasks/enum/taskName.enum";
+import {ServerTaskName} from "../../../dailyTasks/enum/serverTaskName.enum";
 
 export class UpdatePredefinedDailyTaskDto {
     @IsMongoId()
     _id: string;
 
     @IsOptional()
-    @IsEnum(TaskName)
-    type?: TaskName;
+    @IsEnum(ServerTaskName)
+    type?: ServerTaskName;
 
     @IsOptional()
     @IsString()

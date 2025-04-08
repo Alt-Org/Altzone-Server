@@ -29,6 +29,7 @@ import { IsGroupAdmin } from "./auth/decorator/IsGroupAdmin";
 import { BoxUser } from "./auth/BoxUser";
 import { LoggedUser } from "../common/decorator/param/LoggedUser.decorator";
 import { BoxAuthGuard } from "./auth/boxAuth.guard";
+import SessionStarterService from "./sessionStarter/sessionStarter.service";
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
@@ -36,7 +37,8 @@ export class BoxController {
     public constructor(
         private readonly service: BoxService,
         private readonly boxCreator: BoxCreator,
-        private readonly authHandler: BoxAuthHandler
+        private readonly authHandler: BoxAuthHandler,
+        private readonly sessionStarter: SessionStarterService,
     ) {
     }
 
@@ -104,6 +106,15 @@ export class BoxController {
     @UniformResponse()
     async deleteBoxAndAdmin(@LoggedUser() user: BoxUser) {
         return await this.service.deleteBox(user.box_id);
+    }
+
+    @Post('/start')
+    @UniformResponse(ModelName.BOX)
+    @IsGroupAdmin()
+    async startTestingSession(@LoggedUser() user: BoxUser) {
+        const [wasStarted, errors] = await this.sessionStarter.start(user.box_id);
+        if (errors)
+            return [null, errors];
     }
 
     //For time of development only

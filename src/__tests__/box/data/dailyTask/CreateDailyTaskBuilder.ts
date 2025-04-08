@@ -1,9 +1,9 @@
-import {TaskName} from "../../../../dailyTasks/enum/taskName.enum";
+import {ServerTaskName} from "../../../../dailyTasks/enum/serverTaskName.enum";
 import {CreateDailyTask} from "../../../../box/dailyTask/payloads/CreateDailyTask";
 
 export default class CreateDailyTaskBuilder {
     private readonly base: Partial<CreateDailyTask> = {
-        type: TaskName.PLAY_BATTLE,
+        type: ServerTaskName.PLAY_BATTLE,
         title: 'Default Task Title',
         amount: 1,
         points: 10,
@@ -15,7 +15,7 @@ export default class CreateDailyTaskBuilder {
         return {...this.base} as CreateDailyTask;
     }
 
-    setType(type: TaskName) {
+    setType(type: ServerTaskName) {
         this.base.type = type;
         return this;
     }

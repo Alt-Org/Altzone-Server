@@ -6,7 +6,7 @@ import { BoxReference } from "../enum/BoxReference.enum";
 import BasicService from "../../common/service/basicService/BasicService";
 import { IServiceReturn } from "../../common/service/basicService/IService";
 import { ObjectId } from "mongodb";
-import { PredefinedDailyTask, PredefinedDailyTaskDoc } from "./predefinedDailyTask.schema";
+import { PredefinedDailyTask } from "./predefinedDailyTask.schema";
 import { CreateDailyTask } from "./payloads/CreateDailyTask";
 import ServiceError from "../../common/service/basicService/ServiceError";
 import { SEReason } from "../../common/service/basicService/SEReason";

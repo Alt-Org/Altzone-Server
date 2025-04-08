@@ -15,8 +15,8 @@ import {CreateMessageDto} from "./dto/createMessage.dto";
 import {IGetAllQuery} from "../common/interface/IGetAllQuery";
 import {IResponseShape} from "../common/interface/IResponseShape";
 import {ObjectId} from "mongodb";
-import { GameEventsHandler } from "../gameEventsBroker/gameEventsHandler";
-import { GameEvent } from "../gameEventsBroker/enum/GameEvent.enum";
+import { GameEventsHandler } from "../gameEventsHandler/gameEventsHandler";
+import { GameEventType } from "../gameEventsHandler/enum/GameEventType.enum";
 
 @Injectable()
 @AddBasicService()
@@ -45,7 +45,7 @@ export class ChatService extends BasicServiceDummyAbstract<Chat> implements IBas
     async handleCreateMessage(chat_id: string, input: CreateMessageDto, player_id: string) {
         const messageCreated = await this.createMessage(chat_id, input);
         if (messageCreated) {
-            this.gameEventsHandler.handleEvent(player_id, GameEvent.PLAYER_SEND_MESSAGE);
+            this.gameEventsHandler.handleEvent(player_id, GameEventType.PLAYER_SEND_MESSAGE);
         }
     }
 

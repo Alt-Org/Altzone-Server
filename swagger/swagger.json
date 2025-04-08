@@ -2291,7 +2291,7 @@
                     }
                 ],
                 "summary": "Create a custom character",
-                "description": "Create a new CustomCharacter. CustomCharacter represents a character of the Player. Player can have many CustomCharacters, CustomCharacter can belong to only one Player.\n\nNotice that the player:id field will be determined based on the logged-in player.\n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only own |\n"
+                "description": "Create a new CustomCharacter. CustomCharacter represents a character of the Player. Player can have many CustomCharacters, CustomCharacter can belong to only one Player.\n\nNotice that the player_id field will be determined based on the logged-in player.\n\nNotice that player can have only one custom character of each type \n\n| Feature / Requirement | Is / Has | \n| -------- | -------- | \n| Authentication | yes | \n| Authorization   | only own |\n"
             }
         },
         "/customCharacter/{_id}": {
@@ -5118,6 +5118,113 @@
                 ],
                 "summary": "Define testers amount",
                 "description": "Endpoint for adjusting amount of testers in the box. Notice that only box admin can do it"
+            }
+        },
+        "/box/start": {
+            "post": {
+                "requestBody": {
+                    "description": "No body required"
+                },
+                "tags": [
+                    "Box"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Start testing session",
+                "description": " Endpoint for starting testing session. \n \n Notice that only box admin can start a testing session.\n \n Notice that the minumal box data should be initialized at the moment of starting of testing session. That data is at least 2 tester accounts added."
+            }
+        },
+        "/dailyTasks/unreserve": {
+            "put": {
+                "tags": [
+                    "DailyTasks"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Unreserve selected tasks",
+                "description": "Endpoint for unreserving the task selected by the logged-in player = the task that has the player_id field set to the logged-in player _id."
+            }
+        },
+        "/dailyTasks/uiDailyTask": {
+            "put": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "amount": 2
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "DailyTasks"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Update daily tasks managed by UI",
+                "description": "Endpoint for updating daily tasks, which can be registered only on the client side, such as \"press a button\".\n\nNotice that although it is possible to make a request to update basically any daily task progress by its _id, only daily tasks that are present in the [UITaskName](https://github.com/Alt-Org/Altzone-Server/blob/dev/src/dailyTasks/enum/uiTaskName.enum.ts) enum can be updated via it.\n"
             }
         }
     },

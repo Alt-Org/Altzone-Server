@@ -14,6 +14,7 @@ import {
 } from "../../../player/customCharacter/decorator/validation/IsCustomCharacterExists.decorator";
 import {ClanSchema} from "../../../clan/clan.schema";
 import {RoomSchema} from "../../../clanInventory/room/room.schema";
+import { DailyTaskSchema } from "../../../dailyTasks/dailyTasks.schema";
 
 export default class PlayerCommonModule {
     private constructor() {
@@ -30,7 +31,8 @@ export default class PlayerCommonModule {
                         {name: ModelName.PLAYER, schema: PlayerSchema},
                         {name: ModelName.CLAN, schema: ClanSchema},
                         {name: ModelName.ROOM, schema: RoomSchema},
-                        {name: ModelName.CUSTOM_CHARACTER, schema: CustomCharacterSchema}
+                        {name: ModelName.CUSTOM_CHARACTER, schema: CustomCharacterSchema},
+                        {name: ModelName.DAILY_TASK, schema: DailyTaskSchema},
                     ]),
                     RequestHelperModule,
                     AuthorizationModule

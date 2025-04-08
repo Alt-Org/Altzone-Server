@@ -52,6 +52,18 @@ describe('CustomCharacterService.createOne() test suite', () => {
         }));
     });
 
+    it('Should return NOT_UNIQUE ServiceErrors if character with same player_id and characterId already exists', async () => {
+        const characterId = CharacterId.Prankster_202;
+        const characterToCreate = createCustomCharacterBuilder.setCharacterId(characterId).build();
+
+        await characterService.createOne(characterToCreate, player._id);
+
+        const [createdCharacter, errors] = await characterService.createOne(characterToCreate, player._id);
+
+        expect(createdCharacter).toBeNull();
+        expect(errors).toContainSE_NOT_UNIQUE();
+    });
+
     it('Should return WRONG_ENUM if the level value is not a number', async () => {
         const invalid_level = 'not-a-number' as any;
         const characterToCreate = createCustomCharacterBuilder.setLevel(invalid_level).build();
