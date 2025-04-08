@@ -1,6 +1,6 @@
 import { ItemMoverService } from '../../../itemMover/itemMover.service';
 import { ItemName } from '../../../clanInventory/item/enum/itemName.enum';
-import { QualityLevel } from '../../../clanInventory/item/enum/qualityLevel.enum';
+import { Rarity } from '../../../clanInventory/item/enum/rarity.enum';
 import ItemModule from '../../clanInventory/modules/item.module';
 import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryBuilderFactory';
 import ItemMoverModule from '../modules/itemMover.module';
@@ -21,13 +21,13 @@ describe('ItemMoverService.stealItems() test suite', () => {
   const itemBuilder = ClanInventoryBuilderFactory.getBuilder('Item');
   const item1 = itemBuilder
     .setName(ItemName.ARMCHAIR_RAKKAUS)
-    .setQualityLevel(QualityLevel.common)
+    .setRarityLevel(Rarity.common)
     .build();
   const item2 = itemBuilder
     .setName(ItemName.CLOSET_RAKKAUS)
-    .setQualityLevel(QualityLevel.common)
+    .setRarityLevel(Rarity.common)
     .build();
-  const allItemsFilter = { qualityLevel: QualityLevel.common };
+  const allItemsFilter = { rarity: Rarity.common };
 
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
   const clanModel = ClanModule.getClanModel();

@@ -1,11 +1,12 @@
 import { Expose, Type } from 'class-transformer';
 import { StockDto } from '../../stock/dto/stock.dto';
 import { RoomDto } from '../../room/dto/room.dto';
-import { QualityLevel } from '../enum/qualityLevel.enum';
+import { Rarity } from '../enum/rarity.enum';
 import { Recycling } from '../enum/recycling.enum';
 import { ItemName } from '../enum/itemName.enum';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 import { ExtractField } from '../../../common/decorator/response/ExtractField';
+import { Material } from '../enum/material.enum';
 
 @AddType('ItemDto')
 export class ItemDto {
@@ -23,7 +24,10 @@ export class ItemDto {
   recycling: Recycling;
 
   @Expose()
-  qualityLevel: QualityLevel;
+  rarity: Rarity;
+
+  @Expose()
+  material: Material[];
 
   @Expose()
   unityKey: string;

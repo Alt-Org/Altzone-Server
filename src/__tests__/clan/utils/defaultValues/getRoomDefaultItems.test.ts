@@ -21,10 +21,10 @@ describe('getRoomDefaultItems() test suite', () => {
         location: [1, 2],
       },
       {
-        ...itemProperties.Floorlamp_Rakkaus,
+        ...itemProperties.Lamp_Rakkaus,
         stock_id: null,
         room_id,
-        unityKey: ItemName.FLOORLAMP_RAKKAUS,
+        unityKey: ItemName.LAMP_RAKKAUS,
         location: [1, 3],
       },
       {

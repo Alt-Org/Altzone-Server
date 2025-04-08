@@ -8,7 +8,7 @@ import {
 import AddType from '../../common/base/decorator/AddType.decorator';
 import { ItemName } from '../../clanInventory/item/enum/itemName.enum';
 import { Recycling } from '../../clanInventory/item/enum/recycling.enum';
-import { QualityLevel } from '../../clanInventory/item/enum/qualityLevel.enum';
+import { Rarity } from '../../clanInventory/item/enum/rarity.enum';
 import { Status } from '../enum/status.enum';
 import { IsClanExists } from '../../clan/decorator/validation/IsClanExists.decorator';
 
@@ -23,8 +23,8 @@ export class CreateFleaMarketItemDto {
   @IsEnum(Recycling)
   recycling: Recycling;
 
-  @IsEnum(QualityLevel)
-  qualityLevel: QualityLevel;
+  @IsEnum(Rarity)
+  rarity: Rarity;
 
   @IsString()
   unityKey: string;
