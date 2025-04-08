@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsBoolean,
   IsEnum,
   IsInt,
@@ -11,6 +12,7 @@ import { Recycling } from '../../clanInventory/item/enum/recycling.enum';
 import { Rarity } from '../../clanInventory/item/enum/rarity.enum';
 import { Status } from '../enum/status.enum';
 import { IsClanExists } from '../../clan/decorator/validation/IsClanExists.decorator';
+import { Material } from '../../clanInventory/item/enum/material.enum';
 
 @AddType('CreateFleaMarketItemDto')
 export class CreateFleaMarketItemDto {
@@ -25,6 +27,10 @@ export class CreateFleaMarketItemDto {
 
   @IsEnum(Rarity)
   rarity: Rarity;
+
+  @IsArray()
+  @IsEnum(Material)
+  material: Material[];
 
   @IsString()
   unityKey: string;

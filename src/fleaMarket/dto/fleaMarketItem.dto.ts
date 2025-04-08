@@ -5,6 +5,7 @@ import { ItemName } from '../../clanInventory/item/enum/itemName.enum';
 import { Recycling } from '../../clanInventory/item/enum/recycling.enum';
 import { Rarity } from '../../clanInventory/item/enum/rarity.enum';
 import { Status } from '../enum/status.enum';
+import { Material } from '../../clanInventory/item/enum/material.enum';
 
 @AddType('FleaMarketItemDto')
 export class FleaMarketItemDto {
@@ -23,6 +24,9 @@ export class FleaMarketItemDto {
 
   @Expose()
   rarity: Rarity;
+
+  @Expose()
+  material: Material[];
 
   @Expose()
   unityKey: string;
