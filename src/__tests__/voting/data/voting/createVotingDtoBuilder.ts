@@ -1,7 +1,7 @@
 import { CreateVotingDto } from '../../../../voting/dto/createVoting.dto';
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 import { Organizer } from '../../../../voting/dto/organizer.dto';
-import { Vote } from 'src/voting/schemas/vote.schema';
+import { Vote } from '../../../../voting/schemas/vote.schema';
 
 export default class CreateVotingDtoBuilder
   implements IDataBuilder<CreateVotingDto>
