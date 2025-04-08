@@ -14,6 +14,7 @@ import { Rarity } from '../enum/rarity.enum';
 import { Recycling } from '../enum/recycling.enum';
 import { ItemName } from '../enum/itemName.enum';
 import AddType from '../../../common/base/decorator/AddType.decorator';
+import { Material } from '../enum/material.enum';
 
 @AddType('CreateItemDto')
 export class CreateItemDto {
@@ -31,6 +32,10 @@ export class CreateItemDto {
 
   @IsString()
   unityKey: string;
+
+  @IsArray()
+  @IsEnum(Material)
+  material: Material[];
 
   @IsArray()
   @ArrayMinSize(2)

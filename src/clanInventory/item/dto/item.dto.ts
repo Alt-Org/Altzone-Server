@@ -6,6 +6,7 @@ import { Recycling } from '../enum/recycling.enum';
 import { ItemName } from '../enum/itemName.enum';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 import { ExtractField } from '../../../common/decorator/response/ExtractField';
+import { Material } from '../enum/material.enum';
 
 @AddType('ItemDto')
 export class ItemDto {
@@ -24,6 +25,9 @@ export class ItemDto {
 
   @Expose()
   rarity: Rarity;
+
+  @Expose()
+  material: Material[];
 
   @Expose()
   unityKey: string;
