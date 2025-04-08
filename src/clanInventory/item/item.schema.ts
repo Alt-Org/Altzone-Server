@@ -7,6 +7,7 @@ import { Recycling } from './enum/recycling.enum';
 import { ItemName } from './enum/itemName.enum';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
+import { Material } from './enum/material.enum';
 
 export type ItemDocument = HydratedDocument<Item>;
 
@@ -23,6 +24,9 @@ export class Item {
 
   @Prop({ type: String, required: true })
   rarity: Rarity;
+
+  @Prop({ type: Array<string>, enum: Material, default: [] })
+  material: Material[];
 
   @Prop({ type: String, required: true })
   unityKey: string;
