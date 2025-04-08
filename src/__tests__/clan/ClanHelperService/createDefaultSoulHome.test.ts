@@ -76,7 +76,7 @@ describe('ClanHelperService.createDefaultSoulHome() test suite', () => {
         }),
         expect.objectContaining({
           room_id: itemsRoom_id,
-          unityKey: ItemName.FLOORLAMP_RAKKAUS,
+          unityKey: ItemName.LAMP_RAKKAUS,
         }),
         expect.objectContaining({
           room_id: itemsRoom_id,
