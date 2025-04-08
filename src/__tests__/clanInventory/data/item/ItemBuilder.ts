@@ -3,6 +3,7 @@ import { Recycling } from '../../../../clanInventory/item/enum/recycling.enum';
 import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
 import { Item } from '../../../../clanInventory/item/item.schema';
 import { ObjectId } from 'mongodb';
+import { Material } from '../../../../clanInventory/item/enum/material.enum';
 
 export default class ItemBuilder {
   private readonly base: Partial<Item> = {
@@ -10,6 +11,7 @@ export default class ItemBuilder {
     weight: 1,
     recycling: Recycling.GLASS,
     rarity: Rarity.common,
+    material: [],
     unityKey: 'defaultUnityKey',
     location: [0, 0],
     price: 10,
@@ -39,6 +41,11 @@ export default class ItemBuilder {
 
   setRarityLevel(rarity: Rarity) {
     this.base.rarity = rarity;
+    return this;
+  }
+
+  setMaterial(materials: Material[]) {
+    this.base.material = materials;
     return this;
   }
 
