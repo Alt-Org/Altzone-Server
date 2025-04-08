@@ -22,6 +22,9 @@ export enum Material {
   LASTULEVY = 'lastulevy',
   POSLIINI = 'posliini',
   TERÄS = 'teräs',
-  PEILILASI = 'peililasi',
   TEIPPI = 'teippi',
+  SAVI = 'savi',
+  MELAMIINI = 'melamiini',
+  KALUSTELEVY = 'kalustelevy',
+  MAALI = 'maali',
 }
