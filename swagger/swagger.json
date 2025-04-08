@@ -408,15 +408,34 @@
                                             "data": {
                                                 "Profile": {
                                                     "objectType": "ProfileDto",
-                                                    "_id": "667ee778b3b5bf0f7a840ec9",
-                                                    "username": "user6",
+                                                    "_id": "67f4edd23400a692df072d51",
+                                                    "username": "user4",
                                                     "Player": {
                                                         "objectType": "PlayerDto",
-                                                        "_id": "667ee778b3b5bf0f7a840ecb",
-                                                        "name": "User 6",
-                                                        "backpackCapacity": 34,
-                                                        "uniqueIdentifier": "6",
-                                                        "profile_id": "667ee778b3b5bf0f7a840ec9"
+                                                        "_id": "67f4edd23400a692df072d53",
+                                                        "name": "user4",
+                                                        "points": 0,
+                                                        "backpackCapacity": 10,
+                                                        "uniqueIdentifier": "user4",
+                                                        "above13": true,
+                                                        "parentalAuth": true,
+                                                        "gameStatistics": {
+                                                            "objectType": "GameStatisticsDto"
+                                                        },
+                                                        "battleCharacter_ids": [],
+                                                        "profile_id": "67f4edd23400a692df072d51",
+                                                        "avatar": {
+                                                            "head": 1,
+                                                            "hair": 1,
+                                                            "eyes": 1,
+                                                            "nose": 1,
+                                                            "mouth": 1,
+                                                            "eyebrows": 1,
+                                                            "clothes": 1,
+                                                            "feet": 1,
+                                                            "hands": 1,
+                                                            "skinColor": "#f5cba7"
+                                                        }
                                                     }
                                                 }
                                             },
@@ -495,25 +514,40 @@
                                             "data": {
                                                 "Player": [
                                                     {
-                                                        "_id": "672388e8c7f8bb9dd570e83b",
-                                                        "name": "user1",
-                                                        "points": 110,
-                                                        "uniqueIdentifier": "user1",
+                                                        "_id": "67f4edd23400a692df072d53",
+                                                        "name": "user4",
+                                                        "backpackCapacity": 10,
+                                                        "points": 0,
+                                                        "uniqueIdentifier": "user4",
                                                         "above13": true,
                                                         "parentalAuth": true,
-                                                        "profile_id": "672388e8c7f8bb9dd570e839",
-                                                        "clan_id": "67238943c7f8bb9dd570e850",
-                                                        "gameStatistics": {
-                                                            "playedBattles": 0,
-                                                            "wonBattles": 0,
-                                                            "messages": [
-                                                                {
-                                                                    "date": "2024-10-31T18:05:02.641Z",
-                                                                    "count": 11
-                                                                }
-                                                            ]
+                                                        "profile_id": "67f4edd23400a692df072d51",
+                                                        "avatar": {
+                                                            "head": 1,
+                                                            "hair": 1,
+                                                            "eyes": 1,
+                                                            "nose": 1,
+                                                            "mouth": 1,
+                                                            "eyebrows": 1,
+                                                            "clothes": 1,
+                                                            "feet": 1,
+                                                            "hands": 1,
+                                                            "skinColor": "#f5cba7"
                                                         },
-                                                        "id": "672388e8c7f8bb9dd570e83b"
+                                                        "battleCharacter_ids": [],
+                                                        "id": "67f4edd23400a692df072d53"
+                                                    },
+                                                    {
+                                                        "_id": "67e94f6c7a9831065fadbbc7",
+                                                        "name": "user3",
+                                                        "backpackCapacity": 10,
+                                                        "points": 0,
+                                                        "uniqueIdentifier": "user3",
+                                                        "above13": true,
+                                                        "parentalAuth": true,
+                                                        "profile_id": "67e94f6c7a9831065fadbbc5",
+                                                        "battleCharacter_ids": [],
+                                                        "id": "67e94f6c7a9831065fadbbc7"
                                                     }
                                                 ]
                                             },
@@ -521,13 +555,13 @@
                                                 "dataKey": "Player",
                                                 "modelName": "Player",
                                                 "dataType": "Array",
-                                                "dataCount": 1
+                                                "dataCount": 2
                                             },
                                             "paginationData": {
                                                 "currentPage": 1,
-                                                "limit": 1,
+                                                "limit": 20,
                                                 "offset": 0,
-                                                "itemCount": 1,
+                                                "itemCount": 2,
                                                 "pageCount": 1
                                             }
                                         }
@@ -701,25 +735,29 @@
                                         "value": {
                                             "data": {
                                                 "Player": {
-                                                    "_id": "672388e8c7f8bb9dd570e83b",
-                                                    "name": "user1",
-                                                    "points": 110,
-                                                    "uniqueIdentifier": "user1",
+                                                    "_id": "67f4edd23400a692df072d53",
+                                                    "name": "user4",
+                                                    "backpackCapacity": 10,
+                                                    "points": 0,
+                                                    "uniqueIdentifier": "user4",
                                                     "above13": true,
                                                     "parentalAuth": true,
-                                                    "profile_id": "672388e8c7f8bb9dd570e839",
-                                                    "clan_id": "67238943c7f8bb9dd570e850",
-                                                    "gameStatistics": {
-                                                        "playedBattles": 0,
-                                                        "wonBattles": 0,
-                                                        "messages": [
-                                                            {
-                                                                "date": "2024-10-31T18:05:02.641Z",
-                                                                "count": 11
-                                                            }
-                                                        ]
+                                                    "profile_id": "67f4edd23400a692df072d51",
+                                                    "avatar": {
+                                                        "head": 1,
+                                                        "hair": 1,
+                                                        "eyes": 1,
+                                                        "nose": 1,
+                                                        "mouth": 1,
+                                                        "eyebrows": 1,
+                                                        "clothes": 1,
+                                                        "feet": 1,
+                                                        "hands": 1,
+                                                        "skinColor": "#f5cba7"
                                                     },
-                                                    "id": "672388e8c7f8bb9dd570e83b"
+                                                    "battleCharacter_ids": [],
+                                                    "__v": 0,
+                                                    "id": "67f4edd23400a692df072d53"
                                                 }
                                             },
                                             "metaData": {
@@ -5226,6 +5264,78 @@
                 "summary": "Update daily tasks managed by UI",
                 "description": "Endpoint for updating daily tasks, which can be registered only on the client side, such as \"press a button\".\n\nNotice that although it is possible to make a request to update basically any daily task progress by its _id, only daily tasks that are present in the [UITaskName](https://github.com/Alt-Org/Altzone-Server/blob/dev/src/dailyTasks/enum/uiTaskName.enum.ts) enum can be updated via it.\n"
             }
+        },
+        "/online-players": {
+            "get": {
+                "tags": [
+                    "online-players"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Object": [
+                                                    "67e927d943df46974a7dc0cc"
+                                                ]
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Object",
+                                                "modelName": "Object",
+                                                "dataType": "Array",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get all players online",
+                "description": "All the player being online.\n\nIf a player made a request to /online-players/ping POST endpoint withing 5 min, he / she will be considered online and will be in the returned list for this endpoint."
+            }
+        },
+        "/online-players/ping": {
+            "post": {
+                "requestBody": {},
+                "tags": [
+                    "online-players"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Inform the API that the player is still online",
+                "description": "The player is considered to be online if he / she has made a request to this endpoint at least once a 5 min.\n\nSo it is recomended to make requests to this endpoint every 4-5 min to properly track the players being online, although not often than that."
+            }
         }
     },
     "components": {
@@ -5428,6 +5538,52 @@
                                 "description": "The current avatar ID of the player",
                                 "type": "integer",
                                 "example": 101
+                            },
+                            "avatar": {
+                                "description": "The player avatar data",
+                                "type": "object",
+                                "properties": {
+                                    "head": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "hair": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "eyes": {
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "nose": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "mouth": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "eyebrows": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "clothes": {
+                                        "type": "integer",
+                                        "example": 4
+                                    },
+                                    "feet": {
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "hands": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "skinColor": {
+                                        "type": "string",
+                                        "example": "#F5CBA7"
+                                    }
+                                }
                             }
                         }
                     }
@@ -5443,6 +5599,12 @@
                         "description": "The _id of the clan to be updated",
                         "type": "string",
                         "example": "667462842425aea94d0f66cb"
+                    },
+                    "name": {
+                        "description": "name of the clan, unique",
+                        "maxLength": 20,
+                        "type": "string",
+                        "example": "my_clan"
                     },
                     "isOpen": {
                         "description": "whenever the clan is open or closed",
@@ -5658,6 +5820,52 @@
                         "type": "integer",
                         "example": 101
                     },
+                    "avatar": {
+                        "description": "The player avatar data",
+                        "type": "object",
+                        "properties": {
+                            "head": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "hair": {
+                                "type": "integer",
+                                "example": 2
+                            },
+                            "eyes": {
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "nose": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "mouth": {
+                                "type": "integer",
+                                "example": 2
+                            },
+                            "eyebrows": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "clothes": {
+                                "type": "integer",
+                                "example": 4
+                            },
+                            "feet": {
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "hands": {
+                                "type": "integer",
+                                "example": 2
+                            },
+                            "skinColor": {
+                                "type": "string",
+                                "example": "#F5CBA7"
+                            }
+                        }
+                    },
                     "profile_id": {
                         "description": "The MongoDB ID of the player’s profile",
                         "type": "string",
@@ -5720,6 +5928,52 @@
                         "type": "integer",
                         "example": 202
                     },
+                    "avatar": {
+                        "description": "The player avatar data",
+                        "type": "object",
+                        "properties": {
+                            "head": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "hair": {
+                                "type": "integer",
+                                "example": 2
+                            },
+                            "eyes": {
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "nose": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "mouth": {
+                                "type": "integer",
+                                "example": 2
+                            },
+                            "eyebrows": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "clothes": {
+                                "type": "integer",
+                                "example": 4
+                            },
+                            "feet": {
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "hands": {
+                                "type": "integer",
+                                "example": 2
+                            },
+                            "skinColor": {
+                                "type": "string",
+                                "example": "#F5CBA7"
+                            }
+                        }
+                    },
                     "clan_id": {
                         "description": "The MongoDB ID of the player’s clan",
                         "type": "string",
@@ -5743,6 +5997,7 @@
                 "properties": {
                     "name": {
                         "description": "name of the clan, unique",
+                        "maxLength": 20,
                         "type": "string",
                         "example": "my_clan"
                     },
@@ -7060,6 +7315,10 @@
         {
             "name": "Box",
             "description": "Testing box data"
+        },
+        {
+            "name": "online-players",
+            "description": "Information about online players"
         }
     ],
     "externalDocs": {
