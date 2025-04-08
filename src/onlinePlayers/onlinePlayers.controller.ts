@@ -9,8 +9,9 @@ export class OnlinePlayersController {
   constructor(private readonly onlinePlayersService: OnlinePlayersService) {}
 
   @Post('ping')
+  @UniformResponse()
   async ping(@LoggedUser() user: User) {
-    return this.onlinePlayersService.addPlayerOnline(user.player_id);
+    this.onlinePlayersService.addPlayerOnline(user.player_id);
   }
 
   @Get()
