@@ -2,14 +2,14 @@ import { ClanShopScheduler } from '../../../clanShop/clanShop.scheduler';
 import ClanShopModule from '../modules/clanShop.module';
 import { Rarity } from '../../../clanInventory/item/enum/rarity.enum';
 
-describe('ClanShopScheduler - getRandomItems', () => {
+describe('ClanShopScheduler.getRandomItems() test suite', () => {
   let scheduler: ClanShopScheduler;
 
   beforeEach(async () => {
     scheduler = await ClanShopModule.getClanShopScheduler();
   });
 
-  it('should return 5 common, 3 rare and 1 epic items', () => {
+  it('Should return 5 common, 3 rare and 1 epic items', () => {
     const items = scheduler['getRandomItems']();
 
     const commonItems = items.filter((item) => item.rarity === Rarity.common);
@@ -21,14 +21,14 @@ describe('ClanShopScheduler - getRandomItems', () => {
     expect(epicItems.length).toBe(1);
   });
 
-  it('should return a randomized selection of items', () => {
+  it('Should return a randomized selection of items', () => {
     const firstItems = scheduler['getRandomItems']();
     const secondItems = scheduler['getRandomItems']();
 
     expect(firstItems).not.toEqual(secondItems);
   });
 
-  it('should include unique items', () => {
+  it('Should include unique items', () => {
     const items = scheduler['getRandomItems']();
 
     const itemsSet = new Set(items);

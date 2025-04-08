@@ -17,7 +17,7 @@ export class ClanShopScheduler {
   currentShopItems: ItemProperty[];
 
   /**
-   * Updates the shop items everyday at midnight.
+   * Updates the shop items every day at midnight.
    */
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   private async resetShopItems() {
