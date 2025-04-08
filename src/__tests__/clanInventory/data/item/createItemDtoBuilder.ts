@@ -1,7 +1,7 @@
 import { CreateItemDto } from '../../../../clanInventory/item/dto/createItem.dto';
 import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
+import { Rarity } from '../../../../clanInventory/item/enum/rarity.enum';
 import { Recycling } from '../../../../clanInventory/item/enum/recycling.enum';
-import { QualityLevel } from '../../../../clanInventory/item/enum/qualityLevel.enum';
 import { ObjectId } from 'mongodb';
 
 export default class CreateItemDtoBuilder {
@@ -9,7 +9,7 @@ export default class CreateItemDtoBuilder {
     name: ItemName.ARMCHAIR_RAKKAUS,
     weight: 1,
     recycling: Recycling.GLASS,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
     unityKey: 'defaultUnityKey',
     location: [0, 0],
     price: 10,
@@ -37,8 +37,8 @@ export default class CreateItemDtoBuilder {
     return this;
   }
 
-  setQualityLevel(qualityLevel: QualityLevel) {
-    this.base.qualityLevel = qualityLevel;
+  setRarityLevel(rarity: Rarity) {
+    this.base.rarity = rarity;
     return this;
   }
 

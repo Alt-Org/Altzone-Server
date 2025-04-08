@@ -1,6 +1,6 @@
 import { ItemService } from '../../../../clanInventory/item/item.service';
 import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
-import { QualityLevel } from '../../../../clanInventory/item/enum/qualityLevel.enum';
+import { Rarity } from '../../../../clanInventory/item/enum/rarity.enum';
 import ItemModule from '../../modules/item.module';
 import ClanInventoryBuilderFactory from '../../data/clanInventoryBuilderFactory';
 
@@ -11,17 +11,17 @@ describe('ItemService.updateMany() test suite', () => {
 
   const item1 = itemBuilder
     .setName(ItemName.ARMCHAIR_RAKKAUS)
-    .setQualityLevel(QualityLevel.common)
+    .setRarityLevel(Rarity.common)
     .build();
   const item2 = itemBuilder
     .setName(ItemName.CLOSET_RAKKAUS)
-    .setQualityLevel(QualityLevel.common)
+    .setRarityLevel(Rarity.common)
     .build();
   const item3 = itemBuilder
     .setName(ItemName.SOFATABLE_RAKKAUS)
-    .setQualityLevel(QualityLevel.common)
+    .setRarityLevel(Rarity.common)
     .build();
-  const allItemsFilter = { qualityLevel: QualityLevel.common };
+  const allItemsFilter = { rarity: Rarity.common };
 
   beforeEach(async () => {
     itemService = await ItemModule.getItemService();

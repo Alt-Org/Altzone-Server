@@ -10,7 +10,7 @@ import {
   ArrayMaxSize,
 } from 'class-validator';
 import { IsStockExists } from '../../stock/decorator/validation/IsStockExists.decorator';
-import { QualityLevel } from '../enum/qualityLevel.enum';
+import { Rarity } from '../enum/rarity.enum';
 import { Recycling } from '../enum/recycling.enum';
 import { ItemName } from '../enum/itemName.enum';
 import AddType from '../../../common/base/decorator/AddType.decorator';
@@ -26,8 +26,8 @@ export class CreateItemDto {
   @IsEnum(Recycling)
   recycling: Recycling;
 
-  @IsEnum(QualityLevel)
-  qualityLevel: QualityLevel;
+  @IsEnum(Rarity)
+  rarity: Rarity;
 
   @IsString()
   unityKey: string;

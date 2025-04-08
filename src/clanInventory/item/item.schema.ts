@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { Stock } from '../stock/stock.schema';
 import { Room } from '../room/room.schema';
-import { QualityLevel } from './enum/qualityLevel.enum';
+import { Rarity } from './enum/rarity.enum';
 import { Recycling } from './enum/recycling.enum';
 import { ItemName } from './enum/itemName.enum';
 import { ModelName } from '../../common/enum/modelName.enum';
@@ -22,7 +22,7 @@ export class Item {
   recycling: Recycling;
 
   @Prop({ type: String, required: true })
-  qualityLevel: QualityLevel;
+  rarity: Rarity;
 
   @Prop({ type: String, required: true })
   unityKey: string;

@@ -1,4 +1,4 @@
-import { QualityLevel } from '../../../../clanInventory/item/enum/qualityLevel.enum';
+import { Rarity } from '../../../../clanInventory/item/enum/rarity.enum';
 import { Recycling } from '../../../../clanInventory/item/enum/recycling.enum';
 import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
 import { Item } from '../../../../clanInventory/item/item.schema';
@@ -9,7 +9,7 @@ export default class ItemBuilder {
     name: ItemName.ARMCHAIR_RAKKAUS,
     weight: 1,
     recycling: Recycling.GLASS,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
     unityKey: 'defaultUnityKey',
     location: [0, 0],
     price: 10,
@@ -37,8 +37,8 @@ export default class ItemBuilder {
     return this;
   }
 
-  setQualityLevel(qualityLevel: QualityLevel) {
-    this.base.qualityLevel = qualityLevel;
+  setRarityLevel(rarity: Rarity) {
+    this.base.rarity = rarity;
     return this;
   }
 

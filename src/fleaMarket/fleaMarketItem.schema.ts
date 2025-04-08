@@ -3,7 +3,7 @@ import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { ItemName } from '../clanInventory/item/enum/itemName.enum';
 import { Recycling } from '../clanInventory/item/enum/recycling.enum';
-import { QualityLevel } from '../clanInventory/item/enum/qualityLevel.enum';
+import { Rarity } from '../clanInventory/item/enum/rarity.enum';
 import { Status } from './enum/status.enum';
 
 export type FleaMarketItemDocument = HydratedDocument<FleaMarketItem>;
@@ -19,8 +19,8 @@ export class FleaMarketItem {
   @Prop({ type: String, enum: Recycling, required: true })
   recycling: Recycling;
 
-  @Prop({ type: String, enum: QualityLevel, required: true })
-  qualityLevel: QualityLevel;
+  @Prop({ type: String, enum: Rarity, required: true })
+  rarity: Rarity;
 
   @Prop({ type: String, required: true })
   unityKey: string;

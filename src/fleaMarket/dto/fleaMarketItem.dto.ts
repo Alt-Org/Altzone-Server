@@ -3,7 +3,7 @@ import AddType from '../../common/base/decorator/AddType.decorator';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { ItemName } from '../../clanInventory/item/enum/itemName.enum';
 import { Recycling } from '../../clanInventory/item/enum/recycling.enum';
-import { QualityLevel } from '../../clanInventory/item/enum/qualityLevel.enum';
+import { Rarity } from '../../clanInventory/item/enum/rarity.enum';
 import { Status } from '../enum/status.enum';
 
 @AddType('FleaMarketItemDto')
@@ -22,7 +22,7 @@ export class FleaMarketItemDto {
   recycling: Recycling;
 
   @Expose()
-  qualityLevel: QualityLevel;
+  rarity: Rarity;
 
   @Expose()
   unityKey: string;

@@ -1,5 +1,5 @@
 import { ItemName } from '../enum/itemName.enum';
-import { QualityLevel } from '../enum/qualityLevel.enum';
+import { Rarity } from '../enum/rarity.enum';
 import { Recycling } from '../enum/recycling.enum';
 
 /**
@@ -9,7 +9,7 @@ export type ItemProperty = {
   name: ItemName;
   weight: number;
   price: number;
-  qualityLevel: QualityLevel;
+  rarity: Rarity;
   recycling: Recycling;
   isFurniture: boolean;
 };
@@ -18,12 +18,12 @@ export type ItemProperty = {
  * Record of all defined Item properties
  */
 export const itemProperties: Record<ItemName, ItemProperty> = {
-  //Sofas
+  // SOFAS
   [ItemName.SOFA_TAAKKA]: {
     name: ItemName.SOFA_TAAKKA,
     weight: 30,
     price: 150,
-    qualityLevel: QualityLevel.rare,
+    rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
   },
@@ -31,17 +31,49 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     name: ItemName.SOFA_RAKKAUS,
     weight: 27,
     price: 130,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: true,
+  },
+  [ItemName.SOFA_MUISTOJA]: {
+    name: ItemName.SOFA_MUISTOJA,
+    weight: 20,
+    price: 100,
+    rarity: Rarity.common,
+    recycling: Recycling.WOOD,
+    isFurniture: true,
+  },
+  [ItemName.SOFA_UNI]: {
+    name: ItemName.SOFA_UNI,
+    weight: 15,
+    price: 130,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: true,
+  },
+  [ItemName.SOFA_KIPU]: {
+    name: ItemName.SOFA_KIPU,
+    weight: 80,
+    price: 125,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: true,
+  },
+  [ItemName.SOFA_KYLMÄ_TULEVAISUUS]: {
+    name: ItemName.SOFA_KYLMÄ_TULEVAISUUS,
+    weight: 35,
+    price: 150,
+    rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
   },
 
-  //Chairs
+  // CHAIRS
   [ItemName.ARMCHAIR_TAAKKA]: {
     name: ItemName.ARMCHAIR_TAAKKA,
     weight: 16,
     price: 120,
-    qualityLevel: QualityLevel.rare,
+    rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
   },
@@ -49,7 +81,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     name: ItemName.ARMCHAIR_RAKKAUS,
     weight: 13,
     price: 100,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
   },
@@ -57,7 +89,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     name: ItemName.CHAIR_NEURO,
     weight: 10,
     price: 170,
-    qualityLevel: QualityLevel.epic,
+    rarity: Rarity.epic,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
   },
@@ -65,35 +97,125 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     name: ItemName.STOOL_NEURO,
     weight: 4,
     price: 40,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
   },
+  [ItemName.CHAIR_POLARITY]: {
+    name: ItemName.CHAIR_POLARITY,
+    weight: 5,
+    price: 60,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: true,
+  },
+  [ItemName.ARMCHAIR_MUISTOJA]: {
+    name: ItemName.ARMCHAIR_MUISTOJA,
+    weight: 5,
+    price: 60,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: true,
+  },
+  [ItemName.ARMCHAIR_KYLMÄ_TULEVAISUUS]: {
+    name: ItemName.ARMCHAIR_KYLMÄ_TULEVAISUUS,
+    weight: 20,
+    price: 70,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: true,
+  },
+  [ItemName.CHAIR_KIPU]: {
+    name: ItemName.CHAIR_KIPU,
+    weight: 15,
+    price: 65,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: true,
+  },
+  [ItemName.HANGINGCHAIR_UNI]: {
+    name: ItemName.HANGINGCHAIR_UNI,
+    weight: undefined,
+    price: 240,
+    rarity: Rarity.epic,
+    recycling: undefined,
+    isFurniture: undefined,
+  },
 
-  //Lamp
+  // LAMPS
   [ItemName.FLOORLAMP_TAAKKA]: {
     name: ItemName.FLOORLAMP_TAAKKA,
     weight: 2.8,
     price: 240,
-    qualityLevel: QualityLevel.epic,
+    rarity: Rarity.epic,
     recycling: Recycling.ELECTRICAL_EQUIPMENT,
     isFurniture: false,
   },
-  [ItemName.FLOORLAMP_RAKKAUS]: {
-    name: ItemName.FLOORLAMP_TAAKKA,
+  [ItemName.LAMP_RAKKAUS]: {
+    name: ItemName.LAMP_RAKKAUS,
     weight: 2,
     price: 200,
-    qualityLevel: QualityLevel.epic,
+    rarity: Rarity.epic,
     recycling: Recycling.GLASS,
     isFurniture: false,
   },
+  [ItemName.TABLELAMP_UNI]: {
+    name: ItemName.TABLELAMP_UNI,
+    weight: undefined,
+    price: undefined,
+    rarity: Rarity.epic,
+    recycling: undefined,
+    isFurniture: undefined,
+  },
+  [ItemName.CEILINGLAMP_UNI]: {
+    name: ItemName.CEILINGLAMP_UNI,
+    weight: undefined,
+    price: undefined,
+    rarity: Rarity.epic,
+    recycling: undefined,
+    isFurniture: undefined,
+  },
 
-  //Tables
+  // PLANTS
+  [ItemName.FICUS_MUISTOJA]: {
+    name: ItemName.FICUS_MUISTOJA,
+    weight: 3,
+    price: 120,
+    rarity: Rarity.rare,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: false,
+  },
+  [ItemName.FLOWERS_MUISTOJA]: {
+    name: ItemName.FLOWERS_MUISTOJA,
+    weight: 1,
+    price: 50,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: false,
+  },
+
+  // TABLES
+  [ItemName.WORK_TABLE]: {
+    name: ItemName.WORK_TABLE,
+    weight: 30,
+    price: 100,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: true,
+  },
   [ItemName.SOFATABLE_TAAKKA]: {
     name: ItemName.SOFATABLE_TAAKKA,
     weight: 26,
     price: 80,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
+    recycling: Recycling.WOOD,
+    isFurniture: true,
+  },
+  [ItemName.SIDETABLE_TAAKKA]: {
+    name: ItemName.SIDETABLE_TAAKKA,
+    weight: 16,
+    price: 60,
+    rarity: Rarity.common,
     recycling: Recycling.WOOD,
     isFurniture: true,
   },
@@ -101,7 +223,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     name: ItemName.DININGTABLE_RAKKAUS,
     weight: 30,
     price: 100,
-    qualityLevel: QualityLevel.rare,
+    rarity: Rarity.rare,
     recycling: Recycling.WOOD,
     isFurniture: true,
   },
@@ -109,27 +231,83 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     name: ItemName.SOFATABLE_RAKKAUS,
     weight: 20,
     price: 60,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
     recycling: Recycling.WOOD,
     isFurniture: true,
   },
+  [ItemName.COFFEETABLE_MUISTOJA]: {
+    name: ItemName.COFFEETABLE_MUISTOJA,
+    weight: 20,
+    price: 60,
+    rarity: Rarity.common,
+    recycling: Recycling.WOOD,
+    isFurniture: true,
+  },
+  [ItemName.DRESSER_MUISTOJA]: {
+    name: ItemName.DRESSER_MUISTOJA,
+    weight: 17,
+    price: 100,
+    rarity: Rarity.rare,
+    recycling: Recycling.WOOD,
+    isFurniture: true,
+  },
+  [ItemName.TABLE_POLARITY]: {
+    name: ItemName.TABLE_POLARITY,
+    weight: 10,
+    price: 80,
+    rarity: Rarity.common,
+    recycling: Recycling.METAL,
+    isFurniture: true,
+  },
+  [ItemName.SOFATABLE_UNI]: {
+    name: ItemName.SOFATABLE_UNI,
+    weight: undefined,
+    price: undefined,
+    rarity: Rarity.common,
+    recycling: undefined,
+    isFurniture: true,
+  },
+  [ItemName.NIGHTSTAND_UNI]: {
+    name: ItemName.NIGHTSTAND_UNI,
+    weight: undefined,
+    price: undefined,
+    rarity: Rarity.common,
+    recycling: undefined,
+    isFurniture: true,
+  },
+  [ItemName.TABLE_KIPU]: {
+    name: ItemName.TABLE_KIPU,
+    weight: 28,
+    price: 50,
+    rarity: Rarity.common,
+    recycling: undefined,
+    isFurniture: true,
+  },
 
-  //Beds
+  // BEDS
   [ItemName.BED_RAKKAUS]: {
     name: ItemName.BED_RAKKAUS,
     weight: 20,
     price: 200,
-    qualityLevel: QualityLevel.rare,
+    rarity: Rarity.rare,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: true,
+  },
+  [ItemName.BED_UNI]: {
+    name: ItemName.BED_UNI,
+    weight: 30,
+    price: 200,
+    rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: true,
   },
 
-  //Carpets
+  // CARPETS
   [ItemName.CARPET_SCHRODINGER]: {
     name: ItemName.CARPET_SCHRODINGER,
     weight: 6,
     price: 150,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
   },
@@ -137,17 +315,41 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     name: ItemName.CARPET_RAKKAUS,
     weight: 6,
     price: 100,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: false,
+  },
+  [ItemName.CARPET_OLD_MUISTOJA]: {
+    name: ItemName.CARPET_OLD_MUISTOJA,
+    weight: 7,
+    price: 150,
+    rarity: Rarity.rare,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: false,
+  },
+  [ItemName.CARPET_NEW_MUISTOJA]: {
+    name: ItemName.CARPET_NEW_MUISTOJA,
+    weight: 7,
+    price: 150,
+    rarity: Rarity.rare,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: false,
+  },
+  [ItemName.CARPET_UNI]: {
+    name: ItemName.CARPET_UNI,
+    weight: 3,
+    price: 90,
+    rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
     isFurniture: false,
   },
 
-  //Mirrors
+  // WALL DECOR
   [ItemName.MIRROR_SCHRODINGER]: {
     name: ItemName.MIRROR_SCHRODINGER,
     weight: 7,
     price: 150,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
     recycling: Recycling.GLASS,
     isFurniture: false,
   },
@@ -155,45 +357,109 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     name: ItemName.MIRROR_RAKKAUS,
     weight: 10,
     price: 170,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
     recycling: Recycling.GLASS,
     isFurniture: false,
   },
+  [ItemName.CLOCK_NEURO]: {
+    name: ItemName.CLOCK_NEURO,
+    weight: 1,
+    price: 40,
+    rarity: Rarity.common,
+    recycling: Recycling.ELECTRICAL_EQUIPMENT,
+    isFurniture: false,
+  },
+  [ItemName.PAINTING_MUISTOJA]: {
+    name: ItemName.PAINTING_MUISTOJA,
+    weight: 2,
+    price: 40,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: false,
+  },
+  [ItemName.DRAWINGS_MUISTOJA]: {
+    name: ItemName.DRAWINGS_MUISTOJA,
+    weight: 1,
+    price: 60,
+    rarity: Rarity.rare,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: false,
+  },
+  [ItemName.PICTURES_MUISTOJA]: {
+    name: ItemName.PICTURES_MUISTOJA,
+    weight: 2,
+    price: 60,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: false,
+  },
+  [ItemName.WINDOW_MUISTOJA]: {
+    name: ItemName.WINDOW_MUISTOJA,
+    weight: 1,
+    price: 50,
+    rarity: Rarity.common,
+    recycling: Recycling.GLASS,
+    isFurniture: false,
+  },
+  [ItemName.WINDOW_UNI]: {
+    name: ItemName.WINDOW_UNI,
+    weight: undefined,
+    price: undefined,
+    rarity: Rarity.rare,
+    recycling: undefined,
+    isFurniture: false,
+  },
+  [ItemName.PICTURES_UNI]: {
+    name: ItemName.PICTURES_UNI,
+    weight: undefined,
+    price: undefined,
+    rarity: Rarity.common,
+    recycling: undefined,
+    isFurniture: false,
+  },
+
+  // BIG MIRRORS, STATUES ETC...
   [ItemName.MIRROR_TAAKKA]: {
     name: ItemName.MIRROR_TAAKKA,
     weight: 8,
     price: 100,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
     recycling: Recycling.GLASS,
     isFurniture: false,
   },
 
-  //WC
+  // BATHROOM
   [ItemName.TOILET_SCHRODINGER]: {
     name: ItemName.TOILET_SCHRODINGER,
     weight: 31,
     price: 150,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
     recycling: Recycling.LANDFILL,
     isFurniture: false,
   },
-
-  //Washing
   [ItemName.SINK_SCHRODINGER]: {
     name: ItemName.SINK_SCHRODINGER,
     weight: 13,
     price: 150,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
+    recycling: Recycling.LANDFILL,
+    isFurniture: false,
+  },
+  [ItemName.BATHTUB_SCHRODINGER]: {
+    name: ItemName.BATHTUB_SCHRODINGER,
+    weight: 50,
+    price: 1150,
+    rarity: Rarity.epic,
     recycling: Recycling.LANDFILL,
     isFurniture: false,
   },
 
-  //Closets
+  // CLOSETS AND SHELVES
   [ItemName.CLOSET_TAAKKA]: {
     name: ItemName.CLOSET_TAAKKA,
     weight: 48,
     price: 120,
-    qualityLevel: QualityLevel.rare,
+    rarity: Rarity.rare,
     recycling: Recycling.WOOD,
     isFurniture: true,
   },
@@ -201,7 +467,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     name: ItemName.CLOSET_RAKKAUS,
     weight: 45,
     price: 130,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
     recycling: Recycling.WOOD,
     isFurniture: true,
   },
@@ -209,8 +475,106 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     name: ItemName.DRESSER_NEURO,
     weight: 24,
     price: 100,
-    qualityLevel: QualityLevel.rare,
+    rarity: Rarity.rare,
     recycling: Recycling.WOOD,
     isFurniture: true,
+  },
+  [ItemName.BOOKSHELF_POLARITY]: {
+    name: ItemName.BOOKSHELF_POLARITY,
+    weight: 40,
+    price: 120,
+    rarity: Rarity.rare,
+    recycling: Recycling.METAL,
+    isFurniture: true,
+  },
+  [ItemName.CLOSET_UNI]: {
+    name: ItemName.CLOSET_UNI,
+    weight: 40,
+    price: 240,
+    rarity: Rarity.epic,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: true,
+  },
+  [ItemName.CLOSET_KIPU]: {
+    name: ItemName.CLOSET_KIPU,
+    weight: 50,
+    price: 150,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: true,
+  },
+
+  // MISC
+  [ItemName.TOY_FOX_MUISTOJA]: {
+    name: ItemName.TOY_FOX_MUISTOJA,
+    weight: 1,
+    price: 70,
+    rarity: Rarity.rare,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: false,
+  },
+  [ItemName.CANDLES_RAKKAUS]: {
+    name: ItemName.CANDLES_RAKKAUS,
+    weight: 0.3,
+    price: 30,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: false,
+  },
+  [ItemName.BOOK_PILE_RAKKAUS]: {
+    name: ItemName.BOOK_PILE_RAKKAUS,
+    weight: 3,
+    price: 60,
+    rarity: Rarity.rare,
+    recycling: undefined,
+    isFurniture: false,
+  },
+  [ItemName.ELEPHANT_RAKKAUS]: {
+    name: ItemName.ELEPHANT_RAKKAUS,
+    weight: 1,
+    price: 100,
+    rarity: Rarity.epic,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: false,
+  },
+  [ItemName.FLOWER_RAKKAUS]: {
+    name: ItemName.FLOWER_RAKKAUS,
+    weight: 2,
+    price: 50,
+    rarity: Rarity.common,
+    recycling: undefined,
+    isFurniture: false,
+  },
+  [ItemName.BOOK_RAKKAUS]: {
+    name: ItemName.BOOK_RAKKAUS,
+    weight: 0.5,
+    price: 30,
+    rarity: Rarity.common,
+    recycling: undefined,
+    isFurniture: false,
+  },
+  [ItemName.PILLOW_RAKKAUS]: {
+    name: ItemName.PILLOW_RAKKAUS,
+    weight: 0.5,
+    price: 50,
+    rarity: Rarity.common,
+    recycling: Recycling.MIXED_WASTE,
+    isFurniture: false,
+  },
+  [ItemName.PLANT_KIPU]: {
+    name: ItemName.PLANT_KIPU,
+    weight: 1.5,
+    price: 25,
+    rarity: Rarity.common,
+    recycling: undefined,
+    isFurniture: false,
+  },
+  [ItemName.HOLOGRAM_KYLMÄ_TULEVAISUUS]: {
+    name: ItemName.HOLOGRAM_KYLMÄ_TULEVAISUUS,
+    weight: 0,
+    price: 200,
+    rarity: Rarity.epic,
+    recycling: undefined,
+    isFurniture: false,
   },
 };
