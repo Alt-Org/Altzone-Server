@@ -23,7 +23,7 @@ export class FleaMarketItem {
   @Prop({ type: String, enum: Rarity, required: true })
   rarity: Rarity;
 
-  @Prop({ type: Array<string>, enum: Material, default: [] })
+  @Prop({ type: [String], enum: Material, default: [] })
   material: Material[];
 
   @Prop({ type: String, required: true })
