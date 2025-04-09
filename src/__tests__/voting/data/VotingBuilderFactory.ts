@@ -3,6 +3,8 @@ import CreateStartItemVotingParamsDtoBuilder from './voting/createStartItemVotin
 import CreatePlayerDtoBuilder from './player/createPlayerDtoBuilder';
 import PlayerBuilder from './player/playerBuilder';
 import FleaMarketItemDtoBuilder from './FleaMarketItem/FleaMarketItemDtoBuilder';
+import { VotingDto } from '../../../voting/dto/voting.dto';
+import VotingDtoBuilder from './voting/VotingDtoBuilder';
 
 
 type BuilderName =
@@ -11,6 +13,7 @@ type BuilderName =
   | 'CreatePlayerDtoBuilder'
   | 'Player'
   | 'FleaMarketItemDto'
+  | 'VotingDto'
   
   ;
 
@@ -20,6 +23,7 @@ type BuilderMap = {
   CreatePlayerDtoBuilder: CreatePlayerDtoBuilder;
   Player: PlayerBuilder;
   FleaMarketItemDto: FleaMarketItemDtoBuilder;
+  VotingDto: VotingDtoBuilder;
 };
 
 export default class VotingBuilderFactory {
@@ -35,6 +39,8 @@ export default class VotingBuilderFactory {
               return new CreatePlayerDtoBuilder() as BuilderMap[T];
       case 'FleaMarketItemDto':
               return new FleaMarketItemDtoBuilder() as BuilderMap[T];
+      case 'VotingDto':
+              return new VotingDtoBuilder() as BuilderMap[T];
       default:
         throw new Error(`Unknown builder name: ${builderName}`);
     }
