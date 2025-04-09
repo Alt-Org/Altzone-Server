@@ -25,14 +25,14 @@ export class Item {
   @Prop({ type: String, required: true })
   rarity: Rarity;
 
-  @Prop({ type: Array<string>, enum: Material, default: [] })
+  @Prop({ type: [String], enum: Material, default: [] })
   material: Material[];
 
   @Prop({ type: String, required: true })
   unityKey: string;
 
-  @Prop({ type: Array<number>, required: true })
-  location: Array<number>;
+  @Prop({ type: [Number], required: true })
+  location: number[];
 
   @Prop({ type: Number, required: true })
   price: number;

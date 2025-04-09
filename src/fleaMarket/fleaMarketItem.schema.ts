@@ -5,6 +5,7 @@ import { ItemName } from '../clanInventory/item/enum/itemName.enum';
 import { Recycling } from '../clanInventory/item/enum/recycling.enum';
 import { Rarity } from '../clanInventory/item/enum/rarity.enum';
 import { Status } from './enum/status.enum';
+import { Material } from '../clanInventory/item/enum/material.enum';
 
 export type FleaMarketItemDocument = HydratedDocument<FleaMarketItem>;
 
@@ -21,6 +22,9 @@ export class FleaMarketItem {
 
   @Prop({ type: String, enum: Rarity, required: true })
   rarity: Rarity;
+
+  @Prop({ type: [String], enum: Material, default: [] })
+  material: Material[];
 
   @Prop({ type: String, required: true })
   unityKey: string;
