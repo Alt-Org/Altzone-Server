@@ -110,7 +110,7 @@ describe('ClanService.updateOneById() test suite', () => {
     expect(wasUpdated).toBeTruthy();
 
     const updatedClan = await clanModel.findById(existingClan._id);
-    expect(updatedClan.admin_ids).toEqual([admin1._id]);
+    expect(updatedClan.admin_ids).toEqual([admin1._id.toString()]);
   });
 
   //TODO: strange behavior with _id fields for players and clans, if they are of different types (ObjectID or string)
