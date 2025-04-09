@@ -5,6 +5,7 @@ import { Clan } from '../../../../clan/clan.schema';
 import { ClanLabel } from '../../../../clan/enum/clanLabel.enum';
 import { AgeRange } from '../../../../clan/enum/ageRange.enum';
 import { Goal } from '../../../../clan/enum/goal.enum';
+import { ClanRole } from '../../../../clan/role/ClanRole.schema';
 
 export default class ClanBuilder implements IDataBuilder<Clan> {
   private readonly base: Clan = {
@@ -24,6 +25,7 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
     phrase: 'We are the best',
     language: Language.ENGLISH,
     clanLogo: { logoType: LogoType.HEART, pieceColors: ['#FFFFFF', '#000000'] },
+    roles: [],
   };
 
   // Returns a new Clan object with the current base properties
@@ -103,6 +105,11 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
 
   setLanguage(language: Language) {
     this.base.language = language;
+    return this;
+  }
+
+  setRoles(roles: ClanRole[]) {
+    this.base.roles = roles;
     return this;
   }
 }
