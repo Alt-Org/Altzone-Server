@@ -30,7 +30,7 @@ export const MemberClanRole: Omit<ClanRole, '_id'> = {
  * Named role, which is used with clan default roles on initialization
  */
 export const ElderClanRole: Omit<ClanRole, '_id'> = {
-  name: 'member',
+  name: 'elder',
   claRoleType: ClanRoleType.NAMED,
   rights: {
     [ClanBasicRight.EDIT_SOULHOME]: true,
