@@ -10,7 +10,7 @@ export enum ClanBasicRight {
   /**
    * Change clan data
    */
-  EDIT_CLAN_DATA = 'edit_clan.data',
+  EDIT_CLAN_DATA = 'edit_clan_data',
 
   /**
    * Add and remove any basic right of any clan member except for clan leaders. As well as change a role of any clan member.

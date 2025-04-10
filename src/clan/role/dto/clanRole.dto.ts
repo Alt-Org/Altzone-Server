@@ -12,7 +12,7 @@ export default class ClanRoleDto {
   name: string;
 
   @Expose()
-  claRoleType: ClanRoleType;
+  clanRoleType: ClanRoleType;
 
   @Expose()
   rights: Partial<Record<ClanBasicRight, true>>;
