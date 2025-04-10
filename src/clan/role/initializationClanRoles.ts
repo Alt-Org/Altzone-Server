@@ -7,7 +7,7 @@ import { ClanBasicRight } from './enum/clanBasicRight.enum';
  */
 export const LeaderClanRole: Omit<ClanRole, '_id'> = {
   name: 'leader',
-  claRoleType: ClanRoleType.DEFAULT,
+  clanRoleType: ClanRoleType.DEFAULT,
   rights: {
     [ClanBasicRight.EDIT_SOULHOME]: true,
     [ClanBasicRight.EDIT_CLAN_DATA]: true,
@@ -22,7 +22,7 @@ export const LeaderClanRole: Omit<ClanRole, '_id'> = {
  */
 export const MemberClanRole: Omit<ClanRole, '_id'> = {
   name: 'member',
-  claRoleType: ClanRoleType.DEFAULT,
+  clanRoleType: ClanRoleType.DEFAULT,
   rights: {},
 };
 
@@ -31,7 +31,7 @@ export const MemberClanRole: Omit<ClanRole, '_id'> = {
  */
 export const ElderClanRole: Omit<ClanRole, '_id'> = {
   name: 'elder',
-  claRoleType: ClanRoleType.NAMED,
+  clanRoleType: ClanRoleType.NAMED,
   rights: {
     [ClanBasicRight.EDIT_SOULHOME]: true,
     [ClanBasicRight.EDIT_CLAN_DATA]: true,
