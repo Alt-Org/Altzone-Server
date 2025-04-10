@@ -4,6 +4,9 @@ import VotingNotifier from '../../../voting/voting.notifier';
 import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 import { PlayerDto } from '../../../player/dto/player.dto';
 import mqtt, { MqttClient } from 'mqtt';
+import { NotificationStatus } from '../../../common/service/notificator/enum/NotificationStatus.enum';
+import { NotificationResource } from '../../..//common/service/notificator/enum/NotificationResource.enum';
+import { NotificationGroup } from '../../../common/service/notificator/enum/NotificationGroup.enum';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn()
@@ -19,21 +22,19 @@ describe('VotingNotifier.newVoting() test suite', () => {
     votingNotifier = await VotingModule.getVotingNotifier();
   });
 
-  it('Should create a voting in DB if input is valid', async () => {
+  it('Should send a notification for a new voting if input is valid', async () => {
 
-    const votingDto = votingBuilder
-      .setEndsOn(new Date(Date.now() + 1000 * 60 * 60 * 24))
-      .build();
+    const votingDto = votingBuilder.build();
 
-      const fleaMarketItem = VotingBuilderFactory.getBuilder('FleaMarketItemDto')
-          .build() as FleaMarketItemDto;
+      const fleaMarketItem = VotingBuilderFactory.getBuilder('FleaMarketItemDto').build() as FleaMarketItemDto;
 
-      const player = VotingBuilderFactory.getBuilder('CreatePlayerDtoBuilder').build() as PlayerDto;
+      const playerDto = VotingBuilderFactory.getBuilder('CreatePlayerDtoBuilder').build() as PlayerDto;
       
       const mockClient = { };
       
       (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
-      const mockReturnValue = (mockClient as MqttClient).publishAsync = jest.fn((topic, payload) => {
+
+      const  mockReturnValue =  (mockClient as MqttClient).publishAsync =  jest.fn((topic, payload) => {
         return Promise.resolve({
           cmd: 'publish',
           qos: 0,
@@ -44,10 +45,25 @@ describe('VotingNotifier.newVoting() test suite', () => {
         });
       });
 
-      await votingNotifier.newVoting(votingDto, fleaMarketItem, player);
+      await votingNotifier.newVoting(votingDto, fleaMarketItem, playerDto);
 
       expect(mqtt.connect).toHaveBeenCalledTimes(1);
 
-      expect(mockReturnValue).toHaveBeenCalledTimes(1);
+      expect(mockReturnValue.mock.calls[0][0])
+      .toEqual(`/${NotificationGroup.CLAN}/${votingDto.organizer.clan_id}/${NotificationResource.VOTING
+      }/${votingDto.type}/${NotificationStatus.NEW}`);
+      
+      expect(mockReturnValue.mock.calls[0][1])
+      .toEqual(JSON.stringify({
+        topic: `/clan/${
+          votingDto.organizer.clan_id
+        }/voting/${votingDto._id.toString()}`,
+        status: NotificationStatus.NEW,
+        voting_id: votingDto._id.toString(),
+        type: votingDto.type,
+        item: fleaMarketItem,
+        organizer: playerDto as PlayerDto
+
+      }));
   }); 
 });
