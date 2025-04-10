@@ -1,8 +1,9 @@
 import { Schema as MongooseSchema } from 'mongoose';
-import { Prop } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { Choice } from '../type/choice.type';
 
+@Schema()
 export class Vote {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
@@ -17,3 +18,5 @@ export class Vote {
   })
   choice: Choice;
 }
+
+export const VoteSchema = SchemaFactory.createForClass(Vote);

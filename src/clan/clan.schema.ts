@@ -30,7 +30,7 @@ export class Clan {
   @Prop({ type: Number, default: 0 })
   points: number;
 
-  @Prop({ type: Array<string>, default: [] })
+  @Prop({ type: [String], default: [] })
   admin_ids: string[];
 
   @Prop({ type: Number, default: 1, min: 0 })
