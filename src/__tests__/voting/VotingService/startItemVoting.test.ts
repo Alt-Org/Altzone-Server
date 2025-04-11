@@ -5,6 +5,11 @@ import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultF
 import { PlayerDto } from '../../../player/dto/player.dto';
 import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
+import mqtt, { MqttClient } from 'mqtt';
+
+jest.mock('mqtt', () => ({
+  connect: jest.fn()
+}));
 
 describe('VotingService.startItemVoting() test suite', () => {
   let votingService: VotingService;
@@ -16,7 +21,7 @@ describe('VotingService.startItemVoting() test suite', () => {
     votingService = await VotingModule.getVotingService();
   });
 
-  it('Should create a startItemVoting in DB if input is valid', async () => {
+  it('Should creates a new voting entry and sends a MQTT notification if input is valid', async () => {
     const minPercentage = 1;
     const player = VotingBuilderFactory.getBuilder('CreatePlayerDtoBuilder').build() as PlayerDto;
     const fleaMarketItem = VotingBuilderFactory.getBuilder('FleaMarketItemDto')
@@ -28,15 +33,66 @@ describe('VotingService.startItemVoting() test suite', () => {
       .setType(votingType)
       .build();
 
-    await votingService.startItemVoting(startItemVotingParamsToCreate);
+    const mockClient = { };
+        
+        (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
+    
+        const  mockReturnValue =  (mockClient as MqttClient).publishAsync =  jest.fn((topic, payload) => {
+          return Promise.resolve({
+            cmd: 'publish',
+              qos: 0,
+              dup: false,
+              retain: false,
+              topic,
+              payload,
+            });
+          });
+
+    const [voting, errors] = await votingService.startItemVoting(startItemVotingParamsToCreate);
 
     const dbData = await votingModel.findOne({ type: votingType });
 
-    const {type } = clearDBRespDefaultFields(dbData);
+    const {type,...fleaMarketItemDto } = clearDBRespDefaultFields(dbData);
 
-    //const { _id  } = { ...startItemVotingParamsToCreate };
-
+    expect(errors).toBeNull();
+    expect(voting).not.toBeNull();
     expect(type.toString()).toBe(votingType.toString());
+    expect(mqtt.connect).toHaveBeenCalledTimes(1);
+  });
 
+  it('Should return with an error if entity_id is invalid', async () => {
+    const invalidId = 'invalidId'; // Invalid ObjectId
+    const player = VotingBuilderFactory.getBuilder('CreatePlayerDtoBuilder').build() as PlayerDto;
+    const fleaMarketItem = VotingBuilderFactory
+    .getBuilder('FleaMarketItemDto')
+    .setId(invalidId) // Invalid ObjectId
+    .build() as FleaMarketItemDto;
+    const votingType = VotingType.SELLING_ITEM
+    const startItemVotingParamsToCreate = votingBuilder
+      .setPlayer(player)
+      .setItem(fleaMarketItem)
+      .setType(votingType)
+      .build();
+
+    const mockClient = { };
+        
+        (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
+    
+        const  mockReturnValue =  (mockClient as MqttClient).publishAsync =  jest.fn((topic, payload) => {
+          return Promise.resolve({
+            cmd: 'publish',
+              qos: 0,
+              dup: false,
+              retain: false,
+              topic,
+              payload,
+            });
+          });
+
+    const [voting, errors] = await votingService.startItemVoting(startItemVotingParamsToCreate);
+    
+    expect(voting).toBeNull();
+    expect(errors[0].field).toBe('entity_id');
+    expect(errors[0].value).toBe(invalidId);
   });
 });

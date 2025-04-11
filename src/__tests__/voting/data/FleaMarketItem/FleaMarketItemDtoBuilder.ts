@@ -21,4 +21,8 @@ export default class FleaMarketItemDtoBuilder implements IDataBuilder<FleaMarket
     price: 0,
     clan_id: ''
   }
+  setId(id: string): FleaMarketItemDtoBuilder {
+    this.base._id = id;
+    return this;
+  }
 }
