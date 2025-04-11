@@ -113,6 +113,7 @@ export default class SessionStarterService {
         amountLeft: dailyTask.amount,
         title: { fi: dailyTask.title },
         timeLimitMinutes: 30,
+        player_id: null,
         _id: undefined,
       };
     });

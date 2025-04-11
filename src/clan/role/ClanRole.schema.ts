@@ -35,7 +35,7 @@ export class ClanRole {
   })
   rights: Partial<Record<ClanBasicRight, true>>;
 
-  _id: ObjectId;
+  _id: ObjectId | string;
 }
 
 export const ClanRoleSchema = SchemaFactory.createForClass(ClanRole);
