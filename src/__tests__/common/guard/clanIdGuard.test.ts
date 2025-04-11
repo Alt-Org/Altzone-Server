@@ -1,5 +1,4 @@
 import { ClanIdGuard } from '../../../common/guard/clanId.guard';
-import { ExecutionContext } from '@nestjs/common';
 import { Player, PlayerSchema } from '../../../player/schemas/player.schema';
 import { APIError } from '../../../common/controller/APIError';
 import { APIErrorReason } from '../../../common/controller/APIErrorReason';
@@ -8,11 +7,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import LoggedUser from '../../test_utils/const/loggedUser';
 import * as mongoose from 'mongoose';
 import { ObjectId } from 'mongodb';
+import TestUtilDataFactory from '../../test_utils/data/TestUtilsDataFactory';
 
-describe('ClanIdGuard (with DB)', () => {
+describe('@ClanIdGuard() test suite', () => {
   let guard: ClanIdGuard;
   let playerModel: mongoose.Model<Player>;
-  let mockExecutionContext: Partial<ExecutionContext>;
+  const contextBuilder = TestUtilDataFactory.getBuilder('ExecutionContext');
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,23 +29,13 @@ describe('ClanIdGuard (with DB)', () => {
     playerModel = module.get<mongoose.Model<Player>>(
       getModelToken(Player.name),
     );
-
-    mockExecutionContext = {
-      switchToHttp: jest.fn().mockReturnValue({
-        getRequest: jest.fn(),
-      }),
-    };
   });
 
-  it('should throw an error if user is not authenticated', async () => {
+  it('Should throw an error if user is not authenticated', async () => {
     const request = { user: null };
-    (
-      mockExecutionContext.switchToHttp().getRequest as jest.Mock
-    ).mockReturnValue(request);
+    const mockExecutionContext = contextBuilder.setHttpRequest(request).build();
 
-    await expect(
-      guard.canActivate(mockExecutionContext as ExecutionContext),
-    ).rejects.toThrow(
+    await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
       new APIError({
         reason: APIErrorReason.MISCONFIGURED,
         field: 'user',
@@ -55,15 +45,11 @@ describe('ClanIdGuard (with DB)', () => {
     );
   });
 
-  it('should throw an error if player is not found in the database', async () => {
+  it('Should throw an error if player is not found in the database', async () => {
     const request = { user: { player_id: new mongoose.Types.ObjectId() } };
-    (
-      mockExecutionContext.switchToHttp().getRequest as jest.Mock
-    ).mockReturnValue(request);
+    const mockExecutionContext = contextBuilder.setHttpRequest(request).build();
 
-    await expect(
-      guard.canActivate(mockExecutionContext as ExecutionContext),
-    ).rejects.toThrow(
+    await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
       new APIError({
         reason: APIErrorReason.NOT_FOUND,
         message: 'Player not found.',
@@ -71,16 +57,12 @@ describe('ClanIdGuard (with DB)', () => {
     );
   });
 
-  it('should throw an error if player is not a member of a clan', async () => {
+  it('Should throw an error if player is not a member of a clan', async () => {
     const loggedPlayer = LoggedUser.getPlayer();
     const request = { user: { player_id: loggedPlayer._id } };
-    (
-      mockExecutionContext.switchToHttp().getRequest as jest.Mock
-    ).mockReturnValue(request);
+    const mockExecutionContext = contextBuilder.setHttpRequest(request).build();
 
-    await expect(
-      guard.canActivate(mockExecutionContext as ExecutionContext),
-    ).rejects.toThrow(
+    await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
       new APIError({
         reason: APIErrorReason.NOT_AUTHORIZED,
         message: 'Player is not a member of a clan.',
@@ -88,7 +70,7 @@ describe('ClanIdGuard (with DB)', () => {
     );
   });
 
-  it('should allow access if player is a member of a clan', async () => {
+  it('Should return true if player is a member of a clan', async () => {
     const loggedPlayer = LoggedUser.getPlayer();
     const clanId = new ObjectId().toString();
 
@@ -100,15 +82,29 @@ describe('ClanIdGuard (with DB)', () => {
     const request = {
       user: { player_id: loggedPlayer._id, clan_id: undefined },
     };
-    (
-      mockExecutionContext.switchToHttp().getRequest as jest.Mock
-    ).mockReturnValue(request);
+    const mockExecutionContext = contextBuilder.setHttpRequest(request).build();
 
-    const result = await guard.canActivate(
-      mockExecutionContext as ExecutionContext,
-    );
+    const result = await guard.canActivate(mockExecutionContext);
 
     expect(result).toBe(true);
+  });
+
+  it('Should set clan_id field of the User if player is a member of a clan', async () => {
+    const loggedPlayer = LoggedUser.getPlayer();
+    const clanId = new ObjectId().toString();
+
+    await playerModel.updateOne(
+      { _id: loggedPlayer._id },
+      { $set: { clan_id: clanId } },
+    );
+
+    const request = {
+      user: { player_id: loggedPlayer._id, clan_id: undefined },
+    };
+    const mockExecutionContext = contextBuilder.setHttpRequest(request).build();
+
+    await guard.canActivate(mockExecutionContext);
+
     expect(request.user.clan_id).toEqual(clanId);
   });
 });
