@@ -1,14 +1,14 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
-import { RequestHelperService } from '../../requestHelper/requestHelper.service';
-import { APIError } from '../../common/controller/APIError';
-import { APIErrorReason } from '../../common/controller/APIErrorReason';
-import { ModelName } from '../../common/enum/modelName.enum';
-import { PlayerDto } from '../../player/dto/player.dto';
+import { APIError } from '../controller/APIError';
+import { APIErrorReason } from '../controller/APIErrorReason';
+import { InjectModel } from '@nestjs/mongoose';
+import { Player } from '../../player/schemas/player.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class ClanIdGuard implements CanActivate {
-  constructor(private readonly requestHelperService: RequestHelperService) {}
+  constructor(@InjectModel(Player.name) public readonly model: Model<Player>) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
@@ -23,11 +23,7 @@ export class ClanIdGuard implements CanActivate {
       });
     }
 
-    const player = await this.requestHelperService.getModelInstanceById(
-      ModelName.PLAYER,
-      user.player_id,
-      PlayerDto,
-    );
+    const player = await this.model.findById(user.player_id);
 
     if (!player) {
       throw new APIError({
@@ -43,7 +39,7 @@ export class ClanIdGuard implements CanActivate {
       });
     }
 
-    user.clan_id = player.clan_id;
+    user.clan_id = player.clan_id.toString();
 
     return true;
   }
