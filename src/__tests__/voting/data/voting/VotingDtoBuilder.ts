@@ -10,7 +10,7 @@ export default class VotingDtoBuilder
 {
   private readonly base: VotingDto = {
     _id: '',
-    organizer: new Organizer,
+    organizer: new Organizer(),
     endedAt: undefined,
     startedAt: undefined,
     endsOn: undefined,

@@ -3,8 +3,9 @@ import CreateStartItemVotingParamsDtoBuilder from './voting/createStartItemVotin
 import CreatePlayerDtoBuilder from './player/createPlayerDtoBuilder';
 import PlayerBuilder from './player/playerBuilder';
 import FleaMarketItemDtoBuilder from './FleaMarketItem/FleaMarketItemDtoBuilder';
-import { VotingDto } from '../../../voting/dto/voting.dto';
 import VotingDtoBuilder from './voting/VotingDtoBuilder';
+import APIErrorBuilder from './controller/APIErrorBuilder';
+import OrganizerBuilder from './organizer/OrganizerBuilder';
 
 
 type BuilderName =
@@ -14,7 +15,8 @@ type BuilderName =
   | 'Player'
   | 'FleaMarketItemDto'
   | 'VotingDto'
-  
+  | 'ApiError'
+  | 'Organizer'
   ;
 
 type BuilderMap = {
@@ -24,6 +26,8 @@ type BuilderMap = {
   Player: PlayerBuilder;
   FleaMarketItemDto: FleaMarketItemDtoBuilder;
   VotingDto: VotingDtoBuilder;
+  ApiError: APIErrorBuilder;
+  Organizer: OrganizerBuilder;
 };
 
 export default class VotingBuilderFactory {
@@ -41,6 +45,10 @@ export default class VotingBuilderFactory {
               return new FleaMarketItemDtoBuilder() as BuilderMap[T];
       case 'VotingDto':
               return new VotingDtoBuilder() as BuilderMap[T];
+      case 'ApiError':
+              return new APIErrorBuilder() as BuilderMap[T];
+      case 'Organizer':
+              return new OrganizerBuilder() as BuilderMap[T];
       default:
         throw new Error(`Unknown builder name: ${builderName}`);
     }
