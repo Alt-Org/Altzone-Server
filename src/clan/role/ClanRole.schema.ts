@@ -2,6 +2,7 @@ import { ClanBasicRight } from './enum/clanBasicRight.enum';
 import { ClanRoleType } from './enum/clanRoleType.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
+import { areRoleRightsValid } from './decorator/validation/validators';
 
 /**
  * Defines clan role structure
@@ -28,7 +29,7 @@ export class ClanRole {
     of: Boolean,
     required: true,
     validate: {
-      validator: (map: Map<ClanBasicRight, true>) => areRightsValid(map),
+      validator: (map: Map<ClanBasicRight, true>) => areRoleRightsValid(map),
       message:
         'Rights object must have a key which is a value of ClanBasicRight enum and the value is true',
     },
@@ -39,15 +40,3 @@ export class ClanRole {
 }
 
 export const ClanRoleSchema = SchemaFactory.createForClass(ClanRole);
-
-function areRightsValid(map: Map<ClanBasicRight, true>): boolean {
-  const allowedKeys = new Set(Object.values(ClanBasicRight));
-
-  for (const [key, value] of map.entries()) {
-    if (!allowedKeys.has(key)) return false;
-
-    if (value !== true) return false;
-  }
-
-  return true;
-}
