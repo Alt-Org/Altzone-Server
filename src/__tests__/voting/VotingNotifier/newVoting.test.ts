@@ -26,17 +26,17 @@ describe('VotingNotifier.newVoting() test suite', () => {
 
     const votingDto = votingBuilder.build();
 
-      const fleaMarketItem = VotingBuilderFactory.getBuilder('FleaMarketItemDto').build() as FleaMarketItemDto;
+    const fleaMarketItem = VotingBuilderFactory.getBuilder('FleaMarketItemDto').build() as FleaMarketItemDto;
 
-      const playerDto = VotingBuilderFactory.getBuilder('CreatePlayerDtoBuilder').build() as PlayerDto;
-      
-      const mockClient = { };
-      
-      (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
+    const playerDto = VotingBuilderFactory.getBuilder('CreatePlayerDtoBuilder').build() as PlayerDto;
+    
+    const mockClient = { };
+    
+    (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
 
-      const  mockReturnValue =  (mockClient as MqttClient).publishAsync =  jest.fn((topic, payload) => {
-        return Promise.resolve({
-          cmd: 'publish',
+    const  mockReturnValue =  (mockClient as MqttClient).publishAsync =  jest.fn((topic, payload) => {
+      return Promise.resolve({
+        cmd: 'publish',
           qos: 0,
           dup: false,
           retain: false,
@@ -65,5 +65,36 @@ describe('VotingNotifier.newVoting() test suite', () => {
         organizer: playerDto as PlayerDto
 
       }));
+  }); 
+
+  it('Should return with an error if input is invalid', async () => {
+
+    const votingDto = votingBuilder.setOrganizer(null).build();
+
+    const fleaMarketItem = VotingBuilderFactory.getBuilder('FleaMarketItemDto').build() as FleaMarketItemDto;
+
+    const playerDto = VotingBuilderFactory.getBuilder('CreatePlayerDtoBuilder').build() as PlayerDto;
+    
+    const mockClient = { };
+    
+    (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
+
+    const  mockReturnValue =  (mockClient as MqttClient).publishAsync =  jest.fn((topic, payload) => {
+      return Promise.resolve({
+        cmd: 'publish',
+          qos: 0,
+          dup: false,
+          retain: false,
+          topic,
+          payload,
+        });
+      });
+
+      try {
+        await votingNotifier.newVoting(votingDto, fleaMarketItem, playerDto);
+      } catch (error) {
+        console.log(error);
+        expect(error).toEqual(new TypeError('Cannot read properties of null (reading \'clan_id\')'));
+      }
   }); 
 });
