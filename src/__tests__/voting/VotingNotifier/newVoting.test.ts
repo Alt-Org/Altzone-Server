@@ -69,7 +69,7 @@ describe('VotingNotifier.newVoting() test suite', () => {
 
   it('Should return with an error if input is invalid', async () => {
 
-    const votingDto = votingBuilder.setOrganizer(null).build();
+    const votingDto = votingBuilder.setOrganizer(null).build(); //add error to the input
 
     const fleaMarketItem = VotingBuilderFactory.getBuilder('FleaMarketItemDto').build() as FleaMarketItemDto;
 
