@@ -45,6 +45,7 @@ export const playerRules: RulesSetterAsync<Ability, Subjects> = async (
       'profile_id',
       'clan_id',
       'avatar',
+      'clanRole_id',
     ];
     can(Action.read_request, subject);
     can(Action.read_response, subject, publicFields);
