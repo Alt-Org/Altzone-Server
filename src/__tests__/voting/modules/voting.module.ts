@@ -4,6 +4,8 @@ import VotingCommonModule from './votingCommon.module';
 import { VotingService } from '../../../voting/voting.service';
 import { VotingSchema } from '../../../voting/schemas/voting.schema';
 import VotingNotifier from '../../../voting/voting.notifier';
+import { PlayerService } from '../../../player/player.service';
+import { PlayerSchema } from '../../../player/schemas/player.schema';
 
 export default class VotingModule {
   private constructor() {}
@@ -18,7 +20,16 @@ export default class VotingModule {
     return await module.resolve(VotingNotifier);
   }
 
+  static async getPlayerService() {
+    const module = await VotingCommonModule.getModule();
+    return await module.resolve(PlayerService);
+  }
+
   static getVotingModel() {
     return mongoose.model(ModelName.VOTING, VotingSchema);
+  }
+
+  static getPlayerModel() {
+    return mongoose.model(ModelName.PLAYER, PlayerSchema);
   }
 }

@@ -7,7 +7,7 @@ export default class CreateVotingDtoBuilder
   implements IDataBuilder<CreateVotingDto>
 {
   private readonly base: CreateVotingDto = {
-    organizer: { player_id: 'test', clan_id: 'test' },
+    organizer: { player_id: 'test', clan_id: '67e98660df641b26bb7cbf6b' },
     endsOn: new Date(),
     type: 'selling_item',
     minPercentage: 1,

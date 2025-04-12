@@ -1,15 +1,12 @@
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 import { ObjectId } from 'mongodb';
 import { ModifyAvatarDto } from '../../../../player/dto/modifyAvatar.dto';
-import { PlayerDto } from '../../../../player/dto/player.dto';
-import { GameStatisticsDto } from '../../../../player/dto/gameStatistics.dto';
-import { ClanDto } from '../../../../clan/dto/clan.dto';
+import { CreatePlayerDto } from '../../../../player/dto/createPlayer.dto';
 
 export default class CreatePlayerDtoBuilder
-  implements IDataBuilder<PlayerDto>
+  implements IDataBuilder<CreatePlayerDto>
 {
-  private readonly base: PlayerDto = {
-    _id: 'playerId',
+  private readonly base: CreatePlayerDto = {
     name: 'defaultPlayer',
     backpackCapacity: 10,
     uniqueIdentifier: 'unique-id',
@@ -30,14 +27,11 @@ export default class CreatePlayerDtoBuilder
       hands: 1,
       skinColor: '#f5cba7',
     },
-    points: 0,
-    gameStatistics: new GameStatisticsDto,
-    clan_id: '',
-    Clan: new ClanDto,
-    CustomCharacter: []
   };
 
-  build(): PlayerDto {
+  private clan_id: string = 'test';
+
+  build(): CreatePlayerDto {
     return { ...this.base };
   }
 

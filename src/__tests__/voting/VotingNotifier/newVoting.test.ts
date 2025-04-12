@@ -28,7 +28,7 @@ describe('VotingNotifier.newVoting() test suite', () => {
 
     const fleaMarketItem = VotingBuilderFactory.getBuilder('FleaMarketItemDto').build() as FleaMarketItemDto;
 
-    const playerDto = VotingBuilderFactory.getBuilder('CreatePlayerDtoBuilder').build() as PlayerDto;
+    const playerDto = VotingBuilderFactory.getBuilder('CreatePlayerDto').build() as PlayerDto;
     
     const mockClient = { };
     
@@ -73,7 +73,7 @@ describe('VotingNotifier.newVoting() test suite', () => {
 
     const fleaMarketItem = VotingBuilderFactory.getBuilder('FleaMarketItemDto').build() as FleaMarketItemDto;
 
-    const playerDto = VotingBuilderFactory.getBuilder('CreatePlayerDtoBuilder').build() as PlayerDto;
+    const playerDto = VotingBuilderFactory.getBuilder('CreatePlayerDto').build() as PlayerDto;
     
     const mockClient = { };
     

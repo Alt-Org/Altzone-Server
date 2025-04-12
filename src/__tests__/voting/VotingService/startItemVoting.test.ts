@@ -23,7 +23,7 @@ describe('VotingService.startItemVoting() test suite', () => {
 
   it('Should creates a new voting entry and sends a MQTT notification if input is valid', async () => {
     const minPercentage = 1;
-    const player = VotingBuilderFactory.getBuilder('CreatePlayerDtoBuilder').build() as PlayerDto;
+    const player = VotingBuilderFactory.getBuilder('PlayerDto').build() as PlayerDto;
     const fleaMarketItem = VotingBuilderFactory.getBuilder('FleaMarketItemDto')
     .build() as FleaMarketItemDto;
     const votingType = VotingType.SELLING_ITEM
@@ -62,7 +62,7 @@ describe('VotingService.startItemVoting() test suite', () => {
 
   it('Should return with an error if entity_id is invalid', async () => {
     const invalidId = 'invalidId'; // Invalid ObjectId
-    const player = VotingBuilderFactory.getBuilder('CreatePlayerDtoBuilder').build() as PlayerDto;
+    const player = VotingBuilderFactory.getBuilder('PlayerDto').build() as PlayerDto;
     const fleaMarketItem = VotingBuilderFactory
     .getBuilder('FleaMarketItemDto')
     .setId(invalidId) // Invalid ObjectId

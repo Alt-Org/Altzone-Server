@@ -7,13 +7,17 @@ import VotingDtoBuilder from './voting/VotingDtoBuilder';
 import APIErrorBuilder from './controller/APIErrorBuilder';
 import OrganizerBuilder from './organizer/OrganizerBuilder';
 import VoteBuilder from './voting/VoteBuilder';
+import PlayerDtoBuilder from './player/playerDtoBuilder';
+import UpdatePlayerDtoBuilder from './player/updatePlayerDtoBuilder';
 
 
 type BuilderName =
   | 'CreateVotingDto'
   | 'CreateStartItemVotingParamsDto'
-  | 'CreatePlayerDtoBuilder'
+  | 'CreatePlayerDto'
   | 'Player'
+  | 'PlayerDto'
+  | 'UpdatePlayerDto'
   | 'FleaMarketItemDto'
   | 'VotingDto'
   | 'ApiError'
@@ -24,8 +28,10 @@ type BuilderName =
 type BuilderMap = {
   CreateVotingDto: CreateVotingDtoBuilder;
   CreateStartItemVotingParamsDto: CreateStartItemVotingParamsDtoBuilder;
-  CreatePlayerDtoBuilder: CreatePlayerDtoBuilder;
+  CreatePlayerDto: CreatePlayerDtoBuilder;
   Player: PlayerBuilder;
+  PlayerDto: PlayerDtoBuilder;
+  UpdatePlayerDto: UpdatePlayerDtoBuilder;
   FleaMarketItemDto: FleaMarketItemDtoBuilder;
   VotingDto: VotingDtoBuilder;
   Vote: VoteBuilder;
@@ -42,8 +48,12 @@ export default class VotingBuilderFactory {
         return new CreateStartItemVotingParamsDtoBuilder() as BuilderMap[T];
       case 'Player':
               return new PlayerBuilder() as BuilderMap[T];
-      case 'CreatePlayerDtoBuilder':
+      case 'PlayerDto':
+                return new PlayerDtoBuilder() as BuilderMap[T];
+      case 'CreatePlayerDto':
               return new CreatePlayerDtoBuilder() as BuilderMap[T];
+      case 'UpdatePlayerDto':
+              return new UpdatePlayerDtoBuilder() as BuilderMap[T];
       case 'FleaMarketItemDto':
               return new FleaMarketItemDtoBuilder() as BuilderMap[T];
       case 'VotingDto':
