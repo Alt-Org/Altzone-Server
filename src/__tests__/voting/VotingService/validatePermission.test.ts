@@ -38,7 +38,7 @@ describe('VotingService.validatePermission() test suite', () => {
   
       const dbData = (await playerModel.findOne({ name: playerName })).toObject();
 
-      let updatePlayer = updatePlayerBuilder.setClanId(voting.organizer.clan_id).build();
+      const updatePlayer = updatePlayerBuilder.setClanId(voting.organizer.clan_id).build();
       
       const [wasUpdated, errorsPlayerUpdate] = await playerService.updatePlayerById(dbData._id,updatePlayer);
       expect(errorsPlayerUpdate).toBeNull();
@@ -91,7 +91,7 @@ describe('VotingService.validatePermission() test suite', () => {
   
       const dbData = (await playerModel.findOne({ name: playerName })).toObject();
 
-      let updatePlayer = updatePlayerBuilder.setClanId("67e98560ef641b26bb7cbf5b")
+      const updatePlayer = updatePlayerBuilder.setClanId("67e98560ef641b26bb7cbf5b")
         .build(); // Different clan_id
       
       const [wasUpdated, errorsPlayerUpdate] = await playerService.updatePlayerById(dbData._id,updatePlayer);
@@ -121,7 +121,7 @@ describe('VotingService.validatePermission() test suite', () => {
   
       const dbData = (await playerModel.findOne({ name: playerName })).toObject();
 
-      let updatePlayer = updatePlayerBuilder.setClanId("67e98560ef641b26bb7cbf5b")
+      const updatePlayer = updatePlayerBuilder.setClanId("67e98560ef641b26bb7cbf5b")
         .build(); // Different clan_id
       
       const [wasUpdated, errorsPlayerUpdate] = await playerService.updatePlayerById(dbData._id,updatePlayer);
