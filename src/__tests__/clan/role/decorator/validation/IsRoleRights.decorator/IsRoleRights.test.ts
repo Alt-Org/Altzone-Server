@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { validate } from 'class-validator';
-import { ClanBasicRight } from '../../../../../clan/role/enum/clanBasicRight.enum';
-import IsRoleRights from '../../../../../clan/role/decorator/validation/IsRoleRights.decorator';
+import { ClanBasicRight } from '../../../../../../clan/role/enum/clanBasicRight.enum';
+import IsRoleRights from '../../../../../../clan/role/decorator/validation/IsRoleRights.decorator';
 
 describe('@IsRoleRights() test suite', () => {
   it('Should pass validation for a valid rights map', async () => {

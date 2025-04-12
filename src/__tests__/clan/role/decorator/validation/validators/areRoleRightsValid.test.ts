@@ -1,5 +1,5 @@
-import { ClanBasicRight } from '../../../../../clan/role/enum/clanBasicRight.enum';
-import { areRoleRightsValid } from '../../../../../clan/role/decorator/validation/validators';
+import { ClanBasicRight } from '../../../../../../clan/role/enum/clanBasicRight.enum';
+import { areRoleRightsValid } from '../../../../../../clan/role/decorator/validation/validators';
 
 describe('areRoleRightsValid() test suite', () => {
   it('Should return true for a valid rights map', () => {
