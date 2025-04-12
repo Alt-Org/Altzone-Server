@@ -5,11 +5,13 @@ export default class BoxUserBuilder {
   private readonly base: {
     profile_id: string;
     player_id: string;
+    clan_id: string;
     box_id: string;
     groupAdmin: boolean;
   } = {
     profile_id: new ObjectId().toString(),
     player_id: new ObjectId().toString(),
+    clan_id: new ObjectId().toString(),
     box_id: new ObjectId().toString(),
     groupAdmin: false,
   };
@@ -25,6 +27,11 @@ export default class BoxUserBuilder {
 
   setPlayerId(playerId: string) {
     this.base.player_id = playerId;
+    return this;
+  }
+
+  setClanId(clanId: string) {
+    this.base.clan_id = clanId;
     return this;
   }
 
