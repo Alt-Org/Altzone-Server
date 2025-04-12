@@ -1,4 +1,3 @@
-import { CreateVotingDto } from '../../../../voting/dto/createVoting.dto';
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 import { Organizer } from '../../../../voting/dto/organizer.dto';
 import { Vote } from '../../../../voting/schemas/vote.schema';
@@ -28,7 +27,7 @@ export default class VotingDtoBuilder
   setOrganizer(organizer: Organizer) {
     this.base.organizer = organizer;
     return this;
-}
+  }
 
 setEndsOn(endsOn: Date) {
   this.base.endsOn = endsOn;
