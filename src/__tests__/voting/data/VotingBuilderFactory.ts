@@ -9,6 +9,7 @@ import OrganizerBuilder from './organizer/OrganizerBuilder';
 import VoteBuilder from './voting/VoteBuilder';
 import PlayerDtoBuilder from './player/playerDtoBuilder';
 import UpdatePlayerDtoBuilder from './player/updatePlayerDtoBuilder';
+import CreateFleaMarketItemDtoBuilder from './FleaMarketItem/CreateFleaMarketItemDtoBuilder';
 
 
 type BuilderName =
@@ -19,6 +20,7 @@ type BuilderName =
   | 'PlayerDto'
   | 'UpdatePlayerDto'
   | 'FleaMarketItemDto'
+  | 'CreateFleaMarketItemDto'
   | 'VotingDto'
   | 'ApiError'
   | 'Organizer'
@@ -37,6 +39,7 @@ type BuilderMap = {
   Vote: VoteBuilder;
   ApiError: APIErrorBuilder;
   Organizer: OrganizerBuilder;
+  CreateFleaMarketItemDto: CreateFleaMarketItemDtoBuilder;
 };
 
 export default class VotingBuilderFactory {
@@ -47,23 +50,25 @@ export default class VotingBuilderFactory {
       case 'CreateStartItemVotingParamsDto':
         return new CreateStartItemVotingParamsDtoBuilder() as BuilderMap[T];
       case 'Player':
-              return new PlayerBuilder() as BuilderMap[T];
+        return new PlayerBuilder() as BuilderMap[T];
       case 'PlayerDto':
-                return new PlayerDtoBuilder() as BuilderMap[T];
+        return new PlayerDtoBuilder() as BuilderMap[T];
       case 'CreatePlayerDto':
-              return new CreatePlayerDtoBuilder() as BuilderMap[T];
+        return new CreatePlayerDtoBuilder() as BuilderMap[T];
       case 'UpdatePlayerDto':
-              return new UpdatePlayerDtoBuilder() as BuilderMap[T];
+        return new UpdatePlayerDtoBuilder() as BuilderMap[T];
       case 'FleaMarketItemDto':
-              return new FleaMarketItemDtoBuilder() as BuilderMap[T];
+        return new FleaMarketItemDtoBuilder() as BuilderMap[T];
+      case 'CreateFleaMarketItemDto':
+        return new CreateFleaMarketItemDtoBuilder() as BuilderMap[T];
       case 'VotingDto':
-              return new VotingDtoBuilder() as BuilderMap[T];
+        return new VotingDtoBuilder() as BuilderMap[T];
       case 'Vote':
-              return new VoteBuilder() as BuilderMap[T];
+        return new VoteBuilder() as BuilderMap[T];
       case 'ApiError':
-              return new APIErrorBuilder() as BuilderMap[T];
+        return new APIErrorBuilder() as BuilderMap[T];
       case 'Organizer':
-              return new OrganizerBuilder() as BuilderMap[T];
+        return new OrganizerBuilder() as BuilderMap[T];
       default:
         throw new Error(`Unknown builder name: ${builderName}`);
     }
