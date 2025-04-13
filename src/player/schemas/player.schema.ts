@@ -52,6 +52,9 @@ export class Player {
   @Prop({ type: AvatarSchema, default: null })
   avatar?: Avatar;
 
+  @Prop({ type: ObjectId, default: null })
+  clanRole_id: string | ObjectId | null;
+
   @ExtractField()
   _id: string;
 }

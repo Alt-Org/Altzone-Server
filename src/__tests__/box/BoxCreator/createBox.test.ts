@@ -79,8 +79,11 @@ describe('BoxCreator.createBox() test suite', () => {
     const clearedClans = clearDBRespDefaultFields(boxClans);
 
     const boxAdminPlayer = await playerModel.findById(result.adminPlayer_id);
-    const { clan_id: _, ...clearedPlayer } =
-      clearDBRespDefaultFields(boxAdminPlayer);
+    const {
+      clan_id: _clan_id,
+      clanRole_id: _clanRole_id,
+      ...clearedPlayer
+    } = clearDBRespDefaultFields(boxAdminPlayer);
 
     const boxChat = await chatModel.findById(result.chat_id);
     const clearedChat = clearDBRespDefaultFields(boxChat);

@@ -14,20 +14,16 @@ import {
 import { Join } from './join.schema';
 import { Model, Types } from 'mongoose';
 import { ModelName } from '../../common/enum/modelName.enum';
-import { RequestHelperService } from '../../requestHelper/requestHelper.service';
 import { IgnoreReferencesType } from '../../common/type/ignoreReferences.type';
 import { JoinRequestDto } from './dto/joinRequest.dto';
-import { ClanDto } from '../dto/clan.dto';
-import { PlayerDto } from '../../player/dto/player.dto';
 import { JoinResultDto } from './dto/joinResult.dto';
 import { IResponseShape } from '../../common/interface/IResponseShape';
-import { _idDto } from '../../common/dto/_id.dto';
 import { ClanService } from '../clan.service';
 import { PlayerCounterFactory } from '../clan.counters';
 import ICounter from '../../common/service/counter/ICounter';
 import { RoomService } from '../../clanInventory/room/room.service';
-import { SoulHomeDto } from '../../clanInventory/soulhome/dto/soulhome.dto';
 import { Player } from '../../player/schemas/player.schema';
+import { MemberClanRole } from '../role/initializationClanRoles';
 
 @Injectable()
 @AddBasicService()
@@ -38,9 +34,7 @@ export class JoinService
   public constructor(
     @InjectModel(Join.name) public readonly model: Model<Join>,
     private readonly playerCounterFactory: PlayerCounterFactory,
-    private readonly requestHelperService: RequestHelperService,
     private readonly clanService: ClanService,
-    private readonly roomService: RoomService,
     @InjectModel(Player.name) public readonly playerModel: Model<Player>,
   ) {
     super();
@@ -65,7 +59,7 @@ export class JoinService
   public async handleJoinRequest(joinRequest: JoinRequestDto) {
     const { player_id, clan_id } = joinRequest;
 
-    const clan = await this.getClan(clan_id);
+    const [clan] = await this.clanService.readOneById(clan_id);
     if (!clan) throw new NotFoundException('Clan with that _id is not found');
 
     const playerResp = await this.playerModel.findOne({ _id: player_id });
@@ -83,9 +77,9 @@ export class JoinService
     if (clan.isOpen) {
       // does the player in some old clan? if so reduce the players in the old clan
       if (player.clan_id) {
-        const pclan = await this.getClan(player.clan_id);
+        const [pclan] = await this.clanService.readOneById(player.clan_id);
         if (pclan.playerCount <= 1) {
-          this.clanService.deleteOneById(pclan._id);
+          await this.clanService.deleteOneById(pclan._id);
         } else {
           await this.playerCounter.decreaseByIdOnOne(player.clan_id);
         }
@@ -126,7 +120,7 @@ export class JoinService
     if (!clan_id)
       throw new NotFoundException('Player is not joined to any clan');
 
-    const clan = await this.getClan(clan_id);
+    const [clan] = await this.clanService.readOneById(clan_id);
 
     if (!clan) throw new NotFoundException('Clan with that _id not found');
 
@@ -136,9 +130,12 @@ export class JoinService
     } else {
       await this.playerCounter.decreaseByIdOnOne(clan_id);
     }
-    await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, {
-      clan_id: null,
-    }); // update clan_id for the requested player;
+    await this.playerModel.updateOne(
+      { _id: player_id },
+      {
+        clan_id: null,
+      },
+    );
   }
 
   /**
@@ -154,7 +151,7 @@ export class JoinService
     if (!playerResp)
       throw new NotFoundException('Player with that _id is not found');
 
-    const clan = await this.getClan(clan_id);
+    const [clan] = await this.clanService.readOneById(clan_id);
 
     if (!clan) throw new NotFoundException('Clan with that _id not found');
 
@@ -163,11 +160,13 @@ export class JoinService
       await this.clanService.deleteOneById(clan._id);
     } else {
       await this.playerCounter.decreaseByIdOnOne(clan_id);
-      //await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", -1) // update clan playercount
     }
-    await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, {
-      clan_id: null,
-    }); // update clan_id for the requested player;
+    await this.playerModel.updateOne(
+      { _id: player_id },
+      {
+        clan_id: null,
+      },
+    ); // update clan_id for the requested player;
   }
 
   public updateOnePostHook: PostHookFunction = async (
@@ -206,46 +205,28 @@ export class JoinService
     _ignoreReferences?: IgnoreReferencesType,
   ): Promise<void> => {};
 
+  /**
+   * Adds specified player to a clan.
+   *
+   * Notice that the player will be assigned a member role in the clan when he / she first joins the clan
+   * @param player_id _id of the player to be added
+   * @param clan_id _id of the clan where the player should be added
+   */
   private async joinClan(player_id: string, clan_id: string) {
-    // func to join a clan
-    await this.requestHelperService.getModelInstanceByCondition(
-      ModelName.SOULHOME,
-      { clan_id: clan_id },
-      SoulHomeDto,
-      true,
+    const [clan, _clanReadingErrors] =
+      await this.clanService.readOneById(clan_id);
+    const memberRole = clan.roles.find(
+      (role) => role.name === MemberClanRole.name,
     );
 
-    // if(soulhome){
-    //     const firstRoom: CreateRoomDto = {
-    //         floorType: "placeholder",
-    //         wallType: "placeholder",
-    //         player_id: player_id,
-    //         soulHome_id: soulhome._id
-    //     };
-
-    //     const room = await this.roomService.createOne(firstRoom);
-    //     if (!room || room instanceof MongooseError)
-    //         return;
-    //     let updatedlist = soulhome.rooms;
-    //     updatedlist.push(room.data.Room._id);
-    //     await this.requestHelperService.updateOneById(ModelName.SOULHOME, soulhome._id, {rooms:updatedlist});
-    // }
-
-    await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, {
-      clan_id: clan_id,
-    }); // update clan_id for the requested player;
+    await this.playerModel.updateOne(
+      { _id: player_id },
+      {
+        clan_id,
+        clanRole_id: memberRole._id,
+      },
+    );
     await this.playerCounter.increaseByIdOnOne(clan_id);
-    //await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", 1); // update clan playercount
-  }
-
-  private async getClan(_id: string) {
-    return await this.requestHelperService.getModelInstanceByCondition(
-      // get the Clan to join
-      ModelName.CLAN,
-      { _id: _id },
-      ClanDto,
-      true,
-    );
   }
 
   private configureResponse = (data: any): IResponseShape => {

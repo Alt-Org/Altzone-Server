@@ -32,11 +32,11 @@ export default class AuthCommonModule {
             signOptions: { expiresIn: '30d' },
           }),
           MongooseModule.forFeature([
-            { name: ModelName.BOX, schema: BoxSchema },
-            { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
             { name: ModelName.PROFILE, schema: ProfileSchema },
             { name: ModelName.PLAYER, schema: PlayerSchema },
             { name: ModelName.CLAN, schema: ClanSchema },
+            { name: ModelName.BOX, schema: BoxSchema },
+            { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
           ]),
         ],
         providers: [
