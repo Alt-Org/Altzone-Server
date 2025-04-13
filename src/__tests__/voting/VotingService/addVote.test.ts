@@ -1,14 +1,13 @@
 import VotingBuilderFactory from '../data/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
-import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultFields';
-import { PlayerDto } from '../../../player/dto/player.dto';
 import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
 import mqtt, { MqttClient } from 'mqtt';
 import { ItemVoteChoice } from '../../../voting/enum/choiceType.enum';
 import { PlayerService } from '../../../player/player.service';
 import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
+import ServiceError from '../../../common/service/basicService/ServiceError';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn()
@@ -51,8 +50,6 @@ describe('VotingService.addVote() test suite', () => {
           const fleaMarketItem = VotingBuilderFactory.getBuilder('CreateFleaMarketItemDto')
               .build() as FleaMarketItemDto;
           
-          //await votingService.updateVotingById(voting._id.toString())
-
           const playerName = 'john';
           const playerToCreate = playerBuilder.setName(playerName).build();
 
@@ -65,20 +62,139 @@ describe('VotingService.addVote() test suite', () => {
 
           const minPercentage = 1;
           const votingToCreate = votingBuilder
-          .setMinPercentage(minPercentage)
-          .setType(VotingType.SELLING_ITEM)
-          .setOrganizer({ player_id: '123', clan_id: null })
-          .setVotes([])
-          .setEntityId(fleaMarket._id.toString())
-          .build();
+            .setMinPercentage(minPercentage)
+            .setType(VotingType.SELLING_ITEM)
+            .setOrganizer({ player_id: player._id, clan_id: null })
+            .setEntityId(fleaMarket._id.toString())
+            .build();
       
           const [voting, errors] = await votingService.createOne(votingToCreate);
           expect(voting).not.toBeNull();
           expect(errors).toBeNull();
 
-          //TODO: MissingSchemaError: Schema hasn't been registered for model "FleaMarketItem"
           await votingService
             .addVote(voting._id.toString(), ItemVoteChoice.YES, player._id.toString());
 
-        });
+          expect(mqtt.connect).toHaveBeenCalledTimes(1);
+          const votingFromDb = (await votingModel.findOne({ _id: voting._id })).toObject();
+          expect(votingFromDb.votes.length).toBe(1);
+          expect(votingFromDb.votes[0].player_id).toBe(player._id.toString());
+  });
+
+  it('Should return with already voted error if try to add vote twice', async () => {
+
+    const mockClient = { };
+        
+        (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
+    
+        const  mockReturnValue =  (mockClient as MqttClient).publishAsync =  jest.fn((topic, payload) => {
+          return Promise.resolve({
+            cmd: 'publish',
+              qos: 0,
+              dup: false,
+              retain: false,
+              topic,
+              payload,
+            });
+          });
+          
+          const fleaMarketItem = VotingBuilderFactory.getBuilder('CreateFleaMarketItemDto')
+              .build() as FleaMarketItemDto;
+          
+          const playerName = 'john';
+          const playerToCreate = playerBuilder.setName(playerName).build();
+
+          await playerService.createOne(playerToCreate);
+          const player = (await playerModel.findOne({ name: playerName })).toObject();
+          
+          const [fleaMarket, errorsfleaMarket] = await fleaMarketService.createOne(fleaMarketItem);
+          expect(fleaMarket).not.toBeNull();
+          expect(errorsfleaMarket).toBeNull();
+
+          const minPercentage = 1;
+          const votingToCreate = votingBuilder
+            .setMinPercentage(minPercentage)
+            .setType(VotingType.SELLING_ITEM)
+            .setOrganizer({ player_id: player._id, clan_id: null })
+            .setEntityId(fleaMarket._id.toString())
+            .build();
+      
+          const [voting, errors] = await votingService.createOne(votingToCreate);
+          expect(voting).not.toBeNull();
+          expect(errors).toBeNull();
+
+          //Add first vote
+          await votingService
+            .addVote(voting._id.toString(), ItemVoteChoice.YES, player._id.toString());
+
+          expect(mqtt.connect).toHaveBeenCalledTimes(1);
+          const votingFromDb = (await votingModel.findOne({ _id: voting._id })).toObject();
+          expect(votingFromDb.votes.length).toBe(1);
+          expect(votingFromDb.votes[0].player_id).toBe(player._id.toString());
+
+          //Try to add second vote
+          try {
+            await votingService
+              .addVote(voting._id.toString(), ItemVoteChoice.YES, player._id.toString());
+          } catch (error) {
+            expect(error).not.toBeNull();
+            expect(error).toBeInstanceOf(ServiceError);
+            if (error instanceof ServiceError) {
+              expect(error.message).toBe('Logged in user has already voted.');
+            }
+          }
+  });
+
+  it('Should return with error if input is invalid', async () => {
+
+    const mockClient = { };
+        
+        (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
+    
+        const  mockReturnValue =  (mockClient as MqttClient).publishAsync =  jest.fn((topic, payload) => {
+          return Promise.resolve({
+            cmd: 'publish',
+              qos: 0,
+              dup: false,
+              retain: false,
+              topic,
+              payload,
+            });
+          });
+          
+          const fleaMarketItem = VotingBuilderFactory.getBuilder('CreateFleaMarketItemDto')
+              .build() as FleaMarketItemDto;
+          
+          const playerName = 'john';
+          const playerToCreate = playerBuilder.setName(playerName).build();
+
+          await playerService.createOne(playerToCreate);
+          const player = (await playerModel.findOne({ name: playerName })).toObject();
+          
+          const [fleaMarket, errorsfleaMarket] = await fleaMarketService.createOne(fleaMarketItem);
+          expect(fleaMarket).not.toBeNull();
+          expect(errorsfleaMarket).toBeNull();
+
+          const minPercentage = 1;
+          const votingToCreate = votingBuilder
+            .setMinPercentage(minPercentage)
+            .setType(VotingType.SELLING_ITEM)
+            .setOrganizer({ player_id: 'invalidId', clan_id: null }) // Invalid player ID
+            .setEntityId(fleaMarket._id.toString())
+            .build();
+      
+          const [voting, errors] = await votingService.createOne(votingToCreate);
+          expect(voting).not.toBeNull();
+          expect(errors).toBeNull();
+
+          try {
+            await votingService
+              .addVote(voting._id.toString(), ItemVoteChoice.YES, player._id.toString());
+          } catch (error) {
+            expect(error).not.toBeNull();
+            expect(error[0].message)
+            .toBe('Cast to ObjectId failed for value \"invalidId\" (type string) at path \"_id\" for model \"Player\"');
+            }     
+  });
+  
 });
