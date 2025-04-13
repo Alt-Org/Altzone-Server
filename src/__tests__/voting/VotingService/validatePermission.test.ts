@@ -43,7 +43,10 @@ describe('VotingService.validatePermission() test suite', () => {
       const [wasUpdated, errorsPlayerUpdate] = await playerService.updatePlayerById(dbData._id,updatePlayer);
       expect(errorsPlayerUpdate).toBeNull();
       expect(wasUpdated).toBeTruthy();
-
+      
+      const player = (await playerModel.findOne({ name: playerName })).toObject();
+      expect(player.clan_id.toString()).toBe(voting.organizer.clan_id.toString());
+      
       const isValid = await votingService
         .validatePermission(voting._id.toString(), dbData._id.toString());
       expect(isValid).toBe(true);
@@ -64,7 +67,6 @@ describe('VotingService.validatePermission() test suite', () => {
       const playerToCreate = playerBuilder.setName(playerName).build();
 
       await playerService.createOne(playerToCreate);
-      const updatePlayerBuilder = VotingBuilderFactory.getBuilder('UpdatePlayerDto');
   
       const dbData = (await playerModel.findOne({ name: playerName })).toObject();
 
@@ -75,13 +77,16 @@ describe('VotingService.validatePermission() test suite', () => {
 
   it('Should NOT validate if the player and voting clan_ids are different', async () => {
     const minPercentage = 1;
+    const clanId = '67e98560ef641b26bb7cbf6b';
     const votingToCreate = votingBuilder
       .setMinPercentage(minPercentage)
+      .setOrganizer({ player_id: '123', clan_id: clanId })
       .build();
 
       const [voting, errors] = await votingService.createOne(votingToCreate);
       expect(voting).not.toBeNull();
       expect(errors).toBeNull();
+      expect(voting.organizer.clan_id).toBe(clanId);
 
       const playerName = 'john';
       const playerToCreate = playerBuilder.setName(playerName).build();
@@ -91,16 +96,20 @@ describe('VotingService.validatePermission() test suite', () => {
   
       const dbData = (await playerModel.findOne({ name: playerName })).toObject();
 
-      const updatePlayer = updatePlayerBuilder.setClanId("67e98560ef641b26bb7cbf5b")
+      const differentClanId = '67e98560ef641b26bb7cbf5b'; // Different clan_id
+      const updatePlayer = updatePlayerBuilder.setClanId(differentClanId)
         .build(); // Different clan_id
       
       const [wasUpdated, errorsPlayerUpdate] = await playerService.updatePlayerById(dbData._id,updatePlayer);
       expect(errorsPlayerUpdate).toBeNull();
       expect(wasUpdated).toBeTruthy();
 
+      const player = (await playerModel.findOne({ name: playerName })).toObject();
+      expect(player.clan_id.toString()).toBe(differentClanId);
+
       const isValid = await votingService
         .validatePermission(voting._id.toString(), dbData._id.toString());
-      expect(isValid).toBe(false);
+      expect(isValid).toBeFalsy();
   });
 
   it('Should return with errors if the voting does NOT exist', async () => {
