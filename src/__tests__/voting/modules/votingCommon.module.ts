@@ -16,6 +16,7 @@ import { DailyTaskSchema } from '../../../dailyTasks/dailyTasks.schema';
 import { VotingSchema } from '../../../voting/schemas/voting.schema';
 import { VotingService } from '../../../voting/voting.service';
 import VotingNotifier from '../../../voting/voting.notifier';
+import { FleaMarketItemSchema } from '../../../fleaMarket/fleaMarketItem.schema';
 
 export default class VotingCommonModule {
   private constructor() {}
@@ -34,6 +35,7 @@ export default class VotingCommonModule {
             { name: ModelName.ROOM, schema: RoomSchema },
             { name: ModelName.CUSTOM_CHARACTER, schema: CustomCharacterSchema },
             { name: ModelName.DAILY_TASK, schema: DailyTaskSchema },
+            { name: ModelName.FLEA_MARKET_ITEM, schema: FleaMarketItemSchema },
           ]),
           RequestHelperModule,
           AuthorizationModule,
