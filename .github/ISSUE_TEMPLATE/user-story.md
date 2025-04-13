@@ -1,3 +1,12 @@
+---
+name: User story
+about: Template for user stories
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 ### Links
 
 []()
