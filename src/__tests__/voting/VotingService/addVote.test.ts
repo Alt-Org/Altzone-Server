@@ -193,7 +193,7 @@ describe('VotingService.addVote() test suite', () => {
           } catch (error) {
             expect(error).not.toBeNull();
             expect(error[0].message)
-            .toBe('Cast to ObjectId failed for value \"invalidId\" (type string) at path \"_id\" for model \"Player\"');
+            .toBe('Cast to ObjectId failed for value "invalidId" (type string) at path "_id" for model "Player"');
             }     
   });
   
