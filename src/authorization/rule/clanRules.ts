@@ -7,10 +7,8 @@ import {
 import { Action } from '../enum/action.enum';
 import { InferSubjects, MongoAbility } from '@casl/ability/dist/types';
 import { RulesSetterAsync } from '../type/RulesSetter.type';
-import { ClanDto } from '../../clan/dto/clan.dto';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { PlayerDto } from '../../player/dto/player.dto';
 import { isClanAdmin } from '../util/isClanAdmin';
 
 type Subjects = InferSubjects<any>;
@@ -21,6 +19,7 @@ export const clanRules: RulesSetterAsync<Ability, Subjects> = async (
   action,
   subjectObj: any,
   requestHelperService,
+  connection,
 ) => {
   const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
@@ -33,12 +32,9 @@ export const clanRules: RulesSetterAsync<Ability, Subjects> = async (
   // }
 
   if (action === Action.create) {
-    const playerToMakeClanAdmin =
-      await requestHelperService.getModelInstanceById(
-        ModelName.PLAYER,
-        user.player_id,
-        PlayerDto,
-      );
+    const playerToMakeClanAdmin = await connection
+      .model(ModelName.PLAYER)
+      .findById(user.player_id);
 
     if (!playerToMakeClanAdmin)
       throw new NotFoundException('Could not recognize logged-in user');
@@ -52,11 +48,10 @@ export const clanRules: RulesSetterAsync<Ability, Subjects> = async (
   }
 
   if (action === Action.update || action === Action.delete) {
-    const clan = await requestHelperService.getModelInstanceById(
-      ModelName.CLAN,
-      subjectObj._id,
-      ClanDto,
-    );
+    const clan = await connection
+      .model(ModelName.CLAN)
+      .findById(subjectObj._id);
+
     if (!clan)
       throw new NotFoundException('The clan with that _id is not found');
 
