@@ -14,6 +14,7 @@ import { PlayerSchema } from '../player/schemas/player.schema';
 import { ClanInventoryModule } from '../clanInventory/clanInventory.module';
 import { PlayerModule } from '../player/player.module';
 import { GameEventsEmitterModule } from '../gameEventsEmitter/gameEventsEmitter.module';
+import ClanRoleService from './role/clanRole.service';
 
 @Module({
   imports: [
@@ -27,13 +28,14 @@ import { GameEventsEmitterModule } from '../gameEventsEmitter/gameEventsEmitter.
     PlayerModule,
     GameEventsEmitterModule,
   ],
-  controllers: [ClanController],
+  controllers: [ClanController, ClanController],
   providers: [
     ClanService,
     isClanExists,
     PlayerCounterFactory,
     JoinService,
     ClanHelperService,
+    ClanRoleService,
   ],
   exports: [ClanService, PlayerCounterFactory],
 })

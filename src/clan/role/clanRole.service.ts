@@ -1,0 +1,82 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Clan } from '../clan.schema';
+import { Model } from 'mongoose';
+import BasicService from '../../common/service/basicService/BasicService';
+import { ClanRole } from './ClanRole.schema';
+import { ObjectId } from 'mongodb';
+import { IServiceReturn } from '../../common/service/basicService/IService';
+import { CreateClanRoleDto } from './dto/createClanRole.dto';
+import { isRoleDuplicate, isRoleNameExists } from './clanRoleUtils';
+import ServiceError from '../../common/service/basicService/ServiceError';
+import { SEReason } from '../../common/service/basicService/SEReason';
+import { ClanRoleType } from './enum/clanRoleType.enum';
+
+@Injectable()
+export default class ClanRoleService {
+  public constructor(
+    @InjectModel(Clan.name) public readonly model: Model<Clan>,
+  ) {
+    this.basicService = new BasicService(model);
+  }
+  public readonly basicService: BasicService;
+
+  async createOne(
+    roleToCreate: CreateClanRoleDto,
+    clan_id: string | ObjectId,
+  ): Promise<IServiceReturn<ClanRole>> {
+    const [clan, clanReadingErrors] = await this.basicService.readOneById(
+      clan_id.toString(),
+    );
+
+    if (clanReadingErrors) return [null, clanReadingErrors];
+
+    if (isRoleNameExists(clan.roles, roleToCreate.name))
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_UNIQUE,
+            field: 'name',
+            value: roleToCreate.name,
+            message: 'Role with this name already exists',
+          }),
+        ],
+      ];
+
+    if (isRoleDuplicate(clan.roles, roleToCreate.rights))
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_UNIQUE,
+            field: 'rights',
+            value: roleToCreate.rights,
+            message: 'Role with the same rights already exists',
+          }),
+        ],
+      ];
+
+    const newRole: Omit<ClanRole, '_id'> = {
+      ...roleToCreate,
+      clanRoleType: ClanRoleType.NAMED,
+    };
+    const [, clanUpdateErrors] = await this.basicService.updateOneById(
+      clan_id.toString(),
+      {
+        $push: { roles: [newRole] },
+      },
+    );
+
+    if (clanUpdateErrors) return [null, clanUpdateErrors];
+
+    const [updatedClan] = await this.basicService.readOneById<Clan>(
+      clan_id.toString(),
+    );
+    const createdRole = updatedClan.roles.find(
+      (role) => role.name === newRole.name,
+    );
+
+    return [createdRole, null];
+  }
+}
