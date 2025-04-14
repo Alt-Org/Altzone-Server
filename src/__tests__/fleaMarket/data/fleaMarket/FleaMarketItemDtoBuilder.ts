@@ -1,9 +1,9 @@
 import { ObjectId } from 'mongodb';
 import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
 import { Recycling } from '../../../../clanInventory/item/enum/recycling.enum';
-import { QualityLevel } from '../../../../clanInventory/item/enum/qualityLevel.enum';
 import { FleaMarketItemDto } from '../../../../fleaMarket/dto/fleaMarketItem.dto';
 import { Status } from '../../../../fleaMarket/enum/status.enum';
+import { Rarity } from '../../../../clanInventory/item/enum/rarity.enum';
 
 export default class FleaMarketItemDtoBuilder {
   private readonly base: Partial<FleaMarketItemDto> = {
@@ -11,7 +11,7 @@ export default class FleaMarketItemDtoBuilder {
     name: ItemName.CLOSET_RAKKAUS,
     weight: 1,
     recycling: Recycling.GLASS,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
     unityKey: 'defaultUnityKey',
     status: Status.AVAILABLE,
     isFurniture: false,
@@ -43,8 +43,8 @@ export default class FleaMarketItemDtoBuilder {
     return this;
   }
 
-  setQualityLevel(qualityLevel: QualityLevel) {
-    this.base.qualityLevel = qualityLevel;
+  setRarityLevel(rarity: Rarity) {
+    this.base.rarity = rarity;
     return this;
   }
 

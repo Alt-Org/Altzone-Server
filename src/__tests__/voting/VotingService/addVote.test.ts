@@ -72,7 +72,9 @@ describe('VotingService.addVote() test suite', () => {
       await votingModel.findOne({ _id: voting._id })
     ).toObject();
     expect(votingFromDb.votes.length).toBe(1);
-    expect(votingFromDb.votes[0].player_id).toBe(player._id.toString());
+    expect(votingFromDb.votes[0].player_id.toString()).toBe(
+      player._id.toString(),
+    );
   });
 
   it('Should not allow voting twice by the same user', async () => {
@@ -88,14 +90,6 @@ describe('VotingService.addVote() test suite', () => {
       ItemVoteChoice.YES,
       player._id.toString(),
     );
-
-    await expect(
-      votingService.addVote(
-        voting._id.toString(),
-        ItemVoteChoice.YES,
-        player._id.toString(),
-      ),
-    ).rejects.toEqual(expect.anything());
 
     try {
       await votingService.addVote(

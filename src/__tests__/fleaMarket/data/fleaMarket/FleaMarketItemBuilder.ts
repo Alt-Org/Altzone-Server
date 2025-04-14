@@ -1,15 +1,15 @@
 import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
 import { FleaMarketItem } from '../../../../fleaMarket/fleaMarketItem.schema';
 import { Recycling } from '../../../../clanInventory/item/enum/recycling.enum';
-import { QualityLevel } from '../../../../clanInventory/item/enum/qualityLevel.enum';
 import { Status } from '../../../../fleaMarket/enum/status.enum';
+import { Rarity } from '../../../../clanInventory/item/enum/rarity.enum';
 
 export default class FleaMarketItemBuilder {
   private readonly base: Partial<FleaMarketItem> = {
     name: ItemName.CLOSET_RAKKAUS,
     weight: 1,
     recycling: Recycling.ELECTRICAL_EQUIPMENT,
-    qualityLevel: QualityLevel.common,
+    rarity: Rarity.common,
     unityKey: 'defaultUnityKey',
     status: Status.AVAILABLE,
     price: 10,
@@ -36,8 +36,8 @@ export default class FleaMarketItemBuilder {
     return this;
   }
 
-  setQualityLevel(qualityLevel: QualityLevel) {
-    this.base.qualityLevel = qualityLevel;
+  setRarity(rarity: Rarity) {
+    this.base.rarity = rarity;
     return this;
   }
 
