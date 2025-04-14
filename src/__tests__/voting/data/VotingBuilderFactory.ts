@@ -1,7 +1,6 @@
 import CreateVotingDtoBuilder from './voting/createVotingDtoBuilder';
 import CreateStartItemVotingParamsDtoBuilder from './voting/createStartItemVotingParamsDtoBuilder';
 import VotingDtoBuilder from './voting/VotingDtoBuilder';
-import APIErrorBuilder from './controller/APIErrorBuilder';
 import OrganizerBuilder from './organizer/OrganizerBuilder';
 import VoteBuilder from './voting/VoteBuilder';
 
@@ -9,7 +8,6 @@ type BuilderName =
   | 'CreateVotingDto'
   | 'CreateStartItemVotingParamsDto'
   | 'VotingDto'
-  | 'ApiError'
   | 'Organizer'
   | 'Vote';
 
@@ -18,7 +16,6 @@ type BuilderMap = {
   CreateStartItemVotingParamsDto: CreateStartItemVotingParamsDtoBuilder;
   VotingDto: VotingDtoBuilder;
   Vote: VoteBuilder;
-  ApiError: APIErrorBuilder;
   Organizer: OrganizerBuilder;
 };
 
@@ -33,8 +30,6 @@ export default class VotingBuilderFactory {
         return new VotingDtoBuilder() as BuilderMap[T];
       case 'Vote':
         return new VoteBuilder() as BuilderMap[T];
-      case 'ApiError':
-        return new APIErrorBuilder() as BuilderMap[T];
       case 'Organizer':
         return new OrganizerBuilder() as BuilderMap[T];
       default:

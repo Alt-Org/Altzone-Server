@@ -6,8 +6,8 @@ import { NotificationStatus } from '../../../common/service/notificator/enum/Not
 import { NotificationResource } from '../../../common/service/notificator/enum/NotificationResource.enum';
 import { NotificationGroup } from '../../../common/service/notificator/enum/NotificationGroup.enum';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
-import { APIError } from '../../../common/controller/APIError';
 import { Organizer } from '../../../voting/dto/organizer.dto';
+import TestUtilDataFactory from '../../test_utils/data/TestUtilsDataFactory';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -28,9 +28,7 @@ describe('VotingNotifier.votingError() test suite', () => {
 
     const votingDto = votingBuilder.setOrganizer(organizer).build();
 
-    const apiError = VotingBuilderFactory.getBuilder(
-      'ApiError',
-    ).build() as APIError;
+    const apiError = TestUtilDataFactory.getBuilder('APIError').build();
 
     const mockClient = {};
 
