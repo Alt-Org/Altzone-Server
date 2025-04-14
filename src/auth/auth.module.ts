@@ -11,6 +11,8 @@ import { BoxSchema } from '../box/schemas/box.schema';
 import { GroupAdminSchema } from '../box/groupAdmin/groupAdmin.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PlayerSchema } from '../player/schemas/player.schema';
+import { ProfileSchema } from '../profile/profile.schema';
+import { ClanSchema } from '../clan/clan.schema';
 
 @Module({
   imports: [
@@ -21,7 +23,9 @@ import { PlayerSchema } from '../player/schemas/player.schema';
       signOptions: { expiresIn: '30d' },
     }),
     MongooseModule.forFeature([
+      { name: ModelName.PROFILE, schema: ProfileSchema },
       { name: ModelName.PLAYER, schema: PlayerSchema },
+      { name: ModelName.CLAN, schema: ClanSchema },
       { name: ModelName.BOX, schema: BoxSchema },
       { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
     ]),

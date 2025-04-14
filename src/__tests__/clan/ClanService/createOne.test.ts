@@ -3,11 +3,14 @@ import LoggedUser from '../../test_utils/const/loggedUser';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 import ClanBuilderFactory from '../data/clanBuilderFactory';
 import ClanModule from '../modules/clan.module';
+import { LeaderClanRole } from '../../../clan/role/initializationClanRoles';
+import PlayerModule from '../../player/modules/player.module';
 
 describe('ClanService.createOne() test suite', () => {
   let clanService: ClanService;
   const clanCreateBuilder = ClanBuilderFactory.getBuilder('CreateClanDto');
   const clanModel = ClanModule.getClanModel();
+  const playerModel = PlayerModule.getPlayerModel();
   const loggedPlayer = LoggedUser.getPlayer();
 
   const clanName = 'clan1';
@@ -35,6 +38,24 @@ describe('ClanService.createOne() test suite', () => {
 
     expect(errors).toBeNull();
     expect(result).toEqual(expect.objectContaining({ ...clanToCreate }));
+  });
+
+  it(`Should set creator player role to ${LeaderClanRole.name}`, async () => {
+    const [createdClan, _errors] = await clanService.createOne(
+      clanToCreate,
+      loggedPlayer._id,
+    );
+
+    const clanInDB = await clanModel.findById(createdClan._id);
+    const clanLeaderRole = clanInDB.roles.find(
+      (role) => role.name === LeaderClanRole.name,
+    );
+
+    const playerInDB = await playerModel.findById(loggedPlayer._id);
+
+    expect(playerInDB.clanRole_id.toString()).toBe(
+      clanLeaderRole._id.toString(),
+    );
   });
 
   it('Should not save any data, if the provided input not valid', async () => {

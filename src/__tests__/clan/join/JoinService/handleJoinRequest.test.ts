@@ -6,6 +6,7 @@ import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import { ObjectId } from 'mongodb';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { MemberClanRole } from '../../../../clan/role/initializationClanRoles';
 
 describe('JoinService.handleJoinRequest() test suite', () => {
   let joinService: JoinService;
@@ -50,6 +51,24 @@ describe('JoinService.handleJoinRequest() test suite', () => {
       ...joinToCreate,
       _id: expect.any(ObjectId),
     });
+  });
+
+  it(`Should set clan role for the joined player to ${MemberClanRole.name}`, async () => {
+    const joinToCreate = joinBuilder
+      .setClanId(openClan._id)
+      .setPlayerId(player._id)
+      .build();
+
+    await joinService.handleJoinRequest(joinToCreate);
+
+    const clanInDB = await clanModel.findById(openClan._id);
+    const memberRole = clanInDB.roles.find(
+      (role) => role.name === MemberClanRole.name,
+    );
+
+    const playerInDB = await playerModel.findById(player._id);
+
+    expect(playerInDB.clanRole_id.toString()).toBe(memberRole._id.toString());
   });
 
   it('Should throw NotFoundException if clan with that _id does not exists', async () => {
@@ -151,9 +170,11 @@ describe('JoinService.handleJoinRequest() test suite', () => {
     expect(dbData).toBeNull();
   });
 
-  //TODO: sometimes fails, because the old clan is not removed
   it('Should remove clan if the last player of it make a join request to another open clan', async () => {
-    const oldClanToCreate = clanBuilder.setName('oldClan').build();
+    const oldClanToCreate = clanBuilder
+      .setName('oldClan')
+      .setPlayerCount(1)
+      .build();
     const oldClan = await clanModel.create(oldClanToCreate);
     await playerModel.updateOne({ _id: player._id }, { clan_id: oldClan._id });
 
@@ -161,7 +182,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
       .setClanId(openClan._id)
       .setPlayerId(player._id)
       .build();
-    await joinService.handleJoinRequest(joinToCreate);
+    const resp = await joinService.handleJoinRequest(joinToCreate);
 
     const oldClanInDB = await clanModel.findById(oldClan._id);
 
