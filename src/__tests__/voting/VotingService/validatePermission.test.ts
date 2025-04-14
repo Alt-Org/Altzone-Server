@@ -4,6 +4,7 @@ import { VotingService } from '../../../voting/voting.service';
 import { PlayerService } from '../../../player/player.service';
 import ServiceError from '../../../common/service/basicService/ServiceError';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
+import PlayerModule from '../../player/modules/player.module';
 
 describe('VotingService.validatePermission() test suite', () => {
   let votingService: VotingService;
@@ -14,11 +15,11 @@ describe('VotingService.validatePermission() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
 
   const votingModel = VotingModule.getVotingModel();
-  const playerModel = VotingModule.getPlayerModel();
+  const playerModel = PlayerModule.getPlayerModel();
 
   beforeEach(async () => {
     votingService = await VotingModule.getVotingService();
-    playerService = await VotingModule.getPlayerService();
+    playerService = await PlayerModule.getPlayerService();
   });
 
   it('Should validate that player can use the voting if input is valid', async () => {

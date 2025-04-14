@@ -1,7 +1,6 @@
 import VotingBuilderFactory from '../data/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
-import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
 import mqtt, { MqttClient } from 'mqtt';
 import { ItemVoteChoice } from '../../../voting/enum/choiceType.enum';
@@ -10,6 +9,8 @@ import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
 import ServiceError from '../../../common/service/basicService/ServiceError';
 import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
+import FleaMarketModule from '../../fleaMarket/modules/fleaMarketModule';
+import PlayerModule from '../../player/modules/player.module';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -24,12 +25,12 @@ describe('VotingService.addVote() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
 
   const votingModel = VotingModule.getVotingModel();
-  const playerModel = VotingModule.getPlayerModel();
+  const playerModel = PlayerModule.getPlayerModel();
 
   beforeEach(async () => {
     votingService = await VotingModule.getVotingService();
-    playerService = await VotingModule.getPlayerService();
-    fleaMarketService = await VotingModule.getFleaMarketService();
+    playerService = await PlayerModule.getPlayerService();
+    fleaMarketService = await FleaMarketModule.getFleaMarketService();
   });
 
   it('Should adds a new vote to a voting if input is valid', async () => {

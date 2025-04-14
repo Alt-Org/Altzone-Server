@@ -1,9 +1,9 @@
 import VotingBuilderFactory from '../data/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
-import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultFields';
 import { PlayerService } from '../../../player/player.service';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
+import PlayerModule from '../../player/modules/player.module';
 
 describe('VotingService.getClanVotings() test suite', () => {
   let votingService: VotingService;
@@ -13,11 +13,11 @@ describe('VotingService.getClanVotings() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
 
   const votingModel = VotingModule.getVotingModel();
-  const playerModel = VotingModule.getPlayerModel();
+  const playerModel = PlayerModule.getPlayerModel();
 
   beforeEach(async () => {
     votingService = await VotingModule.getVotingService();
-    playerService = await VotingModule.getPlayerService();
+    playerService = await PlayerModule.getPlayerService();
   });
 
   it('Get all votings where the organizer is the player or players clan', async () => {
