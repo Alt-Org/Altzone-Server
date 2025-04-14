@@ -8,8 +8,6 @@ describe('VotingService.checkVotingSuccess() test suite', () => {
   const votingBuilder = VotingBuilderFactory.getBuilder('VotingDto');
   const voteBuilder = VotingBuilderFactory.getBuilder('Vote');
 
-  const votingModel = VotingModule.getVotingModel();
-
   beforeEach(async () => {
     votingService = await VotingModule.getVotingService();
   });

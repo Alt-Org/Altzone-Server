@@ -38,18 +38,16 @@ describe('VotingService.addVote() test suite', () => {
 
     (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
 
-    const mockReturnValue = ((mockClient as MqttClient).publishAsync = jest.fn(
-      (topic, payload) => {
-        return Promise.resolve({
-          cmd: 'publish',
-          qos: 0,
-          dup: false,
-          retain: false,
-          topic,
-          payload,
-        });
-      },
-    ));
+    (mockClient as MqttClient).publishAsync = jest.fn((topic, payload) => {
+      return Promise.resolve({
+        cmd: 'publish',
+        qos: 0,
+        dup: false,
+        retain: false,
+        topic,
+        payload,
+      });
+    });
 
     const fleaMarketItem = FleaMarketBuilderFactory.getBuilder(
       'CreateFleaMarketItemDto',
@@ -97,18 +95,16 @@ describe('VotingService.addVote() test suite', () => {
 
     (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
 
-    const mockReturnValue = ((mockClient as MqttClient).publishAsync = jest.fn(
-      (topic, payload) => {
-        return Promise.resolve({
-          cmd: 'publish',
-          qos: 0,
-          dup: false,
-          retain: false,
-          topic,
-          payload,
-        });
-      },
-    ));
+    (mockClient as MqttClient).publishAsync = jest.fn((topic, payload) => {
+      return Promise.resolve({
+        cmd: 'publish',
+        qos: 0,
+        dup: false,
+        retain: false,
+        topic,
+        payload,
+      });
+    });
 
     const fleaMarketItem = FleaMarketBuilderFactory.getBuilder(
       'CreateFleaMarketItemDto',
@@ -172,18 +168,16 @@ describe('VotingService.addVote() test suite', () => {
 
     (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
 
-    const mockReturnValue = ((mockClient as MqttClient).publishAsync = jest.fn(
-      (topic, payload) => {
-        return Promise.resolve({
-          cmd: 'publish',
-          qos: 0,
-          dup: false,
-          retain: false,
-          topic,
-          payload,
-        });
-      },
-    ));
+    (mockClient as MqttClient).publishAsync = jest.fn((topic, payload) => {
+      return Promise.resolve({
+        cmd: 'publish',
+        qos: 0,
+        dup: false,
+        retain: false,
+        topic,
+        payload,
+      });
+    });
 
     const fleaMarketItem = FleaMarketBuilderFactory.getBuilder(
       'CreateFleaMarketItemDto',

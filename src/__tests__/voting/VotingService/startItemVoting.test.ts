@@ -1,9 +1,6 @@
 import VotingBuilderFactory from '../data/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
-import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultFields';
-import { PlayerDto } from '../../../player/dto/player.dto';
-import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
 import mqtt, { MqttClient } from 'mqtt';
 import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
@@ -27,7 +24,6 @@ describe('VotingService.startItemVoting() test suite', () => {
   });
 
   it('Should creates a new voting entry and sends a MQTT notification if input is valid', async () => {
-    const minPercentage = 1;
     const player = PlayerBuilderFactory.getBuilder('PlayerDto')
       .setId(new ObjectId())
       .build();
@@ -44,18 +40,16 @@ describe('VotingService.startItemVoting() test suite', () => {
 
     (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
 
-    const mockReturnValue = ((mockClient as MqttClient).publishAsync = jest.fn(
-      (topic, payload) => {
-        return Promise.resolve({
-          cmd: 'publish',
-          qos: 0,
-          dup: false,
-          retain: false,
-          topic,
-          payload,
-        });
-      },
-    ));
+    (mockClient as MqttClient).publishAsync = jest.fn((topic, payload) => {
+      return Promise.resolve({
+        cmd: 'publish',
+        qos: 0,
+        dup: false,
+        retain: false,
+        topic,
+        payload,
+      });
+    });
 
     const [voting, errors] = await votingService.startItemVoting(
       startItemVotingParamsToCreate,
@@ -63,11 +57,9 @@ describe('VotingService.startItemVoting() test suite', () => {
 
     const dbData = await votingModel.findOne({ type: votingType });
 
-    const { type, ...fleaMarketItemDto } = clearDBRespDefaultFields(dbData);
-
     expect(errors).toBeNull();
     expect(voting).not.toBeNull();
-    expect(type.toString()).toBe(votingType.toString());
+    expect(dbData.type.toString()).toBe(votingType.toString());
     expect(mqtt.connect).toHaveBeenCalledTimes(1);
   });
 
@@ -92,18 +84,16 @@ describe('VotingService.startItemVoting() test suite', () => {
 
     (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
 
-    const mockReturnValue = ((mockClient as MqttClient).publishAsync = jest.fn(
-      (topic, payload) => {
-        return Promise.resolve({
-          cmd: 'publish',
-          qos: 0,
-          dup: false,
-          retain: false,
-          topic,
-          payload,
-        });
-      },
-    ));
+    (mockClient as MqttClient).publishAsync = jest.fn((topic, payload) => {
+      return Promise.resolve({
+        cmd: 'publish',
+        qos: 0,
+        dup: false,
+        retain: false,
+        topic,
+        payload,
+      });
+    });
 
     const [voting, errors] = await votingService.startItemVoting(
       startItemVotingParamsToCreate,

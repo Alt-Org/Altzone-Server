@@ -25,7 +25,7 @@ describe('VotingService.createOne() test suite', () => {
 
     const { _id, ...clearedResp } = clearDBRespDefaultFields(dbData);
 
-    const { entity_id, ...expectedVoting } = { ...votingToCreate };
+    const { entity_id: _entity_id, ...expectedVoting } = { ...votingToCreate };
 
     expect(clearedResp).toEqual(expect.objectContaining(expectedVoting));
   });

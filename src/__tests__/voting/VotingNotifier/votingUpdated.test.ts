@@ -1,7 +1,6 @@
 import VotingBuilderFactory from '../data/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import VotingNotifier from '../../../voting/voting.notifier';
-import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 import { PlayerDto } from '../../../player/dto/player.dto';
 import mqtt, { MqttClient } from 'mqtt';
 import { NotificationStatus } from '../../../common/service/notificator/enum/NotificationStatus.enum';
@@ -17,8 +16,6 @@ jest.mock('mqtt', () => ({
 describe('VotingNotifier.votingUpdated() test suite', () => {
   let votingNotifier: VotingNotifier;
   const votingBuilder = VotingBuilderFactory.getBuilder('VotingDto');
-
-  const votingModel = VotingModule.getVotingModel();
 
   beforeEach(async () => {
     votingNotifier = await VotingModule.getVotingNotifier();
@@ -85,18 +82,16 @@ describe('VotingNotifier.votingUpdated() test suite', () => {
 
     (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
 
-    const mockReturnValue = ((mockClient as MqttClient).publishAsync = jest.fn(
-      (topic, payload) => {
-        return Promise.resolve({
-          cmd: 'publish',
-          qos: 0,
-          dup: false,
-          retain: false,
-          topic,
-          payload,
-        });
-      },
-    ));
+    (mockClient as MqttClient).publishAsync = jest.fn((topic, payload) => {
+      return Promise.resolve({
+        cmd: 'publish',
+        qos: 0,
+        dup: false,
+        retain: false,
+        topic,
+        payload,
+      });
+    });
 
     try {
       await votingNotifier.votingUpdated(votingDto, fleaMarketItem, playerDto);

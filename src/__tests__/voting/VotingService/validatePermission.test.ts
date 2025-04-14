@@ -13,8 +13,6 @@ describe('VotingService.validatePermission() test suite', () => {
   const votingBuilder = VotingBuilderFactory.getBuilder('CreateVotingDto');
 
   const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
-
-  const votingModel = VotingModule.getVotingModel();
   const playerModel = PlayerModule.getPlayerModel();
 
   beforeEach(async () => {
