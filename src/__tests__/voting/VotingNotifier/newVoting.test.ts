@@ -1,12 +1,12 @@
 import VotingBuilderFactory from '../data/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import VotingNotifier from '../../../voting/voting.notifier';
-import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 import { PlayerDto } from '../../../player/dto/player.dto';
 import mqtt, { MqttClient } from 'mqtt';
 import { NotificationStatus } from '../../../common/service/notificator/enum/NotificationStatus.enum';
 import { NotificationResource } from '../../..//common/service/notificator/enum/NotificationResource.enum';
 import { NotificationGroup } from '../../../common/service/notificator/enum/NotificationGroup.enum';
+import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -25,9 +25,8 @@ describe('VotingNotifier.newVoting() test suite', () => {
   it('Should send a notification for a new voting if input is valid', async () => {
     const votingDto = votingBuilder.build();
 
-    const fleaMarketItem = VotingBuilderFactory.getBuilder(
-      'FleaMarketItemDto',
-    ).build() as FleaMarketItemDto;
+    const fleaMarketItem =
+      FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto').build();
 
     const playerDto = VotingBuilderFactory.getBuilder(
       'CreatePlayerDto',
@@ -77,9 +76,8 @@ describe('VotingNotifier.newVoting() test suite', () => {
   it('Should return with an error if input is invalid', async () => {
     const votingDto = votingBuilder.setOrganizer(null).build(); //add error to the input
 
-    const fleaMarketItem = VotingBuilderFactory.getBuilder(
-      'FleaMarketItemDto',
-    ).build() as FleaMarketItemDto;
+    const fleaMarketItem =
+      FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto').build();
 
     const playerDto = VotingBuilderFactory.getBuilder(
       'CreatePlayerDto',

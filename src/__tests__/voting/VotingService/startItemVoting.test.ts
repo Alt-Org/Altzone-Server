@@ -6,6 +6,7 @@ import { PlayerDto } from '../../../player/dto/player.dto';
 import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
 import mqtt, { MqttClient } from 'mqtt';
+import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -28,9 +29,8 @@ describe('VotingService.startItemVoting() test suite', () => {
     const player = VotingBuilderFactory.getBuilder(
       'PlayerDto',
     ).build() as PlayerDto;
-    const fleaMarketItem = VotingBuilderFactory.getBuilder(
-      'FleaMarketItemDto',
-    ).build() as FleaMarketItemDto;
+    const fleaMarketItem =
+      FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto').build();
     const votingType = VotingType.SELLING_ITEM;
     const startItemVotingParamsToCreate = votingBuilder
       .setPlayer(player)
@@ -74,9 +74,11 @@ describe('VotingService.startItemVoting() test suite', () => {
     const player = VotingBuilderFactory.getBuilder(
       'PlayerDto',
     ).build() as PlayerDto;
-    const fleaMarketItem = VotingBuilderFactory.getBuilder('FleaMarketItemDto')
+    const fleaMarketItem = FleaMarketBuilderFactory.getBuilder(
+      'FleaMarketItemDto',
+    )
       .setId(invalidId) // Invalid ObjectId
-      .build() as FleaMarketItemDto;
+      .build();
     const votingType = VotingType.SELLING_ITEM;
     const startItemVotingParamsToCreate = votingBuilder
       .setPlayer(player)

@@ -8,6 +8,7 @@ import { ItemVoteChoice } from '../../../voting/enum/choiceType.enum';
 import { PlayerService } from '../../../player/player.service';
 import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
 import ServiceError from '../../../common/service/basicService/ServiceError';
+import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -48,9 +49,9 @@ describe('VotingService.addVote() test suite', () => {
       },
     ));
 
-    const fleaMarketItem = VotingBuilderFactory.getBuilder(
+    const fleaMarketItem = FleaMarketBuilderFactory.getBuilder(
       'CreateFleaMarketItemDto',
-    ).build() as FleaMarketItemDto;
+    ).build();
 
     const playerName = 'john';
     const playerToCreate = playerBuilder.setName(playerName).build();
@@ -107,9 +108,9 @@ describe('VotingService.addVote() test suite', () => {
       },
     ));
 
-    const fleaMarketItem = VotingBuilderFactory.getBuilder(
+    const fleaMarketItem = FleaMarketBuilderFactory.getBuilder(
       'CreateFleaMarketItemDto',
-    ).build() as FleaMarketItemDto;
+    ).build();
 
     const playerName = 'john';
     const playerToCreate = playerBuilder.setName(playerName).build();
@@ -182,9 +183,9 @@ describe('VotingService.addVote() test suite', () => {
       },
     ));
 
-    const fleaMarketItem = VotingBuilderFactory.getBuilder(
+    const fleaMarketItem = FleaMarketBuilderFactory.getBuilder(
       'CreateFleaMarketItemDto',
-    ).build() as FleaMarketItemDto;
+    ).build();
 
     const playerName = 'john';
     const playerToCreate = playerBuilder.setName(playerName).build();
