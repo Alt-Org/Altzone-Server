@@ -1,11 +1,12 @@
 import VotingBuilderFactory from '../data/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import VotingNotifier from '../../../voting/voting.notifier';
-import mqtt, { MqttClient } from 'mqtt';
+import mqtt from 'mqtt';
 import { NotificationStatus } from '../../../common/service/notificator/enum/NotificationStatus.enum';
 import { NotificationResource } from '../../../common/service/notificator/enum/NotificationResource.enum';
 import { NotificationGroup } from '../../../common/service/notificator/enum/NotificationGroup.enum';
 import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
+import createMockMqttClient from '../../common/service/notificator/mocks/createMockMqttClient';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -13,85 +14,44 @@ jest.mock('mqtt', () => ({
 
 describe('VotingNotifier.votingCompleted() test suite', () => {
   let votingNotifier: VotingNotifier;
+
   const votingBuilder = VotingBuilderFactory.getBuilder('VotingDto');
+  const fleaMarketBuilder =
+    FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto');
 
   beforeEach(async () => {
     votingNotifier = await VotingModule.getVotingNotifier();
   });
 
-  it('Should send a notification for a completed voting if input is valid', async () => {
+  it('should send a notification for a completed voting if input is valid', async () => {
     const votingDto = votingBuilder.build();
+    const fleaMarketItem = fleaMarketBuilder.build();
+    const expectedTopic = `/${NotificationGroup.CLAN}/${votingDto.organizer.clan_id}/${NotificationResource.VOTING}/${votingDto.type}/${NotificationStatus.END}`;
+    const expectedPayload = JSON.stringify({
+      topic: `/clan/${votingDto.organizer.clan_id}/voting/${votingDto._id.toString()}`,
+      status: NotificationStatus.END,
+      voting_id: votingDto._id.toString(),
+      type: votingDto.type,
+      item: fleaMarketItem,
+    });
 
-    const fleaMarketItem =
-      FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto').build();
-
-    const mockClient = {};
-
-    (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
-
-    const mockReturnValue = ((mockClient as MqttClient).publishAsync = jest.fn(
-      (topic, payload) => {
-        return Promise.resolve({
-          cmd: 'publish',
-          qos: 0,
-          dup: false,
-          retain: false,
-          topic,
-          payload,
-        });
-      },
-    ));
-
+    const { publishAsyncMock } = createMockMqttClient();
     await votingNotifier.votingCompleted(votingDto, fleaMarketItem);
 
     expect(mqtt.connect).toHaveBeenCalledTimes(1);
-
-    expect(mockReturnValue.mock.calls[0][0]).toEqual(
-      `/${NotificationGroup.CLAN}/${votingDto.organizer.clan_id}/${
-        NotificationResource.VOTING
-      }/${votingDto.type}/${NotificationStatus.END}`,
-    );
-
-    expect(mockReturnValue.mock.calls[0][1]).toEqual(
-      JSON.stringify({
-        topic: `/clan/${
-          votingDto.organizer.clan_id
-        }/voting/${votingDto._id.toString()}`,
-        status: NotificationStatus.END,
-        voting_id: votingDto._id.toString(),
-        type: votingDto.type,
-        item: fleaMarketItem,
-      }),
+    expect(publishAsyncMock).toHaveBeenCalledWith(
+      expectedTopic,
+      expectedPayload,
     );
   });
 
-  it('Should return with an error if input is invalid', async () => {
-    const votingDto = votingBuilder.setOrganizer(null).build(); //add error to the input
+  it('Should throw an error if voting input is invalid', async () => {
+    const invalidVotingDto = votingBuilder.setOrganizer(null).build();
+    const fleaMarketItem = fleaMarketBuilder.build();
 
-    const fleaMarketItem =
-      FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto').build();
-
-    const mockClient = {};
-
-    (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
-
-    (mockClient as MqttClient).publishAsync = jest.fn((topic, payload) => {
-      return Promise.resolve({
-        cmd: 'publish',
-        qos: 0,
-        dup: false,
-        retain: false,
-        topic,
-        payload,
-      });
-    });
-
-    try {
-      await votingNotifier.votingCompleted(votingDto, fleaMarketItem);
-    } catch (error) {
-      expect(error).toEqual(
-        new TypeError("Cannot read properties of null (reading 'clan_id')"),
-      );
-    }
+    createMockMqttClient('topic', 'payload');
+    await expect(
+      votingNotifier.votingCompleted(invalidVotingDto, fleaMarketItem),
+    ).rejects.toThrow("Cannot read properties of null (reading 'clan_id')");
   });
 });
