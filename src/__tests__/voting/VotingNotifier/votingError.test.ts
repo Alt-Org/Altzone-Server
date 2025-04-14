@@ -26,7 +26,10 @@ describe('VotingNotifier.votingError() test suite', () => {
       .setClanId('clanId')
       .build() as Organizer;
 
-    const votingDto = votingBuilder.setOrganizer(organizer).build();
+    const votingDto = votingBuilder
+      .setOrganizer(organizer)
+      .setType(VotingType.SELLING_ITEM)
+      .build();
 
     const apiError = TestUtilDataFactory.getBuilder('APIError').build();
 

@@ -3,12 +3,48 @@ import { StartItemVotingParams } from '../../../../voting/type/startItemVoting.t
 import { PlayerDto } from '../../../../player/dto/player.dto.js';
 import { FleaMarketItemDto } from '../../../../fleaMarket/dto/fleaMarketItem.dto.js';
 import { VotingType } from '../../../../voting/enum/VotingType.enum';
+import { ObjectId } from 'mongodb';
+import { AgeRange } from '../../../../clan/enum/ageRange.enum';
+import { Goal } from '../../../../clan/enum/goal.enum';
+import { Language } from '../../../../common/enum/language.enum';
 
 export default class CreateStartItemVotingParamsDtoBuilder
   implements IDataBuilder<StartItemVotingParams>
 {
   private readonly base: Partial<StartItemVotingParams> = {
-    player: undefined,
+    player: {
+      _id: new ObjectId().toString(),
+      name: '',
+      points: 0,
+      backpackCapacity: 0,
+      uniqueIdentifier: '',
+      parentalAuth: false,
+      gameStatistics: null,
+      profile_id: new ObjectId().toString(),
+      clan_id: new ObjectId().toString(),
+      Clan: {
+        _id: new ObjectId().toString(),
+        name: 'clan-1',
+        tag: 'tag-1',
+        clanLogo: null,
+        labels: [],
+        gameCoins: 0,
+        points: 0,
+        admin_ids: [],
+        playerCount: 0,
+        itemCount: 0,
+        stockCount: 0,
+        ageRange: AgeRange.ADULTS,
+        goal: Goal.FIILISTELY,
+        phrase: '',
+        language: Language.ENGLISH,
+        isOpen: false,
+        Player: [],
+        Stock: null,
+        SoulHome: null,
+      },
+      CustomCharacter: [],
+    },
     item: undefined,
     clanId: undefined,
     type: undefined,
@@ -33,6 +69,11 @@ export default class CreateStartItemVotingParamsDtoBuilder
 
   setType(type: VotingType) {
     this.base.type = type;
+    return this;
+  }
+
+  setClanId(clanId: string | ObjectId) {
+    this.base.clanId = clanId.toString();
     return this;
   }
 }

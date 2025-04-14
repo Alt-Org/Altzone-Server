@@ -1,18 +1,22 @@
-import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 import { Organizer } from '../../../../voting/dto/organizer.dto';
 
-export default class OrganizerBuilder implements IDataBuilder<Organizer> {
-  private readonly base: Organizer = {
-    player_id: '',
-    clan_id: '',
+export default class OrganizerBuilder {
+  private readonly base: Partial<Organizer> = {
+    player_id: undefined,
+    clan_id: undefined,
   };
 
   build(): Organizer {
-    return { ...this.base };
+    return { ...this.base } as Organizer;
   }
 
-  setClanId(clan_id: string) {
-    this.base.clan_id = clan_id;
+  setPlayerId(playerId: string) {
+    this.base.player_id = playerId;
+    return this;
+  }
+
+  setClanId(clanId: string) {
+    this.base.clan_id = clanId;
     return this;
   }
 }
