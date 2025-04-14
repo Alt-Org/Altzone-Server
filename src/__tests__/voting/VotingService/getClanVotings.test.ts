@@ -1,70 +1,57 @@
 import VotingBuilderFactory from '../data/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
-import { PlayerService } from '../../../player/player.service';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import PlayerModule from '../../player/modules/player.module';
 
 describe('VotingService.getClanVotings() test suite', () => {
   let votingService: VotingService;
-  let playerService: PlayerService;
 
   const votingBuilder = VotingBuilderFactory.getBuilder('CreateVotingDto');
   const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
-
   const playerModel = PlayerModule.getPlayerModel();
+  const votingModel = VotingModule.getVotingModel();
 
   beforeEach(async () => {
     votingService = await VotingModule.getVotingService();
-    playerService = await PlayerModule.getPlayerService();
   });
 
-  it('Get all votings where the organizer is the player or players clan', async () => {
-    const playerName = 'john';
-    const playerToCreate = playerBuilder.setName(playerName).build();
-
-    await playerService.createOne(playerToCreate);
-    const player = (await playerModel.findOne({ name: playerName })).toObject();
-    expect(player).not.toBeNull();
-
-    const minPercentage1 = 1;
-    const votingToCreate1 = votingBuilder
-      .setMinPercentage(minPercentage1)
-      .setOrganizer({
-        player_id: player._id.toString(),
-        clan_id: '67e98660df641b26bb7cbf6b',
-      })
+  const createVotingForOrganizer = async (playerId: string, clanId: string) => {
+    const votingToCreate = votingBuilder
+      .setMinPercentage(1)
+      .setOrganizer({ player_id: playerId, clan_id: clanId })
       .build();
+    return await votingModel.create(votingToCreate);
+  };
 
-    const [voting1, errors1] = await votingService.createOne(votingToCreate1);
-    expect(voting1).not.toBeNull();
-    expect(errors1).toBeNull();
+  it('Should return all votings where organizer is the player or their clan', async () => {
+    const playerToCreate = playerBuilder.setName('john').build();
+    const player = await playerModel.create(playerToCreate);
+    const clanId = '67e98660df641b26bb7cbf6b';
 
-    const minPercentage2 = 2;
-    const votingToCreate2 = votingBuilder
-      .setMinPercentage(minPercentage2)
-      .setOrganizer({
-        player_id: player._id.toString(),
-        clan_id: '67e98660df641b26bb7cbf6b',
-      })
-      .build();
+    await createVotingForOrganizer(player._id.toString(), clanId);
+    await createVotingForOrganizer(player._id.toString(), clanId);
 
-    const [voting2, errors2] = await votingService.createOne(votingToCreate2);
-    expect(voting2).not.toBeNull();
-    expect(errors2).toBeNull();
+    const [votings] = await votingService.getClanVotings(player._id.toString());
 
-    const votings = await votingService.getClanVotings(player._id.toString());
-    expect(votings.length).toBe(2);
+    expect(votings).toHaveLength(2);
+    expect(
+      votings.every(
+        (v) => v.organizer.player_id.toString() === player._id.toString(),
+      ),
+    ).toBe(true);
   });
 
-  it('Return with errors if Player Id is invalid', async () => {
+  it('Should return a validation error if player _id is invalid', async () => {
     const invalidId = 'invalidId';
 
-    try {
-      await votingService.getClanVotings(invalidId);
-    } catch (error) {
-      expect(error[0].field).toBe('_id');
-      expect(error[0].message).toContain('Cast to ObjectId failed for value');
-    }
+    await expect(votingService.getClanVotings(invalidId)).rejects.toMatchObject(
+      [
+        {
+          field: '_id',
+          message: expect.stringContaining('Cast to ObjectId failed'),
+        },
+      ],
+    );
   });
 });

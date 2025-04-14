@@ -2,10 +2,10 @@ import VotingBuilderFactory from '../data/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
-import mqtt, { MqttClient } from 'mqtt';
 import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import { ObjectId } from 'mongodb';
+import createMockMqttClient from '../../common/service/notificator/mocks/createMockMqttClient';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -16,90 +16,64 @@ describe('VotingService.startItemVoting() test suite', () => {
   const votingBuilder = VotingBuilderFactory.getBuilder(
     'CreateStartItemVotingParamsDto',
   );
-
   const votingModel = VotingModule.getVotingModel();
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     votingService = await VotingModule.getVotingService();
   });
 
-  it('Should creates a new voting entry and sends a MQTT notification if input is valid', async () => {
+  const createValidVotingParams = () => {
     const player = PlayerBuilderFactory.getBuilder('PlayerDto')
       .setId(new ObjectId())
       .build();
-    const fleaMarketItem =
+
+    const item =
       FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto').build();
-    const votingType = VotingType.SELLING_ITEM;
-    const startItemVotingParamsToCreate = votingBuilder
+
+    return votingBuilder
       .setPlayer(player)
-      .setItem(fleaMarketItem)
-      .setType(votingType)
+      .setItem(item)
+      .setType(VotingType.SELLING_ITEM)
       .build();
+  };
 
-    const mockClient = {};
+  it('Should create a new voting and send MQTT notification if input is valid', async () => {
+    const votingToStart = createValidVotingParams();
+    const { publishAsyncMock } = createMockMqttClient('topic', 'payload');
 
-    (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
-
-    (mockClient as MqttClient).publishAsync = jest.fn((topic, payload) => {
-      return Promise.resolve({
-        cmd: 'publish',
-        qos: 0,
-        dup: false,
-        retain: false,
-        topic,
-        payload,
-      });
-    });
-
-    const [voting, errors] = await votingService.startItemVoting(
-      startItemVotingParamsToCreate,
-    );
-
-    const dbData = await votingModel.findOne({ type: votingType });
+    const [voting, errors] = await votingService.startItemVoting(votingToStart);
+    const dbVoting = await votingModel.findOne({ type: votingToStart.type });
 
     expect(errors).toBeNull();
     expect(voting).not.toBeNull();
-    expect(dbData.type.toString()).toBe(votingType.toString());
-    expect(mqtt.connect).toHaveBeenCalledTimes(1);
+    expect(dbVoting).not.toBeNull();
+    expect(dbVoting.type.toString()).toBe(votingToStart.type);
+    expect(publishAsyncMock).toHaveBeenCalledTimes(1);
   });
 
-  it('Should return with an error if entity_id is invalid', async () => {
-    const invalidId = 'invalidId'; // Invalid ObjectId
+  it('Should return a validation error if entity_id is invalid', async () => {
+    const invalidId = 'invalidId';
     const player = PlayerBuilderFactory.getBuilder('PlayerDto')
       .setId(new ObjectId())
       .build();
-    const fleaMarketItem = FleaMarketBuilderFactory.getBuilder(
-      'FleaMarketItemDto',
-    )
-      .setId(invalidId) // Invalid ObjectId
+
+    const item = FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto')
+      .setId(invalidId)
       .build();
-    const votingType = VotingType.SELLING_ITEM;
-    const startItemVotingParamsToCreate = votingBuilder
+
+    const dto = votingBuilder
       .setPlayer(player)
-      .setItem(fleaMarketItem)
-      .setType(votingType)
+      .setItem(item)
+      .setType(VotingType.SELLING_ITEM)
       .build();
 
-    const mockClient = {};
+    createMockMqttClient('topic', 'payload');
 
-    (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
-
-    (mockClient as MqttClient).publishAsync = jest.fn((topic, payload) => {
-      return Promise.resolve({
-        cmd: 'publish',
-        qos: 0,
-        dup: false,
-        retain: false,
-        topic,
-        payload,
-      });
-    });
-
-    const [voting, errors] = await votingService.startItemVoting(
-      startItemVotingParamsToCreate,
-    );
+    const [voting, errors] = await votingService.startItemVoting(dto);
 
     expect(voting).toBeNull();
+    expect(errors).not.toBeNull();
     expect(errors[0].field).toBe('entity_id');
     expect(errors[0].value).toBe(invalidId);
   });

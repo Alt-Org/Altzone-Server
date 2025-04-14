@@ -12,7 +12,7 @@ describe('VotingService.checkVotingSuccess() test suite', () => {
     votingService = await VotingModule.getVotingService();
   });
 
-  it('Should return with True if Yes Percentage of votes >= minPercentage of voting', async () => {
+  it('Should return true if Yes Percentage of votes >= minPercentage of voting', async () => {
     const vote = voteBuilder.setChoice(ItemVoteChoice.YES).build();
     const minPercentage = 1;
     const votingDto = votingBuilder
@@ -20,12 +20,12 @@ describe('VotingService.checkVotingSuccess() test suite', () => {
       .setVotes([vote])
       .build();
 
-    const isSucess = await votingService.checkVotingSuccess(votingDto);
+    const isSuccess = await votingService.checkVotingSuccess(votingDto);
 
-    expect(isSucess).toBe(true);
+    expect(isSuccess).toBe(true);
   });
 
-  it('Should return with False if Yes Percentage of votes < minPercentage of voting', async () => {
+  it('Should return false if Yes Percentage of votes < minPercentage of voting', async () => {
     const vote = voteBuilder.setChoice(ItemVoteChoice.NO).build();
     const minPercentage = 100;
     const votingDto = votingBuilder
