@@ -37,6 +37,7 @@ export default class LoggedUser {
     points: 0,
     parentalAuth: true,
     above13: true,
+    clanRole_id: null,
   };
 
   /**

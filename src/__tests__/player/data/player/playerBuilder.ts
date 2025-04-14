@@ -33,6 +33,7 @@ export default class PlayerBuilder {
       hands: 1,
       skinColor: '#f5cba7',
     },
+    clanRole_id: null,
     _id: undefined,
   };
 

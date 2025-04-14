@@ -34,17 +34,18 @@ export const playerRules: RulesSetterAsync<Ability, Subjects> = async (
     const publicFields = [
       '_id',
       'name',
+      'points',
+      'backpackCapacity',
       'uniqueIdentifier',
-      'profile_id',
-      'clan_id',
-      'Clan',
-      'CustomCharacter',
       'above13',
       'parentalAuth',
       'gameStatistics',
-      'points',
-      'currentAvatarId',
       'battleCharacter_ids',
+      'currentAvatarId',
+      'profile_id',
+      'clan_id',
+      'avatar',
+      'clanRole_id',
     ];
     can(Action.read_request, subject);
     can(Action.read_response, subject, publicFields);

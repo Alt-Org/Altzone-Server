@@ -2,9 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Model, MongooseError } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { ModelName } from '../common/enum/modelName.enum';
-import { RequestHelperService } from '../requestHelper/requestHelper.service';
 import { ProfileDto } from '../profile/dto/profile.dto';
-import { PlayerDto } from '../player/dto/player.dto';
 import { ClanDto } from '../clan/dto/clan.dto';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
@@ -13,13 +11,16 @@ import * as argon2 from 'argon2';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { InjectModel } from '@nestjs/mongoose';
 import { Player } from '../player/schemas/player.schema';
+import { Profile } from '../profile/profile.schema';
+import { Clan } from '../clan/clan.schema';
 
 @Injectable()
 export class AuthService {
   public constructor(
-    private readonly requestHelperService: RequestHelperService,
     private readonly jwtService: JwtService,
+    @InjectModel(Profile.name) public readonly profileModel: Model<Profile>,
     @InjectModel(Player.name) public readonly playerModel: Model<Player>,
+    @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
   ) {}
 
   /**
@@ -35,15 +36,14 @@ export class AuthService {
     username: string,
     pass: string,
   ): Promise<object> | null => {
-    const profile =
-      await this.requestHelperService.getModelInstanceByCondition<any>(
-        ModelName.PROFILE,
-        { username: username },
-        ProfileDto,
-        true,
-      );
+    const profileResp = await this.profileModel.findOne({ username });
 
-    if (!profile || profile instanceof MongooseError) return null;
+    if (!profileResp || profileResp instanceof MongooseError) return null;
+
+    const profile = {
+      ...profileResp.toObject(),
+      _id: profileResp._id.toString(),
+    };
 
     const [isValidPassword, errors] = await this.verifyPassword(
       pass,
@@ -82,13 +82,10 @@ export class AuthService {
 
     profile['Player'] = player;
     let clan = null;
-    if (player?.clan_id)
-      clan = await this.requestHelperService.getModelInstanceById(
-        ModelName.CLAN,
-        player.clan_id,
-        ClanDto,
-      );
-    if (clan) profile['Clan'] = clan;
+    if (player?.clan_id) clan = await this.clanModel.findById(player.clan_id);
+
+    if (clan)
+      profile['Clan'] = { ...clan.toObject(), _id: clan._id.toString() };
 
     const { password: _p, isSystemAdmin: _a, ...serializedProfile } = profile;
 

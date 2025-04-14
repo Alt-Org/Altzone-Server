@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { VotingType } from '../enum/VotingType.enum';
-import { Vote } from './vote.schema';
+import { Vote, VoteSchema } from './vote.schema';
 import { Organizer } from './organizer.schema';
 
 export type VotingDocument = HydratedDocument<Voting>;
@@ -24,7 +24,7 @@ export class Voting {
   @Prop({ type: Number, default: 51 })
   minPercentage: number;
 
-  @Prop({ type: Array<Vote>, default: [] })
+  @Prop({ type: [VoteSchema], default: [] })
   votes: Vote[];
 
   @Prop({ type: MongooseSchema.Types.ObjectId })

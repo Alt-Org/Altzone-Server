@@ -130,8 +130,18 @@ describe('PlayerService.getAll() test suite', () => {
     });
 
     expect(errors).toBeNull();
-    expect(players[0].Clan).toEqual(expect.objectContaining(existingClan));
-    expect(players[1].Clan).toEqual(expect.objectContaining(existingClan));
+
+    const { roles: dbRoles1, ...clan1 } = (players[0].Clan as any).toObject();
+    const { roles: existingClanRoles1, ...clanWithoutRoles1 } = existingClan;
+
+    expect(clan1).toEqual(expect.objectContaining(clanWithoutRoles1));
+    expect(dbRoles1).toEqual(existingClanRoles1);
+
+    const { roles: dbRoles2, ...clan2 } = (players[1].Clan as any).toObject();
+    const { roles: existingClanRoles2, ...clanWithoutRoles2 } = existingClan;
+
+    expect(clan2).toEqual(expect.objectContaining(clanWithoutRoles2));
+    expect(dbRoles2).toEqual(existingClanRoles2);
   });
 
   it('Should ignore non-existing references requested', async () => {

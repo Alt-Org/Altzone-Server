@@ -14,8 +14,8 @@ export class DailyTask {
   @Prop({ type: MongooseSchema.Types.ObjectId, required: true })
   clan_id: string;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId })
-  player_id?: string;
+  @Prop({ type: MongooseSchema.Types.ObjectId, default: null })
+  player_id: string | null;
 
   @Prop({ type: Object, required: true })
   title: TaskTitle;

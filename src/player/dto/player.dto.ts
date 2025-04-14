@@ -64,4 +64,8 @@ export class PlayerDto {
   @Type(() => AvatarDto)
   @Expose()
   avatar?: AvatarDto;
+
+  @ExtractField()
+  @Expose()
+  clanRole_id?: string;
 }

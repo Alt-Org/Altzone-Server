@@ -2,11 +2,12 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { Stock } from '../stock/stock.schema';
 import { Room } from '../room/room.schema';
-import { QualityLevel } from './enum/qualityLevel.enum';
+import { Rarity } from './enum/rarity.enum';
 import { Recycling } from './enum/recycling.enum';
 import { ItemName } from './enum/itemName.enum';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
+import { Material } from './enum/material.enum';
 
 export type ItemDocument = HydratedDocument<Item>;
 
@@ -22,13 +23,16 @@ export class Item {
   recycling: Recycling;
 
   @Prop({ type: String, required: true })
-  qualityLevel: QualityLevel;
+  rarity: Rarity;
+
+  @Prop({ type: [String], enum: Material, default: [] })
+  material: Material[];
 
   @Prop({ type: String, required: true })
   unityKey: string;
 
-  @Prop({ type: Array<number>, required: true })
-  location: Array<number>;
+  @Prop({ type: [Number], required: true })
+  location: number[];
 
   @Prop({ type: Number, required: true })
   price: number;
