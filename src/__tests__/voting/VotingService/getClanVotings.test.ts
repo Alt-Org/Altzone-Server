@@ -3,13 +3,14 @@ import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
 import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultFields';
 import { PlayerService } from '../../../player/player.service';
+import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 
 describe('VotingService.getClanVotings() test suite', () => {
   let votingService: VotingService;
   let playerService: PlayerService;
 
   const votingBuilder = VotingBuilderFactory.getBuilder('CreateVotingDto');
-  const playerBuilder = VotingBuilderFactory.getBuilder('CreatePlayerDto');
+  const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
 
   const votingModel = VotingModule.getVotingModel();
   const playerModel = VotingModule.getPlayerModel();

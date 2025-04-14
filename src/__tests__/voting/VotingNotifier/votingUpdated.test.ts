@@ -8,6 +8,7 @@ import { NotificationStatus } from '../../../common/service/notificator/enum/Not
 import { NotificationResource } from '../../../common/service/notificator/enum/NotificationResource.enum';
 import { NotificationGroup } from '../../../common/service/notificator/enum/NotificationGroup.enum';
 import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
+import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -29,9 +30,7 @@ describe('VotingNotifier.votingUpdated() test suite', () => {
     const fleaMarketItem =
       FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto').build();
 
-    const playerDto = VotingBuilderFactory.getBuilder(
-      'CreatePlayerDto',
-    ).build() as PlayerDto;
+    const playerDto = PlayerBuilderFactory.getBuilder('PlayerDto').build();
 
     const mockClient = {};
 
@@ -80,9 +79,7 @@ describe('VotingNotifier.votingUpdated() test suite', () => {
     const fleaMarketItem =
       FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto').build();
 
-    const playerDto = VotingBuilderFactory.getBuilder(
-      'CreatePlayerDto',
-    ).build() as PlayerDto;
+    const playerDto = PlayerBuilderFactory.getBuilder('PlayerDto').build();
 
     const mockClient = {};
 

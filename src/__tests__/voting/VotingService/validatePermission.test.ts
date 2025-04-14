@@ -3,6 +3,7 @@ import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
 import { PlayerService } from '../../../player/player.service';
 import ServiceError from '../../../common/service/basicService/ServiceError';
+import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 
 describe('VotingService.validatePermission() test suite', () => {
   let votingService: VotingService;
@@ -10,7 +11,7 @@ describe('VotingService.validatePermission() test suite', () => {
 
   const votingBuilder = VotingBuilderFactory.getBuilder('CreateVotingDto');
 
-  const playerBuilder = VotingBuilderFactory.getBuilder('CreatePlayerDto');
+  const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
 
   const votingModel = VotingModule.getVotingModel();
   const playerModel = VotingModule.getPlayerModel();
@@ -35,7 +36,7 @@ describe('VotingService.validatePermission() test suite', () => {
 
     await playerService.createOne(playerToCreate);
     const updatePlayerBuilder =
-      VotingBuilderFactory.getBuilder('UpdatePlayerDto');
+      PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
 
     const dbData = (await playerModel.findOne({ name: playerName })).toObject();
 
@@ -101,7 +102,7 @@ describe('VotingService.validatePermission() test suite', () => {
 
     await playerService.createOne(playerToCreate);
     const updatePlayerBuilder =
-      VotingBuilderFactory.getBuilder('UpdatePlayerDto');
+      PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
 
     const dbData = (await playerModel.findOne({ name: playerName })).toObject();
 
@@ -138,7 +139,7 @@ describe('VotingService.validatePermission() test suite', () => {
 
     await playerService.createOne(playerToCreate);
     const updatePlayerBuilder =
-      VotingBuilderFactory.getBuilder('UpdatePlayerDto');
+      PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
 
     const dbData = (await playerModel.findOne({ name: playerName })).toObject();
 

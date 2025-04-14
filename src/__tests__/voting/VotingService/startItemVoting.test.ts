@@ -7,6 +7,8 @@ import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
 import mqtt, { MqttClient } from 'mqtt';
 import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
+import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
+import { ObjectId } from 'mongodb';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -26,9 +28,9 @@ describe('VotingService.startItemVoting() test suite', () => {
 
   it('Should creates a new voting entry and sends a MQTT notification if input is valid', async () => {
     const minPercentage = 1;
-    const player = VotingBuilderFactory.getBuilder(
-      'PlayerDto',
-    ).build() as PlayerDto;
+    const player = PlayerBuilderFactory.getBuilder('PlayerDto')
+      .setId(new ObjectId())
+      .build();
     const fleaMarketItem =
       FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto').build();
     const votingType = VotingType.SELLING_ITEM;
@@ -71,9 +73,9 @@ describe('VotingService.startItemVoting() test suite', () => {
 
   it('Should return with an error if entity_id is invalid', async () => {
     const invalidId = 'invalidId'; // Invalid ObjectId
-    const player = VotingBuilderFactory.getBuilder(
-      'PlayerDto',
-    ).build() as PlayerDto;
+    const player = PlayerBuilderFactory.getBuilder('PlayerDto')
+      .setId(new ObjectId())
+      .build();
     const fleaMarketItem = FleaMarketBuilderFactory.getBuilder(
       'FleaMarketItemDto',
     )

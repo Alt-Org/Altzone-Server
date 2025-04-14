@@ -9,6 +9,7 @@ import { PlayerService } from '../../../player/player.service';
 import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
 import ServiceError from '../../../common/service/basicService/ServiceError';
 import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
+import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -20,7 +21,7 @@ describe('VotingService.addVote() test suite', () => {
   let fleaMarketService: FleaMarketService;
 
   const votingBuilder = VotingBuilderFactory.getBuilder('CreateVotingDto');
-  const playerBuilder = VotingBuilderFactory.getBuilder('CreatePlayerDto');
+  const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
 
   const votingModel = VotingModule.getVotingModel();
   const playerModel = VotingModule.getPlayerModel();
