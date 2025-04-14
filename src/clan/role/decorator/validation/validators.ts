@@ -7,14 +7,15 @@ import { ClanBasicRight } from '../../enum/clanBasicRight.enum';
  *
  * @returns true if the provided object is a valid role rights object and if not
  */
-export function areRoleRightsValid(rights: Map<ClanBasicRight, true>) {
-  if (!rights) return false;
+export function areRoleRightsValid(
+  rights: Record<string, true> | null | undefined,
+): boolean {
+  if (!rights || typeof rights !== 'object') return false;
 
   const allowedKeys = new Set(Object.values(ClanBasicRight));
 
-  for (const [key, value] of rights.entries()) {
-    if (!allowedKeys.has(key)) return false;
-
+  for (const [key, value] of Object.entries(rights)) {
+    if (!allowedKeys.has(key as any)) return false;
     if (value !== true) return false;
   }
 

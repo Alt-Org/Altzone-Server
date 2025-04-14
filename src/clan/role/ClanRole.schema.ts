@@ -25,11 +25,10 @@ export class ClanRole {
    * Object with basic rights that the role has
    */
   @Prop({
-    type: Map,
-    of: Boolean,
+    type: Object,
     required: true,
     validate: {
-      validator: (map: Map<ClanBasicRight, true>) => areRoleRightsValid(map),
+      validator: (field: Record<string, true>) => areRoleRightsValid(field),
       message:
         'Rights object must have a key which is a value of ClanBasicRight enum and the value is true',
     },
