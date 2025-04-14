@@ -10,7 +10,7 @@ import { APIError } from '../../../common/controller/APIError';
 import { Organizer } from '../../../voting/dto/organizer.dto';
 
 jest.mock('mqtt', () => ({
-  connect: jest.fn()
+  connect: jest.fn(),
 }));
 
 describe('VotingNotifier.votingError() test suite', () => {
@@ -22,39 +22,49 @@ describe('VotingNotifier.votingError() test suite', () => {
   });
 
   it('Should send a notification for a voting error if input is valid', async () => {
-    
     const organizer = VotingBuilderFactory.getBuilder('Organizer')
-      .setClanId('clanId').build() as Organizer;
-    
+      .setClanId('clanId')
+      .build() as Organizer;
+
     const votingDto = votingBuilder.setOrganizer(organizer).build();
 
-    const apiError = VotingBuilderFactory.getBuilder('ApiError').build() as APIError;
+    const apiError = VotingBuilderFactory.getBuilder(
+      'ApiError',
+    ).build() as APIError;
 
-    const mockClient = { };
-    
+    const mockClient = {};
+
     (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
 
-    const  mockReturnValue =  (mockClient as MqttClient).publishAsync =  jest.fn((topic, payload) => {
-      return Promise.resolve({
-        cmd: 'publish',
+    const mockReturnValue = ((mockClient as MqttClient).publishAsync = jest.fn(
+      (topic, payload) => {
+        return Promise.resolve({
+          cmd: 'publish',
           qos: 0,
           dup: false,
           retain: false,
           topic,
           payload,
         });
-      });
+      },
+    ));
 
-      await votingNotifier.votingError(organizer.clan_id, VotingType.SELLING_ITEM, apiError);
+    await votingNotifier.votingError(
+      organizer.clan_id,
+      VotingType.SELLING_ITEM,
+      apiError,
+    );
 
-      expect(mqtt.connect).toHaveBeenCalledTimes(1);
+    expect(mqtt.connect).toHaveBeenCalledTimes(1);
 
-      expect(mockReturnValue.mock.calls[0][0])
-      .toEqual(`/${NotificationGroup.CLAN}/${votingDto.organizer.clan_id}/${NotificationResource.VOTING
-      }/${votingDto.type}/${NotificationStatus.ERROR}`);
-      
-      expect(mockReturnValue.mock.calls[0][1])
-      .toEqual(JSON.stringify({
+    expect(mockReturnValue.mock.calls[0][0]).toEqual(
+      `/${NotificationGroup.CLAN}/${votingDto.organizer.clan_id}/${
+        NotificationResource.VOTING
+      }/${votingDto.type}/${NotificationStatus.ERROR}`,
+    );
+
+    expect(mockReturnValue.mock.calls[0][1]).toEqual(
+      JSON.stringify({
         response: apiError.getResponse(),
         status: apiError.getStatus(),
         message: apiError.message,
@@ -65,6 +75,7 @@ describe('VotingNotifier.votingError() test suite', () => {
         additional: apiError.additional,
         statusCode: apiError.statusCode,
         objectType: 'APIError',
-      }));
-  });  
+      }),
+    );
+  });
 });

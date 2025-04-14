@@ -2,9 +2,7 @@ import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 import { APIError } from '../../../../common/controller/APIError';
 import { APIErrorReason } from '../../../../common/controller/APIErrorReason';
 
-export default class APIErrorBuilder
-  implements IDataBuilder<APIError>
-{
+export default class APIErrorBuilder implements IDataBuilder<APIError> {
   private readonly base: APIError;
 
   constructor() {

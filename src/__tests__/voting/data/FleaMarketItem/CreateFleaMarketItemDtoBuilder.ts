@@ -6,10 +6,13 @@ import { QualityLevel } from '../../../../clanInventory/item/enum/qualityLevel.e
 import { Status } from '../../../../fleaMarket/enum/status.enum';
 import { CreateFleaMarketItemDto } from '../../../../fleaMarket/dto/createFleaMarketItem.dto';
 
-export default class CreateFleaMarketItemDtoBuilder implements IDataBuilder<CreateFleaMarketItemDto> {
+export default class CreateFleaMarketItemDtoBuilder
+  implements IDataBuilder<CreateFleaMarketItemDto>
+{
   build(): CreateFleaMarketItemDto {
     return { ...this.base };
   }
+
   private readonly base: CreateFleaMarketItemDto = {
     name: ItemName.SOFA_TAAKKA,
     weight: 0,
@@ -19,8 +22,9 @@ export default class CreateFleaMarketItemDtoBuilder implements IDataBuilder<Crea
     price: 0,
     unityKey: '67e98660df641b26bb7cbf6b',
     isFurniture: false,
-    clan_id: '67e98660df641b26bb7cbf6b'
+    clan_id: '67e98660df641b26bb7cbf6b',
   };
+
   setId(id: string): CreateFleaMarketItemDtoBuilder {
     return this;
   }

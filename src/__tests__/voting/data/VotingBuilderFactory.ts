@@ -11,7 +11,6 @@ import PlayerDtoBuilder from './player/playerDtoBuilder';
 import UpdatePlayerDtoBuilder from './player/updatePlayerDtoBuilder';
 import CreateFleaMarketItemDtoBuilder from './FleaMarketItem/CreateFleaMarketItemDtoBuilder';
 
-
 type BuilderName =
   | 'CreateVotingDto'
   | 'CreateStartItemVotingParamsDto'
@@ -24,8 +23,7 @@ type BuilderName =
   | 'VotingDto'
   | 'ApiError'
   | 'Organizer'
-  | 'Vote'
-  ;
+  | 'Vote';
 
 type BuilderMap = {
   CreateVotingDto: CreateVotingDtoBuilder;

@@ -5,10 +5,13 @@ import { Recycling } from '../../../..//clanInventory/item/enum/recycling.enum';
 import { QualityLevel } from '../../../..//clanInventory/item/enum/qualityLevel.enum';
 import { Status } from '../../../../fleaMarket/enum/status.enum';
 
-export default class FleaMarketItemDtoBuilder implements IDataBuilder<FleaMarketItemDto> {
+export default class FleaMarketItemDtoBuilder
+  implements IDataBuilder<FleaMarketItemDto>
+{
   build(): FleaMarketItemDto {
     return { ...this.base };
   }
+
   private readonly base: FleaMarketItemDto = {
     _id: '67e98660df641b26bb7cbf6b',
     name: ItemName.SOFA_TAAKKA,
@@ -19,8 +22,9 @@ export default class FleaMarketItemDtoBuilder implements IDataBuilder<FleaMarket
     status: Status.AVAILABLE,
     isFurniture: false,
     price: 0,
-    clan_id: ''
-  }
+    clan_id: '',
+  };
+
   setId(id: string): FleaMarketItemDtoBuilder {
     this.base._id = id;
     return this;

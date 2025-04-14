@@ -9,7 +9,7 @@ import { NotificationResource } from '../../../common/service/notificator/enum/N
 import { NotificationGroup } from '../../../common/service/notificator/enum/NotificationGroup.enum';
 
 jest.mock('mqtt', () => ({
-  connect: jest.fn()
+  connect: jest.fn(),
 }));
 
 describe('VotingNotifier.votingUpdated() test suite', () => {
@@ -23,38 +23,45 @@ describe('VotingNotifier.votingUpdated() test suite', () => {
   });
 
   it('Should send a notification for a new voting if input is valid', async () => {
-
     const votingDto = votingBuilder.build();
 
-    const fleaMarketItem = VotingBuilderFactory.getBuilder('FleaMarketItemDto').build() as FleaMarketItemDto;
+    const fleaMarketItem = VotingBuilderFactory.getBuilder(
+      'FleaMarketItemDto',
+    ).build() as FleaMarketItemDto;
 
-    const playerDto = VotingBuilderFactory.getBuilder('CreatePlayerDto').build() as PlayerDto;
-    
-    const mockClient = { };
-    
+    const playerDto = VotingBuilderFactory.getBuilder(
+      'CreatePlayerDto',
+    ).build() as PlayerDto;
+
+    const mockClient = {};
+
     (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
 
-    const  mockReturnValue =  (mockClient as MqttClient).publishAsync =  jest.fn((topic, payload) => {
-      return Promise.resolve({
-        cmd: 'publish',
+    const mockReturnValue = ((mockClient as MqttClient).publishAsync = jest.fn(
+      (topic, payload) => {
+        return Promise.resolve({
+          cmd: 'publish',
           qos: 0,
           dup: false,
           retain: false,
           topic,
           payload,
         });
-      });
+      },
+    ));
 
-      await votingNotifier.votingUpdated(votingDto, fleaMarketItem, playerDto);
+    await votingNotifier.votingUpdated(votingDto, fleaMarketItem, playerDto);
 
-      expect(mqtt.connect).toHaveBeenCalledTimes(1);
+    expect(mqtt.connect).toHaveBeenCalledTimes(1);
 
-      expect(mockReturnValue.mock.calls[0][0])
-      .toEqual(`/${NotificationGroup.CLAN}/${votingDto.organizer.clan_id}/${NotificationResource.VOTING
-      }/${votingDto.type}/${NotificationStatus.UPDATE}`);
-      
-      expect(mockReturnValue.mock.calls[0][1])
-      .toEqual(JSON.stringify({
+    expect(mockReturnValue.mock.calls[0][0]).toEqual(
+      `/${NotificationGroup.CLAN}/${votingDto.organizer.clan_id}/${
+        NotificationResource.VOTING
+      }/${votingDto.type}/${NotificationStatus.UPDATE}`,
+    );
+
+    expect(mockReturnValue.mock.calls[0][1]).toEqual(
+      JSON.stringify({
         topic: `/clan/${
           votingDto.organizer.clan_id
         }/voting/${votingDto._id.toString()}`,
@@ -62,37 +69,45 @@ describe('VotingNotifier.votingUpdated() test suite', () => {
         voting_id: votingDto._id.toString(),
         type: votingDto.type,
         item: fleaMarketItem,
-        voter: playerDto as PlayerDto
-      }));
-  }); 
+        voter: playerDto as PlayerDto,
+      }),
+    );
+  });
 
   it('Should return with an error if input is invalid', async () => {
-
     const votingDto = votingBuilder.setOrganizer(null).build(); //add error to the input
 
-    const fleaMarketItem = VotingBuilderFactory.getBuilder('FleaMarketItemDto').build() as FleaMarketItemDto;
+    const fleaMarketItem = VotingBuilderFactory.getBuilder(
+      'FleaMarketItemDto',
+    ).build() as FleaMarketItemDto;
 
-    const playerDto = VotingBuilderFactory.getBuilder('CreatePlayerDto').build() as PlayerDto;
-    
-    const mockClient = { };
-    
+    const playerDto = VotingBuilderFactory.getBuilder(
+      'CreatePlayerDto',
+    ).build() as PlayerDto;
+
+    const mockClient = {};
+
     (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
 
-    const  mockReturnValue =  (mockClient as MqttClient).publishAsync =  jest.fn((topic, payload) => {
-      return Promise.resolve({
-        cmd: 'publish',
+    const mockReturnValue = ((mockClient as MqttClient).publishAsync = jest.fn(
+      (topic, payload) => {
+        return Promise.resolve({
+          cmd: 'publish',
           qos: 0,
           dup: false,
           retain: false,
           topic,
           payload,
         });
-      });
+      },
+    ));
 
-      try {
-        await votingNotifier.votingUpdated(votingDto, fleaMarketItem, playerDto);
-      } catch (error) {
-        expect(error).toEqual(new TypeError('Cannot read properties of null (reading \'clan_id\')'));
-      }
-  }); 
+    try {
+      await votingNotifier.votingUpdated(votingDto, fleaMarketItem, playerDto);
+    } catch (error) {
+      expect(error).toEqual(
+        new TypeError("Cannot read properties of null (reading 'clan_id')"),
+      );
+    }
+  });
 });

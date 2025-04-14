@@ -38,7 +38,7 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
     battleCharacter_ids: [],
     Clan: undefined,
     CustomCharacter: [],
-    _id: ''
+    _id: '',
   };
 
   build(): PlayerDto {

@@ -23,30 +23,30 @@ export default class CreateVotingDtoBuilder
   setOrganizer(organizer: Organizer) {
     this.base.organizer = organizer;
     return this;
-}
+  }
 
-setEndsOn(endsOn: Date) {
-  this.base.endsOn = endsOn;
-  return this;
-}
+  setEndsOn(endsOn: Date) {
+    this.base.endsOn = endsOn;
+    return this;
+  }
 
-setType(type: string) {
-  this.base.type = type;
-  return this;
-}
+  setType(type: string) {
+    this.base.type = type;
+    return this;
+  }
 
-setMinPercentage(minPercentage: number) {
-  this.base.minPercentage = minPercentage;
-  return this;
-}
+  setMinPercentage(minPercentage: number) {
+    this.base.minPercentage = minPercentage;
+    return this;
+  }
 
-setEntityId(entity_id: string) {
-  this.base.entity_id = entity_id;
-  return this;
-}
+  setEntityId(entity_id: string) {
+    this.base.entity_id = entity_id;
+    return this;
+  }
 
-setVotes(votes: Vote[]) {
-  this.base.votes = votes;
-  return this;
-}
+  setVotes(votes: Vote[]) {
+    this.base.votes = votes;
+    return this;
+  }
 }

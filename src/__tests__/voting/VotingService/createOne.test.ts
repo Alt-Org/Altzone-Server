@@ -16,16 +16,16 @@ describe('VotingService.createOne() test suite', () => {
   it('Should create a voting in DB if input is valid', async () => {
     const minPercentage = 1;
     const votingToCreate = votingBuilder
-      .setMinPercentage(minPercentage)  
+      .setMinPercentage(minPercentage)
       .build();
 
     await votingService.createOne(votingToCreate);
 
     const dbData = await votingModel.findOne({ minPercentage: minPercentage });
 
-    const {_id,...clearedResp } = clearDBRespDefaultFields(dbData);
+    const { _id, ...clearedResp } = clearDBRespDefaultFields(dbData);
 
-    const {entity_id,...expectedVoting } = { ...votingToCreate };
+    const { entity_id, ...expectedVoting } = { ...votingToCreate };
 
     expect(clearedResp).toEqual(expect.objectContaining(expectedVoting));
   });
@@ -38,9 +38,9 @@ describe('VotingService.createOne() test suite', () => {
       .setEntityId(invalidId) // Invalid ObjectId
       .build();
 
-      const [voting, errors] = await votingService.createOne(votingToCreate);
-      expect(voting).toBeNull();
-      expect(errors[0].field).toBe('entity_id');
-      expect(errors[0].value).toBe(invalidId);
+    const [voting, errors] = await votingService.createOne(votingToCreate);
+    expect(voting).toBeNull();
+    expect(errors[0].field).toBe('entity_id');
+    expect(errors[0].value).toBe(invalidId);
   });
 });

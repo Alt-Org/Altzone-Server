@@ -16,7 +16,7 @@ export default class CreateStartItemVotingParamsDtoBuilder
 
   build(): StartItemVotingParams {
     if (!this.base.player) {
-      throw new Error("Player is required but not set.");
+      throw new Error('Player is required but not set.');
     }
     return { ...this.base } as StartItemVotingParams;
   }

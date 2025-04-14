@@ -29,8 +29,20 @@ export default class VotingModule {
 
   static async getFleaMarketService() {
     const module = await VotingCommonModule.getModule();
-    const fleaMarketModel = mongoose.model(ModelName.FLEA_MARKET_ITEM, FleaMarketItemSchema);
-    return new FleaMarketService(fleaMarketModel, null, null, null, null, null, null, null);
+    const fleaMarketModel = mongoose.model(
+      ModelName.FLEA_MARKET_ITEM,
+      FleaMarketItemSchema,
+    );
+    return new FleaMarketService(
+      fleaMarketModel,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+    );
   }
 
   static getVotingModel() {
