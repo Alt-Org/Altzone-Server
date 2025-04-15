@@ -5,6 +5,7 @@ import RemovePlayerDtoBuilder from './clan/join/RemovePlayerDtoBuilder';
 import UpdateClanDtoBuilder from './clan/UpdateClanDtoBuilder';
 import JoinBuilder from './clan/join/JoinBuilder';
 import ClanRoleBuilder from './role/ClanRoleBuilder';
+import CreateClanRoleDtoBuilder from './role/CreateClanRoleDtoBuilder';
 
 type BuilderName =
   | 'CreateClanDto'
@@ -13,7 +14,8 @@ type BuilderName =
   | 'JoinRequestDto'
   | 'RemovePlayerDTO'
   | 'Join'
-  | 'ClanRole';
+  | 'ClanRole'
+  | 'CreateClanRoleDto';
 
 type BuilderMap = {
   CreateClanDto: CreateClanDtoBuilder;
@@ -23,6 +25,7 @@ type BuilderMap = {
   RemovePlayerDTO: RemovePlayerDtoBuilder;
   Join: JoinBuilder;
   ClanRole: ClanRoleBuilder;
+  CreateClanRoleDto: CreateClanRoleDtoBuilder;
 };
 
 export default class ClanBuilderFactory {
@@ -42,6 +45,8 @@ export default class ClanBuilderFactory {
         return new JoinBuilder() as BuilderMap[T];
       case 'ClanRole':
         return new ClanRoleBuilder() as BuilderMap[T];
+      case 'CreateClanRoleDto':
+        return new CreateClanRoleDtoBuilder() as BuilderMap[T];
       default:
         throw new Error(`Unknown builder name: ${builderName}`);
     }
