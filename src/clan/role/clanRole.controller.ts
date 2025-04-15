@@ -11,7 +11,7 @@ import { CreateClanRoleDto } from './dto/createClanRole.dto';
 import DetermineClanId from '../../common/guard/clanId.guard';
 
 @Controller('clan/role')
-export class ClanController {
+export class ClanRoleController {
   public constructor(private readonly service: ClanRoleService) {}
 
   @Post()
