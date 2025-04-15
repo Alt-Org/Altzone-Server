@@ -2,8 +2,9 @@ import { ClanRoleType } from '../../../../clan/role/enum/clanRoleType.enum';
 import { ObjectId } from 'mongodb';
 import { ClanRole } from '../../../../clan/role/ClanRole.schema';
 import { ClanBasicRight } from '../../../../clan/role/enum/clanBasicRight.enum';
+import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 
-export default class ClanRoleBuilder {
+export default class ClanRoleBuilder implements IDataBuilder<ClanRole> {
   private readonly base: Partial<ClanRole> = {
     name: 'Default Role',
     clanRoleType: ClanRoleType.NAMED,
