@@ -7,7 +7,7 @@ import { ClanRole } from './ClanRole.schema';
 import { ObjectId } from 'mongodb';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import { CreateClanRoleDto } from './dto/createClanRole.dto';
-import { isRoleDuplicate, isRoleNameExists } from './clanRoleUtils';
+import { doesRoleWithRightsExists, isRoleNameExists } from './clanRoleUtils';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { ClanRoleType } from './enum/clanRoleType.enum';
@@ -59,7 +59,7 @@ export default class ClanRoleService {
         ],
       ];
 
-    if (isRoleDuplicate(clan.roles.toObject(), roleToCreate.rights))
+    if (doesRoleWithRightsExists(clan.roles.toObject(), roleToCreate.rights))
       return [
         null,
         [

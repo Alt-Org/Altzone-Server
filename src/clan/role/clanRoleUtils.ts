@@ -9,7 +9,7 @@ import { ClanBasicRight } from './enum/clanBasicRight.enum';
  *
  * @returns true if there are a role with exact same rights or false if not
  */
-export function isRoleDuplicate(
+export function doesRoleWithRightsExists(
   clanRoles: ClanRole[],
   roleRights: Partial<Record<ClanBasicRight, true>>,
 ): boolean {
