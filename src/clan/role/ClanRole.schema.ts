@@ -3,6 +3,7 @@ import { ClanRoleType } from './enum/clanRoleType.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { areRoleRightsValid } from './decorator/validation/validators';
+import { CLAN_ROLE_MAX_LENGTH } from './const/validation';
 
 /**
  * Defines clan role structure
@@ -12,7 +13,7 @@ export class ClanRole {
   /**
    * Unique for clan name of the role
    */
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true, maxlength: CLAN_ROLE_MAX_LENGTH })
   name: string;
 
   /**
