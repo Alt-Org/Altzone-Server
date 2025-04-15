@@ -27,7 +27,9 @@ describe('clanRoleUtils isRoleDuplicate() test suite', () => {
   ];
 
   it('Should return true if there are a role with the same rights', () => {
-    const isDuplicate = isRoleDuplicate(roles, roles[0].rights);
+    const isDuplicate = isRoleDuplicate(roles, {
+      [ClanBasicRight.EDIT_CLAN_DATA]: true,
+    });
     expect(isDuplicate).toBeTruthy();
   });
 
@@ -55,17 +57,23 @@ describe('clanRoleUtils isRoleDuplicate() test suite', () => {
   });
 
   it('Should return false if the provided roles is null', () => {
-    const isDuplicate = isRoleDuplicate(null, roles[0].rights);
+    const isDuplicate = isRoleDuplicate(null, {
+      [ClanBasicRight.SHOP]: true,
+    });
     expect(isDuplicate).toBe(false);
   });
 
   it('Should return false if the provided roles is undefined', () => {
-    const isDuplicate = isRoleDuplicate(undefined, roles[0].rights);
+    const isDuplicate = isRoleDuplicate(undefined, {
+      [ClanBasicRight.SHOP]: true,
+    });
     expect(isDuplicate).toBe(false);
   });
 
   it('Should return false if the provided roles is empty array', () => {
-    const isDuplicate = isRoleDuplicate([], roles[0].rights);
+    const isDuplicate = isRoleDuplicate([], {
+      [ClanBasicRight.SHOP]: true,
+    });
     expect(isDuplicate).toBe(false);
   });
 

@@ -12,6 +12,9 @@ import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { ClanRoleType } from './enum/clanRoleType.enum';
 
+/**
+ * Manages clan roles
+ */
 @Injectable()
 export default class ClanRoleService {
   public constructor(
@@ -21,6 +24,18 @@ export default class ClanRoleService {
   }
   public readonly basicService: BasicService;
 
+  /**
+   * Creates a new role for a specified clan.
+   *
+   * Notice that the role name must be unique inside the clan and there should not be a role with exact same rights.
+   *
+   * @param roleToCreate role that need to be created
+   * @param clan_id clan where the role will be created
+   *
+   * @returns created role on success or ServiceErrors if:
+   * - NOT_UNIQUE clan has role with that name or there is a role with the same rights
+   * - NOT_FOUND if the clan could not be found
+   */
   async createOne(
     roleToCreate: CreateClanRoleDto,
     clan_id: string | ObjectId,
@@ -44,7 +59,7 @@ export default class ClanRoleService {
         ],
       ];
 
-    if (isRoleDuplicate(clan.roles, roleToCreate.rights))
+    if (isRoleDuplicate(clan.roles.toObject(), roleToCreate.rights))
       return [
         null,
         [

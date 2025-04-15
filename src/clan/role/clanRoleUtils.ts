@@ -15,7 +15,7 @@ export function isRoleDuplicate(
 ): boolean {
   if (!clanRoles || clanRoles.length === 0 || !roleRights) return false;
 
-  return clanRoles.findIndex((role) => role.rights === roleRights) !== -1;
+  return clanRoles.some((role) => areRightsEqual(role.rights, roleRights));
 }
 
 /**
@@ -32,4 +32,23 @@ export function isRoleNameExists(
   if (!clanRoles || clanRoles.length === 0 || !roleName) return false;
 
   return clanRoles.findIndex((role) => role.name === roleName) !== -1;
+}
+
+/**
+ * Compares role rights objects
+ * @param first first rights object to compare
+ * @param second second righst object to compare
+ *
+ * @returns true if the objects has the same rights or false if not
+ */
+function areRightsEqual(
+  first: Partial<Record<ClanBasicRight, true>>,
+  second: Partial<Record<ClanBasicRight, true>>,
+): boolean {
+  const firstKeys = Object.keys(first);
+  const secondKeys = Object.keys(second);
+
+  if (firstKeys.length !== secondKeys.length) return false;
+
+  return firstKeys.every((key) => second[key as ClanBasicRight] === true);
 }
