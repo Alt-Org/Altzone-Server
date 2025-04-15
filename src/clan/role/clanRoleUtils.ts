@@ -45,8 +45,11 @@ function areRightsEqual(
   first: Partial<Record<ClanBasicRight, true>>,
   second: Partial<Record<ClanBasicRight, true>>,
 ): boolean {
-  const firstKeys = Object.keys(first);
-  const secondKeys = Object.keys(second);
+  const firstRights = first ?? {};
+  const secondRights = second ?? {};
+
+  const firstKeys = Object.keys(firstRights);
+  const secondKeys = Object.keys(secondRights);
 
   if (firstKeys.length !== secondKeys.length) return false;
 
