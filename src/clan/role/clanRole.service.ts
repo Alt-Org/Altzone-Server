@@ -106,10 +106,84 @@ export default class ClanRoleService {
     clan_id: string | ObjectId,
     role_id: string | ObjectId,
   ): Promise<[true | null, ServiceError[] | null]> {
+    
+    const [clan] = await this.basicService.readOneById<Clan>(
+      clan_id.toString(),
+    );
+
+    const roleToDelete = clan.roles.find(
+      (role) => role._id.toString() === role_id.toString(),
+    );
+
+    const [isValidDefault, errorDefault] = await this.validateClanRoleDeleteRequest(roleToDelete);
+    if (!isValidDefault) return [isValidDefault, errorDefault];
+    
     await this.model.updateOne(
       { _id: clan_id },
       { $pull: { roles: { _id: role_id } } },
     );
+    return [true, null];
+  }
+
+  private async validateClanRoleDeleteRequest(
+    roleToDelete: ClanRole,
+  ): Promise<[true | null, ServiceError[] | null]> {
+    
+    if (!roleToDelete) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: '_id',
+            value: roleToDelete._id,
+            message: 'ClanRole not found',
+          }),
+        ],
+      ];
+    }
+
+    const [isNotDefault, errorDefault] = await this.validateClanRoleType(roleToDelete, ClanRoleType.DEFAULT);
+    if (!isNotDefault) return [isNotDefault, errorDefault];
+
+    const [isNotPersonal, errorPersonal] = await this.validateClanRoleType(roleToDelete, ClanRoleType.PERSONAL);
+    if (!isNotPersonal) return [isNotPersonal, errorPersonal];
+    
+    if (roleToDelete.clanRoleType.toString() != ClanRoleType.NAMED.toString()) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
+            field: '_id',
+            value: roleToDelete,
+            message: 'Can delete only named role',
+          }),
+        ],
+      ];
+    }
+
+    return [true, null];
+  }
+
+  private async validateClanRoleType(
+    role: ClanRole,
+    roleType: ClanRoleType,
+  ): Promise<[true | null, ServiceError[] | null]> {
+    if (role.clanRoleType === roleType) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
+            field: '_id',
+            value: role._id,
+            message: `Cannot delete ${roleType} role`,
+          }),
+        ],
+      ];
+    }
+
     return [true, null];
   }
 }
