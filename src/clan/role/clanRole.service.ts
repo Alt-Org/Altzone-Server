@@ -156,8 +156,8 @@ export default class ClanRoleService {
         [
           new ServiceError({
             reason: SEReason.VALIDATION,
-            field: '_id',
-            value: roleToDelete,
+            field: 'clanRoleType',
+            value: roleToDelete?.clanRoleType,
             message: 'Can delete only named role',
           }),
         ],
