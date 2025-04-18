@@ -115,7 +115,7 @@ export default class ClanRoleService {
       (role) => role._id.toString() === role_id.toString(),
     );
 
-    const [isValidDefault, errorDefault] = await this.validateClanRoleDeleteRequest(roleToDelete);
+    const [isValidDefault, errorDefault] = await this.validateClanRoleDeleteRequest(roleToDelete, role_id);
     if (!isValidDefault) return [isValidDefault, errorDefault];
     
     await this.model.updateOne(
@@ -127,6 +127,7 @@ export default class ClanRoleService {
 
   private async validateClanRoleDeleteRequest(
     roleToDelete: ClanRole,
+    role_id: string | ObjectId,
   ): Promise<[true | null, ServiceError[] | null]> {
     
     if (!roleToDelete) {
@@ -136,17 +137,17 @@ export default class ClanRoleService {
           new ServiceError({
             reason: SEReason.NOT_FOUND,
             field: '_id',
-            value: roleToDelete._id,
+            value: role_id,
             message: 'ClanRole not found',
           }),
         ],
       ];
     }
 
-    const [isNotDefault, errorDefault] = await this.validateClanRoleType(roleToDelete, ClanRoleType.DEFAULT);
+    const [isNotDefault, errorDefault] = await this.validateClanRoleType(roleToDelete, ClanRoleType.DEFAULT, role_id);
     if (!isNotDefault) return [isNotDefault, errorDefault];
 
-    const [isNotPersonal, errorPersonal] = await this.validateClanRoleType(roleToDelete, ClanRoleType.PERSONAL);
+    const [isNotPersonal, errorPersonal] = await this.validateClanRoleType(roleToDelete, ClanRoleType.PERSONAL, role_id);
     if (!isNotPersonal) return [isNotPersonal, errorPersonal];
     
     if (roleToDelete.clanRoleType.toString() != ClanRoleType.NAMED.toString()) {
@@ -169,6 +170,7 @@ export default class ClanRoleService {
   private async validateClanRoleType(
     role: ClanRole,
     roleType: ClanRoleType,
+    role_id: string | ObjectId = null,
   ): Promise<[true | null, ServiceError[] | null]> {
     if (role.clanRoleType === roleType) {
       return [
@@ -177,7 +179,7 @@ export default class ClanRoleService {
           new ServiceError({
             reason: SEReason.VALIDATION,
             field: '_id',
-            value: role._id,
+            value: role_id,
             message: `Cannot delete ${roleType} role`,
           }),
         ],
