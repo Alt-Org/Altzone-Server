@@ -94,4 +94,22 @@ export default class ClanRoleService {
 
     return [createdRole, null];
   }
+
+/**
+   * Deletes a ClanRole by its _id from DB.
+   * @param clan_id - The Mongo _id of the Clan where from the role to delete.
+   * @param role_id - The Mongo _id of the ClanRole to delete.
+   * @returns _true_ if ClanRole was removed successfully,
+   * or a ServiceError array if the ClanRole was not found or something else went wrong
+   */
+  async deleteOneById(
+    clan_id: string | ObjectId,
+    role_id: string | ObjectId,
+  ): Promise<[true | null, ServiceError[] | null]> {
+    await this.model.updateOne(
+      { _id: clan_id },
+      { $pull: { roles: { _id: role_id } } },
+    );
+    return [true, null];
+  }
 }
