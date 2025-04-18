@@ -18,12 +18,12 @@ describe('ClanRoleService.deleteOneById() test suite', () => {
   });
 
   it('Should delete a role if input is valid', async () => {
-    const newRoleName = 'my-new-role';
-    const newRoleId = new ObjectId();
+    const roleForDelete_Name = 'my-new-role';
+    const roleForDelete_Id = new ObjectId();
     
     const roleToDelete = roleBuilder
-      .setId(newRoleId)
-      .setName(newRoleName)
+      .setId(roleForDelete_Id)
+      .setName(roleForDelete_Name)
       .setClanRoleType(ClanRoleType.NAMED)
       .setRights({
         [ClanBasicRight.EDIT_CLAN_DATA]: true,
@@ -34,18 +34,18 @@ describe('ClanRoleService.deleteOneById() test suite', () => {
     const createdClan = await clanModel.create(existingClan);
     existingClan._id = createdClan._id;
 
-    const clan = await clanModel.findById(existingClan._id);
+    const clanBeforeDelete = await clanModel.findById(existingClan._id);
 
     const [isSuccess, error] = await roleService.deleteOneById(
-      clan._id,
+      clanBeforeDelete._id,
       roleToDelete._id,
     );
-    const clanResult = await clanModel.findById(existingClan._id);
+    const clanAfterDelete = await clanModel.findById(existingClan._id);
 
     expect(isSuccess).toBe(true);
     expect(error).toBeNull();
-    expect(clanResult).not.toBeNull();
-    expect(clanResult?.roles).not.toContainEqual(roleToDelete);
+    expect(clanAfterDelete).not.toBeNull();
+    expect(clanAfterDelete?.roles).not.toContainEqual(roleToDelete);
   });
 
   it('Should return with error if the provided ClanRole_ID not exists', async () => {
@@ -53,30 +53,31 @@ describe('ClanRoleService.deleteOneById() test suite', () => {
     const createdClan = await clanModel.create(existingClan);
     existingClan._id = createdClan._id;
 
-    const clan = await clanModel.findById(existingClan._id);
+    const clanBeforeDelete = await clanModel.findById(existingClan._id);
 
-    const nonExistingRoleId = new ObjectId();
+    const nonExistingRole_Id = new ObjectId();
     const [isSuccess, error] = await roleService.deleteOneById(
-      clan._id,
-      nonExistingRoleId,
+      clanBeforeDelete._id,
+      nonExistingRole_Id,
     );
 
     expect(isSuccess).toBe(null);
     expect(error).not.toBe(null);
     expect(error[0].reason).toBe(SEReason.NOT_FOUND);
     expect(error[0].field).toBe('_id');
-    expect(error[0].value).toBe(nonExistingRoleId);
+    expect(error[0].value).toBe(nonExistingRole_Id);
     expect(error[0].message).toBe('ClanRole not found');
   });
 
   it('Should return with error if role has default type', async () => {
-    const newRoleName = 'my-new-role';
-    const newRoleId = new ObjectId();
-    const roleType = ClanRoleType.DEFAULT;
+    const roleForDelete_Name = 'my-new-role';
+    const roleForDelete_Id = new ObjectId();
+    const roleForDelete_Type = ClanRoleType.DEFAULT;
+
     const roleToDelete = roleBuilder
-      .setId(newRoleId)
-      .setName(newRoleName)
-      .setClanRoleType(roleType)
+      .setId(roleForDelete_Id)
+      .setName(roleForDelete_Name)
+      .setClanRoleType(roleForDelete_Type)
       .setRights({
         [ClanBasicRight.EDIT_CLAN_DATA]: true,
       })
@@ -92,33 +93,36 @@ describe('ClanRoleService.deleteOneById() test suite', () => {
       clanBeforeDelete._id,
       roleToDelete._id,
     );
-  
-    expect(isSuccess).toBe(null);
-    expect(error).not.toBeNull();
-    expect(error[0].reason).toBe(SEReason.VALIDATION);
-    expect(error[0].field).toBe('_id');
-    expect(error[0].value).toBe(newRoleId);
-    expect(error[0].message).toBe(`Cannot delete ${roleType} role`);
+    
+    const clanAfterDelete = await clanModel.findById(existingClan._id);
 
-    const clanResult = await clanModel.findById(existingClan._id);
-    expect(clanResult).not.toBeNull();
-    const roleNotDeleted = clanResult?.roles.find(
+    const roleNotDeleted = clanAfterDelete?.roles.find(
       (role) => role._id.toString() === roleToDelete._id.toString(),
     );
     const roleToDeleteFromDB = clanBeforeDelete?.roles.find(
       (role) => role._id.toString() === roleToDelete._id.toString(),
     );
+    
+    expect(isSuccess).toBe(null);
+    expect(error).not.toBeNull();
+    expect(error[0].reason).toBe(SEReason.VALIDATION);
+    expect(error[0].field).toBe('_id');
+    expect(error[0].value).toBe(roleForDelete_Id);
+    expect(error[0].message).toBe(`Cannot delete ${roleForDelete_Type} role`);
+
+    expect(clanAfterDelete).not.toBeNull();
+    
     expect(roleNotDeleted).toEqual(roleToDeleteFromDB);
   });
 
   it('Should return with error if role has personal type', async () => {
-    const newRoleName = 'my-new-role';
-    const newRoleId = new ObjectId();
-    const roleType = ClanRoleType.PERSONAL;
+    const roleForDelete_Name = 'my-new-role';
+    const roleForDelete_Id = new ObjectId();
+    const roleForDelete_Type = ClanRoleType.PERSONAL;
     const roleToDelete = roleBuilder
-      .setId(newRoleId)
-      .setName(newRoleName)
-      .setClanRoleType(roleType)
+      .setId(roleForDelete_Id)
+      .setName(roleForDelete_Name)
+      .setClanRoleType(roleForDelete_Type)
       .setRights({
         [ClanBasicRight.EDIT_CLAN_DATA]: true,
       })
@@ -134,22 +138,23 @@ describe('ClanRoleService.deleteOneById() test suite', () => {
       clanBeforeDelete._id,
       roleToDelete._id,
     );
-  
-    expect(isSuccess).toBe(null);
-    expect(error).not.toBeNull();
-    expect(error[0].reason).toBe(SEReason.VALIDATION);
-    expect(error[0].field).toBe('_id');
-    expect(error[0].value).toBe(newRoleId);
-    expect(error[0].message).toBe(`Cannot delete ${roleType} role`);
 
-    const clanResult = await clanModel.findById(existingClan._id);
-    expect(clanResult).not.toBeNull();
-    const roleNotDeleted = clanResult?.roles.find(
+    const clanAfterDelete = await clanModel.findById(existingClan._id);
+    expect(clanAfterDelete).not.toBeNull();
+    const roleNotDeleted = clanAfterDelete?.roles.find(
       (role) => role._id.toString() === roleToDelete._id.toString(),
     );
     const roleToDeleteFromDB = clanBeforeDelete?.roles.find(
       (role) => role._id.toString() === roleToDelete._id.toString(),
     );
+
+    expect(isSuccess).toBe(null);
+    expect(error).not.toBeNull();
+    expect(error[0].reason).toBe(SEReason.VALIDATION);
+    expect(error[0].field).toBe('_id');
+    expect(error[0].value).toBe(roleForDelete_Id);
+    expect(error[0].message).toBe(`Cannot delete ${roleForDelete_Type} role`);
+
     expect(roleNotDeleted).toEqual(roleToDeleteFromDB);
   });
 });
