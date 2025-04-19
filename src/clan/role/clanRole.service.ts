@@ -11,6 +11,7 @@ import { doesRoleWithRightsExists, isRoleNameExists } from './clanRoleUtils';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { ClanRoleType } from './enum/clanRoleType.enum';
+import { UpdateClanRoleDto } from './dto/updateClanRole.dto';
 
 /**
  * Manages clan roles
@@ -94,6 +95,24 @@ export default class ClanRoleService {
     );
 
     return [createdRole, null];
+  }
+
+  /**
+   * Updates specified role by provided _id
+   *
+   * Notice that the role name must be unique inside the clan and there should not be a role with exact same rights.
+   *
+   * @param roleToUpdate role data to update
+   *
+   * @returns true if role was updated or ServiceError if:
+   * - NOT_UNIQUE clan has role with that name or there is a role with the same rights.
+   * Notice that it does not apply to the own data of role being updated
+   * - NOT_FOUND if the clan or role could not be found
+   */
+  async updateOneById(
+    roleToUpdate: UpdateClanRoleDto,
+  ): Promise<IServiceReturn<true>> {
+    return null;
   }
 
   /**
