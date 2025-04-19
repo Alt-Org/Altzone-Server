@@ -22,6 +22,7 @@ export default class ClanRoleService {
   ) {
     this.basicService = new BasicService(model);
   }
+
   public readonly basicService: BasicService;
 
   /**
@@ -95,7 +96,7 @@ export default class ClanRoleService {
     return [createdRole, null];
   }
 
-/**
+  /**
    * Deletes a ClanRole by its _id from DB.
    * @param clan_id - The Mongo _id of the Clan where from the role to delete.
    * @param role_id - The Mongo _id of the ClanRole to delete.
@@ -106,7 +107,6 @@ export default class ClanRoleService {
     clan_id: string | ObjectId,
     role_id: string | ObjectId,
   ): Promise<[true | null, ServiceError[] | null]> {
-    
     const [clan] = await this.basicService.readOneById<Clan>(
       clan_id.toString(),
     );
@@ -115,9 +115,10 @@ export default class ClanRoleService {
       (role) => role._id.toString() === role_id.toString(),
     );
 
-    const [isValidDefault, errorDefault] = await this.validateClanRoleDeleteRequest(roleToDelete, role_id);
+    const [isValidDefault, errorDefault] =
+      await this.validateClanRoleDeleteRequest(roleToDelete, role_id);
     if (!isValidDefault) return [isValidDefault, errorDefault];
-    
+
     await this.model.updateOne(
       { _id: clan_id },
       { $pull: { roles: { _id: role_id } } },
@@ -129,7 +130,6 @@ export default class ClanRoleService {
     roleToDelete: ClanRole,
     role_id: string | ObjectId,
   ): Promise<[true | null, ServiceError[] | null]> {
-    
     if (!roleToDelete) {
       return [
         null,
@@ -144,12 +144,20 @@ export default class ClanRoleService {
       ];
     }
 
-    const [isNotDefault, errorDefault] = await this.validateClanRoleType(roleToDelete, ClanRoleType.DEFAULT, role_id);
+    const [isNotDefault, errorDefault] = await this.validateClanRoleType(
+      roleToDelete,
+      ClanRoleType.DEFAULT,
+      role_id,
+    );
     if (!isNotDefault) return [isNotDefault, errorDefault];
 
-    const [isNotPersonal, errorPersonal] = await this.validateClanRoleType(roleToDelete, ClanRoleType.PERSONAL, role_id);
+    const [isNotPersonal, errorPersonal] = await this.validateClanRoleType(
+      roleToDelete,
+      ClanRoleType.PERSONAL,
+      role_id,
+    );
     if (!isNotPersonal) return [isNotPersonal, errorPersonal];
-    
+
     if (roleToDelete.clanRoleType.toString() != ClanRoleType.NAMED.toString()) {
       return [
         null,

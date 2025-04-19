@@ -31,7 +31,10 @@ export class ClanRoleController {
   @DetermineClanId()
   @UniformResponse()
   public async delete(@Param() param: _idDto, @LoggedUser() user: User) {
-    const [, errors] = await this.service.deleteOneById(user?.clan_id, param?._id);
+    const [, errors] = await this.service.deleteOneById(
+      user?.clan_id,
+      param?._id,
+    );
     if (errors) return [null, errors];
   }
 }

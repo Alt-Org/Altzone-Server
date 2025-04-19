@@ -20,7 +20,7 @@ describe('ClanRoleService.deleteOneById() test suite', () => {
   it('Should delete a role if input is valid', async () => {
     const roleForDelete_Name = 'my-new-role';
     const roleForDelete_Id = new ObjectId();
-    
+
     const roleToDelete = roleBuilder
       .setId(roleForDelete_Id)
       .setName(roleForDelete_Name)
@@ -93,7 +93,7 @@ describe('ClanRoleService.deleteOneById() test suite', () => {
       clanBeforeDelete._id,
       roleToDelete._id,
     );
-    
+
     const clanAfterDelete = await clanModel.findById(existingClan._id);
 
     const roleNotDeleted = clanAfterDelete?.roles.find(
@@ -102,7 +102,7 @@ describe('ClanRoleService.deleteOneById() test suite', () => {
     const roleToDeleteFromDB = clanBeforeDelete?.roles.find(
       (role) => role._id.toString() === roleToDelete._id.toString(),
     );
-    
+
     expect(isSuccess).toBe(null);
     expect(error).not.toBeNull();
     expect(error[0].reason).toBe(SEReason.VALIDATION);
@@ -111,7 +111,7 @@ describe('ClanRoleService.deleteOneById() test suite', () => {
     expect(error[0].message).toBe(`Cannot delete ${roleForDelete_Type} role`);
 
     expect(clanAfterDelete).not.toBeNull();
-    
+
     expect(roleNotDeleted).toEqual(roleToDeleteFromDB);
   });
 
