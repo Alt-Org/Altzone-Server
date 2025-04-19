@@ -105,8 +105,8 @@ describe('ClanRoleService.deleteOneById() test suite', () => {
 
     expect(isSuccess).toBe(null);
     expect(error).not.toBeNull();
-    expect(error[0].reason).toBe(SEReason.VALIDATION);
-    expect(error[0].field).toBe('_id');
+    expect(error[0].reason).toBe(SEReason.NOT_ALLOWED);
+    expect(error[0].field).toBe('clanRoleType');
     expect(error[0].value).toBe(roleForDelete_Id);
     expect(error[0].message).toBe(`Cannot delete ${roleForDelete_Type} role`);
 
@@ -150,8 +150,8 @@ describe('ClanRoleService.deleteOneById() test suite', () => {
 
     expect(isSuccess).toBe(null);
     expect(error).not.toBeNull();
-    expect(error[0].reason).toBe(SEReason.VALIDATION);
-    expect(error[0].field).toBe('_id');
+    expect(error[0].reason).toBe(SEReason.NOT_ALLOWED);
+    expect(error[0].field).toBe('clanRoleType');
     expect(error[0].value).toBe(roleForDelete_Id);
     expect(error[0].message).toBe(`Cannot delete ${roleForDelete_Type} role`);
 

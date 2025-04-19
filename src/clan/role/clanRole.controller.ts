@@ -10,6 +10,9 @@ import ClanRoleService from './clanRole.service';
 import { CreateClanRoleDto } from './dto/createClanRole.dto';
 import DetermineClanId from '../../common/guard/clanId.guard';
 import { _idDto } from '../../common/dto/_id.dto';
+import { SEReason } from '../../common/service/basicService/SEReason';
+import { APIError } from '../../common/controller/APIError';
+import { APIErrorReason } from '../../common/controller/APIErrorReason';
 
 @Controller('clan/role')
 export class ClanRoleController {
@@ -35,6 +38,23 @@ export class ClanRoleController {
       user?.clan_id,
       param?._id,
     );
+
+    if (
+      errors &&
+      errors[0].field === 'clanRoleType' &&
+      errors[0].reason === SEReason.NOT_ALLOWED
+    ) {
+      return [
+        null,
+        [
+          new APIError({
+            ...errors[0],
+            reason: APIErrorReason.NOT_AUTHORIZED,
+          }),
+        ],
+      ];
+    }
+
     if (errors) return [null, errors];
   }
 }

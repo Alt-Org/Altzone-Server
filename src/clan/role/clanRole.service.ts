@@ -158,12 +158,14 @@ export default class ClanRoleService {
     );
     if (!isNotPersonal) return [isNotPersonal, errorPersonal];
 
-    if (roleToDelete.clanRoleType.toString() != ClanRoleType.NAMED.toString()) {
+    if (
+      roleToDelete.clanRoleType.toString() !== ClanRoleType.NAMED.toString()
+    ) {
       return [
         null,
         [
           new ServiceError({
-            reason: SEReason.VALIDATION,
+            reason: SEReason.NOT_ALLOWED,
             field: 'clanRoleType',
             value: roleToDelete?.clanRoleType,
             message: 'Can delete only named role',
@@ -185,8 +187,8 @@ export default class ClanRoleService {
         null,
         [
           new ServiceError({
-            reason: SEReason.VALIDATION,
-            field: '_id',
+            reason: SEReason.NOT_ALLOWED,
+            field: 'clanRoleType',
             value: role_id,
             message: `Cannot delete ${roleType} role`,
           }),
