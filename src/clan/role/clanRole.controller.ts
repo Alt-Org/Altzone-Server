@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Post } from '@nestjs/common';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { LoggedUser } from '../../common/decorator/param/LoggedUser.decorator';
@@ -9,6 +9,10 @@ import ClanRoleDto from './dto/clanRole.dto';
 import ClanRoleService from './clanRole.service';
 import { CreateClanRoleDto } from './dto/createClanRole.dto';
 import DetermineClanId from '../../common/guard/clanId.guard';
+import { _idDto } from '../../common/dto/_id.dto';
+import { SEReason } from '../../common/service/basicService/SEReason';
+import { APIError } from '../../common/controller/APIError';
+import { APIErrorReason } from '../../common/controller/APIErrorReason';
 
 @Controller('clan/role')
 export class ClanRoleController {
@@ -23,5 +27,34 @@ export class ClanRoleController {
     @LoggedUser() user: User,
   ) {
     return this.service.createOne(body, user.clan_id);
+  }
+
+  @Delete('/:_id')
+  @HasClanRights([ClanBasicRight.MANAGE_ROLE])
+  @DetermineClanId()
+  @UniformResponse()
+  public async delete(@Param() param: _idDto, @LoggedUser() user: User) {
+    const [, errors] = await this.service.deleteOneById(
+      user?.clan_id,
+      param?._id,
+    );
+
+    if (
+      errors &&
+      errors[0].field === 'clanRoleType' &&
+      errors[0].reason === SEReason.NOT_ALLOWED
+    ) {
+      return [
+        null,
+        [
+          new APIError({
+            ...errors[0],
+            reason: APIErrorReason.NOT_AUTHORIZED,
+          }),
+        ],
+      ];
+    }
+
+    if (errors) return [null, errors];
   }
 }
