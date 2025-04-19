@@ -18,6 +18,7 @@ import { ItemName } from '../clanInventory/item/enum/itemName.enum';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 import { Connection } from 'mongoose';
 import { cancelTransaction } from '../common/function/cancelTransaction';
+import { InjectConnection } from '@nestjs/mongoose';
 
 @Injectable()
 export class ClanShopService {
@@ -27,7 +28,7 @@ export class ClanShopService {
     private readonly playerService: PlayerService,
     private readonly itemService: ItemService,
     private readonly votingQueue: VotingQueue,
-    private readonly connection: Connection,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   /**
