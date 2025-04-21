@@ -65,8 +65,8 @@ describe('ClanRoleService.deleteOneById() test suite', () => {
     expect(error).not.toBe(null);
     expect(error[0].reason).toBe(SEReason.NOT_FOUND);
     expect(error[0].field).toBe('_id');
-    expect(error[0].value).toBe(nonExistingRole_Id);
-    expect(error[0].message).toBe('ClanRole not found');
+    expect(error[0].value).toBe(nonExistingRole_Id.toString());
+    expect(error[0].message).toBe('Role with this _id is not found');
   });
 
   it('Should return with error if role has default type', async () => {
@@ -107,8 +107,8 @@ describe('ClanRoleService.deleteOneById() test suite', () => {
     expect(error).not.toBeNull();
     expect(error[0].reason).toBe(SEReason.NOT_ALLOWED);
     expect(error[0].field).toBe('clanRoleType');
-    expect(error[0].value).toBe(roleForDelete_Id);
-    expect(error[0].message).toBe(`Cannot delete ${roleForDelete_Type} role`);
+    expect(error[0].value).toBe(roleForDelete_Type);
+    expect(error[0].message).toBe(`Can process only role with type named`);
 
     expect(clanAfterDelete).not.toBeNull();
 
@@ -152,8 +152,8 @@ describe('ClanRoleService.deleteOneById() test suite', () => {
     expect(error).not.toBeNull();
     expect(error[0].reason).toBe(SEReason.NOT_ALLOWED);
     expect(error[0].field).toBe('clanRoleType');
-    expect(error[0].value).toBe(roleForDelete_Id);
-    expect(error[0].message).toBe(`Cannot delete ${roleForDelete_Type} role`);
+    expect(error[0].value).toBe(roleForDelete_Type);
+    expect(error[0].message).toBe(`Can process only role with type named`);
 
     expect(roleNotDeleted).toEqual(roleToDeleteFromDB);
   });
