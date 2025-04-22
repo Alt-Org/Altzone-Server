@@ -13,6 +13,7 @@ import { ClanService } from '../../../clan/clan.service';
 import { isClanExists } from '../../../clan/decorator/validation/IsClanExists.decorator';
 import { PlayerCounterFactory } from '../../../clan/clan.counters';
 import { GameEventsEmitterModule } from '../../../gameEventsEmitter/gameEventsEmitter.module';
+import ClanRoleService from '../../../clan/role/clanRole.service';
 
 export default class ClanCommonModule {
   private constructor() {}
@@ -40,6 +41,7 @@ export default class ClanCommonModule {
           PlayerCounterFactory,
           ClanHelperService,
           JoinService,
+          ClanRoleService,
         ],
       }).compile();
 

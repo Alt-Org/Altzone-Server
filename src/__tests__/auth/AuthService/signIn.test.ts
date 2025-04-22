@@ -56,11 +56,7 @@ describe('AuthService.signIn() test suite', () => {
     const clanDBFinal = {
       ...clearedClan,
       _id: clearedClan._id.toString(),
-      Player: undefined,
-      SoulHome: undefined,
-      Stock: undefined,
-      clanLogo: { ...clearedClan.clanLogo, objectType: 'ClanLogoDto' },
-      objectType: 'ClanDto',
+      clanLogo: { ...clearedClan.clanLogo },
     };
     const player = playerBuilder
       .setProfileId(existingProfile._id)
@@ -85,10 +81,9 @@ describe('AuthService.signIn() test suite', () => {
       tokenExpires,
       _id: existingProfile._id.toString(),
       username: existingProfile.username,
-      objectType: 'ProfileDto',
     };
 
-    expect(clearedResult).toEqual({
+    expect(clearedResult).toMatchObject({
       ...expectedResult,
       Player: expect.anything(),
       Clan: expect.anything(),

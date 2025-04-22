@@ -73,25 +73,25 @@ export class Box {
   /**
    * All clans that are related to the box
    */
-  @Prop({ type: Array<ObjectId>, required: true })
+  @Prop({ type: [ObjectId], required: true })
   clan_ids: ObjectId[];
 
   /**
    * All soul homes' _ids that are related to the box
    */
-  @Prop({ type: Array<ObjectId>, required: true })
+  @Prop({ type: [ObjectId], required: true })
   soulHome_ids: ObjectId[];
 
   /**
    * All rooms' _ids that are related to the box
    */
-  @Prop({ type: Array<ObjectId>, required: true })
+  @Prop({ type: [ObjectId], required: true })
   room_ids: ObjectId[];
 
   /**
    * All stocks' _ids that are related to the box
    */
-  @Prop({ type: Array<ObjectId>, required: true })
+  @Prop({ type: [ObjectId], required: true })
   stock_ids: ObjectId[];
 
   /**
@@ -110,7 +110,7 @@ export class Box {
    * Array of unique identifiers, which is used to identify the device sending the request to claim the profile.
    * Each identifier is unique within the box
    */
-  @Prop({ type: Array<string>, required: true, default: [] })
+  @Prop({ type: [String], required: true, default: [] })
   accountClaimersIds: string[];
 
   /**

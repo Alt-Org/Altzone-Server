@@ -41,12 +41,10 @@
                                             "data": {
                                                 "Clan": [
                                                     {
-                                                        "objectType": "ClanDto",
-                                                        "_id": "67961fbb1b3237ccb9628a44",
-                                                        "name": "clan1",
-                                                        "tag": "clan1",
+                                                        "_id": "67fe4e2d8a54d4cc39266a43",
+                                                        "name": "clan6",
+                                                        "tag": "clan6",
                                                         "clanLogo": {
-                                                            "objectType": "ClanLogoDto",
                                                             "logoType": "Heart",
                                                             "pieceColors": [
                                                                 "#FFFFFF",
@@ -59,45 +57,130 @@
                                                         "gameCoins": 0,
                                                         "points": 0,
                                                         "admin_ids": [
-                                                            "67961be31b3237ccb9628a37"
+                                                            "67fe4dd48a54d4cc39266a38"
                                                         ],
                                                         "playerCount": 1,
                                                         "itemCount": 0,
                                                         "stockCount": 0,
+                                                        "isOpen": true,
                                                         "ageRange": "None",
                                                         "goal": "None",
-                                                        "phrase": "Clan 1 is the best",
+                                                        "phrase": "Clan 6 is the best",
                                                         "language": "None",
-                                                        "isOpen": true
+                                                        "roles": [
+                                                            {
+                                                                "_id": "67fe4e2d8a54d4cc39266a44",
+                                                                "name": "leader",
+                                                                "clanRoleType": "default",
+                                                                "rights": {
+                                                                    "edit_soulhome": true,
+                                                                    "edit_clan_data": true,
+                                                                    "edit_member_rights": true,
+                                                                    "manage_role": true,
+                                                                    "shop": true
+                                                                },
+                                                                "id": "67fe4e2d8a54d4cc39266a44"
+                                                            },
+                                                            {
+                                                                "_id": "67fe4e2d8a54d4cc39266a45",
+                                                                "name": "member",
+                                                                "clanRoleType": "default",
+                                                                "id": "67fe4e2d8a54d4cc39266a45"
+                                                            },
+                                                            {
+                                                                "_id": "67fe4e2d8a54d4cc39266a46",
+                                                                "name": "Role-1",
+                                                                "clanRoleType": "named",
+                                                                "rights": {
+                                                                    "edit_soulhome": true,
+                                                                    "edit_clan_data": true
+                                                                },
+                                                                "id": "67fe4e2d8a54d4cc39266a46"
+                                                            }
+                                                        ],
+                                                        "__v": 0,
+                                                        "id": "67fe4e2d8a54d4cc39266a43"
                                                     },
                                                     {
-                                                        "objectType": "ClanDto",
-                                                        "_id": "66d70d08941f1d7be5033a3c",
-                                                        "name": "clan1",
-                                                        "labels": [
-                                                            "eläinrakkaat",
-                                                            "urheilevat",
-                                                            "rikkaat"
-                                                        ],
-                                                        "gameCoins": 0,
-                                                        "admin_ids": [
-                                                            "66d705c645b40dd7f491e6eb"
-                                                        ],
-                                                        "playerCount": 1,
-                                                        "itemCount": 0,
-                                                        "stockCount": 0,
-                                                        "ageRange": "None",
-                                                        "goal": "None",
-                                                        "language": "None",
-                                                        "isOpen": true,
+                                                        "_id": "67fa806ec579e44f4936f380",
+                                                        "name": "clan5",
+                                                        "tag": "clan5",
                                                         "clanLogo": {
-                                                            "objectType": "ClanLogoDto",
                                                             "logoType": "Heart",
                                                             "pieceColors": [
                                                                 "#FFFFFF",
                                                                 "#000000"
                                                             ]
-                                                        }
+                                                        },
+                                                        "labels": [
+                                                            "eläinrakkaat"
+                                                        ],
+                                                        "gameCoins": 0,
+                                                        "points": 0,
+                                                        "admin_ids": [
+                                                            "67fa7ef5b246044d3a9774b8"
+                                                        ],
+                                                        "playerCount": 1,
+                                                        "itemCount": 0,
+                                                        "stockCount": 0,
+                                                        "isOpen": true,
+                                                        "ageRange": "None",
+                                                        "goal": "None",
+                                                        "phrase": "Clan 5 is the best",
+                                                        "language": "None",
+                                                        "roles": [
+                                                            {
+                                                                "_id": "67fa806ec579e44f4936f381",
+                                                                "name": "leader",
+                                                                "clanRoleType": "default",
+                                                                "rights": {
+                                                                    "edit_soulhome": true,
+                                                                    "edit_clan_data": true,
+                                                                    "edit_member_rights": true,
+                                                                    "manage_role": true,
+                                                                    "shop": true
+                                                                },
+                                                                "id": "67fa806ec579e44f4936f381"
+                                                            },
+                                                            {
+                                                                "_id": "67fa806ec579e44f4936f382",
+                                                                "name": "member",
+                                                                "clanRoleType": "default",
+                                                                "id": "67fa806ec579e44f4936f382"
+                                                            },
+                                                            {
+                                                                "_id": "67fa806ec579e44f4936f383",
+                                                                "name": "elder",
+                                                                "clanRoleType": "named",
+                                                                "rights": {
+                                                                    "edit_soulhome": true,
+                                                                    "edit_clan_data": true,
+                                                                    "shop": true
+                                                                },
+                                                                "id": "67fa806ec579e44f4936f383"
+                                                            },
+                                                            {
+                                                                "name": "Role-1",
+                                                                "clanRoleType": "named",
+                                                                "rights": {
+                                                                    "edit_soulhome": true
+                                                                },
+                                                                "_id": "67fe4cba13bb785015a4b6bc",
+                                                                "id": "67fe4cba13bb785015a4b6bc"
+                                                            },
+                                                            {
+                                                                "name": "Role-2",
+                                                                "clanRoleType": "named",
+                                                                "rights": {
+                                                                    "edit_soulhome": true,
+                                                                    "edit_clan_data": true
+                                                                },
+                                                                "_id": "67fe4d948a54d4cc39266a13",
+                                                                "id": "67fe4d948a54d4cc39266a13"
+                                                            }
+                                                        ],
+                                                        "__v": 0,
+                                                        "id": "67fa806ec579e44f4936f380"
                                                     }
                                                 ]
                                             },
@@ -106,13 +189,6 @@
                                                 "modelName": "Clan",
                                                 "dataType": "Array",
                                                 "dataCount": 2
-                                            },
-                                            "paginationData": {
-                                                "currentPage": 1,
-                                                "limit": 2,
-                                                "offset": 0,
-                                                "itemCount": 2,
-                                                "pageCount": 1
                                             }
                                         }
                                     }
@@ -312,16 +388,46 @@
                                     "1": {
                                         "value": {
                                             "data": {
-                                                "Profile": {
-                                                    "_id": "667ee778b3b5bf0f7a840ec9",
-                                                    "username": "user1"
-                                                }
+                                                "Profile": [
+                                                    {
+                                                        "_id": "67fa7ef5b246044d3a9774b6",
+                                                        "username": "user7",
+                                                        "id": "67fa7ef5b246044d3a9774b6"
+                                                    },
+                                                    {
+                                                        "_id": "67f4edd23400a692df072d51",
+                                                        "username": "user4",
+                                                        "id": "67f4edd23400a692df072d51"
+                                                    },
+                                                    {
+                                                        "_id": "67e94f6c7a9831065fadbbc5",
+                                                        "username": "user3",
+                                                        "id": "67e94f6c7a9831065fadbbc5"
+                                                    },
+                                                    {
+                                                        "_id": "67e927d943df46974a7dc0ca",
+                                                        "username": "user2",
+                                                        "id": "67e927d943df46974a7dc0ca"
+                                                    },
+                                                    {
+                                                        "_id": "67e925e143df46974a7dc0be",
+                                                        "username": "user1",
+                                                        "id": "67e925e143df46974a7dc0be"
+                                                    }
+                                                ]
                                             },
                                             "metaData": {
                                                 "dataKey": "Profile",
                                                 "modelName": "Profile",
-                                                "dataType": "Object",
-                                                "dataCount": 1
+                                                "dataType": "Array",
+                                                "dataCount": 5
+                                            },
+                                            "paginationData": {
+                                                "currentPage": 1,
+                                                "limit": 20,
+                                                "offset": 0,
+                                                "itemCount": 5,
+                                                "pageCount": 1
                                             }
                                         }
                                     }
@@ -342,7 +448,7 @@
                         "JWTAuth": []
                     }
                 ],
-                "summary": "Read logged-in user Profile data",
+                "summary": "Read all Profiles data",
                 "description": "Read logged-in user Profile data\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only own |\n| Search | no | \n| Sort | no |\n| Pagination | no | "
             },
             "put": {
@@ -514,14 +620,15 @@
                                             "data": {
                                                 "Player": [
                                                     {
-                                                        "_id": "67f4edd23400a692df072d53",
-                                                        "name": "user4",
+                                                        "_id": "67fe4dd48a54d4cc39266a38",
+                                                        "name": "user6",
                                                         "backpackCapacity": 10,
                                                         "points": 0,
-                                                        "uniqueIdentifier": "user4",
+                                                        "uniqueIdentifier": "user6",
                                                         "above13": true,
                                                         "parentalAuth": true,
-                                                        "profile_id": "67f4edd23400a692df072d51",
+                                                        "profile_id": "67fe4dd48a54d4cc39266a36",
+                                                        "battleCharacter_ids": [],
                                                         "avatar": {
                                                             "head": 1,
                                                             "hair": 1,
@@ -534,20 +641,35 @@
                                                             "hands": 1,
                                                             "skinColor": "#f5cba7"
                                                         },
-                                                        "battleCharacter_ids": [],
-                                                        "id": "67f4edd23400a692df072d53"
+                                                        "clanRole_id": "67fe4e2d8a54d4cc39266a44",
+                                                        "clan_id": "67fe4e2d8a54d4cc39266a43",
+                                                        "id": "67fe4dd48a54d4cc39266a38"
                                                     },
                                                     {
-                                                        "_id": "67e94f6c7a9831065fadbbc7",
-                                                        "name": "user3",
+                                                        "_id": "67fa7ef5b246044d3a9774b8",
+                                                        "name": "user5",
                                                         "backpackCapacity": 10,
                                                         "points": 0,
-                                                        "uniqueIdentifier": "user3",
+                                                        "uniqueIdentifier": "user5",
                                                         "above13": true,
                                                         "parentalAuth": true,
-                                                        "profile_id": "67e94f6c7a9831065fadbbc5",
+                                                        "profile_id": "67fa7ef5b246044d3a9774b6",
                                                         "battleCharacter_ids": [],
-                                                        "id": "67e94f6c7a9831065fadbbc7"
+                                                        "avatar": {
+                                                            "head": 1,
+                                                            "hair": 1,
+                                                            "eyes": 1,
+                                                            "nose": 1,
+                                                            "mouth": 1,
+                                                            "eyebrows": 1,
+                                                            "clothes": 1,
+                                                            "feet": 1,
+                                                            "hands": 1,
+                                                            "skinColor": "#f5cba7"
+                                                        },
+                                                        "clanRole_id": "67fa806ec579e44f4936f381",
+                                                        "clan_id": "67fa806ec579e44f4936f380",
+                                                        "id": "67fa7ef5b246044d3a9774b8"
                                                     }
                                                 ]
                                             },
@@ -735,14 +857,15 @@
                                         "value": {
                                             "data": {
                                                 "Player": {
-                                                    "_id": "67f4edd23400a692df072d53",
-                                                    "name": "user4",
+                                                    "_id": "67fe4dd48a54d4cc39266a38",
+                                                    "name": "user6",
                                                     "backpackCapacity": 10,
                                                     "points": 0,
-                                                    "uniqueIdentifier": "user4",
+                                                    "uniqueIdentifier": "user6",
                                                     "above13": true,
                                                     "parentalAuth": true,
-                                                    "profile_id": "67f4edd23400a692df072d51",
+                                                    "profile_id": "67fe4dd48a54d4cc39266a36",
+                                                    "battleCharacter_ids": [],
                                                     "avatar": {
                                                         "head": 1,
                                                         "hair": 1,
@@ -755,9 +878,10 @@
                                                         "hands": 1,
                                                         "skinColor": "#f5cba7"
                                                     },
-                                                    "battleCharacter_ids": [],
+                                                    "clanRole_id": "67fe4e2d8a54d4cc39266a44",
                                                     "__v": 0,
-                                                    "id": "67f4edd23400a692df072d53"
+                                                    "clan_id": "67fe4e2d8a54d4cc39266a43",
+                                                    "id": "67fe4dd48a54d4cc39266a38"
                                                 }
                                             },
                                             "metaData": {
@@ -855,9 +979,9 @@
                                         "value": {
                                             "data": {
                                                 "Clan": {
-                                                    "_id": "67961fbb1b3237ccb9628a44",
-                                                    "name": "clan1",
-                                                    "tag": "clan1",
+                                                    "_id": "67fe4e2d8a54d4cc39266a43",
+                                                    "name": "clan6",
+                                                    "tag": "clan6",
                                                     "clanLogo": {
                                                         "logoType": "Heart",
                                                         "pieceColors": [
@@ -871,7 +995,7 @@
                                                     "gameCoins": 0,
                                                     "points": 0,
                                                     "admin_ids": [
-                                                        "67961be31b3237ccb9628a37"
+                                                        "67fe4dd48a54d4cc39266a38"
                                                     ],
                                                     "playerCount": 1,
                                                     "itemCount": 0,
@@ -879,10 +1003,41 @@
                                                     "isOpen": true,
                                                     "ageRange": "None",
                                                     "goal": "None",
-                                                    "phrase": "Clan 1 is the best",
+                                                    "phrase": "Clan 6 is the best",
                                                     "language": "None",
+                                                    "roles": [
+                                                        {
+                                                            "_id": "67fe4e2d8a54d4cc39266a44",
+                                                            "name": "leader",
+                                                            "clanRoleType": "default",
+                                                            "rights": {
+                                                                "edit_soulhome": true,
+                                                                "edit_clan_data": true,
+                                                                "edit_member_rights": true,
+                                                                "manage_role": true,
+                                                                "shop": true
+                                                            },
+                                                            "id": "67fe4e2d8a54d4cc39266a44"
+                                                        },
+                                                        {
+                                                            "_id": "67fe4e2d8a54d4cc39266a45",
+                                                            "name": "member",
+                                                            "clanRoleType": "default",
+                                                            "id": "67fe4e2d8a54d4cc39266a45"
+                                                        },
+                                                        {
+                                                            "_id": "67fe4e2d8a54d4cc39266a46",
+                                                            "name": "Role-1",
+                                                            "clanRoleType": "named",
+                                                            "rights": {
+                                                                "edit_soulhome": true,
+                                                                "edit_clan_data": true
+                                                            },
+                                                            "id": "67fe4e2d8a54d4cc39266a46"
+                                                        }
+                                                    ],
                                                     "__v": 0,
-                                                    "id": "67961fbb1b3237ccb9628a44"
+                                                    "id": "67fe4e2d8a54d4cc39266a43"
                                                 }
                                             },
                                             "metaData": {
@@ -978,8 +1133,8 @@
                     "Clan"
                 ],
                 "responses": {
-                    "204": {
-                        "$ref": "#/components/responses/204"
+                    "201": {
+                        "$ref": "#/components/responses/201"
                     },
                     "400": {
                         "$ref": "#/components/responses/400_New"
@@ -5336,6 +5491,443 @@
                 "summary": "Inform the API that the player is still online",
                 "description": "The player is considered to be online if he / she has made a request to this endpoint at least once a 5 min.\n\nSo it is recomended to make requests to this endpoint every 4-5 min to properly track the players being online, although not often than that."
             }
+        },
+        "/profile/{_id}": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Profile": {
+                                                    "_id": "67fa7ef5b246044d3a9774b6",
+                                                    "username": "user7"
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Profile",
+                                                "modelName": "Profile",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Profile information"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Get profile information",
+                "description": "Get profile information by _id"
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "1": {
+                            "value": "67fa7ef5b246044d3a9774b6"
+                        }
+                    },
+                    "name": "_id",
+                    "description": "profile _id",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/clan-shop/buy": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "itemName": "ArmChair_Rakkaus"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "ClanShop"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Buy an item",
+                "description": "Buy an item from a clan shop. \n\nNotice that the item will not be bought right away, but before majority of clan members should vote to buy the item.\n\nThere should be also enough coins to buy an item."
+            }
+        },
+        "/clan-shop/items": {
+            "get": {
+                "tags": [
+                    "ClanShop"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Item": [
+                                                    {
+                                                        "name": "Pictures_Uni",
+                                                        "rarity": "common",
+                                                        "isFurniture": false,
+                                                        "material": []
+                                                    },
+                                                    {
+                                                        "name": "Mirror_Rakkaus",
+                                                        "weight": 10,
+                                                        "price": 170,
+                                                        "rarity": "common",
+                                                        "recycling": "Glass",
+                                                        "isFurniture": false,
+                                                        "material": [
+                                                            "lasi",
+                                                            "metalli"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "name": "Muistoja_Flowers",
+                                                        "weight": 1,
+                                                        "price": 50,
+                                                        "rarity": "common",
+                                                        "recycling": "Mixed_waste",
+                                                        "isFurniture": false,
+                                                        "material": [
+                                                            "kasvi",
+                                                            "muovi",
+                                                            "lasi"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "name": "Book_Rakkaus",
+                                                        "weight": 0.5,
+                                                        "price": 30,
+                                                        "rarity": "common",
+                                                        "isFurniture": false,
+                                                        "material": [
+                                                            "paperi"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "name": "SideTable_Taakka",
+                                                        "weight": 16,
+                                                        "price": 60,
+                                                        "rarity": "common",
+                                                        "recycling": "Wood",
+                                                        "isFurniture": true,
+                                                        "material": [
+                                                            "melamiini",
+                                                            "kalustelevy"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "name": "Toy_Fox_Muistoja",
+                                                        "weight": 1,
+                                                        "price": 70,
+                                                        "rarity": "rare",
+                                                        "recycling": "Mixed_waste",
+                                                        "isFurniture": false,
+                                                        "material": [
+                                                            "kangas"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "name": "Dresser_Neuro",
+                                                        "weight": 24,
+                                                        "price": 100,
+                                                        "rarity": "rare",
+                                                        "recycling": "Wood",
+                                                        "isFurniture": true,
+                                                        "material": [
+                                                            "lastulevy",
+                                                            "alumiini"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "name": "Bed_Rakkaus",
+                                                        "weight": 20,
+                                                        "price": 200,
+                                                        "rarity": "rare",
+                                                        "recycling": "Mixed_waste",
+                                                        "isFurniture": true,
+                                                        "material": [
+                                                            "puu",
+                                                            "polyesteri"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "name": "Hologram_Kylmä_Tulevaisuus",
+                                                        "weight": 0,
+                                                        "price": 200,
+                                                        "rarity": "epic",
+                                                        "isFurniture": false,
+                                                        "material": [
+                                                            "valo"
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Item",
+                                                "modelName": "Item",
+                                                "dataType": "Array",
+                                                "dataCount": 9
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Success"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {}
+                ],
+                "summary": "Get a list of all available items",
+                "description": "Get a list of all items in the clan shop.\n\nNotice that item are rotated on every server restart and every day"
+            }
+        },
+        "/clan/role": {
+            "put": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "_id": "67fe4e2d8a54d4cc39266a46",
+                                        "name": "Role-1",
+                                        "rights": {
+                                            "edit_soulhome": true,
+                                            "edit_clan_data": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Clan"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Update a clan role",
+                "description": "Update a clan role.\n\nNotice that in order to update a role, clan member must have a basic right \"Manage role\".\n\nThe role must also be unique in a clan, unique name and unique rights."
+            },
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "name": "Role-1",
+                                        "rights": {
+                                            "edit_soulhome": true,
+                                            "edit_clan_data": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Clan"
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "1": {
+                                        "value": {
+                                            "data": {
+                                                "Clan": {
+                                                    "_id": "6807a0a05e909b3f92964756",
+                                                    "name": "Role-2",
+                                                    "clanRoleType": "named",
+                                                    "rights": {
+                                                        "edit_clan_data": true
+                                                    }
+                                                }
+                                            },
+                                            "metaData": {
+                                                "dataKey": "Clan",
+                                                "modelName": "Clan",
+                                                "dataType": "Object",
+                                                "dataCount": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Successfully created"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Create a new clan role",
+                "description": "Create a new clan role.\n\nNotice that in order to create a new role clan member must have a basic right \"Manage role\".\n\nThe role must also be unique in a clan, unique name and unique rights."
+            }
+        },
+        "/clan/role/{_id}": {
+            "delete": {
+                "tags": [
+                    "Clan"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/409_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Delete clan role by _id",
+                "description": "Delete a clan role.\n\nNotice that in order to delete a role, clan member must have a basic right \"Manage role\"."
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "1": {
+                            "value": "67fe4e2d8a54d4cc39266a44"
+                        }
+                    },
+                    "name": "_id",
+                    "description": "_id of a role",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
         }
     },
     "components": {
@@ -6000,6 +6592,11 @@
                         "maxLength": 20,
                         "type": "string",
                         "example": "my_clan"
+                    },
+                    "tag": {
+                        "description": "tag of the clan",
+                        "type": "string",
+                        "example": "my_tag"
                     },
                     "isOpen": {
                         "description": "whenever the clan is open or closed",
@@ -7319,6 +7916,10 @@
         {
             "name": "online-players",
             "description": "Information about online players"
+        },
+        {
+            "name": "ClanShop",
+            "description": "Clan shop, place where clans can buy items to decorate their soul homes"
         }
     ],
     "externalDocs": {

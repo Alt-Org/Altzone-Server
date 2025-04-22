@@ -35,6 +35,9 @@ describe('APIErrorFilter.catch() class test suite', () => {
   });
 
   it('Should set provided error to json() of response', () => {
-    expect(jsonMock).toHaveBeenCalledWith(apiError);
+    expect(jsonMock).toHaveBeenCalledWith({
+      errors: [apiError],
+      statusCode: apiError.statusCode,
+    });
   });
 });

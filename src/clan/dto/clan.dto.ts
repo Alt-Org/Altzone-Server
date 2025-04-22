@@ -8,6 +8,7 @@ import { Goal } from '../enum/goal.enum';
 import { StockDto } from '../../clanInventory/stock/dto/stock.dto';
 import { SoulHomeDto } from '../../clanInventory/soulhome/dto/soulhome.dto';
 import { ClanLogoDto } from './clanLogo.dto';
+import ClanRoleDto from '../role/dto/clanRole.dto';
 
 @AddType('ClanDto')
 export class ClanDto {
@@ -60,6 +61,10 @@ export class ClanDto {
 
   @Expose()
   isOpen: boolean;
+
+  @Type(() => ClanRoleDto)
+  @Expose()
+  roles: ClanRoleDto[];
 
   @Type(() => PlayerDto)
   @Expose()

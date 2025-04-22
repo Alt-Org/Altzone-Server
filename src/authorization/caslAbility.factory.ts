@@ -42,6 +42,8 @@ import { SoulHomeDto } from '../clanInventory/soulhome/dto/soulhome.dto';
 import { UpdateSoulHomeDto } from '../clanInventory/soulhome/dto/updateSoulHome.dto';
 import { StockDto } from '../clanInventory/stock/dto/stock.dto';
 import { UpdateStockDto } from '../clanInventory/stock/dto/updateStock.dto';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 
 export type AllowedAction =
   | Action.create_request
@@ -95,6 +97,7 @@ export type AppAbility = MongoAbility<
 export class CASLAbilityFactory {
   public constructor(
     private readonly requestHelperService: RequestHelperService,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
   public createForUser = async (
     user: User,
@@ -160,6 +163,7 @@ export class CASLAbilityFactory {
         action,
         subjectObj,
         this.requestHelperService,
+        this.connection,
       );
 
     if (

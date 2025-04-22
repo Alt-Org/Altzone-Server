@@ -46,11 +46,14 @@ export class Player {
   clan_id?: string;
 
   @ExtractField()
-  @Prop({ type: Array<ObjectId>, default: [] })
+  @Prop({ type: [ObjectId], default: [] })
   battleCharacter_ids?: string[] | ObjectId[];
 
   @Prop({ type: AvatarSchema, default: null })
   avatar?: Avatar;
+
+  @Prop({ type: ObjectId, default: null })
+  clanRole_id: string | ObjectId | null;
 
   @ExtractField()
   _id: string;
