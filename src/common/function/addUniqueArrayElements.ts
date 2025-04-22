@@ -7,10 +7,12 @@
  * @param elems The array containing elements to add. If null or empty, `arr` is returned unchanged.
  * @returns A new array with the unique elements from `elems` added to `arr`.
  */
-export function addUniqueArrayElements<T=any>(arr: T[], elems: T[] | null): T[] {
-    if(!elems || elems.length === 0)
-        return arr;
+export function addUniqueArrayElements<T = any>(
+  arr: T[],
+  elems: T[] | null,
+): T[] {
+  if (!elems || elems.length === 0) return arr;
 
-    const uniqueValues = elems.filter(value => !arr.includes(value));
-    return [...arr, ...uniqueValues];
+  const uniqueValues = elems.filter((value) => !arr.includes(value));
+  return [...arr, ...uniqueValues];
 }

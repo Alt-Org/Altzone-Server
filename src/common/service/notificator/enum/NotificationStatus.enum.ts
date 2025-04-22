@@ -8,20 +8,20 @@
  * For example NEW - new voting started, END - voting ended.
  */
 export enum NotificationStatus {
-    /**
-     * New process is started. For example new voting started.
-     */
-    NEW = 'new',
-    /**
-     * Update of the progress. For example somebody have sent a new vote.
-     */
-    UPDATE = 'update',
-    /**
-     * Error of the process. Some expected or unexpected error happen.
-     */
-    ERROR = 'error',
-    /**
-     * End of the process. For example the voting has been ended.
-     */
-    END = 'end'
+  /**
+   * New process is started. For example new voting started.
+   */
+  NEW = 'new',
+  /**
+   * Update of the progress. For example somebody have sent a new vote.
+   */
+  UPDATE = 'update',
+  /**
+   * Error of the process. Some expected or unexpected error happen.
+   */
+  ERROR = 'error',
+  /**
+   * End of the process. For example the voting has been ended.
+   */
+  END = 'end',
 }

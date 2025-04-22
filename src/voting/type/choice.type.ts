@@ -1,4 +1,4 @@
-import { ItemVoteChoice } from "../enum/choiceType.enum";
+import { ItemVoteChoice } from '../enum/choiceType.enum';
 
 /**
  * Represents the possible choices for a vote.

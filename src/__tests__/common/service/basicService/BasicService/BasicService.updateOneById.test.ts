@@ -1,50 +1,56 @@
-import BasicService from "../../../../../common/service/basicService/BasicService";
-import { getNonExisting_id } from "../../../../test_utils/util/getNonExisting_id";
-import ClanModule from "../../../../clan/modules/clan.module";
-import ClanBuilderFactory from "../../../../clan/data/clanBuilderFactory";
-
+import BasicService from '../../../../../common/service/basicService/BasicService';
+import { getNonExisting_id } from '../../../../test_utils/util/getNonExisting_id';
+import ClanModule from '../../../../clan/modules/clan.module';
+import ClanBuilderFactory from '../../../../clan/data/clanBuilderFactory';
 
 describe('BasicService.updateOneById() test suite', () => {
-    const clanModel = ClanModule.getClanModel();
-    const basicService = new BasicService(clanModel);
-    const clanCreateBuilder = ClanBuilderFactory.getBuilder('CreateClanDto');
+  const clanModel = ClanModule.getClanModel();
+  const basicService = new BasicService(clanModel);
+  const clanCreateBuilder = ClanBuilderFactory.getBuilder('CreateClanDto');
 
-    const existingClan = clanCreateBuilder.setName('clan1').build();
-    let existingClan_id: string;
+  const existingClan = clanCreateBuilder.setName('clan1').build();
+  let existingClan_id: string;
 
-    beforeEach(async () => {
-        const dbResp1 = await clanModel.create(existingClan);
-        existingClan_id = dbResp1._id.toString();
-    });
+  beforeEach(async () => {
+    const dbResp1 = await clanModel.create(existingClan);
+    existingClan_id = dbResp1._id.toString();
+  });
 
-    it('Should update the object in the DB and return true if the input is valid', async () => {
-        const updatedName = 'updatedClan';
-        const updateData = { name: updatedName };
+  it('Should update the object in the DB and return true if the input is valid', async () => {
+    const updatedName = 'updatedClan';
+    const updateData = { name: updatedName };
 
-        const [wasUpdated, errors] = await basicService.updateOneById(existingClan_id, updateData);
+    const [wasUpdated, errors] = await basicService.updateOneById(
+      existingClan_id,
+      updateData,
+    );
 
-        expect(errors).toBeNull();
-        expect(wasUpdated).toBeTruthy();
+    expect(errors).toBeNull();
+    expect(wasUpdated).toBeTruthy();
 
-        const updatedClan = await clanModel.findById(existingClan_id);
-        expect(updatedClan.name).toBe(updatedName);
-    });
+    const updatedClan = await clanModel.findById(existingClan_id);
+    expect(updatedClan.name).toBe(updatedName);
+  });
 
-    it('Should return ServiceError NOT_FOUND if the object with the provided _id does not exist', async () => {
-        const nonExisting_id = getNonExisting_id();
-        const updateData = { name: 'updatedClan' };
+  it('Should return ServiceError NOT_FOUND if the object with the provided _id does not exist', async () => {
+    const nonExisting_id = getNonExisting_id();
+    const updateData = { name: 'updatedClan' };
 
-        const [wasUpdated, errors] = await basicService.updateOneById(nonExisting_id, updateData);
+    const [wasUpdated, errors] = await basicService.updateOneById(
+      nonExisting_id,
+      updateData,
+    );
 
-        expect(wasUpdated).toBeNull();
-        expect(errors).toContainSE_NOT_FOUND();
-    });
+    expect(wasUpdated).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
+  });
 
-    it('Should not throw any error if _id or input are null or undefined', async () => {
-        const nullInput = async () => await basicService.updateOneById(null, null);
-        const undefinedInput = async () => await basicService.updateOneById(undefined, undefined);
+  it('Should not throw any error if _id or input are null or undefined', async () => {
+    const nullInput = async () => await basicService.updateOneById(null, null);
+    const undefinedInput = async () =>
+      await basicService.updateOneById(undefined, undefined);
 
-        expect(nullInput).not.toThrow();
-        expect(undefinedInput).not.toThrow();
-    });
+    expect(nullInput).not.toThrow();
+    expect(undefinedInput).not.toThrow();
+  });
 });

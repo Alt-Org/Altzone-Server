@@ -1,8 +1,8 @@
 /**
- * @deprecated 
+ * @deprecated
  */
-export enum ResponseType{
-    READ = 'read',
-    UPDATE = 'update',
-    DELETE = 'delete'
+export enum ResponseType {
+  READ = 'read',
+  UPDATE = 'update',
+  DELETE = 'delete',
 }

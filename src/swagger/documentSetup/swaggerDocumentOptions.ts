@@ -1,5 +1,3 @@
-import {SwaggerDocumentOptions} from "@nestjs/swagger";
+import { SwaggerDocumentOptions } from '@nestjs/swagger';
 
-export const swaggerDocumentOptions: SwaggerDocumentOptions = {
-
-}
+export const swaggerDocumentOptions: SwaggerDocumentOptions = {};

@@ -2,5 +2,5 @@
  * @deprecated
  */
 export type DeleteOptionsType = {
-    isOne: boolean;
-}
+  isOne: boolean;
+};

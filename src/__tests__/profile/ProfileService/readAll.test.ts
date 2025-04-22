@@ -1,66 +1,68 @@
-import {ProfileService} from "../../../profile/profile.service";
-import ProfileBuilderFactory from "../data/profileBuilderFactory";
-import ProfileModule from "../modules/profile.module";
+import { ProfileService } from '../../../profile/profile.service';
+import ProfileBuilderFactory from '../data/profileBuilderFactory';
+import ProfileModule from '../modules/profile.module';
 
 describe('ProfileService.readAll() test suite', () => {
-    let profileService: ProfileService;
-    const profileBuilder = ProfileBuilderFactory.getBuilder('Profile');
-    const username1 = 'user1';
-    const username2 = 'user2';
+  let profileService: ProfileService;
+  const profileBuilder = ProfileBuilderFactory.getBuilder('Profile');
+  const username1 = 'user1';
+  const username2 = 'user2';
 
-    const profileModel = ProfileModule.getProfileModel();
+  const profileModel = ProfileModule.getProfileModel();
 
-    beforeEach(async () => {
-        await profileModel.deleteMany({});
-        profileService = await ProfileModule.getProfileService();
+  beforeEach(async () => {
+    await profileModel.deleteMany({});
+    profileService = await ProfileModule.getProfileService();
 
-        const profileToCreate1 = profileBuilder.setUsername(username1).build();
-        await profileModel.create(profileToCreate1);
+    const profileToCreate1 = profileBuilder.setUsername(username1).build();
+    await profileModel.create(profileToCreate1);
 
-        const profileToCreate2 = profileBuilder.setUsername(username2).build();
-        await profileModel.create(profileToCreate2);
-    });
+    const profileToCreate2 = profileBuilder.setUsername(username2).build();
+    await profileModel.create(profileToCreate2);
+  });
 
-    it('Should retrieve all profiles based on query filter', async () => {
-        const query = { filter: { username: 'user1' } } as any;
-        const resp = await profileService.readAll(query);
+  it('Should retrieve all profiles based on query filter', async () => {
+    const query = { filter: { username: 'user1' } } as any;
+    const resp = await profileService.readAll(query);
 
-        const foundProfiles = resp['data']['Profile'];
+    const foundProfiles = resp['data']['Profile'];
 
-        expect(foundProfiles).toHaveLength(1);
-        expect(foundProfiles[0]).toEqual(expect.objectContaining({ username: 'user1' }));
-    });
+    expect(foundProfiles).toHaveLength(1);
+    expect(foundProfiles[0]).toEqual(
+      expect.objectContaining({ username: 'user1' }),
+    );
+  });
 
-    it('Should retrieve return exactly one profile if limit set to 1', async () => {
-        const query = { filter: undefined, select: undefined, limit: 1 } as any;
-        const resp = await profileService.readAll(query);
+  it('Should retrieve return exactly one profile if limit set to 1', async () => {
+    const query = { filter: undefined, select: undefined, limit: 1 } as any;
+    const resp = await profileService.readAll(query);
 
-        const foundProfiles = resp['data']['Profile'];
+    const foundProfiles = resp['data']['Profile'];
 
-        expect(foundProfiles).toHaveLength(1);
-    });
+    expect(foundProfiles).toHaveLength(1);
+  });
 
-    it('Should retrieve all profiles if no filter is specified', async () => {
-        const query = {filter: undefined, select: undefined} as any;
-        const resp = await profileService.readAll(query);
-        const foundProfiles = resp['data']['Profile'];
+  it('Should retrieve all profiles if no filter is specified', async () => {
+    const query = { filter: undefined, select: undefined } as any;
+    const resp = await profileService.readAll(query);
+    const foundProfiles = resp['data']['Profile'];
 
-        expect(foundProfiles).toHaveLength(2);
-    });
+    expect(foundProfiles).toHaveLength(2);
+  });
 
-    it('Should return an empty array if select is null', async () => {
-        const query = { select: null } as any;
-        const resp = await profileService.readAll(query);
-        const foundProfiles = resp['data']['Profile'];
+  it('Should return an empty array if select is null', async () => {
+    const query = { select: null } as any;
+    const resp = await profileService.readAll(query);
+    const foundProfiles = resp['data']['Profile'];
 
-        expect(foundProfiles).toHaveLength(0);
-    });
+    expect(foundProfiles).toHaveLength(0);
+  });
 
-    it('Should return empty response if no profiles match the filter', async () => {
-        const query = { filter: { username: 'non-existent' } } as any;
-        const resp = await profileService.readAll(query);
-        const foundProfiles = resp['data']['Profile'];
+  it('Should return empty response if no profiles match the filter', async () => {
+    const query = { filter: { username: 'non-existent' } } as any;
+    const resp = await profileService.readAll(query);
+    const foundProfiles = resp['data']['Profile'];
 
-        expect(foundProfiles).toHaveLength(0);
-    });
+    expect(foundProfiles).toHaveLength(0);
+  });
 });

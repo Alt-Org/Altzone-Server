@@ -1,7 +1,7 @@
-import {IsInt, IsOptional} from "class-validator";
+import { IsInt, IsOptional } from 'class-validator';
 
 export class UpdateUIDailyTaskDto {
-    @IsOptional()
-    @IsInt()
-    amount: number;
+  @IsOptional()
+  @IsInt()
+  amount: number;
 }

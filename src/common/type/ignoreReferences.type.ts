@@ -1,4 +1,4 @@
-import {ModelName} from "../enum/modelName.enum";
+import { ModelName } from '../enum/modelName.enum';
 
 /**
  * @deprecated

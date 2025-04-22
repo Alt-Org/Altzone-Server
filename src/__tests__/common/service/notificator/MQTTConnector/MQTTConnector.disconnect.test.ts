@@ -1,22 +1,22 @@
-import mqtt from "mqtt";
-import MQTTConnector from "../../../../../common/service/notificator/MQTTConnector";
+import mqtt from 'mqtt';
+import MQTTConnector from '../../../../../common/service/notificator/MQTTConnector';
 
 jest.mock('mqtt', () => ({
-    connect: jest.fn(),
+  connect: jest.fn(),
 }));
 
 describe('MQTTConnector.disconnect() test suite', () => {
-    it('Should call MqttClient.endAsync()', () => {
-        const mockClient = {
-            endAsync: jest.fn().mockResolvedValue(undefined),
-        };
-        
-        (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
+  it('Should call MqttClient.endAsync()', () => {
+    const mockClient = {
+      endAsync: jest.fn().mockResolvedValue(undefined),
+    };
 
-        const connector = MQTTConnector.getInstance();
+    (mqtt.connect as jest.Mock).mockReturnValue(mockClient);
 
-        connector.disconnect();
+    const connector = MQTTConnector.getInstance();
 
-        expect(mockClient.endAsync).toHaveBeenCalled();
-    });
+    connector.disconnect();
+
+    expect(mockClient.endAsync).toHaveBeenCalled();
+  });
 });

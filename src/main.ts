@@ -1,31 +1,35 @@
-import {NestFactory} from '@nestjs/core';
-import {AppModule} from './app.module';
-import {BadRequestException, ValidationPipe} from "@nestjs/common";
-import {useContainer, ValidationError} from "class-validator";
-import {APIError} from './common/controller/APIError';
-import {validationToAPIErrors} from './common/exceptionFilter/ValidationExceptionFilter';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { useContainer, ValidationError } from 'class-validator';
+import { APIError } from './common/controller/APIError';
+import { validationToAPIErrors } from './common/exceptionFilter/ValidationExceptionFilter';
 import EnvHandler from './common/service/envHandler/envHandler';
 import cookieParser from 'cookie-parser';
-import SwaggerSetuper from "./swagger/swaggerSetuper";
+import SwaggerSetuper from './swagger/swaggerSetuper';
 
 async function bootstrap() {
-    // Validate that all environment variables are added to the .env file
-    new EnvHandler().validateAllEnvFound();
+  // Validate that all environment variables are added to the .env file
+  new EnvHandler().validateAllEnvFound();
 
-    const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule);
 
-    app.use(cookieParser());
+  app.use(cookieParser());
 
-    app.useGlobalPipes(
-        new ValidationPipe({whitelist: true, transform: true, exceptionFactory: errorFactory})
-    );
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      exceptionFactory: errorFactory,
+    }),
+  );
 
-    //Let the class-validator use DI system of NestJS
-    useContainer(app.select(AppModule), {fallbackOnErrors: true});
+  //Let the class-validator use DI system of NestJS
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-    SwaggerSetuper.setupSwaggerFromJSDocs(app);
+  SwaggerSetuper.setupSwaggerFromJSDocs(app);
 
-    await app.listen(8080);
+  await app.listen(8080);
 }
 
 bootstrap();
@@ -37,26 +41,28 @@ bootstrap();
  * @returns bad request exception
  */
 function errorFactory(validationErrors: ValidationError[]) {
-    const messages = extractMessagesFromValidationErrors(validationErrors);
+  const messages = extractMessagesFromValidationErrors(validationErrors);
 
-    const apiErrors: APIError[] = [];
-    for (let i = 0, l = validationErrors.length; i < l; i++) {
-        const errors = validationToAPIErrors(validationErrors[i]);
-        apiErrors.push(...errors);
-    }
+  const apiErrors: APIError[] = [];
+  for (let i = 0, l = validationErrors.length; i < l; i++) {
+    const errors = validationToAPIErrors(validationErrors[i]);
+    apiErrors.push(...errors);
+  }
 
-    return new BadRequestException({
-        statusCode: 400,
-        message: messages,
-        error: "Bad Request",
-        errors: apiErrors
-    });
+  return new BadRequestException({
+    statusCode: 400,
+    message: messages,
+    error: 'Bad Request',
+    errors: apiErrors,
+  });
 }
 
 function extractMessagesFromValidationErrors(errors: ValidationError[]) {
-    return errors.map(error => Object.values(
-        error.constraints ?
-            error.constraints :
-            error.children.map(e => Object.values(e.constraints))
-    ));
+  return errors.map((error) =>
+    Object.values(
+      error.constraints
+        ? error.constraints
+        : error.children.map((e) => Object.values(e.constraints)),
+    ),
+  );
 }

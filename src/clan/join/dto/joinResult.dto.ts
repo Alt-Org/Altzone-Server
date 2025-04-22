@@ -1,12 +1,12 @@
-import { IsBoolean, IsMongoId, IsOptional } from "class-validator";
-import AddType from "../../../common/base/decorator/AddType.decorator";
+import { IsBoolean, IsMongoId, IsOptional } from 'class-validator';
+import AddType from '../../../common/base/decorator/AddType.decorator';
 
 @AddType('JoinResultDto')
 export class JoinResultDto {
-    @IsMongoId()
-    _id: string;
+  @IsMongoId()
+  _id: string;
 
-    @IsOptional()
-    @IsBoolean()
-    accepted : boolean;
+  @IsOptional()
+  @IsBoolean()
+  accepted: boolean;
 }

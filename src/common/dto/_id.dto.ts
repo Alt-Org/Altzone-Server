@@ -1,4 +1,4 @@
-import {IsMongoId} from "class-validator";
+import { IsMongoId } from 'class-validator';
 
 /**
  * Class for validating whenever an object contain _id field and that it has a valid Mongo _id value.
@@ -14,6 +14,6 @@ import {IsMongoId} from "class-validator";
  *```
  */
 export class _idDto {
-    @IsMongoId()
-    _id: string;
+  @IsMongoId()
+  _id: string;
 }

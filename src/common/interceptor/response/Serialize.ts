@@ -1,8 +1,13 @@
-import {CallHandler, ExecutionContext, NestInterceptor, UseInterceptors} from "@nestjs/common";
-import {Observable} from "rxjs";
-import {map} from "rxjs/operators";
-import {plainToInstance} from "class-transformer";
-import {IClass} from "../../interface/IClass";
+import {
+  CallHandler,
+  ExecutionContext,
+  NestInterceptor,
+  UseInterceptors,
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { plainToInstance } from 'class-transformer';
+import { IClass } from '../../interface/IClass';
 
 /**
  * Add a serialization, which means removing all fields from response body, which do not have the \@Expose() decorator defined
@@ -10,7 +15,7 @@ import {IClass} from "../../interface/IClass";
  * @returns
  */
 export function Serialize(dto: IClass) {
-    return UseInterceptors(new SerializeInterceptor(dto))
+  return UseInterceptors(new SerializeInterceptor(dto));
 }
 
 /**
@@ -20,35 +25,39 @@ export function Serialize(dto: IClass) {
  * @implements {NestInterceptor}
  */
 export class SerializeInterceptor implements NestInterceptor {
-    public constructor(private readonly dto: IClass) {
-    }
+  public constructor(private readonly dto: IClass) {}
 
-    public intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
-        return next.handle().pipe(
-            map(async (data: any) => {
-                if (!data)
-                    return data;
+  public intercept(
+    context: ExecutionContext,
+    next: CallHandler<any>,
+  ): Observable<any> | Promise<Observable<any>> {
+    return next.handle().pipe(
+      map(async (data: any) => {
+        if (!data) return data;
 
-                const parsedData = await data;
+        const parsedData = await data;
 
-                if(parsedData.metaData?.dataKey){
-                    parsedData.data[parsedData.metaData.dataKey] = plainToInstance(this.dto, parsedData.data[parsedData.metaData.dataKey], {
-                        excludeExtraneousValues: true
-                    });
-                    return parsedData;
-                }
+        if (parsedData.metaData?.dataKey) {
+          parsedData.data[parsedData.metaData.dataKey] = plainToInstance(
+            this.dto,
+            parsedData.data[parsedData.metaData.dataKey],
+            {
+              excludeExtraneousValues: true,
+            },
+          );
+          return parsedData;
+        }
 
+        const serializedData = plainToInstance(this.dto, parsedData, {
+          excludeExtraneousValues: true,
+        });
 
-                const serializedData = plainToInstance(this.dto, parsedData, {
-                    excludeExtraneousValues: true
-                });
+        const dataKey = 'Object';
+        parsedData.data = {};
 
-                const dataKey = 'Object';
-                parsedData.data = {};
-
-                parsedData['data'][dataKey] = serializedData;
-                return parsedData;
-            })
-        );
-    }
+        parsedData['data'][dataKey] = serializedData;
+        return parsedData;
+      }),
+    );
+  }
 }

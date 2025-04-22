@@ -1,242 +1,267 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { BasicServiceDummyAbstract } from "../../common/base/abstract/basicServiceDummy.abstract";
 import {
-    AddBasicService,
-} from "../../common/base/decorator/AddBasicService.decorator";
-import { IBasicService } from "../../common/base/interface/IBasicService";
-import { IHookImplementer, PostHookFunction } from "../../common/interface/IHookImplementer";
-import { Join } from "./join.schema";
-import { Model, Types } from "mongoose";
-import { ModelName } from "../../common/enum/modelName.enum";
-import { RequestHelperService } from "../../requestHelper/requestHelper.service";
-import { IgnoreReferencesType } from "../../common/type/ignoreReferences.type";
-import { JoinRequestDto } from "./dto/joinRequest.dto";
-import { ClanDto } from "../dto/clan.dto";
-import { PlayerDto } from "../../player/dto/player.dto";
-import { JoinResultDto } from "./dto/joinResult.dto";
-import { IResponseShape } from "../../common/interface/IResponseShape";
-import { _idDto } from "../../common/dto/_id.dto";
-import { ClanService } from "../clan.service";
-import { PlayerCounterFactory } from "../clan.counters";
-import ICounter from "../../common/service/counter/ICounter";
-import { RoomService } from "../../clanInventory/room/room.service";
-import { SoulHomeDto } from "../../clanInventory/soulhome/dto/soulhome.dto";
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { BasicServiceDummyAbstract } from '../../common/base/abstract/basicServiceDummy.abstract';
+import { AddBasicService } from '../../common/base/decorator/AddBasicService.decorator';
+import { IBasicService } from '../../common/base/interface/IBasicService';
+import {
+  IHookImplementer,
+  PostHookFunction,
+} from '../../common/interface/IHookImplementer';
+import { Join } from './join.schema';
+import { Model, Types } from 'mongoose';
+import { ModelName } from '../../common/enum/modelName.enum';
+import { RequestHelperService } from '../../requestHelper/requestHelper.service';
+import { IgnoreReferencesType } from '../../common/type/ignoreReferences.type';
+import { JoinRequestDto } from './dto/joinRequest.dto';
+import { ClanDto } from '../dto/clan.dto';
+import { PlayerDto } from '../../player/dto/player.dto';
+import { JoinResultDto } from './dto/joinResult.dto';
+import { IResponseShape } from '../../common/interface/IResponseShape';
+import { _idDto } from '../../common/dto/_id.dto';
+import { ClanService } from '../clan.service';
+import { PlayerCounterFactory } from '../clan.counters';
+import ICounter from '../../common/service/counter/ICounter';
+import { RoomService } from '../../clanInventory/room/room.service';
+import { SoulHomeDto } from '../../clanInventory/soulhome/dto/soulhome.dto';
+import { Player } from '../../player/schemas/player.schema';
 
 @Injectable()
 @AddBasicService()
-export class JoinService extends BasicServiceDummyAbstract<Join> implements IBasicService<Join>, IHookImplementer {
-    public constructor(
-        @InjectModel(Join.name) public readonly model: Model<Join>,
-        private readonly playerCounterFactory: PlayerCounterFactory,
-        private readonly requestHelperService: RequestHelperService,
-        private readonly clanService: ClanService,
-        private readonly roomService: RoomService
-    ) {
-        super();
-        this.refsInModel = [];
-        this.modelName = ModelName.JOIN;
+export class JoinService
+  extends BasicServiceDummyAbstract<Join>
+  implements IBasicService<Join>, IHookImplementer
+{
+  public constructor(
+    @InjectModel(Join.name) public readonly model: Model<Join>,
+    private readonly playerCounterFactory: PlayerCounterFactory,
+    private readonly requestHelperService: RequestHelperService,
+    private readonly clanService: ClanService,
+    private readonly roomService: RoomService,
+    @InjectModel(Player.name) public readonly playerModel: Model<Player>,
+  ) {
+    super();
+    this.refsInModel = [];
+    this.modelName = ModelName.JOIN;
 
-        this.playerCounter = this.playerCounterFactory.create();
-    }
-    public readonly refsInModel: ModelName[];
-    public readonly modelName: ModelName;
-    private readonly playerCounter: ICounter;
+    this.playerCounter = this.playerCounterFactory.create();
+  }
+  public readonly refsInModel: ModelName[];
+  public readonly modelName: ModelName;
+  private readonly playerCounter: ICounter;
 
-    /**
-     * Handle the request to join the Clan.
-     *
-     * In case the Clan is open the Player will be added immediately to the Clan.
-     *
-     * In case the Clan is closed, a request to join the Clan will be created.
-     * @param joinRequest request to join the Clan
-     * @returns 
-     */
-    public async handleJoinRequest(joinRequest: JoinRequestDto) {
-        const {player_id, clan_id} = joinRequest;
+  /**
+   * Handle the request to join the Clan.
+   *
+   * In case the Clan is open the Player will be added immediately to the Clan.
+   *
+   * In case the Clan is closed, a request to join the Clan will be created.
+   * @param joinRequest request to join the Clan
+   * @returns
+   */
+  public async handleJoinRequest(joinRequest: JoinRequestDto) {
+    const { player_id, clan_id } = joinRequest;
 
-        const clan = await this.getClan(clan_id);
-        if(!clan)
-            throw new NotFoundException('Clan with that _id is not found');
+    const clan = await this.getClan(clan_id);
+    if (!clan) throw new NotFoundException('Clan with that _id is not found');
 
-        const player = await this.requestHelperService.getModelInstanceByCondition( // get the player Joining
-            ModelName.PLAYER,
-            { _id: player_id },
-            PlayerDto,
-            true
-        );
-        if(!player)
-            throw new NotFoundException('Player with that _id is not found');
+    const playerResp = await this.playerModel.findOne({ _id: player_id });
 
-        // check if clan to join is open
-        if (clan.isOpen) { 
-            // does the player in some old clan? if so reduce the players in the old clan
-            if (player.clan_id) { 
-                const pclan = await this.getClan(player.clan_id);
-                if (pclan.playerCount <= 1) {
-                    this.clanService.deleteOneById(pclan._id);
-                } else {
-                    await this.playerCounter.decreaseByIdOnOne(player.clan_id);
-                }
-            }
-            await this.joinClan(player_id, clan_id); // join the clan
-            const resp = this.configureResponse(joinRequest);//this.createOne(body);
-            
-            return resp;
-        } 
+    if (!playerResp)
+      throw new NotFoundException('Player with that _id is not found');
 
-        if(!joinRequest.join_message)
-            throw new BadRequestException('The join_message must be specified for the closed clans');
+    const player = {
+      ...playerResp.toObject(),
+      _id: playerResp._id.toString(),
+      clan_id: playerResp.clan_id?.toString(),
+    };
 
-        // if clan closed and join_meaasage provided create a joinrequest in db
-        return this.createOne(joinRequest);    
-    }
-
-    /**
-     * Remove Player from Clan by the specified player_id
-     * @param player_id to remove
-     */
-    public async leaveClan(player_id: string) {
-        // get the player leaving
-        const player = await this.requestHelperService.getModelInstanceByCondition(
-            ModelName.PLAYER,
-            { _id: player_id },
-            PlayerDto,
-            true
-        );
-
-        if(!player)
-            throw new NotFoundException('Player with that _id not found');
-
-        const clan_id = player.clan_id;
-        if (!clan_id) 
-            throw new NotFoundException("Player is not joined to any clan");
-
-        const clan = await this.getClan(clan_id);
-
-        if(!clan)
-            throw new NotFoundException("Clan with that _id not found");
-
-        //If the last player
-        if (clan.playerCount <= 1) {
-            await this.clanService.deleteOneById(clan._id);
+    // check if clan to join is open
+    if (clan.isOpen) {
+      // does the player in some old clan? if so reduce the players in the old clan
+      if (player.clan_id) {
+        const pclan = await this.getClan(player.clan_id);
+        if (pclan.playerCount <= 1) {
+          this.clanService.deleteOneById(pclan._id);
         } else {
-            await this.playerCounter.decreaseByIdOnOne(clan_id);  
+          await this.playerCounter.decreaseByIdOnOne(player.clan_id);
         }
-        await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, { clan_id: null }); // update clan_id for the requested player;
+      }
+      await this.joinClan(player_id, clan_id); // join the clan
+      const resp = this.configureResponse(joinRequest); //this.createOne(body);
+
+      return resp;
     }
 
-    /**
-     * Removes the specified Player from the Clan
-     *
-     * @param player_id
-     * @param clan_id 
-     */
-    public async removePlayerFromClan(player_id: string, clan_id: string) {
-        // get the player to remove
-        const player = await this.requestHelperService.getModelInstanceByCondition(
-            ModelName.PLAYER,
-            { _id: player_id },
-            PlayerDto,
-            true
-        );
+    if (!joinRequest.join_message)
+      throw new BadRequestException(
+        'The join_message must be specified for the closed clans',
+      );
 
-        if(!player)
-            throw new NotFoundException('Player with that _id not found');
+    // if clan closed and join_meaasage provided create a joinrequest in db
+    return this.createOne(joinRequest);
+  }
 
-        const clan = await this.getClan(clan_id);
+  /**
+   * Remove Player from Clan by the specified player_id
+   * @param player_id to remove
+   */
+  public async leaveClan(player_id: string) {
+    // get the player leaving
+    const playerResp = await this.playerModel.findOne({ _id: player_id });
 
-        if(!clan)
-            throw new NotFoundException("Clan with that _id not found");
+    if (!playerResp)
+      throw new NotFoundException('Player with that _id is not found');
 
-        //If the last player
-        if (clan.playerCount <= 1 ) {
-            await this.clanService.deleteOneById(clan._id);
-        } else {
-            await this.playerCounter.decreaseByIdOnOne(clan_id);
-            //await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", -1) // update clan playercount    
-        }
-        await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, { clan_id: null }); // update clan_id for the requested player;
+    const player = {
+      ...playerResp.toObject(),
+      _id: playerResp._id.toString(),
+      clan_id: playerResp.clan_id?.toString(),
+    };
+
+    const clan_id = player.clan_id;
+    if (!clan_id)
+      throw new NotFoundException('Player is not joined to any clan');
+
+    const clan = await this.getClan(clan_id);
+
+    if (!clan) throw new NotFoundException('Clan with that _id not found');
+
+    //If the last player
+    if (clan.playerCount <= 1) {
+      await this.clanService.deleteOneById(clan._id);
+    } else {
+      await this.playerCounter.decreaseByIdOnOne(clan_id);
+    }
+    await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, {
+      clan_id: null,
+    }); // update clan_id for the requested player;
+  }
+
+  /**
+   * Removes the specified Player from the Clan
+   *
+   * @param player_id
+   * @param clan_id
+   */
+  public async removePlayerFromClan(player_id: string, clan_id: string) {
+    // get the player to remove
+    const playerResp = await this.playerModel.findOne({ _id: player_id });
+
+    if (!playerResp)
+      throw new NotFoundException('Player with that _id is not found');
+
+    const clan = await this.getClan(clan_id);
+
+    if (!clan) throw new NotFoundException('Clan with that _id not found');
+
+    //If the last player
+    if (clan.playerCount <= 1) {
+      await this.clanService.deleteOneById(clan._id);
+    } else {
+      await this.playerCounter.decreaseByIdOnOne(clan_id);
+      //await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", -1) // update clan playercount
+    }
+    await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, {
+      clan_id: null,
+    }); // update clan_id for the requested player;
+  }
+
+  public updateOnePostHook: PostHookFunction = async (
+    input: Partial<JoinResultDto>,
+    oldDoc: Join,
+  ): Promise<boolean> => {
+    if (!input?.accepted) {
+      return true;
     }
 
-    public updateOnePostHook: PostHookFunction = async (input: Partial<JoinResultDto>, oldDoc: Join): Promise<boolean> => {
-        if (!input?.accepted){
-            return true;
-        }
-                  
-        const player = await this.requestHelperService.getModelInstanceByCondition(
-            ModelName.PLAYER,
-            { _id: oldDoc.player_id },
-            PlayerDto,
-            true
-        );
-        
-        if (input.accepted) { // if player was accepted join the clan
-            if (player?.clan_id) {
-                //await this.playerCounter.increaseByIdOnOne(player.clan_id);
-                //await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: player.clan_id }, "playerCount", -1)
-            }
-            this.joinClan(oldDoc.player_id, oldDoc.clan_id);
-        }
-        this.deleteOneById(input._id) // delete the join request
-        return true;
+    const playerResp = await this.playerModel.findOne({
+      _id: oldDoc.player_id,
+    });
+    let player = null;
+    if (playerResp) {
+      player = {
+        ...playerResp.toObject(),
+        clan_id: playerResp.clan_id?.toString(),
+      };
     }
 
-    public clearCollectionReferences = async (_id: Types.ObjectId, ignoreReferences?: IgnoreReferencesType): Promise<void> => {
+    if (input.accepted) {
+      // if player was accepted join the clan
+      if (player?.clan_id) {
+        //await this.playerCounter.increaseByIdOnOne(player.clan_id);
+        //await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: player.clan_id }, "playerCount", -1)
+      }
+      this.joinClan(oldDoc.player_id, oldDoc.clan_id);
     }
+    this.deleteOneById(input._id); // delete the join request
+    return true;
+  };
 
-    private async joinClan(player_id: string, clan_id: string) { // func to join a clan
-        const soulhome = await this.requestHelperService.getModelInstanceByCondition(
-            ModelName.SOULHOME, 
-            {clan_id: clan_id},
-            SoulHomeDto, true
-        );
+  public clearCollectionReferences = async (
+    _id: Types.ObjectId,
+    _ignoreReferences?: IgnoreReferencesType,
+  ): Promise<void> => {};
 
-        // if(soulhome){
-        //     const firstRoom: CreateRoomDto = {
-        //         floorType: "placeholder",
-        //         wallType: "placeholder",
-        //         player_id: player_id,
-        //         soulHome_id: soulhome._id
-        //     };
-    
-        //     const room = await this.roomService.createOne(firstRoom);
-        //     if (!room || room instanceof MongooseError)
-        //         return;
-        //     let updatedlist = soulhome.rooms;
-        //     updatedlist.push(room.data.Room._id);
-        //     await this.requestHelperService.updateOneById(ModelName.SOULHOME, soulhome._id, {rooms:updatedlist});
-        // }
-             
-        await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, { clan_id: clan_id }); // update clan_id for the requested player;
-        await this.playerCounter.increaseByIdOnOne(clan_id);
-        //await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", 1); // update clan playercount
-    }
+  private async joinClan(player_id: string, clan_id: string) {
+    // func to join a clan
+    await this.requestHelperService.getModelInstanceByCondition(
+      ModelName.SOULHOME,
+      { clan_id: clan_id },
+      SoulHomeDto,
+      true,
+    );
 
-    private async getClan(_id: string) {
-        return await this.requestHelperService.getModelInstanceByCondition(  // get the Clan to join
-            ModelName.CLAN,
-            { _id: _id },
-            ClanDto,
-            true
-        );
-    }
+    // if(soulhome){
+    //     const firstRoom: CreateRoomDto = {
+    //         floorType: "placeholder",
+    //         wallType: "placeholder",
+    //         player_id: player_id,
+    //         soulHome_id: soulhome._id
+    //     };
 
-    private configureResponse = (data: any): IResponseShape => {
-        const dataKey = this.modelName;
-        const dataType = Array.isArray(data) ? 'Array' : 'Object';
-        const dataCount = dataType === 'Array' ? data.length : 1;
-        return {
-            data: {
-                [dataKey]: data
-            },
-            metaData: {
-                dataKey: dataKey,
-                modelName: this.modelName,
-                dataType,
-                dataCount
-            }
-        }
-    }
+    //     const room = await this.roomService.createOne(firstRoom);
+    //     if (!room || room instanceof MongooseError)
+    //         return;
+    //     let updatedlist = soulhome.rooms;
+    //     updatedlist.push(room.data.Room._id);
+    //     await this.requestHelperService.updateOneById(ModelName.SOULHOME, soulhome._id, {rooms:updatedlist});
+    // }
+
+    await this.requestHelperService.updateOneById(ModelName.PLAYER, player_id, {
+      clan_id: clan_id,
+    }); // update clan_id for the requested player;
+    await this.playerCounter.increaseByIdOnOne(clan_id);
+    //await this.requestHelperService.changeCounterValue(ModelName.CLAN, { _id: clan_id }, "playerCount", 1); // update clan playercount
+  }
+
+  private async getClan(_id: string) {
+    return await this.requestHelperService.getModelInstanceByCondition(
+      // get the Clan to join
+      ModelName.CLAN,
+      { _id: _id },
+      ClanDto,
+      true,
+    );
+  }
+
+  private configureResponse = (data: any): IResponseShape => {
+    const dataKey = this.modelName;
+    const dataType = Array.isArray(data) ? 'Array' : 'Object';
+    const dataCount = dataType === 'Array' ? data.length : 1;
+    return {
+      data: {
+        [dataKey]: data,
+      },
+      metaData: {
+        dataKey: dataKey,
+        modelName: this.modelName,
+        dataType,
+        dataCount,
+      },
+    };
+  };
 }
-

@@ -1,4 +1,4 @@
-import {Transform, TransformOptions} from "class-transformer";
+import { Transform, TransformOptions } from 'class-transformer';
 
 /**
  * Extract field from an object during serialization.
@@ -10,9 +10,11 @@ import {Transform, TransformOptions} from "class-transformer";
  *  clan_id: string;
  * ```
  *
- * @param options transformation options 
- * @returns 
+ * @param options transformation options
+ * @returns
  */
-export const ExtractField = (options: TransformOptions = {}): PropertyDecorator => {
-    return Transform(({obj, key}) => (obj[key]), options);
-}
+export const ExtractField = (
+  options: TransformOptions = {},
+): PropertyDecorator => {
+  return Transform(({ obj, key }) => obj[key], options);
+};

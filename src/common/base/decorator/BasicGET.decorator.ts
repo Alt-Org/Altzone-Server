@@ -1,16 +1,18 @@
-import {applyDecorators} from '@nestjs/common';
-import {IClass} from "../../interface/IClass";
-import {ThrowResponseErrorIfFound} from "../../decorator/response/ThrowResponseErrorIfFound";
-import {Serialize} from "../../interceptor/response/Serialize";
-import {ResponseType} from "../../decorator/response/responseType";
-import {ModelName} from "../../enum/modelName.enum";
-import {APIObjectName} from "../../enum/apiObjectName.enum";
+import { applyDecorators } from '@nestjs/common';
+import { IClass } from '../../interface/IClass';
+import { ThrowResponseErrorIfFound } from '../../decorator/response/ThrowResponseErrorIfFound';
+import { ResponseType } from '../../decorator/response/responseType';
+import { ModelName } from '../../enum/modelName.enum';
+import { APIObjectName } from '../../enum/apiObjectName.enum';
 
 /**
- * @deprecated 
+ * @deprecated
  */
-export const BasicGET = (modelName: ModelName | APIObjectName, responseDTO: IClass) => {
-    return applyDecorators(
-        ThrowResponseErrorIfFound(ResponseType.READ, modelName)
-    );
-}
+export const BasicGET = (
+  modelName: ModelName | APIObjectName,
+  _responseDTO: IClass,
+) => {
+  return applyDecorators(
+    ThrowResponseErrorIfFound(ResponseType.READ, modelName),
+  );
+};

@@ -6,16 +6,17 @@ import ServiceError from '../common/service/basicService/ServiceError';
 
 @Injectable()
 export class PlayerEventHandler {
-	constructor(
-		private readonly playerRewarder: PlayerRewarder,
-		private readonly playerStatistics: PlayerStatisticService
-	) {
+  constructor(
+    private readonly playerRewarder: PlayerRewarder,
+    private readonly playerStatistics: PlayerStatisticService,
+  ) {}
 
-	}
-
-	async handlePlayerEvent(player_id: string, event: PlayerEvent): Promise<[boolean, ServiceError[]]> {
-		await this.playerStatistics.updatePlayerStatistic(player_id, event);
-		await this.playerRewarder.rewardForPlayerEvent(player_id, event);
-		return [true, null];
-	}
+  async handlePlayerEvent(
+    player_id: string,
+    event: PlayerEvent,
+  ): Promise<[boolean, ServiceError[]]> {
+    await this.playerStatistics.updatePlayerStatistic(player_id, event);
+    await this.playerRewarder.rewardForPlayerEvent(player_id, event);
+    return [true, null];
+  }
 }

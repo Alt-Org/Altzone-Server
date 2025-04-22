@@ -1,12 +1,12 @@
-import { IsEnum, IsMongoId } from "class-validator";
-import AddType from "../../common/base/decorator/AddType.decorator";
-import { ItemVoteChoice } from "../enum/choiceType.enum";
+import { IsEnum, IsMongoId } from 'class-validator';
+import AddType from '../../common/base/decorator/AddType.decorator';
+import { ItemVoteChoice } from '../enum/choiceType.enum';
 
-@AddType("AddVoteDto")
+@AddType('AddVoteDto')
 export class AddVoteDto {
-	@IsMongoId()
-	voting_id: string;
+  @IsMongoId()
+  voting_id: string;
 
-	@IsEnum(ItemVoteChoice)
-	choice: ItemVoteChoice;
+  @IsEnum(ItemVoteChoice)
+  choice: ItemVoteChoice;
 }

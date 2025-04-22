@@ -1,10 +1,21 @@
-import {HttpException} from "@nestjs/common/exceptions/http.exception";
-import {isServiceError} from "../../service/basicService/ServiceError";
-import {APIError, convertToAPIError, isAPIError} from "../../controller/APIError";
-import formatResponse from "../../controller/formatResponse";
-import {CallHandler, ExecutionContext, Injectable, NestInterceptor} from "@nestjs/common";
-import {Observable} from "rxjs";
-import {map, catchError} from "rxjs/operators";
+import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import { isServiceError } from '../../service/basicService/ServiceError';
+import {
+  APIError,
+  convertToAPIError,
+  isAPIError,
+} from '../../controller/APIError';
+import formatResponse from '../../controller/formatResponse';
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { Error } from 'mongoose';
+import { convertMongooseToServiceErrors } from '../../service/basicService/BasicService';
 
 /**
  * Formats the method return value to uniform shape for sending it to client side.
@@ -16,39 +27,48 @@ import {map, catchError} from "rxjs/operators";
  */
 @Injectable()
 export class FormatAPIResponseInterceptor implements NestInterceptor {
-    constructor(private readonly modelName?: string) {
-    }
+  constructor(private readonly modelName?: string) {}
 
-    intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-        return next.handle().pipe(
-            map(async (returnValue) => {
-                try {
-                    const result = await returnValue;
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    return next.handle().pipe(
+      map(async (returnValue) => {
+        try {
+          const result = await returnValue;
 
-                    if (Array.isArray(result) && result.length === 2 && result[1] === null) {
-                        const data = result[0];
-                        return formatResponse(data, this.modelName);
-                    }
+          if (
+            Array.isArray(result) &&
+            result.length === 2 &&
+            result[1] === null
+          ) {
+            const data = result[0];
+            return formatResponse(data, this.modelName);
+          }
 
-                    if (Array.isArray(result) && result.length === 2 && result[0] === null) {
-                        throw result[1];
-                    }
+          if (
+            Array.isArray(result) &&
+            result.length === 2 &&
+            result[0] === null
+          ) {
+            throw result[1];
+          }
 
-                    if (isServiceError(result) || isAPIError(result)) {
-                        throw result;
-                    }
+          if (isServiceError(result) || isAPIError(result)) {
+            throw result;
+          }
 
-                    return result != null ? formatResponse(result, this.modelName) : result;
-                } catch (e) {
-                    throwAPIError(e);
-                }
-            }),
-            catchError((err) => {
-                throwAPIError(err);
-                throw err;
-            }),
-        );
-    }
+          return result != null
+            ? formatResponse(result, this.modelName)
+            : result;
+        } catch (e) {
+          throwAPIError(e);
+        }
+      }),
+      catchError((err) => {
+        throwAPIError(err);
+        throw err;
+      }),
+    );
+  }
 }
 
 /**
@@ -56,15 +76,32 @@ export class FormatAPIResponseInterceptor implements NestInterceptor {
  * @param error to be thrown
  */
 export function throwAPIError(error: any) {
-    const resp: { errors: APIError[], statusCode: number } = {errors: [], statusCode: 0};
-    if (Array.isArray(error))
-        for (let i = 0, l = error.length; i < l; i++)
-            resp.errors.push(convertToAPIError(error[i]));
-    else
-        resp.errors.push(convertToAPIError(error));
+  const resp: { errors: APIError[]; statusCode: number } = {
+    errors: [],
+    statusCode: 0,
+  };
 
-    const respStatusCode = resp.errors[0].statusCode;
-    resp.statusCode = respStatusCode;
+  let convertedError = error;
+  if (isMongooseError(error))
+    convertedError = convertMongooseToServiceErrors(error);
 
-    throw new HttpException(resp, respStatusCode);
+  if (Array.isArray(convertedError))
+    for (let i = 0, l = convertedError.length; i < l; i++)
+      resp.errors.push(convertToAPIError(convertedError[i]));
+  else resp.errors.push(convertToAPIError(convertedError));
+
+  const respStatusCode = resp.errors[0].statusCode;
+  resp.statusCode = respStatusCode;
+
+  throw new HttpException(resp, respStatusCode);
+}
+
+function isMongooseError(error: any): boolean {
+  if (!error) return false;
+
+  return (
+    error?.code === 11000 ||
+    (error?.name === 'StrictPopulateError' && error?.path) ||
+    error instanceof Error.ValidationError
+  );
 }
