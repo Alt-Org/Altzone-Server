@@ -20,13 +20,14 @@ import { VotingDto } from '../voting/dto/voting.dto';
 import { notEnoughCoinsError } from './errors/notEnoughCoins.error';
 import { itemNotAvailableError } from './errors/itemNotAvailable.error';
 import { ClanDto } from '../clan/dto/clan.dto';
-import { VotingQueue } from './voting.queue';
 import { VotingQueueParams } from './types/votingQueueParams.type';
 import { ModelName } from '../common/enum/modelName.enum';
 import { itemNotInStockError } from './errors/itemNotInStock.error';
 import { FleaMarketHelperService } from './fleaMarketHelper.service';
 import { VotingService } from '../voting/voting.service';
 import { PlayerDto } from '../player/dto/player.dto';
+import { VotingQueue } from '../voting/voting.queue';
+import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 
 @Injectable()
 export class FleaMarketService {
@@ -140,6 +141,7 @@ export class FleaMarketService {
       voting,
       fleaMarketItemId: createdItem._id.toString(),
       stockId: item.stock_id.toString(),
+      queue: VotingQueueName.FLEA_MARKET,
     });
   }
 
@@ -342,6 +344,7 @@ export class FleaMarketService {
       clanId,
       price: item.price,
       stockId: clan.Stock?._id.toString(),
+      queue: VotingQueueName.FLEA_MARKET,
     });
   }
 
@@ -359,7 +362,6 @@ export class FleaMarketService {
     const { voting, price, clanId, stockId, fleaMarketItemId } = params;
 
     const votePassed = await this.votingService.checkVotingSuccess(voting);
-
     if (voting.type === VotingType.BUYING_ITEM) {
       if (votePassed) {
         await this.handlePassedBuyVoting(voting, stockId);

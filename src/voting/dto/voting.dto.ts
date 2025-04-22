@@ -4,6 +4,7 @@ import { Vote } from '../schemas/vote.schema';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import AddType from '../../common/base/decorator/AddType.decorator';
 import { Organizer } from './organizer.dto';
+import { ItemName } from '../../clanInventory/item/enum/itemName.enum';
 
 @AddType('VotingDto')
 export class VotingDto {
@@ -37,4 +38,7 @@ export class VotingDto {
 
   @Expose()
   entity_id: string;
+
+  @Expose()
+  entity_name: ItemName;
 }

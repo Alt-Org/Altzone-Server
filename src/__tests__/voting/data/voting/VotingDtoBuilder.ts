@@ -4,6 +4,7 @@ import { Vote } from '../../../../voting/schemas/vote.schema';
 import { VotingDto } from '../../../../voting/dto/voting.dto';
 import { VotingType } from '../../../../voting/enum/VotingType.enum';
 import { ObjectId } from 'mongodb';
+import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
 
 export default class VotingDtoBuilder implements IDataBuilder<VotingDto> {
   private readonly base: Partial<VotingDto> = {
@@ -20,6 +21,7 @@ export default class VotingDtoBuilder implements IDataBuilder<VotingDto> {
     minPercentage: 50,
     votes: [],
     entity_id: new ObjectId().toString(),
+    entity_name: undefined,
   };
 
   build(): VotingDto {
@@ -81,6 +83,11 @@ export default class VotingDtoBuilder implements IDataBuilder<VotingDto> {
 
   setEntityId(entityId: string) {
     this.base.entity_id = entityId;
+    return this;
+  }
+
+  setEntityName(entityName: ItemName) {
+    this.base.entity_name = entityName;
     return this;
   }
 }

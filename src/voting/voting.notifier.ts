@@ -18,7 +18,7 @@ export default class VotingNotifier {
 
   private async buildPayload(
     voting: VotingDto,
-    item: FleaMarketItemDto,
+    item: Partial<FleaMarketItemDto>,
     status: NotificationStatus,
     player?: PlayerDto,
   ): Promise<VotingPayload> {
@@ -44,7 +44,7 @@ export default class VotingNotifier {
    */
   async newVoting(
     voting: VotingDto,
-    item: FleaMarketItemDto,
+    item: Partial<FleaMarketItemDto>,
     player: PlayerDto,
   ) {
     const payload = await this.buildPayload(

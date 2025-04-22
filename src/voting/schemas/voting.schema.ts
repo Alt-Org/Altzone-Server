@@ -4,6 +4,7 @@ import { ModelName } from '../../common/enum/modelName.enum';
 import { VotingType } from '../enum/VotingType.enum';
 import { Vote, VoteSchema } from './vote.schema';
 import { Organizer } from './organizer.schema';
+import { ItemName } from '../../clanInventory/item/enum/itemName.enum';
 
 export type VotingDocument = HydratedDocument<Voting>;
 
@@ -29,6 +30,9 @@ export class Voting {
 
   @Prop({ type: MongooseSchema.Types.ObjectId })
   entity_id?: string;
+
+  @Prop({ type: String, enum: ItemName })
+  entity_name?: ItemName;
 }
 
 export const VotingSchema = SchemaFactory.createForClass(Voting);

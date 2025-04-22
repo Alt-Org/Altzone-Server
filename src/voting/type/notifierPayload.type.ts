@@ -8,7 +8,7 @@ export type VotingPayload = {
   status: NotificationStatus;
   voting_id: string; // mongo id
   type: VotingType;
-  item: FleaMarketItemDto;
+  item: Partial<FleaMarketItemDto>;
   voter?: PlayerDto;
   organizer?: PlayerDto;
 };
