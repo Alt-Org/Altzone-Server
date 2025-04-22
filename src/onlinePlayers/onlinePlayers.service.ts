@@ -1,8 +1,8 @@
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
 import { CacheKeys } from '../common/enum/cacheKeys.enum';
-import { PlayerService } from 'src/player/player.service';
-import { IServiceReturn } from 'src/common/service/basicService/IService';
+import { PlayerService } from '../player/player.service';
+import { IServiceReturn } from '../common/service/basicService/IService';
 
 @Injectable()
 export class OnlinePlayersService {
