@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Post, Put } from '@nestjs/common';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { LoggedUser } from '../../common/decorator/param/LoggedUser.decorator';
@@ -13,6 +13,8 @@ import { _idDto } from '../../common/dto/_id.dto';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { APIError } from '../../common/controller/APIError';
 import { APIErrorReason } from '../../common/controller/APIErrorReason';
+import { UpdateClanRoleDto } from './dto/updateClanRole.dto';
+import ServiceError from '../../common/service/basicService/ServiceError';
 
 @Controller('clan/role')
 export class ClanRoleController {
@@ -29,6 +31,19 @@ export class ClanRoleController {
     return this.service.createOne(body, user.clan_id);
   }
 
+  @Put()
+  @HasClanRights([ClanBasicRight.MANAGE_ROLE])
+  @DetermineClanId()
+  @UniformResponse(ModelName.CLAN, ClanRoleDto)
+  public async update(
+    @Body() body: UpdateClanRoleDto,
+    @LoggedUser() user: User,
+  ) {
+    const [, errors] = await this.service.updateOneById(body, user.clan_id);
+
+    return this.handleErrorReturnIfFound(errors);
+  }
+
   @Delete('/:_id')
   @HasClanRights([ClanBasicRight.MANAGE_ROLE])
   @DetermineClanId()
@@ -39,22 +54,35 @@ export class ClanRoleController {
       param?._id,
     );
 
+    return this.handleErrorReturnIfFound(errors);
+  }
+
+  /**
+   * Checks if the errors exists returns them.
+   *
+   * Notice that if found an error, which should be NOT_AUTHORIZED APIError, its reason will be changed.
+   *
+   * @param errorsReturned returned errors
+   * @private
+   * @returns errors if found or nothing if not
+   */
+  private handleErrorReturnIfFound(errorsReturned: ServiceError[]) {
     if (
-      errors &&
-      errors[0].field === 'clanRoleType' &&
-      errors[0].reason === SEReason.NOT_ALLOWED
+      errorsReturned &&
+      errorsReturned[0].field === 'clanRoleType' &&
+      errorsReturned[0].reason === SEReason.NOT_ALLOWED
     ) {
       return [
         null,
         [
           new APIError({
-            ...errors[0],
+            ...errorsReturned[0],
             reason: APIErrorReason.NOT_AUTHORIZED,
           }),
         ],
       ];
     }
 
-    if (errors) return [null, errors];
+    if (errorsReturned) return [null, errorsReturned];
   }
 }
