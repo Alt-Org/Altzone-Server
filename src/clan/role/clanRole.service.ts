@@ -11,6 +11,8 @@ import { doesRoleWithRightsExists, isRoleNameExists } from './clanRoleUtils';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { ClanRoleType } from './enum/clanRoleType.enum';
+import { UpdateClanRoleDto } from './dto/updateClanRole.dto';
+import * as trace_events from 'node:trace_events';
 
 /**
  * Manages clan roles
@@ -47,31 +49,11 @@ export default class ClanRoleService {
 
     if (clanReadingErrors) return [null, clanReadingErrors];
 
-    if (isRoleNameExists(clan.roles, roleToCreate.name))
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_UNIQUE,
-            field: 'name',
-            value: roleToCreate.name,
-            message: 'Role with this name already exists',
-          }),
-        ],
-      ];
-
-    if (doesRoleWithRightsExists(clan.roles.toObject(), roleToCreate.rights))
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_UNIQUE,
-            field: 'rights',
-            value: roleToCreate.rights,
-            message: 'Role with the same rights already exists',
-          }),
-        ],
-      ];
+    const [, uniquenessErrors] = this.validateClanRoleUniqueness(
+      roleToCreate,
+      clan.roles,
+    );
+    if (uniquenessErrors) return [null, uniquenessErrors];
 
     const newRole: Omit<ClanRole, '_id'> = {
       ...roleToCreate,
@@ -97,6 +79,66 @@ export default class ClanRoleService {
   }
 
   /**
+   * Updates specified role by provided _id
+   *
+   * Notice that the role name must be unique inside the clan and there should not be a role with exact same rights.
+   *
+   * @param roleToUpdate role data to update
+   * @param clan_id clan which role will be updated
+   *
+   * @returns true if role was updated or ServiceError if:
+   * - NOT_UNIQUE clan has role with that name or there is a role with the same rights.
+   * Notice that it does not apply to the own data of role being updated
+   * - NOT_FOUND if the clan or role could not be found
+   */
+  async updateOneById(
+    roleToUpdate: UpdateClanRoleDto,
+    clan_id: string | ObjectId,
+  ): Promise<IServiceReturn<true>> {
+    const [clan, clanReadingErrors] = await this.basicService.readOneById<Clan>(
+      clan_id.toString(),
+    );
+
+    if (clanReadingErrors) return [null, clanReadingErrors];
+
+    const [role, roleNotExistsErrors] = this.findRoleFromRoles(
+      roleToUpdate._id,
+      clan.roles,
+    );
+    if (roleNotExistsErrors) return [null, roleNotExistsErrors];
+
+    const [, roleTypeErrors] = this.validateRoleIsNamed(role);
+    if (roleTypeErrors) return [null, roleTypeErrors];
+
+    const clanRolesWithoutUpdating = clan.roles.filter(
+      (role) => role._id.toString() !== roleToUpdate._id.toString(),
+    );
+
+    const [, uniquenessErrors] = this.validateClanRoleUniqueness(
+      roleToUpdate,
+      clanRolesWithoutUpdating,
+    );
+    if (uniquenessErrors) return [null, uniquenessErrors];
+
+    await this.model.updateOne(
+      {
+        _id: clan_id,
+        'roles._id': roleToUpdate._id,
+      },
+      {
+        $set: Object.fromEntries(
+          Object.entries(roleToUpdate).map(([key, value]) => [
+            `roles.$.${key}`,
+            value,
+          ]),
+        ),
+      },
+    );
+
+    return [true, null];
+  }
+
+  /**
    * Deletes a ClanRole by its _id from DB.
    * @param clan_id - The Mongo _id of the Clan where from the role to delete.
    * @param role_id - The Mongo _id of the ClanRole to delete.
@@ -111,12 +153,15 @@ export default class ClanRoleService {
       clan_id.toString(),
     );
 
-    const roleToDelete = clan.roles.find(
-      (role) => role._id.toString() === role_id.toString(),
+    const [roleToDelete, roleExistenceErrors] = this.findRoleFromRoles(
+      role_id,
+      clan.roles,
     );
 
+    if (roleExistenceErrors) return [null, roleExistenceErrors];
+
     const [isValidDefault, errorDefault] =
-      await this.validateClanRoleDeleteRequest(roleToDelete, role_id);
+      this.validateRoleIsNamed(roleToDelete);
     if (!isValidDefault) return [isValidDefault, errorDefault];
 
     await this.model.updateOne(
@@ -126,49 +171,64 @@ export default class ClanRoleService {
     return [true, null];
   }
 
-  private async validateClanRoleDeleteRequest(
-    roleToDelete: ClanRole,
-    role_id: string | ObjectId,
-  ): Promise<[true | null, ServiceError[] | null]> {
-    if (!roleToDelete) {
+  /**
+   * Validates clan role uniqueness (its name and rights)
+   * @param roleToValidate role to validate
+   * @param roles role array, where to check
+   * @private
+   *
+   * @returns true if the role is unique or ServiceErrors if any found
+   */
+  private validateClanRoleUniqueness(
+    roleToValidate: Partial<ClanRole>,
+    roles: ClanRole[],
+  ): IServiceReturn<true> {
+    if (isRoleNameExists(roles, roleToValidate.name))
       return [
         null,
         [
           new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            field: '_id',
-            value: role_id,
-            message: 'ClanRole not found',
+            reason: SEReason.NOT_UNIQUE,
+            field: 'name',
+            value: roleToValidate.name,
+            message: 'Role with this name already exists',
           }),
         ],
       ];
-    }
 
-    const [isNotDefault, errorDefault] = await this.validateClanRoleType(
-      roleToDelete,
-      ClanRoleType.DEFAULT,
-      role_id,
-    );
-    if (!isNotDefault) return [isNotDefault, errorDefault];
+    if (doesRoleWithRightsExists(roles, roleToValidate.rights))
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_UNIQUE,
+            field: 'rights',
+            value: roleToValidate.rights,
+            message: 'Role with the same rights already exists',
+          }),
+        ],
+      ];
+    return [true, null];
+  }
 
-    const [isNotPersonal, errorPersonal] = await this.validateClanRoleType(
-      roleToDelete,
-      ClanRoleType.PERSONAL,
-      role_id,
-    );
-    if (!isNotPersonal) return [isNotPersonal, errorPersonal];
-
-    if (
-      roleToDelete.clanRoleType.toString() !== ClanRoleType.NAMED.toString()
-    ) {
+  /**
+   * Validates that the role is of type named
+   * @param roleToValidate role to validate
+   * @private
+   * @returns true if its type is named or ServiceError not allowed if the type is not named
+   */
+  private validateRoleIsNamed(
+    roleToValidate: Partial<ClanRole>,
+  ): IServiceReturn<true> {
+    if (roleToValidate.clanRoleType !== ClanRoleType.NAMED) {
       return [
         null,
         [
           new ServiceError({
             reason: SEReason.NOT_ALLOWED,
             field: 'clanRoleType',
-            value: roleToDelete?.clanRoleType,
-            message: 'Can delete only named role',
+            value: roleToValidate.clanRoleType,
+            message: 'Can process only role with type named',
           }),
         ],
       ];
@@ -177,25 +237,33 @@ export default class ClanRoleService {
     return [true, null];
   }
 
-  private async validateClanRoleType(
-    role: ClanRole,
-    roleType: ClanRoleType,
-    role_id: string | ObjectId = null,
-  ): Promise<[true | null, ServiceError[] | null]> {
-    if (role.clanRoleType === roleType) {
+  /**
+   * Finds a role from a specified array of roles by _id
+   * @param role_id _id of the role to find
+   * @param roles where to search
+   * @private
+   * @returns found role or ServiceError NOT_FOUND if the role was not found
+   */
+  private findRoleFromRoles(
+    role_id: string | ObjectId,
+    roles: ClanRole[],
+  ): IServiceReturn<ClanRole> {
+    const foundRole = roles.find(
+      (role) => role._id.toString() === role_id.toString(),
+    );
+    if (!foundRole)
       return [
         null,
         [
           new ServiceError({
-            reason: SEReason.NOT_ALLOWED,
-            field: 'clanRoleType',
-            value: role_id,
-            message: `Cannot delete ${roleType} role`,
+            reason: SEReason.NOT_FOUND,
+            field: '_id',
+            value: role_id.toString(),
+            message: 'Role with this _id is not found',
           }),
         ],
       ];
-    }
 
-    return [true, null];
+    return [foundRole, null];
   }
 }
