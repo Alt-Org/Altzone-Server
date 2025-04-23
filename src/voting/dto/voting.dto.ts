@@ -36,7 +36,7 @@ export class VotingDto {
 
   @Expose()
   @Type(() => VoteDto)
-  votes: VoteDto[];
+  votes: Vote[];
 
   @Expose()
   entity_id: string;
