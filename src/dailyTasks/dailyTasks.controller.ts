@@ -30,8 +30,7 @@ export class DailyTasksController {
   ) {}
 
   @Get()
-  @Serialize(DailyTaskDto)
-  @UniformResponse(ModelName.DAILY_TASK)
+  @UniformResponse(ModelName.DAILY_TASK, DailyTaskDto)
   async getClanTasks(@LoggedUser() user: User) {
     const clanId = await this.playerService.getPlayerClanId(user.player_id);
     return this.dailyTasksService.readMany({
@@ -40,8 +39,7 @@ export class DailyTasksController {
   }
 
   @Get('/:_id')
-  @Serialize(DailyTaskDto)
-  @UniformResponse(ModelName.DAILY_TASK)
+  @UniformResponse(ModelName.DAILY_TASK, DailyTaskDto)
   async getTask(@Param() param: _idDto) {
     return this.dailyTasksService.readOneById(param._id);
   }
@@ -86,8 +84,7 @@ export class DailyTasksController {
 
   @HttpCode(204)
   @Delete('/:_id')
-  @Serialize(DailyTaskDto)
-  @UniformResponse(ModelName.DAILY_TASK)
+  @UniformResponse(ModelName.DAILY_TASK, DailyTaskDto)
   async deleteTask(@Param() param: _idDto, @LoggedUser() user: User) {
     const clanId = await this.playerService.getPlayerClanId(user.player_id);
     const [_result, errors] = await this.dailyTasksService.deleteTask(

@@ -34,7 +34,6 @@ import { User } from '../auth/user';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { IncludeQuery } from '../common/decorator/param/IncludeQuery.decorator';
 import { publicReferences } from './clan.schema';
-import { Serialize } from '../common/interceptor/response/Serialize';
 import { RoomService } from '../clanInventory/room/room.service';
 import { ItemService } from '../clanInventory/item/item.service';
 import { PlayerService } from '../player/player.service';
@@ -58,8 +57,7 @@ export class ClanController {
   }
 
   @Get('items')
-  @Serialize(ClanItemsResponseDto)
-  @UniformResponse(ModelName.ITEM)
+  @UniformResponse(ModelName.ITEM, ClanItemsResponseDto)
   async getClanItems(@LoggedUser() user: User) {
     const clanId = await this.playerService.getPlayerClanId(user.player_id);
     const [clan, clanErrors] = await this.service.readOneById(clanId, {
@@ -96,8 +94,7 @@ export class ClanController {
   @OffsetPaginate(ModelName.CLAN)
   @AddSearchQuery(ClanDto)
   @AddSortQuery(ClanDto)
-  @Serialize(ClanDto)
-  @UniformResponse(ModelName.CLAN)
+  @UniformResponse(ModelName.CLAN, ClanDto)
   public getAll(@GetAllQuery() query: IGetAllQuery) {
     return this.service.readAll(query);
   }

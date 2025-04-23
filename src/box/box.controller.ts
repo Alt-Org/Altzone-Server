@@ -14,7 +14,6 @@ import {
 import { BoxService } from './box.service';
 import { Request, Response } from 'express';
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
-import { Serialize } from '../common/interceptor/response/Serialize';
 import { ClaimAccountResponseDto } from './dto/claimAccountResponse.dto';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
@@ -45,8 +44,7 @@ export class BoxController {
 
   @NoAuth()
   @Get('claim-account')
-  @UniformResponse()
-  @Serialize(ClaimAccountResponseDto)
+  @UniformResponse(undefined, ClaimAccountResponseDto)
   async claimAccount(
     @Req() req: Request,
     @Res() res: Response,
@@ -69,8 +67,7 @@ export class BoxController {
 
   @NoAuth()
   @Post()
-  @Serialize(CreatedBoxDto)
-  @UniformResponse(ModelName.BOX)
+  @UniformResponse(ModelName.BOX, CreatedBoxDto)
   async createBox(@Body() body: CreateBoxDto) {
     const [createdBox, errors] = await this.boxCreator.createBox(body);
     if (errors) return [null, errors];
