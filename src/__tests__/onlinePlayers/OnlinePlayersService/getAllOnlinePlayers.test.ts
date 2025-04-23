@@ -2,6 +2,7 @@ import { OnlinePlayersService } from '../../../onlinePlayers/onlinePlayers.servi
 import OnlinePlayersModule from '../modules/onlinePlayers.module';
 import { ObjectId } from 'mongodb';
 import { Cache } from '@nestjs/cache-manager';
+import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 
 describe('OnlinePlayersService.getAllOnlinePlayers() test suite', () => {
   let service: OnlinePlayersService;
@@ -10,8 +11,22 @@ describe('OnlinePlayersService.getAllOnlinePlayers() test suite', () => {
 
   let cacheManager: Cache;
 
-  const _id1 = new ObjectId('000000000000000000000001').toString();
-  const _id2 = new ObjectId('000000000000000000000002').toString();
+  const _id1 = new ObjectId();
+  const _id2 = new ObjectId();
+
+  const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
+  const player1 = playerBuilder
+    .setId(_id1)
+    .setUniqueIdentifier('player1')
+    .setName('player1')
+    .build();
+  const player2 = playerBuilder
+    .setId(_id2)
+    .setUniqueIdentifier('player2')
+    .setName('player2')
+    .build();
+
+  const playerModel = OnlinePlayersModule.getPlayerModel();
 
   beforeEach(async () => {
     service = await OnlinePlayersModule.getOnlinePlayersService();
@@ -20,13 +35,25 @@ describe('OnlinePlayersService.getAllOnlinePlayers() test suite', () => {
   });
 
   it('Should return player_ids from the cache', async () => {
-    await cacheManager.set(`${ONLINE_PLAYERS_KEY}:${_id1}`, '1', PLAYER_TTL);
-    await cacheManager.set(`${ONLINE_PLAYERS_KEY}:${_id2}`, '1', PLAYER_TTL);
+    await playerModel.create(player1);
+    await playerModel.create(player2);
+    const payload1 = { name: player1.name, id: _id1.toString() };
+    const payload2 = { name: player2.name, id: _id2.toString() };
+    await cacheManager.set(
+      `${ONLINE_PLAYERS_KEY}:${JSON.stringify(payload1)}`,
+      '1',
+      PLAYER_TTL,
+    );
+    await cacheManager.set(
+      `${ONLINE_PLAYERS_KEY}:${JSON.stringify(payload2)}`,
+      '1',
+      PLAYER_TTL,
+    );
 
     const player_ids = await service.getAllOnlinePlayers();
 
-    expect(player_ids).toContain(_id1);
-    expect(player_ids).toContain(_id2);
+    expect(player_ids).toContainEqual(payload1);
+    expect(player_ids).toContainEqual(payload2);
   });
 
   it('Should return an empty array if there are no players set', async () => {
@@ -62,7 +89,7 @@ describe('OnlinePlayersService.getAllOnlinePlayers() test suite', () => {
 
     jest.spyOn(Date, 'now').mockReturnValue(0);
 
-    await service.addPlayerOnline(_id1);
+    await service.addPlayerOnline(_id1.toString());
 
     // Mock Date.now() to simulate a time after the TTL has expired
     jest.spyOn(Date, 'now').mockReturnValue(301 * 1000); // 301 seconds later
