@@ -5,6 +5,8 @@ import { PlayerModule } from '../../../player/player.module';
 import { RequestHelperModule } from '../../../requestHelper/requestHelper.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { mongooseOptions, mongoString } from '../../test_utils/const/db';
+import { ModelName } from '../../../common/enum/modelName.enum';
+import { PlayerSchema } from '../../../player/schemas/player.schema';
 
 export default class OnlinePlayersCommonModule {
   private static module: TestingModule;
@@ -14,6 +16,9 @@ export default class OnlinePlayersCommonModule {
       OnlinePlayersCommonModule.module = await Test.createTestingModule({
         imports: [
           MongooseModule.forRoot(mongoString, mongooseOptions),
+          MongooseModule.forFeature([
+            { name: ModelName.PLAYER, schema: PlayerSchema },
+          ]),
           CacheModule.register(),
           PlayerModule,
           RequestHelperModule,
