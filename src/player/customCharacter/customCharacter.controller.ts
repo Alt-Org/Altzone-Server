@@ -15,9 +15,9 @@ import { AddSortQuery } from '../../common/interceptor/request/addSortQuery.inte
 import { LoggedUser } from '../../common/decorator/param/LoggedUser.decorator';
 import { User } from '../../auth/user';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
-import { Serialize } from '../../common/interceptor/response/Serialize';
 import { IncludeQuery } from '../../common/decorator/param/IncludeQuery.decorator';
 import { publicReferences } from './customCharacter.schema';
+import { Serialize } from '../../common/interceptor/response/Serialize';
 
 @Controller('customCharacter')
 export class CustomCharacterController {
@@ -25,8 +25,7 @@ export class CustomCharacterController {
 
   @Post()
   @Authorize({ action: Action.create, subject: CustomCharacterDto })
-  @Serialize(CustomCharacterDto)
-  @UniformResponse(ModelName.CUSTOM_CHARACTER)
+  @UniformResponse(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
   public create(
     @Body() body: CreateCustomCharacterDto,
     @LoggedUser() user: User,
@@ -36,16 +35,14 @@ export class CustomCharacterController {
 
   @Get('/battleCharacters')
   @Authorize({ action: Action.read, subject: CustomCharacterDto })
-  @Serialize(CustomCharacterDto)
-  @UniformResponse(ModelName.CUSTOM_CHARACTER)
+  @UniformResponse(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
   public async getBattleCharacters(@LoggedUser() user: User) {
     return this.service.readPlayerBattleCharacters(user.player_id);
   }
 
   @Get('/:_id')
   @Authorize({ action: Action.read, subject: CustomCharacterDto })
-  @Serialize(CustomCharacterDto)
-  @UniformResponse(ModelName.CUSTOM_CHARACTER)
+  @UniformResponse(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
   public async get(
     @Param() param: _idDto,
     @IncludeQuery(publicReferences) includeRefs: ModelName[],
@@ -62,8 +59,7 @@ export class CustomCharacterController {
   @OffsetPaginate(ModelName.CUSTOM_CHARACTER)
   @AddSearchQuery(CustomCharacterDto)
   @AddSortQuery(CustomCharacterDto)
-  @Serialize(CustomCharacterDto)
-  @UniformResponse(ModelName.CUSTOM_CHARACTER)
+  @UniformResponse(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
   public async getAll(
     @GetAllQuery() query: IGetAllQuery,
     @LoggedUser() user: User,

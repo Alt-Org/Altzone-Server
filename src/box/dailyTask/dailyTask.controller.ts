@@ -1,5 +1,4 @@
 import { Body, Controller, Delete, Param, Post, Put } from '@nestjs/common';
-import { Serialize } from '../../common/interceptor/response/Serialize';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { CreatePredefinedDailyTaskDto } from './dto/createPredefinedDailyTask.dto';
@@ -24,8 +23,7 @@ export class DailyTaskController {
 
   @Post()
   @IsGroupAdmin()
-  @Serialize(PredefinedDailyTaskDto)
-  @UniformResponse(ModelName.DAILY_TASK)
+  @UniformResponse(ModelName.DAILY_TASK, PredefinedDailyTaskDto)
   async addOneDailyTask(
     @Body() body: CreatePredefinedDailyTaskDto,
     @LoggedUser() user: BoxUser,
@@ -35,8 +33,7 @@ export class DailyTaskController {
 
   @Post('/multiple')
   @IsGroupAdmin()
-  @Serialize(PredefinedDailyTaskDto)
-  @UniformResponse(ModelName.DAILY_TASK)
+  @UniformResponse(ModelName.DAILY_TASK, PredefinedDailyTaskDto)
   async addMultipleDailyTasks(
     @Body() body: CreatePredefinedDailyTaskDto[],
     @LoggedUser() user: BoxUser,

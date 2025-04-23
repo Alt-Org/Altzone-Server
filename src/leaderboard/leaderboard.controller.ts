@@ -5,7 +5,6 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { IGetAllQuery } from '../common/interface/IGetAllQuery';
 import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
 import { OffsetPaginate } from '../common/interceptor/request/offsetPagination.interceptor';
-import { Serialize } from '../common/interceptor/response/Serialize';
 import { PlayerDto } from '../player/dto/player.dto';
 import { ClanDto } from '../clan/dto/clan.dto';
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
@@ -23,8 +22,7 @@ export class LeaderboardController {
   @Get('player')
   @NoAuth()
   @OffsetPaginate(ModelName.PLAYER)
-  @Serialize(PlayerDto)
-  @UniformResponse(ModelName.PLAYER)
+  @UniformResponse(ModelName.PLAYER, PlayerDto)
   async getPlayerLeaderboard(@GetAllQuery() query: IGetAllQuery) {
     return await this.leaderBoardService.getPlayerLeaderboard(query);
   }
@@ -32,8 +30,7 @@ export class LeaderboardController {
   @Get('clan')
   @NoAuth()
   @OffsetPaginate(ModelName.CLAN)
-  @Serialize(ClanDto)
-  @UniformResponse(ModelName.CLAN)
+  @UniformResponse(ModelName.CLAN, ClanDto)
   async getClanLeaderboard(@GetAllQuery() query: IGetAllQuery) {
     return await this.leaderBoardService.getClanLeaderboard(query);
   }
