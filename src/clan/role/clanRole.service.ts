@@ -12,7 +12,7 @@ import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { ClanRoleType } from './enum/clanRoleType.enum';
 import { UpdateClanRoleDto } from './dto/updateClanRole.dto';
-import SetClanRole from './payloads/SetClanRole';
+import SetClanRoleDto from './dto/setClanRole.dto';
 import { Player } from '../../player/schemas/player.schema';
 
 /**
@@ -185,7 +185,9 @@ export default class ClanRoleService {
    * - NOT_FOUND if the player is not found, player is not in any clan or if the clan or role is not found
    * - NOT_ALLOWED if the role is of type personal
    */
-  async setRoleToPlayer(setData: SetClanRole): Promise<IServiceReturn<true>> {
+  async setRoleToPlayer(
+    setData: SetClanRoleDto,
+  ): Promise<IServiceReturn<true>> {
     const [player, playerReadErrors] =
       await this.playerService.readOneById<Player>(
         setData.player_id.toString(),

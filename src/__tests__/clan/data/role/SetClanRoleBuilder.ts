@@ -1,14 +1,14 @@
-import SetClanRole from '../../../../clan/role/payloads/SetClanRole';
+import SetClanRoleDto from '../../../../clan/role/dto/setClanRole.dto';
 import { ObjectId } from 'mongodb';
 
 export default class SetClanRoleBuilder {
-  private readonly base: Partial<SetClanRole> = {
+  private readonly base: Partial<SetClanRoleDto> = {
     player_id: new ObjectId(),
     role_id: new ObjectId(),
   };
 
-  build(): SetClanRole {
-    return { ...this.base } as SetClanRole;
+  build(): SetClanRoleDto {
+    return { ...this.base } as SetClanRoleDto;
   }
 
   setPlayerId(playerId: string | ObjectId) {
