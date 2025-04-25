@@ -10,7 +10,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Player } from '../../../../player/schemas/player.schema';
 import { Model } from 'mongoose';
 import { Request } from 'express';
-import { APIError } from '../../../../common/controller/APIError';
+import {
+  APIError,
+  APIErrorArray,
+} from '../../../../common/controller/APIError';
 import { APIErrorReason } from '../../../../common/controller/APIErrorReason';
 import { Clan } from '../../../clan.schema';
 import { ClanBasicRight } from '../../enum/clanBasicRight.enum';
@@ -121,7 +124,7 @@ export class HasClanRightsGuard implements CanActivate {
       context.getHandler(),
     );
 
-    const errors: APIError[] = [];
+    const errors = new APIErrorArray();
     for (const rightToHave of rightsToHave) {
       if (!playerRole.rights[rightToHave]) {
         errors.push(
