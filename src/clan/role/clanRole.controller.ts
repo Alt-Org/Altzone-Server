@@ -15,6 +15,7 @@ import { APIError } from '../../common/controller/APIError';
 import { APIErrorReason } from '../../common/controller/APIErrorReason';
 import { UpdateClanRoleDto } from './dto/updateClanRole.dto';
 import ServiceError from '../../common/service/basicService/ServiceError';
+import SetClanRoleDto from './dto/setClanRole.dto';
 
 @Controller('clan/role')
 export class ClanRoleController {
@@ -54,6 +55,15 @@ export class ClanRoleController {
       param?._id,
     );
 
+    return this.handleErrorReturnIfFound(errors);
+  }
+
+  @Put('set')
+  @HasClanRights([ClanBasicRight.EDIT_MEMBER_RIGHTS])
+  @DetermineClanId()
+  @UniformResponse()
+  public async setRole(@Body() body: SetClanRoleDto) {
+    const [, errors] = await this.service.setRoleToPlayer(body);
     return this.handleErrorReturnIfFound(errors);
   }
 
