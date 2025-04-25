@@ -88,6 +88,27 @@ export class APIError extends HttpException {
   additional: any | null;
 }
 
+export class APIErrorArray extends Error {
+  constructor(errors: APIError[] = []) {
+    super('Array of APIErrors');
+    this.errors = errors;
+  }
+
+  public readonly errors: APIError[];
+
+  push(error: APIError) {
+    this.errors.push(error);
+  }
+
+  get length() {
+    return this.errors.length;
+  }
+
+  [Symbol.iterator]() {
+    return this.errors[Symbol.iterator]();
+  }
+}
+
 /**
  * Determines whenever the specified object or array is APIError or not.
  *
