@@ -12,7 +12,8 @@ import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { ClanRoleType } from './enum/clanRoleType.enum';
 import { UpdateClanRoleDto } from './dto/updateClanRole.dto';
-import * as trace_events from 'node:trace_events';
+import SetClanRole from './payloads/SetClanRole';
+import { Player } from '../../player/schemas/player.schema';
 
 /**
  * Manages clan roles
@@ -20,12 +21,15 @@ import * as trace_events from 'node:trace_events';
 @Injectable()
 export default class ClanRoleService {
   public constructor(
-    @InjectModel(Clan.name) public readonly model: Model<Clan>,
+    @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
+    @InjectModel(Player.name) public readonly playerModel: Model<Player>,
   ) {
-    this.basicService = new BasicService(model);
+    this.clanService = new BasicService(clanModel);
+    this.playerService = new BasicService(playerModel);
   }
 
-  public readonly basicService: BasicService;
+  public readonly clanService: BasicService;
+  public readonly playerService: BasicService;
 
   /**
    * Creates a new role for a specified clan.
@@ -43,7 +47,7 @@ export default class ClanRoleService {
     roleToCreate: CreateClanRoleDto,
     clan_id: string | ObjectId,
   ): Promise<IServiceReturn<ClanRole>> {
-    const [clan, clanReadingErrors] = await this.basicService.readOneById(
+    const [clan, clanReadingErrors] = await this.clanService.readOneById(
       clan_id.toString(),
     );
 
@@ -59,7 +63,7 @@ export default class ClanRoleService {
       ...roleToCreate,
       clanRoleType: ClanRoleType.NAMED,
     };
-    const [, clanUpdateErrors] = await this.basicService.updateOneById(
+    const [, clanUpdateErrors] = await this.clanService.updateOneById(
       clan_id.toString(),
       {
         $push: { roles: [newRole] },
@@ -68,7 +72,7 @@ export default class ClanRoleService {
 
     if (clanUpdateErrors) return [null, clanUpdateErrors];
 
-    const [updatedClan] = await this.basicService.readOneById<Clan>(
+    const [updatedClan] = await this.clanService.readOneById<Clan>(
       clan_id.toString(),
     );
     const createdRole = updatedClan.roles.find(
@@ -95,7 +99,7 @@ export default class ClanRoleService {
     roleToUpdate: UpdateClanRoleDto,
     clan_id: string | ObjectId,
   ): Promise<IServiceReturn<true>> {
-    const [clan, clanReadingErrors] = await this.basicService.readOneById<Clan>(
+    const [clan, clanReadingErrors] = await this.clanService.readOneById<Clan>(
       clan_id.toString(),
     );
 
@@ -107,7 +111,9 @@ export default class ClanRoleService {
     );
     if (roleNotExistsErrors) return [null, roleNotExistsErrors];
 
-    const [, roleTypeErrors] = this.validateRoleIsNamed(role);
+    const [, roleTypeErrors] = this.validateRoleType(role, [
+      ClanRoleType.NAMED,
+    ]);
     if (roleTypeErrors) return [null, roleTypeErrors];
 
     const clanRolesWithoutUpdating = clan.roles.filter(
@@ -120,7 +126,7 @@ export default class ClanRoleService {
     );
     if (uniquenessErrors) return [null, uniquenessErrors];
 
-    await this.model.updateOne(
+    await this.clanModel.updateOne(
       {
         _id: clan_id,
         'roles._id': roleToUpdate._id,
@@ -149,9 +155,7 @@ export default class ClanRoleService {
     clan_id: string | ObjectId,
     role_id: string | ObjectId,
   ): Promise<[true | null, ServiceError[] | null]> {
-    const [clan] = await this.basicService.readOneById<Clan>(
-      clan_id.toString(),
-    );
+    const [clan] = await this.clanService.readOneById<Clan>(clan_id.toString());
 
     const [roleToDelete, roleExistenceErrors] = this.findRoleFromRoles(
       role_id,
@@ -160,14 +164,79 @@ export default class ClanRoleService {
 
     if (roleExistenceErrors) return [null, roleExistenceErrors];
 
-    const [isValidDefault, errorDefault] =
-      this.validateRoleIsNamed(roleToDelete);
+    const [isValidDefault, errorDefault] = this.validateRoleType(roleToDelete, [
+      ClanRoleType.NAMED,
+    ]);
     if (!isValidDefault) return [isValidDefault, errorDefault];
 
-    await this.model.updateOne(
+    await this.clanModel.updateOne(
       { _id: clan_id },
       { $pull: { roles: { _id: role_id } } },
     );
+    return [true, null];
+  }
+
+  /**
+   * Sets a role to a specified player. Notice that the role must be of type default or named.
+   *
+   * @param setData payload for setting clan role
+   *
+   * @returns true if role is set or ServiceErrors:
+   * - NOT_FOUND if the player is not found, player is not in any clan or if the clan or role is not found
+   * - NOT_ALLOWED if the role is of type personal
+   */
+  async setRoleToPlayer(setData: SetClanRole): Promise<IServiceReturn<true>> {
+    const [player, playerReadErrors] =
+      await this.playerService.readOneById<Player>(
+        setData.player_id.toString(),
+      );
+    if (playerReadErrors)
+      return [
+        null,
+        [new ServiceError({ ...playerReadErrors[0], field: 'player_id' })],
+      ];
+
+    if (!player.clan_id)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'clan_id',
+            value: player.clan_id,
+            message: 'Player is not in any clan',
+          }),
+        ],
+      ];
+
+    const [clan, clanReadErrors] = await this.clanService.readOneById<Clan>(
+      player.clan_id,
+    );
+
+    if (clanReadErrors) return [null, clanReadErrors];
+
+    const [roleToSet, roleErrors] = this.findRoleFromRoles(
+      setData.role_id.toString(),
+      clan.roles,
+    );
+
+    if (roleErrors)
+      return [null, [new ServiceError({ ...roleErrors[0], field: 'role_id' })]];
+
+    const [, roleTypeErrors] = this.validateRoleType(roleToSet, [
+      ClanRoleType.NAMED,
+      ClanRoleType.DEFAULT,
+    ]);
+
+    if (roleTypeErrors) return [null, roleTypeErrors];
+
+    const [, updateErrors] = await this.playerService.updateOneById(
+      setData.player_id.toString(),
+      { clanRole_id: setData.role_id },
+    );
+
+    if (updateErrors) return [null, updateErrors];
+
     return [true, null];
   }
 
@@ -212,15 +281,17 @@ export default class ClanRoleService {
   }
 
   /**
-   * Validates that the role is of type named
+   * Validates that the role is of specified type
    * @param roleToValidate role to validate
+   * @param allowedTypes role types
    * @private
-   * @returns true if its type is named or ServiceError not allowed if the type is not named
+   * @returns true if its type of specified type or ServiceError NOT_ALLOWED if not
    */
-  private validateRoleIsNamed(
+  private validateRoleType(
     roleToValidate: Partial<ClanRole>,
+    allowedTypes: ClanRoleType[],
   ): IServiceReturn<true> {
-    if (roleToValidate.clanRoleType !== ClanRoleType.NAMED) {
+    if (!allowedTypes.includes(roleToValidate.clanRoleType)) {
       return [
         null,
         [
@@ -228,7 +299,7 @@ export default class ClanRoleService {
             reason: SEReason.NOT_ALLOWED,
             field: 'clanRoleType',
             value: roleToValidate.clanRoleType,
-            message: 'Can process only role with type named',
+            message: `Can process only role with type ${allowedTypes.toString()}`,
           }),
         ],
       ];
