@@ -85,16 +85,17 @@ export class ClanController {
   public get(
     @Param() param: _idDto,
     @IncludeQuery(publicReferences) includeRefs: ModelName[],
+
   ) {
     return this.service.readOneById(param._id, { includeRefs });
   }
 
   @Get()
   @NoAuth()
+  @UniformResponse(ModelName.CLAN, ClanDto)
   @OffsetPaginate(ModelName.CLAN)
   @AddSearchQuery(ClanDto)
   @AddSortQuery(ClanDto)
-  @UniformResponse(ModelName.CLAN, ClanDto)
   public getAll(@GetAllQuery() query: IGetAllQuery) {
     return this.service.readAll(query);
   }
