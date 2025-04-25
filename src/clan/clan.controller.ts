@@ -85,7 +85,6 @@ export class ClanController {
   public get(
     @Param() param: _idDto,
     @IncludeQuery(publicReferences) includeRefs: ModelName[],
-
   ) {
     return this.service.readOneById(param._id, { includeRefs });
   }
