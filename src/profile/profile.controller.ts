@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   Put,
@@ -99,6 +100,7 @@ export default class ProfileController {
   }
 
   @Delete('/:_id')
+  @HttpCode(204)
   @Authorize({ action: Action.delete, subject: ProfileDto })
   @CheckPermissions()
   @BasicDELETE(ModelName.PROFILE)
