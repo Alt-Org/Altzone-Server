@@ -38,6 +38,11 @@ import { RoomService } from '../clanInventory/room/room.service';
 import { ItemService } from '../clanInventory/item/item.service';
 import { PlayerService } from '../player/player.service';
 import { ClanItemsResponseDto } from './join/dto/clanItemsResponse.dto';
+import HasClanRights from './role/decorator/guard/HasClanRights';
+import { ClanBasicRight } from './role/enum/clanBasicRight.enum';
+import DetermineClanId from '../common/guard/clanId.guard';
+import { APIError } from '../common/controller/APIError';
+import { APIErrorReason } from '../common/controller/APIErrorReason';
 
 @Controller('clan')
 export class ClanController {
@@ -100,9 +105,23 @@ export class ClanController {
   }
 
   @Put()
-  @Authorize({ action: Action.update, subject: UpdateClanDto })
+  @DetermineClanId()
+  @HasClanRights([ClanBasicRight.EDIT_CLAN_DATA])
   @UniformResponse()
-  public async update(@Body() body: UpdateClanDto) {
+  public async update(@Body() body: UpdateClanDto, @LoggedUser() user: User) {
+    if (user.clan_id.toString() !== body._id.toString())
+      return [
+        null,
+        [
+          new APIError({
+            reason: APIErrorReason.NOT_AUTHORIZED,
+            field: 'clan_id',
+            value: user.clan_id,
+            message: 'Logged-in player is in another clan',
+          }),
+        ],
+      ];
+
     const [, errors] = await this.service.updateOneById(body);
     if (errors) return [null, errors];
   }
