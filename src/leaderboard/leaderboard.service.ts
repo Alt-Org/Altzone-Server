@@ -67,7 +67,25 @@ export class LeaderboardService {
     if (!data) {
       const fetchedData = await model.find().sort({ points: -1 }).exec();
       if (!fetchedData) throw new ServiceError({ reason: SEReason.NOT_FOUND });
-      data = fetchedData;
+
+      if (model === this.playerService.model) {
+        const clanIds = fetchedData.map((player) => player.clan_id);
+        const clans = await this.clanService.model
+          .find({ _id: { $in: clanIds } })
+          .exec();
+
+        const clanMap = clans.reduce((map, clan) => {
+          map[clan._id] = clan.clanLogo;
+          return map;
+        }, {});
+
+        data = fetchedData.map((player) => ({
+          ...player.toObject(),
+          clanLogo: clanMap[player.clan_id.toString()] || null,
+        }));
+      } else {
+        data = fetchedData;
+      }
 
       // Set the data with 12 hour ttl. The { ttl: number } as any is required to overwrite the default value.
       await this.cacheService.set(cacheKey, data, { ttl: 60 * 60 * 12 } as any);
