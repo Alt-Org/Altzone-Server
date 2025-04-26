@@ -91,10 +91,10 @@ export class ClanController {
 
   @Get()
   @NoAuth()
+  @UniformResponse(ModelName.CLAN, ClanDto)
   @OffsetPaginate(ModelName.CLAN)
   @AddSearchQuery(ClanDto)
   @AddSortQuery(ClanDto)
-  @UniformResponse(ModelName.CLAN, ClanDto)
   public getAll(@GetAllQuery() query: IGetAllQuery) {
     return this.service.readAll(query);
   }
