@@ -5,12 +5,12 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { IGetAllQuery } from '../common/interface/IGetAllQuery';
 import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
 import { OffsetPaginate } from '../common/interceptor/request/offsetPagination.interceptor';
-import { PlayerDto } from '../player/dto/player.dto';
 import { ClanDto } from '../clan/dto/clan.dto';
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
 import { PlayerService } from '../player/player.service';
+import { LeaderboardPlayerDto } from './dto/leaderboardPlayer.dto';
 
 @Controller('leaderboard')
 export class LeaderboardController {
@@ -21,16 +21,16 @@ export class LeaderboardController {
 
   @Get('player')
   @NoAuth()
+  @UniformResponse(ModelName.PLAYER, LeaderboardPlayerDto)
   @OffsetPaginate(ModelName.PLAYER)
-  @UniformResponse(ModelName.PLAYER, PlayerDto)
   async getPlayerLeaderboard(@GetAllQuery() query: IGetAllQuery) {
     return await this.leaderBoardService.getPlayerLeaderboard(query);
   }
 
   @Get('clan')
   @NoAuth()
-  @OffsetPaginate(ModelName.CLAN)
   @UniformResponse(ModelName.CLAN, ClanDto)
+  @OffsetPaginate(ModelName.CLAN)
   async getClanLeaderboard(@GetAllQuery() query: IGetAllQuery) {
     return await this.leaderBoardService.getClanLeaderboard(query);
   }

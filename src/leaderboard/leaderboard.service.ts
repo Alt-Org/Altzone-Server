@@ -5,8 +5,9 @@ import { IGetAllQuery } from '../common/interface/IGetAllQuery';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
-import mongoose from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { CacheKeys } from '../common/enum/cacheKeys.enum';
+import { PlayerDocument } from 'src/player/schemas/player.schema';
 
 @Injectable()
 export class LeaderboardService {
@@ -67,7 +68,8 @@ export class LeaderboardService {
     if (!data) {
       const fetchedData = await model.find().sort({ points: -1 }).exec();
       if (!fetchedData) throw new ServiceError({ reason: SEReason.NOT_FOUND });
-      data = fetchedData;
+
+      data = await this.processCacheData(model, fetchedData);
 
       // Set the data with 12 hour ttl. The { ttl: number } as any is required to overwrite the default value.
       await this.cacheService.set(cacheKey, data, { ttl: 60 * 60 * 12 } as any);
@@ -115,5 +117,44 @@ export class LeaderboardService {
     const position = leaderboard.findIndex((clan) => clan['id'] == clanId) + 1;
     if (position === 0) throw new ServiceError({ reason: SEReason.NOT_FOUND });
     return { position };
+  }
+
+  /**
+   * Processes cached data based on the provided model. If the model matches the player service's model,
+   * it enriches the data by adding clan logo information. Otherwise, it returns the data as is.
+   *
+   * @param model - The model to compare against for determining the processing logic.
+   * @param data - The array of data to be processed.
+   * @returns A promise that resolves to the processed data.
+   */
+  private async processCacheData(model: Model<any>, data: any[]) {
+    if (model === this.playerService.model) {
+      return await this.addClanLogoData(data);
+    }
+
+    return data;
+  }
+
+  /**
+   * Adds the clan logo data to the provided player data.
+   *
+   * @param data - An array of player documents to be enriched with clan logo data.
+   * @returns A promise that resolves to an array of player objects with added `clanLogo` field.
+   */
+  private async addClanLogoData(data: PlayerDocument[]) {
+    const clanIds = data.map((player) => player.clan_id);
+    const clans = await this.clanService.model
+      .find({ _id: { $in: clanIds } })
+      .exec();
+
+    const clanMap = clans.reduce((map, clan) => {
+      map[clan._id] = clan.clanLogo;
+      return map;
+    }, {});
+
+    return data.map((player) => ({
+      ...player.toObject(),
+      clanLogo: clanMap[player.clan_id] || null,
+    }));
   }
 }
