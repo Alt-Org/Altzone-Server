@@ -11,11 +11,15 @@ import { VotingModule } from '../voting/voting.module';
 import { ClanModule } from '../clan/clan.module';
 import { FleaMarketHelperService } from './fleaMarketHelper.service';
 import { FleaMarketVotingProcessor } from './fleaMarketVoting.processor';
+import { PlayerSchema } from '../player/schemas/player.schema';
+import { ClanSchema } from '../clan/clan.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: ModelName.FLEA_MARKET_ITEM, schema: FleaMarketItemSchema },
+      { name: ModelName.PLAYER, schema: PlayerSchema },
+      { name: ModelName.CLAN, schema: ClanSchema },
     ]),
     ClanInventoryModule,
     PlayerModule,

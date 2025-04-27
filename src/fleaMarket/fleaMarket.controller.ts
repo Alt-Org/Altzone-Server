@@ -13,6 +13,8 @@ import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { PlayerService } from '../player/player.service';
 import { ItemIdDto } from './dto/itemId.dto';
+import HasClanRights from '../clan/role/decorator/guard/HasClanRights';
+import { ClanBasicRight } from '../clan/role/enum/clanBasicRight.enum';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
@@ -35,6 +37,7 @@ export class FleaMarketController {
   }
 
   @Post('sell')
+  @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
   async sell(@Body() itemIdDto: ItemIdDto, @LoggedUser() user: User) {
     const clanId = await this.service.getClanId(
@@ -56,6 +59,7 @@ export class FleaMarketController {
   }
 
   @Post('buy')
+  @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
   async buy(@Body() itemIdDto: ItemIdDto, @LoggedUser() user: User) {
     await this.playerService.readOneById(user.player_id);
