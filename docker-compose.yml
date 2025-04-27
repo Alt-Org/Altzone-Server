@@ -2,7 +2,7 @@
 
 services:
   db_dev:
-    image: mongo:4.2.24-bionic
+    image: mongo:8
     container_name: altzone_db_dev
     #command: mongod --quiet --logpath /dev/null #disable logs
     networks:
