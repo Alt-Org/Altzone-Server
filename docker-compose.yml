@@ -19,7 +19,7 @@ services:
   #Only for development (it allows run malicious JS code on DB)
   #Starts at 8081 port be default
   panel_dev:
-    image: mongo-express:0.54.0
+    image: mongo-express:1.0-20-alpine3.19
     container_name: altzone_panel_dev
     depends_on:
       - db_dev
@@ -29,10 +29,9 @@ services:
     environment:
       - ME_CONFIG_MONGODB_ADMINUSERNAME=rootUser
       - ME_CONFIG_MONGODB_ADMINPASSWORD=superSecretPassword
-      - ME_CONFIG_MONGODB_SERVER=altzone_db_dev
+      - ME_CONFIG_MONGODB_URL=mongodb://rootUser:superSecretPassword@altzone_db_dev:27017/
+      - ME_CONFIG_BASICAUTH=false
       - ME_CONFIG_SITE_BASEURL=/panel/
-      - ME_CONFIG_SITE_COOKIESECRET=cookieParserMiddlewareSecret
-      - ME_CONFIG_SITE_SESSIONSECRET=secretForSessionIdCookie
       - ME_CONFIG_OPTIONS_EDITORTHEME=ayu-dark
     ports:
       - 8081:8081
