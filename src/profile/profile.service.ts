@@ -16,7 +16,6 @@ import { SEReason } from '../common/service/basicService/SEReason';
 import BasicService from '../common/service/basicService/BasicService';
 import { CreateProfileDto } from './dto/createProfile.dto';
 import { ProfileDto } from './dto/profile.dto';
-import { PlayerDto } from '../player/dto/player.dto';
 import { ClanDto } from '../clan/dto/clan.dto';
 import { IServiceReturn } from '../common/service/basicService/IService';
 
@@ -114,30 +113,16 @@ export class ProfileService
     profileId: string,
     playerId: string,
   ): Promise<IServiceReturn<ProfileDto>> {
-    const profile = await this.requestHelperService.getModelInstanceById(
-      ModelName.PROFILE,
+    const [profile, profileReadingErrors] = await this.basicService.readOneById(
       profileId,
-      ProfileDto,
+      {
+        includeRefs: [ModelName.PLAYER],
+      },
     );
-    if (!profile)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            field: '_id',
-            value: profileId,
-            message: 'Could not find profile with that _id',
-          }),
-        ],
-      ];
 
-    const player = await this.requestHelperService.getModelInstanceById(
-      ModelName.PLAYER,
-      playerId,
-      PlayerDto,
-    );
-    if (!player)
+    if (profileReadingErrors) return [null, profileReadingErrors];
+
+    if (!profile.Player)
       return [
         null,
         [
@@ -150,15 +135,14 @@ export class ProfileService
         ],
       ];
 
-    if (player?.clan_id) {
+    if (profile.Player.clan_id) {
       const clan = await this.requestHelperService.getModelInstanceById(
         ModelName.CLAN,
-        player.clan_id,
+        profile.Player.clan_id,
         ClanDto,
       );
-      player.Clan = clan;
+      profile.Player.Clan = clan;
     }
-    profile.Player = player;
 
     return [profile, null];
   }
