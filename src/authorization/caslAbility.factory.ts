@@ -154,6 +154,7 @@ export class CASLAbilityFactory {
         action,
         subjectObj,
         this.requestHelperService,
+        this.connection,
       );
 
     if (isType(obj, 'ClanDto') || isType(obj, 'UpdateClanDto'))
