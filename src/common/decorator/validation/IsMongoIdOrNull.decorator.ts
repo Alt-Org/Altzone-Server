@@ -4,7 +4,6 @@ import { registerDecorator,
    ValidatorConstraint, 
    ValidatorConstraintInterface } from 'class-validator';
 
-
 export function IsMongoIdOrNull(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
     registerDecorator({
