@@ -1,8 +1,8 @@
-import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CacheKeys } from '../common/enum/cacheKeys.enum';
 import { PlayerService } from '../player/player.service';
 import { IServiceReturn } from '../common/service/basicService/IService';
+import { RedisService } from '../common/service/redis/redis.service';
 
 @Injectable()
 export class OnlinePlayersService {
@@ -10,7 +10,7 @@ export class OnlinePlayersService {
   private readonly PLAYER_TTL = 300; // Time-to-live in seconds (5 minutes)
 
   constructor(
-    @Inject(CACHE_MANAGER) private cacheService: Cache,
+    private readonly redisService: RedisService,
     private readonly playerService: PlayerService,
   ) {}
 
@@ -29,12 +29,10 @@ export class OnlinePlayersService {
       name: player.name,
     };
 
-    await this.cacheService.set(
+    await this.redisService.set(
       `${this.ONLINE_PLAYERS_KEY}:${JSON.stringify(payload)}`,
       '1',
-      {
-        ttl: this.PLAYER_TTL,
-      } as any,
+      this.PLAYER_TTL * 1000,
     );
   }
 
@@ -47,17 +45,15 @@ export class OnlinePlayersService {
    * @returns Array of player name and id as JSON objects.
    */
   async getAllOnlinePlayers(): Promise<{ id: string; name: string }[]> {
-    const players = await this.cacheService.store.keys(
+    const players = await this.redisService.getKeys(
       `${this.ONLINE_PLAYERS_KEY}:*`,
     );
 
     if (!players) return [];
 
-    const ids = players.map((player) => {
+    return players.map((player) => {
       const playerData = player.replace(`${this.ONLINE_PLAYERS_KEY}:`, '');
       return JSON.parse(playerData);
     });
-
-    return ids;
   }
 }
