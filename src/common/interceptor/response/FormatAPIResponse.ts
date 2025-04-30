@@ -85,6 +85,8 @@ export class FormatAPIResponseInterceptor implements NestInterceptor {
  * @param error to be thrown
  */
 export function throwAPIError(error: any) {
+  if (error instanceof HttpException) throw error;
+
   const resp: { errors: APIError[]; statusCode: number } = {
     errors: [],
     statusCode: 0,
