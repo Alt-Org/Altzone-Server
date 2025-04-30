@@ -32,7 +32,7 @@ export class OnlinePlayersService {
     await this.redisService.set(
       `${this.ONLINE_PLAYERS_KEY}:${JSON.stringify(payload)}`,
       '1',
-      this.PLAYER_TTL * 1000,
+      this.PLAYER_TTL,
     );
   }
 
