@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CacheKeys } from '../common/enum/cacheKeys.enum';
+import { CacheKeys } from '../common/service/redis/cacheKeys.enum';
 import { PlayerService } from '../player/player.service';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { RedisService } from '../common/service/redis/redis.service';

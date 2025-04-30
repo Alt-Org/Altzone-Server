@@ -5,7 +5,7 @@ import { IGetAllQuery } from '../common/interface/IGetAllQuery';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import mongoose, { Model } from 'mongoose';
-import { CacheKeys } from '../common/enum/cacheKeys.enum';
+import { CacheKeys } from '../common/service/redis/cacheKeys.enum';
 import { PlayerDocument } from 'src/player/schemas/player.schema';
 import { RedisService } from '../common/service/redis/redis.service';
 
