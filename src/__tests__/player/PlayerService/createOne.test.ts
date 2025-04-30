@@ -30,6 +30,23 @@ describe('PlayerService.createOne() test suite', () => {
     expect(clearedResp).toEqual(expect.objectContaining(expectedPlayer));
   });
 
+  it('Should create a player in DB if input is valid and battleCharacterId values are null or ObjectId', async () => {
+    const playerName = 'john';
+    const playerToCreate = playerBuilder
+      .setBattleCharacterIds([null, new ObjectId()])
+      .setName(playerName).build();
+
+    await playerService.createOne(playerToCreate);
+
+    const dbData = await playerModel.findOne({ name: playerName });
+
+    const clearedResp = clearDBRespDefaultFields(dbData);
+
+    const { profile_id, ...expectedPlayer } = { ...playerToCreate, points: 0 };
+
+    expect(clearedResp).toEqual(expect.objectContaining(expectedPlayer));
+  });
+
   it('Should return response in appropriate shape', async () => {
     const playerName = 'john';
     const playerToCreate = playerBuilder.setName(playerName).build();
