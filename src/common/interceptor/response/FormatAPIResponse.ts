@@ -36,6 +36,15 @@ export class FormatAPIResponseInterceptor implements NestInterceptor {
           const result = await returnValue;
 
           if (
+            !result ||
+            (Array.isArray(result) &&
+              result.length === 2 &&
+              result[0] === null &&
+              result[1] === null)
+          )
+            return null;
+
+          if (
             Array.isArray(result) &&
             result.length === 2 &&
             result[1] === null
