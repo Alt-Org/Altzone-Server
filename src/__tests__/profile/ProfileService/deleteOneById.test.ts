@@ -4,8 +4,8 @@ import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import ProfileModule from '../modules/profile.module';
 import { Profile } from '../../../profile/profile.schema';
 import PlayerModule from '../../player/modules/player.module';
-import { PlayerDto } from '../../../player/dto/player.dto';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
+import { Player } from '../../../player/schemas/player.schema';
 
 describe('ProfileService.deleteOneById() test suite', () => {
   let profileService: ProfileService;
@@ -14,7 +14,7 @@ describe('ProfileService.deleteOneById() test suite', () => {
 
   const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
   const playerModel = PlayerModule.getPlayerModel();
-  let existingPlayer: PlayerDto;
+  let existingPlayer: Player;
 
   const profileModel = ProfileModule.getProfileModel();
 

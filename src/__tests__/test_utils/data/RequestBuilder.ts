@@ -1,10 +1,14 @@
 import { Request } from 'express';
 
+type Mutable<T> = {
+  -readonly [P in keyof T]: T[P];
+};
+
 /**
  * Builder class for Express Request object
  */
 export default class RequestBuilder {
-  private readonly base: Partial<Request> = {
+  private readonly base: Partial<Mutable<Request>> = {
     body: {},
     params: {},
     query: {},

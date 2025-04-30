@@ -3,6 +3,7 @@ import BasicService from '../../../../../common/service/basicService/BasicServic
 import { ModelName } from '../../../../../common/enum/modelName.enum';
 import ClanModule from '../../../../clan/modules/clan.module';
 import ClanBuilderFactory from '../../../../clan/data/clanBuilderFactory';
+import { getNonExisting_id } from '../../../../test_utils/util/getNonExisting_id';
 
 describe('BasicService.readOneById() test suite', () => {
   const clanModel = ClanModule.getClanModel();
@@ -30,7 +31,8 @@ describe('BasicService.readOneById() test suite', () => {
   });
 
   it('Should return ServiceError NOT_FOUND if object with provided _id does not exists', async () => {
-    const [result, errors] = await basicService.readOneById('non-existing');
+    const [result, errors] =
+      await basicService.readOneById(getNonExisting_id());
 
     expect(result).toBeNull();
     expect(errors).toContainSE_NOT_FOUND();
