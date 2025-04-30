@@ -31,6 +31,17 @@ describe('PlayerService.updateOneById() test suite', () => {
     expect(updatedPlayer.name).toBe(updateData.name);
   });
 
+  it('Should successfully update an existing player battleCharacterId ', async () => {
+    const updateData = { _id: existingPlayer._id, battleCharacter_ids: [null, new Object()] };
+    const resp = await playerService.updateOneById(updateData);
+
+    expect(resp).toBeTruthy();
+
+    const updatedPlayer = await playerModel.findById(existingPlayer._id);
+    expect(updatedPlayer.battleCharacter_ids[0]).toBe(updateData.battleCharacter_ids[0]);
+    expect(updatedPlayer.battleCharacter_ids[1]).toStrictEqual(updateData.battleCharacter_ids[1]);
+  });
+
   //TODO: sometimes it fails and does not throw any error
   it('Should throw error if the name already exists', async () => {
     const notUniqueName = 'anotherName';
