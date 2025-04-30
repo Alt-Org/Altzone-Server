@@ -16,7 +16,6 @@ import { SEReason } from '../common/service/basicService/SEReason';
 import BasicService from '../common/service/basicService/BasicService';
 import { CreateProfileDto } from './dto/createProfile.dto';
 import { ProfileDto } from './dto/profile.dto';
-import { ClanDto } from '../clan/dto/clan.dto';
 import { IServiceReturn } from '../common/service/basicService/IService';
 
 const ARGON2_CONFIG = {
@@ -106,43 +105,24 @@ export class ProfileService
    *
    * @param profileId - The ID of the profile.
    * @param playerId - The ID of the player.
-   * @returns An object containing the profile, player, and clan information.
-   * @throws Will throw an error if the profile or player is not found.
+   * @returns An object containing the profile, player, and clan information or an ServiceError if the profile or player is not found.
    */
   async getLoggedUserInfo(
     profileId: string,
     playerId: string,
   ): Promise<IServiceReturn<ProfileDto>> {
-    const [profile, profileReadingErrors] = await this.basicService.readOneById(
-      profileId,
-      {
-        includeRefs: [ModelName.PLAYER],
-      },
-    );
+    const [profile, profileReadingErrors] =
+      await this.basicService.readOneById(profileId);
 
     if (profileReadingErrors) return [null, profileReadingErrors];
 
-    if (!profile.Player)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            field: '_id',
-            value: playerId,
-            message: 'Could not find player with that _id',
-          }),
-        ],
-      ];
+    const [player, playerReadingErrors] =
+      await this.playerService.getPlayerById(playerId, {
+        includeRefs: [ModelName.CLAN],
+      });
 
-    if (profile.Player.clan_id) {
-      const clan = await this.requestHelperService.getModelInstanceById(
-        ModelName.CLAN,
-        profile.Player.clan_id,
-        ClanDto,
-      );
-      profile.Player.Clan = clan;
-    }
+    if (playerReadingErrors) return [null, playerReadingErrors];
+    profile.Player = player;
 
     return [profile, null];
   }
