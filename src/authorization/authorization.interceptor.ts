@@ -52,6 +52,7 @@ export class AuthorizationInterceptor implements NestInterceptor {
     const httpContext = context.switchToHttp();
     const request = httpContext.getRequest();
     const { user } = request;
+
     if (!user || !(user instanceof User))
       throw new UnauthorizedException({
         message: 'User must be logged in for that request',
@@ -69,6 +70,7 @@ export class AuthorizationInterceptor implements NestInterceptor {
       PERMISSION_METADATA,
       context.getHandler(),
     );
+
     if (!metadata)
       throw new InternalServerErrorException({
         message:
@@ -123,7 +125,7 @@ export class AuthorizationInterceptor implements NestInterceptor {
     if (action === Action.create) {
       //@ts-expect-error: The `plainToInstance` function may not strictly match the expected type of `subject` at runtime
       const dataClass: typeof subject = plainToInstance(subject, request.body);
-      if (!userAbility.can(requestAction, dataClass))
+      if (dataClass && !userAbility.can(requestAction, dataClass))
         throw requestForbiddenError;
     }
 
