@@ -105,7 +105,7 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
     return this;
   }
 
-  setBattleCharacterIds(_ids: string[] | ObjectId[]) {
+  setBattleCharacterIds(_ids?: string[] | ObjectId[]) {
     this.base.battleCharacter_ids = _ids as any;
     return this;
   }
