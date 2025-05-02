@@ -44,7 +44,7 @@ export class UpdatePlayerDto {
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(3)
-  @IsMongoIdOrNull()
+  @IsMongoIdOrNull({ each: true })
   battleCharacter_ids?: string[];
 
   @IsOptional()

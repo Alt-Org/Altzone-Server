@@ -1,4 +1,4 @@
-import { registerDecorator,
+import { isMongoId, registerDecorator,
    ValidationArguments,
    ValidationOptions, 
    ValidatorConstraint, 
@@ -20,13 +20,7 @@ export function IsMongoIdOrNull(validationOptions?: ValidationOptions) {
 class IsMongoIdOrNullConstraint implements ValidatorConstraintInterface {
   validate(value: any) {
     
-    const mongoIdRegexPattern = /^[a-f\d]{24}$/i;
-
-    if (value === null) return true;
-    if (Array.isArray(value)) {
-      return value.every((item) => item == null || mongoIdRegexPattern.test(item));
-    }
-    return mongoIdRegexPattern.test(value);
+    return value === null || isMongoId(value);
   }
 
   defaultMessage(_args: ValidationArguments) {
