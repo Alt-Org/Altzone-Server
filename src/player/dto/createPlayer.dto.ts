@@ -12,6 +12,7 @@ import { IsProfileExists } from '../../profile/decorator/validation/IsProfileExi
 import AddType from '../../common/base/decorator/AddType.decorator';
 import { Type } from 'class-transformer';
 import { ModifyAvatarDto } from './modifyAvatar.dto';
+import { IsMongoIdOrNull } from '../../common/decorator/validation/IsMongoIdOrNull.decorator';
 
 @AddType('CreatePlayerDto')
 export class CreatePlayerDto {
@@ -35,7 +36,7 @@ export class CreatePlayerDto {
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(3)
-  @IsMongoId({ each: true })
+  @IsMongoIdOrNull({ each: true })
   battleCharacter_ids?: string[];
 
   @IsOptional()
