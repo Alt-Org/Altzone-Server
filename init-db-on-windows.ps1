@@ -25,11 +25,7 @@ docker run -d `
 
 # Step 2: Wait for MongoDB to be ready
 Write-Host "2. Waiting for MongoDB to start..."
-#do {
-#    Start-Sleep -Seconds 1
-#    $ping = docker exec $TEMP_CONTAINER_NAME mongosh --quiet --eval "db.adminCommand('ping')" 2>&1
-#} while ($ping -notmatch '"ok"\s*:\s*1')
-Start-Sleep -Seconds 5
+Start-Sleep -Seconds 10
 
 Write-Host "MongoDB volume is up. Removing the temporary container"
 docker stop $TEMP_CONTAINER_NAME | Out-Null
@@ -42,11 +38,7 @@ docker compose up -d $SERVICE_NAME
 
 # Step 4: Wait for the container to be ready
 Write-Host "Waiting for MongoDB to be ready..."
-#do {
-#    Start-Sleep -Seconds 1
-#    $ping = docker exec $CONTAINER_NAME mongosh --quiet -u $USERNAME -p $PASSWORD --authenticationDatabase admin --eval "db.adminCommand('ping')" 2>&1
-#} while ($ping -notmatch '"ok"\s*:\s*1')
-Start-Sleep -Seconds 5
+Start-Sleep -Seconds 10
 
 
 # Step 5: Initiate replica set
