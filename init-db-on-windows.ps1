@@ -1,4 +1,4 @@
-# Run with PowerShell: .\init-db-on-windows.ps1
+# Run with PowerShell: powershell -ExecutionPolicy Bypass -File .\init-db-on-windows.ps1
 $ErrorActionPreference = "Stop"
 
 $TEMP_CONTAINER_NAME = "mongo-init-temp"
