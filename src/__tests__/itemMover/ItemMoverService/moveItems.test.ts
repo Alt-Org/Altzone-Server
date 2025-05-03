@@ -183,7 +183,6 @@ describe('ItemMoverService.moveItems() test suite', () => {
     expect(errors).toContainSE_NOT_FOUND();
   });
 
-  //TODO: should validate and return NOT_ALLOWED not NOT_FOUND
   it('Should return NOT_FOUND if provided _ids are not mongo _ids', async () => {
     const [items, errors] = await itemMoverService.moveItems(
       ['non-mongo-id'],
@@ -192,7 +191,7 @@ describe('ItemMoverService.moveItems() test suite', () => {
     );
 
     expect(items).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
+    expect(errors).toContainSE_VALIDATION();
   });
 
   //TODO: should validate storageId param

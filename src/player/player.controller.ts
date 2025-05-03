@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   Put,
@@ -61,6 +62,7 @@ export default class PlayerController {
   }
 
   @Put()
+  @HttpCode(204)
   @Authorize({ action: Action.update, subject: UpdatePlayerDto })
   @BasicPUT(ModelName.PLAYER)
   public async update(@Body() body: UpdatePlayerDto) {

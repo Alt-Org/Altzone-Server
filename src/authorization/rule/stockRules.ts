@@ -22,11 +22,12 @@ export const stockRules: RulesSetterAsync<Ability, Subjects> = async (
   action,
   subjectObj,
   requestHelperService,
+  connection,
 ) => {
   const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
   if (subject === StockDto) {
-    const clan_id = await getClan_id(user, requestHelperService);
+    const clan_id = await getClan_id(user, requestHelperService, connection);
     can(Action.create_request, subject, { clan_id: clan_id });
 
     //const publicFields = ['_id', 'name', 'uniqueIdentifier'];

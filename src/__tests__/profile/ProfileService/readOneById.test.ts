@@ -1,13 +1,13 @@
 import { ProfileService } from '../../../profile/profile.service';
 import ProfileBuilderFactory from '../data/profileBuilderFactory';
 import ProfileModule from '../modules/profile.module';
-import { PlayerDto } from '../../../player/dto/player.dto';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import PlayerModule from '../../player/modules/player.module';
 import { Profile } from '../../../profile/profile.schema';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 import { MongooseError } from 'mongoose';
 import { ModelName } from '../../../common/enum/modelName.enum';
+import { Player } from '../../../player/schemas/player.schema';
 
 describe('ProfileService.readOneById() test suite', () => {
   let profileService: ProfileService;
@@ -16,7 +16,7 @@ describe('ProfileService.readOneById() test suite', () => {
 
   const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
   const playerModel = PlayerModule.getPlayerModel();
-  let existingPlayer: PlayerDto;
+  let existingPlayer: Player;
 
   const profileModel = ProfileModule.getProfileModel();
 

@@ -41,8 +41,6 @@ bootstrap();
  * @returns bad request exception
  */
 function errorFactory(validationErrors: ValidationError[]) {
-  const messages = extractMessagesFromValidationErrors(validationErrors);
-
   const apiErrors: APIError[] = [];
   for (let i = 0, l = validationErrors.length; i < l; i++) {
     const errors = validationToAPIErrors(validationErrors[i]);
@@ -51,18 +49,7 @@ function errorFactory(validationErrors: ValidationError[]) {
 
   return new BadRequestException({
     statusCode: 400,
-    message: messages,
     error: 'Bad Request',
     errors: apiErrors,
   });
-}
-
-function extractMessagesFromValidationErrors(errors: ValidationError[]) {
-  return errors.map((error) =>
-    Object.values(
-      error.constraints
-        ? error.constraints
-        : error.children.map((e) => Object.values(e.constraints)),
-    ),
-  );
 }

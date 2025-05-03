@@ -90,5 +90,5 @@ function validateController(controller: any) {
 
 function areArgsValid(args: any[]) {
   const request = args[1];
-  return request instanceof Object && request['body'] && request['query'];
+  return request instanceof Object && request['query'];
 }

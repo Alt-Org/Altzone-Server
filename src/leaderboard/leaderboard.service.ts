@@ -1,18 +1,18 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PlayerService } from '../player/player.service';
 import { ClanService } from '../clan/clan.service';
 import { IGetAllQuery } from '../common/interface/IGetAllQuery';
-import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import mongoose, { Model } from 'mongoose';
-import { CacheKeys } from '../common/enum/cacheKeys.enum';
+import { CacheKeys } from '../common/service/redis/cacheKeys.enum';
 import { PlayerDocument } from 'src/player/schemas/player.schema';
+import { RedisService } from '../common/service/redis/redis.service';
 
 @Injectable()
 export class LeaderboardService {
   constructor(
-    @Inject(CACHE_MANAGER) private cacheService: Cache,
+    private readonly redisService: RedisService,
     private readonly playerService: PlayerService,
     private readonly clanService: ClanService,
   ) {}
@@ -63,7 +63,8 @@ export class LeaderboardService {
     model: mongoose.Model<any>,
     reqQuery?: IGetAllQuery,
   ): Promise<object[]> {
-    let data: object[] = await this.cacheService.get(cacheKey);
+    const dataRaw = await this.redisService.get(cacheKey);
+    let data: object[] = JSON.parse(dataRaw);
 
     if (!data) {
       const fetchedData = await model.find().sort({ points: -1 }).exec();
@@ -72,7 +73,7 @@ export class LeaderboardService {
       data = await this.processCacheData(model, fetchedData);
 
       // Set the data with 12 hour ttl. The { ttl: number } as any is required to overwrite the default value.
-      await this.cacheService.set(cacheKey, data, { ttl: 60 * 60 * 12 } as any);
+      await this.redisService.set(cacheKey, JSON.stringify(data), 60 * 60 * 12);
     }
 
     if (reqQuery) {

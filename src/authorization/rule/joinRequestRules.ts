@@ -13,6 +13,7 @@ import { getClan_id } from '../util/getClan_id';
 import { isClanAdmin } from '../util/isClanAdmin';
 import { isType } from '../../common/base/decorator/AddType.decorator';
 import { PlayerLeaveClanDto } from '../../clan/join/dto/playerLeave.dto';
+import { RemovePlayerDTO } from '../../clan/join/dto/removePlayer.dto';
 
 type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
@@ -22,6 +23,7 @@ export const joinRules: RulesSetterAsync<Ability, Subjects> = async (
   action,
   subjectObj: any,
   requestHelperService,
+  connection,
 ) => {
   const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
   if (action == Action.create) {
@@ -32,14 +34,11 @@ export const joinRules: RulesSetterAsync<Ability, Subjects> = async (
       can(Action.create_request, subject, { player_id: user.player_id });
   }
 
+  const subjectInstance = new subject();
   //If someone is making request to remove a player from the clan
-  if (action === Action.create && isType(subject, 'RemovePlayerDTO')) {
-    const clan_id = await getClan_id(user, requestHelperService);
-    const clan = await requestHelperService.getModelInstanceById(
-      ModelName.CLAN,
-      clan_id,
-      ClanDto,
-    );
+  if (action === Action.create && subjectInstance instanceof RemovePlayerDTO) {
+    const clan_id = await getClan_id(user, requestHelperService, connection);
+    const clan = await connection.model(ModelName.CLAN).findById(clan_id);
     const isAdmin = isClanAdmin(clan, user.player_id);
 
     if (isAdmin) {

@@ -1,12 +1,12 @@
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import PlayerModule from '../../player/modules/player.module';
-import { PlayerDto } from '../../../player/dto/player.dto';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 import { MongooseError } from 'mongoose';
 import { PlayerService } from '../../../player/player.service';
 import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 import ClanModule from '../../clan/modules/clan.module';
 import { Clan } from '../../../clan/clan.schema';
+import { Player } from '../../../player/schemas/player.schema';
 
 describe('PlayerService.readOneWithAllCollections() test suite', () => {
   let playerService: PlayerService;
@@ -14,7 +14,7 @@ describe('PlayerService.readOneWithAllCollections() test suite', () => {
   const updatePlayerBuilder =
     PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
   const playerModel = PlayerModule.getPlayerModel();
-  let existingPlayer: PlayerDto;
+  let existingPlayer: Player;
 
   const clanBuilder = ClanBuilderFactory.getBuilder('CreateClanDto');
   const clanModel = ClanModule.getClanModel();

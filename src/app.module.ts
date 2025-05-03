@@ -16,8 +16,6 @@ import { GameDataModule } from './gameData/gameData.module';
 import { GameAnalyticsModule } from './gameAnalytics/gameAnalytics.module';
 import { envVars } from './common/service/envHandler/envVars';
 import { LeaderboardModule } from './leaderboard/leaderboard.module';
-import * as redisStore from 'cache-manager-redis-store';
-import { CacheModule } from '@nestjs/cache-manager';
 import { ClanInventoryModule } from './clanInventory/clanInventory.module';
 import { ItemMoverModule } from './itemMover/itemMover.module';
 import { GameEventsHandlerModule } from './gameEventsHandler/gameEventsHandler.module';
@@ -40,10 +38,9 @@ const mongoPassword = envVars.MONGO_PASSWORD;
 const mongoHost = envVars.MONGO_HOST;
 const mongoPort = envVars.MONGO_PORT;
 const dbName = envVars.MONGO_DB_NAME;
-const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}`;
+const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}/?replicaSet=rs0`;
 
 // Set up redis connection
-const redisPassword = envVars.REDIS_PASSWORD;
 const redisHost = envVars.REDIS_HOST;
 const redisPort = parseInt(envVars.REDIS_PORT);
 
@@ -53,13 +50,6 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
   imports: [
     ScheduleModule.forRoot(),
     MongooseModule.forRoot(mongoString, { dbName: dbName }),
-    CacheModule.register({
-      isGlobal: true,
-      store: redisStore,
-      host: redisHost,
-      port: redisPort,
-      password: redisPassword,
-    }),
     BullModule.forRoot({
       connection: {
         host: redisHost,

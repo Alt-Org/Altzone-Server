@@ -144,17 +144,18 @@ export class ClanController {
   @Post('leave')
   @HttpCode(204)
   @Authorize({ action: Action.create, subject: PlayerLeaveClanDto })
-  public leaveClan(@Req() request: Request) {
-    return this.joinService.leaveClan(request['user'].player_id);
+  public leaveClan(@Req() request: Request, @LoggedUser() user: User) {
+    return this.joinService.leaveClan(user.player_id);
   }
 
   @Post('exclude')
   @HttpCode(204)
+  @DetermineClanId()
   @Authorize({ action: Action.create, subject: RemovePlayerDTO })
-  public excludePlayer(@Body() body: RemovePlayerDTO, @Req() request: Request) {
-    return this.joinService.removePlayerFromClan(
-      body.player_id,
-      request['user'],
-    );
+  public excludePlayer(
+    @Body() body: RemovePlayerDTO,
+    @LoggedUser() user: User,
+  ) {
+    return this.joinService.removePlayerFromClan(body.player_id, user.clan_id);
   }
 }
