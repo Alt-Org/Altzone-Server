@@ -1,4 +1,4 @@
-FROM node:18-bullseye-slim as build
+FROM node:23-bookworm-slim as build
 
 #tini for better kernel signal handling
 RUN apt-get update \
@@ -21,10 +21,11 @@ RUN rm -rf ./dist/util/dataMock
 
 #for production RUN npm ci --only-production && npm cache clean --force
 
-FROM debian:11.7-slim as start
+FROM debian:12-slim as start
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
-ENV NODE_VERSION 18.16.0
+
+ENV NODE_VERSION 23.11.0
 
 COPY --from=build /usr/bin/tini /usr/bin/tini
 COPY --from=build /usr/local/bin/node /usr/local/bin/node

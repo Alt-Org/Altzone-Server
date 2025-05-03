@@ -38,7 +38,7 @@ const mongoPassword = envVars.MONGO_PASSWORD;
 const mongoHost = envVars.MONGO_HOST;
 const mongoPort = envVars.MONGO_PORT;
 const dbName = envVars.MONGO_DB_NAME;
-const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}`;
+const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}/?replicaSet=rs0`;
 
 // Set up redis connection
 const redisHost = envVars.REDIS_HOST;

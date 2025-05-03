@@ -13,7 +13,14 @@ services:
       - owncloud
       - redis
     environment:
-      - HOST=altzone_api
+      - PORT=8080
+      - JWT_SECRET=mySecret
+      - JWT_EXPIRES=30d
+      - PSW_MEMORY=32768
+      - PSW_TIME=3
+      - PSW_PARALLELISM=2
+      - ENVIRONMENT=PRODUCTION
+      - SWAGGER_PATH=swagger
       - PORT=8080
       - MONGO_USERNAME=rootUser
       - MONGO_PASSWORD=superSecretPassword
@@ -24,13 +31,14 @@ services:
       - OWNCLOUD_PORT=8080
       - OWNCLOUD_USER=user
       - OWNCLOUD_PASSWORD=password
+      - OWNCLOUD_LOG_FILES_SECRET=my_secret
       - OWNCLOUD_LOG_FILES_ROOT=/log-files
       - REDIS_PASSWORD=mySecretPassword
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - MOSQUITTO_HOST=mosquitto
       - MOSQUITTO_PORT=1883
-      - MOSQUITTO_SUBSCRIBER_USER=subscriber
+      - MOSQUITTO_SUBSCRIBER=subscriber
       - MOSQUITTO_SUBSCRIBER_PASSWORD=subscriberPassword
       - MOSQUITTO_PUBLISHER=publisher
       - MOSQUITTO_PUBLISHER_PASSWORD=publisherPassword
@@ -74,17 +82,16 @@ services:
       - PORT=8081
 
   db:
-    image: mongo:4.2.24-bionic
+    build:
+      dockerfile: ./mongo.Dockerfile
     container_name: altzone_db
-    command: mongod --quiet --logpath /dev/null #disable logs
     networks:
       - db
     volumes:
       - altzone_db:/data/db
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=rootUser
-      - MONGO_INITDB_ROOT_PASSWORD=superSecretPassword
-      - MONGO_INITDB_DATABASE=altzone
+      - ./mongod.conf:/etc/mongo/mongod.conf
+    ports:
+      - 27017:27017
 
   redis:
     image: redis:7.4-bookworm
@@ -155,17 +162,17 @@ services:
     container_name: altzone_proxy
     depends_on:
       - api
-      - site
+#      - site
     restart: always
     ports:
       - 80:80
       - 443:443
     networks:
       - backend
-      - altzone_swagger
+      - swagger
       - owncloud
     volumes:
-      - ./prod_nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/nginx.conf
       - ./public:/usr/local/nginx/public:ro
       - ./webgl_build_brotli:/usr/local/nginx/game
       - ./letsencrypt:/etc/letsencrypt
@@ -186,6 +193,7 @@ networks:
 
 volumes:
   altzone_db:
+    name: altzone_db
   owncloud_db:
   altzone_redis:
   altzone_mosquitto:
