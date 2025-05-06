@@ -2,7 +2,7 @@ name: Is branch named correctly?
 
 on:
   pull_request:
-    types: [opened, edited, synchronize, reopened]
+    types: [opened]
 
 jobs:
   validate-branch-name:
