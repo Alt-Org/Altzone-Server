@@ -1,0 +1,38 @@
+name: Print ProjectV2 IDs
+
+on:
+  workflow_dispatch: # allows manual run from Actions tab
+
+jobs:
+  print-project-ids:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+      projectV2: read
+
+    steps:
+      - name: Get ProjectV2 List
+        run: |
+          echo "Fetching list of Projects (v2)..."
+          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Content-Type: application/json" \
+               -X POST https://api.github.com/graphql \
+               -d @- <<EOF
+          {
+            "query": "query { organization(login: \"Alt-Org\") { projectsV2(first: 10) { nodes { id title } } } }"
+          }
+EOF
+
+      - name: Get ProjectV2 Fields (replace with your project ID)
+        run: |
+          echo "Fetching fields for a specific project..."
+          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Content-Type: application/json" \
+               -X POST https://api.github.com/graphql \
+               -d @- <<EOF
+          {
+            "query": "query { node(id: \"YOUR_PROJECT_ID\") { ... on ProjectV2 { title fields(first: 20) { nodes { id name dataType ... on ProjectV2SingleSelectField { options { id name } } } } } } }"
+          }
+EOF
