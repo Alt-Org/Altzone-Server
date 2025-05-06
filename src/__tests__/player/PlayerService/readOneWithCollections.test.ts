@@ -44,9 +44,12 @@ describe('PlayerService.readWithCollections() test suite', () => {
       ModelName.CLAN,
     );
 
-    const data = resp['data']['Player'];
+    const { roles: dbRoles, ...clan } =
+      resp['data']['Player']['Clan'].toObject();
+    const { roles: existingClanRoles, ...clanWithoutRoles } = existingClan;
 
-    expect(data.Clan).toEqual(expect.objectContaining(existingClan));
+    expect(clan).toEqual(expect.objectContaining(clanWithoutRoles));
+    expect(dbRoles).toEqual(existingClanRoles);
   });
 
   it('Should retrieve player without references if withQuery is empty', async () => {

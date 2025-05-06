@@ -1,4 +1,5 @@
 import { VotingDto } from '../../voting/dto/voting.dto';
+import { VotingQueueName } from '../../voting/enum/VotingQueue.enum';
 
 export type VotingQueueParams = {
   voting: VotingDto;
@@ -6,4 +7,5 @@ export type VotingQueueParams = {
   price?: number;
   stockId: string;
   fleaMarketItemId?: string;
+  queue: VotingQueueName;
 };

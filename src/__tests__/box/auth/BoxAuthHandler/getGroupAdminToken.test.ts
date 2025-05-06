@@ -19,8 +19,10 @@ describe('BoxAuthHandler.getGroupAdminToken() test suite', () => {
 
     await boxAuthHandler.getGroupAdminToken(boxAdminUser);
 
+    const { clan_id: _clan_id, ...clanIdOmittedUser } = boxAdminUser;
+
     expect(jwtMethod).toHaveBeenCalledTimes(1);
-    expect(jwtMethod).toHaveBeenCalledWith(boxAdminUser);
+    expect(jwtMethod).toHaveBeenCalledWith(clanIdOmittedUser);
   });
 
   it('Should return token from the JWTService.signAsync() response', async () => {

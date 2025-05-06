@@ -41,7 +41,9 @@ describe('ClanService.readOneById() test suite', () => {
     const [clan, errors] = await clanService.readOneById(existingClan._id);
 
     expect(errors).toBeNull();
-    expect(clan).toEqual(expect.objectContaining(existingClan));
+    expect((clan as any).toObject()).toEqual(
+      expect.objectContaining(existingClan),
+    );
   });
 
   it('Should return only requested in "select" fields', async () => {

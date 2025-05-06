@@ -23,6 +23,7 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { StockService } from '../clanInventory/stock/stock.service';
 import { SoulHomeService } from '../clanInventory/soulhome/soulhome.service';
 import GameEventEmitter from '../gameEventsEmitter/gameEventEmitter';
+import { LeaderClanRole } from './role/initializationClanRoles';
 
 @Injectable()
 export class ClanService {
@@ -60,8 +61,13 @@ export class ClanService {
 
     if (clanErrors || !clan) return [null, clanErrors];
 
+    const leaderRole = clan.roles.find(
+      (role) => role.name === LeaderClanRole.name,
+    );
+
     const [, playerErrors] = await this.playerService.updateOneById(player_id, {
       clan_id: clan._id,
+      clanRole_id: leaderRole._id,
     });
     if (playerErrors) return [null, playerErrors];
 

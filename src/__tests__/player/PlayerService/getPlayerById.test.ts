@@ -89,7 +89,12 @@ describe('PlayerService.getPlayerById() test suite', () => {
     );
 
     expect(errors).toBeNull();
-    expect(player.Clan).toEqual(expect.objectContaining(existingClan));
+
+    const { roles: dbRoles, ...clan } = (player.Clan as any).toObject();
+    const { roles: existingClanRoles, ...clanWithoutRoles } = existingClan;
+
+    expect(clan).toEqual(expect.objectContaining(clanWithoutRoles));
+    expect(dbRoles).toEqual(existingClanRoles);
   });
 
   it('Should ignore non-existing references requested', async () => {

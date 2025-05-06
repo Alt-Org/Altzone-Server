@@ -58,7 +58,7 @@ export class VotingService {
     const newVoting: CreateVotingDto = {
       organizer: { player_id: player._id.toString(), clan_id: clanId },
       type: type,
-      entity_id: item._id.toString(),
+      ...((item._id && { entity_id: item._id }) || { entity_name: item.name }),
     };
 
     const newVote = {

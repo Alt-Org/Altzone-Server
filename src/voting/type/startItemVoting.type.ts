@@ -4,7 +4,7 @@ import { VotingType } from '../enum/VotingType.enum';
 
 export type StartItemVotingParams = {
   player: PlayerDto;
-  item: FleaMarketItemDto;
+  item: Partial<FleaMarketItemDto>;
   clanId: string;
-  type: VotingType.BUYING_ITEM | VotingType.SELLING_ITEM;
+  type: VotingType;
 };

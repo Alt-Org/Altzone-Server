@@ -83,11 +83,7 @@ describe('BoxAuthService.signIn() test suite', () => {
     const clanDBFinal = {
       ...clearedClan,
       _id: clearedClan._id.toString(),
-      Player: undefined,
-      SoulHome: undefined,
-      Stock: undefined,
-      clanLogo: { ...clearedClan.clanLogo, objectType: 'ClanLogoDto' },
-      objectType: 'ClanDto',
+      clanLogo: { ...clearedClan.clanLogo },
     };
     const player = playerBuilder
       .setProfileId(existingAdminProfile._id)
@@ -117,16 +113,15 @@ describe('BoxAuthService.signIn() test suite', () => {
       tokenExpires,
       _id: existingAdminProfile._id.toString(),
       username: existingAdminProfile.username,
-      objectType: 'ProfileDto',
     };
 
-    expect(clearedResult).toEqual({
+    expect(clearedResult).toMatchObject({
       ...expectedResult,
       Player: expect.anything(),
       Clan: expect.anything(),
     });
     expect(clearedPlayerResult).toEqual(playerDBFinal);
-    expect(clearedClanResult).toEqual(clanDBFinal);
+    expect(clearedClanResult).toMatchObject(clanDBFinal);
   });
 
   it('Should call signAsync() with payload containing profile_id, player_id, box_id, groupAdmin', async () => {

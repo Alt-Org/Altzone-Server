@@ -7,6 +7,8 @@ import { AgeRange } from './enum/ageRange.enum';
 import { Language } from '../common/enum/language.enum';
 import { Goal } from './enum/goal.enum';
 import { ClanLogo } from './clanLogo.schema';
+import { ClanRole, ClanRoleSchema } from './role/ClanRole.schema';
+import { initializationClanRoles } from './role/initializationClanRoles';
 
 export type ClanDocument = HydratedDocument<Clan>;
 
@@ -30,7 +32,7 @@ export class Clan {
   @Prop({ type: Number, default: 0 })
   points: number;
 
-  @Prop({ type: Array<string>, default: [] })
+  @Prop({ type: [String], default: [] })
   admin_ids: string[];
 
   @Prop({ type: Number, default: 1, min: 0 })
@@ -56,6 +58,13 @@ export class Clan {
 
   @Prop({ type: String, enum: Language, default: Language.NONE })
   language: Language;
+
+  @Prop({
+    type: [ClanRoleSchema],
+    required: true,
+    default: initializationClanRoles,
+  })
+  roles: ClanRole[];
 
   @ExtractField()
   _id: string;

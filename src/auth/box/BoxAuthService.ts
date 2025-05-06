@@ -2,27 +2,26 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, MongooseError } from 'mongoose';
-import { ModelName } from '../../common/enum/modelName.enum';
-import { ProfileDto } from '../../profile/dto/profile.dto';
-import { ClanDto } from '../../clan/dto/clan.dto';
-import { RequestHelperService } from '../../requestHelper/requestHelper.service';
 import { ObjectId } from 'mongodb';
 import { AuthService } from '../auth.service';
 import { Box } from '../../box/schemas/box.schema';
 import { GroupAdmin } from '../../box/groupAdmin/groupAdmin.schema';
 import { Player } from '../../player/schemas/player.schema';
+import { Clan } from '../../clan/clan.schema';
+import { Profile } from '../../profile/profile.schema';
 
 @Injectable()
 export default class BoxAuthService extends AuthService {
   constructor(
-    private readonly helperService: RequestHelperService,
     private readonly jwt: JwtService,
+    @InjectModel(Profile.name) public readonly profileModel: Model<Profile>,
     @InjectModel(Player.name) public readonly playerModel: Model<Player>,
+    @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
     @InjectModel(Box.name) public readonly boxModel: Model<Box>,
     @InjectModel(GroupAdmin.name)
     public readonly groupAdminModel: Model<GroupAdmin>,
   ) {
-    super(helperService, jwt, playerModel);
+    super(jwt, profileModel, playerModel, clanModel);
   }
 
   /**
@@ -36,14 +35,14 @@ export default class BoxAuthService extends AuthService {
    * - or if the profile does not correspond to any box
    */
   public signIn = async (username: string, pass: string) => {
-    const profile = await this.helperService.getModelInstanceByCondition<any>(
-      ModelName.PROFILE,
-      { username: username },
-      ProfileDto,
-      true,
-    );
+    const profileResp = await this.profileModel.findOne({ username });
 
-    if (!profile || profile instanceof MongooseError) return null;
+    if (!profileResp || profileResp instanceof MongooseError) return null;
+
+    const profile = {
+      ...profileResp.toObject(),
+      _id: profileResp._id.toString(),
+    };
 
     const [isValidPassword, errors] = await super.verifyPassword(
       pass,
@@ -59,6 +58,7 @@ export default class BoxAuthService extends AuthService {
     //TODO: throw meaningful errors, i.e. !player => no player found for that profile
     if (
       playerResp instanceof MongooseError ||
+      !playerResp ||
       (!profile.isSystemAdmin && !playerResp)
     )
       return null;
@@ -100,14 +100,12 @@ export default class BoxAuthService extends AuthService {
     const tokenExpires = decodedAccessToken?.exp;
 
     profile['Player'] = player;
+
     let clan = null;
-    if (player?.clan_id)
-      clan = await this.helperService.getModelInstanceById(
-        ModelName.CLAN,
-        player.clan_id,
-        ClanDto,
-      );
-    if (clan) profile['Clan'] = clan;
+    if (player?.clan_id) clan = await this.clanModel.findById(player.clan_id);
+
+    if (clan)
+      profile['Clan'] = { ...clan.toObject(), _id: clan._id.toString() };
 
     const { password: _p, isSystemAdmin: _a, ...serializedProfile } = profile;
 
