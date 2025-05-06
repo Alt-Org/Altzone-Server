@@ -1,5 +1,6 @@
 #docker compose -f sonar_docker-compose.yml up
 # user: admin, password: admin
+
 services:
   sonar:
     image: sonarqube:lts-community
