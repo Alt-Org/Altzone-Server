@@ -262,7 +262,7 @@
                     }
                 ],
                 "summary": "Update a clan",
-                "description": "Update the Clan, which _id is specified in the body. \n\nOnly Clan admins can change the Clan's data, as well as add or remove admins. Notice that while removing Clan admins, its is not allowed to remove all of them, because Clan must have at least one admin.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | only for Clan admins | \n\n\nThe **labels** enum values:\n\n|                         |                            |                      |                       |\n|-------------------------|----------------------------|----------------------|-----------------------|\n| 'eläinrakkaat'          | 'maahanmuuttomyönteiset'   | 'lgbtq+'             | 'raittiit'            |\n| 'kohteliaat'            | 'kiusaamisenvastaiset'     | 'urheilevat'         | 'syvälliset'          |\n| 'oikeudenmukaiset'      | 'kaikkien kaverit'         | 'itsenäiset'         | 'retkeilijät'         |\n| 'suomenruotsalaiset'    | 'huumorintajuiset'         | 'rikkaat'            | 'ikiteinit'           |\n| 'juoruilevat'           | 'rakastavat'               | 'oleilijat'          | 'nörtit'              |\n| 'musadiggarit'          | 'tunteelliset'             | 'gamerit'            | 'animefanit'          |\n| 'sinkut'                | 'monikulttuuriset'         | 'kauniit'            | 'järjestelmälliset'   |\n| 'epäjärjestelmälliset'  | 'tasa-arvoiset'            | 'somepersoonat'      | 'kädentaitajat'       |\n| 'muusikot'              | 'taiteilijat'              | 'spämmääjät'         | 'kasvissyöjät'        |\n| 'tasapainoiset'         |                            |                      |                       |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **language** enum values:\n\n|             |           |             |               |\n|---------------------|-------------------|---------------------|-----------------------|\n| 'None'              | 'English'         | 'Finnish'           | 'Swedish'             |\n| 'Mandarin Chinese'  | 'Hindi'           | 'Spanish'           | 'French'              |\n| 'Arabic'            | 'Bengali'         | 'Russian'           | 'Portuguese'          |\n| 'Urdu'              | 'Indonesian'      | 'German'            | 'Japanese'            |\n| 'Swahili'           | 'Marathi'         |                     |                       |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **goal** enum values:\n\n|         |          |        |     |\n|-----------------|------------------|----------------|--------------|\n| 'None'          | 'Fiilistely'      | 'Grindaus'     | 'Intohimoisuus' |\n| 'Keraily'       |                  |                |              |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **ageRange** enum values:\n\n|       |       |       |   |\n|---------------|---------------|---------------|-----------|\n| 'None'        | 'Teenagers'    | 'Toddlers'    | 'Adults'  |\n| 'All'         |               |               |           |"
+                "description": "Update the Clan, which _id is specified in the body. \n\nNotice that the player must be in the same clan and it must have a basic right \"Edit clan data\"\n\n\nThe **labels** enum values:\n\n|                         |                            |                      |                       |\n|-------------------------|----------------------------|----------------------|-----------------------|\n| 'eläinrakkaat'          | 'maahanmuuttomyönteiset'   | 'lgbtq+'             | 'raittiit'            |\n| 'kohteliaat'            | 'kiusaamisenvastaiset'     | 'urheilevat'         | 'syvälliset'          |\n| 'oikeudenmukaiset'      | 'kaikkien kaverit'         | 'itsenäiset'         | 'retkeilijät'         |\n| 'suomenruotsalaiset'    | 'huumorintajuiset'         | 'rikkaat'            | 'ikiteinit'           |\n| 'juoruilevat'           | 'rakastavat'               | 'oleilijat'          | 'nörtit'              |\n| 'musadiggarit'          | 'tunteelliset'             | 'gamerit'            | 'animefanit'          |\n| 'sinkut'                | 'monikulttuuriset'         | 'kauniit'            | 'järjestelmälliset'   |\n| 'epäjärjestelmälliset'  | 'tasa-arvoiset'            | 'somepersoonat'      | 'kädentaitajat'       |\n| 'muusikot'              | 'taiteilijat'              | 'spämmääjät'         | 'kasvissyöjät'        |\n| 'tasapainoiset'         |                            |                      |                       |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **language** enum values:\n\n|             |           |             |               |\n|---------------------|-------------------|---------------------|-----------------------|\n| 'None'              | 'English'         | 'Finnish'           | 'Swedish'             |\n| 'Mandarin Chinese'  | 'Hindi'           | 'Spanish'           | 'French'              |\n| 'Arabic'            | 'Bengali'         | 'Russian'           | 'Portuguese'          |\n| 'Urdu'              | 'Indonesian'      | 'German'            | 'Japanese'            |\n| 'Swahili'           | 'Marathi'         |                     |                       |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **goal** enum values:\n\n|         |          |        |     |\n|-----------------|------------------|----------------|--------------|\n| 'None'          | 'Fiilistely'      | 'Grindaus'     | 'Intohimoisuus' |\n| 'Keraily'       |                  |                |              |\n\n-------------------------------------------------------------------------------------------------------\n\nThe **ageRange** enum values:\n\n|       |       |       |   |\n|---------------|---------------|---------------|-----------|\n| 'None'        | 'Teenagers'    | 'Toddlers'    | 'Adults'  |\n| 'All'         |               |               |           |"
             },
             "post": {
                 "requestBody": {
@@ -3033,7 +3033,7 @@
                     }
                 ],
                 "summary": "Buy an Item from the flea market",
-                "description": "Buy an Item from the flea market. This will start a voting in the Clan for which Item is being purchased. Voting duration is 10 min at max and the min approval percentage is 51. During the voting an Item is in \"Booked\" status and can not be bought by other players.\n\nNotice that if a FleaMarketItem has already \"Booked\" status 403 will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | yes, only buying Clan members |\n\n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there.\n"
+                "description": "Buy an Item from the flea market. This will start a voting in the Clan for which Item is being purchased. Voting duration is 10 min at max and the min approval percentage is 51. During the voting an Item is in \"Booked\" status and can not be bought by other players.\n\nNotice that the player must be in the same clan and it must have a basic right \"Shop\".\n\nNotice that if a FleaMarketItem has already \"Booked\" status 403 will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | yes, only buying Clan members |\n\n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there.\n"
             }
         },
         "/auth/signIn": {
@@ -3281,7 +3281,7 @@
                     }
                 ],
                 "summary": "Sell an Item on the flea market",
-                "description": "Sell an Item on the flea market. This will start a voting in the Clan from which Item is being moved to the flee marked. Voting min approval percentage is 51. During the voting an Item is in \"Shipping\" status and can not be bought by other players.\n\nNotice that if a FleaMarketItem has already \"Shipping\" status 403 will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | yes, only selling Clan members |\n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there."
+                "description": "Sell an Item on the flea market. This will start a voting in the Clan from which Item is being moved to the flee marked. Voting min approval percentage is 51. During the voting an Item is in \"Shipping\" status and can not be bought by other players.\n\nNotice that the player must be in the same clan and it must have a basic right \"Shop\".\n\nNotice that if a FleaMarketItem has already \"Shipping\" status 403 will be returned.\n\n| Feature / Requirement | Is / Has |\n| -------- | -------- |\n| Authentication | yes |\n| Authorization   | yes, only selling Clan members |\n\n## Endpoint description\n\n### General description\n\nThe FleaMarket is the place where the Clans can sell their own Items and other Clans can buy these Items. Items can be purchased by any Clan member using this Clan coins.\n\n\n### Logic\n\nThe FleeMarket contains FleeMarketItems. FleeMarketItem object has a status field which determines what can be done with it:\n\n- Available - Item can be purchased\n- Shipping - Item is being shipped = selling Clan members is voting if the Item should be sold or not\n- Booking - Item is booked = buying Clan is voting if the Item should be bought or not. Item can be booked for max. 10 min\n\n\n### Relations\n\nThe FleaMarketItem belongs to a selling Clan. The selling Clan can have many FleaMarketItems. FleaMarketItem can belong to one Clan only.\n\n\n### CRUD operations\n\nFleaMarketItem is added by Clan member by moving the Item from Stock to FleaMarket, which means the Item from Stock is copied to the FleaMarketItem collection and then removed from the Stock.\n\nFleaMarketItems can be read by any logged-in user.\n\nFleaMarketItem data can not be changed at the time and it is read-only.\n\nFleaMarketItem can not be removed from the FleaMarket at the time once it is put there."
             }
         },
         "/voting": {
@@ -3697,50 +3697,54 @@
                                     "1": {
                                         "value": {
                                             "data": {
-                                                "Clan": [
+                                                "Player": [
                                                     {
-                                                        "_id": "667eedc9b3b5bf0f7a840ef1",
-                                                        "name": "User2 clan",
-                                                        "tag": "tag2",
-                                                        "gameCoins": 90,
-                                                        "points": 10,
-                                                        "admin_ids": [
-                                                            "666720806cc90102f60bd325"
-                                                        ],
-                                                        "playerCount": 1,
-                                                        "itemCount": 0,
-                                                        "stockCount": 0,
-                                                        "isOpen": true,
-                                                        "id": "667eedc9b3b5bf0f7a840ef1"
-                                                    },
-                                                    {
-                                                        "_id": "667bfec6afb8211b4bd8dbff",
-                                                        "name": "User1 clan",
-                                                        "tag": "tag1",
-                                                        "gameCoins": 4,
-                                                        "admin_ids": [
-                                                            "665df7026bf5b8f670569ea4"
-                                                        ],
-                                                        "playerCount": 1,
-                                                        "itemCount": 0,
-                                                        "stockCount": 0,
-                                                        "isOpen": true,
-                                                        "points": 10,
-                                                        "id": "667bfec6afb8211b4bd8dbff"
+                                                        "objectType": "PlayerDto",
+                                                        "_id": "68189c8ce6eda712552911b9",
+                                                        "name": "user1",
+                                                        "points": 0,
+                                                        "backpackCapacity": 10,
+                                                        "uniqueIdentifier": "user1",
+                                                        "above13": true,
+                                                        "parentalAuth": true,
+                                                        "battleCharacter_ids": [],
+                                                        "profile_id": "68189c8ce6eda712552911b7",
+                                                        "clan_id": "68189e34e6eda712552911c2",
+                                                        "avatar": {
+                                                            "head": 1,
+                                                            "hair": 1,
+                                                            "eyes": 1,
+                                                            "nose": 1,
+                                                            "mouth": 1,
+                                                            "eyebrows": 1,
+                                                            "clothes": 1,
+                                                            "feet": 1,
+                                                            "hands": 1,
+                                                            "skinColor": "#f5cba7"
+                                                        },
+                                                        "clanRole_id": "68189e34e6eda712552911c3",
+                                                        "clanLogo": {
+                                                            "objectType": "ClanLogoDto",
+                                                            "logoType": "Heart",
+                                                            "pieceColors": [
+                                                                "#FFFFFF",
+                                                                "#000000"
+                                                            ]
+                                                        }
                                                     }
                                                 ]
                                             },
                                             "metaData": {
-                                                "dataKey": "Clan",
-                                                "modelName": "Clan",
+                                                "dataKey": "Player",
+                                                "modelName": "Player",
                                                 "dataType": "Array",
-                                                "dataCount": 2
+                                                "dataCount": 1
                                             },
                                             "paginationData": {
                                                 "currentPage": 1,
-                                                "limit": 2,
+                                                "limit": 20,
                                                 "offset": 0,
-                                                "itemCount": 2,
+                                                "itemCount": 1,
                                                 "pageCount": 1
                                             }
                                         }
@@ -4282,6 +4286,9 @@
                     "401": {
                         "$ref": "#/components/responses/401_New"
                     },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
                     "404": {
                         "$ref": "#/components/responses/404_New"
                     },
@@ -4295,7 +4302,7 @@
                     }
                 ],
                 "summary": "Update item",
-                "description": "Update item by specified _id"
+                "description": "Update item by specified _id\n\nNotice that the player must be in the same clan and it must have a basic right \"Edit soul home\""
             }
         },
         "/box": {
@@ -5434,7 +5441,10 @@
                                         "value": {
                                             "data": {
                                                 "Object": [
-                                                    "67e927d943df46974a7dc0cc"
+                                                    {
+                                                        "id": "68189c8ce6eda712552911b9",
+                                                        "name": "user1"
+                                                    }
                                                 ]
                                             },
                                             "metaData": {
@@ -5590,6 +5600,9 @@
                     "401": {
                         "$ref": "#/components/responses/401_New"
                     },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
                     "500": {
                         "$ref": "#/components/responses/500_New"
                     }
@@ -5600,7 +5613,7 @@
                     }
                 ],
                 "summary": "Buy an item",
-                "description": "Buy an item from a clan shop. \n\nNotice that the item will not be bought right away, but before majority of clan members should vote to buy the item.\n\nThere should be also enough coins to buy an item."
+                "description": "Buy an item from a clan shop. \n\nNotice that the item will not be bought right away, but before majority of clan members should vote to buy the item.\n\nThere should be also enough coins to buy an item.\n\nNotice that the player must be in the same clan and it must have a basic right \"Shop\""
             }
         },
         "/clan-shop/items": {
@@ -5928,6 +5941,55 @@
                     "required": true
                 }
             ]
+        },
+        "/clan/role/set": {
+            "put": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "player_id": "680b8a0be66fae56771a191e",
+                                        "role_id": "67fe4e2d8a54d4cc39266a46"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "Clan"
+                ],
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/204"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400_New"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401_New"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403_New"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404_New"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500_New"
+                    }
+                },
+                "security": [
+                    {
+                        "JWTAuth": []
+                    }
+                ],
+                "summary": "Set a role for a clan member",
+                "description": "Set a default or named role to a specified clan member.\n\nNotice that the role giver and the clan member must be in the same clan. Also the giver must have the basic clan role \"Edit member rights\""
+            }
         }
     },
     "components": {
