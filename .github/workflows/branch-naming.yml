@@ -14,13 +14,8 @@ jobs:
           echo "Branch name: $BRANCH_NAME"
 
           if [[ "$BRANCH_NAME" =~ ^(feature|docs|bug|change|test)/[a-z0-9]+(-[a-z0-9]+)*-[0-9]+$ ]]; then
-            if [[ "$(grep -o '-' <<< "$BRANCH_NAME" | wc -l)" -eq 1 ]]; then
-              echo "✅ Branch name is valid"
-              exit 0
-            else
-              echo "❌ Branch name must contain exactly one dash before the number"
-              exit 1
-            fi
+            echo "✅ Branch name is valid"
+            exit 0
           else
             echo "❌ Branch name must follow: <prefix>/<description>-<number> with no double dashes"
             exit 1
