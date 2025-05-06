@@ -4,10 +4,10 @@ import { IsMongoIdOrNull } from '../../../../../common/decorator/validation/IsMo
 
 describe('@IsMongoIdOrNull() test suite', () => {
   let dto: TestDto;
-  let objectId:  string ;
+  let objectId: string;
   beforeEach(async () => {
     dto = new TestDto();
-    objectId = "6814a2ae8cbeb9b0dcd086bd";
+    objectId = '6814a2ae8cbeb9b0dcd086bd';
   });
 
   it('Should pass validation for null and mongo Id input', async () => {
@@ -83,10 +83,9 @@ describe('@IsMongoIdOrNull() test suite', () => {
       'ids must be a mongodb id or null',
     );
   });
-
 });
 
 class TestDto {
-  @IsMongoIdOrNull({each: true})
+  @IsMongoIdOrNull({ each: true })
   ids: any;
 }

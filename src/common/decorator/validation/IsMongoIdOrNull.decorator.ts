@@ -1,8 +1,11 @@
-import { isMongoId, registerDecorator,
-   ValidationArguments,
-   ValidationOptions, 
-   ValidatorConstraint, 
-   ValidatorConstraintInterface } from 'class-validator';
+import {
+  isMongoId,
+  registerDecorator,
+  ValidationArguments,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 
 export function IsMongoIdOrNull(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
@@ -19,7 +22,6 @@ export function IsMongoIdOrNull(validationOptions?: ValidationOptions) {
 @ValidatorConstraint({ async: false })
 class IsMongoIdOrNullConstraint implements ValidatorConstraintInterface {
   validate(value: any) {
-    
     return value === null || isMongoId(value);
   }
 

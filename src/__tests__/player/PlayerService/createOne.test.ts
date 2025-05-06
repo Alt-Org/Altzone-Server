@@ -34,7 +34,8 @@ describe('PlayerService.createOne() test suite', () => {
     const playerName = 'john';
     const playerToCreate = playerBuilder
       .setBattleCharacterIds([null, new ObjectId()])
-      .setName(playerName).build();
+      .setName(playerName)
+      .build();
 
     await playerService.createOne(playerToCreate);
 
@@ -51,7 +52,8 @@ describe('PlayerService.createOne() test suite', () => {
     const playerName = 'john';
     const playerToCreate = playerBuilder
       .setBattleCharacterIds(null)
-      .setName(playerName).build();
+      .setName(playerName)
+      .build();
 
     await playerService.createOne(playerToCreate);
 

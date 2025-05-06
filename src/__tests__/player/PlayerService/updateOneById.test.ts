@@ -32,14 +32,21 @@ describe('PlayerService.updateOneById() test suite', () => {
   });
 
   it('Should successfully update an existing player battleCharacterId ', async () => {
-    const updateData = { _id: existingPlayer._id, battleCharacter_ids: [null, new Object()] };
+    const updateData = {
+      _id: existingPlayer._id,
+      battleCharacter_ids: [null, new Object()],
+    };
     const resp = await playerService.updateOneById(updateData);
 
     expect(resp).toBeTruthy();
 
     const updatedPlayer = await playerModel.findById(existingPlayer._id);
-    expect(updatedPlayer.battleCharacter_ids[0]).toBe(updateData.battleCharacter_ids[0]);
-    expect(updatedPlayer.battleCharacter_ids[1]).toStrictEqual(updateData.battleCharacter_ids[1]);
+    expect(updatedPlayer.battleCharacter_ids[0]).toBe(
+      updateData.battleCharacter_ids[0],
+    );
+    expect(updatedPlayer.battleCharacter_ids[1]).toStrictEqual(
+      updateData.battleCharacter_ids[1],
+    );
   });
 
   it('Should successfully update an existing player battleCharacterId, that has null value', async () => {
