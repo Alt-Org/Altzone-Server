@@ -101,8 +101,13 @@ export default class PlayerBuilder {
     return this;
   }
 
-  setBattleCharacterIds(_ids: string[] | ObjectId[]) {
+  setBattleCharacterIds(_ids?: string[] | ObjectId[]) {
     this.base.battleCharacter_ids = _ids as any;
+    return this;
+  }
+
+  setClanRoleId(clanRole_id: string | ObjectId | null) {
+    this.base.clanRole_id = clanRole_id as any;
     return this;
   }
 }

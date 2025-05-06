@@ -22,6 +22,8 @@ import { Model } from 'mongoose';
 import { Player } from '../../player/schemas/player.schema';
 import { APIError } from '../../common/controller/APIError';
 import { APIErrorReason } from '../../common/controller/APIErrorReason';
+import HasClanRights from '../../clan/role/decorator/guard/HasClanRights';
+import { ClanBasicRight } from '../../clan/role/enum/clanBasicRight.enum';
 
 @Controller('item')
 export class ItemController {
@@ -69,6 +71,7 @@ export class ItemController {
 
   @Put()
   @Authorize({ action: Action.update, subject: ItemDto })
+  @HasClanRights([ClanBasicRight.EDIT_SOULHOME])
   @UniformResponse(ModelName.ITEM)
   public async updateOne(
     @Body() item: UpdateItemDto,

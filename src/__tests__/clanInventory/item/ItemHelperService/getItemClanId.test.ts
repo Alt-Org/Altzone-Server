@@ -88,12 +88,11 @@ describe('ItemHelperService.getItemClanId() test suite', () => {
     expect(errors).toContainSE_NOT_FOUND();
   });
 
-  //TODO: should return VALIDATION not NOT_FOUND
   it('Should return VALIDATION SE if provided _id param is not a mongo id', async () => {
     const [clan_id, errors] =
       await itemHelperService.getItemClanId('not-mongo-id');
 
     expect(clan_id).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
+    expect(errors).toContainSE_VALIDATION();
   });
 });

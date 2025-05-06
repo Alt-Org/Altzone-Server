@@ -4,7 +4,6 @@ import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { ModelName } from '../common/enum/modelName.enum';
 import { _idDto } from '../common/dto/_id.dto';
 import { OffsetPaginate } from '../common/interceptor/request/offsetPagination.interceptor';
-import { Serialize } from '../common/interceptor/response/Serialize';
 import { FleaMarketItemDto } from './dto/fleaMarketItem.dto';
 import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
 import { IGetAllQuery } from '../common/interface/IGetAllQuery';
@@ -14,6 +13,8 @@ import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { PlayerService } from '../player/player.service';
 import { ItemIdDto } from './dto/itemId.dto';
+import HasClanRights from '../clan/role/decorator/guard/HasClanRights';
+import { ClanBasicRight } from '../clan/role/enum/clanBasicRight.enum';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
@@ -23,21 +24,20 @@ export class FleaMarketController {
   ) {}
 
   @Get('/:_id')
-  @Serialize(FleaMarketItemDto)
-  @UniformResponse(ModelName.FLEA_MARKET_ITEM)
+  @UniformResponse(ModelName.FLEA_MARKET_ITEM, FleaMarketItemDto)
   async getOne(@Param() param: _idDto) {
     return await this.service.readOneById(param._id);
   }
 
   @Get()
   @OffsetPaginate(ModelName.FLEA_MARKET_ITEM)
-  @Serialize(FleaMarketItemDto)
-  @UniformResponse(ModelName.FLEA_MARKET_ITEM)
+  @UniformResponse(ModelName.FLEA_MARKET_ITEM, FleaMarketItemDto)
   async getAll(@GetAllQuery() query: IGetAllQuery) {
     return await this.service.readMany(query);
   }
 
   @Post('sell')
+  @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
   async sell(@Body() itemIdDto: ItemIdDto, @LoggedUser() user: User) {
     const clanId = await this.service.getClanId(
@@ -59,6 +59,7 @@ export class FleaMarketController {
   }
 
   @Post('buy')
+  @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
   async buy(@Body() itemIdDto: ItemIdDto, @LoggedUser() user: User) {
     await this.playerService.readOneById(user.player_id);

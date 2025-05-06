@@ -19,7 +19,10 @@ import { ModelName } from '../../../../../../common/enum/modelName.enum';
 import { ClanSchema } from '../../../../../../clan/clan.schema';
 import { PlayerSchema } from '../../../../../../player/schemas/player.schema';
 import { ObjectId } from 'mongodb';
-import { APIError } from '../../../../../../common/controller/APIError';
+import {
+  APIError,
+  APIErrorArray,
+} from '../../../../../../common/controller/APIError';
 
 describe('HasClanRightsGuard.canActivate() test suite', () => {
   let guard: HasClanRightsGuard;
@@ -82,14 +85,16 @@ describe('HasClanRightsGuard.canActivate() test suite', () => {
     const contextBuilder = TestUtilDataFactory.getBuilder('ExecutionContext');
     const context = contextBuilder.setHttpRequest({ user }).build();
 
-    await expect(guard.canActivate(context)).rejects.toEqual([
-      new APIError({
-        reason: APIErrorReason.NOT_AUTHORIZED,
-        field: 'rights',
-        value: requiredRights[1],
-        message: 'Logged-in player role does not have all required rights',
-      }),
-    ]);
+    await expect(guard.canActivate(context)).rejects.toEqual(
+      new APIErrorArray([
+        new APIError({
+          reason: APIErrorReason.NOT_AUTHORIZED,
+          field: 'rights',
+          value: requiredRights[1],
+          message: 'Logged-in player role does not have all required rights',
+        }),
+      ]),
+    );
   });
 
   it('Should throw APIError NOT_AUTHORIZED if player has no rights at all', async () => {
@@ -98,20 +103,22 @@ describe('HasClanRightsGuard.canActivate() test suite', () => {
     const contextBuilder = TestUtilDataFactory.getBuilder('ExecutionContext');
     const context = contextBuilder.setHttpRequest({ user }).build();
 
-    await expect(guard.canActivate(context)).rejects.toMatchObject([
-      new APIError({
-        reason: APIErrorReason.NOT_AUTHORIZED,
-        field: 'rights',
-        value: requiredRights[0],
-        message: 'Logged-in player role does not have all required rights',
-      }),
-      new APIError({
-        reason: APIErrorReason.NOT_AUTHORIZED,
-        field: 'rights',
-        value: requiredRights[1],
-        message: 'Logged-in player role does not have all required rights',
-      }),
-    ]);
+    await expect(guard.canActivate(context)).rejects.toMatchObject(
+      new APIErrorArray([
+        new APIError({
+          reason: APIErrorReason.NOT_AUTHORIZED,
+          field: 'rights',
+          value: requiredRights[0],
+          message: 'Logged-in player role does not have all required rights',
+        }),
+        new APIError({
+          reason: APIErrorReason.NOT_AUTHORIZED,
+          field: 'rights',
+          value: requiredRights[1],
+          message: 'Logged-in player role does not have all required rights',
+        }),
+      ]),
+    );
   });
 
   it('Should throw APIError MISCONFIGURED if Request does not have a user object', async () => {

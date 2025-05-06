@@ -11,7 +11,7 @@ export class OnlinePlayersController {
   @Post('ping')
   @UniformResponse()
   async ping(@LoggedUser() user: User) {
-    this.onlinePlayersService.addPlayerOnline(user.player_id);
+    return this.onlinePlayersService.addPlayerOnline(user.player_id);
   }
 
   @Get()

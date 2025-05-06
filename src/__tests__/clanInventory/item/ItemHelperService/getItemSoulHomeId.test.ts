@@ -59,11 +59,10 @@ describe('ItemHelperService.getItemSoulHomeId() test suite', () => {
     expect(throwNotFound).rejects.toContainSE_NOT_FOUND();
   });
 
-  //TODO: should return VALIDATION not NOT_FOUND
   it('Should throw NOT_FOUND SE if provided _id param is not a mongo id', async () => {
     const throwNotFound = async () =>
       await itemHelperService.getItemSoulHomeId('not-mongo-id');
 
-    expect(throwNotFound).rejects.toContainSE_NOT_FOUND();
+    expect(throwNotFound).rejects.toContainSE_VALIDATION();
   });
 });

@@ -30,11 +30,11 @@ import { CreateMessageDto } from './dto/createMessage.dto';
 import { MessageDto } from './dto/message.dto';
 import { chat_idParam, messageParam } from './dto/messageParam';
 import { APIObjectName } from '../common/enum/apiObjectName.enum';
-import { Serialize } from '../common/interceptor/response/Serialize';
 import { Authorize } from '../authorization/decorator/Authorize';
 import { Action } from '../authorization/enum/action.enum';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
+import { UniformResponse } from '../common/decorator/response/UniformResponse';
 
 @Controller('chat')
 export class ChatController {
@@ -50,18 +50,18 @@ export class ChatController {
     return this.service.createOne(body);
   }
 
-  @Serialize(ChatDto)
   @Get('/:_id')
   @Authorize({ action: Action.read, subject: ChatDto })
   @BasicGET(ModelName.CHAT, ChatDto)
   @AddGetQueries()
+  @UniformResponse(ModelName.CHAT, ChatDto)
   public get(@Param() param: _idDto, @Req() request: Request) {
     return this.service.readOneById(param._id, request['mongoPopulate']);
   }
 
   @Get()
   @Authorize({ action: Action.read, subject: ChatDto })
-  @Serialize(ChatDto)
+  @UniformResponse(ModelName.CHAT, ChatDto)
   @OffsetPaginate(ModelName.CHAT)
   @AddSearchQuery(ChatDto)
   @AddSortQuery(ChatDto)

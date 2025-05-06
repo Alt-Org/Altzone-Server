@@ -154,6 +154,7 @@ export class CASLAbilityFactory {
         action,
         subjectObj,
         this.requestHelperService,
+        this.connection,
       );
 
     if (isType(obj, 'ClanDto') || isType(obj, 'UpdateClanDto'))
@@ -170,7 +171,7 @@ export class CASLAbilityFactory {
       isType(obj, 'JoinDto') ||
       isType(obj, 'JoinResultDto') ||
       isType(obj, 'PlayerLeaveClan') ||
-      isType(obj, 'RemovePlayerDTO')
+      obj instanceof RemovePlayerDTO
     )
       return joinRules(
         user,
@@ -178,6 +179,7 @@ export class CASLAbilityFactory {
         action,
         subjectObj,
         this.requestHelperService,
+        this.connection,
       );
 
     if (isType(obj, 'SoulHomeDto') || isType(obj, 'updateSoulHomeDto'))

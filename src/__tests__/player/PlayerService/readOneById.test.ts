@@ -1,4 +1,3 @@
-import { PlayerDto } from '../../../player/dto/player.dto';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import PlayerModule from '../../player/modules/player.module';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
@@ -8,6 +7,7 @@ import { Clan } from '../../../clan/clan.schema';
 import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 import ClanModule from '../../clan/modules/clan.module';
 import { ModelName } from '../../../common/enum/modelName.enum';
+import { Player } from '../../../player/schemas/player.schema';
 
 describe('PlayerService.readOneById() test suite', () => {
   let playerService: PlayerService;
@@ -15,7 +15,7 @@ describe('PlayerService.readOneById() test suite', () => {
   const updatePlayerBuilder =
     PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
   const playerModel = PlayerModule.getPlayerModel();
-  let existingPlayer: PlayerDto;
+  let existingPlayer: Player;
 
   const clanBuilder = ClanBuilderFactory.getBuilder('CreateClanDto');
   const clanModel = ClanModule.getClanModel();

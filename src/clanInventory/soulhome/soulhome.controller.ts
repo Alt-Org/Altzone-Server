@@ -13,7 +13,6 @@ import { ModelName } from '../../common/enum/modelName.enum';
 import { AddSearchQuery } from '../../common/interceptor/request/addSearchQuery.interceptor';
 import { AddSortQuery } from '../../common/interceptor/request/addSortQuery.interceptor';
 import { OffsetPaginate } from '../../common/interceptor/request/offsetPagination.interceptor';
-import { Serialize } from '../../common/interceptor/response/Serialize';
 
 @Controller('soulhome')
 export class SoulHomeController {
@@ -27,8 +26,7 @@ export class SoulHomeController {
   @OffsetPaginate(ModelName.SOULHOME)
   @AddSearchQuery(SoulHomeDto)
   @AddSortQuery(SoulHomeDto)
-  @Serialize(SoulHomeDto)
-  @UniformResponse(ModelName.SOULHOME)
+  @UniformResponse(ModelName.SOULHOME, SoulHomeDto)
   public async getPlayerSoulHome(
     @IncludeQuery(publicReferences) includeRefs: ModelName[],
     @LoggedUser() user: User,

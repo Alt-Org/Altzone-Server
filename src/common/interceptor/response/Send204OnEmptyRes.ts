@@ -23,8 +23,9 @@ export class Send204OnEmptyResInterceptor implements NestInterceptor {
     next: CallHandler<any>,
   ): Observable<any> | Promise<Observable<any>> {
     return next.handle().pipe(
-      map((data: any) => {
-        if (data != null) return data;
+      map(async (data: any) => {
+        const awaitedData = data instanceof Promise ? await data : data;
+        if (awaitedData != null) return awaitedData;
 
         const response = context.switchToHttp().getResponse();
         response.status(204);

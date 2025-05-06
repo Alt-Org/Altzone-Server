@@ -1,14 +1,14 @@
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import PlayerModule from '../../player/modules/player.module';
-import { PlayerDto } from '../../../player/dto/player.dto';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 import { PlayerService } from '../../../player/player.service';
+import { Player } from '../../../player/schemas/player.schema';
 
 describe('PlayerService.deleteOneById() test suite', () => {
   let playerService: PlayerService;
   const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
   const playerModel = PlayerModule.getPlayerModel();
-  let existingPlayer: PlayerDto;
+  let existingPlayer: Player;
 
   beforeEach(async () => {
     playerService = await PlayerModule.getPlayerService();
