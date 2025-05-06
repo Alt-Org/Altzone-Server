@@ -1,38 +1,33 @@
 name: Print ProjectV2 IDs
 
 on:
-  workflow_dispatch: # allows manual run from Actions tab
+  workflow_dispatch:
 
 jobs:
   print-project-ids:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: read
       pull-requests: read
-      projectV2: read
+      issues: read
 
     steps:
-      - name: Get ProjectV2 List
+      - name: Print your org Projects (v2)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Fetching list of Projects (v2)..."
-          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          echo "🔍 Fetching Projects..."
+          curl -s -H "Authorization: bearer $GH_TOKEN" \
                -H "Content-Type: application/json" \
-               -X POST https://api.github.com/graphql \
-               -d @- <<EOF
-          {
-            "query": "query { organization(login: \"Alt-Org\") { projectsV2(first: 10) { nodes { id title } } } }"
-          }
-EOF
+               -d '{"query":"query { organization(login: \"Alt-Org\") { projectsV2(first: 10) { nodes { id title } } } }"}' \
+               https://api.github.com/graphql
 
-      - name: Get ProjectV2 Fields (replace with your project ID)
+      - name: Print fields for one project (replace PROJECT_ID)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Fetching fields for a specific project..."
-          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          echo "🔍 Fetching fields from selected project..."
+          curl -s -H "Authorization: bearer $GH_TOKEN" \
                -H "Content-Type: application/json" \
-               -X POST https://api.github.com/graphql \
-               -d @- <<EOF
-          {
-            "query": "query { node(id: \"YOUR_PROJECT_ID\") { ... on ProjectV2 { title fields(first: 20) { nodes { id name dataType ... on ProjectV2SingleSelectField { options { id name } } } } } } }"
-          }
-EOF
+               -d '{"query":"query { node(id: \"YOUR_PROJECT_ID\") { ... on ProjectV2 { title fields(first: 20) { nodes { id name dataType ... on ProjectV2SingleSelectField { options { id name } } } } } }"}' \
+               https://api.github.com/graphql
