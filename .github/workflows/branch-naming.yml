@@ -1,4 +1,4 @@
-name: Enforce Branch Naming Convention
+name: Is branch named correctly?
 
 on:
   pull_request:
@@ -18,6 +18,6 @@ jobs:
             echo "✅ Branch name is valid"
             exit 0
           else
-            echo "❌ Branch name must start with 'feature/', 'docs/', 'bug/', 'change/', or 'test/' and end with a number"
+            echo "❌ Branch name must start with 'feature/', 'docs/', 'bug/', 'change/', or 'test/' and end with an issue number"
             exit 1
           fi
