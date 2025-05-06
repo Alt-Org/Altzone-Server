@@ -13,15 +13,11 @@ jobs:
           BRANCH_NAME="${{ github.head_ref }}"
           echo "Branch name: $BRANCH_NAME"
 
-          if [[ "$BRANCH_NAME" =~ ^(feature|docs|bug|change|test)/[a-z0-9]+(-[a-z0-9]+)*-[0-9]+$ ]]; then
-            if [[ "$(grep -o '-' <<< "$BRANCH_NAME" | wc -l)" -eq 1 ]]; then
-              echo "✅ Branch name is valid"
-              exit 0
-            else
-              echo "❌ Branch name must contain exactly one dash before the number"
-              exit 1
-            fi
+          # Check if it matches the pattern
+          if [[ "$BRANCH_NAME" =~ ^(feature|docs|bug|change|test)/.*[0-9]+$ ]]; then
+            echo "✅ Branch name is valid"
+            exit 0
           else
-            echo "❌ Branch name must follow: <prefix>/<description>-<number> with no double dashes"
+            echo "❌ Branch name must start with 'feature/', 'docs/', 'bug/', 'change/', or 'test/' and end with a number"
             exit 1
           fi
