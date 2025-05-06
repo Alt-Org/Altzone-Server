@@ -35,6 +35,7 @@ export class ClanDto {
   @Expose()
   points: number;
 
+  @ExtractField()
   @Expose()
   admin_ids: string[];
 
