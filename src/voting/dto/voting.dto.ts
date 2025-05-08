@@ -28,6 +28,7 @@ export class VotingDto {
   @Expose()
   type: VotingType;
 
+  @ExtractField()
   @Expose()
   player_ids: string[];
 
@@ -38,6 +39,7 @@ export class VotingDto {
   @Type(() => VoteDto)
   votes: Vote[];
 
+  @ExtractField()
   @Expose()
   entity_id: string;
 

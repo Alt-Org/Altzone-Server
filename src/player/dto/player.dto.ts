@@ -35,6 +35,7 @@ export class PlayerDto {
   @Expose()
   gameStatistics: GameStatisticsDto;
 
+  @ExtractField()
   @Expose()
   battleCharacter_ids?: string[];
 
