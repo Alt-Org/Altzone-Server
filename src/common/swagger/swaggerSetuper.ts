@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { SwaggerModule } from '@nestjs/swagger';
-import { envVars } from '../common/service/envHandler/envVars';
+import { envVars } from '../service/envHandler/envVars';
 import { swaggerDocumentOptions } from './documentSetup/swaggerDocumentOptions';
 import { swaggerUIOptions } from './documentSetup/swaggerUIOptions';
 import {

@@ -6,7 +6,7 @@ import { APIError } from './common/controller/APIError';
 import { validationToAPIErrors } from './common/exceptionFilter/ValidationExceptionFilter';
 import EnvHandler from './common/service/envHandler/envHandler';
 import cookieParser from 'cookie-parser';
-import SwaggerSetuper from './swagger/swaggerSetuper';
+import SwaggerSetuper from './common/swagger/swaggerSetuper';
 
 async function bootstrap() {
   // Validate that all environment variables are added to the .env file
