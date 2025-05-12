@@ -11,8 +11,8 @@ import {
 import { SwaggerDocumentBuilder } from './swaggerDocumentBuilder';
 import { SwaggerTag, swaggerTags } from './tags/tags';
 
-export default class SwaggerSetuper {
-  static setupSwaggerFromJSDocs(app: INestApplication) {
+export default class SwaggerInitializer {
+  static initSwaggerFromDecorators(app: INestApplication) {
     const tagsToAdd: SwaggerTag[] = [];
     for (const tag in swaggerTags) tagsToAdd.push(swaggerTags[tag]);
 
