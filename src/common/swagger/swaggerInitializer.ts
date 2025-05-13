@@ -10,6 +10,7 @@ import {
 } from './documentSetup/introSection';
 import { SwaggerDocumentBuilder } from './swaggerDocumentBuilder';
 import { SwaggerTag, swaggerTags } from './tags/tags';
+import { APIError } from '../controller/APIError';
 
 export default class SwaggerInitializer {
   static initSwaggerFromDecorators(app: INestApplication) {
@@ -22,6 +23,29 @@ export default class SwaggerInitializer {
       .setVersion(swaggerVersion)
       .addTags(tagsToAdd)
       .addBearerAuth()
+      .addGlobalResponse({
+        example: {
+          statusCode: 500,
+          errors: [
+            {
+              response: 'UNEXPECTED',
+              status: 500,
+              message: 'Unexpected error happen',
+              name: '',
+              reason: 'UNEXPECTED',
+              field: 'string',
+              value: 'string',
+              additional: 'string',
+              statusCode: 500,
+              objectType: 'APIError',
+            },
+          ],
+        },
+        status: 500,
+        type: () => APIError,
+        description:
+          'Unexpected error happened. [Please create a new issue here](https://github.com/Alt-Org/Altzone-Server/issues) and specify the endpoint, HTTP method and description if you have any',
+      })
       .build();
 
     const documentFactory = () =>
