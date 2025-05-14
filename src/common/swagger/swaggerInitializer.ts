@@ -44,12 +44,14 @@ export default class SwaggerInitializer {
         status: 500,
         type: () => APIError,
         description:
-          'Unexpected error happened. [Please create a new issue here](https://github.com/Alt-Org/Altzone-Server/issues) and specify the endpoint, HTTP method and description if you have any',
+          'Unexpected error happened. [Please create a new issue here](https://github.com/Alt-Org/Altzone-Server/issues) ' +
+          'and specify the endpoint, HTTP method and description if you have any',
       })
       .build();
 
     const documentFactory = () =>
       SwaggerModule.createDocument(app, config, swaggerDocumentOptions);
+
     SwaggerModule.setup(
       envVars.SWAGGER_PATH,
       app,
