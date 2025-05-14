@@ -105,7 +105,6 @@ describe('ClanShopService.buyItem() test suite', () => {
         additional: null,
         field: 'gameCoins',
         message: 'Clan does not have enough coins to buy the item',
-        objectType: 'ServiceError',
         reason: 'LESS_THAN_MIN',
         value: null,
       },
