@@ -78,4 +78,7 @@ export class UpdateClanDto {
   @IsEnum(Language)
   @IsOptional()
   language?: Language;
+
+  @IsOptional()
+  gameCoins: number;
 }

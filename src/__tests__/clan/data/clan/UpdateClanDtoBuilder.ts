@@ -18,6 +18,7 @@ export default class UpdateClanDtoBuilder {
     phrase: undefined,
     language: undefined,
     clanLogo: undefined,
+    gameCoins: 0
   };
 
   build() {
@@ -76,6 +77,11 @@ export default class UpdateClanDtoBuilder {
 
   setLanguage(language: Language) {
     this.base.language = language;
+    return this;
+  }
+
+   setGameCoins(gameCoins: number) {
+    this.base.gameCoins = gameCoins;
     return this;
   }
 }

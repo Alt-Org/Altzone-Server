@@ -1,5 +1,5 @@
 import {
-  Body,
+    Body,
     Controller,
     HttpCode,
     Post,
@@ -9,18 +9,21 @@ import { LoggedUser } from '../../common/decorator/param/LoggedUser.decorator';
 import { ClanCoinsDto } from './dto/clanCoins.dto';
 import { User } from '../../auth/user';
 import DetermineClanId from '../../common/guard/clanId.guard';
+import { ClanCoinsService } from './clanCoins.service';
 
 @Controller('clanCoins')
 export class ClanCoinsController {
-    public constructor() {}
+    public constructor(private readonly service: ClanCoinsService,) {}
     
   @Post()
   @HttpCode(204)
   @DetermineClanId()
-  //@Authorize({ action: Action.create, subject: ClanCoinsDto })
-  public async create(@Body() body: ClanCoinsDto, @LoggedUser() user: User) {
-        // eslint-disable-next-line no-console
-        console.log('ClanCoinsController.create', body, user);
-       return null; // Implement your logic here
-     }
+  public async addCoins(@Body() body: ClanCoinsDto, @LoggedUser() user: User) {
+       
+    body.clan_id = user.clan_id;
+
+    const [, errors] = await this.service.addCoins(body);
+    if (errors) return [null, errors];
+
     }
+  }
