@@ -6,7 +6,7 @@ import { Coins } from '../../../../shop/enum/coins.enum.dto';
 export default class ClanCoinsDtoBuilder implements IDataBuilder<ClanCoinsDto> {
   private readonly base: ClanCoinsDto = {
     clan_id: 'clan-id',
-    amount: Coins.FifeHundred, // or another valid Coins enum value
+    amount: Coins.FiveHundred, // or another valid Coins enum value
   };
 
   build(): ClanCoinsDto {

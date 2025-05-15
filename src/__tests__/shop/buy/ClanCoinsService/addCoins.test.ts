@@ -15,7 +15,7 @@ describe('clanCoinsService.addCoins() test suite', () => {
     let clanCoins: ClanCoinsDto;
     
     const clan_id = '681e534624e7710f1b5ccb80';
-    const coins = Coins.FifeHundred;
+    const coins = Coins.FiveHundred;
 
   beforeEach(async () => {
     clanCoinsService = await ClanCoinsModule.getClainCoinsService();
