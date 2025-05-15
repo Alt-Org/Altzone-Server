@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ClanService } from 'src/clan/clan.service';
+import { ClanService } from '../../clan/clan.service';
 import { ClanCoinsDto } from './dto/clanCoins.dto';
-import { UpdateClanDto } from 'src/clan/dto/updateClan.dto';
+import { UpdateClanDto } from '../../clan/dto/updateClan.dto';
 
 @Injectable()
 export class ClanCoinsService {
