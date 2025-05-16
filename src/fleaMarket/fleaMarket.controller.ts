@@ -15,6 +15,7 @@ import { PlayerService } from '../player/player.service';
 import { ItemIdDto } from './dto/itemId.dto';
 import HasClanRights from '../clan/role/decorator/guard/HasClanRights';
 import { ClanBasicRight } from '../clan/role/enum/clanBasicRight.enum';
+import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
@@ -23,12 +24,37 @@ export class FleaMarketController {
     private readonly playerService: PlayerService,
   ) {}
 
+  /**
+   * Get flea market item by _id.
+   *
+   * @remarks Get an individual FleaMarketItem by its mongo _id field.
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: FleaMarketItemDto,
+      modelName: ModelName.FLEA_MARKET_ITEM,
+    },
+    errors: [400, 401, 404],
+  })
   @Get('/:_id')
   @UniformResponse(ModelName.FLEA_MARKET_ITEM, FleaMarketItemDto)
   async getOne(@Param() param: _idDto) {
     return await this.service.readOneById(param._id);
   }
 
+  /**
+   * Get all flea market items
+   *
+   * @remarks Get all FleaMarketItems of the flea market
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: FleaMarketItemDto,
+      modelName: ModelName.FLEA_MARKET_ITEM,
+      returnsArray: true,
+    },
+    errors: [400, 401, 404],
+  })
   @Get()
   @OffsetPaginate(ModelName.FLEA_MARKET_ITEM)
   @UniformResponse(ModelName.FLEA_MARKET_ITEM, FleaMarketItemDto)
@@ -36,6 +62,23 @@ export class FleaMarketController {
     return await this.service.readMany(query);
   }
 
+  /**
+   * Sell a clan item on flea market
+   *
+   * @remarks Sell an Item on the flea market.
+   * This will start a voting in the Clan from which Item is being moved to the flea marked.
+   * Voting min approval percentage is 51. During the voting an Item is in "Shipping" status and can not be bought by other players.
+   *
+   * Notice that the player must be in the same clan and it must have a basic right "Shop".
+   *
+   * Notice that if a FleaMarketItem has already "Shipping" status 403 will be returned.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 403, 404],
+  })
   @Post('sell')
   @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
@@ -58,6 +101,24 @@ export class FleaMarketController {
     );
   }
 
+  /**
+   * Buy an item on flea market for your clan
+   *
+   * @remarks Buy an Item from the flea market.
+   * This will start a voting in the Clan for which Item is being purchased.
+   * Voting duration is 10 min at max and the min approval percentage is 51.
+   * During the voting an Item is in "Booked" status and can not be bought by other players.
+   *
+   * Notice that the player must be in the same clan and it must have a basic right "Shop".
+   *
+   * Notice that if a FleaMarketItem has already "Booked" status 403 will be returned.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 403, 404],
+  })
   @Post('buy')
   @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
