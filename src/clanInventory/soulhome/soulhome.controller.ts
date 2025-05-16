@@ -13,6 +13,7 @@ import { ModelName } from '../../common/enum/modelName.enum';
 import { AddSearchQuery } from '../../common/interceptor/request/addSearchQuery.interceptor';
 import { AddSortQuery } from '../../common/interceptor/request/addSortQuery.interceptor';
 import { OffsetPaginate } from '../../common/interceptor/request/offsetPagination.interceptor';
+import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
 
 @Controller('soulhome')
 export class SoulHomeController {
@@ -21,6 +22,22 @@ export class SoulHomeController {
     private readonly helper: SoulHomeHelperService,
   ) {}
 
+  /**
+   * Get soul home of the logged-in player
+   *
+   * @remarks Get SoulHome data for the logged-in user.
+   *
+   * If the logged-in user is a Clan member, the SoulHome for this Clan will be returned.
+   *
+   * If the logged-in user is not belonging to any Clan the 404 error will be returned.
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: SoulHomeDto,
+      modelName: ModelName.SOULHOME,
+    },
+    errors: [401, 404],
+  })
   @Get()
   @Authorize({ action: Action.read, subject: SoulHomeDto })
   @OffsetPaginate(ModelName.SOULHOME)
