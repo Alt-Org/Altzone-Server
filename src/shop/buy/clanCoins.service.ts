@@ -1,24 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { ClanService } from '../../clan/clan.service';
 import { ClanCoinsDto } from './dto/clanCoins.dto';
-import { UpdateClanDto } from '../../clan/dto/updateClan.dto';
 
 @Injectable()
 export class ClanCoinsService {
   public constructor(
     private readonly clanService: ClanService,
   ) {}
-
+    
   async addCoins(
     body: ClanCoinsDto
   ) {
     const [clan, error] = await this.clanService.readOneById(body.clan_id);
     if (error) return [null, error];
     
-    const updateClanDto = new UpdateClanDto();
-    updateClanDto._id = body.clan_id;
-    updateClanDto.gameCoins = clan.gameCoins + body.amount;
+    const gameCoins = clan.gameCoins + body.amount;
+    const { _id, } = clan;
 
-    return await this.clanService.updateOneById(updateClanDto);
+    return await this.clanService.basicService.updateOneById(_id.toString(), { gameCoins });
   }
 }
