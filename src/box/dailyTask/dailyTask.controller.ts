@@ -14,7 +14,9 @@ import { APIErrorReason } from '../../common/controller/APIErrorReason';
 import BoxAuthHandler from '../auth/BoxAuthHandler';
 import { IsGroupAdmin } from '../auth/decorator/IsGroupAdmin';
 import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
+import SwaggerTags from '../../common/swagger/tags/SwaggerTags.decorator';
 
+@SwaggerTags('Box')
 @Controller('/box/dailyTask')
 export class DailyTaskController {
   constructor(
