@@ -14,6 +14,11 @@ import { IsMongoId } from 'class-validator';
  *```
  */
 export class _idDto {
+  /**
+   * Mongo _id
+   *
+   * @example "663a5d9cde9f1a0012f3b456"
+   */
   @IsMongoId()
   _id: string;
 }
