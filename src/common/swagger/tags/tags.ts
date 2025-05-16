@@ -15,12 +15,15 @@ export type SwaggerTagName =
   | 'Stock'
   | 'Item'
   | 'DailyTasks'
-  | 'Chat'
   | 'FleaMarket'
+  | 'ClanShop'
+  | 'Chat'
   | 'Voting'
   | 'Leaderboard'
   | 'GameAnalytics'
-  | 'Box';
+  | 'Box'
+  | 'OnlinePlayers'
+  | 'GameData';
 
 /**
  * All swagger tags and their data
@@ -33,7 +36,7 @@ export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
 
   Profile: {
     name: 'Profile',
-    description: 'profile',
+    description: 'profile related functionality',
   },
   Auth: {
     name: 'Auth',
@@ -41,47 +44,53 @@ export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
   },
   Player: {
     name: 'Player',
-    description: 'player',
+    description: 'player related functionality',
   },
   CustomCharacter: {
     name: 'CustomCharacter',
-    description: 'CustomCharacter',
+    description: 'CustomCharacter related functionality',
   },
 
   Clan: {
     name: 'Clan',
-    description: 'clan',
+    description: 'clan related functionality',
   },
 
   SoulHome: {
     name: 'SoulHome',
-    description: 'soulhome',
+    description: 'soulhome related functionality',
   },
   Room: {
     name: 'Room',
-    description: 'room',
+    description: 'room related functionality',
   },
   Stock: {
     name: 'Stock',
-    description: 'stock',
+    description: 'stock related functionality',
   },
   Item: {
     name: 'Item',
-    description: 'item',
+    description: 'item related functionality',
   },
   DailyTasks: {
     name: 'DailyTasks',
     description: 'In-game tasks for Player to do daily, weekly, monthly',
   },
 
-  Chat: {
-    name: 'Chat',
-    description: 'chats and their messages ',
-  },
   FleaMarket: {
     name: 'FleaMarket',
     description:
       "Flea market, place where Clans can sell own items or buy other's.",
+  },
+  ClanShop: {
+    name: 'ClanShop',
+    description:
+      'Clan shop, place where clans can buy items to decorate their soul homes',
+  },
+
+  Chat: {
+    name: 'Chat',
+    description: 'chats and their messages ',
   },
   Voting: {
     name: 'Voting',
@@ -98,6 +107,16 @@ export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
   Box: {
     name: 'Box',
     description: 'Testing box data',
+  },
+
+  OnlinePlayers: {
+    name: 'OnlinePlayers',
+    description: 'Information about online players',
+  },
+
+  GameData: {
+    name: 'GameData',
+    description: 'Information about game',
   },
 };
 
