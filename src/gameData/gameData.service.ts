@@ -13,8 +13,6 @@ import { BattleResultDto } from './dto/battleResult.dto';
 import { User } from '../auth/user';
 import { GameDto } from './dto/game.dto';
 import { BattleResponseDto } from './dto/battleResponse.dto';
-import { APIError } from '../common/controller/APIError';
-import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { RoomService } from '../clanInventory/room/room.service';
 import { GameEventsHandler } from '../gameEventsHandler/gameEventsHandler';
 import { GameEventType } from '../gameEventsHandler/enum/GameEventType.enum';

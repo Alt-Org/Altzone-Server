@@ -22,7 +22,10 @@ export class ClanEventHandler {
     try {
       const taskUpdate = await this.tasksService.updateTask(player_id);
       return this.handleClanAndPlayerReward(player_id, taskUpdate);
-    } catch (e) {
+    } catch (
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      e
+    ) {
       return [true, null];
     }
   }

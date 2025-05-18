@@ -17,7 +17,6 @@ import { User } from '../../auth/user';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
 import { IncludeQuery } from '../../common/decorator/param/IncludeQuery.decorator';
 import { publicReferences } from './customCharacter.schema';
-import { Serialize } from '../../common/interceptor/response/Serialize';
 import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
 
 @Controller('customCharacter')

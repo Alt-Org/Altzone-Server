@@ -21,7 +21,6 @@ import { IResponseShape } from '../../common/interface/IResponseShape';
 import { ClanService } from '../clan.service';
 import { PlayerCounterFactory } from '../clan.counters';
 import ICounter from '../../common/service/counter/ICounter';
-import { RoomService } from '../../clanInventory/room/room.service';
 import { Player } from '../../player/schemas/player.schema';
 import { MemberClanRole } from '../role/initializationClanRoles';
 

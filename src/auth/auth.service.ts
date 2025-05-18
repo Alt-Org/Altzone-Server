@@ -1,9 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Model, MongooseError } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
-import { ModelName } from '../common/enum/modelName.enum';
-import { ProfileDto } from '../profile/dto/profile.dto';
-import { ClanDto } from '../clan/dto/clan.dto';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import ServiceError from '../common/service/basicService/ServiceError';
