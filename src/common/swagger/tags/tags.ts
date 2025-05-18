@@ -4,6 +4,7 @@ import { ExternalDocumentationObject } from '@nestjs/swagger/dist/interfaces/ope
  * Swagger tag name
  */
 export type SwaggerTagName =
+  | 'Release on 01.06.2025'
   | 'in-development'
   | 'Profile'
   | 'Auth'
@@ -27,8 +28,14 @@ export type SwaggerTagName =
 
 /**
  * All swagger tags and their data
+ *
  */
 export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
+  'Release on 01.06.2025': {
+    name: 'Release on 01.06.2025',
+    description: 'Changes made on release 01.06.2025',
+  },
+
   'in-development': {
     name: 'in-development',
     description: 'Endpoint is currently changing or not yet implemented',
@@ -125,11 +132,11 @@ export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
  */
 export type SwaggerTag = {
   /**
-   * Name of the tag
+   * Name of the tag to display in swagger
    */
   name: SwaggerTagName;
   /**
-   * Description of the tag
+   * Description of the tag to display in swagger
    */
   description: string;
 
