@@ -14,7 +14,7 @@ services:
       - 27017:27017
 
   redis:
-    image: redis:7.4-bookworm
+    image: redis:8.0.1-alpine
     container_name: altzone_redis
     ports:
       - 6379:6379
@@ -30,7 +30,7 @@ services:
       - redis
 
   mosquitto_dev:
-    image: eclipse-mosquitto:2.0
+    image: eclipse-mosquitto:2.0.21
     container_name: altzone_mosquitto_dev
     ports:
       - 1883:1883
