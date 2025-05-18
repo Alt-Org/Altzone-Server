@@ -7,6 +7,8 @@ import { validationToAPIErrors } from './common/exceptionFilter/ValidationExcept
 import EnvHandler from './common/service/envHandler/envHandler';
 import cookieParser from 'cookie-parser';
 import SwaggerInitializer from './common/swagger/swaggerInitializer';
+import { envVars } from './common/service/envHandler/envVars';
+import basicAuth from 'express-basic-auth';
 
 async function bootstrap() {
   // Validate that all environment variables are added to the .env file
@@ -27,6 +29,14 @@ async function bootstrap() {
   //Let the class-validator use DI system of NestJS
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
+  //Add password protection for swagger endpoints
+  app.use(
+    [`/${envVars.SWAGGER_PATH}`, `/${envVars.SWAGGER_PATH}-json`],
+    basicAuth({
+      users: { [`${envVars.SWAGGER_USER}`]: `${envVars.SWAGGER_PASSWORD}` },
+      challenge: true,
+    }),
+  );
   SwaggerInitializer.initSwaggerFromDecorators(app);
 
   await app.listen(8080);

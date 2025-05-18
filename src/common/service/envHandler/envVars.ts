@@ -30,6 +30,12 @@ interface EnvVars {
   /** Path where the generated swagger should be hosted, i.e. "swagger" => localhost:8080/swagger */
   SWAGGER_PATH: string;
 
+  /** Username for the swagger endpoint to access it */
+  SWAGGER_USER: string;
+
+  /** Password for the swagger endpoint to access it */
+  SWAGGER_PASSWORD: string;
+
   /** The username for MongoDB authentication. */
   MONGO_USERNAME: string;
 
@@ -103,6 +109,8 @@ export const envVars: EnvVars = {
   PSW_PARALLELISM: process.env.PSW_PARALLELISM,
   ENVIRONMENT: process.env.ENVIRONMENT ?? Environment.PRODUCTION,
   SWAGGER_PATH: process.env.SWAGGER_PATH,
+  SWAGGER_USER: process.env.SWAGGER_USER,
+  SWAGGER_PASSWORD: process.env.SWAGGER_PASSWORD,
 
   MONGO_USERNAME: process.env.MONGO_USERNAME,
   MONGO_PASSWORD: process.env.MONGO_PASSWORD,
