@@ -170,7 +170,7 @@ export class BoxService {
   private getTesterAccount(box: BoxDto): Tester {
     const account = box.testers.find((tester) => {
       return tester.isClaimed !== true;
-    });
+    }) as unknown as Tester;
     if (!account) {
       throw new ServiceError({
         reason: SEReason.NOT_FOUND,

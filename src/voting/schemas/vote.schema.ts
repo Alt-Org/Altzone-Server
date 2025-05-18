@@ -5,6 +5,11 @@ import { Choice } from '../type/choice.type';
 
 @Schema()
 export class Vote {
+  /**
+   * The ID of the player who submitted this vote
+   *
+   * @example "6630aa9994cd5ef001a1b1c2"
+   */
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: ModelName.PLAYER,
@@ -12,6 +17,11 @@ export class Vote {
   })
   player_id: string;
 
+  /**
+   * The choice the player made in the vote (e.g., APPROVE or REJECT)
+   *
+   * @example "accept"
+   */
   @Prop({
     type: String,
     required: true,

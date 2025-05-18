@@ -31,6 +31,8 @@ import { BoxUser } from './auth/BoxUser';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { BoxAuthGuard } from './auth/boxAuth.guard';
 import SessionStarterService from './sessionStarter/sessionStarter.service';
+import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
+import { BoxDto } from './dto/box.dto';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
@@ -42,6 +44,24 @@ export class BoxController {
     private readonly sessionStarter: SessionStarterService,
   ) {}
 
+  /**
+   * Claim tester account.
+   *
+   * @remarks Tester can claim his/her account for the testing box.
+   *
+   * Notice that the tester should know the shared testers password in order to be able to clain the account.
+   * This password is available after the group admin has started the session.
+   *
+   * Notice that the endpoint should be called only from browser, since a cookie should be added by the API
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 200,
+      type: ClaimAccountResponseDto,
+    },
+    errors: [400, 403, 404],
+    hasAuth: false,
+  })
   @NoAuth()
   @Get('claim-account')
   @UniformResponse(undefined, ClaimAccountResponseDto)
@@ -65,6 +85,22 @@ export class BoxController {
     return res.send(data);
   }
 
+  /**
+   * Create a testing box.
+   *
+   * @remarks Create a testing box.
+   *
+   * Notice that in order t0 create the testing box a group admin password need to be obtained from backend team
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 201,
+      dto: CreatedBoxDto,
+      modelName: ModelName.BOX,
+    },
+    errors: [400, 404],
+    hasAuth: false,
+  })
   @NoAuth()
   @Post()
   @UniformResponse(ModelName.BOX, CreatedBoxDto)
@@ -81,6 +117,21 @@ export class BoxController {
     return [{ ...createdBox, accessToken: groupAdminAccessToken }, null];
   }
 
+  /**
+   * Reset testing box.
+   *
+   * @remarks Reset testing box data, which means removing all the data created during the testing session and returning the box state to the PREPARING stage.
+   * For more information refer to the testing box documentation.
+   *
+   * Notice that only box admin can do the action.
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: CreatedBoxDto,
+      modelName: ModelName.BOX,
+    },
+    errors: [401, 403, 404],
+  })
   @Put('reset')
   @UniformResponse(ModelName.BOX)
   @IsGroupAdmin()
@@ -102,6 +153,19 @@ export class BoxController {
     return [{ ...createdBox, accessToken: groupAdminAccessToken }, null];
   }
 
+  /**
+   * Delete box data.
+   *
+   * @remarks Delete box data associated with the logged-in user.
+   *
+   * Notice that the box can be removed only by the box admin.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 404],
+  })
   @Delete()
   @IsGroupAdmin()
   @UniformResponse()
@@ -109,6 +173,21 @@ export class BoxController {
     return await this.service.deleteBox(user.box_id);
   }
 
+  /**
+   * Start testing session
+   *
+   * @remarks Endpoint for starting testing session.
+   *
+   * Notice that only box admin can start a testing session.
+   *
+   * Notice that the minimum box data should be initialized at the moment of starting of testing session. That data is at least 2 tester accounts added.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [401, 403, 404],
+  })
   @Post('/start')
   @UniformResponse(ModelName.BOX)
   @IsGroupAdmin()
@@ -117,6 +196,19 @@ export class BoxController {
     if (errors) return [null, errors];
   }
 
+  /**
+   * Get box by _id, For time of development only
+   *
+   * @remarks Endpoint for getting box data by its _id
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: BoxDto,
+      modelName: ModelName.BOX,
+    },
+    errors: [404],
+    hasAuth: false,
+  })
   //For time of development only
   @NoAuth()
   @Get('/:_id')
@@ -129,6 +221,18 @@ export class BoxController {
     return this.service.readOneById(param._id, { includeRefs });
   }
 
+  /**
+   * Delete box by _id
+   *
+   * @remarks Endpoint for deleting a box by _id
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [404],
+    hasAuth: false,
+  })
   //For time of development only
   @NoAuth()
   @Delete('/:_id')

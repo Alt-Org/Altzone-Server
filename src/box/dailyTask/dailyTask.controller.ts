@@ -13,7 +13,10 @@ import { APIError } from '../../common/controller/APIError';
 import { APIErrorReason } from '../../common/controller/APIErrorReason';
 import BoxAuthHandler from '../auth/BoxAuthHandler';
 import { IsGroupAdmin } from '../auth/decorator/IsGroupAdmin';
+import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
+import SwaggerTags from '../../common/swagger/tags/SwaggerTags.decorator';
 
+@SwaggerTags('Box')
 @Controller('/box/dailyTask')
 export class DailyTaskController {
   constructor(
@@ -21,6 +24,21 @@ export class DailyTaskController {
     private readonly boxAuthHandler: BoxAuthHandler,
   ) {}
 
+  /**
+   * Add a daily task to box
+   *
+   * @remarks Add a daily task to array of predefined daily tasks.
+   *
+   * Notice that the logged-in player has to be a group admin
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 201,
+      dto: PredefinedDailyTaskDto,
+      modelName: ModelName.DAILY_TASK,
+    },
+    errors: [400, 401, 403, 404],
+  })
   @Post()
   @IsGroupAdmin()
   @UniformResponse(ModelName.DAILY_TASK, PredefinedDailyTaskDto)
@@ -31,6 +49,22 @@ export class DailyTaskController {
     return this.taskService.addOne(user.box_id, body);
   }
 
+  /**
+   * Add multiple daily tasks
+   *
+   * @remarks Add multiple daily tasks at once to daily tasks array of the box.
+   *
+   * Notice that only group admin can add the tasks.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 201,
+      dto: PredefinedDailyTaskDto,
+      modelName: ModelName.DAILY_TASK,
+      returnsArray: true,
+    },
+    errors: [400, 401, 403, 404],
+  })
   @Post('/multiple')
   @IsGroupAdmin()
   @UniformResponse(ModelName.DAILY_TASK, PredefinedDailyTaskDto)
@@ -55,6 +89,19 @@ export class DailyTaskController {
     return this.taskService.addMultiple(user.box_id, body);
   }
 
+  /**
+   * Update box daily task
+   *
+   * @remarks Update a predefined daily task of a box by its _id.
+   *
+   * Notice that only group admin can update the tasks
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 403, 404],
+  })
   @Put()
   @IsGroupAdmin()
   @UniformResponse(ModelName.DAILY_TASK)
@@ -69,6 +116,19 @@ export class DailyTaskController {
     if (errors) return [null, errors];
   }
 
+  /**
+   * Delete box daily task by _id
+   *
+   * @remarks Delete daily task from predefined daily tasks array of the box.
+   *
+   * Notice that only group admin can delete the tasks
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 403, 404],
+  })
   @Delete('/:_id')
   @IsGroupAdmin()
   @UniformResponse(ModelName.DAILY_TASK)

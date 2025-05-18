@@ -24,6 +24,7 @@ import { APIError } from '../../common/controller/APIError';
 import { APIErrorReason } from '../../common/controller/APIErrorReason';
 import HasClanRights from '../../clan/role/decorator/guard/HasClanRights';
 import { ClanBasicRight } from '../../clan/role/enum/clanBasicRight.enum';
+import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
 
 @Controller('item')
 export class ItemController {
@@ -35,6 +36,20 @@ export class ItemController {
     @InjectModel(ModelName.PLAYER) private readonly playerModel: Model<Player>,
   ) {}
 
+  /**
+   * Get soulhome data from which items can be stolen
+   *
+   * @remarks Based on the provided steal token, which contains the SoulHome _id from which Items can be stolen, the SoulHome data and its Rooms will be returned.
+   *
+   * You can see the process flow from [this diagram](https://github.com/Alt-Org/Altzone-Server/tree/dev/doc/img/game_results)
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: SoulHomeDto,
+      modelName: ModelName.SOULHOME,
+    },
+    errors: [401, 403, 404],
+  })
   @Get('steal')
   @Authorize({ action: Action.read, subject: SoulHomeDto })
   @UseGuards(StealTokenGuard)
@@ -62,6 +77,18 @@ export class ItemController {
     return soulHome;
   }
 
+  /**
+   * Get item by _id
+   *
+   * @remarks Read Item data by its _id field
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: ItemDto,
+      modelName: ModelName.ITEM,
+    },
+    errors: [400, 404],
+  })
   @Get('/:_id')
   @Authorize({ action: Action.read, subject: ItemDto })
   @UniformResponse(ModelName.ITEM)
@@ -69,6 +96,19 @@ export class ItemController {
     return this.itemService.readOneById(param._id);
   }
 
+  /**
+   * Update item by _id
+   *
+   * @remarks Update item by specified _id
+   *
+   * Notice that the player must be in the same clan and it must have a basic right "Edit soul home"
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 403, 404],
+  })
   @Put()
   @Authorize({ action: Action.update, subject: ItemDto })
   @HasClanRights([ClanBasicRight.EDIT_SOULHOME])
