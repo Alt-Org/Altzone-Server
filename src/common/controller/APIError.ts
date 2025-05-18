@@ -47,7 +47,7 @@ type APIErrorArgs = {
 /**
  * The class represents an error occurred on controller level
  *
- * The class is used to sent an error to the client side
+ * The class is used to send an error to the client side
  *
  * It extends the Nest HttpException and can be handled by built-in filters (not recommended)
  *
@@ -78,13 +78,51 @@ export class APIError extends HttpException {
     this.statusCode = validStatus;
   }
 
+  /**
+   * Name of the error
+   */
   name: string;
+
+  /**
+   * Error stack
+   */
   stack?: string;
+
+  /**
+   * Why the error is happened
+   * @example "NOT_STRING"
+   */
   reason: APIErrorReason;
+
+  /**
+   * HTTP status code of the error
+   * @example 400
+   */
   statusCode: number | null;
+
+  /**
+   * Message specifies why error happened, for developers "FYI"
+   * @example "name must be a string"
+   */
   message: string | null;
+
+  /**
+   * On what field the error happen (if the field is possible to define), mostly found in validation errors
+   * @example name
+   */
   field: string | null;
+
+  /**
+   * Value of the field (only if the field is specified), mostly found in validation errors
+   * @example 1
+   */
   value: string | null;
+
+  /**
+   * Any additional data provided.
+   * For example if the error is thrown by some method and is UNEXPECTED, when this field should contain the thrown error
+   * @example isString
+   */
   additional: any | null;
 }
 
