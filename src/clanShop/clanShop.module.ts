@@ -12,11 +12,13 @@ import ItemModule from '../__tests__/clanInventory/modules/item.module';
 import { ItemService } from '../clanInventory/item/item.service';
 import { ItemSchema } from '../clanInventory/item/item.schema';
 import { ClanShopVotingProcessor } from './clanShopVoting.processor';
+import { ClanSchema } from '../clan/clan.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: ModelName.PLAYER, schema: PlayerSchema },
+      { name: ModelName.CLAN, schema: ClanSchema },
       { name: ModelName.ITEM, schema: ItemSchema },
     ]),
     ClanModule,

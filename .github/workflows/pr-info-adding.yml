@@ -1,0 +1,79 @@
+name: Add PR basic info
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  automate-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Automate labels, assignee, and milestone
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const branch = pr.head.ref;
+            const prNumber = pr.number;
+            const repo = context.repo.repo;
+            const owner = context.repo.owner;
+            const author = pr.user.login;
+
+            // Always apply "PR" label
+            let labelsToAdd = ["PR"];
+
+            // Add label based on branch prefix
+            const prefixMatch = branch.match(/^(feature|docs|bug|change|test)\//);
+            if (prefixMatch) {
+              labelsToAdd.push(prefixMatch[1]);
+            }
+
+            // Apply labels
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: prNumber,
+              labels: labelsToAdd
+            });
+
+            // Assign PR to author
+            await github.rest.issues.addAssignees({
+              owner,
+              repo,
+              issue_number: prNumber,
+              assignees: [author]
+            });
+
+            // Extract issue number from branch name
+            const issueMatch = branch.match(/-(\d+)$/);
+            if (issueMatch) {
+              const issueNumber = parseInt(issueMatch[1]);
+
+              try {
+                // Get milestone from the linked issue
+                const issue = await github.rest.issues.get({
+                  owner,
+                  repo,
+                  issue_number: issueNumber
+                });
+
+                const milestoneId = issue.data.milestone?.number;
+
+                if (milestoneId) {
+                  // Set same milestone on PR
+                  await github.rest.issues.update({
+                    owner,
+                    repo,
+                    issue_number: prNumber,
+                    milestone: milestoneId
+                  });
+                }
+              } catch (error) {
+                console.warn(`Could not sync milestone from issue #${issueNumber}: ${error.message}`);
+              }
+            }

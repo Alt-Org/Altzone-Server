@@ -15,15 +15,13 @@ export class VotingController {
   constructor(private readonly service: VotingService) {}
 
   @Get()
-  @Serialize(VotingDto)
-  @UniformResponse(ModelName.VOTING)
+  @UniformResponse(ModelName.VOTING, VotingDto)
   async getClanVotings(@LoggedUser() user: User) {
     return this.service.getClanVotings(user.player_id);
   }
 
   @Get('/:_id')
-  @Serialize(VotingDto)
-  @UniformResponse(ModelName.VOTING)
+  @UniformResponse(ModelName.VOTING, VotingDto)
   async getVoting(@Param() param: _idDto, @LoggedUser() user: User) {
     const permission = await this.service.validatePermission(
       param._id,

@@ -75,10 +75,7 @@ describe('FormatAPIResponseInterceptor.intercept() test suite', () => {
       await interceptor.intercept(executionContext, callHandler).toPromise();
     } catch (err: any) {
       expect(err).toBeInstanceOf(HttpException);
-      expect(err.getResponse()).toEqual({
-        errors: expect.arrayContaining([apiError]),
-        statusCode: apiError.statusCode,
-      });
+      expect(err.getResponse()).toBe('BAD_REQUEST');
       expect(err.getStatus()).toBe(apiError.statusCode);
     }
   });

@@ -24,11 +24,23 @@ Dev https://devapi.altzone.fi (dev branch)
 1. Install Node and npm, choose your platform and node version, which should be LTS [Download here](https://nodejs.org/en/download/prebuilt-installer/current)
 2. Install docker [Instructions here](https://docs.docker.com/engine/install/)
 3. Clone the API repo from GitHub [Link to repo](https://github.com/Alt-Org/Altzone-Server)
-4. Open cloned repo in IDE and install required dependencies with ```npm install``` 
+4. Open a cloned repo in the IDE and install required dependencies with ```npm install``` 
 
-### Start DB
+### Start required services
 
-Run ```docker compose up``` to start DB, mongo-express (UI for Mongo) and Nginx (it will take couple minutes for the first time)
+First, you need to set up the DB. So please run a script for it from the project root folder:
+
+For Windows (PowerShell):
+```shell
+ powershell -ExecutionPolicy Bypass -File .\init-db-on-windows.ps1
+```
+
+For Linux (Bash):
+```shell
+ bash ./init-db-on-linux.sh
+```
+
+Then run ```docker compose up``` to start DB, mongo-express (UI for Mongo) and Nginx (it will take couple minutes for the first time)
 
 ### Start the API
 

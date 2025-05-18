@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   Put,
@@ -18,7 +19,6 @@ import { BasicPUT } from '../common/base/decorator/BasicPUT.decorator';
 import { ModelName } from '../common/enum/modelName.enum';
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
 import { CatchCreateUpdateErrors } from '../common/decorator/response/CatchCreateUpdateErrors';
-import { Serialize } from '../common/interceptor/response/Serialize';
 import { Authorize } from '../authorization/decorator/Authorize';
 import { Action } from '../authorization/enum/action.enum';
 import { OffsetPaginate } from '../common/interceptor/request/offsetPagination.interceptor';
@@ -36,15 +36,13 @@ export default class PlayerController {
 
   @NoAuth()
   @Post()
-  @CatchCreateUpdateErrors()
-  @Serialize(PlayerDto)
+  @UniformResponse(ModelName.PLAYER, PlayerDto)
   public create(@Body() body: CreatePlayerDto) {
     return this.service.createOne(body);
   }
 
   @Get('/:_id')
-  @Serialize(PlayerDto)
-  @UniformResponse(ModelName.PLAYER)
+  @UniformResponse(ModelName.PLAYER, PlayerDto)
   @Authorize({ action: Action.read, subject: PlayerDto })
   public async get(
     @Param() param: _idDto,
@@ -64,6 +62,7 @@ export default class PlayerController {
   }
 
   @Put()
+  @HttpCode(204)
   @Authorize({ action: Action.update, subject: UpdatePlayerDto })
   @BasicPUT(ModelName.PLAYER)
   public async update(@Body() body: UpdatePlayerDto) {

@@ -34,11 +34,15 @@ import { User } from '../auth/user';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { IncludeQuery } from '../common/decorator/param/IncludeQuery.decorator';
 import { publicReferences } from './clan.schema';
-import { Serialize } from '../common/interceptor/response/Serialize';
 import { RoomService } from '../clanInventory/room/room.service';
 import { ItemService } from '../clanInventory/item/item.service';
 import { PlayerService } from '../player/player.service';
 import { ClanItemsResponseDto } from './join/dto/clanItemsResponse.dto';
+import HasClanRights from './role/decorator/guard/HasClanRights';
+import { ClanBasicRight } from './role/enum/clanBasicRight.enum';
+import DetermineClanId from '../common/guard/clanId.guard';
+import { APIError } from '../common/controller/APIError';
+import { APIErrorReason } from '../common/controller/APIErrorReason';
 
 @Controller('clan')
 export class ClanController {
@@ -58,8 +62,7 @@ export class ClanController {
   }
 
   @Get('items')
-  @Serialize(ClanItemsResponseDto)
-  @UniformResponse(ModelName.ITEM)
+  @UniformResponse(ModelName.ITEM, ClanItemsResponseDto)
   async getClanItems(@LoggedUser() user: User) {
     const clanId = await this.playerService.getPlayerClanId(user.player_id);
     const [clan, clanErrors] = await this.service.readOneById(clanId, {
@@ -93,19 +96,32 @@ export class ClanController {
 
   @Get()
   @NoAuth()
+  @UniformResponse(ModelName.CLAN, ClanDto)
   @OffsetPaginate(ModelName.CLAN)
   @AddSearchQuery(ClanDto)
   @AddSortQuery(ClanDto)
-  @Serialize(ClanDto)
-  @UniformResponse(ModelName.CLAN)
   public getAll(@GetAllQuery() query: IGetAllQuery) {
     return this.service.readAll(query);
   }
 
   @Put()
-  @Authorize({ action: Action.update, subject: UpdateClanDto })
+  @DetermineClanId()
+  @HasClanRights([ClanBasicRight.EDIT_CLAN_DATA])
   @UniformResponse()
-  public async update(@Body() body: UpdateClanDto) {
+  public async update(@Body() body: UpdateClanDto, @LoggedUser() user: User) {
+    if (user.clan_id.toString() !== body._id.toString())
+      return [
+        null,
+        [
+          new APIError({
+            reason: APIErrorReason.NOT_AUTHORIZED,
+            field: 'clan_id',
+            value: user.clan_id,
+            message: 'Logged-in player is in another clan',
+          }),
+        ],
+      ];
+
     const [, errors] = await this.service.updateOneById(body);
     if (errors) return [null, errors];
   }
@@ -128,17 +144,18 @@ export class ClanController {
   @Post('leave')
   @HttpCode(204)
   @Authorize({ action: Action.create, subject: PlayerLeaveClanDto })
-  public leaveClan(@Req() request: Request) {
-    return this.joinService.leaveClan(request['user'].player_id);
+  public leaveClan(@Req() request: Request, @LoggedUser() user: User) {
+    return this.joinService.leaveClan(user.player_id);
   }
 
   @Post('exclude')
   @HttpCode(204)
+  @DetermineClanId()
   @Authorize({ action: Action.create, subject: RemovePlayerDTO })
-  public excludePlayer(@Body() body: RemovePlayerDTO, @Req() request: Request) {
-    return this.joinService.removePlayerFromClan(
-      body.player_id,
-      request['user'],
-    );
+  public excludePlayer(
+    @Body() body: RemovePlayerDTO,
+    @LoggedUser() user: User,
+  ) {
+    return this.joinService.removePlayerFromClan(body.player_id, user.clan_id);
   }
 }

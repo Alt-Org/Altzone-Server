@@ -7,6 +7,7 @@ import { DailyTaskDto } from '../dailyTasks/dto/dailyTask.dto';
 import { OnGameEvent } from '../gameEventsEmitter/onGameEvent';
 import UIDailyTasksService from '../dailyTasks/uiDailyTasks/uiDailyTasks.service';
 import { GameEventPayload } from '../gameEventsEmitter/gameEvent';
+import { IServiceReturn } from '../common/service/basicService/IService';
 
 @Injectable()
 export class ClanEventHandler {
@@ -17,9 +18,13 @@ export class ClanEventHandler {
     private readonly playerRewarder: PlayerRewarder,
   ) {}
 
-  async handlePlayerTask(player_id: string) {
-    const taskUpdate = await this.tasksService.updateTask(player_id);
-    return this.handleClanAndPlayerReward(player_id, taskUpdate);
+  async handlePlayerTask(player_id: string): Promise<IServiceReturn<boolean>> {
+    try {
+      const taskUpdate = await this.tasksService.updateTask(player_id);
+      return this.handleClanAndPlayerReward(player_id, taskUpdate);
+    } catch (e) {
+      return [true, null];
+    }
   }
 
   /**

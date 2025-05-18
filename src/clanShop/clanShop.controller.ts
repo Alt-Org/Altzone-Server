@@ -10,6 +10,8 @@ import { ClanShopService } from './clanShop.service';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { ItemName } from '../clanInventory/item/enum/itemName.enum';
+import HasClanRights from '../clan/role/decorator/guard/HasClanRights';
+import { ClanBasicRight } from '../clan/role/enum/clanBasicRight.enum';
 
 @Controller('clan-shop')
 export class ClanShopController {
@@ -27,6 +29,7 @@ export class ClanShopController {
 
   @Post('buy')
   @DetermineClanId()
+  @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
   async buyItem(
     @Body() body: { itemName: ItemName },

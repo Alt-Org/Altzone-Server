@@ -1,4 +1,3 @@
-import { PlayerDto } from '../../../player/dto/player.dto';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import PlayerModule from '../../player/modules/player.module';
 import { PlayerService } from '../../../player/player.service';
@@ -7,6 +6,7 @@ import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 import ClanModule from '../../clan/modules/clan.module';
 import { ModelName } from '../../../common/enum/modelName.enum';
 import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultFields';
+import { Player } from '../../../player/schemas/player.schema';
 
 describe('PlayerService.getAll() test suite', () => {
   let playerService: PlayerService;
@@ -16,8 +16,8 @@ describe('PlayerService.getAll() test suite', () => {
   const playerModel = PlayerModule.getPlayerModel();
   const playerName1 = 'player1';
   const playerName2 = 'player2';
-  let player1: PlayerDto;
-  let player2: PlayerDto;
+  let player1: Player;
+  let player2: Player;
 
   const clanBuilder = ClanBuilderFactory.getBuilder('CreateClanDto');
   const clanModel = ClanModule.getClanModel();

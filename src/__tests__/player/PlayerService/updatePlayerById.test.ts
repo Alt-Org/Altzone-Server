@@ -1,8 +1,8 @@
-import { PlayerDto } from '../../../player/dto/player.dto';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import PlayerModule from '../../player/modules/player.module';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 import { PlayerService } from '../../../player/player.service';
+import { Player } from '../../../player/schemas/player.schema';
 
 describe('PlayerService.updatePlayerById() test suite', () => {
   let playerService: PlayerService;
@@ -10,7 +10,7 @@ describe('PlayerService.updatePlayerById() test suite', () => {
   const updatePlayerBuilder =
     PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
   const playerModel = PlayerModule.getPlayerModel();
-  let existingPlayer: PlayerDto;
+  let existingPlayer: Player;
 
   beforeEach(async () => {
     playerService = await PlayerModule.getPlayerService();

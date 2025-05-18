@@ -1,0 +1,23 @@
+name: Is branch named correctly?
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  validate-branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch name
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          echo "Branch name: $BRANCH_NAME"
+
+          # Check if it matches the pattern
+          if [[ "$BRANCH_NAME" =~ ^(feature|docs|bug|change|test)/.*[0-9]+$ ]]; then
+            echo "✅ Branch name is valid"
+            exit 0
+          else
+            echo "❌ Branch name must start with 'feature/', 'docs/', 'bug/', 'change/', or 'test/' and end with an issue number"
+            exit 1
+          fi
