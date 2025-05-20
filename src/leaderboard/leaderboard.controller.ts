@@ -13,6 +13,7 @@ import { PlayerService } from '../player/player.service';
 import { LeaderboardPlayerDto } from './dto/leaderboardPlayer.dto';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import ClanPositionDto from './dto/clanPosition.dto';
+import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('leaderboard')
 export class LeaderboardController {
@@ -21,12 +22,13 @@ export class LeaderboardController {
     private readonly playerService: PlayerService,
   ) {}
 
+  @SwaggerTags('Release on 01.06.2025', 'Leaderboard')
   /**
    * Get top players
    *
    * @remarks Leaderboard of players. Top Players are defined by the amount of points that he/she has.
    *
-   * Notice that the leaderboards data is updated once every 12 hours.
+   * Notice that the leaderboards data is updated once every 3h hours.
    */
   @ApiResponseDescription({
     success: {
@@ -45,12 +47,13 @@ export class LeaderboardController {
     return this.leaderBoardService.getPlayerLeaderboard(query);
   }
 
+  @SwaggerTags('Release on 01.06.2025', 'Leaderboard')
   /**
    * Get top clans
    *
    * @remarks Leaderboard of clans. Top Clans are defined by the amount of points that each Clan has.
    *
-   * Notice that the leaderboards data is updated once every 12 hours.
+   * Notice that the leaderboards data is updated once every 3h hours.
    */
   @ApiResponseDescription({
     success: {
