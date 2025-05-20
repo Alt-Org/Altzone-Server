@@ -18,6 +18,11 @@ export class LeaderboardService {
   ) {}
 
   /**
+   * Leaderboard data update interval in second, 3h
+   */
+  private readonly LEADERBOARD_TTL_S = 10800;
+
+  /**
    * Retrieves the clan leaderboard data.
    *
    * This method fetches and caches the clan leaderboard data based on the provided query parameters.
@@ -73,7 +78,11 @@ export class LeaderboardService {
       data = await this.processCacheData(model, fetchedData);
 
       // Set the data with 12 hour ttl. The { ttl: number } as any is required to overwrite the default value.
-      await this.redisService.set(cacheKey, JSON.stringify(data), 60 * 60 * 12);
+      await this.redisService.set(
+        cacheKey,
+        JSON.stringify(data),
+        this.LEADERBOARD_TTL_S,
+      );
     }
 
     if (reqQuery) {
