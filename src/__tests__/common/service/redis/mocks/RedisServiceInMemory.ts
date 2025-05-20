@@ -1,11 +1,12 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import IRedisService from '../../../../../common/service/redis/IRedisService';
 
 /**
  * In-memory mock of RedisService for use in tests.
  * Simulates set/get/keys with TTL support.
  */
 @Injectable()
-export class RedisServiceInMemory implements OnModuleDestroy {
+export class RedisServiceInMemory implements IRedisService, OnModuleDestroy {
   private readonly store = new Map<
     string,
     { value: string; expiresAt?: number }
@@ -43,6 +44,19 @@ export class RedisServiceInMemory implements OnModuleDestroy {
         return regex.test(key);
       })
       .map(([key]) => key);
+  }
+
+  async getValuesByKeyPattern(
+    pattern: string,
+  ): Promise<Record<string, string | null>> {
+    const keys = await this.getKeys(pattern);
+    const result: Record<string, string | null> = {};
+
+    for (const key of keys) {
+      result[key] = await this.get(key);
+    }
+
+    return result;
   }
 
   async onModuleDestroy() {
