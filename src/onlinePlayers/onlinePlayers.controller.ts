@@ -1,10 +1,11 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { OnlinePlayersService } from './onlinePlayers.service';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import OnlinePlayerDto from './dto/onlinePlayer.dto';
+import InformPlayerIsOnlineDto from './dto/InformPlayerIsOnline.dto';
 
 @Controller('online-players')
 export class OnlinePlayersController {
@@ -13,20 +14,23 @@ export class OnlinePlayersController {
   /**
    * Inform the API if player is still online
    *
-   * @remarks The player is considered to be online if he / she has made a request to this endpoint at least once a 5 min.
+   * @remarks The player is considered to be online if he / she has made a request to this endpoint at least once a 1.5 min.
    *
-   * So it is recommended to make requests to this endpoint every 4-5 min to properly track the players being online, although not often than that.
+   * So it is recommended to make requests to this endpoint every 1 min to properly track the players being online, although not often than that.
    */
   @ApiResponseDescription({
     success: {
       status: 204,
     },
-    errors: [401],
+    errors: [400, 401],
   })
   @Post('ping')
   @UniformResponse()
-  async ping(@LoggedUser() user: User) {
-    return this.onlinePlayersService.addPlayerOnline(user.player_id);
+  async ping(@Body() body: InformPlayerIsOnlineDto, @LoggedUser() user: User) {
+    return this.onlinePlayersService.addPlayerOnline({
+      player_id: user.player_id,
+      status: body.status,
+    });
   }
 
   /**
@@ -45,7 +49,7 @@ export class OnlinePlayersController {
     errors: [401],
   })
   @Get()
-  @UniformResponse()
+  @UniformResponse(null, OnlinePlayerDto)
   async getAllOnlinePlayers() {
     return this.onlinePlayersService.getAllOnlinePlayers();
   }
