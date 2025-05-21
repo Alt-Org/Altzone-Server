@@ -4,10 +4,15 @@ import ApiResponseDescription from 'src/common/swagger/response/ApiResponseDescr
 import OnlinePlayerDto from '../dto/onlinePlayer.dto';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
 import SwaggerTags from '../../common/swagger/tags/SwaggerTags.decorator';
+import { OnlinePlayersService } from '../onlinePlayers.service';
+import { OnlinePlayerStatus } from '../enum/OnlinePlayerStatus';
 
 @Controller('/online-players/battleQueue')
 export class BattleQueueController {
-  constructor(private readonly service: BattleQueueService) {}
+  constructor(
+    private readonly service: BattleQueueService,
+    private readonly onlinePlayersService: OnlinePlayersService,
+  ) {}
 
   @SwaggerTags('Release on 01.06.2025', 'OnlinePlayers')
   /**
@@ -27,6 +32,9 @@ export class BattleQueueController {
   @Get()
   @UniformResponse(null, OnlinePlayerDto)
   async getBattleQueue() {
-    return [];
+    const queuePlayers = await this.onlinePlayersService.getOnlinePlayers({
+      filter: { status: [OnlinePlayerStatus.BATTLE_WAIT] },
+    });
+    return this.service.sortPlayersByQueueNumber(queuePlayers);
   }
 }
