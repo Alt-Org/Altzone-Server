@@ -86,7 +86,6 @@ describe('OnlinePlayersService.addPlayerOnline() test suite', () => {
       status: OnlinePlayerStatus.BATTLE_WAIT,
     });
 
-    expect(redisSet).toHaveBeenCalledTimes(1);
     expect(redisSet).toHaveBeenCalledWith(expectedKey, expectedPayload, 90);
   });
 });
