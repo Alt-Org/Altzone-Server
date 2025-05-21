@@ -22,7 +22,6 @@ export class LeaderboardController {
     private readonly playerService: PlayerService,
   ) {}
 
-  @SwaggerTags('Release on 01.06.2025', 'Leaderboard')
   /**
    * Get top players
    *
@@ -39,6 +38,7 @@ export class LeaderboardController {
     errors: [400, 404],
     hasAuth: false,
   })
+  @SwaggerTags('Release on 01.06.2025', 'Leaderboard')
   @Get('player')
   @NoAuth()
   @UniformResponse(ModelName.PLAYER, LeaderboardPlayerDto)
@@ -47,7 +47,6 @@ export class LeaderboardController {
     return this.leaderBoardService.getPlayerLeaderboard(query);
   }
 
-  @SwaggerTags('Release on 01.06.2025', 'Leaderboard')
   /**
    * Get top clans
    *
@@ -64,6 +63,7 @@ export class LeaderboardController {
     errors: [400, 404],
     hasAuth: false,
   })
+  @SwaggerTags('Release on 01.06.2025', 'Leaderboard')
   @Get('clan')
   @NoAuth()
   @UniformResponse(ModelName.CLAN, ClanDto)

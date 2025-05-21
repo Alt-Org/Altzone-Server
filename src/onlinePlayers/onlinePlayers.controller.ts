@@ -13,7 +13,6 @@ import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 export class OnlinePlayersController {
   constructor(private readonly onlinePlayersService: OnlinePlayersService) {}
 
-  @SwaggerTags('Release on 01.06.2025', 'OnlinePlayers')
   /**
    * Inform the API if player is still online
    *
@@ -27,6 +26,7 @@ export class OnlinePlayersController {
     },
     errors: [400, 401],
   })
+  @SwaggerTags('Release on 01.06.2025', 'OnlinePlayers')
   @Post('ping')
   @UniformResponse()
   async ping(@Body() body: InformPlayerIsOnlineDto, @LoggedUser() user: User) {
@@ -36,7 +36,6 @@ export class OnlinePlayersController {
     });
   }
 
-  @SwaggerTags('Release on 01.06.2025', 'OnlinePlayers')
   /**
    * Inform the API if player is still online
    *
@@ -52,6 +51,7 @@ export class OnlinePlayersController {
     },
     errors: [401],
   })
+  @SwaggerTags('Release on 01.06.2025', 'OnlinePlayers')
   @Get()
   @UniformResponse(null, OnlinePlayerDto)
   async getAllOnlinePlayers(@Query() query: OnlinePlayerSearchQueryDto) {
