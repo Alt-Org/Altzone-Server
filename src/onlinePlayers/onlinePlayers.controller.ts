@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { OnlinePlayersService } from './onlinePlayers.service';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
@@ -6,6 +6,7 @@ import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import OnlinePlayerDto from './dto/onlinePlayer.dto';
 import InformPlayerIsOnlineDto from './dto/InformPlayerIsOnline.dto';
+import OnlinePlayerSearchQueryDto from './dto/OnlinePlayerSearchQuery.dto';
 
 @Controller('online-players')
 export class OnlinePlayersController {
@@ -50,7 +51,10 @@ export class OnlinePlayersController {
   })
   @Get()
   @UniformResponse(null, OnlinePlayerDto)
-  async getAllOnlinePlayers() {
-    return this.onlinePlayersService.getAllOnlinePlayers();
+  async getAllOnlinePlayers(@Query() query: OnlinePlayerSearchQueryDto) {
+    const filter = { status: query.search };
+    return this.onlinePlayersService.getAllOnlinePlayers({
+      filter,
+    });
   }
 }

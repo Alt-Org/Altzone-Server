@@ -63,6 +63,33 @@ describe('OnlinePlayersService.getAllOnlinePlayers() test suite', () => {
     expect(player_ids).toContainEqual(payload2);
   });
 
+  it('Should be able to filter returning players by status field', async () => {
+    await playerModel.create(player1);
+    await playerModel.create(player2);
+    const payload1 = {
+      name: player1.name,
+      _id: _id1,
+      status: OnlinePlayerStatus.UI,
+    };
+    const payload2 = {
+      name: player2.name,
+      _id: _id2,
+      status: OnlinePlayerStatus.BATTLE,
+    };
+
+    jest.spyOn(redisService, 'getValuesByKeyPattern').mockResolvedValue({
+      [_id1]: JSON.stringify(payload1),
+      [_id2]: JSON.stringify(payload2),
+    });
+
+    const player_ids = await service.getAllOnlinePlayers({
+      filter: { status: [OnlinePlayerStatus.UI] },
+    });
+
+    expect(player_ids).toContainEqual(payload1);
+    expect(player_ids).not.toContainEqual(payload2);
+  });
+
   it('Should not return players if there are no players', async () => {
     jest.spyOn(redisService, 'getValuesByKeyPattern').mockResolvedValue({});
 

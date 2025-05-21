@@ -56,14 +56,25 @@ export class OnlinePlayersService {
    *
    * @returns Array of OnlinePlayers or empty array if nothing found
    */
-  async getAllOnlinePlayers(): Promise<OnlinePlayer[]> {
+  async getAllOnlinePlayers(options?: {
+    filter?: { status?: OnlinePlayerStatus[] };
+  }): Promise<OnlinePlayer[]> {
     const players = await this.redisService.getValuesByKeyPattern(
       `${this.ONLINE_PLAYERS_KEY}:*`,
     );
 
     if (!players) return [];
 
-    const onlinePlayersStr = Object.values(players);
-    return onlinePlayersStr.map((playerStr) => JSON.parse(playerStr));
+    const onlinePlayers = Object.values(players).map((playerStr) =>
+      JSON.parse(playerStr),
+    ) as OnlinePlayer[];
+
+    if (options?.filter?.status) {
+      return onlinePlayers.filter((p) =>
+        options.filter.status.includes(p.status),
+      );
+    }
+
+    return onlinePlayers;
   }
 }
