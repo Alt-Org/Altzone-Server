@@ -56,7 +56,7 @@ export class OnlinePlayersController {
   @UniformResponse(null, OnlinePlayerDto)
   async getAllOnlinePlayers(@Query() query: OnlinePlayerSearchQueryDto) {
     const filter = { status: query.search };
-    return this.onlinePlayersService.getAllOnlinePlayers({
+    return this.onlinePlayersService.getOnlinePlayers({
       filter,
     });
   }

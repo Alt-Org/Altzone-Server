@@ -68,7 +68,7 @@ export class OnlinePlayersService {
    *
    * @returns Array of OnlinePlayers or empty array if nothing found
    */
-  async getAllOnlinePlayers(options?: {
+  async getOnlinePlayers(options?: {
     filter?: { status?: OnlinePlayerStatus[] };
   }): Promise<OnlinePlayer[]> {
     const players = await this.redisService.getValuesByKeyPattern(
