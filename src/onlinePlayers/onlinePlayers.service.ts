@@ -6,6 +6,10 @@ import { RedisService } from '../common/service/redis/redis.service';
 import { OnlinePlayerStatus } from './enum/OnlinePlayerStatus';
 import AddOnlinePlayer from './payload/AddOnlinePlayer';
 import OnlinePlayer from './payload/OnlinePlayer';
+import ServiceError from '../common/service/basicService/ServiceError';
+import { SEReason } from '../common/service/basicService/SEReason';
+import { BattleWaitStatus } from './payload/additionalTypes/BattleWaitStatus';
+import { BattleQueueService } from './battleQueue/battleQueue.service';
 
 @Injectable()
 export class OnlinePlayersService {
@@ -19,6 +23,7 @@ export class OnlinePlayersService {
   constructor(
     private readonly redisService: RedisService,
     private readonly playerService: PlayerService,
+    private readonly battleQueueService: BattleQueueService,
   ) {}
 
   /**
@@ -41,6 +46,13 @@ export class OnlinePlayersService {
       status: status ?? OnlinePlayerStatus.UI,
     };
 
+    if (status === OnlinePlayerStatus.BATTLE_WAIT) {
+      const [onlinePlayer] = await this.getOnlinePlayerById(player_id);
+      const [queueNumber] =
+        await this.battleQueueService.getPlayerQueueNumber(onlinePlayer);
+      (payload as OnlinePlayer<BattleWaitStatus>).additional = { queueNumber };
+    }
+
     await this.redisService.set(
       `${this.ONLINE_PLAYERS_KEY}:${player_id}`,
       JSON.stringify(payload),
@@ -56,7 +68,7 @@ export class OnlinePlayersService {
    *
    * @returns Array of OnlinePlayers or empty array if nothing found
    */
-  async getAllOnlinePlayers(options?: {
+  async getOnlinePlayers(options?: {
     filter?: { status?: OnlinePlayerStatus[] };
   }): Promise<OnlinePlayer[]> {
     const players = await this.redisService.getValuesByKeyPattern(
@@ -76,5 +88,33 @@ export class OnlinePlayersService {
     }
 
     return onlinePlayers;
+  }
+
+  /**
+   * Gets online player by its _id.
+   *
+   * @param player_id player _id to be found
+   *
+   * @returns found online player or ServiceError NOT_FOUND if player is not found
+   */
+  async getOnlinePlayerById(
+    player_id: string,
+  ): Promise<IServiceReturn<OnlinePlayer>> {
+    const player = await this.redisService.get(
+      `${this.ONLINE_PLAYERS_KEY}:${player_id}`,
+    );
+    if (!player)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'player_id',
+            value: player_id,
+            message: 'Player with this _id is not found in online players',
+          }),
+        ],
+      ];
+    return [JSON.parse(player), null];
   }
 }

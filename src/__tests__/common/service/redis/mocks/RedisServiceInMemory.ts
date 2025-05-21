@@ -7,10 +7,16 @@ import IRedisService from '../../../../../common/service/redis/IRedisService';
  */
 @Injectable()
 export class RedisServiceInMemory implements IRedisService, OnModuleDestroy {
+  private static instance: RedisServiceInMemory;
   private readonly store = new Map<
     string,
     { value: string; expiresAt?: number }
   >();
+
+  constructor() {
+    if (RedisServiceInMemory.instance) return RedisServiceInMemory.instance;
+    RedisServiceInMemory.instance = this;
+  }
 
   private isDestroyed = false;
 

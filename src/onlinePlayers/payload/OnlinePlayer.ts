@@ -1,6 +1,6 @@
 import { OnlinePlayerStatus } from '../enum/OnlinePlayerStatus';
 
-export default class OnlinePlayer {
+export default class OnlinePlayer<Additional = undefined> {
   /**
    * Player _id
    */
@@ -15,4 +15,9 @@ export default class OnlinePlayer {
    * Player status
    */
   status: OnlinePlayerStatus;
+
+  /**
+   * Any additional information online player has
+   */
+  additional?: Additional;
 }

@@ -7,6 +7,7 @@ import ApiResponseDescription from '../common/swagger/response/ApiResponseDescri
 import OnlinePlayerDto from './dto/onlinePlayer.dto';
 import InformPlayerIsOnlineDto from './dto/InformPlayerIsOnline.dto';
 import OnlinePlayerSearchQueryDto from './dto/OnlinePlayerSearchQuery.dto';
+import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('online-players')
 export class OnlinePlayersController {
@@ -25,6 +26,7 @@ export class OnlinePlayersController {
     },
     errors: [400, 401],
   })
+  @SwaggerTags('Release on 01.06.2025', 'OnlinePlayers')
   @Post('ping')
   @UniformResponse()
   async ping(@Body() body: InformPlayerIsOnlineDto, @LoggedUser() user: User) {
@@ -49,11 +51,12 @@ export class OnlinePlayersController {
     },
     errors: [401],
   })
+  @SwaggerTags('Release on 01.06.2025', 'OnlinePlayers')
   @Get()
   @UniformResponse(null, OnlinePlayerDto)
   async getAllOnlinePlayers(@Query() query: OnlinePlayerSearchQueryDto) {
     const filter = { status: query.search };
-    return this.onlinePlayersService.getAllOnlinePlayers({
+    return this.onlinePlayersService.getOnlinePlayers({
       filter,
     });
   }

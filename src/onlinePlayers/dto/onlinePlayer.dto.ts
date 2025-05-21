@@ -1,7 +1,7 @@
 import { Expose } from 'class-transformer';
 import { OnlinePlayerStatus } from '../enum/OnlinePlayerStatus';
 
-export default class OnlinePlayerDto {
+export default class OnlinePlayerDto<Additional = undefined> {
   /**
    * _id of the player
    *
@@ -25,4 +25,12 @@ export default class OnlinePlayerDto {
    */
   @Expose()
   status: OnlinePlayerStatus;
+
+  /**
+   * Any additional information online player has
+   *
+   * @example { queueNumber: 239 }
+   */
+  @Expose()
+  additional?: Additional;
 }

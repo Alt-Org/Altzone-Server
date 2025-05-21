@@ -7,7 +7,7 @@ import { OnlinePlayerStatus } from '../../../onlinePlayers/enum/OnlinePlayerStat
 import { RedisService } from '../../../common/service/redis/redis.service';
 import OnlinePlayersCommonModule from '../modules/onlinePlayersCommon.module';
 
-describe('OnlinePlayersService.getAllOnlinePlayers() test suite', () => {
+describe('OnlinePlayersService.getOnlinePlayers() test suite', () => {
   let service: OnlinePlayersService;
 
   let redisService: RedisService;
@@ -57,7 +57,7 @@ describe('OnlinePlayersService.getAllOnlinePlayers() test suite', () => {
       [_id2]: JSON.stringify(payload2),
     });
 
-    const player_ids = await service.getAllOnlinePlayers();
+    const player_ids = await service.getOnlinePlayers();
 
     expect(player_ids).toContainEqual(payload1);
     expect(player_ids).toContainEqual(payload2);
@@ -82,7 +82,7 @@ describe('OnlinePlayersService.getAllOnlinePlayers() test suite', () => {
       [_id2]: JSON.stringify(payload2),
     });
 
-    const player_ids = await service.getAllOnlinePlayers({
+    const player_ids = await service.getOnlinePlayers({
       filter: { status: [OnlinePlayerStatus.UI] },
     });
 
@@ -93,7 +93,7 @@ describe('OnlinePlayersService.getAllOnlinePlayers() test suite', () => {
   it('Should not return players if there are no players', async () => {
     jest.spyOn(redisService, 'getValuesByKeyPattern').mockResolvedValue({});
 
-    const player_ids = await service.getAllOnlinePlayers();
+    const player_ids = await service.getOnlinePlayers();
 
     expect(player_ids).not.toContain(_id1);
   });
