@@ -10,6 +10,7 @@ import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { BattleWaitStatus } from './payload/additionalTypes/BattleWaitStatus';
 import { BattleQueueService } from './battleQueue/battleQueue.service';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class OnlinePlayersService {
@@ -81,13 +82,18 @@ export class OnlinePlayersService {
       JSON.parse(playerStr),
     ) as OnlinePlayer[];
 
+    //TODO: Remove it after there are no versions anymore that uses old implementation of saving online players
+    const filteredPlayers = onlinePlayers.filter(
+      (player) => typeof player !== 'string' && typeof player !== 'number',
+    );
+
     if (options?.filter?.status) {
-      return onlinePlayers.filter((p) =>
+      return filteredPlayers.filter((p) =>
         options.filter.status.includes(p.status),
       );
     }
 
-    return onlinePlayers;
+    return filteredPlayers;
   }
 
   /**
