@@ -1,54 +1,43 @@
 FROM node:23-bookworm-slim AS compile
 
-# Install tini for signal handling
 RUN apt-get update && apt-get install -y --no-install-recommends tini \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy source and install all deps (including dev)
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Copy the rest of the app
 COPY . .
-
-# Build the TypeScript project
 RUN npm run build \
     && rm -rf dist/util/dataMock
 
 FROM node:23-bookworm-slim AS build
 
-#tini for better kernel signal handling
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-    tini \
+RUN apt-get update && apt-get install -y --no-install-recommends tini \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /app && chown -R node:node /app
 
 WORKDIR /app
 
-COPY --chown=node:node ./package.json ./package.json
-COPY --chown=node:node ./package-lock.json ./package-lock.json
+COPY --chown=node:node package.json package.json
+COPY --chown=node:node package-lock.json package-lock.json
 RUN npm ci --only-production && npm cache clean --force
 
-COPY ./dist ./dist
-COPY ./public ./public
-COPY ./swagger.json ./swagger.json
-RUN rm -rf ./dist/util/dataMock
-
-#for production RUN npm ci --only-production && npm cache clean --force
+COPY --from=compile /app/dist ./dist
+COPY --from=compile /app/public ./public
+COPY --from=compile /app/swagger.json ./swagger.json
 
 FROM debian:12-slim AS start
+
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
 
-ENV NODE_VERSION=23.11.0
-
 COPY --from=build /usr/bin/tini /usr/bin/tini
 COPY --from=build /usr/local/bin/node /usr/local/bin/node
-COPY --from=build --chown=api:api /app /app
+COPY --from=build --chown=node:node /app /app
+
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
 USER node
