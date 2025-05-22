@@ -19,11 +19,8 @@ export class ClanCoinsController {
   @HttpCode(204)
   @DetermineClanId()
   public async addCoins(@Body() body: ClanCoinsDto, @LoggedUser() user: User) {
-       
-    body.clan_id = user.clan_id;
 
-    const [, errors] = await this.service.addCoins(body);
+    const [, errors] = await this.service.addCoins(user.clan_id, body.amount);
     if (errors) return [null, errors];
-
     }
   }

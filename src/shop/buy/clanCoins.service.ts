@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ClanService } from '../../clan/clan.service';
-import { ClanCoinsDto } from './dto/clanCoins.dto';
 
 @Injectable()
 export class ClanCoinsService {
@@ -8,11 +7,9 @@ export class ClanCoinsService {
     private readonly clanService: ClanService,
   ) {}
     
-  async addCoins(
-    body: ClanCoinsDto
-  ) {
-    return await this.clanService.basicService.updateOneById(body.clan_id, {
-      $inc: { gameCoins: body.amount },
+  async addCoins(clan_id: string, amount: number) {
+    return await this.clanService.basicService.updateOneById(clan_id, {
+      $inc: { gameCoins: amount },
     });
   }
 }
