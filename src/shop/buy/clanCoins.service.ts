@@ -11,12 +11,8 @@ export class ClanCoinsService {
   async addCoins(
     body: ClanCoinsDto
   ) {
-    const [clan, error] = await this.clanService.readOneById(body.clan_id);
-    if (error) return [null, error];
-    
-    const gameCoins = clan.gameCoins + body.amount;
-    const { _id, } = clan;
-
-    return await this.clanService.basicService.updateOneById(_id.toString(), { gameCoins });
+    return await this.clanService.basicService.updateOneById(body.clan_id, {
+      $inc: { gameCoins: body.amount },
+    });
   }
 }
