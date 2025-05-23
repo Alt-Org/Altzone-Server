@@ -86,7 +86,7 @@ export class ClanController {
   }
 
   /**
-   * Get items of the logged-in user clan.
+   * Get items of the logged-in user clan. Requires authentication
    *
    * @remarks Get items of the logged-in user clan.
    *
