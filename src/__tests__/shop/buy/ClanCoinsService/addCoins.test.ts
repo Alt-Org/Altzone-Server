@@ -5,26 +5,25 @@ import ClanCoinsBuilderFactory from '../../data/clanCoinsBuilderFactory';
 import { ClanCoinsDto } from '../../../../shop/buy/dto/clanCoins.dto';
 
 describe('clanCoinsService.addCoins() test suite', () => {
+  let clanCoinsService: ClanCoinsService;
+  let clanCoins: ClanCoinsDto;
 
-    let clanCoinsService: ClanCoinsService;
-    let clanCoins: ClanCoinsDto;
-    
-    const clan_id = '681e534624e7710f1b5ccb80';
-    const coins = Coins.FiveHundred;
+  const clan_id = '681e534624e7710f1b5ccb80';
+  const coins = Coins.FiveHundred;
 
   beforeEach(async () => {
     clanCoinsService = await ClanCoinsModule.getClainCoinsService();
 
-    const clanCoinsBuilder = ClanCoinsBuilderFactory.getBuilder('ClanCoinsDto'); 
-    
-    clanCoins = clanCoinsBuilder
-        .setAmount(coins)
-        .build();
+    const clanCoinsBuilder = ClanCoinsBuilderFactory.getBuilder('ClanCoinsDto');
+
+    clanCoins = clanCoinsBuilder.setAmount(coins).build();
   });
 
   it('Should return with error if the clan does not exist', async () => {
-    
-    const [_, error] = await clanCoinsService.addCoins(clan_id, clanCoins.amount);
+    const [_, error] = await clanCoinsService.addCoins(
+      clan_id,
+      clanCoins.amount,
+    );
 
     expect(error).toBeDefined();
     expect(error[0]?.reason).toBe('NOT_FOUND');

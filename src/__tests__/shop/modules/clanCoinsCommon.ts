@@ -21,11 +21,9 @@ export default class ClanCoinsCommonModule {
             { name: ModelName.CLAN, schema: ClanSchema },
           ]),
           ClanModule,
-          ShopModule
+          ShopModule,
         ],
-        providers: [
-         ClanCoinsService
-        ],
+        providers: [ClanCoinsService],
       }).compile();
 
     return ClanCoinsCommonModule.module;

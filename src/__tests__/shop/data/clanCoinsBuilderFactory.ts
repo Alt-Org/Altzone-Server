@@ -1,7 +1,6 @@
-import ClanCoinsDtoBuilder from "./clanCoins/createClanCoinsDtoBuilder";
+import ClanCoinsDtoBuilder from './clanCoins/createClanCoinsDtoBuilder';
 
-type BuilderName =
-  | 'ClanCoinsDto';
+type BuilderName = 'ClanCoinsDto';
 
 type BuilderMap = {
   ClanCoinsDto: ClanCoinsDtoBuilder;

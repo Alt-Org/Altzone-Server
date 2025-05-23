@@ -19,18 +19,14 @@ import { ClanService } from '../clan/clan.service';
       { name: ModelName.CLAN, schema: ClanSchema },
       { name: ModelName.JOIN, schema: joinSchema },
       { name: ModelName.PLAYER, schema: PlayerSchema },
-  ]),
+    ]),
     ClanInventoryModule,
     RequestHelperModule,
     PlayerModule,
     GameEventsEmitterModule,
   ],
   controllers: [ClanCoinsController],
-  providers: [
-    ClanService,
-    ClanCoinsService,
-    ClanHelperService,
-  ],
+  providers: [ClanService, ClanCoinsService, ClanHelperService],
   exports: [],
 })
 export class ShopModule {}
