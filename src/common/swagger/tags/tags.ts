@@ -18,6 +18,7 @@ export type SwaggerTagName =
   | 'DailyTasks'
   | 'FleaMarket'
   | 'ClanShop'
+  | 'Shop'
   | 'Chat'
   | 'Voting'
   | 'Leaderboard'
@@ -93,6 +94,10 @@ export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
     name: 'ClanShop',
     description:
       'Clan shop, place where clans can buy items to decorate their soul homes',
+  },
+  Shop: {
+    name: 'Shop',
+    description: 'Shop, place where in-game items can be done with real money',
   },
 
   Chat: {
