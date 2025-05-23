@@ -1,3 +1,6 @@
+/**
+ * Allowed amount of coins that can be bought by a clan
+ */
 export enum Coins {
   OneHundred = 100,
   TwoHundredFifty = 250,
