@@ -10,7 +10,6 @@ import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { BattleWaitStatus } from './payload/additionalTypes/BattleWaitStatus';
 import { BattleQueueService } from './battleQueue/battleQueue.service';
-import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class OnlinePlayersService {
