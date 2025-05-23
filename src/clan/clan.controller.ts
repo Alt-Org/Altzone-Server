@@ -60,7 +60,7 @@ export class ClanController {
   ) {}
 
   /**
-   * Create a new Clan. Some test comment here
+   * Create a new Clan. Some test comment here. And another one comment
    *
    * @remarks The creator of the Clan becomes its admin.
    * Notice that if Player is creating a new Clan, he/she becomes a member of it,
