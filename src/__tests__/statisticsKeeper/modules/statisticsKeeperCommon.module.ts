@@ -8,12 +8,17 @@ import { PlayerStatisticService } from '../../../statisticsKeeper/playerStatisti
 import { StatisticsKeeperModule } from '../../../statisticsKeeper/statisticsKeeper.module';
 import { CustomCharacterSchema } from '../../../player/customCharacter/customCharacter.schema';
 import { RequestHelperModule } from '../../../requestHelper/requestHelper.module';
-import { CustomCharacterService } from '../../../player/customCharacter/customCharacter.service';
+import { PlayerModule } from '../../../player/player.module';
 
 export default class StatisticsKeeperCommonModule {
   static async getPlayerStatisticService() {
       const module = await StatisticsKeeperCommonModule.getModule();
           return await module.resolve(PlayerStatisticService);
+  }
+
+  static async getPlayerService() {
+      const module = await StatisticsKeeperCommonModule.getModule();
+          return await module.resolve(PlayerService);
   }
   private constructor() {}
 
@@ -29,12 +34,12 @@ export default class StatisticsKeeperCommonModule {
             { name: ModelName.CUSTOM_CHARACTER, schema: CustomCharacterSchema },
           ]),
           StatisticsKeeperModule,
+          PlayerModule,
           RequestHelperModule,
         ],
         providers: [
           PlayerStatisticService,
           PlayerService,
-          CustomCharacterService,
         ],
       }).compile();
 
