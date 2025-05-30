@@ -1,9 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { MongooseError } from 'mongoose';
 import { Message } from '../../../player/message.schema';
-import ServiceError from '../../../common/service/basicService/ServiceError';
 import { ModelName } from '../../../common/enum/modelName.enum';
-import { SEReason } from '../../../common/service/basicService/SEReason';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import { PlayerEvent } from '../../../rewarder/playerRewarder/enum/PlayerEvent.enum';
 import StatisticsKeeperCommonModule from '../modules/statisticsKeeperCommon.module';
@@ -25,6 +23,14 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
 
   const playerId = new ObjectId()._id.toString();
 
+  const gameStatistics = gameStatisticsBuilder.setWonBattles(0).build();
+
+    const player = playerBuilder
+      .setName(playerName)
+      .setId(playerId)
+      .setGameStatistics(gameStatistics)
+      .build();
+
   beforeEach(async () => {
     jest.clearAllMocks();
     playerStatisticService =
@@ -34,14 +40,6 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
   });
 
   it('Should increase the players playedBattles if the input is valid | PlayerEvent.BATTLE_PLAYED', async () => {
-    const gameStatistics = gameStatisticsBuilder.setWonBattles(0).build();
-
-    const player = playerBuilder
-      .setName(playerName)
-      .setId(playerId)
-      .setGameStatistics(gameStatistics)
-      .build();
-
     await playerModel.create(player);
 
     const [result, error] = await playerStatisticService.updatePlayerStatistic(
@@ -59,14 +57,6 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
   });
 
   it('Should increase the players wonBattles if the input is valid | PlayerEvent.BATTLE_WON', async () => {
-    const gameStatistics = gameStatisticsBuilder.setWonBattles(0).build();
-
-    const player = playerBuilder
-      .setName(playerName)
-      .setId(playerId)
-      .setGameStatistics(gameStatistics)
-      .build();
-
     await playerModel.create(player);
 
     const [result, error] = await playerStatisticService.updatePlayerStatistic(
@@ -84,14 +74,6 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
   });
 
   it('Should increase the players participatedVotings if the input is valid | PlayerEvent.VOTE_MADE', async () => {
-    const gameStatistics = gameStatisticsBuilder.setWonBattles(0).build();
-
-    const player = playerBuilder
-      .setName(playerName)
-      .setId(playerId)
-      .setGameStatistics(gameStatistics)
-      .build();
-
     await playerModel.create(player);
 
     const [result, error] = await playerStatisticService.updatePlayerStatistic(
@@ -121,14 +103,6 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
   });
 
   it('Should return with ServiceError if the players metadata not valid | PlayerEvent.MESSAGE_SENT', async () => {
-    const gameStatistics = gameStatisticsBuilder.setWonBattles(0).build();
-
-    const player = playerBuilder
-      .setName(playerName)
-      .setId(playerId)
-      .setGameStatistics(gameStatistics)
-      .build();
-
     await playerModel.create(player);
 
     jest.spyOn(playerService, 'readOneById').mockImplementation(async () => {
@@ -147,10 +121,8 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
     );
 
     expect(result).toBe(false);
-    expect(error[0]).toBeInstanceOf(ServiceError);
-    expect(error[0].reason).toBe(SEReason.NOT_FOUND);
-    expect(error[0].message).toBe('Could not read the player');
-
+    expect(error).toContainSE_NOT_FOUND();
+    
     jest.restoreAllMocks();
   });
 
@@ -187,16 +159,6 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
   });
 
   it('Should add a new message to player with todays date if do not have one yet | PlayerEvent.MESSAGE_SENT', async () => {
-    const gameStatistics = gameStatisticsBuilder
-      .setWonBattles(0)
-      .setMessages([])
-      .build();
-
-    const player = playerBuilder
-      .setName(playerName)
-      .setId(playerId)
-      .setGameStatistics(gameStatistics)
-      .build();
 
     await playerModel.create(player);
 
@@ -218,14 +180,6 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
   });
 
   it('Should return with MongooseError if have not updated the player in the DB | PlayerEvent.MESSAGE_SENT', async () => {
-    const gameStatistics = gameStatisticsBuilder.setWonBattles(0).build();
-
-    const player = playerBuilder
-      .setName(playerName)
-      .setId(playerId)
-      .setGameStatistics(gameStatistics)
-      .build();
-
     await playerModel.create(player);
 
     jest.spyOn(playerService, 'updateOneById').mockImplementation(async () => {
@@ -244,14 +198,6 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
   });
 
   it('Should return with ServiceError if PlayerEvent type is not supported | PlayerEvent.NotSupported', async () => {
-    const gameStatistics = gameStatisticsBuilder.setWonBattles(0).build();
-
-    const player = playerBuilder
-      .setName(playerName)
-      .setId(playerId)
-      .setGameStatistics(gameStatistics)
-      .build();
-
     await playerModel.create(player);
 
     const [result, error] = await playerStatisticService.updatePlayerStatistic(
@@ -260,7 +206,6 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
     );
 
     expect(result).toBe(null);
-    expect(error[0]).toBeInstanceOf(ServiceError);
-    expect(error[0].message).toBe('Event is not supported');
+    expect(error).toContainSE_UNEXPECTED();
   });
 });
