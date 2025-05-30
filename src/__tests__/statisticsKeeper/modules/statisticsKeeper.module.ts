@@ -1,6 +1,5 @@
 import StatisticsKeeperCommonModule from './statisticsKeeperCommon.module';
 import { PlayerStatisticService } from '../../../statisticsKeeper/playerStatisticKeeper/playerStatisticKeeper.service';
-import { PlayerService } from '../../../player/player.service';
 
 export default class StatisticsKeeperModule {
   private constructor() {}
@@ -8,10 +7,5 @@ export default class StatisticsKeeperModule {
   static async getPlayerStatisticService() {
     const module = await StatisticsKeeperCommonModule.getModule();
     return await module.resolve(PlayerStatisticService);
-  }
-
-  static async getPlayerService() {
-    const module = await StatisticsKeeperCommonModule.getModule();
-    return await module.resolve(PlayerService);
   }
 }

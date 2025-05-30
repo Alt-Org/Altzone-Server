@@ -39,7 +39,6 @@ export default class StatisticsKeeperCommonModule {
         ],
         providers: [
           PlayerStatisticService,
-          PlayerService,
         ],
       }).compile();
 
