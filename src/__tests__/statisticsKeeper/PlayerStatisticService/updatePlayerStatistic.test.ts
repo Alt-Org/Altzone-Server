@@ -4,10 +4,11 @@ import { Message } from '../../../player/message.schema';
 import { ModelName } from '../../../common/enum/modelName.enum';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import { PlayerEvent } from '../../../rewarder/playerRewarder/enum/PlayerEvent.enum';
-import StatisticsKeeperCommonModule from '../modules/statisticsKeeperCommon.module';
 import PlayerModule from '../../player/modules/player.module';
 import { PlayerService } from '../../../player/player.service';
 import { PlayerStatisticService } from '../../../statisticsKeeper/playerStatisticKeeper/playerStatisticKeeper.service';
+import StatisticsKeeperModule from '../modules/statisticsKeeper.module';
+import { Player } from '../../../player/schemas/player.schema';
 
 describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
   let playerStatisticService: PlayerStatisticService;
@@ -25,19 +26,19 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
 
   const gameStatistics = gameStatisticsBuilder.setWonBattles(0).build();
 
-    const player = playerBuilder
+  let player: Player;
+
+  beforeEach(async () => {
+    playerStatisticService =
+      await StatisticsKeeperModule.getPlayerStatisticService();
+
+    playerService = await StatisticsKeeperModule.getPlayerService();
+
+    player = playerBuilder
       .setName(playerName)
       .setId(playerId)
       .setGameStatistics(gameStatistics)
       .build();
-
-  beforeEach(async () => {
-    jest.clearAllMocks();
-    playerStatisticService =
-      await StatisticsKeeperCommonModule.getPlayerStatisticService();
-
-    playerService = await StatisticsKeeperCommonModule.getPlayerService();
-
     await playerModel.create(player);
   });
 
@@ -87,10 +88,7 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
   });
 
   it('Should return with ServiceError if have not read the player from the DB | PlayerEvent.MESSAGE_SENT', async () => {
-    jest.spyOn(playerService, 'readOneById')
-    .mockImplementation(async () => {
-      return new MongooseError('Player not found');
-    });
+    await playerModel.findByIdAndDelete(playerId);
 
     const [result, error] = await playerStatisticService.updatePlayerStatistic(
       playerId,
@@ -121,11 +119,11 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
 
     expect(result).toBe(false);
     expect(error).toContainSE_NOT_FOUND();
-    
+
     jest.restoreAllMocks();
   });
 
-  it('Should increase the players message counter if found a todays message | PlayerEvent.MESSAGE_SENT', async () => {
+  it("Should increase the players message counter if found a today's message | PlayerEvent.MESSAGE_SENT", async () => {
     const player_Id = new ObjectId()._id.toString();
     const player_Name = 'Jane';
 
@@ -161,7 +159,7 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
     expect(updatedPlayer.gameStatistics.messages[0].count).toBe(2);
   });
 
-  it('Should add a new message to player with todays date if do not have one yet | PlayerEvent.MESSAGE_SENT', async () => {
+  it("Should add a new message to player with today's date if do not have one yet | PlayerEvent.MESSAGE_SENT", async () => {
     const [result, error] = await playerStatisticService.updatePlayerStatistic(
       playerId,
       PlayerEvent.MESSAGE_SENT,
@@ -183,7 +181,7 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
     jest.spyOn(playerService, 'updateOneById').mockImplementation(async () => {
       return new MongooseError('');
     });
-    
+
     const [result, error] = await playerStatisticService.updatePlayerStatistic(
       playerId,
       PlayerEvent.MESSAGE_SENT,
