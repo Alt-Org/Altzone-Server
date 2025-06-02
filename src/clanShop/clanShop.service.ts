@@ -67,11 +67,12 @@ export class ClanShopService {
       await this.playerService.getPlayerById(playerId);
     if (playerError) await cancelTransaction(session, playerError);
 
-    const [voting, votingErrors] = await this.votingService.startItemVoting({
-      player,
-      item,
+    const [voting, votingErrors] = await this.votingService.startVoting({
+      voterPlayer: player,
+      type: VotingType.SHOP_BUY_ITEM,
+      queue: VotingQueueName.CLAN_SHOP,
       clanId,
-      type: VotingType.BUYING_ITEM,
+      shopItem: item.name,
     });
     if (votingErrors) await cancelTransaction(session, votingErrors);
 
