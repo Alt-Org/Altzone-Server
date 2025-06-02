@@ -129,11 +129,12 @@ export class FleaMarketService {
       clanId,
     );
     const createdItem = await this.moveItemToFleaMarket(newItem, itemId);
-    const [voting, errors] = await this.votingService.startItemVoting({
-      player,
-      item: createdItem,
+    const [voting, errors] = await this.votingService.startVoting({
+      voterPlayer: player,
+      type: VotingType.FLEA_MARKET_SELL_ITEM,
       clanId,
-      type: VotingType.SELLING_ITEM,
+      fleaMarketItem: createdItem,
+      queue: VotingQueueName.FLEA_MARKET,
     });
     if (errors) throw errors;
 
@@ -362,7 +363,7 @@ export class FleaMarketService {
     const { voting, price, clanId, stockId, fleaMarketItemId } = params;
 
     const votePassed = await this.votingService.checkVotingSuccess(voting);
-    if (voting.type === VotingType.BUYING_ITEM) {
+    if (voting.type === VotingType.FLEA_MARKET_BUY_ITEM) {
       if (votePassed) {
         await this.handlePassedBuyVoting(voting, stockId);
       } else {
@@ -370,7 +371,7 @@ export class FleaMarketService {
       }
     }
 
-    if (voting.type === VotingType.SELLING_ITEM) {
+    if (voting.type === VotingType.FLEA_MARKET_SELL_ITEM) {
       if (votePassed) {
         await this.handlePassedSellVoting(fleaMarketItemId);
       } else {
@@ -443,13 +444,13 @@ export class FleaMarketService {
     await this.changeItemStatus(item, Status.BOOKED, session);
     await this.reserveFunds(clan, item.price, session);
 
-    const [voting, createVotingErrors] =
-      await this.votingService.startItemVoting({
-        clanId: clan._id.toString(),
-        item,
-        player,
-        type: VotingType.BUYING_ITEM,
-      });
+    const [voting, createVotingErrors] = await this.votingService.startVoting({
+      clanId: clan._id.toString(),
+      fleaMarketItem: item,
+      voterPlayer: player,
+      type: VotingType.FLEA_MARKET_BUY_ITEM,
+      queue: VotingQueueName.FLEA_MARKET,
+    });
     if (createVotingErrors) this.cancelTransaction(session, createVotingErrors);
 
     session.commitTransaction();
