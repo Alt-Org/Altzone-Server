@@ -6,6 +6,7 @@ import AddType from '../../common/base/decorator/AddType.decorator';
 import { Organizer } from './organizer.dto';
 import { ItemName } from '../../clanInventory/item/enum/itemName.enum';
 import { VoteDto } from './vote.dto';
+import { SetClanRole } from '../schemas/setClanRole.schema';
 
 @AddType('VotingDto')
 export class VotingDto {
@@ -97,4 +98,14 @@ export class VotingDto {
    */
   @Expose()
   entity_name: ItemName;
+
+  /**
+   * Information about the clan role assignment for a player.
+   *
+   * Contains the player ID and the role ID to be assigned.
+   *
+   * @example { "player_id": "6630af1234cd5ef001a1b4c5", "role_id": "6630af1234cd5ef001a1b4c3" }
+   */
+  @Expose()
+  setClanRole: SetClanRole;
 }
