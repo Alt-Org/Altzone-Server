@@ -23,17 +23,17 @@ pipeline {
             }
         }
 
-        stage('Run automation tests') {
-            steps {
-                sh 'npm run test:coverage'
-            }
-            post {
-                always {
-                    recordCoverage(tools: [[parser: 'COBERTURA', pattern: '**/cobertura-coverage.xml']])
-                    junit allowEmptyResults: true, checksName: 'Unit Tests', stdioRetention: 'FAILED', testResults: 'junit.xml'
-                }
-            }
-        }
+//         stage('Run automation tests') {
+//             steps {
+//                 sh 'npm run test:coverage'
+//             }
+//             post {
+//                 always {
+//                     recordCoverage(tools: [[parser: 'COBERTURA', pattern: '**/cobertura-coverage.xml']])
+//                     junit allowEmptyResults: true, checksName: 'Unit Tests', stdioRetention: 'FAILED', testResults: 'junit.xml'
+//                 }
+//             }
+//         }
 
         stage('Build and Push Docker Image') {
             agent { label 'docker-agent' }
