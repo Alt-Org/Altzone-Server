@@ -68,7 +68,7 @@ pipeline {
           steps {
             withCredentials([
               string(credentialsId: 'alt-server-webhook-secret', variable: 'WEBHOOK_SECRET'),
-              string(credentialsId: 'alt-server-url', variable: 'WEBHOOK_URL')
+              string(credentialsId: 'alt-server-webhook-url', variable: 'WEBHOOK_URL')
             ]) {
               sh '''
                 PAYLOAD='{}'
