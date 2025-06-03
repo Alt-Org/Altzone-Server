@@ -27,6 +27,7 @@ export default class LoggedUser {
     username: defaultUsername,
     password: defaultPassword,
     isSystemAdmin: false,
+    isGuest: false,
   };
   private static player: Player & { _id: string } = {
     _id: '',
