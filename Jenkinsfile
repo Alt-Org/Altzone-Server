@@ -25,11 +25,6 @@ pipeline {
 
         stage('Run automation tests') {
             steps {
-              cache(defaultBranch: 'dev',
-                maxCacheSize: 2048,
-                caches: [
-                  path('node_modules/.cache/jest')
-                ]) {
                 script {
                   def firstTestResult = sh(script: 'npm run test:ci', returnStatus: true)
 
@@ -37,11 +32,10 @@ pipeline {
                     def retryResult = sh(script: 'npm run test:ci-retry-failed', returnStatus: true)
 
                     if (retryResult != 0) {
-                        error("Tests failed after retry")
+                      error("Tests failed after retry")
                     }
                   }
                 }
-              }
             }
             post {
                 always {
