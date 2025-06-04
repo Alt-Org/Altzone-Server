@@ -3,6 +3,9 @@ strapi_test
 letsencrypt
 owncloud
 .scannerwork
+#tests files
+junit.xml
+globalConfig.json
 
 # Logs
 logs

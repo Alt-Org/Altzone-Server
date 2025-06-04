@@ -26,7 +26,8 @@ const config: Config = {
     `${testDir}/test_utils/disable-console-log.ts`,
   ],
   setupFilesAfterEnv: [
-    `${testDir}/test_utils/connect-to-db.ts`,
+    `${testDir}/test_utils/before-and-after-tests.ts`,
+    `${testDir}/test_utils/global-mocks.ts`,
     `${testDir}/test_utils/add-custom-matchers.ts`,
   ],
 
