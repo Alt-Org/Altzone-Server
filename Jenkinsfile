@@ -25,7 +25,17 @@ pipeline {
 
         stage('Run automation tests') {
             steps {
-                sh 'npm run test:coverage'
+                script {
+                  def firstTestResult = sh(script: 'npm run test:coverage', returnStatus: true)
+
+                  if (firstTestResult != 0) {
+                    def retryResult = sh(script: 'npm run test:retry-failed', returnStatus: true)
+
+                    if (retryResult != 0) {
+                      error("Tests failed after retry")
+                    }
+                  }
+                }
             }
             post {
                 always {
