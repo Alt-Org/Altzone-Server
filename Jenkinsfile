@@ -23,17 +23,27 @@ pipeline {
             }
         }
 
-//         stage('Run automation tests') {
-//             steps {
-//                 sh 'npm run test:coverage'
-//             }
-//             post {
-//                 always {
-//                     recordCoverage(tools: [[parser: 'COBERTURA', pattern: '**/cobertura-coverage.xml']])
-//                     junit allowEmptyResults: true, checksName: 'Unit Tests', stdioRetention: 'FAILED', testResults: 'junit.xml'
-//                 }
-//             }
-//         }
+        stage('Run automation tests') {
+            steps {
+                script {
+                  def firstTestResult = sh(script: 'npm run test:ci', returnStatus: true)
+
+                  if (firstTestResult != 0) {
+                    def retryResult = sh(script: 'npm run test:ci-retry-failed', returnStatus: true)
+
+                    if (retryResult != 0) {
+                      error("Tests failed after retry")
+                    }
+                  }
+                }
+            }
+            post {
+                always {
+                    recordCoverage(tools: [[parser: 'COBERTURA', pattern: '**/cobertura-coverage.xml']])
+                    junit allowEmptyResults: true, checksName: 'Unit Tests', stdioRetention: 'FAILED', testResults: 'junit.xml'
+                }
+            }
+        }
 
         stage('Build and Push Docker Image') {
             agent { label 'docker-agent' }
