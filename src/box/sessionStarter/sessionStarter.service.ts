@@ -10,7 +10,7 @@ import BasicService from '../../common/service/basicService/BasicService';
 import { DailyTasksService } from '../../dailyTasks/dailyTasks.service';
 import { Player } from '../../player/schemas/player.schema';
 import { Clan } from '../../clan/clan.schema';
-import { PasswordGenerator } from '../tester/passwordGenerator';
+import { PasswordGenerator } from '../../common/function/passwordGenerator';
 import { SessionStage } from '../enum/SessionStage.enum';
 import { PredefinedDailyTask } from '../dailyTask/predefinedDailyTask.schema';
 

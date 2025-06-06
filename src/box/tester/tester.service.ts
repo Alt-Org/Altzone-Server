@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Tester } from '../schemas/tester.schema';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
-import { PasswordGenerator } from './passwordGenerator';
+import { PasswordGenerator } from '../../common/function/passwordGenerator';
 import { Profile, ProfileDocument } from '../../profile/profile.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
