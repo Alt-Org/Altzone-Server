@@ -8,11 +8,25 @@ import { APIError } from '../../common/controller/APIError';
 import { APIErrorReason } from '../../common/controller/APIErrorReason';
 import { LoggedUser } from '../../common/decorator/param/LoggedUser.decorator';
 import { BoxUser } from '../auth/BoxUser';
+import SwaggerTags from '../../common/swagger/tags/SwaggerTags.decorator';
+import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
 
+@SwaggerTags('Box')
 @Controller('/box/testers')
 export class TesterController {
   constructor(private testerService: TesterService) {}
 
+  /**
+   * Define testers amount
+   *
+   * @remarks Endpoint for adjusting amount of testers in the box. Notice that only box admin can do it
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 403, 404],
+  })
   @Post()
   @IsGroupAdmin()
   @UniformResponse(ModelName.BOX)

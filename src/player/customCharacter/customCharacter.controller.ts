@@ -17,12 +17,30 @@ import { User } from '../../auth/user';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
 import { IncludeQuery } from '../../common/decorator/param/IncludeQuery.decorator';
 import { publicReferences } from './customCharacter.schema';
-import { Serialize } from '../../common/interceptor/response/Serialize';
+import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
 
 @Controller('customCharacter')
 export class CustomCharacterController {
   public constructor(private readonly service: CustomCharacterService) {}
 
+  /**
+   * Create a custom character
+   *
+   * @remarks Create a new CustomCharacter. CustomCharacter represents a character of the Player.
+   * Player can have many CustomCharacters, CustomCharacter can belong to only one Player.
+   *
+   * Notice that the player_id field will be determined based on the logged-in player.
+   *
+   * Notice that player can have only one custom character of each type
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: CustomCharacterDto,
+      modelName: ModelName.CUSTOM_CHARACTER,
+      status: 201,
+    },
+    errors: [400, 401],
+  })
   @Post()
   @Authorize({ action: Action.create, subject: CustomCharacterDto })
   @UniformResponse(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
@@ -33,6 +51,19 @@ export class CustomCharacterController {
     return this.service.createOne(body, user.player_id);
   }
 
+  /**
+   * Get logged-in player chosen battle CustomCharacters
+   *
+   * @remarks Get logged-in player chosen CustomCharacters for a battle
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: CustomCharacterDto,
+      modelName: ModelName.CUSTOM_CHARACTER,
+      returnsArray: true,
+    },
+    errors: [401, 404],
+  })
   @Get('/battleCharacters')
   @Authorize({ action: Action.read, subject: CustomCharacterDto })
   @UniformResponse(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
@@ -40,6 +71,20 @@ export class CustomCharacterController {
     return this.service.readPlayerBattleCharacters(user.player_id);
   }
 
+  /**
+   * Get CustomCharacter by _id
+   *
+   * @remarks Read CustomCharacter data by its _id field.
+   *
+   * Notice that if the CustomCharacter does not belong to the logged-in Player 404 should be returned.
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: CustomCharacterDto,
+      modelName: ModelName.CUSTOM_CHARACTER,
+    },
+    errors: [400, 401, 404],
+  })
   @Get('/:_id')
   @Authorize({ action: Action.read, subject: CustomCharacterDto })
   @UniformResponse(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
@@ -54,6 +99,19 @@ export class CustomCharacterController {
     });
   }
 
+  /**
+   * Get all CustomCharacters of the logged-in player
+   *
+   * @remarks Read all custom characters. Remember about the pagination
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: CustomCharacterDto,
+      modelName: ModelName.CUSTOM_CHARACTER,
+      returnsArray: true,
+    },
+    errors: [401, 404],
+  })
   @Get()
   @Authorize({ action: Action.read, subject: CustomCharacterDto })
   @OffsetPaginate(ModelName.CUSTOM_CHARACTER)
@@ -70,6 +128,19 @@ export class CustomCharacterController {
     });
   }
 
+  /**
+   * Update custom character by _id
+   *
+   * @remarks Update the CustomCharacter, which _id is specified in the body.
+   *
+   * Only the Player, that owns the CustomCharacter can change it. In case the Player does not own the CustomCharacter the 404 is returned.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 404],
+  })
   @Put()
   @Authorize({ action: Action.update, subject: UpdateCustomCharacterDto })
   @UniformResponse(ModelName.CUSTOM_CHARACTER)

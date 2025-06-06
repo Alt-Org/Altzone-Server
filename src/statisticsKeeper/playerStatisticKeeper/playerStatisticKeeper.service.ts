@@ -62,7 +62,19 @@ export class PlayerStatisticService {
     const today = new Date();
 
     const playerResp = await this.playerService.readOneById(player_id);
-    if (playerResp instanceof MongooseError) return [false, playerResp];
+
+    if (!playerResp || playerResp instanceof MongooseError)
+      return [
+        false,
+        [
+          new ServiceError({
+            message: 'Player is not found',
+            reason: SEReason.NOT_FOUND,
+            field: 'player_id',
+            value: player_id,
+          }),
+        ],
+      ];
 
     if (!playerResp.data[playerResp.metaData.dataKey])
       return [

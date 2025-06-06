@@ -20,6 +20,7 @@ import { AddSearchQuery } from '../../common/interceptor/request/addSearchQuery.
 import { AddSortQuery } from '../../common/interceptor/request/addSortQuery.interceptor';
 import { OffsetPaginate } from '../../common/interceptor/request/offsetPagination.interceptor';
 import { IGetAllQuery } from '../../common/interface/IGetAllQuery';
+import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
 
 @Controller('room')
 export class RoomController {
@@ -28,6 +29,22 @@ export class RoomController {
     private readonly roomHelperService: RoomHelperService,
   ) {}
 
+  /**
+   * Get Room by _id.
+   *
+   * @remarks Get Room by its _id.
+   *
+   * If the logged-in user is a Clan member and the Clan does have the requested Room, the Room for this Clan will be returned.
+   *
+   * If the logged-in user is not belonging to any Clan, or Room in that Clan with provided _id is not found the 404 error will be returned.
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: RoomDto,
+      modelName: ModelName.ROOM,
+    },
+    errors: [400, 401, 404],
+  })
   @Get('/:_id')
   @Authorize({ action: Action.read, subject: RoomDto })
   @UniformResponse(ModelName.ROOM)
@@ -42,6 +59,25 @@ export class RoomController {
     });
   }
 
+  /**
+   * Get Room all Clan's rooms
+   *
+   * @remarks Get all Rooms for the logged-in user.
+   *
+   * If the logged-in user is a Clan member, the Rooms for this Clan will be returned.
+   *
+   * If the logged-in user is not belonging to any Clan the 404 error will be returned.
+   *
+   * If the pagination is required, it can be used, but by default it will return all 30 rooms at once.
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: RoomDto,
+      modelName: ModelName.ROOM,
+      returnsArray: true,
+    },
+    errors: [401, 404],
+  })
   @Get()
   @Authorize({ action: Action.read, subject: RoomDto })
   @OffsetPaginate(ModelName.ROOM)
@@ -55,6 +91,23 @@ export class RoomController {
     return this.service.readPlayerClanRooms(user.player_id, query);
   }
 
+  /**
+   * Update room by _id
+   *
+   * @remarks Update Room by its _id specified in the body.
+   *
+   * Any Clan member can update any Room, which (SoulHome) belongs to the Clan.
+   *
+   * If the logged-in user is a Clan member and the Clan does have the requested Room, the Room for this Clan will be returned.
+   *
+   * If the logged-in user is not belonging to any Clan, or Room in that Clan with provided _id is not found the 404 error will be returned.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 404],
+  })
   @Put()
   @Authorize({ action: Action.update, subject: UpdateRoomDto })
   @UniformResponse()
@@ -63,6 +116,20 @@ export class RoomController {
     if (errors) return [null, errors];
   }
 
+  /**
+   * Activate room by _id
+   *
+   * @remarks Activate the specified Rooms.
+   *
+   * If Room _id specified in the room_ids field does not belong to logged-in user's Clan (SoulHome), it will be ignored.
+   * However, it will return 404 if none of the Room _ids does not belong to the Clan.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 404],
+  })
   @Post('/activate')
   @UniformResponse(ModelName.ROOM)
   public async activate(

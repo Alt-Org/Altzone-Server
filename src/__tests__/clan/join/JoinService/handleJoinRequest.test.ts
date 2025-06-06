@@ -182,7 +182,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
       .setClanId(openClan._id)
       .setPlayerId(player._id)
       .build();
-    const resp = await joinService.handleJoinRequest(joinToCreate);
+    await joinService.handleJoinRequest(joinToCreate);
 
     const oldClanInDB = await clanModel.findById(oldClan._id);
 

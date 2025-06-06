@@ -1,5 +1,4 @@
 import { User } from '../../auth/user';
-import { PlayerDto } from '../../player/dto/player.dto';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { RequestHelperService } from '../../requestHelper/requestHelper.service';
 import { Connection } from 'mongoose';

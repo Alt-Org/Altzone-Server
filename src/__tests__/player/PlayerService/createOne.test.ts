@@ -25,7 +25,10 @@ describe('PlayerService.createOne() test suite', () => {
 
     const clearedResp = clearDBRespDefaultFields(dbData);
 
-    const { profile_id, ...expectedPlayer } = { ...playerToCreate, points: 0 };
+    const { profile_id: _profile_id, ...expectedPlayer } = {
+      ...playerToCreate,
+      points: 0,
+    };
 
     expect(clearedResp).toEqual(expect.objectContaining(expectedPlayer));
   });
@@ -43,7 +46,10 @@ describe('PlayerService.createOne() test suite', () => {
 
     const clearedResp = clearDBRespDefaultFields(dbData);
 
-    const { profile_id, ...expectedPlayer } = { ...playerToCreate, points: 0 };
+    const { profile_id: _profile_id, ...expectedPlayer } = {
+      ...playerToCreate,
+      points: 0,
+    };
 
     expect(clearedResp).toEqual(expect.objectContaining(expectedPlayer));
   });
@@ -61,7 +67,10 @@ describe('PlayerService.createOne() test suite', () => {
 
     const clearedResp = clearDBRespDefaultFields(dbData);
 
-    const { profile_id, ...expectedPlayer } = { ...playerToCreate, points: 0 };
+    const { profile_id: _profile_id, ...expectedPlayer } = {
+      ...playerToCreate,
+      points: 0,
+    };
 
     expect(clearedResp).toEqual(expect.objectContaining(expectedPlayer));
   });

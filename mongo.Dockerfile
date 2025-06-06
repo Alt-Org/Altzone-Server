@@ -1,4 +1,4 @@
-FROM mongo:8
+FROM mongo:8.0.9-nanoserver
 
 WORKDIR /etc/mongo
 

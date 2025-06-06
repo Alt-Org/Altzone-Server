@@ -16,11 +16,31 @@ import { APIErrorReason } from '../../common/controller/APIErrorReason';
 import { UpdateClanRoleDto } from './dto/updateClanRole.dto';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import SetClanRoleDto from './dto/setClanRole.dto';
+import SwaggerTags from '../../common/swagger/tags/SwaggerTags.decorator';
+import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
 
+@SwaggerTags('Clan')
 @Controller('clan/role')
 export class ClanRoleController {
   public constructor(private readonly service: ClanRoleService) {}
 
+  /**
+   * Create a new clan role.
+   *
+   * @remarks Create a new clan role.
+   *
+   * Notice that in order to create a new role clan member must have a basic right "Manage role".
+   *
+   * The role must also be unique in a clan, unique name and unique rights.
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: ClanRoleDto,
+      modelName: ModelName.CLAN,
+      status: 201,
+    },
+    errors: [400, 401, 403, 404, 409],
+  })
   @Post()
   @HasClanRights([ClanBasicRight.MANAGE_ROLE])
   @DetermineClanId()
@@ -32,6 +52,21 @@ export class ClanRoleController {
     return this.service.createOne(body, user.clan_id);
   }
 
+  /**
+   * Update a clan role.
+   *
+   * @remarks Update a clan role.
+   *
+   * Notice that in order to update a role, clan member must have a basic right "Manage role".
+   *
+   * The role must also be unique in a clan, unique name and unique rights.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 403, 404, 409],
+  })
   @Put()
   @HasClanRights([ClanBasicRight.MANAGE_ROLE])
   @DetermineClanId()
@@ -45,6 +80,19 @@ export class ClanRoleController {
     return this.handleErrorReturnIfFound(errors);
   }
 
+  /**
+   * Delete clan role by _id
+   *
+   * @remarks Delete a clan role.
+   *
+   * Notice that in order to delete a role, clan member must have a basic right "Manage role".
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 403, 404, 409],
+  })
   @Delete('/:_id')
   @HasClanRights([ClanBasicRight.MANAGE_ROLE])
   @DetermineClanId()
@@ -58,6 +106,19 @@ export class ClanRoleController {
     return this.handleErrorReturnIfFound(errors);
   }
 
+  /**
+   * Set a role for a clan member
+   *
+   * @remarks Set a default or named role to a specified clan member.
+   *
+   * Notice that the role giver and the clan member must be in the same clan. Also the giver must have the basic clan role "Edit member rights"
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 403, 404],
+  })
   @Put('set')
   @HasClanRights([ClanBasicRight.EDIT_MEMBER_RIGHTS])
   @DetermineClanId()

@@ -33,6 +33,7 @@ import { AddSortQuery } from '../common/interceptor/request/addSortQuery.interce
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
+import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 
 @Controller('profile')
 export default class ProfileController {
@@ -41,6 +42,23 @@ export default class ProfileController {
     private readonly playerService: PlayerService,
   ) {}
 
+  /**
+   * Create a profile
+   *
+   * @remarks Create a user profile with Player object associated with it.
+   *
+   * Notice, that it is also possible in some edge cases to create a Profile without Player object associated with it,
+   * however it is not recommended and API expects that for every Profile there is a Player object created.
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: ProfileDto,
+      modelName: ModelName.PROFILE,
+      status: 201,
+    },
+    errors: [400, 409],
+    hasAuth: false,
+  })
   @NoAuth()
   @Post()
   @UniformResponse(ModelName.PROFILE, ProfileDto)
@@ -68,12 +86,40 @@ export default class ProfileController {
     return [createdProfile, errors];
   }
 
+  /**
+   * Get basic info about logged-in user
+   *
+   * @remarks Get basic info of the logged-in user:
+   *
+   * - Profile
+   * - Player
+   * - Clan
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: ProfileDto,
+      modelName: ModelName.PROFILE,
+    },
+    errors: [401],
+  })
   @Get('/info')
   @UniformResponse(ModelName.PROFILE, ProfileDto)
   async getLoggedUserInfo(@LoggedUser() user: User) {
     return this.service.getLoggedUserInfo(user.profile_id, user.player_id);
   }
 
+  /**
+   * Get profile information by _id
+   *
+   * @remarks Get profile information by _id
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: ProfileDto,
+      modelName: ModelName.PROFILE,
+    },
+    errors: [400, 401, 404],
+  })
   @Get('/:_id')
   @Authorize({ action: Action.read, subject: ProfileDto })
   @BasicGET(ModelName.PROFILE, ProfileDto)
@@ -82,6 +128,19 @@ export default class ProfileController {
     return this.service.readOneById(param._id, request['mongoPopulate']);
   }
 
+  /**
+   * Get all profiles
+   *
+   * @remarks Read logged-in user Profile data
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: ProfileDto,
+      modelName: ModelName.PROFILE,
+      returnsArray: true,
+    },
+    errors: [401, 404],
+  })
   @Get()
   @Authorize({ action: Action.read, subject: ProfileDto })
   @OffsetPaginate(ModelName.PROFILE)
@@ -92,6 +151,17 @@ export default class ProfileController {
     return this.service.readAll(query);
   }
 
+  /**
+   * Update profile of logged-in user
+   *
+   * @remarks Update logged-in user Profile data. Notice that only fields needed to be updated should be specified.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401],
+  })
   @Put()
   @Authorize({ action: Action.update, subject: UpdateProfileDto })
   @BasicPUT(ModelName.PROFILE)
@@ -99,6 +169,24 @@ export default class ProfileController {
     return this.service.updateOneById(body);
   }
 
+  /**
+   * Delete profile by _id
+   *
+   * @remarks Delete logged-in user's Profile.
+   *
+   * Notice, that Profile deletion will lead removing all user data, such as Player and CustomCharacters.
+   * Since the Player object is assosiated with the Clan, user will be also removed from the Clan.
+   *
+   * Notice, that if there was nobody in the Clan with all assosiated objects will be removed.
+   * However, in case if the user was admin in this Clan and there are no other admins the user must first set at least one admin for this Clan,
+   * overwise the Profile will not be removed and 403 will be returned.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 403],
+  })
   @Delete('/:_id')
   @HttpCode(204)
   @Authorize({ action: Action.delete, subject: ProfileDto })

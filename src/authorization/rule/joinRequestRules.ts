@@ -11,7 +11,6 @@ import { ClanDto } from '../../clan/dto/clan.dto';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { getClan_id } from '../util/getClan_id';
 import { isClanAdmin } from '../util/isClanAdmin';
-import { isType } from '../../common/base/decorator/AddType.decorator';
 import { PlayerLeaveClanDto } from '../../clan/join/dto/playerLeave.dto';
 import { RemovePlayerDTO } from '../../clan/join/dto/removePlayer.dto';
 

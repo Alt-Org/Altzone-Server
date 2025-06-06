@@ -9,6 +9,23 @@
         "include": "src/playerTasks/playerTasks.json",
         "outDir": "dist"
       }
+    ],
+    "plugins": [
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "dtoFileNameSuffix": [".dto.ts", ".schema.ts", "APIError.ts"],
+          "controllerFileNameSuffix": ".controller.ts",
+
+          "dtoKeyOfComment": "description",
+          "controllerKeyOfComment": "summary",
+
+          "classValidatorShim": true,
+          "introspectComments": true,
+          "skipAutoHttpCode": true,
+          "esmCompatible": false
+        }
+      }
     ]
   }
 }

@@ -12,9 +12,9 @@ Dev https://devapi.altzone.fi (dev branch)
 
 ## Swagger description
 
-1. [Latest swagger file version](https://github.com/Alt-Org/Altzone-Server/blob/dev/swagger/swagger.json) The most up-to-date API description
+1. [Download latest swagger file version](https://devapi.altzone.fi/swagger-json) The most up-to-date API description
 
-2. [Swagger on web](https://swagger.altzone.fi/)
+2. [Swagger on web](https://devapi.altzone.fi/swagger)
 
 
 ## Getting started

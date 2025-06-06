@@ -15,18 +15,27 @@ export interface ObjectType {
  *
  * @param type class objectType field to be added
  */
-export default function AddType(type: string) {
-  return function <T extends { new (...args: any[]): object }>(constructor: T) {
-    return class extends constructor {
-      objectType = type;
-
-      constructor(...args: any[]) {
-        super(...args);
-        Object.assign(this, { objectType: type });
-      }
-    };
+export default function AddType(type: string): ClassDecorator {
+  return (target: any) => {
+    Reflect.defineMetadata('objectType', type, target);
+    Object.defineProperty(target.prototype, 'objectType', {
+      value: type,
+      writable: true,
+    });
   };
 }
+// export default function AddType(type: string) {
+//   return function <T extends { new (...args: any[]): object }>(constructor: T) {
+//     return class extends constructor {
+//       objectType = type;
+//
+//       constructor(...args: any[]) {
+//         super(...args);
+//         Object.assign(this, { objectType: type });
+//       }
+//     };
+//   };
+// }
 
 /**
  * Determines whenever the object is of specified type or not

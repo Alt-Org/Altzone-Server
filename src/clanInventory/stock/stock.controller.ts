@@ -13,11 +13,26 @@ import { AddSearchQuery } from '../../common/interceptor/request/addSearchQuery.
 import { AddSortQuery } from '../../common/interceptor/request/addSortQuery.interceptor';
 import { OffsetPaginate } from '../../common/interceptor/request/offsetPagination.interceptor';
 import { IGetAllQuery } from '../../common/interface/IGetAllQuery';
+import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
 
 @Controller('stock')
 export class StockController {
   public constructor(private readonly service: StockService) {}
 
+  /**
+   * Get stock by _id
+   *
+   * @remarks Read Stock data by its _id field.
+   *
+   * Notice that everybody is able to read any Stock data.
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: StockDto,
+      modelName: ModelName.STOCK,
+    },
+    errors: [400, 401, 404],
+  })
   @Get('/:_id')
   @Authorize({ action: Action.read, subject: StockDto })
   @UniformResponse(ModelName.STOCK)
@@ -28,6 +43,19 @@ export class StockController {
     return this.service.readOneById(param._id, { includeRefs });
   }
 
+  /**
+   * Get all stocks
+   *
+   * @remarks Read all created Stocks of all Clans. Remember about the pagination
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: StockDto,
+      modelName: ModelName.STOCK,
+      returnsArray: true,
+    },
+    errors: [401, 404],
+  })
   @Get()
   @Authorize({ action: Action.read, subject: StockDto })
   @OffsetPaginate(ModelName.STOCK)

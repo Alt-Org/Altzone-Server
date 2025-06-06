@@ -13,11 +13,11 @@ import { BattleResultDto } from './dto/battleResult.dto';
 import { User } from '../auth/user';
 import { GameDto } from './dto/game.dto';
 import { BattleResponseDto } from './dto/battleResponse.dto';
-import { APIError } from '../common/controller/APIError';
-import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { RoomService } from '../clanInventory/room/room.service';
 import { GameEventsHandler } from '../gameEventsHandler/gameEventsHandler';
 import { GameEventType } from '../gameEventsHandler/enum/GameEventType.enum';
+import { IServiceReturn } from '../common/service/basicService/IService';
+import { SEReason } from '../common/service/basicService/SEReason';
 
 @Injectable()
 export class GameDataService {
@@ -48,7 +48,7 @@ export class GameDataService {
   async handleResultType(
     battleResult: BattleResultDto,
     user: User,
-  ): Promise<any> {
+  ): Promise<IServiceReturn<BattleResponseDto>> {
     const currentTime = new Date();
     const winningTeam =
       battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
@@ -59,11 +59,16 @@ export class GameDataService {
     );
 
     if (!playerInWinningTeam)
-      return new APIError({
-        reason: APIErrorReason.NOT_AUTHORIZED,
-        message:
-          'Player is not in the winning team and therefore is not allowed to steal',
-      });
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            message:
+              'Player is not in the winning team and therefore is not allowed to steal',
+          }),
+        ],
+      ];
 
     this.gameEventsBroker.handleEvent(
       user.player_id,
@@ -73,11 +78,11 @@ export class GameDataService {
       battleResult.team1[0],
       battleResult.team2[0],
     ]);
-    if (teamIdsErrors) return teamIdsErrors;
+    if (teamIdsErrors) return [null, teamIdsErrors];
 
     this.createGameIfNotExists(battleResult, teamIds, currentTime);
 
-    return await this.generateResponse(
+    return this.generateResponse(
       battleResult,
       teamIds.team1Id,
       teamIds.team2Id,
