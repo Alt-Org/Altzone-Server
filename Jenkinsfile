@@ -81,18 +81,16 @@ pipeline {
               string(credentialsId: 'alt-server-webhook-url', variable: 'WEBHOOK_URL')
             ]) {
               script {
-                def payload = "{ \"name\": \"api\", \"tag\": \"${env.BRANCH_NAME}\" }"
-
-                sh '''
-                  PAYLOAD='"${payload}"'
+                sh(script: '''
+                  PAYLOAD='{"name": "api", "tag": "dev"}'
                   SIGNATURE=$(echo "$PAYLOAD" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | sed 's/^.* //')
 
-                  curl -X POST "$WEBHOOK_URL" \
+                  curl -s -o /dev/null -X POST "$WEBHOOK_URL" \
                     -H "Content-Type: application/json" \
                     -H "X-Hub-Signature: sha256=$SIGNATURE" \
                     -d "$PAYLOAD" \
                     --insecure
-                '''
+                ''', label: 'Notify server')
               }
             }
           }
