@@ -80,16 +80,24 @@ pipeline {
               string(credentialsId: 'alt-server-webhook-secret', variable: 'WEBHOOK_SECRET'),
               string(credentialsId: 'alt-server-webhook-url', variable: 'WEBHOOK_URL')
             ]) {
-              sh '''
-                PAYLOAD='{}'
-                SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | sed 's/^.* //')
+              script {
+                def payload = """{ "name": "api", "tag": "${env.BRANCH_NAME}" }"""
 
-                curl -X POST "$WEBHOOK_URL" \
-                  -H "Content-Type: application/json" \
-                  -H "X-Hub-Signature: sha256=$SIGNATURE" \
-                  -d "$PAYLOAD" \
-                  --insecure
-              '''
+                // Generate HMAC signature safely
+                def signature = sh(
+                  script: "echo \"${payload}\" | openssl dgst -sha256 -hmac \"$WEBHOOK_SECRET\" | sed 's/^.* //'",
+                  returnStdout: true
+                ).trim()
+
+                // Send the request safely
+                sh """
+                  curl -X POST "$WEBHOOK_URL" \\
+                    -H "Content-Type: application/json" \\
+                    -H "X-Hub-Signature: sha256=$signature" \\
+                    -d "${payload}" \\
+                    --insecure
+                """
+              }
             }
           }
         }
