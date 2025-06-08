@@ -14,6 +14,8 @@ import { isClanExists } from '../../../clan/decorator/validation/IsClanExists.de
 import { PlayerCounterFactory } from '../../../clan/clan.counters';
 import { GameEventsEmitterModule } from '../../../gameEventsEmitter/gameEventsEmitter.module';
 import ClanRoleService from '../../../clan/role/clanRole.service';
+import { PlayerModule } from '../../../player/player.module';
+import { VotingModule } from '../../../voting/voting.module';
 
 export default class ClanCommonModule {
   private constructor() {}
@@ -33,7 +35,9 @@ export default class ClanCommonModule {
 
           ClanInventoryModule,
           RequestHelperModule,
+          PlayerModule,
           GameEventsEmitterModule,
+          VotingModule,
         ],
         providers: [
           ClanService,
