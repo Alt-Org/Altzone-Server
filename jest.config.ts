@@ -4,7 +4,6 @@ const root = '<rootDir>';
 const codeDir = `${root}/src`;
 const testDir = `${root}/src/__tests__`;
 
-/** @type {import('ts-jest').JestConfigWithTsJest} **/
 const config: Config = {
   verbose: true,
   moduleFileExtensions: ['js', 'json', 'ts'],
