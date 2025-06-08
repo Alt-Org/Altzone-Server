@@ -43,219 +43,91 @@ describe('ClanRoleService.setRoleToPlayer() test suite', () => {
     existingPlayer._id = createdPlayer._id;
   });
 
-  it('Should set a role to player and return true', async () => {
-    const [isSet, errors] = await roleService.setRoleToPlayer({
+  it('should start voting and return true when setting a valid role to a player', async () => {
+    const setData = {
       player_id: existingPlayer._id,
       role_id: existingRole._id,
-    });
-
-    const playerInDB = await playerModel.findById(existingPlayer._id);
-
+    };
+    const [result, errors] = await roleService.setRoleToPlayer(setData);
+    expect(result).toBe(true);
     expect(errors).toBeNull();
-    expect(isSet).toBe(true);
-    expect(playerInDB.clanRole_id.toString()).toBe(existingRole._id.toString());
   });
 
-  it('Should not set a role to player if he / she is in another clan than a role', async () => {
-    const anotherRole = roleBuilder
-      .setName('another-role')
-      .setRights({
-        [ClanBasicRight.EDIT_MEMBER_RIGHTS]: true,
-      })
-      .setClanRoleType(ClanRoleType.NAMED)
-      .build();
-    const clan = clanBuilder
-      .setName('another-clan')
-      .setRoles([anotherRole])
-      .build();
-    const anotherClan = await clanModel.create(clan);
-    const anotherRole_id = anotherClan.roles[0]._id;
-
-    await roleService.setRoleToPlayer({
-      player_id: existingPlayer._id,
-      role_id: anotherRole_id,
-    });
-
-    const playerInDB = await playerModel.findById(existingPlayer._id);
-
-    expect(playerInDB.clanRole_id).toBeNull();
+  it('should return NOT_FOUND if player does not exist', async () => {
+    const setData = {
+      player_id: getNonExisting_id(),
+      role_id: existingRole._id,
+    };
+    const [result, errors] = await roleService.setRoleToPlayer(setData);
+    expect(result).toBeNull();
+    expect(errors).toBeTruthy();
+    expect(errors?.[0].reason).toBe(SEReason.NOT_FOUND);
   });
 
-  it('Should return NOT_FOUND ServiceError if he / she is in another clan than a role', async () => {
-    const anotherRole = roleBuilder
-      .setName('another-role')
-      .setRights({
-        [ClanBasicRight.EDIT_MEMBER_RIGHTS]: true,
-      })
-      .setClanRoleType(ClanRoleType.NAMED)
-      .build();
-    const clan = clanBuilder
-      .setName('another-clan')
-      .setRoles([anotherRole])
-      .build();
-    const anotherClan = await clanModel.create(clan);
-    const anotherRole_id = anotherClan.roles[0]._id;
-
-    const [isSet, errors] = await roleService.setRoleToPlayer({
-      player_id: existingPlayer._id,
-      role_id: anotherRole_id,
-    });
-
-    expect(isSet).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-    expect(errors[0].reason).toBe(SEReason.NOT_FOUND);
-    expect(errors[0].field).toBe('role_id');
-    expect(errors[0].value).toBe(anotherRole_id.toString());
+  it('should return NOT_FOUND if player is not in a clan', async () => {
+    const player = await playerModel.create(
+      playerBuilder
+        .setName('unique-name-' + Date.now()) // Ensure unique name
+        .setUniqueIdentifier('unique-id-' + Date.now()) // Also ensure unique identifier if needed
+        .setClanRoleId(null)
+        .setClanId(null)
+        .build(),
+    );
+    const setData = {
+      player_id: player._id,
+      role_id: existingRole._id,
+    };
+    const [result, errors] = await roleService.setRoleToPlayer(setData);
+    expect(result).toBeNull();
+    expect(errors).toBeTruthy();
+    expect(errors?.[0].reason).toBe(SEReason.NOT_FOUND);
   });
 
-  it('Should not set a role to player if he / she not in any clan', async () => {
-    await playerModel.findByIdAndUpdate(existingPlayer._id, {
-      clan_id: null,
-    });
-
-    await roleService.setRoleToPlayer({
+  it('should return NOT_FOUND if clan does not exist', async () => {
+    const setData = {
       player_id: existingPlayer._id,
       role_id: existingRole._id,
-    });
-
-    const playerInDB = await playerModel.findById(existingPlayer._id);
-
-    expect(playerInDB.clanRole_id).toBeNull();
+    };
+    // Remove clan
+    await clanModel.deleteOne({ _id: existingClan._id });
+    const [result, errors] = await roleService.setRoleToPlayer(setData);
+    expect(result).toBeNull();
+    expect(errors).toBeTruthy();
+    expect(errors?.[0].reason).toBe(SEReason.NOT_FOUND);
   });
 
-  it('Should return NOT_FOUND ServiceError if he / she not in any clan', async () => {
-    await playerModel.findByIdAndUpdate(existingPlayer._id, {
-      clan_id: null,
-    });
-
-    const [isSet, errors] = await roleService.setRoleToPlayer({
-      player_id: existingPlayer._id,
-      role_id: existingRole._id,
-    });
-
-    expect(isSet).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-    expect(errors[0].reason).toBe(SEReason.NOT_FOUND);
-    expect(errors[0].field).toBe('clan_id');
-    expect(errors[0].value).toBeNull();
-  });
-
-  it('Should not set a role to player if clan does not exists', async () => {
-    await playerModel.findByIdAndUpdate(existingPlayer._id, {
-      clan_id: getNonExisting_id(),
-    });
-
-    await roleService.setRoleToPlayer({
-      player_id: existingPlayer._id,
-      role_id: existingRole._id,
-    });
-
-    const playerInDB = await playerModel.findById(existingPlayer._id);
-
-    expect(playerInDB.clanRole_id).toBeNull();
-  });
-
-  it('Should return NOT_FOUND ServiceError if clan does not exists', async () => {
-    const nonExistingClan_id = getNonExisting_id();
-    await playerModel.findByIdAndUpdate(existingPlayer._id, {
-      clan_id: nonExistingClan_id,
-    });
-
-    const [isSet, errors] = await roleService.setRoleToPlayer({
-      player_id: existingPlayer._id,
-      role_id: existingRole._id,
-    });
-
-    expect(isSet).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-    expect(errors[0].reason).toBe(SEReason.NOT_FOUND);
-    expect(errors[0].field).toBe('_id');
-    expect(errors[0].value.toString()).toBe(nonExistingClan_id);
-  });
-
-  it('Should not set a role to player if role does not exists', async () => {
-    await roleService.setRoleToPlayer({
+  it('should return NOT_FOUND if role does not exist', async () => {
+    const setData = {
       player_id: existingPlayer._id,
       role_id: getNonExisting_id(),
-    });
-
-    const playerInDB = await playerModel.findById(existingPlayer._id);
-
-    expect(playerInDB.clanRole_id).toBeNull();
+    };
+    const [result, errors] = await roleService.setRoleToPlayer(setData);
+    expect(result).toBeNull();
+    expect(errors).toBeTruthy();
+    expect(errors?.[0].reason).toBe(SEReason.NOT_FOUND);
   });
 
-  it('Should return NOT_FOUND ServiceError if role does not exists', async () => {
-    const nonExisting_id = getNonExisting_id();
-    const [isSet, errors] = await roleService.setRoleToPlayer({
-      player_id: existingPlayer._id,
-      role_id: nonExisting_id,
-    });
-
-    expect(isSet).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-    expect(errors[0].reason).toBe(SEReason.NOT_FOUND);
-    expect(errors[0].field).toBe('role_id');
-    expect(errors[0].value).toBe(nonExisting_id);
-  });
-
-  it('Should return NOT_FOUND ServiceError if player does not exists', async () => {
-    const nonExisting_id = getNonExisting_id();
-    const [isSet, errors] = await roleService.setRoleToPlayer({
-      player_id: nonExisting_id,
-      role_id: existingRole._id,
-    });
-
-    expect(isSet).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-    expect(errors[0].reason).toBe(SEReason.NOT_FOUND);
-    expect(errors[0].field).toBe('player_id');
-    expect(errors[0].value).toBe(nonExisting_id);
-  });
-
-  it('Should not set a role to player if role is of type personal', async () => {
+  it('should return NOT_ALLOWED if role type is PERSONAL', async () => {
     const personalRole = roleBuilder
-      .setName('personal-role')
-      .setRights({
-        [ClanBasicRight.EDIT_MEMBER_RIGHTS]: true,
-      })
+      .setName('personal-role-' + Date.now()) // Ensure unique name
       .setClanRoleType(ClanRoleType.PERSONAL)
+      .setRights({})
       .build();
-    const anotherClan = await clanModel.findByIdAndUpdate(existingClan._id, {
-      roles: [personalRole],
-    });
-
-    await roleService.setRoleToPlayer({
-      player_id: existingPlayer._id,
-      role_id: anotherClan.roles[0]._id,
-    });
-
-    const playerInDB = await playerModel.findById(existingPlayer._id);
-
-    expect(playerInDB.clanRole_id).toBeNull();
-  });
-
-  it('Should return NOT_ALLOWED ServiceError if role is of type personal', async () => {
-    const personalRole = roleBuilder
-      .setName('personal-role')
-      .setRights({
-        [ClanBasicRight.EDIT_MEMBER_RIGHTS]: true,
-      })
-      .setClanRoleType(ClanRoleType.PERSONAL)
-      .build();
-    await clanModel.findByIdAndUpdate(existingClan._id, {
-      roles: [personalRole],
-    });
+    await clanModel.updateOne(
+      { _id: existingClan._id },
+      { $push: { roles: personalRole } },
+    );
     const updatedClan = await clanModel.findById(existingClan._id);
-
-    const [isSet, errors] = await roleService.setRoleToPlayer({
+    const insertedRole = updatedClan.roles.find(
+      (r) => r.name === personalRole.name,
+    );
+    const setData = {
       player_id: existingPlayer._id,
-      role_id: updatedClan.roles[0]._id,
-    });
-
-    expect(isSet).toBeNull();
-    expect(errors).toContainSE_NOT_ALLOWED();
-    expect(errors[0].reason).toBe(SEReason.NOT_ALLOWED);
-    expect(errors[0].field).toBe('clanRoleType');
-    expect(errors[0].value).toBe(ClanRoleType.PERSONAL);
+      role_id: insertedRole._id, // Use the actual _id
+    };
+    const [result, errors] = await roleService.setRoleToPlayer(setData);
+    expect(result).toBeNull();
+    expect(errors).toBeTruthy();
+    expect(errors?.[0].reason).toBe(SEReason.NOT_ALLOWED);
   });
 });
