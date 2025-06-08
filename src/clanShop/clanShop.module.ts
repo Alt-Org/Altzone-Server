@@ -6,9 +6,9 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { PlayerSchema } from '../player/schemas/player.schema';
 import { ClanShopService } from './clanShop.service';
 import { ClanModule } from '../clan/clan.module';
+import { ClanInventoryModule } from '../clanInventory/clanInventory.module';
 import { VotingModule } from '../voting/voting.module';
 import { PlayerModule } from '../player/player.module';
-import ItemModule from '../__tests__/clanInventory/modules/item.module';
 import { ItemService } from '../clanInventory/item/item.service';
 import { ItemSchema } from '../clanInventory/item/item.schema';
 import { ClanShopVotingProcessor } from './clanShopVoting.processor';
@@ -24,7 +24,7 @@ import { ClanSchema } from '../clan/clan.schema';
     ClanModule,
     VotingModule,
     PlayerModule,
-    ItemModule,
+    ClanInventoryModule,
   ],
   providers: [
     ClanShopScheduler,
