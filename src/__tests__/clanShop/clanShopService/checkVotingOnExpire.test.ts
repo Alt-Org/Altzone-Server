@@ -6,7 +6,7 @@ import ClanShopModule from '../modules/clanShop.module';
 import LoggedUser from '../../test_utils/const/loggedUser';
 import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryBuilderFactory';
 import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
-import { ItemVoteChoice } from '../../../voting/enum/choiceType.enum';
+import { VoteChoice } from '../../../voting/enum/choiceType.enum';
 import { VotingQueueName } from '../../../voting/enum/VotingQueue.enum';
 import { itemProperties } from '../../../clanInventory/item/const/itemProperties';
 
@@ -64,12 +64,12 @@ describe('ClanShopService.checkVotingOnExpire() test suite', () => {
 
   it('Should process a successful vote and create an item', async () => {
     const voteToCreate = voteBuilder
-      .setChoice(ItemVoteChoice.YES)
+      .setChoice(VoteChoice.YES)
       .setPlayerId(new ObjectId().toString())
       .build();
     const votingToCreate = votingBuilder
       .addVote(voteToCreate)
-      .setEntityName(item.name)
+      .setShopItemName(item.name)
       .build();
     const createdVoting = await votingModel.create(votingToCreate);
 
@@ -92,15 +92,15 @@ describe('ClanShopService.checkVotingOnExpire() test suite', () => {
 
   it('Should process a rejected vote and return funds to the clan', async () => {
     const failingVoteToCreate = voteBuilder
-      .setChoice(ItemVoteChoice.NO)
+      .setChoice(VoteChoice.NO)
       .setPlayerId(new ObjectId().toString())
       .build();
     const failingVoteToCreate2 = voteBuilder
-      .setChoice(ItemVoteChoice.NO)
+      .setChoice(VoteChoice.NO)
       .setPlayerId(new ObjectId().toString())
       .build();
     const failingVotingToCreate = votingBuilder
-      .setEntityName(item.name)
+      .setShopItemName(item.name)
       .addVote(failingVoteToCreate)
       .addVote(failingVoteToCreate2)
       .build();

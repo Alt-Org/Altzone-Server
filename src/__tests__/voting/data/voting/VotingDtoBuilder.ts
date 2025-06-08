@@ -5,6 +5,7 @@ import { VotingDto } from '../../../../voting/dto/voting.dto';
 import { VotingType } from '../../../../voting/enum/VotingType.enum';
 import { ObjectId } from 'mongodb';
 import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
+import { SetClanRole } from '../../../../voting/schemas/setClanRole.schema';
 
 export default class VotingDtoBuilder implements IDataBuilder<VotingDto> {
   private readonly base: Partial<VotingDto> = {
@@ -16,12 +17,13 @@ export default class VotingDtoBuilder implements IDataBuilder<VotingDto> {
     startedAt: new Date(),
     endedAt: new Date(Date.now() + 600000),
     endsOn: new Date(Date.now() + 1200000),
-    type: VotingType.BUYING_ITEM,
+    type: VotingType.FLEA_MARKET_BUY_ITEM,
     player_ids: [new ObjectId().toString()],
     minPercentage: 50,
     votes: [],
-    entity_id: new ObjectId().toString(),
-    entity_name: undefined,
+    fleaMarketItem_id: new ObjectId().toString(),
+    shopItemName: undefined,
+    setClanRole: undefined,
   };
 
   build(): VotingDto {
@@ -81,13 +83,18 @@ export default class VotingDtoBuilder implements IDataBuilder<VotingDto> {
     return this;
   }
 
-  setEntityId(entityId: string) {
-    this.base.entity_id = entityId;
+  setFleaMarketItemId(itemId: string) {
+    this.base.fleaMarketItem_id = itemId;
     return this;
   }
 
-  setEntityName(entityName: ItemName) {
-    this.base.entity_name = entityName;
+  setShopItemName(itemName: ItemName) {
+    this.base.shopItemName = itemName;
+    return this;
+  }
+
+  setSetClanRole(setClanRole: SetClanRole) {
+    this.base.setClanRole = setClanRole;
     return this;
   }
 }

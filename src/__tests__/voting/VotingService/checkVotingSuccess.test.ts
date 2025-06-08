@@ -1,7 +1,7 @@
 import VotingBuilderFactory from '../data/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
-import { ItemVoteChoice } from '../../../voting/enum/choiceType.enum';
+import { VoteChoice } from '../../../voting/enum/choiceType.enum';
 
 describe('VotingService.checkVotingSuccess() test suite', () => {
   let votingService: VotingService;
@@ -13,7 +13,7 @@ describe('VotingService.checkVotingSuccess() test suite', () => {
   });
 
   it('Should return true if Yes Percentage of votes >= minPercentage of voting', async () => {
-    const vote = voteBuilder.setChoice(ItemVoteChoice.YES).build();
+    const vote = voteBuilder.setChoice(VoteChoice.YES).build();
     const minPercentage = 1;
     const votingDto = votingBuilder
       .setMinPercentage(minPercentage)
@@ -26,7 +26,7 @@ describe('VotingService.checkVotingSuccess() test suite', () => {
   });
 
   it('Should return false if Yes Percentage of votes < minPercentage of voting', async () => {
-    const vote = voteBuilder.setChoice(ItemVoteChoice.NO).build();
+    const vote = voteBuilder.setChoice(VoteChoice.NO).build();
     const minPercentage = 100;
     const votingDto = votingBuilder
       .setMinPercentage(minPercentage)
