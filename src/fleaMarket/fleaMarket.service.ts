@@ -206,7 +206,9 @@ export class FleaMarketService {
     session.startTransaction();
 
     const [item, itemErrors] =
-      await this.basicService.readOneById<FleaMarketItemDto>(voting.entity_id);
+      await this.basicService.readOneById<FleaMarketItemDto>(
+        voting.fleaMarketItem_id,
+      );
     if (itemErrors) await this.cancelTransaction(session, itemErrors);
 
     const newItem = await this.helperService.fleaMarketItemToCreateItemDto(
@@ -220,7 +222,7 @@ export class FleaMarketService {
     }
 
     const [__, itemDeleteErrors] = await this.basicService.deleteOneById(
-      voting.entity_id,
+      voting.fleaMarketItem_id,
     );
     if (itemDeleteErrors)
       await this.cancelTransaction(session, itemDeleteErrors);
@@ -247,7 +249,7 @@ export class FleaMarketService {
     session.startTransaction();
 
     const [_, updateErrors] = await this.basicService.updateOneById(
-      voting.entity_id,
+      voting.fleaMarketItem_id,
       { status: Status.AVAILABLE },
     );
     if (updateErrors) await this.cancelTransaction(session, updateErrors);

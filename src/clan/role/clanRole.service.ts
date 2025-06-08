@@ -20,7 +20,7 @@ import { PlayerDto } from '../../player/dto/player.dto';
 import { VotingType } from '../../voting/enum/VotingType.enum';
 import { VotingQueue } from '../../voting/voting.queue';
 import { VotingQueueName } from '../../voting/enum/VotingQueue.enum';
-import { CronExpression } from '@nestjs/schedule';
+import { VotingDto } from '../../voting/dto/voting.dto';
 
 /**
  * Manages clan roles
@@ -186,13 +186,10 @@ export default class ClanRoleService {
   }
 
   /**
-   * Sets a role to a specified player. Notice that the role must be of type default or named.
+   * Starts the voting of setting a clan role for a player.
    *
-   * @param setData payload for setting clan role
-   *
-   * @returns true if role is set or ServiceErrors:
-   * - NOT_FOUND if the player is not found, player is not in any clan or if the clan or role is not found
-   * - NOT_ALLOWED if the role is of type personal
+   * @param setData - Data containing the player ID and the role ID to set.
+   * @returns A tuple where the first element is true if the operation was initiated successfully, or null if there was an error. The second element is null if successful, or an array of ServiceError objects if there were errors.
    */
   async setRoleToPlayer(
     setData: SetClanRoleDto,
@@ -364,9 +361,7 @@ export default class ClanRoleService {
    * @param params - The parameters containing the voting object to process.
    * @returns True or ServiceErrors if updating the role or deleting the voting fails.
    */
-  async checkVotingOnExpire(params: VotingQueueParams) {
-    const { voting } = params;
-
+  async checkVotingOnExpire(voting: VotingDto) {
     const votePassed = await this.votingService.checkVotingSuccess(voting);
     if (votePassed) {
       const [, updateErrors] = await this.playerService.updateOneById(

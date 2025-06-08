@@ -83,13 +83,13 @@ export class VotingDto {
   votes: Vote[];
 
   /**
-   * ID of the entity being voted on (e.g., item, character)
+   * ID of the fleaMarketItem being voted on (e.g., item, character)
    *
    * @example "6630af1234cd5ef001a1b4c5"
    */
   @ExtractField()
   @Expose()
-  entity_id: string;
+  fleaMarketItem_id: string;
 
   /**
    * Name of the item (or other entity) associated with the voting
@@ -97,7 +97,7 @@ export class VotingDto {
    * @example "Sofa_Taakka"
    */
   @Expose()
-  entity_name: ItemName;
+  shopItemName: ItemName;
 
   /**
    * Information about the clan role assignment for a player.

@@ -15,6 +15,6 @@ export class ClanRoleVotingProcessor extends WorkerHost {
    * @param job - The job to be processed.
    */
   async process(job: Job<VotingQueueParams>): Promise<any> {
-    await this.clanRoleService.checkVotingOnExpire(job.data);
+    await this.clanRoleService.checkVotingOnExpire(job.data.voting);
   }
 }

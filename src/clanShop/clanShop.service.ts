@@ -165,7 +165,7 @@ export class ClanShopService {
    * @returns A promise that resolves to the created item.
    */
   private async handleVotePassed(voting: VotingDto, stockId: string) {
-    const newItem = this.getCreateItemDto(voting.entity_name, stockId);
+    const newItem = this.getCreateItemDto(voting.shopItemName, stockId);
     return await this.itemService.createOne(newItem);
   }
 

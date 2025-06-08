@@ -30,7 +30,7 @@ export class Voting {
   votes: Vote[];
 
   @Prop({ type: MongooseSchema.Types.ObjectId })
-  fleaMarketItem?: string;
+  fleaMarketItem_id?: string;
 
   @Prop({ type: String, enum: ItemName })
   shopItem?: ItemName;
