@@ -6,4 +6,5 @@
 export enum VotingQueueName {
   CLAN_SHOP = 'clan_shop',
   FLEA_MARKET = 'flea_market',
+  CLAN_ROLE = 'clan_role',
 }

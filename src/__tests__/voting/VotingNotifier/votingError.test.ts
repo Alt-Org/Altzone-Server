@@ -26,13 +26,13 @@ describe('VotingNotifier.votingError() test suite', () => {
       .build();
     const apiError = TestUtilDataFactory.getBuilder('APIError').build();
 
-    const expectedTopic = `/${NotificationGroup.CLAN}/${organizer.clan_id}/${NotificationResource.VOTING}/${VotingType.SELLING_ITEM}/${NotificationStatus.ERROR}`;
+    const expectedTopic = `/${NotificationGroup.CLAN}/${organizer.clan_id}/${NotificationResource.VOTING}/${VotingType.FLEA_MARKET_SELL_ITEM}/${NotificationStatus.ERROR}`;
     const expectedPayload = JSON.stringify(apiError);
 
     const { publishAsyncMock } = createMockMqttClient();
     await votingNotifier.votingError(
       organizer.clan_id,
-      VotingType.SELLING_ITEM,
+      VotingType.FLEA_MARKET_SELL_ITEM,
       apiError,
     );
 

@@ -5,7 +5,7 @@ export type VotingQueueParams = {
   voting: VotingDto;
   clanId?: string;
   price?: number;
-  stockId: string;
+  stockId?: string;
   fleaMarketItemId?: string;
   queue: VotingQueueName;
 };

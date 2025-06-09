@@ -18,7 +18,7 @@ export default class VotingNotifier {
 
   private async buildPayload(
     voting: VotingDto,
-    item: Partial<FleaMarketItemDto>,
+    entity: any,
     status: NotificationStatus,
     player?: PlayerDto,
   ): Promise<VotingPayload> {
@@ -29,7 +29,7 @@ export default class VotingNotifier {
       status,
       voting_id: voting._id.toString(),
       type: voting.type,
-      item,
+      entity,
     };
 
     if (status === NotificationStatus.NEW) payload.organizer = player;
@@ -42,14 +42,10 @@ export default class VotingNotifier {
    * Sends a notification for a new voting
    * @param voting - The voting details
    */
-  async newVoting(
-    voting: VotingDto,
-    item: Partial<FleaMarketItemDto>,
-    player: PlayerDto,
-  ) {
+  async newVoting(voting: VotingDto, entity: any, player: PlayerDto) {
     const payload = await this.buildPayload(
       voting,
-      item,
+      entity,
       NotificationStatus.NEW,
       player,
     );

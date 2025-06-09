@@ -14,9 +14,9 @@ export default class CreateVotingDtoBuilder
       clan_id: new ObjectId().toString(),
     },
     endsOn: new Date(Date.now() + 3600000),
-    type: VotingType.BUYING_ITEM,
+    type: VotingType.FLEA_MARKET_BUY_ITEM,
     minPercentage: 50,
-    entity_id: new ObjectId().toString(),
+    fleaMarketItem_id: new ObjectId().toString(),
     votes: [],
   };
 
@@ -44,8 +44,8 @@ export default class CreateVotingDtoBuilder
     return this;
   }
 
-  setEntityId(entityId: string) {
-    this.base.entity_id = entityId;
+  setFleamarketItemId(itemId: string) {
+    this.base.fleaMarketItem_id = itemId;
     return this;
   }
 

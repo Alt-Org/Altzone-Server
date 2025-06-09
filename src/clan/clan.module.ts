@@ -16,6 +16,8 @@ import { PlayerModule } from '../player/player.module';
 import { GameEventsEmitterModule } from '../gameEventsEmitter/gameEventsEmitter.module';
 import ClanRoleService from './role/clanRole.service';
 import { ClanRoleController } from './role/clanRole.controller';
+import { VotingModule } from '../voting/voting.module';
+import { ClanRoleVotingProcessor } from './role/clanRole.processor';
 
 @Module({
   imports: [
@@ -28,6 +30,7 @@ import { ClanRoleController } from './role/clanRole.controller';
     RequestHelperModule,
     PlayerModule,
     GameEventsEmitterModule,
+    VotingModule,
   ],
   controllers: [ClanController, ClanRoleController],
   providers: [
@@ -37,7 +40,8 @@ import { ClanRoleController } from './role/clanRole.controller';
     JoinService,
     ClanHelperService,
     ClanRoleService,
+    ClanRoleVotingProcessor,
   ],
-  exports: [ClanService, PlayerCounterFactory],
+  exports: [ClanService, PlayerCounterFactory, ClanRoleService],
 })
 export class ClanModule {}

@@ -4,7 +4,7 @@ import { ExternalDocumentationObject } from '@nestjs/swagger/dist/interfaces/ope
  * Swagger tag name
  */
 export type SwaggerTagName =
-  | 'Release on 01.06.2025'
+  | 'Release on 15.06.2025'
   | 'in-development'
   | 'Profile'
   | 'Auth'
@@ -32,8 +32,8 @@ export type SwaggerTagName =
  *
  */
 export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
-  'Release on 01.06.2025': {
-    name: 'Release on 01.06.2025',
+  'Release on 15.06.2025': {
+    name: 'Release on 15.06.2025',
     description: 'Changes made on release 01.06.2025',
   },
 

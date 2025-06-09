@@ -7,14 +7,17 @@ import { VotingService } from './voting.service';
 import { PlayerModule } from '../player/player.module';
 import { BullModule } from '@nestjs/bullmq';
 import { VotingQueue } from './voting.queue';
+import { VotingQueueName } from './enum/VotingQueue.enum';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Voting.name, schema: VotingSchema }]),
     PlayerModule,
-    BullModule.registerQueue({
-      name: 'voting',
-    }),
+    BullModule.registerQueue(
+      { name: VotingQueueName.CLAN_ROLE },
+      { name: VotingQueueName.CLAN_SHOP },
+      { name: VotingQueueName.FLEA_MARKET },
+    ),
   ],
   providers: [VotingService, VotingNotifier, VotingQueue],
   controllers: [VotingController],

@@ -34,7 +34,7 @@ describe('VotingNotifier.newVoting() test suite', () => {
       status: NotificationStatus.NEW,
       voting_id: votingDto._id.toString(),
       type: votingDto.type,
-      item: fleaMarketItem,
+      entity: fleaMarketItem,
       organizer: playerDto,
     });
 

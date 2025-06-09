@@ -3,9 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { CreateVotingDto } from './dto/createVoting.dto';
-import { ItemVoteChoice } from './enum/choiceType.enum';
+import { VoteChoice } from './enum/choiceType.enum';
 import VotingNotifier from './voting.notifier';
-import { StartItemVotingParams } from './type/startItemVoting.type';
+import { StartVotingParams } from './type/startItemVoting.type';
 import { Voting } from './schemas/voting.schema';
 import { VotingDto } from './dto/voting.dto';
 import ServiceError from '../common/service/basicService/ServiceError';
@@ -15,6 +15,7 @@ import { alreadyVotedError } from './error/alreadyVoted.error';
 import { Vote } from './schemas/vote.schema';
 import { ModelName } from '../common/enum/modelName.enum';
 import { addVoteError } from './error/addVote.error';
+import { VotingQueue } from './voting.queue';
 
 @Injectable()
 export class VotingService {
@@ -22,6 +23,7 @@ export class VotingService {
     @InjectModel(Voting.name) public readonly model: Model<Voting>,
     private readonly notifier: VotingNotifier,
     private readonly playerService: PlayerService,
+    private readonly votingQueue: VotingQueue,
   ) {
     this.basicService = new BasicService(model);
   }
@@ -50,20 +52,34 @@ export class VotingService {
    *
    * @throws - Throws an error if validation fails or if there are errors creating the voting.
    */
-  async startItemVoting(
-    params: StartItemVotingParams,
+  async startVoting(
+    params: StartVotingParams,
   ): Promise<[VotingDto, ServiceError[]]> {
-    const { player, item, clanId, type } = params;
+    const {
+      voterPlayer,
+      type,
+      queue,
+      clanId,
+      fleaMarketItem,
+      shopItem,
+      setClanRole,
+      endsOn,
+    } = params;
 
     const newVoting: CreateVotingDto = {
-      organizer: { player_id: player._id.toString(), clan_id: clanId },
-      type: type,
-      ...((item._id && { entity_id: item._id }) || { entity_name: item.name }),
+      organizer: { player_id: voterPlayer._id.toString(), clan_id: clanId },
+      type,
+      ...(fleaMarketItem && {
+        fleaMarketItem_id: fleaMarketItem._id.toString(),
+      }),
+      ...(shopItem && { shopItemName: shopItem }),
+      ...(setClanRole && { setClanRole }),
+      ...(endsOn && { endsOn }),
     };
 
     const newVote = {
-      player_id: player._id.toString(),
-      choice: ItemVoteChoice.YES,
+      player_id: voterPlayer._id.toString(),
+      choice: VoteChoice.YES,
     };
 
     newVoting.votes = [newVote];
@@ -71,7 +87,17 @@ export class VotingService {
     const [voting, errors] = await this.createOne(newVoting);
     if (errors) return [null, errors];
 
-    this.notifier.newVoting(voting, item, player);
+    this.notifier.newVoting(voting, shopItem ?? fleaMarketItem, voterPlayer);
+
+    this.votingQueue.addVotingCheckJob({
+      voting,
+      clanId,
+      queue,
+      ...(fleaMarketItem && {
+        fleaMarketItemId: fleaMarketItem._id.toString(),
+      }),
+    });
+
     return [voting, null];
   }
 
@@ -83,7 +109,7 @@ export class VotingService {
    */
   async checkVotingSuccess(voting: VotingDto) {
     const yesVotes = voting.votes.filter(
-      (vote) => vote.choice === ItemVoteChoice.YES,
+      (vote) => vote.choice === VoteChoice.YES,
     ).length;
     const totalVotes = voting.votes.length;
     const yesPercentage = (yesVotes / totalVotes) * 100;

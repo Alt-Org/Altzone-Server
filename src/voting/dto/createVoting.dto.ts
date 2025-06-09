@@ -13,6 +13,7 @@ import { Vote } from '../schemas/vote.schema';
 import { Type } from 'class-transformer';
 import { Organizer } from './organizer.dto';
 import { ItemName } from '../../clanInventory/item/enum/itemName.enum';
+import SetClanRoleDto from '../../clan/role/dto/setClanRole.dto';
 
 @AddType('CreateVotingDto')
 export class CreateVotingDto {
@@ -50,13 +51,13 @@ export class CreateVotingDto {
   minPercentage?: number;
 
   /**
-   * Optional entity ID that the vote is tied to (e.g., item or character)
+   * Optional flea market item ID that the vote is tied to (e.g., item or character)
    *
    * @example "662f4f1235faaf001ef7b5cd"
    */
   @IsMongoId()
   @IsOptional()
-  entity_id?: string;
+  fleaMarketItem_id?: string;
 
   /**
    * Optional item name the voting is associated with
@@ -65,7 +66,7 @@ export class CreateVotingDto {
    */
   @IsEnum(ItemName)
   @IsOptional()
-  entity_name?: ItemName;
+  shopItemName?: ItemName;
 
   /**
    * Optional list of votes included in the voting object
@@ -73,4 +74,12 @@ export class CreateVotingDto {
   @IsArray()
   @IsOptional()
   votes?: Vote[];
+
+  /**
+   * Optional type that contains the player ID and role ID
+   */
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SetClanRoleDto)
+  setClanRole?: SetClanRoleDto;
 }

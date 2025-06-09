@@ -35,7 +35,7 @@ describe('VotingNotifier.votingUpdated() test suite', () => {
       status: NotificationStatus.UPDATE,
       voting_id: votingDto._id.toString(),
       type: votingDto.type,
-      item: fleaMarketItem,
+      entity: fleaMarketItem,
       voter: playerDto as PlayerDto,
     });
 
