@@ -86,6 +86,12 @@ export default class ProfileController {
     return [createdProfile, errors];
   }
 
+  @NoAuth()
+  @Post("/guest")
+  public async createGuest() {
+    return await this.service.createGuestAccount();
+  }
+
   /**
    * Get basic info about logged-in user
    *

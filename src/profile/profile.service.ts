@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model, Types } from 'mongoose';
+import { Model, MongooseError, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Profile, ProfileDocument } from './profile.schema';
 import { RequestHelperService } from '../requestHelper/requestHelper.service';
@@ -17,6 +17,8 @@ import BasicService from '../common/service/basicService/BasicService';
 import { CreateProfileDto } from './dto/createProfile.dto';
 import { ProfileDto } from './dto/profile.dto';
 import { IServiceReturn } from '../common/service/basicService/IService';
+import { PasswordGenerator } from '../common/function/passwordGenerator';
+import { AuthService } from '../auth/auth.service';
 
 const ARGON2_CONFIG = {
   type: argon2.argon2id,
@@ -35,6 +37,8 @@ export class ProfileService
     @InjectModel(Profile.name) public readonly model: Model<Profile>,
     private readonly playerService: PlayerService,
     private readonly requestHelperService: RequestHelperService,
+    private readonly passwordGenerator: PasswordGenerator,
+    private readonly authService: AuthService,
   ) {
     super();
     this.refsInModel = [ModelName.PLAYER];
@@ -63,6 +67,34 @@ export class ProfileService
       ...profile,
       password: hashedPassword,
     });
+  }
+
+  async createGuestAccount(
+  ): Promise<object> {
+    const password = this.passwordGenerator.generatePassword('fi');
+    const username = "guest-account"+password;
+    const isGuest = true;
+
+    const [createdProfile, errors] =
+      await this.createWithHashedPassword({username, password, isGuest} as CreateProfileDto);
+
+    if (errors) return [null, errors];
+
+    const createdProfile_id = createdProfile._id;
+    try {
+      const playerResp = await this.playerService
+      .createOne({profile_id: createdProfile_id, name: username, uniqueIdentifier: username,
+         backpackCapacity: 0});
+
+      if (playerResp && !(playerResp instanceof MongooseError))
+        createdProfile.Player = playerResp.data[playerResp.metaData.dataKey];
+
+    } catch (e) {
+      await this.deleteOneById(createdProfile_id);
+      throw e;
+      }
+
+    return await this.authService.signIn(username, password);
   }
 
   public clearCollectionReferences = async (
