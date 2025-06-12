@@ -72,7 +72,7 @@ export class ProfileService
   async createGuestAccount(
   ): Promise<object> {
     const password = this.passwordGenerator.generatePassword('fi');
-    const username = "guest-account"+password;
+    const username = "guest-account-" + password;
     const isGuest = true;
 
     const [createdProfile, errors] =
@@ -80,19 +80,14 @@ export class ProfileService
 
     if (errors) return [null, errors];
 
-    const createdProfile_id = createdProfile._id;
     try {
-      const playerResp = await this.playerService
-      .createOne({profile_id: createdProfile_id, name: username, uniqueIdentifier: username,
-         backpackCapacity: 0});
-
-      if (playerResp && !(playerResp instanceof MongooseError))
-        createdProfile.Player = playerResp.data[playerResp.metaData.dataKey];
-
+      await this.playerService
+        .createOne({profile_id: createdProfile._id, name: username, uniqueIdentifier: username,
+          backpackCapacity: 0});
     } catch (e) {
-      await this.deleteOneById(createdProfile_id);
+      await this.deleteOneById(createdProfile._id);
       throw e;
-      }
+    }
 
     return await this.authService.signIn(username, password);
   }
