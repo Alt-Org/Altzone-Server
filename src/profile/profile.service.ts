@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model, MongooseError, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Profile, ProfileDocument } from './profile.schema';
 import { RequestHelperService } from '../requestHelper/requestHelper.service';
