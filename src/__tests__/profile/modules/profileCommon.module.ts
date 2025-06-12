@@ -7,6 +7,15 @@ import { RequestHelperModule } from '../../../requestHelper/requestHelper.module
 import { ProfileSchema } from '../../../profile/profile.schema';
 import { ProfileService } from '../../../profile/profile.service';
 import { isProfileExists } from '../../../profile/decorator/validation/IsProfileExists.decorator';
+import { PasswordGenerator } from '../../../common/function/passwordGenerator';
+import { AuthService } from '../../../auth/auth.service';
+import { AuthServiceProvider } from '../../../auth/authService.provider';
+import BoxAuthService from '../../../auth/box/BoxAuthService';
+import { ClanSchema } from '../../../clan/clan.schema';
+import { PlayerSchema } from '../../../player/schemas/player.schema';
+import { BoxSchema } from '../../../box/schemas/box.schema';
+import { GroupAdminSchema } from '../../../box/groupAdmin/groupAdmin.schema';
+import { JwtService } from '@nestjs/jwt';
 
 export default class ProfileCommonModule {
   private constructor() {}
@@ -20,12 +29,23 @@ export default class ProfileCommonModule {
           MongooseModule.forRoot(mongoString, mongooseOptions),
           MongooseModule.forFeature([
             { name: ModelName.PROFILE, schema: ProfileSchema },
+            { name: ModelName.CLAN, schema: ClanSchema },
+            { name: ModelName.PLAYER, schema: PlayerSchema },
+            { name: ModelName.BOX, schema: BoxSchema },
+            { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
           ]),
-
           PlayerModule,
           RequestHelperModule,
         ],
-        providers: [ProfileService, isProfileExists],
+        providers: [
+          ProfileService,
+          isProfileExists,
+          PasswordGenerator,
+          AuthService,
+          AuthServiceProvider,
+          BoxAuthService,
+          JwtService,
+        ],
       }).compile();
 
     return ProfileCommonModule.module;
