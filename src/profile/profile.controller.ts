@@ -34,12 +34,14 @@ import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
+import { AuthService } from '../auth/auth.service';
 
 @Controller('profile')
 export default class ProfileController {
   public constructor(
     private readonly service: ProfileService,
     private readonly playerService: PlayerService,
+    private readonly authService: AuthService,
   ) {}
 
   /**
@@ -89,7 +91,12 @@ export default class ProfileController {
   @NoAuth()
   @Post("/guest")
   public async createGuest() {
-    return await this.service.createGuestAccount();
+    const { username, password } = await this.service.createGuestAccount() as {
+      username: string;
+      password: string;
+    };
+
+    return await this.authService.signIn(username, password,);
   }
 
   /**

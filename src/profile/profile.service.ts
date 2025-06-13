@@ -18,7 +18,6 @@ import { CreateProfileDto } from './dto/createProfile.dto';
 import { ProfileDto } from './dto/profile.dto';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
-import { AuthService } from '../auth/auth.service';
 
 const ARGON2_CONFIG = {
   type: argon2.argon2id,
@@ -38,7 +37,6 @@ export class ProfileService
     private readonly playerService: PlayerService,
     private readonly requestHelperService: RequestHelperService,
     private readonly passwordGenerator: PasswordGenerator,
-    private readonly authService: AuthService,
   ) {
     super();
     this.refsInModel = [ModelName.PLAYER];
@@ -89,7 +87,10 @@ export class ProfileService
       throw e;
     }
 
-    return await this.authService.signIn(username, password);
+    return {
+      username: username,
+      password: password,
+    } 
   }
 
   public clearCollectionReferences = async (
