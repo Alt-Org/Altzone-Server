@@ -27,6 +27,8 @@ beforeEach(async () => {
 afterEach(async () => {
   try {
     await clearDB();
+    jest.clearAllTimers();
+    jest.clearAllMocks();
   } catch (error) {
     console.error('afterEach() global: Could not clean DB after test', error);
     throw error;
@@ -35,7 +37,8 @@ afterEach(async () => {
 
 afterAll(async () => {
   try {
-    //await mongoose.disconnect();
+    await mongoose.disconnect();
+    await new Promise((resolve) => setTimeout(resolve, 100));
   } catch (error) {
     console.error(
       'afterAll() global: Could not stop DB after all tests',
