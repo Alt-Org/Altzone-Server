@@ -67,6 +67,11 @@ export class ProfileService
     });
   }
 
+  /**
+   * Creates a new username and hashed password, a new Profile and Player in the Database.
+   *
+   * @returns  with the new username and password.
+   */
   async createGuestAccount(): Promise<object> {
     const password = this.passwordGenerator.generatePassword('fi');
     const username = 'guest-account-' + password;
