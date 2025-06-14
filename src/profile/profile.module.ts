@@ -20,11 +20,7 @@ import { AuthModule } from '../auth/auth.module';
     AuthModule,
   ],
   controllers: [ProfileController],
-  providers: [
-    ProfileService,
-    isProfileExists,
-    PasswordGenerator,
-  ],
+  providers: [ProfileService, isProfileExists, PasswordGenerator],
   exports: [ProfileService],
 })
 export class ProfileModule {}

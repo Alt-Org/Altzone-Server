@@ -28,7 +28,7 @@ export class BattleQueueController {
     },
     errors: [401, 404],
   })
-  @SwaggerTags('Release on 01.06.2025', 'OnlinePlayers')
+  @SwaggerTags('Release on 15.06.2025', 'OnlinePlayers')
   @Get()
   @UniformResponse(null, OnlinePlayerDto)
   async getBattleQueue() {

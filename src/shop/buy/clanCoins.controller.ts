@@ -24,7 +24,7 @@ export class ClanCoinsController {
     },
     errors: [400, 401, 403, 404],
   })
-  @SwaggerTags('Release on 01.06.2025', 'Shop')
+  @SwaggerTags('Release on 15.06.2025', 'Shop')
   @Post()
   @HttpCode(204)
   @DetermineClanId()
