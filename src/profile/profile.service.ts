@@ -19,6 +19,7 @@ import { ProfileDto } from './dto/profile.dto';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
 import { ObjectId } from 'mongodb';
+import { GuestProfileDto } from './dto/guestProfile.dto';
 
 const ARGON2_CONFIG = {
   type: argon2.argon2id,
@@ -73,7 +74,7 @@ export class ProfileService
    *
    * @returns  with the new username and password.
    */
-  async createGuestAccount(): Promise<object> {
+  async createGuestAccount(): Promise<IServiceReturn<GuestProfileDto>> {
     const password = this.passwordGenerator.generatePassword('fi');
     const username = 'guest-account-' + new ObjectId().toString();
     const isGuest = true;
@@ -102,7 +103,7 @@ export class ProfileService
       {
         username: username,
         password: password,
-      },
+      } as GuestProfileDto,
       null,
     ];
   }
