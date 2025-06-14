@@ -8,14 +8,10 @@ import { ProfileSchema } from '../../../profile/profile.schema';
 import { ProfileService } from '../../../profile/profile.service';
 import { isProfileExists } from '../../../profile/decorator/validation/IsProfileExists.decorator';
 import { PasswordGenerator } from '../../../common/function/passwordGenerator';
-import { AuthService } from '../../../auth/auth.service';
-import { AuthServiceProvider } from '../../../auth/authService.provider';
-import BoxAuthService from '../../../auth/box/BoxAuthService';
 import { ClanSchema } from '../../../clan/clan.schema';
 import { PlayerSchema } from '../../../player/schemas/player.schema';
 import { BoxSchema } from '../../../box/schemas/box.schema';
 import { GroupAdminSchema } from '../../../box/groupAdmin/groupAdmin.schema';
-import { JwtService } from '@nestjs/jwt';
 
 export default class ProfileCommonModule {
   private constructor() {}
@@ -41,10 +37,6 @@ export default class ProfileCommonModule {
           ProfileService,
           isProfileExists,
           PasswordGenerator,
-          AuthService,
-          AuthServiceProvider,
-          BoxAuthService,
-          JwtService,
         ],
       }).compile();
 
