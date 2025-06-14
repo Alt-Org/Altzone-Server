@@ -15,27 +15,29 @@ import { PlayerSchema } from '../player/schemas/player.schema';
 import BoxAuthService from '../auth/box/BoxAuthService';
 import { BoxSchema } from '../box/schemas/box.schema';
 import { GroupAdminSchema } from '../box/groupAdmin/groupAdmin.schema';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: ModelName.PROFILE, schema: ProfileSchema },
-      { name: ModelName.CLAN, schema: ClanSchema },
-      { name: ModelName.PLAYER, schema: PlayerSchema },
-      { name: ModelName.BOX, schema: BoxSchema },
-      { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
+      // { name: ModelName.CLAN, schema: ClanSchema },
+      // { name: ModelName.PLAYER, schema: PlayerSchema },
+      // { name: ModelName.BOX, schema: BoxSchema },
+      // { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
     ]),
     PlayerModule,
     RequestHelperModule,
+    AuthModule,
   ],
   controllers: [ProfileController],
   providers: [
     ProfileService,
     isProfileExists,
-    PasswordGenerator, 
-    AuthService,
-    AuthServiceProvider,
-    BoxAuthService,
+    PasswordGenerator,
+    // AuthService,
+    // AuthServiceProvider,
+    // BoxAuthService,
   ],
   exports: [ProfileService],
 })
