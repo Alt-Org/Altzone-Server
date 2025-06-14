@@ -96,7 +96,7 @@ export default class ProfileController {
       password: string;
     };
 
-    return await this.authService.signIn(username, password,);
+    return await this.authService.signIn(username, password);
   }
 
   /**
