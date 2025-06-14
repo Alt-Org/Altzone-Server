@@ -20,14 +20,16 @@ describe('ProfileService.createGuestAccount() test suite', () => {
   });
 
   it('Should create a profile and a player in the DB', async () => {
-    const result = (await profileService.createGuestAccount()) as {
-      username: string;
-      password: string;
-    };
+    const [result, errors] = (await profileService.createGuestAccount()) as [{
+          username: string;
+          password: string;
+        }, null];    
 
     const profile = await profileModel.findOne({ username: result.username });
 
     const player = await playerModel.findOne({ name: profile.username });
+    
+    expect(errors).toBeNull();
 
     expect(profile).toBeDefined();
     expect(profile.isGuest).toBe(true);
