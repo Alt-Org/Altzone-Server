@@ -92,7 +92,7 @@ export default class ProfileController {
   @NoAuth()
   @Post('/guest')
   public async createGuest() {
-    const [guestAccount, errors] =
+    const [guestProfileDto, errors] =
       (await this.service.createGuestAccount()) as unknown as [
         GuestProfileDto,
         MongooseError | null,
@@ -100,7 +100,7 @@ export default class ProfileController {
 
     if (errors) return [null, errors];
 
-    return await this.authService.signIn(guestAccount.username, guestAccount.password);
+    return await this.authService.signIn(guestProfileDto.username, guestProfileDto.password);
   }
 
   /**
