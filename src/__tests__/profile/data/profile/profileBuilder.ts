@@ -28,4 +28,9 @@ export default class ProfileBuilder implements IDataBuilder<Profile> {
     this.base.password = password;
     return this;
   }
+
+  setIsGuest(isGuest: boolean) {
+    this.base.isGuest = isGuest;
+    return this;
+  }
 }
