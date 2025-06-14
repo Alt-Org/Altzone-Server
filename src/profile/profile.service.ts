@@ -17,6 +17,9 @@ import BasicService from '../common/service/basicService/BasicService';
 import { CreateProfileDto } from './dto/createProfile.dto';
 import { ProfileDto } from './dto/profile.dto';
 import { IServiceReturn } from '../common/service/basicService/IService';
+import { PasswordGenerator } from '../common/function/passwordGenerator';
+import { ObjectId } from 'mongodb';
+import { GuestProfileDto } from './dto/guestProfile.dto';
 
 const ARGON2_CONFIG = {
   type: argon2.argon2id,
@@ -35,6 +38,7 @@ export class ProfileService
     @InjectModel(Profile.name) public readonly model: Model<Profile>,
     private readonly playerService: PlayerService,
     private readonly requestHelperService: RequestHelperService,
+    private readonly passwordGenerator: PasswordGenerator,
   ) {
     super();
     this.refsInModel = [ModelName.PLAYER];
@@ -63,6 +67,45 @@ export class ProfileService
       ...profile,
       password: hashedPassword,
     });
+  }
+
+  /**
+   * Creates a new username and hashed password, a new Profile and Player in the Database.
+   *
+   * @returns  with the new username and password.
+   */
+  async createGuestAccount(): Promise<IServiceReturn<GuestProfileDto>> {
+    const password = this.passwordGenerator.generatePassword('fi');
+    const username = 'guest-account-' + new ObjectId().toString();
+    const isGuest = true;
+
+    const [createdProfile, errors] = await this.createWithHashedPassword({
+      username,
+      password,
+      isGuest,
+    } as CreateProfileDto);
+
+    if (errors) return [null, errors];
+
+    try {
+      await this.playerService.createOne({
+        profile_id: createdProfile._id,
+        name: username,
+        uniqueIdentifier: username,
+        backpackCapacity: 0,
+      });
+    } catch (e) {
+      await this.deleteOneById(createdProfile._id);
+      throw e;
+    }
+
+    return [
+      {
+        username: username,
+        password: password,
+      } as GuestProfileDto,
+      null,
+    ];
   }
 
   public clearCollectionReferences = async (

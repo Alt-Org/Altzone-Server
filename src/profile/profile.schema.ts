@@ -19,6 +19,9 @@ export class Profile {
   @Prop({ type: Boolean, default: false })
   isSystemAdmin: boolean;
 
+  @Prop({ type: Boolean, default: false })
+  isGuest: boolean;
+
   Player?: Player;
 
   _id: string;
