@@ -87,10 +87,10 @@ export class ProfileService
       throw e;
     }
 
-    return {
+    return [{
       username: username,
       password: password,
-    } 
+    }, null];
   }
 
   public clearCollectionReferences = async (
