@@ -89,6 +89,20 @@ export default class ProfileController {
     return [createdProfile, errors];
   }
 
+  /**
+   * Create a quest profile
+   *
+   * @remarks Create a user profile with Player object associated with it.
+   *
+   */
+ @ApiResponseDescription({
+     success: {
+       status: 201,
+       modelName: ModelName.CLAN,
+       type: ProfileDto,
+     },
+     errors: [400, 401],
+   })
   @NoAuth()
   @Post('/guest')
   public async createGuest() {
