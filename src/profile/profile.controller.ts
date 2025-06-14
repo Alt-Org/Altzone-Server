@@ -89,12 +89,16 @@ export default class ProfileController {
   }
 
   @NoAuth()
-  @Post("/guest")
+  @Post('/guest')
   public async createGuest() {
-    const [guestAccount, errors] = await this.service.createGuestAccount() as [{
-      username: string;
-      password: string;
-    }, MongooseError | null];
+    const [guestAccount, errors] =
+      (await this.service.createGuestAccount()) as [
+        {
+          username: string;
+          password: string;
+        },
+        MongooseError | null,
+      ];
 
     if (errors) return [null, errors];
 

@@ -33,11 +33,7 @@ export default class ProfileCommonModule {
           PlayerModule,
           RequestHelperModule,
         ],
-        providers: [
-          ProfileService,
-          isProfileExists,
-          PasswordGenerator,
-        ],
+        providers: [ProfileService, isProfileExists, PasswordGenerator],
       }).compile();
 
     return ProfileCommonModule.module;

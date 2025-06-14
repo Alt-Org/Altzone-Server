@@ -7,7 +7,7 @@ export default class ProfileBuilder implements IDataBuilder<Profile> {
     username: 'defaultUser',
     password: 'defaultPassword',
     isSystemAdmin: false,
-    isGuest: false
+    isGuest: false,
   };
 
   build(): Profile {

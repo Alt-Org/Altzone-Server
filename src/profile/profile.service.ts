@@ -67,30 +67,38 @@ export class ProfileService
     });
   }
 
-  async createGuestAccount(
-  ): Promise<object> {
+  async createGuestAccount(): Promise<object> {
     const password = this.passwordGenerator.generatePassword('fi');
-    const username = "guest-account-" + password;
+    const username = 'guest-account-' + password;
     const isGuest = true;
 
-    const [createdProfile, errors] =
-      await this.createWithHashedPassword({username, password, isGuest} as CreateProfileDto);
+    const [createdProfile, errors] = await this.createWithHashedPassword({
+      username,
+      password,
+      isGuest,
+    } as CreateProfileDto);
 
     if (errors) return [null, errors];
 
     try {
-      await this.playerService
-        .createOne({profile_id: createdProfile._id, name: username, uniqueIdentifier: username,
-          backpackCapacity: 0});
+      await this.playerService.createOne({
+        profile_id: createdProfile._id,
+        name: username,
+        uniqueIdentifier: username,
+        backpackCapacity: 0,
+      });
     } catch (e) {
       await this.deleteOneById(createdProfile._id);
       throw e;
     }
 
-    return [{
-      username: username,
-      password: password,
-    }, null];
+    return [
+      {
+        username: username,
+        password: password,
+      },
+      null,
+    ];
   }
 
   public clearCollectionReferences = async (
