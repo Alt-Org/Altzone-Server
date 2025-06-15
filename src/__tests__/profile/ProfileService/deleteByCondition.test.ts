@@ -53,7 +53,7 @@ describe('ProfileService.deleteByCondition() test suite', () => {
     const deletedProfiles = await profileModel.find({
       username: { $in: [username1, username2] },
     });
-    expect(deletedProfiles.length).toBe(0);
+    expect(deletedProfiles).toHaveLength(0);
   });
 
   it('Should return null if no profiles match the condition for single deletion', async () => {

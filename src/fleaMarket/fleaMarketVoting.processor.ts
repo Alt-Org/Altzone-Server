@@ -4,7 +4,7 @@ import { VotingQueueParams } from './types/votingQueueParams.type';
 import { Job } from 'bullmq';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 
-@Processor('voting')
+@Processor(VotingQueueName.FLEA_MARKET)
 export class FleaMarketVotingProcessor extends WorkerHost {
   constructor(private readonly fleaMarketService: FleaMarketService) {
     super();
@@ -15,7 +15,6 @@ export class FleaMarketVotingProcessor extends WorkerHost {
    * @param job - The job to be processed.
    */
   async process(job: Job<VotingQueueParams>): Promise<any> {
-    if (job.name === VotingQueueName.FLEA_MARKET)
-      await this.fleaMarketService.checkVotingOnExpire(job.data);
+    await this.fleaMarketService.checkVotingOnExpire(job.data);
   }
 }

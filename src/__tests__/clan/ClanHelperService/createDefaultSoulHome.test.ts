@@ -49,7 +49,7 @@ describe('ClanHelperService.createDefaultSoulHome() test suite', () => {
     });
 
     expect(createdRooms).not.toBeNull();
-    expect(createdRooms.length).toBe(30);
+    expect(createdRooms).toHaveLength(30);
   });
 
   it('Should add default items to the first SoulHome room', async () => {

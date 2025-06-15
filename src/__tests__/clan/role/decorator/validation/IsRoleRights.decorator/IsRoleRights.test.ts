@@ -12,7 +12,7 @@ describe('@IsRoleRights() test suite', () => {
     };
 
     const errors = await validate(dto);
-    expect(errors.length).toBe(0);
+    expect(errors).toHaveLength(0);
   });
 
   it('Should pass validation if provided object is empty', async () => {
@@ -20,7 +20,7 @@ describe('@IsRoleRights() test suite', () => {
     dto.rights = {};
 
     const errors = await validate(dto);
-    expect(errors.length).toBe(0);
+    expect(errors).toHaveLength(0);
   });
 
   it('Should fail validation if object contains an invalid key', async () => {

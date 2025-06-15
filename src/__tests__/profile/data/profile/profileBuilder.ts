@@ -7,6 +7,7 @@ export default class ProfileBuilder implements IDataBuilder<Profile> {
     username: 'defaultUser',
     password: 'defaultPassword',
     isSystemAdmin: false,
+    isGuest: false,
   };
 
   build(): Profile {
@@ -25,6 +26,11 @@ export default class ProfileBuilder implements IDataBuilder<Profile> {
 
   setPassword(password: string) {
     this.base.password = password;
+    return this;
+  }
+
+  setIsGuest(isGuest: boolean) {
+    this.base.isGuest = isGuest;
     return this;
   }
 }

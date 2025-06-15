@@ -31,7 +31,7 @@ describe('clanRoleUtils isRoleNameExists() test suite', () => {
     expect(isDuplicate).toBeTruthy();
   });
 
-  it('Should return true if there are a role with the same name', () => {
+  it('Should return false if there are a no role exists with the same name', () => {
     const isDuplicate = isRoleNameExists(roles, 'non-existing-name');
     expect(isDuplicate).toBe(false);
   });

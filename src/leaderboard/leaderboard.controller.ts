@@ -38,7 +38,7 @@ export class LeaderboardController {
     errors: [400, 404],
     hasAuth: false,
   })
-  @SwaggerTags('Release on 01.06.2025', 'Leaderboard')
+  @SwaggerTags('Release on 15.06.2025', 'Leaderboard')
   @Get('player')
   @NoAuth()
   @UniformResponse(ModelName.PLAYER, LeaderboardPlayerDto)
@@ -63,7 +63,7 @@ export class LeaderboardController {
     errors: [400, 404],
     hasAuth: false,
   })
-  @SwaggerTags('Release on 01.06.2025', 'Leaderboard')
+  @SwaggerTags('Release on 15.06.2025', 'Leaderboard')
   @Get('clan')
   @NoAuth()
   @UniformResponse(ModelName.CLAN, ClanDto)

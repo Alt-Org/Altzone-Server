@@ -1,4 +1,4 @@
-import { PasswordGenerator } from '../../../../box/tester/passwordGenerator';
+import { PasswordGenerator } from '../../../../common/function/passwordGenerator';
 import BoxModule from '../../modules/box.module';
 
 describe('PasswordGenerator.generatePassword() test suite', () => {

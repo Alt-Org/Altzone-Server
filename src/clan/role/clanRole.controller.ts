@@ -110,8 +110,11 @@ export class ClanRoleController {
    * Set a role for a clan member
    *
    * @remarks Set a default or named role to a specified clan member.
+   * Endpoint will start a voting for setting a clan role for a player,
+   * when the voting will be finished role will be set or not depending on the voting result.
    *
-   * Notice that the role giver and the clan member must be in the same clan. Also the giver must have the basic clan role "Edit member rights"
+   * Notice that the role giver and the clan member must be in the same clan.
+   * Also, the giver must have the basic clan role "Edit member rights"
    */
   @ApiResponseDescription({
     success: {
@@ -119,6 +122,7 @@ export class ClanRoleController {
     },
     errors: [400, 401, 403, 404],
   })
+  @SwaggerTags('Release on 15.06.2025', 'Clan')
   @Put('set')
   @HasClanRights([ClanBasicRight.EDIT_MEMBER_RIGHTS])
   @DetermineClanId()

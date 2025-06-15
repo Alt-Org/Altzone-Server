@@ -14,6 +14,12 @@ import { ClanRoleType } from './enum/clanRoleType.enum';
 import { UpdateClanRoleDto } from './dto/updateClanRole.dto';
 import SetClanRoleDto from './dto/setClanRole.dto';
 import { Player } from '../../player/schemas/player.schema';
+import { VotingService } from '../../voting/voting.service';
+import { PlayerDto } from '../../player/dto/player.dto';
+import { VotingType } from '../../voting/enum/VotingType.enum';
+import { VotingQueue } from '../../voting/voting.queue';
+import { VotingQueueName } from '../../voting/enum/VotingQueue.enum';
+import { VotingDto } from '../../voting/dto/voting.dto';
 
 /**
  * Manages clan roles
@@ -23,6 +29,8 @@ export default class ClanRoleService {
   public constructor(
     @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
     @InjectModel(Player.name) public readonly playerModel: Model<Player>,
+    private readonly votingService: VotingService,
+    private readonly votingQueue: VotingQueue,
   ) {
     this.clanService = new BasicService(clanModel);
     this.playerService = new BasicService(playerModel);
@@ -177,19 +185,16 @@ export default class ClanRoleService {
   }
 
   /**
-   * Sets a role to a specified player. Notice that the role must be of type default or named.
+   * Starts the voting of setting a clan role for a player.
    *
-   * @param setData payload for setting clan role
-   *
-   * @returns true if role is set or ServiceErrors:
-   * - NOT_FOUND if the player is not found, player is not in any clan or if the clan or role is not found
-   * - NOT_ALLOWED if the role is of type personal
+   * @param setData - Data containing the player ID and the role ID to set.
+   * @returns A tuple where the first element is true if the operation was initiated successfully, or null if there was an error. The second element is null if successful, or an array of ServiceError objects if there were errors.
    */
   async setRoleToPlayer(
     setData: SetClanRoleDto,
   ): Promise<IServiceReturn<true>> {
     const [player, playerReadErrors] =
-      await this.playerService.readOneById<Player>(
+      await this.playerService.readOneById<PlayerDto>(
         setData.player_id.toString(),
       );
     if (playerReadErrors)
@@ -232,12 +237,20 @@ export default class ClanRoleService {
 
     if (roleTypeErrors) return [null, roleTypeErrors];
 
-    const [, updateErrors] = await this.playerService.updateOneById(
-      setData.player_id.toString(),
-      { clanRole_id: setData.role_id },
-    );
+    const [voting, votingErrors] = await this.votingService.startVoting({
+      voterPlayer: player,
+      type: VotingType.SET_CLAN_ROLE,
+      clanId: player.clan_id.toString(),
+      setClanRole: setData,
+      queue: VotingQueueName.CLAN_ROLE,
+      endsOn: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+    });
+    if (votingErrors) return [null, votingErrors];
 
-    if (updateErrors) return [null, updateErrors];
+    await this.votingQueue.addVotingCheckJob({
+      voting,
+      queue: VotingQueueName.CLAN_ROLE,
+    });
 
     return [true, null];
   }
@@ -338,5 +351,31 @@ export default class ClanRoleService {
       ];
 
     return [foundRole, null];
+  }
+
+  /**
+   * Handles the expiration of a voting process by checking if the vote passed,
+   * updating the player's clan role if successful, and removing the voting record.
+   *
+   * @param params - The parameters containing the voting object to process.
+   * @returns True or ServiceErrors if updating the role or deleting the voting fails.
+   */
+  async checkVotingOnExpire(voting: VotingDto) {
+    const votePassed = await this.votingService.checkVotingSuccess(voting);
+    if (votePassed) {
+      const [, updateErrors] = await this.playerService.updateOneById(
+        voting.setClanRole.player_id.toString(),
+        { clanRole_id: new ObjectId(voting.setClanRole.role_id) },
+      );
+
+      if (updateErrors) return [null, updateErrors];
+    }
+
+    const [, deleteErrors] =
+      await this.votingService.basicService.deleteOneById(voting._id);
+
+    if (deleteErrors) return [null, deleteErrors];
+
+    return [true, null];
   }
 }

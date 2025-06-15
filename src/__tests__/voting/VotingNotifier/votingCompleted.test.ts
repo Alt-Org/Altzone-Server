@@ -32,7 +32,7 @@ describe('VotingNotifier.votingCompleted() test suite', () => {
       status: NotificationStatus.END,
       voting_id: votingDto._id.toString(),
       type: votingDto.type,
-      item: fleaMarketItem,
+      entity: fleaMarketItem,
     });
 
     const { publishAsyncMock } = createMockMqttClient();

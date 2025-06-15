@@ -57,7 +57,7 @@ describe('PlayerService.deleteByCondition() test suite', () => {
     const deletedPlayers = await playerModel.find({
       name: { $in: [name1, name2] },
     });
-    expect(deletedPlayers.length).toBe(0);
+    expect(deletedPlayers).toHaveLength(0);
   });
 
   it('Should return null if no players match the condition for single deletion', async () => {

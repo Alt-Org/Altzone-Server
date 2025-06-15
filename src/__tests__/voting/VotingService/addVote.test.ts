@@ -2,7 +2,7 @@ import VotingBuilderFactory from '../data/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
-import { ItemVoteChoice } from '../../../voting/enum/choiceType.enum';
+import { VoteChoice } from '../../../voting/enum/choiceType.enum';
 import { PlayerService } from '../../../player/player.service';
 import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
@@ -46,9 +46,9 @@ describe('VotingService.addVote() test suite', () => {
   const createTestVoting = async (organizer: any, entityId: string) => {
     const votingToCreate = votingBuilder
       .setMinPercentage(1)
-      .setType(VotingType.SELLING_ITEM)
+      .setType(VotingType.FLEA_MARKET_SELL_ITEM)
       .setOrganizer(organizer)
-      .setEntityId(entityId)
+      .setFleamarketItemId(entityId)
       .build();
 
     return await votingModel.create(votingToCreate);
@@ -64,14 +64,14 @@ describe('VotingService.addVote() test suite', () => {
 
     await votingService.addVote(
       voting._id.toString(),
-      ItemVoteChoice.YES,
+      VoteChoice.YES,
       player._id.toString(),
     );
 
     const votingFromDb = (
       await votingModel.findOne({ _id: voting._id })
     ).toObject();
-    expect(votingFromDb.votes.length).toBe(1);
+    expect(votingFromDb.votes).toHaveLength(1);
     expect(votingFromDb.votes[0].player_id.toString()).toBe(
       player._id.toString(),
     );
@@ -87,14 +87,14 @@ describe('VotingService.addVote() test suite', () => {
 
     await votingService.addVote(
       voting._id.toString(),
-      ItemVoteChoice.YES,
+      VoteChoice.YES,
       player._id.toString(),
     );
 
     try {
       await votingService.addVote(
         voting._id.toString(),
-        ItemVoteChoice.YES,
+        VoteChoice.YES,
         player._id.toString(),
       );
     } catch (error: any) {
@@ -114,7 +114,7 @@ describe('VotingService.addVote() test suite', () => {
     await expect(
       votingService.addVote(
         voting._id.toString(),
-        ItemVoteChoice.YES,
+        VoteChoice.YES,
         player._id.toString(),
       ),
     ).rejects.toEqual(expect.anything());

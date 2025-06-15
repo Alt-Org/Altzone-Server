@@ -5,7 +5,7 @@ import ProfileModule from '../../../profile/modules/profile.module';
 import PlayerModule from '../../../player/modules/player.module';
 import { ObjectId } from 'mongodb';
 import BoxBuilderFactory from '../../data/boxBuilderFactory';
-import { PasswordGenerator } from '../../../../box/tester/passwordGenerator';
+import { PasswordGenerator } from '../../../../common/function/passwordGenerator';
 import ProfileBuilderFactory from '../../../profile/data/profileBuilderFactory';
 import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 

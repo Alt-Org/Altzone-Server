@@ -5,6 +5,7 @@ import { VotingType } from '../enum/VotingType.enum';
 import { Vote, VoteSchema } from './vote.schema';
 import { Organizer } from './organizer.schema';
 import { ItemName } from '../../clanInventory/item/enum/itemName.enum';
+import { SetClanRole } from './setClanRole.schema';
 
 export type VotingDocument = HydratedDocument<Voting>;
 
@@ -29,10 +30,13 @@ export class Voting {
   votes: Vote[];
 
   @Prop({ type: MongooseSchema.Types.ObjectId })
-  entity_id?: string;
+  fleaMarketItem_id?: string;
 
   @Prop({ type: String, enum: ItemName })
-  entity_name?: ItemName;
+  shopItem?: ItemName;
+
+  @Prop({ type: SetClanRole })
+  setClanRole?: SetClanRole;
 }
 
 export const VotingSchema = SchemaFactory.createForClass(Voting);
@@ -54,6 +58,13 @@ VotingSchema.virtual(ModelName.CLAN, {
 VotingSchema.virtual(ModelName.FLEA_MARKET_ITEM, {
   ref: ModelName.FLEA_MARKET_ITEM,
   localField: 'entity_id',
+  foreignField: '_id',
+  justOne: true,
+});
+
+VoteSchema.virtual(ModelName.PLAYER, {
+  ref: ModelName.PLAYER,
+  localField: 'setClanRole.player_id',
   foreignField: '_id',
   justOne: true,
 });
