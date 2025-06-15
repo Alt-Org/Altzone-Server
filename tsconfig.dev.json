@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest", "./src/__tests__/test_utils/jest.matchers.d.ts", "node", "multer"],
+    "incremental": true
+  }
+}
