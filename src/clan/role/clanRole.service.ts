@@ -14,7 +14,6 @@ import { ClanRoleType } from './enum/clanRoleType.enum';
 import { UpdateClanRoleDto } from './dto/updateClanRole.dto';
 import SetClanRoleDto from './dto/setClanRole.dto';
 import { Player } from '../../player/schemas/player.schema';
-import { VotingQueueParams } from '../../fleaMarket/types/votingQueueParams.type';
 import { VotingService } from '../../voting/voting.service';
 import { PlayerDto } from '../../player/dto/player.dto';
 import { VotingType } from '../../voting/enum/VotingType.enum';

@@ -2,7 +2,6 @@ import VotingBuilderFactory from '../data/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
 import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultFields';
-import { ObjectId } from 'mongodb';
 
 describe('VotingService.createOne() test suite', () => {
   let votingService: VotingService;
