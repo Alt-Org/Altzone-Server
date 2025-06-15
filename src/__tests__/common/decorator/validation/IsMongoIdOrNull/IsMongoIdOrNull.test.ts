@@ -14,7 +14,7 @@ describe('@IsMongoIdOrNull() test suite', () => {
     dto.ids = [null, objectId];
 
     const errors = await validate(dto);
-    expect(errors.length).toBe(0);
+    expect(errors).toHaveLength(0);
   });
 
   it('Should pass validation with empty array', async () => {
@@ -22,7 +22,7 @@ describe('@IsMongoIdOrNull() test suite', () => {
     dto.ids = [];
 
     const errors = await validate(dto);
-    expect(errors.length).toBe(0);
+    expect(errors).toHaveLength(0);
   });
 
   it('Should pass validation with a single mongo id input', async () => {
@@ -30,7 +30,7 @@ describe('@IsMongoIdOrNull() test suite', () => {
     dto.ids = objectId;
 
     const errors = await validate(dto);
-    expect(errors.length).toBe(0);
+    expect(errors).toHaveLength(0);
   });
 
   it('Should pass validation with null input', async () => {
@@ -38,7 +38,7 @@ describe('@IsMongoIdOrNull() test suite', () => {
     dto.ids = null;
 
     const errors = await validate(dto);
-    expect(errors.length).toBe(0);
+    expect(errors).toHaveLength(0);
   });
 
   it('Should pass validation with an mongo id input (array)', async () => {
@@ -46,7 +46,7 @@ describe('@IsMongoIdOrNull() test suite', () => {
     dto.ids = [objectId];
 
     const errors = await validate(dto);
-    expect(errors.length).toBe(0);
+    expect(errors).toHaveLength(0);
   });
 
   it('Should pass validation with null input (array)', async () => {
@@ -54,7 +54,7 @@ describe('@IsMongoIdOrNull() test suite', () => {
     dto.ids = [null];
 
     const errors = await validate(dto);
-    expect(errors.length).toBe(0);
+    expect(errors).toHaveLength(0);
   });
 
   it('Should pass validation with more null inputs', async () => {
@@ -62,7 +62,7 @@ describe('@IsMongoIdOrNull() test suite', () => {
     dto.ids = [null, null, null];
 
     const errors = await validate(dto);
-    expect(errors.length).toBe(0);
+    expect(errors).toHaveLength(0);
   });
 
   it('Should pass validation with more mongo id input', async () => {
@@ -70,7 +70,7 @@ describe('@IsMongoIdOrNull() test suite', () => {
     dto.ids = [objectId, objectId, objectId];
 
     const errors = await validate(dto);
-    expect(errors.length).toBe(0);
+    expect(errors).toHaveLength(0);
   });
 
   it('Should fail validation with invalid mongo id input', async () => {
@@ -78,7 +78,7 @@ describe('@IsMongoIdOrNull() test suite', () => {
     dto.ids = ['invalid', objectId, objectId];
 
     const errors = await validate(dto);
-    expect(errors.length).toBe(1);
+    expect(errors).toHaveLength(1);
     expect(errors[0].constraints?.IsMongoIdOrNullConstraint).toBe(
       'ids must be a mongodb id or null',
     );

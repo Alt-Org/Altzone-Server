@@ -11,7 +11,7 @@ describe('ClanShopScheduler.resetShopItems() test suite', () => {
   it('Should have shop items after initialization', () => {
     const items = scheduler.currentShopItems;
 
-    expect(items.length).toBe(9);
+    expect(items).toHaveLength(9);
   });
 
   it('Should update the items', () => {

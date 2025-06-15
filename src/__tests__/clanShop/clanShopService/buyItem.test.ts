@@ -79,7 +79,7 @@ describe('ClanShopService.buyItem() test suite', () => {
         queue: VotingQueueName.CLAN_SHOP,
       }),
     );
-    expect(voting.length).toEqual(1);
+    expect(voting).toHaveLength(1);
   });
 
   it('Should throw an error if the clan has insufficient funds', async () => {

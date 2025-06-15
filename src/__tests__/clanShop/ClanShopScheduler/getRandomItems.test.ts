@@ -16,9 +16,9 @@ describe('ClanShopScheduler.getRandomItems() test suite', () => {
     const rareItems = items.filter((item) => item.rarity === Rarity.rare);
     const epicItems = items.filter((item) => item.rarity === Rarity.epic);
 
-    expect(commonItems.length).toBe(5);
-    expect(rareItems.length).toBe(3);
-    expect(epicItems.length).toBe(1);
+    expect(commonItems).toHaveLength(5);
+    expect(rareItems).toHaveLength(3);
+    expect(epicItems).toHaveLength(1);
   });
 
   it('Should return a randomized selection of items', () => {
@@ -33,6 +33,6 @@ describe('ClanShopScheduler.getRandomItems() test suite', () => {
 
     const itemsSet = new Set(items);
 
-    expect(items.length).toEqual(itemsSet.size);
+    expect(items).toHaveLength(itemsSet.size);
   });
 });

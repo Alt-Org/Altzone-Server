@@ -71,7 +71,7 @@ describe('VotingService.addVote() test suite', () => {
     const votingFromDb = (
       await votingModel.findOne({ _id: voting._id })
     ).toObject();
-    expect(votingFromDb.votes.length).toBe(1);
+    expect(votingFromDb.votes).toHaveLength(1);
     expect(votingFromDb.votes[0].player_id.toString()).toBe(
       player._id.toString(),
     );

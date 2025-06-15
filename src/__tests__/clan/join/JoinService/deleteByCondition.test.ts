@@ -73,7 +73,7 @@ describe('JoinService.deleteByCondition() test suite', () => {
     expect(result['deletedCount']).toBe(2);
 
     const deletedJoins = await joinModel.find(condition);
-    expect(deletedJoins.length).toBe(0);
+    expect(deletedJoins).toHaveLength(0);
   });
 
   it('Should return null if no join requests match the condition for single deletion', async () => {

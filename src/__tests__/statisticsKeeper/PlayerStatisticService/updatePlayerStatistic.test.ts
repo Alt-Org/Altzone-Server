@@ -174,7 +174,7 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
     expect(updatedPlayer.gameStatistics.messages[0].date.toDateString()).toBe(
       new Date().toDateString(),
     );
-    expect(updatedPlayer.gameStatistics.messages.length).toBe(1);
+    expect(updatedPlayer.gameStatistics.messages).toHaveLength(1);
   });
 
   it('Should return with MongooseError if have not updated the player in the DB | PlayerEvent.MESSAGE_SENT', async () => {

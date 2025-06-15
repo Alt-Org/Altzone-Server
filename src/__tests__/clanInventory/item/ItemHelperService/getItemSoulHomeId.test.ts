@@ -49,20 +49,20 @@ describe('ItemHelperService.getItemSoulHomeId() test suite', () => {
     const throwNotFound = async () =>
       await itemHelperService.getItemSoulHomeId(existingItem._id);
 
-    expect(throwNotFound).rejects.toContainSE_NOT_FOUND();
+    await expect(throwNotFound).rejects.toContainSE_NOT_FOUND();
   });
 
   it('Should throw NOT_FOUND SE if item with provided item does not exists', async () => {
     const throwNotFound = async () =>
       await itemHelperService.getItemSoulHomeId(getNonExisting_id());
 
-    expect(throwNotFound).rejects.toContainSE_NOT_FOUND();
+    await expect(throwNotFound).rejects.toContainSE_NOT_FOUND();
   });
 
   it('Should throw NOT_FOUND SE if provided _id param is not a mongo id', async () => {
     const throwNotFound = async () =>
       await itemHelperService.getItemSoulHomeId('not-mongo-id');
 
-    expect(throwNotFound).rejects.toContainSE_VALIDATION();
+    await expect(throwNotFound).rejects.toContainSE_VALIDATION();
   });
 });
