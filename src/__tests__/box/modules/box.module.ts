@@ -9,7 +9,7 @@ import { BoxHelper } from '../../../box/util/boxHelper';
 import BoxCreator from '../../../box/boxCreator';
 import BoxAuthHandler from '../../../box/auth/BoxAuthHandler';
 import { DailyTaskService } from '../../../box/dailyTask/dailyTask.service';
-import { PasswordGenerator } from '../../../box/tester/passwordGenerator';
+import { PasswordGenerator } from '../../../common/function/passwordGenerator';
 import { TesterService } from '../../../box/tester/tester.service';
 import SessionStarterService from '../../../box/sessionStarter/sessionStarter.service';
 import { BoxScheduler } from '../../../box/box.scheduler';

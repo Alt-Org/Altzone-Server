@@ -7,6 +7,8 @@ import { RequestHelperModule } from '../requestHelper/requestHelper.module';
 import { ModelName } from '../common/enum/modelName.enum';
 import { isProfileExists } from './decorator/validation/IsProfileExists.decorator';
 import { PlayerModule } from '../player/player.module';
+import { PasswordGenerator } from '../common/function/passwordGenerator';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -15,9 +17,10 @@ import { PlayerModule } from '../player/player.module';
     ]),
     PlayerModule,
     RequestHelperModule,
+    AuthModule,
   ],
   controllers: [ProfileController],
-  providers: [ProfileService, isProfileExists],
+  providers: [ProfileService, isProfileExists, PasswordGenerator],
   exports: [ProfileService],
 })
 export class ProfileModule {}

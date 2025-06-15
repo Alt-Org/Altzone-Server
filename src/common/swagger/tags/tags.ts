@@ -34,7 +34,7 @@ export type SwaggerTagName =
 export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
   'Release on 15.06.2025': {
     name: 'Release on 15.06.2025',
-    description: 'Changes made on release 01.06.2025',
+    description: 'Changes made on release 15.06.2025',
   },
 
   'in-development': {
