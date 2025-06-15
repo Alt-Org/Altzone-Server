@@ -107,7 +107,6 @@ export default class ProfileController {
     },
     errors: [],
   })
-  @SwaggerTags('Release on 15.06.2025', 'Profile')
   @NoAuth()
   @Post('/guest')
   public async createGuest() {

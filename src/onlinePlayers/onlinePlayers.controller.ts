@@ -26,7 +26,6 @@ export class OnlinePlayersController {
     },
     errors: [400, 401],
   })
-  @SwaggerTags('Release on 15.06.2025', 'OnlinePlayers')
   @Post('ping')
   @UniformResponse()
   async ping(@Body() body: InformPlayerIsOnlineDto, @LoggedUser() user: User) {
@@ -51,7 +50,6 @@ export class OnlinePlayersController {
     },
     errors: [401],
   })
-  @SwaggerTags('Release on 15.06.2025', 'OnlinePlayers')
   @Get()
   @UniformResponse(null, OnlinePlayerDto)
   async getAllOnlinePlayers(@Query() query: OnlinePlayerSearchQueryDto) {
