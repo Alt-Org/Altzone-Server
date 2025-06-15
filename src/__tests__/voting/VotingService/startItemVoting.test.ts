@@ -6,6 +6,7 @@ import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFac
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import { ObjectId } from 'mongodb';
 import createMockMqttClient from '../../common/service/notificator/mocks/createMockMqttClient';
+import { VotingQueueName } from '../../../voting/enum/VotingQueue.enum';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -34,7 +35,8 @@ describe('VotingService.startItemVoting() test suite', () => {
     return votingBuilder
       .setPlayer(player)
       .setItem(item)
-      .setType(VotingType.SELLING_ITEM)
+      .setType(VotingType.FLEA_MARKET_SELL_ITEM)
+      .setQueue(VotingQueueName.FLEA_MARKET)
       .build();
   };
 
@@ -42,7 +44,7 @@ describe('VotingService.startItemVoting() test suite', () => {
     const votingToStart = createValidVotingParams();
     const { publishAsyncMock } = createMockMqttClient('topic', 'payload');
 
-    const [voting, errors] = await votingService.startItemVoting(votingToStart);
+    const [voting, errors] = await votingService.startVoting(votingToStart);
     const dbVoting = await votingModel.findOne({ type: votingToStart.type });
 
     expect(errors).toBeNull();
@@ -65,16 +67,16 @@ describe('VotingService.startItemVoting() test suite', () => {
     const dto = votingBuilder
       .setPlayer(player)
       .setItem(item)
-      .setType(VotingType.SELLING_ITEM)
+      .setType(VotingType.FLEA_MARKET_SELL_ITEM)
       .build();
 
     createMockMqttClient('topic', 'payload');
 
-    const [voting, errors] = await votingService.startItemVoting(dto);
+    const [voting, errors] = await votingService.startVoting(dto);
 
     expect(voting).toBeNull();
     expect(errors).not.toBeNull();
-    expect(errors[0].field).toBe('entity_id');
+    expect(errors[0].field).toBe('fleaMarketItem_id');
     expect(errors[0].value).toBe(invalidId);
   });
 });

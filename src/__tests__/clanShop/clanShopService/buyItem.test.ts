@@ -69,14 +69,16 @@ describe('ClanShopService.buyItem() test suite', () => {
     const voting = await votingModel.find<VotingDto>();
     expect(
       clanShopService['votingQueue'].addVotingCheckJob,
-    ).toHaveBeenCalledWith({
-      voting: expect.objectContaining({
-        _id: voting[0]._id,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        voting: expect.objectContaining({
+          _id: voting[0]._id,
+        }),
+        stockId: stock._id,
+        price: itemToBuy.price,
+        queue: VotingQueueName.CLAN_SHOP,
       }),
-      stockId: stock._id,
-      price: itemToBuy.price,
-      queue: VotingQueueName.CLAN_SHOP,
-    });
+    );
     expect(voting.length).toEqual(1);
   });
 
@@ -158,7 +160,7 @@ describe('ClanShopService.buyItem() test suite', () => {
     );
 
     jest
-      .spyOn(clanShopService['votingService'], 'startItemVoting')
+      .spyOn(clanShopService['votingService'], 'startVoting')
       .mockResolvedValue([
         null,
         [new ServiceError({ reason: SEReason.UNEXPECTED })],

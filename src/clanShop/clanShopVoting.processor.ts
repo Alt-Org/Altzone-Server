@@ -4,7 +4,7 @@ import { ClanShopService } from './clanShop.service';
 import { VotingQueueParams } from '../fleaMarket/types/votingQueueParams.type';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 
-@Processor('voting')
+@Processor(VotingQueueName.CLAN_SHOP)
 export class ClanShopVotingProcessor extends WorkerHost {
   constructor(private readonly clanShopService: ClanShopService) {
     super();
@@ -15,7 +15,6 @@ export class ClanShopVotingProcessor extends WorkerHost {
    * @param job - The job to be processed.
    */
   async process(job: Job<VotingQueueParams>): Promise<any> {
-    if (job.name === VotingQueueName.CLAN_SHOP)
-      await this.clanShopService.checkVotingOnExpire(job.data);
+    await this.clanShopService.checkVotingOnExpire(job.data);
   }
 }

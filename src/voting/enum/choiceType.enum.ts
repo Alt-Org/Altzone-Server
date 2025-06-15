@@ -1,7 +1,7 @@
 /**
- * Enum for item vote choices.
+ * Enum for vote choices.
  */
-export enum ItemVoteChoice {
+export enum VoteChoice {
   /**
    * Represents a vote to accept the item.
    */
