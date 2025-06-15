@@ -10,7 +10,6 @@ import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthorizationModule } from './authorization/authorization.module';
-import { SiteModule } from './site/site.module';
 import { ChatModule } from './chat/chat.module';
 import { GameDataModule } from './gameData/gameData.module';
 import { GameAnalyticsModule } from './gameAnalytics/gameAnalytics.module';
@@ -76,7 +75,6 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
     ClanInventoryModule,
 
     ProfileModule,
-    SiteModule,
 
     AuthModule,
     AuthorizationModule,
