@@ -36,7 +36,6 @@ import { User } from '../auth/user';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { AuthService } from '../auth/auth.service';
 import { GuestProfileDto } from './dto/guestProfile.dto';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('profile')
 export default class ProfileController {

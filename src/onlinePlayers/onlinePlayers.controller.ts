@@ -7,7 +7,6 @@ import ApiResponseDescription from '../common/swagger/response/ApiResponseDescri
 import OnlinePlayerDto from './dto/onlinePlayer.dto';
 import InformPlayerIsOnlineDto from './dto/InformPlayerIsOnline.dto';
 import OnlinePlayerSearchQueryDto from './dto/OnlinePlayerSearchQuery.dto';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('online-players')
 export class OnlinePlayersController {

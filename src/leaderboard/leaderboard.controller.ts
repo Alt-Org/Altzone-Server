@@ -13,7 +13,6 @@ import { PlayerService } from '../player/player.service';
 import { LeaderboardPlayerDto } from './dto/leaderboardPlayer.dto';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import ClanPositionDto from './dto/clanPosition.dto';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('leaderboard')
 export class LeaderboardController {
