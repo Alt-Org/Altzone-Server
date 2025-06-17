@@ -18,6 +18,7 @@ import { GameEventsHandler } from '../gameEventsHandler/gameEventsHandler';
 import { GameEventType } from '../gameEventsHandler/enum/GameEventType.enum';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
+import { envVars } from '../common/service/envHandler/envVars';
 
 @Injectable()
 export class GameDataService {
@@ -88,6 +89,13 @@ export class GameDataService {
       teamIds.team2Id,
       user,
     );
+  }
+
+  async getMinVersion(
+  ): Promise<IServiceReturn<string>> {
+
+
+    return [envVars.MINIMUM_VERSION, null];
   }
 
   /**
