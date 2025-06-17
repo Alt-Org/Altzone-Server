@@ -75,9 +75,8 @@ export class GameDataController {
    * @remarks This endpoint provides the minimum version required for the game client to function correctly.
    */
   @NoAuth()
-    @Get('minVersion')
-    async getMinVersion(
-  ) {
+  @Get('minVersion')
+  async getMinVersion() {
     const [version, error] = await this.service.getMinVersion();
 
     if (error) return error;

@@ -91,10 +91,7 @@ export class GameDataService {
     );
   }
 
-  async getMinVersion(
-  ): Promise<IServiceReturn<string>> {
-
-
+  async getMinVersion(): Promise<IServiceReturn<string>> {
     return [envVars.MINIMUM_VERSION, null];
   }
 
