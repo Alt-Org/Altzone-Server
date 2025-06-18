@@ -97,20 +97,20 @@ export class GameDataService {
    * @returns - Returns a promise that contains the expected version number or an API error.
    */
   async getMinVersion(): Promise<IServiceReturn<string>> {
-
-
-    
-  if (envVars.MINIMUM_VERSION.length === 0  || envVars.MINIMUM_VERSION === '0') {
-    return [
-      null,
-      [
-        new ServiceError({
-          reason: SEReason.MISCONFIGURED,
-          message: 'MINIMUM_VERSION is not set in the environment variables.',
-        }),
-      ],
-    ];
-  }
+    if (
+      envVars.MINIMUM_VERSION.length === 0 ||
+      envVars.MINIMUM_VERSION === '0'
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.MISCONFIGURED,
+            message: 'MINIMUM_VERSION is not set in the environment variables.',
+          }),
+        ],
+      ];
+    }
     return [envVars.MINIMUM_VERSION, null];
   }
 
