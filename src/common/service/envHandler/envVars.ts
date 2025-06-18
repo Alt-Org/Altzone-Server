@@ -96,7 +96,7 @@ interface EnvVars {
   /** The password for the Mosquitto publisher. */
   MOSQUITTO_PUBLISHER_PASSWORD: string;
 
-  /** Mhe minimum version required for the game client to function correctly */
+  /** The required minimum version for the game client to function correctly */
   MINIMUM_VERSION: string;
 }
 
