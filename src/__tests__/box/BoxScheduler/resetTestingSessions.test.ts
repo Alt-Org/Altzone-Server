@@ -11,7 +11,6 @@ import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryB
 import SoulhomeModule from '../../clanInventory/modules/soulhome.module';
 import RoomModule from '../../clanInventory/modules/room.module';
 import StockModule from '../../clanInventory/modules/stock.module';
-import ChatBuilderFactory from '../../chat/data/chatBuilderFactory';
 import ChatModule from '../../chat/modules/chat.module';
 import { Box } from '../../../box/schemas/box.schema';
 import { BoxScheduler } from '../../../box/box.scheduler';
@@ -39,7 +38,6 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
   const soulHomeBuilder = ClanInventoryBuilderFactory.getBuilder('SoulHome');
   const roomBuilder = ClanInventoryBuilderFactory.getBuilder('Room');
   const stockBuilder = ClanInventoryBuilderFactory.getBuilder('Stock');
-  const chatBuilder = ChatBuilderFactory.getBuilder('Chat');
 
   beforeEach(async () => {
     boxScheduler = await BoxModule.getBoxScheduler();
@@ -96,10 +94,6 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
     const existingStockResp2 = await stockModel.create(existingStock2);
     existingStock2._id = existingStockResp2._id;
 
-    const existingChat = chatBuilder.build();
-    const existingChatResp = await chatModel.create(existingChat);
-    existingChat._id = existingChatResp._id;
-
     const testerName1 = 'testerOne22';
     const testerName2 = 'testerTwo22';
     const testerProfile1 = profileBuilder.setUsername(testerName1).build();
@@ -153,7 +147,6 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
         new ObjectId(existingStock1._id),
         new ObjectId(existingStock2._id),
       ])
-      .setChatId(new ObjectId(existingChat._id))
       .setTesters([tester1, tester2])
       .setBoxRemovalTime(new Date().getTime())
       .setSessionResetTime(new Date().getTime() + 10000)
@@ -197,9 +190,6 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
       expect(stock).toBeNull();
     }
 
-    const chat = await chatModel.findById(boxToDelete.chat_id);
-    expect(chat).toBeNull();
-
     for (const tester of boxToDelete.testers) {
       const testerProfile = await profileModel.findById(tester.profile_id);
       expect(testerProfile).toBeNull();
@@ -237,7 +227,6 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
     expect(boxToKeep.stock_ids.map((id) => id.toString())).toEqual(
       boxToDelete.stock_ids.map((id) => id.toString()),
     );
-    expect(boxToKeep.chat_id.toString()).toBe(boxToDelete.chat_id.toString());
     expect(
       boxToKeep.testers.map((tester) => tester.profile_id.toString()),
     ).toEqual(
@@ -283,9 +272,6 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
     );
     expect(boxToReset.stock_ids.map((id) => id.toString())).not.toEqual(
       boxToDelete.stock_ids.map((id) => id.toString()),
-    );
-    expect(boxToReset.chat_id.toString()).not.toBe(
-      boxToDelete.chat_id.toString(),
     );
     expect(
       boxToReset.testers.map((tester) => tester.profile_id.toString()),

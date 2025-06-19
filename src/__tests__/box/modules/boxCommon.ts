@@ -12,7 +12,6 @@ import { ClanSchema } from '../../../clan/clan.schema';
 import { SoulhomeSchema } from '../../../clanInventory/soulhome/soulhome.schema';
 import { RoomSchema } from '../../../clanInventory/room/room.schema';
 import { StockSchema } from '../../../clanInventory/stock/stock.schema';
-import { ChatSchema } from '../../../chat/schema/chatMessage.schema';
 import { BoxHelper } from '../../../box/util/boxHelper';
 import { ClanModule } from '../../../clan/clan.module';
 import { ChatModule } from '../../../chat/chat.module';
@@ -48,7 +47,6 @@ export default class BoxCommonModule {
             { name: ModelName.SOULHOME, schema: SoulhomeSchema },
             { name: ModelName.ROOM, schema: RoomSchema },
             { name: ModelName.STOCK, schema: StockSchema },
-            { name: ModelName.CHAT, schema: ChatSchema },
           ]),
           ClanModule,
           ChatModule,

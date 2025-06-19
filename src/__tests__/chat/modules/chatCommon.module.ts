@@ -2,11 +2,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { mongooseOptions, mongoString } from '../../test_utils/const/db';
 import { ModelName } from '../../../common/enum/modelName.enum';
-import { ChatSchema } from '../../../chat/schema/chatMessage.schema';
 import { RequestHelperModule } from '../../../requestHelper/requestHelper.module';
 import { ChatService } from '../../../chat/chat.service';
-import { isChatExists } from '../../../chat/decorator/validation/IsChatExists.decorator';
 import { GameEventsHandlerModule } from '../../../gameEventsHandler/gameEventsHandler.module';
+import { ChatMessageSchema } from '../../../chat/schema/chatMessage.schema';
 
 export default class ChatCommonModule {
   private constructor() {}
@@ -19,13 +18,13 @@ export default class ChatCommonModule {
         imports: [
           MongooseModule.forRoot(mongoString, mongooseOptions),
           MongooseModule.forFeature([
-            { name: ModelName.CHAT, schema: ChatSchema },
+            { name: ModelName.CHAT_MESSAGE, schema: ChatMessageSchema },
           ]),
 
           RequestHelperModule,
           GameEventsHandlerModule,
         ],
-        providers: [ChatService, isChatExists],
+        providers: [ChatService],
       }).compile();
 
     return ChatCommonModule.module;

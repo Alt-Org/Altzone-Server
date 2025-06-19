@@ -12,7 +12,6 @@ import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryB
 import SoulhomeModule from '../../clanInventory/modules/soulhome.module';
 import RoomModule from '../../clanInventory/modules/room.module';
 import StockModule from '../../clanInventory/modules/stock.module';
-import ChatBuilderFactory from '../../chat/data/chatBuilderFactory';
 import ChatModule from '../../chat/modules/chat.module';
 import { Box } from '../../../box/schemas/box.schema';
 import { envVars } from '../../../common/service/envHandler/envVars';
@@ -46,7 +45,6 @@ describe('BoxService.deleteBox() test suite', () => {
   const soulHomeBuilder = ClanInventoryBuilderFactory.getBuilder('SoulHome');
   const roomBuilder = ClanInventoryBuilderFactory.getBuilder('Room');
   const stockBuilder = ClanInventoryBuilderFactory.getBuilder('Stock');
-  const chatBuilder = ChatBuilderFactory.getBuilder('Chat');
 
   beforeEach(async () => {
     boxService = await BoxModule.getBoxService();
@@ -98,10 +96,6 @@ describe('BoxService.deleteBox() test suite', () => {
     const existingStock2 = stockBuilder.setClanId(existingClan2._id).build();
     const existingStockResp2 = await stockModel.create(existingStock2);
     existingStock2._id = existingStockResp2._id;
-
-    const existingChat = chatBuilder.build();
-    const existingChatResp = await chatModel.create(existingChat);
-    existingChat._id = existingChatResp._id;
 
     const testerName1 = 'testerOne';
     const testerName2 = 'testerTwo';
@@ -156,7 +150,6 @@ describe('BoxService.deleteBox() test suite', () => {
         new ObjectId(existingStock1._id),
         new ObjectId(existingStock2._id),
       ])
-      .setChatId(new ObjectId(existingChat._id))
       .setTesters([tester1, tester2])
       .build();
 
@@ -214,11 +207,6 @@ describe('BoxService.deleteBox() test suite', () => {
         _id: { $in: existingBox.stock_ids },
       });
       expect(stocksInDB).toHaveLength(0);
-    });
-
-    it('Should remove the chat', async () => {
-      const chatInDB = await chatModel.findById(existingBox.chat_id);
-      expect(chatInDB).toBeNull();
     });
 
     it('Should remove all tester profiles', async () => {

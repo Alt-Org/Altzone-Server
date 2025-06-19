@@ -54,7 +54,6 @@ describe('SessionStarterService.start() test suite', () => {
         new ObjectId(existingClan1._id),
         new ObjectId(existingClan2._id),
       ])
-      .setChatId(new ObjectId())
       .setTesters([...clan1Testers, ...clan2Testers])
       .setDailyTasks([task1, task2])
       .build();

@@ -22,7 +22,6 @@ describe('BoxHelper.isBoxRegistered() test suite', () => {
       .setSoulHomeIds([])
       .setRoomIds([])
       .setStockIds([])
-      .setChatId(new ObjectId())
       .build();
 
     await boxModel.create(boxToCreate);

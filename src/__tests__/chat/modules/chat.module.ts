@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { ChatService } from '../../../chat/chat.service';
 import ChatCommonModule from './chatCommon.module';
 import { ModelName } from '../../../common/enum/modelName.enum';
-import { ChatSchema } from '../../../chat/schema/chatMessage.schema';
+import { ChatMessageSchema } from '../../../chat/schema/chatMessage.schema';
 
 export default class ChatModule {
   private constructor() {}
@@ -13,6 +13,6 @@ export default class ChatModule {
   }
 
   static getChatModel() {
-    return mongoose.model(ModelName.CHAT, ChatSchema);
+    return mongoose.model(ModelName.CHAT_MESSAGE, ChatMessageSchema);
   }
 }

@@ -12,7 +12,6 @@ describe('BoxService.updateOneById() test suite', () => {
     .setAdminPassword('password')
     .setAdminPlayerId(new ObjectId())
     .setAdminProfileId(new ObjectId())
-    .setChatId(new ObjectId())
     .build();
 
   beforeEach(async () => {
@@ -21,38 +20,10 @@ describe('BoxService.updateOneById() test suite', () => {
     existingBox._id = createdBox._id;
   });
 
-  it('Should update box in the DB and return true if the input is valid', async () => {
-    const updatedChatId = new ObjectId();
-    const updateData = boxBuilder
-      .setId(existingBox._id)
-      .setChatId(updatedChatId)
-      .build();
-
-    const [wasUpdated, errors] = await boxService.updateOneById(updateData);
-
-    expect(errors).toBeNull();
-    expect(wasUpdated).toBeTruthy();
-
-    const updatedBox = await boxModel.findById(existingBox._id);
-    expect(updatedBox.chat_id).toEqual(updatedChatId);
-  });
-
-  it('Should return ServiceError REQUIRED if _id is not provided', async () => {
-    const updatedChatId = new ObjectId();
-    const updateData = boxBuilder.setId(null).setChatId(updatedChatId).build();
-
-    const [wasUpdated, errors] = await boxService.updateOneById(updateData);
-
-    expect(wasUpdated).toBeNull();
-    expect(errors).toContainSE_REQUIRED();
-    expect(errors[0].field).toBe('_id');
-  });
-
   it('Should return ServiceError NOT_FOUND if the box with provided _id does not exist', async () => {
     const updatedChatId = new ObjectId();
     const updateData = boxBuilder
       .setId(new ObjectId(getNonExisting_id()))
-      .setChatId(updatedChatId)
       .build();
 
     const [wasUpdated, errors] = await boxService.updateOneById(updateData);
@@ -67,7 +38,6 @@ describe('BoxService.updateOneById() test suite', () => {
       .setAdminPassword('other-box-password')
       .setAdminPlayerId(new ObjectId())
       .setAdminProfileId(new ObjectId())
-      .setChatId(new ObjectId())
       .build();
     await boxModel.create(otherBox);
 
