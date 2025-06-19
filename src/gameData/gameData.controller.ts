@@ -70,7 +70,7 @@ export class GameDataController {
   }
 
   /**
-   * Returns the minimum version of the game client.
+   * Returns the minimum required version of the game client.
    *
    * @remarks This endpoint provides the minimum version required for the game client to function correctly.
    */
