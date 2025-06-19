@@ -95,12 +95,6 @@ export class Box {
   stock_ids: ObjectId[];
 
   /**
-   * _id of the common chat related to the box
-   */
-  @Prop({ type: ObjectId, required: true })
-  chat_id: ObjectId;
-
-  /**
    * Testers that are related to the box and should have access to the box resources
    */
   @Prop({ type: [TesterSchema], required: true, default: [] })
@@ -164,13 +158,6 @@ BoxSchema.virtual(BoxReference.STOCKS, {
   ref: ModelName.STOCK,
   localField: 'stock_ids',
   foreignField: '_id',
-});
-
-BoxSchema.virtual(BoxReference.CHAT, {
-  ref: ModelName.CHAT,
-  localField: 'chat_id',
-  foreignField: '_id',
-  justOne: true,
 });
 
 BoxSchema.virtual(BoxReference.TESTER_PROFILES, {
