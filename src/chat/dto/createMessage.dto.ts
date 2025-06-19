@@ -1,23 +1,32 @@
-import { IsInt, IsString } from 'class-validator';
-import AddType from '../../common/base/decorator/AddType.decorator';
+import {
+  IsEnum,
+  IsMongoId,
+  IsNotEmpty,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
+import { chatMessageType } from '../enum/chatMessageType.enum';
 
-@AddType('CreateMessageDto')
-export class CreateMessageDto {
-  /**
-   * Unique numeric message ID within the chat
-   *
-   * @example 101
-   */
-  @IsInt()
-  id: number;
+export class CreateChatMessageDto {
+  constructor(partial: Partial<CreateChatMessageDto>) {
+    Object.assign(this, partial);
+  }
 
   /**
-   * Username of the player sending the message
+   * Specifies the type of the chat message.
    *
-   * @example "ShadowKnight"
+   * @example "clan"
    */
-  @IsString()
-  senderUsername: string;
+  @IsEnum(chatMessageType)
+  type: chatMessageType;
+
+  /**
+   * ID of the message sender
+   *
+   * @example "60f7c2d9a2d3c7b7e56d01df"
+   */
+  @IsMongoId()
+  sender_id: string;
 
   /**
    * Text content of the message
@@ -25,13 +34,28 @@ export class CreateMessageDto {
    * @example "Let’s meet at Soul Arena!"
    */
   @IsString()
+  @IsNotEmpty()
   content: string;
 
   /**
-   * Numeric code representing the emotion or tone (e.g., happy, angry)
+   * ID of the clan.
+   * Required when the message type is 'clan'.
    *
-   * @example 3
+   * @example "60d21b4667d0d8992e610c85"
    */
-  @IsInt()
-  feeling: number;
+  @ValidateIf((o) => o.type === chatMessageType.CLAN)
+  @IsNotEmpty({ message: 'clan_id must be provided for clan messages' })
+  @IsMongoId()
+  clan_id?: string;
+
+  /**
+   * ID of the recipient.
+   * Required when the message type is 'private'.
+   *
+   * @example "60d21b4667d0d8992e610c85"
+   */
+  @ValidateIf((o) => o.type === chatMessageType.PRIVATE)
+  @IsNotEmpty({ message: 'recipient_id must be provided for private messages' })
+  @IsMongoId()
+  recipient_id?: string;
 }
