@@ -298,16 +298,6 @@ export class BoxService {
       }
     }
 
-    if (boxData.chat_id) {
-      const resp = await this.chatService.deleteOneById(
-        boxData.chat_id.toString(),
-      );
-      if (resp instanceof MongooseError) {
-        const deleteError = convertMongooseToServiceErrors(resp);
-        await cancelTransaction(session, deleteError);
-      }
-    }
-
     if (boxData.adminProfile_id) {
       const resp = await this.profilesService.deleteOneById(
         boxData.adminProfile_id.toString(),

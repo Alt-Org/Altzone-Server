@@ -30,9 +30,6 @@ import { shopRules } from './rule/shopRules';
 import { RemovePlayerDTO } from '../clan/join/dto/removePlayer.dto';
 import { isType, ObjectType } from '../common/base/decorator/AddType.decorator';
 import { PlayerLeaveClanDto } from '../clan/join/dto/playerLeave.dto';
-import { ChatDto } from '../chat/dto/chat.dto';
-import { UpdateChatDto } from '../chat/dto/updateChat.dto';
-import { MessageDto } from '../chat/dto/message.dto';
 import { chatRules } from './rule/chatRules';
 import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { UpdateItemDto } from '../clanInventory/item/dto/updateItem.dto';
@@ -74,10 +71,7 @@ export type AllowedSubject =
   | typeof SoulHomeDto
   | typeof UpdateSoulHomeDto
   | typeof RoomDto
-  | typeof UpdateRoomDto
-  | typeof ChatDto
-  | typeof UpdateChatDto
-  | typeof MessageDto;
+  | typeof UpdateRoomDto;
 
 type Subjects = InferSubjects<AllowedSubject>;
 

@@ -19,7 +19,6 @@ import { PlayerService } from '../player/player.service';
 import { convertMongooseToServiceErrors } from '../common/service/basicService/BasicService';
 import { ClanLabel } from '../clan/enum/clanLabel.enum';
 import { ClanDto } from '../clan/dto/clan.dto';
-import { Chat } from '../chat/chat.schema';
 import generateClanNames from './util/generateClanNames';
 import { BoxService } from './box.service';
 import { CreatedBox } from './payloads/CreatedBox';
@@ -146,13 +145,6 @@ export default class BoxCreator {
     ) as unknown as ObjectId[];
     boxToCreate.room_ids = [...soulHome1Rooms_ids, ...soulHome2Rooms_ids];
 
-    const [chat, chatErrors] = await this.createBoxChat();
-    if (chatErrors) {
-      await this.boxService.deleteBoxReferences(boxToCreate);
-      return [null, chatErrors];
-    }
-    boxToCreate.chat_id = chat._id;
-
     const weekMs = 1000 * 60 * 60 * 24 * 7;
     boxToCreate.sessionResetTime = new Date().getTime() + weekMs;
     const monthMs = 1000 * 60 * 60 * 24 * 30;
@@ -179,18 +171,12 @@ export default class BoxCreator {
       id: _id,
       ...createdAdminPlayer
     } = (adminPlayer as any).toObject();
-    const {
-      __v: _chat_v,
-      id: _chat_id,
-      ...createdChat
-    } = (chat as any).toObject();
 
     return [
       {
         ...createdBox.toObject(),
         adminPlayer: createdAdminPlayer,
         clans: [createdClan1, createdClan2],
-        chat: createdChat,
       },
       null,
     ];
@@ -347,19 +333,5 @@ export default class BoxCreator {
     if (clan2Errors) return [null, clan2Errors];
 
     return [[clan1Resp, clan2Resp], null];
-  }
-
-  /**
-   * Creates a chat for a box, which contains no messages
-   * @returns created chat or ServiceErrors if any occurred
-   */
-  private async createBoxChat(): Promise<IServiceReturn<Chat>> {
-    const chatResp = await this.chatService.createOne({ messages: [] });
-    if (chatResp instanceof MongooseError) {
-      const creationErrors = convertMongooseToServiceErrors(chatResp);
-      return [null, creationErrors];
-    }
-
-    return [chatResp.data[chatResp.metaData.dataKey], null];
   }
 }
