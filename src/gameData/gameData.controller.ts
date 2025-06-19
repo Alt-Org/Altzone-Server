@@ -71,9 +71,7 @@ export class GameDataController {
 
   /**
    * Inform API about game version
-   *
-   * Returns the minimum required version of the game client.
-   *
+  *
    * @remarks This endpoint provides the minimum version required for the game client to function correctly.
    */
   @ApiResponseDescription({
