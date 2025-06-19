@@ -4,7 +4,7 @@ import CreateChatDtoBuilder from '../data/chat/createChatDtoBuilder';
 import CreateMessageDtoBuilder from '../data/chat/createMessageDtoBuilder';
 import { IGetAllQuery } from '../../../common/interface/IGetAllQuery';
 import { IResponseShape } from '../../../common/interface/IResponseShape';
-import { Chat } from '../../../chat/chat.schema';
+import { Chat } from '../../../chat/schema/chatMessage.schema';
 
 describe('ChatService.readAllMessages() test suite', () => {
   let chatService: ChatService;

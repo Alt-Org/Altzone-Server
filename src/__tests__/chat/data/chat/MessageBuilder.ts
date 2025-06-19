@@ -1,4 +1,4 @@
-import { Message } from '../../../../chat/chat.schema';
+import { Message } from '../../../../chat/schema/chatMessage.schema';
 
 export default class MessageBuilder {
   private readonly base: Partial<Message> = {

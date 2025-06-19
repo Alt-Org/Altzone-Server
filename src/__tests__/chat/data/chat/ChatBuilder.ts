@@ -1,4 +1,4 @@
-import { Chat, Message } from '../../../../chat/chat.schema';
+import { Chat, Message } from '../../../../chat/schema/chatMessage.schema';
 import { ObjectId } from 'mongodb';
 
 export default class ChatBuilder {

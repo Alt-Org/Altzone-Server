@@ -4,7 +4,7 @@ import ChatModule from '../modules/chat.module';
 import CreateChatDtoBuilder from '../data/chat/createChatDtoBuilder';
 import CreateMessageDtoBuilder from '../data/chat/createMessageDtoBuilder';
 import { IResponseShape } from '../../../common/interface/IResponseShape';
-import { Chat } from '../../../chat/chat.schema';
+import { Chat } from '../../../chat/schema/chatMessage.schema';
 
 describe('ChatService.readOneMessageById() test suite', () => {
   let chatService: ChatService;

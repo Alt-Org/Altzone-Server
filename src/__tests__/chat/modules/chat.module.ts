@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { ChatService } from '../../../chat/chat.service';
 import ChatCommonModule from './chatCommon.module';
 import { ModelName } from '../../../common/enum/modelName.enum';
-import { ChatSchema } from '../../../chat/chat.schema';
+import { ChatSchema } from '../../../chat/schema/chatMessage.schema';
 
 export default class ChatModule {
   private constructor() {}
