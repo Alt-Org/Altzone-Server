@@ -7,6 +7,7 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { ChatGateway } from './clan-chat.gateway';
 import { PlayerModule } from '../player/player.module';
 import { ClanChatService } from './clanChat.service';
+import { RequestHelperModule } from '../requestHelper/requestHelper.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ClanChatService } from './clanChat.service';
       { name: ModelName.CHAT_MESSAGE, schema: ChatMessageSchema },
     ]),
     PlayerModule,
+    RequestHelperModule,
   ],
   controllers: [ChatController],
   providers: [ChatService, ChatGateway, ClanChatService],
