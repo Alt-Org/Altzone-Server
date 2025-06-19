@@ -1,4 +1,4 @@
-export enum chatMessageType {
+export enum ChatMessageType {
   CLAN = 'clan',
   PRIVATE = 'private',
   GLOBAL = 'global',

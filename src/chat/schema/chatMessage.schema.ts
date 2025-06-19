@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 import { HydratedDocument } from 'mongoose';
-import { chatMessageType } from '../enum/chatMessageType.enum';
+import { ChatMessageType } from '../enum/chatMessageType.enum';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { Reaction } from './reaction.schema';
 
@@ -13,8 +13,8 @@ export type ChatMessageDocument = HydratedDocument<ChatMessage>;
   toObject: { virtuals: true, getters: true },
 })
 export class ChatMessage {
-  @Prop({ type: String, enum: chatMessageType, required: true })
-  type: chatMessageType;
+  @Prop({ type: String, enum: ChatMessageType, required: true })
+  type: ChatMessageType;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
@@ -40,7 +40,7 @@ export const ChatMessageSchema = SchemaFactory.createForClass(ChatMessage);
 
 ChatMessageSchema.index({ clan_id: 1, createdAt: -1 });
 
-ChatMessageSchema.virtual(ModelName.PLAYER, {
+ChatMessageSchema.virtual('sender', {
   ref: ModelName.PLAYER,
   localField: 'sender_id',
   foreignField: '_id',

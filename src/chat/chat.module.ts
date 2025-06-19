@@ -7,15 +7,15 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { ChatGateway } from './clan-chat.gateway';
 import { PlayerModule } from '../player/player.module';
 import { ClanChatService } from './clanChat.service';
-import { RequestHelperModule } from '../requestHelper/requestHelper.module';
+import { PlayerSchema } from '../player/schemas/player.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
+      { name: ModelName.PLAYER, schema: PlayerSchema },
       { name: ModelName.CHAT_MESSAGE, schema: ChatMessageSchema },
     ]),
     PlayerModule,
-    RequestHelperModule,
   ],
   controllers: [ChatController],
   providers: [ChatService, ChatGateway, ClanChatService],

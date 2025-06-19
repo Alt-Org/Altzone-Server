@@ -1,5 +1,31 @@
 import { Expose, Type } from 'class-transformer';
 import { ReactionDto } from './reaction.dto';
+import { Avatar } from '../../player/schemas/avatar.schema';
+
+/**
+ * Sender information for a chat message
+ */
+class Sender {
+  /**
+   * Unique ID of the sender
+   * @example "60f7c2d9a2d3c7b7e56d01df"
+   */
+  @Expose()
+  id: string;
+
+  /**
+   * Name of the sender
+   * @example "PlayerOne"
+   */
+  @Expose()
+  name: string;
+
+  /**
+   * Avatar of the sender
+   */
+  @Expose()
+  avatar: Avatar;
+}
 
 export class ChatMessageDto {
   /**
@@ -17,18 +43,18 @@ export class ChatMessageDto {
   clan_id: string;
 
   /**
-   * ID of the player who sent the message
-   * @example "60f7c2d9a2d3c7b7e56d01df"
+   * Sender information
    */
   @Expose()
-  sender_id: string;
+  @Type(() => Sender)
+  sender: Sender;
 
   /**
-   * Name of the player who sent the message
-   * @example "ShadowKnight"
+   * ID of the recipient (for private messages)
+   * @example "60d21b4667d0d8992e610c85"
    */
   @Expose()
-  senderName: string;
+  recipient_id?: string;
 
   /**
    * Content of the chat message
@@ -38,18 +64,11 @@ export class ChatMessageDto {
   content: string;
 
   /**
-   * Type of the chat message
+   * Type of the chat message (e.g., "clan", "private")
    * @example "clan"
    */
   @Expose()
   type: string;
-
-  /**
-   * ID of the recipient (for private messages)
-   * @example "60d21b4667d0d8992e610c85"
-   */
-  @Expose()
-  recipient_id?: string;
 
   /**
    * List of reactions to this message

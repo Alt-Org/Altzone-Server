@@ -54,26 +54,11 @@ export class ChatService {
     return [message, null];
   }
 
-  async getMessages(options?: TIServiceReadManyOptions): Promise<{
-    data: any[];
-    paginationData: { itemCount: number };
-    metaData: { dataType: string };
-  }> {
-    const [items, itemCount] = await Promise.all([
-      this.model
-        .find(options.filter)
-        .sort(options.sort)
-        .skip(options.skip)
-        .limit(options.limit)
-        .select(options.select ? options.select.join(' ') : '')
-        .lean(),
-      this.model.countDocuments(options.filter),
-    ]);
-
-    return {
-      data: items,
-      paginationData: { itemCount },
-      metaData: { dataType: 'Array' },
+  async getMessages(options?: TIServiceReadManyOptions) {
+    const opts = {
+      ...options,
+      populate: [{ path: 'sender', select: '_id name avatar' }],
     };
+    return await this.basicService.readMany(opts);
   }
 }

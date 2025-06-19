@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { WebSocketUser } from './types/WsUser.type';
 import { ChatService } from './chat.service';
 import { CreateChatMessageDto } from './dto/createMessage.dto';
-import { chatMessageType } from './enum/chatMessageType.enum';
+import { ChatMessageType } from './enum/chatMessageType.enum';
 import { validate } from 'class-validator';
 import { ChatMessageDto } from './dto/chatMessage.dto';
 import { AddReactionDto } from './dto/addReaction.dto';
@@ -36,7 +36,7 @@ export class ClanChatService {
 
   async handleNewMessage(client: WebSocketUser, message: string) {
     const chatMessage = new CreateChatMessageDto({
-      type: chatMessageType.CLAN,
+      type: ChatMessageType.CLAN,
       clan_id: client.user.clanId,
       sender_id: client.user.playerId,
       content: message,

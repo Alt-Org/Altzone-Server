@@ -5,7 +5,7 @@ import {
   IsString,
   ValidateIf,
 } from 'class-validator';
-import { chatMessageType } from '../enum/chatMessageType.enum';
+import { ChatMessageType } from '../enum/chatMessageType.enum';
 
 export class CreateChatMessageDto {
   constructor(partial: Partial<CreateChatMessageDto>) {
@@ -17,8 +17,8 @@ export class CreateChatMessageDto {
    *
    * @example "clan"
    */
-  @IsEnum(chatMessageType)
-  type: chatMessageType;
+  @IsEnum(ChatMessageType)
+  type: ChatMessageType;
 
   /**
    * ID of the message sender
@@ -43,7 +43,7 @@ export class CreateChatMessageDto {
    *
    * @example "60d21b4667d0d8992e610c85"
    */
-  @ValidateIf((o) => o.type === chatMessageType.CLAN)
+  @ValidateIf((o) => o.type === ChatMessageType.CLAN)
   @IsNotEmpty({ message: 'clan_id must be provided for clan messages' })
   @IsMongoId()
   clan_id?: string;
@@ -54,7 +54,7 @@ export class CreateChatMessageDto {
    *
    * @example "60d21b4667d0d8992e610c85"
    */
-  @ValidateIf((o) => o.type === chatMessageType.PRIVATE)
+  @ValidateIf((o) => o.type === ChatMessageType.PRIVATE)
   @IsNotEmpty({ message: 'recipient_id must be provided for private messages' })
   @IsMongoId()
   recipient_id?: string;
