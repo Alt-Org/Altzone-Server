@@ -1,21 +1,22 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ChatSchema } from './chat.schema';
+import { ChatMessageSchema } from './schema/chatMessage.schema';
 import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
-import { isChatExists } from './decorator/validation/IsChatExists.decorator';
 import { ModelName } from '../common/enum/modelName.enum';
-import { RequestHelperModule } from '../requestHelper/requestHelper.module';
-import { GameEventsHandlerModule } from '../gameEventsHandler/gameEventsHandler.module';
+import { ChatGateway } from './clan-chat.gateway';
+import { PlayerModule } from '../player/player.module';
+import { ClanChatService } from './clanChat.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: ModelName.CHAT, schema: ChatSchema }]),
-    RequestHelperModule,
-    GameEventsHandlerModule,
+    MongooseModule.forFeature([
+      { name: ModelName.CHAT_MESSAGE, schema: ChatMessageSchema },
+    ]),
+    PlayerModule,
   ],
   controllers: [ChatController],
-  providers: [ChatService, isChatExists],
+  providers: [ChatService, ChatGateway, ClanChatService],
   exports: [ChatService],
 })
 export class ChatModule {}
