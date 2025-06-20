@@ -14,6 +14,15 @@ export class JwtWsAdapter extends WsAdapter {
 
   private server: http.Server;
 
+  /**
+   * Creates and configures a new WebSocket server instance with JWT authentication.
+   *
+   * The server listens for HTTP upgrade requests and attempts to extract and verify a JWT token.
+   * If the token is valid, the WebSocket connection is established and the decoded token payload
+   * is attached to the WebSocket instance. If the token is missing or invalid, the connection is rejected.
+   *
+   * @returns A configured WebSocket server instance.
+   */
   create(): WebSocket.Server {
     const wss = new WebSocket.Server({ noServer: true });
 
@@ -40,6 +49,15 @@ export class JwtWsAdapter extends WsAdapter {
     return wss;
   }
 
+  /**
+   * Extracts a bearer token from the HTTP request.
+   *
+   * This method first checks the `Authorization` header for a bearer token.
+   * If not found, it attempts to extract a `token` query parameter from the request URL.
+   *
+   * @param req The incoming HTTP request object.
+   * @returns The extracted token.
+   */
   private extractToken(req: http.IncomingMessage): string | null {
     const authHeader = req.headers['authorization'];
     if (authHeader?.startsWith('Bearer ')) {

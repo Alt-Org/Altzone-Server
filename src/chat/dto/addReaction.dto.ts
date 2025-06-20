@@ -1,7 +1,7 @@
 import { IsMongoId, IsOptional, IsString } from 'class-validator';
 
 /**
- * DTO representing a single chat message.
+ * DTO for adding reaction to a chat message.
  */
 export class AddReactionDto {
   /**

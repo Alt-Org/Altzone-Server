@@ -1,31 +1,6 @@
 import { Expose, Type } from 'class-transformer';
 import { ReactionDto } from './reaction.dto';
-import { Avatar } from '../../player/schemas/avatar.schema';
-
-/**
- * Sender information for a chat message
- */
-class Sender {
-  /**
-   * Unique ID of the sender
-   * @example "60f7c2d9a2d3c7b7e56d01df"
-   */
-  @Expose()
-  id: string;
-
-  /**
-   * Name of the sender
-   * @example "PlayerOne"
-   */
-  @Expose()
-  name: string;
-
-  /**
-   * Avatar of the sender
-   */
-  @Expose()
-  avatar: Avatar;
-}
+import { Sender } from './messageSender.dto';
 
 export class ChatMessageDto {
   /**

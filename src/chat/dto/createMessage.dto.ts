@@ -6,6 +6,7 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { ChatMessageType } from '../enum/chatMessageType.enum';
+import { Feeling } from '../enum/feeling.enum';
 
 export class CreateChatMessageDto {
   constructor(partial: Partial<CreateChatMessageDto>) {
@@ -58,4 +59,12 @@ export class CreateChatMessageDto {
   @IsNotEmpty({ message: 'recipient_id must be provided for private messages' })
   @IsMongoId()
   recipient_id?: string;
+
+  /**
+   * Feeling of the message.
+   *
+   * @example "Happy"
+   */
+  @IsEnum(Feeling)
+  feeling?: Feeling;
 }

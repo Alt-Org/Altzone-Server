@@ -4,6 +4,7 @@ import { HydratedDocument } from 'mongoose';
 import { ChatMessageType } from '../enum/chatMessageType.enum';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { Reaction } from './reaction.schema';
+import { Feeling } from '../enum/feeling.enum';
 
 export type ChatMessageDocument = HydratedDocument<ChatMessage>;
 
@@ -22,6 +23,9 @@ export class ChatMessage {
     required: true,
   })
   sender_id: MongooseSchema.Types.ObjectId;
+
+  @Prop({ type: String, enum: Feeling })
+  feeling?: Feeling;
 
   @Prop({ type: String, required: true })
   content: string;

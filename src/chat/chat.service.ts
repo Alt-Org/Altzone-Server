@@ -22,12 +22,26 @@ export class ChatService {
 
   private readonly basicService: BasicService;
 
+  /**
+   * Creates a message in database.
+   *
+   * @param message - Message data to create.
+   * @returns Created message.
+   */
   async createChatMessage(message: CreateChatMessageDto) {
     return this.basicService.createOne<CreateChatMessageDto, ChatMessageDto>(
       message,
     );
   }
 
+  /**
+   * Adds an reaction to chat message.
+   *
+   * @param messageId - ID of the message reaction is to.
+   * @param playerName - Name of the player who reacted.
+   * @param emoji - String representation of the emoji.
+   * @returns Message with added reaction.
+   */
   async addReaction(
     messageId: string,
     playerName: string,
@@ -54,11 +68,19 @@ export class ChatService {
     return [message, null];
   }
 
-  async getMessages(options?: TIServiceReadManyOptions) {
+  /**
+   * Retrieves messages from database.
+   *
+   * @param options - Database query options.
+   * @returns An array of chat messages.
+   */
+  async getMessages(
+    options?: TIServiceReadManyOptions,
+  ): Promise<IServiceReturn<ChatMessageDto[]>> {
     const opts = {
       ...options,
-      populate: [{ path: 'sender', select: '_id name avatar' }],
+      populate: [{ path: 'sender' }],
     };
-    return await this.basicService.readMany(opts);
+    return await this.basicService.readMany<ChatMessageDto>(opts);
   }
 }

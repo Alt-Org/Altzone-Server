@@ -10,6 +10,7 @@ import { PlayerService } from '../player/player.service';
 import { WebSocketUser } from './types/WsUser.type';
 import { ClanChatService } from './clanChat.service';
 import { AddReactionDto } from './dto/addReaction.dto';
+import { WsMessageBodyDto } from './dto/wsMessageBody.dto';
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -18,7 +19,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly clanChatService: ClanChatService,
   ) {}
 
-  async handleConnection(client: WebSocketUser) {
+  /**
+   * Handles a new WebSocket client connection.
+   *
+   * Retrieves the player's information using the player ID from the client's token.
+   * If the player is found, attaches user details to the client object.
+   *
+   * @param client The WebSocket client attempting to connect.
+   */
+  async handleConnection(client: WebSocketUser): Promise<void> {
     const playerId = client['token']['player_id'];
     const [player, error] = await this.playerService.getPlayerById(playerId);
     if (error) {
@@ -36,16 +45,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.clanChatService.handleJoinChat(client);
   }
 
+  /**
+   * Handles the disconnection of a WebSocket client.
+   *
+   * @param client - The WebSocket client that has disconnected.
+   */
   handleDisconnect(client: WebSocketUser) {
     this.clanChatService.handleDisconnect(client);
   }
 
   @SubscribeMessage('clanMessage')
   async handleClanMessage(
-    @MessageBody() data: { message: string },
+    @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
-    await this.clanChatService.handleNewMessage(client, data.message);
+    await this.clanChatService.handleNewMessage(client, message);
   }
 
   @SubscribeMessage('clanMessageReaction')
