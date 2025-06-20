@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { GameDataService } from './gameData.service';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
@@ -11,7 +11,6 @@ import { RequestTypeDto } from './dto/requestType.dto';
 import { BattleResultDto } from './dto/battleResult.dto';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { BattleResponseDto } from './dto/battleResponse.dto';
-import { NoAuth } from '../auth/decorator/NoAuth.decorator';
 
 @Controller('gameData')
 export class GameDataController {
@@ -67,26 +66,5 @@ export class GameDataController {
       default:
         return new APIError({ reason: APIErrorReason.BAD_REQUEST });
     }
-  }
-
-  /**
-   * Inform API about game version
-   *
-   * @remarks This endpoint provides the minimum version required for the game client to function correctly.
-   */
-  @ApiResponseDescription({
-    success: {
-      dto: String,
-    },
-    errors: [],
-  })
-  @NoAuth()
-  @Get('minVersion')
-  async getMinVersion() {
-    const [version, error] = await this.service.getMinVersion();
-
-    if (error) return error;
-
-    return version;
   }
 }

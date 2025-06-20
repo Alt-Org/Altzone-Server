@@ -25,7 +25,8 @@ export type SwaggerTagName =
   | 'GameAnalytics'
   | 'Box'
   | 'OnlinePlayers'
-  | 'GameData';
+  | 'GameData'
+  | 'Metadata';
 
 /**
  * All swagger tags and their data
@@ -129,6 +130,11 @@ export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
   GameData: {
     name: 'GameData',
     description: 'Information about game',
+  },
+
+  Metadata: {
+    name: 'Metadata',
+    description: 'Metadata',
   },
 };
 

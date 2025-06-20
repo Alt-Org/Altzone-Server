@@ -18,7 +18,6 @@ import { GameEventsHandler } from '../gameEventsHandler/gameEventsHandler';
 import { GameEventType } from '../gameEventsHandler/enum/GameEventType.enum';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
-import { envVars } from '../common/service/envHandler/envVars';
 
 @Injectable()
 export class GameDataService {
@@ -89,29 +88,6 @@ export class GameDataService {
       teamIds.team2Id,
       user,
     );
-  }
-
-  /**
-   * Lookup the MINIMUM_VERSION parameter from config file.
-   *
-   * @returns - Returns a promise that contains the expected version number or an API error.
-   */
-  async getMinVersion(): Promise<IServiceReturn<string>> {
-    if (
-      envVars.MINIMUM_VERSION.length === 0 ||
-      envVars.MINIMUM_VERSION === '0'
-    ) {
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.MISCONFIGURED,
-            message: 'MINIMUM_VERSION is not set in the environment variables.',
-          }),
-        ],
-      ];
-    }
-    return [envVars.MINIMUM_VERSION, null];
   }
 
   /**
