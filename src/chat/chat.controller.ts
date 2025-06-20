@@ -8,6 +8,8 @@ import DetermineClanId from '../common/guard/clanId.guard';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
 import { ChatMessageType } from './enum/chatMessageType.enum';
+import { OffsetPaginate } from '../common/interceptor/request/offsetPagination.interceptor';
+import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
 
 @Controller('chat')
 export class ChatController {
@@ -16,17 +18,16 @@ export class ChatController {
   @Get('history')
   @DetermineClanId()
   @UniformResponse(ModelName.CHAT_MESSAGE, ChatMessageDto)
+  @OffsetPaginate(ModelName.CHAT_MESSAGE)
   async getClanChatHistory(
     @LoggedUser() user: User,
+    @GetAllQuery() paginationQuery: IGetAllQuery,
     @Query('type') type?: ChatMessageType,
-    @Query('limit') limit?: number,
-    @Query('skip') skip?: number,
     @Query('recipientId') recipientId?: string,
   ) {
     const query: IGetAllQuery = {
+      ...paginationQuery,
       filter: {},
-      limit: limit ?? 50,
-      skip: skip ?? 0,
       sort: { createdAt: -1 },
     };
 
