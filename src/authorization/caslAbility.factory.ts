@@ -151,7 +151,12 @@ export class CASLAbilityFactory {
         this.connection,
       );
 
-    if (isType(obj, 'ClanDto') || isType(obj, 'UpdateClanDto'))
+    if (
+      obj instanceof ClanDto ||
+      obj instanceof UpdateClanDto ||
+      isType(obj, 'ClanDto') ||
+      isType(obj, 'UpdateClanDto')
+    )
       return clanRules(
         user,
         subject,
