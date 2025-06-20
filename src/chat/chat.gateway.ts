@@ -11,8 +11,11 @@ import { WebSocketUser } from './types/WsUser.type';
 import { ClanChatService } from './clanChat.service';
 import { AddReactionDto } from './dto/addReaction.dto';
 import { WsMessageBodyDto } from './dto/wsMessageBody.dto';
+import { envVars } from '../common/service/envHandler/envVars';
 
-@WebSocketGateway()
+const apiPort = Number.parseInt(envVars.PORT, 10);
+
+@WebSocketGateway(apiPort)
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly playerService: PlayerService,
