@@ -16,7 +16,7 @@ export class WsMessageBodyDto {
    * Feeling of the message.
    * @example "Happy"
    */
-  @IsEnum(Feeling)
   @IsOptional()
+  @IsEnum(Feeling)
   feeling?: Feeling;
 }

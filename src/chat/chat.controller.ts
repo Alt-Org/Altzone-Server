@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ChatService } from './chat.service';
+import { ChatService } from './service/chat.service';
 import { ModelName } from '../common/enum/modelName.enum';
 import { IGetAllQuery } from '../common/interface/IGetAllQuery';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
@@ -7,7 +7,7 @@ import { ChatMessageDto } from './dto/chatMessage.dto';
 import DetermineClanId from '../common/guard/clanId.guard';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
-import { ChatMessageType } from './enum/chatMessageType.enum';
+import { ChatType } from './enum/chatMessageType.enum';
 import { OffsetPaginate } from '../common/interceptor/request/offsetPagination.interceptor';
 import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
 
@@ -22,7 +22,7 @@ export class ChatController {
   async getClanChatHistory(
     @LoggedUser() user: User,
     @GetAllQuery() paginationQuery: IGetAllQuery,
-    @Query('type') type?: ChatMessageType,
+    @Query('type') type?: ChatType,
     @Query('recipientId') recipientId?: string,
   ) {
     const query: IGetAllQuery = {
@@ -32,16 +32,16 @@ export class ChatController {
     };
 
     switch (type) {
-      case ChatMessageType.CLAN:
+      case ChatType.CLAN:
         query.filter = {
-          type: ChatMessageType.CLAN,
+          type: ChatType.CLAN,
           clan_id: user.clan_id,
         };
         break;
 
-      case ChatMessageType.PRIVATE:
+      case ChatType.PRIVATE:
         query.filter = {
-          type: ChatMessageType.PRIVATE,
+          type: ChatType.PRIVATE,
           $or: [
             { sender_id: user.player_id, recipient_id: recipientId },
             { sender_id: recipientId, recipient_id: user.player_id },
@@ -51,7 +51,7 @@ export class ChatController {
 
       default:
         query.filter = {
-          type: ChatMessageType.GLOBAL,
+          type: ChatType.GLOBAL,
         };
     }
 

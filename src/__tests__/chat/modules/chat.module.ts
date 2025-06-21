@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { ChatService } from '../../../chat/chat.service';
+import { ChatService } from '../../../chat/service/chat.service';
 import ChatCommonModule from './chatCommon.module';
 import { ModelName } from '../../../common/enum/modelName.enum';
 import { ChatMessageSchema } from '../../../chat/schema/chatMessage.schema';

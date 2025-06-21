@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {} from '../common/base/decorator/AddBasicService.decorator';
-import { ChatMessage } from './schema/chatMessage.schema';
+import {} from '../../common/base/decorator/AddBasicService.decorator';
+import { ChatMessage } from '../schema/chatMessage.schema';
 import { Model } from 'mongoose';
-import BasicService from '../common/service/basicService/BasicService';
-import { ChatMessageDto } from './dto/chatMessage.dto';
-import { CreateChatMessageDto } from './dto/createMessage.dto';
+import BasicService from '../../common/service/basicService/BasicService';
+import { ChatMessageDto } from '../dto/chatMessage.dto';
+import { CreateChatMessageDto } from '../dto/createMessage.dto';
 import {
   IServiceReturn,
   TIServiceReadManyOptions,
-} from '../common/service/basicService/IService';
+} from '../../common/service/basicService/IService';
 
 @Injectable()
 export class ChatService {

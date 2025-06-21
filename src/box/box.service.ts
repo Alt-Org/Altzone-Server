@@ -21,7 +21,7 @@ import { Room } from '../clanInventory/room/room.schema';
 import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { BoxHelper } from './util/boxHelper';
 import { ClanService } from '../clan/clan.service';
-import { ChatService } from '../chat/chat.service';
+import { ChatService } from '../chat/service/chat.service';
 import { ProfileService } from '../profile/profile.service';
 import {
   IServiceReturn,

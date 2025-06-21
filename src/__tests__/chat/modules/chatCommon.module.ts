@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { mongooseOptions, mongoString } from '../../test_utils/const/db';
 import { ModelName } from '../../../common/enum/modelName.enum';
 import { RequestHelperModule } from '../../../requestHelper/requestHelper.module';
-import { ChatService } from '../../../chat/chat.service';
+import { ChatService } from '../../../chat/service/chat.service';
 import { GameEventsHandlerModule } from '../../../gameEventsHandler/gameEventsHandler.module';
 import { ChatMessageSchema } from '../../../chat/schema/chatMessage.schema';
 

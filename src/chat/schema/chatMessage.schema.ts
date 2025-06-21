@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 import { HydratedDocument } from 'mongoose';
-import { ChatMessageType } from '../enum/chatMessageType.enum';
+import { ChatType } from '../enum/chatMessageType.enum';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { Reaction } from './reaction.schema';
 import { Feeling } from '../enum/feeling.enum';
@@ -14,8 +14,8 @@ export type ChatMessageDocument = HydratedDocument<ChatMessage>;
   toObject: { virtuals: true, getters: true },
 })
 export class ChatMessage {
-  @Prop({ type: String, enum: ChatMessageType, required: true })
-  type: ChatMessageType;
+  @Prop({ type: String, enum: ChatType, required: true })
+  type: ChatType;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,

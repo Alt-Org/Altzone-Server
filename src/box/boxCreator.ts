@@ -13,7 +13,7 @@ import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { ObjectId } from 'mongodb';
 import { ClanService } from '../clan/clan.service';
-import { ChatService } from '../chat/chat.service';
+import { ChatService } from '../chat/service/chat.service';
 import { ProfileService } from '../profile/profile.service';
 import { PlayerService } from '../player/player.service';
 import { convertMongooseToServiceErrors } from '../common/service/basicService/BasicService';

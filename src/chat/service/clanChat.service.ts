@@ -1,17 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { WebSocketUser } from './types/WsUser.type';
+import { WebSocketUser } from '../types/WsUser.type';
 import { ChatService } from './chat.service';
-import { CreateChatMessageDto } from './dto/createMessage.dto';
-import { ChatMessageType } from './enum/chatMessageType.enum';
+import { CreateChatMessageDto } from '../dto/createMessage.dto';
+import { ChatType } from '../enum/chatMessageType.enum';
 import { validate } from 'class-validator';
-import { ChatMessageDto } from './dto/chatMessage.dto';
-import { AddReactionDto } from './dto/addReaction.dto';
-import { MessageEventType } from './enum/messageEventType.enum';
-import { WsMessageBodyDto } from './dto/wsMessageBody.dto';
+import { AddReactionDto } from '../dto/addReaction.dto';
+import { MessageEventType } from '../enum/messageEventType.enum';
+import { WsMessageBodyDto } from '../dto/wsMessageBody.dto';
+import { WebSocket } from 'ws';
+import { ChatEnvelopeDto } from '../dto/chatEnvelope.dto';
 
 @Injectable()
 export class ClanChatService {
   constructor(private readonly chatService: ChatService) {}
+
   clanRooms = new Map<string, Set<WebSocketUser>>();
 
   /**
@@ -67,7 +69,7 @@ export class ClanChatService {
     message: WsMessageBodyDto,
   ): Promise<void> {
     const chatMessage = new CreateChatMessageDto({
-      type: ChatMessageType.CLAN,
+      type: ChatType.CLAN,
       clan_id: client.user.clanId,
       sender_id: client.user.playerId,
       content: message.content,
@@ -91,11 +93,13 @@ export class ClanChatService {
       return;
     }
 
-    this.broadcast(
-      createdMsg,
-      client.user.clanId,
-      MessageEventType.NEW_MESSAGE,
-    );
+    const messageEnvelope: ChatEnvelopeDto = {
+      chat: ChatType.CLAN,
+      event: MessageEventType.NEW_MESSAGE,
+      message: createdMsg,
+    };
+
+    this.broadcast(messageEnvelope, client.user.clanId);
   }
 
   /**
@@ -145,11 +149,13 @@ export class ClanChatService {
       return;
     }
 
-    this.broadcast(
-      updatedMessage,
-      client.user.clanId,
-      MessageEventType.NEW_REACTION,
-    );
+    const messageEnvelope: ChatEnvelopeDto = {
+      chat: ChatType.CLAN,
+      event: MessageEventType.NEW_REACTION,
+      message: updatedMessage,
+    };
+
+    this.broadcast(messageEnvelope, client.user.clanId);
   }
 
   /**
@@ -159,15 +165,16 @@ export class ClanChatService {
    * @param clanId - The unique identifier of the clan whose members will receive the message.
    * @param event - The type of chat event being broadcasted.
    */
-  private broadcast(
-    message: ChatMessageDto,
-    clanId: string,
-    event: MessageEventType,
-  ) {
+  private broadcast(message: ChatEnvelopeDto, clanId: string) {
     const recipients = this.clanRooms.get(clanId);
     if (recipients) {
       recipients.forEach((recipient) => {
-        recipient.send(JSON.stringify({ event, message }));
+        if (
+          recipient &&
+          recipient.readyState === WebSocket.OPEN &&
+          typeof recipient.send === 'function'
+        )
+          recipient.send(JSON.stringify(message));
       });
     }
   }

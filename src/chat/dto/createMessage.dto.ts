@@ -2,24 +2,24 @@ import {
   IsEnum,
   IsMongoId,
   IsNotEmpty,
+  IsOptional,
   IsString,
   ValidateIf,
 } from 'class-validator';
-import { ChatMessageType } from '../enum/chatMessageType.enum';
+import { ChatType } from '../enum/chatMessageType.enum';
 import { Feeling } from '../enum/feeling.enum';
 
 export class CreateChatMessageDto {
   constructor(partial: Partial<CreateChatMessageDto>) {
     Object.assign(this, partial);
   }
-
   /**
    * Specifies the type of the chat message.
    *
    * @example "clan"
    */
-  @IsEnum(ChatMessageType)
-  type: ChatMessageType;
+  @IsEnum(ChatType)
+  type: ChatType;
 
   /**
    * ID of the message sender
@@ -44,7 +44,7 @@ export class CreateChatMessageDto {
    *
    * @example "60d21b4667d0d8992e610c85"
    */
-  @ValidateIf((o) => o.type === ChatMessageType.CLAN)
+  @ValidateIf((o) => o.type === ChatType.CLAN)
   @IsNotEmpty({ message: 'clan_id must be provided for clan messages' })
   @IsMongoId()
   clan_id?: string;
@@ -55,7 +55,7 @@ export class CreateChatMessageDto {
    *
    * @example "60d21b4667d0d8992e610c85"
    */
-  @ValidateIf((o) => o.type === ChatMessageType.PRIVATE)
+  @ValidateIf((o) => o.type === ChatType.PRIVATE)
   @IsNotEmpty({ message: 'recipient_id must be provided for private messages' })
   @IsMongoId()
   recipient_id?: string;
@@ -66,5 +66,6 @@ export class CreateChatMessageDto {
    * @example "Happy"
    */
   @IsEnum(Feeling)
+  @IsOptional()
   feeling?: Feeling;
 }
