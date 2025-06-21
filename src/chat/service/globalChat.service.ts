@@ -15,14 +15,27 @@ export class GlobalChatService {
 
   connectedUsers = new Set<WebSocketUser>();
 
+  /**
+   * Adds the client to the set of connected users.
+   *
+   * @param client - The WebSocket user joining the chat.
+   */
   handleJoinChat(client: WebSocketUser): void {
     this.connectedUsers.add(client);
   }
 
+  /**
+   * Removes the client from the set of connected users.
+   * @param client - The WebSocket user leaving the chat.
+   */
   handleDisconnect(client: WebSocketUser): void {
     this.connectedUsers.delete(client);
   }
 
+  /**
+   * Sends a message to all connected users.
+   * @param message - Message content to be sent.
+   */
   broadcast(message: ChatEnvelopeDto): void {
     this.connectedUsers.forEach((user) => {
       if (
@@ -35,6 +48,16 @@ export class GlobalChatService {
     });
   }
 
+  /**
+   * Handles a new incoming chat message from a client in the global chat.
+   *
+   * Validates the incoming message payload, sends validation errors back to the client if any.
+   * Attempts to create a new chat message using the chat service.
+   * Broadcasts the new message to all connected clients.
+   *
+   * @param message - The incoming message data from the client.
+   * @param client - The WebSocket client sending the message.
+   */
   async handleNewMessage(message: WsMessageBodyDto, client: WebSocketUser) {
     const chatMessage = new CreateChatMessageDto({
       type: ChatType.GLOBAL,
