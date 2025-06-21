@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { WebSocketUser } from '../types/WsUser.type';
-import { ChatMessageDto } from '../dto/chatMessage.dto';
 import { MessageEventType } from '../enum/messageEventType.enum';
 import { WebSocket } from 'ws';
 import { WsMessageBodyDto } from '../dto/wsMessageBody.dto';
@@ -26,8 +25,12 @@ export class GlobalChatService {
 
   broadcast(message: ChatEnvelopeDto): void {
     this.connectedUsers.forEach((user) => {
-      if (user && user.readyState === WebSocket.OPEN) {
-        user.send(JSON.stringify(message));
+      if (
+        user &&
+        user.readyState === WebSocket.OPEN &&
+        typeof user.send === 'function'
+      ) {
+        user.send?.(JSON.stringify(message));
       }
     });
   }

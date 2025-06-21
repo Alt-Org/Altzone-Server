@@ -2,7 +2,7 @@ import { WebSocket } from 'ws';
 
 export type WsUser = {
   playerId: string;
-  clanId: string;
+  clanId?: string;
   name: string;
 };
 

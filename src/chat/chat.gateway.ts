@@ -12,10 +12,14 @@ import { ClanChatService } from './service/clanChat.service';
 import { AddReactionDto } from './dto/addReaction.dto';
 import { WsMessageBodyDto } from './dto/wsMessageBody.dto';
 import { envVars } from '../common/service/envHandler/envVars';
+import { GlobalChatService } from './service/globalChat.service';
+import { UseFilters } from '@nestjs/common';
+import { GlobalWsExceptionFilter } from './decorator/wsExceptionFilter.decorator';
 
 const apiPort = Number.parseInt(envVars.PORT, 10);
 
 @WebSocketGateway(apiPort)
+@UseFilters(GlobalWsExceptionFilter)
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly playerService: PlayerService,
@@ -39,7 +43,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.close?.();
       return;
     }
-    const clanId = player.clan_id.toString();
+    const clanId = player.clan_id?.toString();
     client.user = {
       playerId,
       clanId,

@@ -174,7 +174,7 @@ export class ClanChatService {
           recipient.readyState === WebSocket.OPEN &&
           typeof recipient.send === 'function'
         )
-          recipient.send(JSON.stringify(message));
+          recipient.send?.(JSON.stringify(message));
       });
     }
   }
