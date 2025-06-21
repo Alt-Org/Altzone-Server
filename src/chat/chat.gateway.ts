@@ -8,7 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { PlayerService } from '../player/player.service';
 import { WebSocketUser } from './types/WsUser.type';
-import { ClanChatService } from './clanChat.service';
+import { ClanChatService } from './service/clanChat.service';
 import { AddReactionDto } from './dto/addReaction.dto';
 import { WsMessageBodyDto } from './dto/wsMessageBody.dto';
 import { envVars } from '../common/service/envHandler/envVars';
@@ -20,6 +20,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly playerService: PlayerService,
     private readonly clanChatService: ClanChatService,
+    private readonly globalChatService: GlobalChatService,
   ) {}
 
   /**
@@ -46,6 +47,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     };
 
     this.clanChatService.handleJoinChat(client);
+    this.globalChatService.handleJoinChat(client);
   }
 
   /**
@@ -55,6 +57,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
    */
   handleDisconnect(client: WebSocketUser) {
     this.clanChatService.handleDisconnect(client);
+    this.globalChatService.handleDisconnect(client);
   }
 
   @SubscribeMessage('clanMessage')
@@ -71,5 +74,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: WebSocketUser,
   ) {
     await this.clanChatService.handleNewReaction(client, reaction);
+  }
+
+  @SubscribeMessage('globalMessage')
+  async handleGlobalMessage(
+    @MessageBody() message: WsMessageBodyDto,
+    @ConnectedSocket() client: WebSocketUser,
+  ) {
+    await this.globalChatService.handleNewMessage(message, client);
   }
 }
