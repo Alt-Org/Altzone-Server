@@ -5,6 +5,7 @@ import { ChatType } from '../enum/chatMessageType.enum';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { Reaction } from './reaction.schema';
 import { Feeling } from '../enum/feeling.enum';
+import { ObjectId } from 'mongodb';
 
 export type ChatMessageDocument = HydratedDocument<ChatMessage>;
 
@@ -22,7 +23,7 @@ export class ChatMessage {
     ref: ModelName.PLAYER,
     required: true,
   })
-  sender_id: MongooseSchema.Types.ObjectId;
+  sender_id: string | ObjectId;
 
   @Prop({ type: String, enum: Feeling })
   feeling?: Feeling;
