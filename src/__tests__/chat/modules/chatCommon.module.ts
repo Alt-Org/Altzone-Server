@@ -6,6 +6,9 @@ import { RequestHelperModule } from '../../../requestHelper/requestHelper.module
 import { ChatService } from '../../../chat/service/chat.service';
 import { GameEventsHandlerModule } from '../../../gameEventsHandler/gameEventsHandler.module';
 import { ChatMessageSchema } from '../../../chat/schema/chatMessage.schema';
+import { ClanChatService } from '../../../chat/service/clanChat.service';
+import { GlobalChatService } from '../../../chat/service/globalChat.service';
+import { PlayerSchema } from '../../../player/schemas/player.schema';
 
 export default class ChatCommonModule {
   private constructor() {}
@@ -19,12 +22,13 @@ export default class ChatCommonModule {
           MongooseModule.forRoot(mongoString, mongooseOptions),
           MongooseModule.forFeature([
             { name: ModelName.CHAT_MESSAGE, schema: ChatMessageSchema },
+            { name: ModelName.PLAYER, schema: PlayerSchema },
           ]),
 
           RequestHelperModule,
           GameEventsHandlerModule,
         ],
-        providers: [ChatService],
+        providers: [ChatService, ClanChatService, GlobalChatService],
       }).compile();
 
     return ChatCommonModule.module;
