@@ -34,6 +34,7 @@ export abstract class BaseChatService {
       client.send(
         JSON.stringify({ error: 'Validation failed', details: errors }),
       );
+      return;
     }
 
     const [createdMsg, error] =
