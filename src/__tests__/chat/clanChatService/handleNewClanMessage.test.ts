@@ -4,7 +4,7 @@ import ChatModule from '../modules/chat.module';
 import { WsMessageBodyDto } from '../../../chat/dto/wsMessageBody.dto';
 import { ChatType } from '../../../chat/enum/chatMessageType.enum';
 
-describe('ClanChatService.handleNewClanMessage', () => {
+describe('ClanChatService.handleNewClanMessage() test suite', () => {
   let clanChatService: ClanChatService;
   let mockHandleNewMessage: jest.SpyInstance;
 

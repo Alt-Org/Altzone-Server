@@ -11,7 +11,7 @@ class TestBaseChatService extends BaseChatService {
   public broadcast = jest.fn();
 }
 
-describe('BaseChatService.handleNewMessage', () => {
+describe('BaseChatService.handleNewMessage() test suite', () => {
   let chatService: ChatService;
   let baseChatService: TestBaseChatService;
   let client: WebSocketUser;
