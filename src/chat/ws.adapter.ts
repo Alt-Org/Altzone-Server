@@ -27,6 +27,10 @@ export class JwtWsAdapter extends WsAdapter {
     const wss = new WebSocket.Server({ noServer: true });
 
     this.server.on('upgrade', (req, socket, head) => {
+      if (req.url !== '/chat') {
+        socket.destroy();
+        return;
+      }
       const token = this.extractToken(req);
       if (!token) {
         socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
