@@ -3,16 +3,15 @@ import { WebSocketUser } from '../types/WsUser.type';
 import { ChatService } from './chat.service';
 import { CreateChatMessageDto } from '../dto/createMessage.dto';
 import { ChatType } from '../enum/chatMessageType.enum';
-import { validate } from 'class-validator';
 import { AddReactionDto } from '../dto/addReaction.dto';
-import { MessageEventType } from '../enum/messageEventType.enum';
 import { WsMessageBodyDto } from '../dto/wsMessageBody.dto';
-import { WebSocket } from 'ws';
-import { ChatEnvelopeDto } from '../dto/chatEnvelope.dto';
+import { BaseChatService } from './baseChat.service';
 
 @Injectable()
-export class ClanChatService {
-  constructor(private readonly chatService: ChatService) {}
+export class ClanChatService extends BaseChatService {
+  constructor(protected readonly chatService: ChatService) {
+    super(chatService);
+  }
 
   clanRooms = new Map<string, Set<WebSocketUser>>();
 
@@ -64,10 +63,7 @@ export class ClanChatService {
    * @param client
    * @param message
    */
-  async handleNewMessage(
-    client: WebSocketUser,
-    message: WsMessageBodyDto,
-  ): Promise<void> {
+  async handleNewClanMessage(client: WebSocketUser, message: WsMessageBodyDto) {
     const chatMessage = new CreateChatMessageDto({
       type: ChatType.CLAN,
       clan_id: client.user.clanId,
@@ -76,30 +72,9 @@ export class ClanChatService {
       feeling: message.feeling,
     });
 
-    const errors = await validate(chatMessage);
+    const recipients = this.clanRooms.get(client.user?.clanId);
 
-    if (errors.length > 0) {
-      client.send(
-        JSON.stringify({ error: 'Validation failed', details: errors }),
-      );
-      return;
-    }
-
-    const [createdMsg, error] =
-      await this.chatService.createChatMessage(chatMessage);
-
-    if (error) {
-      client.send(JSON.stringify({ error: 'Message not created' }));
-      return;
-    }
-
-    const messageEnvelope: ChatEnvelopeDto = {
-      chat: ChatType.CLAN,
-      event: MessageEventType.NEW_MESSAGE,
-      message: createdMsg,
-    };
-
-    this.broadcast(messageEnvelope, client.user.clanId);
+    await this.handleNewMessage(chatMessage, client, ChatType.CLAN, recipients);
   }
 
   /**
@@ -129,53 +104,20 @@ export class ClanChatService {
   }
 
   /**
-   * Handles reaction to a chat message.
+   * Handles the addition of a new reaction for clan chat message.
    *
-   * Adds the reaction to the message in DB
-   * and broadcasts the updated message.
-   * @param client
-   * @param reaction
-   * @returns
-   */
-  async handleNewReaction(client: WebSocketUser, reaction: AddReactionDto) {
-    const [updatedMessage, error] = await this.chatService.addReaction(
-      reaction.message_id,
-      client.user.name,
-      reaction.emoji,
-    );
-
-    if (error) {
-      client.send(JSON.stringify({ error }));
-      return;
-    }
-
-    const messageEnvelope: ChatEnvelopeDto = {
-      chat: ChatType.CLAN,
-      event: MessageEventType.NEW_REACTION,
-      message: updatedMessage,
-    };
-
-    this.broadcast(messageEnvelope, client.user.clanId);
-  }
-
-  /**
-   * Broadcasts a chat message to all recipients in the specified clan room.
+   * Retrieves the list of recipients in the clan room associated with the client,
+   * and delegates the reaction handling to the generic reaction handler.
    *
-   * @param message - The chat message to send to recipients.
-   * @param clanId - The unique identifier of the clan whose members will receive the message.
-   * @param event - The type of chat event being broadcasted.
+   * @param client - The WebSocket user initiating the reaction.
+   * @param reaction - The reaction data to be added.
+   * @returns A promise that resolves when the reaction has been processed.
    */
-  private broadcast(message: ChatEnvelopeDto, clanId: string) {
-    const recipients = this.clanRooms.get(clanId);
-    if (recipients) {
-      recipients.forEach((recipient) => {
-        if (
-          recipient &&
-          recipient.readyState === WebSocket.OPEN &&
-          typeof recipient.send === 'function'
-        )
-          recipient.send?.(JSON.stringify(message));
-      });
-    }
+  async handleNewClanReaction(
+    client: WebSocketUser,
+    reaction: AddReactionDto,
+  ): Promise<void> {
+    const recipients = this.clanRooms.get(client.user?.clanId);
+    await this.handleNewReaction(client, reaction, recipients);
   }
 }

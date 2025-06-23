@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { WebSocketUser } from '../types/WsUser.type';
-import { MessageEventType } from '../enum/messageEventType.enum';
-import { WebSocket } from 'ws';
 import { WsMessageBodyDto } from '../dto/wsMessageBody.dto';
 import { CreateChatMessageDto } from '../dto/createMessage.dto';
 import { ChatType } from '../enum/chatMessageType.enum';
-import { validate } from 'class-validator';
-import { ChatEnvelopeDto } from '../dto/chatEnvelope.dto';
+import { BaseChatService } from './baseChat.service';
+import { AddReactionDto } from '../dto/addReaction.dto';
 
 @Injectable()
-export class GlobalChatService {
-  constructor(private readonly chatService: ChatService) {}
+export class GlobalChatService extends BaseChatService {
+  constructor(protected readonly chatService: ChatService) {
+    super(chatService);
+  }
 
   connectedUsers = new Set<WebSocketUser>();
 
@@ -33,32 +33,17 @@ export class GlobalChatService {
   }
 
   /**
-   * Sends a message to all connected users.
-   * @param message - Message content to be sent.
-   */
-  broadcast(message: ChatEnvelopeDto): void {
-    this.connectedUsers.forEach((user) => {
-      if (
-        user &&
-        user.readyState === WebSocket.OPEN &&
-        typeof user.send === 'function'
-      ) {
-        user.send?.(JSON.stringify(message));
-      }
-    });
-  }
-
-  /**
    * Handles a new incoming chat message from a client in the global chat.
    *
-   * Validates the incoming message payload, sends validation errors back to the client if any.
-   * Attempts to create a new chat message using the chat service.
-   * Broadcasts the new message to all connected clients.
+   * Delegates the message processing to a generic handler with a list of all connected users.
    *
    * @param message - The incoming message data from the client.
    * @param client - The WebSocket client sending the message.
    */
-  async handleNewMessage(message: WsMessageBodyDto, client: WebSocketUser) {
+  async handleNewGlobalMessage(
+    message: WsMessageBodyDto,
+    client: WebSocketUser,
+  ) {
     const chatMessage = new CreateChatMessageDto({
       type: ChatType.GLOBAL,
       sender_id: client.user.playerId,
@@ -66,28 +51,26 @@ export class GlobalChatService {
       feeling: message.feeling,
     });
 
-    const errors = await validate(chatMessage);
+    await this.handleNewMessage(
+      chatMessage,
+      client,
+      ChatType.GLOBAL,
+      this.connectedUsers,
+    );
+  }
 
-    if (errors.length > 0) {
-      client.send(
-        JSON.stringify({ error: 'Validation failed', details: errors }),
-      );
-      return;
-    }
-
-    const [createdMsg, error] =
-      await this.chatService.createChatMessage(chatMessage);
-
-    if (error) {
-      client.send(JSON.stringify({ error: 'Message not created' }));
-      return;
-    }
-
-    const messageEnvelope: ChatEnvelopeDto = {
-      chat: ChatType.GLOBAL,
-      event: MessageEventType.NEW_MESSAGE,
-      message: createdMsg,
-    };
-    this.broadcast(messageEnvelope);
+  /**
+   * Handles the addition of a new reaction to global chat message.
+   * Delegates the reaction processing to the generic handler with the list of all connected users.
+   *
+   * @param client - The WebSocket user who is adding the reaction.
+   * @param reaction - The reaction data to be added.
+   * @returns A promise that resolves when the reaction has been processed.
+   */
+  async handleNewGlobalReaction(
+    client: WebSocketUser,
+    reaction: AddReactionDto,
+  ) {
+    await this.handleNewReaction(client, reaction, this.connectedUsers);
   }
 }

@@ -69,7 +69,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
-    await this.clanChatService.handleNewMessage(client, message);
+    await this.clanChatService.handleNewClanMessage(client, message);
   }
 
   @SubscribeMessage('clanMessageReaction')
@@ -77,7 +77,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
-    await this.clanChatService.handleNewReaction(client, reaction);
+    await this.clanChatService.handleNewClanReaction(client, reaction);
   }
 
   @SubscribeMessage('globalMessage')
@@ -85,6 +85,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
-    await this.globalChatService.handleNewMessage(message, client);
+    await this.globalChatService.handleNewGlobalMessage(message, client);
+  }
+
+  @SubscribeMessage('globalMessageReaction')
+  async handleGlobalMessageReaction(
+    @MessageBody() reaction: AddReactionDto,
+    @ConnectedSocket() client: WebSocketUser,
+  ) {
+    await this.globalChatService.handleNewGlobalReaction(client, reaction);
   }
 }
