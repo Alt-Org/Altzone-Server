@@ -5,7 +5,7 @@ import { VotingQueueName } from '../../../voting/enum/VotingQueue.enum';
 
 describe('VotingQueue.addVotingCheckJob() test suite', () => {
   let votingQueue: VotingQueue;
-  
+
   const votingBuilder = VotingBuilderFactory.getBuilder('VotingDto');
 
   const voting = votingBuilder.build();
@@ -14,7 +14,7 @@ describe('VotingQueue.addVotingCheckJob() test suite', () => {
   beforeEach(async () => {
     votingQueue = await VotingModule.getVotingQueue();
 
-    mockedQueue = { 
+    mockedQueue = {
       add: jest.fn().mockResolvedValue(undefined),
       process: jest.fn(),
     };
@@ -25,9 +25,9 @@ describe('VotingQueue.addVotingCheckJob() test suite', () => {
     (votingQueue as any).clanRoleQueue = mockedQueue;
 
     await votingQueue.addVotingCheckJob({
-          voting,
-          queue: votingQueueName,
-        });
+      voting,
+      queue: votingQueueName,
+    });
 
     expect(votingQueue).toBeDefined();
     expect(mockedQueue.add).toHaveBeenCalledWith(
@@ -36,18 +36,18 @@ describe('VotingQueue.addVotingCheckJob() test suite', () => {
         voting,
         queue: votingQueueName,
       },
-      { delay: expect.any(Number) }
+      { delay: expect.any(Number) },
     );
   });
 
   it('addVotingCheckJob | VotingQueueName.CLAN_SHOP', async () => {
     const votingQueueName = VotingQueueName.CLAN_SHOP;
-    (votingQueue as any).clanShopQueue = mockedQueue; 
-    
+    (votingQueue as any).clanShopQueue = mockedQueue;
+
     await votingQueue.addVotingCheckJob({
-          voting,
-          queue: votingQueueName,
-        });
+      voting,
+      queue: votingQueueName,
+    });
 
     expect(mockedQueue.add).toHaveBeenCalledWith(
       votingQueueName,
@@ -55,18 +55,18 @@ describe('VotingQueue.addVotingCheckJob() test suite', () => {
         voting,
         queue: votingQueueName,
       },
-      { delay: expect.any(Number) }
+      { delay: expect.any(Number) },
     );
   });
 
   it('addVotingCheckJob | VotingQueueName.FLEA_MARKET', async () => {
     const votingQueueName = VotingQueueName.FLEA_MARKET;
-    (votingQueue as any).fleaMarketQueue = mockedQueue; 
-    
+    (votingQueue as any).fleaMarketQueue = mockedQueue;
+
     await votingQueue.addVotingCheckJob({
-          voting,
-          queue: votingQueueName,
-        });
+      voting,
+      queue: votingQueueName,
+    });
 
     expect(mockedQueue.add).toHaveBeenCalledWith(
       votingQueueName,
@@ -74,21 +74,19 @@ describe('VotingQueue.addVotingCheckJob() test suite', () => {
         voting,
         queue: votingQueueName,
       },
-      { delay: expect.any(Number) }
+      { delay: expect.any(Number) },
     );
   });
 
   it('addVotingCheckJob | VotingQueueName.Unknown', async () => {
-    (votingQueue as any).fleaMarketQueue = mockedQueue; 
-    
-    try {
+    (votingQueue as any).fleaMarketQueue = mockedQueue;
 
-    await votingQueue.addVotingCheckJob({
-          voting,
-          queue: -1 as unknown as VotingQueueName,
-        });
-      }
-    catch (error) {
+    try {
+      await votingQueue.addVotingCheckJob({
+        voting,
+        queue: -1 as unknown as VotingQueueName,
+      });
+    } catch (error) {
       expect(error).toBeDefined();
       expect((error as Error).message).toContain('Unknown queue:');
     }

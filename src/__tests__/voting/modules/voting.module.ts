@@ -20,10 +20,9 @@ export default class VotingModule {
   }
 
   static async getVotingQueue() {
-      const module = await VotingCommonModule.getModule();
-      return await module.resolve(VotingQueue);
-    }
-
+    const module = await VotingCommonModule.getModule();
+    return await module.resolve(VotingQueue);
+  }
 
   static getVotingModel() {
     return mongoose.model(ModelName.VOTING, VotingSchema);
