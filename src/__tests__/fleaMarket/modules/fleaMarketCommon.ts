@@ -35,7 +35,11 @@ export default class FleaMarketCommonModule {
           ClanModule,
           RequestHelperModule,
         ],
-        providers: [FleaMarketService, FleaMarketHelperService, FleaMarketVotingProcessor],
+        providers: [
+          FleaMarketService,
+          FleaMarketHelperService,
+          FleaMarketVotingProcessor,
+        ],
       }).compile();
 
     return FleaMarketCommonModule.module;

@@ -7,16 +7,15 @@ describe('FleaMarketVotingProcessor.process() test suite', () => {
   let fleaMarketService;
 
   const votingBuilder = VotingBuilderFactory.getBuilder('VotingDto');
-  
+
   beforeEach(async () => {
-    fleaMarketVotingProcessor = await FleaMarketModule.getFleaMarketVotingProcessor();
+    fleaMarketVotingProcessor =
+      await FleaMarketModule.getFleaMarketVotingProcessor();
     fleaMarketService = await FleaMarketModule.getFleaMarketService();
   });
 
   it('Should call the FleaMarketService.checkVotingOnExpire', async () => {
-
-    const voting = votingBuilder
-        .build();
+    const voting = votingBuilder.build();
 
     const mockedJob: any = {
       data: {
@@ -24,11 +23,13 @@ describe('FleaMarketVotingProcessor.process() test suite', () => {
         price: 100,
         clanId: new ObjectId(),
         stockId: new ObjectId(),
-        fleaMarketItemId: new ObjectId()
-      }
+        fleaMarketItemId: new ObjectId(),
+      },
     };
 
-    const ret = jest.spyOn(fleaMarketService, 'checkVotingOnExpire').mockResolvedValue(undefined) ;
+    const ret = jest
+      .spyOn(fleaMarketService, 'checkVotingOnExpire')
+      .mockResolvedValue(undefined);
 
     await fleaMarketVotingProcessor.process(mockedJob);
 
