@@ -96,13 +96,12 @@ describe('ClanShopService.buyItem() test suite', () => {
       { gameCoins: itemToBuy.price - 1 },
     );
 
-    await expect(
-      clanShopService.buyItem(
-        createdPlayer._id.toString(),
-        createdClan._id.toString(),
-        itemToBuy,
-      ),
-    ).rejects.toEqual([
+    const [_, err] = await clanShopService.buyItem(
+      createdPlayer._id.toString(),
+      createdClan._id.toString(),
+      itemToBuy,
+    );
+    await expect(err).toEqual([
       {
         additional: null,
         field: 'gameCoins',
@@ -116,13 +115,12 @@ describe('ClanShopService.buyItem() test suite', () => {
   it('Should throw an error if the clan does not exist', async () => {
     const itemToBuy = itemProperties['ArmChair_Kylmä_Tulevaisuus'];
 
-    await expect(
-      clanShopService.buyItem(
-        new ObjectId().toString(),
-        new ObjectId().toString(),
-        itemToBuy,
-      ),
-    ).rejects.toContainSE_NOT_FOUND();
+    const [_, err] = await clanShopService.buyItem(
+      new ObjectId().toString(),
+      new ObjectId().toString(),
+      itemToBuy,
+    );
+    expect(err).toContainSE_NOT_FOUND();
   });
 
   it('Should throw an error if the player does not exist', async () => {
@@ -137,13 +135,12 @@ describe('ClanShopService.buyItem() test suite', () => {
       { gameCoins: itemToBuy.price + 1 },
     );
 
-    await expect(
-      clanShopService.buyItem(
-        new ObjectId().toString(),
-        createdClan._id.toString(),
-        itemToBuy,
-      ),
-    ).rejects.toContainSE_NOT_FOUND();
+    const [_, err] = await clanShopService.buyItem(
+      new ObjectId().toString(),
+      createdClan._id.toString(),
+      itemToBuy,
+    );
+    expect(err).toContainSE_NOT_FOUND();
   });
 
   it('Should throw an error if the voting process fails', async () => {
@@ -166,12 +163,40 @@ describe('ClanShopService.buyItem() test suite', () => {
         [new ServiceError({ reason: SEReason.UNEXPECTED })],
       ]);
 
-    await expect(
-      clanShopService.buyItem(
-        createdPlayer._id.toString(),
-        createdClan._id.toString(),
-        itemToBuy,
-      ),
-    ).rejects.toContainSE_UNEXPECTED();
+    const [_, err] = await clanShopService.buyItem(
+      createdPlayer._id.toString(),
+      createdClan._id.toString(),
+      itemToBuy,
+    );
+
+    expect(err).toContainSE_UNEXPECTED();
+  });
+
+  it('Should rollback funds if player does not exist after reserving funds', async () => {
+    const createdClan = await clanModel.create(clanToCreate);
+    const itemToBuy = itemProperties['ArmChair_Kylmä_Tulevaisuus'];
+
+    stockToCreate.clan_id = createdClan;
+    await stockModel.create(stockToCreate);
+
+    await clanModel.updateOne(
+      { _id: createdClan._id },
+      { gameCoins: itemToBuy.price + 10 },
+    );
+
+    const initialClan = await clanModel.findById(createdClan._id);
+    const initialCoins = initialClan.gameCoins;
+
+    const invalidPlayerId = new ObjectId().toString();
+
+    const [_, err] = await clanShopService.buyItem(
+      invalidPlayerId,
+      createdClan._id.toString(),
+      itemToBuy,
+    );
+    expect(err).toContainSE_NOT_FOUND();
+
+    const updatedClan = await clanModel.findById(createdClan._id);
+    expect(updatedClan.gameCoins).toBe(initialCoins);
   });
 });
