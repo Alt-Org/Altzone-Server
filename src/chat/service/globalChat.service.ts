@@ -13,7 +13,7 @@ export class GlobalChatService extends BaseChatService {
     super(chatService);
   }
 
-  connectedUsers = new Set<WebSocketUser>();
+  private readonly connectedUsers = new Set<WebSocketUser>();
 
   /**
    * Adds the client to the set of connected users.
