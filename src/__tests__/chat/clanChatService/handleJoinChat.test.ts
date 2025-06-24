@@ -20,12 +20,12 @@ describe('ClanChatService.handleJoinChat', () => {
 
   it('should create a new clan room and add the client if room does not exist', () => {
     const client = createClient('clanA');
-    expect(clanChatService.clanRooms.has('clanA')).toBe(false);
+    expect(clanChatService['clanRooms'].has('clanA')).toBe(false);
 
     clanChatService.handleJoinChat(client);
 
-    expect(clanChatService.clanRooms.has('clanA')).toBe(true);
-    expect(clanChatService.clanRooms.get('clanA')!.has(client)).toBe(true);
+    expect(clanChatService['clanRooms'].has('clanA')).toBe(true);
+    expect(clanChatService['clanRooms'].get('clanA')!.has(client)).toBe(true);
   });
 
   it('should add the client to an existing clan room', () => {
@@ -33,11 +33,11 @@ describe('ClanChatService.handleJoinChat', () => {
     const client2 = createClient('clanB', 'player2');
 
     clanChatService.handleJoinChat(client1);
-    expect(clanChatService.clanRooms.get('clanB')!.has(client1)).toBe(true);
+    expect(clanChatService['clanRooms'].get('clanB')!.has(client1)).toBe(true);
 
     clanChatService.handleJoinChat(client2);
-    expect(clanChatService.clanRooms.get('clanB')!.has(client2)).toBe(true);
-    expect(clanChatService.clanRooms.get('clanB')!.size).toBe(2);
+    expect(clanChatService['clanRooms'].get('clanB')!.has(client2)).toBe(true);
+    expect(clanChatService['clanRooms'].get('clanB')!.size).toBe(2);
   });
 
   it('should not duplicate the client in the clan room', () => {
@@ -45,6 +45,6 @@ describe('ClanChatService.handleJoinChat', () => {
     clanChatService.handleJoinChat(client);
     clanChatService.handleJoinChat(client);
 
-    expect(clanChatService.clanRooms.get('clanC')!.size).toBe(1);
+    expect(clanChatService['clanRooms'].get('clanC')!.size).toBe(1);
   });
 });

@@ -12,7 +12,7 @@ describe('ClanChatService.handleNewClanReaction() test suite', () => {
     mockHandleNewReaction = jest
       .spyOn(clanChatService, 'handleNewReaction')
       .mockResolvedValue(undefined);
-    clanChatService.clanRooms.clear();
+    clanChatService['clanRooms'].clear();
   });
 
   function createClient(clanId: string, playerId = 'player1'): WebSocketUser {

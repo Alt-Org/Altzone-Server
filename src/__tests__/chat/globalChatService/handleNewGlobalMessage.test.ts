@@ -13,7 +13,7 @@ describe('GlobalChatService.handleNewGlobalMessage() test suite', () => {
     mockHandleNewMessage = jest
       .spyOn(globalChatService, 'handleNewMessage')
       .mockResolvedValue(undefined);
-    globalChatService.connectedUsers.clear();
+    globalChatService['connectedUsers'].clear();
   });
 
   function createClient(playerId = 'player1'): WebSocketUser {

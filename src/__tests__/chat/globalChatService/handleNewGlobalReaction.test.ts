@@ -12,7 +12,7 @@ describe('GlobalChatService.handleNewGlobalReaction() test suite', () => {
     mockHandleNewReaction = jest
       .spyOn(globalChatService, 'handleNewReaction')
       .mockResolvedValue(undefined);
-    globalChatService.connectedUsers.clear();
+    globalChatService['connectedUsers'].clear();
   });
 
   function createClient(playerId = 'player1'): WebSocketUser {
