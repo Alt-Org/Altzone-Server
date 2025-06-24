@@ -20,8 +20,23 @@ describe('BoxService.updateOneById() test suite', () => {
     existingBox._id = createdBox._id;
   });
 
+  it('Should update box in the DB and return true if the input is valid', async () => {
+    const updatedAdminProfileId = new ObjectId();
+    const updateData = boxBuilder
+      .setId(existingBox._id)
+      .setAdminProfileId(updatedAdminProfileId)
+      .build();
+
+    const [wasUpdated, errors] = await boxService.updateOneById(updateData);
+
+    expect(errors).toBeNull();
+    expect(wasUpdated).toBeTruthy();
+
+    const updatedBox = await boxModel.findById(existingBox._id);
+    expect(updatedBox.adminProfile_id).toEqual(updatedAdminProfileId);
+  });
+
   it('Should return ServiceError NOT_FOUND if the box with provided _id does not exist', async () => {
-    const updatedChatId = new ObjectId();
     const updateData = boxBuilder
       .setId(new ObjectId(getNonExisting_id()))
       .build();
@@ -30,6 +45,16 @@ describe('BoxService.updateOneById() test suite', () => {
 
     expect(wasUpdated).toBeNull();
     expect(errors).toContainSE_NOT_FOUND();
+    expect(errors[0].field).toBe('_id');
+  });
+
+  it('Should return ServiceError REQUIRED if _id is not provided', async () => {
+    const updateData = boxBuilder.setId(null).build();
+
+    const [wasUpdated, errors] = await boxService.updateOneById(updateData);
+
+    expect(wasUpdated).toBeNull();
+    expect(errors).toContainSE_REQUIRED();
     expect(errors[0].field).toBe('_id');
   });
 
