@@ -10,11 +10,21 @@ import { User } from '../auth/user';
 import { ChatType } from './enum/chatMessageType.enum';
 import { OffsetPaginate } from '../common/interceptor/request/offsetPagination.interceptor';
 import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
+import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 
 @Controller('chat')
 export class ChatController {
   constructor(private readonly service: ChatService) {}
 
+  @ApiResponseDescription({
+    success: {
+      dto: ChatMessageDto,
+      modelName: ModelName.CHAT_MESSAGE,
+      status: 200,
+    },
+    errors: [401, 404],
+    hasAuth: true,
+  })
   @Get('history')
   @DetermineClanId()
   @UniformResponse(ModelName.CHAT_MESSAGE, ChatMessageDto)
