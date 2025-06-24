@@ -6,7 +6,7 @@ import { PlayerDto } from '../player/dto/player.dto';
 import { Injectable } from '@nestjs/common';
 import { Clan, publicReferences } from './clan.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { ClanDto } from './dto/clan.dto';
 import BasicService from '../common/service/basicService/BasicService';
 import ServiceError from '../common/service/basicService/ServiceError';
@@ -215,8 +215,9 @@ export class ClanService {
   async updateOne(
     updateInfo: Partial<Clan>,
     options: TIServiceUpdateOneOptions,
+    session?: ClientSession,
   ) {
-    return this.basicService.updateOne(updateInfo, options);
+    return this.basicService.updateOne(updateInfo, options, session);
   }
 
   /**

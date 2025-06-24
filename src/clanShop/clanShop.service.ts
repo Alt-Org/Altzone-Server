@@ -16,9 +16,10 @@ import { VotingQueue } from '../voting/voting.queue';
 import { VotingQueueParams } from '../fleaMarket/types/votingQueueParams.type';
 import { ItemName } from '../clanInventory/item/enum/itemName.enum';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
-import { Connection } from 'mongoose';
+import { ClientSession, Connection } from 'mongoose';
 import { cancelTransaction } from '../common/function/cancelTransaction';
 import { InjectConnection } from '@nestjs/mongoose';
+import { IServiceReturn } from '../common/service/basicService/IService';
 
 @Injectable()
 export class ClanShopService {
@@ -49,32 +50,41 @@ export class ClanShopService {
    *
    * @returns A promise that resolves when the transaction is successfully committed.
    */
-  async buyItem(playerId: string, clanId: string, item: ItemProperty) {
+  async buyItem(
+    playerId: string,
+    clanId: string,
+    item: ItemProperty,
+  ): Promise<IServiceReturn<boolean>> {
     const session = await this.connection.startSession();
     session.startTransaction();
 
     const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
       includeRefs: [ModelName.STOCK],
     });
-    if (clanErrors) await cancelTransaction(session, clanErrors);
+    if (clanErrors) return await cancelTransaction(session, clanErrors);
     if (clan.gameCoins < item.price)
-      await cancelTransaction(session, [notEnoughCoinsError]);
+      return await cancelTransaction(session, [notEnoughCoinsError]);
 
-    const [, error] = await this.reserveFunds(clan._id, item.price);
-    if (error) await cancelTransaction(session, error);
+    const [, error] = await this.reserveFunds(clan._id, item.price, session);
+    if (error) return await cancelTransaction(session, error);
 
     const [player, playerError] =
       await this.playerService.getPlayerById(playerId);
-    if (playerError) await cancelTransaction(session, playerError);
+    if (playerError) return await cancelTransaction(session, playerError);
 
-    const [voting, votingErrors] = await this.votingService.startVoting({
-      voterPlayer: player,
-      type: VotingType.SHOP_BUY_ITEM,
-      queue: VotingQueueName.CLAN_SHOP,
-      clanId,
-      shopItem: item.name,
-    });
-    if (votingErrors) await cancelTransaction(session, votingErrors);
+    const [voting, votingErrors] = await this.votingService.startVoting(
+      {
+        voterPlayer: player,
+        type: VotingType.SHOP_BUY_ITEM,
+        queue: VotingQueueName.CLAN_SHOP,
+        clanId,
+        shopItem: item.name,
+      },
+      session,
+    );
+    if (votingErrors) {
+      return await cancelTransaction(session, votingErrors);
+    }
 
     await this.votingQueue.addVotingCheckJob({
       voting,
@@ -85,6 +95,7 @@ export class ClanShopService {
 
     await session.commitTransaction();
     session.endSession();
+    return [true, null];
   }
 
   /**
@@ -94,10 +105,14 @@ export class ClanShopService {
    * @param price - The amount to be deducted from the clan's gameCoins.
    * @returns A promise that resolves to the result of the update operation.
    */
-  async reserveFunds(clanId: string, price: number) {
-    return await this.clanService.basicService.updateOneById(clanId, {
-      $inc: { gameCoins: -price },
-    });
+  async reserveFunds(clanId: string, price: number, session: ClientSession) {
+    return await this.clanService.basicService.updateOneById(
+      clanId,
+      {
+        $inc: { gameCoins: -price },
+      },
+      session,
+    );
   }
 
   /**

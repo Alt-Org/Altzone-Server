@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Item } from './item.schema';
 import { CreateItemDto } from './dto/createItem.dto';
@@ -31,10 +31,11 @@ export class ItemService {
    * Creates an new Item in DB.
    *
    * @param item - The Item data to create.
+   * @param session - Optional DB session.
    * @returns  created Item or an array of service errors if any occurred.
    */
-  async createOne(item: CreateItemDto) {
-    return this.basicService.createOne<CreateItemDto, ItemDto>(item);
+  async createOne(item: CreateItemDto, session?: ClientSession) {
+    return this.basicService.createOne<CreateItemDto, ItemDto>(item, session);
   }
 
   /**

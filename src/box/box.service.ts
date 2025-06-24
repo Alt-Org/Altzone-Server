@@ -364,15 +364,16 @@ export class BoxService {
     session.startTransaction();
 
     const [box, boxError] = await this.readOneById(boxId);
-    if (boxError) await cancelTransaction(session, boxError);
+    if (boxError) return await cancelTransaction(session, boxError);
 
     const [, deleteBoxError] = await this.deleteOneById(boxId);
-    if (deleteBoxError) await cancelTransaction(session, deleteBoxError);
+    if (deleteBoxError) return await cancelTransaction(session, deleteBoxError);
 
     const [, adminDeleteError] = await this.adminBasicService.deleteOne({
       filter: { password: box.adminPassword },
     });
-    if (adminDeleteError) await cancelTransaction(session, adminDeleteError);
+    if (adminDeleteError)
+      return await cancelTransaction(session, adminDeleteError);
 
     session.commitTransaction();
     session.endSession();
