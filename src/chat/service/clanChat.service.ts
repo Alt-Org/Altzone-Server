@@ -94,6 +94,7 @@ export class ClanChatService extends BaseChatService {
       for (const client of room) {
         if (client.user && client.user.playerId === playerId) {
           room.delete(client);
+          client.user.clanId = undefined;
           break;
         }
       }
