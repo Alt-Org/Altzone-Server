@@ -22,6 +22,6 @@ import { RequestHelperModule } from '../requestHelper/requestHelper.module';
   ],
   controllers: [ChatController],
   providers: [ChatService, ChatGateway, ClanChatService, GlobalChatService],
-  exports: [ChatService],
+  exports: [ChatService, ClanChatService],
 })
 export class ChatModule {}

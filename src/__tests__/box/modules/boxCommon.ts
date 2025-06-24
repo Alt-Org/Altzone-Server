@@ -54,6 +54,7 @@ export default class BoxCommonModule {
           PlayerModule,
           JwtModule,
           DailyTasksModule,
+          ChatModule,
         ],
         providers: [
           BoxService,
