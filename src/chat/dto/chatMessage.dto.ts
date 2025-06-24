@@ -18,7 +18,7 @@ export class ChatMessageDto {
   clan_id: string;
 
   /**
-   * Sender information
+   * Sender player information
    */
   @Expose()
   @Type(() => Sender)
