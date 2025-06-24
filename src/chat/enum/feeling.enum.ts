@@ -3,6 +3,12 @@
  * Feeling / Tunnetila
  */
 export enum Feeling {
-  ANGRY = 'angry',
-  HAPPY = 'happy',
+  HAPPY = 'Happy',
+  SAD = 'Sad',
+  NEUTRAL = 'Neutral',
+  LOVE = 'Love',
+  THINKING = 'Thinking',
+  WINK = 'Wink',
+  ANGRY = 'Angry',
+  NONE = 'None',
 }
