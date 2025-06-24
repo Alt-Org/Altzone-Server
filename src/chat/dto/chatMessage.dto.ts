@@ -8,7 +8,7 @@ export class ChatMessageDto {
    * @example "665f7c2d9a2d3c7b7e56d01df"
    */
   @Expose()
-  id: string;
+  _id: string;
 
   /**
    * ID of the clan this message belongs to

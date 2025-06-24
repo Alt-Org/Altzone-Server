@@ -59,7 +59,7 @@ export class ChatService {
     if (emoji) message.reactions.push({ playerName, emoji });
 
     const [, updateError] = await this.basicService.updateOneById(
-      message.id,
+      message._id,
       message,
     );
 
