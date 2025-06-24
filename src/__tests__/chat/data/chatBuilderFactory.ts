@@ -1,6 +1,6 @@
 import AddReactionDtoBuilder from './builder/AddReactionDtoBuilder';
 import ChatMessageBuilder from './builder/chatMessageBuilder';
-import ReactionDtoBuilder from './builder/reactionDtoBuilder';
+import ReactionDtoBuilder from './builder/ReactionDtoBuilder';
 
 type BuilderName = 'AddReactionDto' | 'ReactionDto' | 'ChatMessage';
 
