@@ -2,12 +2,14 @@ import { Expose, Type } from 'class-transformer';
 import { ReactionDto } from './reaction.dto';
 import { Sender } from './messageSender.dto';
 import { Feeling } from '../enum/feeling.enum';
+import { ExtractField } from '../../common/decorator/response/ExtractField';
 
 export class ChatMessageDto {
   /**
    * Unique ID of the chat message
    * @example "665f7c2d9a2d3c7b7e56d01df"
    */
+  @ExtractField()
   @Expose()
   _id: string;
 
@@ -15,6 +17,7 @@ export class ChatMessageDto {
    * ID of the clan this message belongs to
    * @example "60f7c2d9a2d3c7b7e56d01df"
    */
+  @ExtractField()
   @Expose()
   clan_id: string;
 
@@ -29,6 +32,7 @@ export class ChatMessageDto {
    * ID of the recipient player (for private messages)
    * @example "60d21b4667d0d8992e610c85"
    */
+  @ExtractField()
   @Expose()
   recipientPlayer_id?: string;
 
