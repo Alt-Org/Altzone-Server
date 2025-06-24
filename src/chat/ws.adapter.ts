@@ -27,7 +27,7 @@ export class JwtWsAdapter extends WsAdapter {
     const wss = new WebSocket.Server({ noServer: true });
 
     this.server.on('upgrade', (req, socket, head) => {
-      if (req.url !== '/chat') {
+      if (req.url !== '/ws/chat') {
         socket.destroy();
         return;
       }
