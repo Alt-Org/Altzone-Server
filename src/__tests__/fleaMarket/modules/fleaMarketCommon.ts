@@ -11,6 +11,7 @@ import { VotingModule } from '../../../voting/voting.module';
 import { ClanModule } from '../../../clan/clan.module';
 import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
 import { FleaMarketHelperService } from '../../../fleaMarket/fleaMarketHelper.service';
+import { FleaMarketVotingProcessor } from '../../../fleaMarket/fleaMarketVoting.processor';
 
 export default class FleaMarketCommonModule {
   private constructor() {}
@@ -34,7 +35,7 @@ export default class FleaMarketCommonModule {
           ClanModule,
           RequestHelperModule,
         ],
-        providers: [FleaMarketService, FleaMarketHelperService],
+        providers: [FleaMarketService, FleaMarketHelperService, FleaMarketVotingProcessor],
       }).compile();
 
     return FleaMarketCommonModule.module;
