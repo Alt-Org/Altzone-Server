@@ -13,7 +13,7 @@ export class ClanChatService extends BaseChatService {
     super(chatService);
   }
 
-  clanRooms = new Map<string, Set<WebSocketUser>>();
+  private readonly clanRooms = new Map<string, Set<WebSocketUser>>();
 
   /**
    * Adds the user to clan chat room.
