@@ -1,4 +1,4 @@
-import { Error, Model } from 'mongoose';
+import { ClientSession, Error, Model } from 'mongoose';
 import {
   IService,
   IServiceReturn,
@@ -29,10 +29,12 @@ export default class BasicService implements IService {
 
   async createOne<TInput = any, TOutput = any>(
     input: TInput,
+    session?: ClientSession,
   ): Promise<IServiceReturn<TOutput>> {
     try {
-      const data = await this.model.create(input);
-      return [data, null];
+      const options = session ? { session } : undefined;
+      const data = await this.model.create([input], options);
+      return [data[0], null];
     } catch (error) {
       const errors = convertMongooseToServiceErrors(error);
       return [null, errors];
@@ -41,9 +43,11 @@ export default class BasicService implements IService {
 
   async createMany<TInput = any, TOutput = any>(
     input: TInput[],
+    session?: ClientSession,
   ): Promise<IServiceReturn<TOutput[]>> {
     try {
-      const data = await this.model.create(input);
+      const options = session ? { session } : undefined;
+      const data = await this.model.create(input, options);
       return [data, null];
     } catch (error) {
       const errors = convertMongooseToServiceErrors(error);
@@ -145,9 +149,11 @@ export default class BasicService implements IService {
   async updateOneById<TInput = any>(
     _id: string,
     input: TInput,
+    session?: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
     try {
-      const resp = await this.model.updateOne({ _id }, input);
+      const options = session ? { session } : undefined;
+      const resp = await this.model.updateOne({ _id }, input, options);
       if (resp.matchedCount === 0)
         return [
           null,
@@ -172,12 +178,19 @@ export default class BasicService implements IService {
   async updateOne<TInput = any>(
     input: TInput,
     options: TIServiceUpdateOneOptions,
+    session?: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
     try {
       const { filter } = options ? options : { filter: undefined };
       const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
 
-      const resp = await this.model.updateOne(filterToApply, input);
+      const mongooseOptions = session ? { session } : undefined;
+
+      const resp = await this.model.updateOne(
+        filterToApply,
+        input,
+        mongooseOptions,
+      );
       if (resp.matchedCount === 0)
         return [
           null,
@@ -200,11 +213,18 @@ export default class BasicService implements IService {
   async updateMany<TInput = any>(
     input: TInput[],
     options: TIServiceUpdateManyOptions,
+    session?: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
     try {
       const { filter } = options ? options : { filter: undefined };
       const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
-      const resp = await this.model.updateMany(filterToApply, input);
+
+      const mongooseOptions = session ? { session } : undefined;
+      const resp = await this.model.updateMany(
+        filterToApply,
+        input,
+        mongooseOptions,
+      );
       if (resp.matchedCount === 0)
         return [
           null,
@@ -224,9 +244,13 @@ export default class BasicService implements IService {
     }
   }
 
-  async deleteOneById(_id: string): Promise<IServiceReturn<true>> {
+  async deleteOneById(
+    _id: string,
+    session?: ClientSession,
+  ): Promise<IServiceReturn<true>> {
     try {
-      const resp = await this.model.deleteOne({ _id });
+      const mongooseOptions = session ? { session } : undefined;
+      const resp = await this.model.deleteOne({ _id }, mongooseOptions);
       if (resp.deletedCount === 0)
         return [
           null,
@@ -249,10 +273,12 @@ export default class BasicService implements IService {
 
   async deleteOne(
     options: TIServiceDeleteOneOptions,
+    session?: ClientSession,
   ): Promise<IServiceReturn<true>> {
     try {
       const { filter } = options ? options : { filter: undefined };
-      const resp = await this.model.deleteOne(filter);
+      const mongooseOptions = session ? { session } : undefined;
+      const resp = await this.model.deleteOne(filter, mongooseOptions);
       if (resp.deletedCount === 0)
         return [
           null,
@@ -273,10 +299,12 @@ export default class BasicService implements IService {
 
   async deleteMany(
     options: TIServiceDeleteManyOptions,
+    session?: ClientSession,
   ): Promise<IServiceReturn<true>> {
     try {
       const { filter } = options ? options : { filter: undefined };
-      const resp = await this.model.deleteMany(filter);
+      const mongooseOptions = session ? { session } : undefined;
+      const resp = await this.model.deleteMany(filter, mongooseOptions);
       if (resp.deletedCount === 0)
         return [
           null,
