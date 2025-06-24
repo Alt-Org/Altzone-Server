@@ -48,6 +48,7 @@ import ApiResponseDescription from '../common/swagger/response/ApiResponseDescri
 import ClanItemsDto from './dto/clanItems.dto';
 import { ApiExtraModels } from '@nestjs/swagger';
 import { ItemDto } from '../clanInventory/item/dto/item.dto';
+import { ClanChatService } from '../chat/service/clanChat.service';
 
 @Controller('clan')
 export class ClanController {
@@ -57,6 +58,7 @@ export class ClanController {
     private readonly roomService: RoomService,
     private readonly itemService: ItemService,
     private readonly playerService: PlayerService,
+    private readonly clanChatService: ClanChatService,
   ) {}
 
   /**
@@ -274,6 +276,7 @@ export class ClanController {
   @HttpCode(204)
   @Authorize({ action: Action.create, subject: PlayerLeaveClanDto })
   public leaveClan(@Req() request: Request, @LoggedUser() user: User) {
+    this.clanChatService.handleLeaveClan(user.player_id, user.clan_id);
     return this.joinService.leaveClan(user.player_id);
   }
 
@@ -298,6 +301,7 @@ export class ClanController {
     @Body() body: RemovePlayerDTO,
     @LoggedUser() user: User,
   ) {
+    this.clanChatService.handleLeaveClan(user.player_id, user.clan_id);
     return this.joinService.removePlayerFromClan(body.player_id, user.clan_id);
   }
 }

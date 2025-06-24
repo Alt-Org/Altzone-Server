@@ -21,7 +21,7 @@ import { Room } from '../clanInventory/room/room.schema';
 import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { BoxHelper } from './util/boxHelper';
 import { ClanService } from '../clan/clan.service';
-import { ChatService } from '../chat/chat.service';
+import { ChatService } from '../chat/service/chat.service';
 import { ProfileService } from '../profile/profile.service';
 import {
   IServiceReturn,
@@ -295,16 +295,6 @@ export class BoxService {
           boxData.clan_ids[i].toString(),
         );
         if (deleteErrors) await cancelTransaction(session, deleteErrors);
-      }
-    }
-
-    if (boxData.chat_id) {
-      const resp = await this.chatService.deleteOneById(
-        boxData.chat_id.toString(),
-      );
-      if (resp instanceof MongooseError) {
-        const deleteError = convertMongooseToServiceErrors(resp);
-        await cancelTransaction(session, deleteError);
       }
     }
 
