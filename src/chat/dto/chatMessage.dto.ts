@@ -1,6 +1,7 @@
 import { Expose, Type } from 'class-transformer';
 import { ReactionDto } from './reaction.dto';
 import { Sender } from './messageSender.dto';
+import { Feeling } from '../enum/feeling.enum';
 
 export class ChatMessageDto {
   /**
@@ -39,11 +40,18 @@ export class ChatMessageDto {
   content: string;
 
   /**
-   * Type of the chat message (e.g., "clan", "private")
+   * Type of the chat message
    * @example "clan"
    */
   @Expose()
   type: string;
+
+  /**
+   * Feeling of the chat message
+   * @example "Happy"
+   */
+  @Expose()
+  feeling?: Feeling;
 
   /**
    * List of reactions to this message
