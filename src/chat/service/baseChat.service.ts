@@ -6,6 +6,8 @@ import { ChatService } from './chat.service';
 import { MessageEventType } from '../enum/messageEventType.enum';
 import { ChatType } from '../enum/chatMessageType.enum';
 import { AddReactionDto } from '../dto/addReaction.dto';
+import { plainToInstance } from 'class-transformer';
+import { ChatMessageDto } from '../dto/chatMessage.dto';
 
 export abstract class BaseChatService {
   constructor(protected readonly chatService: ChatService) {}
@@ -68,13 +70,20 @@ export abstract class BaseChatService {
     recipients: Set<WebSocketUser>,
   ) {
     if (recipients) {
+      const envelopeToSend = {
+        ...message,
+        message: plainToInstance(ChatMessageDto, message.message, {
+          excludeExtraneousValues: true,
+        }),
+      };
+
       recipients.forEach((recipient) => {
         if (
           recipient &&
           recipient.readyState === WebSocket.OPEN &&
           typeof recipient.send === 'function'
         ) {
-          recipient.send?.(JSON.stringify({ message }));
+          recipient.send?.(JSON.stringify({ message: envelopeToSend }));
         }
       });
     }
