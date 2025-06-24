@@ -426,14 +426,11 @@ export class FleaMarketService {
     session: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
     item.status = status;
-    const [__, itemUpdateErr] = await this.basicService.updateOne(
+    return await this.basicService.updateOne(
       item,
       { filter: { _id: item._id } },
       session,
     );
-    if (itemUpdateErr) return await cancelTransaction(session, itemUpdateErr);
-
-    return [true, null];
   }
 
   /**
@@ -451,14 +448,11 @@ export class FleaMarketService {
     session: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
     clan.gameCoins -= amount;
-    const [_, clanUpdateErr] = await this.clanService.updateOne(
+    return await this.clanService.updateOne(
       clan,
       { filter: { _id: clan._id } },
       session,
     );
-    if (clanUpdateErr) return await cancelTransaction(session, clanUpdateErr);
-
-    return [true, null];
   }
 
   /**
@@ -478,8 +472,19 @@ export class FleaMarketService {
     const session = await this.model.startSession();
     session.startTransaction();
 
-    await this.changeItemStatus(item, Status.BOOKED, session);
-    await this.reserveFunds(clan, item.price, session);
+    const [, itemChangeErr] = await this.changeItemStatus(
+      item,
+      Status.BOOKED,
+      session,
+    );
+    if (itemChangeErr) return await cancelTransaction(session, itemChangeErr);
+    const [, fundReserveError] = await this.reserveFunds(
+      clan,
+      item.price,
+      session,
+    );
+    if (fundReserveError)
+      return await cancelTransaction(session, fundReserveError);
 
     const [voting, createVotingErrors] = await this.votingService.startVoting({
       clanId: clan._id.toString(),
