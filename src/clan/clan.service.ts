@@ -215,9 +215,8 @@ export class ClanService {
   async updateOne(
     updateInfo: Partial<Clan>,
     options: TIServiceUpdateOneOptions,
-    session?: ClientSession,
   ) {
-    return this.basicService.updateOne(updateInfo, options, session);
+    return this.basicService.updateOne(updateInfo, options);
   }
 
   /**

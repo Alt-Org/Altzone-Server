@@ -59,7 +59,7 @@ export class FleaMarketService {
     return this.basicService.createOne<
       CreateFleaMarketItemDto,
       FleaMarketItemDto
-    >(item, session);
+    >(item, { session });
   }
   /**
    * Reads an Item by its _id in DB.
@@ -317,7 +317,7 @@ export class FleaMarketService {
 
     const [_, deleteErrors] = await this.basicService.deleteOneById(
       fmItem._id.toString(),
-      session,
+      { session },
     );
     if (deleteErrors) return cancelTransaction(session, deleteErrors);
 
@@ -325,7 +325,9 @@ export class FleaMarketService {
       fmItem,
       stockId,
     );
-    const [__, createErrors] = await this.itemService.createOne(item, session);
+    const [__, createErrors] = await this.itemService.createOne(item, {
+      session,
+    });
     if (createErrors) return cancelTransaction(session, createErrors);
 
     await session.commitTransaction();
@@ -426,11 +428,10 @@ export class FleaMarketService {
     session: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
     item.status = status;
-    return await this.basicService.updateOne(
-      item,
-      { filter: { _id: item._id } },
+    return await this.basicService.updateOne(item, {
+      filter: { _id: item._id },
       session,
-    );
+    });
   }
 
   /**
@@ -448,11 +449,10 @@ export class FleaMarketService {
     session: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
     clan.gameCoins -= amount;
-    return await this.clanService.updateOne(
-      clan,
-      { filter: { _id: clan._id } },
+    return await this.clanService.updateOne(clan, {
+      filter: { _id: clan._id },
       session,
-    );
+    });
   }
 
   /**

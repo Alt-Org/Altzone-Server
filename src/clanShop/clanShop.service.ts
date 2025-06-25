@@ -111,7 +111,7 @@ export class ClanShopService {
       {
         $inc: { gameCoins: -price },
       },
-      session,
+      { session },
     );
   }
 

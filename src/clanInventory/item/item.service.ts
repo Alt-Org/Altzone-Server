@@ -11,6 +11,8 @@ import {
   TReadByIdOptions,
   TIServiceCreateManyOptions,
   TIServiceUpdateManyOptions,
+  TIServiceReadManyOptions,
+  TIServiceCreateOneOptions,
 } from '../../common/service/basicService/IService';
 
 @Injectable()
@@ -31,11 +33,11 @@ export class ItemService {
    * Creates an new Item in DB.
    *
    * @param item - The Item data to create.
-   * @param session - Optional DB session.
+   * @param options - DB query options.
    * @returns  created Item or an array of service errors if any occurred.
    */
-  async createOne(item: CreateItemDto, session?: ClientSession) {
-    return this.basicService.createOne<CreateItemDto, ItemDto>(item, session);
+  async createOne(item: CreateItemDto, options?: TIServiceCreateOneOptions) {
+    return this.basicService.createOne<CreateItemDto, ItemDto>(item, options);
   }
 
   /**
@@ -81,7 +83,7 @@ export class ItemService {
    * @param options - Optional settings for the read operation.
    * @returns A promise that resolves to a tuple where the first element is an array of ItemDto objects, and the second element is either null or an array of ServiceError objects if something went wrong.
    */
-  async readMany(options?: TIServiceCreateManyOptions) {
+  async readMany(options?: TIServiceReadManyOptions) {
     return this.basicService.readMany<ItemDto>(options);
   }
 
