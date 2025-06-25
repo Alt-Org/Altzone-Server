@@ -1,15 +1,20 @@
 import { ModelName } from '../../../common/enum/modelName.enum';
 import ServiceError from './ServiceError';
-import { FilterQuery } from 'mongoose';
+import { ClientSession, FilterQuery } from 'mongoose';
 
-/**
- * Currently not in use
- */
-export type TIServiceCreateOneOptions = object;
-/**
- * Currently not in use
- */
-export type TIServiceCreateManyOptions = object;
+export type TIServiceCreateOneOptions = {
+  /**
+   * Optional Mongoose session for transaction support.
+   */
+  session?: ClientSession;
+};
+
+export type TIServiceCreateManyOptions = {
+  /**
+   * Optional Mongoose session for transaction support.
+   */
+  session?: ClientSession;
+};
 
 export type TReadByIdOptions = {
   /**
@@ -171,10 +176,12 @@ export type TIServiceReadManyOptions<TObject = any> = {
   includeRefs?: ModelName[];
 };
 
-/**
- * Currently not in use
- */
-export type TIServiceUpdateByIdOptions = object;
+export type TIServiceUpdateByIdOptions = {
+  /**
+   * Optional Mongoose session for transaction support.
+   */
+  session?: ClientSession;
+};
 
 export type TIServiceUpdateOneOptions<TObject = any> = {
   /**
@@ -203,6 +210,11 @@ export type TIServiceUpdateOneOptions<TObject = any> = {
    * @see [MongoDB queries](https://www.mongodb.com/docs/manual/reference/operator/query/)
    */
   filter: FilterQuery<TObject> | FilterQuery<TObject>[];
+
+  /**
+   * Optional Mongoose session for transaction support.
+   */
+  session?: ClientSession;
 };
 
 export type TIServiceUpdateManyOptions<TObject = any> = {
@@ -228,12 +240,19 @@ export type TIServiceUpdateManyOptions<TObject = any> = {
    * @see [MongoDB queries](https://www.mongodb.com/docs/manual/reference/operator/query/)
    */
   filter: FilterQuery<TObject> | FilterQuery<TObject>[];
+
+  /**
+   * Optional Mongoose session for transaction support.
+   */
+  session?: ClientSession;
 };
 
-/**
- * Currently not in use
- */
-export type TIServiceDeleteByIdOptions = object;
+export type TIServiceDeleteByIdOptions = {
+  /**
+   * Optional Mongoose session for transaction support.
+   */
+  session?: ClientSession;
+};
 
 export type TIServiceDeleteOneOptions<TObject = any> = {
   /**
@@ -262,6 +281,11 @@ export type TIServiceDeleteOneOptions<TObject = any> = {
    * @see [MongoDB queries](https://www.mongodb.com/docs/manual/reference/operator/query/)
    */
   filter: FilterQuery<TObject> | FilterQuery<TObject>[];
+
+  /**
+   * Optional Mongoose session for transaction support.
+   */
+  session?: ClientSession;
 };
 
 export type TIServiceDeleteManyOptions<TObject = any> = {
@@ -287,6 +311,11 @@ export type TIServiceDeleteManyOptions<TObject = any> = {
    * @see [MongoDB queries](https://www.mongodb.com/docs/manual/reference/operator/query/)
    */
   filter: FilterQuery<TObject> | FilterQuery<TObject>[];
+
+  /**
+   * Optional Mongoose session for transaction support.
+   */
+  session?: ClientSession;
 };
 
 /**
