@@ -13,8 +13,10 @@ import ItemBuilder from './item/ItemBuilder';
 import RoomBuilder from './room/RoomBuilder';
 import SoulHomeBuilder from './soulhome/SoulHomeBuilder';
 import StockBuilder from './stock/StockBuilder';
+import ItemDtoBuilder from './item/ItemDtoBuilder';
 
 type BuilderName =
+  | 'ItemDto'
   | 'CreateItemDto'
   | 'MoveItemDto'
   | 'StealItemsDto'
@@ -32,6 +34,7 @@ type BuilderName =
   | 'Stock';
 
 type BuilderMap = {
+  ItemDto: ItemDtoBuilder;
   CreateItemDto: CreateItemDtoBuilder;
   MoveItemDto: MoveItemDtoBuilder;
   StealItemsDto: StealItemsDtoBuilder;
@@ -55,6 +58,8 @@ type BuilderMap = {
 export default class ClanInventoryBuilderFactory {
   static getBuilder<T extends BuilderName>(builderName: T): BuilderMap[T] {
     switch (builderName) {
+      case 'ItemDto':
+        return new ItemDtoBuilder() as BuilderMap[T];
       case 'CreateItemDto':
         return new CreateItemDtoBuilder() as BuilderMap[T];
       case 'MoveItemDto':
