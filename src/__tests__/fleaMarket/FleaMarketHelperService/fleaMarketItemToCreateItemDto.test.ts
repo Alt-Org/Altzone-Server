@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
-import FleaMarketModule from '../../modules/fleaMarketModule';
-import FleaMarketBuilderFactory from '../fleaMarketBuilderFactory';
+import FleaMarketModule from '../modules/fleaMarketModule';
+import FleaMarketBuilderFactory from '../data/fleaMarketBuilderFactory';
 
 describe('FleaMarketHelperService.fleaMarketItemToCreateItemDto() test suite', () => {
   let fleaMarketHelperService;
