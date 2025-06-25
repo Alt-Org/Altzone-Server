@@ -1,15 +1,15 @@
-import { ObjectId } from "mongodb";
-import FleaMarketModule from "../../modules/fleaMarketModule";
-import FleaMarketBuilderFactory from "../fleaMarketBuilderFactory";
+import { ObjectId } from 'mongodb';
+import FleaMarketModule from '../../modules/fleaMarketModule';
+import FleaMarketBuilderFactory from '../fleaMarketBuilderFactory';
 
 describe('FleaMarketHelperService.fleaMarketItemToCreateItemDto() test suite', () => {
   let fleaMarketHelperService;
-  const fleaMarketItemCreateBuilder = FleaMarketBuilderFactory.getBuilder(
-    'FleaMarketItem',
-  );
+  const fleaMarketItemCreateBuilder =
+    FleaMarketBuilderFactory.getBuilder('FleaMarketItem');
 
   beforeEach(async () => {
-    fleaMarketHelperService = await FleaMarketModule.getFleaMarketHelperService();
+    fleaMarketHelperService =
+      await FleaMarketModule.getFleaMarketHelperService();
   });
 
   it('Should return with a  CreateItemDto object if input is valid', async () => {
@@ -20,7 +20,10 @@ describe('FleaMarketHelperService.fleaMarketItemToCreateItemDto() test suite', (
 
     const stockId = new ObjectId().toString();
 
-    const ret = await fleaMarketHelperService.fleaMarketItemToCreateItemDto(fleaMarketItem, stockId);
+    const ret = await fleaMarketHelperService.fleaMarketItemToCreateItemDto(
+      fleaMarketItem,
+      stockId,
+    );
 
     expect(ret).toBeDefined();
     expect(ret.unityKey).toBe(unityKey);
