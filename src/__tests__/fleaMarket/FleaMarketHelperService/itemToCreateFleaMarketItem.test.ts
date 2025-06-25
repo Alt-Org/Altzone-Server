@@ -4,8 +4,7 @@ import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryB
 
 describe('FleaMarketHelperService.itemToCreateFleaMarketItem() test suite', () => {
   let fleaMarketHelperService;
-  const ItemDtoBuilder =
-    ClanInventoryBuilderFactory.getBuilder('ItemDto');
+  const ItemDtoBuilder = ClanInventoryBuilderFactory.getBuilder('ItemDto');
 
   beforeEach(async () => {
     fleaMarketHelperService =
@@ -14,9 +13,7 @@ describe('FleaMarketHelperService.itemToCreateFleaMarketItem() test suite', () =
 
   it('Should return with a ItemDto object if input is valid', async () => {
     const unityKey = 'fleaMarket';
-    const itemDto = ItemDtoBuilder
-      .setUnityKey(unityKey)
-      .build();
+    const itemDto = ItemDtoBuilder.setUnityKey(unityKey).build();
 
     const clanId = new ObjectId().toString();
 
