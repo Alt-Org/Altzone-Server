@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { FleaMarketItem, publicReferences } from './fleaMarketItem.schema';
 import BasicService from '../common/service/basicService/BasicService';
-import { ClientSession, Model } from 'mongoose';
+import { ClientSession, Connection, Model } from 'mongoose';
 import {
+  IServiceReturn,
   TIServiceReadManyOptions,
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
@@ -13,7 +14,6 @@ import { PlayerService } from '../player/player.service';
 import { CreateFleaMarketItemDto } from './dto/createFleaMarketItem.dto';
 import { ItemService } from '../clanInventory/item/item.service';
 import { Status } from './enum/status.enum';
-import ServiceError from '../common/service/basicService/ServiceError';
 import { VotingType } from '../voting/enum/VotingType.enum';
 import { ClanService } from '../clan/clan.service';
 import { VotingDto } from '../voting/dto/voting.dto';
@@ -28,6 +28,7 @@ import { VotingService } from '../voting/voting.service';
 import { PlayerDto } from '../player/dto/player.dto';
 import { VotingQueue } from '../voting/voting.queue';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
+import { cancelTransaction } from '../common/function/cancelTransaction';
 
 @Injectable()
 export class FleaMarketService {
@@ -41,6 +42,7 @@ export class FleaMarketService {
     private readonly votingService: VotingService,
     private readonly votingQueue: VotingQueue,
     private readonly clanService: ClanService,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     this.basicService = new BasicService(model);
   }
@@ -53,11 +55,11 @@ export class FleaMarketService {
    * @param item - The Item data to create.
    * @returns  created Item or an array of service errors if any occurred.
    */
-  async createOne(item: CreateFleaMarketItemDto) {
+  async createOne(item: CreateFleaMarketItemDto, session?: ClientSession) {
     return this.basicService.createOne<
       CreateFleaMarketItemDto,
       FleaMarketItemDto
-    >(item);
+    >(item, { session });
   }
   /**
    * Reads an Item by its _id in DB.
@@ -115,20 +117,33 @@ export class FleaMarketService {
    * @param clanId - The ID of the clan to which the item belongs to.
    * @param playerId - The ID of the player starting the process.
    */
-  async handleSellItem(itemId: string, clanId: string, playerId: string) {
+  async handleSellItem(
+    itemId: string,
+    clanId: string,
+    playerId: string,
+  ): Promise<IServiceReturn<boolean>> {
+    const session = await this.connection.startSession();
+    session.startTransaction();
+
     const [item, itemErrors] = await this.itemService.readOneById(itemId);
-    if (itemErrors) throw itemErrors;
-    if (!item.stock_id) throw itemNotInStockError;
+    if (itemErrors) return await cancelTransaction(session, itemErrors);
+    if (!item.stock_id)
+      return await cancelTransaction(session, [itemNotInStockError]);
 
     const [player, playerErrors] =
       await this.playerService.getPlayerById(playerId);
-    if (playerErrors) throw playerErrors;
+    if (playerErrors) return await cancelTransaction(session, playerErrors);
 
     const newItem = await this.helperService.itemToCreateFleaMarketItem(
       item,
       clanId,
     );
-    const createdItem = await this.moveItemToFleaMarket(newItem, itemId);
+    const [createdItem, err] = await this.moveItemToFleaMarket(
+      newItem,
+      itemId,
+      session,
+    );
+    if (err) return await cancelTransaction(session, err);
     const [voting, errors] = await this.votingService.startVoting({
       voterPlayer: player,
       type: VotingType.FLEA_MARKET_SELL_ITEM,
@@ -136,14 +151,19 @@ export class FleaMarketService {
       fleaMarketItem: createdItem,
       queue: VotingQueueName.FLEA_MARKET,
     });
-    if (errors) throw errors;
+    if (errors) return await cancelTransaction(session, errors);
 
-    this.votingQueue.addVotingCheckJob({
+    await this.votingQueue.addVotingCheckJob({
       voting,
       fleaMarketItemId: createdItem._id.toString(),
       stockId: item.stock_id.toString(),
       queue: VotingQueueName.FLEA_MARKET,
     });
+
+    await session.commitTransaction();
+    await session.endSession();
+
+    return [true, null];
   }
 
   /**
@@ -160,37 +180,23 @@ export class FleaMarketService {
   private async moveItemToFleaMarket(
     newItem: CreateFleaMarketItemDto,
     oldItemId: string,
-  ) {
-    const session: ClientSession = await this.model.db.startSession();
-    session.startTransaction();
+    session?: ClientSession,
+  ): Promise<IServiceReturn<FleaMarketItemDto>> {
+    if (!session) {
+      session = await this.connection.startSession();
+      session.startTransaction();
+    }
 
-    const [created, createErrors] = await this.createOne(newItem);
-    if (createErrors) await this.cancelTransaction(session, createErrors);
+    const [created, createErrors] = await this.createOne(newItem, session);
+    if (createErrors) return await cancelTransaction(session, createErrors);
 
     const [_, deleteErrors] = await this.itemService.deleteOneById(oldItemId);
-    if (deleteErrors) await this.cancelTransaction(session, deleteErrors);
+    if (deleteErrors) return await cancelTransaction(session, deleteErrors);
 
     await session.commitTransaction();
     session.endSession();
 
-    return created;
-  }
-
-  /**
-   * Aborts the database transaction and ends the session.
-   *
-   * @param session - Started database session.
-   * @param error - The error to be thrown.
-   *
-   * @throws Will throw an unexpected service error.
-   */
-  private async cancelTransaction(
-    session: ClientSession,
-    error: ServiceError[],
-  ) {
-    await session.abortTransaction();
-    await session.endSession();
-    throw error;
+    return [created, null];
   }
 
   /**
@@ -201,15 +207,18 @@ export class FleaMarketService {
    *
    * @throws Will throw if there is an error with the database transaction.
    */
-  private async handlePassedBuyVoting(voting: VotingDto, stockId: string) {
-    const session = await this.model.db.startSession();
+  private async handlePassedBuyVoting(
+    voting: VotingDto,
+    stockId: string,
+  ): Promise<IServiceReturn<boolean>> {
+    const session = await this.connection.startSession();
     session.startTransaction();
 
     const [item, itemErrors] =
       await this.basicService.readOneById<FleaMarketItemDto>(
         voting.fleaMarketItem_id,
       );
-    if (itemErrors) await this.cancelTransaction(session, itemErrors);
+    if (itemErrors) return await cancelTransaction(session, itemErrors);
 
     const newItem = await this.helperService.fleaMarketItemToCreateItemDto(
       item,
@@ -218,17 +227,19 @@ export class FleaMarketService {
 
     const [_, itemCreateErrors] = await this.itemService.createOne(newItem);
     if (itemCreateErrors) {
-      await this.cancelTransaction(session, itemCreateErrors);
+      return await cancelTransaction(session, itemCreateErrors);
     }
 
     const [__, itemDeleteErrors] = await this.basicService.deleteOneById(
       voting.fleaMarketItem_id,
     );
     if (itemDeleteErrors)
-      await this.cancelTransaction(session, itemDeleteErrors);
+      return await cancelTransaction(session, itemDeleteErrors);
 
-    session.commitTransaction();
-    session.endSession();
+    await session.commitTransaction();
+    await session.endSession();
+
+    return [true, null];
   }
 
   /**
@@ -244,7 +255,7 @@ export class FleaMarketService {
     voting: VotingDto,
     clanId: string,
     itemPrice: number,
-  ) {
+  ): Promise<IServiceReturn<boolean>> {
     const session = await this.model.db.startSession();
     session.startTransaction();
 
@@ -252,20 +263,22 @@ export class FleaMarketService {
       voting.fleaMarketItem_id,
       { status: Status.AVAILABLE },
     );
-    if (updateErrors) await this.cancelTransaction(session, updateErrors);
+    if (updateErrors) return await cancelTransaction(session, updateErrors);
 
     const [clan, clanErrors] = await this.clanService.readOneById(clanId);
-    if (clanErrors) await this.cancelTransaction(session, clanErrors);
+    if (clanErrors) return await cancelTransaction(session, clanErrors);
 
     const [__, clanUpdateErrors] = await this.clanService.updateOne(
       { gameCoins: clan.gameCoins + itemPrice },
       { filter: { _id: clanId } },
     );
     if (clanUpdateErrors)
-      await this.cancelTransaction(session, clanUpdateErrors);
+      return await cancelTransaction(session, clanUpdateErrors);
 
-    session.commitTransaction();
-    session.endSession();
+    await session.commitTransaction();
+    await session.endSession();
+
+    return [true, null];
   }
 
   /**
@@ -291,28 +304,36 @@ export class FleaMarketService {
    *
    * @throws Will throw if there is an error with the database transaction.
    */
-  private async handleRejectedSellVoting(fmItemId: string, stockId: string) {
+  private async handleRejectedSellVoting(
+    fmItemId: string,
+    stockId: string,
+  ): Promise<IServiceReturn<boolean>> {
     const [fmItem, fmItemErrors] =
       await this.basicService.readOneById(fmItemId);
     if (fmItemErrors) throw fmItemErrors;
 
-    const session = await this.model.startSession();
+    const session = await this.connection.startSession();
     session.startTransaction();
 
     const [_, deleteErrors] = await this.basicService.deleteOneById(
       fmItem._id.toString(),
+      { session },
     );
-    if (deleteErrors) this.cancelTransaction(session, deleteErrors);
+    if (deleteErrors) return cancelTransaction(session, deleteErrors);
 
     const item = await this.helperService.fleaMarketItemToCreateItemDto(
       fmItem,
       stockId,
     );
-    const [__, createErrors] = await this.itemService.createOne(item);
-    if (createErrors) this.cancelTransaction(session, createErrors);
+    const [__, createErrors] = await this.itemService.createOne(item, {
+      session,
+    });
+    if (createErrors) return cancelTransaction(session, createErrors);
 
     await session.commitTransaction();
     await session.endSession();
+
+    return [true, null];
   }
 
   /**
@@ -325,23 +346,29 @@ export class FleaMarketService {
    * @throws Will throw a service error if item is not available
    * or if the clan doesn't have enough coins for the item.
    */
-  async handleBuyItem(clanId: string, itemId: string, playerId: string) {
+  async handleBuyItem(
+    clanId: string,
+    itemId: string,
+    playerId: string,
+  ): Promise<IServiceReturn<boolean>> {
     const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
       includeRefs: [ModelName.STOCK],
     });
-    if (clanErrors) throw clanErrors;
+    if (clanErrors) return [false, clanErrors];
 
     const [item, itemErrors] = await this.readOneById(itemId);
-    if (itemErrors) throw itemErrors;
+    if (itemErrors) return [false, itemErrors];
 
-    if (item.status !== Status.AVAILABLE) throw itemNotAvailableError;
-    if (clan.gameCoins < item.price) throw notEnoughCoinsError;
+    if (item.status !== Status.AVAILABLE)
+      return [false, [itemNotAvailableError]];
+    if (clan.gameCoins < item.price) return [false, [notEnoughCoinsError]];
 
     const [player, playerErrors] =
       await this.playerService.getPlayerById(playerId);
-    if (playerErrors) throw playerErrors;
+    if (playerErrors) return [false, playerErrors];
 
-    const voting = await this.handleBooking(clan, item, player);
+    const [voting, err] = await this.handleBooking(clan, item, player);
+    if (err) return [false, err];
     this.votingQueue.addVotingCheckJob({
       voting,
       clanId,
@@ -349,6 +376,8 @@ export class FleaMarketService {
       stockId: clan.Stock?._id.toString(),
       queue: VotingQueueName.FLEA_MARKET,
     });
+
+    return [true, null];
   }
 
   /**
@@ -397,12 +426,12 @@ export class FleaMarketService {
     item: FleaMarketItemDto,
     status: Status,
     session: ClientSession,
-  ) {
+  ): Promise<IServiceReturn<boolean>> {
     item.status = status;
-    const [__, itemUpdateErr] = await this.basicService.updateOne(item, {
+    return await this.basicService.updateOne(item, {
       filter: { _id: item._id },
+      session,
     });
-    if (itemUpdateErr) this.cancelTransaction(session, itemUpdateErr);
   }
 
   /**
@@ -418,12 +447,12 @@ export class FleaMarketService {
     clan: ClanDto,
     amount: number,
     session: ClientSession,
-  ) {
+  ): Promise<IServiceReturn<boolean>> {
     clan.gameCoins -= amount;
-    const [_, clanUpdateErr] = await this.clanService.updateOne(clan, {
+    return await this.clanService.updateOne(clan, {
       filter: { _id: clan._id },
+      session,
     });
-    if (clanUpdateErr) this.cancelTransaction(session, clanUpdateErr);
   }
 
   /**
@@ -439,12 +468,23 @@ export class FleaMarketService {
     clan: ClanDto,
     item: FleaMarketItemDto,
     player: PlayerDto,
-  ) {
+  ): Promise<IServiceReturn<VotingDto>> {
     const session = await this.model.startSession();
     session.startTransaction();
 
-    await this.changeItemStatus(item, Status.BOOKED, session);
-    await this.reserveFunds(clan, item.price, session);
+    const [, itemChangeErr] = await this.changeItemStatus(
+      item,
+      Status.BOOKED,
+      session,
+    );
+    if (itemChangeErr) return await cancelTransaction(session, itemChangeErr);
+    const [, fundReserveError] = await this.reserveFunds(
+      clan,
+      item.price,
+      session,
+    );
+    if (fundReserveError)
+      return await cancelTransaction(session, fundReserveError);
 
     const [voting, createVotingErrors] = await this.votingService.startVoting({
       clanId: clan._id.toString(),
@@ -453,11 +493,12 @@ export class FleaMarketService {
       type: VotingType.FLEA_MARKET_BUY_ITEM,
       queue: VotingQueueName.FLEA_MARKET,
     });
-    if (createVotingErrors) this.cancelTransaction(session, createVotingErrors);
+    if (createVotingErrors)
+      return await cancelTransaction(session, createVotingErrors);
 
-    session.commitTransaction();
-    session.endSession();
+    await session.commitTransaction();
+    await session.endSession();
 
-    return voting;
+    return [voting, null];
   }
 }

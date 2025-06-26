@@ -1,5 +1,6 @@
 import { ClientSession } from 'mongoose';
 import ServiceError from '../service/basicService/ServiceError';
+import { IServiceReturn } from '../service/basicService/IService';
 
 /**
  * Aborts the database transaction and ends the session.
@@ -12,8 +13,8 @@ import ServiceError from '../service/basicService/ServiceError';
 export async function cancelTransaction(
   session: ClientSession,
   error: ServiceError[],
-) {
+): Promise<IServiceReturn<any>> {
   await session.abortTransaction();
   await session.endSession();
-  throw error;
+  return [false, error];
 }

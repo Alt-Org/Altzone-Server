@@ -219,7 +219,10 @@ describe('BoxService.deleteBox() test suite', () => {
 
   it('Should throw an error if the box does not exist', async () => {
     const nonExistentBoxId = new ObjectId().toString();
-    await expect(boxService.deleteBox(nonExistentBoxId)).rejects.toEqual(
+
+    const [_, err] = await boxService.deleteBox(nonExistentBoxId);
+
+    expect(err).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           reason: SEReason.NOT_FOUND,
