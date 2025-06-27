@@ -96,11 +96,14 @@ describe('FleaMarketService.readOneById() test suite', () => {
 
   it('Should ignore non-existing schema references requested', async () => {
     const fleaMarketItem = await fleaMarketItemModel.create(fleaMarket);
-    
+
     const nonExistingReferences: any = ['non-existing'];
-    const [clan, errors] = await fleaMarketService.readOneById(fleaMarketItem._id, {
-      includeRefs: nonExistingReferences,
-    });
+    const [clan, errors] = await fleaMarketService.readOneById(
+      fleaMarketItem._id,
+      {
+        includeRefs: nonExistingReferences,
+      },
+    );
 
     expect(errors).toBeNull();
     expect(clan['non-existing']).toBeUndefined();
