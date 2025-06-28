@@ -12,11 +12,12 @@ import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultF
 describe('FleaMarketService.readMany() test suite', () => {
   let fleaMarketService: FleaMarketService;
   const fleaMarketItemModel = FleaMarketModule.getFleaMarketItemModel();
-  const fleaMarketItemBuilder = FleaMarketBuilderFactory.getBuilder('FleaMarketItem');
+  const fleaMarketItemBuilder =
+    FleaMarketBuilderFactory.getBuilder('FleaMarketItem');
 
   const existingClanName = 'clan1';
   let existingClan: Clan;
-    
+
   const item1 = fleaMarketItemBuilder
     .setName(ItemName.ARMCHAIR_RAKKAUS)
     .setRarity(Rarity.common)
@@ -140,11 +141,9 @@ describe('FleaMarketService.readMany() test suite', () => {
     });
 
     expect(errors).toBeNull();
-    items.forEach((item:any) => {
+    items.forEach((item: any) => {
       const clearedClan = clearDBRespDefaultFields(item.Clan);
-      expect(clearedClan).toEqual(
-        expect.objectContaining({ ...existingClan }),
-      );
+      expect(clearedClan).toEqual(expect.objectContaining({ ...existingClan }));
     });
   });
 
