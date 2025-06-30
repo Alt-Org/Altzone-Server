@@ -1,18 +1,18 @@
-import { FleaMarketService } from "../../../fleaMarket/fleaMarket.service";
-import FleaMarketModule from "../modules/fleaMarketModule";
-import { ItemHelperService } from "../../../clanInventory/item/itemHelper.service";
-import { PlayerService } from "../../../player/player.service";
-import PlayerBuilderFactory from "../../player/data/playerBuilderFactory";
+import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
+import FleaMarketModule from '../modules/fleaMarketModule';
+import { ItemHelperService } from '../../../clanInventory/item/itemHelper.service';
+import { PlayerService } from '../../../player/player.service';
+import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 
 describe('FleaMarketService.getClanId() test suite', () => {
   let fleaMarketService: FleaMarketService;
   let itemHelperService: ItemHelperService;
   let playerService: PlayerService;
-    
-  const PlayerDtoBuilder = PlayerBuilderFactory.getBuilder('PlayerDto');
-    const clanId = 'clan123';
 
-    const playerDto = PlayerDtoBuilder.setClanId(clanId).build();
+  const PlayerDtoBuilder = PlayerBuilderFactory.getBuilder('PlayerDto');
+  const clanId = 'clan123';
+
+  const playerDto = PlayerDtoBuilder.setClanId(clanId).build();
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -24,7 +24,7 @@ describe('FleaMarketService.getClanId() test suite', () => {
   it('Should return with the clanId if itemClanId matches player.clan_id', async () => {
     const itemId = 'item1';
     const playerId = 'player1';
-    
+
     const mockGetItemClanId = jest
       .spyOn(itemHelperService, 'getItemClanId')
       .mockResolvedValue([clanId, null]);
@@ -86,9 +86,7 @@ describe('FleaMarketService.getClanId() test suite', () => {
     jest
       .spyOn(itemHelperService, 'getItemClanId')
       .mockResolvedValue([clanId, null]);
-    jest
-      .spyOn(playerService, 'getPlayerById')
-      .mockResolvedValue([null, error]);
+    jest.spyOn(playerService, 'getPlayerById').mockResolvedValue([null, error]);
 
     try {
       await fleaMarketService.getClanId(itemId, playerId);
