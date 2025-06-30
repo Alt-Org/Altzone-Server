@@ -5,6 +5,8 @@ import { FleaMarketItemSchema } from '../../../fleaMarket/fleaMarketItem.schema'
 import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
 import { FleaMarketVotingProcessor } from '../../../fleaMarket/fleaMarketVoting.processor';
 import { FleaMarketHelperService } from '../../../fleaMarket/fleaMarketHelper.service';
+import { ItemHelperService } from '../../../clanInventory/item/itemHelper.service';
+import { PlayerService } from '../../../player/player.service';
 
 export default class FleaMarketModule {
   private constructor() {}
@@ -12,6 +14,16 @@ export default class FleaMarketModule {
   static async getFleaMarketService() {
     const module = await FleaMarketCommonModule.getModule();
     return module.resolve(FleaMarketService);
+  }
+
+  static async getItemHelperService() {
+    const module = await FleaMarketCommonModule.getModule();
+    return module.resolve(ItemHelperService);
+  }
+
+  static async getPlayerService() {
+    const module = await FleaMarketCommonModule.getModule();
+    return module.resolve(PlayerService);
   }
 
   static async getFleaMarketVotingProcessor() {
