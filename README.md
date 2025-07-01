@@ -12,8 +12,8 @@ Dev https://devapi.altzone.fi (dev branch)
 
 ## Swagger description
 
-1. [Swagger on web](https://devapi.altzone.fi/swagger)
-2. [Download latest swagger file version](https://devapi.altzone.fi/swagger-json)
+1. [Swagger on web](https://devapi.altzone.fi/swagger).
+2. [Download latest swagger file version](https://devapi.altzone.fi/swagger-json).
 
 
 ## Getting started
