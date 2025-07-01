@@ -11,7 +11,6 @@ import { taskReservedError } from './errors/taskReserved.error';
 import { TaskGeneratorService } from './taskGenerator.service';
 import {
   IServiceReturn,
-  TIServiceCreateManyOptions,
   TIServiceReadManyOptions,
   TReadByIdOptions,
 } from '../common/service/basicService/IService';

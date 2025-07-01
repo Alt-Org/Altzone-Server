@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ClientSession, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Item } from './item.schema';
 import { CreateItemDto } from './dto/createItem.dto';
@@ -9,7 +9,6 @@ import { ModelName } from '../../common/enum/modelName.enum';
 import BasicService from '../../common/service/basicService/BasicService';
 import {
   TReadByIdOptions,
-  TIServiceCreateManyOptions,
   TIServiceUpdateManyOptions,
   TIServiceReadManyOptions,
   TIServiceCreateOneOptions,

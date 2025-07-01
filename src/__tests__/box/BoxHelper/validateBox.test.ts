@@ -12,7 +12,6 @@ import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryB
 import SoulhomeModule from '../../clanInventory/modules/soulhome.module';
 import RoomModule from '../../clanInventory/modules/room.module';
 import StockModule from '../../clanInventory/modules/stock.module';
-import ChatModule from '../../chat/modules/chat.module';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 import { envVars } from '../../../common/service/envHandler/envVars';
 import { Environment } from '../../../common/service/envHandler/enum/environment.enum';
@@ -71,8 +70,6 @@ describe('BoxService.createOne() test suite', () => {
   const existingStock1 = stockBuilder.build();
   const existingStock2 = stockBuilder.build();
   const stockModel = StockModule.getStockModel();
-
-  const chatModel = ChatModule.getChatModel();
 
   beforeEach(async () => {
     boxService = await BoxModule.getBoxHelper();

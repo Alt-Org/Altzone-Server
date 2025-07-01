@@ -1,4 +1,4 @@
-import { ClientSession, Error, Model } from 'mongoose';
+import { Error, Model } from 'mongoose';
 import {
   IService,
   IServiceReturn,

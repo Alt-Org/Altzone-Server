@@ -1,4 +1,4 @@
-import { MongoMemoryReplSet, MongoMemoryServer } from 'mongodb-memory-server';
+import { MongoMemoryReplSet } from 'mongodb-memory-server';
 import fs from 'fs';
 import path from 'path';
 

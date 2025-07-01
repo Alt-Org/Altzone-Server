@@ -12,7 +12,6 @@ import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryB
 import SoulhomeModule from '../../clanInventory/modules/soulhome.module';
 import RoomModule from '../../clanInventory/modules/room.module';
 import StockModule from '../../clanInventory/modules/stock.module';
-import ChatModule from '../../chat/modules/chat.module';
 import { Box } from '../../../box/schemas/box.schema';
 import { envVars } from '../../../common/service/envHandler/envVars';
 import { Environment } from '../../../common/service/envHandler/enum/environment.enum';
@@ -32,7 +31,6 @@ describe('BoxService.deleteBoxReferences() test suite', () => {
   const soulHomeModel = SoulhomeModule.getSoulhomeModel();
   const roomModel = RoomModule.getRoomModel();
   const stockModel = StockModule.getStockModel();
-  const chatModel = ChatModule.getChatModel();
 
   const adminBuilder = BoxBuilderFactory.getBuilder('GroupAdmin');
   const testerBuilder = BoxBuilderFactory.getBuilder('Tester');

@@ -18,7 +18,6 @@ import ClanRoleService from './role/clanRole.service';
 import { ClanRoleController } from './role/clanRole.controller';
 import { VotingModule } from '../voting/voting.module';
 import { ClanRoleVotingProcessor } from './role/clanRole.processor';
-import { ClanChatService } from '../chat/service/clanChat.service';
 import { ChatModule } from '../chat/chat.module';
 
 @Module({
