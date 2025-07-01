@@ -11,7 +11,6 @@ import { ChatType } from './enum/chatMessageType.enum';
 import { OffsetPaginate } from '../common/interceptor/request/offsetPagination.interceptor';
 import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('chat')
 export class ChatController {
@@ -23,7 +22,6 @@ export class ChatController {
    * @remarks Retrieves chat message history based on the specified chat type.
    * Supports pagination and sorting by creation date (descending).
    */
-  @SwaggerTags('Release on 29.06.2025', 'Chat')
   @ApiResponseDescription({
     success: {
       dto: ChatMessageDto,
