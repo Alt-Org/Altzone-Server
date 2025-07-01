@@ -453,7 +453,8 @@ export class FleaMarketService {
       type: VotingType.FLEA_MARKET_BUY_ITEM,
       queue: VotingQueueName.FLEA_MARKET,
     });
-    if (createVotingErrors) await this.cancelTransaction(session, createVotingErrors);
+    if (createVotingErrors)
+      await this.cancelTransaction(session, createVotingErrors);
 
     session.commitTransaction();
     session.endSession();

@@ -10,6 +10,7 @@ import { PlayerService } from '../../../player/player.service';
 import { ItemService } from '../../../clanInventory/item/item.service';
 import { VotingService } from '../../../voting/voting.service';
 import { VotingQueue } from '../../../voting/voting.queue';
+import { ClanService } from '../../../clan/clan.service';
 
 export default class FleaMarketModule {
   private constructor() {}
@@ -42,6 +43,11 @@ export default class FleaMarketModule {
   static async getVotingQueue() {
     const module = await FleaMarketCommonModule.getModule();
     return module.resolve(VotingQueue);
+  }
+
+  static async getClanService() {
+    const module = await FleaMarketCommonModule.getModule();
+    return module.resolve(ClanService);
   }
 
   static async getFleaMarketVotingProcessor() {
