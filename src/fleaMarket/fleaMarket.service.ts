@@ -138,7 +138,7 @@ export class FleaMarketService {
     });
     if (errors) throw errors;
 
-    this.votingQueue.addVotingCheckJob({
+    await this.votingQueue.addVotingCheckJob({
       voting,
       fleaMarketItemId: createdItem._id.toString(),
       stockId: item.stock_id.toString(),
@@ -173,7 +173,7 @@ export class FleaMarketService {
     if (playerErrors) throw playerErrors;
 
     const voting = await this.handleBooking(clan, item, player);
-    this.votingQueue.addVotingCheckJob({
+    await this.votingQueue.addVotingCheckJob({
       voting,
       clanId,
       price: item.price,
@@ -240,7 +240,7 @@ export class FleaMarketService {
     if (deleteErrors) await this.cancelTransaction(session, deleteErrors);
 
     await session.commitTransaction();
-    session.endSession();
+    await session.endSession();
 
     return created;
   }
@@ -371,7 +371,7 @@ export class FleaMarketService {
     const [_, deleteErrors] = await this.basicService.deleteOneById(
       fmItem._id.toString(),
     );
-    if (deleteErrors) this.cancelTransaction(session, deleteErrors);
+    if (deleteErrors) await this.cancelTransaction(session, deleteErrors);
 
     const item = await this.helperService.fleaMarketItemToCreateItemDto(
       fmItem,
@@ -402,7 +402,7 @@ export class FleaMarketService {
     const [__, itemUpdateErr] = await this.basicService.updateOne(item, {
       filter: { _id: item._id },
     });
-    if (itemUpdateErr) this.cancelTransaction(session, itemUpdateErr);
+    if (itemUpdateErr) await this.cancelTransaction(session, itemUpdateErr);
   }
 
   /**
@@ -423,7 +423,7 @@ export class FleaMarketService {
     const [_, clanUpdateErr] = await this.clanService.updateOne(clan, {
       filter: { _id: clan._id },
     });
-    if (clanUpdateErr) this.cancelTransaction(session, clanUpdateErr);
+    if (clanUpdateErr) await this.cancelTransaction(session, clanUpdateErr);
   }
 
   /**
@@ -453,7 +453,7 @@ export class FleaMarketService {
       type: VotingType.FLEA_MARKET_BUY_ITEM,
       queue: VotingQueueName.FLEA_MARKET,
     });
-    if (createVotingErrors) this.cancelTransaction(session, createVotingErrors);
+    if (createVotingErrors) await this.cancelTransaction(session, createVotingErrors);
 
     session.commitTransaction();
     session.endSession();
