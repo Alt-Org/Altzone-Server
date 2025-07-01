@@ -103,14 +103,6 @@ export class BoxDto {
   stock_ids: string[];
 
   /**
-   * ID of the chat linked to this box session
-   *
-   * @example "663a5d7cde9f1a0012f3a660"
-   */
-  @Expose()
-  chat_id: string;
-
-  /**
    * List of testers currently connected to this session
    */
   @Expose()

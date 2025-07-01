@@ -70,7 +70,6 @@ describe('BoxAuthService.signIn() test suite', () => {
       .setAdminPassword(existingAdmin.password)
       .setAdminPlayerId(new ObjectId())
       .setAdminProfileId(new ObjectId(existingAdminProfile._id))
-      .setChatId(new ObjectId())
       .build();
     const boxResp = await boxModel.create(existingBox);
     existingBox._id = boxResp._id;

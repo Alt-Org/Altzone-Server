@@ -13,7 +13,6 @@ import { PlayerService } from '../player/player.service';
 import { LeaderboardPlayerDto } from './dto/leaderboardPlayer.dto';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import ClanPositionDto from './dto/clanPosition.dto';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('leaderboard')
 export class LeaderboardController {
@@ -38,7 +37,6 @@ export class LeaderboardController {
     errors: [400, 404],
     hasAuth: false,
   })
-  @SwaggerTags('Release on 15.06.2025', 'Leaderboard')
   @Get('player')
   @NoAuth()
   @UniformResponse(ModelName.PLAYER, LeaderboardPlayerDto)
@@ -63,7 +61,6 @@ export class LeaderboardController {
     errors: [400, 404],
     hasAuth: false,
   })
-  @SwaggerTags('Release on 15.06.2025', 'Leaderboard')
   @Get('clan')
   @NoAuth()
   @UniformResponse(ModelName.CLAN, ClanDto)

@@ -47,7 +47,6 @@ describe('BoxAuthHandler.isGroupAdmin() test suite', () => {
       .setAdminPassword(existingAdmin.password)
       .setAdminPlayerId(new ObjectId(existingPlayer._id))
       .setAdminProfileId(new ObjectId(existingProfile._id))
-      .setChatId(new ObjectId())
       .build();
     const boxResp = await boxModel.create(existingBox);
     existingBox._id = boxResp._id;

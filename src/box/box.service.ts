@@ -21,7 +21,7 @@ import { Room } from '../clanInventory/room/room.schema';
 import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { BoxHelper } from './util/boxHelper';
 import { ClanService } from '../clan/clan.service';
-import { ChatService } from '../chat/chat.service';
+import { ChatService } from '../chat/service/chat.service';
 import { ProfileService } from '../profile/profile.service';
 import {
   IServiceReturn,
@@ -298,16 +298,6 @@ export class BoxService {
       }
     }
 
-    if (boxData.chat_id) {
-      const resp = await this.chatService.deleteOneById(
-        boxData.chat_id.toString(),
-      );
-      if (resp instanceof MongooseError) {
-        const deleteError = convertMongooseToServiceErrors(resp);
-        await cancelTransaction(session, deleteError);
-      }
-    }
-
     if (boxData.adminProfile_id) {
       const resp = await this.profilesService.deleteOneById(
         boxData.adminProfile_id.toString(),
@@ -374,15 +364,16 @@ export class BoxService {
     session.startTransaction();
 
     const [box, boxError] = await this.readOneById(boxId);
-    if (boxError) await cancelTransaction(session, boxError);
+    if (boxError) return await cancelTransaction(session, boxError);
 
     const [, deleteBoxError] = await this.deleteOneById(boxId);
-    if (deleteBoxError) await cancelTransaction(session, deleteBoxError);
+    if (deleteBoxError) return await cancelTransaction(session, deleteBoxError);
 
     const [, adminDeleteError] = await this.adminBasicService.deleteOne({
       filter: { password: box.adminPassword },
     });
-    if (adminDeleteError) await cancelTransaction(session, adminDeleteError);
+    if (adminDeleteError)
+      return await cancelTransaction(session, adminDeleteError);
 
     session.commitTransaction();
     session.endSession();

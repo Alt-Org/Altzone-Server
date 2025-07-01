@@ -1,30 +1,26 @@
-import CreateChatDtoBuilder from './chat/createChatDtoBuilder';
-import CreateMessageDtoBuilder from './chat/createMessageDtoBuilder';
-import ChatBuilder from './chat/ChatBuilder';
-import MessageBuilder from './chat/MessageBuilder';
+import AddReactionDtoBuilder from './builder/AddReactionDtoBuilder';
+import ChatMessageBuilder from './builder/chatMessageBuilder';
+import ReactionDtoBuilder from './builder/ReactionDtoBuilder';
 
-type BuilderName = 'CreateChatDto' | 'CreateMessageDto' | 'Chat' | 'Message';
+type BuilderName = 'AddReactionDto' | 'ReactionDto' | 'ChatMessage';
 
 type BuilderMap = {
-  CreateChatDto: CreateChatDtoBuilder;
-  CreateMessageDto: CreateMessageDtoBuilder;
-  Chat: ChatBuilder;
-  Message: MessageBuilder;
+  AddReactionDto: AddReactionDtoBuilder;
+  ReactionDto: ReactionDtoBuilder;
+  ChatMessage: ChatMessageBuilder;
 };
 
 export default class ChatBuilderFactory {
   static getBuilder<T extends BuilderName>(builderName: T): BuilderMap[T] {
     switch (builderName) {
-      case 'CreateChatDto':
-        return new CreateChatDtoBuilder() as BuilderMap[T];
-      case 'CreateMessageDto':
-        return new CreateMessageDtoBuilder() as BuilderMap[T];
-      case 'Chat':
-        return new ChatBuilder() as BuilderMap[T];
-      case 'Message':
-        return new MessageBuilder() as BuilderMap[T];
-      default:
-        throw new Error(`Unknown builder name: ${builderName}`);
+      case 'AddReactionDto':
+        return new AddReactionDtoBuilder() as BuilderMap[T];
+
+      case 'ReactionDto':
+        return new ReactionDtoBuilder() as BuilderMap[T];
+
+      case 'ChatMessage':
+        return new ChatMessageBuilder() as BuilderMap[T];
     }
   }
 }

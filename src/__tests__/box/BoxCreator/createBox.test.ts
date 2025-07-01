@@ -85,9 +85,6 @@ describe('BoxCreator.createBox() test suite', () => {
       ...clearedPlayer
     } = clearDBRespDefaultFields(boxAdminPlayer);
 
-    const boxChat = await chatModel.findById(result.chat_id);
-    const clearedChat = clearDBRespDefaultFields(boxChat);
-
     expect(errors).toBeNull();
     expect(result.adminPassword).toBe(boxAdmin);
     expect(result.clans).toEqual(
@@ -97,7 +94,6 @@ describe('BoxCreator.createBox() test suite', () => {
       ]),
     );
     expect(result.adminPlayer).toEqual(expect.objectContaining(clearedPlayer));
-    expect(result.chat).toEqual(expect.objectContaining(clearedChat));
   });
 
   it('Should create group admin profile', async () => {
@@ -240,14 +236,6 @@ describe('BoxCreator.createBox() test suite', () => {
     expect(soulHome2Items).toHaveLength(defaultItemsCount);
   });
 
-  it('Should create a chat', async () => {
-    const [result] = await boxCreator.createBox(boxToCreate);
-
-    const chatInDB = await chatModel.findById(result.chat_id);
-
-    expect(chatInDB).not.toBeNull();
-  });
-
   it('Should set session reset time to 7 days from now', async () => {
     const [result] = await boxCreator.createBox(boxToCreate);
 
@@ -333,7 +321,6 @@ describe('BoxCreator.createBox() test suite', () => {
       .setSoulHomeIds([])
       .setRoomIds([])
       .setStockIds([])
-      .setChatId(new ObjectId())
       .build();
     await boxModel.create(existingBox);
     const [result, errors] = await boxCreator.createBox(boxToCreate);
@@ -353,7 +340,6 @@ describe('BoxCreator.createBox() test suite', () => {
       .setSoulHomeIds([])
       .setRoomIds([])
       .setStockIds([])
-      .setChatId(new ObjectId())
       .build();
     await boxModel.create(existingBox);
     await boxCreator.createBox(boxToCreate);
