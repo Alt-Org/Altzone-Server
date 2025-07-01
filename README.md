@@ -20,10 +20,10 @@ Dev https://devapi.altzone.fi (dev branch)
 
 ### Install required software
 
-1. Install Node and npm, choose your platform and node version, which should be LTS [here](https://nodejs.org/en/download)
-2. Install docker. Instructions can be [found here](https://docs.docker.com/engine/install/)
-3. Clone the API repo from GitHub https://github.com/Alt-Org/Altzone-Server.git
-4. Open a cloned repo in the IDE and install required dependencies with
+1. Install Node and npm, choose your platform and node version, which should be LTS [here](https://nodejs.org/en/download).
+2. Install docker. Instructions can be [found here](https://docs.docker.com/engine/install/).
+3. Clone the API repo from GitHub https://github.com/Alt-Org/Altzone-Server.git.
+4. Open a cloned repo in the IDE and install required dependencies with.
    ```shell
    npm install
    ```
