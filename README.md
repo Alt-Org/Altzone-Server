@@ -60,7 +60,7 @@ The API will be accessible on your machine on http://localhost:8080/
 
 ### Stop API and DB
 
-1. Stop API by pressing Ctrl+C with focused terminal
+1. Stop API by pressing Ctrl+C with focused terminal.
 2. Stop DB and all other Docker services by pressing Ctrl+C (couple times to force) and run
    ```shell
    docker compose down
