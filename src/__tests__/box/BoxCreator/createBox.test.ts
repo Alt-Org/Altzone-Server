@@ -9,6 +9,12 @@ import { Environment } from '../../../common/service/envHandler/enum/environment
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import LoggedUser from '../../test_utils/const/loggedUser';
 import BoxCreator from '../../../box/boxCreator';
+import PlayerBuilder from '../../player/data/player/playerBuilder';
+import GroupAdminBuilder from '../data/groupAdmin/GroupAdminBuilder';
+import { GroupAdmin } from '../../../box/groupAdmin/groupAdmin.schema';
+import BoxBuilder from '../data/box/BoxBuilder';
+import { CreateBoxDto } from '../../../box/dto/createBox.dto';
+import CreateBoxDtoBuilder from '../data/box/CreateBoxDtoBuilder';
 
 describe('BoxCreator.createBox() test suite', () => {
   envVars.ENVIRONMENT = Environment.TESTING_SESSION;
@@ -17,27 +23,35 @@ describe('BoxCreator.createBox() test suite', () => {
 
   const boxAdmin = 'box-admin';
   const adminName = 'box-admin';
-  const createBoxBuilder = BoxBuilderFactory.getBuilder('CreateBoxDto');
-  const boxBuilder = BoxBuilderFactory.getBuilder('Box');
-  const boxToCreate = createBoxBuilder
-    .setAdminPassword(boxAdmin)
-    .setPlayerName(adminName)
-    .build();
+  let createBoxBuilder: CreateBoxDtoBuilder;
+  let boxBuilder: BoxBuilder;
+  let boxToCreate: CreateBoxDto;
   const boxModel = BoxModule.getBoxModel();
 
-  const adminBuilder = BoxBuilderFactory.getBuilder('GroupAdmin');
-  const existingAdmin = adminBuilder.setPassword(boxAdmin).build();
+  let adminBuilder: GroupAdminBuilder;
+  let existingAdmin: GroupAdmin;
   const adminModel = BoxModule.getGroupAdminModel();
 
   const profileModel = ProfileModule.getProfileModel();
   const playerModel = PlayerModule.getPlayerModel();
-  const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
+  let playerBuilder: PlayerBuilder;
 
   beforeEach(async () => {
     boxCreator = await BoxModule.getBoxCreator();
 
+    boxBuilder = BoxBuilderFactory.getBuilder('Box');
+    createBoxBuilder = BoxBuilderFactory.getBuilder('CreateBoxDto');
+    boxToCreate = createBoxBuilder
+      .setAdminPassword(boxAdmin)
+      .setPlayerName(adminName)
+      .build();
+
+    adminBuilder = BoxBuilderFactory.getBuilder('GroupAdmin');
+    existingAdmin = adminBuilder.setPassword(boxAdmin).build();
     const adminResp = await adminModel.create(existingAdmin);
     existingAdmin._id = adminResp._id;
+
+    playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   });
 
   it('Should create box in DB if input is valid', async () => {
