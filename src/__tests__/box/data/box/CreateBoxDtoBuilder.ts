@@ -4,7 +4,6 @@ export default class CreateBoxDtoBuilder {
   private readonly base: CreateBoxDto = {
     adminPassword: 'defaultAdminPassword',
     playerName: 'defaultPlayerName',
-    clanNames: undefined,
   };
 
   build(): CreateBoxDto {
@@ -18,11 +17,6 @@ export default class CreateBoxDtoBuilder {
 
   setPlayerName(playerName: string) {
     this.base.playerName = playerName;
-    return this;
-  }
-
-  setClanNames(clanNames: string[]) {
-    this.base.clanNames = clanNames;
     return this;
   }
 }

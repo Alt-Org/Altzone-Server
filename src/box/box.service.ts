@@ -336,18 +336,13 @@ export class BoxService {
    */
   async getBoxResetData(boxId: string) {
     const [box, error] = await this.readOneById(boxId, {
-      includeRefs: [
-        BoxReference.CLANS,
-        BoxReference.ADMIN_PLAYER,
-      ] as string[] as ModelName[],
+      includeRefs: [BoxReference.ADMIN_PLAYER] as string[] as ModelName[],
     });
     if (error) throw error;
 
     const boxToCreate = new CreateBoxDto();
     boxToCreate.adminPassword = box.adminPassword;
     boxToCreate.playerName = box['AdminPlayer']['name'];
-    const clans = box['Clans'];
-    if (clans) boxToCreate.clanNames = [clans[0]['name'], clans[1]['name']];
 
     return boxToCreate;
   }
