@@ -186,7 +186,7 @@ export class BoxService {
    * @returns created box on success or ServiceErrors:
    *
    * - REQUIRED if the provided input is null or undefined
-   * - NOT_FOUND if any of the resources not found: profiles, players, clans, soul homes, stocks, rooms, chat
+   * - NOT_FOUND if any of the resources not found: profiles, players
    * - NOT_UNIQUE if a box with provided admin password already exists
    * - validation errors if input is invalid
    */
