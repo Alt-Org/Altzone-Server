@@ -12,12 +12,9 @@ import { BoxHelper } from './util/boxHelper';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { ObjectId } from 'mongodb';
-import { ClanService } from '../clan/clan.service';
 import { ProfileService } from '../profile/profile.service';
 import { PlayerService } from '../player/player.service';
 import { convertMongooseToServiceErrors } from '../common/service/basicService/BasicService';
-import { ClanLabel } from '../clan/enum/clanLabel.enum';
-import { ClanDto } from '../clan/dto/clan.dto';
 import { BoxService } from './box.service';
 import { CreatedBox } from './payloads/CreatedBox';
 import { ProfileDto } from '../profile/dto/profile.dto';
@@ -32,7 +29,6 @@ export default class BoxCreator {
     @InjectModel(GroupAdmin.name)
     public readonly groupAdminModel: Model<GroupAdmin>,
     private readonly boxHelper: BoxHelper,
-    private readonly clanService: ClanService,
     private readonly profilesService: ProfileService,
     private readonly playerService: PlayerService,
     private readonly boxService: BoxService,
