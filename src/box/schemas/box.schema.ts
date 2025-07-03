@@ -4,7 +4,6 @@ import { ModelName } from '../../common/enum/modelName.enum';
 import { ObjectId } from 'mongodb';
 import { SessionStage } from '../enum/SessionStage.enum';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
-import { Tester, TesterSchema } from './tester.schema';
 import { BoxReference } from '../enum/BoxReference.enum';
 import {
   PredefinedDailyTask,
@@ -93,12 +92,6 @@ export class Box {
    */
   @Prop({ type: [ObjectId], required: true })
   stock_ids: ObjectId[];
-
-  /**
-   * Testers that are related to the box and should have access to the box resources
-   */
-  @Prop({ type: [TesterSchema], required: true, default: [] })
-  testers: Tester[];
 
   /**
    * Array of unique identifiers, which is used to identify the device sending the request to claim the profile.

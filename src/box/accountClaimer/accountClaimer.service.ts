@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PlayerDto } from '../../player/dto/player.dto';
 import { JwtService } from '@nestjs/jwt';
 import { BoxDto } from '../dto/box.dto';
-import { Tester } from '../schemas/tester.schema';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { ObjectId } from 'mongodb';
@@ -38,14 +37,15 @@ export default class AccountClaimerService {
     const testerProfiles = box[BoxReference.TESTER_PROFILES] as Profile[];
     const testerPlayers = box[BoxReference.TESTER_PLAYERS] as PlayerDto[];
 
-    const account = this.getTesterAccount(box);
+    // const account = this.getTesterAccount(box);
+    const account: any = {};
     account.isClaimed = true;
 
     const testerProfile = testerProfiles.find(
       (profile) => profile._id.toString() === account.profile_id.toString(),
     );
 
-    await this.updateBoxTesters(box);
+    // await this.updateBoxTesters(box);
 
     const playerData = this.getTesterPlayerData(
       testerPlayers,
@@ -98,12 +98,12 @@ export default class AccountClaimerService {
    * @param box - The box to update.
    * @throws Will throw an error if the box cannot be updated.
    */
-  async updateBoxTesters(box: BoxDto): Promise<void> {
-    const [_, updateErrors] = await this.basicService.updateOneById(box._id, {
-      testers: box.testers,
-    });
-    if (updateErrors) throw updateErrors;
-  }
+  // async updateBoxTesters(box: BoxDto): Promise<void> {
+  //   const [_, updateErrors] = await this.basicService.updateOneById(box._id, {
+  //     testers: box.testers,
+  //   });
+  //   if (updateErrors) throw updateErrors;
+  // }
 
   /**
    * Retrieves an unclaimed tester account from the box.
@@ -112,18 +112,18 @@ export default class AccountClaimerService {
    * @returns The unclaimed tester account.
    * @throws Will throw an error if no unclaimed tester account can be found.
    */
-  private getTesterAccount(box: BoxDto): Tester {
-    const account = box.testers.find((tester) => {
-      return tester.isClaimed !== true;
-    }) as unknown as Tester;
-    if (!account) {
-      throw new ServiceError({
-        reason: SEReason.NOT_FOUND,
-        message: 'All the tester accounts have already been claimed.',
-      });
-    }
-    return account;
-  }
+  // private getTesterAccount(box: BoxDto): Tester {
+  //   const account = box.testers.find((tester) => {
+  //     return tester.isClaimed !== true;
+  //   }) as unknown as Tester;
+  //   if (!account) {
+  //     throw new ServiceError({
+  //       reason: SEReason.NOT_FOUND,
+  //       message: 'All the tester accounts have already been claimed.',
+  //     });
+  //   }
+  //   return account;
+  // }
 
   /**
    * Retrieves the player data for the specified player ID.

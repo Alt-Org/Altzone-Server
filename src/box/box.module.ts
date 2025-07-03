@@ -23,13 +23,12 @@ import { DailyTaskController } from './dailyTask/dailyTask.controller';
 import { DailyTaskService } from './dailyTask/dailyTask.service';
 import { GroupAdminGuard } from './auth/decorator/groupAdmin.guard';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
-import { TesterService } from './tester/tester.service';
-import { TesterController } from './tester/tester.controller';
 import SessionStarterService from './sessionStarter/sessionStarter.service';
 import { DailyTasksModule } from '../dailyTasks/dailyTasks.module';
 import { BoxScheduler } from './box.scheduler';
 import { AccountClaimerController } from './accountClaimer/accountClaimer.controller';
 import AccountClaimerService from './accountClaimer/accountClaimer.service';
+import { TesterAccountService } from './accountClaimer/testerAccount.service';
 
 @Module({
   imports: [
@@ -50,12 +49,7 @@ import AccountClaimerService from './accountClaimer/accountClaimer.service';
     DailyTasksModule,
     PlayerModule,
   ],
-  controllers: [
-    BoxController,
-    DailyTaskController,
-    TesterController,
-    AccountClaimerController,
-  ],
+  controllers: [BoxController, DailyTaskController, AccountClaimerController],
   providers: [
     BoxService,
     GroupAdminService,
@@ -66,9 +60,9 @@ import AccountClaimerService from './accountClaimer/accountClaimer.service';
     BoxAuthHandler,
     GroupAdminGuard,
     PasswordGenerator,
-    TesterService,
     SessionStarterService,
     AccountClaimerService,
+    TesterAccountService,
   ],
   exports: [BoxService, GroupAdminGuard],
 })

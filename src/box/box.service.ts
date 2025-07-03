@@ -173,19 +173,6 @@ export class BoxService {
       }
     }
 
-    if (boxData.testers) {
-      const testerProfiles = boxData.testers.map((tester) => tester.profile_id);
-      for (let i = 0; i < testerProfiles.length; i++) {
-        const resp = await this.profilesService.deleteOneById(
-          testerProfiles[i].toString(),
-        );
-        if (resp instanceof MongooseError) {
-          const deleteError = convertMongooseToServiceErrors(resp);
-          await cancelTransaction(session, deleteError);
-        }
-      }
-    }
-
     await session.commitTransaction();
     await session.endSession();
 

@@ -169,42 +169,6 @@ export class BoxHelper {
         ],
       ];
 
-    if (box.testers && box.testers.length > 0) {
-      const testerProfiles = box.testers.map((tester) => tester.profile_id);
-      const testerProfilesInDB = await this.profileModel.find({
-        _id: { $in: testerProfiles },
-      });
-      if (testerProfilesInDB.length !== testerProfiles.length)
-        return [
-          null,
-          [
-            new ServiceError({
-              reason: SEReason.NOT_FOUND,
-              field: 'testers.profile_id',
-              value: testerProfiles,
-              message: 'Some of the testers profile are not found',
-            }),
-          ],
-        ];
-
-      const testerPlayers = box.testers.map((tester) => tester.player_id);
-      const testerPlayersInDB = await this.playerModel.find({
-        _id: { $in: testerPlayers },
-      });
-      if (testerPlayersInDB.length !== testerPlayers.length)
-        return [
-          null,
-          [
-            new ServiceError({
-              reason: SEReason.NOT_FOUND,
-              field: 'testers.player_id',
-              value: testerPlayers,
-              message: 'Some of the testers players are not found',
-            }),
-          ],
-        ];
-    }
-
     return [true, null];
   }
 
