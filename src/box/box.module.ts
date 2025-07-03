@@ -28,6 +28,8 @@ import { TesterController } from './tester/tester.controller';
 import SessionStarterService from './sessionStarter/sessionStarter.service';
 import { DailyTasksModule } from '../dailyTasks/dailyTasks.module';
 import { BoxScheduler } from './box.scheduler';
+import { AccountClaimerController } from './accountClaimer/accountClaimer.controller';
+import AccountClaimerService from './accountClaimer/accountClaimer.service';
 
 @Module({
   imports: [
@@ -48,7 +50,12 @@ import { BoxScheduler } from './box.scheduler';
     DailyTasksModule,
     PlayerModule,
   ],
-  controllers: [BoxController, DailyTaskController, TesterController],
+  controllers: [
+    BoxController,
+    DailyTaskController,
+    TesterController,
+    AccountClaimerController,
+  ],
   providers: [
     BoxService,
     GroupAdminService,
@@ -61,6 +68,7 @@ import { BoxScheduler } from './box.scheduler';
     PasswordGenerator,
     TesterService,
     SessionStarterService,
+    AccountClaimerService,
   ],
   exports: [BoxService, GroupAdminGuard],
 })

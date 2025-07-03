@@ -6,28 +6,20 @@ import BasicService, {
   convertMongooseToServiceErrors,
 } from '../common/service/basicService/BasicService';
 import { BoxReference } from './enum/BoxReference.enum';
-import { BoxDto } from './dto/box.dto';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { ModelName } from '../common/enum/modelName.enum';
-import { ObjectId } from 'mongodb';
-import { JwtService } from '@nestjs/jwt';
-import { PlayerDto } from '../player/dto/player.dto';
-import { ClaimAccountResponseDto } from './dto/claimAccountResponse.dto';
-import { Tester } from './schemas/tester.schema';
 import { Player } from '../player/schemas/player.schema';
 import { Clan } from '../clan/clan.schema';
 import { Room } from '../clanInventory/room/room.schema';
 import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { BoxHelper } from './util/boxHelper';
 import { ClanService } from '../clan/clan.service';
-import { ChatService } from '../chat/service/chat.service';
 import { ProfileService } from '../profile/profile.service';
 import {
   IServiceReturn,
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
-import { Profile } from '../profile/profile.schema';
 import { cancelTransaction } from '../common/function/cancelTransaction';
 import { CreateBoxDto } from './dto/createBox.dto';
 
@@ -42,9 +34,7 @@ export class BoxService {
     public readonly groupAdminModel: Model<GroupAdmin>,
     private readonly boxHelper: BoxHelper,
     private readonly clanService: ClanService,
-    private readonly chatService: ChatService,
     private readonly profilesService: ProfileService,
-    private readonly jwtService: JwtService,
   ) {
     this.refsInModel = publicReferences;
     this.basicService = new BasicService(model);
@@ -54,131 +44,6 @@ export class BoxService {
   public readonly refsInModel: BoxReference[];
   private readonly basicService: BasicService;
   private readonly adminBasicService: BasicService;
-
-  /**
-   * Retrieves the box with populated testers based on the provided password.
-   *
-   * @param password - The password to authenticate the request.
-   * @returns The box with populated testers.
-   * @throws Will throw an error if the box cannot be found.
-   */
-  private async getBoxWithTesters(password: string): Promise<BoxDto> {
-    const [box, errors] = await this.basicService.readOne<BoxDto>({
-      filter: { testersSharedPassword: password },
-      includeRefs: [...(this.refsInModel as string[] as ModelName[])],
-    });
-    if (errors) throw errors;
-    return box;
-  }
-
-  /**
-   * Updates the box testers.
-   *
-   * @param box - The box to update.
-   * @throws Will throw an error if the box cannot be updated.
-   */
-  async updateBoxTesters(box: BoxDto): Promise<void> {
-    const [_, updateErrors] = await this.basicService.updateOneById(box._id, {
-      testers: box.testers,
-    });
-    if (updateErrors) throw updateErrors;
-  }
-
-  /**
-   * Claims an account based on the provided password and identifier.
-   *
-   * @param password - The password to authenticate the request.
-   * @returns The claimed account data.
-   * @throws Will throw an error if the account cannot be claimed.
-   */
-  async claimAccount(password: string): Promise<ClaimAccountResponseDto> {
-    const box = await this.getBoxWithTesters(password);
-    const testerProfiles = box[BoxReference.TESTER_PROFILES] as Profile[];
-    const testerPlayers = box[BoxReference.TESTER_PLAYERS] as PlayerDto[];
-
-    const account = this.getTesterAccount(box);
-    account.isClaimed = true;
-
-    const testerProfile = testerProfiles.find(
-      (profile) => profile._id.toString() === account.profile_id.toString(),
-    );
-
-    await this.updateBoxTesters(box);
-
-    const playerData = this.getTesterPlayerData(
-      testerPlayers,
-      account.player_id,
-    );
-
-    const accessToken = await this.jwtService.signAsync({
-      player_id: account.player_id,
-      profile_id: account.profile_id,
-      box_id: box._id,
-    });
-
-    return {
-      _id: playerData._id,
-      points: playerData.points,
-      backpackCapacity: playerData.backpackCapacity,
-      above13: playerData.above13,
-      parentalAuth: playerData.parentalAuth,
-      gameStatistics: playerData.gameStatistics,
-      battleCharacter_ids: playerData.battleCharacter_ids,
-      currentAvatarId: playerData.currentAvatarId,
-      profile_id: account.profile_id.toString(),
-      clan_id: playerData.clan_id,
-      Clan: playerData.Clan,
-      CustomCharacter: playerData.CustomCharacter,
-      accessToken: accessToken,
-      password: testerProfile.username,
-    };
-  }
-
-  /**
-   * Retrieves the player data for the specified player ID.
-   *
-   * @param players - The list of players.
-   * @param playerId - The ID of the player to retrieve.
-   * @returns The player data excluding specific properties.
-   * @throws Will throw an error if the player cannot be found.
-   */
-  private getTesterPlayerData(
-    players: PlayerDto[],
-    playerId: ObjectId,
-  ): PlayerDto {
-    const player = players.find((player) => {
-      return player._id.toString() === playerId.toString();
-    });
-
-    if (!player) {
-      throw new ServiceError({
-        reason: SEReason.NOT_FOUND,
-        message: 'Player not found.',
-      });
-    }
-
-    return player;
-  }
-
-  /**
-   * Retrieves an unclaimed tester account from the box.
-   *
-   * @param box - The box to retrieve the account from.
-   * @returns The unclaimed tester account.
-   * @throws Will throw an error if no unclaimed tester account can be found.
-   */
-  private getTesterAccount(box: BoxDto): Tester {
-    const account = box.testers.find((tester) => {
-      return tester.isClaimed !== true;
-    }) as unknown as Tester;
-    if (!account) {
-      throw new ServiceError({
-        reason: SEReason.NOT_FOUND,
-        message: 'All the tester accounts have already been claimed.',
-      });
-    }
-    return account;
-  }
 
   /**
    * Creates a new box
