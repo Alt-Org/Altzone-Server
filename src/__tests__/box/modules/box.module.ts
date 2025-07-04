@@ -10,9 +10,9 @@ import BoxCreator from '../../../box/boxCreator';
 import BoxAuthHandler from '../../../box/auth/BoxAuthHandler';
 import { DailyTaskService } from '../../../box/dailyTask/dailyTask.service';
 import { PasswordGenerator } from '../../../common/function/passwordGenerator';
-import { TesterService } from '../../../box/tester/tester.service';
 import SessionStarterService from '../../../box/sessionStarter/sessionStarter.service';
 import { BoxScheduler } from '../../../box/box.scheduler';
+import { TesterAccountService } from '../../../box/accountClaimer/testerAccount.service';
 
 export default class BoxModule {
   private constructor() {}
@@ -60,9 +60,9 @@ export default class BoxModule {
     return module.resolve(PasswordGenerator);
   }
 
-  static async getTesterService() {
+  static async getTesterAccountService() {
     const module = await BoxCommonModule.getModule();
-    return module.resolve(TesterService);
+    return module.resolve(TesterAccountService);
   }
 
   static async getSessionStarterService() {

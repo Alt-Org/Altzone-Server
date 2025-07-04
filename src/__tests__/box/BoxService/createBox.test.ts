@@ -134,18 +134,6 @@ describe('BoxService.createOne() test suite', () => {
       .setAdminPassword(existingAdmin.password)
       .setAdminPlayerId(new ObjectId(adminPlayer._id))
       .setAdminProfileId(new ObjectId(adminProfile._id))
-      .setTesters([
-        {
-          profile_id: new ObjectId(testerProfile1._id),
-          player_id: new ObjectId(testerPlayer1._id),
-          isClaimed: false,
-        },
-        {
-          profile_id: new ObjectId(testerProfile2._id),
-          player_id: new ObjectId(testerPlayer2._id),
-          isClaimed: false,
-        },
-      ])
       .setClanIds([
         new ObjectId(existingClan1._id),
         new ObjectId(existingClan2._id),
@@ -252,21 +240,6 @@ describe('BoxService.createOne() test suite', () => {
     const [result, errors] = await boxService.createOne({
       ...validBox,
       clan_ids: [...validBox.clan_ids, new ObjectId(getNonExisting_id())],
-    });
-
-    expect(result).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-  });
-
-  it('Should return ServiceError with reason NOT_FOUND, if any of the provided testers does not exists', async () => {
-    const nonExistingTester = {
-      profile_id: new ObjectId(getNonExisting_id()),
-      player_id: new ObjectId(getNonExisting_id()),
-      isClaimed: false,
-    };
-    const [result, errors] = await boxService.createOne({
-      ...validBox,
-      testers: [...validBox.testers, nonExistingTester],
     });
 
     expect(result).toBeNull();

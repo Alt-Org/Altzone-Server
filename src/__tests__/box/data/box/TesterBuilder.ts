@@ -1,29 +1,31 @@
-import { ObjectId } from 'mongodb';
-import { Tester } from '../../../../box/schemas/tester.schema';
+import Tester from '../../../../box/accountClaimer/payloads/tester';
+import { ProfileDto } from '../../../../profile/dto/profile.dto';
+import { Player } from '../../../../player/schemas/player.schema';
+import { Clan } from '../../../../clan/clan.schema';
 
 export default class TesterBuilder {
   private readonly base: Partial<Tester> = {
-    profile_id: undefined,
-    player_id: undefined,
-    isClaimed: false,
+    Profile: undefined,
+    Player: undefined,
+    Clan: undefined,
   };
 
   build(): Tester {
     return { ...this.base } as Tester;
   }
 
-  setProfileId(profileId: ObjectId) {
-    this.base.profile_id = profileId;
+  setProfile(profile: ProfileDto) {
+    this.base.Profile = { ...profile };
     return this;
   }
 
-  setPlayerId(playerId: ObjectId) {
-    this.base.player_id = playerId;
+  setPlayer(player: Player) {
+    this.base.Player = { ...player };
     return this;
   }
 
-  setIsClaimed(isClaimed: boolean) {
-    this.base.isClaimed = isClaimed;
+  setIsClaimed(clan: Clan) {
+    this.base.Clan = { ...clan };
     return this;
   }
 }

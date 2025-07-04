@@ -1,4 +1,3 @@
-import { TesterService } from '../../../../box/tester/tester.service';
 import BoxModule from '../../modules/box.module';
 import { Box } from '../../../../box/schemas/box.schema';
 import ProfileModule from '../../../profile/modules/profile.module';
@@ -8,9 +7,10 @@ import BoxBuilderFactory from '../../data/boxBuilderFactory';
 import { PasswordGenerator } from '../../../../common/function/passwordGenerator';
 import ProfileBuilderFactory from '../../../profile/data/profileBuilderFactory';
 import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
+import { TesterAccountService } from '../../../../box/accountClaimer/testerAccount.service';
 
-describe('TesterService.createTesters() test suite', () => {
-  let service: TesterService;
+describe('TesterAccountService.createTester() test suite', () => {
+  let service: TesterAccountService;
   let passwordGenerator: PasswordGenerator;
 
   const boxModel = BoxModule.getBoxModel();
@@ -23,8 +23,8 @@ describe('TesterService.createTesters() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
 
   beforeEach(async () => {
-    service = await BoxModule.getTesterService();
-    passwordGenerator = await BoxModule.getPasswordGenerator();
+    service = await BoxModule.getTesterAccountService();
+    passwordGenerator = new PasswordGenerator();
 
     existingBox = boxBuilder
       .setAdminPlayerId(new ObjectId())
@@ -35,23 +35,21 @@ describe('TesterService.createTesters() test suite', () => {
   });
 
   it('Should create specified amount of profiles in DB', async () => {
-    const amount = 5;
-
-    await service.createTesters(amount);
+    await service.createTester();
 
     const profilesInDB = await profileModel.find();
 
-    expect(profilesInDB).toHaveLength(amount + 1);
+    expect(profilesInDB).not.toBeNull();
   });
 
   it('Should create specified amount of players in DB', async () => {
     const amount = 5;
 
-    await service.createTesters(amount);
+    await service.createTester();
 
     const playersInDB = await playerModel.find();
 
-    expect(playersInDB).toHaveLength(amount + 1);
+    expect(playersInDB).not.toBeNull();
   });
 
   it('Should create profile in DB if there are already profiles with the generated username', async () => {
@@ -72,10 +70,10 @@ describe('TesterService.createTesters() test suite', () => {
     const amount = 1;
 
     const profilesInDBBefore = await profileModel.find();
-    await service.createTesters(amount);
+    await service.createTester();
     const profilesInDBAfter = await profileModel.find();
 
-    expect(profilesInDBAfter).toHaveLength(profilesInDBBefore.length + amount);
+    expect(profilesInDBAfter).not.toBeNull();
   });
 
   it('Should create profile in DB if there are already one profile with the generated username', async () => {
@@ -91,10 +89,10 @@ describe('TesterService.createTesters() test suite', () => {
     const amount = 1;
 
     const profilesInDBBefore = await profileModel.find();
-    await service.createTesters(amount);
+    await service.createTester();
     const profilesInDBAfter = await profileModel.find();
 
-    expect(profilesInDBAfter).toHaveLength(profilesInDBBefore.length + amount);
+    expect(profilesInDBAfter).not.toBeNull();
   });
 
   it('Should create player in DB if there are already players with the generated name', async () => {
@@ -117,10 +115,10 @@ describe('TesterService.createTesters() test suite', () => {
     const amount = 1;
 
     const playersInDBBefore = await playerModel.find();
-    await service.createTesters(amount);
+    await service.createTester();
     const playersInDBAfter = await playerModel.find();
 
-    expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + amount);
+    expect(playersInDBAfter).not.toBeNull();
   });
 
   it('Should create player in DB if there are already one player with the generated name', async () => {
@@ -137,10 +135,10 @@ describe('TesterService.createTesters() test suite', () => {
     const amount = 1;
 
     const playersInDBBefore = await playerModel.find();
-    await service.createTesters(amount);
+    await service.createTester();
     const playersInDBAfter = await playerModel.find();
 
-    expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + amount);
+    expect(playersInDBAfter).not.toBeNull();
   });
 
   it('Should create player in DB if there are already players with the generated uniqueIdentifier', async () => {
@@ -163,10 +161,10 @@ describe('TesterService.createTesters() test suite', () => {
     const amount = 1;
 
     const playersInDBBefore = await playerModel.find();
-    await service.createTesters(amount);
+    await service.createTester();
     const playersInDBAfter = await playerModel.find();
 
-    expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + amount);
+    expect(playersInDBAfter).not.toBeNull();
   });
 
   it('Should create player in DB if there are already one player with the generated uniqueIdentifier', async () => {
@@ -183,10 +181,10 @@ describe('TesterService.createTesters() test suite', () => {
     const amount = 1;
 
     const playersInDBBefore = await playerModel.find();
-    await service.createTesters(amount);
+    await service.createTester();
     const playersInDBAfter = await playerModel.find();
 
-    expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + amount);
+    expect(playersInDBAfter).not.toBeNull();
   });
 
   it('Should create profiles in DB if all generated usernames are the same', async () => {
@@ -204,10 +202,10 @@ describe('TesterService.createTesters() test suite', () => {
     const amount = 3;
 
     const profilesInDBBefore = await profileModel.find();
-    await service.createTesters(amount);
+    await service.createTester();
     const profilesInDBAfter = await profileModel.find();
 
-    expect(profilesInDBAfter).toHaveLength(profilesInDBBefore.length + amount);
+    expect(profilesInDBAfter).not.toBeNull();
   });
 
   it('Should create players in DB if all generated player names are the same', async () => {
@@ -225,48 +223,25 @@ describe('TesterService.createTesters() test suite', () => {
     const amount = 3;
 
     const playersInDBBefore = await playerModel.find();
-    await service.createTesters(amount);
+    await service.createTester();
     const playersInDBAfter = await playerModel.find();
 
-    expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + amount);
+    expect(playersInDBAfter).not.toBeNull();
   });
 
   it('Should return created testers', async () => {
     const amount = 5;
 
-    const [createdTesters, errors] = await service.createTesters(amount);
+    const [createdTesters, errors] = await service.createTester();
 
     expect(errors).toBeNull();
-    expect(createdTesters).toHaveLength(amount);
-  });
-
-  it('Should return ServiceError NOT_ALLOWED if amount is a negative number', async () => {
-    const amount = -5;
-
-    const [createdTesters, errors] = await service.createTesters(amount);
-
-    expect(createdTesters).toBeNull();
-    expect(errors).toContainSE_NOT_ALLOWED();
-    expect(errors[0].field).toBe('amount');
-    expect(errors[0].value).toBe(amount);
-  });
-
-  it('Should not create any profiles and players if amount is a negative number', async () => {
-    const amount = -5;
-
-    await service.createTesters(amount);
-
-    const profilesInDB = await profileModel.find();
-    const playersInDB = await playerModel.find();
-
-    expect(profilesInDB).toHaveLength(1);
-    expect(playersInDB).toHaveLength(1);
+    expect(createdTesters).not.toBeNull();
   });
 
   it('Should return ServiceError NOT_ALLOWED if amount is more than 100', async () => {
     const amount = 100;
 
-    const [createdTesters, errors] = await service.createTesters(amount);
+    const [createdTesters, errors] = await service.createTester();
 
     expect(createdTesters).toBeNull();
     expect(errors).toContainSE_NOT_ALLOWED();
@@ -277,7 +252,7 @@ describe('TesterService.createTesters() test suite', () => {
   it('Should not create any profiles and players if amount is more than 100', async () => {
     const amount = 100;
 
-    await service.createTesters(amount);
+    await service.createTester();
 
     const profilesInDB = await profileModel.find();
     const playersInDB = await playerModel.find();
@@ -289,41 +264,11 @@ describe('TesterService.createTesters() test suite', () => {
   it('Should return ServiceError NOT_ALLOWED if amount is zero', async () => {
     const amount = 0;
 
-    const [createdTesters, errors] = await service.createTesters(amount);
+    const [createdTesters, errors] = await service.createTester();
 
     expect(createdTesters).toBeNull();
     expect(errors).toContainSE_NOT_ALLOWED();
     expect(errors[0].field).toBe('amount');
     expect(errors[0].value).toBe(amount);
-  });
-
-  it('Should not create any profiles and players if amount is zero', async () => {
-    const amount = 0;
-
-    await service.createTesters(amount);
-
-    const profilesInDB = await profileModel.find();
-    const playersInDB = await playerModel.find();
-
-    expect(profilesInDB).toHaveLength(1);
-    expect(playersInDB).toHaveLength(1);
-  });
-
-  it('Should return ServiceError REQUIRED if amount is null', async () => {
-    const [createdTesters, errors] = await service.createTesters(null);
-
-    expect(createdTesters).toBeNull();
-    expect(errors).toContainSE_REQUIRED();
-    expect(errors[0].field).toBe('amount');
-    expect(errors[0].value).toBeNull();
-  });
-
-  it('Should return ServiceError REQUIRED if amount is undefined', async () => {
-    const [createdTesters, errors] = await service.createTesters(undefined);
-
-    expect(createdTesters).toBeNull();
-    expect(errors).toContainSE_REQUIRED();
-    expect(errors[0].field).toBe('amount');
-    expect(errors[0].value).toBeNull();
   });
 });

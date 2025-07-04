@@ -1,7 +1,6 @@
 import { SessionStage } from '../../../../box/enum/SessionStage.enum';
 import { Box } from '../../../../box/schemas/box.schema';
 import { ObjectId } from 'mongodb';
-import { Tester } from '../../../../box/schemas/tester.schema';
 import { PredefinedDailyTask } from '../../../../box/dailyTask/predefinedDailyTask.schema';
 
 export default class BoxBuilder {
@@ -17,7 +16,6 @@ export default class BoxBuilder {
     soulHome_ids: [],
     room_ids: [],
     stock_ids: [],
-    testers: [],
     accountClaimersIds: [],
     dailyTasks: [],
     _id: undefined,
@@ -79,11 +77,6 @@ export default class BoxBuilder {
 
   setStockIds(stockIds: ObjectId[]) {
     this.base.stock_ids = stockIds;
-    return this;
-  }
-
-  setTesters(testers: Tester[]) {
-    this.base.testers = testers;
     return this;
   }
 

@@ -23,10 +23,10 @@ import BoxAuthHandler from '../../../box/auth/BoxAuthHandler';
 import { DailyTaskService } from '../../../box/dailyTask/dailyTask.service';
 import { GroupAdminGuard } from '../../../box/auth/decorator/groupAdmin.guard';
 import { PasswordGenerator } from '../../../common/function/passwordGenerator';
-import { TesterService } from '../../../box/tester/tester.service';
 import SessionStarterService from '../../../box/sessionStarter/sessionStarter.service';
 import { DailyTasksModule } from '../../../dailyTasks/dailyTasks.module';
 import { BoxScheduler } from '../../../box/box.scheduler';
+import { TesterAccountService } from '../../../box/accountClaimer/testerAccount.service';
 
 export default class BoxCommonModule {
   private constructor() {}
@@ -66,7 +66,7 @@ export default class BoxCommonModule {
           BoxAuthHandler,
           GroupAdminGuard,
           PasswordGenerator,
-          TesterService,
+          TesterAccountService,
           SessionStarterService,
         ],
       }).compile();

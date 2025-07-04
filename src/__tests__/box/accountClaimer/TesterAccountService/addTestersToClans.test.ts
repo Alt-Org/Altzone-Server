@@ -1,4 +1,3 @@
-import { TesterService } from '../../../../box/tester/tester.service';
 import BoxModule from '../../modules/box.module';
 import { Box } from '../../../../box/schemas/box.schema';
 import ProfileModule from '../../../profile/modules/profile.module';
@@ -10,10 +9,11 @@ import BoxBuilderFactory from '../../data/boxBuilderFactory';
 import ClanBuilderFactory from '../../../clan/data/clanBuilderFactory';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
 import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
-import { Tester } from '../../../../box/schemas/tester.schema';
+import { TesterAccountService } from '../../../../box/accountClaimer/testerAccount.service';
+import Tester from '../../../../box/accountClaimer/payloads/tester';
 
-describe('TesterService.addTestersToClans() test suite', () => {
-  let service: TesterService;
+describe('TesterAccountService.addTestersToClans() test suite', () => {
+  let service: TesterAccountService;
   const testerBuilder = BoxBuilderFactory.getBuilder('Tester');
   let tester1: Tester;
   let tester2: Tester;
@@ -33,7 +33,7 @@ describe('TesterService.addTestersToClans() test suite', () => {
   let boxClan1: Clan, boxClan2: Clan;
 
   beforeEach(async () => {
-    service = await BoxModule.getTesterService();
+    service = await BoxModule.getTesterAccountService();
 
     boxClan1 = clanBuilder.setName('clan1').build();
     const clan1Resp = await clanModel.create(boxClan1);
@@ -51,12 +51,7 @@ describe('TesterService.addTestersToClans() test suite', () => {
         .build();
       const playerResp = await playerModel.create(playerToCreate);
 
-      testersToCreate.push(
-        testerBuilder
-          .setProfileId(new ObjectId())
-          .setPlayerId(playerResp._id as any)
-          .build(),
-      );
+      testersToCreate.push(testerBuilder.build());
     }
     [tester1, tester2, tester3, tester4, tester5] = testersToCreate;
 
@@ -64,7 +59,6 @@ describe('TesterService.addTestersToClans() test suite', () => {
       .setAdminPlayerId(new ObjectId())
       .setAdminProfileId(new ObjectId())
       .setClanIds([boxClan1._id as any, boxClan2._id as any])
-      .setTesters([tester1, tester2, tester3, tester4, tester5])
       .build();
     const boxResp = await boxModel.create(existingBox);
     existingBox._id = boxResp._id;
@@ -77,8 +71,8 @@ describe('TesterService.addTestersToClans() test suite', () => {
       testersToAdd,
     );
 
-    const player1InDB = await playerModel.findById(tester1.player_id);
-    const player2InDB = await playerModel.findById(tester2.player_id);
+    const player1InDB = await playerModel.findById(tester1.Player._id);
+    const player2InDB = await playerModel.findById(tester2.Player._id);
 
     expect(errors).toBeNull();
     expect(areAdded).toBeTruthy();
@@ -102,7 +96,7 @@ describe('TesterService.addTestersToClans() test suite', () => {
     const testersToAdd = [tester1, tester2, tester3, tester4];
     await service.addTestersToClans(existingBox._id, testersToAdd);
 
-    const testerPlayer_ids = testersToAdd.map((tester) => tester.player_id);
+    const testerPlayer_ids = testersToAdd.map((tester) => tester.Player._id);
     const playersInDB = await playerModel
       .find({ _id: { $in: testerPlayer_ids } })
       .exec();
@@ -133,7 +127,7 @@ describe('TesterService.addTestersToClans() test suite', () => {
     const testersToAdd = [tester1, tester2, tester3, tester4, tester5];
     await service.addTestersToClans(existingBox._id, testersToAdd);
 
-    const testerPlayer_ids = testersToAdd.map((tester) => tester.player_id);
+    const testerPlayer_ids = testersToAdd.map((tester) => tester.Player._id);
     const playersInDB = await playerModel
       .find({ _id: { $in: testerPlayer_ids } })
       .exec();

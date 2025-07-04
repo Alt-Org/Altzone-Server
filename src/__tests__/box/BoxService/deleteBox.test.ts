@@ -119,14 +119,8 @@ describe('BoxService.deleteBox() test suite', () => {
       .build();
     const testerPlayerResp2 = await playerModel.create(testerPlayer2);
     testerPlayer2._id = testerPlayerResp2._id;
-    const tester1 = testerBuilder
-      .setProfileId(new ObjectId(testerProfile1._id))
-      .setPlayerId(new ObjectId(testerPlayer1._id))
-      .build();
-    const tester2 = testerBuilder
-      .setProfileId(new ObjectId(testerProfile2._id))
-      .setPlayerId(new ObjectId(testerPlayer2._id))
-      .build();
+    const tester1 = testerBuilder.build();
+    const tester2 = testerBuilder.build();
 
     existingBox = boxBuilder
       .setAdminPassword(existingAdmin.password)
@@ -148,7 +142,6 @@ describe('BoxService.deleteBox() test suite', () => {
         new ObjectId(existingStock1._id),
         new ObjectId(existingStock2._id),
       ])
-      .setTesters([tester1, tester2])
       .build();
 
     const boxResp = await boxModel.create(existingBox);
@@ -205,13 +198,6 @@ describe('BoxService.deleteBox() test suite', () => {
         _id: { $in: existingBox.stock_ids },
       });
       expect(stocksInDB).toHaveLength(0);
-    });
-
-    it('Should remove all tester profiles', async () => {
-      const testerProfilesInDB = await profileModel.find({
-        _id: { $in: existingBox.testers.map((tester) => tester.profile_id) },
-      });
-      expect(testerProfilesInDB).toHaveLength(0);
     });
   });
 

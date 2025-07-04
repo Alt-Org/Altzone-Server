@@ -1,10 +1,9 @@
 import { PasswordGenerator } from '../../../../common/function/passwordGenerator';
-import BoxModule from '../../modules/box.module';
 
 describe('PasswordGenerator.generatePassword() test suite', () => {
   let passwordGenerator: PasswordGenerator;
   beforeEach(async () => {
-    passwordGenerator = await BoxModule.getPasswordGenerator();
+    passwordGenerator = new PasswordGenerator();
   });
 
   it('Should generate a new password', () => {
