@@ -4,22 +4,17 @@ import BoxBuilderFactory from '../data/boxBuilderFactory';
 import BoxModule from '../modules/box.module';
 import ProfileModule from '../../profile/modules/profile.module';
 import PlayerModule from '../../player/modules/player.module';
-import ClanModule from '../../clan/modules/clan.module';
-import SoulhomeModule from '../../clanInventory/modules/soulhome.module';
-import RoomModule from '../../clanInventory/modules/room.module';
-import StockModule from '../../clanInventory/modules/stock.module';
-import ChatModule from '../../chat/modules/chat.module';
 import { envVars } from '../../../common/service/envHandler/envVars';
 import { Environment } from '../../../common/service/envHandler/enum/environment.enum';
-import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
-import {
-  getRoomDefaultItems,
-  getStockDefaultItems,
-} from '../../../clan/utils/defaultValues/items';
-import ItemModule from '../../clanInventory/modules/item.module';
 import LoggedUser from '../../test_utils/const/loggedUser';
 import BoxCreator from '../../../box/boxCreator';
+import PlayerBuilder from '../../player/data/player/playerBuilder';
+import GroupAdminBuilder from '../data/groupAdmin/GroupAdminBuilder';
+import { GroupAdmin } from '../../../box/groupAdmin/groupAdmin.schema';
+import BoxBuilder from '../data/box/BoxBuilder';
+import { CreateBoxDto } from '../../../box/dto/createBox.dto';
+import CreateBoxDtoBuilder from '../data/box/CreateBoxDtoBuilder';
 
 describe('BoxCreator.createBox() test suite', () => {
   envVars.ENVIRONMENT = Environment.TESTING_SESSION;
@@ -28,36 +23,35 @@ describe('BoxCreator.createBox() test suite', () => {
 
   const boxAdmin = 'box-admin';
   const adminName = 'box-admin';
-  const createBoxBuilder = BoxBuilderFactory.getBuilder('CreateBoxDto');
-  const boxBuilder = BoxBuilderFactory.getBuilder('Box');
-  const boxToCreate = createBoxBuilder
-    .setAdminPassword(boxAdmin)
-    .setPlayerName(adminName)
-    .build();
+  let createBoxBuilder: CreateBoxDtoBuilder;
+  let boxBuilder: BoxBuilder;
+  let boxToCreate: CreateBoxDto;
   const boxModel = BoxModule.getBoxModel();
 
-  const adminBuilder = BoxBuilderFactory.getBuilder('GroupAdmin');
-  const existingAdmin = adminBuilder.setPassword(boxAdmin).build();
+  let adminBuilder: GroupAdminBuilder;
+  let existingAdmin: GroupAdmin;
   const adminModel = BoxModule.getGroupAdminModel();
 
   const profileModel = ProfileModule.getProfileModel();
   const playerModel = PlayerModule.getPlayerModel();
-  const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
-
-  const clanModel = ClanModule.getClanModel();
-  const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
-  const soulHomeModel = SoulhomeModule.getSoulhomeModel();
-  const roomModel = RoomModule.getRoomModel();
-  const stockModel = StockModule.getStockModel();
-  const itemModel = ItemModule.getItemModel();
-
-  const chatModel = ChatModule.getChatModel();
+  let playerBuilder: PlayerBuilder;
 
   beforeEach(async () => {
     boxCreator = await BoxModule.getBoxCreator();
 
+    boxBuilder = BoxBuilderFactory.getBuilder('Box');
+    createBoxBuilder = BoxBuilderFactory.getBuilder('CreateBoxDto');
+    boxToCreate = createBoxBuilder
+      .setAdminPassword(boxAdmin)
+      .setPlayerName(adminName)
+      .build();
+
+    adminBuilder = BoxBuilderFactory.getBuilder('GroupAdmin');
+    existingAdmin = adminBuilder.setPassword(boxAdmin).build();
     const adminResp = await adminModel.create(existingAdmin);
     existingAdmin._id = adminResp._id;
+
+    playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   });
 
   it('Should create box in DB if input is valid', async () => {
@@ -75,9 +69,6 @@ describe('BoxCreator.createBox() test suite', () => {
   it('Should return created box data, if input is valid', async () => {
     const [result, errors] = await boxCreator.createBox(boxToCreate);
 
-    const boxClans = await clanModel.find({ _id: { $in: result.clan_ids } });
-    const clearedClans = clearDBRespDefaultFields(boxClans);
-
     const boxAdminPlayer = await playerModel.findById(result.adminPlayer_id);
     const {
       clan_id: _clan_id,
@@ -87,12 +78,7 @@ describe('BoxCreator.createBox() test suite', () => {
 
     expect(errors).toBeNull();
     expect(result.adminPassword).toBe(boxAdmin);
-    expect(result.clans).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining(clearedClans[0]),
-        expect.objectContaining(clearedClans[1]),
-      ]),
-    );
+
     expect(result.adminPlayer).toEqual(expect.objectContaining(clearedPlayer));
   });
 
@@ -111,129 +97,6 @@ describe('BoxCreator.createBox() test suite', () => {
 
     expect(playerInDB.name).toBe(boxToCreate.playerName);
     expect(playerInDB.profile_id).toEqual(result.adminProfile_id);
-  });
-
-  it('Should create 2 clans with auto generated names, if input is without clan names', async () => {
-    const [result] = await boxCreator.createBox(boxToCreate);
-
-    const expectedClanName1 = `${boxToCreate.playerName} clan 1`;
-    const expectedClanName2 = `${boxToCreate.playerName} clan 2`;
-
-    const clansInDB = await clanModel
-      .find({ _id: { $in: result.clan_ids } })
-      .select(['name']);
-    const clearedClans = clearDBRespDefaultFields(clansInDB);
-
-    expect(clansInDB).toHaveLength(2);
-    expect(clearedClans).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          name: expectedClanName1,
-          _id: expect.any(ObjectId),
-        }),
-        expect.objectContaining({
-          name: expectedClanName2,
-          _id: expect.any(ObjectId),
-        }),
-      ]),
-    );
-  });
-
-  it('Should create 2 clans with provided names', async () => {
-    const clan1Name = 'box-clan-1';
-    const clan2Name = 'box-clan-2';
-    const [result] = await boxCreator.createBox({
-      ...boxToCreate,
-      clanNames: [clan1Name, clan2Name],
-    });
-
-    const clansInDB = await clanModel
-      .find({ _id: { $in: result.clan_ids } })
-      .select(['name']);
-    const clearedClans = clearDBRespDefaultFields(clansInDB);
-
-    expect(clansInDB).toHaveLength(2);
-    expect(clearedClans).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ name: clan1Name, _id: expect.any(ObjectId) }),
-        expect.objectContaining({ name: clan2Name, _id: expect.any(ObjectId) }),
-      ]),
-    );
-  });
-
-  it('Should create soul home for each clan', async () => {
-    const [result] = await boxCreator.createBox(boxToCreate);
-
-    const soulHomesInDB = await soulHomeModel.find({
-      clan_id: { $in: result.clan_ids },
-    });
-
-    expect(soulHomesInDB).toHaveLength(2);
-  });
-
-  it('Should create 30 rooms for each soul home', async () => {
-    const [result] = await boxCreator.createBox(boxToCreate);
-
-    const soulHome1Rooms = await roomModel.find({
-      soulHome_id: { $in: result.soulHome_ids[0] },
-    });
-    const soulHome2Rooms = await roomModel.find({
-      soulHome_id: { $in: result.soulHome_ids[1] },
-    });
-
-    expect(soulHome1Rooms).toHaveLength(30);
-    expect(soulHome2Rooms).toHaveLength(30);
-  });
-
-  it('Should create default items for each soul home', async () => {
-    const [result] = await boxCreator.createBox(boxToCreate);
-
-    const defaultItemsCount = getRoomDefaultItems('').length;
-
-    const soulHome1Rooms = await roomModel
-      .find({ soulHome_id: { $in: result.soulHome_ids[0] } })
-      .select(['_id']);
-    const soulHome1Rooms_ids = soulHome1Rooms.map((room) => room._id);
-    const soulHome2Rooms = await roomModel.find({
-      soulHome_id: { $in: result.soulHome_ids[1] },
-    });
-    const soulHome2Rooms_ids = soulHome2Rooms.map((room) => room._id);
-
-    const soulHome1Items = await itemModel.find({
-      room_id: { $in: soulHome1Rooms_ids },
-    });
-    const soulHome2Items = await itemModel.find({
-      room_id: { $in: soulHome2Rooms_ids },
-    });
-
-    expect(soulHome1Items).toHaveLength(defaultItemsCount);
-    expect(soulHome2Items).toHaveLength(defaultItemsCount);
-  });
-
-  it('Should create stock for each clan', async () => {
-    const [result] = await boxCreator.createBox(boxToCreate);
-
-    const stocksInDB = await stockModel.find({
-      clan_id: { $in: result.clan_ids },
-    });
-
-    expect(stocksInDB).toHaveLength(2);
-  });
-
-  it('Should create default items for each stock', async () => {
-    const [result] = await boxCreator.createBox(boxToCreate);
-
-    const defaultItemsCount = getStockDefaultItems('').length;
-
-    const soulHome1Items = await itemModel.find({
-      stock_id: { $in: result.stock_ids[0] },
-    });
-    const soulHome2Items = await itemModel.find({
-      stock_id: { $in: result.stock_ids[1] },
-    });
-
-    expect(soulHome1Items).toHaveLength(defaultItemsCount);
-    expect(soulHome2Items).toHaveLength(defaultItemsCount);
   });
 
   it('Should set session reset time to 7 days from now', async () => {
@@ -264,7 +127,7 @@ describe('BoxCreator.createBox() test suite', () => {
     const dbResp = await boxModel.findOne({ adminPassword: undefined });
     expect(dbResp).toBeNull();
 
-    const dataLeft = await isBoxDataLeft();
+    const dataLeft = await getBoxLeftData();
     expect(dataLeft).toBeNull();
   });
 
@@ -281,7 +144,7 @@ describe('BoxCreator.createBox() test suite', () => {
     const dbResp = await boxModel.findOne({ adminPassword: undefined });
     expect(dbResp).toBeNull();
 
-    const dataLeft = await isBoxDataLeft();
+    const dataLeft = await getBoxLeftData();
     expect(dataLeft).toBeNull();
   });
 
@@ -308,7 +171,7 @@ describe('BoxCreator.createBox() test suite', () => {
       adminPassword: 'non-existent',
     });
 
-    const dataLeft = await isBoxDataLeft();
+    const dataLeft = await getBoxLeftData();
     expect(dataLeft).toBeNull();
   });
 
@@ -344,87 +207,11 @@ describe('BoxCreator.createBox() test suite', () => {
     await boxModel.create(existingBox);
     await boxCreator.createBox(boxToCreate);
 
-    const dataLeft = await isBoxDataLeft();
+    const dataLeft = await getBoxLeftData();
     const { Box, ...otherData } = dataLeft;
     expect(otherData).toEqual({});
     expect(Box).toHaveLength(1);
     expect(Box[0].adminPassword).toBe(existingBox.adminPassword);
-  });
-
-  it('Should return ServiceError with reason NOT_UNIQUE, if one of clan names already registered', async () => {
-    const existingClanName = 'box-clan';
-    const existingClan = clanBuilder.setName(existingClanName).build();
-    await clanModel.create(existingClan);
-
-    const [result, errors] = await boxCreator.createBox({
-      ...boxToCreate,
-      clanNames: [existingClanName, 'non-existent-clan'],
-    });
-
-    expect(result).toBeNull();
-    expect(errors).toContainSE_NOT_UNIQUE();
-    expect(errors[0].field).toEqual('clanNames');
-    expect(errors[0].value).toEqual(existingClanName);
-  });
-
-  it('Should not save any box data, if one of clan names already registered', async () => {
-    const existingClanName = 'box-clan';
-    const existingClan = clanBuilder.setName(existingClanName).build();
-    await clanModel.create(existingClan);
-
-    await boxCreator.createBox({
-      ...boxToCreate,
-      clanNames: [existingClanName, 'non-existent-clan'],
-    });
-
-    const dataLeft = await isBoxDataLeft();
-    const { Clan, ...otherData } = dataLeft;
-    expect(otherData).toEqual({});
-    expect(Clan).toHaveLength(1);
-    expect(Clan[0].name).toBe(existingClan.name);
-  });
-
-  it('Should return two ServiceError with reason NOT_UNIQUE, if both of clan names already registered', async () => {
-    const existingClanName1 = 'box-clan-1';
-    const existingClan1 = clanBuilder.setName(existingClanName1).build();
-    const existingClanName2 = 'box-clan-2';
-    const existingClan2 = clanBuilder.setName(existingClanName2).build();
-    await clanModel.create(existingClan1);
-    await clanModel.create(existingClan2);
-
-    const [result, errors] = await boxCreator.createBox({
-      ...boxToCreate,
-      clanNames: [existingClanName1, existingClanName2],
-    });
-
-    expect(result).toBeNull();
-    expect(errors).toHaveLength(2);
-    expect(errors[0]).toBeSE_NOT_UNIQUE();
-    expect(errors[0].field).toEqual('clanNames');
-    expect(errors[0].value).toEqual(existingClanName1);
-
-    expect(errors[1]).toBeSE_NOT_UNIQUE();
-    expect(errors[1].field).toEqual('clanNames');
-    expect(errors[1].value).toEqual(existingClanName2);
-  });
-
-  it('Should not save any box data, if both of clan names already registered', async () => {
-    const existingClanName1 = 'box-clan-1';
-    const existingClan1 = clanBuilder.setName(existingClanName1).build();
-    const existingClanName2 = 'box-clan-2';
-    const existingClan2 = clanBuilder.setName(existingClanName2).build();
-    await clanModel.create(existingClan1);
-    await clanModel.create(existingClan2);
-
-    await boxCreator.createBox({
-      ...boxToCreate,
-      clanNames: [existingClanName1, existingClanName2],
-    });
-
-    const dataLeft = await isBoxDataLeft();
-    const { Clan, ...otherData } = dataLeft;
-    expect(otherData).toEqual({});
-    expect(Clan).toHaveLength(2);
   });
 
   it('Should return ServiceError with reason NOT_UNIQUE, if player with provided name is already registered', async () => {
@@ -449,7 +236,7 @@ describe('BoxCreator.createBox() test suite', () => {
 
     await boxCreator.createBox(boxToCreate);
 
-    const dataLeft = await isBoxDataLeft();
+    const dataLeft = await getBoxLeftData();
     const { Player, ...otherData } = dataLeft;
     expect(otherData).toEqual({});
     expect(Player).toHaveLength(1);
@@ -461,26 +248,11 @@ describe('BoxCreator.createBox() test suite', () => {
    *
    * @returns a record with all references found
    */
-  async function isBoxDataLeft(): Promise<Record<string, any[]> | null> {
+  async function getBoxLeftData(): Promise<Record<string, any[]> | null> {
     const leftData: Record<string, any> = {};
 
     const boxesInDB = await boxModel.find();
     if (boxesInDB.length !== 0) leftData['Box'] = boxesInDB;
-
-    const clansInDB = await clanModel.find();
-    if (clansInDB.length !== 0) leftData['Clan'] = clansInDB;
-
-    const soulHomesInDB = await soulHomeModel.find();
-    if (soulHomesInDB.length !== 0) leftData['Soul Home'] = soulHomesInDB;
-
-    const roomsInDB = await roomModel.find();
-    if (roomsInDB.length !== 0) leftData['Room'] = roomsInDB;
-
-    const stocksInDB = await stockModel.find();
-    if (stocksInDB.length !== 0) leftData['Stock'] = stocksInDB;
-
-    const itemsInDB = await itemModel.find();
-    if (itemsInDB.length !== 0) leftData['Item'] = itemsInDB;
 
     const playersInDB = await playerModel.find({
       name: { $ne: LoggedUser.getPlayer().name },
@@ -491,9 +263,6 @@ describe('BoxCreator.createBox() test suite', () => {
       username: { $ne: LoggedUser.getProfile().username },
     });
     if (profilesInDB.length !== 0) leftData['Profile'] = profilesInDB;
-
-    const chatsInDB = await chatModel.find();
-    if (chatsInDB.length !== 0) leftData['Chat'] = chatsInDB;
 
     return Object.keys(leftData).length !== 0 ? leftData : null;
   }

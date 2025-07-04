@@ -248,16 +248,6 @@ describe('BoxService.createOne() test suite', () => {
     expect(errors).toContainSE_NOT_FOUND();
   });
 
-  it('Should return ServiceError with reason NOT_FOUND, if any of the provided clans does not exists', async () => {
-    const [result, errors] = await boxService.createOne({
-      ...validBox,
-      clan_ids: [...validBox.clan_ids, new ObjectId(getNonExisting_id())],
-    });
-
-    expect(result).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-  });
-
   it('Should return ServiceError with reason NOT_FOUND, if any of the provided testers does not exists', async () => {
     const nonExistingTester = {
       profile_id: new ObjectId(getNonExisting_id()),
@@ -287,36 +277,6 @@ describe('BoxService.createOne() test suite', () => {
     const [result, errors] = await boxService.createOne({
       ...validBox,
       adminPlayer_id: new ObjectId(getNonExisting_id()),
-    });
-
-    expect(result).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-  });
-
-  it('Should return ServiceError with reason NOT_FOUND, if any of the provided stocks does not exists', async () => {
-    const [result, errors] = await boxService.createOne({
-      ...validBox,
-      stock_ids: [new ObjectId(getNonExisting_id())],
-    });
-
-    expect(result).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-  });
-
-  it('Should return ServiceError with reason NOT_FOUND, if any of the provided soul homes does not exists', async () => {
-    const [result, errors] = await boxService.createOne({
-      ...validBox,
-      soulHome_ids: [new ObjectId(getNonExisting_id())],
-    });
-
-    expect(result).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-  });
-
-  it('Should return ServiceError with reason NOT_FOUND, if any of the provided rooms does not exists', async () => {
-    const [result, errors] = await boxService.createOne({
-      ...validBox,
-      room_ids: [new ObjectId(getNonExisting_id())],
     });
 
     expect(result).toBeNull();
