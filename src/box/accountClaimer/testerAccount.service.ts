@@ -13,6 +13,7 @@ import { ProfileDto } from '../../profile/dto/profile.dto';
 import { Box, BoxDocument } from '../schemas/box.schema';
 import Tester from './payloads/tester';
 import BasicService from '../../common/service/basicService/BasicService';
+import { Clan, ClanDocument } from '../../clan/clan.schema';
 
 @Injectable()
 export class TesterAccountService {
@@ -23,6 +24,8 @@ export class TesterAccountService {
     private readonly profileModel: Model<ProfileDocument>,
     @InjectModel(Player.name)
     private readonly playerModel: Model<PlayerDocument>,
+    @InjectModel(Clan.name)
+    private readonly clanModel: Model<ClanDocument>,
     @InjectModel(Box.name) private readonly boxModel: Model<BoxDocument>,
   ) {
     this.playerBasicService = new BasicService(playerModel);
@@ -56,130 +59,132 @@ export class TesterAccountService {
   }
 
   /**
-   * Adds testers to clans of the specified box.
-   * The testers will be added evenly to clans, so that in the end there will be the same amount of testers in each clan.
+   * Adds tester to a clan with the least amount of players in it, so that
+   * the testers will be added evenly to clans, so that in the end there will be the same amount of testers in each clan.
    *
    * Notice that the method does not check the existence of the testers' profiles and players
    *
-   * @param box_id box _id where the testers should be added
-   * @param testers testers to be added
+   * @param player_id tester's player _id, which need to be assigned to a clan
+   * @param clan_ids clans' _ids where tester player can be added
    *
-   * @returns true if the testers were added or ServiceError:
-   *  - REQUIRED if box_id is null, undefined or an empty string, or testers is null, undefined or an empty array
-   *  - NOT_FOUND if the box with provided _id is not found, or if the box does not have 2 clans
+   * @returns clan, where the tester was put or ServiceError:
+   *  - REQUIRED if player_id is null, undefined or an empty string, or clan_ids is null, undefined or an empty array
+   *  - NOT_FOUND if the player_id or clan_ids not found
    */
-  async addTestersToClans(
-    box_id: ObjectId | string,
-    testers: Tester[],
-  ): Promise<IServiceReturn<true>> {
-    if (!box_id)
+  async addTesterToClan(
+    player_id: ObjectId | string,
+    clan_ids: ObjectId[] | string[],
+  ): Promise<IServiceReturn<Clan>> {
+    if (!player_id)
       return [
         null,
         [
           new ServiceError({
             reason: SEReason.REQUIRED,
-            field: 'box_id',
-            value: box_id,
-            message: 'Box _id is required',
+            field: 'player_id',
+            value: player_id,
+            message: 'player_id is required',
           }),
         ],
       ];
 
-    if (!testers || testers.length === 0)
+    if (!clan_ids || clan_ids.length === 0)
       return [
         null,
         [
           new ServiceError({
             reason: SEReason.REQUIRED,
-            field: 'testers',
-            value: testers,
-            message: 'testers array is required',
+            field: 'clan_ids',
+            value: clan_ids,
+            message: 'clan_ids array is required',
           }),
         ],
       ];
 
-    const box = await this.boxModel.findById(box_id);
-    if (!box)
+    const player = await this.boxModel.findById(player_id);
+    if (!player)
       return [
         null,
         [
           new ServiceError({
             reason: SEReason.NOT_FOUND,
-            field: 'box_id',
-            value: box_id,
-            message: 'Box with provided _id is not found',
+            field: 'player_id',
+            value: player_id,
+            message: 'Player with provided _id is not found',
           }),
         ],
       ];
 
-    if (box.clan_ids.length < 2)
+    const clans = await this.clanModel.find({ _id: { $in: clan_ids } });
+    if (clans.length !== clan_ids.length)
       return [
         null,
         [
           new ServiceError({
             reason: SEReason.NOT_FOUND,
             field: 'clan_ids',
-            value: box.clan_ids,
-            message: 'Box does not have 2 clans',
+            value: clan_ids,
+            message: 'Not all provided clans are found',
+            additional: clans.map((clan) => clan._id.toString()),
           }),
         ],
       ];
 
-    const amount = testers.length;
-    const boxPlayer_ids = testers.map((tester) => tester.Player._id);
-    const boxPlayers = await this.playerModel
-      .find({ _id: { $in: boxPlayer_ids } })
-      .exec();
-    const [clan1_id, clan2_id] = box.clan_ids;
+    // const amount = testers.length;
+    // const boxPlayer_ids = testers.map((tester) => tester.Player._id);
+    // const boxPlayers = await this.playerModel
+    //   .find({ _id: { $in: boxPlayer_ids } })
+    //   .exec();
+    // const [clan1_id, clan2_id] = player.clan_ids;
+    //
+    // const clan1Players = boxPlayers.filter(
+    //   (player) =>
+    //     player.clan_id && player.clan_id.toString() === clan1_id.toString(),
+    // );
+    // const clan2Players = boxPlayers.filter(
+    //   (player) =>
+    //     player.clan_id && player.clan_id.toString() === clan2_id.toString(),
+    // );
+    //
+    // const largerAmountToAdd = Math.ceil(amount / 2);
+    //
+    // if (clan1Players.length < clan2Players.length) {
+    //   const clan1TestersToAdd = testers.slice(0, largerAmountToAdd);
+    //   const clan2TestersToAdd = testers.slice(largerAmountToAdd);
+    //   const clan1Tester_ids = clan1TestersToAdd.map(
+    //     (tester) => tester.Player._id,
+    //   );
+    //   const clan2Tester_ids = clan2TestersToAdd.map(
+    //     (tester) => tester.Player._id,
+    //   );
+    //   await this.playerModel.updateMany(
+    //     { _id: { $in: clan1Tester_ids } },
+    //     { clan_id: clan1_id },
+    //   );
+    //   await this.playerModel.updateMany(
+    //     { _id: { $in: clan2Tester_ids } },
+    //     { clan_id: clan2_id },
+    //   );
+    // } else {
+    //   const clan2TestersToAdd = testers.slice(0, largerAmountToAdd);
+    //   const clan1TestersToAdd = testers.slice(largerAmountToAdd);
+    //   const clan1Tester_ids = clan1TestersToAdd.map(
+    //     (tester) => tester.Player._id,
+    //   );
+    //   const clan2Tester_ids = clan2TestersToAdd.map(
+    //     (tester) => tester.Player._id,
+    //   );
+    //   await this.playerModel.updateMany(
+    //     { _id: { $in: clan1Tester_ids } },
+    //     { clan_id: clan1_id },
+    //   );
+    //   await this.playerModel.updateMany(
+    //     { _id: { $in: clan2Tester_ids } },
+    //     { clan_id: clan2_id },
+    //   );
+    // }
 
-    const clan1Players = boxPlayers.filter(
-      (player) =>
-        player.clan_id && player.clan_id.toString() === clan1_id.toString(),
-    );
-    const clan2Players = boxPlayers.filter(
-      (player) =>
-        player.clan_id && player.clan_id.toString() === clan2_id.toString(),
-    );
-
-    const largerAmountToAdd = Math.ceil(amount / 2);
-
-    if (clan1Players.length < clan2Players.length) {
-      const clan1TestersToAdd = testers.slice(0, largerAmountToAdd);
-      const clan2TestersToAdd = testers.slice(largerAmountToAdd);
-      const clan1Tester_ids = clan1TestersToAdd.map(
-        (tester) => tester.Player._id,
-      );
-      const clan2Tester_ids = clan2TestersToAdd.map(
-        (tester) => tester.Player._id,
-      );
-      await this.playerModel.updateMany(
-        { _id: { $in: clan1Tester_ids } },
-        { clan_id: clan1_id },
-      );
-      await this.playerModel.updateMany(
-        { _id: { $in: clan2Tester_ids } },
-        { clan_id: clan2_id },
-      );
-    } else {
-      const clan2TestersToAdd = testers.slice(0, largerAmountToAdd);
-      const clan1TestersToAdd = testers.slice(largerAmountToAdd);
-      const clan1Tester_ids = clan1TestersToAdd.map(
-        (tester) => tester.Player._id,
-      );
-      const clan2Tester_ids = clan2TestersToAdd.map(
-        (tester) => tester.Player._id,
-      );
-      await this.playerModel.updateMany(
-        { _id: { $in: clan1Tester_ids } },
-        { clan_id: clan1_id },
-      );
-      await this.playerModel.updateMany(
-        { _id: { $in: clan2Tester_ids } },
-        { clan_id: clan2_id },
-      );
-    }
-
-    return [true, null];
+    return null;
   }
 
   /**

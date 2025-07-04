@@ -4,14 +4,23 @@ import ProfileModule from '../../../profile/modules/profile.module';
 import PlayerModule from '../../../player/modules/player.module';
 import { ObjectId } from 'mongodb';
 import BoxBuilderFactory from '../../data/boxBuilderFactory';
-import { PasswordGenerator } from '../../../../common/function/passwordGenerator';
 import ProfileBuilderFactory from '../../../profile/data/profileBuilderFactory';
 import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import { TesterAccountService } from '../../../../box/accountClaimer/testerAccount.service';
 
+const generatePasswordMock = jest.fn();
+jest.mock('../../../../common/function/passwordGenerator', () => {
+  return {
+    PasswordGenerator: jest.fn().mockImplementation(() => {
+      return {
+        generatePassword: generatePasswordMock,
+      };
+    }),
+  };
+});
+
 describe('TesterAccountService.createTester() test suite', () => {
   let service: TesterAccountService;
-  let passwordGenerator: PasswordGenerator;
 
   const boxModel = BoxModule.getBoxModel();
   const boxBuilder = BoxBuilderFactory.getBuilder('Box');
@@ -24,7 +33,6 @@ describe('TesterAccountService.createTester() test suite', () => {
 
   beforeEach(async () => {
     service = await BoxModule.getTesterAccountService();
-    passwordGenerator = new PasswordGenerator();
 
     existingBox = boxBuilder
       .setAdminPlayerId(new ObjectId())
@@ -34,22 +42,35 @@ describe('TesterAccountService.createTester() test suite', () => {
     existingBox._id = boxResp._id;
   });
 
-  it('Should create specified amount of profiles in DB', async () => {
+  it('Should create a profile in DB', async () => {
+    const username = 'my-username';
+    generatePasswordMock.mockReturnValueOnce(username);
+
     await service.createTester();
 
-    const profilesInDB = await profileModel.find();
+    const profilesInDB = await profileModel.findOne({ username });
 
     expect(profilesInDB).not.toBeNull();
   });
 
-  it('Should create specified amount of players in DB', async () => {
-    const amount = 5;
+  it('Should create a player in DB', async () => {
+    const name = 'my-player';
+    generatePasswordMock.mockReturnValueOnce(name);
 
     await service.createTester();
 
-    const playersInDB = await playerModel.find();
+    const playersInDB = await playerModel.findOne({ name });
 
     expect(playersInDB).not.toBeNull();
+  });
+
+  it('Should return created tester', async () => {
+    generatePasswordMock.mockReturnValueOnce('tester');
+    const [createdTester, errors] = await service.createTester();
+
+    expect(errors).toBeNull();
+    expect(createdTester.Profile).not.toBeNull();
+    expect(createdTester.Player).not.toBeNull();
   });
 
   it('Should create profile in DB if there are already profiles with the generated username', async () => {
@@ -63,17 +84,14 @@ describe('TesterAccountService.createTester() test suite', () => {
       .build();
     await profileModel.create(existingProfile1);
     await profileModel.create(existingProfile2);
-    jest
-      .spyOn(passwordGenerator, 'generatePassword')
-      .mockReturnValueOnce(existingUsername1);
 
-    const amount = 1;
+    generatePasswordMock.mockReturnValueOnce(existingUsername1);
 
     const profilesInDBBefore = await profileModel.find();
     await service.createTester();
     const profilesInDBAfter = await profileModel.find();
 
-    expect(profilesInDBAfter).not.toBeNull();
+    expect(profilesInDBAfter).toHaveLength(profilesInDBBefore.length + 1);
   });
 
   it('Should create profile in DB if there are already one profile with the generated username', async () => {
@@ -82,17 +100,13 @@ describe('TesterAccountService.createTester() test suite', () => {
       .setUsername(existingUsername)
       .build();
     await profileModel.create(existingProfile);
-    jest
-      .spyOn(passwordGenerator, 'generatePassword')
-      .mockReturnValueOnce(existingUsername);
-
-    const amount = 1;
+    generatePasswordMock.mockReturnValueOnce(existingUsername);
 
     const profilesInDBBefore = await profileModel.find();
     await service.createTester();
     const profilesInDBAfter = await profileModel.find();
 
-    expect(profilesInDBAfter).not.toBeNull();
+    expect(profilesInDBAfter).toHaveLength(profilesInDBBefore.length + 1);
   });
 
   it('Should create player in DB if there are already players with the generated name', async () => {
@@ -108,17 +122,13 @@ describe('TesterAccountService.createTester() test suite', () => {
       .build();
     await playerModel.create(existingPlayer1);
     await playerModel.create(existingPlayer2);
-    jest
-      .spyOn(passwordGenerator, 'generatePassword')
-      .mockReturnValueOnce(existingName1);
-
-    const amount = 1;
+    generatePasswordMock.mockReturnValueOnce(existingName1);
 
     const playersInDBBefore = await playerModel.find();
     await service.createTester();
     const playersInDBAfter = await playerModel.find();
 
-    expect(playersInDBAfter).not.toBeNull();
+    expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + 1);
   });
 
   it('Should create player in DB if there are already one player with the generated name', async () => {
@@ -128,17 +138,13 @@ describe('TesterAccountService.createTester() test suite', () => {
       .setUniqueIdentifier(existingName)
       .build();
     await playerModel.create(existingPlayer);
-    jest
-      .spyOn(passwordGenerator, 'generatePassword')
-      .mockReturnValueOnce(existingName);
-
-    const amount = 1;
+    generatePasswordMock.mockReturnValueOnce(existingName);
 
     const playersInDBBefore = await playerModel.find();
     await service.createTester();
     const playersInDBAfter = await playerModel.find();
 
-    expect(playersInDBAfter).not.toBeNull();
+    expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + 1);
   });
 
   it('Should create player in DB if there are already players with the generated uniqueIdentifier', async () => {
@@ -154,17 +160,13 @@ describe('TesterAccountService.createTester() test suite', () => {
       .build();
     await playerModel.create(existingPlayer1);
     await playerModel.create(existingPlayer2);
-    jest
-      .spyOn(passwordGenerator, 'generatePassword')
-      .mockReturnValueOnce(existingId1);
-
-    const amount = 1;
+    generatePasswordMock.mockReturnValueOnce(existingId1);
 
     const playersInDBBefore = await playerModel.find();
     await service.createTester();
     const playersInDBAfter = await playerModel.find();
 
-    expect(playersInDBAfter).not.toBeNull();
+    expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + 1);
   });
 
   it('Should create player in DB if there are already one player with the generated uniqueIdentifier', async () => {
@@ -174,101 +176,38 @@ describe('TesterAccountService.createTester() test suite', () => {
       .setUniqueIdentifier(existingId)
       .build();
     await playerModel.create(existingPlayer);
-    jest
-      .spyOn(passwordGenerator, 'generatePassword')
-      .mockReturnValueOnce(existingId);
-
-    const amount = 1;
+    generatePasswordMock.mockReturnValueOnce(existingId);
 
     const playersInDBBefore = await playerModel.find();
     await service.createTester();
     const playersInDBAfter = await playerModel.find();
 
-    expect(playersInDBAfter).not.toBeNull();
+    expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + 1);
   });
 
   it('Should create profiles in DB if all generated usernames are the same', async () => {
     const sameUsername = 'same-username';
-    jest
-      .spyOn(passwordGenerator, 'generatePassword')
-      .mockReturnValueOnce(sameUsername);
-    jest
-      .spyOn(passwordGenerator, 'generatePassword')
-      .mockReturnValueOnce(sameUsername);
-    jest
-      .spyOn(passwordGenerator, 'generatePassword')
-      .mockReturnValueOnce(sameUsername);
-
-    const amount = 3;
+    generatePasswordMock.mockReturnValue(sameUsername);
 
     const profilesInDBBefore = await profileModel.find();
     await service.createTester();
+    await service.createTester();
+    await service.createTester();
     const profilesInDBAfter = await profileModel.find();
 
-    expect(profilesInDBAfter).not.toBeNull();
+    expect(profilesInDBAfter).toHaveLength(profilesInDBBefore.length + 3);
   });
 
   it('Should create players in DB if all generated player names are the same', async () => {
     const sameName = 'same-name';
-    jest
-      .spyOn(passwordGenerator, 'generatePassword')
-      .mockReturnValueOnce(sameName);
-    jest
-      .spyOn(passwordGenerator, 'generatePassword')
-      .mockReturnValueOnce(sameName);
-    jest
-      .spyOn(passwordGenerator, 'generatePassword')
-      .mockReturnValueOnce(sameName);
-
-    const amount = 3;
+    generatePasswordMock.mockReturnValue(sameName);
 
     const playersInDBBefore = await playerModel.find();
     await service.createTester();
+    await service.createTester();
+    await service.createTester();
     const playersInDBAfter = await playerModel.find();
 
-    expect(playersInDBAfter).not.toBeNull();
-  });
-
-  it('Should return created testers', async () => {
-    const amount = 5;
-
-    const [createdTesters, errors] = await service.createTester();
-
-    expect(errors).toBeNull();
-    expect(createdTesters).not.toBeNull();
-  });
-
-  it('Should return ServiceError NOT_ALLOWED if amount is more than 100', async () => {
-    const amount = 100;
-
-    const [createdTesters, errors] = await service.createTester();
-
-    expect(createdTesters).toBeNull();
-    expect(errors).toContainSE_NOT_ALLOWED();
-    expect(errors[0].field).toBe('amount');
-    expect(errors[0].value).toBe(amount);
-  });
-
-  it('Should not create any profiles and players if amount is more than 100', async () => {
-    const amount = 100;
-
-    await service.createTester();
-
-    const profilesInDB = await profileModel.find();
-    const playersInDB = await playerModel.find();
-
-    expect(profilesInDB).toHaveLength(1);
-    expect(playersInDB).toHaveLength(1);
-  });
-
-  it('Should return ServiceError NOT_ALLOWED if amount is zero', async () => {
-    const amount = 0;
-
-    const [createdTesters, errors] = await service.createTester();
-
-    expect(createdTesters).toBeNull();
-    expect(errors).toContainSE_NOT_ALLOWED();
-    expect(errors[0].field).toBe('amount');
-    expect(errors[0].value).toBe(amount);
+    expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + 3);
   });
 });

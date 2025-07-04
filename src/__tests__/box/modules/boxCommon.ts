@@ -65,7 +65,6 @@ export default class BoxCommonModule {
           DailyTaskService,
           BoxAuthHandler,
           GroupAdminGuard,
-          PasswordGenerator,
           TesterAccountService,
           SessionStarterService,
         ],

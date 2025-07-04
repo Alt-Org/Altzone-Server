@@ -55,11 +55,6 @@ export default class BoxModule {
     return module.resolve(DailyTaskService);
   }
 
-  static async getPasswordGenerator() {
-    const module = await BoxCommonModule.getModule();
-    return module.resolve(PasswordGenerator);
-  }
-
   static async getTesterAccountService() {
     const module = await BoxCommonModule.getModule();
     return module.resolve(TesterAccountService);
