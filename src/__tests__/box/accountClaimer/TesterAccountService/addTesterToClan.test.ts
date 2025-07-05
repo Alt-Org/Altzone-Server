@@ -77,7 +77,7 @@ describe('TesterAccountService.addTesterToClan() test suite', () => {
     const expectedClan_id = clan_ids[1];
 
     expect(errors).toBeNull();
-    expect(testerClan._id).toBe(expectedClan_id);
+    expect(testerClan._id.toString()).toBe(expectedClan_id);
     expect(playerInDB.clan_id.toString()).toBe(expectedClan_id);
   });
 
@@ -109,15 +109,14 @@ describe('TesterAccountService.addTesterToClan() test suite', () => {
     expect(playerInDB.clan_id).not.toBeNull();
   });
 
-  it('Should add testers evenly to the clans, if there are 6 testers and 3 clans', async () => {
-    const testersAmount = 6;
-    const clansAmount = 3;
+  it('Should add testers evenly to the clans, if there are 40 testers and 2 clans', async () => {
+    const testersAmount = 40;
+    const clansAmount = 2;
     const expectedAmountOfPlayers = testersAmount / clansAmount;
     const tester_ids = await createPlayers(testersAmount);
     const clan_ids = await createClans(clansAmount);
 
-    for (const tester_id of tester_ids)
-      await service.addTesterToClan(tester_id, clan_ids);
+    await runAddTesterToClanAsync(tester_ids, clan_ids);
 
     const clansAfter = await clanModel.find({ _id: { $in: clan_ids } });
 
@@ -125,15 +124,14 @@ describe('TesterAccountService.addTesterToClan() test suite', () => {
       expect(clan.playerCount).toBe(expectedAmountOfPlayers);
   });
 
-  it('Should add on 1 tester more to one of the clans, if there are 5 testers and 2 clans', async () => {
-    const testersAmount = 5;
-    const clansAmount = 2;
+  it('Should add on 1 tester more to one of the clans, if there are 13 testers and 3 clans', async () => {
+    const testersAmount = 13;
+    const clansAmount = 3;
     const maxAmountOfPlayers = Math.floor(testersAmount / clansAmount);
     const tester_ids = await createPlayers(testersAmount);
     const clan_ids = await createClans(clansAmount);
 
-    for (const tester_id of tester_ids)
-      await service.addTesterToClan(tester_id, clan_ids);
+    await runAddTesterToClanAsync(tester_ids, clan_ids);
 
     const clansAfter = await clanModel.find({ _id: { $in: clan_ids } });
     const clansWithMorePlayers = clansAfter.filter(
@@ -150,8 +148,7 @@ describe('TesterAccountService.addTesterToClan() test suite', () => {
     const tester_ids = await createPlayers(testersAmount);
     const clan_ids = await createClans(clansAmount);
 
-    for (const tester_id of tester_ids)
-      await service.addTesterToClan(tester_id, clan_ids);
+    await runAddTesterToClanAsync(tester_ids, clan_ids);
 
     const clansAfter = await clanModel.find({ _id: { $in: clan_ids } });
     const clansWithLessPlayers = clansAfter.filter(
@@ -161,15 +158,14 @@ describe('TesterAccountService.addTesterToClan() test suite', () => {
     expect(clansWithLessPlayers).toHaveLength(1);
   });
 
-  it('Should add exactly one tester to each clan, if there are 2 testers and 2 clans', async () => {
-    const testersAmount = 2;
-    const clansAmount = 2;
+  it('Should add exactly one tester to each clan, if there are 10 testers and 10 clans', async () => {
+    const testersAmount = 10;
+    const clansAmount = 10;
     const expectedAmountOfPlayers = testersAmount / clansAmount;
     const tester_ids = await createPlayers(testersAmount);
     const clan_ids = await createClans(clansAmount);
 
-    for (const tester_id of tester_ids)
-      await service.addTesterToClan(tester_id, clan_ids);
+    await runAddTesterToClanAsync(tester_ids, clan_ids);
 
     const clansAfter = await clanModel.find({ _id: { $in: clan_ids } });
 
@@ -181,8 +177,7 @@ describe('TesterAccountService.addTesterToClan() test suite', () => {
     const tester_ids = await createPlayers(5);
     const clan_ids = await createClans(1);
 
-    for (const tester_id of tester_ids)
-      await service.addTesterToClan(tester_id, clan_ids);
+    await runAddTesterToClanAsync(tester_ids, clan_ids);
 
     const clanAfter = await clanModel.findById(clan_ids[0]);
     expect(clanAfter.playerCount).toBe(5);
@@ -354,5 +349,20 @@ describe('TesterAccountService.addTesterToClan() test suite', () => {
     }
 
     return createdClan_ids;
+  }
+
+  /**
+   * Runs the addTesterToClan() method for each player _id asynchronously
+   * @param player_ids
+   * @param clan_ids
+   */
+  async function runAddTesterToClanAsync(
+    player_ids: string[],
+    clan_ids: string[],
+  ) {
+    const calls = player_ids.map((player_ids) =>
+      service.addTesterToClan(player_ids, clan_ids),
+    );
+    await Promise.all(calls);
   }
 });

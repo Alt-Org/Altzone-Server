@@ -67,6 +67,7 @@ export default class BoxCommonModule {
           GroupAdminGuard,
           TesterAccountService,
           SessionStarterService,
+          PasswordGenerator,
         ],
       }).compile();
 

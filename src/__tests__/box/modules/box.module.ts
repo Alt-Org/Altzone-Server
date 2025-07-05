@@ -13,6 +13,7 @@ import { PasswordGenerator } from '../../../common/function/passwordGenerator';
 import SessionStarterService from '../../../box/sessionStarter/sessionStarter.service';
 import { BoxScheduler } from '../../../box/box.scheduler';
 import { TesterAccountService } from '../../../box/accountClaimer/testerAccount.service';
+import AccountClaimerService from '../../../box/accountClaimer/accountClaimer.service';
 
 export default class BoxModule {
   private constructor() {}
@@ -53,6 +54,11 @@ export default class BoxModule {
   static async getDailyTaskService() {
     const module = await BoxCommonModule.getModule();
     return module.resolve(DailyTaskService);
+  }
+
+  static async getAccountClaimerService() {
+    const module = await BoxCommonModule.getModule();
+    return module.resolve(AccountClaimerService);
   }
 
   static async getTesterAccountService() {
