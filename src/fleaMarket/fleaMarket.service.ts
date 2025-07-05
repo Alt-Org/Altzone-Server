@@ -296,8 +296,8 @@ export class FleaMarketService {
     if (itemDeleteErrors)
       await this.cancelTransaction(session, itemDeleteErrors);
 
-    session.commitTransaction();
-    session.endSession();
+    await session.commitTransaction();
+    await session.endSession();
   }
 
   /**
