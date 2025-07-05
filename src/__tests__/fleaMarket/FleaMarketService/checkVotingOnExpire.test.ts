@@ -15,7 +15,9 @@ import { CreateItemDto } from '../../../clanInventory/item/dto/createItem.dto';
 import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryBuilderFactory';
 import { ItemDto } from '../../../clanInventory/item/dto/item.dto';
 import BasicService from '../../../common/service/basicService/BasicService';
-import { Error } from 'mongoose';
+import { VotingDto } from '../../../voting/dto/voting.dto';
+import { ClanDto } from '../../../clan/dto/clan.dto';
+import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 
 describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
   let fleaMarketService: FleaMarketService;
@@ -34,9 +36,9 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     ClanInventoryBuilderFactory.getBuilder('CreateItemDto');
   const itemDtoBuilder = ClanInventoryBuilderFactory.getBuilder('ItemDto');
 
-  let votingDto: any;
-  let clanDto: any;
-  let fleaMarketItemDto: any;
+  let votingDto: VotingDto;
+  let clanDto: ClanDto;
+  let fleaMarketItemDto: FleaMarketItemDto;
   let params: any;
   let error: ServiceError;
   let sessionMock: any;
@@ -65,10 +67,6 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     error = new ServiceError({ message: 'test error' });
 
-    votingDto._id = new ObjectId();
-    clanDto._id = new ObjectId();
-    fleaMarketItemDto._id = new ObjectId();
-
     params = {
       voting: votingDto,
       price: 100,
@@ -89,8 +87,6 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     jest
       .spyOn(votingService.basicService, 'deleteOneById')
       .mockResolvedValue([null, null]);
-
-    // Only mock the methods actually used in FleaMarketService
   });
 
   it('Should process voting expiration and update item/clan (voting PASSED, BUY)', async () => {
@@ -124,7 +120,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     );
   });
 
-  it('Should throw if handlePassedBuyVoting dependency throws | itemService.createOne', async () => {
+  it('Should throw exception if handlePassedBuyVoting dependency throws | itemService.createOne', async () => {
     params.voting.type = VotingType.FLEA_MARKET_BUY_ITEM;
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(true);
 
@@ -151,7 +147,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     }
   });
 
-  it('Should throw if handlePassedBuyVoting dependency throws | basicService.deleteOneById', async () => {
+  it('Should throw exception if handlePassedBuyVoting dependency throws | basicService.deleteOneById', async () => {
     params.voting.type = VotingType.FLEA_MARKET_BUY_ITEM;
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(true);
 
@@ -264,7 +260,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     );
   });
 
-  it('Should process voting expiration and update item/clan (voting REJECTED, SELL) | ', async () => {
+  it('Should throw exception if handleRejectedSellVoting dependency throws | itemService.createOne', async () => {
     params.voting.type = VotingType.FLEA_MARKET_SELL_ITEM;
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(false);
 
@@ -291,8 +287,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     }
   });
 
-  // Error branch: handlePassedBuyVoting dependency throws
-  it('Should throw if handlePassedBuyVoting dependency throws | baseService.readOneById', async () => {
+  it('Should throw exception if handlePassedBuyVoting dependency throws | baseService.readOneById', async () => {
     params.voting.type = VotingType.FLEA_MARKET_BUY_ITEM;
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(true);
     jest.spyOn(basicService, 'readOneById').mockResolvedValue([null, [error]]);
@@ -306,8 +301,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     }
   });
 
-  // Error branch: handleRejectedBuyVoting dependency throws
-  it('Should throw if handleRejectedBuyVoting dependency throws | basicService.updateOneById', async () => {
+  it('Should throw exception if handleRejectedBuyVoting dependency throws | basicService.updateOneById', async () => {
     params.voting.type = VotingType.FLEA_MARKET_BUY_ITEM;
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(false);
     jest
@@ -339,26 +333,22 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
   });
 
   it('Should throw if handleRejectedBuyVoting dependency throws | clanService.updateOne', async () => {
-    //jest.clearAllMocks();
     params.voting.type = VotingType.FLEA_MARKET_BUY_ITEM;
-    const error: ServiceError[] = [];
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(false);
     jest.spyOn(basicService, 'updateOneById').mockResolvedValue([null, null]);
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([null, null]);
-    //jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, null]);
-    jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, error]);
+    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
+    jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, [error]]);
 
     try {
       await fleaMarketService.checkVotingOnExpire(params);
     } catch (error) {
       expect(sessionMock.abortTransaction).toHaveBeenCalled();
       expect(sessionMock.endSession).toHaveBeenCalled();
-      expect((error as ServiceError)[0].message).toBe('test error');
+      expect((error as ServiceError[])[0].message).toBe('test error');
     }
   });
 
-  // Error branch: handlePassedSellVoting dependency throws
-  it('Should throw if handlePassedSellVoting dependency throws', async () => {
+  it('Should throw exception if handlePassedSellVoting dependency throws | basicService.updateOneById', async () => {
     params.voting.type = VotingType.FLEA_MARKET_SELL_ITEM;
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(true);
     jest
@@ -371,8 +361,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     }
   });
 
-  // Error branch: handleRejectedSellVoting dependency throws
-  it('Should throw if handleRejectedSellVoting dependency throws | basicService.readOneById', async () => {
+  it('Should throw exception if handleRejectedSellVoting dependency throws | basicService.readOneById', async () => {
     params.voting.type = VotingType.FLEA_MARKET_SELL_ITEM;
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(false);
     jest.spyOn(basicService, 'readOneById').mockResolvedValue([null, [error]]);
@@ -384,9 +373,9 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     }
   });
 
-  it('Should throw if handleRejectedSellVoting dependency throws | basicService.deleteOneById', async () => {
+  it('Should throw exception if handleRejectedSellVoting dependency throws | basicService.deleteOneById', async () => {
     params.voting.type = VotingType.FLEA_MARKET_SELL_ITEM;
-    jest.spyOn(basicService, 'readOneById').mockResolvedValue([null, null]);
+    jest.spyOn(basicService, 'readOneById').mockResolvedValue([fleaMarketItemDto, null]);
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(false);
     jest
       .spyOn(basicService, 'deleteOneById')
@@ -401,8 +390,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     }
   });
 
-  // Error branch: unknown voting type
-  it('Should throw if voting type is unknown', async () => {
+  it('Should throw exception if voting type is unknown', async () => {
     params.voting.type = -1;
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(true);
 

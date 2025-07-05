@@ -333,8 +333,8 @@ export class FleaMarketService {
     if (clanUpdateErrors)
       await this.cancelTransaction(session, clanUpdateErrors);
 
-    session.commitTransaction();
-    session.endSession();
+    await session.commitTransaction();
+    await session.endSession();
   }
 
   /**
@@ -378,7 +378,7 @@ export class FleaMarketService {
       stockId,
     );
     const [__, createErrors] = await this.itemService.createOne(item);
-    if (createErrors) this.cancelTransaction(session, createErrors);
+    if (createErrors) await this.cancelTransaction(session, createErrors);
 
     await session.commitTransaction();
     await session.endSession();
