@@ -10,7 +10,6 @@ import { Model } from 'mongoose';
 import { Player, PlayerDocument } from '../../player/schemas/player.schema';
 import { ProfileService } from '../../profile/profile.service';
 import { ProfileDto } from '../../profile/dto/profile.dto';
-import { Box, BoxDocument } from '../schemas/box.schema';
 import Tester from './payloads/tester';
 import BasicService from '../../common/service/basicService/BasicService';
 import { Clan, ClanDocument } from '../../clan/clan.schema';
@@ -26,7 +25,6 @@ export class TesterAccountService {
     private readonly playerModel: Model<PlayerDocument>,
     @InjectModel(Clan.name)
     private readonly clanModel: Model<ClanDocument>,
-    @InjectModel(Box.name) private readonly boxModel: Model<BoxDocument>,
   ) {
     this.playerBasicService = new BasicService(playerModel);
   }
@@ -75,116 +73,30 @@ export class TesterAccountService {
     player_id: ObjectId | string,
     clan_ids: ObjectId[] | string[],
   ): Promise<IServiceReturn<Clan>> {
-    if (!player_id)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.REQUIRED,
-            field: 'player_id',
-            value: player_id,
-            message: 'player_id is required',
-          }),
-        ],
-      ];
+    const [, player_idValidationErrors] =
+      await this.validatePlayer_id(player_id);
+    if (player_idValidationErrors) return [null, player_idValidationErrors];
 
-    if (!clan_ids || clan_ids.length === 0)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.REQUIRED,
-            field: 'clan_ids',
-            value: clan_ids,
-            message: 'clan_ids array is required',
-          }),
-        ],
-      ];
+    const [, clan_idsValidationErrors] = await this.validateClan_ids(clan_ids);
+    if (clan_idsValidationErrors) return [null, clan_idsValidationErrors];
 
-    const player = await this.boxModel.findById(player_id);
-    if (!player)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            field: 'player_id',
-            value: player_id,
-            message: 'Player with provided _id is not found',
-          }),
-        ],
-      ];
+    const clanWithLeastPlayers = await this.clanModel
+      .findOneAndUpdate(
+        { _id: { $in: clan_ids } },
+        { $inc: { playerCount: 1 } },
+        {
+          sort: { playerCount: 1 },
+          new: true,
+        },
+      )
+      .exec();
 
-    const clans = await this.clanModel.find({ _id: { $in: clan_ids } });
-    if (clans.length !== clan_ids.length)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            field: 'clan_ids',
-            value: clan_ids,
-            message: 'Not all provided clans are found',
-            additional: clans.map((clan) => clan._id.toString()),
-          }),
-        ],
-      ];
+    await this.playerModel.updateOne(
+      { _id: player_id },
+      { clan_id: clanWithLeastPlayers._id },
+    );
 
-    // const amount = testers.length;
-    // const boxPlayer_ids = testers.map((tester) => tester.Player._id);
-    // const boxPlayers = await this.playerModel
-    //   .find({ _id: { $in: boxPlayer_ids } })
-    //   .exec();
-    // const [clan1_id, clan2_id] = player.clan_ids;
-    //
-    // const clan1Players = boxPlayers.filter(
-    //   (player) =>
-    //     player.clan_id && player.clan_id.toString() === clan1_id.toString(),
-    // );
-    // const clan2Players = boxPlayers.filter(
-    //   (player) =>
-    //     player.clan_id && player.clan_id.toString() === clan2_id.toString(),
-    // );
-    //
-    // const largerAmountToAdd = Math.ceil(amount / 2);
-    //
-    // if (clan1Players.length < clan2Players.length) {
-    //   const clan1TestersToAdd = testers.slice(0, largerAmountToAdd);
-    //   const clan2TestersToAdd = testers.slice(largerAmountToAdd);
-    //   const clan1Tester_ids = clan1TestersToAdd.map(
-    //     (tester) => tester.Player._id,
-    //   );
-    //   const clan2Tester_ids = clan2TestersToAdd.map(
-    //     (tester) => tester.Player._id,
-    //   );
-    //   await this.playerModel.updateMany(
-    //     { _id: { $in: clan1Tester_ids } },
-    //     { clan_id: clan1_id },
-    //   );
-    //   await this.playerModel.updateMany(
-    //     { _id: { $in: clan2Tester_ids } },
-    //     { clan_id: clan2_id },
-    //   );
-    // } else {
-    //   const clan2TestersToAdd = testers.slice(0, largerAmountToAdd);
-    //   const clan1TestersToAdd = testers.slice(largerAmountToAdd);
-    //   const clan1Tester_ids = clan1TestersToAdd.map(
-    //     (tester) => tester.Player._id,
-    //   );
-    //   const clan2Tester_ids = clan2TestersToAdd.map(
-    //     (tester) => tester.Player._id,
-    //   );
-    //   await this.playerModel.updateMany(
-    //     { _id: { $in: clan1Tester_ids } },
-    //     { clan_id: clan1_id },
-    //   );
-    //   await this.playerModel.updateMany(
-    //     { _id: { $in: clan2Tester_ids } },
-    //     { clan_id: clan2_id },
-    //   );
-    // }
-
-    return null;
+    return [clanWithLeastPlayers, null];
   }
 
   /**
@@ -328,5 +240,105 @@ export class TesterAccountService {
     return this.playerBasicService.createOne<Omit<Player, '_id'>, Player>(
       player,
     );
+  }
+
+  /**
+   * Validates whenever provided player _id is valid.
+   *
+   * @param player_id player _id to validate
+   * @private
+   *
+   * @returns true if it is a valid _id or ServiceError:
+   * - REQUIRED the player _id is not provided or an empty string
+   * - NOT_FOUND the player with this _id does not exists
+   */
+  private async validatePlayer_id(
+    player_id: string | ObjectId,
+  ): Promise<IServiceReturn<true>> {
+    if (!player_id)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'player_id',
+            value: player_id,
+            message: 'player_id is required',
+          }),
+        ],
+      ];
+
+    const player = await this.playerModel.findById(player_id);
+    if (!player)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'player_id',
+            value: player_id.toString(),
+            message: 'Player with provided _id is not found',
+          }),
+        ],
+      ];
+
+    if (player.clan_id)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'clan_id',
+            value: player.clan_id.toString(),
+            message: 'Player is already in a clan',
+          }),
+        ],
+      ];
+
+    return [true, null];
+  }
+
+  /**
+   * Validates whenever provided clan _ids are valid.
+   *
+   * @param clan_ids clan _ids to validate
+   * @private
+   *
+   * @returns true if it is a valid _id or ServiceError:
+   * - REQUIRED the clan_ids _id is not provided or an empty array
+   * - NOT_FOUND some of the clans does not exists
+   */
+  private async validateClan_ids(
+    clan_ids: string[] | ObjectId[],
+  ): Promise<IServiceReturn<true>> {
+    if (!clan_ids || clan_ids.length === 0)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'clan_ids',
+            value: clan_ids,
+            message: 'clan_ids array is required',
+          }),
+        ],
+      ];
+
+    const clans = await this.clanModel.find({ _id: { $in: clan_ids } });
+    if (clans.length !== clan_ids.length)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'clan_ids',
+            value: clan_ids,
+            message: 'Not all clans with provided _ids are found',
+            additional: clans.map((clan) => clan._id.toString()),
+          }),
+        ],
+      ];
+
+    return [true, null];
   }
 }
