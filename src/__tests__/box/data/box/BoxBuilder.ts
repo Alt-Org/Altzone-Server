@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { PredefinedDailyTask } from '../../../../box/dailyTask/predefinedDailyTask.schema';
 
 export default class BoxBuilder {
-  private readonly base: Partial<Box> = {
+  private readonly base: Box = {
     adminPassword: 'defaultAdminPassword',
     sessionStage: SessionStage.PREPARING,
     testersSharedPassword: undefined,
@@ -13,6 +13,8 @@ export default class BoxBuilder {
     adminProfile_id: undefined,
     adminPlayer_id: undefined,
     clan_ids: [],
+    testersAmount: 0,
+    testersAccountsClaimed: 0,
     soulHome_ids: [],
     room_ids: [],
     stock_ids: [],
@@ -60,8 +62,18 @@ export default class BoxBuilder {
     return this;
   }
 
-  setClanIds(clanIds: ObjectId[]) {
-    this.base.clan_ids = clanIds;
+  setClanIds(clanIds: ObjectId[] | string[]) {
+    this.base.clan_ids = clanIds as ObjectId[];
+    return this;
+  }
+
+  setTestersAmount(testersAmount: number) {
+    this.base.testersAmount = testersAmount;
+    return this;
+  }
+
+  setTestersAccountsClaimed(testersAccountsClaimed: number) {
+    this.base.testersAccountsClaimed = testersAccountsClaimed;
     return this;
   }
 

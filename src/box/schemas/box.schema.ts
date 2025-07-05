@@ -76,6 +76,19 @@ export class Box {
   clan_ids: ObjectId[];
 
   /**
+   * Amount of testers accounts required for the testing session.
+   * It defines when the API will no longer allow to claim accounts for the testing session.
+   */
+  @Prop({ type: Number, default: 0 })
+  testersAmount: number;
+
+  /**
+   * Amount of tester accounts claimed
+   */
+  @Prop({ type: Number, default: 0 })
+  testersAccountsClaimed: number;
+
+  /**
    * All soul homes' _ids that are related to the box
    */
   @Prop({ type: [ObjectId], required: true })
