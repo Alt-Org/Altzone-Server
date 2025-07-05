@@ -375,7 +375,9 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
   it('Should throw exception if handleRejectedSellVoting dependency throws | basicService.deleteOneById', async () => {
     params.voting.type = VotingType.FLEA_MARKET_SELL_ITEM;
-    jest.spyOn(basicService, 'readOneById').mockResolvedValue([fleaMarketItemDto, null]);
+    jest
+      .spyOn(basicService, 'readOneById')
+      .mockResolvedValue([fleaMarketItemDto, null]);
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(false);
     jest
       .spyOn(basicService, 'deleteOneById')
