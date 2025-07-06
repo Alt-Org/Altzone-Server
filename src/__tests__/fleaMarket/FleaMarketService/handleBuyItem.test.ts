@@ -206,7 +206,7 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
     const serviceError: ServiceError[] = [
       new ServiceError({ message: 'Service error' }),
     ];
-    
+
     jest
       .spyOn(fleaMarketService.basicService, 'updateOne')
       .mockResolvedValue([null, serviceError]);
