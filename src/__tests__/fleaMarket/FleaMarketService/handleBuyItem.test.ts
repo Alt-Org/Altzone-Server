@@ -16,6 +16,7 @@ import { PlayerDto } from '../../../player/dto/player.dto';
 import { ClanDto } from '../../../clan/dto/clan.dto';
 import { VotingDto } from '../../../voting/dto/voting.dto';
 import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
+import BasicService from '../../../common/service/basicService/BasicService';
 
 describe('FleaMarketService.handleBuyItem() test suit', () => {
   let fleaMarketService: FleaMarketService;
@@ -23,6 +24,8 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
   let votingService: VotingService;
   let votingQueue: VotingQueue;
   let clanService: ClanService;
+  let basicService: BasicService;
+
   let model: any;
 
   const fleaMarketItemBuilder =
@@ -52,7 +55,8 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
     votingService = await FleaMarketModule.getVotingService();
     votingQueue = await FleaMarketModule.getVotingQueue();
     clanService = await FleaMarketModule.getClanService();
-
+    basicService = fleaMarketService.basicService;
+    
     model = fleaMarketService.model;
     playerDto = PlayerDtoBuilder.setClanId(clanId).build();
     fleaMarketItemDto = fleaMarketItemBuilder
@@ -81,14 +85,14 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
     };
     jest.spyOn(model, 'startSession').mockResolvedValue(sessionMock);
     jest
-      .spyOn(fleaMarketService.basicService, 'updateOneById')
+      .spyOn(basicService, 'updateOneById')
       .mockResolvedValue([null, null]);
     jest
-      .spyOn(fleaMarketService.basicService, 'updateOne')
+      .spyOn(basicService, 'updateOne')
       .mockResolvedValue([null, null]);
   });
 
-  it('Should process buying item and add voting check job (integration, no private mocks)', async () => {
+  it('Should process buying item and add voting check job', async () => {
     const addVotingCheckJob = jest
       .spyOn(votingQueue, 'addVotingCheckJob')
       .mockImplementation();
@@ -121,7 +125,7 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
     }
   });
 
-  it('Should throw exception if readOneById returns error', async () => {
+  it('Should throw exception if fleaMarketService.readOneById returns error', async () => {
     jest
       .spyOn(fleaMarketService, 'readOneById')
       .mockResolvedValue([null, error]);
@@ -133,7 +137,7 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
     }
   });
 
-  it('Should throw exception if item is not available', async () => {
+  it('Should throw exception if item is not available | fleaMarketService.readOneById', async () => {
     const unavailableItem = { ...fleaMarketItemDto, status: Status.BOOKED };
 
     jest
@@ -170,7 +174,7 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
     }
   });
 
-  it('Should throw if votingService.startVoting returns error (covers handleBooking branch)', async () => {
+  it('Should throw exception if votingService.startVoting returns error (covers handleBooking branch)', async () => {
     jest
       .spyOn(votingService, 'startVoting')
       .mockResolvedValue([null, serviceError]);
@@ -188,7 +192,7 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
 
   it('Should throw if basicService.updateOneById fails (covers changeItemStatus branch)', async () => {
     jest
-      .spyOn(fleaMarketService.basicService, 'updateOne')
+      .spyOn(basicService, 'updateOne')
       .mockResolvedValue([true, serviceError]);
     jest.spyOn(clanService, 'updateOne').mockResolvedValue([true, null]);
 
@@ -208,7 +212,7 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
     ];
 
     jest
-      .spyOn(fleaMarketService.basicService, 'updateOne')
+      .spyOn(basicService, 'updateOne')
       .mockResolvedValue([null, serviceError]);
     jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, null]);
 
