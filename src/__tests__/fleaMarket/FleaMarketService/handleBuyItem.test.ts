@@ -18,6 +18,8 @@ import { VotingDto } from '../../../voting/dto/voting.dto';
 import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 import BasicService from '../../../common/service/basicService/BasicService';
 import createMockSession from '../../common/MongooseSession/CreateMockSession';
+import { Model } from 'mongoose';
+import { FleaMarketItem } from '../../../fleaMarket/fleaMarketItem.schema';
 
 describe('FleaMarketService.handleBuyItem() test suit', () => {
   let fleaMarketService: FleaMarketService;
@@ -27,7 +29,7 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
   let clanService: ClanService;
   let basicService: BasicService;
 
-  let model: any;
+  let model: Model<FleaMarketItem>;
 
   const fleaMarketItemBuilder =
     FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto');

@@ -236,6 +236,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     try {
       await fleaMarketService.checkVotingOnExpire(params);
+      fail('Expected error was not thrown');
     } catch (error) {
       expect(sessionMock.abortTransaction).toHaveBeenCalled();
       expect(sessionMock.endSession).toHaveBeenCalled();
@@ -253,6 +254,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     try {
       await fleaMarketService.checkVotingOnExpire(params);
+      fail('Expected error was not thrown');
     } catch (error) {
       expect(sessionMock.abortTransaction).toHaveBeenCalled();
       expect(sessionMock.endSession).toHaveBeenCalled();
@@ -268,6 +270,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     try {
       await fleaMarketService.checkVotingOnExpire(params);
+      fail('Expected error was not thrown');
     } catch (error) {
       expect(sessionMock.abortTransaction).toHaveBeenCalled();
       expect(sessionMock.endSession).toHaveBeenCalled();
@@ -283,6 +286,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     try {
       await fleaMarketService.checkVotingOnExpire(params);
+      fail('Expected error was not thrown');
     } catch (error) {
       expect(sessionMock.abortTransaction).toHaveBeenCalled();
       expect(sessionMock.endSession).toHaveBeenCalled();
@@ -299,6 +303,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
       .mockResolvedValue([null, [error]]);
     try {
       await fleaMarketService.checkVotingOnExpire(params);
+      fail('Expected error was not thrown');
     } catch (error) {
       expect((error as ServiceError)[0].message).toBe('test error');
     }
@@ -312,6 +317,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     try {
       await fleaMarketService.checkVotingOnExpire(params);
+      fail('Expected error was not thrown');
     } catch (error) {
       expect((error as ServiceError)[0].message).toBe('test error');
     }
@@ -327,6 +333,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     try {
       await fleaMarketService.checkVotingOnExpire(params);
+      fail('Expected error was not thrown');
     } catch (error) {
       expect(sessionMock.abortTransaction).toHaveBeenCalled();
       expect(sessionMock.endSession).toHaveBeenCalled();

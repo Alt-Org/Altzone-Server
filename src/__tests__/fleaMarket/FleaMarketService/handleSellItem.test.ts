@@ -11,6 +11,8 @@ import VotingBuilderFactory from '../../voting/data/VotingBuilderFactory';
 import { VotingQueue } from '../../../voting/voting.queue';
 import { ItemName } from '../../../clanInventory/item/enum/itemName.enum';
 import createMockSession from '../../common/MongooseSession/CreateMockSession';
+import { Model } from 'mongoose';
+import { FleaMarketItem } from '../../../fleaMarket/fleaMarketItem.schema';
 
 describe('FleaMarketService.handleSellItem() test suit', () => {
   let fleaMarketService: FleaMarketService;
@@ -19,7 +21,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   let helperService: FleaMarketHelperService;
   let votingService: VotingService;
   let votingQueue: VotingQueue;
-  let model;
+  let model: Model<FleaMarketItem>;
 
   let sessionMock: any;
 
