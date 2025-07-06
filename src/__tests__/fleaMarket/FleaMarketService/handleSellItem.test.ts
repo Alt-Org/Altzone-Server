@@ -117,7 +117,11 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   it('Should throw exception if itemService.readOneById returns error', async () => {
     jest.spyOn(itemService, 'readOneById').mockResolvedValue([null, error]);
 
-    const [ret, err] = await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+    const [ret, err] = await fleaMarketService.handleSellItem(
+      itemId,
+      clanId,
+      playerId,
+    );
     expect(ret).toBe(false);
     expect(err).toBeDefined();
   });
@@ -127,7 +131,11 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
 
     jest.spyOn(itemService, 'readOneById').mockResolvedValue([itemDto2, null]);
 
-    const [ret, err] = await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+    const [ret, err] = await fleaMarketService.handleSellItem(
+      itemId,
+      clanId,
+      playerId,
+    );
     expect(ret).toBe(false);
     expect(err).toBeDefined();
   });
@@ -135,7 +143,11 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   it('Should throw exception if playerService.getPlayerById returns error', async () => {
     jest.spyOn(playerService, 'getPlayerById').mockResolvedValue([null, error]);
 
-    const [ret, err] = await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+    const [ret, err] = await fleaMarketService.handleSellItem(
+      itemId,
+      clanId,
+      playerId,
+    );
     expect(ret).toBe(false);
     expect(err).toBeDefined();
   });
@@ -143,7 +155,11 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   it('Should throw exception if votingService.startVoting returns error', async () => {
     jest.spyOn(votingService, 'startVoting').mockResolvedValue([null, error]);
 
-    const [ret, err] = await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+    const [ret, err] = await fleaMarketService.handleSellItem(
+      itemId,
+      clanId,
+      playerId,
+    );
     expect(ret).toBe(false);
     expect(err).toBeDefined();
   });
@@ -151,7 +167,11 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   it('Should throw exception if createOne fails in moveItemToFleaMarket', async () => {
     jest.spyOn(fleaMarketService, 'createOne').mockResolvedValue([null, error]);
 
-    const [ret, err] = await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+    const [ret, err] = await fleaMarketService.handleSellItem(
+      itemId,
+      clanId,
+      playerId,
+    );
     expect(ret).toBe(false);
     expect(err).toBeDefined();
   });
@@ -159,7 +179,11 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   it('Should throw exception if deleteOneById fails in moveItemToFleaMarket', async () => {
     jest.spyOn(itemService, 'deleteOneById').mockResolvedValue([null, error]);
 
-    const [ret, err] = await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+    const [ret, err] = await fleaMarketService.handleSellItem(
+      itemId,
+      clanId,
+      playerId,
+    );
     expect(ret).toBe(false);
     expect(err).toBeDefined();
   });

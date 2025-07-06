@@ -248,11 +248,11 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
       .spyOn(basicService, 'updateOneById')
       .mockResolvedValue([null, [error]]);
 
-      await fleaMarketService.checkVotingOnExpire(params);
+    await fleaMarketService.checkVotingOnExpire(params);
 
-      expect(sessionMock.abortTransaction).toHaveBeenCalled();
-      expect(sessionMock.endSession).toHaveBeenCalled();
-      expect(votingService.basicService.deleteOneById).toHaveBeenCalled();
+    expect(sessionMock.abortTransaction).toHaveBeenCalled();
+    expect(sessionMock.endSession).toHaveBeenCalled();
+    expect(votingService.basicService.deleteOneById).toHaveBeenCalled();
   });
 
   it('Should throw if handleRejectedBuyVoting dependency throws | clanService.readOneById', async () => {
@@ -274,11 +274,10 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, [error]]);
 
     await fleaMarketService.checkVotingOnExpire(params);
-    
+
     expect(sessionMock.abortTransaction).toHaveBeenCalled();
     expect(sessionMock.endSession).toHaveBeenCalled();
     expect(votingService.basicService.deleteOneById).toHaveBeenCalled();
-  
   });
 
   it('Should throw exception if handlePassedSellVoting dependency throws | basicService.updateOneById', async () => {
