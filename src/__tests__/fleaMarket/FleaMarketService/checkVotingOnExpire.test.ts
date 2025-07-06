@@ -234,14 +234,10 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(true);
     jest.spyOn(basicService, 'readOneById').mockResolvedValue([null, [error]]);
 
-    try {
-      await fleaMarketService.checkVotingOnExpire(params);
-      fail('Expected error was not thrown');
-    } catch (error) {
-      expect(sessionMock.abortTransaction).toHaveBeenCalled();
-      expect(sessionMock.endSession).toHaveBeenCalled();
-      expect((error as ServiceError)[0].message).toBe('test error');
-    }
+    await fleaMarketService.checkVotingOnExpire(params);
+    expect(sessionMock.abortTransaction).toHaveBeenCalled();
+    expect(sessionMock.endSession).toHaveBeenCalled();
+    expect(votingService.basicService.deleteOneById).toHaveBeenCalled();
   });
 
   it('Should throw exception if handleRejectedBuyVoting dependency throws | basicService.updateOneById', async () => {
@@ -252,14 +248,11 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
       .spyOn(basicService, 'updateOneById')
       .mockResolvedValue([null, [error]]);
 
-    try {
       await fleaMarketService.checkVotingOnExpire(params);
-      fail('Expected error was not thrown');
-    } catch (error) {
+
       expect(sessionMock.abortTransaction).toHaveBeenCalled();
       expect(sessionMock.endSession).toHaveBeenCalled();
-      expect((error as ServiceError)[0].message).toBe('test error');
-    }
+      expect(votingService.basicService.deleteOneById).toHaveBeenCalled();
   });
 
   it('Should throw if handleRejectedBuyVoting dependency throws | clanService.readOneById', async () => {
@@ -268,14 +261,10 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(false);
     jest.spyOn(clanService, 'readOneById').mockResolvedValue([null, [error]]);
 
-    try {
-      await fleaMarketService.checkVotingOnExpire(params);
-      fail('Expected error was not thrown');
-    } catch (error) {
-      expect(sessionMock.abortTransaction).toHaveBeenCalled();
-      expect(sessionMock.endSession).toHaveBeenCalled();
-      expect((error as ServiceError)[0].message).toBe('test error');
-    }
+    await fleaMarketService.checkVotingOnExpire(params);
+    expect(sessionMock.abortTransaction).toHaveBeenCalled();
+    expect(sessionMock.endSession).toHaveBeenCalled();
+    expect(votingService.basicService.deleteOneById).toHaveBeenCalled();
   });
 
   it('Should throw if handleRejectedBuyVoting dependency throws | clanService.updateOne', async () => {
@@ -284,14 +273,12 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(false);
     jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, [error]]);
 
-    try {
-      await fleaMarketService.checkVotingOnExpire(params);
-      fail('Expected error was not thrown');
-    } catch (error) {
-      expect(sessionMock.abortTransaction).toHaveBeenCalled();
-      expect(sessionMock.endSession).toHaveBeenCalled();
-      expect((error as ServiceError[])[0].message).toBe('test error');
-    }
+    await fleaMarketService.checkVotingOnExpire(params);
+    
+    expect(sessionMock.abortTransaction).toHaveBeenCalled();
+    expect(sessionMock.endSession).toHaveBeenCalled();
+    expect(votingService.basicService.deleteOneById).toHaveBeenCalled();
+  
   });
 
   it('Should throw exception if handlePassedSellVoting dependency throws | basicService.updateOneById', async () => {
@@ -331,14 +318,10 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
       .spyOn(basicService, 'deleteOneById')
       .mockResolvedValue([null, [error]]);
 
-    try {
-      await fleaMarketService.checkVotingOnExpire(params);
-      fail('Expected error was not thrown');
-    } catch (error) {
-      expect(sessionMock.abortTransaction).toHaveBeenCalled();
-      expect(sessionMock.endSession).toHaveBeenCalled();
-      expect((error as ServiceError)[0].message).toBe('test error');
-    }
+    await fleaMarketService.checkVotingOnExpire(params);
+    expect(sessionMock.abortTransaction).toHaveBeenCalled();
+    expect(sessionMock.endSession).toHaveBeenCalled();
+    expect(votingService.basicService.deleteOneById).toHaveBeenCalled();
   });
 
   it('Should throw exception if voting type is unknown', async () => {

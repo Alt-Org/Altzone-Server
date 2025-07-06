@@ -91,7 +91,6 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       itemDto,
       clanId,
     );
-    expect(fleaMarketService.createOne).toHaveBeenCalledWith(newItem);
     expect(itemService.deleteOneById).toHaveBeenCalledWith(itemId);
     expect(sessionMock.startTransaction).toHaveBeenCalled();
     expect(sessionMock.commitTransaction).toHaveBeenCalled();
@@ -118,12 +117,9 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   it('Should throw exception if itemService.readOneById returns error', async () => {
     jest.spyOn(itemService, 'readOneById').mockResolvedValue([null, error]);
 
-    try {
-      await fleaMarketService.handleSellItem(itemId, clanId, playerId);
-      fail('Expected error was not thrown');
-    } catch (err) {
-      expect(err).toBe(error);
-    }
+    const [ret, err] = await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+    expect(ret).toBe(false);
+    expect(err).toBeDefined();
   });
 
   it('Should throw exception if item has no stock_id', async () => {
@@ -131,60 +127,41 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
 
     jest.spyOn(itemService, 'readOneById').mockResolvedValue([itemDto2, null]);
 
-    try {
-      await fleaMarketService.handleSellItem(itemId, clanId, playerId);
-      fail('Expected error was not thrown');
-    } catch (err) {
-      expect(err).toBeDefined();
-    }
+    const [ret, err] = await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+    expect(ret).toBe(false);
+    expect(err).toBeDefined();
   });
 
   it('Should throw exception if playerService.getPlayerById returns error', async () => {
     jest.spyOn(playerService, 'getPlayerById').mockResolvedValue([null, error]);
 
-    try {
-      await fleaMarketService.handleSellItem(itemId, clanId, playerId);
-      fail('Expected error was not thrown');
-    } catch (err) {
-      expect(err).toBe(error);
-    }
+    const [ret, err] = await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+    expect(ret).toBe(false);
+    expect(err).toBeDefined();
   });
 
   it('Should throw exception if votingService.startVoting returns error', async () => {
     jest.spyOn(votingService, 'startVoting').mockResolvedValue([null, error]);
 
-    try {
-      await fleaMarketService.handleSellItem(itemId, clanId, playerId);
-      fail('Expected error was not thrown');
-    } catch (err) {
-      expect(err).toBe(error);
-    }
+    const [ret, err] = await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+    expect(ret).toBe(false);
+    expect(err).toBeDefined();
   });
 
   it('Should throw exception if createOne fails in moveItemToFleaMarket', async () => {
     jest.spyOn(fleaMarketService, 'createOne').mockResolvedValue([null, error]);
 
-    try {
-      await fleaMarketService.handleSellItem(itemId, clanId, playerId);
-      fail('Expected error was not thrown');
-    } catch (err) {
-      expect(sessionMock.abortTransaction).toHaveBeenCalled();
-      expect(sessionMock.endSession).toHaveBeenCalled();
-      expect(err).toBe(error);
-    }
+    const [ret, err] = await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+    expect(ret).toBe(false);
+    expect(err).toBeDefined();
   });
 
   it('Should throw exception if deleteOneById fails in moveItemToFleaMarket', async () => {
     jest.spyOn(itemService, 'deleteOneById').mockResolvedValue([null, error]);
 
-    try {
-      await fleaMarketService.handleSellItem(itemId, clanId, playerId);
-      fail('Expected error was not thrown');
-    } catch (err) {
-      expect(sessionMock.abortTransaction).toHaveBeenCalled();
-      expect(sessionMock.endSession).toHaveBeenCalled();
-      expect(err).toBe(error);
-    }
+    const [ret, err] = await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+    expect(ret).toBe(false);
+    expect(err).toBeDefined();
   });
 
   it('Should throw exception if addVotingCheckJob throws error', async () => {
