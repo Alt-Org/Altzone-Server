@@ -211,7 +211,7 @@ export class TesterAccountService {
         null,
         [
           new ServiceError({
-            reason: SEReason.NOT_ALLOWED,
+            reason: SEReason.NOT_AUTHORIZED,
             field: 'clan_id',
             value: player.clan_id.toString(),
             message: 'Player is already in a clan',

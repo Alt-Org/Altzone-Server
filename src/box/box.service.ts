@@ -81,6 +81,15 @@ export class BoxService {
   }
 
   /**
+   * Reads all Boxes in DB.
+   *
+   * @returns found Boxes
+   */
+  async readAll() {
+    return this.basicService.readMany<Box>();
+  }
+
+  /**
    * Updates a Box by its _id in DB. The _id field is read-only and must be found from the parameter
    *
    * @param box - The data needs to be updated of the Box.
