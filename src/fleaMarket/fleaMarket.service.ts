@@ -166,7 +166,7 @@ export class FleaMarketService {
     return [true, null];
   }
 
-/**
+  /**
    * Handles the process of starting a buy item voting.
    *
    * @param clanId - The ID of the clan.
