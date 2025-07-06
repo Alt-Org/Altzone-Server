@@ -18,6 +18,7 @@ import BasicService from '../../../common/service/basicService/BasicService';
 import { VotingDto } from '../../../voting/dto/voting.dto';
 import { ClanDto } from '../../../clan/dto/clan.dto';
 import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
+import createMockSession from '../../common/MongooseSession/CreateMockSession';
 
 describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
   let fleaMarketService: FleaMarketService;
@@ -76,13 +77,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
       fleaMarketItemId: fleaMarketItemDto._id,
     };
 
-    sessionMock = {
-      startTransaction: jest.fn(),
-      commitTransaction: jest.fn(),
-      abortTransaction: jest.fn(),
-      endSession: jest.fn(),
-    };
-    jest.spyOn(model.db, 'startSession').mockResolvedValue(sessionMock);
+    sessionMock = createMockSession(model);
 
     jest
       .spyOn(basicService, 'readOneById')

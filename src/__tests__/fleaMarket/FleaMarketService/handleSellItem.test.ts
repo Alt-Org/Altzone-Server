@@ -10,6 +10,7 @@ import { VotingService } from '../../../voting/voting.service';
 import VotingBuilderFactory from '../../voting/data/VotingBuilderFactory';
 import { VotingQueue } from '../../../voting/voting.queue';
 import { ItemName } from '../../../clanInventory/item/enum/itemName.enum';
+import createMockSession from '../../common/MongooseSession/CreateMockSession';
 
 describe('FleaMarketService.handleSellItem() test suit', () => {
   let fleaMarketService: FleaMarketService;
@@ -51,13 +52,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     votingQueue = await FleaMarketModule.getVotingQueue();
     model = fleaMarketService.model;
 
-    sessionMock = {
-      startTransaction: jest.fn(),
-      commitTransaction: jest.fn(),
-      abortTransaction: jest.fn(),
-      endSession: jest.fn(),
-    };
-    jest.spyOn(model.db, 'startSession').mockResolvedValue(sessionMock);
+    sessionMock = createMockSession(model);
 
     jest.spyOn(itemService, 'readOneById').mockResolvedValue([itemDto, null]);
     jest

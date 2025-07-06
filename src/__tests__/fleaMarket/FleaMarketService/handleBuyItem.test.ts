@@ -17,6 +17,7 @@ import { ClanDto } from '../../../clan/dto/clan.dto';
 import { VotingDto } from '../../../voting/dto/voting.dto';
 import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 import BasicService from '../../../common/service/basicService/BasicService';
+import createMockSession from '../../common/MongooseSession/CreateMockSession';
 
 describe('FleaMarketService.handleBuyItem() test suit', () => {
   let fleaMarketService: FleaMarketService;
@@ -77,13 +78,8 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
       .spyOn(votingService, 'startVoting')
       .mockResolvedValue([votingDto, null]);
 
-    sessionMock = {
-      startTransaction: jest.fn(),
-      commitTransaction: jest.fn(),
-      abortTransaction: jest.fn(),
-      endSession: jest.fn(),
-    };
-    jest.spyOn(model, 'startSession').mockResolvedValue(sessionMock);
+    sessionMock = createMockSession(model);
+    
     jest.spyOn(basicService, 'updateOneById').mockResolvedValue([null, null]);
     jest.spyOn(basicService, 'updateOne').mockResolvedValue([null, null]);
   });
