@@ -26,6 +26,7 @@ import { BoxAuthGuard } from './auth/boxAuth.guard';
 import SessionStarterService from './sessionStarter/sessionStarter.service';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { BoxDto } from './dto/box.dto';
+import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
@@ -187,6 +188,7 @@ export class BoxController {
     errors: [404],
     hasAuth: false,
   })
+  @SwaggerTags('Release on 13.07.2025', 'Box')
   //For time of development only
   @NoAuth()
   @Get('/')
