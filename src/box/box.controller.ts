@@ -43,7 +43,7 @@ export class BoxController {
    *
    * @remarks Create a testing box.
    *
-   * Notice that in order t0 create the testing box a group admin password need to be obtained from backend team
+   * Notice that in order to create the testing box a group admin password need to be obtained from backend team
    */
   @ApiResponseDescription({
     success: {
@@ -54,6 +54,7 @@ export class BoxController {
     errors: [400, 404],
     hasAuth: false,
   })
+  @SwaggerTags('Release on 13.07.2025', 'Box')
   @NoAuth()
   @Post()
   @UniformResponse(ModelName.BOX, CreatedBoxDto)
