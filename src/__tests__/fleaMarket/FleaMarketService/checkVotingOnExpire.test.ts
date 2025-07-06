@@ -19,13 +19,15 @@ import { VotingDto } from '../../../voting/dto/voting.dto';
 import { ClanDto } from '../../../clan/dto/clan.dto';
 import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 import createMockSession from '../../common/MongooseSession/CreateMockSession';
+import { Model } from 'mongoose';
+import { FleaMarketItem } from '../../../fleaMarket/fleaMarketItem.schema';
 
 describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
   let fleaMarketService: FleaMarketService;
   let votingService: VotingService;
   let clanService: ClanService;
   let basicService: BasicService;
-  let model: any;
+  let model: Model<FleaMarketItem>;
   let itemService: ItemService;
   let helperService: FleaMarketHelperService;
 
@@ -40,11 +42,11 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
   let votingDto: VotingDto;
   let clanDto: ClanDto;
   let fleaMarketItemDto: FleaMarketItemDto;
-  let params: any;
   let error: ServiceError;
-  let sessionMock: any;
   let createItemDto: CreateItemDto;
   let itemDto: ItemDto;
+  let params: any;
+  let sessionMock: any;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -82,14 +84,9 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     jest
       .spyOn(basicService, 'readOneById')
       .mockResolvedValue([fleaMarketItemDto, null]);
-
     jest.spyOn(basicService, 'updateOneById').mockResolvedValue([null, null]);
-  });
-
-  it('Should process voting expiration and update item/clan (voting PASSED, BUY)', async () => {
-    params.voting.type = VotingType.FLEA_MARKET_BUY_ITEM;
-
-    jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(true);
+    jest.spyOn(basicService, 'deleteOneById').mockResolvedValue([null, null]);
+    
     jest
       .spyOn(votingService.basicService, 'deleteOneById')
       .mockResolvedValue([null, null]);
@@ -97,12 +94,17 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
       .spyOn(fleaMarketService, 'readOneById')
       .mockResolvedValue([fleaMarketItemDto, null]);
     jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
-    jest.spyOn(basicService, 'deleteOneById').mockResolvedValue([null, null]);
     jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, null]);
     jest
       .spyOn(helperService, 'fleaMarketItemToCreateItemDto')
       .mockResolvedValue(createItemDto as never);
     jest.spyOn(itemService, 'createOne').mockResolvedValue([itemDto, null]);
+  });
+
+  it('Should process voting expiration and update item/clan (voting PASSED, BUY)', async () => {
+    params.voting.type = VotingType.FLEA_MARKET_BUY_ITEM;
+
+    jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(true);
 
     await fleaMarketService.checkVotingOnExpire(params);
 
@@ -122,11 +124,6 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(true);
     jest
-      .spyOn(fleaMarketService, 'readOneById')
-      .mockResolvedValue([fleaMarketItemDto, null]);
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
-    jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, null]);
-    jest
       .spyOn(helperService, 'fleaMarketItemToCreateItemDto')
       .mockResolvedValue(createItemDto as never);
     jest.spyOn(itemService, 'createOne').mockResolvedValue([null, [error]]);
@@ -145,15 +142,6 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(true);
     jest
-      .spyOn(fleaMarketService, 'readOneById')
-      .mockResolvedValue([fleaMarketItemDto, null]);
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
-    jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, null]);
-    jest
-      .spyOn(helperService, 'fleaMarketItemToCreateItemDto')
-      .mockResolvedValue(createItemDto as never);
-    jest.spyOn(itemService, 'createOne').mockResolvedValue([itemDto, null]);
-    jest
       .spyOn(basicService, 'deleteOneById')
       .mockResolvedValue([null, [error]]);
 
@@ -170,15 +158,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     params.voting.type = VotingType.FLEA_MARKET_BUY_ITEM;
 
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(false);
-    jest
-      .spyOn(votingService.basicService, 'deleteOneById')
-      .mockResolvedValue([null, null]);
-    jest
-      .spyOn(fleaMarketService, 'readOneById')
-      .mockResolvedValue([fleaMarketItemDto, null]);
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
-    jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, null]);
-
+   
     await fleaMarketService.checkVotingOnExpire(params);
 
     expect(votingService.checkVotingSuccess).toHaveBeenCalledWith(
@@ -199,13 +179,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     params.voting.type = VotingType.FLEA_MARKET_SELL_ITEM;
 
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(true);
-    jest
-      .spyOn(votingService.basicService, 'deleteOneById')
-      .mockResolvedValue([null, null]);
-    jest
-      .spyOn(fleaMarketService, 'readOneById')
-      .mockResolvedValue([fleaMarketItemDto, null]);
-
+    
     await fleaMarketService.checkVotingOnExpire(params);
 
     expect(votingService.checkVotingSuccess).toHaveBeenCalledWith(
@@ -221,17 +195,6 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     params.voting.type = VotingType.FLEA_MARKET_SELL_ITEM;
 
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(false);
-    jest
-      .spyOn(votingService.basicService, 'deleteOneById')
-      .mockResolvedValue([null, null]);
-    jest
-      .spyOn(fleaMarketService, 'readOneById')
-      .mockResolvedValue([fleaMarketItemDto, null]);
-    jest.spyOn(basicService, 'deleteOneById').mockResolvedValue([null, null]);
-    jest
-      .spyOn(helperService, 'fleaMarketItemToCreateItemDto')
-      .mockResolvedValue(createItemDto as never);
-    jest.spyOn(itemService, 'createOne').mockResolvedValue([itemDto, null]);
 
     await fleaMarketService.checkVotingOnExpire(params);
 
@@ -251,12 +214,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     params.voting.type = VotingType.FLEA_MARKET_SELL_ITEM;
 
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(false);
-    jest
-      .spyOn(fleaMarketService, 'readOneById')
-      .mockResolvedValue([fleaMarketItemDto, null]);
-    jest
-      .spyOn(helperService, 'fleaMarketItemToCreateItemDto')
-      .mockResolvedValue(createItemDto as never);
+    
     jest
       .spyOn(itemService, 'createOne')
       .mockResolvedValue([null, [error, error]]);
@@ -321,7 +279,6 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     params.voting.type = VotingType.FLEA_MARKET_BUY_ITEM;
 
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(false);
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
     jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, [error]]);
 
     try {
