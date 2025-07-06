@@ -166,6 +166,83 @@ export class FleaMarketService {
     return [true, null];
   }
 
+/**
+   * Handles the process of starting a buy item voting.
+   *
+   * @param clanId - The ID of the clan.
+   * @param itemId - The ID of the item.
+   * @param playerId - The ID of the player.
+   *
+   * @throws Will throw a service error if item is not available
+   * or if the clan doesn't have enough coins for the item.
+   */
+  async handleBuyItem(
+    clanId: string,
+    itemId: string,
+    playerId: string,
+  ): Promise<IServiceReturn<boolean>> {
+    const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
+      includeRefs: [ModelName.STOCK],
+    });
+    if (clanErrors) return [false, clanErrors];
+
+    const [item, itemErrors] = await this.readOneById(itemId);
+    if (itemErrors) return [false, itemErrors];
+
+    if (item.status !== Status.AVAILABLE)
+      return [false, [itemNotAvailableError]];
+    if (clan.gameCoins < item.price) return [false, [notEnoughCoinsError]];
+
+    const [player, playerErrors] =
+      await this.playerService.getPlayerById(playerId);
+    if (playerErrors) return [false, playerErrors];
+
+    const [voting, err] = await this.handleBooking(clan, item, player);
+    if (err) return [false, err];
+    this.votingQueue.addVotingCheckJob({
+      voting,
+      clanId,
+      price: item.price,
+      stockId: clan.Stock?._id.toString(),
+      queue: VotingQueueName.FLEA_MARKET,
+    });
+
+    return [true, null];
+  }
+
+  /**
+   * Handles the voting when it expires.
+   *
+   * @param params - Information about the voting.
+   * @param params.voting - The voting that expired.
+   * @param params.price - The price of the item voted on.
+   * @param params.clanId - The ID of the clan.
+   * @param params.stockId - The ID of the stock.
+   * @param params.fleaMarketItemId - The ID of the flea market item.
+   */
+  async checkVotingOnExpire(params: VotingQueueParams) {
+    const { voting, price, clanId, stockId, fleaMarketItemId } = params;
+
+    const votePassed = await this.votingService.checkVotingSuccess(voting);
+    if (voting.type === VotingType.FLEA_MARKET_BUY_ITEM) {
+      if (votePassed) {
+        await this.handlePassedBuyVoting(voting, stockId);
+      } else {
+        await this.handleRejectedBuyVoting(voting, clanId, price);
+      }
+    }
+
+    if (voting.type === VotingType.FLEA_MARKET_SELL_ITEM) {
+      if (votePassed) {
+        await this.handlePassedSellVoting(fleaMarketItemId);
+      } else {
+        await this.handleRejectedSellVoting(fleaMarketItemId, stockId);
+      }
+    }
+
+    await this.votingService.basicService.deleteOneById(voting._id);
+  }
+
   /**
    * Moves an item to the flea market by creating a new flea market item
    * and deleting the original item.
@@ -334,83 +411,6 @@ export class FleaMarketService {
     await session.endSession();
 
     return [true, null];
-  }
-
-  /**
-   * Handles the process of starting a buy item voting.
-   *
-   * @param clanId - The ID of the clan.
-   * @param itemId - The ID of the item.
-   * @param playerId - The ID of the player.
-   *
-   * @throws Will throw a service error if item is not available
-   * or if the clan doesn't have enough coins for the item.
-   */
-  async handleBuyItem(
-    clanId: string,
-    itemId: string,
-    playerId: string,
-  ): Promise<IServiceReturn<boolean>> {
-    const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
-      includeRefs: [ModelName.STOCK],
-    });
-    if (clanErrors) return [false, clanErrors];
-
-    const [item, itemErrors] = await this.readOneById(itemId);
-    if (itemErrors) return [false, itemErrors];
-
-    if (item.status !== Status.AVAILABLE)
-      return [false, [itemNotAvailableError]];
-    if (clan.gameCoins < item.price) return [false, [notEnoughCoinsError]];
-
-    const [player, playerErrors] =
-      await this.playerService.getPlayerById(playerId);
-    if (playerErrors) return [false, playerErrors];
-
-    const [voting, err] = await this.handleBooking(clan, item, player);
-    if (err) return [false, err];
-    this.votingQueue.addVotingCheckJob({
-      voting,
-      clanId,
-      price: item.price,
-      stockId: clan.Stock?._id.toString(),
-      queue: VotingQueueName.FLEA_MARKET,
-    });
-
-    return [true, null];
-  }
-
-  /**
-   * Handles the voting when it expires.
-   *
-   * @param params - Information about the voting.
-   * @param params.voting - The voting that expired.
-   * @param params.price - The price of the item voted on.
-   * @param params.clanId - The ID of the clan.
-   * @param params.stockId - The ID of the stock.
-   * @param params.fleaMarketItemId - The ID of the flea market item.
-   */
-  async checkVotingOnExpire(params: VotingQueueParams) {
-    const { voting, price, clanId, stockId, fleaMarketItemId } = params;
-
-    const votePassed = await this.votingService.checkVotingSuccess(voting);
-    if (voting.type === VotingType.FLEA_MARKET_BUY_ITEM) {
-      if (votePassed) {
-        await this.handlePassedBuyVoting(voting, stockId);
-      } else {
-        await this.handleRejectedBuyVoting(voting, clanId, price);
-      }
-    }
-
-    if (voting.type === VotingType.FLEA_MARKET_SELL_ITEM) {
-      if (votePassed) {
-        await this.handlePassedSellVoting(fleaMarketItemId);
-      } else {
-        await this.handleRejectedSellVoting(fleaMarketItemId, stockId);
-      }
-    }
-
-    await this.votingService.basicService.deleteOneById(voting._id);
   }
 
   /**
