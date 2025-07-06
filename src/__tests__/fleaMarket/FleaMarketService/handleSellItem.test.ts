@@ -70,7 +70,6 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       .spyOn(fleaMarketService, 'createOne')
       .mockResolvedValue([createdFleaMarketItemDto, null]);
     jest.spyOn(itemService, 'deleteOneById').mockResolvedValue([true, null]);
-
   });
 
   it('Should process selling item and add voting check job', async () => {
