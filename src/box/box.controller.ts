@@ -6,17 +6,10 @@ import {
   Param,
   Post,
   Put,
-  Query,
-  Req,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { BoxService } from './box.service';
-import { Request, Response } from 'express';
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
-import { ClaimAccountResponseDto } from './dto/claimAccountResponse.dto';
-import { APIError } from '../common/controller/APIError';
-import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import BoxCreator from './boxCreator';
 import BoxAuthHandler from './auth/BoxAuthHandler';

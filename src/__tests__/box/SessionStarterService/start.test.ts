@@ -40,8 +40,8 @@ describe('SessionStarterService.start() test suite', () => {
     const existingClanResp2 = await clanModel.create(existingClan2);
     existingClan2._id = existingClanResp2._id;
 
-    const clan1Testers = await createTesters(3, existingClan1._id);
-    const clan2Testers = await createTesters(3, existingClan2._id);
+    await createTesters(3, existingClan1._id);
+    await createTesters(3, existingClan2._id);
 
     const task1 = dailyTaskBuilder.setCoins(10).build();
     const task2 = dailyTaskBuilder.setCoins(20).build();
@@ -187,7 +187,7 @@ describe('SessionStarterService.start() test suite', () => {
     for (let i = 0; i < amount; i++) {
       const testerName = `tester${i}-${clan_id}`;
       const testerProfile = profileBuilder.setUsername(testerName).build();
-      const testerProfileResp = await profileModel.create(testerProfile);
+      await profileModel.create(testerProfile);
 
       const testerPlayer = playerBuilder
         .setName(testerName)
@@ -195,7 +195,7 @@ describe('SessionStarterService.start() test suite', () => {
         .setClanId(clan_id)
         .setProfileId(testerProfile._id)
         .build();
-      const testerPlayerResp = await playerModel.create(testerPlayer);
+      await playerModel.create(testerPlayer);
 
       const tester = testerBuilder.build();
       createdTesters.push(tester);

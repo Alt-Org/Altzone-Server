@@ -119,8 +119,8 @@ describe('BoxService.deleteBox() test suite', () => {
       .build();
     const testerPlayerResp2 = await playerModel.create(testerPlayer2);
     testerPlayer2._id = testerPlayerResp2._id;
-    const tester1 = testerBuilder.build();
-    const tester2 = testerBuilder.build();
+    testerBuilder.build();
+    testerBuilder.build();
 
     existingBox = boxBuilder
       .setAdminPassword(existingAdmin.password)

@@ -10,7 +10,6 @@ import ClaimedAccount from './payloads/claimedAccount';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import { TesterAccountService } from './testerAccount.service';
 import { ClanDto } from '../../clan/dto/clan.dto';
-import { envVars } from '../../common/service/envHandler/envVars';
 
 @Injectable()
 export default class AccountClaimerService {

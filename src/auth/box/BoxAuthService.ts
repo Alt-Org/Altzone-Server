@@ -67,25 +67,14 @@ export default class BoxAuthService extends AuthService {
       ...playerResp.toObject(),
       _id: playerResp._id.toString(),
       profile_id: playerResp.profile_id.toString(),
-      clan_id: playerResp.clan_id.toString(),
+      clan_id: playerResp.clan_id?.toString(),
     };
 
-    let box_id: string,
-      groupAdmin = false;
     const box = await this.boxModel.findOne({
       adminProfile_id: new ObjectId(profile._id),
     });
-    if (!box) {
-      const boxWithTester = await this.boxModel.findOne({
-        'testers.profile_id': new ObjectId(profile._id),
-      });
-      if (!boxWithTester) return null;
-
-      box_id = boxWithTester.id.toString();
-    } else {
-      box_id = box._id.toString();
-      groupAdmin = true;
-    }
+    const box_id = box._id.toString();
+    const groupAdmin = true;
 
     const payload = {
       profile_id: profile._id,

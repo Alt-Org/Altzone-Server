@@ -171,7 +171,6 @@ describe('BoxService.createOne() test suite', () => {
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
         testersSharedPassword: null,
-        testers: expect.any(Array),
       }),
     );
   });
@@ -190,7 +189,6 @@ describe('BoxService.createOne() test suite', () => {
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
         testersSharedPassword: null,
-        testers: expect.any(Array),
       }),
     );
   });
