@@ -8,8 +8,11 @@ import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import { TesterAccountService } from '../../../../box/accountClaimer/testerAccount.service';
 import PlayerBuilder from '../../../player/data/player/playerBuilder';
 import ClanBuilder from '../../../clan/data/clan/ClanBuilder';
+import { envVars } from '../../../../common/service/envHandler/envVars';
+import { Environment } from '../../../../common/service/envHandler/enum/environment.enum';
 
 describe('TesterAccountService.addTesterToClan() test suite', () => {
+  envVars.ENVIRONMENT = Environment.TESTING_SESSION;
   let service: TesterAccountService;
 
   const playerModel = PlayerModule.getPlayerModel();

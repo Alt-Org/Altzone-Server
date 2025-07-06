@@ -1,6 +1,5 @@
-import { CustomCharacterDto } from 'src/player/customCharacter/dto/customCharacter.dto';
 import { ClanDto } from '../../../clan/dto/clan.dto';
-import { GameStatisticsDto } from '../../../player/dto/gameStatistics.dto';
+import { ObjectId } from 'mongodb';
 
 export default class ClaimedAccount {
   /**
@@ -36,19 +35,14 @@ export default class ClaimedAccount {
    *
    * @example false
    */
-  parentalAuth: boolean | null;
-
-  /**
-   * Game statistics related to this account
-   */
-  gameStatistics: GameStatisticsDto;
+  parentalAuth?: boolean | null;
 
   /**
    * List of character IDs available to the player
    *
    * @example ["663a6f1cde9f1a0012f3d100", "663a6f9bde9f1a0012f3d200"]
    */
-  battleCharacter_ids?: string[];
+  battleCharacter_ids?: string[] | ObjectId[];
 
   /**
    * ID of the currently selected avatar
@@ -75,11 +69,6 @@ export default class ClaimedAccount {
    * Information about the player's clan
    */
   Clan: ClanDto;
-
-  /**
-   * Custom characters created by the player
-   */
-  CustomCharacter: CustomCharacterDto[];
 
   /**
    * Access token to authenticate future API requests

@@ -7,6 +7,8 @@ import BoxBuilderFactory from '../../data/boxBuilderFactory';
 import ProfileBuilderFactory from '../../../profile/data/profileBuilderFactory';
 import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import { TesterAccountService } from '../../../../box/accountClaimer/testerAccount.service';
+import { envVars } from '../../../../common/service/envHandler/envVars';
+import { Environment } from '../../../../common/service/envHandler/enum/environment.enum';
 
 const generatePasswordMock = jest.fn();
 jest.mock('../../../../common/function/passwordGenerator', () => {
@@ -20,6 +22,7 @@ jest.mock('../../../../common/function/passwordGenerator', () => {
 });
 
 describe('TesterAccountService.createTester() test suite', () => {
+  envVars.ENVIRONMENT = Environment.TESTING_SESSION;
   let service: TesterAccountService;
 
   const boxModel = BoxModule.getBoxModel();

@@ -27,6 +27,9 @@ import SessionStarterService from '../../../box/sessionStarter/sessionStarter.se
 import { DailyTasksModule } from '../../../dailyTasks/dailyTasks.module';
 import { BoxScheduler } from '../../../box/box.scheduler';
 import { TesterAccountService } from '../../../box/accountClaimer/testerAccount.service';
+import AccountClaimerService from '../../../box/accountClaimer/accountClaimer.service';
+import { envVars } from '../../../common/service/envHandler/envVars';
+import UniqueFieldGenerator from '../../../box/util/UniqueFieldGenerator';
 
 export default class BoxCommonModule {
   private constructor() {}
@@ -48,6 +51,11 @@ export default class BoxCommonModule {
             { name: ModelName.ROOM, schema: RoomSchema },
             { name: ModelName.STOCK, schema: StockSchema },
           ]),
+          JwtModule.register({
+            global: true,
+            secret: envVars.JWT_SECRET,
+            signOptions: { expiresIn: '30d' },
+          }),
           ClanModule,
           ChatModule,
           ProfileModule,
@@ -66,8 +74,10 @@ export default class BoxCommonModule {
           BoxAuthHandler,
           GroupAdminGuard,
           TesterAccountService,
+          AccountClaimerService,
           SessionStarterService,
           PasswordGenerator,
+          UniqueFieldGenerator,
         ],
       }).compile();
 

@@ -1,153 +1,124 @@
 import { Injectable } from '@nestjs/common';
-import { PlayerDto } from '../../player/dto/player.dto';
 import { JwtService } from '@nestjs/jwt';
-import { BoxDto } from '../dto/box.dto';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
-import { ObjectId } from 'mongodb';
-import { ModelName } from '../../common/enum/modelName.enum';
 import BasicService from '../../common/service/basicService/BasicService';
 import { InjectModel } from '@nestjs/mongoose';
-import { Box, publicReferences } from '../schemas/box.schema';
+import { Box } from '../schemas/box.schema';
 import { Model } from 'mongoose';
-import { BoxReference } from '../enum/BoxReference.enum';
-import { Profile } from '../../profile/profile.schema';
 import ClaimedAccount from './payloads/claimedAccount';
+import { IServiceReturn } from '../../common/service/basicService/IService';
+import { TesterAccountService } from './testerAccount.service';
+import { ClanDto } from '../../clan/dto/clan.dto';
+import { envVars } from '../../common/service/envHandler/envVars';
 
 @Injectable()
 export default class AccountClaimerService {
   constructor(
-    @InjectModel(Box.name) public readonly model: Model<Box>,
+    @InjectModel(Box.name) public readonly boxModel: Model<Box>,
+    private readonly testerService: TesterAccountService,
     private readonly jwtService: JwtService,
   ) {
-    this.basicService = new BasicService(model);
+    this.basicService = new BasicService(boxModel);
   }
 
   private readonly basicService: BasicService;
 
   /**
-   * Claims an account based on the provided password and identifier.
+   * Claims an account based on the provided password:
+   * - Creates a new profile and player
+   * - Assign a player to one of the box clans
+   * - Increases the amount of testers in the box
    *
-   * @param password - The password to authenticate the request.
-   * @returns The claimed account data.
-   * @throws Will throw an error if the account cannot be claimed.
+   * @param password shared password for the claiming account in a box.
+   *
+   * @returns Claimed account data, as well as an access token, or ServiceErrors:
+   * REQUIRED - if the password is not provided
+   * NOT_FOUND - if there are no box with this password
+   * NOT_ALLOWED - if there are no places left (testersAmount < testersAccountsClaimed)
    */
-  async claimAccount(password: string): Promise<ClaimedAccount> {
-    const box = await this.getBoxWithTesters(password);
-    const testerProfiles = box[BoxReference.TESTER_PROFILES] as Profile[];
-    const testerPlayers = box[BoxReference.TESTER_PLAYERS] as PlayerDto[];
+  async claimAccount(
+    password: string,
+  ): Promise<IServiceReturn<ClaimedAccount>> {
+    const [box, boxReadErrors] = await this.getBoxByPassword(password);
+    if (boxReadErrors) return [null, boxReadErrors];
 
-    // const account = this.getTesterAccount(box);
-    const account: any = {};
-    account.isClaimed = true;
-
-    const testerProfile = testerProfiles.find(
-      (profile) => profile._id.toString() === account.profile_id.toString(),
+    const boxHasPlace = await this.boxModel.findOneAndUpdate(
+      {
+        _id: box._id,
+        testerAccountsClaimed: { $lt: box.testersAmount },
+      },
+      { $inc: { testerAccountsClaimed: 1 } },
     );
 
-    // await this.updateBoxTesters(box);
+    if (!boxHasPlace)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'testersAmount',
+            value: box.testersAmount,
+            message:
+              'Box has no place for new testers anymore. Please, increase the allowed amount of testers to be able to claim new tester accounts',
+          }),
+        ],
+      ];
 
-    const playerData = this.getTesterPlayerData(
-      testerPlayers,
-      account.player_id,
-    );
+    const [account, accountCreationErrors] =
+      await this.testerService.createTester();
+    if (accountCreationErrors) return [null, accountCreationErrors];
+
+    const [accountClan, clanAssigningErrors] =
+      await this.testerService.addTesterToClan(
+        account.Player._id,
+        box.clan_ids,
+      );
+    if (clanAssigningErrors) return [null, clanAssigningErrors];
 
     const accessToken = await this.jwtService.signAsync({
-      player_id: account.player_id,
-      profile_id: account.profile_id,
-      box_id: box._id,
+      player_id: account.Player._id.toString(),
+      profile_id: account.Profile._id.toString(),
+      box_id: box._id.toString(),
     });
 
-    return {
-      _id: playerData._id,
-      points: playerData.points,
-      backpackCapacity: playerData.backpackCapacity,
-      above13: playerData.above13,
-      parentalAuth: playerData.parentalAuth,
-      gameStatistics: playerData.gameStatistics,
-      battleCharacter_ids: playerData.battleCharacter_ids,
-      currentAvatarId: playerData.currentAvatarId,
-      profile_id: account.profile_id.toString(),
-      clan_id: playerData.clan_id,
-      Clan: playerData.Clan,
-      CustomCharacter: playerData.CustomCharacter,
-      accessToken: accessToken,
-      password: testerProfile.username,
-    };
+    return [
+      {
+        ...account.Player,
+        password: account.Profile.username,
+        profile_id: account.Profile._id.toString(),
+        accessToken,
+        clan_id: accountClan._id.toString(),
+        Clan: accountClan as ClanDto,
+      },
+      null,
+    ];
   }
 
   /**
-   * Retrieves the box with populated testers based on the provided password.
+   * Retrieves the box based on the provided testers shared password.
    *
-   * @param password - The password to authenticate the request.
-   * @returns The box with populated testers.
-   * @throws Will throw an error if the box cannot be found.
+   * @param password - The shared testers password
+   * @returns found box.
    */
-  private async getBoxWithTesters(password: string): Promise<BoxDto> {
-    const [box, errors] = await this.basicService.readOne<BoxDto>({
+  private async getBoxByPassword(
+    password: string,
+  ): Promise<IServiceReturn<Box>> {
+    if (!password)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'password',
+            value: password,
+            message: 'Password param is required',
+          }),
+        ],
+      ];
+
+    return this.basicService.readOne<Box>({
       filter: { testersSharedPassword: password },
-      includeRefs: [...(publicReferences as string[] as ModelName[])],
     });
-    if (errors) throw errors;
-    return box;
-  }
-
-  /**
-   * Updates the box testers.
-   *
-   * @param box - The box to update.
-   * @throws Will throw an error if the box cannot be updated.
-   */
-  // async updateBoxTesters(box: BoxDto): Promise<void> {
-  //   const [_, updateErrors] = await this.basicService.updateOneById(box._id, {
-  //     testers: box.testers,
-  //   });
-  //   if (updateErrors) throw updateErrors;
-  // }
-
-  /**
-   * Retrieves an unclaimed tester account from the box.
-   *
-   * @param box - The box to retrieve the account from.
-   * @returns The unclaimed tester account.
-   * @throws Will throw an error if no unclaimed tester account can be found.
-   */
-  // private getTesterAccount(box: BoxDto): Tester {
-  //   const account = box.testers.find((tester) => {
-  //     return tester.isClaimed !== true;
-  //   }) as unknown as Tester;
-  //   if (!account) {
-  //     throw new ServiceError({
-  //       reason: SEReason.NOT_FOUND,
-  //       message: 'All the tester accounts have already been claimed.',
-  //     });
-  //   }
-  //   return account;
-  // }
-
-  /**
-   * Retrieves the player data for the specified player ID.
-   *
-   * @param players - The list of players.
-   * @param playerId - The ID of the player to retrieve.
-   * @returns The player data excluding specific properties.
-   * @throws Will throw an error if the player cannot be found.
-   */
-  private getTesterPlayerData(
-    players: PlayerDto[],
-    playerId: ObjectId,
-  ): PlayerDto {
-    const player = players.find((player) => {
-      return player._id.toString() === playerId.toString();
-    });
-
-    if (!player) {
-      throw new ServiceError({
-        reason: SEReason.NOT_FOUND,
-        message: 'Player not found.',
-      });
-    }
-
-    return player;
   }
 }
