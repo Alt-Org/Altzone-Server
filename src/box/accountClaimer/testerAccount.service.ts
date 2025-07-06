@@ -13,11 +13,13 @@ import { ProfileDto } from '../../profile/dto/profile.dto';
 import Tester from './payloads/tester';
 import BasicService from '../../common/service/basicService/BasicService';
 import { Clan, ClanDocument } from '../../clan/clan.schema';
+import UniqueFieldGenerator from '../util/UniqueFieldGenerator';
 
 @Injectable()
 export class TesterAccountService {
   constructor(
     private readonly passwordGenerator: PasswordGenerator,
+    private readonly uniqueFieldGenerator: UniqueFieldGenerator,
     private readonly profileService: ProfileService,
     @InjectModel(Profile.name)
     private readonly profileModel: Model<ProfileDocument>,
@@ -100,85 +102,6 @@ export class TesterAccountService {
   }
 
   /**
-   * Checks that each element in the provided array has a unique value in the DB.
-   * If the value for provided field already exists an amount number will be added to the end of the value in order to make it unique.
-   *
-   * @param model model where the values should be unique
-   * @param field unique field name
-   * @param values of the unique fields
-   * @private
-   *
-   * @returns an array, where each value is a unique in DB.
-   */
-  private async generateUniqueFieldValue(
-    model: Model<any>,
-    field: string,
-    value: string,
-  ): Promise<string> {
-    const existingValues = await this.getExistingUniqueValue(
-      model,
-      field,
-      value,
-    );
-
-    let uniqueValue = value;
-
-    if (existingValues[value] !== undefined) {
-      let highestNumber = existingValues[value];
-      highestNumber++;
-      uniqueValue = `${value}-${highestNumber}`;
-    }
-
-    while (await model.exists({ [field]: uniqueValue })) {
-      existingValues[value]++;
-      uniqueValue = `${value}-${existingValues[value]}`;
-    }
-
-    return uniqueValue;
-  }
-
-  /**
-   * Searches for the amount of items in the DB, which field starts with the values.
-   * If the value for provided field exists it will be added to the returned record.
-   * For example if there are an items which start with "john" and "john-1", it will return that there are 2 values like this.
-   *
-   * @param model model where search for the values
-   * @param field field name
-   * @param value value to search
-   * @private
-   *
-   * @returns an record containing values which were found in DB.
-   */
-  private async getExistingUniqueValue(
-    model: Model<any>,
-    field: string,
-    value: string,
-  ): Promise<Record<string, number>> {
-    const existingItems = await model
-      .find({
-        [field]: { $regex: new RegExp(`^(${value})(-\\d+)?$`, 'i') },
-      })
-      .select(field)
-      .lean();
-
-    const valuesCounts: Record<string, number> = {};
-
-    existingItems.forEach((item) => {
-      const match = item[field].match(/^(.*?)(-(\d+))?$/);
-      if (match) {
-        const base = match[1];
-        const number = match[3] ? parseInt(match[3], 10) : 0;
-
-        if (!valuesCounts[base] || number > valuesCounts[base]) {
-          valuesCounts[base] = number;
-        }
-      }
-    });
-
-    return valuesCounts;
-  }
-
-  /**
    * Create profile with provided username.
    * Notice that if a profile with the username already exists its value will be changed to be unique
    *
@@ -190,11 +113,12 @@ export class TesterAccountService {
   private async createProfile(
     username: string,
   ): Promise<IServiceReturn<ProfileDto>> {
-    const uniqueUsername = await this.generateUniqueFieldValue(
-      this.profileModel,
-      'username',
-      username,
-    );
+    const uniqueUsername =
+      await this.uniqueFieldGenerator.generateUniqueFieldValue(
+        this.profileModel,
+        'username',
+        username,
+      );
     const profile = {
       username: uniqueUsername,
       password: uniqueUsername,
@@ -214,12 +138,12 @@ export class TesterAccountService {
    * @return created player
    */
   private async createPlayer(names: string, profile: ProfileDto) {
-    const uniqueName = await this.generateUniqueFieldValue(
+    const uniqueName = await this.uniqueFieldGenerator.generateUniqueFieldValue(
       this.playerModel,
       'name',
       names,
     );
-    const uniqueId = await this.generateUniqueFieldValue(
+    const uniqueId = await this.uniqueFieldGenerator.generateUniqueFieldValue(
       this.playerModel,
       'uniqueIdentifier',
       names,
@@ -250,7 +174,7 @@ export class TesterAccountService {
    *
    * @returns true if it is a valid _id or ServiceError:
    * - REQUIRED the player _id is not provided or an empty string
-   * - NOT_FOUND the player with this _id does not exists
+   * - NOT_FOUND the player with this _id does not exist
    */
   private async validatePlayer_id(
     player_id: string | ObjectId,
@@ -306,7 +230,7 @@ export class TesterAccountService {
    *
    * @returns true if it is a valid _id or ServiceError:
    * - REQUIRED the clan_ids _id is not provided or an empty array
-   * - NOT_FOUND some of the clans does not exists
+   * - NOT_FOUND some of the clans does not exist
    */
   private async validateClan_ids(
     clan_ids: string[] | ObjectId[],
