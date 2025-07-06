@@ -12,6 +12,10 @@ import { Status } from '../../../fleaMarket/enum/status.enum';
 import { notEnoughCoinsError } from '../../../fleaMarket/errors/notEnoughCoins.error';
 import { itemNotAvailableError } from '../../../fleaMarket/errors/itemNotAvailable.error';
 import ServiceError from '../../../common/service/basicService/ServiceError';
+import { PlayerDto } from '../../../player/dto/player.dto';
+import { ClanDto } from '../../../clan/dto/clan.dto';
+import { VotingDto } from '../../../voting/dto/voting.dto';
+import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 
 describe('FleaMarketService.handleBuyItem() test suit', () => {
   let fleaMarketService: FleaMarketService;
@@ -30,12 +34,16 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
   const itemId = 'item';
   const clanId = 'clan';
   const playerId = 'player';
-  let playerDto: any;
+
+  let playerDto: PlayerDto;
+  let fleaMarketItemDto: FleaMarketItemDto;
+  let votingDto: VotingDto;
+  let clanDto: ClanDto;
+
   const error = [];
   const serviceError: ServiceError[] = [];
-  let itemDto: any;
-  let votingDto: any;
-  let clanDto: any;
+
+  let sessionMock: any;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -44,32 +52,28 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
     votingService = await FleaMarketModule.getVotingService();
     votingQueue = await FleaMarketModule.getVotingQueue();
     clanService = await FleaMarketModule.getClanService();
-    model = fleaMarketService.model;
 
+    model = fleaMarketService.model;
     playerDto = PlayerDtoBuilder.setClanId(clanId).build();
-    itemDto = fleaMarketItemBuilder
+    fleaMarketItemDto = fleaMarketItemBuilder
       .setPrice(100)
       .setStatus(Status.AVAILABLE)
       .build();
     votingDto = votingBuilder.build();
     clanDto = ClanDtoBuilder.setGameCoins(200).build();
-  });
 
-  it('Should process buying item and add voting check job (integration, no private mocks)', async () => {
     jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
     jest
       .spyOn(fleaMarketService, 'readOneById')
-      .mockResolvedValue([itemDto, null]);
+      .mockResolvedValue([fleaMarketItemDto, null]);
     jest
       .spyOn(playerService, 'getPlayerById')
       .mockResolvedValue([playerDto, null]);
-    const addVotingCheckJob = jest
-      .spyOn(votingQueue, 'addVotingCheckJob')
-      .mockImplementation();
     jest
       .spyOn(votingService, 'startVoting')
       .mockResolvedValue([votingDto, null]);
-    const sessionMock = {
+
+    sessionMock = {
       startTransaction: jest.fn(),
       commitTransaction: jest.fn(),
       abortTransaction: jest.fn(),
@@ -82,6 +86,12 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
     jest
       .spyOn(fleaMarketService.basicService, 'updateOne')
       .mockResolvedValue([null, null]);
+  });
+
+  it('Should process buying item and add voting check job (integration, no private mocks)', async () => {
+    const addVotingCheckJob = jest
+      .spyOn(votingQueue, 'addVotingCheckJob')
+      .mockImplementation();
     jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, null]);
 
     await fleaMarketService.handleBuyItem(clanId, itemId, playerId);
@@ -95,7 +105,7 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
       expect.objectContaining({
         voting: votingDto,
         clanId,
-        price: itemDto.price,
+        price: fleaMarketItemDto.price,
         queue: expect.any(String),
       }),
     );
@@ -112,7 +122,6 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
   });
 
   it('Should throw exception if readOneById returns error', async () => {
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
     jest
       .spyOn(fleaMarketService, 'readOneById')
       .mockResolvedValue([null, error]);
@@ -125,8 +134,8 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
   });
 
   it('Should throw exception if item is not available', async () => {
-    const unavailableItem = { ...itemDto, status: Status.BOOKED };
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
+    const unavailableItem = { ...fleaMarketItemDto, status: Status.BOOKED };
+
     jest
       .spyOn(fleaMarketService, 'readOneById')
       .mockResolvedValue([unavailableItem, null]);
@@ -141,9 +150,6 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
   it('Should throw exception if clan does not have enough coins', async () => {
     const poorClan = { ...clanDto, gameCoins: 10 };
     jest.spyOn(clanService, 'readOneById').mockResolvedValue([poorClan, null]);
-    jest
-      .spyOn(fleaMarketService, 'readOneById')
-      .mockResolvedValue([itemDto, null]);
     try {
       await fleaMarketService.handleBuyItem(clanId, itemId, playerId);
       fail('Expected error was not thrown');
@@ -153,10 +159,6 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
   });
 
   it('Should throw exception if playerService.getPlayerById returns error', async () => {
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
-    jest
-      .spyOn(fleaMarketService, 'readOneById')
-      .mockResolvedValue([itemDto, null]);
     jest
       .spyOn(playerService, 'getPlayerById')
       .mockResolvedValue([null, serviceError]);
@@ -169,29 +171,9 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
   });
 
   it('Should throw if votingService.startVoting returns error (covers handleBooking branch)', async () => {
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
-    jest
-      .spyOn(fleaMarketService, 'readOneById')
-      .mockResolvedValue([itemDto, null]);
-    jest
-      .spyOn(playerService, 'getPlayerById')
-      .mockResolvedValue([playerDto, null]);
     jest
       .spyOn(votingService, 'startVoting')
       .mockResolvedValue([null, serviceError]);
-    const sessionMock = {
-      startTransaction: jest.fn(),
-      commitTransaction: jest.fn(),
-      abortTransaction: jest.fn(),
-      endSession: jest.fn(),
-    };
-    jest.spyOn(model, 'startSession').mockResolvedValue(sessionMock);
-    jest
-      .spyOn(fleaMarketService.basicService, 'updateOneById')
-      .mockResolvedValue([null, null]);
-    jest
-      .spyOn(fleaMarketService.basicService, 'updateOne')
-      .mockResolvedValue([null, null]);
     jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, null]);
 
     try {
@@ -205,26 +187,6 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
   });
 
   it('Should throw if basicService.updateOneById fails (covers changeItemStatus branch)', async () => {
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
-    jest
-      .spyOn(fleaMarketService, 'readOneById')
-      .mockResolvedValue([itemDto, null]);
-    jest
-      .spyOn(playerService, 'getPlayerById')
-      .mockResolvedValue([playerDto, null]);
-    jest
-      .spyOn(votingService, 'startVoting')
-      .mockResolvedValue([votingDto, null]);
-    const sessionMock = {
-      startTransaction: jest.fn(),
-      commitTransaction: jest.fn(),
-      abortTransaction: jest.fn(),
-      endSession: jest.fn(),
-    };
-    jest.spyOn(model, 'startSession').mockResolvedValue(sessionMock);
-    jest
-      .spyOn(fleaMarketService.basicService, 'updateOneById')
-      .mockResolvedValue([null, serviceError]);
     jest
       .spyOn(fleaMarketService.basicService, 'updateOne')
       .mockResolvedValue([true, serviceError]);
@@ -244,26 +206,7 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
     const serviceError: ServiceError[] = [
       new ServiceError({ message: 'Service error' }),
     ];
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
-    jest
-      .spyOn(fleaMarketService, 'readOneById')
-      .mockResolvedValue([itemDto, null]);
-    jest
-      .spyOn(playerService, 'getPlayerById')
-      .mockResolvedValue([playerDto, null]);
-    jest
-      .spyOn(votingService, 'startVoting')
-      .mockResolvedValue([votingDto, null]);
-    const sessionMock = {
-      startTransaction: jest.fn(),
-      commitTransaction: jest.fn(),
-      abortTransaction: jest.fn(),
-      endSession: jest.fn(),
-    };
-    jest.spyOn(model, 'startSession').mockResolvedValue(sessionMock);
-    jest
-      .spyOn(fleaMarketService.basicService, 'updateOneById')
-      .mockResolvedValue([null, null]);
+    
     jest
       .spyOn(fleaMarketService.basicService, 'updateOne')
       .mockResolvedValue([null, serviceError]);
@@ -280,29 +223,6 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
   });
 
   it('Should throw if clanService.updateOne fails (covers reserveFunds branch)', async () => {
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
-    jest
-      .spyOn(fleaMarketService, 'readOneById')
-      .mockResolvedValue([itemDto, null]);
-    jest
-      .spyOn(playerService, 'getPlayerById')
-      .mockResolvedValue([playerDto, null]);
-    jest
-      .spyOn(votingService, 'startVoting')
-      .mockResolvedValue([votingDto, null]);
-    const sessionMock = {
-      startTransaction: jest.fn(),
-      commitTransaction: jest.fn(),
-      abortTransaction: jest.fn(),
-      endSession: jest.fn(),
-    };
-    jest.spyOn(model, 'startSession').mockResolvedValue(sessionMock);
-    jest
-      .spyOn(fleaMarketService.basicService, 'updateOneById')
-      .mockResolvedValue([null, null]);
-    jest
-      .spyOn(fleaMarketService.basicService, 'updateOne')
-      .mockResolvedValue([null, null]);
     jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, error]);
 
     try {
@@ -316,29 +236,6 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
   });
 
   it('Should throw exception if addVotingCheckJob throws error', async () => {
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clanDto, null]);
-    jest
-      .spyOn(fleaMarketService, 'readOneById')
-      .mockResolvedValue([itemDto, null]);
-    jest
-      .spyOn(playerService, 'getPlayerById')
-      .mockResolvedValue([playerDto, null]);
-    jest
-      .spyOn(votingService, 'startVoting')
-      .mockResolvedValue([votingDto, null]);
-    const sessionMock = {
-      startTransaction: jest.fn(),
-      commitTransaction: jest.fn(),
-      abortTransaction: jest.fn(),
-      endSession: jest.fn(),
-    };
-    jest.spyOn(model, 'startSession').mockResolvedValue(sessionMock);
-    jest
-      .spyOn(fleaMarketService.basicService, 'updateOneById')
-      .mockResolvedValue([null, null]);
-    jest
-      .spyOn(fleaMarketService.basicService, 'updateOne')
-      .mockResolvedValue([null, null]);
     jest.spyOn(clanService, 'updateOne').mockResolvedValue([null, null]);
     jest.spyOn(votingQueue, 'addVotingCheckJob').mockImplementation(() => {
       throw serviceError;
