@@ -5,11 +5,6 @@ import { Model } from 'mongoose';
 import { GroupAdmin } from '../groupAdmin/groupAdmin.schema';
 import { Profile } from '../../profile/profile.schema';
 import { Player } from '../../player/schemas/player.schema';
-import { Clan } from '../../clan/clan.schema';
-import { SoulHome } from '../../clanInventory/soulhome/soulhome.schema';
-import { Room } from '../../clanInventory/room/room.schema';
-import { Stock } from '../../clanInventory/stock/stock.schema';
-import { Chat } from '../../chat/chat.schema';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { IServiceReturn } from '../../common/service/basicService/IService';
@@ -23,11 +18,6 @@ export class BoxHelper {
     public readonly groupAdminModel: Model<GroupAdmin>,
     @InjectModel(Profile.name) public readonly profileModel: Model<Profile>,
     @InjectModel(Player.name) public readonly playerModel: Model<Player>,
-    @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
-    @InjectModel(SoulHome.name) public readonly soulHomeModel: Model<SoulHome>,
-    @InjectModel(Room.name) public readonly roomModel: Model<Room>,
-    @InjectModel(Stock.name) public readonly stockModel: Model<Stock>,
-    @InjectModel(Chat.name) public readonly chatModel: Model<Chat>,
   ) {
     this.basicService = new BasicService(model);
   }
@@ -111,66 +101,6 @@ export class BoxHelper {
         ],
       ];
 
-    const clansInDB = await this.clanModel.find({ _id: { $in: box.clan_ids } });
-    if (clansInDB.length !== box.clan_ids.length)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            field: 'clan_ids',
-            value: box.clan_ids,
-            message: 'Some of the clans are not found',
-          }),
-        ],
-      ];
-
-    const stocksInDB = await this.stockModel.find({
-      _id: { $in: box.stock_ids },
-    });
-    if (stocksInDB.length !== box.stock_ids.length)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            field: 'stock_ids',
-            value: box.stock_ids,
-            message: 'Some of the stock_ids are not found',
-          }),
-        ],
-      ];
-
-    const soulHomesInDB = await this.soulHomeModel.find({
-      _id: { $in: box.soulHome_ids },
-    });
-    if (soulHomesInDB.length !== box.soulHome_ids.length)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            field: 'soulHome_ids',
-            value: box.soulHome_ids,
-            message: 'Some of the soulHome_ids are not found',
-          }),
-        ],
-      ];
-
-    const roomsInDB = await this.roomModel.find({ _id: { $in: box.room_ids } });
-    if (roomsInDB.length !== box.room_ids.length)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            field: 'room_ids',
-            value: box.room_ids,
-            message: 'Some of the room_ids are not found',
-          }),
-        ],
-      ];
-
     if (box.testers && box.testers.length > 0) {
       const testerProfiles = box.testers.map((tester) => tester.profile_id);
       const testerProfilesInDB = await this.profileModel.find({
@@ -206,20 +136,6 @@ export class BoxHelper {
           ],
         ];
     }
-
-    const chatInDB = await this.chatModel.findById(box.chat_id);
-    if (!chatInDB)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            field: 'chat_id',
-            value: box.chat_id,
-            message: 'Chat is not found',
-          }),
-        ],
-      ];
 
     return [true, null];
   }

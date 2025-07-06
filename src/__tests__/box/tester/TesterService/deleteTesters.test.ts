@@ -72,7 +72,6 @@ describe('TesterService.deleteTesters() test suite', () => {
       .setAdminPlayerId(new ObjectId())
       .setAdminProfileId(new ObjectId())
       .setClanIds([boxClan1._id as any, boxClan2._id as any])
-      .setChatId(new ObjectId())
       .setTesters([tester1, tester2, tester3, tester4, tester5])
       .build();
     const boxResp = await boxModel.create(existingBox);

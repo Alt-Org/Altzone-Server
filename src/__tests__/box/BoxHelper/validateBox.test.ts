@@ -12,8 +12,6 @@ import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryB
 import SoulhomeModule from '../../clanInventory/modules/soulhome.module';
 import RoomModule from '../../clanInventory/modules/room.module';
 import StockModule from '../../clanInventory/modules/stock.module';
-import ChatBuilderFactory from '../../chat/data/chatBuilderFactory';
-import ChatModule from '../../chat/modules/chat.module';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 import { envVars } from '../../../common/service/envHandler/envVars';
 import { Environment } from '../../../common/service/envHandler/enum/environment.enum';
@@ -73,10 +71,6 @@ describe('BoxService.createOne() test suite', () => {
   const existingStock2 = stockBuilder.build();
   const stockModel = StockModule.getStockModel();
 
-  const chatBuilder = ChatBuilderFactory.getBuilder('Chat');
-  const existingChat = chatBuilder.build();
-  const chatModel = ChatModule.getChatModel();
-
   beforeEach(async () => {
     boxService = await BoxModule.getBoxHelper();
 
@@ -134,9 +128,6 @@ describe('BoxService.createOne() test suite', () => {
     const existingStockResp2 = await stockModel.create(existingStock2);
     existingStock2._id = existingStockResp2._id;
 
-    const existingChatResp = await chatModel.create(existingChat);
-    existingChat._id = existingChatResp._id;
-
     validBox = boxBuilder
       .setAdminPassword(existingAdmin.password)
       .setAdminPlayerId(new ObjectId(adminPlayer._id))
@@ -171,7 +162,6 @@ describe('BoxService.createOne() test suite', () => {
         new ObjectId(existingStock1._id),
         new ObjectId(existingStock2._id),
       ])
-      .setChatId(new ObjectId(existingChat._id))
       .build();
   });
 
@@ -207,16 +197,6 @@ describe('BoxService.createOne() test suite', () => {
     expect(errors).toContainSE_NOT_FOUND();
   });
 
-  it('Should return ServiceError with reason NOT_FOUND, if any of the provided clans does not exists', async () => {
-    const [result, errors] = await boxService.validateBox({
-      ...validBox,
-      clan_ids: [...validBox.clan_ids, new ObjectId(getNonExisting_id())],
-    });
-
-    expect(result).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-  });
-
   it('Should return ServiceError with reason NOT_FOUND, if any of the provided testers does not exists', async () => {
     const nonExistingTester = {
       profile_id: new ObjectId(getNonExisting_id()),
@@ -246,46 +226,6 @@ describe('BoxService.createOne() test suite', () => {
     const [result, errors] = await boxService.validateBox({
       ...validBox,
       adminPlayer_id: new ObjectId(getNonExisting_id()),
-    });
-
-    expect(result).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-  });
-
-  it('Should return ServiceError with reason NOT_FOUND, if the provided chat does not exists', async () => {
-    const [result, errors] = await boxService.validateBox({
-      ...validBox,
-      chat_id: new ObjectId(getNonExisting_id()),
-    });
-
-    expect(result).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-  });
-
-  it('Should return ServiceError with reason NOT_FOUND, if any of the provided stocks does not exists', async () => {
-    const [result, errors] = await boxService.validateBox({
-      ...validBox,
-      stock_ids: [new ObjectId(getNonExisting_id())],
-    });
-
-    expect(result).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-  });
-
-  it('Should return ServiceError with reason NOT_FOUND, if any of the provided soul homes does not exists', async () => {
-    const [result, errors] = await boxService.validateBox({
-      ...validBox,
-      soulHome_ids: [new ObjectId(getNonExisting_id())],
-    });
-
-    expect(result).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-  });
-
-  it('Should return ServiceError with reason NOT_FOUND, if any of the provided rooms does not exists', async () => {
-    const [result, errors] = await boxService.validateBox({
-      ...validBox,
-      room_ids: [new ObjectId(getNonExisting_id())],
     });
 
     expect(result).toBeNull();

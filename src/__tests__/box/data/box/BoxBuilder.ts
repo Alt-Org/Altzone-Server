@@ -17,7 +17,6 @@ export default class BoxBuilder {
     soulHome_ids: [],
     room_ids: [],
     stock_ids: [],
-    chat_id: undefined,
     testers: [],
     accountClaimersIds: [],
     dailyTasks: [],
@@ -80,11 +79,6 @@ export default class BoxBuilder {
 
   setStockIds(stockIds: ObjectId[]) {
     this.base.stock_ids = stockIds;
-    return this;
-  }
-
-  setChatId(chatId: ObjectId) {
-    this.base.chat_id = chatId;
     return this;
   }
 

@@ -24,7 +24,7 @@ export enum ModelName {
   ITEM = 'Item',
   STOCK = 'Stock',
   PROFILE = 'Profile',
-  CHAT = 'Chat',
+  CHAT_MESSAGE = 'ChatMessage',
   JOIN = 'Join',
   ROOM = 'Room',
   SOULHOME = 'SoulHome',

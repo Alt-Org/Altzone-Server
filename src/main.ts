@@ -9,12 +9,16 @@ import cookieParser from 'cookie-parser';
 import SwaggerInitializer from './common/swagger/swaggerInitializer';
 import { envVars } from './common/service/envHandler/envVars';
 import basicAuth from 'express-basic-auth';
+import { JwtWsAdapter } from './chat/ws.adapter';
+import * as http from 'http';
 
 async function bootstrap() {
   // Validate that all environment variables are added to the .env file
   new EnvHandler().validateAllEnvFound();
 
   const app = await NestFactory.create(AppModule);
+  const server = http.createServer(app.getHttpAdapter().getInstance());
+  app.useWebSocketAdapter(new JwtWsAdapter(app, server));
 
   app.use(cookieParser());
 
@@ -39,7 +43,8 @@ async function bootstrap() {
   );
   SwaggerInitializer.initSwaggerFromDecorators(app);
 
-  await app.listen(8080);
+  await app.init();
+  server.listen(8080);
 }
 
 bootstrap();

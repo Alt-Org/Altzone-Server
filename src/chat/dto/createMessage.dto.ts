@@ -1,23 +1,34 @@
-import { IsInt, IsString } from 'class-validator';
-import AddType from '../../common/base/decorator/AddType.decorator';
+import {
+  IsEnum,
+  IsMongoId,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
+import { ChatType } from '../enum/chatMessageType.enum';
+import { Feeling } from '../enum/feeling.enum';
+import { ObjectId } from 'mongodb';
 
-@AddType('CreateMessageDto')
-export class CreateMessageDto {
+export class CreateChatMessageDto {
+  constructor(partial: Partial<CreateChatMessageDto>) {
+    Object.assign(this, partial);
+  }
   /**
-   * Unique numeric message ID within the chat
+   * Specifies the type of the chat message.
    *
-   * @example 101
+   * @example "clan"
    */
-  @IsInt()
-  id: number;
+  @IsEnum(ChatType)
+  type: ChatType;
 
   /**
-   * Username of the player sending the message
+   * ID of the message sender
    *
-   * @example "ShadowKnight"
+   * @example "60f7c2d9a2d3c7b7e56d01df"
    */
-  @IsString()
-  senderUsername: string;
+  @IsMongoId()
+  sender_id: string | ObjectId;
 
   /**
    * Text content of the message
@@ -25,13 +36,37 @@ export class CreateMessageDto {
    * @example "Let’s meet at Soul Arena!"
    */
   @IsString()
+  @IsNotEmpty()
   content: string;
 
   /**
-   * Numeric code representing the emotion or tone (e.g., happy, angry)
+   * ID of the clan.
+   * Required when the message type is 'clan'.
    *
-   * @example 3
+   * @example "60d21b4667d0d8992e610c85"
    */
-  @IsInt()
-  feeling: number;
+  @ValidateIf((o) => o.type === ChatType.CLAN)
+  @IsNotEmpty({ message: 'clan_id must be provided for clan messages' })
+  @IsMongoId()
+  clan_id?: string;
+
+  /**
+   * ID of the recipient.
+   * Required when the message type is 'private'.
+   *
+   * @example "60d21b4667d0d8992e610c85"
+   */
+  @ValidateIf((o) => o.type === ChatType.PRIVATE)
+  @IsNotEmpty({ message: 'recipient_id must be provided for private messages' })
+  @IsMongoId()
+  recipient_id?: string;
+
+  /**
+   * Feeling of the message.
+   *
+   * @example "Happy"
+   */
+  @IsEnum(Feeling)
+  @IsOptional()
+  feeling?: Feeling;
 }

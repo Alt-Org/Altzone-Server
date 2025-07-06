@@ -95,6 +95,9 @@ interface EnvVars {
 
   /** The password for the Mosquitto publisher. */
   MOSQUITTO_PUBLISHER_PASSWORD: string;
+
+  /** The required minimum version for the game client to function correctly */
+  MIN_GAME_BUILD_VERSION: string;
 }
 
 /**
@@ -135,4 +138,5 @@ export const envVars: EnvVars = {
   MOSQUITTO_SUBSCRIBER_PASSWORD: process.env.MOSQUITTO_SUBSCRIBER_PASSWORD,
   MOSQUITTO_PUBLISHER: process.env.MOSQUITTO_PUBLISHER,
   MOSQUITTO_PUBLISHER_PASSWORD: process.env.MOSQUITTO_PUBLISHER_PASSWORD,
+  MIN_GAME_BUILD_VERSION: process.env.MIN_GAME_BUILD_VERSION,
 };

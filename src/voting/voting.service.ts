@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { CreateVotingDto } from './dto/createVoting.dto';
 import { VoteChoice } from './enum/choiceType.enum';
@@ -16,6 +16,7 @@ import { Vote } from './schemas/vote.schema';
 import { ModelName } from '../common/enum/modelName.enum';
 import { addVoteError } from './error/addVote.error';
 import { VotingQueue } from './voting.queue';
+import { TIServiceCreateOneOptions } from '../common/service/basicService/IService';
 
 @Injectable()
 export class VotingService {
@@ -36,8 +37,14 @@ export class VotingService {
    * @param voting - The data transfer object containing the details of the voting to be created.
    * @returns A promise that resolves to the created voting entity.
    */
-  async createOne(voting: CreateVotingDto) {
-    return this.basicService.createOne<CreateVotingDto, VotingDto>(voting);
+  async createOne(
+    voting: CreateVotingDto,
+    options?: TIServiceCreateOneOptions,
+  ) {
+    return this.basicService.createOne<CreateVotingDto, VotingDto>(
+      voting,
+      options,
+    );
   }
 
   /**
@@ -54,6 +61,7 @@ export class VotingService {
    */
   async startVoting(
     params: StartVotingParams,
+    session?: ClientSession,
   ): Promise<[VotingDto, ServiceError[]]> {
     const {
       voterPlayer,
@@ -84,7 +92,7 @@ export class VotingService {
 
     newVoting.votes = [newVote];
 
-    const [voting, errors] = await this.createOne(newVoting);
+    const [voting, errors] = await this.createOne(newVoting, { session });
     if (errors) return [null, errors];
 
     this.notifier.newVoting(voting, shopItem ?? fleaMarketItem, voterPlayer);

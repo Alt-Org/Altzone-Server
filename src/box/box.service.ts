@@ -21,7 +21,7 @@ import { Room } from '../clanInventory/room/room.schema';
 import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { BoxHelper } from './util/boxHelper';
 import { ClanService } from '../clan/clan.service';
-import { ChatService } from '../chat/chat.service';
+import { ChatService } from '../chat/service/chat.service';
 import { ProfileService } from '../profile/profile.service';
 import {
   IServiceReturn,
@@ -186,7 +186,7 @@ export class BoxService {
    * @returns created box on success or ServiceErrors:
    *
    * - REQUIRED if the provided input is null or undefined
-   * - NOT_FOUND if any of the resources not found: profiles, players, clans, soul homes, stocks, rooms, chat
+   * - NOT_FOUND if any of the resources not found: profiles, players
    * - NOT_UNIQUE if a box with provided admin password already exists
    * - validation errors if input is invalid
    */
@@ -298,16 +298,6 @@ export class BoxService {
       }
     }
 
-    if (boxData.chat_id) {
-      const resp = await this.chatService.deleteOneById(
-        boxData.chat_id.toString(),
-      );
-      if (resp instanceof MongooseError) {
-        const deleteError = convertMongooseToServiceErrors(resp);
-        await cancelTransaction(session, deleteError);
-      }
-    }
-
     if (boxData.adminProfile_id) {
       const resp = await this.profilesService.deleteOneById(
         boxData.adminProfile_id.toString(),
@@ -346,18 +336,13 @@ export class BoxService {
    */
   async getBoxResetData(boxId: string) {
     const [box, error] = await this.readOneById(boxId, {
-      includeRefs: [
-        BoxReference.CLANS,
-        BoxReference.ADMIN_PLAYER,
-      ] as string[] as ModelName[],
+      includeRefs: [BoxReference.ADMIN_PLAYER] as string[] as ModelName[],
     });
     if (error) throw error;
 
     const boxToCreate = new CreateBoxDto();
     boxToCreate.adminPassword = box.adminPassword;
     boxToCreate.playerName = box['AdminPlayer']['name'];
-    const clans = box['Clans'];
-    if (clans) boxToCreate.clanNames = [clans[0]['name'], clans[1]['name']];
 
     return boxToCreate;
   }
@@ -374,15 +359,16 @@ export class BoxService {
     session.startTransaction();
 
     const [box, boxError] = await this.readOneById(boxId);
-    if (boxError) await cancelTransaction(session, boxError);
+    if (boxError) return await cancelTransaction(session, boxError);
 
     const [, deleteBoxError] = await this.deleteOneById(boxId);
-    if (deleteBoxError) await cancelTransaction(session, deleteBoxError);
+    if (deleteBoxError) return await cancelTransaction(session, deleteBoxError);
 
     const [, adminDeleteError] = await this.adminBasicService.deleteOne({
       filter: { password: box.adminPassword },
     });
-    if (adminDeleteError) await cancelTransaction(session, adminDeleteError);
+    if (adminDeleteError)
+      return await cancelTransaction(session, adminDeleteError);
 
     session.commitTransaction();
     session.endSession();
