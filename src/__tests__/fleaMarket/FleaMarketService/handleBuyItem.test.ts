@@ -79,7 +79,7 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
       .mockResolvedValue([votingDto, null]);
 
     sessionMock = createMockSession(model);
-    
+
     jest.spyOn(basicService, 'updateOneById').mockResolvedValue([null, null]);
     jest.spyOn(basicService, 'updateOne').mockResolvedValue([null, null]);
   });
