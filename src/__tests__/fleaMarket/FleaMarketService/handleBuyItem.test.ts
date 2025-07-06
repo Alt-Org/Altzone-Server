@@ -56,7 +56,7 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
     votingQueue = await FleaMarketModule.getVotingQueue();
     clanService = await FleaMarketModule.getClanService();
     basicService = fleaMarketService.basicService;
-    
+
     model = fleaMarketService.model;
     playerDto = PlayerDtoBuilder.setClanId(clanId).build();
     fleaMarketItemDto = fleaMarketItemBuilder
@@ -84,12 +84,8 @@ describe('FleaMarketService.handleBuyItem() test suit', () => {
       endSession: jest.fn(),
     };
     jest.spyOn(model, 'startSession').mockResolvedValue(sessionMock);
-    jest
-      .spyOn(basicService, 'updateOneById')
-      .mockResolvedValue([null, null]);
-    jest
-      .spyOn(basicService, 'updateOne')
-      .mockResolvedValue([null, null]);
+    jest.spyOn(basicService, 'updateOneById').mockResolvedValue([null, null]);
+    jest.spyOn(basicService, 'updateOne').mockResolvedValue([null, null]);
   });
 
   it('Should process buying item and add voting check job', async () => {
