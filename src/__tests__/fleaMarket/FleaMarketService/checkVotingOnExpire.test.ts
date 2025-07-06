@@ -384,7 +384,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
   it('Should throw exception if voting type is unknown', async () => {
     params.voting.type = -1;
-    
+
     jest.spyOn(votingService, 'checkVotingSuccess').mockResolvedValue(true);
 
     try {
