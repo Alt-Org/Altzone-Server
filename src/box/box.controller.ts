@@ -174,6 +174,29 @@ export class BoxController {
   }
 
   /**
+   * Get all boxes by. For time of development only
+   *
+   * @remarks Endpoint for getting box data by its _id
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: BoxDto,
+      modelName: ModelName.BOX,
+      returnsArray: true,
+    },
+    errors: [404],
+    hasAuth: false,
+  })
+  //For time of development only
+  @NoAuth()
+  @Get('/')
+  @NoAuth()
+  @UniformResponse(ModelName.BOX)
+  public getAll() {
+    return this.service.readAll();
+  }
+
+  /**
    * Delete box by _id
    *
    * @remarks Endpoint for deleting a box by _id
