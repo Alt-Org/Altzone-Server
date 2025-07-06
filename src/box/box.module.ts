@@ -29,6 +29,7 @@ import { BoxScheduler } from './box.scheduler';
 import { AccountClaimerController } from './accountClaimer/accountClaimer.controller';
 import AccountClaimerService from './accountClaimer/accountClaimer.service';
 import { TesterAccountService } from './accountClaimer/testerAccount.service';
+import UniqueFieldGenerator from './util/UniqueFieldGenerator';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { TesterAccountService } from './accountClaimer/testerAccount.service';
     SessionStarterService,
     AccountClaimerService,
     TesterAccountService,
+    UniqueFieldGenerator,
   ],
   exports: [BoxService, GroupAdminGuard],
 })

@@ -14,7 +14,7 @@ export default class BoxBuilder {
     adminPlayer_id: undefined,
     clan_ids: [],
     testersAmount: 0,
-    testersAccountsClaimed: 0,
+    testerAccountsClaimed: 0,
     soulHome_ids: [],
     room_ids: [],
     stock_ids: [],
@@ -72,8 +72,8 @@ export default class BoxBuilder {
     return this;
   }
 
-  setTestersAccountsClaimed(testersAccountsClaimed: number) {
-    this.base.testersAccountsClaimed = testersAccountsClaimed;
+  setTesterAccountsClaimed(testerAccountsClaimed: number) {
+    this.base.testerAccountsClaimed = testerAccountsClaimed;
     return this;
   }
 

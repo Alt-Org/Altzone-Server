@@ -86,7 +86,7 @@ export class Box {
    * Amount of tester accounts claimed
    */
   @Prop({ type: Number, default: 0 })
-  testersAccountsClaimed: number;
+  testerAccountsClaimed: number;
 
   /**
    * All soul homes' _ids that are related to the box
