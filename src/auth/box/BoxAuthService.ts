@@ -55,7 +55,6 @@ export default class BoxAuthService extends AuthService {
       profile_id: profile._id,
     });
 
-    //TODO: throw meaningful errors, i.e. !player => no player found for that profile
     if (
       playerResp instanceof MongooseError ||
       !playerResp ||
@@ -70,11 +69,24 @@ export default class BoxAuthService extends AuthService {
       clan_id: playerResp.clan_id?.toString(),
     };
 
+    let box_id: string,
+      groupAdmin = false;
     const box = await this.boxModel.findOne({
       adminProfile_id: new ObjectId(profile._id),
     });
-    const box_id = box._id.toString();
-    const groupAdmin = true;
+
+    //TODO: add logic for determining box _id based on the player or profile collection box_id field, when this field is added to every schema
+    if (!box) {
+      const boxWithTester = await this.boxModel.findOne({
+        'testers.profile_id': new ObjectId(profile._id),
+      });
+      if (!boxWithTester) return null;
+
+      box_id = boxWithTester.id.toString();
+    } else {
+      box_id = box._id.toString();
+      groupAdmin = true;
+    }
 
     const payload = {
       profile_id: profile._id,

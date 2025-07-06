@@ -32,9 +32,9 @@ export default class AccountClaimerService {
    * @param password shared password for the claiming account in a box.
    *
    * @returns Claimed account data, as well as an access token, or ServiceErrors:
-   * REQUIRED - if the password is not provided
-   * NOT_FOUND - if there are no box with this password
-   * NOT_ALLOWED - if there are no places left (testersAmount < testersAccountsClaimed)
+   * - REQUIRED - if the password is not provided
+   * - NOT_FOUND - if there are no box with this password
+   * - NOT_AUTHORIZED - if there are no places left (testersAmount < testersAccountsClaimed)
    */
   async claimAccount(
     password: string,
@@ -55,7 +55,7 @@ export default class AccountClaimerService {
         null,
         [
           new ServiceError({
-            reason: SEReason.NOT_ALLOWED,
+            reason: SEReason.NOT_AUTHORIZED,
             field: 'testersAmount',
             value: box.testersAmount,
             message:

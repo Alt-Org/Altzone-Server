@@ -112,7 +112,7 @@ describe('AccountClaimerService.claimAccount() test suite', () => {
     const [account, errors] = await service.claimAccount(boxPassword);
 
     expect(account).toBeNull();
-    expect(errors).toContainSE_NOT_ALLOWED();
+    expect(errors).toContainSE_NOT_AUTHORIZED();
   });
 
   it('Should return ServiceError NOT_ALLOWED if testerAccountsClaimed is more than testersAmount', async () => {
@@ -124,7 +124,7 @@ describe('AccountClaimerService.claimAccount() test suite', () => {
     const [account, errors] = await service.claimAccount(boxPassword);
 
     expect(account).toBeNull();
-    expect(errors).toContainSE_NOT_ALLOWED();
+    expect(errors).toContainSE_NOT_AUTHORIZED();
   });
 
   it('Should return ServiceError NOT_ALLOWED if the testersAmount is equal to 0', async () => {
@@ -136,7 +136,7 @@ describe('AccountClaimerService.claimAccount() test suite', () => {
     const [account, errors] = await service.claimAccount(boxPassword);
 
     expect(account).toBeNull();
-    expect(errors).toContainSE_NOT_ALLOWED();
+    expect(errors).toContainSE_NOT_AUTHORIZED();
   });
 
   it('Should not return ServiceError NOT_ALLOWED if there are one last place left in the box', async () => {
@@ -148,7 +148,7 @@ describe('AccountClaimerService.claimAccount() test suite', () => {
     const [account, errors] = await service.claimAccount(boxPassword);
 
     expect(account).not.toBeNull();
-    expect(errors).not.toContainSE_NOT_ALLOWED();
+    expect(errors).not.toContainSE_NOT_AUTHORIZED();
   });
 
   it('Should not create profile and player for tester if there are no place left in the box', async () => {
