@@ -1,10 +1,12 @@
 import { ObjectId } from 'mongodb';
 import VotingBuilderFactory from '../../voting/data/VotingBuilderFactory';
 import FleaMarketModule from '../modules/fleaMarketModule';
+import { FleaMarketVotingProcessor } from '../../../fleaMarket/fleaMarketVoting.processor';
+import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
 
 describe('FleaMarketVotingProcessor.process() test suite', () => {
-  let fleaMarketVotingProcessor;
-  let fleaMarketService;
+  let fleaMarketVotingProcessor: FleaMarketVotingProcessor;
+  let fleaMarketService: FleaMarketService;
 
   const votingBuilder = VotingBuilderFactory.getBuilder('VotingDto');
 

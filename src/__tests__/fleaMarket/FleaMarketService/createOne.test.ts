@@ -1,8 +1,9 @@
 import FleaMarketBuilderFactory from '../data/fleaMarketBuilderFactory';
 import FleaMarketModule from '../modules/fleaMarketModule';
+import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
 
 describe('FleaMarketService.createOne() test suite', () => {
-  let fleaMarketService;
+  let fleaMarketService: FleaMarketService;
   const fleaMarketItemModel = FleaMarketModule.getFleaMarketItemModel();
   const fleaMarketItemCreateBuilder = FleaMarketBuilderFactory.getBuilder(
     'CreateFleaMarketItemDto',

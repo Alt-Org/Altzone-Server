@@ -5,15 +5,17 @@ import { ModelName } from '../../../common/enum/modelName.enum';
 import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 import ClanModule from '../../clan/modules/clan.module';
 import { Clan } from '../../../clan/clan.schema';
+import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
+import { FleaMarketItem } from '../../../fleaMarket/fleaMarketItem.schema';
 
 describe('FleaMarketService.readOneById() test suite', () => {
-  let fleaMarketService;
+  let fleaMarketService: FleaMarketService;
   const existingClanName = 'clan1';
   let existingClan: Clan;
 
   const unityKey = 'fleaMarket';
   const price = 10;
-  let fleaMarket;
+  let fleaMarket: FleaMarketItem;
 
   const fleaMarketItemModel = FleaMarketModule.getFleaMarketItemModel();
   const fleaMarketItemBuilder =
@@ -37,7 +39,7 @@ describe('FleaMarketService.readOneById() test suite', () => {
     const fleaMarketItem = await fleaMarketItemModel.create(fleaMarket);
 
     const [flMarket, errors] = await fleaMarketService.readOneById(
-      fleaMarketItem._id,
+      fleaMarketItem._id.toString(),
     );
 
     expect(errors).toBeNull();
@@ -50,7 +52,7 @@ describe('FleaMarketService.readOneById() test suite', () => {
     const fleaMarketItem = await fleaMarketItemModel.create(fleaMarket);
 
     const [flMarket, errors] = await fleaMarketService.readOneById(
-      fleaMarketItem._id,
+      fleaMarketItem._id.toString(),
       {
         select: ['_id', 'price'],
       },
@@ -79,16 +81,15 @@ describe('FleaMarketService.readOneById() test suite', () => {
     const fleaMarketItem = await fleaMarketItemModel.create(fleaMarket);
 
     const [flMarket, errors] = await fleaMarketService.readOneById(
-      fleaMarketItem._id,
+      fleaMarketItem._id.toString(),
       {
         includeRefs: [ModelName.CLAN],
       },
     );
 
-    expect(errors).toBeNull();
+    const refClan = (flMarket as any).Clan;
 
-    const refClan =
-      (flMarket.Clan as any)?.toObject?.() ?? flMarket.Clan?.toObject?.();
+    expect(errors).toBeNull();
     expect(refClan).toBeDefined();
     expect(refClan.name).toBe(existingClan.name);
     expect(refClan.playerCount).toBe(existingClan.playerCount);
@@ -99,7 +100,7 @@ describe('FleaMarketService.readOneById() test suite', () => {
 
     const nonExistingReferences: any = ['non-existing'];
     const [clan, errors] = await fleaMarketService.readOneById(
-      fleaMarketItem._id,
+      fleaMarketItem._id.toString(),
       {
         includeRefs: nonExistingReferences,
       },

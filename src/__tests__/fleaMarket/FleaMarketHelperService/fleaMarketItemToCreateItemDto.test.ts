@@ -1,9 +1,10 @@
 import { ObjectId } from 'mongodb';
 import FleaMarketModule from '../modules/fleaMarketModule';
 import FleaMarketBuilderFactory from '../data/fleaMarketBuilderFactory';
+import { FleaMarketHelperService } from '../../../fleaMarket/fleaMarketHelper.service';
 
 describe('FleaMarketHelperService.fleaMarketItemToCreateItemDto() test suite', () => {
-  let fleaMarketHelperService;
+  let fleaMarketHelperService: FleaMarketHelperService;
   const fleaMarketItemCreateBuilder =
     FleaMarketBuilderFactory.getBuilder('FleaMarketItem');
 
@@ -12,7 +13,7 @@ describe('FleaMarketHelperService.fleaMarketItemToCreateItemDto() test suite', (
       await FleaMarketModule.getFleaMarketHelperService();
   });
 
-  it('Should return with a  CreateItemDto object if input is valid', async () => {
+  it('Should return with a  CreateItemDto object if input is valid', () => {
     const unityKey = 'fleaMarket';
     const fleaMarketItem = fleaMarketItemCreateBuilder
       .setUnityKey(unityKey)
@@ -20,7 +21,7 @@ describe('FleaMarketHelperService.fleaMarketItemToCreateItemDto() test suite', (
 
     const stockId = new ObjectId().toString();
 
-    const ret = await fleaMarketHelperService.fleaMarketItemToCreateItemDto(
+    const ret = fleaMarketHelperService.fleaMarketItemToCreateItemDto(
       fleaMarketItem,
       stockId,
     );

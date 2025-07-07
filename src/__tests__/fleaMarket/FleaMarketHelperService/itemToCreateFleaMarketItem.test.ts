@@ -1,9 +1,10 @@
 import { ObjectId } from 'mongodb';
 import FleaMarketModule from '../modules/fleaMarketModule';
 import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryBuilderFactory';
+import { FleaMarketHelperService } from '../../../fleaMarket/fleaMarketHelper.service';
 
 describe('FleaMarketHelperService.itemToCreateFleaMarketItem() test suite', () => {
-  let fleaMarketHelperService;
+  let fleaMarketHelperService: FleaMarketHelperService;
   const ItemDtoBuilder = ClanInventoryBuilderFactory.getBuilder('ItemDto');
 
   beforeEach(async () => {
