@@ -2,7 +2,6 @@ import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
 import FleaMarketModule from '../modules/fleaMarketModule';
 import { ItemService } from '../../../clanInventory/item/item.service';
 import { PlayerService } from '../../../player/player.service';
-import { FleaMarketHelperService } from '../../../fleaMarket/FleaMarketHelper.service';
 import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryBuilderFactory';
 import FleaMarketBuilderFactory from '../data/fleaMarketBuilderFactory';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
@@ -13,6 +12,7 @@ import { ItemName } from '../../../clanInventory/item/enum/itemName.enum';
 import createMockSession from '../../common/MongooseSession/CreateMockSession';
 import { Model } from 'mongoose';
 import { FleaMarketItem } from '../../../fleaMarket/fleaMarketItem.schema';
+import { FleaMarketHelperService } from '../../../fleaMarket/fleaMarketHelper.service';
 
 describe('FleaMarketService.handleSellItem() test suit', () => {
   let fleaMarketService: FleaMarketService;
