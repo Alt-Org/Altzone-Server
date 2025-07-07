@@ -4,6 +4,7 @@ import VotingCommonModule from './votingCommon.module';
 import { VotingService } from '../../../voting/voting.service';
 import { VotingSchema } from '../../../voting/schemas/voting.schema';
 import VotingNotifier from '../../../voting/voting.notifier';
+import { VotingQueue } from './../../../voting/voting.queue';
 
 export default class VotingModule {
   private constructor() {}
@@ -16,6 +17,11 @@ export default class VotingModule {
   static async getVotingNotifier() {
     const module = await VotingCommonModule.getModule();
     return await module.resolve(VotingNotifier);
+  }
+
+  static async getVotingQueue() {
+    const module = await VotingCommonModule.getModule();
+    return await module.resolve(VotingQueue);
   }
 
   static getVotingModel() {

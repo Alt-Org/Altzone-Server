@@ -1,0 +1,74 @@
+import { ItemDto } from '../../../../clanInventory/item/dto/item.dto';
+import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
+import { Rarity } from '../../../../clanInventory/item/enum/rarity.enum';
+import { Recycling } from '../../../../clanInventory/item/enum/recycling.enum';
+import { ObjectId } from 'mongodb';
+
+export default class ItemDtoBuilder {
+  private readonly base: Partial<ItemDto> = {
+    name: ItemName.ARMCHAIR_RAKKAUS,
+    weight: 1,
+    recycling: Recycling.GLASS,
+    rarity: Rarity.common,
+    unityKey: 'defaultUnityKey',
+    location: [0, 0],
+    price: 10,
+    isFurniture: false,
+    stock_id: null,
+    room_id: null,
+  };
+
+  build() {
+    return { ...this.base } as ItemDto;
+  }
+
+  setName(name: ItemName) {
+    this.base.name = name;
+    return this;
+  }
+
+  setWeight(weight: number) {
+    this.base.weight = weight;
+    return this;
+  }
+
+  setRecycling(recycling: Recycling) {
+    this.base.recycling = recycling;
+    return this;
+  }
+
+  setRarityLevel(rarity: Rarity) {
+    this.base.rarity = rarity;
+    return this;
+  }
+
+  setUnityKey(unityKey: string) {
+    this.base.unityKey = unityKey;
+    return this;
+  }
+
+  setLocation(location: Array<number>) {
+    this.base.location = location;
+    return this;
+  }
+
+  setPrice(price: number) {
+    this.base.price = price;
+    return this;
+  }
+
+  setIsFurniture(isFurniture: boolean) {
+    this.base.isFurniture = isFurniture;
+    return this;
+  }
+
+  setStockId(stockId: string) {
+    this.base.stock_id = stockId;
+    return this;
+  }
+
+  setRoomId(roomId: string | ObjectId) {
+    this.base.room_id = roomId as any;
+    return this;
+  }
+}
