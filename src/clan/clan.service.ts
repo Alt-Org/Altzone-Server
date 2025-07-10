@@ -24,12 +24,14 @@ import { StockService } from '../clanInventory/stock/stock.service';
 import { SoulHomeService } from '../clanInventory/soulhome/soulhome.service';
 import GameEventEmitter from '../gameEventsEmitter/gameEventEmitter';
 import { LeaderClanRole } from './role/initializationClanRoles';
+import { PasswordGenerator } from 'src/common/function/passwordGenerator';
 
 @Injectable()
 export class ClanService {
   public constructor(
     @InjectModel(Clan.name) public readonly model: Model<Clan>,
     @InjectModel(Player.name) public readonly playerModel: Model<Player>,
+    private readonly passwordGenerator: PasswordGenerator,
     private readonly stockService: StockService,
     private readonly soulhomeService: SoulHomeService,
     private readonly clanHelperService: ClanHelperService,
@@ -54,6 +56,10 @@ export class ClanService {
     clanToCreate: CreateClanDto,
     player_id: string,
   ): Promise<IServiceReturn<ClanDto>> {
+    if (!clanToCreate.isOpen && !clanToCreate.password) {
+      clanToCreate.password = this.passwordGenerator.generatePassword('fi');
+    }
+
     const clanWithAdmin = { ...clanToCreate, admin_ids: [player_id] };
     const [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>(
       clanWithAdmin,
