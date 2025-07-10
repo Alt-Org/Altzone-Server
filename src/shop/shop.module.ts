@@ -12,6 +12,7 @@ import { GameEventsEmitterModule } from '../gameEventsEmitter/gameEventsEmitter.
 import ClanHelperService from '../clan/utils/clanHelper.service';
 import { ClanCoinsService } from './buy/clanCoins.service';
 import { ClanService } from '../clan/clan.service';
+import { PasswordGenerator } from '../common/function/passwordGenerator';
 
 @Module({
   imports: [
@@ -26,7 +27,12 @@ import { ClanService } from '../clan/clan.service';
     GameEventsEmitterModule,
   ],
   controllers: [ClanCoinsController],
-  providers: [ClanService, ClanCoinsService, ClanHelperService],
+  providers: [
+    ClanService,
+    ClanCoinsService,
+    ClanHelperService,
+    PasswordGenerator,
+  ],
   exports: [],
 })
 export class ShopModule {}
