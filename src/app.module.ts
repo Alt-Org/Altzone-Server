@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 import { ClanModule } from './clan/clan.module';
 import { PlayerModule } from './player/player.module';
 import { RequestHelperModule } from './requestHelper/requestHelper.module';
@@ -32,6 +32,8 @@ import { OnlinePlayersModule } from './onlinePlayers/onlinePlayers.module';
 import { ClanShopModule } from './clanShop/clanShop.module';
 import { ShopModule } from './shop/shop.module';
 import { MetadataModule } from './metadata/metadata.module';
+import mongoose from 'mongoose';
+import { addBoxIdToSchemaPlugin } from './common/plugin/addBoxIdToSchema.plugin';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -50,7 +52,18 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    MongooseModule.forRoot(mongoString, { dbName: dbName }),
+    // MongooseModule.forRoot(mongoString, { dbName: dbName }),
+    MongooseModule.forRootAsync({
+      useFactory: async (): Promise<MongooseModuleOptions> => {
+        if (envVars.ENVIRONMENT === 'TESTING_SESSION')
+          mongoose.plugin(addBoxIdToSchemaPlugin);
+
+        return {
+          uri: mongoString,
+          dbName,
+        };
+      },
+    }),
     BullModule.forRoot({
       connection: {
         host: redisHost,
