@@ -24,6 +24,7 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
     points: 0,
     gameCoins: 0,
     isOpen: true,
+    password: undefined,
     ageRange: AgeRange.ADULTS,
     goal: Goal.GRINDAUS,
     phrase: 'We are the best',
@@ -89,6 +90,11 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
 
   setIsOpen(isOpen: boolean) {
     this.base.isOpen = isOpen;
+    return this;
+  }
+
+  setPassword(password: string) {
+    this.base.password = password;
     return this;
   }
 

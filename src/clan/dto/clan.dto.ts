@@ -143,6 +143,13 @@ export class ClanDto {
   isOpen: boolean;
 
   /**
+   * Password used for joining a closed clan.
+   * @example "p4sswrd!"
+   */
+  @Expose()
+  password?: string;
+
+  /**
    * Clan roles
    */
   @Type(() => ClanRoleDto)
