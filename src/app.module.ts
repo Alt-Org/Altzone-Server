@@ -31,6 +31,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { OnlinePlayersModule } from './onlinePlayers/onlinePlayers.module';
 import { ClanShopModule } from './clanShop/clanShop.module';
 import { ShopModule } from './shop/shop.module';
+import { FeedbackModule } from './feedback/feedback.module';
 import { MetadataModule } from './metadata/metadata.module';
 import mongoose from 'mongoose';
 import { addBoxIdToSchemaPlugin } from './common/plugin/addBoxIdToSchema.plugin';
@@ -102,6 +103,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
     ShopModule,
 
     MetadataModule,
+    FeedbackModule,
   ],
   controllers: [AppController],
   providers: [
