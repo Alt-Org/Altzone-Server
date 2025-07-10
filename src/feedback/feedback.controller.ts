@@ -5,14 +5,11 @@ import { NoAuth } from '../auth/decorator/NoAuth.decorator';
 
 @Controller('feedback')
 export class FeedbackController {
-  constructor(
-    private readonly playerService: PlayerService,
-  ) {}
+  constructor(private readonly playerService: PlayerService) {}
 
   @NoAuth()
   @Post('add')
   async add() {
-    
-    return "Working";
+    return 'Working';
   }
 }

@@ -21,9 +21,7 @@ import { ClanSchema } from '../clan/clan.schema';
     RequestHelperModule,
   ],
   controllers: [FeedbackController],
-  providers: [
-  
-  ],
+  providers: [],
   exports: [],
 })
 export class FeedbackModule {}
