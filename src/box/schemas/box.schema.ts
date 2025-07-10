@@ -4,7 +4,6 @@ import { ModelName } from '../../common/enum/modelName.enum';
 import { ObjectId } from 'mongodb';
 import { SessionStage } from '../enum/SessionStage.enum';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
-import { Tester, TesterSchema } from './tester.schema';
 import { BoxReference } from '../enum/BoxReference.enum';
 import {
   PredefinedDailyTask,
@@ -77,6 +76,19 @@ export class Box {
   clan_ids: ObjectId[];
 
   /**
+   * Amount of testers accounts required for the testing session.
+   * It defines when the API will no longer allow to claim accounts for the testing session.
+   */
+  @Prop({ type: Number, default: 0 })
+  testersAmount: number;
+
+  /**
+   * Amount of tester accounts claimed
+   */
+  @Prop({ type: Number, default: 0 })
+  testerAccountsClaimed: number;
+
+  /**
    * All soul homes' _ids that are related to the box
    */
   @Prop({ type: [ObjectId], required: true })
@@ -93,12 +105,6 @@ export class Box {
    */
   @Prop({ type: [ObjectId], required: true })
   stock_ids: ObjectId[];
-
-  /**
-   * Testers that are related to the box and should have access to the box resources
-   */
-  @Prop({ type: [TesterSchema], required: true, default: [] })
-  testers: Tester[];
 
   /**
    * Array of unique identifiers, which is used to identify the device sending the request to claim the profile.

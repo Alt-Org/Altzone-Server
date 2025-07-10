@@ -10,7 +10,6 @@ import {
 import { SessionStage } from '../enum/SessionStage.enum';
 import { ObjectId } from 'mongodb';
 import { Type } from 'class-transformer';
-import { Tester } from '../schemas/tester.schema';
 import { DailyTask } from '../../dailyTasks/dailyTasks.schema';
 
 export class UpdateBoxDto {
@@ -133,15 +132,6 @@ export class UpdateBoxDto {
   @IsOptional()
   @IsMongoId()
   chat_id?: ObjectId;
-
-  /**
-   * Updated list of testers
-   */
-  @IsOptional()
-  @IsArray()
-  @ValidateNested()
-  @Type(() => Tester)
-  testers?: Tester[];
 
   /**
    * Updated list of account claimers' IDs

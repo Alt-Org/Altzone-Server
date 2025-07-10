@@ -1,7 +1,6 @@
 import { UpdateBoxDto } from '../../../../box/dto/updateBox.dto';
 import { SessionStage } from '../../../../box/enum/SessionStage.enum';
 import { ObjectId } from 'mongodb';
-import { Tester } from '../../../../box/schemas/tester.schema';
 import { DailyTask } from '../../../../dailyTasks/dailyTasks.schema';
 
 export default class UpdateBoxDtoBuilder {
@@ -19,7 +18,6 @@ export default class UpdateBoxDtoBuilder {
     room_ids: undefined,
     stock_ids: undefined,
     chat_id: undefined,
-    testers: undefined,
     accountClaimersIds: undefined,
     dailyTasks: undefined,
   };
@@ -90,11 +88,6 @@ export default class UpdateBoxDtoBuilder {
 
   setChatId(chatId: ObjectId) {
     this.base.chat_id = chatId;
-    return this;
-  }
-
-  setTesters(testers: Tester[]) {
-    this.base.testers = testers;
     return this;
   }
 

@@ -6,17 +6,10 @@ import {
   Param,
   Post,
   Put,
-  Query,
-  Req,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { BoxService } from './box.service';
-import { Request, Response } from 'express';
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
-import { ClaimAccountResponseDto } from './dto/claimAccountResponse.dto';
-import { APIError } from '../common/controller/APIError';
-import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import BoxCreator from './boxCreator';
 import BoxAuthHandler from './auth/BoxAuthHandler';
@@ -44,47 +37,6 @@ export class BoxController {
     private readonly authHandler: BoxAuthHandler,
     private readonly sessionStarter: SessionStarterService,
   ) {}
-
-  /**
-   * Claim tester account.
-   *
-   * @remarks Tester can claim his/her account for the testing box.
-   *
-   * Notice that the tester should know the shared testers password in order to be able to clain the account.
-   * This password is available after the group admin has started the session.
-   *
-   * Notice that the endpoint should be called only from browser, since a cookie should be added by the API
-   */
-  @ApiResponseDescription({
-    success: {
-      status: 200,
-      type: ClaimAccountResponseDto,
-    },
-    errors: [400, 403, 404],
-    hasAuth: false,
-  })
-  @NoAuth()
-  @Get('claim-account')
-  @UniformResponse(undefined, ClaimAccountResponseDto)
-  async claimAccount(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Query('password') password: string,
-  ) {
-    const { accountClaimed } = req.cookies;
-    if (accountClaimed)
-      throw new APIError({
-        reason: APIErrorReason.NOT_AUTHORIZED,
-        message: 'Account already claimed from this device.',
-      });
-
-    const data = await this.service.claimAccount(password);
-    res.cookie('accountClaimed', true, {
-      httpOnly: false,
-      maxAge: 15 * 60 * 1000,
-    });
-    return res.send(data);
-  }
 
   /**
    * Create a testing box.
@@ -221,6 +173,30 @@ export class BoxController {
     @IncludeQuery(publicReferences as any) includeRefs: ModelName[],
   ) {
     return this.service.readOneById(param._id, { includeRefs });
+  }
+
+  /**
+   * Get all boxes by. For time of development only
+   *
+   * @remarks Endpoint for getting box data by its _id
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: BoxDto,
+      modelName: ModelName.BOX,
+      returnsArray: true,
+    },
+    errors: [404],
+    hasAuth: false,
+  })
+  @SwaggerTags('Release on 13.07.2025', 'Box')
+  //For time of development only
+  @NoAuth()
+  @Get('/')
+  @NoAuth()
+  @UniformResponse(ModelName.BOX)
+  public getAll() {
+    return this.service.readAll();
   }
 
   /**

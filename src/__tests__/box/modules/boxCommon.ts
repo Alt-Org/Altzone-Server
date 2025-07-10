@@ -23,10 +23,13 @@ import BoxAuthHandler from '../../../box/auth/BoxAuthHandler';
 import { DailyTaskService } from '../../../box/dailyTask/dailyTask.service';
 import { GroupAdminGuard } from '../../../box/auth/decorator/groupAdmin.guard';
 import { PasswordGenerator } from '../../../common/function/passwordGenerator';
-import { TesterService } from '../../../box/tester/tester.service';
 import SessionStarterService from '../../../box/sessionStarter/sessionStarter.service';
 import { DailyTasksModule } from '../../../dailyTasks/dailyTasks.module';
 import { BoxScheduler } from '../../../box/box.scheduler';
+import { TesterAccountService } from '../../../box/accountClaimer/testerAccount.service';
+import AccountClaimerService from '../../../box/accountClaimer/accountClaimer.service';
+import { envVars } from '../../../common/service/envHandler/envVars';
+import UniqueFieldGenerator from '../../../box/util/UniqueFieldGenerator';
 
 export default class BoxCommonModule {
   private constructor() {}
@@ -48,6 +51,11 @@ export default class BoxCommonModule {
             { name: ModelName.ROOM, schema: RoomSchema },
             { name: ModelName.STOCK, schema: StockSchema },
           ]),
+          JwtModule.register({
+            global: true,
+            secret: envVars.JWT_SECRET,
+            signOptions: { expiresIn: '30d' },
+          }),
           ClanModule,
           ChatModule,
           ProfileModule,
@@ -65,9 +73,11 @@ export default class BoxCommonModule {
           DailyTaskService,
           BoxAuthHandler,
           GroupAdminGuard,
-          PasswordGenerator,
-          TesterService,
+          TesterAccountService,
+          AccountClaimerService,
           SessionStarterService,
+          PasswordGenerator,
+          UniqueFieldGenerator,
         ],
       }).compile();
 
