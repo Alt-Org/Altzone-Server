@@ -146,7 +146,6 @@ export class ClanDto {
    * Password used for joining a closed clan.
    * @example "p4sswrd!"
    */
-  @Expose()
   password?: string;
 
   /**
