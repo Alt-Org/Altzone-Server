@@ -45,7 +45,7 @@ import { ApiStandardErrors } from '../common/swagger/response/errors/ApiStandard
 import { ApiSuccessResponse } from '../common/swagger/response/success/ApiSuccessResponse.decorator';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import ClanItemsDto from './dto/clanItems.dto';
-import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import { ApiExtraModels } from '@nestjs/swagger';
 import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { ClanChatService } from '../chat/service/clanChat.service';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
