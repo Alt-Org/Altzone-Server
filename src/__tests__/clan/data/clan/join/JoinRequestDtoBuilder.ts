@@ -5,9 +5,8 @@ export default class JoinRequestDtoBuilder
   implements IDataBuilder<JoinRequestDto>
 {
   private readonly base: JoinRequestDto = {
-    clan_id: undefined,
-    player_id: undefined,
-    join_message: 'default join message',
+    clanId: undefined,
+    password: 'default join message',
   };
 
   build() {
@@ -15,17 +14,12 @@ export default class JoinRequestDtoBuilder
   }
 
   setClanId(clan_id: string) {
-    this.base.clan_id = clan_id;
+    this.base.clanId = clan_id;
     return this;
   }
 
-  setPlayerId(player_id: string) {
-    this.base.player_id = player_id;
-    return this;
-  }
-
-  setJoinMessage(join_message: string) {
-    this.base.join_message = join_message;
+  setPassword(password: string) {
+    this.base.password = password;
     return this;
   }
 }

@@ -5,7 +5,6 @@ import { ModelName } from '../../../common/enum/modelName.enum';
 import { mongooseOptions, mongoString } from '../../test_utils/const/db';
 import { ClanInventoryModule } from '../../../clanInventory/clanInventory.module';
 import { ClanSchema } from '../../../clan/clan.schema';
-import { joinSchema } from '../../../clan/join/join.schema';
 import { PlayerSchema } from '../../../player/schemas/player.schema';
 import ClanHelperService from '../../../clan/utils/clanHelper.service';
 import { JoinService } from '../../../clan/join/join.service';
@@ -29,7 +28,6 @@ export default class ClanCommonModule {
           MongooseModule.forRoot(mongoString, mongooseOptions),
           MongooseModule.forFeature([
             { name: ModelName.CLAN, schema: ClanSchema },
-            { name: ModelName.JOIN, schema: joinSchema },
             { name: ModelName.PLAYER, schema: PlayerSchema },
           ]),
 
