@@ -15,6 +15,7 @@ import { GameEventsEmitterModule } from '../../../gameEventsEmitter/gameEventsEm
 import ClanRoleService from '../../../clan/role/clanRole.service';
 import { PlayerModule } from '../../../player/player.module';
 import { VotingModule } from '../../../voting/voting.module';
+import { PasswordGenerator } from '../../../common/function/passwordGenerator';
 
 export default class ClanCommonModule {
   private constructor() {}
@@ -44,6 +45,7 @@ export default class ClanCommonModule {
           ClanHelperService,
           JoinService,
           ClanRoleService,
+          PasswordGenerator,
         ],
       }).compile();
 

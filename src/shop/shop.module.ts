@@ -3,7 +3,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ClanCoinsController } from './buy/clanCoins.controller';
 import { ModelName } from '../common/enum/modelName.enum';
 import { ClanSchema } from '../clan/clan.schema';
-import { joinSchema } from '../clan/join/join.schema';
 import { PlayerSchema } from '../player/schemas/player.schema';
 import { ClanInventoryModule } from '../clanInventory/clanInventory.module';
 import { RequestHelperModule } from '../requestHelper/requestHelper.module';
@@ -18,7 +17,6 @@ import { PasswordGenerator } from '../common/function/passwordGenerator';
   imports: [
     MongooseModule.forFeature([
       { name: ModelName.CLAN, schema: ClanSchema },
-      { name: ModelName.JOIN, schema: joinSchema },
       { name: ModelName.PLAYER, schema: PlayerSchema },
     ]),
     ClanInventoryModule,
