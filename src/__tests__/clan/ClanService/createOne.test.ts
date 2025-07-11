@@ -68,8 +68,8 @@ describe('ClanService.createOne() test suite', () => {
     await clanService.createOne(openClan, loggedPlayer._id);
 
     const dbResp = await clanModel.findOne({ name: 'openClanNoPassword' });
-    expect(dbResp).toBeTruthy();
-    expect(dbResp.password).toBeFalsy();
+    expect(dbResp).toBeDefined();
+    expect(dbResp.password).toBeUndefined();
   });
 
   it('Should use the provided password for closed clans', async () => {
@@ -85,7 +85,7 @@ describe('ClanService.createOne() test suite', () => {
     const dbResp = await clanModel.findOne({
       name: 'closedPassword',
     });
-    expect(dbResp).toBeTruthy();
+    expect(dbResp).toBeDefined();
     expect(dbResp.password).toBe(customPassword);
   });
 
