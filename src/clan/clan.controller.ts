@@ -261,6 +261,7 @@ export class ClanController {
     },
     errors: [400, 401, 403, 404],
   })
+  @UniformResponse()
   @SwaggerTags('Release on 13.07.2025', 'Clan')
   @Post('join')
   public async createJoin(
@@ -268,7 +269,7 @@ export class ClanController {
     @LoggedUser() user: User,
   ) {
     return this.joinService.handleJoinRequest(
-      body.clanId,
+      body.clan_id,
       user.player_id,
       body.password,
     );
