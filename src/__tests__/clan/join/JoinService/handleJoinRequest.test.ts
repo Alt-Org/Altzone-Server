@@ -4,7 +4,7 @@ import ClanModule from '../../modules/clan.module';
 import PlayerModule from '../../../player/modules/player.module';
 import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { MemberClanRole } from '../../../../clan/role/initializationClanRoles';
 
 describe('JoinService.handleJoinRequest() test suite', () => {
@@ -14,7 +14,11 @@ describe('JoinService.handleJoinRequest() test suite', () => {
   const clanModel = ClanModule.getClanModel();
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
   const openClan = clanBuilder.setIsOpen(true).setName('openClan').build();
-  const closedClan = clanBuilder.setIsOpen(false).setName('closedClan').build();
+  const closedClan = clanBuilder
+    .setIsOpen(false)
+    .setName('closedClan')
+    .setPassword('password')
+    .build();
 
   const playerModel = PlayerModule.getPlayerModel();
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
@@ -77,7 +81,22 @@ describe('JoinService.handleJoinRequest() test suite', () => {
         player._id,
         joinToCreate.password,
       ),
-    ).rejects.toThrow(BadRequestException);
+    ).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('Should throw BadRequestException if join request to closed clan is with wrong password', async () => {
+    const joinToCreate = joinBuilder
+      .setClanId(closedClan._id)
+      .setPassword('NotCorrectPasSWurD')
+      .build();
+
+    await expect(
+      joinService.handleJoinRequest(
+        joinToCreate.clanId,
+        player._id,
+        joinToCreate.password,
+      ),
+    ).rejects.toThrow(UnauthorizedException);
   });
 
   it('Should remove clan if the last player of it make a join request to another open clan', async () => {

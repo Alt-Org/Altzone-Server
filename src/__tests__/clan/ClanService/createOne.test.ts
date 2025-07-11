@@ -20,6 +20,75 @@ describe('ClanService.createOne() test suite', () => {
     clanService = await ClanModule.getClanService();
   });
 
+  it('Should create a closed clan with a random password if password is not provided', async () => {
+    const closedClan = clanCreateBuilder
+      .setName('closedRandomPassClan')
+      .setIsOpen(false)
+      .build();
+
+    await clanService.createOne(closedClan, loggedPlayer._id);
+
+    const dbResp = await clanModel.findOne({ name: 'closedRandomPassClan' });
+    expect(dbResp).toBeTruthy();
+    expect(dbResp.password).toBeDefined();
+    expect(typeof dbResp.password).toBe('string');
+    expect(dbResp.password.length).toBeGreaterThan(0);
+  });
+
+  it('Should generate different passwords for multiple closed clans when password is not provided', async () => {
+    const closedClan1 = clanCreateBuilder
+      .setName('closedPassClan1')
+      .setIsOpen(false)
+      .build();
+    const closedClan2 = clanCreateBuilder
+      .setName('closedPassClan2')
+      .setIsOpen(false)
+      .build();
+
+    await clanService.createOne(closedClan1, loggedPlayer._id);
+    await clanService.createOne(closedClan2, loggedPlayer._id);
+
+    const dbResp = await clanModel.find({
+      name: { $in: ['closedPassClan1', 'closedPassClan2'] },
+    });
+    const clan1InDB = dbResp.find((clan) => clan.name === 'closedPassClan1');
+    const clan2InDB = dbResp.find((clan) => clan.name === 'closedPassClan2');
+
+    expect(clan1InDB.password).toBeDefined();
+    expect(clan2InDB.password).toBeDefined();
+    expect(clan1InDB.password).not.toEqual(clan2InDB.password);
+  });
+
+  it('Should not generate a password for open clans when password is not provided', async () => {
+    const openClan = clanCreateBuilder
+      .setName('openClanNoPassword')
+      .setIsOpen(true)
+      .build();
+
+    await clanService.createOne(openClan, loggedPlayer._id);
+
+    const dbResp = await clanModel.findOne({ name: 'openClanNoPassword' });
+    expect(dbResp).toBeTruthy();
+    expect(dbResp.password).toBeFalsy();
+  });
+
+  it('Should use the provided password for closed clans', async () => {
+    const customPassword = 'custom-password-123';
+    const closedClan = clanCreateBuilder
+      .setName('closedPassword')
+      .setIsOpen(false)
+      .setPassword(customPassword)
+      .build();
+
+    await clanService.createOne(closedClan, loggedPlayer._id);
+
+    const dbResp = await clanModel.findOne({
+      name: 'closedPassword',
+    });
+    expect(dbResp).toBeTruthy();
+    expect(dbResp.password).toBe(customPassword);
+  });
+
   it('Should save clan data to DB if input is valid', async () => {
     await clanService.createOne(clanToCreate, loggedPlayer._id);
 
