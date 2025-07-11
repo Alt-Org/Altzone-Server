@@ -49,6 +49,7 @@ import { ApiExtraModels } from '@nestjs/swagger';
 import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { ClanChatService } from '../chat/service/clanChat.service';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
+import { PasswordGenerator } from '../common/function/passwordGenerator';
 
 @Controller('clan')
 export class ClanController {
@@ -59,6 +60,7 @@ export class ClanController {
     private readonly itemService: ItemService,
     private readonly playerService: PlayerService,
     private readonly clanChatService: ClanChatService,
+    private readonly passwordGenerator: PasswordGenerator,
   ) {}
 
   /**
@@ -208,6 +210,13 @@ export class ClanController {
           }),
         ],
       ];
+    if (
+      typeof body.isOpen === 'boolean' &&
+      body.isOpen === false &&
+      !body.password
+    ) {
+      body.password = this.passwordGenerator.generatePassword('fi');
+    }
     const [, errors] = await this.service.updateOneById(body);
     if (errors) return [null, errors];
   }
