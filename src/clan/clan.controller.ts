@@ -254,7 +254,6 @@ export class ClanController {
   })
   @SwaggerTags('Release on 13.07.2025', 'Clan')
   @Post('join')
-  @Authorize({ action: Action.create, subject: JoinDto })
   public async createJoin(
     @Body() body: JoinRequestDto,
     @LoggedUser() user: User,
