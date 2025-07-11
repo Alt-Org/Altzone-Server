@@ -10,7 +10,7 @@ export class JoinRequestDto {
    */
   @IsClanExists()
   @IsMongoId()
-  clanId: string;
+  clan_id: string;
 
   /**
    * Password need to join if the clan is closed.

@@ -39,7 +39,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
   it(`Should set clan role for the joined player to ${MemberClanRole.name}`, async () => {
     const joinToCreate = joinBuilder.setClanId(openClan._id).build();
 
-    await joinService.handleJoinRequest(joinToCreate.clanId, player._id);
+    await joinService.handleJoinRequest(joinToCreate.clan_id, player._id);
 
     const clanInDB = await clanModel.findById(openClan._id);
     const memberRole = clanInDB.roles.find(
@@ -56,7 +56,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
     const joinToCreate = joinBuilder.setClanId(nonExisting_id).build();
 
     await expect(
-      joinService.handleJoinRequest(joinToCreate.clanId, player._id),
+      joinService.handleJoinRequest(joinToCreate.clan_id, player._id),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -65,7 +65,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
     const joinToCreate = joinBuilder.setClanId(openClan._id).build();
 
     await expect(
-      joinService.handleJoinRequest(joinToCreate.clanId, nonExisting_id),
+      joinService.handleJoinRequest(joinToCreate.clan_id, nonExisting_id),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -77,7 +77,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
 
     await expect(
       joinService.handleJoinRequest(
-        joinToCreate.clanId,
+        joinToCreate.clan_id,
         player._id,
         joinToCreate.password,
       ),
@@ -92,7 +92,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
 
     await expect(
       joinService.handleJoinRequest(
-        joinToCreate.clanId,
+        joinToCreate.clan_id,
         player._id,
         joinToCreate.password,
       ),
@@ -108,7 +108,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
     await playerModel.updateOne({ _id: player._id }, { clan_id: oldClan._id });
 
     const joinToCreate = joinBuilder.setClanId(openClan._id).build();
-    await joinService.handleJoinRequest(joinToCreate.clanId, player._id);
+    await joinService.handleJoinRequest(joinToCreate.clan_id, player._id);
 
     const oldClanInDB = await clanModel.findById(oldClan._id);
 
@@ -130,7 +130,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
     await playerModel.create(anotherClanMember);
 
     const joinToCreate = joinBuilder.setClanId(openClan._id).build();
-    await joinService.handleJoinRequest(joinToCreate.clanId, player._id);
+    await joinService.handleJoinRequest(joinToCreate.clan_id, player._id);
 
     const oldClanInDB = await clanModel.findById(oldClan._id);
 
