@@ -13,7 +13,6 @@ import {
 import { CreateClanDto } from './dto/createClan.dto';
 import { UpdateClanDto } from './dto/updateClan.dto';
 import { ClanDto } from './dto/clan.dto';
-import { BasicPOST } from '../common/base/decorator/BasicPOST.decorator';
 import { _idDto } from '../common/dto/_id.dto';
 import { ModelName } from '../common/enum/modelName.enum';
 import { Authorize } from '../authorization/decorator/Authorize';
@@ -46,9 +45,10 @@ import { ApiStandardErrors } from '../common/swagger/response/errors/ApiStandard
 import { ApiSuccessResponse } from '../common/swagger/response/success/ApiSuccessResponse.decorator';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import ClanItemsDto from './dto/clanItems.dto';
-import { ApiExtraModels } from '@nestjs/swagger';
+import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { ClanChatService } from '../chat/service/clanChat.service';
+import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('clan')
 export class ClanController {
@@ -252,11 +252,18 @@ export class ClanController {
     },
     errors: [400, 401, 403, 404],
   })
+  @SwaggerTags('Release on 13.07.2025', 'Clan')
   @Post('join')
   @Authorize({ action: Action.create, subject: JoinDto })
-  @BasicPOST(JoinDto)
-  public async createJoin(@Body() body: JoinRequestDto) {
-    return this.joinService.handleJoinRequest(body);
+  public async createJoin(
+    @Body() body: JoinRequestDto,
+    @LoggedUser() user: User,
+  ) {
+    return this.joinService.handleJoinRequest(
+      body.clanId,
+      user.player_id,
+      body.password,
+    );
   }
 
   /**
