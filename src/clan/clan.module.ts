@@ -7,7 +7,6 @@ import { RequestHelperModule } from '../requestHelper/requestHelper.module';
 import { isClanExists } from './decorator/validation/IsClanExists.decorator';
 import { ModelName } from '../common/enum/modelName.enum';
 import { PlayerCounterFactory } from './clan.counters';
-import { joinSchema } from './join/join.schema';
 import { JoinService } from './join/join.service';
 import ClanHelperService from './utils/clanHelper.service';
 import { PlayerSchema } from '../player/schemas/player.schema';
@@ -19,12 +18,12 @@ import { ClanRoleController } from './role/clanRole.controller';
 import { VotingModule } from '../voting/voting.module';
 import { ClanRoleVotingProcessor } from './role/clanRole.processor';
 import { ChatModule } from '../chat/chat.module';
+import { PasswordGenerator } from '../common/function/passwordGenerator';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: ModelName.CLAN, schema: ClanSchema },
-      { name: ModelName.JOIN, schema: joinSchema },
       { name: ModelName.PLAYER, schema: PlayerSchema },
     ]),
     ClanInventoryModule,
@@ -43,6 +42,7 @@ import { ChatModule } from '../chat/chat.module';
     ClanHelperService,
     ClanRoleService,
     ClanRoleVotingProcessor,
+    PasswordGenerator,
   ],
   exports: [ClanService, PlayerCounterFactory, ClanRoleService],
 })

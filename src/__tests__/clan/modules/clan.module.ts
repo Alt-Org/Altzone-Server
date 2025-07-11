@@ -7,7 +7,6 @@ import { PlayerCounterFactory } from '../../../clan/clan.counters';
 import ClanHelperService from '../../../clan/utils/clanHelper.service';
 import { JoinService } from '../../../clan/join/join.service';
 import { isClanExists } from '../../../clan/decorator/validation/IsClanExists.decorator';
-import { joinSchema } from '../../../clan/join/join.schema';
 import ClanRoleService from '../../../clan/role/clanRole.service';
 
 export default class ClanModule {
@@ -35,10 +34,6 @@ export default class ClanModule {
   static async getJoinService() {
     const module = await ClanCommonModule.getModule();
     return await module.resolve(JoinService);
-  }
-
-  static getJoinModel() {
-    return mongoose.model(ModelName.JOIN, joinSchema);
   }
 
   static async getIsClanExist() {

@@ -10,6 +10,7 @@ import {
   Validate,
   ValidateNested,
   MaxLength,
+  IsNotEmpty,
 } from 'class-validator';
 import { IsClanExists } from '../decorator/validation/IsClanExists.decorator';
 import { IsPlayerExists } from '../../player/decorator/validation/IsPlayerExists.decorator';
@@ -99,6 +100,16 @@ export class UpdateClanDto {
   @IsBoolean()
   @IsOptional()
   isOpen?: boolean;
+
+  /**
+   * Password used for joining a closed clan.
+   *
+   * @example "p4sswrd!"
+   */
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  password?: string;
 
   /**
    * Age range restriction for clan members (optional)

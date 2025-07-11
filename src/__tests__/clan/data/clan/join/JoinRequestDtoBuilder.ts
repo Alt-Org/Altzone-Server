@@ -6,8 +6,7 @@ export default class JoinRequestDtoBuilder
 {
   private readonly base: JoinRequestDto = {
     clan_id: undefined,
-    player_id: undefined,
-    join_message: 'default join message',
+    password: 'default join message',
   };
 
   build() {
@@ -19,13 +18,8 @@ export default class JoinRequestDtoBuilder
     return this;
   }
 
-  setPlayerId(player_id: string) {
-    this.base.player_id = player_id;
-    return this;
-  }
-
-  setJoinMessage(join_message: string) {
-    this.base.join_message = join_message;
+  setPassword(password: string) {
+    this.base.password = password;
     return this;
   }
 }
