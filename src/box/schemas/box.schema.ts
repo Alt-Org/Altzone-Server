@@ -89,24 +89,6 @@ export class Box {
   testerAccountsClaimed: number;
 
   /**
-   * All soul homes' _ids that are related to the box
-   */
-  @Prop({ type: [ObjectId], required: true })
-  soulHome_ids: ObjectId[];
-
-  /**
-   * All rooms' _ids that are related to the box
-   */
-  @Prop({ type: [ObjectId], required: true })
-  room_ids: ObjectId[];
-
-  /**
-   * All stocks' _ids that are related to the box
-   */
-  @Prop({ type: [ObjectId], required: true })
-  stock_ids: ObjectId[];
-
-  /**
    * Array of unique identifiers, which is used to identify the device sending the request to claim the profile.
    * Each identifier is unique within the box
    */
