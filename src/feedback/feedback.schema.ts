@@ -16,7 +16,7 @@ export class Feedback {
   capturedAt?: Date;
 
   @ExtractField()
-    _id: string;
+  _id: string;
 }
 
 export const FeedbackSchema = SchemaFactory.createForClass(Feedback);
