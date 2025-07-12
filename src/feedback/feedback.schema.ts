@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
+import { ExtractField } from '../common/decorator/response/ExtractField';
 export type FeedbackDocument = HydratedDocument<Feedback>;
 
 @Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
@@ -13,6 +14,9 @@ export class Feedback {
 
   @Prop({ type: Date })
   capturedAt?: Date;
+
+  @ExtractField()
+    _id: string;
 }
 
 export const FeedbackSchema = SchemaFactory.createForClass(Feedback);
