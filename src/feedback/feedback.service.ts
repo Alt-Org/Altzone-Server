@@ -12,7 +12,6 @@ export class FeedbackService {
   constructor(
     @InjectModel(Feedback.name)
     public readonly model: Model<Feedback>,
-    
   ) {
     this.basicService = new BasicService(model);
   }
@@ -27,12 +26,11 @@ export class FeedbackService {
    * @returns  created Feedback or an array of service errors if any occurred.
    */
   async createOne(feedbackDto: FeedbackDto, user: User) {
-    const createFeedback: CreateFeedbackDto =
-    {
+    const createFeedback: CreateFeedbackDto = {
       text: feedbackDto.text,
       profile_id: user.profile_id,
       capturedAt: new Date(),
-    }
+    };
     return this.basicService.createOne<CreateFeedbackDto>(createFeedback);
   }
 }

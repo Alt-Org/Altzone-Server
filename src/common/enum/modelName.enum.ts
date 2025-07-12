@@ -30,7 +30,7 @@ export enum ModelName {
   SOULHOME = 'SoulHome',
   GAME = 'Game',
   DAILY_TASK = 'DailyTask',
-  FEEDBACK = "Feedback",
+  FEEDBACK = 'Feedback',
   FLEA_MARKET_ITEM = 'FleaMarketItem',
   VOTING = 'Voting',
   BOX = 'Box',

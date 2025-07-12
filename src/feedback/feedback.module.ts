@@ -14,7 +14,7 @@ import { FeedbackService } from './feedback.service';
 @Module({
   imports: [
     MongooseModule.forFeature([
-       { name: ModelName.FEEDBACK, schema: FeedbackSchema },
+      { name: ModelName.FEEDBACK, schema: FeedbackSchema },
       { name: ModelName.PROFILE, schema: ProfileSchema },
       { name: ModelName.PLAYER, schema: PlayerSchema },
       { name: ModelName.CLAN, schema: ClanSchema },

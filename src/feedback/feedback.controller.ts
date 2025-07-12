@@ -12,21 +12,20 @@ export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
   /**
-     * Test/Admin users send feedbacks to the developers
-     *
-     * @remarks Available only on the test enviremontes.
-     *
-     */
-    @ApiResponseDescription({
-      success: {
-        status: 201,
-      },
-      errors: [],
-    })
+   * Test/Admin users send feedbacks to the developers
+   *
+   * @remarks Available only on the test enviremontes.
+   *
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 201,
+    },
+    errors: [],
+  })
   @Post('add')
   @UniformResponse()
   async create(@Body() feedbackDto: FeedbackDto, @LoggedUser() user: User) {
-    
     return this.feedbackService.createOne(feedbackDto, user);
   }
 }

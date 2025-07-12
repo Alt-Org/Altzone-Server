@@ -15,7 +15,6 @@ export class Feedback {
   capturedAt?: Date;
 }
 
-export const FeedbackSchema =
-  SchemaFactory.createForClass(Feedback);
+export const FeedbackSchema = SchemaFactory.createForClass(Feedback);
 
 export const publicReferences = [ModelName.FEEDBACK];

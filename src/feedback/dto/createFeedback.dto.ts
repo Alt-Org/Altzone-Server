@@ -1,8 +1,5 @@
 import AddType from '../../common/base/decorator/AddType.decorator';
-import {
-  IsDate,
-  IsString,
-} from 'class-validator';
+import { IsDate, IsString } from 'class-validator';
 
 @AddType('CreateFeedbackDto')
 export class CreateFeedbackDto {
