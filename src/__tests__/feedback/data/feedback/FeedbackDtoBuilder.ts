@@ -2,7 +2,7 @@ import { FeedbackDto } from '../../../../feedback/dto/Feedback.dto';
 
 export default class FeedbackDtoBuilder {
   private readonly base: Partial<FeedbackDto> = {
-   text: 'test',
+    text: 'test',
   };
 
   build(): FeedbackDto {

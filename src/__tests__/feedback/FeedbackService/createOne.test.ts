@@ -7,13 +7,16 @@ describe('FeedbackService.createOne() test suite', () => {
   let feedbackService: FeedbackService;
   const feedbackModel = FeedbackModule.getFeedbackModel();
 
-  const userBuilder = AuthBuilderFactory.getBuilder('User')
+  const userBuilder = AuthBuilderFactory.getBuilder('User');
 
   const profile_id = new Object().toString();
-  const user = userBuilder.setProfileId(profile_id).build()
-  
-  const createFeedbackDtoBuilder = FeedbackBuilderFactory.getBuilder('CreateFeedbackDto');
-  const createFeedbackDto = createFeedbackDtoBuilder.setProfileId(profile_id).build()
+  const user = userBuilder.setProfileId(profile_id).build();
+
+  const createFeedbackDtoBuilder =
+    FeedbackBuilderFactory.getBuilder('CreateFeedbackDto');
+  const createFeedbackDto = createFeedbackDtoBuilder
+    .setProfileId(profile_id)
+    .build();
 
   beforeEach(async () => {
     feedbackService = await FeedbackModule.getFeedbackService();

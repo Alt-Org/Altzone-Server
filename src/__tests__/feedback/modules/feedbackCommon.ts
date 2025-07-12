@@ -35,9 +35,7 @@ export default class FeedbackCommonModule {
           ClanModule,
           RequestHelperModule,
         ],
-        providers: [
-          FeedbackService,
-        ],
+        providers: [FeedbackService],
       }).compile();
 
     return FeedbackCommonModule.module;

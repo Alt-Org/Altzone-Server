@@ -1,9 +1,7 @@
 import FeedbackDtoBuilder from './feedback/FeedbackDtoBuilder';
 import CreateFeedbackDtoBuilder from './feedback/CreateFeedbackDtoBuilder';
 
-type BuilderName =
-  | 'FeedbackDto'
-  | 'CreateFeedbackDto';
+type BuilderName = 'FeedbackDto' | 'CreateFeedbackDto';
 
 type BuilderMap = {
   FeedbackDto: FeedbackDtoBuilder;

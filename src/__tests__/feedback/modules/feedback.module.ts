@@ -8,9 +8,9 @@ export default class FeedbackModule {
   private constructor() {}
 
   static getFeedbackModel() {
-      return mongoose.model(ModelName.FEEDBACK, FeedbackSchema);
-    }
-    
+    return mongoose.model(ModelName.FEEDBACK, FeedbackSchema);
+  }
+
   static async getFeedbackService() {
     const module = await FeedbackCommonModule.getModule();
     return module.resolve(FeedbackService);
