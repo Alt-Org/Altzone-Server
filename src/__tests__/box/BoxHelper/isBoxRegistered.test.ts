@@ -18,10 +18,7 @@ describe('BoxHelper.isBoxRegistered() test suite', () => {
       .setAdminPassword(adminPassword)
       .setAdminPlayerId(new ObjectId())
       .setAdminProfileId(new ObjectId())
-      .setClanIds([])
-      .setSoulHomeIds([])
-      .setRoomIds([])
-      .setStockIds([])
+      .setCreatedClan_ids([])
       .build();
 
     await boxModel.create(boxToCreate);
