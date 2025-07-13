@@ -76,6 +76,8 @@ export class BoxController {
 
   /**
    * Update box configuration.
+   *
+   * @remarks Update box configuration.
    */
   @SwaggerTags('Release on 13.07.2025', 'Box')
   @ApiResponseDescription({

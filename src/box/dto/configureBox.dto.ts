@@ -12,6 +12,11 @@ import {
 import { ClanToCreateDto } from './clanToCreate.dto';
 
 export class ConfigureBoxDto {
+  /**
+   * Array of clans to be created for the test session (must contain exactly 2 clans).
+   *
+   * @example [{ name: "Warriors", isOpen: true }, { name: "Knights", isOpen: false }]
+   */
   @IsArray()
   @ArrayMinSize(2)
   @ArrayMaxSize(2)
@@ -20,10 +25,20 @@ export class ConfigureBoxDto {
   @IsOptional()
   clansToCreate?: ClanToCreateDto[];
 
+  /**
+   * Number of testers for the session.
+   *
+   * @example 10
+   */
   @IsInt()
   @IsOptional()
   testersAmount?: number;
 
+  /**
+   * Shared password for testers.
+   *
+   * @example "test1234"
+   */
   @IsString()
   @IsNotEmpty()
   @IsOptional()
