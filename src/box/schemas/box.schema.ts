@@ -9,7 +9,7 @@ import {
   PredefinedDailyTask,
   PredefinedDailyTaskSchema,
 } from '../dailyTask/predefinedDailyTask.schema';
-import { ClanToCreate, ClanToCreateSchema } from './clanToCreate.schema';
+import { ClanToCreate, ClanToCreateSchema } from './ClanToCreate.schema';
 
 export type BoxDocument = HydratedDocument<Box>;
 

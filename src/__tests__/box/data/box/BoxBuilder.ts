@@ -2,7 +2,7 @@ import { SessionStage } from '../../../../box/enum/SessionStage.enum';
 import { Box } from '../../../../box/schemas/box.schema';
 import { ObjectId } from 'mongodb';
 import { PredefinedDailyTask } from '../../../../box/dailyTask/predefinedDailyTask.schema';
-import { ClanToCreate } from '../../../../box/schemas/clanToCreate.schema';
+import { ClanToCreate } from '../../../../box/schemas/ClanToCreate.schema';
 
 export default class BoxBuilder {
   private readonly base: Box = {
