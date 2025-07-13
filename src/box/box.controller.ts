@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   UseGuards,
@@ -27,6 +28,8 @@ import SessionStarterService from './sessionStarter/sessionStarter.service';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { BoxDto } from './dto/box.dto';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
+import { ConfigureBoxDto } from './dto/configureBox.dto';
+import { ObjectId } from 'mongodb';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
@@ -69,6 +72,31 @@ export class BoxController {
     });
 
     return [{ ...createdBox, accessToken: groupAdminAccessToken }, null];
+  }
+
+  /**
+   * Update box configuration.
+   */
+  @SwaggerTags('Release on 13.07.2025', 'Box')
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 404],
+    hasAuth: true,
+  })
+  @IsGroupAdmin()
+  @UniformResponse()
+  @Patch()
+  async configureBox(
+    @Body() body: ConfigureBoxDto,
+    @LoggedUser() user: BoxUser,
+  ) {
+    const [_, err] = await this.service.updateOneById({
+      _id: new ObjectId(user.box_id),
+      ...body,
+    });
+    if (err) return [null, err];
   }
 
   /**
