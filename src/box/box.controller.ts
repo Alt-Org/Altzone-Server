@@ -54,7 +54,6 @@ export class BoxController {
     errors: [400, 404],
     hasAuth: false,
   })
-  @SwaggerTags('Release on 13.07.2025', 'Box')
   @NoAuth()
   @Post()
   @UniformResponse(ModelName.BOX, CreatedBoxDto)
@@ -189,7 +188,6 @@ export class BoxController {
     errors: [404],
     hasAuth: false,
   })
-  @SwaggerTags('Release on 13.07.2025', 'Box')
   //For time of development only
   @NoAuth()
   @Get('/')
