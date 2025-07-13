@@ -1,4 +1,4 @@
-FROM node:lts-alpine AS build
+FROM node:alpine3.22 AS build
 LABEL maintainer="Mikhail Deriabin"
 
 WORKDIR /app
@@ -9,7 +9,7 @@ COPY src ./src
 RUN npm ci
 RUN npm run build
 
-FROM node:lts-alpine AS prepare
+FROM node:alpine3.22 AS prepare
 
 #RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
@@ -23,7 +23,7 @@ RUN npm ci --omit=dev --ignore-scripts && \
 
 COPY --from=build /app/dist ./dist
 
-FROM node:lts-alpine AS start
+FROM node:alpine3.22 AS start
 
 COPY --from=prepare --chown=node:node /usr/local/bin/node /usr/local/bin/node
 COPY --from=prepare --chown=node:node /app /app
