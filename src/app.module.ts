@@ -31,6 +31,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { OnlinePlayersModule } from './onlinePlayers/onlinePlayers.module';
 import { ClanShopModule } from './clanShop/clanShop.module';
 import { ShopModule } from './shop/shop.module';
+import { MetadataModule } from './metadata/metadata.module';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -86,6 +87,8 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
     OnlinePlayersModule,
     ClanShopModule,
     ShopModule,
+
+    MetadataModule,
   ],
   controllers: [AppController],
   providers: [

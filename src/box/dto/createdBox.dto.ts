@@ -5,7 +5,6 @@ import { SessionStage } from '../enum/SessionStage.enum';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { PlayerDto } from '../../player/dto/player.dto';
 import { ClanDto } from '../../clan/dto/clan.dto';
-import { ChatDto } from '../../chat/dto/chat.dto';
 
 export class CreatedBoxDto {
   /**
@@ -118,11 +117,4 @@ export class CreatedBoxDto {
   @Type(() => ClanDto)
   @Expose()
   clans: Clan[];
-
-  /**
-   * Chat room linked to this session
-   */
-  @Type(() => ChatDto)
-  @Expose()
-  chat: ChatDto;
 }

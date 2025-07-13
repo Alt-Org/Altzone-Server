@@ -122,7 +122,6 @@ export class ClanRoleController {
     },
     errors: [400, 401, 403, 404],
   })
-  @SwaggerTags('Release on 15.06.2025', 'Clan')
   @Put('set')
   @HasClanRights([ClanBasicRight.EDIT_MEMBER_RIGHTS])
   @DetermineClanId()

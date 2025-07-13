@@ -9,7 +9,6 @@ import { Clan } from '../../clan/clan.schema';
 import { SoulHome } from '../../clanInventory/soulhome/soulhome.schema';
 import { Room } from '../../clanInventory/room/room.schema';
 import { Stock } from '../../clanInventory/stock/stock.schema';
-import { Chat } from '../../chat/chat.schema';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { IServiceReturn } from '../../common/service/basicService/IService';
@@ -27,7 +26,6 @@ export class BoxHelper {
     @InjectModel(SoulHome.name) public readonly soulHomeModel: Model<SoulHome>,
     @InjectModel(Room.name) public readonly roomModel: Model<Room>,
     @InjectModel(Stock.name) public readonly stockModel: Model<Stock>,
-    @InjectModel(Chat.name) public readonly chatModel: Model<Chat>,
   ) {
     this.basicService = new BasicService(model);
   }
@@ -206,20 +204,6 @@ export class BoxHelper {
           ],
         ];
     }
-
-    const chatInDB = await this.chatModel.findById(box.chat_id);
-    if (!chatInDB)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            field: 'chat_id',
-            value: box.chat_id,
-            message: 'Chat is not found',
-          }),
-        ],
-      ];
 
     return [true, null];
   }

@@ -21,7 +21,6 @@ describe('DailyTaskService.addOne() test suite', () => {
     existingBox = boxBuilder
       .setAdminPlayerId(new ObjectId())
       .setAdminProfileId(new ObjectId())
-      .setChatId(new ObjectId())
       .build();
     const boxResp = await boxModel.create(existingBox);
     existingBox._id = boxResp._id;

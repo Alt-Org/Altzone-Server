@@ -13,6 +13,8 @@ process.env.SWAGGER_PATH = 'path';
 process.env.SWAGGER_USER = 'username';
 process.env.SWAGGER_PASSWORD = 'password';
 
+process.env.MIN_GAME_BUILD_VERSION = '155';
+
 process.env.MONGO_USERNAME = 'username';
 process.env.MONGO_PASSWORD = 'password';
 process.env.MONGO_HOST = 'localhost';

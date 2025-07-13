@@ -11,7 +11,7 @@ import { taskReservedError } from './errors/taskReserved.error';
 import { TaskGeneratorService } from './taskGenerator.service';
 import {
   IServiceReturn,
-  TIServiceCreateManyOptions,
+  TIServiceReadManyOptions,
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
@@ -199,7 +199,7 @@ export class DailyTasksService {
    * @param options - Optional settings for the read operation.
    * @returns A promise that resolves to a tuple where the first element is an array of ItemDto objects, and the second element is either null or an array of ServiceError objects if something went wrong.
    */
-  async readMany(options?: TIServiceCreateManyOptions) {
+  async readMany(options?: TIServiceReadManyOptions) {
     return this.basicService.readMany<DailyTaskDto>(options);
   }
 

@@ -21,7 +21,6 @@ describe('DailyTaskService.updateOneById() test suite', () => {
       .setDailyTasks([existingTask])
       .setAdminPlayerId(new ObjectId())
       .setAdminProfileId(new ObjectId())
-      .setChatId(new ObjectId())
       .build();
     const boxResp = await boxModel.create(existingBox);
     existingBox._id = boxResp._id;

@@ -3,7 +3,6 @@ import { BattleQueueService } from './battleQueue.service';
 import ApiResponseDescription from 'src/common/swagger/response/ApiResponseDescription';
 import OnlinePlayerDto from '../dto/onlinePlayer.dto';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
-import SwaggerTags from '../../common/swagger/tags/SwaggerTags.decorator';
 import { OnlinePlayersService } from '../onlinePlayers.service';
 import { OnlinePlayerStatus } from '../enum/OnlinePlayerStatus';
 
@@ -28,7 +27,6 @@ export class BattleQueueController {
     },
     errors: [401, 404],
   })
-  @SwaggerTags('Release on 15.06.2025', 'OnlinePlayers')
   @Get()
   @UniformResponse(null, OnlinePlayerDto)
   async getBattleQueue() {
