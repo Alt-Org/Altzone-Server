@@ -2,6 +2,7 @@ import { SessionStage } from '../../../../box/enum/SessionStage.enum';
 import { Box } from '../../../../box/schemas/box.schema';
 import { ObjectId } from 'mongodb';
 import { PredefinedDailyTask } from '../../../../box/dailyTask/predefinedDailyTask.schema';
+import { ClanToCreate } from '../../../../box/schemas/ClanToCreate.schema';
 
 export default class BoxBuilder {
   private readonly base: Box = {
@@ -12,12 +13,10 @@ export default class BoxBuilder {
     sessionResetTime: Date.now() + 500000,
     adminProfile_id: undefined,
     adminPlayer_id: undefined,
-    clan_ids: [],
+    clansToCreate: [],
+    createdClan_ids: [],
     testersAmount: 0,
     testerAccountsClaimed: 0,
-    soulHome_ids: [],
-    room_ids: [],
-    stock_ids: [],
     accountClaimersIds: [],
     dailyTasks: [],
     _id: undefined,
@@ -62,8 +61,13 @@ export default class BoxBuilder {
     return this;
   }
 
-  setClanIds(clanIds: ObjectId[] | string[]) {
-    this.base.clan_ids = clanIds as ObjectId[];
+  setClansToCreate(clansToCreate: ClanToCreate[]) {
+    this.base.clansToCreate = clansToCreate;
+    return this;
+  }
+
+  setCreatedClan_ids(ids: ObjectId[]) {
+    this.base.createdClan_ids = ids;
     return this;
   }
 
@@ -74,21 +78,6 @@ export default class BoxBuilder {
 
   setTesterAccountsClaimed(testerAccountsClaimed: number) {
     this.base.testerAccountsClaimed = testerAccountsClaimed;
-    return this;
-  }
-
-  setSoulHomeIds(soulHomeIds: ObjectId[]) {
-    this.base.soulHome_ids = soulHomeIds;
-    return this;
-  }
-
-  setRoomIds(roomIds: ObjectId[]) {
-    this.base.room_ids = roomIds;
-    return this;
-  }
-
-  setStockIds(stockIds: ObjectId[]) {
-    this.base.stock_ids = stockIds;
     return this;
   }
 

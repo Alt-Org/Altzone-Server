@@ -123,21 +123,9 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
       .setAdminPassword(existingAdmin.password)
       .setAdminPlayerId(new ObjectId(adminPlayer._id))
       .setAdminProfileId(new ObjectId(adminProfile._id))
-      .setClanIds([
+      .setCreatedClan_ids([
         new ObjectId(existingClan1._id),
         new ObjectId(existingClan2._id),
-      ])
-      .setSoulHomeIds([
-        new ObjectId(existingSoulHome1._id),
-        new ObjectId(existingSoulHome2._id),
-      ])
-      .setRoomIds([
-        new ObjectId(existingRoom1._id),
-        new ObjectId(existingRoom2._id),
-      ])
-      .setStockIds([
-        new ObjectId(existingStock1._id),
-        new ObjectId(existingStock2._id),
       ])
       .setBoxRemovalTime(new Date().getTime())
       .setSessionResetTime(new Date().getTime() + 10000)
@@ -161,25 +149,25 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
     );
     expect(adminProfile).toBeNull();
 
-    for (const clanId of boxToDelete.clan_ids) {
+    for (const clanId of boxToDelete.createdClan_ids) {
       const clan = await clanModel.findById(clanId);
       expect(clan).toBeNull();
     }
 
-    for (const soulHomeId of boxToDelete.soulHome_ids) {
-      const soulHome = await soulHomeModel.findById(soulHomeId);
-      expect(soulHome).toBeNull();
-    }
+    // for (const soulHomeId of boxToDelete.soulHome_ids) {
+    //   const soulHome = await soulHomeModel.findById(soulHomeId);
+    //   expect(soulHome).toBeNull();
+    // }
 
-    for (const roomId of boxToDelete.room_ids) {
-      const room = await roomModel.findById(roomId);
-      expect(room).toBeNull();
-    }
+    // for (const roomId of boxToDelete.room_ids) {
+    //   const room = await roomModel.findById(roomId);
+    //   expect(room).toBeNull();
+    // }
 
-    for (const stockId of boxToDelete.stock_ids) {
-      const stock = await stockModel.findById(stockId);
-      expect(stock).toBeNull();
-    }
+    // for (const stockId of boxToDelete.stock_ids) {
+    //   const stock = await stockModel.findById(stockId);
+    //   expect(stock).toBeNull();
+    // }
   });
 
   it('Should not delete boxes with not expired removal time', async () => {
@@ -198,18 +186,18 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
     expect(boxToKeep.adminProfile_id.toString()).toBe(
       boxToDelete.adminProfile_id.toString(),
     );
-    expect(boxToKeep.clan_ids.map((id) => id.toString())).toEqual(
-      boxToDelete.clan_ids.map((id) => id.toString()),
+    expect(boxToKeep.createdClan_ids.map((id) => id.toString())).toEqual(
+      boxToDelete.createdClan_ids.map((id) => id.toString()),
     );
-    expect(boxToKeep.soulHome_ids.map((id) => id.toString())).toEqual(
-      boxToDelete.soulHome_ids.map((id) => id.toString()),
-    );
-    expect(boxToKeep.room_ids.map((id) => id.toString())).toEqual(
-      boxToDelete.room_ids.map((id) => id.toString()),
-    );
-    expect(boxToKeep.stock_ids.map((id) => id.toString())).toEqual(
-      boxToDelete.stock_ids.map((id) => id.toString()),
-    );
+    // expect(boxToKeep.soulHome_ids.map((id) => id.toString())).toEqual(
+    //   boxToDelete.soulHome_ids.map((id) => id.toString()),
+    // );
+    // expect(boxToKeep.room_ids.map((id) => id.toString())).toEqual(
+    //   boxToDelete.room_ids.map((id) => id.toString()),
+    // );
+    // expect(boxToKeep.stock_ids.map((id) => id.toString())).toEqual(
+    //   boxToDelete.stock_ids.map((id) => id.toString()),
+    // );
   });
 
   it('Should reset the box with expired reset time', async () => {
@@ -236,17 +224,17 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
     expect(boxToReset.adminProfile_id.toString()).not.toBe(
       boxToDelete.adminProfile_id.toString(),
     );
-    expect(boxToReset.clan_ids.map((id) => id.toString())).not.toEqual(
-      boxToDelete.clan_ids.map((id) => id.toString()),
+    expect(boxToReset.createdClan_ids.map((id) => id.toString())).not.toEqual(
+      boxToDelete.createdClan_ids.map((id) => id.toString()),
     );
-    expect(boxToReset.soulHome_ids.map((id) => id.toString())).not.toEqual(
-      boxToDelete.soulHome_ids.map((id) => id.toString()),
-    );
-    expect(boxToReset.room_ids.map((id) => id.toString())).not.toEqual(
-      boxToDelete.room_ids.map((id) => id.toString()),
-    );
-    expect(boxToReset.stock_ids.map((id) => id.toString())).not.toEqual(
-      boxToDelete.stock_ids.map((id) => id.toString()),
-    );
+    // expect(boxToReset.soulHome_ids.map((id) => id.toString())).not.toEqual(
+    //   boxToDelete.soulHome_ids.map((id) => id.toString()),
+    // );
+    // expect(boxToReset.room_ids.map((id) => id.toString())).not.toEqual(
+    //   boxToDelete.room_ids.map((id) => id.toString()),
+    // );
+    // expect(boxToReset.stock_ids.map((id) => id.toString())).not.toEqual(
+    //   boxToDelete.stock_ids.map((id) => id.toString()),
+    // );
   });
 });

@@ -58,15 +58,15 @@ export default class SessionStarterService {
     const dailyTasksToCreate = boxInDB.dailyTasks.map((task) => task['_doc']);
     const [, tasksCreationErrors] = await this.createDailyTasks(
       dailyTasksToCreate,
-      boxInDB.clan_ids[0],
-      boxInDB.clan_ids[1],
+      boxInDB.createdClan_ids[0],
+      boxInDB.createdClan_ids[1],
     );
     if (tasksCreationErrors) return [null, tasksCreationErrors];
 
     const [, clanAdminsErrors] = await this.setClanAdmins(
       boxInDB.adminPlayer_id,
-      boxInDB.clan_ids[0],
-      boxInDB.clan_ids[1],
+      boxInDB.createdClan_ids[0],
+      boxInDB.createdClan_ids[1],
     );
     if (clanAdminsErrors) return [null, clanAdminsErrors];
 
