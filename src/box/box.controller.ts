@@ -3,8 +3,7 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
-  Patch,
+  Param, Patch,
   Post,
   Put,
   UseGuards,
@@ -57,7 +56,6 @@ export class BoxController {
     errors: [400, 404],
     hasAuth: false,
   })
-  @SwaggerTags('Release on 13.07.2025', 'Box')
   @NoAuth()
   @Post()
   @UniformResponse(ModelName.BOX, CreatedBoxDto)
@@ -79,7 +77,7 @@ export class BoxController {
    *
    * @remarks Update box configuration.
    */
-  @SwaggerTags('Release on 13.07.2025', 'Box')
+  @SwaggerTags('Release on 27.07.2025', 'Box')
   @ApiResponseDescription({
     success: {
       status: 204,
@@ -219,7 +217,6 @@ export class BoxController {
     errors: [404],
     hasAuth: false,
   })
-  @SwaggerTags('Release on 13.07.2025', 'Box')
   //For time of development only
   @NoAuth()
   @Get('/')

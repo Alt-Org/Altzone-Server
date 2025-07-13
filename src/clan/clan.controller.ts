@@ -48,7 +48,6 @@ import ClanItemsDto from './dto/clanItems.dto';
 import { ApiExtraModels } from '@nestjs/swagger';
 import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { ClanChatService } from '../chat/service/clanChat.service';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
 
 @Controller('clan')
@@ -262,7 +261,6 @@ export class ClanController {
     errors: [400, 401, 403, 404],
   })
   @UniformResponse()
-  @SwaggerTags('Release on 13.07.2025', 'Clan')
   @Post('join')
   public async createJoin(
     @Body() body: JoinRequestDto,
