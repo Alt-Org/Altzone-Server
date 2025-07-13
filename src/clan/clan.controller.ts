@@ -48,7 +48,6 @@ import ClanItemsDto from './dto/clanItems.dto';
 import { ApiExtraModels } from '@nestjs/swagger';
 import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { ClanChatService } from '../chat/service/clanChat.service';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
 
 @Controller('clan')

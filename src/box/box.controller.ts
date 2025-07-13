@@ -26,7 +26,6 @@ import { BoxAuthGuard } from './auth/boxAuth.guard';
 import SessionStarterService from './sessionStarter/sessionStarter.service';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { BoxDto } from './dto/box.dto';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
