@@ -16,7 +16,6 @@ import { Box } from '../../../box/schemas/box.schema';
 import { envVars } from '../../../common/service/envHandler/envVars';
 import { Environment } from '../../../common/service/envHandler/enum/environment.enum';
 import { SEReason } from '../../../common/service/basicService/SEReason';
-import ItemModule from '../../clanInventory/modules/item.module';
 
 describe('BoxService.deleteBox() test suite', () => {
   envVars.ENVIRONMENT = Environment.TESTING_SESSION;
@@ -33,7 +32,6 @@ describe('BoxService.deleteBox() test suite', () => {
   const soulHomeModel = SoulhomeModule.getSoulhomeModel();
   const roomModel = RoomModule.getRoomModel();
   const stockModel = StockModule.getStockModel();
-  const itemModel = ItemModule.getItemModel();
 
   const adminBuilder = BoxBuilderFactory.getBuilder('GroupAdmin');
   const testerBuilder = BoxBuilderFactory.getBuilder('Tester');
