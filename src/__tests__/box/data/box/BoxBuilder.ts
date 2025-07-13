@@ -2,7 +2,7 @@ import { SessionStage } from '../../../../box/enum/SessionStage.enum';
 import { Box } from '../../../../box/schemas/box.schema';
 import { ObjectId } from 'mongodb';
 import { PredefinedDailyTask } from '../../../../box/dailyTask/predefinedDailyTask.schema';
-import { ClanToCreateDto } from '../../../../box/dto/clanToCreate.dto';
+import { ClanToCreate } from '../../../../box/schemas/clanToCreate.schema';
 
 export default class BoxBuilder {
   private readonly base: Box = {
@@ -61,7 +61,7 @@ export default class BoxBuilder {
     return this;
   }
 
-  setClansToCreate(clansToCreate: ClanToCreateDto[]) {
+  setClansToCreate(clansToCreate: ClanToCreate[]) {
     this.base.clansToCreate = clansToCreate;
     return this;
   }
