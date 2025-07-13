@@ -18,6 +18,7 @@ import { convertMongooseToServiceErrors } from '../common/service/basicService/B
 import { BoxService } from './box.service';
 import { CreatedBox } from './payloads/CreatedBox';
 import { ProfileDto } from '../profile/dto/profile.dto';
+import { ConfigureBoxDto } from './dto/configureBox.dto';
 
 @Injectable()
 export default class BoxCreator {
@@ -209,5 +210,10 @@ export default class BoxCreator {
     }
 
     return [adminPlayer.data[adminPlayer.metaData.dataKey], null];
+  }
+
+  async configureBox(box_id: string, body: ConfigureBoxDto) {
+    const box = { _id: new ObjectId(box_id), ...body };
+    return await this.boxService.updateOneById(box);
   }
 }
