@@ -9,7 +9,7 @@ import {
   PredefinedDailyTask,
   PredefinedDailyTaskSchema,
 } from '../dailyTask/predefinedDailyTask.schema';
-import { ClanToCreateDto } from '../dto/clanToCreate.dto';
+import { ClanToCreate, ClanToCreateSchema } from './clanToCreate.schema';
 
 export type BoxDocument = HydratedDocument<Box>;
 
@@ -73,8 +73,8 @@ export class Box {
   /**
    * Clan data to be created when session goes to testing stage.
    */
-  @Prop({ type: [ClanToCreateDto] })
-  clansToCreate: ClanToCreateDto[];
+  @Prop({ type: [ClanToCreateSchema] })
+  clansToCreate: ClanToCreate[];
 
   /**
    * IDs of created clans when session goes to testing stage.
