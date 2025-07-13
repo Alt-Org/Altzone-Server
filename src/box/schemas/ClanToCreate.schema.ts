@@ -6,7 +6,7 @@ export class ClanToCreate {
   name: string;
 
   @Prop({ type: Boolean, default: true })
-  isOpen: boolean;
+  isOpen?: boolean;
 }
 
 export const ClanToCreateSchema = SchemaFactory.createForClass(ClanToCreate);
