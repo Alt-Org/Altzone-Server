@@ -29,17 +29,17 @@ export class FeedbackController {
   @Post('add')
   @UniformResponse()
   async create(@Body() feedbackDto: FeedbackDto, @LoggedUser() user: User) {
-    if (envVars.ENVIRONMENT != 'TESTING_SESSION')
-    {
+    if (envVars.ENVIRONMENT != 'TESTING_SESSION') {
       return [
-              null,
-              [
-                new APIError({
-                  reason: APIErrorReason.MISCONFIGURED,
-                  message: 'The Feedback feature is available only in test environments!',
-                }),
-              ],
-            ];
+        null,
+        [
+          new APIError({
+            reason: APIErrorReason.MISCONFIGURED,
+            message:
+              'The Feedback feature is available only in test environments!',
+          }),
+        ],
+      ];
     }
 
     return this.feedbackService.createOne(feedbackDto, user);
