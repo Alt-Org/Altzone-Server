@@ -6,6 +6,9 @@ import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
+import { envVars } from '../common/service/envHandler/envVars';
+import { APIError } from '../common/controller/APIError';
+import { APIErrorReason } from '../common/controller/APIErrorReason';
 
 @Controller('feedback')
 export class FeedbackController {
@@ -26,6 +29,19 @@ export class FeedbackController {
   @Post('add')
   @UniformResponse()
   async create(@Body() feedbackDto: FeedbackDto, @LoggedUser() user: User) {
+    if (envVars.ENVIRONMENT != 'TESTING_SESSION')
+    {
+      return [
+              null,
+              [
+                new APIError({
+                  reason: APIErrorReason.MISCONFIGURED,
+                  message: 'The Feedback feature is available only in test environments!',
+                }),
+              ],
+            ];
+    }
+
     return this.feedbackService.createOne(feedbackDto, user);
   }
 }
