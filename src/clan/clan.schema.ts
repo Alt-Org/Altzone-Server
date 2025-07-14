@@ -47,6 +47,9 @@ export class Clan {
   @Prop({ type: Boolean, default: true })
   isOpen: boolean;
 
+  @Prop({ type: String })
+  password: string;
+
   @Prop({ type: String, enum: AgeRange, default: AgeRange.NONE })
   ageRange: AgeRange;
 

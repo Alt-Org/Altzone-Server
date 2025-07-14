@@ -2,6 +2,7 @@ import { UpdateBoxDto } from '../../../../box/dto/updateBox.dto';
 import { SessionStage } from '../../../../box/enum/SessionStage.enum';
 import { ObjectId } from 'mongodb';
 import { DailyTask } from '../../../../dailyTasks/dailyTasks.schema';
+import { ClanToCreateDto } from '../../../../box/dto/clanToCreate.dto';
 
 export default class UpdateBoxDtoBuilder {
   private readonly base: Partial<UpdateBoxDto> = {
@@ -13,10 +14,8 @@ export default class UpdateBoxDtoBuilder {
     sessionResetTime: undefined,
     adminProfile_id: undefined,
     adminPlayer_id: undefined,
-    clan_ids: undefined,
-    soulHome_ids: undefined,
-    room_ids: undefined,
-    stock_ids: undefined,
+    createdClan_ids: undefined,
+    clansToCreate: undefined,
     chat_id: undefined,
     accountClaimersIds: undefined,
     dailyTasks: undefined,
@@ -66,23 +65,13 @@ export default class UpdateBoxDtoBuilder {
     return this;
   }
 
-  setClanIds(clanIds: ObjectId[]) {
-    this.base.clan_ids = clanIds;
+  setCreatedClan_ids(clanIds: ObjectId[]) {
+    this.base.createdClan_ids = clanIds;
     return this;
   }
 
-  setSoulHomeIds(soulHomeIds: ObjectId[]) {
-    this.base.soulHome_ids = soulHomeIds;
-    return this;
-  }
-
-  setRoomIds(roomIds: ObjectId[]) {
-    this.base.room_ids = roomIds;
-    return this;
-  }
-
-  setStockIds(stockIds: ObjectId[]) {
-    this.base.stock_ids = stockIds;
+  setClansToCreate(clans: ClanToCreateDto[]) {
+    this.base.clansToCreate = clans;
     return this;
   }
 

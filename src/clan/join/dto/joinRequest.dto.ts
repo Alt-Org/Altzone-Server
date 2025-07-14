@@ -1,7 +1,6 @@
 import { IsMongoId, IsOptional, IsString } from 'class-validator';
 import { IsClanExists } from '../../../clan/decorator/validation/IsClanExists.decorator';
 import AddType from '../../../common/base/decorator/AddType.decorator';
-import { IsPlayerExists } from '../../../player/decorator/validation/IsPlayerExists.decorator';
 
 @AddType('JoinRequestDto')
 export class JoinRequestDto {
@@ -14,18 +13,10 @@ export class JoinRequestDto {
   clan_id: string;
 
   /**
-   * The ID of the player submitting the join request
-   * @example "6643ec9cbeddb7e88fc76ae3"
-   */
-  @IsPlayerExists()
-  @IsMongoId()
-  player_id: string;
-
-  /**
-   * Optional message provided with the join request
-   * @example "Looking forward to playing with you all!"
+   * Password need to join if the clan is closed.
+   * @example "P4sswrd!"
    */
   @IsString()
   @IsOptional()
-  join_message: string;
+  password?: string;
 }

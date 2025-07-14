@@ -20,6 +20,7 @@ export default class ClanBuilder implements IDataBuilder<ClanDto> {
     itemCount: 0,
     stockCount: 0,
     isOpen: true,
+    password: undefined,
     ageRange: AgeRange.ALL,
     goal: Goal.NONE,
     phrase: '',
@@ -85,6 +86,11 @@ export default class ClanBuilder implements IDataBuilder<ClanDto> {
 
   setIsOpen(isOpen: boolean) {
     this.base.isOpen = isOpen;
+    return this;
+  }
+
+  setPassword(password: string) {
+    this.base.password = password;
     return this;
   }
 

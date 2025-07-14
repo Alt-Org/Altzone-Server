@@ -3,20 +3,22 @@ import ClanBuilderFactory from '../../data/clanBuilderFactory';
 import ClanModule from '../../modules/clan.module';
 import PlayerModule from '../../../player/modules/player.module';
 import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
-import { ObjectId } from 'mongodb';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { MemberClanRole } from '../../../../clan/role/initializationClanRoles';
 
 describe('JoinService.handleJoinRequest() test suite', () => {
   let joinService: JoinService;
   const joinBuilder = ClanBuilderFactory.getBuilder('JoinRequestDto');
-  const joinModel = ClanModule.getJoinModel();
 
   const clanModel = ClanModule.getClanModel();
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
   const openClan = clanBuilder.setIsOpen(true).setName('openClan').build();
-  const closedClan = clanBuilder.setIsOpen(false).setName('closedClan').build();
+  const closedClan = clanBuilder
+    .setIsOpen(false)
+    .setName('closedClan')
+    .setPassword('password')
+    .build();
 
   const playerModel = PlayerModule.getPlayerModel();
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
@@ -34,32 +36,10 @@ describe('JoinService.handleJoinRequest() test suite', () => {
     joinService = await ClanModule.getJoinService();
   });
 
-  it('Should create a clan join request in DB if input is valid', async () => {
-    const joinToCreate = joinBuilder
-      .setClanId(closedClan._id)
-      .setPlayerId(player._id)
-      .build();
-
-    await joinService.handleJoinRequest(joinToCreate);
-
-    const dbData = await joinModel.findOne({
-      clan_id: closedClan._id,
-      player_id: player._id,
-    });
-
-    expect(dbData.toObject()).toMatchObject({
-      ...joinToCreate,
-      _id: expect.any(ObjectId),
-    });
-  });
-
   it(`Should set clan role for the joined player to ${MemberClanRole.name}`, async () => {
-    const joinToCreate = joinBuilder
-      .setClanId(openClan._id)
-      .setPlayerId(player._id)
-      .build();
+    const joinToCreate = joinBuilder.setClanId(openClan._id).build();
 
-    await joinService.handleJoinRequest(joinToCreate);
+    await joinService.handleJoinRequest(joinToCreate.clan_id, player._id);
 
     const clanInDB = await clanModel.findById(openClan._id);
     const memberRole = clanInDB.roles.find(
@@ -73,101 +53,50 @@ describe('JoinService.handleJoinRequest() test suite', () => {
 
   it('Should throw NotFoundException if clan with that _id does not exists', async () => {
     const nonExisting_id = getNonExisting_id();
-    const joinToCreate = joinBuilder
-      .setClanId(nonExisting_id)
-      .setPlayerId(player._id)
-      .build();
+    const joinToCreate = joinBuilder.setClanId(nonExisting_id).build();
 
-    await expect(joinService.handleJoinRequest(joinToCreate)).rejects.toThrow(
-      NotFoundException,
-    );
-  });
-
-  it('Should not create join request in DB if clan with that _id does not exists', async () => {
-    const nonExisting_id = getNonExisting_id();
-    const joinToCreate = joinBuilder
-      .setClanId(nonExisting_id)
-      .setPlayerId(player._id)
-      .build();
-
-    try {
-      await joinService.handleJoinRequest(joinToCreate);
-    } catch (e) {
-      void e;
-    }
-
-    const dbData = await joinModel.findOne({
-      clan_id: nonExisting_id,
-      player_id: player._id,
-    });
-
-    expect(dbData).toBeNull();
+    await expect(
+      joinService.handleJoinRequest(joinToCreate.clan_id, player._id),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('Should throw NotFoundException if player with that _id does not exists', async () => {
     const nonExisting_id = getNonExisting_id();
-    const joinToCreate = joinBuilder
-      .setClanId(openClan._id)
-      .setPlayerId(nonExisting_id)
-      .build();
+    const joinToCreate = joinBuilder.setClanId(openClan._id).build();
 
-    await expect(joinService.handleJoinRequest(joinToCreate)).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(
+      joinService.handleJoinRequest(joinToCreate.clan_id, nonExisting_id),
+    ).rejects.toThrow(NotFoundException);
   });
 
-  it('Should not create join request in DB if player with that _id does not exists', async () => {
-    const nonExisting_id = getNonExisting_id();
-    const joinToCreate = joinBuilder
-      .setClanId(openClan._id)
-      .setPlayerId(nonExisting_id)
-      .build();
-
-    try {
-      await joinService.handleJoinRequest(joinToCreate);
-    } catch (e) {
-      void e;
-    }
-
-    const dbData = await joinModel.findOne({
-      clan_id: openClan._id,
-      player_id: nonExisting_id,
-    });
-
-    expect(dbData).toBeNull();
-  });
-
-  it('Should throw BadRequestException if join request to closed clan is without message', async () => {
+  it('Should throw BadRequestException if join request to closed clan is without password', async () => {
     const joinToCreate = joinBuilder
       .setClanId(closedClan._id)
-      .setPlayerId(player._id)
-      .setJoinMessage(undefined)
+      .setPassword(undefined)
       .build();
 
-    await expect(joinService.handleJoinRequest(joinToCreate)).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(
+      joinService.handleJoinRequest(
+        joinToCreate.clan_id,
+        player._id,
+        joinToCreate.password,
+      ),
+    ).rejects.toThrow(UnauthorizedException);
   });
 
-  it('Should not create join request in DB if join request to closed clan is without message', async () => {
+  it('Should throw BadRequestException if join request to closed clan is with wrong password', async () => {
     const joinToCreate = joinBuilder
       .setClanId(closedClan._id)
-      .setPlayerId(player._id)
-      .setJoinMessage(undefined)
+      .setPassword('NotCorrectPasSWurD')
       .build();
 
-    try {
-      await joinService.handleJoinRequest(joinToCreate);
-    } catch (e) {
-      void e;
-    }
-
-    const dbData = await joinModel.findOne({
-      clan_id: openClan._id,
-      player_id: player._id,
-    });
-
-    expect(dbData).toBeNull();
+    await expect(
+      joinService.handleJoinRequest(
+        joinToCreate.clan_id,
+        player._id,
+        joinToCreate.password,
+      ),
+    ).rejects.toThrow(UnauthorizedException);
   });
 
   it('Should remove clan if the last player of it make a join request to another open clan', async () => {
@@ -178,11 +107,8 @@ describe('JoinService.handleJoinRequest() test suite', () => {
     const oldClan = await clanModel.create(oldClanToCreate);
     await playerModel.updateOne({ _id: player._id }, { clan_id: oldClan._id });
 
-    const joinToCreate = joinBuilder
-      .setClanId(openClan._id)
-      .setPlayerId(player._id)
-      .build();
-    await joinService.handleJoinRequest(joinToCreate);
+    const joinToCreate = joinBuilder.setClanId(openClan._id).build();
+    await joinService.handleJoinRequest(joinToCreate.clan_id, player._id);
 
     const oldClanInDB = await clanModel.findById(oldClan._id);
 
@@ -203,11 +129,8 @@ describe('JoinService.handleJoinRequest() test suite', () => {
       .build();
     await playerModel.create(anotherClanMember);
 
-    const joinToCreate = joinBuilder
-      .setClanId(openClan._id)
-      .setPlayerId(player._id)
-      .build();
-    await joinService.handleJoinRequest(joinToCreate);
+    const joinToCreate = joinBuilder.setClanId(openClan._id).build();
+    await joinService.handleJoinRequest(joinToCreate.clan_id, player._id);
 
     const oldClanInDB = await clanModel.findById(oldClan._id);
 

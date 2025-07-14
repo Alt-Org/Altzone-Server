@@ -29,7 +29,6 @@ export class AccountClaimerController {
     errors: [400, 403, 404],
     hasAuth: false,
   })
-  @SwaggerTags('Release on 13.07.2025', 'Box')
   @NoAuth()
   @Post()
   @UniformResponse(ModelName.PLAYER, ClaimedAccountDto)

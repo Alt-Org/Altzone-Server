@@ -50,7 +50,7 @@ describe('SessionStarterService.start() test suite', () => {
       .setAdminPassword('password')
       .setAdminPlayerId(new ObjectId())
       .setAdminProfileId(new ObjectId())
-      .setClanIds([
+      .setCreatedClan_ids([
         new ObjectId(existingClan1._id),
         new ObjectId(existingClan2._id),
       ])
@@ -73,7 +73,7 @@ describe('SessionStarterService.start() test suite', () => {
 
     const clanDailyTask = existingBox.dailyTasks;
     const boxDailyTasksInDB = await dailyTaskModel.find({
-      clan_id: { $in: existingBox.clan_ids },
+      clan_id: { $in: existingBox.createdClan_ids },
     });
 
     expect(boxDailyTasksInDB).toHaveLength(clanDailyTask.length * 2);
@@ -83,7 +83,7 @@ describe('SessionStarterService.start() test suite', () => {
     await starter.start(existingBox._id);
 
     const clansInDB = await clanModel.find({
-      _id: { $in: existingBox.clan_ids },
+      _id: { $in: existingBox.createdClan_ids },
     });
 
     expect(clansInDB[0].admin_ids).not.toBeNull();
@@ -95,10 +95,10 @@ describe('SessionStarterService.start() test suite', () => {
     const clan2Admin_id = clansInDB[1].admin_ids[0];
 
     const clan1Admin = await playerModel.findById(clan1Admin_id);
-    const clan1 = await clanModel.findById(existingBox.clan_ids[0]);
+    const clan1 = await clanModel.findById(existingBox.createdClan_ids[0]);
     expect(clan1Admin.clan_id.toString()).toBe(clan1._id.toString());
     const clan2Admin = await playerModel.findById(clan2Admin_id);
-    const clan2 = await clanModel.findById(existingBox.clan_ids[1]);
+    const clan2 = await clanModel.findById(existingBox.createdClan_ids[1]);
     expect(clan2Admin.clan_id.toString()).toBe(clan2._id.toString());
   });
 

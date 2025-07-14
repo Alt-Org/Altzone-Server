@@ -71,7 +71,7 @@ export default class AccountClaimerService {
     const [accountClan, clanAssigningErrors] =
       await this.testerService.addTesterToClan(
         account.Player._id,
-        box.clan_ids,
+        box.createdClan_ids,
       );
     if (clanAssigningErrors) return [null, clanAssigningErrors];
 

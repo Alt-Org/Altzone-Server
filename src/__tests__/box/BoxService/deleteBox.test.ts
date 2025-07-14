@@ -16,7 +16,6 @@ import { Box } from '../../../box/schemas/box.schema';
 import { envVars } from '../../../common/service/envHandler/envVars';
 import { Environment } from '../../../common/service/envHandler/enum/environment.enum';
 import { SEReason } from '../../../common/service/basicService/SEReason';
-import ItemModule from '../../clanInventory/modules/item.module';
 
 describe('BoxService.deleteBox() test suite', () => {
   envVars.ENVIRONMENT = Environment.TESTING_SESSION;
@@ -33,7 +32,6 @@ describe('BoxService.deleteBox() test suite', () => {
   const soulHomeModel = SoulhomeModule.getSoulhomeModel();
   const roomModel = RoomModule.getRoomModel();
   const stockModel = StockModule.getStockModel();
-  const itemModel = ItemModule.getItemModel();
 
   const adminBuilder = BoxBuilderFactory.getBuilder('GroupAdmin');
   const testerBuilder = BoxBuilderFactory.getBuilder('Tester');
@@ -126,21 +124,9 @@ describe('BoxService.deleteBox() test suite', () => {
       .setAdminPassword(existingAdmin.password)
       .setAdminPlayerId(new ObjectId(adminPlayer._id))
       .setAdminProfileId(new ObjectId(adminProfile._id))
-      .setClanIds([
+      .setCreatedClan_ids([
         new ObjectId(existingClan1._id),
         new ObjectId(existingClan2._id),
-      ])
-      .setSoulHomeIds([
-        new ObjectId(existingSoulHome1._id),
-        new ObjectId(existingSoulHome2._id),
-      ])
-      .setRoomIds([
-        new ObjectId(existingRoom1._id),
-        new ObjectId(existingRoom2._id),
-      ])
-      .setStockIds([
-        new ObjectId(existingStock1._id),
-        new ObjectId(existingStock2._id),
       ])
       .build();
 
@@ -160,7 +146,7 @@ describe('BoxService.deleteBox() test suite', () => {
 
     it('Should remove all clans associated with the box', async () => {
       const clansInDB = await clanModel.find({
-        _id: { $in: existingBox.clan_ids },
+        _id: { $in: existingBox.createdClan_ids },
       });
       expect(clansInDB).toHaveLength(0);
     });
@@ -179,58 +165,59 @@ describe('BoxService.deleteBox() test suite', () => {
       expect(profileInDB).toHaveLength(0);
     });
 
-    it('Should remove all soul homes', async () => {
-      const soulHomesInDB = await soulHomeModel.find({
-        _id: { $in: existingBox.soulHome_ids },
-      });
-      expect(soulHomesInDB).toHaveLength(0);
+    //   it('Should remove all soul homes', async () => {
+    //     const soulHomesInDB = await soulHomeModel.find({
+    //       _id: { $in: existingBox.soulHome_ids },
+    //     });
+    //     expect(soulHomesInDB).toHaveLength(0);
+    //   });
+
+    //   it('Should remove all rooms associated with soul homes', async () => {
+    //     const roomsInDB = await roomModel.find({
+    //       _id: { $in: existingBox.room_ids },
+    //     });
+    //     expect(roomsInDB).toHaveLength(0);
+    //   });
+
+    //   it('Should remove all stocks', async () => {
+    //     const stocksInDB = await stockModel.find({
+    //       _id: { $in: existingBox.stock_ids },
+    //     });
+    //     expect(stocksInDB).toHaveLength(0);
+    //   });
+    // });
+
+    it('Should throw an error if the box does not exist', async () => {
+      const nonExistentBoxId = new ObjectId().toString();
+
+      const [_, err] = await boxService.deleteBox(nonExistentBoxId);
+
+      expect(err).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            reason: SEReason.NOT_FOUND,
+            message: 'Could not find any objects with specified id',
+            field: '_id',
+            value: nonExistentBoxId,
+          }),
+        ]),
+      );
     });
 
-    it('Should remove all rooms associated with soul homes', async () => {
-      const roomsInDB = await roomModel.find({
-        _id: { $in: existingBox.room_ids },
-      });
-      expect(roomsInDB).toHaveLength(0);
-    });
+    // it('Should remove all items in the soul homes', async () => {
+    //   // Assuming you have a model or method to query soul home items
+    //   const soulHomeItems = await itemModel.find({
+    //     soulHome_id: { $in: existingBox.soulHome_ids },
+    //   });
+    //   expect(soulHomeItems).toHaveLength(0);
+    // });
 
-    it('Should remove all stocks', async () => {
-      const stocksInDB = await stockModel.find({
-        _id: { $in: existingBox.stock_ids },
-      });
-      expect(stocksInDB).toHaveLength(0);
-    });
-  });
-
-  it('Should throw an error if the box does not exist', async () => {
-    const nonExistentBoxId = new ObjectId().toString();
-
-    const [_, err] = await boxService.deleteBox(nonExistentBoxId);
-
-    expect(err).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          reason: SEReason.NOT_FOUND,
-          message: 'Could not find any objects with specified id',
-          field: '_id',
-          value: nonExistentBoxId,
-        }),
-      ]),
-    );
-  });
-
-  it('Should remove all items in the soul homes', async () => {
-    // Assuming you have a model or method to query soul home items
-    const soulHomeItems = await itemModel.find({
-      soulHome_id: { $in: existingBox.soulHome_ids },
-    });
-    expect(soulHomeItems).toHaveLength(0);
-  });
-
-  it('Should remove all items in the stocks', async () => {
-    // Assuming you have a model or method to query stock items
-    const stockItems = await itemModel.find({
-      stock_id: { $in: existingBox.stock_ids },
-    });
-    expect(stockItems).toHaveLength(0);
+    // it('Should remove all items in the stocks', async () => {
+    //   // Assuming you have a model or method to query stock items
+    //   const stockItems = await itemModel.find({
+    //     stock_id: { $in: existingBox.stock_ids },
+    //   });
+    //   expect(stockItems).toHaveLength(0);
+    // });
   });
 });

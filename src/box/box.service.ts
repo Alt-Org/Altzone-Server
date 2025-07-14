@@ -163,10 +163,10 @@ export class BoxService {
     const session = await this.model.startSession();
     session.startTransaction();
 
-    if (boxData.clan_ids) {
-      for (let i = 0; i < boxData.clan_ids.length; i++) {
+    if (boxData.createdClan_ids) {
+      for (let i = 0; i < boxData.createdClan_ids.length; i++) {
         const [, deleteErrors] = await this.clanService.deleteOneById(
-          boxData.clan_ids[i].toString(),
+          boxData.createdClan_ids[i].toString(),
         );
         if (deleteErrors) await cancelTransaction(session, deleteErrors);
       }

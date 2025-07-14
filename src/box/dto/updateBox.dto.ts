@@ -1,4 +1,6 @@
 import {
+  ArrayMaxSize,
+  ArrayMinSize,
   IsArray,
   IsEnum,
   IsMongoId,
@@ -11,6 +13,7 @@ import { SessionStage } from '../enum/SessionStage.enum';
 import { ObjectId } from 'mongodb';
 import { Type } from 'class-transformer';
 import { DailyTask } from '../../dailyTasks/dailyTasks.schema';
+import { ClanToCreateDto } from './clanToCreate.dto';
 
 export class UpdateBoxDto {
   /**
@@ -92,37 +95,18 @@ export class UpdateBoxDto {
   @IsOptional()
   @IsArray()
   @IsMongoId({ each: true })
-  clan_ids?: ObjectId[];
+  createdClan_ids?: ObjectId[];
 
   /**
-   * Updated SoulHome IDs
-   *
-   * @example ["663a7409de9f1a0012f3db20"]
+   * Updated list of clans to create.
    */
-  @IsOptional()
   @IsArray()
-  @IsMongoId({ each: true })
-  soulHome_ids?: ObjectId[];
-
-  /**
-   * Updated room IDs
-   *
-   * @example ["663a743bde9f1a0012f3db30"]
-   */
+  @ArrayMinSize(2)
+  @ArrayMaxSize(2)
+  @ValidateNested({ each: true })
+  @Type(() => ClanToCreateDto)
   @IsOptional()
-  @IsArray()
-  @IsMongoId({ each: true })
-  room_ids?: ObjectId[];
-
-  /**
-   * Updated stock IDs
-   *
-   * @example ["663a7475de9f1a0012f3db40"]
-   */
-  @IsOptional()
-  @IsArray()
-  @IsMongoId({ each: true })
-  stock_ids?: ObjectId[];
+  clansToCreate?: ClanToCreateDto[];
 
   /**
    * Updated chat ID
