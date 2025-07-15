@@ -47,6 +47,7 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
 // Set up redis connection
 const redisHost = envVars.REDIS_HOST;
 const redisPort = parseInt(envVars.REDIS_PORT);
+const testEnvironmentName = 'TESTING_SESSION';
 
 const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
 
@@ -56,7 +57,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
     // MongooseModule.forRoot(mongoString, { dbName: dbName }),
     MongooseModule.forRootAsync({
       useFactory: async (): Promise<MongooseModuleOptions> => {
-        if (envVars.ENVIRONMENT === 'TESTING_SESSION')
+        if (envVars.ENVIRONMENT === testEnvironmentName)
           mongoose.plugin(addBoxIdToSchemaPlugin);
 
         return {
@@ -103,7 +104,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
     ShopModule,
 
     MetadataModule,
-    FeedbackModule,
+    ...(envVars.ENVIRONMENT === testEnvironmentName ? [FeedbackModule] : []),
   ],
   controllers: [AppController],
   providers: [
