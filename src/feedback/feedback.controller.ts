@@ -14,7 +14,7 @@ export class FeedbackController {
   /**
    * Test/Admin users send feedbacks to the developers
    *
-   * @remarks Available only on the test enviremontes.
+   * @remarks Available only on the test environments.
    *
    */
   @ApiResponseDescription({
