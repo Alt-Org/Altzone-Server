@@ -20,5 +20,3 @@ export class Feedback {
 }
 
 export const FeedbackSchema = SchemaFactory.createForClass(Feedback);
-
-export const publicReferences = [ModelName.FEEDBACK];
