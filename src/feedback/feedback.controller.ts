@@ -31,4 +31,4 @@ export class FeedbackController {
   async create(@Body() feedbackDto: FeedbackDto, @LoggedUser() user: User) {
     return this.feedbackService.createOne(feedbackDto, user);
   }
-} 
+}
