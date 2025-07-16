@@ -2,6 +2,7 @@ import { FeedbackService } from '../../../feedback/feedback.service';
 import FeedbackModule from '../modules/feedback.module';
 import FeedbackBuilderFactory from '../data/feedbackBuilderFactory';
 import AuthBuilderFactory from '../../auth/data/authBuilderFactory';
+import { ObjectId } from 'mongodb';
 
 describe('FeedbackService.createOne() test suite', () => {
   let feedbackService: FeedbackService;
@@ -9,7 +10,7 @@ describe('FeedbackService.createOne() test suite', () => {
 
   const userBuilder = AuthBuilderFactory.getBuilder('User');
 
-  const profile_id = new Object().toString();
+  const profile_id = new ObjectId().toString();
   const user = userBuilder.setProfileId(profile_id).build();
 
   const createFeedbackDtoBuilder =
