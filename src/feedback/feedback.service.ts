@@ -26,8 +26,10 @@ export class FeedbackService {
    * @param user - The user making the request.
    * @returns  created Feedback or an array of service errors if any occurred.
    */
-  async createOne(feedbackDto: FeedbackDto, user: User):
-   Promise<IServiceReturn<CreateFeedbackDto>> {
+  async createOne(
+    feedbackDto: FeedbackDto,
+    user: User,
+  ): Promise<IServiceReturn<CreateFeedbackDto>> {
     const createFeedback: CreateFeedbackDto = {
       text: feedbackDto.text,
       profile_id: user.profile_id,
