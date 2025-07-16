@@ -16,7 +16,7 @@ export class FeedbackService {
     this.basicService = new BasicService(model);
   }
 
-  public readonly basicService: BasicService;
+  private readonly basicService: BasicService;
 
   /**
    * Creates an new Feedback in DB.
