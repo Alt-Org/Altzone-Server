@@ -1,13 +1,13 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { _idDto } from '../common/dto/_id.dto';
 import { FeedbackService } from './feedback.service';
-import { FeedbackDto } from './dto/Feedback.dto';
+import { CreateFeedbackDto } from './dto/createFeedback.dto';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { ModelName } from '../common/enum/modelName.enum';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
+import { FeedbackDto } from './dto/feedback.dto';
 
 @Controller('feedback')
 export class FeedbackController {
@@ -22,13 +22,18 @@ export class FeedbackController {
   @ApiResponseDescription({
     success: {
       status: 201,
+      modelName: ModelName.FEEDBACK,
+      dto: FeedbackDto,
     },
     errors: [],
   })
   @Post('add')
-  @SwaggerTags('Feedback')
+  @SwaggerTags('Release on 27.07.2025', 'Feedback')
   @UniformResponse(ModelName.FEEDBACK)
-  async create(@Body() feedbackDto: FeedbackDto, @LoggedUser() user: User) {
+  async create(
+    @Body() feedbackDto: CreateFeedbackDto,
+    @LoggedUser() user: User,
+  ) {
     return this.feedbackService.createOne(feedbackDto, user);
   }
 }

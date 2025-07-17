@@ -4,9 +4,9 @@ import BasicService from '../common/service/basicService/BasicService';
 import { Model } from 'mongoose';
 import { Feedback } from './feedback.schema';
 import { CreateFeedbackDto } from './dto/createFeedback.dto';
-import { FeedbackDto } from './dto/Feedback.dto';
 import { User } from '../auth/user';
 import { IServiceReturn } from '../common/service/basicService/IService';
+import { CreateFeedback } from './payloads/createFeedback';
 
 @Injectable()
 export class FeedbackService {
@@ -20,21 +20,21 @@ export class FeedbackService {
   private readonly basicService: BasicService;
 
   /**
-   * Creates an new Feedback in DB.
+   * Creates a new Feedback in DB.
    *
    * @param feedbackDto - The Feedback data to create.
    * @param user - The user making the request.
    * @returns  created Feedback or an array of service errors if any occurred.
    */
   async createOne(
-    feedbackDto: FeedbackDto,
+    feedbackDto: CreateFeedbackDto,
     user: User,
-  ): Promise<IServiceReturn<CreateFeedbackDto>> {
-    const createFeedback: CreateFeedbackDto = {
+  ): Promise<IServiceReturn<CreateFeedback>> {
+    const createFeedback: CreateFeedback = {
       text: feedbackDto.text,
       profile_id: user.profile_id,
       capturedAt: new Date(),
     };
-    return this.basicService.createOne<CreateFeedbackDto>(createFeedback);
+    return this.basicService.createOne<CreateFeedback>(createFeedback);
   }
 }

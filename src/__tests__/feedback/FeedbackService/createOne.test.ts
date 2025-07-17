@@ -13,9 +13,9 @@ describe('FeedbackService.createOne() test suite', () => {
   const profile_id = new ObjectId().toString();
   const user = userBuilder.setProfileId(profile_id).build();
 
-  const createFeedbackDtoBuilder =
-    FeedbackBuilderFactory.getBuilder('CreateFeedbackDto');
-  const createFeedbackDto = createFeedbackDtoBuilder
+  const createFeedbackBuilder =
+    FeedbackBuilderFactory.getBuilder('CreateFeedback');
+  const createFeedbackDto = createFeedbackBuilder
     .setProfileId(profile_id)
     .build();
 

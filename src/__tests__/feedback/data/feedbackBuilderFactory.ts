@@ -1,18 +1,18 @@
-import FeedbackDtoBuilder from './feedback/FeedbackDtoBuilder';
+import CreateFeedbackBuilder from './feedback/CreateFeedbackBuilder';
 import CreateFeedbackDtoBuilder from './feedback/CreateFeedbackDtoBuilder';
 
-type BuilderName = 'FeedbackDto' | 'CreateFeedbackDto';
+type BuilderName = 'CreateFeedback' | 'CreateFeedbackDto';
 
 type BuilderMap = {
-  FeedbackDto: FeedbackDtoBuilder;
+  CreateFeedback: CreateFeedbackBuilder;
   CreateFeedbackDto: CreateFeedbackDtoBuilder;
 };
 
 export default class FeedbackBuilderFactory {
   static getBuilder<T extends BuilderName>(builderName: T): BuilderMap[T] {
     switch (builderName) {
-      case 'FeedbackDto':
-        return new FeedbackDtoBuilder() as BuilderMap[T];
+      case 'CreateFeedback':
+        return new CreateFeedbackBuilder() as BuilderMap[T];
       case 'CreateFeedbackDto':
         return new CreateFeedbackDtoBuilder() as BuilderMap[T];
       default:

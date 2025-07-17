@@ -133,7 +133,7 @@ export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
   },
   Feedback: {
     name: 'Feedback',
-    description: 'Feedback',
+    description: 'Players feedback about the game',
   },
 };
 
