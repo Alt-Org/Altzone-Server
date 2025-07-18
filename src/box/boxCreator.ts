@@ -18,6 +18,9 @@ import { convertMongooseToServiceErrors } from '../common/service/basicService/B
 import { BoxService } from './box.service';
 import { CreatedBox } from './payloads/CreatedBox';
 import { ProfileDto } from '../profile/dto/profile.dto';
+import { ClanService } from '../clan/clan.service';
+import { ClanDto } from '../clan/dto/clan.dto';
+import { ClanLabel } from '../clan/enum/clanLabel.enum';
 
 @Injectable()
 export default class BoxCreator {
@@ -32,6 +35,7 @@ export default class BoxCreator {
     private readonly profilesService: ProfileService,
     private readonly playerService: PlayerService,
     private readonly boxService: BoxService,
+    private readonly clanService: ClanService,
   ) {}
 
   /**
@@ -209,5 +213,48 @@ export default class BoxCreator {
     }
 
     return [adminPlayer.data[adminPlayer.metaData.dataKey], null];
+  }
+
+  /**
+   * Creates 2 clans for the box.
+   *
+   * Notice that names of the clans should be unique.
+   *
+   * @param clanName1 name of the first clan
+   * @param clanName2 name of the second clan
+   * @param box_id Id of the box clan belongs to.
+   *
+   * @returns created clans or ServiceErrors if any occurred
+   */
+  async createBoxClans(
+    clanName1,
+    clanName2,
+    box_id: string,
+  ): Promise<IServiceReturn<ClanDto[]>> {
+    const defaultClanData = {
+      tag: '',
+      labels: [ClanLabel.GAMERIT],
+      phrase: 'Not-set',
+    };
+
+    const [clan1Resp, clan1Errors] =
+      await this.clanService.createOneWithoutAdmin({
+        name: clanName1,
+        box_id,
+        ...defaultClanData,
+      });
+
+    if (clan1Errors) return [null, clan1Errors];
+
+    const [clan2Resp, clan2Errors] =
+      await this.clanService.createOneWithoutAdmin({
+        name: clanName2,
+        box_id,
+        ...defaultClanData,
+      });
+
+    if (clan2Errors) return [null, clan2Errors];
+
+    return [[clan1Resp, clan2Resp], null];
   }
 }
