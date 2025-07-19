@@ -66,7 +66,7 @@ export class GroupAdminService {
   public async createOne(
     admin: CreateGroupAdminDto,
   ): Promise<IServiceReturn<true>> {
-    const [isAdminValid, validationErrors] = this.validateAdmin(admin);
+    const [, validationErrors] = this.validateAdmin(admin);
     if (validationErrors) return [null, validationErrors];
 
     const [, creationErrors] = await this.basicService.createOne(admin);
