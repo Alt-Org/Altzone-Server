@@ -30,6 +30,8 @@ import { BoxDto } from './dto/box.dto';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { ConfigureBoxDto } from './dto/configureBox.dto';
 import { ObjectId } from 'mongodb';
+import { GroupAdminService } from './groupAdmin/groupAdmin.service';
+import { CreateGroupAdminDto } from './groupAdmin/dto/createGroupAdmin.dto';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
@@ -39,6 +41,7 @@ export class BoxController {
     private readonly boxCreator: BoxCreator,
     private readonly authHandler: BoxAuthHandler,
     private readonly sessionStarter: SessionStarterService,
+    private readonly groupAdminService: GroupAdminService,
   ) {}
 
   /**
@@ -180,32 +183,31 @@ export class BoxController {
   }
 
   /**
-   * Get box by _id, For time of development only
+   * Create a group admin. The endpoint for time of development only
    *
-   * @remarks Endpoint for getting box data by its _id
+   * @remarks Endpoint for getting box data by its _id.
+   *
+   * The group admin is required in order to use the endpoints starting with "/box",
+   * i.e. for box initialization or changing its settings. Read the docs for more info.
    */
   @ApiResponseDescription({
     success: {
-      dto: BoxDto,
-      modelName: ModelName.BOX,
+      status: 204,
     },
-    errors: [404],
+    errors: [409],
     hasAuth: false,
   })
-  //For time of development only
+  @SwaggerTags('Release on 27.07.2025', 'Box')
+  @Post('/createAdmin')
   @NoAuth()
-  @Get('/:_id')
-  @NoAuth()
-  @UniformResponse(ModelName.BOX)
-  public getOne(
-    @Param() param: _idDto,
-    @IncludeQuery(publicReferences as any) includeRefs: ModelName[],
-  ) {
-    return this.service.readOneById(param._id, { includeRefs });
+  @UniformResponse()
+  public async createAdmin(@Body() body: CreateGroupAdminDto) {
+    const [, errors] = await this.groupAdminService.createOne(body);
+    if (errors) return [null, errors];
   }
 
   /**
-   * Get all boxes by. For time of development only
+   * Get all boxes. The endpoint for time of development only
    *
    * @remarks Endpoint for getting box data by its _id
    */
@@ -218,8 +220,6 @@ export class BoxController {
     errors: [404],
     hasAuth: false,
   })
-  //For time of development only
-  @NoAuth()
   @Get('/')
   @NoAuth()
   @UniformResponse(ModelName.BOX)
@@ -228,7 +228,30 @@ export class BoxController {
   }
 
   /**
-   * Delete box by _id
+   * Get box by _id. The endpoint for time of development only
+   *
+   * @remarks Endpoint for getting box data by its _id
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: BoxDto,
+      modelName: ModelName.BOX,
+    },
+    errors: [404],
+    hasAuth: false,
+  })
+  @Get('/:_id')
+  @NoAuth()
+  @UniformResponse(ModelName.BOX)
+  public getOne(
+    @Param() param: _idDto,
+    @IncludeQuery(publicReferences as any) includeRefs: ModelName[],
+  ) {
+    return this.service.readOneById(param._id, { includeRefs });
+  }
+
+  /**
+   * Delete box by _id. The endpoint for time of development only
    *
    * @remarks Endpoint for deleting a box by _id
    */
@@ -239,9 +262,8 @@ export class BoxController {
     errors: [404],
     hasAuth: false,
   })
-  //For time of development only
-  @NoAuth()
   @Delete('/:_id')
+  @NoAuth()
   @UniformResponse(ModelName.BOX)
   async deleteBox(@Param() param: _idDto) {
     const [, errors] = await this.service.deleteOneById(param._id);

@@ -8,12 +8,14 @@ import CreateDailyTaskBuilder from './dailyTask/CreateDailyTaskBuilder';
 import CreatePredefinedDailyTaskDtoBuilder from './dailyTask/CreatePredefinedDailyTaskDtoBuilder';
 import UpdatePredefinedDailyTaskDtoBuilder from './dailyTask/UpdatePredefinedDailyTaskDtoBuilder';
 import PredefinedDailyTaskBuilder from './dailyTask/PredefinedDailyTaskBuilder';
+import CreateGroupAdminDtoBuilder from './groupAdmin/CreateGroupAdminDtoBuilder';
 
 type BuilderName =
   | 'Box'
   | 'CreateBoxDto'
   | 'UpdateBoxDto'
   | 'GroupAdmin'
+  | 'CreateGroupAdminDto'
   | 'Tester'
   | 'BoxUser'
   | 'CreateDailyTask'
@@ -26,6 +28,7 @@ type BuilderMap = {
   CreateBoxDto: CreateBoxDtoBuilder;
   UpdateBoxDto: UpdateBoxDtoBuilder;
   GroupAdmin: GroupAdminBuilder;
+  CreateGroupAdminDto: CreateGroupAdminDtoBuilder;
   Tester: TesterBuilder;
   BoxUser: BoxUserBuilder;
 
@@ -46,6 +49,8 @@ export default class BoxBuilderFactory {
         return new UpdateBoxDtoBuilder() as BuilderMap[T];
       case 'GroupAdmin':
         return new GroupAdminBuilder() as BuilderMap[T];
+      case 'CreateGroupAdminDto':
+        return new CreateGroupAdminDtoBuilder() as BuilderMap[T];
       case 'Tester':
         return new TesterBuilder() as BuilderMap[T];
       case 'BoxUser':
