@@ -10,6 +10,8 @@ import {
   PredefinedDailyTaskSchema,
 } from '../dailyTask/predefinedDailyTask.schema';
 import { ClanToCreate, ClanToCreateSchema } from './ClanToCreate.schema';
+import { defaultPredefinedDailyTasks } from '../dailyTask/defaultPredefinedDailyTasks';
+import { generateDefaultClanNames } from '../util/generateClanNames';
 
 export type BoxDocument = HydratedDocument<Box>;
 
@@ -73,7 +75,13 @@ export class Box {
   /**
    * Clan data to be created when session goes to testing stage.
    */
-  @Prop({ type: [ClanToCreateSchema] })
+  @Prop({
+    type: [ClanToCreateSchema],
+    default: () =>
+      generateDefaultClanNames().map((clanName) => ({
+        name: clanName,
+      })),
+  })
   clansToCreate: ClanToCreate[];
 
   /**
@@ -86,7 +94,7 @@ export class Box {
    * Amount of testers accounts required for the testing session.
    * It defines when the API will no longer allow to claim accounts for the testing session.
    */
-  @Prop({ type: Number, default: 0 })
+  @Prop({ type: Number, default: 20 })
   testersAmount: number;
 
   /**
@@ -105,7 +113,11 @@ export class Box {
   /**
    * array of predefined by the group admin tasks
    */
-  @Prop({ type: [PredefinedDailyTaskSchema], required: true, default: [] })
+  @Prop({
+    type: [PredefinedDailyTaskSchema],
+    required: true,
+    default: defaultPredefinedDailyTasks,
+  })
   dailyTasks: PredefinedDailyTask[];
 
   @ExtractField()
