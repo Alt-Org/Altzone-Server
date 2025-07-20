@@ -22,6 +22,7 @@ import {
 } from '../common/service/basicService/IService';
 import { cancelTransaction } from '../common/function/cancelTransaction';
 import { CreateBoxDto } from './dto/createBox.dto';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class BoxService {
@@ -139,51 +140,50 @@ export class BoxService {
       await this.basicService.readOneById<BoxDocument>(_id);
     if (boxReadErrors) return [null, boxReadErrors];
 
-    const [, boxRefRemoveErrors] = await this.deleteBoxReferences(
-      boxToRemove.toObject(),
-    );
+    const [, boxRefRemoveErrors] = await this.reset(boxToRemove._id.toString());
     if (boxRefRemoveErrors) return [null, boxRefRemoveErrors];
 
     return this.basicService.deleteOneById(_id);
   }
 
   /**
-   * Removes all data associated with the box including:
-   * - clans and their soul homes, rooms, stocks
-   * - profiles and players
-   * - chat
+   * Resets testing session.
    *
-   * @param boxData box related data to be removed
+   * That means removing all the data associated with the box created after the stage 2.
    *
-   * @returns true if references were removed or Service errors if any occurred
+   * @param box_id _id of the box, which data should be reset
+   *
+   * @returns true if box was reset or ServiceErrors:
+   * - REQUIRED - if the box_id is null, undefined or empty string
+   * - NOT_FOUND - if there are no box with this _id
    */
-  public async deleteBoxReferences(
-    boxData: Partial<Box>,
-  ): Promise<IServiceReturn<true>> {
-    const session = await this.model.startSession();
-    session.startTransaction();
-
-    if (boxData.createdClan_ids) {
-      for (let i = 0; i < boxData.createdClan_ids.length; i++) {
-        const [, deleteErrors] = await this.clanService.deleteOneById(
-          boxData.createdClan_ids[i].toString(),
-        );
-        if (deleteErrors) await cancelTransaction(session, deleteErrors);
-      }
-    }
-
-    if (boxData.adminProfile_id) {
-      const resp = await this.profilesService.deleteOneById(
-        boxData.adminProfile_id.toString(),
-      );
-      if (resp instanceof MongooseError) {
-        const deleteError = convertMongooseToServiceErrors(resp);
-        await cancelTransaction(session, deleteError);
-      }
-    }
-
-    await session.commitTransaction();
-    await session.endSession();
+  public async reset(box_id: string | ObjectId): Promise<IServiceReturn<true>> {
+    // const session = await this.model.startSession();
+    // session.startTransaction();
+    //
+    // if (boxData.createdClan_ids) {
+    //   for (let i = 0; i < boxData.createdClan_ids.length; i++) {
+    //     const [, deleteErrors] = await this.clanService.deleteOneById(
+    //       boxData.createdClan_ids[i].toString(),
+    //     );
+    //     if (deleteErrors) await cancelTransaction(session, deleteErrors);
+    //   }
+    // }
+    //
+    // if (boxData.adminProfile_id) {
+    //   const resp = await this.profilesService.deleteOneById(
+    //     boxData.adminProfile_id.toString(),
+    //   );
+    //   if (resp instanceof MongooseError) {
+    //     const deleteError = convertMongooseToServiceErrors(resp);
+    //     await cancelTransaction(session, deleteError);
+    //   }
+    // }
+    //
+    // await session.commitTransaction();
+    // await session.endSession();
+    //
+    // return [true, null];
 
     return [true, null];
   }

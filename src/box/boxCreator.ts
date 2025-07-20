@@ -74,7 +74,7 @@ export default class BoxCreator {
       boxToInit.adminPassword,
     );
     if (adminProfileErrors) {
-      await this.boxService.deleteBoxReferences(boxToCreate);
+      await this.boxService.reset(boxToCreate._id);
       return [null, adminProfileErrors];
     }
     boxToCreate.adminProfile_id = adminProfile._id as unknown as ObjectId;
@@ -88,7 +88,7 @@ export default class BoxCreator {
       profile_id: adminProfile._id,
     });
     if (adminPlayerErrors) {
-      await this.boxService.deleteBoxReferences(boxToCreate);
+      await this.boxService.reset(boxToCreate._id);
       return [null, adminPlayerErrors];
     }
     boxToCreate.adminPlayer_id = adminPlayer._id as unknown as ObjectId;
