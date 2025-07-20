@@ -6,7 +6,6 @@ import BasicService from '../../common/service/basicService/BasicService';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
-import { CreateGroupAdminDto } from './dto/createGroupAdmin.dto';
 
 @Injectable()
 export class GroupAdminService {
@@ -50,66 +49,5 @@ export class GroupAdminService {
     if (errors && errors[0].reason === SEReason.NOT_FOUND) return [false, null];
 
     return [null, errors];
-  }
-
-  /**
-   * Create a box admin
-   *
-   * Notice that it is required for development of teacher pages only, and when they are done, should be removed
-   *
-   * @param admin admin to create
-   *
-   * @returns true if it is created or ServiceErrors:
-   * - REQUIRED - if the provided admin object is null or undefined, or the password is not provided or an empty string
-   * - NOT_UNIQUE - if there are admin with such password already created
-   */
-  public async createOne(
-    admin: CreateGroupAdminDto,
-  ): Promise<IServiceReturn<true>> {
-    const [, validationErrors] = this.validateAdmin(admin);
-    if (validationErrors) return [null, validationErrors];
-
-    const [, creationErrors] = await this.basicService.createOne(admin);
-
-    if (creationErrors) return [null, creationErrors];
-    return [true, null];
-  }
-
-  /**
-   * Validates whenever the provide group admin information is correct
-   *
-   * @param admin admin to validate
-   * @private
-   *
-   * @returns true if the admin is valid or ServiceError REQUIRED if some of the fields are not valid
-   */
-  private validateAdmin(admin: CreateGroupAdminDto): IServiceReturn<true> {
-    if (!admin)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.REQUIRED,
-            field: 'admin',
-            value: admin,
-            message: 'admin parameter is required',
-          }),
-        ],
-      ];
-
-    if (!admin.password)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.REQUIRED,
-            field: 'password',
-            value: admin.password,
-            message: 'password field is required',
-          }),
-        ],
-      ];
-
-    return [true, null];
   }
 }

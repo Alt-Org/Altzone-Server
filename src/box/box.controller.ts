@@ -30,19 +30,26 @@ import { BoxDto } from './dto/box.dto';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { ConfigureBoxDto } from './dto/configureBox.dto';
 import { ObjectId } from 'mongodb';
-import { GroupAdminService } from './groupAdmin/groupAdmin.service';
 import { CreateGroupAdminDto } from './groupAdmin/dto/createGroupAdmin.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
+import { Model } from 'mongoose';
+import BasicService from '../common/service/basicService/BasicService';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
 export class BoxController {
   public constructor(
+    @InjectModel(GroupAdmin.name) public readonly groupModel: Model<GroupAdmin>,
     private readonly service: BoxService,
     private readonly boxCreator: BoxCreator,
     private readonly authHandler: BoxAuthHandler,
     private readonly sessionStarter: SessionStarterService,
-    private readonly groupAdminService: GroupAdminService,
-  ) {}
+  ) {
+    this.adminBasicService = new BasicService(groupModel);
+  }
+
+  private readonly adminBasicService: BasicService;
 
   /**
    * Create a testing box.
@@ -185,7 +192,7 @@ export class BoxController {
   /**
    * Create a group admin. The endpoint for time of development only
    *
-   * @remarks Endpoint for getting box data by its _id.
+   * @remarks Create a group admin.
    *
    * The group admin is required in order to use the endpoints starting with "/box",
    * i.e. for box initialization or changing its settings. Read the docs for more info.
@@ -194,7 +201,7 @@ export class BoxController {
     success: {
       status: 204,
     },
-    errors: [409],
+    errors: [400, 409],
     hasAuth: false,
   })
   @SwaggerTags('Release on 27.07.2025', 'Box')
@@ -202,14 +209,15 @@ export class BoxController {
   @NoAuth()
   @UniformResponse()
   public async createAdmin(@Body() body: CreateGroupAdminDto) {
-    const [, errors] = await this.groupAdminService.createOne(body);
-    if (errors) return [null, errors];
+    const [, creationErrors] = await this.adminBasicService.createOne(body);
+
+    if (creationErrors) return [null, creationErrors];
   }
 
   /**
    * Get all boxes. The endpoint for time of development only
    *
-   * @remarks Endpoint for getting box data by its _id
+   * @remarks Endpoint for getting all boxes data
    */
   @ApiResponseDescription({
     success: {
