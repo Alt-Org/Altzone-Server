@@ -1,4 +1,4 @@
-import { IsInt, IsMongoId } from 'class-validator';
+import { IsInt, IsMongoId, IsOptional } from 'class-validator';
 import { IsClanExists } from '../../../clan/decorator/validation/IsClanExists.decorator';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 
@@ -20,4 +20,12 @@ export class CreateStockDto {
   @IsClanExists()
   @IsMongoId()
   clan_id: string;
+
+  /**
+   * ID of the related box.
+   * @example "67fe4e2d8a54d4cc39266a41"
+   */
+  @IsMongoId()
+  @IsOptional()
+  box_id?: string;
 }
