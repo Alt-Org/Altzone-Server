@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Query } from '@nestjs/common';
 import { ChatService } from './service/chat.service';
 import { ModelName } from '../common/enum/modelName.enum';
 import { IGetAllQuery } from '../common/interface/IGetAllQuery';
@@ -11,6 +11,9 @@ import { ChatType } from './enum/chatMessageType.enum';
 import { OffsetPaginate } from '../common/interceptor/request/offsetPagination.interceptor';
 import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
+import { IsGroupAdmin } from '../box/auth/decorator/IsGroupAdmin';
+import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
+import { UpdateChatMessageDto } from './dto/updateChatMessage.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -74,4 +77,32 @@ export class ChatController {
 
     return this.service.getMessages(query);
   }
+
+  /**
+   * Update chat content.
+   *
+   * @remarks Update chat content.
+   */
+  @SwaggerTags('Release on 27.07.2025', 'Chat')
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [],
+    hasAuth: true,
+  })
+  
+  @IsGroupAdmin()
+ @UniformResponse(ModelName.CHAT, UpdateChatMessageDto)
+  @Patch()
+  async configureBox(
+    @Body() body: UpdateChatMessageDto
+  ) {
+    const [_, err] = await this.service.updateOneById({
+
+      ...body,
+    });
+    if (err) return [null, err];
+  }
+
 }
