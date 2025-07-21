@@ -26,7 +26,12 @@ import { GroupAdminSchema } from '../box/groupAdmin/groupAdmin.schema';
     RequestHelperModule,
   ],
   controllers: [ChatController],
-  providers: [ChatService, ChatGateway, ClanChatService, GlobalChatService, BoxAuthHandler,
+  providers: [
+    ChatService,
+    ChatGateway,
+    ClanChatService,
+    GlobalChatService,
+    BoxAuthHandler,
   ],
   exports: [ChatService, ClanChatService],
 })
