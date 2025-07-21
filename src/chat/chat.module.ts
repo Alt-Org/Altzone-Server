@@ -10,18 +10,24 @@ import { ClanChatService } from './service/clanChat.service';
 import { PlayerSchema } from '../player/schemas/player.schema';
 import { GlobalChatService } from './service/globalChat.service';
 import { RequestHelperModule } from '../requestHelper/requestHelper.module';
+import BoxAuthHandler from '../box/auth/BoxAuthHandler';
+import { BoxSchema } from '../box/schemas/box.schema';
+import { GroupAdminSchema } from '../box/groupAdmin/groupAdmin.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: ModelName.PLAYER, schema: PlayerSchema },
       { name: ModelName.CHAT_MESSAGE, schema: ChatMessageSchema },
+      { name: ModelName.BOX, schema: BoxSchema },
+      { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
     ]),
     PlayerModule,
     RequestHelperModule,
   ],
   controllers: [ChatController],
-  providers: [ChatService, ChatGateway, ClanChatService, GlobalChatService],
+  providers: [ChatService, ChatGateway, ClanChatService, GlobalChatService, BoxAuthHandler,
+  ],
   exports: [ChatService, ClanChatService],
 })
 export class ChatModule {}
