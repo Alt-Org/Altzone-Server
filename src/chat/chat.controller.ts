@@ -91,7 +91,6 @@ export class ChatController {
     errors: [],
     hasAuth: true,
   })
-  
   @IsGroupAdmin()
   @UniformResponse(ModelName.CHAT, UpdateChatMessageDto)
   @Patch()
