@@ -88,41 +88,39 @@ export class ChatService {
   }
 
   /**
-     * Updates a ChatMessage by its _id in DB. The _id field is read-only and must be found from the parameter
-     *
-     * @param chat - The data needs to be updated of the ChatMessage.
-     * @returns _true_ if ChatMessage was updated successfully, _false_ if nothing was updated for the ChatMessage,
-     * or a ServiceError:
-     * - NOT_FOUND if the box was not found
-     * - NOT_UNIQUE if attempting to update the box adminPassword, which already exists
-     * - REQUIRED if _id is not provided
-     */
-    async updateOneById(chat: Partial<UpdateChatMessageDto>)
-    :Promise<[boolean | null, ServiceError[] | null]> {
-      if (!chat._id)
-        return [
-          null,
-          [
-            new ServiceError({
-              reason: SEReason.REQUIRED,
-              field: '_id',
-              value: chat._id,
-              message: '_id field is required',
-            }),
-          ],
-        ];
-      const { _id, ...fieldsToUpdate } = chat;
-  
-      const [isSuccess, errors] = await this.basicService.updateOneById(
-        _id as any,
-        fieldsToUpdate,
-      );
-      if (
-        errors &&
-        errors[0].reason === SEReason.NOT_UNIQUE
-      )
-        errors[0].value = null;
-  
-      return [isSuccess, errors];
-    }
+   * Updates a ChatMessage by its _id in DB. The _id field is read-only and must be found from the parameter
+   *
+   * @param chat - The data needs to be updated of the ChatMessage.
+   * @returns _true_ if ChatMessage was updated successfully, _false_ if nothing was updated for the ChatMessage,
+   * or a ServiceError:
+   * - NOT_FOUND if the box was not found
+   * - NOT_UNIQUE if attempting to update the box adminPassword, which already exists
+   * - REQUIRED if _id is not provided
+   */
+  async updateOneById(
+    chat: Partial<UpdateChatMessageDto>,
+  ): Promise<[boolean | null, ServiceError[] | null]> {
+    if (!chat._id)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: '_id',
+            value: chat._id,
+            message: '_id field is required',
+          }),
+        ],
+      ];
+    const { _id, ...fieldsToUpdate } = chat;
+
+    const [isSuccess, errors] = await this.basicService.updateOneById(
+      _id as any,
+      fieldsToUpdate,
+    );
+    if (errors && errors[0].reason === SEReason.NOT_UNIQUE)
+      errors[0].value = null;
+
+    return [isSuccess, errors];
+  }
 }

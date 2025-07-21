@@ -91,18 +91,13 @@ export class ChatController {
     errors: [],
     hasAuth: true,
   })
-  
   @IsGroupAdmin()
- @UniformResponse(ModelName.CHAT, UpdateChatMessageDto)
+  @UniformResponse(ModelName.CHAT, UpdateChatMessageDto)
   @Patch()
-  async configureBox(
-    @Body() body: UpdateChatMessageDto
-  ) {
+  async configureBox(@Body() body: UpdateChatMessageDto) {
     const [_, err] = await this.service.updateOneById({
-
       ...body,
     });
     if (err) return [null, err];
   }
-
 }

@@ -14,7 +14,7 @@ export class UpdateChatMessageDto {
   constructor(partial: Partial<UpdateChatMessageDto>) {
     Object.assign(this, partial);
   }
-  
+
   /**
    * ID of the chatmessage.
    *
