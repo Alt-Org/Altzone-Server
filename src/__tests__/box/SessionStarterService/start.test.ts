@@ -9,7 +9,6 @@ import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import { Box } from '../../../box/schemas/box.schema';
 import DailyTasksModule from '../../dailyTasks/modules/dailyTasks.module';
 import { SessionStage } from '../../../box/enum/SessionStage.enum';
-import Tester from '../../../box/accountClaimer/payloads/tester';
 import ClanModule from '../../clan/modules/clan.module';
 
 describe('SessionStarterService.start() test suite', () => {
@@ -23,7 +22,6 @@ describe('SessionStarterService.start() test suite', () => {
   const dailyTaskModel = DailyTasksModule.getDailyTaskModel();
   const clanModel = ClanModule.getClanModel();
 
-  const testerBuilder = BoxBuilderFactory.getBuilder('Tester');
   const profileBuilder = ProfileBuilderFactory.getBuilder('Profile');
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const dailyTaskBuilder = BoxBuilderFactory.getBuilder('PredefinedDailyTask');
@@ -66,7 +64,7 @@ describe('SessionStarterService.start() test suite', () => {
     const [isStarted, errors] = await starter.start(existingBox._id);
 
     expect(errors).toBeNull();
-    expect(isStarted).toBeTruthy();
+    expect(isStarted).toBe(true);
   });
 
   it('Should create predefined daily tasks for each clan', async () => {
@@ -150,36 +148,4 @@ describe('SessionStarterService.start() test suite', () => {
     expect(result).toBeNull();
     expect(errors).toContainSE_NOT_FOUND();
   });
-
-  /**
-   * Creates specified amount of testers in DB
-   * @param amount amount to create
-   * @param clan_id testers clan
-   * @returns created testers
-   */
-  async function createTesters(
-    amount: number,
-    clan_id: string,
-  ): Promise<Tester[]> {
-    const createdTesters: Tester[] = [];
-
-    for (let i = 0; i < amount; i++) {
-      const testerName = `tester${i}-${clan_id}`;
-      const testerProfile = profileBuilder.setUsername(testerName).build();
-      await profileModel.create(testerProfile);
-
-      const testerPlayer = playerBuilder
-        .setName(testerName)
-        .setUniqueIdentifier(testerName)
-        .setClanId(clan_id)
-        .setProfileId(testerProfile._id)
-        .build();
-      await playerModel.create(testerPlayer);
-
-      const tester = testerBuilder.build();
-      createdTesters.push(tester);
-    }
-
-    return createdTesters;
-  }
 });
