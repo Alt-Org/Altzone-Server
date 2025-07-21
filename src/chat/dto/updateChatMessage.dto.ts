@@ -28,6 +28,7 @@ export class UpdateChatMessageDto {
    *
    * @example "clan"
    */
+  @IsOptional()
   @IsEnum(ChatType)
   type?: ChatType;
 
@@ -36,6 +37,7 @@ export class UpdateChatMessageDto {
    *
    * @example "60f7c2d9a2d3c7b7e56d01df"
    */
+  @IsOptional()
   @IsMongoId()
   sender_id?: string | ObjectId;
 
@@ -44,6 +46,7 @@ export class UpdateChatMessageDto {
    *
    * @example "Let’s meet at Soul Arena!"
    */
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   content: string;
@@ -54,6 +57,7 @@ export class UpdateChatMessageDto {
    *
    * @example "60d21b4667d0d8992e610c85"
    */
+  @IsOptional()
   @ValidateIf((o) => o.type === ChatType.CLAN)
   @IsNotEmpty({ message: 'clan_id must be provided for clan messages' })
   @IsMongoId()
@@ -65,6 +69,7 @@ export class UpdateChatMessageDto {
    *
    * @example "60d21b4667d0d8992e610c85"
    */
+  @IsOptional()
   @ValidateIf((o) => o.type === ChatType.PRIVATE)
   @IsNotEmpty({ message: 'recipient_id must be provided for private messages' })
   @IsMongoId()
@@ -75,7 +80,7 @@ export class UpdateChatMessageDto {
    *
    * @example "Happy"
    */
-  @IsEnum(Feeling)
   @IsOptional()
+  @IsEnum(Feeling)
   feeling?: Feeling;
 }
