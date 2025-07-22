@@ -75,13 +75,7 @@ export class Box {
   /**
    * Clan data to be created when session goes to testing stage.
    */
-  @Prop({
-    type: [ClanToCreateSchema],
-    default: () =>
-      generateDefaultClanNames().map((clanName) => ({
-        name: clanName,
-      })),
-  })
+  @Prop({ type: [ClanToCreateSchema] })
   clansToCreate: ClanToCreate[];
 
   /**

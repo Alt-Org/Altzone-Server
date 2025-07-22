@@ -21,6 +21,7 @@ import { ProfileDto } from '../profile/dto/profile.dto';
 import { ClanService } from '../clan/clan.service';
 import { ClanDto } from '../clan/dto/clan.dto';
 import { ClanLabel } from '../clan/enum/clanLabel.enum';
+import UniqueFieldGenerator from './util/UniqueFieldGenerator';
 
 @Injectable()
 export default class BoxCreator {
@@ -36,6 +37,7 @@ export default class BoxCreator {
     private readonly playerService: PlayerService,
     private readonly boxService: BoxService,
     private readonly clanService: ClanService,
+    private readonly uniqueFieldGenerator: UniqueFieldGenerator,
   ) {}
 
   /**
@@ -101,6 +103,18 @@ export default class BoxCreator {
     boxToCreate.sessionResetTime = new Date().getTime() + weekMs;
     const monthMs = 1000 * 60 * 60 * 24 * 30;
     boxToCreate.boxRemovalTime = new Date().getTime() + monthMs;
+
+    const clanName1 = await this.uniqueFieldGenerator.generateUniqueFieldValue(
+      this.model,
+      'name',
+      'sankarit',
+    );
+    const clanName2 = await this.uniqueFieldGenerator.generateUniqueFieldValue(
+      this.model,
+      'name',
+      'voittajat',
+    );
+    boxToCreate.clansToCreate = [{ name: clanName1 }, { name: clanName2 }];
 
     const [createdBox, errors] = await this.boxService.createOne(
       boxToCreate as BoxDocument,
