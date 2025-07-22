@@ -7,6 +7,7 @@ import {
   IsString,
   ValidateNested,
   MaxLength,
+  IsMongoId,
 } from 'class-validator';
 import { ClanLabel } from '../enum/clanLabel.enum';
 import { AgeRange } from '../enum/ageRange.enum';

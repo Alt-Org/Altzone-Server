@@ -13,6 +13,7 @@ import { StockDto } from '../../clanInventory/stock/dto/stock.dto';
 import { ItemDto } from '../../clanInventory/item/dto/item.dto';
 import { SoulHomeDto } from '../../clanInventory/soulhome/dto/soulhome.dto';
 import { RoomDto } from '../../clanInventory/room/dto/room.dto';
+import { SoulHome } from '../../clanInventory/soulhome/soulhome.schema';
 
 @Injectable()
 export default class ClanHelperService {
@@ -72,17 +73,21 @@ export default class ClanHelperService {
   async createDefaultSoulHome(
     clan_id: string,
     name: string,
-    roomsCount: number = 30,
+    roomsCount = 30,
   ): Promise<
     [
       { SoulHome: SoulHomeDto; Room: RoomDto[]; Item: ItemDto[] } | null,
       ServiceError[] | null,
     ]
   > {
-    const [soulHome, soulHomeErrors] = await this.soulHomeService.createOne({
-      name,
-      clan_id,
-    });
+    const [soulHome, soulHomeErrors] =
+      await this.soulHomeService.basicService.createOne<
+        Partial<SoulHome>,
+        SoulHomeDto
+      >({
+        name,
+        clan_id,
+      });
     if (soulHomeErrors || !soulHome) return [null, soulHomeErrors];
 
     const defaultRooms = this.getDefaultRooms(soulHome._id, roomsCount);

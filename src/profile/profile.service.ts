@@ -63,7 +63,7 @@ export class ProfileService
 
     if (errors) return [null, errors];
 
-    return this.basicService.createOne<CreateProfileDto, ProfileDto>({
+    return this.basicService.createOne<any, ProfileDto>({
       ...profile,
       password: hashedPassword,
     });

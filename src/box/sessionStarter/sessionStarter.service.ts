@@ -13,6 +13,12 @@ import { Clan } from '../../clan/clan.schema';
 import { PasswordGenerator } from '../../common/function/passwordGenerator';
 import { SessionStage } from '../enum/SessionStage.enum';
 import { PredefinedDailyTask } from '../dailyTask/predefinedDailyTask.schema';
+import { SoulHome } from '../../clanInventory/soulhome/soulhome.schema';
+import { Room } from '../../clanInventory/room/room.schema';
+import { Stock } from '../../clanInventory/stock/stock.schema';
+import { Item } from '../../clanInventory/item/item.schema';
+import { ClanLabel } from '../../clan/enum/clanLabel.enum';
+import { ClanService } from '../../clan/clan.service';
 
 /**
  * Class responsible for starting the testing session process.
@@ -22,7 +28,11 @@ export default class SessionStarterService {
   constructor(
     @InjectModel(Box.name) public readonly taskModel: Model<Box>,
     @InjectModel(Player.name) public readonly playerModel: Model<Player>,
-    @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
+    @InjectModel(SoulHome.name) private readonly soulHomeModel: Model<SoulHome>,
+    @InjectModel(Room.name) private readonly roomModel: Model<Room>,
+    @InjectModel(Stock.name) private readonly stockModel: Model<Stock>,
+    @InjectModel(Item.name) private readonly itemModel: Model<Item>,
+    private readonly clanService: ClanService,
     private readonly dailyTasksService: DailyTasksService,
     private readonly passwordGenerator: PasswordGenerator,
   ) {
@@ -33,9 +43,8 @@ export default class SessionStarterService {
 
   /**
    * Starts a testing session which means:
-   * - Creates predefined daily tasks for each clan
-   * - Defines clan admins from the testers
-   * - Generates and sets testers shared password
+   * - Creates predefined daily tasks and clans
+   * - Generates and sets shared password
    * - Sets testing session stage to TESTING
    * - Sets reset and removal times of the box
    *
@@ -46,29 +55,35 @@ export default class SessionStarterService {
    * - NOT_FOUND if the box with that _id does not exist
    */
   async start(box_id: ObjectId | string): Promise<IServiceReturn<true>> {
-    const [, validationErrors] = this.validateBox_id(box_id);
-    if (validationErrors) return [null, validationErrors];
+    const [boxInDB, error] = await this.getAndValidateBox(box_id);
+    if (error) return [null, error];
 
-    const box_idString = box_id.toString();
+    const [clans, err] = await this.createBoxClans(
+      boxInDB.clansToCreate[0].name,
+      boxInDB.clansToCreate[1].name,
+      box_id.toString(),
+    );
+    if (err) return [null, err];
+    boxInDB.createdClan_ids = clans.map((c) => {
+      return new ObjectId(c._id);
+    });
 
-    const [boxInDB, errors] =
-      await this.basicService.readOneById<BoxDocument>(box_idString);
-    if (errors) return [null, errors];
+    const [_, updateErr] = await this.basicService.updateOneById(
+      box_id.toString(),
+      {
+        createdClan_ids: boxInDB.createdClan_ids,
+      },
+    );
+    if (updateErr) return [null, updateErr];
 
     const dailyTasksToCreate = boxInDB.dailyTasks.map((task) => task['_doc']);
     const [, tasksCreationErrors] = await this.createDailyTasks(
       dailyTasksToCreate,
-      boxInDB.createdClan_ids[0],
-      boxInDB.createdClan_ids[1],
+      clans[0]._id,
+      clans[1]._id,
+      box_id.toString(),
     );
     if (tasksCreationErrors) return [null, tasksCreationErrors];
-
-    const [, clanAdminsErrors] = await this.setClanAdmins(
-      boxInDB.adminPlayer_id,
-      boxInDB.createdClan_ids[0],
-      boxInDB.createdClan_ids[1],
-    );
-    if (clanAdminsErrors) return [null, clanAdminsErrors];
 
     const randNumber = Math.floor(1 + Math.random() * 99);
     const testersPassword =
@@ -86,10 +101,91 @@ export default class SessionStarterService {
       sessionResetTime: timeAfterWeek,
       boxRemovalTime: timeAfterMonth,
     });
-
     if (boxUpdateErrors) return [null, boxUpdateErrors];
 
     return [true, null];
+  }
+
+  /**
+   * Creates 2 clans for the box.
+   *
+   * Notice that names of the clans should be unique.
+   *
+   * @param clanName1 name of the first clan
+   * @param clanName2 name of the second clan
+   * @param box_id Id of the box clan belongs to.
+   *
+   * @returns created clans or ServiceErrors if any occurred
+   */
+  public async createBoxClans(
+    clanName1: string,
+    clanName2: string,
+    box_id: string,
+  ): Promise<IServiceReturn<Clan[]>> {
+    const [clan1Resp, clan1Errors] = await this.createBoxClan(
+      clanName1,
+      box_id,
+    );
+    if (clan1Errors) return [null, clan1Errors];
+
+    const [clan2Resp, clan2Errors] = await this.createBoxClan(
+      clanName2,
+      box_id,
+    );
+    if (clan2Errors) return [null, clan2Errors];
+
+    return [[clan1Resp, clan2Resp], null];
+  }
+
+  /**
+   * Creates a clan for the box.
+   *
+   * Notice that clan name must be unique.
+   *
+   * @param clanName name of the clan
+   * @param box_id Id of the box clan belongs to.
+   *
+   * @returns created clan or ServiceErrors if any occurred
+   */
+  private async createBoxClan(
+    clanName: string,
+    box_id: string,
+  ): Promise<IServiceReturn<Clan>> {
+    const defaultClanData = {
+      tag: '',
+      labels: [ClanLabel.GAMERIT],
+      phrase: 'Not-set',
+    };
+
+    const [createdClan, clanCreationErrors] =
+      await this.clanService.createOneWithoutAdmin({
+        name: clanName,
+        ...defaultClanData,
+      });
+
+    if (clanCreationErrors) return [null, clanCreationErrors];
+
+    const [, clanUpdateErrors] = await this.clanService.updateOneById({
+      box_id,
+      _id: createdClan._id.toString(),
+    } as any);
+    if (clanUpdateErrors) return [null, clanUpdateErrors];
+
+    const { soulHome, soulHomeItems, stock } = createdClan;
+
+    const soulHomeItemIds = soulHomeItems.map((item) => item._id);
+
+    await this.soulHomeModel.findByIdAndUpdate(soulHome._id, { box_id });
+    await this.roomModel.updateMany({ soulHome_id: soulHome._id }, { box_id });
+    await this.itemModel.updateMany(
+      { _id: { $in: soulHomeItemIds } },
+      { box_id },
+    );
+
+    await this.stockModel.findByIdAndUpdate(stock._id, { box_id });
+    await this.itemModel.updateMany({ stock_id: stock._id }, { box_id });
+
+    return [createdClan, null];
   }
 
   /**
@@ -98,6 +194,7 @@ export default class SessionStarterService {
    * @param tasks tasks to create
    * @param clan1_id first where clan tasks to be added
    * @param clan2_id second clan where tasks to be added
+   * @param box_id _id of the box
    * @private
    *
    * @returns true if tasks was created or ServiceErrors if any occurred
@@ -106,6 +203,7 @@ export default class SessionStarterService {
     tasks: PredefinedDailyTask[],
     clan1_id: string | ObjectId,
     clan2_id: string | ObjectId,
+    box_id: string,
   ): Promise<IServiceReturn<true>> {
     const dailyTasksToCreate = tasks.map((dailyTask) => {
       return {
@@ -115,6 +213,7 @@ export default class SessionStarterService {
         timeLimitMinutes: 30,
         player_id: null,
         _id: undefined,
+        box_id,
       };
     });
 
@@ -138,65 +237,15 @@ export default class SessionStarterService {
   }
 
   /**
-   * Sets one of the testers to be a clan admin
-   * @param admin_id player _id of the box admin
-   * @param clan1_id first clan _id
-   * @param clan2_id second clan _id
-   * @private
-   * @returns true if _id is valid or ServiceErrors if not
-   */
-  private async setClanAdmins(
-    admin_id: string | ObjectId,
-    clan1_id: string | ObjectId,
-    clan2_id: string | ObjectId,
-  ): Promise<IServiceReturn<true>> {
-    const clan1Admin = await this.playerModel.findOne({
-      clan_id: clan1_id,
-      _id: { $ne: admin_id },
-    });
-    if (!clan1Admin)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            message: 'Could not fond any tester to be a clan 1 admin',
-          }),
-        ],
-      ];
-    const clan2Admin = await this.playerModel.findOne({
-      clan_id: clan2_id,
-      _id: { $ne: admin_id },
-    });
-    if (!clan2Admin)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            message: 'Could not fond any tester to be a clan 2 admin',
-          }),
-        ],
-      ];
-
-    await this.clanModel.findByIdAndUpdate(clan1_id, {
-      admin_ids: [clan1Admin._id.toString()],
-    });
-    await this.clanModel.findByIdAndUpdate(clan2_id, {
-      admin_ids: [clan2Admin._id.toString()],
-    });
-
-    return [true, null];
-  }
-
-  /**
-   * Validates _id of the box
-   * @param box_id box _id to validate
+   * Get and validate a box
+   * @param box_id box _id to get and validate
    * @private
    *
-   * @returns true if _id is valid or ServiceErrors if not
+   * @returns Box if it's valid and service error if not.
    */
-  private validateBox_id(box_id: string | ObjectId): IServiceReturn<true> {
+  private async getAndValidateBox(
+    box_id: string | ObjectId,
+  ): Promise<IServiceReturn<BoxDocument>> {
     if (!box_id || box_id === '')
       return [
         null,
@@ -210,6 +259,23 @@ export default class SessionStarterService {
         ],
       ];
 
-    return [true, null];
+    const [boxInDB, errors] = await this.basicService.readOneById<BoxDocument>(
+      box_id.toString(),
+    );
+    if (errors) return [null, errors];
+
+    if (boxInDB.sessionStage !== SessionStage.PREPARING) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.MISCONFIGURED,
+            message: `Cannot start session: sessionStage is '${boxInDB.sessionStage}'. Session must be in 'PREPARING' stage to start. Use the reset endpoint if the session has ended.`,
+          }),
+        ],
+      ];
+    }
+
+    return [boxInDB, null];
   }
 }

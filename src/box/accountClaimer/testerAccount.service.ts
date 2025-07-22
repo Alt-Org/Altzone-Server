@@ -93,9 +93,16 @@ export class TesterAccountService {
       )
       .exec();
 
+    const leaderRole = clanWithLeastPlayers.roles.find((role) => {
+      return role.name === 'leader';
+    });
+
     await this.playerModel.updateOne(
       { _id: player_id },
-      { clan_id: clanWithLeastPlayers._id },
+      {
+        clan_id: clanWithLeastPlayers._id,
+        clanRole_id: leaderRole._id,
+      },
     );
 
     return [clanWithLeastPlayers, null];
