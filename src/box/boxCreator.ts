@@ -73,11 +73,14 @@ export default class BoxCreator {
 
     if (boxValidationErrors) return [null, boxValidationErrors];
 
+    const boxToCreate_id = new ObjectId();
     const boxToCreate: Partial<Box> = {};
     boxToCreate.adminPassword = boxToInit.adminPassword;
+    boxToCreate._id = boxToCreate_id;
 
     const [adminProfile, adminProfileErrors] = await this.createAdminProfile(
       boxToInit.adminPassword,
+      boxToCreate_id.toString(),
     );
     if (adminProfileErrors) {
       await this.boxService.deleteBoxReferences(boxToCreate);
@@ -92,6 +95,7 @@ export default class BoxCreator {
       above13: true,
       parentalAuth: true,
       profile_id: adminProfile._id,
+      box_id: boxToCreate_id.toString(),
     });
     if (adminPlayerErrors) {
       await this.boxService.deleteBoxReferences(boxToCreate);
@@ -201,15 +205,20 @@ export default class BoxCreator {
   /**
    * Creates a profile for group admin, where username and password are the same
    * @param adminPassword admin password to set
+   * @param box_id optional box_id used for testing sessions
    * @returns created admin profile or ServiceErrors if any occurred
    */
   private async createAdminProfile(
     adminPassword: string,
+    box_id?: string,
   ): Promise<IServiceReturn<ProfileDto>> {
-    return this.profilesService.createWithHashedPassword({
-      username: adminPassword,
-      password: adminPassword,
-    });
+    return this.profilesService.createWithHashedPassword(
+      {
+        username: adminPassword,
+        password: adminPassword,
+      },
+      box_id,
+    );
   }
 
   /**
@@ -218,7 +227,7 @@ export default class BoxCreator {
    * @returns created admin player or ServiceErrors if any occurred
    */
   private async createAdminPlayer(
-    playerToCreate: Partial<Player>,
+    playerToCreate: Partial<Player> & { box_id: string },
   ): Promise<IServiceReturn<Player>> {
     const adminPlayer = await this.playerService.createOne(playerToCreate);
     if (adminPlayer instanceof MongooseError) {
@@ -241,8 +250,8 @@ export default class BoxCreator {
    * @returns created clans or ServiceErrors if any occurred
    */
   async createBoxClans(
-    clanName1,
-    clanName2,
+    clanName1: string,
+    clanName2: string,
     box_id: string,
   ): Promise<IServiceReturn<ClanDto[]>> {
     const defaultClanData = {
@@ -252,20 +261,18 @@ export default class BoxCreator {
     };
 
     const [clan1Resp, clan1Errors] =
-      await this.clanService.createOneWithoutAdmin({
-        name: clanName1,
+      await this.clanService.createOneWithoutAdmin(
+        { name: clanName1, ...defaultClanData },
         box_id,
-        ...defaultClanData,
-      });
+      );
 
     if (clan1Errors) return [null, clan1Errors];
 
     const [clan2Resp, clan2Errors] =
-      await this.clanService.createOneWithoutAdmin({
-        name: clanName2,
+      await this.clanService.createOneWithoutAdmin(
+        { name: clanName2, ...defaultClanData },
         box_id,
-        ...defaultClanData,
-      });
+      );
 
     if (clan2Errors) return [null, clan2Errors];
 

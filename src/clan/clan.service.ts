@@ -101,22 +101,28 @@ export class ClanService {
    */
   public async createOneWithoutAdmin(
     clanToCreate: CreateClanDto,
+    box_id: string,
   ): Promise<IServiceReturn<ClanDto>> {
     if (clanToCreate && !clanToCreate.isOpen && !clanToCreate.password) {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
     }
     const [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>({
       ...clanToCreate,
+      box_id,
       playerCount: 0,
     });
     if (clanErrors || !clan) return [null, clanErrors];
 
     const [stock, stockErrors] =
-      await this.clanHelperService.createDefaultStock(clan._id);
+      await this.clanHelperService.createDefaultStock(clan._id, box_id);
     if (stockErrors || !stock) return [null, stockErrors];
 
     const [soulHome, soulHomeErrors] =
-      await this.clanHelperService.createDefaultSoulHome(clan._id, clan.name);
+      await this.clanHelperService.createDefaultSoulHome(
+        clan._id,
+        clan.name,
+        box_id,
+      );
     if (soulHomeErrors || !soulHome) return [null, soulHomeErrors];
 
     clan.SoulHome = soulHome.SoulHome;
