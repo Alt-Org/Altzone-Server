@@ -11,7 +11,6 @@ import {
 } from '../dailyTask/predefinedDailyTask.schema';
 import { ClanToCreate, ClanToCreateSchema } from './ClanToCreate.schema';
 import { defaultPredefinedDailyTasks } from '../dailyTask/defaultPredefinedDailyTasks';
-import { generateDefaultClanNames } from '../util/generateClanNames';
 
 export type BoxDocument = HydratedDocument<Box>;
 
