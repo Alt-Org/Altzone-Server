@@ -19,6 +19,7 @@ import { CreatedBox } from './payloads/CreatedBox';
 import { ProfileDto } from '../profile/dto/profile.dto';
 import UniqueFieldGenerator from './util/UniqueFieldGenerator';
 import { Profile } from '../profile/profile.schema';
+import { generateRandomClanName } from './util/generateRandomClanName';
 
 @Injectable()
 export default class BoxCreator {
@@ -106,12 +107,12 @@ export default class BoxCreator {
     const clanName1 = await this.uniqueFieldGenerator.generateUniqueFieldValue(
       this.clanModel,
       'name',
-      'sankarit',
+      generateRandomClanName(),
     );
     const clanName2 = await this.uniqueFieldGenerator.generateUniqueFieldValue(
       this.clanModel,
       'name',
-      'voittajat',
+      generateRandomClanName(),
     );
     boxToCreate.clansToCreate = [{ name: clanName1 }, { name: clanName2 }];
 
