@@ -13,6 +13,7 @@ import {
 import { UpdateChatMessageDto } from '../dto/updateChatMessage.dto';
 import ServiceError from 'src/common/service/basicService/ServiceError';
 import { SEReason } from 'src/common/service/basicService/SEReason';
+import { cancelTransaction } from '../common/function/cancelTransaction';
 
 @Injectable()
 export class ChatService {
@@ -93,8 +94,7 @@ export class ChatService {
    * @param chat - The data needs to be updated of the ChatMessage.
    * @returns _true_ if ChatMessage was updated successfully, _false_ if nothing was updated for the ChatMessage,
    * or a ServiceError:
-   * - NOT_FOUND if the box was not found
-   * - NOT_UNIQUE if attempting to update the box adminPassword, which already exists
+   * - NOT_FOUND if the ChatMessage was not found
    * - REQUIRED if _id is not provided
    */
   async updateOneById(
@@ -123,4 +123,22 @@ export class ChatService {
 
     return [isSuccess, errors];
   }
+
+  /**
+     * Deletes the chatmessage.
+     *
+     * @param chatId - The ID of the chatmessage to delete.
+     * @returns void promise.
+     * @throws Will throw an error if the deletion fails.
+     */
+    async deleteChatMessage(chatId: string) {
+      const session = await this.model.db.startSession();
+      session.startTransaction();
+      
+      const [, deleteChatMessageError] = await this.basicService.deleteOneById(chatId);
+      if (deleteChatMessageError) return await cancelTransaction(session, deleteChatMessageError);
+
+      session.commitTransaction();
+      session.endSession();
+    }
 }

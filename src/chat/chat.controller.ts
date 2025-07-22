@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
 import { ChatService } from './service/chat.service';
 import { ModelName } from '../common/enum/modelName.enum';
 import { IGetAllQuery } from '../common/interface/IGetAllQuery';
@@ -14,6 +14,7 @@ import ApiResponseDescription from '../common/swagger/response/ApiResponseDescri
 import { IsGroupAdmin } from '../box/auth/decorator/IsGroupAdmin';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { UpdateChatMessageDto } from './dto/updateChatMessage.dto';
+import { _idDto } from '../common/dto/_id.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -100,4 +101,25 @@ export class ChatController {
     });
     if (err) return [null, err];
   }
+
+  /**
+     * Delete chatmessage data.
+     *
+     * @remarks Delete chatmessage data.
+     *
+     * Notice that the chatmessage can be removed only by the box admin.
+     */
+    @ApiResponseDescription({
+      success: {
+        status: 204,
+      },
+      errors: [],
+    })
+    @Delete('/:_id')
+    @IsGroupAdmin()
+    @UniformResponse(ModelName.CHAT, UpdateChatMessageDto)
+    async deleteChatMessage(@Param() param: _idDto) {
+      return await this.service.deleteChatMessage(param._id);
+    }
+
 }
