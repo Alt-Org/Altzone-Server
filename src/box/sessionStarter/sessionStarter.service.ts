@@ -13,7 +13,12 @@ import { Clan } from '../../clan/clan.schema';
 import { PasswordGenerator } from '../../common/function/passwordGenerator';
 import { SessionStage } from '../enum/SessionStage.enum';
 import { PredefinedDailyTask } from '../dailyTask/predefinedDailyTask.schema';
-import BoxCreator from '../boxCreator';
+import { SoulHome } from '../../clanInventory/soulhome/soulhome.schema';
+import { Room } from '../../clanInventory/room/room.schema';
+import { Stock } from '../../clanInventory/stock/stock.schema';
+import { Item } from '../../clanInventory/item/item.schema';
+import { ClanLabel } from '../../clan/enum/clanLabel.enum';
+import { ClanService } from '../../clan/clan.service';
 
 /**
  * Class responsible for starting the testing session process.
@@ -23,10 +28,13 @@ export default class SessionStarterService {
   constructor(
     @InjectModel(Box.name) public readonly taskModel: Model<Box>,
     @InjectModel(Player.name) public readonly playerModel: Model<Player>,
-    @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
+    @InjectModel(SoulHome.name) private readonly soulHomeModel: Model<SoulHome>,
+    @InjectModel(Room.name) private readonly roomModel: Model<Room>,
+    @InjectModel(Stock.name) private readonly stockModel: Model<Stock>,
+    @InjectModel(Item.name) private readonly itemModel: Model<Item>,
+    private readonly clanService: ClanService,
     private readonly dailyTasksService: DailyTasksService,
     private readonly passwordGenerator: PasswordGenerator,
-    private readonly boxCreator: BoxCreator,
   ) {
     this.basicService = new BasicService(taskModel);
   }
@@ -50,7 +58,7 @@ export default class SessionStarterService {
     const [boxInDB, error] = await this.getAndValidateBox(box_id);
     if (error) return [null, error];
 
-    const [clans, err] = await this.boxCreator.createBoxClans(
+    const [clans, err] = await this.createBoxClans(
       boxInDB.clansToCreate[0].name,
       boxInDB.clansToCreate[1].name,
       box_id.toString(),
@@ -99,11 +107,94 @@ export default class SessionStarterService {
   }
 
   /**
+   * Creates 2 clans for the box.
+   *
+   * Notice that names of the clans should be unique.
+   *
+   * @param clanName1 name of the first clan
+   * @param clanName2 name of the second clan
+   * @param box_id Id of the box clan belongs to.
+   *
+   * @returns created clans or ServiceErrors if any occurred
+   */
+  public async createBoxClans(
+    clanName1: string,
+    clanName2: string,
+    box_id: string,
+  ): Promise<IServiceReturn<Clan[]>> {
+    const [clan1Resp, clan1Errors] = await this.createBoxClan(
+      clanName1,
+      box_id,
+    );
+    if (clan1Errors) return [null, clan1Errors];
+
+    const [clan2Resp, clan2Errors] = await this.createBoxClan(
+      clanName2,
+      box_id,
+    );
+    if (clan2Errors) return [null, clan2Errors];
+
+    return [[clan1Resp, clan2Resp], null];
+  }
+
+  /**
+   * Creates a clan for the box.
+   *
+   * Notice that clan name must be unique.
+   *
+   * @param clanName name of the clan
+   * @param box_id Id of the box clan belongs to.
+   *
+   * @returns created clan or ServiceErrors if any occurred
+   */
+  private async createBoxClan(
+    clanName: string,
+    box_id: string,
+  ): Promise<IServiceReturn<Clan>> {
+    const defaultClanData = {
+      tag: '',
+      labels: [ClanLabel.GAMERIT],
+      phrase: 'Not-set',
+    };
+
+    const [createdClan, clanCreationErrors] =
+      await this.clanService.createOneWithoutAdmin({
+        name: clanName,
+        ...defaultClanData,
+      });
+
+    if (clanCreationErrors) return [null, clanCreationErrors];
+
+    const [, clanUpdateErrors] = await this.clanService.updateOneById({
+      box_id,
+      _id: createdClan._id.toString(),
+    } as any);
+    if (clanUpdateErrors) return [null, clanUpdateErrors];
+
+    const { soulHome, soulHomeItems, stock } = createdClan;
+
+    const soulHomeItemIds = soulHomeItems.map((item) => item._id);
+
+    await this.soulHomeModel.findByIdAndUpdate(soulHome._id, { box_id });
+    await this.roomModel.updateMany({ soulHome_id: soulHome._id }, { box_id });
+    await this.itemModel.updateMany(
+      { _id: { $in: soulHomeItemIds } },
+      { box_id },
+    );
+
+    await this.stockModel.findByIdAndUpdate(stock._id, { box_id });
+    await this.itemModel.updateMany({ stock_id: stock._id }, { box_id });
+
+    return [createdClan, null];
+  }
+
+  /**
    * Creates daily tasks for the specified clans from the array of PredefinedDailyTask
    *
    * @param tasks tasks to create
    * @param clan1_id first where clan tasks to be added
    * @param clan2_id second clan where tasks to be added
+   * @param box_id _id of the box
    * @private
    *
    * @returns true if tasks was created or ServiceErrors if any occurred

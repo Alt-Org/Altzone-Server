@@ -25,6 +25,18 @@ import { SoulHomeService } from '../clanInventory/soulhome/soulhome.service';
 import GameEventEmitter from '../gameEventsEmitter/gameEventEmitter';
 import { LeaderClanRole } from './role/initializationClanRoles';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
+import { SoulHome } from '../clanInventory/soulhome/soulhome.schema';
+import { Stock } from '../clanInventory/stock/stock.schema';
+import { Room } from '../clanInventory/room/room.schema';
+import { Item } from '../clanInventory/item/item.schema';
+
+type CreateWithoutDtoType = Clan & {
+  soulHome: SoulHome;
+  rooms: Room[];
+  soulHomeItems: Item[];
+  stock: Stock;
+  stockItems: Item[];
+};
 
 @Injectable()
 export class ClanService {
@@ -96,37 +108,34 @@ export class ClanService {
    *
    * The default objects are required on the game side.
    * These objects are a Stock with its Items given to each new Clan, as well as a SoulHome with one Room
-   * @param clanToCreate
+   * @param clanToCreate clan data
    * @returns created clan or ServiceErrors if any occurred
    */
   public async createOneWithoutAdmin(
     clanToCreate: CreateClanDto,
-    box_id: string,
-  ): Promise<IServiceReturn<ClanDto>> {
+  ): Promise<IServiceReturn<CreateWithoutDtoType>> {
     if (clanToCreate && !clanToCreate.isOpen && !clanToCreate.password) {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
     }
-    const [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>({
+    const [clan, clanErrors] = await this.basicService.createOne({
       ...clanToCreate,
-      box_id,
       playerCount: 0,
     });
     if (clanErrors || !clan) return [null, clanErrors];
 
     const [stock, stockErrors] =
-      await this.clanHelperService.createDefaultStock(clan._id, box_id);
+      await this.clanHelperService.createDefaultStock(clan._id);
     if (stockErrors || !stock) return [null, stockErrors];
 
     const [soulHome, soulHomeErrors] =
-      await this.clanHelperService.createDefaultSoulHome(
-        clan._id,
-        clan.name,
-        box_id,
-      );
+      await this.clanHelperService.createDefaultSoulHome(clan._id, clan.name);
     if (soulHomeErrors || !soulHome) return [null, soulHomeErrors];
 
-    clan.SoulHome = soulHome.SoulHome;
-    clan.Stock = stock.Stock;
+    clan.soulHome = soulHome.SoulHome;
+    clan.rooms = soulHome.Room;
+    clan.soulHomeItems = soulHome.Item;
+    clan.stock = stock.Stock;
+    clan.stockItems = stock.Item;
 
     return [clan, null];
   }

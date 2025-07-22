@@ -6,7 +6,6 @@ import { Box, BoxDocument } from './schemas/box.schema';
 import { Model, MongooseError } from 'mongoose';
 import { Player } from '../player/schemas/player.schema';
 import { Clan } from '../clan/clan.schema';
-import { Room } from '../clanInventory/room/room.schema';
 import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { BoxHelper } from './util/boxHelper';
 import ServiceError from '../common/service/basicService/ServiceError';
@@ -18,25 +17,21 @@ import { convertMongooseToServiceErrors } from '../common/service/basicService/B
 import { BoxService } from './box.service';
 import { CreatedBox } from './payloads/CreatedBox';
 import { ProfileDto } from '../profile/dto/profile.dto';
-import { ClanService } from '../clan/clan.service';
-import { ClanDto } from '../clan/dto/clan.dto';
-import { ClanLabel } from '../clan/enum/clanLabel.enum';
 import UniqueFieldGenerator from './util/UniqueFieldGenerator';
+import { Profile } from '../profile/profile.schema';
 
 @Injectable()
 export default class BoxCreator {
   constructor(
-    @InjectModel(Box.name) public readonly model: Model<Box>,
-    @InjectModel(Player.name) public readonly playerModel: Model<Player>,
-    @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
-    @InjectModel(Room.name) public readonly roomModel: Model<Room>,
+    @InjectModel(Profile.name) private readonly profileModel: Model<Profile>,
+    @InjectModel(Player.name) private readonly playerModel: Model<Player>,
+    @InjectModel(Clan.name) private readonly clanModel: Model<Clan>,
     @InjectModel(GroupAdmin.name)
-    public readonly groupAdminModel: Model<GroupAdmin>,
+    private readonly groupAdminModel: Model<GroupAdmin>,
     private readonly boxHelper: BoxHelper,
     private readonly profilesService: ProfileService,
     private readonly playerService: PlayerService,
     private readonly boxService: BoxService,
-    private readonly clanService: ClanService,
     private readonly uniqueFieldGenerator: UniqueFieldGenerator,
   ) {}
 
@@ -109,12 +104,12 @@ export default class BoxCreator {
     boxToCreate.boxRemovalTime = new Date().getTime() + monthMs;
 
     const clanName1 = await this.uniqueFieldGenerator.generateUniqueFieldValue(
-      this.model,
+      this.clanModel,
       'name',
       'sankarit',
     );
     const clanName2 = await this.uniqueFieldGenerator.generateUniqueFieldValue(
-      this.model,
+      this.clanModel,
       'name',
       'voittajat',
     );
@@ -125,6 +120,11 @@ export default class BoxCreator {
     );
 
     if (errors) return [null, errors];
+
+    await this.groupAdminModel.findOneAndUpdate(
+      { password: boxToInit.adminPassword },
+      { box_id: createdBox._id },
+    );
 
     const {
       __v,
@@ -205,20 +205,27 @@ export default class BoxCreator {
   /**
    * Creates a profile for group admin, where username and password are the same
    * @param adminPassword admin password to set
-   * @param box_id optional box_id used for testing sessions
+   * @param box_id box_id used for testing sessions
    * @returns created admin profile or ServiceErrors if any occurred
    */
   private async createAdminProfile(
     adminPassword: string,
-    box_id?: string,
+    box_id: string,
   ): Promise<IServiceReturn<ProfileDto>> {
-    return this.profilesService.createWithHashedPassword(
-      {
+    const [createdProfile, errors] =
+      await this.profilesService.createWithHashedPassword({
         username: adminPassword,
         password: adminPassword,
-      },
-      box_id,
+      });
+
+    if (errors) return [null, errors];
+
+    await this.profileModel.findOneAndUpdate(
+      { _id: createdProfile._id },
+      { box_id },
     );
+
+    return [createdProfile, null];
   }
 
   /**
@@ -236,46 +243,5 @@ export default class BoxCreator {
     }
 
     return [adminPlayer.data[adminPlayer.metaData.dataKey], null];
-  }
-
-  /**
-   * Creates 2 clans for the box.
-   *
-   * Notice that names of the clans should be unique.
-   *
-   * @param clanName1 name of the first clan
-   * @param clanName2 name of the second clan
-   * @param box_id Id of the box clan belongs to.
-   *
-   * @returns created clans or ServiceErrors if any occurred
-   */
-  async createBoxClans(
-    clanName1: string,
-    clanName2: string,
-    box_id: string,
-  ): Promise<IServiceReturn<ClanDto[]>> {
-    const defaultClanData = {
-      tag: '',
-      labels: [ClanLabel.GAMERIT],
-      phrase: 'Not-set',
-    };
-
-    const [clan1Resp, clan1Errors] =
-      await this.clanService.createOneWithoutAdmin(
-        { name: clanName1, ...defaultClanData },
-        box_id,
-      );
-
-    if (clan1Errors) return [null, clan1Errors];
-
-    const [clan2Resp, clan2Errors] =
-      await this.clanService.createOneWithoutAdmin(
-        { name: clanName2, ...defaultClanData },
-        box_id,
-      );
-
-    if (clan2Errors) return [null, clan2Errors];
-
-    return [[clan1Resp, clan2Resp], null];
   }
 }

@@ -13,6 +13,7 @@ import { StockDto } from '../../clanInventory/stock/dto/stock.dto';
 import { ItemDto } from '../../clanInventory/item/dto/item.dto';
 import { SoulHomeDto } from '../../clanInventory/soulhome/dto/soulhome.dto';
 import { RoomDto } from '../../clanInventory/room/dto/room.dto';
+import { SoulHome } from '../../clanInventory/soulhome/soulhome.schema';
 
 @Injectable()
 export default class ClanHelperService {
@@ -29,25 +30,22 @@ export default class ClanHelperService {
    * The default Stock will contain multiple default Items inside.
    *
    * @param clan_id _id of the Clan for which Stock should be created
-   * @param box_id optional box_id used in testing sessions.
    *
    * @returns created _Stock_ and its _items_, or array of ServiceErrors if something went wrong
    */
   async createDefaultStock(
     clan_id: string,
-    box_id?: string,
   ): Promise<
     [{ Stock: StockDto; Item: ItemDto[] } | null, ServiceError[] | null]
   > {
     const [stock, stockErrors] = await this.stockService.createOne({
       cellCount: 20,
       clan_id,
-      box_id,
     });
     if (stockErrors || !stock) return [null, stockErrors];
 
     const [items, itemsErrors] = await this.itemService.createMany(
-      getStockDefaultItems(stock._id, box_id),
+      getStockDefaultItems(stock._id),
     );
     if (itemsErrors || !items) return [null, itemsErrors];
 
@@ -75,8 +73,7 @@ export default class ClanHelperService {
   async createDefaultSoulHome(
     clan_id: string,
     name: string,
-    box_id?: string,
-    roomsCount: number = 30,
+    roomsCount = 30,
   ): Promise<
     [
       { SoulHome: SoulHomeDto; Room: RoomDto[]; Item: ItemDto[] } | null,
@@ -84,14 +81,16 @@ export default class ClanHelperService {
     ]
   > {
     const [soulHome, soulHomeErrors] =
-      await this.soulHomeService.basicService.createOne<any, SoulHomeDto>({
+      await this.soulHomeService.basicService.createOne<
+        Partial<SoulHome>,
+        SoulHomeDto
+      >({
         name,
         clan_id,
-        box_id,
       });
     if (soulHomeErrors || !soulHome) return [null, soulHomeErrors];
 
-    const defaultRooms = this.getDefaultRooms(soulHome._id, roomsCount, box_id);
+    const defaultRooms = this.getDefaultRooms(soulHome._id, roomsCount);
     const [rooms, roomsErrors] =
       await this.roomService.createMany(defaultRooms);
     if (roomsErrors || !rooms) return [null, roomsErrors];
@@ -99,7 +98,7 @@ export default class ClanHelperService {
     const firstRoom = rooms[0];
 
     const [items, itemsErrors] = await this.itemService.createMany(
-      getRoomDefaultItems(firstRoom._id, box_id),
+      getRoomDefaultItems(firstRoom._id),
     );
     if (itemsErrors || !items) return [null, itemsErrors];
 
@@ -118,17 +117,15 @@ export default class ClanHelperService {
    *
    * @param soulHome_id _id of SoulHome to which Rooms will belong to
    * @param count Amount of Rooms to generate
-   * @param box_id Optional box_id user for testing session.
    */
-  private getDefaultRooms(soulHome_id: string, count: number, box_id?: string) {
+  private getDefaultRooms(soulHome_id: string, count: number) {
     const defaultRooms: CreateRoomDto[] = [];
-    const defaultRoom: CreateRoomDto & { box_id?: string } = {
+    const defaultRoom: CreateRoomDto = {
       floorType: 'default',
       wallType: 'default',
       hasLift: false,
       cellCount: 10,
       soulHome_id,
-      box_id,
     };
     for (let i = 0, l = count; i < l; i++) defaultRooms.push(defaultRoom);
 

@@ -54,12 +54,10 @@ export class ProfileService
    * Creates a new Profile in DB with hashed password.
    *
    * @param profile - The Profile data to create.
-   * @param box_id - Optional box_id used for testing sessions.
    * @returns  created Profile or an array of service errors if any occurred.
    */
   async createWithHashedPassword(
     profile: CreateProfileDto,
-    box_id?: string,
   ): Promise<IServiceReturn<ProfileDto>> {
     const [hashedPassword, errors] = await this.hashPassword(profile.password);
 
@@ -68,7 +66,6 @@ export class ProfileService
     return this.basicService.createOne<any, ProfileDto>({
       ...profile,
       password: hashedPassword,
-      box_id,
     });
   }
 

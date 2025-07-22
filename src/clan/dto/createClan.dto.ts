@@ -103,12 +103,4 @@ export class CreateClanDto {
   @IsEnum(Language)
   @IsOptional()
   language?: Language;
-
-  /**
-   * ID of the related box.
-   * @example "67fe4e2d8a54d4cc39266a41"
-   */
-  @IsMongoId()
-  @IsOptional()
-  box_id?: string;
 }
