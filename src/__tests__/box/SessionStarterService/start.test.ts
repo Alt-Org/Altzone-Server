@@ -148,4 +148,23 @@ describe('SessionStarterService.start() test suite', () => {
     expect(result).toBeNull();
     expect(errors).toContainSE_NOT_FOUND();
   });
+
+  it('Should create clans with valid names based on the box config', async () => {
+    await starter.start(existingBox._id);
+
+    const boxInDB = await boxModel.findById(existingBox._id);
+    const createdClanIds = boxInDB.createdClan_ids;
+
+    expect(createdClanIds).toBeDefined();
+    expect(Array.isArray(createdClanIds)).toBe(true);
+    expect(createdClanIds).toHaveLength(existingBox.clansToCreate.length);
+
+    const clansInDB = await clanModel.find({ _id: { $in: createdClanIds } });
+    const clanNames = clansInDB.map((clan: any) => clan.name);
+
+    const expectedNames = existingBox.clansToCreate.map((c: any) => c.name);
+    expectedNames.forEach((name) => {
+      expect(clanNames).toContain(name);
+    });
+  });
 });
