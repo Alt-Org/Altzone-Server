@@ -10,15 +10,11 @@ import ClaimedAccount from './payloads/claimedAccount';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import { TesterAccountService } from './testerAccount.service';
 import { ClanDto } from '../../clan/dto/clan.dto';
-import { Player } from '../../player/schemas/player.schema';
-import { Clan } from '../../clan/clan.schema';
 
 @Injectable()
 export default class AccountClaimerService {
   constructor(
-    @InjectModel(Box.name) public readonly boxModel: Model<Box>,
-    @InjectModel(Player.name) public readonly playerModel: Model<Player>,
-    @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
+    @InjectModel(Box.name) private readonly boxModel: Model<Box>,
     private readonly testerService: TesterAccountService,
     private readonly jwtService: JwtService,
   ) {
