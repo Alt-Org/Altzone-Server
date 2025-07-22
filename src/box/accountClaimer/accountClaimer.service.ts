@@ -6,7 +6,6 @@ import BasicService from '../../common/service/basicService/BasicService';
 import { InjectModel } from '@nestjs/mongoose';
 import { Box } from '../schemas/box.schema';
 import { Model } from 'mongoose';
-import { ObjectId } from 'mongodb';
 import ClaimedAccount from './payloads/claimedAccount';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import { TesterAccountService } from './testerAccount.service';
@@ -80,14 +79,6 @@ export default class AccountClaimerService {
       );
     if (clanAssigningErrors) return [null, clanAssigningErrors];
 
-    if (box.testerAccountsClaimed > 2) {
-      this.setClanAdmins(
-        box.adminPlayer_id,
-        box.createdClan_ids[0],
-        box.createdClan_ids[1],
-      );
-    }
-
     const accessToken = await this.jwtService.signAsync({
       player_id: account.Player._id.toString(),
       profile_id: account.Profile._id.toString(),
@@ -132,57 +123,5 @@ export default class AccountClaimerService {
     return this.basicService.readOne<Box>({
       filter: { testersSharedPassword: password },
     });
-  }
-
-  /**
-   * Sets one of the testers to be a clan admin
-   * @param admin_id player _id of the box admin
-   * @param clan1_id first clan _id
-   * @param clan2_id second clan _id
-   * @private
-   * @returns true if _id is valid or ServiceErrors if not
-   */
-  private async setClanAdmins(
-    admin_id: string | ObjectId,
-    clan1_id: string | ObjectId,
-    clan2_id: string | ObjectId,
-  ): Promise<IServiceReturn<true>> {
-    const clan1Admin = await this.playerModel.findOne({
-      clan_id: clan1_id,
-      _id: { $ne: admin_id },
-    });
-    if (!clan1Admin)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            message: 'Could not find any tester to be a clan 1 admin',
-          }),
-        ],
-      ];
-    const clan2Admin = await this.playerModel.findOne({
-      clan_id: clan2_id,
-      _id: { $ne: admin_id },
-    });
-    if (!clan2Admin)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            message: 'Could not find any tester to be a clan 2 admin',
-          }),
-        ],
-      ];
-
-    await this.clanModel.findByIdAndUpdate(clan1_id, {
-      admin_ids: [clan1Admin._id.toString()],
-    });
-    await this.clanModel.findByIdAndUpdate(clan2_id, {
-      admin_ids: [clan2Admin._id.toString()],
-    });
-
-    return [true, null];
   }
 }
