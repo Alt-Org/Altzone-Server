@@ -23,6 +23,10 @@ import { IsGroupAdmin } from '../box/auth/decorator/IsGroupAdmin';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { UpdateChatMessageDto } from './dto/updateChatMessage.dto';
 import { _idDto } from '../common/dto/_id.dto';
+import { env } from 'process';
+import { Environment } from '../common/service/envHandler/enum/environment.enum';
+import ServiceError from '../common/service/basicService/ServiceError';
+import { SEReason } from '../common/service/basicService/SEReason';
 
 @Controller('chat')
 export class ChatController {
@@ -101,9 +105,21 @@ export class ChatController {
     hasAuth: true,
   })
   @IsGroupAdmin()
-  @UniformResponse(ModelName.CHAT, UpdateChatMessageDto)
+  @UniformResponse(ModelName.CHAT)
   @Patch()
   async configureBox(@Body() body: UpdateChatMessageDto) {
+    if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
+        return [
+                null,
+                [
+                  new ServiceError({
+                    reason: SEReason.MISCONFIGURED,
+                    message: 'This endpoint is only available in TESTING_SESSION environment.',
+                  }),
+                ],
+              ];
+    }
+
     const [_, err] = await this.service.updateOneById({
       ...body,
     });
@@ -125,8 +141,19 @@ export class ChatController {
   })
   @Delete('/:_id')
   @IsGroupAdmin()
-  @UniformResponse(ModelName.CHAT, UpdateChatMessageDto)
+  @UniformResponse(ModelName.CHAT)
   async deleteChatMessage(@Param() param: _idDto) {
+    if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
+        return [
+                null,
+                [
+                  new ServiceError({
+                    reason: SEReason.MISCONFIGURED,
+                    message: 'This endpoint is only available in TESTING_SESSION environment.',
+                  }),
+                ],
+              ];
+    }
     return await this.service.deleteChatMessage(param._id);
   }
 }

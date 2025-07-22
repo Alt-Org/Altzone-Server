@@ -13,7 +13,7 @@ import {
 import { UpdateChatMessageDto } from '../dto/updateChatMessage.dto';
 import ServiceError from 'src/common/service/basicService/ServiceError';
 import { SEReason } from 'src/common/service/basicService/SEReason';
-import { cancelTransaction } from '../common/function/cancelTransaction';
+import { cancelTransaction } from '../../common/function/cancelTransaction';
 
 @Injectable()
 export class ChatService {
@@ -112,14 +112,13 @@ export class ChatService {
           }),
         ],
       ];
+
     const { _id, ...fieldsToUpdate } = chat;
 
     const [isSuccess, errors] = await this.basicService.updateOneById(
       _id as any,
       fieldsToUpdate,
     );
-    if (errors && errors[0].reason === SEReason.NOT_UNIQUE)
-      errors[0].value = null;
 
     return [isSuccess, errors];
   }
