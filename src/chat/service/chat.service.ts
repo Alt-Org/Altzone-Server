@@ -125,20 +125,22 @@ export class ChatService {
   }
 
   /**
-     * Deletes the chatmessage.
-     *
-     * @param chatId - The ID of the chatmessage to delete.
-     * @returns void promise.
-     * @throws Will throw an error if the deletion fails.
-     */
-    async deleteChatMessage(chatId: string) {
-      const session = await this.model.db.startSession();
-      session.startTransaction();
-      
-      const [, deleteChatMessageError] = await this.basicService.deleteOneById(chatId);
-      if (deleteChatMessageError) return await cancelTransaction(session, deleteChatMessageError);
+   * Deletes the chatmessage.
+   *
+   * @param chatId - The ID of the chatmessage to delete.
+   * @returns void promise.
+   * @throws Will throw an error if the deletion fails.
+   */
+  async deleteChatMessage(chatId: string) {
+    const session = await this.model.db.startSession();
+    session.startTransaction();
 
-      session.commitTransaction();
-      session.endSession();
-    }
+    const [, deleteChatMessageError] =
+      await this.basicService.deleteOneById(chatId);
+    if (deleteChatMessageError)
+      return await cancelTransaction(session, deleteChatMessageError);
+
+    session.commitTransaction();
+    session.endSession();
+  }
 }
