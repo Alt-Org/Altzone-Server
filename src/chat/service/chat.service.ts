@@ -102,7 +102,7 @@ export class ChatService {
   async updateOneById(
     chat: Partial<UpdateChatMessageDto>,
   ): Promise<[boolean | null, ServiceError[] | null]> {
-    if (env.ENVIRONMENT === Environment.TESTING_SESSION) {
+    if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
       return await this.getmisconfiguredEnvironmentError();
     }
 

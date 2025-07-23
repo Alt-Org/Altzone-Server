@@ -4,6 +4,8 @@ import ChatModule from '../modules/chat.module';
 import { ChatType } from '../../../chat/enum/chatMessageType.enum';
 import ChatBuilderFactory from '../data/chatBuilderFactory';
 import { UpdateChatMessageDto } from '../../../chat/dto/updateChatMessage.dto';
+import { env } from 'process';
+import { SEReason } from '../../../common/service/basicService/SEReason';
 
 describe('ChatService.updateOneById() test suite', () => {
   let chatService: ChatService;
@@ -75,6 +77,18 @@ describe('ChatService.updateOneById() test suite', () => {
     expect(err[0].reason).toBe('REQUIRED');
     expect(err[0].field).toBe('_id');
     expect(err[0].message).toBe('_id field is required');
+    expect(message).toBeFalsy();
+  });
+
+  it('Should return with error if the ENVIRONMENT is NOT TESTING_SESSION', async () => {
+    env.ENVIRONMENT = 'PRODUCTION';
+    updateChatMessageDto = updateChatMessageDtoBuilder.build();
+    const [message, err] =
+      await chatService.updateOneById(updateChatMessageDto);
+
+    expect(err).toBeDefined();
+    expect(err[0].reason).toBe(SEReason.MISCONFIGURED);
+    expect(err[0].message).toBe('This endpoint is only available in TESTING_SESSION.');
     expect(message).toBeFalsy();
   });
 });
