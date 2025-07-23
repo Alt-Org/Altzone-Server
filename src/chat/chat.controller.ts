@@ -23,10 +23,6 @@ import { IsGroupAdmin } from '../box/auth/decorator/IsGroupAdmin';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { UpdateChatMessageDto } from './dto/updateChatMessage.dto';
 import { _idDto } from '../common/dto/_id.dto';
-import { env } from 'process';
-import { Environment } from '../common/service/envHandler/enum/environment.enum';
-import ServiceError from '../common/service/basicService/ServiceError';
-import { SEReason } from '../common/service/basicService/SEReason';
 
 @Controller('chat')
 export class ChatController {

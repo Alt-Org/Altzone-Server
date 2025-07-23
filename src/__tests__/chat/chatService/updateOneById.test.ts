@@ -24,6 +24,7 @@ describe('ChatService.updateOneById() test suite', () => {
   const clanMessages = [];
 
   beforeAll(() => {
+    env.ENVIRONMENT = 'TESTING_SESSION';
     const globalChatToCreate = chatMessageBuilder
       .setType(ChatType.GLOBAL)
       .setSenderId(new ObjectId())
