@@ -9,9 +9,11 @@ describe('ChatService.updateOneById() test suite', () => {
   let chatService: ChatService;
   const chatModel = ChatModule.getChatModel();
   const chatMessageBuilder = ChatBuilderFactory.getBuilder('ChatMessage');
-  const updateChatMessageDtoBuilder = ChatBuilderFactory.getBuilder('UpdateChatMessageDto');
+  const updateChatMessageDtoBuilder = ChatBuilderFactory.getBuilder(
+    'UpdateChatMessageDto',
+  );
 
-  let updateChatMessageDto: UpdateChatMessageDto;;
+  let updateChatMessageDto: UpdateChatMessageDto;
 
   const clan1ID = new ObjectId().toString();
   const player1ID = new ObjectId();
@@ -20,22 +22,20 @@ describe('ChatService.updateOneById() test suite', () => {
   const clanMessages = [];
 
   beforeAll(() => {
-    
-      const globalChatToCreate = chatMessageBuilder
-        .setType(ChatType.GLOBAL)
-        .setSenderId(new ObjectId())
-        .build();
+    const globalChatToCreate = chatMessageBuilder
+      .setType(ChatType.GLOBAL)
+      .setSenderId(new ObjectId())
+      .build();
 
-      globalMessages.push(globalChatToCreate);
+    globalMessages.push(globalChatToCreate);
 
-      const clanChatToCreate1 = chatMessageBuilder
-        .setType(ChatType.GLOBAL)
-        .setSenderId(player1ID)
-        .setClanId(clan1ID)
-        .build();
+    const clanChatToCreate1 = chatMessageBuilder
+      .setType(ChatType.GLOBAL)
+      .setSenderId(player1ID)
+      .setClanId(clan1ID)
+      .build();
 
-      clanMessages.push(clanChatToCreate1);
-    
+    clanMessages.push(clanChatToCreate1);
   });
 
   beforeEach(async () => {
@@ -47,8 +47,11 @@ describe('ChatService.updateOneById() test suite', () => {
 
   it('Should update the ChatMessage instance in DB if input are valid', async () => {
     const chat = await chatModel.find({ clan_id: clan1ID });
-    updateChatMessageDto = updateChatMessageDtoBuilder.setId(chat[0]._id.toString()).build();
-    const [message, err] = await chatService.updateOneById(updateChatMessageDto);
+    updateChatMessageDto = updateChatMessageDtoBuilder
+      .setId(chat[0]._id.toString())
+      .build();
+    const [message, err] =
+      await chatService.updateOneById(updateChatMessageDto);
     const updatedChat = await chatModel.find({ clan_id: clan1ID });
 
     expect(err).toBeNull();
@@ -57,20 +60,21 @@ describe('ChatService.updateOneById() test suite', () => {
     expect(updatedChat[0]._id.toString()).toBe(chat[0]._id.toString());
     expect(updatedChat[0].content).toBe(updateChatMessageDto.content);
     expect(updatedChat[0].type).toBe(updateChatMessageDto.type);
-    expect(updatedChat[0].sender_id.toString()).toBe(updateChatMessageDto.sender_id.toString());
+    expect(updatedChat[0].sender_id.toString()).toBe(
+      updateChatMessageDto.sender_id.toString(),
+    );
     expect(updatedChat[0].clan_id).toBe(clan1ID);
   });
 
   it('Should return with error if chat id is not defined', async () => {
     updateChatMessageDto = updateChatMessageDtoBuilder.setId(null).build();
-    const [message, err] = await chatService.updateOneById(updateChatMessageDto);
+    const [message, err] =
+      await chatService.updateOneById(updateChatMessageDto);
 
     expect(err).toBeDefined();
     expect(err[0].reason).toBe('REQUIRED');
     expect(err[0].field).toBe('_id');
     expect(err[0].message).toBe('_id field is required');
     expect(message).toBeFalsy();
-    
   });
-
 });

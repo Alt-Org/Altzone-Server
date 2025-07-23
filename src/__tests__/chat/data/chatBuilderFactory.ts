@@ -3,7 +3,11 @@ import ChatMessageBuilder from './builder/chatMessageBuilder';
 import ReactionDtoBuilder from './builder/ReactionDtoBuilder';
 import UpdateChatMessageDtoBuilder from './builder/UpdateChatMessageDtoBuilder';
 
-type BuilderName = 'AddReactionDto' | 'ReactionDto' | 'ChatMessage' | 'UpdateChatMessageDto';
+type BuilderName =
+  | 'AddReactionDto'
+  | 'ReactionDto'
+  | 'ChatMessage'
+  | 'UpdateChatMessageDto';
 
 type BuilderMap = {
   AddReactionDto: AddReactionDtoBuilder;

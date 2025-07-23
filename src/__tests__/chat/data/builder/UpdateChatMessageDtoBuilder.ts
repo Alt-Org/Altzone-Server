@@ -4,7 +4,9 @@ import { Feeling } from '../../../../chat/enum/feeling.enum';
 import { ObjectId } from 'mongodb';
 import { UpdateChatMessageDto } from '../../../../chat/dto/updateChatMessage.dto';
 
-export default class UpdateChatMessageDtoBuilder implements IDataBuilder<UpdateChatMessageDto> {
+export default class UpdateChatMessageDtoBuilder
+  implements IDataBuilder<UpdateChatMessageDto>
+{
   private readonly base: UpdateChatMessageDto = {
     _id: new ObjectId().toString(),
     type: ChatType.GLOBAL,
