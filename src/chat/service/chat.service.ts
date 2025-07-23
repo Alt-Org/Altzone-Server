@@ -14,6 +14,8 @@ import { UpdateChatMessageDto } from '../dto/updateChatMessage.dto';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { cancelTransaction } from '../../common/function/cancelTransaction';
+import { Environment } from '../../common/service/envHandler/enum/environment.enum';
+import { env } from 'process';
 
 @Injectable()
 export class ChatService {
@@ -25,6 +27,7 @@ export class ChatService {
   }
 
   private readonly basicService: BasicService;
+
 
   /**
    * Creates a message in database.
@@ -100,6 +103,10 @@ export class ChatService {
   async updateOneById(
     chat: Partial<UpdateChatMessageDto>,
   ): Promise<[boolean | null, ServiceError[] | null]> {
+    if (env.ENVIRONMENT === Environment.TESTING_SESSION) {
+      return await this.getmisconfiguredEnvironmentError();
+    }
+
     if (!chat._id)
       return [
         null,
@@ -131,6 +138,10 @@ export class ChatService {
    * @throws Will throw an error if the deletion fails.
    */
   async deleteChatMessage(chatId: string) {
+    if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
+      return await this.getmisconfiguredEnvironmentError();
+    }
+    
     const session = await this.model.db.startSession();
     session.startTransaction();
 
@@ -141,5 +152,21 @@ export class ChatService {
 
     session.commitTransaction();
     session.endSession();
+  }
+
+  private getmisconfiguredEnvironmentError(): [
+    boolean,
+    ServiceError[] | null,
+  ] {
+    return [
+      false,
+      [
+        new ServiceError({
+          reason: SEReason.MISCONFIGURED,
+          message:
+            'This endpoint is only available in TESTING_SESSION.',
+        }),
+      ],
+    ];
   }
 }

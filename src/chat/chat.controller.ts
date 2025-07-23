@@ -108,18 +108,7 @@ export class ChatController {
   @UniformResponse(ModelName.CHAT)
   @Patch()
   async configureBox(@Body() body: UpdateChatMessageDto) {
-    if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.MISCONFIGURED,
-            message:
-              'This endpoint is only available in TESTING_SESSION environment.',
-          }),
-        ],
-      ];
-    }
+    
 
     const [_, err] = await this.service.updateOneById({
       ...body,
@@ -144,18 +133,6 @@ export class ChatController {
   @IsGroupAdmin()
   @UniformResponse(ModelName.CHAT)
   async deleteChatMessage(@Param() param: _idDto) {
-    if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.MISCONFIGURED,
-            message:
-              'This endpoint is only available in TESTING_SESSION environment.',
-          }),
-        ],
-      ];
-    }
     return await this.service.deleteChatMessage(param._id);
   }
 }
