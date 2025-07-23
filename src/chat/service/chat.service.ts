@@ -11,8 +11,8 @@ import {
   TIServiceReadManyOptions,
 } from '../../common/service/basicService/IService';
 import { UpdateChatMessageDto } from '../dto/updateChatMessage.dto';
-import ServiceError from 'src/common/service/basicService/ServiceError';
-import { SEReason } from 'src/common/service/basicService/SEReason';
+import ServiceError from '../../common/service/basicService/ServiceError';
+import { SEReason } from '../../common/service/basicService/SEReason';
 import { cancelTransaction } from '../../common/function/cancelTransaction';
 
 @Injectable()
