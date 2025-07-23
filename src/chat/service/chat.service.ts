@@ -28,7 +28,6 @@ export class ChatService {
 
   private readonly basicService: BasicService;
 
-
   /**
    * Creates a message in database.
    *
@@ -141,7 +140,7 @@ export class ChatService {
     if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
       return await this.getmisconfiguredEnvironmentError();
     }
-    
+
     const session = await this.model.db.startSession();
     session.startTransaction();
 
@@ -154,17 +153,13 @@ export class ChatService {
     session.endSession();
   }
 
-  private getmisconfiguredEnvironmentError(): [
-    boolean,
-    ServiceError[] | null,
-  ] {
+  private getmisconfiguredEnvironmentError(): [boolean, ServiceError[] | null] {
     return [
       false,
       [
         new ServiceError({
           reason: SEReason.MISCONFIGURED,
-          message:
-            'This endpoint is only available in TESTING_SESSION.',
+          message: 'This endpoint is only available in TESTING_SESSION.',
         }),
       ],
     ];

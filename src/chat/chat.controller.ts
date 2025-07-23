@@ -108,8 +108,6 @@ export class ChatController {
   @UniformResponse(ModelName.CHAT)
   @Patch()
   async configureBox(@Body() body: UpdateChatMessageDto) {
-    
-
     const [_, err] = await this.service.updateOneById({
       ...body,
     });
