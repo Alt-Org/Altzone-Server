@@ -88,7 +88,9 @@ describe('ChatService.updateOneById() test suite', () => {
 
     expect(err).toBeDefined();
     expect(err[0].reason).toBe(SEReason.MISCONFIGURED);
-    expect(err[0].message).toBe('This endpoint is only available in TESTING_SESSION.');
+    expect(err[0].message).toBe(
+      'This endpoint is only available in TESTING_SESSION.',
+    );
     expect(message).toBeFalsy();
   });
 });
