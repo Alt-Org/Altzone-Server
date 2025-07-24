@@ -132,10 +132,14 @@ export class ChatService {
    * Deletes the chatmessage.
    *
    * @param chatId - The ID of the chatmessage to delete.
-   * @returns void promise.
+   * @returns _true_ if ChatMessage was deleted successfully, _false_ if nothing was deleted
+   * or a ServiceError:
+   * - NOT_FOUND if the ChatMessage was not found
+   * - REQUIRED if _id is not provided
    * @throws Will throw an error if the deletion fails.
    */
-  async deleteChatMessageById(chatId: string) {
+  async deleteChatMessageById(chatId: string) 
+  : Promise<[boolean | null, ServiceError[] | null]>{
     if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
       return await this.getmisconfiguredEnvironmentError();
     }
