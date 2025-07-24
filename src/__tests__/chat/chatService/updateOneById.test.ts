@@ -6,6 +6,7 @@ import ChatBuilderFactory from '../data/chatBuilderFactory';
 import { UpdateChatMessageDto } from '../../../chat/dto/updateChatMessage.dto';
 import { env } from 'process';
 import { SEReason } from '../../../common/service/basicService/SEReason';
+import { Environment } from '../../../common/service/envHandler/enum/environment.enum';
 
 describe('ChatService.updateOneById() test suite', () => {
   let chatService: ChatService;
@@ -20,17 +21,9 @@ describe('ChatService.updateOneById() test suite', () => {
   const clan1ID = new ObjectId().toString();
   const player1ID = new ObjectId();
 
-  const globalMessages = [];
   const clanMessages = [];
 
   beforeAll(() => {
-    env.ENVIRONMENT = 'TESTING_SESSION';
-    const globalChatToCreate = chatMessageBuilder
-      .setType(ChatType.GLOBAL)
-      .setSenderId(new ObjectId())
-      .build();
-
-    globalMessages.push(globalChatToCreate);
 
     const clanChatToCreate1 = chatMessageBuilder
       .setType(ChatType.GLOBAL)
@@ -43,12 +36,13 @@ describe('ChatService.updateOneById() test suite', () => {
 
   beforeEach(async () => {
     await chatModel.deleteMany({});
+    env.ENVIRONMENT = Environment.TESTING_SESSION;
     chatService = await ChatModule.getChatService();
 
-    await chatModel.create([...globalMessages, ...clanMessages]);
+    await chatModel.create([...clanMessages]);
   });
 
-  it('Should update the ChatMessage instance in DB if input are valid', async () => {
+  it('Should update the ChatMessage instance in DB if input is valid', async () => {
     const chat = await chatModel.find({ clan_id: clan1ID });
     updateChatMessageDto = updateChatMessageDtoBuilder
       .setId(chat[0]._id.toString())
