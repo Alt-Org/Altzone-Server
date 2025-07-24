@@ -14,7 +14,7 @@ import { ClanDto } from '../../clan/dto/clan.dto';
 @Injectable()
 export default class AccountClaimerService {
   constructor(
-    @InjectModel(Box.name) public readonly boxModel: Model<Box>,
+    @InjectModel(Box.name) private readonly boxModel: Model<Box>,
     private readonly testerService: TesterAccountService,
     private readonly jwtService: JwtService,
   ) {

@@ -6,7 +6,6 @@ import { Box, BoxDocument } from './schemas/box.schema';
 import { Model, MongooseError } from 'mongoose';
 import { Player } from '../player/schemas/player.schema';
 import { Clan } from '../clan/clan.schema';
-import { Room } from '../clanInventory/room/room.schema';
 import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { BoxHelper } from './util/boxHelper';
 import ServiceError from '../common/service/basicService/ServiceError';
@@ -18,20 +17,23 @@ import { convertMongooseToServiceErrors } from '../common/service/basicService/B
 import { BoxService } from './box.service';
 import { CreatedBox } from './payloads/CreatedBox';
 import { ProfileDto } from '../profile/dto/profile.dto';
+import UniqueFieldGenerator from './util/UniqueFieldGenerator';
+import { Profile } from '../profile/profile.schema';
+import { generateRandomClanName } from './util/generateRandomClanName';
 
 @Injectable()
 export default class BoxCreator {
   constructor(
-    @InjectModel(Box.name) public readonly model: Model<Box>,
-    @InjectModel(Player.name) public readonly playerModel: Model<Player>,
-    @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
-    @InjectModel(Room.name) public readonly roomModel: Model<Room>,
+    @InjectModel(Profile.name) private readonly profileModel: Model<Profile>,
+    @InjectModel(Player.name) private readonly playerModel: Model<Player>,
+    @InjectModel(Clan.name) private readonly clanModel: Model<Clan>,
     @InjectModel(GroupAdmin.name)
-    public readonly groupAdminModel: Model<GroupAdmin>,
+    private readonly groupAdminModel: Model<GroupAdmin>,
     private readonly boxHelper: BoxHelper,
     private readonly profilesService: ProfileService,
     private readonly playerService: PlayerService,
     private readonly boxService: BoxService,
+    private readonly uniqueFieldGenerator: UniqueFieldGenerator,
   ) {}
 
   /**
@@ -67,11 +69,14 @@ export default class BoxCreator {
 
     if (boxValidationErrors) return [null, boxValidationErrors];
 
+    const boxToCreate_id = new ObjectId();
     const boxToCreate: Partial<Box> = {};
     boxToCreate.adminPassword = boxToInit.adminPassword;
+    boxToCreate._id = boxToCreate_id;
 
     const [adminProfile, adminProfileErrors] = await this.createAdminProfile(
       boxToInit.adminPassword,
+      boxToCreate_id.toString(),
     );
     if (adminProfileErrors) {
       await this.boxService.deleteBoxReferences(boxToCreate);
@@ -86,6 +91,7 @@ export default class BoxCreator {
       above13: true,
       parentalAuth: true,
       profile_id: adminProfile._id,
+      box_id: boxToCreate_id.toString(),
     });
     if (adminPlayerErrors) {
       await this.boxService.deleteBoxReferences(boxToCreate);
@@ -98,11 +104,28 @@ export default class BoxCreator {
     const monthMs = 1000 * 60 * 60 * 24 * 30;
     boxToCreate.boxRemovalTime = new Date().getTime() + monthMs;
 
+    const clanName1 = await this.uniqueFieldGenerator.generateUniqueFieldValue(
+      this.clanModel,
+      'name',
+      generateRandomClanName(),
+    );
+    const clanName2 = await this.uniqueFieldGenerator.generateUniqueFieldValue(
+      this.clanModel,
+      'name',
+      generateRandomClanName(),
+    );
+    boxToCreate.clansToCreate = [{ name: clanName1 }, { name: clanName2 }];
+
     const [createdBox, errors] = await this.boxService.createOne(
       boxToCreate as BoxDocument,
     );
 
     if (errors) return [null, errors];
+
+    await this.groupAdminModel.findOneAndUpdate(
+      { password: boxToInit.adminPassword },
+      { box_id: createdBox._id },
+    );
 
     const {
       __v,
@@ -183,15 +206,27 @@ export default class BoxCreator {
   /**
    * Creates a profile for group admin, where username and password are the same
    * @param adminPassword admin password to set
+   * @param box_id box_id used for testing sessions
    * @returns created admin profile or ServiceErrors if any occurred
    */
   private async createAdminProfile(
     adminPassword: string,
+    box_id: string,
   ): Promise<IServiceReturn<ProfileDto>> {
-    return this.profilesService.createWithHashedPassword({
-      username: adminPassword,
-      password: adminPassword,
-    });
+    const [createdProfile, errors] =
+      await this.profilesService.createWithHashedPassword({
+        username: adminPassword,
+        password: adminPassword,
+      });
+
+    if (errors) return [null, errors];
+
+    await this.profileModel.findOneAndUpdate(
+      { _id: createdProfile._id },
+      { box_id },
+    );
+
+    return [createdProfile, null];
   }
 
   /**
@@ -200,7 +235,7 @@ export default class BoxCreator {
    * @returns created admin player or ServiceErrors if any occurred
    */
   private async createAdminPlayer(
-    playerToCreate: Partial<Player>,
+    playerToCreate: Partial<Player> & { box_id: string },
   ): Promise<IServiceReturn<Player>> {
     const adminPlayer = await this.playerService.createOne(playerToCreate);
     if (adminPlayer instanceof MongooseError) {

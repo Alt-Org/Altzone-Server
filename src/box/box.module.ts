@@ -30,6 +30,7 @@ import { AccountClaimerController } from './accountClaimer/accountClaimer.contro
 import AccountClaimerService from './accountClaimer/accountClaimer.service';
 import { TesterAccountService } from './accountClaimer/testerAccount.service';
 import UniqueFieldGenerator from './util/UniqueFieldGenerator';
+import { ItemSchema } from '../clanInventory/item/item.schema';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import UniqueFieldGenerator from './util/UniqueFieldGenerator';
       { name: ModelName.SOULHOME, schema: SoulhomeSchema },
       { name: ModelName.ROOM, schema: RoomSchema },
       { name: ModelName.STOCK, schema: StockSchema },
+      { name: ModelName.ITEM, schema: ItemSchema },
     ]),
     ClanModule,
     ChatModule,

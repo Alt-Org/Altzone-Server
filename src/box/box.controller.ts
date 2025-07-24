@@ -30,16 +30,26 @@ import { BoxDto } from './dto/box.dto';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { ConfigureBoxDto } from './dto/configureBox.dto';
 import { ObjectId } from 'mongodb';
+import { CreateGroupAdminDto } from './groupAdmin/dto/createGroupAdmin.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
+import { Model } from 'mongoose';
+import BasicService from '../common/service/basicService/BasicService';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
 export class BoxController {
   public constructor(
+    @InjectModel(GroupAdmin.name) public readonly groupModel: Model<GroupAdmin>,
     private readonly service: BoxService,
     private readonly boxCreator: BoxCreator,
     private readonly authHandler: BoxAuthHandler,
     private readonly sessionStarter: SessionStarterService,
-  ) {}
+  ) {
+    this.adminBasicService = new BasicService(groupModel);
+  }
+
+  private readonly adminBasicService: BasicService;
 
   /**
    * Create a testing box.
@@ -180,7 +190,53 @@ export class BoxController {
   }
 
   /**
-   * Get box by _id, For time of development only
+   * Create a group admin. The endpoint for time of development only
+   *
+   * @remarks Create a group admin.
+   *
+   * The group admin is required in order to use the endpoints starting with "/box",
+   * i.e. for box initialization or changing its settings. Read the docs for more info.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 409],
+    hasAuth: false,
+  })
+  @SwaggerTags('Release on 27.07.2025', 'Box')
+  @Post('/createAdmin')
+  @NoAuth()
+  @UniformResponse()
+  public async createAdmin(@Body() body: CreateGroupAdminDto) {
+    const [, creationErrors] = await this.adminBasicService.createOne(body);
+
+    if (creationErrors) return [null, creationErrors];
+  }
+
+  /**
+   * Get all boxes. The endpoint for time of development only
+   *
+   * @remarks Endpoint for getting all boxes data
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: BoxDto,
+      modelName: ModelName.BOX,
+      returnsArray: true,
+    },
+    errors: [404],
+    hasAuth: false,
+  })
+  @Get('/')
+  @NoAuth()
+  @UniformResponse(ModelName.BOX)
+  public getAll() {
+    return this.service.readAll();
+  }
+
+  /**
+   * Get box by _id. The endpoint for time of development only
    *
    * @remarks Endpoint for getting box data by its _id
    */
@@ -192,8 +248,6 @@ export class BoxController {
     errors: [404],
     hasAuth: false,
   })
-  //For time of development only
-  @NoAuth()
   @Get('/:_id')
   @NoAuth()
   @UniformResponse(ModelName.BOX)
@@ -205,30 +259,7 @@ export class BoxController {
   }
 
   /**
-   * Get all boxes by. For time of development only
-   *
-   * @remarks Endpoint for getting box data by its _id
-   */
-  @ApiResponseDescription({
-    success: {
-      dto: BoxDto,
-      modelName: ModelName.BOX,
-      returnsArray: true,
-    },
-    errors: [404],
-    hasAuth: false,
-  })
-  //For time of development only
-  @NoAuth()
-  @Get('/')
-  @NoAuth()
-  @UniformResponse(ModelName.BOX)
-  public getAll() {
-    return this.service.readAll();
-  }
-
-  /**
-   * Delete box by _id
+   * Delete box by _id. The endpoint for time of development only
    *
    * @remarks Endpoint for deleting a box by _id
    */
@@ -239,9 +270,8 @@ export class BoxController {
     errors: [404],
     hasAuth: false,
   })
-  //For time of development only
-  @NoAuth()
   @Delete('/:_id')
+  @NoAuth()
   @UniformResponse(ModelName.BOX)
   async deleteBox(@Param() param: _idDto) {
     const [, errors] = await this.service.deleteOneById(param._id);
