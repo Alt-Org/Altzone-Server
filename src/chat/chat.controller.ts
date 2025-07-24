@@ -127,6 +127,6 @@ export class ChatController {
   @IsGroupAdmin()
   @UniformResponse(ModelName.CHAT)
   async deleteChatMessage(@Param() param: _idDto) {
-    return await this.service.deleteChatMessage(param._id);
+    return await this.service.deleteChatMessageById(param._id);
   }
 }

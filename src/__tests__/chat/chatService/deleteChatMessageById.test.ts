@@ -9,7 +9,7 @@ import createMockSession from '../../common/MongooseSession/CreateMockSession';
 import { ChatMessage } from '../../../chat/schema/chatMessage.schema';
 import { Model } from 'mongoose';
 
-describe('ChatService.deleteChatMessage() test suite', () => {
+describe('ChatService.deleteChatMessageById() test suite', () => {
   let chatService: ChatService;
   const chatModel = ChatModule.getChatModel();
   const chatMessageBuilder = ChatBuilderFactory.getBuilder('ChatMessage');
@@ -63,7 +63,7 @@ describe('ChatService.deleteChatMessage() test suite', () => {
 
     const deletedChat1 = await chatModel.findById(chatId);
 
-    const [message, err] = await chatService.deleteChatMessage(chatId);
+    const [message, err] = await chatService.deleteChatMessageById(chatId);
 
     const deletedChat = await chatModel.findById(chatId);
 
@@ -81,7 +81,7 @@ describe('ChatService.deleteChatMessage() test suite', () => {
 
   it('Should return with error if the ENVIRONMENT is NOT TESTING_SESSION', async () => {
     env.ENVIRONMENT = 'PRODUCTION';
-    const [message, err] = await chatService.deleteChatMessage(null);
+    const [message, err] = await chatService.deleteChatMessageById(null);
 
     expect(err).toBeDefined();
     expect(err[0].reason).toBe(SEReason.MISCONFIGURED);

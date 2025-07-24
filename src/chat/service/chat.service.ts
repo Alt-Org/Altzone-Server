@@ -13,7 +13,6 @@ import {
 import { UpdateChatMessageDto } from '../dto/updateChatMessage.dto';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
-import { cancelTransaction } from '../../common/function/cancelTransaction';
 import { Environment } from '../../common/service/envHandler/enum/environment.enum';
 import { env } from 'process';
 
@@ -136,21 +135,12 @@ export class ChatService {
    * @returns void promise.
    * @throws Will throw an error if the deletion fails.
    */
-  async deleteChatMessage(chatId: string) {
+  async deleteChatMessageById(chatId: string) {
     if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
       return await this.getmisconfiguredEnvironmentError();
     }
 
-    const session = await this.model.db.startSession();
-    session.startTransaction();
-
-    const [, deleteChatMessageError] =
-      await this.basicService.deleteOneById(chatId);
-    if (deleteChatMessageError)
-      return await cancelTransaction(session, deleteChatMessageError);
-
-    session.commitTransaction();
-    session.endSession();
+    return await this.basicService.deleteOneById(chatId);
   }
 
   private getmisconfiguredEnvironmentError(): [boolean, ServiceError[] | null] {
