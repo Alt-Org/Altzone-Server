@@ -88,9 +88,9 @@ export class ChatController {
   }
 
   /**
-   * Update chat content.
+   * Update chatmessage data.
    *
-   * @remarks Update chat content.
+   * @remarks Update chatmessage data in TESTING_SESSION.
    */
   @SwaggerTags('Release on 27.07.2025', 'Chat')
   @ApiResponseDescription({
