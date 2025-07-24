@@ -25,7 +25,7 @@ describe('ChatService.deleteChatMessage() test suite', () => {
 
   beforeAll(() => {
     env.ENVIRONMENT = 'TESTING_SESSION';
-    
+
     const globalChatToCreate = chatMessageBuilder
       .setType(ChatType.GLOBAL)
       .setSenderId(new ObjectId())
@@ -50,7 +50,7 @@ describe('ChatService.deleteChatMessage() test suite', () => {
 
     model = chatService.model;
     sessionMock = createMockSession(model);
-    await chatModel.create([ ...clanMessages]);
+    await chatModel.create([...clanMessages]);
   });
 
   it('Should delete a chat by Id', async () => {
@@ -58,7 +58,7 @@ describe('ChatService.deleteChatMessage() test suite', () => {
     //const chat = await chatModel.find({ clan_id: clan1ID });
     const existingChat = chatResp[0];
     const chatId = existingChat.id.toString();
-   // const chat = await chatModel.find({ clan_id: clan1ID });
+    // const chat = await chatModel.find({ clan_id: clan1ID });
     //const chatId = chat[0].id.toString();
 
     const deletedChat1 = await chatModel.findById(chatId);
@@ -77,7 +77,6 @@ describe('ChatService.deleteChatMessage() test suite', () => {
     expect(sessionMock.startTransaction).toHaveBeenCalledTimes(1);
     expect(sessionMock.commitTransaction).toHaveBeenCalledTimes(1);
     expect(sessionMock.endSession).toHaveBeenCalledTimes(1);
-    
   });
 
   it('Should return with error if the ENVIRONMENT is NOT TESTING_SESSION', async () => {
