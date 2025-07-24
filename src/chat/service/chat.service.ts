@@ -138,8 +138,9 @@ export class ChatService {
    * - REQUIRED if _id is not provided
    * @throws Will throw an error if the deletion fails.
    */
-  async deleteChatMessageById(chatId: string) 
-  : Promise<[boolean | null, ServiceError[] | null]>{
+  async deleteChatMessageById(
+    chatId: string,
+  ): Promise<[boolean | null, ServiceError[] | null]> {
     if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
       return await this.getmisconfiguredEnvironmentError();
     }
