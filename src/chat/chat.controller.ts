@@ -119,7 +119,7 @@ export class ChatController {
    */
   @ApiResponseDescription({
     success: {
-      status: 204,
+      status: 200,
     },
     errors: [],
   })
