@@ -90,7 +90,7 @@ export class ChatController {
   /**
    * Update chatmessage data.
    *
-   * @remarks Update chatmessage data in TESTING_SESSION.
+   * @remarks Update chatmessage only by the box admin in TESTING_SESSION.
    */
   @SwaggerTags('Release on 27.07.2025', 'Chat')
   @ApiResponseDescription({
@@ -115,7 +115,7 @@ export class ChatController {
    *
    * @remarks Delete chatmessage data.
    *
-   * Notice that the chatmessage can be removed only by the box admin.
+   * Notice that the chatmessage can be removed only by the box admin in TESTING_SESSION.
    */
   @ApiResponseDescription({
     success: {
