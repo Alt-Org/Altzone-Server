@@ -75,7 +75,7 @@ describe('ChatService.updateOneById() test suite', () => {
   });
 
   it('Should return with error if the ENVIRONMENT is NOT TESTING_SESSION', async () => {
-    env.ENVIRONMENT = 'PRODUCTION';
+    env.ENVIRONMENT = Environment.PRODUCTION;
     updateChatMessageDto = updateChatMessageDtoBuilder.build();
     const [message, err] =
       await chatService.updateOneById(updateChatMessageDto);
