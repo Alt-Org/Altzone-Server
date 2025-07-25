@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { BoxSchema } from './schemas/box.schema';
@@ -45,8 +45,8 @@ import { ItemSchema } from '../clanInventory/item/item.schema';
       { name: ModelName.STOCK, schema: StockSchema },
       { name: ModelName.ITEM, schema: ItemSchema },
     ]),
-    ClanModule,
-    ChatModule,
+    forwardRef(() => ClanModule),
+    forwardRef(() => ChatModule),
     ProfileModule,
     PlayerModule,
     DailyTasksModule,
@@ -68,6 +68,6 @@ import { ItemSchema } from '../clanInventory/item/item.schema';
     TesterAccountService,
     UniqueFieldGenerator,
   ],
-  exports: [BoxService, GroupAdminGuard],
+  exports: [BoxService, GroupAdminGuard, BoxAuthHandler],
 })
 export class BoxModule {}
