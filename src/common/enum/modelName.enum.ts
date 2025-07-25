@@ -18,7 +18,6 @@
  */
 export enum ModelName {
   CHARACTER_CLASS = 'CharacterClass',
-  CHAT = 'Chat',
   CLAN = 'Clan',
   CUSTOM_CHARACTER = 'CustomCharacter',
   PLAYER = 'Player',

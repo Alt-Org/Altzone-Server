@@ -23,6 +23,10 @@ import { IsGroupAdmin } from '../box/auth/decorator/IsGroupAdmin';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { UpdateChatMessageDto } from './dto/updateChatMessage.dto';
 import { _idDto } from '../common/dto/_id.dto';
+import { env } from 'node:process';
+import { Environment } from '../common/service/envHandler/enum/environment.enum';
+import ServiceError from '../common/service/basicService/ServiceError';
+import { SEReason } from '../common/service/basicService/SEReason';
 
 @Controller('chat')
 export class ChatController {
@@ -97,13 +101,17 @@ export class ChatController {
     success: {
       status: 204,
     },
-    errors: [],
+    errors: [400, 401, 404],
     hasAuth: true,
   })
   @IsGroupAdmin()
-  @UniformResponse(ModelName.CHAT)
+  @UniformResponse(ModelName.CHAT_MESSAGE, UpdateChatMessageDto)
   @Patch()
-  async configureBox(@Body() body: UpdateChatMessageDto) {
+  async updateChatMessage(@Body() body: UpdateChatMessageDto) {
+    if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
+          return await this.getMisconfiguredEnvironmentError();
+        }
+        
     const [_, err] = await this.service.updateOneById({
       ...body,
     });
@@ -119,14 +127,40 @@ export class ChatController {
    */
   @ApiResponseDescription({
     success: {
-      status: 200,
+      status: 204,
     },
-    errors: [],
+    errors: [400, 401, 404],
   })
+  @SwaggerTags('Release on 27.07.2025', 'Chat')
   @Delete('/:_id')
   @IsGroupAdmin()
-  @UniformResponse(ModelName.CHAT)
+  @UniformResponse(ModelName.CHAT_MESSAGE)
   async deleteChatMessage(@Param() param: _idDto) {
-    return await this.service.deleteChatMessageById(param._id);
+    if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
+          return await this.getMisconfiguredEnvironmentError();
+        }
+
+    const [_, err] = await this.service.deleteChatMessageById(param._id);
+
+    if (err) 
+      return [null, err];
   }
+
+  /**
+   * Get misconfigured environment error.
+   *
+   * @returns A tuple containing a boolean indicating success and an array of ServiceError.
+   */
+  private async getMisconfiguredEnvironmentError(): Promise<[boolean, ServiceError[]]> {
+      return [
+        false,
+        [
+          new ServiceError({
+            reason: SEReason.MISCONFIGURED,
+            message: 'This endpoint is only available in TESTING_SESSION.',
+          }),
+        ],
+      ];
+    }
+    
 }

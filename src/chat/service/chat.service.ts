@@ -13,8 +13,6 @@ import {
 import { UpdateChatMessageDto } from '../dto/updateChatMessage.dto';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
-import { Environment } from '../../common/service/envHandler/enum/environment.enum';
-import { env } from 'process';
 
 @Injectable()
 export class ChatService {
@@ -101,9 +99,6 @@ export class ChatService {
   async updateOneById(
     chat: Partial<UpdateChatMessageDto>,
   ): Promise<[boolean | null, ServiceError[] | null]> {
-    if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
-      return await this.getmisconfiguredEnvironmentError();
-    }
 
     if (!chat._id)
       return [
@@ -121,7 +116,7 @@ export class ChatService {
     const { _id, ...fieldsToUpdate } = chat;
 
     const [isSuccess, errors] = await this.basicService.updateOneById(
-      _id as any,
+      _id,
       fieldsToUpdate,
     );
 
@@ -136,27 +131,10 @@ export class ChatService {
    * or a ServiceError:
    * - NOT_FOUND if the ChatMessage was not found
    * - REQUIRED if _id is not provided
-   * @throws Will throw an error if the deletion fails.
    */
   async deleteChatMessageById(
     chatId: string,
-  ): Promise<[boolean | null, ServiceError[] | null]> {
-    if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
-      return await this.getmisconfiguredEnvironmentError();
-    }
-
+  ): Promise<IServiceReturn<true>> {
     return await this.basicService.deleteOneById(chatId);
-  }
-
-  private getmisconfiguredEnvironmentError(): [boolean, ServiceError[] | null] {
-    return [
-      false,
-      [
-        new ServiceError({
-          reason: SEReason.MISCONFIGURED,
-          message: 'This endpoint is only available in TESTING_SESSION.',
-        }),
-      ],
-    ];
   }
 }

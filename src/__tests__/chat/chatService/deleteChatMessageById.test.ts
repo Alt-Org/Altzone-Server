@@ -4,7 +4,6 @@ import ChatModule from '../modules/chat.module';
 import { ChatType } from '../../../chat/enum/chatMessageType.enum';
 import ChatBuilderFactory from '../data/chatBuilderFactory';
 import { env } from 'process';
-import { SEReason } from '../../../common/service/basicService/SEReason';
 import { ChatMessage } from '../../../chat/schema/chatMessage.schema';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 import { Environment } from '../../../common/service/envHandler/enum/environment.enum';
@@ -50,18 +49,6 @@ describe('ChatService.deleteChatMessageById() test suite', () => {
     expect(message).toBeTruthy();
     expect(err).toBeNull();
     expect(deletedChat).toBeNull();
-  });
-
-  it('Should return with error if the ENVIRONMENT is NOT TESTING_SESSION', async () => {
-    env.ENVIRONMENT = 'PRODUCTION';
-    const [message, err] = await chatService.deleteChatMessageById(null);
-
-    expect(err).toBeDefined();
-    expect(err[0].reason).toBe(SEReason.MISCONFIGURED);
-    expect(err[0].message).toBe(
-      'This endpoint is only available in TESTING_SESSION.',
-    );
-    expect(message).toBeFalsy();
   });
 
   it('Should return ServiceError NOT_FOUND if the object with provided _id does not exist', async () => {
