@@ -233,6 +233,7 @@ export class BoxController {
   })
   @Get('/')
   @NoAuth()
+  @NoBoxIdFilter()
   @UniformResponse(ModelName.BOX)
   public getAll() {
     return this.service.readAll();
