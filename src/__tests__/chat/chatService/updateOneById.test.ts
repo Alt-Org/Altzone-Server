@@ -23,13 +23,12 @@ describe('ChatService.updateOneById() test suite', () => {
   const clanMessages = [];
 
   const clanChatToCreate1 = chatMessageBuilder
-      .setType(ChatType.GLOBAL)
-      .setSenderId(playerID)
-      .setClanId(clanID)
-      .build();
+    .setType(ChatType.GLOBAL)
+    .setSenderId(playerID)
+    .setClanId(clanID)
+    .build();
 
-    clanMessages.push(clanChatToCreate1);
-  
+  clanMessages.push(clanChatToCreate1);
 
   beforeEach(async () => {
     await chatModel.deleteMany({});
@@ -70,5 +69,4 @@ describe('ChatService.updateOneById() test suite', () => {
     expect(err[0].message).toBe('_id field is required');
     expect(message).toBeFalsy();
   });
-
 });

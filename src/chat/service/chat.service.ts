@@ -99,7 +99,6 @@ export class ChatService {
   async updateOneById(
     chat: Partial<UpdateChatMessageDto>,
   ): Promise<[boolean | null, ServiceError[] | null]> {
-
     if (!chat._id)
       return [
         null,
@@ -132,9 +131,7 @@ export class ChatService {
    * - NOT_FOUND if the ChatMessage was not found
    * - REQUIRED if _id is not provided
    */
-  async deleteChatMessageById(
-    chatId: string,
-  ): Promise<IServiceReturn<true>> {
+  async deleteChatMessageById(chatId: string): Promise<IServiceReturn<true>> {
     return await this.basicService.deleteOneById(chatId);
   }
 }

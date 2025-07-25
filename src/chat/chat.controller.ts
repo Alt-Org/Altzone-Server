@@ -109,9 +109,9 @@ export class ChatController {
   @Patch()
   async updateChatMessage(@Body() body: UpdateChatMessageDto) {
     if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
-          return await this.getMisconfiguredEnvironmentError();
-        }
-        
+      return await this.getMisconfiguredEnvironmentError();
+    }
+
     const [_, err] = await this.service.updateOneById({
       ...body,
     });
@@ -137,13 +137,12 @@ export class ChatController {
   @UniformResponse(ModelName.CHAT_MESSAGE)
   async deleteChatMessage(@Param() param: _idDto) {
     if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
-          return await this.getMisconfiguredEnvironmentError();
-        }
+      return await this.getMisconfiguredEnvironmentError();
+    }
 
     const [_, err] = await this.service.deleteChatMessageById(param._id);
 
-    if (err) 
-      return [null, err];
+    if (err) return [null, err];
   }
 
   /**
@@ -151,16 +150,17 @@ export class ChatController {
    *
    * @returns A tuple containing a boolean indicating success and an array of ServiceError.
    */
-  private async getMisconfiguredEnvironmentError(): Promise<[boolean, ServiceError[]]> {
-      return [
-        false,
-        [
-          new ServiceError({
-            reason: SEReason.MISCONFIGURED,
-            message: 'This endpoint is only available in TESTING_SESSION.',
-          }),
-        ],
-      ];
-    }
-    
+  private async getMisconfiguredEnvironmentError(): Promise<
+    [boolean, ServiceError[]]
+  > {
+    return [
+      false,
+      [
+        new ServiceError({
+          reason: SEReason.MISCONFIGURED,
+          message: 'This endpoint is only available in TESTING_SESSION.',
+        }),
+      ],
+    ];
+  }
 }
