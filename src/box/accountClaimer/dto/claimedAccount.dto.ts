@@ -1,8 +1,8 @@
 import { Expose, Type } from 'class-transformer';
-import { CustomCharacterDto } from 'src/player/customCharacter/dto/customCharacter.dto';
 import { ClanDto } from '../../../clan/dto/clan.dto';
 import { ExtractField } from '../../../common/decorator/response/ExtractField';
 import { GameStatisticsDto } from '../../../player/dto/gameStatistics.dto';
+import { CustomCharacterDto } from '../../../player/customCharacter/dto/customCharacter.dto';
 
 export default class ClaimedAccountDto {
   /**
