@@ -32,7 +32,6 @@ import ChatModule from '../../chat/modules/chat.module';
 import GameDataModule from '../../gameData/modules/gameData.module';
 import FeedbackModule from '../../feedback/modules/feedback.module';
 import ItemBuilder from '../../clanInventory/data/item/ItemBuilder';
-import VoteBuilder from '../../voting/data/voting/VoteBuilder';
 import FleaMarketItemBuilder from '../../fleaMarket/data/fleaMarket/FleaMarketItemBuilder';
 import CustomCharacterBuilder from '../../player/data/customCharacter/CustomCharacterBuilder';
 import ChatMessageBuilder from '../../chat/data/builder/chatMessageBuilder';
@@ -51,6 +50,7 @@ import { Model } from 'mongoose';
 import { SessionStage } from '../../../box/enum/SessionStage.enum';
 import DailyTaskBuilderFactory from '../../dailyTasks/data/dailyTaskBuilderFactory';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
+import { VotingBuilder } from '../../voting/data/voting/VotingBuilder';
 
 describe('BoxService.reset() test suite', () => {
   process.env.ENVIRONMENT = Environment.TESTING_SESSION;
@@ -81,7 +81,7 @@ describe('BoxService.reset() test suite', () => {
   let characterBuilder: CustomCharacterBuilder;
 
   const votingModel = VotingModule.getVotingModel();
-  let votingBuilder: VoteBuilder;
+  let votingBuilder: VotingBuilder;
   const fleaMarketModel = FleaMarketModule.getFleaMarketItemModel();
   let fleaMarketBuilder: FleaMarketItemBuilder;
   const taskModel = DailyTasksModule.getDailyTaskModel();
@@ -190,8 +190,8 @@ describe('BoxService.reset() test suite', () => {
   });
 
   it('Should delete all box related custom characters from DB', async () => {
-    const character1 = characterBuilder.build();
-    const character2 = characterBuilder.build();
+    const character1 = characterBuilder.setPlayerId(new ObjectId()).build();
+    const character2 = characterBuilder.setPlayerId(new ObjectId()).build();
 
     const [character_ids] = await createBoxInstances(characterModel, [
       character1,
@@ -207,7 +207,7 @@ describe('BoxService.reset() test suite', () => {
     const message1 = chatBuilder.setSenderId(new ObjectId()).build();
     const message2 = chatBuilder.setSenderId(new ObjectId()).build();
 
-    const [message_ids] = await createBoxInstances(characterModel, [
+    const [message_ids] = await createBoxInstances(chatModel, [
       message1,
       message2,
     ]);
@@ -229,8 +229,8 @@ describe('BoxService.reset() test suite', () => {
   });
 
   it('Should delete all box related daily tasks from DB', async () => {
-    const task1 = taskBuilder.build();
-    const task2 = taskBuilder.build();
+    const task1 = taskBuilder.setClanId(new ObjectId()).build();
+    const task2 = taskBuilder.setClanId(new ObjectId()).build();
 
     const [task_ids] = await createBoxInstances(taskModel, [task1, task2]);
 
@@ -443,7 +443,7 @@ describe('BoxService.reset() test suite', () => {
     playerBuilder = PlayerBuilderFactory.getBuilder('Player');
     characterBuilder = PlayerBuilderFactory.getBuilder('CustomCharacter');
 
-    votingBuilder = VotingBuilderFactory.getBuilder('Vote');
+    votingBuilder = VotingBuilderFactory.getBuilder('Voting');
     fleaMarketBuilder = FleaMarketBuilderFactory.getBuilder('FleaMarketItem');
     taskBuilder = DailyTaskBuilderFactory.getBuilder('DailyTask');
     chatBuilder = ChatBuilderFactory.getBuilder('ChatMessage');
@@ -494,7 +494,7 @@ describe('BoxService.reset() test suite', () => {
 
     const boxToUpdate: any = boxBuilder
       .setAdminPlayerId(new ObjectId(adminPlayer._id))
-      .setAdminProfileId(new ObjectId(profileToCreate._id))
+      .setAdminProfileId(new ObjectId(adminProfile._id))
       .setSessionStage(SessionStage.END)
       .build();
 
