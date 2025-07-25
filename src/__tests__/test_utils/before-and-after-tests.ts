@@ -1,14 +1,19 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { ProfileSchema } from '../../profile/profile.schema';
-import LoggedUser from './const/loggedUser';
 import { PlayerSchema } from '../../player/schemas/player.schema';
+import LoggedUser from './const/loggedUser';
 import './jest.matchers.d';
 import { mongooseOptions, mongoString } from './const/db';
+import { addBoxIdToSchemaPlugin } from '../../common/plugin/addBoxIdToSchema.plugin';
+import { Environment } from '../../common/service/envHandler/enum/environment.enum';
 
 beforeAll(async () => {
   try {
     await mongoose.connect(mongoString, mongooseOptions);
+
+    if (process.env.ENVIRONMENT === Environment.TESTING_SESSION)
+      applyPlugins([addBoxIdToSchemaPlugin]);
   } catch (error) {
     console.error('beforeAll() global: Could not connect to DB', error);
     throw error;
@@ -74,5 +79,20 @@ async function clearDB() {
   for (const key in collections) {
     const collection = collections[key];
     await collection.deleteMany({});
+  }
+}
+
+/**
+ * Applies specified mongoose plugin
+ * @param plugins plugins to apply
+ */
+function applyPlugins(plugins: ((schema: Schema) => void)[]) {
+  for (const plugin of plugins) {
+    const models = mongoose.connection.models;
+
+    for (const name of Object.keys(models)) {
+      const schema = models[name].schema;
+      plugin(schema);
+    }
   }
 }
