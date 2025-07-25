@@ -2,7 +2,7 @@ import { Game } from '../../../../gameData/game.schema';
 import { ObjectId } from 'mongodb';
 
 export class GameBuilder {
-  private readonly base: Partial<Game> = {
+  private readonly base: Game = {
     team1: [],
     team2: [],
     team1Clan: new ObjectId().toString(),
@@ -10,7 +10,7 @@ export class GameBuilder {
     winner: 1,
     startedAt: new Date(),
     endedAt: new Date(),
-    _id: new ObjectId().toString(),
+    _id: undefined,
   };
 
   build(): Game {

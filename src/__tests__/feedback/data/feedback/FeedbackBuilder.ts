@@ -6,7 +6,7 @@ export class FeedbackBuilder {
     profile_id: new ObjectId().toString(),
     text: 'Sample feedback text',
     capturedAt: new Date(),
-    _id: new ObjectId().toString(),
+    _id: undefined,
   };
 
   build(): Feedback {
