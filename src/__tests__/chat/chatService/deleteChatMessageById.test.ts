@@ -13,28 +13,25 @@ describe('ChatService.deleteChatMessageById() test suite', () => {
   const chatModel = ChatModule.getChatModel();
   const chatMessageBuilder = ChatBuilderFactory.getBuilder('ChatMessage');
 
-  const clan1ID = new ObjectId().toString();
-  const player1ID = new ObjectId();
+  const clanID = new ObjectId().toString();
+  const playerID = new ObjectId();
   let clanChatToCreate1: ChatMessage;
 
   const clanMessages = [];
 
-  beforeAll(() => {
-    clanChatToCreate1 = chatMessageBuilder
-      .setType(ChatType.CLAN)
-      .setSenderId(player1ID)
-      .setClanId(clan1ID)
-      .build();
-
-    clanMessages.push(clanChatToCreate1);
-  });
-
   beforeEach(async () => {
     env.ENVIRONMENT = Environment.TESTING_SESSION;
     await chatModel.deleteMany({});
-    jest.clearAllMocks();
 
     chatService = await ChatModule.getChatService();
+
+    clanChatToCreate1 = chatMessageBuilder
+      .setType(ChatType.CLAN)
+      .setSenderId(playerID)
+      .setClanId(clanID)
+      .build();
+
+    clanMessages.push(clanChatToCreate1);
   });
 
   it('Should delete a chat by Id', async () => {
@@ -46,7 +43,7 @@ describe('ChatService.deleteChatMessageById() test suite', () => {
 
     const deletedChat = await chatModel.findById(chatId);
 
-    expect(message).toBeTruthy();
+    expect(message).toBe(true);
     expect(err).toBeNull();
     expect(deletedChat).toBeNull();
   });
