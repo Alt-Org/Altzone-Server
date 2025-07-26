@@ -13,6 +13,12 @@ import { APIError } from '../../common/controller/APIError';
 import { APIErrorReason } from '../../common/controller/APIErrorReason';
 import { NO_BOX_ID_FILTER } from './decorator/NoBoxIdFilter.decorator';
 
+/**
+ * Interceptor used for testing sessions to prevent data leaks.
+ * Interceptor get's the users box_id from the request and then filters
+ * all outgoing data based on that box_id. So users are not able to get
+ * any data from other boxes.
+ */
 @Injectable()
 export class BoxIdFilterInterceptor implements NestInterceptor {
   constructor(
@@ -40,10 +46,15 @@ export class BoxIdFilterInterceptor implements NestInterceptor {
 
     return next
       .handle()
-      .pipe(mergeMap(async (data) => filterByBoxId(await data, boxId)));
+      .pipe(mergeMap(async (data) => this.filterByBoxId(await data, boxId)));
   }
 
-  async getBoxIdFromRequest(request: any): Promise<string | undefined> {
+  /**
+   * Used to extract the box_id from the request.
+   * @param request incoming http request.
+   * @returns The box ID
+   */
+  private async getBoxIdFromRequest(request: any): Promise<string | undefined> {
     if (request.user && request.user.box_id) return request.user.box_id;
 
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
@@ -63,50 +74,57 @@ export class BoxIdFilterInterceptor implements NestInterceptor {
     }
     return undefined;
   }
-}
 
-function filterByBoxId(data: any, boxId: string): any {
-  if (
-    data &&
-    typeof data === 'object' &&
-    data.data &&
-    typeof data.data === 'object'
-  ) {
-    for (const key of Object.keys(data.data)) {
-      const value = data.data[key];
-      if (Array.isArray(value)) {
-        const filtered = value.filter((item) => item?.box_id === boxId);
-        data.data[key] = filtered;
-        // Update metaData.dataCount if key matches metaData.dataKey
-        if (
-          data.metaData &&
-          data.metaData.dataKey === key &&
-          typeof data.metaData.dataCount === 'number'
-        ) {
-          data.metaData.dataCount = filtered.length;
+  /**
+   *
+   *
+   * @param data Data to be filtered.
+   * @param boxId The box ID used for filtering
+   * @returns Data where box_id matches the boxId.
+   */
+  private filterByBoxId(data: any, boxId: string): any {
+    if (
+      data &&
+      typeof data === 'object' &&
+      data.data &&
+      typeof data.data === 'object'
+    ) {
+      for (const key of Object.keys(data.data)) {
+        const value = data.data[key];
+        if (Array.isArray(value)) {
+          const filtered = value.filter((item) => item?.box_id === boxId);
+          data.data[key] = filtered;
+          // Update metaData.dataCount if key matches metaData.dataKey
+          if (
+            data.metaData &&
+            data.metaData.dataKey === key &&
+            typeof data.metaData.dataCount === 'number'
+          ) {
+            data.metaData.dataCount = filtered.length;
+          }
+          if (
+            data.paginationData &&
+            typeof data.paginationData.itemCount === 'number'
+          ) {
+            data.paginationData.itemCount = filtered.length;
+          }
         }
-        if (
-          data.paginationData &&
-          typeof data.paginationData.itemCount === 'number'
-        ) {
-          data.paginationData.itemCount = filtered.length;
-        }
+      }
+      return data;
+    }
+
+    // If data is just an array, filter it
+    if (Array.isArray(data)) {
+      return data.filter((item) => item?.box_id === boxId);
+    }
+
+    // If data is an object with box_id, filter recursively
+    if (data && typeof data === 'object') {
+      if ('box_id' in data && data.box_id !== boxId) return undefined;
+      for (const key of Object.keys(data)) {
+        data[key] = this.filterByBoxId(data[key], boxId);
       }
     }
     return data;
   }
-
-  // If data is just an array, filter it
-  if (Array.isArray(data)) {
-    return data.filter((item) => item?.box_id === boxId);
-  }
-
-  // If data is an object with box_id, filter recursively
-  if (data && typeof data === 'object') {
-    if ('box_id' in data && data.box_id !== boxId) return undefined;
-    for (const key of Object.keys(data)) {
-      data[key] = filterByBoxId(data[key], boxId);
-    }
-  }
-  return data;
 }

@@ -49,6 +49,13 @@ export function UniformResponse(
   };
 }
 
+/**
+ * Add exposed box_id field to the DTO class.
+ * Used for testing sessions.
+ *
+ * @param dto DTO class to be extended
+ * @returns DTO class with added box_id field.
+ */
 function extendDtoWithBoxId(dto: any): any {
   if (!dto) return dto;
   class DtoWithBoxId extends dto {
