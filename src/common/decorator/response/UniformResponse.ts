@@ -6,6 +6,8 @@ import { Send204OnEmptyRes } from '../../interceptor/response/Send204OnEmptyRes'
 import { APIErrorFilter } from '../../exceptionFilter/APIErrorFilter';
 import { IClass } from '../../interface/IClass';
 import { SerializeInterceptor2 } from '../../interceptor/response/SerializeInterceptor2';
+import isTestingSession from '../../../box/util/isTestingSession';
+import { Expose } from 'class-transformer';
 
 /**
  * Uniform response sent to the client side as follows
@@ -23,6 +25,10 @@ export function UniformResponse(
   modelName?: ModelName,
   serializationShape?: IClass,
 ) {
+  if (isTestingSession()) {
+    serializationShape = extendDtoWithBoxId(serializationShape);
+  }
+
   const decorators = [
     Send204OnEmptyRes(),
     UseFilters(new ValidationExceptionFilter(), new APIErrorFilter()),
@@ -41,4 +47,20 @@ export function UniformResponse(
       decorator(target, propertyKey, descriptor);
     });
   };
+}
+
+/**
+ * Add exposed box_id field to the DTO class.
+ * Used for testing sessions.
+ *
+ * @param dto DTO class to be extended
+ * @returns DTO class with added box_id field.
+ */
+function extendDtoWithBoxId(dto: any): any {
+  if (!dto) return dto;
+  class DtoWithBoxId extends dto {
+    @Expose()
+    box_id?: string;
+  }
+  return DtoWithBoxId;
 }

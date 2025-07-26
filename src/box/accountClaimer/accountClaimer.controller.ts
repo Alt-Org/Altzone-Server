@@ -7,6 +7,7 @@ import AccountClaimerService from './accountClaimer.service';
 import ClaimedAccountDto from './dto/claimedAccount.dto';
 import ClaimAccountDto from './dto/claimAccount.dto';
 import { ModelName } from '../../common/enum/modelName.enum';
+import { NoBoxIdFilter } from '../auth/decorator/NoBoxIdFilter.decorator';
 
 @SwaggerTags('Box')
 @Controller('/box/claim-account')
@@ -31,6 +32,7 @@ export class AccountClaimerController {
   })
   @NoAuth()
   @Post()
+  @NoBoxIdFilter()
   @UniformResponse(ModelName.PLAYER, ClaimedAccountDto)
   async claimAccount(@Body() body: ClaimAccountDto) {
     return this.accountService.claimAccount(body.sharedPassword);

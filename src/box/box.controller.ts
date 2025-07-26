@@ -35,6 +35,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
+import { NoBoxIdFilter } from './auth/decorator/NoBoxIdFilter.decorator';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
@@ -69,6 +70,7 @@ export class BoxController {
   })
   @NoAuth()
   @Post()
+  @NoBoxIdFilter()
   @UniformResponse(ModelName.BOX, CreatedBoxDto)
   async createBox(@Body() body: CreateBoxDto) {
     const [createdBox, errors] = await this.boxCreator.createBox(body);
@@ -207,6 +209,7 @@ export class BoxController {
   @SwaggerTags('Release on 27.07.2025', 'Box')
   @Post('/createAdmin')
   @NoAuth()
+  @NoBoxIdFilter()
   @UniformResponse()
   public async createAdmin(@Body() body: CreateGroupAdminDto) {
     const [, creationErrors] = await this.adminBasicService.createOne(body);
@@ -230,6 +233,7 @@ export class BoxController {
   })
   @Get('/')
   @NoAuth()
+  @NoBoxIdFilter()
   @UniformResponse(ModelName.BOX)
   public getAll() {
     return this.service.readAll();
@@ -249,6 +253,7 @@ export class BoxController {
     hasAuth: false,
   })
   @Get('/:_id')
+  @NoBoxIdFilter()
   @NoAuth()
   @UniformResponse(ModelName.BOX)
   public getOne(
@@ -271,6 +276,7 @@ export class BoxController {
     hasAuth: false,
   })
   @Delete('/:_id')
+  @NoBoxIdFilter()
   @NoAuth()
   @UniformResponse(ModelName.BOX)
   async deleteBox(@Param() param: _idDto) {

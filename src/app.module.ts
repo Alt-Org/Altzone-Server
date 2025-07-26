@@ -8,7 +8,7 @@ import { RequestHelperModule } from './requestHelper/requestHelper.module';
 import { ProfileModule } from './profile/profile.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthorizationModule } from './authorization/authorization.module';
 import { ChatModule } from './chat/chat.module';
 import { GameDataModule } from './gameData/gameData.module';
@@ -35,6 +35,7 @@ import { FeedbackModule } from './feedback/feedback.module';
 import { MetadataModule } from './metadata/metadata.module';
 import mongoose from 'mongoose';
 import { addBoxIdToSchemaPlugin } from './common/plugin/addBoxIdToSchema.plugin';
+import { BoxIdFilterInterceptor } from './box/auth/BoxIdFilter.interceptor';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -110,6 +111,9 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: authGuardClassToUse },
+    ...(isTestingSession()
+      ? [{ provide: APP_INTERCEPTOR, useClass: BoxIdFilterInterceptor }]
+      : []),
   ],
 })
 export class AppModule {}
