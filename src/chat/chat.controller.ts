@@ -1,4 +1,12 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Query,
+} from '@nestjs/common';
 import { ChatService } from './service/chat.service';
 import { ModelName } from '../common/enum/modelName.enum';
 import { IGetAllQuery } from '../common/interface/IGetAllQuery';
@@ -11,6 +19,14 @@ import { ChatType } from './enum/chatMessageType.enum';
 import { OffsetPaginate } from '../common/interceptor/request/offsetPagination.interceptor';
 import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
+import { IsGroupAdmin } from '../box/auth/decorator/IsGroupAdmin';
+import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
+import { UpdateChatMessageDto } from './dto/updateChatMessage.dto';
+import { _idDto } from '../common/dto/_id.dto';
+import { env } from 'node:process';
+import { Environment } from '../common/service/envHandler/enum/environment.enum';
+import ServiceError from '../common/service/basicService/ServiceError';
+import { SEReason } from '../common/service/basicService/SEReason';
 
 @Controller('chat')
 export class ChatController {
@@ -73,5 +89,78 @@ export class ChatController {
     }
 
     return this.service.getMessages(query);
+  }
+
+  /**
+   * Update chatmessage data.
+   *
+   * @remarks Update chatmessage only by the box admin in TESTING_SESSION.
+   */
+  @SwaggerTags('Release on 27.07.2025', 'Chat')
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 404],
+    hasAuth: true,
+  })
+  @IsGroupAdmin()
+  @UniformResponse(ModelName.CHAT_MESSAGE, UpdateChatMessageDto)
+  @Patch()
+  async updateChatMessage(@Body() body: UpdateChatMessageDto) {
+    if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
+      return await this.getMisconfiguredEnvironmentError();
+    }
+
+    const [_, err] = await this.service.updateOneById({
+      ...body,
+    });
+    if (err) return [null, err];
+  }
+
+  /**
+   * Delete chatmessage data.
+   *
+   * @remarks Delete chatmessage data.
+   *
+   * Notice that the chatmessage can be removed only by the box admin in TESTING_SESSION.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 404],
+  })
+  @SwaggerTags('Release on 27.07.2025', 'Chat')
+  @Delete('/:_id')
+  @IsGroupAdmin()
+  @UniformResponse(ModelName.CHAT_MESSAGE)
+  async deleteChatMessage(@Param() param: _idDto) {
+    if (env.ENVIRONMENT !== Environment.TESTING_SESSION) {
+      return await this.getMisconfiguredEnvironmentError();
+    }
+
+    const [_, err] = await this.service.deleteChatMessageById(param._id);
+
+    if (err) return [null, err];
+  }
+
+  /**
+   * Get misconfigured environment error.
+   *
+   * @returns A tuple containing a boolean indicating success and an array of ServiceError.
+   */
+  private async getMisconfiguredEnvironmentError(): Promise<
+    [boolean, ServiceError[]]
+  > {
+    return [
+      false,
+      [
+        new ServiceError({
+          reason: SEReason.MISCONFIGURED,
+          message: 'This endpoint is only available in TESTING_SESSION.',
+        }),
+      ],
+    ];
   }
 }

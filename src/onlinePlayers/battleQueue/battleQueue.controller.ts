@@ -1,10 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
 import { BattleQueueService } from './battleQueue.service';
-import ApiResponseDescription from 'src/common/swagger/response/ApiResponseDescription';
 import OnlinePlayerDto from '../dto/onlinePlayer.dto';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
 import { OnlinePlayersService } from '../onlinePlayers.service';
 import { OnlinePlayerStatus } from '../enum/OnlinePlayerStatus';
+import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
 
 @Controller('/online-players/battleQueue')
 export class BattleQueueController {
