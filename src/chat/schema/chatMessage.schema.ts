@@ -42,6 +42,7 @@ export class ChatMessage {
 }
 
 export const ChatMessageSchema = SchemaFactory.createForClass(ChatMessage);
+ChatMessageSchema.set('collection', ModelName.CHAT_MESSAGE);
 
 ChatMessageSchema.index({ clan_id: 1, createdAt: -1 });
 

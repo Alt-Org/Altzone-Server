@@ -122,30 +122,18 @@ export class BoxController {
    */
   @ApiResponseDescription({
     success: {
-      dto: CreatedBoxDto,
-      modelName: ModelName.BOX,
+      status: 204,
     },
     errors: [401, 403, 404],
   })
+  @SwaggerTags('Release on 27.07.2025', 'Box')
   @Put('reset')
-  @UniformResponse(ModelName.BOX)
+  @UniformResponse()
   @IsGroupAdmin()
   async resetTestingSession(@LoggedUser() user: BoxUser) {
-    const boxToCreate = await this.service.getBoxResetData(user.box_id);
-    const [_, deleteError] = await this.service.deleteOneById(user.box_id);
-    if (deleteError) return deleteError;
+    const [, errors] = await this.service.reset(user.box_id);
 
-    const [createdBox, createError] =
-      await this.boxCreator.createBox(boxToCreate);
-    if (createError) return createError;
-
-    const groupAdminAccessToken = await this.authHandler.getGroupAdminToken({
-      box_id: createdBox._id.toString(),
-      player_id: createdBox.adminPlayer_id.toString(),
-      profile_id: createdBox.adminProfile_id.toString(),
-    });
-
-    return [{ ...createdBox, accessToken: groupAdminAccessToken }, null];
+    if (errors) return [null, errors];
   }
 
   /**
@@ -280,7 +268,7 @@ export class BoxController {
   @NoAuth()
   @UniformResponse(ModelName.BOX)
   async deleteBox(@Param() param: _idDto) {
-    const [, errors] = await this.service.deleteOneById(param._id);
+    const [, errors] = await this.service.deleteBox(param._id);
 
     if (errors) return [null, errors];
   }
