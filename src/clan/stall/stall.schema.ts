@@ -1,4 +1,4 @@
-import { Prop, Schema } from "@nestjs/mongoose";
+import { Prop, Schema } from '@nestjs/mongoose';
 
 export class AdPoster {
   @Prop({ type: String, required: true })
