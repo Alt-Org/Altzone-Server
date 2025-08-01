@@ -11,7 +11,7 @@ export class AdPoster {
   mainFurniture: string;
 }
 
-@Schema()
+@Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
 export class Stall {
   @Prop({ type: AdPoster, required: true })
   adPoster: AdPoster;

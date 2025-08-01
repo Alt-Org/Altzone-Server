@@ -16,6 +16,7 @@ import { Goal } from '../enum/goal.enum';
 import { Type } from 'class-transformer';
 import { ClanLogoDto } from './clanLogo.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { Stall } from '../stall/stall.schema';
 
 /**
  * DTO for creating a clan.
@@ -103,4 +104,12 @@ export class CreateClanDto {
   @IsEnum(Language)
   @IsOptional()
   language?: Language;
+
+  /**
+     * Clan stall, optional, upon request
+     * @example { "adPoster": { "name": "Ad Poster", "description": "Poster for ads" }, "maxSlots": 7 }
+     */
+    @Type(() => Stall)
+    @IsOptional()
+    stall?: Stall;
 }
