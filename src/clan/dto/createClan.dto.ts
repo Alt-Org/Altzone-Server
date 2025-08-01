@@ -106,10 +106,10 @@ export class CreateClanDto {
   language?: Language;
 
   /**
-     * Clan stall, optional, upon request
-     * @example { "adPoster": { "name": "Ad Poster", "description": "Poster for ads" }, "maxSlots": 7 }
-     */
-    @Type(() => Stall)
-    @IsOptional()
-    stall?: Stall;
+   * Clan stall, optional, upon request
+   * @example { "adPoster": { "name": "Ad Poster", "description": "Poster for ads" }, "maxSlots": 7 }
+   */
+  @Type(() => Stall)
+  @IsOptional()
+  stall?: Stall;
 }
