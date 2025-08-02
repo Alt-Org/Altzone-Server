@@ -7,7 +7,6 @@ import {
   IsString,
   ValidateNested,
   MaxLength,
-  IsMongoId,
 } from 'class-validator';
 import { ClanLabel } from '../enum/clanLabel.enum';
 import { AgeRange } from '../enum/ageRange.enum';
@@ -16,7 +15,7 @@ import { Goal } from '../enum/goal.enum';
 import { Type } from 'class-transformer';
 import { ClanLogoDto } from './clanLogo.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { Stall } from '../stall/stall.schema';
+import { StallDto } from './stall.dto';
 
 /**
  * DTO for creating a clan.
@@ -109,7 +108,7 @@ export class CreateClanDto {
    * Clan stall, optional, upon request
    * @example { "adPoster": { "name": "Ad Poster", "description": "Poster for ads" }, "maxSlots": 7 }
    */
-  @Type(() => Stall)
+  @Type(() => StallDto)
   @IsOptional()
-  stall?: Stall;
+  stall?: StallDto;
 }

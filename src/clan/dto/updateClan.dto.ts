@@ -21,7 +21,7 @@ import { Goal } from '../enum/goal.enum';
 import { Language } from '../../common/enum/language.enum';
 import { ClanLogoDto } from './clanLogo.dto';
 import { Type } from 'class-transformer';
-import { Stall } from '../stall/stall.schema';
+import { StallDto } from './stall.dto';
 
 @AddType('UpdateClanDto')
 export class UpdateClanDto {
@@ -152,7 +152,7 @@ export class UpdateClanDto {
    * Clan stall, optional, upon request
    * @example { "adPoster": { "name": "Ad Poster", "description": "Poster for ads" }, "maxSlots": 7 }
    */
-  @Type(() => Stall)
+  @Type(() => StallDto)
   @IsOptional()
-  stall?: Stall;
+  stall?: StallDto;
 }
