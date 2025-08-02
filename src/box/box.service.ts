@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Collection, FilterQuery, Model } from 'mongoose';
+import mongoose, { FilterQuery, Model } from 'mongoose';
 import { Box, BoxDocument, publicReferences } from './schemas/box.schema';
 import BasicService, {
   convertMongooseToServiceErrors,
@@ -18,8 +18,6 @@ import {
   IServiceReturn,
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
-import { cancelTransaction } from '../common/function/cancelTransaction';
-import { CreateBoxDto } from './dto/createBox.dto';
 import { ObjectId } from 'mongodb';
 import { SessionStage } from './enum/SessionStage.enum';
 import { Profile } from '../profile/profile.schema';
@@ -140,18 +138,8 @@ export class BoxService {
    * - NOT_FOUND - if there are no box with this _id
    */
   public async reset(box_id: string | ObjectId): Promise<IServiceReturn<true>> {
-    if (!box_id)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.REQUIRED,
-            field: 'box_id',
-            value: box_id?.toString(),
-            message: 'Parameter box_id is required',
-          }),
-        ],
-      ];
+    const [, validationErrors] = this.validateBoxId(box_id);
+    if (validationErrors) return [null, validationErrors];
 
     const parsed_id = box_id.toString();
 
@@ -201,8 +189,16 @@ export class BoxService {
    * @param boxId - The ID of the box to delete.
    * @returns void promise.
    */
-  async deleteBox(boxId: string) {
-    return this.clearSession(boxId, [ModelName.FEEDBACK]);
+  async deleteBox(boxId: string | ObjectId) {
+    const [, validationErrors] = this.validateBoxId(boxId);
+    if (validationErrors) return [null, validationErrors];
+
+    const parsed_id = boxId.toString();
+
+    const [, readErrors] = await this.basicService.readOneById(parsed_id);
+    if (readErrors) return [null, readErrors];
+
+    return this.clearSession(boxId.toString(), [ModelName.FEEDBACK]);
   }
 
   /**
@@ -315,6 +311,32 @@ export class BoxService {
       const errors = convertMongooseToServiceErrors(errorsOccurred);
       return [null, errors];
     }
+
+    return [true, null];
+  }
+
+  /**
+   * Validates provided box _id
+   * @param box_id _id to validate
+   * @private
+   *
+   * @return true if the box_id is valid, or ServiceError:
+   * - REQUIRED - if the _id is not provided or empty string
+   * - NOT_FOUND - if box with that _id does not exist
+   */
+  private validateBoxId(box_id: string | ObjectId): IServiceReturn<true> {
+    if (!box_id)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'box_id',
+            value: box_id?.toString(),
+            message: 'Parameter box_id is required',
+          }),
+        ],
+      ];
 
     return [true, null];
   }
