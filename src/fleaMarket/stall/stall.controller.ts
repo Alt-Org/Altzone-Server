@@ -22,7 +22,7 @@ export class StallController {
     errors: [400, 401, 403, 404],
   })
   @Get('/:_id')
-  //@SwaggerTags('Release on 27.07.2025', 'Stall')
+  @SwaggerTags('Release on 27.07.2025', 'Stall')
   @UniformResponse(ModelName.STALL, StallResponse)
   async getOne(@Param() param: _idDto) {
     return await this.service.readOneByClanId(param._id);
@@ -38,7 +38,7 @@ export class StallController {
     errors: [400, 401, 403, 404],
   })
   @Get()
-  //@SwaggerTags('Release on 27.07.2025', 'Stall')
+  @SwaggerTags('Release on 27.07.2025', 'Stall')
   @OffsetPaginate(ModelName.STALL)
   @UniformResponse(ModelName.STALL, StallResponse)
   async getAll() {
