@@ -40,7 +40,7 @@ export class StallService {
    */
   async readAll(): Promise<[StallResponse[] | null, ServiceError[] | null]> {
     const [clans, error] = await this.clanService.readAll({
-      filter: { stall:{ $ne: null }  },
+      filter: { stall: { $ne: null } },
     });
 
     if (!clans || clans.length === 0 || error) {

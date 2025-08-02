@@ -8,6 +8,8 @@ import CreateClanRoleDtoBuilder from './role/CreateClanRoleDtoBuilder';
 import UpdateClanRoleDtoBuilder from './role/UpdateClanRoleDtoBuilder';
 import SetClanRoleBuilder from './role/SetClanRoleBuilder';
 import ClanDtoBuilder from './clan/ClanDtoBuilder';
+import StallBuilder from './clan/stall/StallBuilder';
+import AdPosterBuilder from './clan/stall/AdPosterBuilder';
 
 type BuilderName =
   | 'CreateClanDto'
@@ -19,7 +21,9 @@ type BuilderName =
   | 'ClanRole'
   | 'CreateClanRoleDto'
   | 'UpdateClanRoleDto'
-  | 'SetClanRole';
+  | 'SetClanRole'
+  | 'AdPoster'
+  | 'Stall';
 
 type BuilderMap = {
   CreateClanDto: CreateClanDtoBuilder;
@@ -32,6 +36,8 @@ type BuilderMap = {
   CreateClanRoleDto: CreateClanRoleDtoBuilder;
   UpdateClanRoleDto: UpdateClanRoleDtoBuilder;
   SetClanRole: SetClanRoleBuilder;
+  AdPoster: AdPosterBuilder;
+  Stall: StallBuilder;
 };
 
 export default class ClanBuilderFactory {
@@ -57,6 +63,10 @@ export default class ClanBuilderFactory {
         return new UpdateClanRoleDtoBuilder() as BuilderMap[T];
       case 'SetClanRole':
         return new SetClanRoleBuilder() as BuilderMap[T];
+      case 'AdPoster':
+        return new AdPosterBuilder() as BuilderMap[T];
+      case 'Stall':
+        return new StallBuilder() as BuilderMap[T];
       default:
         throw new Error(`Unknown builder name: ${builderName}`);
     }
