@@ -16,7 +16,7 @@ export class StallService {
   ): Promise<[StallResponse | null, ServiceError[] | null]> {
     const [clan, error] = await this.clanService.readOneById(clanId);
 
-    if (!clan) {
+    if (!clan || !clan.stall || error) {
       return [
         null,
         [
@@ -26,10 +26,6 @@ export class StallService {
           }),
         ],
       ];
-    }
-
-    if (error) {
-      return [null, error];
     }
 
     return [clan.stall as StallResponse, null];
