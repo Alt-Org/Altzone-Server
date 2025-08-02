@@ -52,9 +52,7 @@ export class StallService {
     }
 
     return [
-      clans
-        .filter((clan) => !!clan.stall)
-        .map((clan) => clan.stall),
+      clans.filter((clan) => !!clan.stall).map((clan) => clan.stall),
       null,
     ];
   }
