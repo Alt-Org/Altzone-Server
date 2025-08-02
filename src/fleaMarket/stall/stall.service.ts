@@ -28,7 +28,7 @@ export class StallService {
       ];
     }
 
-    return [clan.stall as StallResponse, null];
+    return [clan.stall, null];
   }
 
   /**
@@ -54,7 +54,7 @@ export class StallService {
     return [
       clans
         .filter((clan) => !!clan.stall)
-        .map((clan) => clan.stall as StallResponse),
+        .map((clan) => clan.stall),
       null,
     ];
   }

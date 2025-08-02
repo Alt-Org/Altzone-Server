@@ -105,7 +105,7 @@ export class CreateClanDto {
   language?: Language;
 
   /**
-   * Clan stall, optional, upon request
+   * Clan stall, optional
    * @example { "adPoster": { "name": "Ad Poster", "description": "Poster for ads" }, "maxSlots": 7 }
    */
   @Type(() => StallDto)
