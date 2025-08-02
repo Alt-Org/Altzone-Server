@@ -42,6 +42,6 @@ export class StallController {
   @OffsetPaginate(ModelName.STALL)
   @UniformResponse(ModelName.STALL, StallResponse)
   async getAll() {
-    return await this.service.readManyStalls();
+    return await this.service.readAll();
   }
 }

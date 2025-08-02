@@ -38,7 +38,7 @@ export class StallService {
   /**
    * Returns all stalls for all clans
    */
-  async readManyStalls(): Promise<
+  async readAll(): Promise<
     [StallResponse[] | null, ServiceError[] | null]
   > {
     const [clans, error] = await this.clanService.readAll({
