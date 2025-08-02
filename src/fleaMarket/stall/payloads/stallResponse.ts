@@ -1,5 +1,5 @@
-import { Expose } from "class-transformer";
-import AddType from "../../../common/base/decorator/AddType.decorator";
+import { Expose } from 'class-transformer';
+import AddType from '../../../common/base/decorator/AddType.decorator';
 
 /**
  * Represents the advertisement poster for a stall
@@ -30,7 +30,6 @@ export class AdPoster {
  */
 @AddType('StallResponse')
 export class StallResponse {
-
   /**
    * Stall's advertisement poster
    */

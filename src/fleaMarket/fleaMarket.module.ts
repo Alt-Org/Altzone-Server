@@ -34,7 +34,7 @@ import { StallService } from './stall/stall.service';
     FleaMarketService,
     FleaMarketHelperService,
     FleaMarketVotingProcessor,
-    StallService
+    StallService,
   ],
   exports: [],
 })

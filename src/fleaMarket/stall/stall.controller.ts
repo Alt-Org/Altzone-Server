@@ -10,24 +10,21 @@ import SwaggerTags from 'src/common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('stall')
 export class StallController {
-  constructor(
-    private readonly service: StallService,
-  ) {}
+  constructor(private readonly service: StallService) {}
 
   /**
    * Get a single stall by clan ID
    */
   @ApiResponseDescription({
-      success: {
-        status: 200,
-      },
-      errors: [400, 401, 403, 404],
-    })
+    success: {
+      status: 200,
+    },
+    errors: [400, 401, 403, 404],
+  })
   @Get('/:_id')
   //@SwaggerTags('Release on 27.07.2025', 'Stall')
   @UniformResponse(ModelName.STALL, StallResponse)
   async getOne(@Param() param: _idDto) {
-
     return await this.service.readOneByClanId(param._id);
   }
 
@@ -35,11 +32,11 @@ export class StallController {
    * Get all stall items
    */
   @ApiResponseDescription({
-      success: {
-        status: 200,
-      },
-      errors: [400, 401, 403, 404],
-    })
+    success: {
+      status: 200,
+    },
+    errors: [400, 401, 403, 404],
+  })
   @Get()
   //@SwaggerTags('Release on 27.07.2025', 'Stall')
   @OffsetPaginate(ModelName.STALL)
