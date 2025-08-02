@@ -38,9 +38,7 @@ export class StallService {
   /**
    * Returns all stalls for all clans
    */
-  async readAll(): Promise<
-    [StallResponse[] | null, ServiceError[] | null]
-  > {
+  async readAll(): Promise<[StallResponse[] | null, ServiceError[] | null]> {
     const [clans, error] = await this.clanService.readAll({
       filter: { stall: { $exists: true } },
     });
