@@ -26,6 +26,7 @@ export class BoxScheduler {
     for (const box of boxes) {
       if (box.boxRemovalTime <= currentTime.getTime()) {
         await this.boxService.deleteBox(box._id.toString());
+        continue;
       }
 
       if (box.sessionResetTime <= currentTime.getTime()) {
