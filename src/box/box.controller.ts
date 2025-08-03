@@ -36,7 +36,6 @@ import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { NoBoxIdFilter } from './auth/decorator/NoBoxIdFilter.decorator';
-import { errors } from 'mongodb-memory-server';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
