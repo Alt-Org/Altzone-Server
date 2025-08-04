@@ -16,8 +16,8 @@ export class StallService {
     const [clan, error] = await this.clanService.readOneById(clanId);
 
     if (error) {
-    return [null, error];
-	}
+      return [null, error];
+    }
 
     return [clan.stall, null];
   }
@@ -31,13 +31,9 @@ export class StallService {
     });
 
     if (error) {
-		return [null, error]
-	}
+      return [null, error];
+    }
 
-  return [
-      clans.map((clan) => clan.stall),
-      null,
-    ];
-  
+    return [clans.map((clan) => clan.stall), null];
   }
 }

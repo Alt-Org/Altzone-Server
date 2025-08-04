@@ -69,6 +69,6 @@ describe('StallService.readOneByClanId() test suite', () => {
         reason: serviceError.reason,
         message: serviceError.message,
       }),
-    ])  ;
+    ]);
   });
 });
