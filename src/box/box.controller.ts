@@ -147,13 +147,15 @@ export class BoxController {
     success: {
       status: 204,
     },
-    errors: [400, 404],
+    errors: [401, 403, 404],
   })
+  @SwaggerTags('Release on 10.08.2025', 'Box')
   @Delete()
   @IsGroupAdmin()
   @UniformResponse()
   async deleteBoxAndAdmin(@LoggedUser() user: BoxUser) {
-    return await this.service.deleteBox(user.box_id);
+    const [, errors] = await this.service.deleteBox(user.box_id);
+    if (errors) return [null, errors];
   }
 
   /**

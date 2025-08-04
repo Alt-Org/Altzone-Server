@@ -1,18 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import BoxCreator from './boxCreator';
 import { BoxService } from './box.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { InjectModel } from '@nestjs/mongoose';
-import { Box } from './schemas/box.schema';
-import { Model } from 'mongoose';
 
 @Injectable()
 export class BoxScheduler {
-  constructor(
-    private readonly boxCreator: BoxCreator,
-    private readonly boxService: BoxService,
-    @InjectModel(Box.name) private readonly boxModel: Model<Box>,
-  ) {}
+  constructor(private readonly boxService: BoxService) {}
 
   /**
    * Resets testing sessions by deleting all boxes that have reached the end session stage.
@@ -36,6 +28,7 @@ export class BoxScheduler {
         await this.boxService.deleteBox(box._id.toString());
         continue;
       }
+
       if (box.sessionResetTime <= currentTime.getTime()) {
         await this.boxService.reset(box._id.toString());
       }
