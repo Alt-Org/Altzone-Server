@@ -4,6 +4,7 @@ import { ExternalDocumentationObject } from '@nestjs/swagger/dist/interfaces/ope
  * Swagger tag name
  */
 export type SwaggerTagName =
+  | 'Release on 10.08.2025'
   | 'Release on 27.07.2025'
   | 'Profile'
   | 'Auth'
