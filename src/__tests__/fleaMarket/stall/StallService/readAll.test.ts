@@ -85,7 +85,9 @@ describe('StallService.ReadAll() test suite', () => {
 
     const expectedError = {
       reason: expect.any(String),
-      message: expect.stringContaining('Could not find any objects with specified condition'),
+      message: expect.stringContaining(
+        'Could not find any objects with specified condition',
+      ),
     };
 
     expect(error).toEqual([expect.objectContaining(expectedError)]);
