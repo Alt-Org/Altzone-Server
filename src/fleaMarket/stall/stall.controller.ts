@@ -5,7 +5,7 @@ import { ModelName } from '../../common/enum/modelName.enum';
 import { _idDto } from '../../common/dto/_id.dto';
 import { OffsetPaginate } from '../../common/interceptor/request/offsetPagination.interceptor';
 import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
-import { StallResponse } from './payloads/stallResponse';
+import { StallResponse } from './dto/stallResponse.dto';
 import SwaggerTags from 'src/common/swagger/tags/SwaggerTags.decorator';
 import { LoggedUser } from 'src/common/decorator/param/LoggedUser.decorator';
 import { User } from 'src/auth/user';

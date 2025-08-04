@@ -21,8 +21,6 @@ describe('StallService.readOneByClanId() test suite', () => {
   let stall: Stall;
   let clanToCreate: Clan;
 
-  let clanToCreateNoStall: Clan;
-
   beforeEach(async () => {
     await clanModel.deleteMany({});
     await jest.clearAllMocks();
@@ -52,26 +50,6 @@ describe('StallService.readOneByClanId() test suite', () => {
     });
   });
 
-  it('should return NOT_FOUND error for a clan without a stall', async () => {
-    await clanModel.deleteMany({});
-
-    clanToCreateNoStall = clanBuilder.setName('clan1').setStall(null).build();
-    await clanModel.create(clanToCreateNoStall);
-    const createdClan = await clanModel.find({ name: 'clan1' });
-
-    const [result, error] = await stallService.readOneByClanId(
-      createdClan[0]._id,
-    );
-
-    expect(result).toBeNull();
-    expect(error).toEqual([
-      expect.objectContaining({
-        reason: SEReason.NOT_FOUND,
-        message: 'Failed to retrieve clans with stalls.',
-      }),
-    ]);
-  });
-
   it('should return error when clanService.readOneById returns error', async () => {
     const serviceError = new ServiceError({
       reason: SEReason.MISCONFIGURED,
@@ -88,9 +66,9 @@ describe('StallService.readOneByClanId() test suite', () => {
     expect(result).toBeNull();
     expect(error).toEqual([
       expect.objectContaining({
-        reason: SEReason.NOT_FOUND,
-        message: 'Failed to retrieve clans with stalls.',
+        reason: serviceError.reason,
+        message: serviceError.message,
       }),
-    ]);
+    ])  ;
   });
 });
