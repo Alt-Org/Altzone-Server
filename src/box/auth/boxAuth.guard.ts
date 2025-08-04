@@ -83,7 +83,7 @@ export class BoxAuthGuard implements CanActivate {
           ],
         });
 
-      if (!profile_id || !player_id || !box_id || groupAdmin === null)
+      if (!profile_id || !player_id || !box_id)
         throw new UnauthorizedException({
           ...errorResponse,
           message: 'Incorrect token provided.',
