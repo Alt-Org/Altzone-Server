@@ -35,7 +35,6 @@ describe('StallService.ReadAll() test suite', () => {
     stallService = await FleaMarketModule.getStallService();
     clanService = await FleaMarketModule.getClanService();
 
-    // Prepare test data for clans with stalls
     adPoster1 = adPosterBuilder
       .setBorder('border1')
       .setColour('red')
@@ -74,7 +73,7 @@ describe('StallService.ReadAll() test suite', () => {
 
   it('Should return NOT_FOUND error when no clans with stalls', async () => {
     await clanModel.deleteMany({});
-    // Prepare test data for clans without stalls
+
     clanToCreateNoStall1 = clanBuilder.setName('clan1').setStall(null).build();
     clanToCreateNoStall2 = clanBuilder.setName('clan2').setStall(null).build();
     await clanModel.create(clanToCreateNoStall1);
@@ -86,7 +85,7 @@ describe('StallService.ReadAll() test suite', () => {
 
     const expectedError = {
       reason: expect.any(String),
-      message: expect.stringContaining('Failed to retrieve clans with stalls.'),
+      message: expect.stringContaining('Could not find any objects with specified condition'),
     };
 
     expect(error).toEqual([expect.objectContaining(expectedError)]);
@@ -105,8 +104,8 @@ describe('StallService.ReadAll() test suite', () => {
     expect(result).toBeNull();
     expect(error).toEqual([
       expect.objectContaining({
-        reason: SEReason.NOT_FOUND,
-        message: 'Failed to retrieve clans with stalls.',
+        reason: serviceError.reason,
+        message: serviceError.message,
       }),
     ]);
   });

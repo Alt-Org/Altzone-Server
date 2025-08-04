@@ -150,7 +150,7 @@ export class UpdateClanDto {
 
   /**
    * Clan stall
-   * @example { "adPoster": { "name": "Ad Poster", "description": "Poster for ads" }, "maxSlots": 7 }
+   * @example { adPoster: { border: "border1", colour: "red", mainFurniture: "table" }, maxSlots: 10 }
    */
   @Type(() => StallDto)
   @IsOptional()
