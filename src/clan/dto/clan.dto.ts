@@ -9,6 +9,7 @@ import { SoulHomeDto } from '../../clanInventory/soulhome/dto/soulhome.dto';
 import { ClanLogoDto } from './clanLogo.dto';
 import ClanRoleDto from '../role/dto/clanRole.dto';
 import { ClanLabel } from '../enum/clanLabel.enum';
+import { StallDto } from './stall.dto';
 
 /**
  * DTO for reading clan data.
@@ -175,4 +176,12 @@ export class ClanDto {
   @Type(() => SoulHomeDto)
   @Expose()
   SoulHome?: SoulHomeDto;
+
+  /**
+   * Clan stall, optional
+   * @example { "adPoster": { "name": "Ad Poster", "description": "Poster for ads" }, "maxSlots": 7 }
+   */
+  @Type(() => StallDto)
+  @Expose()
+  stall?: StallDto;
 }

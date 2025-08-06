@@ -14,6 +14,7 @@ export type SwaggerTagName =
   | 'SoulHome'
   | 'Room'
   | 'Stock'
+  | 'Stall'
   | 'Item'
   | 'DailyTasks'
   | 'FleaMarket'
@@ -77,6 +78,10 @@ export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
   Stock: {
     name: 'Stock',
     description: 'stock related functionality',
+  },
+  Stall: {
+    name: 'Stall',
+    description: 'Flea market related functionality',
   },
   Item: {
     name: 'Item',

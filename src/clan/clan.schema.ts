@@ -9,6 +9,7 @@ import { Goal } from './enum/goal.enum';
 import { ClanLogo } from './clanLogo.schema';
 import { ClanRole, ClanRoleSchema } from './role/ClanRole.schema';
 import { initializationClanRoles } from './role/initializationClanRoles';
+import { Stall } from './stall/stall.schema';
 
 export type ClanDocument = HydratedDocument<Clan>;
 
@@ -68,6 +69,9 @@ export class Clan {
     default: initializationClanRoles,
   })
   roles: ClanRole[];
+
+  @Prop({ type: Stall, required: false })
+  stall?: Stall;
 
   @ExtractField()
   _id: string;

@@ -10,6 +10,7 @@ import {
   LeaderClanRole,
   MemberClanRole,
 } from '../../../../clan/role/initializationClanRoles';
+import { Stall } from '../../../../clan/stall/stall.schema';
 
 export default class ClanBuilder implements IDataBuilder<Clan> {
   private readonly base: Clan = {
@@ -31,6 +32,14 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
     language: Language.ENGLISH,
     clanLogo: { logoType: LogoType.HEART, pieceColors: ['#FFFFFF', '#000000'] },
     roles: [MemberClanRole, LeaderClanRole] as any,
+    stall: {
+      adPoster: {
+        border: '#000000',
+        colour: '#FFFFFF',
+        mainFurniture: 'default_furniture',
+      },
+      maxSlots: 7,
+    },
   };
 
   // Returns a new Clan object with the current base properties
@@ -120,6 +129,11 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
 
   setRoles(roles: ClanRole[]) {
     this.base.roles = roles;
+    return this;
+  }
+
+  setStall(stall: Stall) {
+    this.base.stall = stall;
     return this;
   }
 }

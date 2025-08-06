@@ -13,6 +13,8 @@ import { FleaMarketHelperService } from './fleaMarketHelper.service';
 import { FleaMarketVotingProcessor } from './fleaMarketVoting.processor';
 import { PlayerSchema } from '../player/schemas/player.schema';
 import { ClanSchema } from '../clan/clan.schema';
+import { StallController } from './stall/stall.controller';
+import { StallService } from './stall/stall.service';
 
 @Module({
   imports: [
@@ -27,11 +29,12 @@ import { ClanSchema } from '../clan/clan.schema';
     ClanModule,
     RequestHelperModule,
   ],
-  controllers: [FleaMarketController],
+  controllers: [FleaMarketController, StallController],
   providers: [
     FleaMarketService,
     FleaMarketHelperService,
     FleaMarketVotingProcessor,
+    StallService,
   ],
   exports: [],
 })

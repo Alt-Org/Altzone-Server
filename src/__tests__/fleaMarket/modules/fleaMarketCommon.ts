@@ -12,6 +12,7 @@ import { ClanModule } from '../../../clan/clan.module';
 import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
 import { FleaMarketHelperService } from '../../../fleaMarket/fleaMarketHelper.service';
 import { FleaMarketVotingProcessor } from '../../../fleaMarket/fleaMarketVoting.processor';
+import { StallService } from '../../../fleaMarket/stall/stall.service';
 
 export default class FleaMarketCommonModule {
   private constructor() {}
@@ -39,6 +40,7 @@ export default class FleaMarketCommonModule {
           FleaMarketService,
           FleaMarketHelperService,
           FleaMarketVotingProcessor,
+          StallService,
         ],
       }).compile();
 

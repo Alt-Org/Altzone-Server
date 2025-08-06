@@ -23,6 +23,7 @@ export enum ModelName {
   PLAYER = 'Player',
   ITEM = 'Item',
   STOCK = 'Stock',
+  STALL = 'Stall',
   PROFILE = 'Profile',
   CHAT_MESSAGE = 'ChatMessage',
   JOIN = 'Join',
