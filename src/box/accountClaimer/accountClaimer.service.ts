@@ -78,6 +78,7 @@ export default class AccountClaimerService {
     const accessToken = await this.jwtService.signAsync({
       player_id: account.Player._id.toString(),
       profile_id: account.Profile._id.toString(),
+      clan_id: accountClan._id.toString(),
       box_id: box._id.toString(),
     });
 
