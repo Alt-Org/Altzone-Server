@@ -8,6 +8,7 @@ import BoxAuthService from './box/BoxAuthService';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { ModelName } from '../common/enum/modelName.enum';
 import { ProfileDto } from '../profile/dto/profile.dto';
+import { NoBoxIdFilter } from '../box/auth/decorator/NoBoxIdFilter.decorator';
 
 @NoAuth()
 @Controller('auth')
@@ -32,9 +33,10 @@ export class AuthController {
     },
     errors: [400, 401],
   })
+  @NoBoxIdFilter()
   @Post('/signIn')
   @ThrowAuthErrorIfFound()
-  public signIn(@Body() body: SignInDto) {
+  public async signIn(@Body() body: SignInDto) {
     return this.authService.signIn(body.username, body.password);
   }
 }
