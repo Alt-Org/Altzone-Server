@@ -65,7 +65,7 @@ export default class AccountClaimerService {
       ];
 
     const [account, accountCreationErrors] =
-      await this.testerService.createTester();
+      await this.testerService.createTester(box._id.toString());
     if (accountCreationErrors) return [null, accountCreationErrors];
 
     const [accountClan, clanAssigningErrors] =
@@ -80,6 +80,7 @@ export default class AccountClaimerService {
       profile_id: account.Profile._id.toString(),
       clan_id: accountClan._id.toString(),
       box_id: box._id.toString(),
+      groupAdmin: false,
     });
 
     return [

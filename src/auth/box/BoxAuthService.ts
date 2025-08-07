@@ -69,20 +69,17 @@ export default class BoxAuthService extends AuthService {
       clan_id: playerResp.clan_id?.toString(),
     };
 
-    let box_id: string,
-      groupAdmin = false;
+    let box_id: string;
+    let groupAdmin = false;
     const box = await this.boxModel.findOne({
       adminProfile_id: new ObjectId(profile._id),
     });
 
     //TODO: add logic for determining box _id based on the player or profile collection box_id field, when this field is added to every schema
     if (!box) {
-      const boxWithTester = await this.boxModel.findOne({
-        'testers.profile_id': new ObjectId(profile._id),
-      });
-      if (!boxWithTester) return null;
+      if (!(profile as any).box_id) return null;
 
-      box_id = boxWithTester.id.toString();
+      box_id = (profile as any).box_id.toString();
     } else {
       box_id = box._id.toString();
       groupAdmin = true;
