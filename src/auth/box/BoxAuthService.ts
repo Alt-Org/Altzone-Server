@@ -75,7 +75,6 @@ export default class BoxAuthService extends AuthService {
       adminProfile_id: new ObjectId(profile._id),
     });
 
-    //TODO: add logic for determining box _id based on the player or profile collection box_id field, when this field is added to every schema
     if (!box) {
       if (!(profile as any).box_id) return null;
 
