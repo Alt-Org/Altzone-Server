@@ -62,7 +62,7 @@ export class StallController {
   @SwaggerTags('Release on 10.08.2025', 'Stall')
   @UniformResponse()
   @HasClanRights([ClanBasicRight.SHOP])
-  async butStallSlot(@LoggedUser() user: User) {
+  async buyStallSlot(@LoggedUser() user: User) {
     const [, error] = await this.service.buyStallSlot(user.clan_id);
     if (error) return [null, error];
   }
