@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { StallService } from './stall.service';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
 import { ModelName } from '../../common/enum/modelName.enum';
@@ -7,6 +7,11 @@ import { OffsetPaginate } from '../../common/interceptor/request/offsetPaginatio
 import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
 import { StallResponse } from './dto/stallResponse.dto';
 import SwaggerTags from 'src/common/swagger/tags/SwaggerTags.decorator';
+import { LoggedUser } from 'src/common/decorator/param/LoggedUser.decorator';
+import { User } from 'src/auth/user';
+import HasClanRights from 'src/clan/role/decorator/guard/HasClanRights';
+import { ClanBasicRight } from 'src/clan/role/enum/clanBasicRight.enum';
+import { BuyStallSlotDto } from './dto/buyStallSlot.dto';
 
 @Controller('stall')
 export class StallController {
@@ -43,5 +48,28 @@ export class StallController {
   @UniformResponse(ModelName.STALL, StallResponse)
   async getAll() {
     return await this.service.readAll();
+  }
+
+  /**
+   * Buy additional stall slots
+   *
+   * @remarks Buy additional stall slots
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 404],
+  })
+  @Post('/buy-slot')
+  @SwaggerTags('Release on 10.08.2025', 'Stall')
+  @UniformResponse()
+  @HasClanRights([ClanBasicRight.SHOP])
+  async buyStallSlot(@LoggedUser() user: User, @Body() body: BuyStallSlotDto) {
+    const [, error] = await this.service.buyStallSlot(
+      user.clan_id,
+      body.amount,
+    );
+    if (error) return [null, error];
   }
 }

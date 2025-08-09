@@ -49,7 +49,7 @@ describe('TesterAccountService.createTester() test suite', () => {
     const username = 'my-username';
     generatePasswordMock.mockReturnValueOnce(username);
 
-    await service.createTester();
+    await service.createTester(existingBox._id.toString());
 
     const profilesInDB = await profileModel.findOne({ username });
 
@@ -60,7 +60,7 @@ describe('TesterAccountService.createTester() test suite', () => {
     const name = 'my-player';
     generatePasswordMock.mockReturnValueOnce(name);
 
-    await service.createTester();
+    await service.createTester(existingBox._id.toString());
 
     const playersInDB = await playerModel.findOne({ name });
 
@@ -69,7 +69,9 @@ describe('TesterAccountService.createTester() test suite', () => {
 
   it('Should return created tester', async () => {
     generatePasswordMock.mockReturnValueOnce('tester');
-    const [createdTester, errors] = await service.createTester();
+    const [createdTester, errors] = await service.createTester(
+      existingBox._id.toString(),
+    );
 
     expect(errors).toBeNull();
     expect(createdTester.Profile).not.toBeNull();
@@ -91,7 +93,7 @@ describe('TesterAccountService.createTester() test suite', () => {
     generatePasswordMock.mockReturnValueOnce(existingUsername1);
 
     const profilesInDBBefore = await profileModel.find();
-    await service.createTester();
+    await service.createTester(existingBox._id.toString());
     const profilesInDBAfter = await profileModel.find();
 
     expect(profilesInDBAfter).toHaveLength(profilesInDBBefore.length + 1);
@@ -106,7 +108,7 @@ describe('TesterAccountService.createTester() test suite', () => {
     generatePasswordMock.mockReturnValueOnce(existingUsername);
 
     const profilesInDBBefore = await profileModel.find();
-    await service.createTester();
+    await service.createTester(existingBox._id.toString());
     const profilesInDBAfter = await profileModel.find();
 
     expect(profilesInDBAfter).toHaveLength(profilesInDBBefore.length + 1);
@@ -128,7 +130,7 @@ describe('TesterAccountService.createTester() test suite', () => {
     generatePasswordMock.mockReturnValueOnce(existingName1);
 
     const playersInDBBefore = await playerModel.find();
-    await service.createTester();
+    await service.createTester(existingBox._id.toString());
     const playersInDBAfter = await playerModel.find();
 
     expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + 1);
@@ -144,7 +146,7 @@ describe('TesterAccountService.createTester() test suite', () => {
     generatePasswordMock.mockReturnValueOnce(existingName);
 
     const playersInDBBefore = await playerModel.find();
-    await service.createTester();
+    await service.createTester(existingBox._id.toString());
     const playersInDBAfter = await playerModel.find();
 
     expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + 1);
@@ -166,7 +168,7 @@ describe('TesterAccountService.createTester() test suite', () => {
     generatePasswordMock.mockReturnValueOnce(existingId1);
 
     const playersInDBBefore = await playerModel.find();
-    await service.createTester();
+    await service.createTester(existingBox._id.toString());
     const playersInDBAfter = await playerModel.find();
 
     expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + 1);
@@ -182,7 +184,7 @@ describe('TesterAccountService.createTester() test suite', () => {
     generatePasswordMock.mockReturnValueOnce(existingId);
 
     const playersInDBBefore = await playerModel.find();
-    await service.createTester();
+    await service.createTester(existingBox._id.toString());
     const playersInDBAfter = await playerModel.find();
 
     expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + 1);
@@ -193,9 +195,9 @@ describe('TesterAccountService.createTester() test suite', () => {
     generatePasswordMock.mockReturnValue(sameUsername);
 
     const profilesInDBBefore = await profileModel.find();
-    await service.createTester();
-    await service.createTester();
-    await service.createTester();
+    await service.createTester(existingBox._id.toString());
+    await service.createTester(existingBox._id.toString());
+    await service.createTester(existingBox._id.toString());
     const profilesInDBAfter = await profileModel.find();
 
     expect(profilesInDBAfter).toHaveLength(profilesInDBBefore.length + 3);
@@ -206,9 +208,9 @@ describe('TesterAccountService.createTester() test suite', () => {
     generatePasswordMock.mockReturnValue(sameName);
 
     const playersInDBBefore = await playerModel.find();
-    await service.createTester();
-    await service.createTester();
-    await service.createTester();
+    await service.createTester(existingBox._id.toString());
+    await service.createTester(existingBox._id.toString());
+    await service.createTester(existingBox._id.toString());
     const playersInDBAfter = await playerModel.find();
 
     expect(playersInDBAfter).toHaveLength(playersInDBBefore.length + 3);

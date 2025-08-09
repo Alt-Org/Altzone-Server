@@ -36,14 +36,21 @@ export class TesterAccountService {
   /**
    * Creates a new tester profile and player.
    *
+   * @param box_id _id of the box with which tester is associated with
+   *
    * @returns created tester or ServiceError if any errors occurred during the creation process
    */
-  async createTester(): Promise<IServiceReturn<Omit<Tester, 'Clan'>>> {
+  async createTester(
+    box_id: string,
+  ): Promise<IServiceReturn<Omit<Tester, 'Clan'>>> {
     const password = this.passwordGenerator.generatePassword('fi');
-    const [createdProfile, profileCreationErrors] =
-      await this.createProfile(password);
+    const [createdProfile, profileCreationErrors] = await this.createProfile(
+      box_id,
+      password,
+    );
     if (profileCreationErrors) return [null, profileCreationErrors];
     const [createdPlayer, playerCreationErrors] = await this.createPlayer(
+      box_id,
       password,
       createdProfile,
     );
@@ -112,12 +119,14 @@ export class TesterAccountService {
    * Create profile with provided username.
    * Notice that if a profile with the username already exists its value will be changed to be unique
    *
+   * @param box_id with which profile should be associated
    * @param username to be used for the profile
    * @private
    *
    * @return created profile
    */
   private async createProfile(
+    box_id: string,
     username: string,
   ): Promise<IServiceReturn<ProfileDto>> {
     const uniqueUsername =
@@ -129,6 +138,7 @@ export class TesterAccountService {
     const profile = {
       username: uniqueUsername,
       password: uniqueUsername,
+      box_id,
     };
 
     return this.profileService.createWithHashedPassword(profile);
@@ -138,13 +148,18 @@ export class TesterAccountService {
    * Create player with provided name.
    * Notice that if a player with the name or uniqueIdentifier already exists its value will be changed to be unique
    *
+   * @param box_id with which player should be associated
    * @param names to be used for player names and unique identifiers
    * @param profile with which player should be associated
    * @private
    *
    * @return created player
    */
-  private async createPlayer(names: string, profile: ProfileDto) {
+  private async createPlayer(
+    box_id: string,
+    names: string,
+    profile: ProfileDto,
+  ) {
     const uniqueName = await this.uniqueFieldGenerator.generateUniqueFieldValue(
       this.playerModel,
       'name',
@@ -156,7 +171,8 @@ export class TesterAccountService {
       names,
     );
 
-    const player: Omit<Player, '_id'> = {
+    const player: Omit<Player, '_id'> & { box_id: string } = {
+      box_id,
       above13: true,
       backpackCapacity: 10,
       parentalAuth: true,
