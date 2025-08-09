@@ -44,8 +44,14 @@ export class StallService {
    * Buy additional stall slot for clan
    *
    * Validates that clan has a stall and enough coins to buy the slot.
+   *
+   * @param clan_id - Id of the clan.
+   * @param amount - Amount of slots to buy
    */
-  async buyStallSlot(clan_id: string): Promise<IServiceReturn<boolean>> {
+  async buyStallSlot(
+    clan_id: string,
+    amount: number = 1,
+  ): Promise<IServiceReturn<boolean>> {
     const [clan, error] = await this.clanService.readOneById(clan_id);
     if (error) {
       return [null, error];
@@ -61,14 +67,14 @@ export class StallService {
         ],
       ];
     }
-    const stall = clan.stall;
     const { stallSlotPrice } = getStallDefaultValues();
-    if (clan.gameCoins < stallSlotPrice) {
+    const totalPrice = stallSlotPrice * amount;
+    if (clan.gameCoins < totalPrice) {
       return [
         null,
         [
           new ServiceError({
-            reason: SEReason.VALIDATION,
+            reason: SEReason.LESS_THAN_MIN,
             message: `Not enough clan coins. Current: ${clan.gameCoins} Required: ${stallSlotPrice}`,
             field: 'gameCoins',
             value: clan.gameCoins,
@@ -76,10 +82,10 @@ export class StallService {
         ],
       ];
     }
-    stall.maxSlots++;
-    return await this.clanService.basicService.updateOneById(clan_id, {
-      gameCoins: clan.gameCoins - stallSlotPrice,
-      stall,
+    clan.stall.maxSlots += amount;
+    return this.clanService.basicService.updateOneById(clan_id, {
+      gameCoins: clan.gameCoins - totalPrice,
+      stall: clan.stall,
     });
   }
 }
