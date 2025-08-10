@@ -6,7 +6,6 @@ import { User } from '../auth/user';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { ModelName } from '../common/enum/modelName.enum';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { FeedbackDto } from './dto/feedback.dto';
 
 @Controller('feedback')
@@ -28,7 +27,6 @@ export class FeedbackController {
     errors: [],
   })
   @Post('add')
-  @SwaggerTags('Release on 27.07.2025', 'Feedback')
   @UniformResponse(ModelName.FEEDBACK)
   async create(
     @Body() feedbackDto: CreateFeedbackDto,
