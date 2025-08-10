@@ -27,7 +27,6 @@ import { BoxAuthGuard } from './auth/boxAuth.guard';
 import SessionStarterService from './sessionStarter/sessionStarter.service';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { BoxDto } from './dto/box.dto';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { ConfigureBoxDto } from './dto/configureBox.dto';
 import { ObjectId } from 'mongodb';
 import { CreateGroupAdminDto } from './groupAdmin/dto/createGroupAdmin.dto';
@@ -90,7 +89,6 @@ export class BoxController {
    *
    * @remarks Update box configuration.
    */
-  @SwaggerTags('Release on 27.07.2025', 'Box')
   @ApiResponseDescription({
     success: {
       status: 204,
@@ -126,7 +124,6 @@ export class BoxController {
     },
     errors: [401, 403, 404],
   })
-  @SwaggerTags('Release on 27.07.2025', 'Box')
   @Put('reset')
   @UniformResponse()
   @IsGroupAdmin()
@@ -149,7 +146,6 @@ export class BoxController {
     },
     errors: [401, 403, 404],
   })
-  @SwaggerTags('Release on 10.08.2025', 'Box')
   @Delete()
   @IsGroupAdmin()
   @UniformResponse()
@@ -196,7 +192,6 @@ export class BoxController {
     errors: [400, 409],
     hasAuth: false,
   })
-  @SwaggerTags('Release on 27.07.2025', 'Box')
   @Post('/createAdmin')
   @NoAuth()
   @NoBoxIdFilter()

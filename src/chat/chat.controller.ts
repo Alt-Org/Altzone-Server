@@ -20,7 +20,6 @@ import { OffsetPaginate } from '../common/interceptor/request/offsetPagination.i
 import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { IsGroupAdmin } from '../box/auth/decorator/IsGroupAdmin';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { UpdateChatMessageDto } from './dto/updateChatMessage.dto';
 import { _idDto } from '../common/dto/_id.dto';
 import { env } from 'node:process';
@@ -96,7 +95,6 @@ export class ChatController {
    *
    * @remarks Update chatmessage only by the box admin in TESTING_SESSION.
    */
-  @SwaggerTags('Release on 27.07.2025', 'Chat')
   @ApiResponseDescription({
     success: {
       status: 204,
@@ -131,7 +129,6 @@ export class ChatController {
     },
     errors: [400, 401, 404],
   })
-  @SwaggerTags('Release on 27.07.2025', 'Chat')
   @Delete('/:_id')
   @IsGroupAdmin()
   @UniformResponse(ModelName.CHAT_MESSAGE)
