@@ -8,6 +8,11 @@ export enum SEReason {
   NOT_FOUND = 'NOT_FOUND',
 
   /**
+   * Action can not be performed due to some restrictions
+   */
+  NOT_AUTHORIZED = 'NOT_AUTHORIZED',
+
+  /**
    * Field / parameter is required
    */
   REQUIRED = 'REQUIRED',

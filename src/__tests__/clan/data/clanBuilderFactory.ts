@@ -3,19 +3,19 @@ import CreateClanDtoBuilder from './clan/CreateClanDtoBuilder';
 import JoinRequestDtoBuilder from './clan/join/JoinRequestDtoBuilder';
 import RemovePlayerDtoBuilder from './clan/join/RemovePlayerDtoBuilder';
 import UpdateClanDtoBuilder from './clan/UpdateClanDtoBuilder';
-import JoinBuilder from './clan/join/JoinBuilder';
 import ClanRoleBuilder from './role/ClanRoleBuilder';
 import CreateClanRoleDtoBuilder from './role/CreateClanRoleDtoBuilder';
 import UpdateClanRoleDtoBuilder from './role/UpdateClanRoleDtoBuilder';
 import SetClanRoleBuilder from './role/SetClanRoleBuilder';
+import ClanDtoBuilder from './clan/ClanDtoBuilder';
 
 type BuilderName =
   | 'CreateClanDto'
   | 'UpdateClanDto'
   | 'Clan'
+  | 'ClanDto'
   | 'JoinRequestDto'
   | 'RemovePlayerDTO'
-  | 'Join'
   | 'ClanRole'
   | 'CreateClanRoleDto'
   | 'UpdateClanRoleDto'
@@ -25,9 +25,9 @@ type BuilderMap = {
   CreateClanDto: CreateClanDtoBuilder;
   UpdateClanDto: UpdateClanDtoBuilder;
   Clan: ClanBuilder;
+  ClanDto: ClanDtoBuilder;
   JoinRequestDto: JoinRequestDtoBuilder;
   RemovePlayerDTO: RemovePlayerDtoBuilder;
-  Join: JoinBuilder;
   ClanRole: ClanRoleBuilder;
   CreateClanRoleDto: CreateClanRoleDtoBuilder;
   UpdateClanRoleDto: UpdateClanRoleDtoBuilder;
@@ -43,12 +43,12 @@ export default class ClanBuilderFactory {
         return new UpdateClanDtoBuilder() as BuilderMap[T];
       case 'Clan':
         return new ClanBuilder() as BuilderMap[T];
+      case 'ClanDto':
+        return new ClanDtoBuilder() as BuilderMap[T];
       case 'JoinRequestDto':
         return new JoinRequestDtoBuilder() as BuilderMap[T];
       case 'RemovePlayerDTO':
         return new RemovePlayerDtoBuilder() as BuilderMap[T];
-      case 'Join':
-        return new JoinBuilder() as BuilderMap[T];
       case 'ClanRole':
         return new ClanRoleBuilder() as BuilderMap[T];
       case 'CreateClanRoleDto':

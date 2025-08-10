@@ -13,7 +13,6 @@ import {
 import { CreateClanDto } from './dto/createClan.dto';
 import { UpdateClanDto } from './dto/updateClan.dto';
 import { ClanDto } from './dto/clan.dto';
-import { BasicPOST } from '../common/base/decorator/BasicPOST.decorator';
 import { _idDto } from '../common/dto/_id.dto';
 import { ModelName } from '../common/enum/modelName.enum';
 import { Authorize } from '../authorization/decorator/Authorize';
@@ -49,6 +48,8 @@ import ClanItemsDto from './dto/clanItems.dto';
 import { ApiExtraModels } from '@nestjs/swagger';
 import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { ClanChatService } from '../chat/service/clanChat.service';
+import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
+import { PasswordGenerator } from '../common/function/passwordGenerator';
 
 @Controller('clan')
 export class ClanController {
@@ -59,10 +60,11 @@ export class ClanController {
     private readonly itemService: ItemService,
     private readonly playerService: PlayerService,
     private readonly clanChatService: ClanChatService,
+    private readonly passwordGenerator: PasswordGenerator,
   ) {}
 
   /**
-   * Create a Clan
+   * Create a new Clan
    *
    * @remarks The creator of the Clan becomes its admin.
    *
@@ -208,6 +210,13 @@ export class ClanController {
           }),
         ],
       ];
+    if (
+      typeof body.isOpen === 'boolean' &&
+      body.isOpen === false &&
+      !body.password
+    ) {
+      body.password = this.passwordGenerator.generatePassword('fi');
+    }
     const [, errors] = await this.service.updateOneById(body);
     if (errors) return [null, errors];
   }
@@ -252,11 +261,18 @@ export class ClanController {
     },
     errors: [400, 401, 403, 404],
   })
+  @UniformResponse()
+  @SwaggerTags('Release on 13.07.2025', 'Clan')
   @Post('join')
-  @Authorize({ action: Action.create, subject: JoinDto })
-  @BasicPOST(JoinDto)
-  public async createJoin(@Body() body: JoinRequestDto) {
-    return this.joinService.handleJoinRequest(body);
+  public async createJoin(
+    @Body() body: JoinRequestDto,
+    @LoggedUser() user: User,
+  ) {
+    return this.joinService.handleJoinRequest(
+      body.clan_id,
+      user.player_id,
+      body.password,
+    );
   }
 
   /**

@@ -50,6 +50,11 @@ export default class CreateClanDtoBuilder
     return this;
   }
 
+  setPassword(password: string) {
+    this.base.password = password;
+    return this;
+  }
+
   setAgeRange(ageRange: AgeRange) {
     this.base.ageRange = ageRange;
     return this;

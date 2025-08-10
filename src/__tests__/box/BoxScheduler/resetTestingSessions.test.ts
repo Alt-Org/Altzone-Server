@@ -116,14 +116,8 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
       .build();
     const testerPlayerResp2 = await playerModel.create(testerPlayer2);
     testerPlayer2._id = testerPlayerResp2._id;
-    const tester1 = testerBuilder
-      .setProfileId(new ObjectId(testerProfile1._id))
-      .setPlayerId(new ObjectId(testerPlayer1._id))
-      .build();
-    const tester2 = testerBuilder
-      .setProfileId(new ObjectId(testerProfile2._id))
-      .setPlayerId(new ObjectId(testerPlayer2._id))
-      .build();
+    testerBuilder.build();
+    testerBuilder.build();
 
     boxToDelete = boxBuilder
       .setAdminPassword(existingAdmin.password)
@@ -145,7 +139,6 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
         new ObjectId(existingStock1._id),
         new ObjectId(existingStock2._id),
       ])
-      .setTesters([tester1, tester2])
       .setBoxRemovalTime(new Date().getTime())
       .setSessionResetTime(new Date().getTime() + 10000)
       .build();
@@ -187,14 +180,6 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
       const stock = await stockModel.findById(stockId);
       expect(stock).toBeNull();
     }
-
-    for (const tester of boxToDelete.testers) {
-      const testerProfile = await profileModel.findById(tester.profile_id);
-      expect(testerProfile).toBeNull();
-
-      const testerPlayer = await playerModel.findById(tester.player_id);
-      expect(testerPlayer).toBeNull();
-    }
   });
 
   it('Should not delete boxes with not expired removal time', async () => {
@@ -225,14 +210,6 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
     expect(boxToKeep.stock_ids.map((id) => id.toString())).toEqual(
       boxToDelete.stock_ids.map((id) => id.toString()),
     );
-    expect(
-      boxToKeep.testers.map((tester) => tester.profile_id.toString()),
-    ).toEqual(
-      boxToDelete.testers.map((tester) => tester.profile_id.toString()),
-    );
-    expect(
-      boxToKeep.testers.map((tester) => tester.player_id.toString()),
-    ).toEqual(boxToDelete.testers.map((tester) => tester.player_id.toString()));
   });
 
   it('Should reset the box with expired reset time', async () => {
@@ -270,16 +247,6 @@ describe('BoxScheduler.resetTestingSessions() test suite', () => {
     );
     expect(boxToReset.stock_ids.map((id) => id.toString())).not.toEqual(
       boxToDelete.stock_ids.map((id) => id.toString()),
-    );
-    expect(
-      boxToReset.testers.map((tester) => tester.profile_id.toString()),
-    ).not.toEqual(
-      boxToDelete.testers.map((tester) => tester.profile_id.toString()),
-    );
-    expect(
-      boxToReset.testers.map((tester) => tester.player_id.toString()),
-    ).not.toEqual(
-      boxToDelete.testers.map((tester) => tester.player_id.toString()),
     );
   });
 });

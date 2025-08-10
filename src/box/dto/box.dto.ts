@@ -2,7 +2,6 @@ import { Expose, Type } from 'class-transformer';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { SessionStage } from '../enum/SessionStage.enum';
 import { DailyTask } from '../../dailyTasks/dailyTasks.schema';
-import { TesterDto } from './tester.dto';
 
 export class BoxDto {
   /**
@@ -101,13 +100,6 @@ export class BoxDto {
    */
   @Expose()
   stock_ids: string[];
-
-  /**
-   * List of testers currently connected to this session
-   */
-  @Expose()
-  @Type(() => TesterDto)
-  testers: TesterDto[];
 
   /**
    * List of IDs of users who claimed accounts during this session

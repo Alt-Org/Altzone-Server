@@ -84,6 +84,11 @@ declare global {
       toBeSE_WRONG_ENUM(): R;
 
       /**
+       * Check that object is a ServiceError with reason NOT_AUTHORIZED.
+       */
+      toBeSE_NOT_AUTHORIZED(): R;
+
+      /**
        * Check that object has a provided ServiceError reason field.
        * @param expected Expected SEReason
        */
@@ -184,6 +189,12 @@ declare global {
        * containing at least one ServiceError with reason WRONG_ENUM
        */
       toContainSE_WRONG_ENUM(): R;
+
+      /**
+       * Check that it is an array
+       * containing at least one ServiceError with reason NOT_AUTHORIZED
+       */
+      toContainSE_NOT_AUTHORIZED(): R;
 
       /**
        * Check that it is an array

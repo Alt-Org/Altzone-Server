@@ -33,6 +33,8 @@ import { toBeSE_REQUIRED } from './matchers/serviceError/individual/toBeSE_REQUI
 import { toBeSE_UNEXPECTED } from './matchers/serviceError/individual/toBeSE_UNEXPECTED';
 import { toBeSE_VALIDATION } from './matchers/serviceError/individual/toBeSE_VALIDATION';
 import { toBeSE_WRONG_ENUM } from './matchers/serviceError/individual/toBeSE_WRONG_ENUM';
+import { toContainSE_NOT_AUTHORIZED } from './matchers/serviceError/array/toContainSE_NOT_AUTHORIZED';
+import { toBeSE_NOT_AUTHORIZED } from './matchers/serviceError/individual/toBeSE_NOT_AUTHORIZED';
 
 expect.extend({ toContainSE_LESS_THAN_MIN });
 expect.extend({ toContainSE_MISCONFIGURED });
@@ -50,6 +52,7 @@ expect.extend({ toContainSE_REQUIRED });
 expect.extend({ toContainSE_UNEXPECTED });
 expect.extend({ toContainSE_VALIDATION });
 expect.extend({ toContainSE_WRONG_ENUM });
+expect.extend({ toContainSE_NOT_AUTHORIZED });
 expect.extend({ toContainSE });
 expect.extend({ toEqualSE });
 
@@ -69,4 +72,5 @@ expect.extend({ toBeSE_REQUIRED });
 expect.extend({ toBeSE_UNEXPECTED });
 expect.extend({ toBeSE_VALIDATION });
 expect.extend({ toBeSE_WRONG_ENUM });
+expect.extend({ toBeSE_NOT_AUTHORIZED });
 expect.extend({ toBeSE });

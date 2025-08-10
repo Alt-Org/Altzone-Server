@@ -1,11 +1,10 @@
 import { SessionStage } from '../../../../box/enum/SessionStage.enum';
 import { Box } from '../../../../box/schemas/box.schema';
 import { ObjectId } from 'mongodb';
-import { Tester } from '../../../../box/schemas/tester.schema';
 import { PredefinedDailyTask } from '../../../../box/dailyTask/predefinedDailyTask.schema';
 
 export default class BoxBuilder {
-  private readonly base: Partial<Box> = {
+  private readonly base: Box = {
     adminPassword: 'defaultAdminPassword',
     sessionStage: SessionStage.PREPARING,
     testersSharedPassword: undefined,
@@ -14,10 +13,11 @@ export default class BoxBuilder {
     adminProfile_id: undefined,
     adminPlayer_id: undefined,
     clan_ids: [],
+    testersAmount: 0,
+    testerAccountsClaimed: 0,
     soulHome_ids: [],
     room_ids: [],
     stock_ids: [],
-    testers: [],
     accountClaimersIds: [],
     dailyTasks: [],
     _id: undefined,
@@ -62,8 +62,18 @@ export default class BoxBuilder {
     return this;
   }
 
-  setClanIds(clanIds: ObjectId[]) {
-    this.base.clan_ids = clanIds;
+  setClanIds(clanIds: ObjectId[] | string[]) {
+    this.base.clan_ids = clanIds as ObjectId[];
+    return this;
+  }
+
+  setTestersAmount(testersAmount: number) {
+    this.base.testersAmount = testersAmount;
+    return this;
+  }
+
+  setTesterAccountsClaimed(testerAccountsClaimed: number) {
+    this.base.testerAccountsClaimed = testerAccountsClaimed;
     return this;
   }
 
@@ -79,11 +89,6 @@ export default class BoxBuilder {
 
   setStockIds(stockIds: ObjectId[]) {
     this.base.stock_ids = stockIds;
-    return this;
-  }
-
-  setTesters(testers: Tester[]) {
-    this.base.testers = testers;
     return this;
   }
 

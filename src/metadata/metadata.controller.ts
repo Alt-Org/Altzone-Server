@@ -4,7 +4,6 @@ import ApiResponseDescription from '../common/swagger/response/ApiResponseDescri
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
 import { GameMetadataDto } from './dto/gameMetadata.dto';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('metadata')
 export class MetadataController {
@@ -20,7 +19,6 @@ export class MetadataController {
       dto: GameMetadataDto,
     },
   })
-  @SwaggerTags('Release on 29.06.2025', 'Metadata')
   @NoAuth()
   @UniformResponse()
   @Get('game')

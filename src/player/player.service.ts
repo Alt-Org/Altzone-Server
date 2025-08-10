@@ -41,7 +41,7 @@ export class PlayerService
 
   public readonly refsInModel: ModelName[];
   public readonly modelName: ModelName;
-  private readonly basicService: BasicService;
+  public readonly basicService: BasicService;
 
   /**
    * Retrieves a player by their unique identifier.

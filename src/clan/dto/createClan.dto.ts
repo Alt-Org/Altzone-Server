@@ -65,6 +65,14 @@ export class CreateClanDto {
   isOpen?: boolean;
 
   /**
+   * Password used for joining a closed clan.
+   * @example "p4sswrd!"
+   */
+  @IsString()
+  @IsOptional()
+  password?: string;
+
+  /**
    * Optional age range preference for clan members.
    * @example "ALL"
    */

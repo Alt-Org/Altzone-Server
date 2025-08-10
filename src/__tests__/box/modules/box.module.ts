@@ -9,10 +9,11 @@ import { BoxHelper } from '../../../box/util/boxHelper';
 import BoxCreator from '../../../box/boxCreator';
 import BoxAuthHandler from '../../../box/auth/BoxAuthHandler';
 import { DailyTaskService } from '../../../box/dailyTask/dailyTask.service';
-import { PasswordGenerator } from '../../../common/function/passwordGenerator';
-import { TesterService } from '../../../box/tester/tester.service';
 import SessionStarterService from '../../../box/sessionStarter/sessionStarter.service';
 import { BoxScheduler } from '../../../box/box.scheduler';
+import { TesterAccountService } from '../../../box/accountClaimer/testerAccount.service';
+import AccountClaimerService from '../../../box/accountClaimer/accountClaimer.service';
+import UniqueFieldGenerator from '../../../box/util/UniqueFieldGenerator';
 
 export default class BoxModule {
   private constructor() {}
@@ -55,14 +56,14 @@ export default class BoxModule {
     return module.resolve(DailyTaskService);
   }
 
-  static async getPasswordGenerator() {
+  static async getAccountClaimerService() {
     const module = await BoxCommonModule.getModule();
-    return module.resolve(PasswordGenerator);
+    return module.resolve(AccountClaimerService);
   }
 
-  static async getTesterService() {
+  static async getTesterAccountService() {
     const module = await BoxCommonModule.getModule();
-    return module.resolve(TesterService);
+    return module.resolve(TesterAccountService);
   }
 
   static async getSessionStarterService() {
@@ -73,5 +74,10 @@ export default class BoxModule {
   static async getBoxScheduler() {
     const module = await BoxCommonModule.getModule();
     return module.resolve(BoxScheduler);
+  }
+
+  static async getUniqueFieldGenerator() {
+    const module = await BoxCommonModule.getModule();
+    return module.resolve(UniqueFieldGenerator);
   }
 }

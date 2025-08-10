@@ -10,7 +10,6 @@ import { clearDBRespDefaultFields } from '../../../test_utils/util/removeDBDefau
 import BoxBuilderFactory from '../../../box/data/boxBuilderFactory';
 import { ObjectId } from 'mongodb';
 import { Box } from '../../../../box/schemas/box.schema';
-import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
 import BoxAuthService from '../../../../auth/box/BoxAuthService';
 import AuthModule from '../../modules/auth.module';
 
@@ -150,33 +149,6 @@ describe('BoxAuthService.signIn() test suite', () => {
       player_id: createdPlayer._id.toString(),
       box_id: existingBox._id.toString(),
       groupAdmin: true,
-    };
-
-    expect(signAsyncSpy).toHaveBeenCalledWith(expectedPayload);
-  });
-
-  it('Should call signAsync() with payload containing groupAdmin set to false if the profile is not group admin', async () => {
-    const player = playerBuilder.setProfileId(existingAdminProfile._id).build();
-    const createdPlayer = await playerModel.create(player);
-    await boxModel.findByIdAndUpdate(existingBox._id, {
-      adminProfile_id: new ObjectId(getNonExisting_id()),
-      adminPlayer_id: new ObjectId(getNonExisting_id()),
-      testers: [
-        {
-          profile_id: existingAdminProfile._id,
-          player_id: createdPlayer._id,
-          isClaimed: true,
-        },
-      ],
-    });
-
-    await boxAuthService.signIn(validUsername, validPassword);
-
-    const expectedPayload = {
-      profile_id: existingAdminProfile._id.toString(),
-      player_id: createdPlayer._id.toString(),
-      box_id: existingBox._id.toString(),
-      groupAdmin: false,
     };
 
     expect(signAsyncSpy).toHaveBeenCalledWith(expectedPayload);
