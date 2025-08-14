@@ -1,4 +1,4 @@
-import { IsMongoId, IsString } from 'class-validator';
+import { IsInt, IsMongoId, IsString } from 'class-validator';
 import AddType from '../../common/base/decorator/AddType.decorator';
 
 @AddType('ItemIdDto')
@@ -11,4 +11,12 @@ export class ItemIdDto {
   @IsString()
   @IsMongoId()
   item_id: string;
+
+  /**
+     * Price of the item in coins
+     *
+     * @example 300
+     */
+    @IsInt()
+    price: number;
 }
