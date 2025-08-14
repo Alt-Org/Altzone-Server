@@ -13,10 +13,10 @@ export class ItemIdDto {
   item_id: string;
 
   /**
-     * Price of the item in coins
-     *
-     * @example 300
-     */
-    @IsInt()
-    price: number;
+   * Price of the item in coins
+   *
+   * @example 300
+   */
+  @IsInt()
+  price: number;
 }
