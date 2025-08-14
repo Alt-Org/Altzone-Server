@@ -94,11 +94,7 @@ export class FleaMarketController {
         message: 'The item does not belong to the clan of logged in player',
       });
 
-    await this.service.handleSellItem(
-      itemIdDto,
-      clanId,
-      user.player_id,
-    );
+    await this.service.handleSellItem(itemIdDto, clanId, user.player_id);
   }
 
   /**

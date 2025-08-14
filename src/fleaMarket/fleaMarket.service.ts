@@ -126,7 +126,9 @@ export class FleaMarketService {
     const session = await this.connection.startSession();
     session.startTransaction();
 
-    const [item, itemErrors] = await this.itemService.readOneById(itemIdDto.item_id);
+    const [item, itemErrors] = await this.itemService.readOneById(
+      itemIdDto.item_id,
+    );
     if (itemErrors) return await cancelTransaction(session, itemErrors);
     if (!item.stock_id)
       return await cancelTransaction(session, [itemNotInStockError]);
