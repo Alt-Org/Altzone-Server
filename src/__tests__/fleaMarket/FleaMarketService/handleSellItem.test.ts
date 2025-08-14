@@ -72,7 +72,9 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   });
 
   it('Should process selling item and add voting check job', async () => {
-    const newItem = fleaMarketItemBuilder.setName(itemIdDto.item_id as ItemName).build();
+    const newItem = fleaMarketItemBuilder
+      .setName(itemIdDto.item_id as ItemName)
+      .build();
 
     jest
       .spyOn(helperService, 'itemToCreateFleaMarketItem')

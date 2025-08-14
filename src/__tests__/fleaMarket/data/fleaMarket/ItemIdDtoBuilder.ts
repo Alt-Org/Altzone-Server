@@ -18,6 +18,4 @@ export default class ItemIdtoBuilder {
     this.base.price = price;
     return this;
   }
-
-  
 }
