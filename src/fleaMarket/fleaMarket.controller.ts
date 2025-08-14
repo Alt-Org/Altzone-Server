@@ -95,7 +95,7 @@ export class FleaMarketController {
       });
 
     await this.service.handleSellItem(
-      itemIdDto.item_id,
+      itemIdDto,
       clanId,
       user.player_id,
     );

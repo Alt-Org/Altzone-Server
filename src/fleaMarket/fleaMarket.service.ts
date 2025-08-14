@@ -29,6 +29,7 @@ import { PlayerDto } from '../player/dto/player.dto';
 import { VotingQueue } from '../voting/voting.queue';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 import { cancelTransaction } from '../common/function/cancelTransaction';
+import { ItemIdDto } from './dto/itemId.dto';
 
 @Injectable()
 export class FleaMarketService {
@@ -113,19 +114,19 @@ export class FleaMarketService {
   /**
    * Handles the process of moving an item to the flea market and starting a voting process.
    *
-   * @param itemId - The ID of the item to be moved.
+   * @param itemIdDto - The Dto of the item to be moved.
    * @param clanId - The ID of the clan to which the item belongs to.
    * @param playerId - The ID of the player starting the process.
    */
   async handleSellItem(
-    itemId: string,
+    itemIdDto: ItemIdDto,
     clanId: string,
     playerId: string,
   ): Promise<IServiceReturn<boolean>> {
     const session = await this.connection.startSession();
     session.startTransaction();
 
-    const [item, itemErrors] = await this.itemService.readOneById(itemId);
+    const [item, itemErrors] = await this.itemService.readOneById(itemIdDto.item_id);
     if (itemErrors) return await cancelTransaction(session, itemErrors);
     if (!item.stock_id)
       return await cancelTransaction(session, [itemNotInStockError]);
@@ -140,7 +141,7 @@ export class FleaMarketService {
     );
     const [createdItem, err] = await this.moveItemToFleaMarket(
       newItem,
-      itemId,
+      itemIdDto.item_id,
       session,
     );
     if (err) return await cancelTransaction(session, err);

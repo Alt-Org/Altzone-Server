@@ -1,16 +1,19 @@
+import CreateFleaMarketItemDtoBuilder from './fleaMarket/CreateFleaMarketItemDtoBuilder';
 import FleaMarketItemBuilder from './fleaMarket/FleaMarketItemBuilder';
 import FleaMarketItemDtoBuilder from './fleaMarket/FleaMarketItemDtoBuilder';
-import CreateFleaMarketItemDtoBuilder from './fleaMarket/CreateFleaMarketItemDtoBuilder';
+import ItemIdtoBuilder from './fleaMarket/ItemIdDtoBuilder';
 
 type BuilderName =
   | 'FleaMarketItem'
   | 'FleaMarketItemDto'
-  | 'CreateFleaMarketItemDto';
+  | 'CreateFleaMarketItemDto'
+  | 'ItemIdDto';
 
 type BuilderMap = {
   FleaMarketItem: FleaMarketItemBuilder;
   FleaMarketItemDto: FleaMarketItemDtoBuilder;
   CreateFleaMarketItemDto: CreateFleaMarketItemDtoBuilder;
+  ItemIdDto: ItemIdtoBuilder;
 };
 
 export default class FleaMarketBuilderFactory {
@@ -22,6 +25,8 @@ export default class FleaMarketBuilderFactory {
         return new FleaMarketItemDtoBuilder() as BuilderMap[T];
       case 'CreateFleaMarketItemDto':
         return new CreateFleaMarketItemDtoBuilder() as BuilderMap[T];
+      case 'ItemIdDto':
+        return new ItemIdtoBuilder() as BuilderMap[T];
       default:
         throw new Error(`Unknown builder name: ${builderName}`);
     }
