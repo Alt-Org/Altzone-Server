@@ -1,8 +1,8 @@
 import { IsInt, IsMongoId, IsString } from 'class-validator';
 import AddType from '../../common/base/decorator/AddType.decorator';
 
-@AddType('ItemIdDto')
-export class ItemIdDto {
+@AddType('SellFleaMarketItemDto')
+export class SellFleaMarketItemDto {
   /**
    * ID of the item to be sold / bought
    *

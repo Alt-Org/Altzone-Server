@@ -26,7 +26,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   let sessionMock: any;
 
   const itemDtoBuilder = ClanInventoryBuilderFactory.getBuilder('ItemDto');
-  const itemIdDtoBuilder = FleaMarketBuilderFactory.getBuilder('ItemIdDto');
+  const itemIdDtoBuilder = FleaMarketBuilderFactory.getBuilder('SellFleaMarketItemDto');
 
   const fleaMarketItemBuilder =
     FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto');
@@ -79,6 +79,10 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     jest
       .spyOn(helperService, 'itemToCreateFleaMarketItem')
       .mockResolvedValue(newItem);
+
+    jest
+      .spyOn(fleaMarketService.basicService, 'updateOneById')
+      .mockResolvedValue([null, null]);
 
     jest
       .spyOn(votingService, 'startVoting')
