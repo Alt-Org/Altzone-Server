@@ -26,7 +26,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   let sessionMock: any;
 
   const itemDtoBuilder = ClanInventoryBuilderFactory.getBuilder('ItemDto');
-  const itemIdDtoBuilder = FleaMarketBuilderFactory.getBuilder(
+  const sellFleaMarketItemDtoBuilder = FleaMarketBuilderFactory.getBuilder(
     'SellFleaMarketItemDto',
   );
 
@@ -34,7 +34,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto');
 
   const itemDto = itemDtoBuilder.setStockId('stock123').build();
-  const itemIdDto = itemIdDtoBuilder.setItemId('item').build();
+  const sellFleaMarketItemDto = sellFleaMarketItemDtoBuilder.setItemId('item').build();
   const createdFleaMarketItemDto = fleaMarketItemBuilder.build();
   const PlayerDtoBuilder = PlayerBuilderFactory.getBuilder('PlayerDto');
 
@@ -75,7 +75,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
 
   it('Should process selling item and add voting check job', async () => {
     const newItem = fleaMarketItemBuilder
-      .setName(itemIdDto.item_id as ItemName)
+      .setName(sellFleaMarketItemDto.item_id as ItemName)
       .build();
 
     jest
@@ -93,15 +93,15 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       .spyOn(votingQueue, 'addVotingCheckJob')
       .mockImplementation();
 
-    await fleaMarketService.handleSellItem(itemIdDto, clanId, playerId);
+    await fleaMarketService.handleSellItem(sellFleaMarketItemDto, clanId, playerId);
 
-    expect(itemService.readOneById).toHaveBeenCalledWith(itemIdDto.item_id);
+    expect(itemService.readOneById).toHaveBeenCalledWith(sellFleaMarketItemDto.item_id);
     expect(playerService.getPlayerById).toHaveBeenCalledWith(playerId);
     expect(helperService.itemToCreateFleaMarketItem).toHaveBeenCalledWith(
       itemDto,
       clanId,
     );
-    expect(itemService.deleteOneById).toHaveBeenCalledWith(itemIdDto.item_id);
+    expect(itemService.deleteOneById).toHaveBeenCalledWith(sellFleaMarketItemDto.item_id);
     expect(sessionMock.startTransaction).toHaveBeenCalled();
     expect(sessionMock.commitTransaction).toHaveBeenCalled();
     expect(sessionMock.endSession).toHaveBeenCalled();
@@ -128,7 +128,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     jest.spyOn(itemService, 'readOneById').mockResolvedValue([null, error]);
 
     const [ret, err] = await fleaMarketService.handleSellItem(
-      itemIdDto,
+      sellFleaMarketItemDto,
       clanId,
       playerId,
     );
@@ -142,7 +142,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     jest.spyOn(itemService, 'readOneById').mockResolvedValue([itemDto2, null]);
 
     const [ret, err] = await fleaMarketService.handleSellItem(
-      itemIdDto,
+      sellFleaMarketItemDto,
       clanId,
       playerId,
     );
@@ -154,7 +154,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     jest.spyOn(playerService, 'getPlayerById').mockResolvedValue([null, error]);
 
     const [ret, err] = await fleaMarketService.handleSellItem(
-      itemIdDto,
+      sellFleaMarketItemDto,
       clanId,
       playerId,
     );
@@ -166,7 +166,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     jest.spyOn(votingService, 'startVoting').mockResolvedValue([null, error]);
 
     const [ret, err] = await fleaMarketService.handleSellItem(
-      itemIdDto,
+      sellFleaMarketItemDto,
       clanId,
       playerId,
     );
@@ -178,7 +178,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     jest.spyOn(fleaMarketService, 'createOne').mockResolvedValue([null, error]);
 
     const [ret, err] = await fleaMarketService.handleSellItem(
-      itemIdDto,
+      sellFleaMarketItemDto,
       clanId,
       playerId,
     );
@@ -190,7 +190,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     jest.spyOn(itemService, 'deleteOneById').mockResolvedValue([null, error]);
 
     const [ret, err] = await fleaMarketService.handleSellItem(
-      itemIdDto,
+      sellFleaMarketItemDto,
       clanId,
       playerId,
     );
@@ -209,7 +209,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     });
 
     try {
-      await fleaMarketService.handleSellItem(itemIdDto, clanId, playerId);
+      await fleaMarketService.handleSellItem(sellFleaMarketItemDto, clanId, playerId);
       fail('Expected error was not thrown');
     } catch (err) {
       expect(err).toBe(error);
@@ -226,7 +226,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       });
 
     try {
-      await fleaMarketService.handleSellItem(itemIdDto, clanId, playerId);
+      await fleaMarketService.handleSellItem(sellFleaMarketItemDto, clanId, playerId);
       fail('Expected error was not thrown');
     } catch (err) {
       expect(err).toBe(error);
