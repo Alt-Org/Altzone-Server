@@ -26,7 +26,9 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   let sessionMock: any;
 
   const itemDtoBuilder = ClanInventoryBuilderFactory.getBuilder('ItemDto');
-  const itemIdDtoBuilder = FleaMarketBuilderFactory.getBuilder('SellFleaMarketItemDto');
+  const itemIdDtoBuilder = FleaMarketBuilderFactory.getBuilder(
+    'SellFleaMarketItemDto',
+  );
 
   const fleaMarketItemBuilder =
     FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto');

@@ -82,7 +82,10 @@ export class FleaMarketController {
   @Post('sell')
   @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
-  async sell(@Body() sellFleaMarketItemDto: SellFleaMarketItemDto, @LoggedUser() user: User) {
+  async sell(
+    @Body() sellFleaMarketItemDto: SellFleaMarketItemDto,
+    @LoggedUser() user: User,
+  ) {
     const clanId = await this.service.getClanId(
       sellFleaMarketItemDto.item_id,
       user.player_id,
@@ -94,7 +97,11 @@ export class FleaMarketController {
         message: 'The item does not belong to the clan of logged in player',
       });
 
-    await this.service.handleSellItem(sellFleaMarketItemDto, clanId, user.player_id);
+    await this.service.handleSellItem(
+      sellFleaMarketItemDto,
+      clanId,
+      user.player_id,
+    );
   }
 
   /**
@@ -118,7 +125,10 @@ export class FleaMarketController {
   @Post('buy')
   @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
-  async buy(@Body() itemIdDto: SellFleaMarketItemDto, @LoggedUser() user: User) {
+  async buy(
+    @Body() itemIdDto: SellFleaMarketItemDto,
+    @LoggedUser() user: User,
+  ) {
     await this.playerService.readOneById(user.player_id);
 
     const clanId = await this.playerService.getPlayerClanId(user.player_id);
