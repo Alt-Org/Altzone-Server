@@ -158,7 +158,7 @@ export class FleaMarketService {
 
     const [_, updateErrors] = await this.basicService.updateOneById(
       voting.fleaMarketItem_id,
-      { price: itemIdDto.price},
+      { price: itemIdDto.price },
     );
 
     if (updateErrors) return await cancelTransaction(session, updateErrors);
