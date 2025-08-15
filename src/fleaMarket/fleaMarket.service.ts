@@ -156,6 +156,13 @@ export class FleaMarketService {
     });
     if (errors) return await cancelTransaction(session, errors);
 
+    const [_, updateErrors] = await this.basicService.updateOneById(
+      voting.fleaMarketItem_id,
+      { price: itemIdDto.price},
+    );
+
+    if (updateErrors) return await cancelTransaction(session, updateErrors);
+
     await this.votingQueue.addVotingCheckJob({
       voting,
       fleaMarketItemId: createdItem._id.toString(),
