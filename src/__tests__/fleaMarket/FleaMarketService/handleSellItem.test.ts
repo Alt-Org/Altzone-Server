@@ -34,7 +34,9 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto');
 
   const itemDto = itemDtoBuilder.setStockId('stock123').build();
-  const sellFleaMarketItemDto = sellFleaMarketItemDtoBuilder.setItemId('item').build();
+  const sellFleaMarketItemDto = sellFleaMarketItemDtoBuilder
+    .setItemId('item')
+    .build();
   const createdFleaMarketItemDto = fleaMarketItemBuilder.build();
   const PlayerDtoBuilder = PlayerBuilderFactory.getBuilder('PlayerDto');
 
@@ -93,15 +95,23 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       .spyOn(votingQueue, 'addVotingCheckJob')
       .mockImplementation();
 
-    await fleaMarketService.handleSellItem(sellFleaMarketItemDto, clanId, playerId);
+    await fleaMarketService.handleSellItem(
+      sellFleaMarketItemDto,
+      clanId,
+      playerId,
+    );
 
-    expect(itemService.readOneById).toHaveBeenCalledWith(sellFleaMarketItemDto.item_id);
+    expect(itemService.readOneById).toHaveBeenCalledWith(
+      sellFleaMarketItemDto.item_id,
+    );
     expect(playerService.getPlayerById).toHaveBeenCalledWith(playerId);
     expect(helperService.itemToCreateFleaMarketItem).toHaveBeenCalledWith(
       itemDto,
       clanId,
     );
-    expect(itemService.deleteOneById).toHaveBeenCalledWith(sellFleaMarketItemDto.item_id);
+    expect(itemService.deleteOneById).toHaveBeenCalledWith(
+      sellFleaMarketItemDto.item_id,
+    );
     expect(sessionMock.startTransaction).toHaveBeenCalled();
     expect(sessionMock.commitTransaction).toHaveBeenCalled();
     expect(sessionMock.endSession).toHaveBeenCalled();
@@ -209,7 +219,11 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     });
 
     try {
-      await fleaMarketService.handleSellItem(sellFleaMarketItemDto, clanId, playerId);
+      await fleaMarketService.handleSellItem(
+        sellFleaMarketItemDto,
+        clanId,
+        playerId,
+      );
       fail('Expected error was not thrown');
     } catch (err) {
       expect(err).toBe(error);
@@ -226,7 +240,11 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       });
 
     try {
-      await fleaMarketService.handleSellItem(sellFleaMarketItemDto, clanId, playerId);
+      await fleaMarketService.handleSellItem(
+        sellFleaMarketItemDto,
+        clanId,
+        playerId,
+      );
       fail('Expected error was not thrown');
     } catch (err) {
       expect(err).toBe(error);
