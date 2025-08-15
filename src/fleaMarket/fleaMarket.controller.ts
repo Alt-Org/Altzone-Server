@@ -16,6 +16,7 @@ import { SellFleaMarketItemDto } from './dto/sellFleaMarketItem.dto';
 import HasClanRights from '../clan/role/decorator/guard/HasClanRights';
 import { ClanBasicRight } from '../clan/role/enum/clanBasicRight.enum';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
+import { ItemIdDto } from './dto/itemId.dto';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
@@ -125,10 +126,7 @@ export class FleaMarketController {
   @Post('buy')
   @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
-  async buy(
-    @Body() itemIdDto: SellFleaMarketItemDto,
-    @LoggedUser() user: User,
-  ) {
+  async buy(@Body() itemIdDto: ItemIdDto, @LoggedUser() user: User) {
     await this.playerService.readOneById(user.player_id);
 
     const clanId = await this.playerService.getPlayerClanId(user.player_id);
