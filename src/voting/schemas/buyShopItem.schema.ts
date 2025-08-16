@@ -1,17 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ItemName } from '../../clanInventory/item/enum/itemName.enum';
-import { Organizer } from './organizer.schema';
-import { VotingType } from '../enum/VotingType.enum';
-import { Vote } from './vote.schema';
+
+import { Voting } from './voting.schema';
 
 @Schema()
-export class BuyClanShopItemVoting {
-  organizer: Organizer;
-  endsOn: Date;
-  type: VotingType;
-  minPercentage: number;
-  votes: Vote[];
-
+export class BuyClanShopItemVoting extends Voting {
   @Prop({ type: String, enum: ItemName })
   shopItemName: ItemName;
 }
@@ -19,3 +12,4 @@ export class BuyClanShopItemVoting {
 export const BuyClanShopItemVotingSchema = SchemaFactory.createForClass(
   BuyClanShopItemVoting,
 );
+BuyClanShopItemVotingSchema.remove('type');

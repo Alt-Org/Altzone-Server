@@ -47,10 +47,3 @@ VotingSchema.virtual(ModelName.CLAN, {
   foreignField: '_id',
   justOne: true,
 });
-
-VotingSchema.virtual(ModelName.FLEA_MARKET_ITEM, {
-  ref: ModelName.FLEA_MARKET_ITEM,
-  localField: 'fleaMarketItem_id',
-  foreignField: '_id',
-  justOne: true,
-});
