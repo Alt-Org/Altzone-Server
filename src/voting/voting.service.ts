@@ -86,7 +86,7 @@ export class VotingService {
    *   voting type, clan ID, item details, role settings, and voting end time.
    * @returns The constructed voting data object to be used for creating a voting entry.
    */
-  private buildVotingData(params: StartVotingParams): CreateVotingDto {
+  private buildVotingData(params: StartVotingParams): Partial<CreateVotingDto> {
     const {
       voterPlayer,
       type,
@@ -98,7 +98,7 @@ export class VotingService {
     } = params;
 
     const organizer = {
-      player_id: (voterPlayer._id as any).toString(),
+      player_id: voterPlayer?._id.toString(),
       clan_id: clanId?.toString(),
     };
 
@@ -107,7 +107,7 @@ export class VotingService {
       type,
       endsOn,
       votes: [{ player_id: organizer.player_id, choice: VoteChoice.YES }],
-    } as any;
+    } as Partial<CreateVotingDto>;
 
     switch (type) {
       case VotingType.FLEA_MARKET_BUY_ITEM:
@@ -115,7 +115,7 @@ export class VotingService {
         base.fleaMarketItem_id = fleaMarketItem._id.toString();
         break;
       case VotingType.SHOP_BUY_ITEM:
-        base.shopItem = shopItem;
+        base.shopItemName = shopItem;
         break;
       case VotingType.SET_CLAN_ROLE:
         base.setClanRole = {
