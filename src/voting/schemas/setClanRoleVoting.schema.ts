@@ -1,20 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { SetClanRole, SetClanRoleSchema } from './setClanRole.schema';
-import { Organizer } from './organizer.schema';
-import { VotingType } from '../enum/VotingType.enum';
-import { Vote } from './vote.schema';
+import { Voting } from './voting.schema';
 
 @Schema()
-export class SetClanRoleVoting {
-  organizer: Organizer;
-  endsOn: Date;
-  type: VotingType;
-  minPercentage: number;
-  votes: Vote[];
-
+export class SetClanRoleVoting extends Voting {
   @Prop({ type: SetClanRoleSchema, required: true })
   setClanRole: SetClanRole;
 }
 
 export const SetClanRoleVotingSchema =
   SchemaFactory.createForClass(SetClanRoleVoting);
+SetClanRoleVotingSchema.remove('type');
