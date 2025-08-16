@@ -98,7 +98,7 @@ export class VotingService {
     } = params;
 
     const organizer = {
-      player_id: voterPlayer?._id.toString(),
+      player_id: voterPlayer._id.toString(),
       clan_id: clanId?.toString(),
     };
 
