@@ -1,4 +1,4 @@
-import VotingBuilderFactory from '../data/VotingBuilderFactory';
+import VotingBuilderFactory from '../data/voting/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
 import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultFields';

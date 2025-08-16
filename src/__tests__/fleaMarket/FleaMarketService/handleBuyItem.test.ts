@@ -4,7 +4,7 @@ import { PlayerService } from '../../../player/player.service';
 import FleaMarketBuilderFactory from '../data/fleaMarketBuilderFactory';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import { VotingService } from '../../../voting/voting.service';
-import VotingBuilderFactory from '../../voting/data/VotingBuilderFactory';
+import VotingBuilderFactory from '../../voting/data/voting/VotingBuilderFactory';
 import { VotingQueue } from '../../../voting/voting.queue';
 import { ClanService } from '../../../clan/clan.service';
 import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';

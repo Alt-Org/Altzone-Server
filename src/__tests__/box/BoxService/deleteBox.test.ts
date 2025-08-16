@@ -37,7 +37,7 @@ import CustomCharacterBuilder from '../../player/data/customCharacter/CustomChar
 import ChatMessageBuilder from '../../chat/data/builder/chatMessageBuilder';
 import { GameBuilder } from '../../gameData/data/gameData/GameBuilder';
 import { FeedbackBuilder } from '../../feedback/data/feedback/FeedbackBuilder';
-import VotingBuilderFactory from '../../voting/data/VotingBuilderFactory';
+import VotingBuilderFactory from '../../voting/data/voting/VotingBuilderFactory';
 import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
 import ChatBuilderFactory from '../../chat/data/chatBuilderFactory';
 import GameDataBuilderFactory from '../../gameData/data/gameDataBuilderFactory';

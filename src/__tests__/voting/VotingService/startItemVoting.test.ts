@@ -1,4 +1,4 @@
-import VotingBuilderFactory from '../data/VotingBuilderFactory';
+import VotingBuilderFactory from '../data/voting/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
@@ -34,6 +34,7 @@ describe('VotingService.startItemVoting() test suite', () => {
 
     return votingBuilder
       .setPlayer(player)
+      .setClanId(player.clan_id.toString())
       .setItem(item)
       .setType(VotingType.FLEA_MARKET_SELL_ITEM)
       .setQueue(VotingQueueName.FLEA_MARKET)
@@ -66,6 +67,7 @@ describe('VotingService.startItemVoting() test suite', () => {
 
     const dto = votingBuilder
       .setPlayer(player)
+      .setClanId(player.clan_id)
       .setItem(item)
       .setType(VotingType.FLEA_MARKET_SELL_ITEM)
       .build();
