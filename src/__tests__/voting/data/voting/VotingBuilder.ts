@@ -3,11 +3,9 @@ import { VotingType } from '../../../../voting/enum/VotingType.enum';
 import { ObjectId } from 'mongodb';
 import { Organizer } from '../../../../voting/dto/organizer.dto';
 import { Vote } from '../../../../voting/schemas/vote.schema';
-import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
-import { SetClanRole } from '../../../../voting/schemas/setClanRole.schema';
 
 export class VotingBuilder {
-  private readonly base: Voting = {
+  protected readonly base: Voting = {
     organizer: {
       player_id: new ObjectId().toString(),
       clan_id: new ObjectId().toString(),
@@ -44,21 +42,6 @@ export class VotingBuilder {
 
   setVotes(votes: Vote[]): this {
     this.base.votes = votes;
-    return this;
-  }
-
-  setFleaMarketItemId(id: string): this {
-    this.base.fleaMarketItem_id = id;
-    return this;
-  }
-
-  setShopItem(item: ItemName): this {
-    this.base.shopItem = item;
-    return this;
-  }
-
-  setSetClanRole(role: SetClanRole): this {
-    this.base.setClanRole = role;
     return this;
   }
 }

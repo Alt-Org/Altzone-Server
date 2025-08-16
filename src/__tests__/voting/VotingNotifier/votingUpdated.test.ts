@@ -1,4 +1,4 @@
-import VotingBuilderFactory from '../data/VotingBuilderFactory';
+import VotingBuilderFactory from '../data/voting/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import VotingNotifier from '../../../voting/voting.notifier';
 import { PlayerDto } from '../../../player/dto/player.dto';
