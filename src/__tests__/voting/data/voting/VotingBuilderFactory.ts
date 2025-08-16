@@ -1,9 +1,10 @@
-import CreateVotingDtoBuilder from './voting/createVotingDtoBuilder';
-import CreateStartItemVotingParamsDtoBuilder from './voting/createStartItemVotingParamsDtoBuilder';
-import VotingDtoBuilder from './voting/VotingDtoBuilder';
-import OrganizerBuilder from './organizer/OrganizerBuilder';
-import VoteBuilder from './voting/VoteBuilder';
-import { VotingBuilder } from './voting/VotingBuilder';
+import CreateVotingDtoBuilder from './createVotingDtoBuilder';
+import CreateStartItemVotingParamsDtoBuilder from './createStartItemVotingParamsDtoBuilder';
+import VotingDtoBuilder from './VotingDtoBuilder';
+import OrganizerBuilder from '../organizer/OrganizerBuilder';
+import VoteBuilder from './VoteBuilder';
+import { VotingBuilder } from './VotingBuilder';
+import { FleaMarketItemVotingBuilder } from './FleaMarketItemVotingBuilder';
 
 type BuilderName =
   | 'CreateVotingDto'
@@ -11,6 +12,7 @@ type BuilderName =
   | 'VotingDto'
   | 'Vote'
   | 'Voting'
+  | 'FleaMarketItemVoting'
   | 'Organizer';
 
 type BuilderMap = {
@@ -19,6 +21,7 @@ type BuilderMap = {
   VotingDto: VotingDtoBuilder;
   Vote: VoteBuilder;
   Voting: VotingBuilder;
+  FleaMarketItemVoting: FleaMarketItemVotingBuilder;
   Organizer: OrganizerBuilder;
 };
 
@@ -35,6 +38,8 @@ export default class VotingBuilderFactory {
         return new VoteBuilder() as BuilderMap[T];
       case 'Voting':
         return new VotingBuilder() as BuilderMap[T];
+      case 'FleaMarketItemVoting':
+        return new FleaMarketItemVotingBuilder() as BuilderMap[T];
       case 'Organizer':
         return new OrganizerBuilder() as BuilderMap[T];
       default:
