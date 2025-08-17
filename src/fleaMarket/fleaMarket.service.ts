@@ -30,12 +30,15 @@ import { VotingQueue } from '../voting/voting.queue';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 import { cancelTransaction } from '../common/function/cancelTransaction';
 import { SellFleaMarketItemDto } from './dto/sellFleaMarketItem.dto';
+import { Voting } from '../voting/schemas/voting.schema';
 
 @Injectable()
 export class FleaMarketService {
   constructor(
     @InjectModel(FleaMarketItem.name)
     public readonly model: Model<FleaMarketItem>,
+    @InjectModel(Voting.name)
+    private readonly votingModel: Model<Voting>,
     private readonly helperService: FleaMarketHelperService,
     private readonly itemHelperService: ItemHelperService,
     private readonly playerService: PlayerService,
@@ -46,9 +49,11 @@ export class FleaMarketService {
     @InjectConnection() private readonly connection: Connection,
   ) {
     this.basicService = new BasicService(model);
+    this.votingBasicService = new BasicService(votingModel);
   }
 
   public readonly basicService: BasicService;
+  public readonly votingBasicService: BasicService;
 
   /**
    * Creates an new Item in DB.
@@ -156,18 +161,20 @@ export class FleaMarketService {
     });
     if (errors) return await cancelTransaction(session, errors);
 
-    const [_, updateErrors] = await this.basicService.updateOneById(
-      voting.fleaMarketItem_id,
+    const [, votingUpdateErrors] = await this.votingBasicService.updateOneById(
+      voting._id,
       { price: sellFleaMarketItemDto.price },
+      { session },
     );
-
-    if (updateErrors) return await cancelTransaction(session, updateErrors);
+    if (votingUpdateErrors)
+      return cancelTransaction(session, votingUpdateErrors);
 
     await this.votingQueue.addVotingCheckJob({
       voting,
       fleaMarketItemId: createdItem._id.toString(),
       stockId: item.stock_id.toString(),
       queue: VotingQueueName.FLEA_MARKET,
+      price: sellFleaMarketItemDto.price,
     });
 
     await session.commitTransaction();
@@ -244,7 +251,7 @@ export class FleaMarketService {
 
     if (voting.type === VotingType.FLEA_MARKET_SELL_ITEM) {
       if (votePassed) {
-        await this.handlePassedSellVoting(fleaMarketItemId);
+        await this.handlePassedSellVoting(fleaMarketItemId, price);
       } else {
         await this.handleRejectedSellVoting(fleaMarketItemId, stockId);
       }
@@ -372,10 +379,12 @@ export class FleaMarketService {
    * Handles the process when a sell voting has passed.
    *
    * @param itemId - The ID of the item.
+   * @param sellingPrice - The price for which item should be sold
    */
-  private async handlePassedSellVoting(itemId: string) {
+  private async handlePassedSellVoting(itemId: string, sellingPrice: number) {
     const [_, errors] = await this.basicService.updateOneById(itemId, {
       status: Status.AVAILABLE,
+      price: sellingPrice,
     });
     if (errors) throw errors;
   }

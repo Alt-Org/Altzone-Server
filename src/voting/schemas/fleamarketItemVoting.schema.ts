@@ -7,6 +7,9 @@ import { ModelName } from '../../common/enum/modelName.enum';
 export class FleaMarketItemVoting extends Voting {
   @Prop({ type: MongooseSchema.Types.ObjectId, required: true })
   fleaMarketItem_id: string;
+
+  @Prop({ type: Number, required: false })
+  price?: number;
 }
 
 export const FleaMarketItemVotingSchema =
