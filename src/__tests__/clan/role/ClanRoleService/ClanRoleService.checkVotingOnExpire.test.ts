@@ -2,7 +2,7 @@ import ClanRoleService from '../../../../clan/role/clanRole.service';
 import { VoteChoice } from '../../../../voting/enum/choiceType.enum';
 import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import PlayerModule from '../../../player/modules/player.module';
-import VotingBuilderFactory from '../../../voting/data/VotingBuilderFactory';
+import VotingBuilderFactory from '../../../voting/data/voting/VotingBuilderFactory';
 import VotingModule from '../../../voting/modules/voting.module';
 import ClanModule from '../../modules/clan.module';
 import { ObjectId } from 'mongodb';

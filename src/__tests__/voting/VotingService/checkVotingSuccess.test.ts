@@ -1,4 +1,4 @@
-import VotingBuilderFactory from '../data/VotingBuilderFactory';
+import VotingBuilderFactory from '../data/voting/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
 import { VoteChoice } from '../../../voting/enum/choiceType.enum';

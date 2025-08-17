@@ -1,10 +1,11 @@
-import { Prop } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 import { ModelName } from '../../common/enum/modelName.enum';
 
 /**
  * Represents a clan role assignment for a player within a voting context.
  */
+@Schema({ _id: false })
 export class SetClanRole {
   /**
    * The ID of the player to whom the clan role will be assigned.
@@ -29,3 +30,5 @@ export class SetClanRole {
   })
   role_id: string;
 }
+
+export const SetClanRoleSchema = SchemaFactory.createForClass(SetClanRole);

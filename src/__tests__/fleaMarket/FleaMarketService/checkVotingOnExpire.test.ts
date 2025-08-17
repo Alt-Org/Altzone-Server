@@ -1,7 +1,7 @@
 import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
 import FleaMarketModule from '../modules/fleaMarketModule';
 import { VotingService } from '../../../voting/voting.service';
-import VotingBuilderFactory from '../../voting/data/VotingBuilderFactory';
+import VotingBuilderFactory from '../../voting/data/voting/VotingBuilderFactory';
 import { ClanService } from '../../../clan/clan.service';
 import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 import FleaMarketBuilderFactory from '../data/fleaMarketBuilderFactory';
