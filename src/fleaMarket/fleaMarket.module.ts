@@ -15,11 +15,13 @@ import { PlayerSchema } from '../player/schemas/player.schema';
 import { ClanSchema } from '../clan/clan.schema';
 import { StallController } from './stall/stall.controller';
 import { StallService } from './stall/stall.service';
+import { VotingSchema } from '../voting/schemas/voting.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: ModelName.FLEA_MARKET_ITEM, schema: FleaMarketItemSchema },
+      { name: ModelName.VOTING, schema: VotingSchema },
       { name: ModelName.PLAYER, schema: PlayerSchema },
       { name: ModelName.CLAN, schema: ClanSchema },
     ]),
