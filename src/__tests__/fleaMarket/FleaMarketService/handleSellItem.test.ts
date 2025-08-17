@@ -36,6 +36,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   const itemDto = itemDtoBuilder.setStockId('stock123').build();
   const sellFleaMarketItemDto = sellFleaMarketItemDtoBuilder
     .setItemId('item')
+    .setPrice(10)
     .build();
   const createdFleaMarketItemDto = fleaMarketItemBuilder.build();
   const PlayerDtoBuilder = PlayerBuilderFactory.getBuilder('PlayerDto');
@@ -130,6 +131,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
         fleaMarketItemId: expect.any(String),
         stockId: expect.any(String),
         queue: expect.any(String),
+        price: sellFleaMarketItemDto.price,
       }),
     );
   });
