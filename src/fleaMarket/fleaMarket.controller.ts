@@ -12,10 +12,12 @@ import { User } from '../auth/user';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { PlayerService } from '../player/player.service';
-import { ItemIdDto } from './dto/itemId.dto';
+import { SellFleaMarketItemDto } from './dto/sellFleaMarketItem.dto';
 import HasClanRights from '../clan/role/decorator/guard/HasClanRights';
 import { ClanBasicRight } from '../clan/role/enum/clanBasicRight.enum';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
+import { ItemIdDto } from './dto/itemId.dto';
+import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
@@ -69,7 +71,7 @@ export class FleaMarketController {
    * This will start a voting in the Clan from which Item is being moved to the flea marked.
    * Voting min approval percentage is 51. During the voting an Item is in "Shipping" status and can not be bought by other players.
    *
-   * Notice that the player must be in the same clan and it must have a basic right "Shop".
+   * Notice that the player must be in the same clan, and it must have a basic right "Shop".
    *
    * Notice that if a FleaMarketItem has already "Shipping" status 403 will be returned.
    */
@@ -79,12 +81,16 @@ export class FleaMarketController {
     },
     errors: [400, 401, 403, 404],
   })
+  @SwaggerTags('Release on 24.08.2025', 'FleaMarket')
   @Post('sell')
   @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
-  async sell(@Body() itemIdDto: ItemIdDto, @LoggedUser() user: User) {
+  async sell(
+    @Body() sellFleaMarketItemDto: SellFleaMarketItemDto,
+    @LoggedUser() user: User,
+  ) {
     const clanId = await this.service.getClanId(
-      itemIdDto.item_id,
+      sellFleaMarketItemDto.item_id,
       user.player_id,
     );
 
@@ -95,7 +101,7 @@ export class FleaMarketController {
       });
 
     await this.service.handleSellItem(
-      itemIdDto.item_id,
+      sellFleaMarketItemDto,
       clanId,
       user.player_id,
     );

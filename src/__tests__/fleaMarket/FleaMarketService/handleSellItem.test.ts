@@ -26,14 +26,20 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   let sessionMock: any;
 
   const itemDtoBuilder = ClanInventoryBuilderFactory.getBuilder('ItemDto');
+  const sellFleaMarketItemDtoBuilder = FleaMarketBuilderFactory.getBuilder(
+    'SellFleaMarketItemDto',
+  );
+
   const fleaMarketItemBuilder =
     FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto');
 
   const itemDto = itemDtoBuilder.setStockId('stock123').build();
+  const sellFleaMarketItemDto = sellFleaMarketItemDtoBuilder
+    .setItemId('item')
+    .build();
   const createdFleaMarketItemDto = fleaMarketItemBuilder.build();
   const PlayerDtoBuilder = PlayerBuilderFactory.getBuilder('PlayerDto');
 
-  const itemId = 'item';
   const clanId = 'clan';
   const playerId = 'player';
   const playerDto = PlayerDtoBuilder.setClanId(clanId).build();
@@ -70,11 +76,17 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   });
 
   it('Should process selling item and add voting check job', async () => {
-    const newItem = fleaMarketItemBuilder.setName(itemId as ItemName).build();
+    const newItem = fleaMarketItemBuilder
+      .setName(sellFleaMarketItemDto.item_id as ItemName)
+      .build();
 
     jest
       .spyOn(helperService, 'itemToCreateFleaMarketItem')
       .mockResolvedValue(newItem);
+
+    jest
+      .spyOn(fleaMarketService.basicService, 'updateOneById')
+      .mockResolvedValue([null, null]);
 
     jest
       .spyOn(votingService, 'startVoting')
@@ -83,15 +95,23 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       .spyOn(votingQueue, 'addVotingCheckJob')
       .mockImplementation();
 
-    await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+    await fleaMarketService.handleSellItem(
+      sellFleaMarketItemDto,
+      clanId,
+      playerId,
+    );
 
-    expect(itemService.readOneById).toHaveBeenCalledWith(itemId);
+    expect(itemService.readOneById).toHaveBeenCalledWith(
+      sellFleaMarketItemDto.item_id,
+    );
     expect(playerService.getPlayerById).toHaveBeenCalledWith(playerId);
     expect(helperService.itemToCreateFleaMarketItem).toHaveBeenCalledWith(
       itemDto,
       clanId,
     );
-    expect(itemService.deleteOneById).toHaveBeenCalledWith(itemId);
+    expect(itemService.deleteOneById).toHaveBeenCalledWith(
+      sellFleaMarketItemDto.item_id,
+    );
     expect(sessionMock.startTransaction).toHaveBeenCalled();
     expect(sessionMock.commitTransaction).toHaveBeenCalled();
     expect(sessionMock.endSession).toHaveBeenCalled();
@@ -118,7 +138,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     jest.spyOn(itemService, 'readOneById').mockResolvedValue([null, error]);
 
     const [ret, err] = await fleaMarketService.handleSellItem(
-      itemId,
+      sellFleaMarketItemDto,
       clanId,
       playerId,
     );
@@ -132,7 +152,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     jest.spyOn(itemService, 'readOneById').mockResolvedValue([itemDto2, null]);
 
     const [ret, err] = await fleaMarketService.handleSellItem(
-      itemId,
+      sellFleaMarketItemDto,
       clanId,
       playerId,
     );
@@ -144,7 +164,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     jest.spyOn(playerService, 'getPlayerById').mockResolvedValue([null, error]);
 
     const [ret, err] = await fleaMarketService.handleSellItem(
-      itemId,
+      sellFleaMarketItemDto,
       clanId,
       playerId,
     );
@@ -156,7 +176,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     jest.spyOn(votingService, 'startVoting').mockResolvedValue([null, error]);
 
     const [ret, err] = await fleaMarketService.handleSellItem(
-      itemId,
+      sellFleaMarketItemDto,
       clanId,
       playerId,
     );
@@ -168,7 +188,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     jest.spyOn(fleaMarketService, 'createOne').mockResolvedValue([null, error]);
 
     const [ret, err] = await fleaMarketService.handleSellItem(
-      itemId,
+      sellFleaMarketItemDto,
       clanId,
       playerId,
     );
@@ -180,7 +200,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     jest.spyOn(itemService, 'deleteOneById').mockResolvedValue([null, error]);
 
     const [ret, err] = await fleaMarketService.handleSellItem(
-      itemId,
+      sellFleaMarketItemDto,
       clanId,
       playerId,
     );
@@ -199,7 +219,11 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     });
 
     try {
-      await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+      await fleaMarketService.handleSellItem(
+        sellFleaMarketItemDto,
+        clanId,
+        playerId,
+      );
       fail('Expected error was not thrown');
     } catch (err) {
       expect(err).toBe(error);
@@ -216,7 +240,11 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       });
 
     try {
-      await fleaMarketService.handleSellItem(itemId, clanId, playerId);
+      await fleaMarketService.handleSellItem(
+        sellFleaMarketItemDto,
+        clanId,
+        playerId,
+      );
       fail('Expected error was not thrown');
     } catch (err) {
       expect(err).toBe(error);
