@@ -13,6 +13,7 @@ import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
 import { FleaMarketHelperService } from '../../../fleaMarket/fleaMarketHelper.service';
 import { FleaMarketVotingProcessor } from '../../../fleaMarket/fleaMarketVoting.processor';
 import { StallService } from '../../../fleaMarket/stall/stall.service';
+import { VotingSchema } from '../../../voting/schemas/voting.schema';
 
 export default class FleaMarketCommonModule {
   private constructor() {}
@@ -26,6 +27,7 @@ export default class FleaMarketCommonModule {
           MongooseModule.forRoot(mongoString, mongooseOptions),
           MongooseModule.forFeature([
             { name: ModelName.FLEA_MARKET_ITEM, schema: FleaMarketItemSchema },
+            { name: ModelName.VOTING, schema: VotingSchema },
           ]),
           BullModule.registerQueue({
             name: 'voting',

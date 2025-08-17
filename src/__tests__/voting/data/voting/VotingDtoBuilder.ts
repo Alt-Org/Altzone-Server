@@ -8,7 +8,7 @@ import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
 import { SetClanRole } from '../../../../voting/schemas/setClanRole.schema';
 
 export default class VotingDtoBuilder implements IDataBuilder<VotingDto> {
-  private readonly base: Partial<VotingDto> = {
+  private readonly base: VotingDto = {
     _id: new ObjectId().toString(),
     organizer: {
       player_id: new ObjectId().toString(),
@@ -24,6 +24,7 @@ export default class VotingDtoBuilder implements IDataBuilder<VotingDto> {
     fleaMarketItem_id: new ObjectId().toString(),
     shopItemName: undefined,
     setClanRole: undefined,
+    price: 10,
   };
 
   build(): VotingDto {
@@ -95,6 +96,11 @@ export default class VotingDtoBuilder implements IDataBuilder<VotingDto> {
 
   setSetClanRole(setClanRole: SetClanRole) {
     this.base.setClanRole = setClanRole;
+    return this;
+  }
+
+  setPrice(price: number) {
+    this.base.price = price;
     return this;
   }
 }
