@@ -97,7 +97,7 @@ export class StallService {
    * @param clan_id - Id of the clan.
    * @param adPosterToUpdate - AddPoster fileds to update
    */
-  async updateAdPosterById(
+  async updateAdPosterByClanId(
     clan_id: string,
     adPosterToUpdate: AdPosterDto,
   ): Promise<IServiceReturn<boolean>> {
