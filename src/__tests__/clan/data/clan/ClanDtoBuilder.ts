@@ -6,6 +6,7 @@ import { Goal } from '../../../../clan/enum/goal.enum';
 import { ClanDto } from '../../../../clan/dto/clan.dto';
 import { ClanLogoDto } from '../../../../clan/dto/clanLogo.dto';
 import ClanRoleDto from '../../../../clan/role/dto/clanRole.dto';
+import { Stall } from '../../../../clan/stall/stall.schema';
 
 export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
   private readonly base: ClanDto = {
@@ -27,6 +28,7 @@ export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
     clanLogo: new ClanLogoDto(),
     language: Language.NONE,
     roles: [],
+    stall: new Stall(),
   };
 
   // Returns a new Clan object with the current base properties
@@ -116,6 +118,11 @@ export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
 
   setRoles(roles: ClanRoleDto[]) {
     this.base.roles = roles;
+    return this;
+  }
+
+  setStall(stall: Stall) {
+    this.base.stall = stall;
     return this;
   }
 }
