@@ -50,19 +50,28 @@ describe('StallService.updateAdPosterByClanId() test suite', () => {
   it('should update the adPoster for the stall', async () => {
     const createdClan = await clanModel.create(clanToCreate);
 
-    const [result, error] = await stallService.updateAdPosterByClanId(createdClan._id, adPosterDto);
-    const clanFromDb = await clanModel.findById(createdClan._id).populate('stall');
+    const [result, error] = await stallService.updateAdPosterByClanId(
+      createdClan._id,
+      adPosterDto,
+    );
+    const clanFromDb = await clanModel
+      .findById(createdClan._id)
+      .populate('stall');
 
     expect(error).toBeNull();
     expect(result).toBe(true);
     expect(clanFromDb.stall.adPoster.border).toBe(adPosterDto.border);
     expect(clanFromDb.stall.adPoster.colour).toBe(adPosterDto.colour);
-    expect(clanFromDb.stall.adPoster.mainFurniture).toBe(adPosterDto.mainFurniture);
+    expect(clanFromDb.stall.adPoster.mainFurniture).toBe(
+      adPosterDto.mainFurniture,
+    );
   });
 
   it('should return with error if the clan does NOT exist', async () => {
-
-    const [result, error] = await stallService.updateAdPosterByClanId(getNonExisting_id(), adPosterDto);
+    const [result, error] = await stallService.updateAdPosterByClanId(
+      getNonExisting_id(),
+      adPosterDto,
+    );
 
     expect(error).toBeDefined();
     expect(result).toBeNull();
@@ -76,10 +85,13 @@ describe('StallService.updateAdPosterByClanId() test suite', () => {
       .setStall(null)
       .setPhrase('test phrase')
       .build();
-  
+
     const createdClan = await clanModel.create(clanToCreate);
 
-    const [result, error] = await stallService.updateAdPosterByClanId(createdClan._id, adPosterDto);
+    const [result, error] = await stallService.updateAdPosterByClanId(
+      createdClan._id,
+      adPosterDto,
+    );
 
     expect(result).toBeNull();
     expect(error[0].reason).toBe('NOT_FOUND');
