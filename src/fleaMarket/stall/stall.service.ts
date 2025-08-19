@@ -101,7 +101,6 @@ export class StallService {
     clan_id: string,
     adPosterToUpdate: AdPosterDto,
   ): Promise<IServiceReturn<boolean>> {
-
     const [clan, error] = await this.clanService.readOneById(clan_id);
     if (error) {
       return [null, error];
@@ -118,19 +117,25 @@ export class StallService {
       ];
     }
 
-    const stall = await this.mapAdPosterDtoToAdPoster(clan.stall, adPosterToUpdate);
+    const stall = await this.mapAdPosterDtoToAdPoster(
+      clan.stall,
+      adPosterToUpdate,
+    );
 
     return this.clanService.basicService.updateOneById(clan_id, {
       stall: stall,
     });
   }
 
- /**  * Maps AdPosterDto to AdPoster in the Stall schema
+  /**  * Maps AdPosterDto to AdPoster in the Stall schema
    * @param stall - The Stall object to update
    * @param adPosterToUpdate - The AdPosterDto containing the fields to update
    * @returns The updated Stall object
    */
- private async mapAdPosterDtoToAdPoster(stall: Stall, adPosterToUpdate: AdPosterDto): Promise<Stall> {
+  private async mapAdPosterDtoToAdPoster(
+    stall: Stall,
+    adPosterToUpdate: AdPosterDto,
+  ): Promise<Stall> {
     if (adPosterToUpdate.border) {
       stall.adPoster.border = adPosterToUpdate.border;
     }
