@@ -12,6 +12,7 @@ import HasClanRights from '../../clan/role/decorator/guard/HasClanRights';
 import { ClanBasicRight } from '../../clan/role/enum/clanBasicRight.enum';
 import { BuyStallSlotDto } from './dto/buyStallSlot.dto';
 import { AdPosterDto } from './dto/adPoster.dto';
+import SwaggerTags from '../../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('stall')
 export class StallController {
@@ -79,8 +80,9 @@ export class StallController {
     success: {
       status: 204,
     },
-    errors: [400, 404],
+    errors: [400, 403, 404],
   })
+  @SwaggerTags('Release on 24.08.2025', 'Stall')
   @Patch('/adPoster')
   @UniformResponse()
   @HasClanRights([ClanBasicRight.SHOP])
