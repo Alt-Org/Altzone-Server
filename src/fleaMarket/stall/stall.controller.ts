@@ -85,7 +85,10 @@ export class StallController {
   @UniformResponse()
   @HasClanRights([ClanBasicRight.SHOP])
   async updateAdPoster(@LoggedUser() user: User, @Body() body: AdPosterDto) {
-    const [, error] = await this.service.updateAdPosterByClanId(user.clan_id, body);
+    const [, error] = await this.service.updateAdPosterByClanId(
+      user.clan_id,
+      body,
+    );
     if (error) return [null, error];
   }
 }
