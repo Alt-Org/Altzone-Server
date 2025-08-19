@@ -17,7 +17,6 @@ type BuilderMap = {
   CreateFleaMarketItemDto: CreateFleaMarketItemDtoBuilder;
   SellFleaMarketItemDto: SellFleaMarketItemDtoBuilder;
   AdPosterDto: AdPosterDtoBuilder;
-
 };
 
 export default class FleaMarketBuilderFactory {

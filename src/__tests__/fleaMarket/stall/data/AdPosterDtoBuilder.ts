@@ -1,5 +1,5 @@
-import IDataBuilder from "../../../test_utils/interface/IDataBuilder";
-import { AdPosterDto } from "../../../../fleaMarket/stall/dto/adPoster.dto";
+import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
+import { AdPosterDto } from '../../../../fleaMarket/stall/dto/adPoster.dto';
 
 export default class AdPosterDtoBuilder implements IDataBuilder<AdPosterDto> {
   private readonly base: AdPosterDto = {
