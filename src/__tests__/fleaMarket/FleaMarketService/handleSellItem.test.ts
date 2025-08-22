@@ -144,7 +144,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       clanId,
       playerId,
     );
-    expect(ret).toBe(false);
+    expect(ret).toBe(null);
     expect(err).toBeDefined();
   });
 
@@ -158,7 +158,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       clanId,
       playerId,
     );
-    expect(ret).toBe(false);
+    expect(ret).toBe(null);
     expect(err).toBeDefined();
   });
 
@@ -170,7 +170,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       clanId,
       playerId,
     );
-    expect(ret).toBe(false);
+    expect(ret).toBe(null);
     expect(err).toBeDefined();
   });
 
@@ -182,7 +182,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       clanId,
       playerId,
     );
-    expect(ret).toBe(false);
+    expect(ret).toBe(null);
     expect(err).toBeDefined();
   });
 
@@ -194,7 +194,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       clanId,
       playerId,
     );
-    expect(ret).toBe(false);
+    expect(ret).toBe(null);
     expect(err).toBeDefined();
   });
 
@@ -206,7 +206,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       clanId,
       playerId,
     );
-    expect(ret).toBe(false);
+    expect(ret).toBe(null);
     expect(err).toBeDefined();
   });
 
