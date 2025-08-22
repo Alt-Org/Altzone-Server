@@ -39,7 +39,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
   it(`Should set clan role for the joined player to ${MemberClanRole.name}`, async () => {
     const joinToCreate = joinBuilder.setClanId(openClan._id).build();
 
-    await joinService.handleJoinRequest(joinToCreate.clan_id, player._id);
+    const [clanDto, error] = await joinService.handleJoinRequest(joinToCreate.clan_id, player._id);
 
     const clanInDB = await clanModel.findById(openClan._id);
     const memberRole = clanInDB.roles.find(
@@ -49,6 +49,9 @@ describe('JoinService.handleJoinRequest() test suite', () => {
     const playerInDB = await playerModel.findById(player._id);
 
     expect(playerInDB.clanRole_id.toString()).toBe(memberRole._id.toString());
+    expect(clanDto).toBeDefined();
+    expect(error).toBeNull();
+    expect(clanDto.name).toBe(openClan.name);
   });
 
   it('Should throw NotFoundException if clan with that _id does not exists', async () => {
