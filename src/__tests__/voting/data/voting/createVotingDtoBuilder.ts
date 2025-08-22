@@ -61,4 +61,11 @@ export default class CreateVotingDtoBuilder
     this.base.votes.push(vote);
     return this;
   }
+
+  setPrice(price: number) {
+    if (price >= 0) {
+      this.base.price = price;
+    }
+    return this;
+  }
 }
