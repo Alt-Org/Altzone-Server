@@ -16,5 +16,5 @@ export async function cancelTransaction(
 ): Promise<IServiceReturn<any>> {
   await session.abortTransaction();
   await session.endSession();
-  return [false, error];
+  return [null, error];
 }
