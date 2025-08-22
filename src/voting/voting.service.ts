@@ -95,6 +95,7 @@ export class VotingService {
       shopItem,
       setClanRole,
       endsOn,
+      newItemPrice,
     } = params;
 
     const organizer = {
@@ -113,6 +114,10 @@ export class VotingService {
       case VotingType.FLEA_MARKET_BUY_ITEM:
       case VotingType.FLEA_MARKET_SELL_ITEM:
         base.fleaMarketItem_id = fleaMarketItem._id.toString();
+        break;
+      case VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE:
+        base.fleaMarketItem_id = fleaMarketItem._id.toString();
+        base.price = newItemPrice;
         break;
       case VotingType.SHOP_BUY_ITEM:
         base.shopItemName = shopItem;
