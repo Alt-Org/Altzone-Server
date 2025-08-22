@@ -39,7 +39,10 @@ describe('JoinService.handleJoinRequest() test suite', () => {
   it(`Should set clan role for the joined player to ${MemberClanRole.name}`, async () => {
     const joinToCreate = joinBuilder.setClanId(openClan._id).build();
 
-    const [clanDto, error] = await joinService.handleJoinRequest(joinToCreate.clan_id, player._id);
+    const [clanDto, error] = await joinService.handleJoinRequest(
+      joinToCreate.clan_id,
+      player._id,
+    );
 
     const clanInDB = await clanModel.findById(openClan._id);
     const memberRole = clanInDB.roles.find(
