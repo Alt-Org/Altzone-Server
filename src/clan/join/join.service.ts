@@ -12,7 +12,7 @@ import ICounter from '../../common/service/counter/ICounter';
 import { Player } from '../../player/schemas/player.schema';
 import { MemberClanRole } from '../role/initializationClanRoles';
 import { ClanDto } from '../dto/clan.dto';
-import { IServiceReturn } from 'src/common/service/basicService/IService';
+import { IServiceReturn } from '../../common/service/basicService/IService';
 
 @Injectable()
 export class JoinService {
