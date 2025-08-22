@@ -30,7 +30,6 @@ import { VotingQueue } from '../voting/voting.queue';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 import { cancelTransaction } from '../common/function/cancelTransaction';
 import { SellFleaMarketItemDto } from './dto/sellFleaMarketItem.dto';
-import { Voting } from '../voting/schemas/voting.schema';
 import { itemNotAuthorizedError } from './errors/itemNotAuthorized.error';
 
 @Injectable()
@@ -38,7 +37,6 @@ export class FleaMarketService {
   constructor(
     @InjectModel(FleaMarketItem.name)
     public readonly model: Model<FleaMarketItem>,
-    @InjectModel(Voting.name)
     private readonly helperService: FleaMarketHelperService,
     private readonly itemHelperService: ItemHelperService,
     private readonly playerService: PlayerService,
@@ -52,7 +50,6 @@ export class FleaMarketService {
   }
 
   public readonly basicService: BasicService;
-  public readonly votingBasicService: BasicService;
 
   /**
    * Creates an new Item in DB.
@@ -160,11 +157,12 @@ export class FleaMarketService {
     });
     if (errors) return await cancelTransaction(session, errors);
 
-    const [, votingUpdateErrors] = await this.votingBasicService.updateOneById(
-      voting._id,
-      { price: sellFleaMarketItemDto.price },
-      { session },
-    );
+    const [, votingUpdateErrors] =
+      await this.votingService.basicService.updateOneById(
+        voting._id,
+        { price: sellFleaMarketItemDto.price },
+        { session },
+      );
     if (votingUpdateErrors)
       return cancelTransaction(session, votingUpdateErrors);
 
