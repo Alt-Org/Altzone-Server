@@ -5,6 +5,7 @@ import {
   IsInt,
   IsMongoId,
   IsOptional,
+  Min,
   ValidateNested,
 } from 'class-validator';
 import AddType from '../../common/base/decorator/AddType.decorator';
@@ -82,4 +83,9 @@ export class CreateVotingDto {
   @ValidateNested()
   @Type(() => SetClanRoleDto)
   setClanRole?: SetClanRoleDto;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  price?: number;
 }

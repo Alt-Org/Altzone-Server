@@ -18,6 +18,7 @@ import { ClanBasicRight } from '../clan/role/enum/clanBasicRight.enum';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { ItemIdDto } from './dto/itemId.dto';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
+import { VotingDto } from '../voting/dto/voting.dto';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
@@ -139,5 +140,33 @@ export class FleaMarketController {
       });
 
     await this.service.handleBuyItem(clanId, itemIdDto.item_id, user.player_id);
+  }
+
+  /**
+   * Start voting to change flea market item price.
+   *
+   * @remarks Change flea market item price.
+   * This will start a voting in the Clan to change a price of flea market item belonging to your clan.
+   * Voting duration is 10min and the min approval percentage is 51.
+   * During the voting an Item is in "Shipping" status and can not be bought by other players.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 200,
+    },
+    errors: [400, 404],
+  })
+  @Post('change-item-price')
+  @HasClanRights([ClanBasicRight.SHOP])
+  @UniformResponse(ModelName.VOTING, VotingDto)
+  async changePrice(
+    @Body() body: SellFleaMarketItemDto,
+    @LoggedUser() user: User,
+  ) {
+    return this.service.changeItemPrice(
+      body.item_id,
+      body.price,
+      user.player_id,
+    );
   }
 }

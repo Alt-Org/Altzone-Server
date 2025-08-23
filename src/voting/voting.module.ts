@@ -37,6 +37,11 @@ import { FleaMarketItemVotingSchema } from './schemas/fleamarketItemVoting.schem
             value: VotingType.FLEA_MARKET_SELL_ITEM,
           },
           {
+            name: 'ChangeFleaMarketItemPriceVoting',
+            schema: FleaMarketItemVotingSchema,
+            value: VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE,
+          },
+          {
             name: SetClanRoleVoting.name,
             schema: SetClanRoleVotingSchema,
             value: VotingType.SET_CLAN_ROLE,
