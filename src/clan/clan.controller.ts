@@ -255,13 +255,13 @@ export class ClanController {
    */
   @ApiResponseDescription({
     success: {
-      dto: JoinDto,
-      modelName: ModelName.JOIN,
+      dto: ClanDto,
+      modelName: ModelName.CLAN,
       status: 201,
     },
     errors: [400, 401, 403, 404],
   })
-  @UniformResponse()
+  @UniformResponse(ModelName.CLAN)
   @SwaggerTags('Release on 24.08.2025', 'Clan')
   @Post('join')
   public async createJoin(
