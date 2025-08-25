@@ -17,7 +17,6 @@ import HasClanRights from '../clan/role/decorator/guard/HasClanRights';
 import { ClanBasicRight } from '../clan/role/enum/clanBasicRight.enum';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { ItemIdDto } from './dto/itemId.dto';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { VotingDto } from '../voting/dto/voting.dto';
 
 @Controller('fleaMarket')
@@ -82,7 +81,6 @@ export class FleaMarketController {
     },
     errors: [400, 401, 403, 404],
   })
-  @SwaggerTags('Release on 24.08.2025', 'FleaMarket')
   @Post('sell')
   @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
