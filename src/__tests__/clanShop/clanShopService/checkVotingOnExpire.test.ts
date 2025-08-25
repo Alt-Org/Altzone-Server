@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { ClanShopService } from '../../../clanShop/clanShop.service';
 import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
-import VotingBuilderFactory from '../../voting/data/VotingBuilderFactory';
+import VotingBuilderFactory from '../../voting/data/voting/VotingBuilderFactory';
 import ClanShopModule from '../modules/clanShop.module';
 import LoggedUser from '../../test_utils/const/loggedUser';
 import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryBuilderFactory';

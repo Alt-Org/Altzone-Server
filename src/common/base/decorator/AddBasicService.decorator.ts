@@ -122,7 +122,7 @@ export const AddBasicService = () => {
       ): Promise<object | boolean | MongooseError> => {
         if (!this.updateOnePostHook)
           return this.model.updateOne({ _id: input._id }, input, {
-            rawResult: true,
+            raw: true,
           });
 
         const oldDoc = await this.model.findOneAndUpdate(

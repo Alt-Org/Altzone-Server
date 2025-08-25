@@ -15,18 +15,17 @@ import { alreadyVotedError } from './error/alreadyVoted.error';
 import { Vote } from './schemas/vote.schema';
 import { ModelName } from '../common/enum/modelName.enum';
 import { addVoteError } from './error/addVote.error';
-import { VotingQueue } from './voting.queue';
 import { TIServiceCreateOneOptions } from '../common/service/basicService/IService';
+import { VotingType } from './enum/VotingType.enum';
 
 @Injectable()
 export class VotingService {
   constructor(
-    @InjectModel(Voting.name) public readonly model: Model<Voting>,
+    @InjectModel(Voting.name) public readonly votingModel: Model<Voting>,
     private readonly notifier: VotingNotifier,
     private readonly playerService: PlayerService,
-    private readonly votingQueue: VotingQueue,
   ) {
-    this.basicService = new BasicService(model);
+    this.basicService = new BasicService(this.votingModel);
   }
 
   public readonly basicService: BasicService;
@@ -52,10 +51,7 @@ export class VotingService {
    * Creates a new voting entry and sends a MQTT notification.
    *
    * @param params - The parameters for starting the item voting.
-   * @param playerId - The ID of the player initiating the voting.
-   * @param itemId - The ID of the item being voted on.
-   * @param clanId - The ID of the clan associated with the voting.
-   * @param type - The type of voting, either for selling or buying an item.
+   * @param session - Optional session for transaction support.
    *
    * @throws - Throws an error if validation fails or if there are errors creating the voting.
    */
@@ -63,50 +59,78 @@ export class VotingService {
     params: StartVotingParams,
     session?: ClientSession,
   ): Promise<[VotingDto, ServiceError[]]> {
+    const votingData = this.buildVotingData(params);
+
+    const [voting, errors] = await this.basicService.createOne(votingData, {
+      session,
+    });
+    if (errors) return [null, errors];
+
+    const { shopItem, fleaMarketItem, setClanRole, voterPlayer } = params;
+    this.notifier.newVoting(
+      voting,
+      shopItem ?? fleaMarketItem ?? setClanRole,
+      voterPlayer,
+    );
+
+    return [voting, null];
+  }
+
+  /**
+   * Builds the voting data object based on the provided parameters.
+   *
+   * This method constructs a voting DTO for different voting types, initializing
+   * the organizer, vote choices, and additional properties depending on the voting type.
+   *
+   * @param params - The parameters required to start a voting process, including voter player,
+   *   voting type, clan ID, item details, role settings, and voting end time.
+   * @returns The constructed voting data object to be used for creating a voting entry.
+   */
+  private buildVotingData(params: StartVotingParams): Partial<CreateVotingDto> {
     const {
       voterPlayer,
       type,
-      queue,
       clanId,
       fleaMarketItem,
       shopItem,
       setClanRole,
       endsOn,
+      newItemPrice,
     } = params;
 
-    const newVoting: CreateVotingDto = {
-      organizer: { player_id: voterPlayer._id.toString(), clan_id: clanId },
-      type,
-      ...(fleaMarketItem && {
-        fleaMarketItem_id: fleaMarketItem._id.toString(),
-      }),
-      ...(shopItem && { shopItemName: shopItem }),
-      ...(setClanRole && { setClanRole }),
-      ...(endsOn && { endsOn }),
-    };
-
-    const newVote = {
+    const organizer = {
       player_id: voterPlayer._id.toString(),
-      choice: VoteChoice.YES,
+      clan_id: clanId?.toString(),
     };
 
-    newVoting.votes = [newVote];
+    const base = {
+      organizer,
+      type,
+      endsOn,
+      votes: [{ player_id: organizer.player_id, choice: VoteChoice.YES }],
+    } as Partial<CreateVotingDto>;
 
-    const [voting, errors] = await this.createOne(newVoting, { session });
-    if (errors) return [null, errors];
+    switch (type) {
+      case VotingType.FLEA_MARKET_BUY_ITEM:
+      case VotingType.FLEA_MARKET_SELL_ITEM:
+        base.fleaMarketItem_id = fleaMarketItem._id.toString();
+        break;
+      case VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE:
+        base.fleaMarketItem_id = fleaMarketItem._id.toString();
+        base.price = newItemPrice;
+        break;
+      case VotingType.SHOP_BUY_ITEM:
+        base.shopItemName = shopItem;
+        break;
+      case VotingType.SET_CLAN_ROLE:
+        base.setClanRole = {
+          player_id: setClanRole.player_id.toString(),
+          role_id: setClanRole.role_id.toString(),
+        };
+        break;
+    }
 
-    this.notifier.newVoting(voting, shopItem ?? fleaMarketItem, voterPlayer);
-
-    this.votingQueue.addVotingCheckJob({
-      voting,
-      clanId,
-      queue,
-      ...(fleaMarketItem && {
-        fleaMarketItemId: fleaMarketItem._id.toString(),
-      }),
-    });
-
-    return [voting, null];
+    return base;
   }
 
   /**

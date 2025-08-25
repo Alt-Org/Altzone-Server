@@ -11,6 +11,8 @@ import { FleaMarketItemSchema } from '../../../fleaMarket/fleaMarketItem.schema'
 import { VotingQueue } from '../../../voting/voting.queue';
 import { BullModule } from '@nestjs/bullmq';
 import { VotingQueueName } from '../../../voting/enum/VotingQueue.enum';
+import { FleaMarketItemVotingSchema } from '../../../voting/schemas/fleamarketItemVoting.schema';
+import { VotingType } from '../../../voting/enum/VotingType.enum';
 
 export default class VotingCommonModule {
   private constructor() {}
@@ -24,7 +26,22 @@ export default class VotingCommonModule {
           MongooseModule.forRoot(mongoString, mongooseOptions),
           MongooseModule.forFeature([
             { name: ModelName.CLAN, schema: ClanSchema },
-            { name: ModelName.VOTING, schema: VotingSchema },
+            {
+              name: ModelName.VOTING,
+              schema: VotingSchema,
+              discriminators: [
+                {
+                  name: 'BuyFleaMarketItemVoting',
+                  schema: FleaMarketItemVotingSchema,
+                  value: VotingType.FLEA_MARKET_BUY_ITEM,
+                },
+                {
+                  name: 'SellFleaMarketItemVoting',
+                  schema: FleaMarketItemVotingSchema,
+                  value: VotingType.FLEA_MARKET_SELL_ITEM,
+                },
+              ],
+            },
             { name: ModelName.FLEA_MARKET_ITEM, schema: FleaMarketItemSchema },
           ]),
           PlayerModule,

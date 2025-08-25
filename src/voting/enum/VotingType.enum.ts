@@ -7,6 +7,7 @@
 export enum VotingType {
   FLEA_MARKET_SELL_ITEM = 'flea_market_sell_item',
   FLEA_MARKET_BUY_ITEM = 'flea_market_buy_item',
+  FLEA_MARKET_CHANGE_ITEM_PRICE = 'change_item_price',
   SHOP_BUY_ITEM = 'shop_buy_item',
   SET_CLAN_ROLE = 'set_clan_role',
 }

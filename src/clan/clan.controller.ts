@@ -23,7 +23,6 @@ import { AddSortQuery } from '../common/interceptor/request/addSortQuery.interce
 import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
 import { IGetAllQuery } from '../common/interface/IGetAllQuery';
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
-import { JoinDto } from './join/dto/join.dto';
 import { JoinRequestDto } from './join/dto/joinRequest.dto';
 import { JoinService } from './join/join.service';
 import { RemovePlayerDTO } from './join/dto/removePlayer.dto';
@@ -49,6 +48,7 @@ import { ApiExtraModels } from '@nestjs/swagger';
 import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { ClanChatService } from '../chat/service/clanChat.service';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
+import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('clan')
 export class ClanController {
@@ -254,13 +254,14 @@ export class ClanController {
    */
   @ApiResponseDescription({
     success: {
-      dto: JoinDto,
-      modelName: ModelName.JOIN,
+      dto: ClanDto,
+      modelName: ModelName.CLAN,
       status: 201,
     },
     errors: [400, 401, 403, 404],
   })
-  @UniformResponse()
+  @UniformResponse(ModelName.CLAN)
+  @SwaggerTags('Release on 24.08.2025', 'Clan')
   @Post('join')
   public async createJoin(
     @Body() body: JoinRequestDto,

@@ -14,4 +14,5 @@ export type StartVotingParams = {
   shopItem?: ItemName;
   setClanRole?: SetClanRoleDto;
   endsOn?: Date;
+  newItemPrice?: number;
 };

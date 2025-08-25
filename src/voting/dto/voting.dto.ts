@@ -92,6 +92,14 @@ export class VotingDto {
   fleaMarketItem_id: string;
 
   /**
+   * Proposed selling price for a fleaMarketItem
+   *
+   * @example 30
+   */
+  @Expose()
+  price: number;
+
+  /**
    * Name of the item (or other entity) associated with the voting
    *
    * @example "Sofa_Taakka"

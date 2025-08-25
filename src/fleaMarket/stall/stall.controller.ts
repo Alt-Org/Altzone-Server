@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { StallService } from './stall.service';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
 import { ModelName } from '../../common/enum/modelName.enum';
@@ -6,12 +6,13 @@ import { _idDto } from '../../common/dto/_id.dto';
 import { OffsetPaginate } from '../../common/interceptor/request/offsetPagination.interceptor';
 import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
 import { StallResponse } from './dto/stallResponse.dto';
-import SwaggerTags from 'src/common/swagger/tags/SwaggerTags.decorator';
-import { LoggedUser } from 'src/common/decorator/param/LoggedUser.decorator';
-import { User } from 'src/auth/user';
-import HasClanRights from 'src/clan/role/decorator/guard/HasClanRights';
-import { ClanBasicRight } from 'src/clan/role/enum/clanBasicRight.enum';
+import { LoggedUser } from '../../common/decorator/param/LoggedUser.decorator';
+import { User } from '../../auth/user';
+import HasClanRights from '../../clan/role/decorator/guard/HasClanRights';
+import { ClanBasicRight } from '../../clan/role/enum/clanBasicRight.enum';
 import { BuyStallSlotDto } from './dto/buyStallSlot.dto';
+import { AdPosterDto } from './dto/adPoster.dto';
+import SwaggerTags from '../../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('stall')
 export class StallController {
@@ -27,7 +28,6 @@ export class StallController {
     errors: [400, 401, 403, 404],
   })
   @Get('/:_id')
-  @SwaggerTags('Release on 27.07.2025', 'Stall')
   @UniformResponse(ModelName.STALL, StallResponse)
   async getOne(@Param() param: _idDto) {
     return await this.service.readOneByClanId(param._id);
@@ -43,7 +43,6 @@ export class StallController {
     errors: [400, 401, 403, 404],
   })
   @Get()
-  @SwaggerTags('Release on 27.07.2025', 'Stall')
   @OffsetPaginate(ModelName.STALL)
   @UniformResponse(ModelName.STALL, StallResponse)
   async getAll() {
@@ -62,13 +61,35 @@ export class StallController {
     errors: [400, 404],
   })
   @Post('/buy-slot')
-  @SwaggerTags('Release on 10.08.2025', 'Stall')
   @UniformResponse()
   @HasClanRights([ClanBasicRight.SHOP])
   async buyStallSlot(@LoggedUser() user: User, @Body() body: BuyStallSlotDto) {
     const [, error] = await this.service.buyStallSlot(
       user.clan_id,
       body.amount,
+    );
+    if (error) return [null, error];
+  }
+
+  /**
+   * Update ad poster for the stall
+   *
+   * @remarks Update ad poster for the stall
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 403, 404],
+  })
+  @SwaggerTags('Release on 24.08.2025', 'Stall')
+  @Patch('/adPoster')
+  @UniformResponse()
+  @HasClanRights([ClanBasicRight.SHOP])
+  async updateAdPoster(@LoggedUser() user: User, @Body() body: AdPosterDto) {
+    const [, error] = await this.service.updateAdPosterByClanId(
+      user.clan_id,
+      body,
     );
     if (error) return [null, error];
   }

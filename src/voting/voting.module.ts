@@ -8,10 +8,52 @@ import { PlayerModule } from '../player/player.module';
 import { BullModule } from '@nestjs/bullmq';
 import { VotingQueue } from './voting.queue';
 import { VotingQueueName } from './enum/VotingQueue.enum';
+import { VotingType } from './enum/VotingType.enum';
+import {
+  SetClanRoleVoting,
+  SetClanRoleVotingSchema,
+} from './schemas/setClanRoleVoting.schema';
+import {
+  BuyClanShopItemVoting,
+  BuyClanShopItemVotingSchema,
+} from './schemas/buyShopItem.schema';
+import { FleaMarketItemVotingSchema } from './schemas/fleamarketItemVoting.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Voting.name, schema: VotingSchema }]),
+    MongooseModule.forFeature([
+      {
+        name: Voting.name,
+        schema: VotingSchema,
+        discriminators: [
+          {
+            name: 'BuyFleaMarketItemVoting',
+            schema: FleaMarketItemVotingSchema,
+            value: VotingType.FLEA_MARKET_BUY_ITEM,
+          },
+          {
+            name: 'SellFleaMarketItemVoting',
+            schema: FleaMarketItemVotingSchema,
+            value: VotingType.FLEA_MARKET_SELL_ITEM,
+          },
+          {
+            name: 'ChangeFleaMarketItemPriceVoting',
+            schema: FleaMarketItemVotingSchema,
+            value: VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE,
+          },
+          {
+            name: SetClanRoleVoting.name,
+            schema: SetClanRoleVotingSchema,
+            value: VotingType.SET_CLAN_ROLE,
+          },
+          {
+            name: BuyClanShopItemVoting.name,
+            schema: BuyClanShopItemVotingSchema,
+            value: VotingType.SHOP_BUY_ITEM,
+          },
+        ],
+      },
+    ]),
     PlayerModule,
     BullModule.registerQueue(
       { name: VotingQueueName.CLAN_ROLE },

@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import VotingBuilderFactory from '../../voting/data/VotingBuilderFactory';
+import VotingBuilderFactory from '../../voting/data/voting/VotingBuilderFactory';
 import FleaMarketModule from '../modules/fleaMarketModule';
 import { FleaMarketVotingProcessor } from '../../../fleaMarket/fleaMarketVoting.processor';
 import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';

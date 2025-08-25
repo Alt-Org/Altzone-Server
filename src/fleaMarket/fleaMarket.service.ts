@@ -29,6 +29,8 @@ import { PlayerDto } from '../player/dto/player.dto';
 import { VotingQueue } from '../voting/voting.queue';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 import { cancelTransaction } from '../common/function/cancelTransaction';
+import { SellFleaMarketItemDto } from './dto/sellFleaMarketItem.dto';
+import { itemNotAuthorizedError } from './errors/itemNotAuthorized.error';
 
 @Injectable()
 export class FleaMarketService {
@@ -113,19 +115,21 @@ export class FleaMarketService {
   /**
    * Handles the process of moving an item to the flea market and starting a voting process.
    *
-   * @param itemId - The ID of the item to be moved.
+   * @param sellFleaMarketItemDto - The Dto of the item to be moved.
    * @param clanId - The ID of the clan to which the item belongs to.
    * @param playerId - The ID of the player starting the process.
    */
   async handleSellItem(
-    itemId: string,
+    sellFleaMarketItemDto: SellFleaMarketItemDto,
     clanId: string,
     playerId: string,
   ): Promise<IServiceReturn<boolean>> {
     const session = await this.connection.startSession();
     session.startTransaction();
 
-    const [item, itemErrors] = await this.itemService.readOneById(itemId);
+    const [item, itemErrors] = await this.itemService.readOneById(
+      sellFleaMarketItemDto.item_id,
+    );
     if (itemErrors) return await cancelTransaction(session, itemErrors);
     if (!item.stock_id)
       return await cancelTransaction(session, [itemNotInStockError]);
@@ -140,7 +144,7 @@ export class FleaMarketService {
     );
     const [createdItem, err] = await this.moveItemToFleaMarket(
       newItem,
-      itemId,
+      sellFleaMarketItemDto.item_id,
       session,
     );
     if (err) return await cancelTransaction(session, err);
@@ -153,11 +157,21 @@ export class FleaMarketService {
     });
     if (errors) return await cancelTransaction(session, errors);
 
+    const [, votingUpdateErrors] =
+      await this.votingService.basicService.updateOneById(
+        voting._id,
+        { price: sellFleaMarketItemDto.price },
+        { session },
+      );
+    if (votingUpdateErrors)
+      return cancelTransaction(session, votingUpdateErrors);
+
     await this.votingQueue.addVotingCheckJob({
       voting,
       fleaMarketItemId: createdItem._id.toString(),
       stockId: item.stock_id.toString(),
       queue: VotingQueueName.FLEA_MARKET,
+      price: sellFleaMarketItemDto.price,
     });
 
     await session.commitTransaction();
@@ -224,20 +238,28 @@ export class FleaMarketService {
     const { voting, price, clanId, stockId, fleaMarketItemId } = params;
 
     const votePassed = await this.votingService.checkVotingSuccess(voting);
-    if (voting.type === VotingType.FLEA_MARKET_BUY_ITEM) {
-      if (votePassed) {
-        await this.handlePassedBuyVoting(voting, stockId);
-      } else {
-        await this.handleRejectedBuyVoting(voting, clanId, price);
-      }
-    }
 
-    if (voting.type === VotingType.FLEA_MARKET_SELL_ITEM) {
-      if (votePassed) {
-        await this.handlePassedSellVoting(fleaMarketItemId);
-      } else {
-        await this.handleRejectedSellVoting(fleaMarketItemId, stockId);
-      }
+    switch (voting.type) {
+      case VotingType.FLEA_MARKET_BUY_ITEM:
+        if (votePassed) await this.handlePassedBuyVoting(voting, stockId);
+        else await this.handleRejectedBuyVoting(voting, clanId, price);
+        break;
+      case VotingType.FLEA_MARKET_SELL_ITEM:
+        if (votePassed)
+          await this.handlePassedSellVoting(fleaMarketItemId, price);
+        else await this.handleRejectedSellVoting(fleaMarketItemId, stockId);
+        break;
+      case VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE:
+        if (votePassed)
+          await this.handlePassedItemPriceChangeVoting(
+            voting.fleaMarketItem_id.toString(),
+            voting.price,
+          );
+        else
+          await this.handleRejectedItemPriceChangeVoting(
+            voting.fleaMarketItem_id,
+          );
+        break;
     }
 
     await this.votingService.basicService.deleteOneById(voting._id);
@@ -297,7 +319,7 @@ export class FleaMarketService {
       );
     if (itemErrors) return await cancelTransaction(session, itemErrors);
 
-    const newItem = await this.helperService.fleaMarketItemToCreateItemDto(
+    const newItem = this.helperService.fleaMarketItemToCreateItemDto(
       item,
       stockId,
     );
@@ -362,10 +384,12 @@ export class FleaMarketService {
    * Handles the process when a sell voting has passed.
    *
    * @param itemId - The ID of the item.
+   * @param sellingPrice - The price for which item should be sold
    */
-  private async handlePassedSellVoting(itemId: string) {
+  private async handlePassedSellVoting(itemId: string, sellingPrice: number) {
     const [_, errors] = await this.basicService.updateOneById(itemId, {
       status: Status.AVAILABLE,
+      price: sellingPrice,
     });
     if (errors) throw errors;
   }
@@ -398,7 +422,7 @@ export class FleaMarketService {
     );
     if (deleteErrors) return cancelTransaction(session, deleteErrors);
 
-    const item = await this.helperService.fleaMarketItemToCreateItemDto(
+    const item = this.helperService.fleaMarketItemToCreateItemDto(
       fmItem,
       stockId,
     );
@@ -500,5 +524,96 @@ export class FleaMarketService {
     await session.endSession();
 
     return [voting, null];
+  }
+
+  /**
+   * Handles starting a voting to change a price of a flea market item.
+   *
+   * validates that there is no ongoing voting about the item
+   * updates the item status to shipping so it's unavailable to be bought while price change voting is ongoing
+   * starts a new voting and adds it to the voting queue
+   *
+   * @param item_id - _id of the item whose price to change
+   * @param price - the new price for the item
+   * @param player_id - _id of the player starting the voting
+   *
+   * @returns VotingDto or ServiceErrors
+   **/
+  async changeItemPrice(
+    item_id: string,
+    price: number,
+    player_id: string,
+  ): Promise<IServiceReturn<VotingDto>> {
+    const [player, playerErrors] =
+      await this.playerService.getPlayerById(player_id);
+    if (playerErrors) return [null, playerErrors];
+
+    const [item, itemErrors] =
+      await this.basicService.readOneById<FleaMarketItemDto>(item_id);
+    if (itemErrors) return [null, itemErrors];
+    if (item.status !== Status.AVAILABLE)
+      return [null, [itemNotAvailableError]];
+    if (item.clan_id.toString() !== player.clan_id.toString())
+      return [null, [itemNotAuthorizedError]];
+
+    const session = await this.connection.startSession();
+    session.startTransaction();
+
+    const [_, updateErrors] = await this.basicService.updateOneById(
+      item._id,
+      { status: Status.SHIPPING },
+      { session },
+    );
+    if (updateErrors) return await cancelTransaction(session, updateErrors);
+
+    const [voting, votingErrors] = await this.votingService.startVoting(
+      {
+        voterPlayer: player,
+        type: VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE,
+        queue: VotingQueueName.CLAN_SHOP,
+        clanId: player.clan_id?.toString(),
+        newItemPrice: price,
+        fleaMarketItem: item,
+      },
+      session,
+    );
+    if (votingErrors) return await cancelTransaction(session, votingErrors);
+
+    await this.votingQueue.addVotingCheckJob({
+      voting,
+      queue: VotingQueueName.FLEA_MARKET,
+    });
+
+    await session.commitTransaction();
+    await session.endSession();
+
+    return [voting, null];
+  }
+
+  /**
+   * Handles passed item price change voting by updating the status and price of the item
+   *
+   * @param item_id - _id of the item to update
+   * @param newPrice - new price of the item
+   **/
+  private async handlePassedItemPriceChangeVoting(
+    item_id: string,
+    newPrice: number,
+  ) {
+    await this.basicService.updateOneById(item_id, {
+      status: Status.AVAILABLE,
+      price: newPrice,
+    });
+  }
+
+  /**
+   * Handles rejected item price change voting by changing the item status back to available.
+   *
+   * @param item_id - _id of the item to update
+   **/
+  private async handleRejectedItemPriceChangeVoting(item_id: string) {
+    await this.basicService.updateOneById(item_id, {
+      status: Status.AVAILABLE,
+    });
   }
 }

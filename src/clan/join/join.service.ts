@@ -11,6 +11,8 @@ import { PlayerCounterFactory } from '../clan.counters';
 import ICounter from '../../common/service/counter/ICounter';
 import { Player } from '../../player/schemas/player.schema';
 import { MemberClanRole } from '../role/initializationClanRoles';
+import { ClanDto } from '../dto/clan.dto';
+import { IServiceReturn } from '../../common/service/basicService/IService';
 
 @Injectable()
 export class JoinService {
@@ -37,12 +39,13 @@ export class JoinService {
    * @param clan_id Id of the clan to join.
    * @param player_id Id of the player trying to join.
    * @param password Password to a closed clan (optional)
+   * @returns ClanDto with the clan data or throws NotFoundException if the clan is not found
    */
   public async handleJoinRequest(
     clan_id: string,
     player_id: string,
     password?: string,
-  ) {
+  ): Promise<IServiceReturn<ClanDto>> {
     const [clan] = await this.clanService.readOneById(clan_id);
     if (!clan) throw new NotFoundException('Clan with that _id is not found');
 
@@ -71,6 +74,8 @@ export class JoinService {
     }
 
     await this.joinClan(player_id, clan_id);
+
+    return [clan, null];
   }
 
   /**
