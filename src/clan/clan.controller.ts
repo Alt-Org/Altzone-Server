@@ -23,7 +23,6 @@ import { AddSortQuery } from '../common/interceptor/request/addSortQuery.interce
 import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
 import { IGetAllQuery } from '../common/interface/IGetAllQuery';
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
-import { JoinDto } from './join/dto/join.dto';
 import { JoinRequestDto } from './join/dto/joinRequest.dto';
 import { JoinService } from './join/join.service';
 import { RemovePlayerDTO } from './join/dto/removePlayer.dto';
