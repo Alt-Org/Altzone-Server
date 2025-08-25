@@ -4,7 +4,7 @@ import { VoteChoice } from '../../../../voting/enum/choiceType.enum';
 import { ObjectId } from 'mongodb';
 
 export default class VoteBuilder implements IDataBuilder<Vote> {
-  private readonly base: Partial<Vote> = {
+  private readonly base: Vote = {
     player_id: new ObjectId().toString(),
     choice: VoteChoice.YES,
   };

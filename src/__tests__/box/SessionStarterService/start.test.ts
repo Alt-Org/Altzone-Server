@@ -4,14 +4,12 @@ import { ObjectId } from 'mongodb';
 import SessionStarterService from '../../../box/sessionStarter/sessionStarter.service';
 import ProfileModule from '../../profile/modules/profile.module';
 import PlayerModule from '../../player/modules/player.module';
-import ClanModule from '../../clan/modules/clan.module';
 import ProfileBuilderFactory from '../../profile/data/profileBuilderFactory';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
-import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 import { Box } from '../../../box/schemas/box.schema';
 import DailyTasksModule from '../../dailyTasks/modules/dailyTasks.module';
 import { SessionStage } from '../../../box/enum/SessionStage.enum';
-import Tester from '../../../box/accountClaimer/payloads/tester';
+import ClanModule from '../../clan/modules/clan.module';
 
 describe('SessionStarterService.start() test suite', () => {
   let starter: SessionStarterService;
@@ -21,39 +19,30 @@ describe('SessionStarterService.start() test suite', () => {
   let existingBox: Box;
   const profileModel = ProfileModule.getProfileModel();
   const playerModel = PlayerModule.getPlayerModel();
-  const clanModel = ClanModule.getClanModel();
   const dailyTaskModel = DailyTasksModule.getDailyTaskModel();
+  const clanModel = ClanModule.getClanModel();
 
-  const testerBuilder = BoxBuilderFactory.getBuilder('Tester');
   const profileBuilder = ProfileBuilderFactory.getBuilder('Profile');
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
-  const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
   const dailyTaskBuilder = BoxBuilderFactory.getBuilder('PredefinedDailyTask');
 
   beforeEach(async () => {
     starter = await BoxModule.getSessionStarterService();
 
-    const existingClan1 = clanBuilder.setName('clan1').build();
-    const existingClanResp1 = await clanModel.create(existingClan1);
-    existingClan1._id = existingClanResp1._id;
-    const existingClan2 = clanBuilder.setName('clan2').build();
-    const existingClanResp2 = await clanModel.create(existingClan2);
-    existingClan2._id = existingClanResp2._id;
+    const adminPlayer = playerBuilder.setName('adminProfile').build();
+    const adminInDb = await playerModel.create(adminPlayer);
 
-    await createTesters(3, existingClan1._id);
-    await createTesters(3, existingClan2._id);
+    const adminProfile = profileBuilder.setUsername('adminProfile').build();
+    const adminProfInDb = await profileModel.create(adminProfile);
 
     const task1 = dailyTaskBuilder.setCoins(10).build();
     const task2 = dailyTaskBuilder.setCoins(20).build();
 
     existingBox = boxBuilder
       .setAdminPassword('password')
-      .setAdminPlayerId(new ObjectId())
-      .setAdminProfileId(new ObjectId())
-      .setClanIds([
-        new ObjectId(existingClan1._id),
-        new ObjectId(existingClan2._id),
-      ])
+      .setAdminPlayerId(new ObjectId(adminInDb._id))
+      .setAdminProfileId(new ObjectId(adminProfInDb._id))
+      .setClansToCreate([{ name: 'sessionClan1' }, { name: 'sessionClan2' }])
       .setDailyTasks([task1, task2])
       .build();
 
@@ -61,45 +50,33 @@ describe('SessionStarterService.start() test suite', () => {
     existingBox._id = boxResp._id;
   });
 
+  afterEach(async () => {
+    await Promise.all([
+      clanModel.deleteMany(),
+      playerModel.deleteMany(),
+      boxModel.deleteMany(),
+      profileModel.deleteMany(),
+      dailyTaskModel.deleteMany(),
+    ]);
+  });
+
   it('Should return true if input is valid', async () => {
     const [isStarted, errors] = await starter.start(existingBox._id);
 
     expect(errors).toBeNull();
-    expect(isStarted).toBeTruthy();
+    expect(isStarted).toBe(true);
   });
 
   it('Should create predefined daily tasks for each clan', async () => {
     await starter.start(existingBox._id);
 
+    const box = await boxModel.findById(existingBox._id);
     const clanDailyTask = existingBox.dailyTasks;
     const boxDailyTasksInDB = await dailyTaskModel.find({
-      clan_id: { $in: existingBox.clan_ids },
+      clan_id: { $in: box.createdClan_ids },
     });
 
     expect(boxDailyTasksInDB).toHaveLength(clanDailyTask.length * 2);
-  });
-
-  it('Should set admins for box clans', async () => {
-    await starter.start(existingBox._id);
-
-    const clansInDB = await clanModel.find({
-      _id: { $in: existingBox.clan_ids },
-    });
-
-    expect(clansInDB[0].admin_ids).not.toBeNull();
-    expect(clansInDB[0].admin_ids).toHaveLength(1);
-    expect(clansInDB[1].admin_ids).not.toBeNull();
-    expect(clansInDB[1].admin_ids).toHaveLength(1);
-
-    const clan1Admin_id = clansInDB[0].admin_ids[0];
-    const clan2Admin_id = clansInDB[1].admin_ids[0];
-
-    const clan1Admin = await playerModel.findById(clan1Admin_id);
-    const clan1 = await clanModel.findById(existingBox.clan_ids[0]);
-    expect(clan1Admin.clan_id.toString()).toBe(clan1._id.toString());
-    const clan2Admin = await playerModel.findById(clan2Admin_id);
-    const clan2 = await clanModel.findById(existingBox.clan_ids[1]);
-    expect(clan2Admin.clan_id.toString()).toBe(clan2._id.toString());
   });
 
   it('Should set testers shared password for a box', async () => {
@@ -172,35 +149,22 @@ describe('SessionStarterService.start() test suite', () => {
     expect(errors).toContainSE_NOT_FOUND();
   });
 
-  /**
-   * Creates specified amount of testers in DB
-   * @param amount amount to create
-   * @param clan_id testers clan
-   * @returns created testers
-   */
-  async function createTesters(
-    amount: number,
-    clan_id: string,
-  ): Promise<Tester[]> {
-    const createdTesters: Tester[] = [];
+  it('Should create clans with valid names based on the box config', async () => {
+    await starter.start(existingBox._id);
 
-    for (let i = 0; i < amount; i++) {
-      const testerName = `tester${i}-${clan_id}`;
-      const testerProfile = profileBuilder.setUsername(testerName).build();
-      await profileModel.create(testerProfile);
+    const boxInDB = await boxModel.findById(existingBox._id);
+    const createdClanIds = boxInDB.createdClan_ids;
 
-      const testerPlayer = playerBuilder
-        .setName(testerName)
-        .setUniqueIdentifier(testerName)
-        .setClanId(clan_id)
-        .setProfileId(testerProfile._id)
-        .build();
-      await playerModel.create(testerPlayer);
+    expect(createdClanIds).toBeDefined();
+    expect(Array.isArray(createdClanIds)).toBe(true);
+    expect(createdClanIds).toHaveLength(existingBox.clansToCreate.length);
 
-      const tester = testerBuilder.build();
-      createdTesters.push(tester);
-    }
+    const clansInDB = await clanModel.find({ _id: { $in: createdClanIds } });
+    const clanNames = clansInDB.map((clan: any) => clan.name);
 
-    return createdTesters;
-  }
+    const expectedNames = existingBox.clansToCreate.map((c: any) => c.name);
+    expectedNames.forEach((name) => {
+      expect(clanNames).toContain(name);
+    });
+  });
 });

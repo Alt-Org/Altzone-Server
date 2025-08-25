@@ -132,24 +132,6 @@ describe('BoxService.createOne() test suite', () => {
       .setAdminPassword(existingAdmin.password)
       .setAdminPlayerId(new ObjectId(adminPlayer._id))
       .setAdminProfileId(new ObjectId(adminProfile._id))
-      .setClanIds([
-        new ObjectId(existingClan1._id),
-        new ObjectId(existingClan2._id),
-      ])
-      .setSoulHomeIds([
-        new ObjectId(existingSoulHome1._id),
-        new ObjectId(existingSoulHome2._id),
-      ])
-      .setRoomIds([
-        new ObjectId(existingRoom11._id),
-        new ObjectId(existingRoom12._id),
-        new ObjectId(existingRoom21._id),
-        new ObjectId(existingRoom22._id),
-      ])
-      .setStockIds([
-        new ObjectId(existingStock1._id),
-        new ObjectId(existingStock2._id),
-      ])
       .build();
   });
 

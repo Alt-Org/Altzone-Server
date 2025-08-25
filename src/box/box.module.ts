@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { BoxSchema } from './schemas/box.schema';
@@ -30,6 +30,7 @@ import { AccountClaimerController } from './accountClaimer/accountClaimer.contro
 import AccountClaimerService from './accountClaimer/accountClaimer.service';
 import { TesterAccountService } from './accountClaimer/testerAccount.service';
 import UniqueFieldGenerator from './util/UniqueFieldGenerator';
+import { ItemSchema } from '../clanInventory/item/item.schema';
 
 @Module({
   imports: [
@@ -42,9 +43,10 @@ import UniqueFieldGenerator from './util/UniqueFieldGenerator';
       { name: ModelName.SOULHOME, schema: SoulhomeSchema },
       { name: ModelName.ROOM, schema: RoomSchema },
       { name: ModelName.STOCK, schema: StockSchema },
+      { name: ModelName.ITEM, schema: ItemSchema },
     ]),
-    ClanModule,
-    ChatModule,
+    forwardRef(() => ClanModule),
+    forwardRef(() => ChatModule),
     ProfileModule,
     PlayerModule,
     DailyTasksModule,
@@ -66,6 +68,6 @@ import UniqueFieldGenerator from './util/UniqueFieldGenerator';
     TesterAccountService,
     UniqueFieldGenerator,
   ],
-  exports: [BoxService, GroupAdminGuard],
+  exports: [BoxService, GroupAdminGuard, BoxAuthHandler],
 })
 export class BoxModule {}

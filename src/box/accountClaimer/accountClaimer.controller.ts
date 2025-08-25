@@ -7,6 +7,7 @@ import AccountClaimerService from './accountClaimer.service';
 import ClaimedAccountDto from './dto/claimedAccount.dto';
 import ClaimAccountDto from './dto/claimAccount.dto';
 import { ModelName } from '../../common/enum/modelName.enum';
+import { NoBoxIdFilter } from '../auth/decorator/NoBoxIdFilter.decorator';
 
 @SwaggerTags('Box')
 @Controller('/box/claim-account')
@@ -29,9 +30,9 @@ export class AccountClaimerController {
     errors: [400, 403, 404],
     hasAuth: false,
   })
-  @SwaggerTags('Release on 13.07.2025', 'Box')
   @NoAuth()
   @Post()
+  @NoBoxIdFilter()
   @UniformResponse(ModelName.PLAYER, ClaimedAccountDto)
   async claimAccount(@Body() body: ClaimAccountDto) {
     return this.accountService.claimAccount(body.sharedPassword);

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, MongooseError } from 'mongoose';
+import mongoose, { FilterQuery, Model } from 'mongoose';
 import { Box, BoxDocument, publicReferences } from './schemas/box.schema';
 import BasicService, {
   convertMongooseToServiceErrors,
@@ -14,27 +14,25 @@ import { Clan } from '../clan/clan.schema';
 import { Room } from '../clanInventory/room/room.schema';
 import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { BoxHelper } from './util/boxHelper';
-import { ClanService } from '../clan/clan.service';
-import { ProfileService } from '../profile/profile.service';
 import {
   IServiceReturn,
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
-import { cancelTransaction } from '../common/function/cancelTransaction';
-import { CreateBoxDto } from './dto/createBox.dto';
+import { ObjectId } from 'mongodb';
+import { SessionStage } from './enum/SessionStage.enum';
+import { Profile } from '../profile/profile.schema';
 
 @Injectable()
 export class BoxService {
   public constructor(
     @InjectModel(Box.name) public readonly model: Model<Box>,
     @InjectModel(Player.name) public readonly playerModel: Model<Player>,
+    @InjectModel(Profile.name) private readonly profileModel: Model<Profile>,
     @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
     @InjectModel(Room.name) public readonly roomModel: Model<Room>,
     @InjectModel(GroupAdmin.name)
     public readonly groupAdminModel: Model<GroupAdmin>,
     private readonly boxHelper: BoxHelper,
-    private readonly clanService: ClanService,
-    private readonly profilesService: ProfileService,
   ) {
     this.refsInModel = publicReferences;
     this.basicService = new BasicService(model);
@@ -129,83 +127,60 @@ export class BoxService {
   }
 
   /**
-   * Removes box data from DB and its references
-   * @param _id _id of the box to be removed
+   * Resets testing session.
    *
-   * @returns true if box data was removed successfully or ServiceErrors if any occurred
+   * That means removing all the data associated with the box created after the stage 2.
+   *
+   * @param box_id _id of the box, which data should be reset
+   *
+   * @returns true if box was reset or ServiceErrors:
+   * - REQUIRED - if the box_id is null, undefined or empty string
+   * - NOT_FOUND - if there are no box with this _id
    */
-  public async deleteOneById(_id: string): Promise<IServiceReturn<true>> {
-    const [boxToRemove, boxReadErrors] =
-      await this.basicService.readOneById<BoxDocument>(_id);
-    if (boxReadErrors) return [null, boxReadErrors];
+  public async reset(box_id: string | ObjectId): Promise<IServiceReturn<true>> {
+    const [, validationErrors] = this.validateBoxId(box_id);
+    if (validationErrors) return [null, validationErrors];
 
-    const [, boxRefRemoveErrors] = await this.deleteBoxReferences(
-      boxToRemove.toObject(),
+    const parsed_id = box_id.toString();
+
+    const [box, readErrors] = await this.basicService.readOneById(parsed_id);
+    if (readErrors) return [null, readErrors];
+
+    const [, clearingErrors] = await this.clearSession(parsed_id, [
+      ModelName.BOX,
+      ModelName.GROUP_ADMIN,
+      ModelName.FEEDBACK,
+      ModelName.PLAYER,
+      ModelName.PROFILE,
+    ]);
+
+    const [, adminProfileErrors] = await this.clearBoxCollection<Profile>(
+      parsed_id,
+      this.profileModel,
+      {
+        filter: { _id: { $ne: box.adminProfile_id } },
+      },
     );
-    if (boxRefRemoveErrors) return [null, boxRefRemoveErrors];
+    const [, adminPlayerErrors] = await this.clearBoxCollection<Player>(
+      parsed_id,
+      this.playerModel,
+      {
+        filter: { _id: { $ne: box.adminPlayer_id } },
+      },
+    );
 
-    return this.basicService.deleteOneById(_id);
-  }
+    await this.basicService.updateOneById<Partial<Box>>(parsed_id, {
+      sessionStage: SessionStage.PREPARING,
+    });
 
-  /**
-   * Removes all data associated with the box including:
-   * - clans and their soul homes, rooms, stocks
-   * - profiles and players
-   * - chat
-   *
-   * @param boxData box related data to be removed
-   *
-   * @returns true if references were removed or Service errors if any occurred
-   */
-  public async deleteBoxReferences(
-    boxData: Partial<Box>,
-  ): Promise<IServiceReturn<true>> {
-    const session = await this.model.startSession();
-    session.startTransaction();
-
-    if (boxData.clan_ids) {
-      for (let i = 0; i < boxData.clan_ids.length; i++) {
-        const [, deleteErrors] = await this.clanService.deleteOneById(
-          boxData.clan_ids[i].toString(),
-        );
-        if (deleteErrors) await cancelTransaction(session, deleteErrors);
-      }
-    }
-
-    if (boxData.adminProfile_id) {
-      const resp = await this.profilesService.deleteOneById(
-        boxData.adminProfile_id.toString(),
-      );
-      if (resp instanceof MongooseError) {
-        const deleteError = convertMongooseToServiceErrors(resp);
-        await cancelTransaction(session, deleteError);
-      }
-    }
-
-    await session.commitTransaction();
-    await session.endSession();
+    const occurredErrors = [
+      ...(clearingErrors ?? []),
+      ...(adminProfileErrors ?? []),
+      ...(adminPlayerErrors ?? []),
+    ];
+    if (occurredErrors.length !== 0) return [null, occurredErrors];
 
     return [true, null];
-  }
-
-  /**
-   * Retrieves the reset data for a box.
-   *
-   * @param boxId - The ID of the box to retrieve reset data for.
-   * @returns The reset data for the box.
-   * @throws Will throw an error if the box cannot be found.
-   */
-  async getBoxResetData(boxId: string) {
-    const [box, error] = await this.readOneById(boxId, {
-      includeRefs: [BoxReference.ADMIN_PLAYER] as string[] as ModelName[],
-    });
-    if (error) throw error;
-
-    const boxToCreate = new CreateBoxDto();
-    boxToCreate.adminPassword = box.adminPassword;
-    boxToCreate.playerName = box['AdminPlayer']['name'];
-
-    return boxToCreate;
   }
 
   /**
@@ -213,26 +188,17 @@ export class BoxService {
    *
    * @param boxId - The ID of the box to delete.
    * @returns void promise.
-   * @throws Will throw an error if the deletion fails.
    */
-  async deleteBox(boxId: string) {
-    const session = await this.model.db.startSession();
-    session.startTransaction();
+  async deleteBox(boxId: string | ObjectId) {
+    const [, validationErrors] = this.validateBoxId(boxId);
+    if (validationErrors) return [null, validationErrors];
 
-    const [box, boxError] = await this.readOneById(boxId);
-    if (boxError) return await cancelTransaction(session, boxError);
+    const parsed_id = boxId.toString();
 
-    const [, deleteBoxError] = await this.deleteOneById(boxId);
-    if (deleteBoxError) return await cancelTransaction(session, deleteBoxError);
+    const [, readErrors] = await this.basicService.readOneById(parsed_id);
+    if (readErrors) return [null, readErrors];
 
-    const [, adminDeleteError] = await this.adminBasicService.deleteOne({
-      filter: { password: box.adminPassword },
-    });
-    if (adminDeleteError)
-      return await cancelTransaction(session, adminDeleteError);
-
-    session.commitTransaction();
-    session.endSession();
+    return this.clearSession(boxId.toString(), [ModelName.FEEDBACK]);
   }
 
   /**
@@ -246,7 +212,7 @@ export class BoxService {
   async getExpiredBoxes(
     currentTime: Date,
   ): Promise<IServiceReturn<BoxDocument[]>> {
-    return await this.basicService.readMany<BoxDocument>({
+    return this.basicService.readMany<BoxDocument>({
       filter: {
         $or: [
           { boxRemovalTime: { $lte: currentTime.getTime() } },
@@ -254,5 +220,124 @@ export class BoxService {
         ],
       },
     });
+  }
+
+  /**
+   * Remove all documents from DB with specified `box_id`.
+   *
+   * @param box_id _id of the box
+   * @param collectionsToIgnore collections that should not be touched
+   * @private
+   */
+  private async clearSession(
+    box_id: string,
+    collectionsToIgnore: ModelName[],
+  ): Promise<IServiceReturn<true>> {
+    const collections = mongoose.connection.models;
+    const errors: ServiceError[] = [];
+
+    for (const name in collections) {
+      const collection = collections[name];
+
+      if (!collectionsToIgnore.includes(name as ModelName)) {
+        const [, clearingErrors] = await this.clearBoxCollection(
+          box_id,
+          collection,
+        );
+        errors.push(...(clearingErrors ?? []));
+      }
+    }
+
+    if (errors.length !== 0) return [null, errors];
+
+    return [true, null];
+  }
+
+  /**
+   * Remove all documents from a specified collection with specified `box_id` field
+   *
+   * @param box_id _id of the box
+   * @param model model where to remove
+   * @param options removal options
+   * @private
+   */
+  private async clearBoxCollection<T = never>(
+    box_id: string,
+    model: Model<T>,
+    options?: {
+      /**
+       * additional filter for removing operation, which will be combined with box_id
+       */
+      filter?: FilterQuery<T>;
+      /**
+       * amount of documents to remove at a time
+       * @default 50
+       */
+      batchSize?: number;
+      /**
+       * Max amount of document expected to be in DB. Required to prevent infinite loop.
+       * @default 1000000
+       */
+      maxDocsCount?: number;
+    },
+  ): Promise<IServiceReturn<true>> {
+    const { filter, batchSize, maxDocsCount } = {
+      batchSize: 50,
+      maxDocsCount: 1000000,
+      ...options,
+    };
+    const deleteFilter = filter ? { box_id, ...filter } : { box_id };
+
+    const errorsOccurred = [];
+    const maxIterations = Math.ceil(maxDocsCount / batchSize);
+
+    for (let i = 0; i < maxIterations; i++) {
+      try {
+        const docs = await model
+          .find(deleteFilter)
+          .limit(batchSize)
+          .select('_id')
+          .lean();
+        if (docs.length === 0) break;
+
+        const _idsToDelete = docs.map((doc) => doc._id);
+        await model.deleteMany({ _id: { $in: _idsToDelete } });
+      } catch (e) {
+        errorsOccurred.push(e);
+      }
+    }
+
+    if (errorsOccurred.length !== 0) {
+      const errors = convertMongooseToServiceErrors(errorsOccurred);
+      return [null, errors];
+    }
+
+    return [true, null];
+  }
+
+  /**
+   * Validates provided box _id
+   * @param box_id _id to validate
+   * @private
+   *
+   * @return true if the box_id is valid, or ServiceError:
+   * - REQUIRED - if the _id is not provided or empty string
+   * - NOT_FOUND - if box with that _id does not exist
+   */
+  private validateBoxId(box_id: string | ObjectId): IServiceReturn<true> {
+    if (!box_id)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'box_id',
+            value: box_id?.toString(),
+            message: 'Parameter box_id is required',
+          }),
+        ],
+      ];
+
+    return [true, null];
   }
 }

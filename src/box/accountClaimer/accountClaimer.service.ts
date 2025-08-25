@@ -14,7 +14,7 @@ import { ClanDto } from '../../clan/dto/clan.dto';
 @Injectable()
 export default class AccountClaimerService {
   constructor(
-    @InjectModel(Box.name) public readonly boxModel: Model<Box>,
+    @InjectModel(Box.name) private readonly boxModel: Model<Box>,
     private readonly testerService: TesterAccountService,
     private readonly jwtService: JwtService,
   ) {
@@ -65,20 +65,22 @@ export default class AccountClaimerService {
       ];
 
     const [account, accountCreationErrors] =
-      await this.testerService.createTester();
+      await this.testerService.createTester(box._id.toString());
     if (accountCreationErrors) return [null, accountCreationErrors];
 
     const [accountClan, clanAssigningErrors] =
       await this.testerService.addTesterToClan(
         account.Player._id,
-        box.clan_ids,
+        box.createdClan_ids,
       );
     if (clanAssigningErrors) return [null, clanAssigningErrors];
 
     const accessToken = await this.jwtService.signAsync({
       player_id: account.Player._id.toString(),
       profile_id: account.Profile._id.toString(),
+      clan_id: accountClan._id.toString(),
       box_id: box._id.toString(),
+      groupAdmin: false,
     });
 
     return [

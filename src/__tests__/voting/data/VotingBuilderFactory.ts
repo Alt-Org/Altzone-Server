@@ -3,19 +3,22 @@ import CreateStartItemVotingParamsDtoBuilder from './voting/createStartItemVotin
 import VotingDtoBuilder from './voting/VotingDtoBuilder';
 import OrganizerBuilder from './organizer/OrganizerBuilder';
 import VoteBuilder from './voting/VoteBuilder';
+import { VotingBuilder } from './voting/VotingBuilder';
 
 type BuilderName =
   | 'CreateVotingDto'
   | 'CreateStartItemVotingParamsDto'
   | 'VotingDto'
-  | 'Organizer'
-  | 'Vote';
+  | 'Vote'
+  | 'Voting'
+  | 'Organizer';
 
 type BuilderMap = {
   CreateVotingDto: CreateVotingDtoBuilder;
   CreateStartItemVotingParamsDto: CreateStartItemVotingParamsDtoBuilder;
   VotingDto: VotingDtoBuilder;
   Vote: VoteBuilder;
+  Voting: VotingBuilder;
   Organizer: OrganizerBuilder;
 };
 
@@ -30,6 +33,8 @@ export default class VotingBuilderFactory {
         return new VotingDtoBuilder() as BuilderMap[T];
       case 'Vote':
         return new VoteBuilder() as BuilderMap[T];
+      case 'Voting':
+        return new VotingBuilder() as BuilderMap[T];
       case 'Organizer':
         return new OrganizerBuilder() as BuilderMap[T];
       default:

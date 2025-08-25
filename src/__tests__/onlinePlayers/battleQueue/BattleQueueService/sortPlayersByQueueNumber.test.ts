@@ -1,8 +1,8 @@
-import { BattleQueueService } from 'src/onlinePlayers/battleQueue/battleQueue.service';
 import BattleQueueModule from '../../modules/battleQueue.module';
 import OnlinePlayersBuilderFactory from '../../data/onlinePlayersBuilderFactory';
 import { OnlinePlayerBuilder } from '../../data/onlinePlayers/OnlinePlayerBuilder';
 import { BattleWaitStatus } from '../../../../onlinePlayers/payload/additionalTypes/BattleWaitStatus';
+import { BattleQueueService } from '../../../../onlinePlayers/battleQueue/battleQueue.service';
 
 describe('BattleQueueService.sortPlayersByQueueNumber', () => {
   let service: BattleQueueService;

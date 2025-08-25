@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   UseGuards,
@@ -27,16 +28,29 @@ import SessionStarterService from './sessionStarter/sessionStarter.service';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { BoxDto } from './dto/box.dto';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
+import { ConfigureBoxDto } from './dto/configureBox.dto';
+import { ObjectId } from 'mongodb';
+import { CreateGroupAdminDto } from './groupAdmin/dto/createGroupAdmin.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
+import { Model } from 'mongoose';
+import BasicService from '../common/service/basicService/BasicService';
+import { NoBoxIdFilter } from './auth/decorator/NoBoxIdFilter.decorator';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
 export class BoxController {
   public constructor(
+    @InjectModel(GroupAdmin.name) public readonly groupModel: Model<GroupAdmin>,
     private readonly service: BoxService,
     private readonly boxCreator: BoxCreator,
     private readonly authHandler: BoxAuthHandler,
     private readonly sessionStarter: SessionStarterService,
-  ) {}
+  ) {
+    this.adminBasicService = new BasicService(groupModel);
+  }
+
+  private readonly adminBasicService: BasicService;
 
   /**
    * Create a testing box.
@@ -54,9 +68,9 @@ export class BoxController {
     errors: [400, 404],
     hasAuth: false,
   })
-  @SwaggerTags('Release on 13.07.2025', 'Box')
   @NoAuth()
   @Post()
+  @NoBoxIdFilter()
   @UniformResponse(ModelName.BOX, CreatedBoxDto)
   async createBox(@Body() body: CreateBoxDto) {
     const [createdBox, errors] = await this.boxCreator.createBox(body);
@@ -72,6 +86,33 @@ export class BoxController {
   }
 
   /**
+   * Update box configuration.
+   *
+   * @remarks Update box configuration.
+   */
+  @SwaggerTags('Release on 27.07.2025', 'Box')
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 404],
+    hasAuth: true,
+  })
+  @IsGroupAdmin()
+  @UniformResponse()
+  @Patch()
+  async configureBox(
+    @Body() body: ConfigureBoxDto,
+    @LoggedUser() user: BoxUser,
+  ) {
+    const [_, err] = await this.service.updateOneById({
+      _id: new ObjectId(user.box_id),
+      ...body,
+    });
+    if (err) return [null, err];
+  }
+
+  /**
    * Reset testing box.
    *
    * @remarks Reset testing box data, which means removing all the data created during the testing session and returning the box state to the PREPARING stage.
@@ -81,30 +122,18 @@ export class BoxController {
    */
   @ApiResponseDescription({
     success: {
-      dto: CreatedBoxDto,
-      modelName: ModelName.BOX,
+      status: 204,
     },
     errors: [401, 403, 404],
   })
+  @SwaggerTags('Release on 27.07.2025', 'Box')
   @Put('reset')
-  @UniformResponse(ModelName.BOX)
+  @UniformResponse()
   @IsGroupAdmin()
   async resetTestingSession(@LoggedUser() user: BoxUser) {
-    const boxToCreate = await this.service.getBoxResetData(user.box_id);
-    const [_, deleteError] = await this.service.deleteOneById(user.box_id);
-    if (deleteError) return deleteError;
+    const [, errors] = await this.service.reset(user.box_id);
 
-    const [createdBox, createError] =
-      await this.boxCreator.createBox(boxToCreate);
-    if (createError) return createError;
-
-    const groupAdminAccessToken = await this.authHandler.getGroupAdminToken({
-      box_id: createdBox._id.toString(),
-      player_id: createdBox.adminPlayer_id.toString(),
-      profile_id: createdBox.adminProfile_id.toString(),
-    });
-
-    return [{ ...createdBox, accessToken: groupAdminAccessToken }, null];
+    if (errors) return [null, errors];
   }
 
   /**
@@ -118,13 +147,15 @@ export class BoxController {
     success: {
       status: 204,
     },
-    errors: [400, 404],
+    errors: [401, 403, 404],
   })
+  @SwaggerTags('Release on 10.08.2025', 'Box')
   @Delete()
   @IsGroupAdmin()
   @UniformResponse()
   async deleteBoxAndAdmin(@LoggedUser() user: BoxUser) {
-    return await this.service.deleteBox(user.box_id);
+    const [, errors] = await this.service.deleteBox(user.box_id);
+    if (errors) return [null, errors];
   }
 
   /**
@@ -151,34 +182,35 @@ export class BoxController {
   }
 
   /**
-   * Get box by _id, For time of development only
+   * Create a group admin. The endpoint for time of development only
    *
-   * @remarks Endpoint for getting box data by its _id
+   * @remarks Create a group admin.
+   *
+   * The group admin is required in order to use the endpoints starting with "/box",
+   * i.e. for box initialization or changing its settings. Read the docs for more info.
    */
   @ApiResponseDescription({
     success: {
-      dto: BoxDto,
-      modelName: ModelName.BOX,
+      status: 204,
     },
-    errors: [404],
+    errors: [400, 409],
     hasAuth: false,
   })
-  //For time of development only
+  @SwaggerTags('Release on 27.07.2025', 'Box')
+  @Post('/createAdmin')
   @NoAuth()
-  @Get('/:_id')
-  @NoAuth()
-  @UniformResponse(ModelName.BOX)
-  public getOne(
-    @Param() param: _idDto,
-    @IncludeQuery(publicReferences as any) includeRefs: ModelName[],
-  ) {
-    return this.service.readOneById(param._id, { includeRefs });
+  @NoBoxIdFilter()
+  @UniformResponse()
+  public async createAdmin(@Body() body: CreateGroupAdminDto) {
+    const [, creationErrors] = await this.adminBasicService.createOne(body);
+
+    if (creationErrors) return [null, creationErrors];
   }
 
   /**
-   * Get all boxes by. For time of development only
+   * Get all boxes. The endpoint for time of development only
    *
-   * @remarks Endpoint for getting box data by its _id
+   * @remarks Endpoint for getting all boxes data
    */
   @ApiResponseDescription({
     success: {
@@ -189,18 +221,40 @@ export class BoxController {
     errors: [404],
     hasAuth: false,
   })
-  @SwaggerTags('Release on 13.07.2025', 'Box')
-  //For time of development only
-  @NoAuth()
   @Get('/')
   @NoAuth()
+  @NoBoxIdFilter()
   @UniformResponse(ModelName.BOX)
   public getAll() {
     return this.service.readAll();
   }
 
   /**
-   * Delete box by _id
+   * Get box by _id. The endpoint for time of development only
+   *
+   * @remarks Endpoint for getting box data by its _id
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: BoxDto,
+      modelName: ModelName.BOX,
+    },
+    errors: [404],
+    hasAuth: false,
+  })
+  @Get('/:_id')
+  @NoBoxIdFilter()
+  @NoAuth()
+  @UniformResponse(ModelName.BOX)
+  public getOne(
+    @Param() param: _idDto,
+    @IncludeQuery(publicReferences as any) includeRefs: ModelName[],
+  ) {
+    return this.service.readOneById(param._id, { includeRefs });
+  }
+
+  /**
+   * Delete box by _id. The endpoint for time of development only
    *
    * @remarks Endpoint for deleting a box by _id
    */
@@ -211,12 +265,12 @@ export class BoxController {
     errors: [404],
     hasAuth: false,
   })
-  //For time of development only
-  @NoAuth()
   @Delete('/:_id')
+  @NoBoxIdFilter()
+  @NoAuth()
   @UniformResponse(ModelName.BOX)
   async deleteBox(@Param() param: _idDto) {
-    const [, errors] = await this.service.deleteOneById(param._id);
+    const [, errors] = await this.service.deleteBox(param._id);
 
     if (errors) return [null, errors];
   }

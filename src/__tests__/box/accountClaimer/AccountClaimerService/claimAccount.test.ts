@@ -38,9 +38,9 @@ describe('AccountClaimerService.claimAccount() test suite', () => {
     const clan2 = await clanModel.create(clan2ToCreate);
 
     const boxToCreate = boxBuilder
-      .setClanIds([clan1._id.toString(), clan2._id.toString()])
       .setTestersSharedPassword(boxPassword)
       .setTestersAmount(10)
+      .setCreatedClan_ids([new ObjectId(clan1._id), new ObjectId(clan2._id)])
       .setAdminProfileId(new ObjectId())
       .setAdminPlayerId(new ObjectId())
       .build();
@@ -177,7 +177,9 @@ describe('AccountClaimerService.claimAccount() test suite', () => {
 
     await runClaimAccountAsync(20);
 
-    const clansAfter = await clanModel.find({ _id: { $in: box.clan_ids } });
+    const clansAfter = await clanModel.find({
+      _id: { $in: box.createdClan_ids },
+    });
 
     const clansWithIncreasedPlayerCount = clansAfter.filter(
       (clan) => clan.playerCount > 0,

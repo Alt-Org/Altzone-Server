@@ -30,6 +30,7 @@ import { TesterAccountService } from '../../../box/accountClaimer/testerAccount.
 import AccountClaimerService from '../../../box/accountClaimer/accountClaimer.service';
 import { envVars } from '../../../common/service/envHandler/envVars';
 import UniqueFieldGenerator from '../../../box/util/UniqueFieldGenerator';
+import { ItemSchema } from '../../../clanInventory/item/item.schema';
 
 export default class BoxCommonModule {
   private constructor() {}
@@ -50,6 +51,7 @@ export default class BoxCommonModule {
             { name: ModelName.SOULHOME, schema: SoulhomeSchema },
             { name: ModelName.ROOM, schema: RoomSchema },
             { name: ModelName.STOCK, schema: StockSchema },
+            { name: ModelName.ITEM, schema: ItemSchema },
           ]),
           JwtModule.register({
             global: true,

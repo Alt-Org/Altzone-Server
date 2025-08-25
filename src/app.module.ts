@@ -8,7 +8,7 @@ import { RequestHelperModule } from './requestHelper/requestHelper.module';
 import { ProfileModule } from './profile/profile.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthorizationModule } from './authorization/authorization.module';
 import { ChatModule } from './chat/chat.module';
 import { GameDataModule } from './gameData/gameData.module';
@@ -31,9 +31,11 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { OnlinePlayersModule } from './onlinePlayers/onlinePlayers.module';
 import { ClanShopModule } from './clanShop/clanShop.module';
 import { ShopModule } from './shop/shop.module';
+import { FeedbackModule } from './feedback/feedback.module';
 import { MetadataModule } from './metadata/metadata.module';
 import mongoose from 'mongoose';
 import { addBoxIdToSchemaPlugin } from './common/plugin/addBoxIdToSchema.plugin';
+import { BoxIdFilterInterceptor } from './box/auth/BoxIdFilter.interceptor';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -46,6 +48,7 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
 // Set up redis connection
 const redisHost = envVars.REDIS_HOST;
 const redisPort = parseInt(envVars.REDIS_PORT);
+const testEnvironmentName = 'TESTING_SESSION';
 
 const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
 
@@ -55,7 +58,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
     // MongooseModule.forRoot(mongoString, { dbName: dbName }),
     MongooseModule.forRootAsync({
       useFactory: async (): Promise<MongooseModuleOptions> => {
-        if (envVars.ENVIRONMENT === 'TESTING_SESSION')
+        if (envVars.ENVIRONMENT === testEnvironmentName)
           mongoose.plugin(addBoxIdToSchemaPlugin);
 
         return {
@@ -102,11 +105,15 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
     ShopModule,
 
     MetadataModule,
+    ...(envVars.ENVIRONMENT === testEnvironmentName ? [FeedbackModule] : []),
   ],
   controllers: [AppController],
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: authGuardClassToUse },
+    ...(isTestingSession()
+      ? [{ provide: APP_INTERCEPTOR, useClass: BoxIdFilterInterceptor }]
+      : []),
   ],
 })
 export class AppModule {}

@@ -7,7 +7,7 @@ import { ClanDto } from '../../../../clan/dto/clan.dto';
 import { ClanLogoDto } from '../../../../clan/dto/clanLogo.dto';
 import ClanRoleDto from '../../../../clan/role/dto/clanRole.dto';
 
-export default class ClanBuilder implements IDataBuilder<ClanDto> {
+export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
   private readonly base: ClanDto = {
     _id: '',
     name: '',

@@ -180,10 +180,6 @@ describe('BoxCreator.createBox() test suite', () => {
       .setAdminPassword(boxToCreate.adminPassword)
       .setAdminProfileId(new ObjectId())
       .setAdminPlayerId(new ObjectId())
-      .setClanIds([])
-      .setSoulHomeIds([])
-      .setRoomIds([])
-      .setStockIds([])
       .build();
     await boxModel.create(existingBox);
     const [result, errors] = await boxCreator.createBox(boxToCreate);
@@ -199,10 +195,6 @@ describe('BoxCreator.createBox() test suite', () => {
       .setAdminPassword(boxToCreate.adminPassword)
       .setAdminProfileId(new ObjectId())
       .setAdminPlayerId(new ObjectId())
-      .setClanIds([])
-      .setSoulHomeIds([])
-      .setRoomIds([])
-      .setStockIds([])
       .build();
     await boxModel.create(existingBox);
     await boxCreator.createBox(boxToCreate);

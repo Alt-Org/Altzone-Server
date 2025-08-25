@@ -4,8 +4,8 @@ import { ExternalDocumentationObject } from '@nestjs/swagger/dist/interfaces/ope
  * Swagger tag name
  */
 export type SwaggerTagName =
-  | 'Release on 13.07.2025'
-  | 'in-development'
+  | 'Release on 10.08.2025'
+  | 'Release on 27.07.2025'
   | 'Profile'
   | 'Auth'
   | 'Player'
@@ -14,6 +14,7 @@ export type SwaggerTagName =
   | 'SoulHome'
   | 'Room'
   | 'Stock'
+  | 'Stall'
   | 'Item'
   | 'DailyTasks'
   | 'FleaMarket'
@@ -26,21 +27,22 @@ export type SwaggerTagName =
   | 'Box'
   | 'OnlinePlayers'
   | 'GameData'
-  | 'Metadata';
+  | 'Metadata'
+  | 'Feedback';
 
 /**
  * All swagger tags and their data
  *
  */
 export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
-  'Release on 13.07.2025': {
-    name: 'Release on 13.07.2025',
-    description: 'Changes made on release 13.07.2025',
+  'Release on 10.08.2025': {
+    name: 'Release on 10.08.2025',
+    description: 'Changes made on release 10.08.2025',
   },
 
-  'in-development': {
-    name: 'in-development',
-    description: 'Endpoint is currently changing or not yet implemented',
+  'Release on 27.07.2025': {
+    name: 'Release on 27.07.2025',
+    description: 'Changes made on release 27.07.2025',
   },
 
   Profile: {
@@ -76,6 +78,10 @@ export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
   Stock: {
     name: 'Stock',
     description: 'stock related functionality',
+  },
+  Stall: {
+    name: 'Stall',
+    description: 'Flea market related functionality',
   },
   Item: {
     name: 'Item',
@@ -135,6 +141,10 @@ export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
   Metadata: {
     name: 'Metadata',
     description: 'Metadata',
+  },
+  Feedback: {
+    name: 'Feedback',
+    description: 'Players feedback about the game',
   },
 };
 
