@@ -36,6 +36,7 @@ export default class LoggedUser {
     uniqueIdentifier: defaultPlayerName,
     profile_id: '',
     points: 0,
+    battlePoints: 0,
     parentalAuth: true,
     above13: true,
     clanRole_id: null,
@@ -56,6 +57,14 @@ export default class LoggedUser {
    */
   static setPlayer_id(_id: string) {
     LoggedUser.player._id = _id;
+  }
+
+  /**
+   * Please use this method only on tests setup
+   * @param battlePoints player battlePoints to set
+   */
+  static setBattlePoints(battlePoints: number) {
+    LoggedUser.player.battlePoints = battlePoints;
   }
 
   /**

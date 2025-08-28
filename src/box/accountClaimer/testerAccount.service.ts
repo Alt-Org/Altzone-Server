@@ -177,6 +177,7 @@ export class TesterAccountService {
       backpackCapacity: 10,
       parentalAuth: true,
       points: 0,
+      battlePoints: 0,
       name: uniqueName,
       uniqueIdentifier: uniqueId,
       profile_id: profile._id,
