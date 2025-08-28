@@ -17,6 +17,7 @@ export default class CreateStartItemVotingParamsDtoBuilder
       _id: new ObjectId().toString(),
       name: '',
       points: 0,
+      battlePoints: 0,
       backpackCapacity: 0,
       uniqueIdentifier: '',
       parentalAuth: false,

@@ -8,6 +8,7 @@ export default class PlayerBuilder {
     name: 'defaultPlayer',
     backpackCapacity: 10,
     points: 0,
+    battlePoints: 0,
     uniqueIdentifier: 'unique-id',
     above13: true,
     parentalAuth: true,
@@ -58,6 +59,11 @@ export default class PlayerBuilder {
 
   setPoints(points: number) {
     this.base.points = points;
+    return this;
+  }
+
+  setBattlePoints(battlePoints: number) {
+    this.base.battlePoints = battlePoints;
     return this;
   }
 

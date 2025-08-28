@@ -22,6 +22,9 @@ export class Player {
   @Prop({ type: Number, default: 0 })
   points: number;
 
+  @Prop({ type: Number, default: 0 })
+  battlePoints: number;
+
   @Prop({ type: String, required: true, unique: true })
   uniqueIdentifier: string;
 
