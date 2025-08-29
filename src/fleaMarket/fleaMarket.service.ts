@@ -33,6 +33,7 @@ import { SellFleaMarketItemDto } from './dto/sellFleaMarketItem.dto';
 import { itemNotAuthorizedError } from './errors/itemNotAuthorized.error';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
+import { maxSlotsReachedError } from './errors/maxSlotsReached.error';
 
 @Injectable()
 export class FleaMarketService {
@@ -663,11 +664,15 @@ export class FleaMarketService {
 
     const [items, itemError] =
       await this.basicService.readMany<FleaMarketItemDto>({
-        filter: { clan_id },
+        filter: {
+          clan_id,
+          status: { $in: [Status.AVAILABLE, Status.BOOKED] },
+        },
       });
     if (itemError) return [false, itemError];
 
-    if (items.length >= clan.stall.maxSlots) return [false, null];
+    if (items.length >= clan.stall.maxSlots)
+      return [false, [maxSlotsReachedError]];
 
     return [true, null];
   }
