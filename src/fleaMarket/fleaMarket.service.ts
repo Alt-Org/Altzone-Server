@@ -113,6 +113,28 @@ export class FleaMarketService {
   }
 
   /**
+   * Reads and compares the clan ID of the given player and flea market item.
+   *
+   * @param itemId - The ID of the flea market item.
+   * @param playerId - The ID of the player.
+   * @returns The clan ID if player and item clan_id fields match, or null otherwise.
+   * @throws Will throw if there is an error getting the item or player information.
+   */
+  async getFleaMarketItemClanId(itemId: string, playerId: string) {
+    const [item, itemError] =
+      await this.basicService.readOneById<FleaMarketItem>(itemId);
+    if (itemError) throw itemError;
+
+    const [player, playerError] =
+      await this.playerService.getPlayerById(playerId);
+    if (playerError) throw playerError;
+
+    return item.clan_id.toString() === player.clan_id.toString()
+      ? item.clan_id.toString()
+      : null;
+  }
+
+  /**
    * Handles the process of moving an item to the flea market and starting a voting process.
    *
    * @param sellFleaMarketItemDto - The Dto of the item to be moved.
@@ -388,7 +410,7 @@ export class FleaMarketService {
    */
   private async handlePassedSellVoting(itemId: string, sellingPrice: number) {
     const [_, errors] = await this.basicService.updateOneById(itemId, {
-      status: Status.AVAILABLE,
+      status: Status.SHIPPING,
       price: sellingPrice,
     });
     if (errors) throw errors;
@@ -615,5 +637,27 @@ export class FleaMarketService {
     await this.basicService.updateOneById(item_id, {
       status: Status.AVAILABLE,
     });
+  }
+
+  /**
+   * Check if clan has available slots for items.
+   *
+   * Validates that clan stall max slots is bigger than the amount of items
+   * clan has for sale in the flea market.
+   **/
+  async checkClanItemSlots(clan_id: string): Promise<IServiceReturn<boolean>> {
+    const [clan, clanError] = await this.clanService.readOneById(clan_id);
+    if (clanError) return [false, clanError];
+    if (!clan.stall) return [false, clanError];
+
+    const [items, itemError] =
+      await this.basicService.readMany<FleaMarketItemDto>({
+        filter: { clan_id },
+      });
+    if (itemError) return [false, clanError];
+
+    if (items.length >= clan.stall.maxSlots) return [false, null];
+
+    return [true, null];
   }
 }
