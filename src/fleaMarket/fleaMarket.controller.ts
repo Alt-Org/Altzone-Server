@@ -215,7 +215,7 @@ export class FleaMarketController {
     const [availableSlot, errors] =
       await this.service.checkClanItemSlots(clanId);
     if (errors) throw errors;
-    if (availableSlot === false) {
+    if (!availableSlot) {
       throw new APIError({
         reason: APIErrorReason.MORE_THAN_MAX,
         message:
