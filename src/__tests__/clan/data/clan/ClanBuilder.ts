@@ -136,4 +136,9 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
     this.base.stall = stall;
     return this;
   }
+
+  setStallMaxSlots(amount: number) {
+    this.base.stall.maxSlots = amount;
+    return this;
+  }
 }

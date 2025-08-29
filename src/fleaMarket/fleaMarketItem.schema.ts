@@ -33,7 +33,7 @@ export class FleaMarketItem {
     type: String,
     enum: Status,
     required: true,
-    default: Status.AVAILABLE,
+    default: Status.SHIPPING,
   })
   status: Status;
 
