@@ -212,8 +212,10 @@ export class FleaMarketController {
         message: 'The item does not belong to the clan of logged in player',
       });
 
-    const [_, errors] = await this.service.checkClanItemSlots(clanId);
-    if (errors) throw errors;
+    if (body.status === Status.AVAILABLE) {
+      const [_, errors] = await this.service.checkClanItemSlots(clanId);
+      if (errors) throw errors;
+    }
 
     const [_, updateError] = await this.service.basicService.updateOneById(
       body.item_id,
