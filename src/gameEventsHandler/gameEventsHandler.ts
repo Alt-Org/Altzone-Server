@@ -16,12 +16,12 @@ export class GameEventsHandler {
     switch (event) {
       case GameEventType.PLAYER_WIN_BATTLE:
         return this.handleWinBattle(player_id);
-      case GameEventType.PLAYER_PLAY_BATTLE:
-        return this.handlePlayBattle(player_id);
-      case GameEventType.PLAYER_SEND_MESSAGE:
-        return this.handleSendMessage(player_id);
-      case GameEventType.PLAYER_VOTE:
-        return this.handleVote(player_id);
+      // case GameEventType.PLAYER_PLAY_BATTLE:
+      //   return this.handlePlayBattle(player_id);
+      // case GameEventType.PLAYER_SEND_MESSAGE:
+      //   return this.handleSendMessage(player_id);
+      // case GameEventType.PLAYER_VOTE:
+      //   return this.handleVote(player_id);
       case GameEventType.PLAYER_START_VOTING:
         return this.handleStartVoting(player_id);
       case GameEventType.PLAYER_COLLECT_DIAMONDS:
@@ -51,47 +51,6 @@ export class GameEventsHandler {
     return [true, null];
   }
 
-  private async handlePlayBattle(player_id: string) {
-    const [, playerErrors] = await this.playerEventHandler.handlePlayerEvent(
-      player_id,
-      PlayerEvent.BATTLE_PLAYED,
-    );
-    const [, clanErrors] =
-      await this.clanEventHandler.handlePlayerTask(player_id);
-
-    if (playerErrors || clanErrors)
-      return [null, this.concatArrays(playerErrors, clanErrors)];
-
-    return [true, null];
-  }
-
-  private async handleSendMessage(player_id: string) {
-    const [, playerErrors] = await this.playerEventHandler.handlePlayerEvent(
-      player_id,
-      PlayerEvent.MESSAGE_SENT,
-    );
-    const [, clanErrors] =
-      await this.clanEventHandler.handlePlayerTask(player_id);
-
-    if (playerErrors || clanErrors)
-      return [null, this.concatArrays(playerErrors, clanErrors)];
-
-    return [true, null];
-  }
-
-  private async handleVote(player_id: string) {
-    const [, playerErrors] = await this.playerEventHandler.handlePlayerEvent(
-      player_id,
-      PlayerEvent.VOTE_MADE,
-    );
-    const [, clanErrors] =
-      await this.clanEventHandler.handlePlayerTask(player_id);
-
-    if (playerErrors || clanErrors)
-      return [null, this.concatArrays(playerErrors, clanErrors)];
-
-    return [true, null];
-  }
 
   private async handleStartVoting(player_id: string) {
     const [, clanErrors] =

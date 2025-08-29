@@ -21,23 +21,12 @@ export class PlayerStatisticService {
     playerEvent: PlayerEvent,
   ): Promise<[boolean, ServiceError[] | MongooseError]> {
     switch (playerEvent) {
-      case PlayerEvent.BATTLE_PLAYED:
-        return this.playerService.updatePlayerById(player_id, {
-          $inc: { 'gameStatistics.playedBattles': 1 },
-        });
 
       case PlayerEvent.BATTLE_WON:
         return this.playerService.updatePlayerById(player_id, {
           $inc: { 'gameStatistics.wonBattles': 1 },
         });
 
-      case PlayerEvent.VOTE_MADE:
-        return this.playerService.updatePlayerById(player_id, {
-          $inc: { 'gameStatistics.participatedVotings': 1 },
-        });
-
-      case PlayerEvent.MESSAGE_SENT:
-        return this.trackPlayerMessageCount(player_id);
 
       default:
         return [

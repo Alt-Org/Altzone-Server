@@ -5,7 +5,6 @@ import { PlayerService } from '../../player/player.service';
 import { Injectable } from '@nestjs/common';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
-import { Message } from '../../player/message.schema';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 
 @Injectable()
@@ -23,9 +22,6 @@ export class PlayerRewarder {
     player_id: string,
     playerEvent: PlayerEvent,
   ): Promise<[boolean, ServiceError[] | MongooseError]> {
-    if (playerEvent === PlayerEvent.MESSAGE_SENT)
-      return this.rewardSendMessages(player_id);
-
     const pointAmount = points[playerEvent];
     if (pointAmount === undefined)
       return [
@@ -91,41 +87,4 @@ export class PlayerRewarder {
     return [true, null];
   }
 
-  private async rewardSendMessages(
-    player_id: string,
-  ): Promise<[boolean, ServiceError[] | MongooseError]> {
-    const today = new Date();
-
-    const playerResp = await this.playerService.readOneById(player_id);
-    if (playerResp instanceof MongooseError) return [false, playerResp];
-
-    if (!playerResp.data[playerResp.metaData.dataKey])
-      return [
-        false,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            message: 'Could not read the player',
-          }),
-        ],
-      ];
-
-    const player = playerResp.data[playerResp.metaData.dataKey];
-    const messages: Message[] = player.gameStatistics.messages || [];
-    const todaysMessage: Message = messages.find(
-      (message) => message.date.toDateString() === today.toDateString(),
-    );
-
-    const messageCount = todaysMessage?.count;
-
-    if (messageCount === 3) player.points += points[PlayerEvent.MESSAGE_SENT];
-
-    const updateResp = await this.playerService.updateOneById({
-      ...player,
-      _id: player_id,
-    });
-    if (updateResp instanceof MongooseError) return [false, updateResp];
-
-    return [true, null];
-  }
 }
