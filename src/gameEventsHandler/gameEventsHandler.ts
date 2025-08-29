@@ -16,12 +16,6 @@ export class GameEventsHandler {
     switch (event) {
       case GameEventType.PLAYER_WIN_BATTLE:
         return this.handleWinBattle(player_id);
-      // case GameEventType.PLAYER_PLAY_BATTLE:
-      //   return this.handlePlayBattle(player_id);
-      // case GameEventType.PLAYER_SEND_MESSAGE:
-      //   return this.handleSendMessage(player_id);
-      // case GameEventType.PLAYER_VOTE:
-      //   return this.handleVote(player_id);
       case GameEventType.PLAYER_START_VOTING:
         return this.handleStartVoting(player_id);
       case GameEventType.PLAYER_COLLECT_DIAMONDS:
