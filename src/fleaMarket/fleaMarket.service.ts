@@ -31,6 +31,8 @@ import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 import { cancelTransaction } from '../common/function/cancelTransaction';
 import { SellFleaMarketItemDto } from './dto/sellFleaMarketItem.dto';
 import { itemNotAuthorizedError } from './errors/itemNotAuthorized.error';
+import ServiceError from '../common/service/basicService/ServiceError';
+import { SEReason } from '../common/service/basicService/SEReason';
 
 @Injectable()
 export class FleaMarketService {
@@ -648,13 +650,22 @@ export class FleaMarketService {
   async checkClanItemSlots(clan_id: string): Promise<IServiceReturn<boolean>> {
     const [clan, clanError] = await this.clanService.readOneById(clan_id);
     if (clanError) return [false, clanError];
-    if (!clan.stall) return [false, clanError];
+    if (!clan.stall)
+      return [
+        false,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            message: "Clan doesn't have a stall.",
+          }),
+        ],
+      ];
 
     const [items, itemError] =
       await this.basicService.readMany<FleaMarketItemDto>({
         filter: { clan_id },
       });
-    if (itemError) return [false, clanError];
+    if (itemError) return [false, itemError];
 
     if (items.length >= clan.stall.maxSlots) return [false, null];
 
