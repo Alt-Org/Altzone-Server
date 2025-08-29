@@ -212,16 +212,8 @@ export class FleaMarketController {
         message: 'The item does not belong to the clan of logged in player',
       });
 
-    const [availableSlot, errors] =
-      await this.service.checkClanItemSlots(clanId);
+    const [_, errors] = await this.service.checkClanItemSlots(clanId);
     if (errors) throw errors;
-    if (!availableSlot) {
-      throw new APIError({
-        reason: APIErrorReason.MORE_THAN_MAX,
-        message:
-          'Max amount of flea market items reached. Buy more slots or remove items from flea market.',
-      });
-    }
 
     const [_, updateError] = await this.service.basicService.updateOneById(
       body.item_id,
