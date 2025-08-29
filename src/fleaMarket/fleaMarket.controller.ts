@@ -20,6 +20,8 @@ import { ItemIdDto } from './dto/itemId.dto';
 import { VotingDto } from '../voting/dto/voting.dto';
 import { ChangeItemStatusDto } from './dto/changeItemStatus.dto';
 import { Status } from './enum/status.enum';
+import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
+import { swaggerTags } from '../common/swagger/tags/tags';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
@@ -178,6 +180,7 @@ export class FleaMarketController {
    * The status can only be changed between available and shipping.
    * If the item is booked it's status can't be changed.
    */
+  @SwaggerTags('Release on 07.09.2025')
   @ApiResponseDescription({
     success: {
       status: 204,
