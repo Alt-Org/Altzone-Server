@@ -41,7 +41,7 @@ describe('FleaMarketService.checkClanItemSlots(), test suite', () => {
     expect(error).toBeNull();
   });
 
-  it('should return [false, null] when clan has no available slots', async () => {
+  it('should return [false, error] when clan has no available slots', async () => {
     const clanId = new ObjectId().toString();
     const clan = new ClanBuilder().setId(clanId).setStallMaxSlots(2).build();
     await clanModel.create(clan);
@@ -53,7 +53,7 @@ describe('FleaMarketService.checkClanItemSlots(), test suite', () => {
 
     const [result, error] = await fleaMarketService.checkClanItemSlots(clanId);
     expect(result).toBe(false);
-    expect(error).toBeNull();
+    expect(error).toContainSE_MORE_THAN_MAX();
   });
 
   it('should return [false, clanError] if clan does not exist', async () => {
@@ -63,13 +63,13 @@ describe('FleaMarketService.checkClanItemSlots(), test suite', () => {
     expect(error).not.toBeNull();
   });
 
-  it('should return [false, null] if clan.stall is missing', async () => {
+  it('should return [false, error] if clan.stall is missing', async () => {
     const clanId = new ObjectId().toString();
-    const clan = new ClanBuilder().setId(clanId).setStall(undefined).build();
+    const clan = new ClanBuilder().setId(clanId).setStall(null).build();
     await clanModel.create(clan);
 
     const [result, error] = await fleaMarketService.checkClanItemSlots(clanId);
     expect(result).toBe(false);
-    expect(error).toBeNull();
+    expect(error).toContainSE_NOT_FOUND();
   });
 });
