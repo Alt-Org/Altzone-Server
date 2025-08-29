@@ -50,7 +50,6 @@ describe('PlayerStatisticService.updatePlayerStatistic() test suite', () => {
     expect(updatedPlayer?.name).toBe(playerName);
   });
 
-
   it('Should return with ServiceError if PlayerEvent type is not supported | PlayerEvent.NotSupported', async () => {
     const [result, error] = await playerStatisticService.updatePlayerStatistic(
       playerId,

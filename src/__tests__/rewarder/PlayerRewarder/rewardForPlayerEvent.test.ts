@@ -33,5 +33,4 @@ describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
     expect(errors[0].field).toBe('playerEvent');
     expect(errors[0].value).toBe(event);
   });
-
 });
