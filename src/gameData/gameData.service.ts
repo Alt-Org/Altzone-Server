@@ -53,10 +53,6 @@ export class GameDataService {
     const winningTeam =
       battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
     const playerInWinningTeam = winningTeam.includes(user.player_id);
-    await this.gameEventsBroker.handleEvent(
-      user.player_id,
-      GameEventType.PLAYER_PLAY_BATTLE,
-    );
 
     if (!playerInWinningTeam)
       return [
