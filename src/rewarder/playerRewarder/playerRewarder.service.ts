@@ -86,5 +86,4 @@ export class PlayerRewarder {
 
     return [true, null];
   }
-
 }

@@ -51,7 +51,6 @@ export class GameEventsHandler {
     return [true, null];
   }
 
-
   private async handleStartVoting(player_id: string) {
     const [, clanErrors] =
       await this.clanEventHandler.handlePlayerTask(player_id);
