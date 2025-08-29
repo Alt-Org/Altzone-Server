@@ -22,6 +22,8 @@ export class StallController {
    */
   @ApiResponseDescription({
     success: {
+      modelName: ModelName.STALL,
+      dto: StallResponse,
       status: 200,
     },
     errors: [400, 401, 403, 404],
@@ -37,6 +39,8 @@ export class StallController {
    */
   @ApiResponseDescription({
     success: {
+      modelName: ModelName.STALL,
+      dto: StallResponse,
       status: 200,
     },
     errors: [400, 401, 403, 404],
