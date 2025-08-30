@@ -55,6 +55,12 @@ export class GameDataService {
     const playerInWinningTeam = winningTeam.includes(user.player_id);
 
     if (!playerInWinningTeam)
+    {
+      this.gameEventsBroker.handleEvent(
+      user.player_id,
+      GameEventType.PLAYER_LOSE_BATTLE,
+    );
+
       return [
         null,
         [
@@ -65,6 +71,7 @@ export class GameDataService {
           }),
         ],
       ];
+      }
 
     this.gameEventsBroker.handleEvent(
       user.player_id,
