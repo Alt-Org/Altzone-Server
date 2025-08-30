@@ -53,8 +53,7 @@ export class GameEventsHandler {
       PlayerEvent.BATTLE_LOSE,
     );
 
-    if (playerErrors)
-      return [null, playerErrors];
+    if (playerErrors) return [null, playerErrors];
 
     return [true, null];
   }

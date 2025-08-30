@@ -14,10 +14,12 @@ import { InjectModel } from '@nestjs/mongoose';
 export class PlayerRewarder {
   private readonly playerService: BasicService;
 
-  constructor(@InjectModel(Player.name) public readonly playerModel: Model<Player>,) {
+  constructor(
+    @InjectModel(Player.name) public readonly playerModel: Model<Player>,
+  ) {
     this.playerService = new BasicService(playerModel);
   }
-  
+
   /**
    * Rewards specified player for an event happen
    * @param player_id player _id to reward
@@ -84,10 +86,9 @@ export class PlayerRewarder {
     player_id: string,
     points: number,
   ): Promise<IServiceReturn<true>> {
-    const result = await this.playerService.updateOneById(
-      player_id,
-      { $inc: { points } },
-    );
+    const result = await this.playerService.updateOneById(player_id, {
+      $inc: { points },
+    });
 
     if (result instanceof MongooseError) throw result;
 
@@ -105,10 +106,9 @@ export class PlayerRewarder {
     player_id: string,
     battlePoints: number,
   ): Promise<IServiceReturn<true>> {
-    
     if (battlePoints < 0) {
       const [player, errors] =
-            await this.playerService.readOneById<PlayerDto>(player_id);
+        await this.playerService.readOneById<PlayerDto>(player_id);
 
       const currentBattlePoints = player?.battlePoints || 0;
       if (errors) return [null, errors];
@@ -121,10 +121,9 @@ export class PlayerRewarder {
         return [true, null];
       }
     }
-    const result = await this.playerService.updateOneById(
-      player_id,
-      { $inc: { battlePoints } },
-    );
+    const result = await this.playerService.updateOneById(player_id, {
+      $inc: { battlePoints },
+    });
 
     if (result instanceof MongooseError) throw result;
 

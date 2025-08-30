@@ -8,11 +8,13 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { PlayerSchema } from '../player/schemas/player.schema';
 
 @Module({
-  
   imports: [
     MongooseModule.forFeature([
-          { name: ModelName.PLAYER, schema: PlayerSchema },
-        ]),PlayerModule, ClanModule],
+      { name: ModelName.PLAYER, schema: PlayerSchema },
+    ]),
+    PlayerModule,
+    ClanModule,
+  ],
   providers: [PlayerRewarder, ClanRewarder],
   exports: [PlayerRewarder, ClanRewarder],
 })
