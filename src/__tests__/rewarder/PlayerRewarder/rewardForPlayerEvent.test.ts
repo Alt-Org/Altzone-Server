@@ -12,7 +12,7 @@ describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
   const playerModel = PlayerModule.getPlayerModel();
 
   beforeEach(async () => {
-    await  playerModel.deleteMany({});
+    await playerModel.deleteMany({});
     rewarder = await RewarderModule.getPlayerRewarder();
     existingPlayer = playerBuilder.setPoints(0).setBattlePoints(30).build();
 
@@ -36,8 +36,6 @@ describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
     expect(errors).toBeNull();
   });
 
-  
-
   it('Should update players battles points if event type is battle_lose and has enough battle points', async () => {
     playerModel.deleteMany({});
     const event = 'battle_lose' as any;
@@ -59,14 +57,18 @@ describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
   it('Should update players battles points if event type is battle_lose, but battle points could not be negative', async () => {
     const event = 'battle_lose' as any;
     await playerModel.deleteMany({});
-    existingPlayer = playerBuilder.setName('loserPlayer').setUniqueIdentifier('loserIdentifier').setPoints(0).setBattlePoints(10).build();
+    existingPlayer = playerBuilder
+      .setName('loserPlayer')
+      .setUniqueIdentifier('loserIdentifier')
+      .setPoints(0)
+      .setBattlePoints(10)
+      .build();
 
     const createdPlayer = await playerModel.create(existingPlayer);
     existingPlayer._id = createdPlayer._id;
 
     const playerBefore = await playerModel.findById(existingPlayer._id);
 
-    
     const [isSuccess, errors] = await rewarder.rewardForPlayerEvent(
       existingPlayer._id,
       event,
@@ -83,15 +85,18 @@ describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
     await playerModel.deleteMany({});
     const event = 'battle_lose' as any;
     playerModel.deleteMany({});
-    existingPlayer = playerBuilder.setName('loserPlayer').setUniqueIdentifier('loserIdentifier').setPoints(0)
-    .setBattlePoints(0).build();
+    existingPlayer = playerBuilder
+      .setName('loserPlayer')
+      .setUniqueIdentifier('loserIdentifier')
+      .setPoints(0)
+      .setBattlePoints(0)
+      .build();
 
     const createdPlayer = await playerModel.create(existingPlayer);
     existingPlayer._id = createdPlayer._id;
 
     const playerBefore = await playerModel.findById(existingPlayer._id);
 
-    
     const [isSuccess, errors] = await rewarder.rewardForPlayerEvent(
       existingPlayer._id,
       event,
