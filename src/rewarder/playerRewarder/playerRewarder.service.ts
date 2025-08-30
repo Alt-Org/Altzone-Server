@@ -36,7 +36,7 @@ export class PlayerRewarder {
         ],
       ];
 
-    return this.increasePlayerPoints(player_id, pointAmount);
+    return this.increasePlayerBatllePoints(player_id, pointAmount);
   }
 
   /**
@@ -80,6 +80,27 @@ export class PlayerRewarder {
     const result = await this.playerService.updateOneById({
       _id: player_id,
       $inc: { points },
+    });
+
+    if (result instanceof MongooseError) throw result;
+
+    return [true, null];
+  }
+
+  /**
+   * Increases specified player battle points amount
+   * @param player_id player _id
+   * @param battlePoints amount of battle points to increase
+   * @throws MongooseError if any occurred
+   * @returns true if player was rewarded successfully
+   */
+  private async increasePlayerBatllePoints(
+    player_id: string,
+    battlePoints: number,
+  ): Promise<IServiceReturn<true>> {
+    const result = await this.playerService.updateOneById({
+      _id: player_id,
+      $inc: { battlePoints },
     });
 
     if (result instanceof MongooseError) throw result;
