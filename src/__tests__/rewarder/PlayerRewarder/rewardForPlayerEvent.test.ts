@@ -105,7 +105,7 @@ describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
     const playerAfter = await playerModel.findById(existingPlayer._id);
     expect(playerAfter.points).toBe(playerBefore.points);
     expect(playerAfter.battlePoints).toBe(0);
-    expect(isSuccess).toBe(true);
+    expect(isSuccess).toBe(false);
     expect(errors).toBeNull();
   });
 

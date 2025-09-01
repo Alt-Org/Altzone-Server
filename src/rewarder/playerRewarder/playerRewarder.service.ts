@@ -30,7 +30,7 @@ export class PlayerRewarder {
   async rewardForPlayerEvent(
     player_id: string,
     playerEvent: PlayerEvent,
-  ): Promise<[boolean, ServiceError[] | MongooseError]> {
+  ): Promise<IServiceReturn<boolean>> {
     const pointAmount = points[playerEvent];
     if (pointAmount === undefined)
       return [
@@ -45,7 +45,7 @@ export class PlayerRewarder {
         ],
       ];
 
-    return this.increasePlayerBatllePoints(player_id, pointAmount);
+    return this.updatePlayerBattlePoints(player_id, pointAmount);
   }
 
   /**
@@ -96,37 +96,25 @@ export class PlayerRewarder {
   }
 
   /**
-   * Increases specified player battle points amount
+   * Update specified player battle points amount
    * @param player_id player _id
    * @param battlePoints amount of battle points to increase
    * @throws MongooseError if any occurred
    * @returns true if player was rewarded successfully
    */
-  private async increasePlayerBatllePoints(
+  private async updatePlayerBattlePoints(
     player_id: string,
     battlePoints: number,
-  ): Promise<IServiceReturn<true>> {
-    if (battlePoints < 0) {
-      const [player, errors] =
-        await this.playerService.readOneById<PlayerDto>(player_id);
+  ): Promise<IServiceReturn<boolean>> {
+    const [player, errors] =
+      await this.playerService.readOneById<PlayerDto>(player_id);
 
-      const currentBattlePoints = player?.battlePoints || 0;
-      if (errors) return [null, errors];
+    if (errors) return [null, errors];
 
-      if (currentBattlePoints + battlePoints < 0) {
-        battlePoints = -currentBattlePoints;
-      }
+    battlePoints = Math.max(0, player.battlePoints + battlePoints);
 
-      if (currentBattlePoints === 0) {
-        return [true, null];
-      }
-    }
-    const result = await this.playerService.updateOneById(player_id, {
-      $inc: { battlePoints },
+    return await this.playerService.updateOneById(player_id, {
+      $set: { battlePoints },
     });
-
-    if (result instanceof MongooseError) throw result;
-
-    return [true, null];
   }
 }
