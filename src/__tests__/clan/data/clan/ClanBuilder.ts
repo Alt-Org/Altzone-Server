@@ -23,6 +23,7 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
     itemCount: 0,
     stockCount: 0,
     points: 0,
+    battlePoints: 0,
     gameCoins: 0,
     isOpen: true,
     password: undefined,
@@ -74,6 +75,11 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
 
   setPoints(points: number) {
     this.base.points = points;
+    return this;
+  }
+
+  setBattlePoints(battlePoints: number) {
+    this.base.battlePoints = battlePoints;
     return this;
   }
 

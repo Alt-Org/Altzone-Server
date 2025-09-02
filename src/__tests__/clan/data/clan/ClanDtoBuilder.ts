@@ -16,6 +16,7 @@ export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
     labels: [],
     gameCoins: 0,
     points: 0,
+    battlePoints: 0,
     admin_ids: [],
     playerCount: 0,
     itemCount: 0,
@@ -63,6 +64,11 @@ export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
 
   setPoints(points: number) {
     this.base.points = points;
+    return this;
+  }
+
+  setBattlePoints(battlePoints: number) {
+    this.base.battlePoints = battlePoints;
     return this;
   }
 
