@@ -34,6 +34,9 @@ export class Clan {
   @Prop({ type: Number, default: 0 })
   points: number;
 
+  @Prop({ type: Number, default: 0, min: 0 })
+  battlePoints: number;
+
   @Prop({ type: [String], default: [] })
   admin_ids: string[];
 
@@ -102,6 +105,7 @@ ClanSchema.virtual(ModelName.SOULHOME, {
   justOne: true,
 });
 ClanSchema.index({ points: -1 });
+ClanSchema.index({ battlePoints: -1 });
 
 export const publicReferences = [
   ModelName.PLAYER,
