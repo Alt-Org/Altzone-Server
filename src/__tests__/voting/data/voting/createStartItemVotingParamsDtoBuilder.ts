@@ -45,7 +45,7 @@ export default class CreateStartItemVotingParamsDtoBuilder
         Stock: null,
         SoulHome: null,
         roles: [],
-        battlePoints: 0
+        battlePoints: 0,
       },
       CustomCharacter: [],
     },
