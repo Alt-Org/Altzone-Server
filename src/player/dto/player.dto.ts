@@ -6,6 +6,7 @@ import AddType from '../../common/base/decorator/AddType.decorator';
 import { GameStatisticsDto } from './gameStatistics.dto';
 import { TaskDto } from './task.dto';
 import { AvatarDto } from './avatar.dto';
+import { Min } from 'class-validator';
 
 @AddType('PlayerDto')
 export class PlayerDto {
@@ -33,6 +34,15 @@ export class PlayerDto {
    */
   @Expose()
   points: number;
+
+  /**
+   * Total battle points earned by player
+   *
+   * @example 1200
+   */
+  @Min(0)
+  @Expose()
+  battlePoints: number;
 
   /**
    * Maximum capacity of player's backpack

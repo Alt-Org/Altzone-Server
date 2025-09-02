@@ -8,19 +8,9 @@ export enum GameEventType {
   PLAYER_WIN_BATTLE = 'player_win_battle',
 
   /**
-   * Triggered when a player plays the game
+   * Triggered when a player loses a battle.
    */
-  PLAYER_PLAY_BATTLE = 'player_play_battle',
-
-  /**
-   * Triggered when a player sends a message, such as in chat
-   */
-  PLAYER_SEND_MESSAGE = 'player_send_message',
-
-  /**
-   * Triggered when a player casts a vote in decision-making scenarios.
-   */
-  PLAYER_VOTE = 'player_vote',
+  PLAYER_LOSE_BATTLE = 'player_lose_battle',
 
   /**
    * Triggered when a player initiates a voting event, starting a voting process.
