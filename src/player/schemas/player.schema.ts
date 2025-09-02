@@ -19,10 +19,10 @@ export class Player {
   @Prop({ type: Number, required: true })
   backpackCapacity: number;
 
-  @Prop({ type: Number, default: 0 })
+  @Prop({ type: Number, default: 0, min: 0 })
   points: number;
 
-  @Prop({ type: Number, default: 0 })
+  @Prop({ type: Number, default: 0, min: 0 })
   battlePoints: number;
 
   @Prop({ type: String, required: true, unique: true })
@@ -87,6 +87,7 @@ PlayerSchema.virtual(ModelName.DAILY_TASK, {
   justOne: true,
 });
 PlayerSchema.index({ points: -1 });
+PlayerSchema.index({ battlePoints: -1 });
 
 export const publicReferences = [
   ModelName.CLAN,
