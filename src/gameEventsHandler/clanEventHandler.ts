@@ -31,12 +31,12 @@ export class ClanEventHandler {
     }
   }
 
-/** Handles clan events that are not related to daily tasks
+  /** Handles clan events that are not related to daily tasks
    * @param player_id player _id that triggered the event
    * @param event happened event
    * @returns true if handled successfully or ServiceErrors
    */
-async handleClanEvent(
+  async handleClanEvent(
     player_id: string,
     event: ClanEvent,
   ): Promise<[boolean, ServiceError[]]> {
