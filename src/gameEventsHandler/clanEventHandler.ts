@@ -8,6 +8,7 @@ import { OnGameEvent } from '../gameEventsEmitter/onGameEvent';
 import UIDailyTasksService from '../dailyTasks/uiDailyTasks/uiDailyTasks.service';
 import { GameEventPayload } from '../gameEventsEmitter/gameEvent';
 import { IServiceReturn } from '../common/service/basicService/IService';
+import { ClanEvent } from '../rewarder/clanRewarder/enum/ClanEvent.enum';
 
 @Injectable()
 export class ClanEventHandler {
@@ -28,6 +29,19 @@ export class ClanEventHandler {
     ) {
       return [true, null];
     }
+  }
+
+/** Handles clan events that are not related to daily tasks
+   * @param player_id player _id that triggered the event
+   * @param event happened event
+   * @returns true if handled successfully or ServiceErrors
+   */
+async handleClanEvent(
+    player_id: string,
+    event: ClanEvent,
+  ): Promise<[boolean, ServiceError[]]> {
+    await this.clanRewarder.rewardForClanEvent(player_id, event);
+    return [true, null];
   }
 
   /**
