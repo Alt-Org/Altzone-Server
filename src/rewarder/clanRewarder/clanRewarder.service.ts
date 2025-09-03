@@ -21,14 +21,14 @@ export class ClanRewarder {
 
   private readonly clanService: BasicService;
   private readonly playerService: BasicService;
-  
-    constructor(
-      @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
-      @InjectModel(Player.name) public readonly playerModel: Model<Player>,
-    ) {
-      this.clanService = new BasicService(clanModel);
-      this.playerService = new BasicService(playerModel);
-    }
+
+  constructor(
+    @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
+    @InjectModel(Player.name) public readonly playerModel: Model<Player>,
+  ) {
+    this.clanService = new BasicService(clanModel);
+    this.playerService = new BasicService(playerModel);
+  }
 
   clanMaxPoints = 10000;
 
@@ -92,69 +92,69 @@ export class ClanRewarder {
     );
   }
 
-    /**
-     * Rewards specified clan for an event happen
-     * @param player_id player _id to reward
-     * @param clanEvent happen event
-     * @throws MongooseError if any occurred
-     * @returns true if clan was rewarded successfully
-     */
-    async rewardForClanEvent(
-      player_id: string,
-      clanEvent: ClanEvent,
-    ): Promise<IServiceReturn<boolean>> {
-      const pointAmount = points[clanEvent];
-      if (pointAmount === undefined)
-        return [
-          null,
-          [
-            new ServiceError({
-              reason: SEReason.WRONG_ENUM,
-              field: 'clanEvent',
-              value: clanEvent,
-              message: 'This clanEvent does not exist',
-            }),
-          ],
-        ];
-      const [player, playerErrors] = await this.playerService.readOneById<PlayerDto>(player_id);
-      if (playerErrors) return [null, playerErrors];
-      if (!player.clan_id) {
-        return [
-          null,
-          [
-            new ServiceError({
-              reason: SEReason.NOT_FOUND,
-              field: 'clan_id',
-              value: player.clan_id,
-              message: 'Player does not belong to a clan',
-            }),
-          ],
-        ];
-      }
-      
-      return this.updateClanBattlePoints(player.clan_id, pointAmount);
+  /**
+   * Rewards specified clan for an event happen
+   * @param player_id player _id to reward
+   * @param clanEvent happen event
+   * @throws MongooseError if any occurred
+   * @returns true if clan was rewarded successfully
+   */
+  async rewardForClanEvent(
+    player_id: string,
+    clanEvent: ClanEvent,
+  ): Promise<IServiceReturn<boolean>> {
+    const pointAmount = points[clanEvent];
+    if (pointAmount === undefined)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.WRONG_ENUM,
+            field: 'clanEvent',
+            value: clanEvent,
+            message: 'This clanEvent does not exist',
+          }),
+        ],
+      ];
+    const [player, playerErrors] =
+      await this.playerService.readOneById<PlayerDto>(player_id);
+    if (playerErrors) return [null, playerErrors];
+    if (!player.clan_id) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'clan_id',
+            value: player.clan_id,
+            message: 'Player does not belong to a clan',
+          }),
+        ],
+      ];
     }
-  
-    /**
-       * Update specified clan battle points amount
-       * @param clan_id player _id
-       * @param battlePoints amount of battle points to increase
-       * @throws MongooseError if any occurred
-       * @returns true if clan was rewarded successfully
-       */
-      private async updateClanBattlePoints(
-        clan_id: string,
-        battlePoints: number,
-      ): Promise<IServiceReturn<boolean>> {
-        const [clan, errors] =
-          await this.clanService.readOneById<ClanDto>(clan_id);
-    
-        if (errors) return [null, errors];
-    
-        battlePoints = Math.max(0, clan.battlePoints + battlePoints);
-    
-        return await this.clanService.updateOneById(clan_id, {
-          $set: { battlePoints },
-        });
-      }
+
+    return this.updateClanBattlePoints(player.clan_id, pointAmount);
+  }
+
+  /**
+   * Update specified clan battle points amount
+   * @param clan_id player _id
+   * @param battlePoints amount of battle points to increase
+   * @throws MongooseError if any occurred
+   * @returns true if clan was rewarded successfully
+   */
+  private async updateClanBattlePoints(
+    clan_id: string,
+    battlePoints: number,
+  ): Promise<IServiceReturn<boolean>> {
+    const [clan, errors] = await this.clanService.readOneById<ClanDto>(clan_id);
+
+    if (errors) return [null, errors];
+
+    battlePoints = Math.max(0, clan.battlePoints + battlePoints);
+
+    return await this.clanService.updateOneById(clan_id, {
+      $set: { battlePoints },
+    });
+  }
 }

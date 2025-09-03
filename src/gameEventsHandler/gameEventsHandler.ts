@@ -42,11 +42,12 @@ export class GameEventsHandler {
     const [, clanErrors] =
       await this.clanEventHandler.handlePlayerTask(player_id);
 
-      const [, clanEventErrors] =
-      await this.clanEventHandler.handleClanEvent(player_id, ClanEvent.BATTLE_WON);
+    const [, clanEventErrors] = await this.clanEventHandler.handleClanEvent(
+      player_id,
+      ClanEvent.BATTLE_WON,
+    );
 
-      if (clanEventErrors) 
-        return [null, clanEventErrors];
+    if (clanEventErrors) return [null, clanEventErrors];
 
     if (playerErrors || clanErrors)
       return [null, this.concatArrays(playerErrors, clanErrors)];
@@ -62,12 +63,13 @@ export class GameEventsHandler {
 
     if (playerErrors) return [null, playerErrors];
 
-    const [, clanEventErrors] =
-      await this.clanEventHandler.handleClanEvent(player_id, ClanEvent.BATTLE_LOSE);
+    const [, clanEventErrors] = await this.clanEventHandler.handleClanEvent(
+      player_id,
+      ClanEvent.BATTLE_LOSE,
+    );
 
-    if (clanEventErrors) 
-        return [null, clanEventErrors];
-      
+    if (clanEventErrors) return [null, clanEventErrors];
+
     return [true, null];
   }
 
