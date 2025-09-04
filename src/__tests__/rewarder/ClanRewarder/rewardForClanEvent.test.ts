@@ -27,7 +27,11 @@ describe('ClanRewarder.rewardForClanEvent() test suite', () => {
     rewarder = await RewarderModule.getClanRewarder();
     existingClan = clanBuilder.setPoints(0).setBattlePoints(30).build();
     createdClan = await clanModel.create(existingClan);
-    existingPlayer = playerBuilder.setClanId(createdClan._id).setPoints(0).setBattlePoints(30).build();
+    existingPlayer = playerBuilder
+      .setClanId(createdClan._id)
+      .setPoints(0)
+      .setBattlePoints(30)
+      .build();
 
     const createdPlayer = await playerModel.create(existingPlayer);
     existingPlayer._id = createdPlayer._id;
@@ -80,7 +84,12 @@ describe('ClanRewarder.rewardForClanEvent() test suite', () => {
 
     const createdClan = await clanModel.create(existingClan);
     existingClan._id = createdClan._id;
-    existingPlayer = playerBuilder.setUniqueIdentifier('loserPlayer').setClanId(createdClan._id).setPoints(0).setBattlePoints(30).build();
+    existingPlayer = playerBuilder
+      .setUniqueIdentifier('loserPlayer')
+      .setClanId(createdClan._id)
+      .setPoints(0)
+      .setBattlePoints(30)
+      .build();
 
     const createdPlayer = await playerModel.create(existingPlayer);
     existingPlayer._id = createdPlayer._id;
@@ -112,7 +121,12 @@ describe('ClanRewarder.rewardForClanEvent() test suite', () => {
 
     const createdClan = await clanModel.create(existingClan);
     existingClan._id = createdClan._id;
-    existingPlayer = playerBuilder.setUniqueIdentifier('loserPlayer').setClanId(createdClan._id).setPoints(0).setBattlePoints(30).build();
+    existingPlayer = playerBuilder
+      .setUniqueIdentifier('loserPlayer')
+      .setClanId(createdClan._id)
+      .setPoints(0)
+      .setBattlePoints(30)
+      .build();
 
     const createdPlayer = await playerModel.create(existingPlayer);
     existingPlayer._id = createdPlayer._id;
@@ -161,7 +175,12 @@ describe('ClanRewarder.rewardForClanEvent() test suite', () => {
 
     const createdClan = await clanModel.create(existingClan);
     existingClan._id = createdClan._id;
-    existingPlayer = playerBuilder.setUniqueIdentifier('loserPlayer').setClanId(null).setPoints(0).setBattlePoints(30).build();
+    existingPlayer = playerBuilder
+      .setUniqueIdentifier('loserPlayer')
+      .setClanId(null)
+      .setPoints(0)
+      .setBattlePoints(30)
+      .build();
 
     const createdPlayer = await playerModel.create(existingPlayer);
     existingPlayer._id = createdPlayer._id;
