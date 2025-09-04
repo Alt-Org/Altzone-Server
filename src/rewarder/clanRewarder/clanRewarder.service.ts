@@ -9,8 +9,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Clan } from '../../clan/clan.schema';
 import { Model } from 'mongoose';
 import { ClanDto } from '../../clan/dto/clan.dto';
-import { PlayerDto } from 'src/player/dto/player.dto';
-import { Player } from 'src/player/schemas/player.schema';
+import { PlayerDto } from '../../player/dto/player.dto';
+import { Player } from '../../player/schemas/player.schema';
 
 /**
  * Handles clan rewarding logic
@@ -119,6 +119,7 @@ export class ClanRewarder {
     const [player, playerErrors] =
       await this.playerService.readOneById<PlayerDto>(player_id);
     if (playerErrors) return [null, playerErrors];
+
     if (!player.clan_id) {
       return [
         null,
