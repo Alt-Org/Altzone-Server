@@ -17,7 +17,6 @@ import { Player } from '../../player/schemas/player.schema';
  */
 @Injectable()
 export class ClanRewarder {
-  //constructor(private readonly clanService: ClanService) {}
 
   private readonly clanService: BasicService;
   private readonly playerService: BasicService;
