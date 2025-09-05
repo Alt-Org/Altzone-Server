@@ -258,7 +258,7 @@ export class FleaMarketController {
         message: 'The item does not belong to the clan of logged in player',
       });
 
-    const [_, errors] = await this.service.removeItemFromFleaMarket(
+    const [_, errors] = await this.service.moveFleaMarketItemToStock(
       param._id,
       clanId,
     );
