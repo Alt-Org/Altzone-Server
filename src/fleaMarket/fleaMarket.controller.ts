@@ -262,6 +262,6 @@ export class FleaMarketController {
       param._id,
       clanId,
     );
-    if (errors) return [null, errors];
+    if (errors) throw errors;
   }
 }
