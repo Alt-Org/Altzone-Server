@@ -31,7 +31,7 @@ export class ClanEventHandler {
     }
   }
 
-  /** Handles clan events that are not related to daily tasks
+  /** Handles clan events
    * @param player_id player _id that triggered the event
    * @param event happened event
    * @returns true if handled successfully or ServiceErrors
@@ -39,9 +39,8 @@ export class ClanEventHandler {
   async handleClanEvent(
     player_id: string,
     event: ClanEvent,
-  ): Promise<[boolean, ServiceError[]]> {
-    await this.clanRewarder.rewardForClanEvent(player_id, event);
-    return [true, null];
+  ): Promise<IServiceReturn<boolean>> {
+    return await this.clanRewarder.rewardForClanEvent(player_id, event);
   }
 
   /**
