@@ -45,6 +45,7 @@ export default class CreateStartItemVotingParamsDtoBuilder
         Stock: null,
         SoulHome: null,
         roles: [],
+        battlePoints: 0,
       },
       CustomCharacter: [],
     },
@@ -82,6 +83,13 @@ export default class CreateStartItemVotingParamsDtoBuilder
 
   setClanId(clanId: string | ObjectId) {
     this.base.clanId = clanId.toString();
+    return this;
+  }
+
+  setBattlePoints(battlePoints: number) {
+    if (this.base.voterPlayer) {
+      this.base.voterPlayer.battlePoints = battlePoints;
+    }
     return this;
   }
 }

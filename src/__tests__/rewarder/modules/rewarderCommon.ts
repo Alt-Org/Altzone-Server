@@ -7,6 +7,7 @@ import { PlayerRewarder } from '../../../rewarder/playerRewarder/playerRewarder.
 import { ClanRewarder } from '../../../rewarder/clanRewarder/clanRewarder.service';
 import { ModelName } from '../../../common/enum/modelName.enum';
 import { PlayerSchema } from '../../../player/schemas/player.schema';
+import { ClanSchema } from '../../../clan/clan.schema';
 
 export default class RewarderCommonModule {
   private constructor() {}
@@ -20,6 +21,7 @@ export default class RewarderCommonModule {
           MongooseModule.forRoot(mongoString, mongooseOptions),
           MongooseModule.forFeature([
             { name: ModelName.PLAYER, schema: PlayerSchema },
+            { name: ModelName.CLAN, schema: ClanSchema },
           ]),
           PlayerModule,
           ClanModule,
