@@ -92,8 +92,8 @@ export class ClanRewarder {
 
   /**
    * Rewards specified clan for an event happen
-   * @param player_id player _id to reward
-   * @param clanEvent happen event
+   * @param player_id player _id that belongs to the clan to reward
+   * @param clanEvent clan event that happened
    * @throws MongooseError if any occurred
    * @returns true if clan was rewarded successfully
    */
