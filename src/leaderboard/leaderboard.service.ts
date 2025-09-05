@@ -72,12 +72,11 @@ export class LeaderboardService {
     let data: object[] = JSON.parse(dataRaw);
 
     if (!data) {
-      const fetchedData = await model.find().sort({ points: -1 }).exec();
+      const fetchedData = await model.find().sort({ battlePoints: -1 }).exec();
       if (!fetchedData) throw new ServiceError({ reason: SEReason.NOT_FOUND });
 
       data = await this.processCacheData(model, fetchedData);
 
-      // Set the data with 12 hour ttl. The { ttl: number } as any is required to overwrite the default value.
       await this.redisService.set(
         cacheKey,
         JSON.stringify(data),

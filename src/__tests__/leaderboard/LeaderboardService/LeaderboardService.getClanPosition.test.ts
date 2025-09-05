@@ -8,19 +8,20 @@ describe('LeaderboardService.getClanPosition() test suite', () => {
   let service: LeaderboardService;
 
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
-  const clan1 = clanBuilder.setName('clan-1').setPoints(100).build();
-  const clan2 = clanBuilder.setName('clan-2').setPoints(50).build();
-  const clan3 = clanBuilder.setName('clan-3').setPoints(10).build();
+  const clan1 = clanBuilder.setName('clan-1').setBattlePoints(100).build();
+  const clan2 = clanBuilder.setName('clan-2').setBattlePoints(50).build();
+  const clan3 = clanBuilder.setName('clan-3').setBattlePoints(10).build();
   const clanModel = ClanModule.getClanModel();
 
   beforeEach(async () => {
     service = await LeaderboardModule.getLeaderboardService();
 
-    const createClan1 = await clanModel.create(clan1);
-    clan1._id = createClan1._id.toString();
     const createClan2 = await clanModel.create(clan2);
-    clan2._id = createClan2._id.toString();
+    const createClan1 = await clanModel.create(clan1);
     const createClan3 = await clanModel.create(clan3);
+
+    clan1._id = createClan1._id.toString();
+    clan2._id = createClan2._id.toString();
     clan3._id = createClan3._id.toString();
   });
 

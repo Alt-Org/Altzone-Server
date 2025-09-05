@@ -16,17 +16,17 @@ describe('LeaderboardService.getPlayerLeaderboard() test suite', () => {
   const player1 = playerBuilder
     .setName('player-1')
     .setUniqueIdentifier('player-1')
-    .setPoints(100)
+    .setBattlePoints(100)
     .build();
   const player2 = playerBuilder
     .setName('player-2')
     .setUniqueIdentifier('player-2')
-    .setPoints(50)
+    .setBattlePoints(50)
     .build();
   const player3 = playerBuilder
     .setName('player-3')
     .setUniqueIdentifier('player-3')
-    .setPoints(10)
+    .setBattlePoints(10)
     .build();
   const playerModel = PlayerModule.getPlayerModel();
 
@@ -47,9 +47,9 @@ describe('LeaderboardService.getPlayerLeaderboard() test suite', () => {
     player2.clan_id = clan._id;
     player3.clan_id = clan._id;
 
-    await playerModel.create(player1);
     await playerModel.create(player2);
     await playerModel.create(player3);
+    await playerModel.create(player1);
   });
 
   it('Should return leading players in valid order', async () => {
