@@ -137,7 +137,7 @@ export class ClanRewarder {
 
   /**
    * Update specified clan battle points amount
-   * @param clan_id player _id
+   * @param clan_id clan _id
    * @param battlePoints amount of battle points to increase
    * @throws MongooseError if any occurred
    * @returns true if clan was rewarded successfully
