@@ -736,11 +736,16 @@ export class FleaMarketService {
     const session = await this.connection.startSession();
     session.startTransaction();
 
-    const [, createErrors] = await this.itemService.createOne(itemDto);
+    const [, createErrors] = await this.itemService.createOne(itemDto, {
+      session,
+    });
     if (createErrors) return await cancelTransaction(session, createErrors);
 
-    const [, deleteErrors] =
-      await this.basicService.deleteOneById(fleaMarketItemId);
+    const [, deleteErrors] = await this.basicService.deleteOneById(
+      fleaMarketItemId,
+      { session },
+    );
+
     if (deleteErrors) return await cancelTransaction(session, deleteErrors);
 
     await session.commitTransaction();
