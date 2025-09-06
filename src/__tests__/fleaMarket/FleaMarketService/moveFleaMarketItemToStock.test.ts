@@ -26,6 +26,13 @@ describe('FleaMarketService.moveFleaMarketItemToStock() integration', () => {
     stockModel = FleaMarketModule.getStockModel();
   });
 
+  afterEach(async () => {
+    await itemModel.deleteMany();
+    await clanModel.deleteMany();
+    await stockModel.deleteMany();
+    await fleaMarketItemModel.deleteMany();
+  });
+
   it('should move flea market item to clan stock and delete flea market item', async () => {
     const clanId = new ObjectId().toString();
     const stockId = new ObjectId().toString();
