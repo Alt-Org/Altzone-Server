@@ -13,6 +13,7 @@ import { VotingQueue } from '../../../voting/voting.queue';
 import { ClanService } from '../../../clan/clan.service';
 import BasicService from '../../../common/service/basicService/BasicService';
 import { StallService } from '../../../fleaMarket/stall/stall.service';
+import { StockSchema } from '../../../clanInventory/stock/stock.schema';
 
 export default class FleaMarketModule {
   private constructor() {}
@@ -74,5 +75,9 @@ export default class FleaMarketModule {
 
   static getFleaMarketItemModel() {
     return mongoose.model(ModelName.FLEA_MARKET_ITEM, FleaMarketItemSchema);
+  }
+
+  static getStockModel() {
+    return mongoose.model(ModelName.STOCK, StockSchema);
   }
 }
