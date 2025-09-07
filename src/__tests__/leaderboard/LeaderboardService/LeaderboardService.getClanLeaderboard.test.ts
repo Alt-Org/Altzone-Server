@@ -10,16 +10,16 @@ describe('LeaderboardService.getClanLeaderboard() test suite', () => {
   const queryBuilder = InterfaceBuilderFactory.getBuilder('IGetAllQuery');
 
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
-  const clan1 = clanBuilder.setName('clan-1').setPoints(100).build();
-  const clan2 = clanBuilder.setName('clan-2').setPoints(50).build();
-  const clan3 = clanBuilder.setName('clan-3').setPoints(10).build();
+  const clan1 = clanBuilder.setName('clan-1').setBattlePoints(100).build();
+  const clan2 = clanBuilder.setName('clan-2').setBattlePoints(50).build();
+  const clan3 = clanBuilder.setName('clan-3').setBattlePoints(10).build();
   const clanModel = ClanModule.getClanModel();
 
   beforeEach(async () => {
     service = await LeaderboardModule.getLeaderboardService();
 
-    await clanModel.create(clan1);
     await clanModel.create(clan2);
+    await clanModel.create(clan1);
     await clanModel.create(clan3);
   });
 
