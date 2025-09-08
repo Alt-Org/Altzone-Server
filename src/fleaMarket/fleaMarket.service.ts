@@ -34,6 +34,8 @@ import { itemNotAuthorizedError } from './errors/itemNotAuthorized.error';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { maxSlotsReachedError } from './errors/maxSlotsReached.error';
+import { ItemBookedError } from './errors/itemBooked.error';
+import { CreateItemDto } from '../clanInventory/item/dto/createItem.dto';
 
 @Injectable()
 export class FleaMarketService {
@@ -673,6 +675,81 @@ export class FleaMarketService {
 
     if (items.length >= clan.stall.maxSlots)
       return [false, [maxSlotsReachedError]];
+
+    return [true, null];
+  }
+
+  /**
+   * Moves a flea market item to the clan's stock.
+   *
+   * This method performs the following steps:
+   * 1. Reads the flea market item by its ID.
+   * 2. Returns an error if the item is booked or if there are read errors.
+   * 3. Reads the clan by its ID, including its stock reference.
+   * 4. Converts the flea market item to a DTO suitable for stock creation.
+   * 5. Executes a transaction to move the item to stock.
+   *
+   * @param itemId - The ID of the flea market item to move.
+   * @param clanId - The ID of the clan whose stock will receive the item.
+   * @returns A promise resolving to the result of the move operation or errors encountered.
+   */
+  async moveFleaMarketItemToStock(itemId: string, clanId: string) {
+    const [item, errors] =
+      await this.basicService.readOneById<FleaMarketItem>(itemId);
+
+    if (errors) return [null, errors];
+    if (item.status === Status.BOOKED) return [null, [ItemBookedError]];
+
+    const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
+      includeRefs: [ModelName.STOCK],
+    });
+    if (clanErrors) return [null, clanErrors];
+
+    const createItemDto = this.helperService.fleaMarketItemToCreateItemDto(
+      item,
+      clan.Stock._id,
+    );
+
+    return await this.moveFleaMarketItemToStockTransaction(
+      createItemDto,
+      itemId,
+    );
+  }
+
+  /**
+   * Moves an item from the flea market to stock within a database transaction.
+   *
+   * This method performs the following steps in a transaction:
+   * 1. Creates a new item in stock using the provided item data.
+   * 2. Deletes the corresponding item from the flea market by its ID.
+   * 3. Commits the transaction if both operations succeed.
+   * 4. Cancels the transaction and returns errors if any operation fails.
+   *
+   * @param itemDto - Data transfer object containing the item details to be created in stock.
+   * @param fleaMarketItemId - The ID of the flea market item to be removed.
+   * @returns A tuple where the first element indicates success and the second contains any errors.
+   */
+  private async moveFleaMarketItemToStockTransaction(
+    itemDto: CreateItemDto,
+    fleaMarketItemId: string,
+  ) {
+    const session = await this.connection.startSession();
+    session.startTransaction();
+
+    const [, createErrors] = await this.itemService.createOne(itemDto, {
+      session,
+    });
+    if (createErrors) return await cancelTransaction(session, createErrors);
+
+    const [, deleteErrors] = await this.basicService.deleteOneById(
+      fleaMarketItemId,
+      { session },
+    );
+
+    if (deleteErrors) return await cancelTransaction(session, deleteErrors);
+
+    await session.commitTransaction();
+    await session.endSession();
 
     return [true, null];
   }
