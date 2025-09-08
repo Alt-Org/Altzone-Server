@@ -20,7 +20,6 @@ import { ItemIdDto } from './dto/itemId.dto';
 import { VotingDto } from '../voting/dto/voting.dto';
 import { ChangeItemStatusDto } from './dto/changeItemStatus.dto';
 import { Status } from './enum/status.enum';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
