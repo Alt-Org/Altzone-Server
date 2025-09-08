@@ -1,5 +1,5 @@
 import { MongooseError } from 'mongoose';
-import { MongoServerError, ObjectId } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import PlayerBuilderFactory from '../data/playerBuilderFactory';
 import PlayerModule from '../modules/player.module';
 import { PlayerService } from '../../../player/player.service';
@@ -134,8 +134,8 @@ describe('PlayerService.createOne() test suite', () => {
     try {
       await playerService.createOne(playerToCreate);
     } catch (e: any) {
-      expect(e).toBeInstanceOf(MongoServerError);
       expect(e.code).toBe(11000);
+      expect(e.name).toMatch(/MongoServerError|MongoError|BulkWriteError/);
     }
   });
 

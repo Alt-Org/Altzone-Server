@@ -59,7 +59,6 @@ describe('PlayerService.updateOneById() test suite', () => {
     expect(updatedPlayer.battleCharacter_ids).toBe(null);
   });
 
-  //TODO: sometimes it fails and does not throw any error
   it('Should throw error if the name already exists', async () => {
     const notUniqueName = 'anotherName';
     const anotherPlayerData = playerBuilder
