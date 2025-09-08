@@ -35,7 +35,7 @@ import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { maxSlotsReachedError } from './errors/maxSlotsReached.error';
 import { ItemBookedError } from './errors/itemBooked.error';
-import { CreateItemDto } from 'src/clanInventory/item/dto/createItem.dto';
+import { CreateItemDto } from '../clanInventory/item/dto/createItem.dto';
 
 @Injectable()
 export class FleaMarketService {
