@@ -179,7 +179,6 @@ export class FleaMarketController {
    * The status can only be changed between available and shipping.
    * If the item is booked it's status can't be changed.
    */
-  @SwaggerTags('Release on 07.09.2025')
   @ApiResponseDescription({
     success: {
       status: 204,
@@ -234,7 +233,6 @@ export class FleaMarketController {
    * Item can't be moved if it's booked.
    * Item must belong to the players clan.
    */
-  @SwaggerTags('Release on 07.09.2025')
   @ApiResponseDescription({
     success: {
       status: 204,
