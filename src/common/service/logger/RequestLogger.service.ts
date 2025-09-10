@@ -18,7 +18,7 @@ export class RequestLoggerService {
     if (typeof body !== 'object' || body === null) return body;
     const sanitized: any = {};
     for (const key of Object.keys(body)) {
-      if (key.toLocaleLowerCase().includes('password')) {
+      if (key.toLowerCase().includes('password')) {
         sanitized[key] = '[REDACTED]';
       } else {
         sanitized[key] = body[key];
