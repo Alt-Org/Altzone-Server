@@ -13,6 +13,12 @@ import { RequestHelperModule } from '../requestHelper/requestHelper.module';
 import { BoxSchema } from '../box/schemas/box.schema';
 import { GroupAdminSchema } from '../box/groupAdmin/groupAdmin.schema';
 import { BoxModule } from '../box/box.module';
+import { RequestLoggerService } from '../common/service/logger/RequestLogger.service';
+import { LoggerModule } from '../common/service/logger/RequestLogger.module';
+import {
+  RequestLog,
+  RequestLogSchema,
+} from '../common/service/logger/RequestLog.schema';
 
 @Module({
   imports: [
@@ -21,13 +27,21 @@ import { BoxModule } from '../box/box.module';
       { name: ModelName.CHAT_MESSAGE, schema: ChatMessageSchema },
       { name: ModelName.BOX, schema: BoxSchema },
       { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
+      { name: RequestLog.name, schema: RequestLogSchema },
     ]),
     PlayerModule,
     RequestHelperModule,
     forwardRef(() => BoxModule),
+    LoggerModule,
   ],
   controllers: [ChatController],
-  providers: [ChatService, ChatGateway, ClanChatService, GlobalChatService],
+  providers: [
+    ChatService,
+    ChatGateway,
+    ClanChatService,
+    GlobalChatService,
+    RequestLoggerService,
+  ],
   exports: [ChatService, ClanChatService],
 })
 export class ChatModule {}
