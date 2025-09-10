@@ -17,7 +17,7 @@ export function WsLog() {
       const start = Date.now();
 
       const logWs = async (responseTime: number, error?: any) => {
-        await logger?.log?.({
+        await logger?.log({
           type: 'ws',
           method: propertyKey,
           client: client?.user?.playerId,
