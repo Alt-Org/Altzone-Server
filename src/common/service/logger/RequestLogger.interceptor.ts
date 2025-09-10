@@ -21,7 +21,7 @@ export class RequestLoggerInterceptor implements NestInterceptor {
     if (context.getType() === 'http') {
       const req = context.switchToHttp().getRequest();
       const res = context.switchToHttp().getResponse();
-      const { method, url, headers, body } = req;
+      const { method, url, body } = req;
 
       return next.handle().pipe(
         tap(() => {
