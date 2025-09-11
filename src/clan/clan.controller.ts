@@ -48,6 +48,7 @@ import { ApiExtraModels } from '@nestjs/swagger';
 import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { ClanChatService } from '../chat/service/clanChat.service';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
+import { UpdateJukeboxSongsDto } from './dto/updateJukeboxSongs.dto';
 
 @Controller('clan')
 export class ClanController {
@@ -316,5 +317,30 @@ export class ClanController {
   ) {
     this.clanChatService.handleLeaveClan(user.player_id, user.clan_id);
     return this.joinService.removePlayerFromClan(body.player_id, user.clan_id);
+  }
+
+  /**
+   * Update clan jukebox songs.
+   *
+   * @remarks Update clan jukebox songs.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 403, 404],
+  })
+  @Put('/jukebox')
+  @DetermineClanId()
+  @UniformResponse()
+  async updateJukeboxSongs(
+    @Body() body: UpdateJukeboxSongsDto,
+    @LoggedUser() user: User,
+  ) {
+    const [, errors] = await this.service.updateOne(
+      { jukeboxSongs: body.songs },
+      { filter: { _id: user.clan_id } },
+    );
+    if (errors) throw errors;
   }
 }
