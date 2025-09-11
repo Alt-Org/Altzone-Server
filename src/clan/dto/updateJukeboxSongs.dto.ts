@@ -1,7 +1,9 @@
+import { Expose } from 'class-transformer';
 import { IsArray, IsString } from 'class-validator';
 
-export class UpdateJukeboxSongsDto {
+export class JukeboxSongsDto {
   @IsArray()
   @IsString({ each: true })
-  songs: string[];
+  @Expose()
+  jukeboxSongs: string[];
 }
