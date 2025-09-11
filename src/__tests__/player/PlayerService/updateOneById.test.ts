@@ -1,5 +1,4 @@
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
-import { MongoServerError } from 'mongodb';
 import { PlayerService } from '../../../player/player.service';
 import PlayerBuilderFactory from '../data/playerBuilderFactory';
 import { Player } from '../../../player/schemas/player.schema';
@@ -73,7 +72,7 @@ describe('PlayerService.updateOneById() test suite', () => {
       .build();
 
     await expect(playerService.updateOneById(updateData)).rejects.toThrow(
-      MongoServerError,
+      /duplicate key error/,
     );
   });
 
