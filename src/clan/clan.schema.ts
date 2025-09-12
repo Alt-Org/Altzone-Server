@@ -81,6 +81,12 @@ export class Clan {
   })
   stall: Stall;
 
+  @Prop({
+    type: [String],
+    default: [],
+  })
+  jukeboxSongs: string[];
+
   @ExtractField()
   _id: string;
 }

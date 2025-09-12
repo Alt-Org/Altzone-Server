@@ -48,6 +48,7 @@ import { ApiExtraModels } from '@nestjs/swagger';
 import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { ClanChatService } from '../chat/service/clanChat.service';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
+import { JukeboxSongsDto } from './dto/updateJukeboxSongs.dto';
 
 @Controller('clan')
 export class ClanController {
@@ -124,6 +125,29 @@ export class ClanController {
     const stockItems = clanItems.filter((item) => item.stock_id);
     const soulHomeItems = clanItems.filter((item) => item.room_id);
     return { stockItems, soulHomeItems };
+  }
+
+  /**
+   * Get clan jukebox songs.
+   *
+   * @remarks Get clan jukebox songs.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 200,
+      isArray: true,
+      dataKey: 'jukeboxSongs',
+    },
+    errors: [400, 403, 404],
+    hasAuth: true,
+  })
+  @Get('jukebox')
+  @DetermineClanId()
+  @UniformResponse(null, JukeboxSongsDto)
+  async getJukeboxSongs(@LoggedUser() user: User) {
+    return await this.service.readOneById(user.clan_id, {
+      select: ['jukeboxSongs'],
+    });
   }
 
   /**
@@ -316,5 +340,30 @@ export class ClanController {
   ) {
     this.clanChatService.handleLeaveClan(user.player_id, user.clan_id);
     return this.joinService.removePlayerFromClan(body.player_id, user.clan_id);
+  }
+
+  /**
+   * Update clan jukebox songs.
+   *
+   * @remarks Update clan jukebox songs.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 403, 404],
+  })
+  @Put('/jukebox')
+  @DetermineClanId()
+  @UniformResponse()
+  async updateJukeboxSongs(
+    @Body() body: JukeboxSongsDto,
+    @LoggedUser() user: User,
+  ) {
+    const [, errors] = await this.service.updateOne(
+      { jukeboxSongs: body.jukeboxSongs },
+      { filter: { _id: user.clan_id } },
+    );
+    if (errors) throw errors;
   }
 }
