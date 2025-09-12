@@ -231,29 +231,47 @@ export class DailyTasksService {
   }
 
   @OnEvent('newClanMessage')
-  async handleNewClanMessage(payload: { playerId: string; message: WsMessageBodyDto }) {
+  async handleNewClanMessage(payload: {
+    playerId: string;
+    message: WsMessageBodyDto;
+  }) {
     // 1. Check if player has a daily task of type "WRITE_CHAT_MESSAGE_CLAN"
     // 2. Update progress, complete, and reward if needed
 
     const [task, error] = await this.basicService.readOne<DailyTaskDto>({
-      filter: { player_id: payload.playerId, type: ServerTaskName.WRITE_CHAT_MESSAGE_CLAN  },
+      filter: {
+        player_id: payload.playerId,
+        type: ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
+      },
     });
 
     if (error) throw error;
 
+    if (!task) return;
+    
     task.amountLeft--;
 
     if (task.amountLeft <= 0) {
-      await this.deleteTask(task._id.toString(), task.clan_id, payload.playerId);
+      await this.deleteTask(
+        task._id.toString(),
+        task.clan_id,
+        payload.playerId,
+      );
       this.notifier.taskCompleted(payload.playerId, task);
-      
-      await this.playerRewarder.rewardForPlayerTask(payload.playerId, task.points);
+
+      await this.playerRewarder.rewardForPlayerTask(
+        payload.playerId,
+        task.points,
+      );
     } else {
       const [_, updateError] = await this.basicService.updateOne(task, {
-        filter: { player_id: payload.playerId, type: ServerTaskName.WRITE_CHAT_MESSAGE_CLAN},
+        filter: {
+          player_id: payload.playerId,
+          type: ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
+        },
       });
       if (updateError) throw updateError;
       this.notifier.taskUpdated(payload.playerId, task);
     }
-    }
+  }
 }
