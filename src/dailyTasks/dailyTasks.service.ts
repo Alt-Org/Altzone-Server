@@ -248,7 +248,7 @@ export class DailyTasksService {
     if (error) throw error;
 
     if (!task) return;
-    
+
     task.amountLeft--;
 
     if (task.amountLeft <= 0) {
