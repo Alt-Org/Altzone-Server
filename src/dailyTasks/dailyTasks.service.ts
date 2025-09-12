@@ -16,6 +16,10 @@ import {
 } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { cancelTransaction } from '../common/function/cancelTransaction';
+import { OnEvent } from '@nestjs/event-emitter';
+import { WsMessageBodyDto } from '../chat/dto/wsMessageBody.dto';
+import { ServerTaskName } from './enum/serverTaskName.enum';
+import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
 
 @Injectable()
 export class DailyTasksService {
@@ -33,6 +37,7 @@ export class DailyTasksService {
   public readonly modelName: ModelName;
   public readonly refsInModel: ModelName[];
   private readonly basicService: BasicService;
+  private readonly playerRewarder: PlayerRewarder;
 
   /**
    * Generates a set of tasks for a new clan.
@@ -224,4 +229,31 @@ export class DailyTasksService {
   async createMany(dailyTasksToCreate: Omit<DailyTask, '_id'>[]) {
     return this.basicService.createMany(dailyTasksToCreate);
   }
+
+  @OnEvent('newClanMessage')
+  async handleNewClanMessage(payload: { playerId: string; message: WsMessageBodyDto }) {
+    // 1. Check if player has a daily task of type "WRITE_CHAT_MESSAGE_CLAN"
+    // 2. Update progress, complete, and reward if needed
+
+    const [task, error] = await this.basicService.readOne<DailyTaskDto>({
+      filter: { player_id: payload.playerId, type: ServerTaskName.WRITE_CHAT_MESSAGE_CLAN  },
+    });
+
+    if (error) throw error;
+
+    task.amountLeft--;
+
+    if (task.amountLeft <= 0) {
+      await this.deleteTask(task._id.toString(), task.clan_id, payload.playerId);
+      this.notifier.taskCompleted(payload.playerId, task);
+      
+      await this.playerRewarder.rewardForPlayerTask(payload.playerId, task.points);
+    } else {
+      const [_, updateError] = await this.basicService.updateOne(task, {
+        filter: { player_id: payload.playerId, type: ServerTaskName.WRITE_CHAT_MESSAGE_CLAN},
+      });
+      if (updateError) throw updateError;
+      this.notifier.taskUpdated(payload.playerId, task);
+    }
+    }
 }
