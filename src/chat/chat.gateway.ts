@@ -15,6 +15,8 @@ import { envVars } from '../common/service/envHandler/envVars';
 import { GlobalChatService } from './service/globalChat.service';
 import { UseFilters } from '@nestjs/common';
 import { GlobalWsExceptionFilter } from './decorator/wsExceptionFilter.decorator';
+import { RequestLoggerService } from '../common/service/logger/RequestLogger.service';
+import { WsLog } from '../common/service/logger/WsLog.decorator';
 
 const apiPort = Number.parseInt(envVars.PORT, 10);
 
@@ -25,6 +27,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly playerService: PlayerService,
     private readonly clanChatService: ClanChatService,
     private readonly globalChatService: GlobalChatService,
+    private readonly requestLoggerService: RequestLoggerService,
   ) {}
 
   /**
@@ -66,6 +69,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('clanMessage')
+  @WsLog()
   async handleClanMessage(
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
@@ -74,6 +78,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('clanMessageReaction')
+  @WsLog()
   async handleClanMessageReaction(
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
@@ -82,6 +87,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('globalMessage')
+  @WsLog()
   async handleGlobalMessage(
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
@@ -90,6 +96,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('globalMessageReaction')
+  @WsLog()
   async handleGlobalMessageReaction(
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
