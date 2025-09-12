@@ -73,7 +73,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     await this.clanChatService.handleNewClanMessage(client, message);
     //TODO: move to a better place latter on
-    await this.eventEmitter.emitAsync('newClanMessage', { playerId: client.user.playerId, message });
+    await this.eventEmitter.emitAsync('newClanMessage', {
+      playerId: client.user.playerId,
+      message,
+    });
   }
 
   @SubscribeMessage('clanMessageReaction')
