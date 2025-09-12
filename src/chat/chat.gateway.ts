@@ -15,6 +15,7 @@ import { envVars } from '../common/service/envHandler/envVars';
 import { GlobalChatService } from './service/globalChat.service';
 import { UseFilters } from '@nestjs/common';
 import { GlobalWsExceptionFilter } from './decorator/wsExceptionFilter.decorator';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 const apiPort = Number.parseInt(envVars.PORT, 10);
 
@@ -25,6 +26,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly playerService: PlayerService,
     private readonly clanChatService: ClanChatService,
     private readonly globalChatService: GlobalChatService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   /**
@@ -70,6 +72,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: WebSocketUser,
   ) {
     await this.clanChatService.handleNewClanMessage(client, message);
+    //TODO: move to a better place latter on
+    await this.eventEmitter.emitAsync('newClanMessage', { playerId: client.user.playerId, message });
   }
 
   @SubscribeMessage('clanMessageReaction')
