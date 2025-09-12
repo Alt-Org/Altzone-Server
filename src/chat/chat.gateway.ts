@@ -48,6 +48,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       playerId,
       clanId,
       name: player.name,
+      avatar: player.avatar,
     };
 
     this.clanChatService.handleJoinChat(client);
