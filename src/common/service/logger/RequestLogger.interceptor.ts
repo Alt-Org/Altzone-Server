@@ -8,6 +8,13 @@ import { RequestLoggerService } from './RequestLogger.service';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
+/**
+ * Interceptor that logs HTTP request and response details using the provided.
+ *
+ * This interceptor captures the HTTP method, URL, request body, response status code, and response time.
+ * It also logs errors if they occur during request handling, including error details and status code.
+ * For non-HTTP contexts, the interceptor simply passes through without logging.
+ */
 @Injectable()
 export class RequestLoggerInterceptor implements NestInterceptor {
   constructor(private readonly logger: RequestLoggerService) {}

@@ -1,5 +1,14 @@
 import { RequestLoggerService } from './RequestLogger.service';
 
+/**
+ * Decorator for logging WebSocket handler method calls.
+ *
+ * This decorator wraps the target method and logs its execution details,
+ * including method name, client information, input data, response time,
+ * and any errors that occur during execution. It expects the decorated
+ * class to have a `requestLoggerService` property implementing
+ * `RequestLoggerService`.
+ */
 export function WsLog() {
   return function (
     target: any,
