@@ -73,7 +73,7 @@ describe('PlayerService.updateOneById() test suite', () => {
       .build();
 
     await expect(playerService.updateOneById(updateData)).rejects.toThrow(
-      MongoServerError,
+      /duplicate key error/,
     );
   });
 
