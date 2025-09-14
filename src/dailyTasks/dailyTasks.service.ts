@@ -230,18 +230,17 @@ export class DailyTasksService {
     return this.basicService.createMany(dailyTasksToCreate);
   }
 
-  @OnEvent('newClanMessage')
+  @OnEvent('newDailyTaskEvent')
   async handleNewClanMessage(payload: {
     playerId: string;
     message: WsMessageBodyDto;
+    serverTaskName: ServerTaskName;
   }) {
-    // 1. Check if player has a daily task of type "WRITE_CHAT_MESSAGE_CLAN"
-    // 2. Update progress, complete, and reward if needed
 
     const [task, error] = await this.basicService.readOne<DailyTaskDto>({
       filter: {
         player_id: payload.playerId,
-        type: ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
+        type: payload.serverTaskName,
       },
     });
 

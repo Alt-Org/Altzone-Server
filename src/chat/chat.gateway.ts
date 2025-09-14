@@ -16,6 +16,7 @@ import { GlobalChatService } from './service/globalChat.service';
 import { UseFilters } from '@nestjs/common';
 import { GlobalWsExceptionFilter } from './decorator/wsExceptionFilter.decorator';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 
 const apiPort = Number.parseInt(envVars.PORT, 10);
 
@@ -72,10 +73,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: WebSocketUser,
   ) {
     await this.clanChatService.handleNewClanMessage(client, message);
-    //TODO: move to a better place latter on
-    await this.eventEmitter.emitAsync('newClanMessage', {
+    
+    await this.eventEmitter.emitAsync('newDailyTaskEvent', {
       playerId: client.user.playerId,
       message,
+      serverTaskName: ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
     });
   }
 
