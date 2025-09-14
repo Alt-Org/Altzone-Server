@@ -28,6 +28,7 @@ export class DailyTasksService {
     private readonly notifier: DailyTaskNotifier,
     private readonly taskQueue: DailyTaskQueue,
     private readonly taskGenerator: TaskGeneratorService,
+    private readonly playerRewarder: PlayerRewarder,
   ) {
     this.basicService = new BasicService(model);
     this.modelName = ModelName.DAILY_TASK;
@@ -37,7 +38,6 @@ export class DailyTasksService {
   public readonly modelName: ModelName;
   public readonly refsInModel: ModelName[];
   private readonly basicService: BasicService;
-  private readonly playerRewarder: PlayerRewarder;
 
   /**
    * Generates a set of tasks for a new clan.
@@ -242,40 +242,19 @@ export class DailyTasksService {
     message: WsMessageBodyDto;
     serverTaskName: ServerTaskName;
   }) {
-    const [task, error] = await this.basicService.readOne<DailyTaskDto>({
-      filter: {
-        player_id: payload.playerId,
-        type: payload.serverTaskName,
-      },
-    });
+    const task = await this.updateTask(
+      payload.playerId,
+      payload.serverTaskName,
+    );
 
-    if (error) throw error;
-
-    if (!task) return;
-
-    task.amountLeft--;
-
-    if (task.amountLeft <= 0) {
-      await this.deleteTask(
-        task._id.toString(),
-        task.clan_id,
-        payload.playerId,
-      );
-      this.notifier.taskCompleted(payload.playerId, task);
-
+    if (task.amountLeft <= 0)
+    {
       await this.playerRewarder.rewardForPlayerTask(
         payload.playerId,
         task.points,
       );
-    } else {
-      const [_, updateError] = await this.basicService.updateOne(task, {
-        filter: {
-          player_id: payload.playerId,
-          type: ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
-        },
-      });
-      if (updateError) throw updateError;
-      this.notifier.taskUpdated(payload.playerId, task);
     }
+    
+    return task;
   }
 }
