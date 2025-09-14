@@ -73,7 +73,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: WebSocketUser,
   ) {
     await this.clanChatService.handleNewClanMessage(client, message);
-    
+
     await this.eventEmitter.emitAsync('newDailyTaskEvent', {
       playerId: client.user.playerId,
       message,

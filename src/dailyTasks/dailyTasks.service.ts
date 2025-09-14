@@ -236,7 +236,6 @@ export class DailyTasksService {
     message: WsMessageBodyDto;
     serverTaskName: ServerTaskName;
   }) {
-
     const [task, error] = await this.basicService.readOne<DailyTaskDto>({
       filter: {
         player_id: payload.playerId,
