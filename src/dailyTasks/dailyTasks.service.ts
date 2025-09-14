@@ -167,7 +167,9 @@ export class DailyTasksService {
       filter.type = serverTaskName;
     }
 
-    const [task, error] = await this.basicService.readOne<DailyTaskDto>({ filter });
+    const [task, error] = await this.basicService.readOne<DailyTaskDto>({
+      filter,
+    });
     if (error) throw error;
 
     task.amountLeft--;
