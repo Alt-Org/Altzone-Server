@@ -157,13 +157,17 @@ export class DailyTasksService {
    * If the amount left reaches zero, the task is deleted. Otherwise, the task is updated.
    *
    * @param playerId - The ID of the player whose task is being updated.
+   * @param serverTaskName - (Optional) The specific server task name to filter the task.
    * @returns The updated task.
    * @throws Will throw an error if there is an issue reading or updating the task.
    */
-  async updateTask(playerId: string) {
-    const [task, error] = await this.basicService.readOne<DailyTaskDto>({
-      filter: { player_id: playerId },
-    });
+  async updateTask(playerId: string, serverTaskName?: ServerTaskName) {
+    const filter: any = { player_id: playerId };
+    if (serverTaskName) {
+      filter.type = serverTaskName;
+    }
+
+    const [task, error] = await this.basicService.readOne<DailyTaskDto>({ filter });
     if (error) throw error;
 
     task.amountLeft--;
@@ -173,7 +177,7 @@ export class DailyTasksService {
       this.notifier.taskCompleted(playerId, task);
     } else {
       const [_, updateError] = await this.basicService.updateOne(task, {
-        filter: { player_id: playerId },
+        filter,
       });
       if (updateError) throw updateError;
       this.notifier.taskUpdated(playerId, task);
