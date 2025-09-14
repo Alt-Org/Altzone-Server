@@ -247,14 +247,13 @@ export class DailyTasksService {
       payload.serverTaskName,
     );
 
-    if (task.amountLeft <= 0)
-    {
+    if (task.amountLeft <= 0) {
       await this.playerRewarder.rewardForPlayerTask(
         payload.playerId,
         task.points,
       );
     }
-    
+
     return task;
   }
 }
