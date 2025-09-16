@@ -41,6 +41,7 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
       },
       maxSlots: 7,
     },
+    jukeboxSongs: [],
   };
 
   // Returns a new Clan object with the current base properties
@@ -145,6 +146,11 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
 
   setStallMaxSlots(amount: number) {
     this.base.stall.maxSlots = amount;
+    return this;
+  }
+
+  setJukeboxSongs(songs: string[]) {
+    this.base.jukeboxSongs = songs;
     return this;
   }
 }
