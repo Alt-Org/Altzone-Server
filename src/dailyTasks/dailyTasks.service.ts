@@ -236,8 +236,22 @@ export class DailyTasksService {
     return this.basicService.createMany(dailyTasksToCreate);
   }
 
+  /**
+   * Handles a daily task event for a player.
+   *
+   * This method updates the reserved daily task for the player if it's the correct type.
+   * If the task.amountLeft goes to 0 task is completed and player is rewarded.
+   *
+   * @param payload - An object containing the player's ID, the WebSocket message body, and the server task name.
+   * @param payload.playerId - The unique identifier of the player.
+   * @param payload.message - The WebSocket message body associated with the event.
+   * @param payload.serverTaskName - The name of the server-side task to update.
+   * @returns A promise that resolves to the updated task object.
+   *
+   * @throws Will throw an error if updating the task or rewarding the player fails.
+   */
   @OnEvent('newDailyTaskEvent')
-  async handleNewClanMessage(payload: {
+  async handleDailyTaskEvent(payload: {
     playerId: string;
     message: WsMessageBodyDto;
     serverTaskName: ServerTaskName;
