@@ -118,6 +118,13 @@ export enum ServerTaskName {
    * laita viesti klaanissa
    */
   WRITE_CHAT_MESSAGE_CLAN = 'write_chat_message_clan',
+
+  //Server
+  /**
+   * laita viesti globalissa
+   */
+  WRITE_CHAT_MESSAGE_GLOBAL = 'write_chat_message_global',
+
   /**
    * laita privaviesti toiselle pelaajalle
    */
