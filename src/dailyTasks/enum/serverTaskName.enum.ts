@@ -125,7 +125,6 @@ export enum ServerTaskName {
    */
   WRITE_CHAT_MESSAGE_GLOBAL = 'write_chat_message_global',
 
-
   /**
    * laita privaviesti toiselle pelaajalle
    */
