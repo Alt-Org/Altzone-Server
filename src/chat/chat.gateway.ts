@@ -102,6 +102,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: WebSocketUser,
   ) {
     await this.globalChatService.handleNewGlobalMessage(message, client);
+
+    await this.eventEmitter.emitAsync('newDailyTaskEvent', {
+      playerId: client.user.playerId,
+      message,
+      serverTaskName: ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
+    });
   }
 
   @SubscribeMessage('globalMessageReaction')
