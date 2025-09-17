@@ -21,24 +21,22 @@ export default class GameDataModule {
   }
 
   static async getPlayerService() {
-      const module = await GameDataCommonModule.getModule();
-      return module.resolve(PlayerService);
+    const module = await GameDataCommonModule.getModule();
+    return module.resolve(PlayerService);
   }
 
   static async getClanService() {
-      const module = await GameDataCommonModule.getModule();
-      return module.resolve(ClanService);
+    const module = await GameDataCommonModule.getModule();
+    return module.resolve(ClanService);
   }
 
   static async getRoomService() {
-      const module = await GameDataCommonModule.getModule();
-      return module.resolve(RoomService);
+    const module = await GameDataCommonModule.getModule();
+    return module.resolve(RoomService);
   }
 
   static async getGameEventHandler() {
-      const module = await GameDataCommonModule.getModule();
-      return module.resolve(GameEventsHandler);
+    const module = await GameDataCommonModule.getModule();
+    return module.resolve(GameEventsHandler);
   }
-  
-
 }

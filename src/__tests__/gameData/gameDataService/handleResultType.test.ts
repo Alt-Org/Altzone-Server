@@ -18,8 +18,5 @@ describe('GameDataService.handleResultType() test suite', () => {
     jest.clearAllMocks();
   });
 
-
-  it('Should emit a sync event and be received by a listener', (done) => {
-   
-  });
+  it('Should emit a sync event and be received by a listener', (done) => {});
 });
