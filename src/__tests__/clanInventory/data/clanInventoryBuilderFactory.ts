@@ -14,6 +14,7 @@ import RoomBuilder from './room/RoomBuilder';
 import SoulHomeBuilder from './soulhome/SoulHomeBuilder';
 import StockBuilder from './stock/StockBuilder';
 import ItemDtoBuilder from './item/ItemDtoBuilder';
+import SoulHomeDtoBuilder from './soulhome/SoulHomeDtoBuilder';
 
 type BuilderName =
   | 'ItemDto'
@@ -28,6 +29,7 @@ type BuilderName =
   | 'Room'
   | 'CreateSoulHomeDto'
   | 'UpdateSoulHomeDto'
+  | 'SoulHomeDto'
   | 'SoulHome'
   | 'CreateStockDto'
   | 'UpdateStockDto'
@@ -48,6 +50,7 @@ type BuilderMap = {
 
   CreateSoulHomeDto: CreateSoulHomeDtoBuilder;
   UpdateSoulHomeDto: UpdateSoulHomeDtoBuilder;
+  SoulHomeDto: SoulHomeDtoBuilder;
   SoulHome: SoulHomeBuilder;
 
   CreateStockDto: CreateStockDtoBuilder;
@@ -84,6 +87,8 @@ export default class ClanInventoryBuilderFactory {
         return new CreateSoulHomeDtoBuilder() as BuilderMap[T];
       case 'UpdateSoulHomeDto':
         return new UpdateSoulHomeDtoBuilder() as BuilderMap[T];
+      case 'SoulHomeDto':
+        return new SoulHomeDtoBuilder() as BuilderMap[T];
       case 'SoulHome':
         return new SoulHomeBuilder() as BuilderMap[T];
 
