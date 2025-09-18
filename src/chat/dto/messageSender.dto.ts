@@ -1,5 +1,4 @@
 import { Expose, Type } from 'class-transformer';
-import { Avatar } from '../../player/schemas/avatar.schema';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { AvatarDto } from '../../player/dto/avatar.dto';
 
