@@ -1,6 +1,7 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { Avatar } from '../../player/schemas/avatar.schema';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
+import { AvatarDto } from '../../player/dto/avatar.dto';
 
 /**
  * Sender player information for a chat message
@@ -24,6 +25,7 @@ export class Sender {
   /**
    * Avatar of the sender player
    */
+  @Type(() => AvatarDto)
   @Expose()
-  avatar: Avatar;
+  avatar: AvatarDto;
 }
