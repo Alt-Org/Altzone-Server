@@ -46,7 +46,6 @@ describe('GameDataService.handleResultType() test suite', () => {
       gameEventsHandler,
       { signAsync: jest.fn().mockResolvedValue('token') } as any, // mock JwtService
     );
-    
   });
 
   it('should return NOT_ALLOWED error if player is not in the winning team', async () => {
@@ -160,17 +159,15 @@ describe('GameDataService.handleResultType() test suite', () => {
       .spyOn(playerService, 'getPlayerById')
       .mockResolvedValueOnce([playerDto, null])
       .mockResolvedValueOnce([playerDto, null]);
-    jest
-      .spyOn(clanService, 'readOneById')
-      .mockResolvedValue([
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_ALLOWED,
-            message: 'clan error',
-          }),
-        ],
-      ]);
+    jest.spyOn(clanService, 'readOneById').mockResolvedValue([
+      null,
+      [
+        new ServiceError({
+          reason: SEReason.NOT_ALLOWED,
+          message: 'clan error',
+        }),
+      ],
+    ]);
 
     const [result, error] = await gameDataService.handleResultType(
       battleResult,
@@ -197,17 +194,15 @@ describe('GameDataService.handleResultType() test suite', () => {
       .mockResolvedValueOnce([playerDto, null])
       .mockResolvedValueOnce([playerDto, null]);
     jest.spyOn(clanService, 'readOneById').mockResolvedValue([clan1, null]);
-    jest
-      .spyOn(roomService, 'readAllSoulHomeRooms')
-      .mockResolvedValue([
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_ALLOWED,
-            message: 'room error',
-          }),
-        ],
-      ]);
+    jest.spyOn(roomService, 'readAllSoulHomeRooms').mockResolvedValue([
+      null,
+      [
+        new ServiceError({
+          reason: SEReason.NOT_ALLOWED,
+          message: 'room error',
+        }),
+      ],
+    ]);
 
     const [result, error] = await gameDataService.handleResultType(
       battleResult,
