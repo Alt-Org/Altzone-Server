@@ -36,7 +36,9 @@ export class BoxIdFilterInterceptor implements NestInterceptor {
     if (noFilter) return next.handle();
 
     const request = context.switchToHttp().getRequest();
-    this.attachBoxUserToRequest(request);
+    if (!request['user']) {
+      this.attachBoxUserToRequest(request);
+    }
     const boxUser: BoxUser = request.user;
 
     return next
