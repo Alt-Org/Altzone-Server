@@ -86,28 +86,38 @@ describe('BoxIdFilterInterceptor class test suite', () => {
     expect(result).toEqual(data);
   });
 
-  it('should extract box_id from JWT if user is missing', async () => {
-    const boxId = 'jwtBoxId';
-    mockJwtService.verifyAsync.mockResolvedValueOnce({ box_id: boxId });
-    const data = [
-      { box_id: 'jwtBoxId', value: 1 },
-      { box_id: 'other', value: 2 },
-    ];
-    const request = new RequestBuilder()
-      .setHeaders({ authorization: 'Bearer token' })
-      .build();
-    const context = new ExecutionContextBuilder()
-      .setHttpRequest(request)
-      .build();
-    (callHandler.handle as jest.Mock).mockReturnValue(of(data));
-
-    const results$ = await interceptor.intercept(context, callHandler);
-    const result = await lastValueFrom(results$);
-    expect(result).toEqual([{ box_id: 'jwtBoxId', value: 1 }]);
-    expect(mockJwtService.verifyAsync).toHaveBeenCalledWith(
-      'token',
-      expect.any(Object),
+  it('should attach user to request if missing by extracting from JWT', async () => {
+    const mockJwtService = {
+      verify: jest.fn().mockReturnValue({ box_id: 'test-box-id' }),
+    };
+    const mockReflector = {
+      getAllAndOverride: jest.fn().mockReturnValue(false),
+    };
+    const interceptor = new BoxIdFilterInterceptor(
+      mockReflector as any,
+      mockJwtService as any,
     );
+
+    const mockRequest: any = {
+      headers: { authorization: 'Bearer test-token' },
+    };
+    const context = {
+      switchToHttp: () => ({
+        getRequest: () => mockRequest,
+      }),
+      getHandler: jest.fn(),
+      getClass: jest.fn(),
+    } as any;
+
+    const next = {
+      handle: () => of({ data: [] }),
+    };
+
+    await interceptor.intercept(context, next);
+
+    expect(mockJwtService.verify).toHaveBeenCalledWith('test-token');
+    expect(mockRequest.user).toBeDefined();
+    expect(mockRequest.user.box_id).toBe('test-box-id');
   });
 
   it('should throw APIError if JWT is invalid', async () => {
