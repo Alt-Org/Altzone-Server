@@ -7,7 +7,7 @@ export class BattleResultDtoBuilder {
     team1: [],
     team2: [],
     duration: 0,
-    winnerTeam: 0
+    winnerTeam: 0,
   };
 
   build(): BattleResultDto {
@@ -18,7 +18,7 @@ export class BattleResultDtoBuilder {
     this.base.type = type;
     return this;
   }
-  
+
   setTeam1(team1: string[]): this {
     this.base.team1 = team1;
     return this;
@@ -38,5 +38,4 @@ export class BattleResultDtoBuilder {
     this.base.winnerTeam = winnerTeam;
     return this;
   }
-  
 }

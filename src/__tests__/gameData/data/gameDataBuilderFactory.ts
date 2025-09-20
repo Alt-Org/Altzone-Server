@@ -1,7 +1,7 @@
 import { BattleResultDtoBuilder } from './gameData/BattleResultDtoBuilder';
 import { GameBuilder } from './gameData/GameBuilder';
 
-type BuilderName = 'Game'  | 'BattleResultDto';
+type BuilderName = 'Game' | 'BattleResultDto';
 
 type BuilderMap = {
   Game: GameBuilder;
