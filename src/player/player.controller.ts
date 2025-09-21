@@ -12,7 +12,6 @@ import { PlayerService } from './player.service';
 import { CreatePlayerDto } from './dto/createPlayer.dto';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { PlayerDto } from './dto/player.dto';
-import { BasicGET } from '../common/base/decorator/BasicGET.decorator';
 import { _idDto } from '../common/dto/_id.dto';
 import { BasicDELETE } from '../common/base/decorator/BasicDELETE.decorator';
 import { BasicPUT } from '../common/base/decorator/BasicPUT.decorator';
@@ -94,13 +93,12 @@ export default class PlayerController {
     errors: [401, 404],
   })
   @Get()
-  @Authorize({ action: Action.read, subject: PlayerDto })
   @OffsetPaginate(ModelName.PLAYER)
   @AddSearchQuery(PlayerDto)
   @AddSortQuery(PlayerDto)
-  @BasicGET(ModelName.PLAYER, PlayerDto)
+  @UniformResponse(ModelName.PLAYER, PlayerDto)
   public async getAll(@GetAllQuery() query: IGetAllQuery) {
-    return this.service.readAll(query);
+    return this.service.getAll(query);
   }
 
   /**

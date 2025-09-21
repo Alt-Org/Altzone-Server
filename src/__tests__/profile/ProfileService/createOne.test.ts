@@ -2,7 +2,6 @@ import { ProfileService } from '../../../profile/profile.service';
 import ProfileModule from '../modules/profile.module';
 import ProfileBuilderFactory from '../data/profileBuilderFactory';
 import { MongooseError } from 'mongoose';
-import { MongoServerError } from 'mongodb';
 
 describe('ProfileService.createOne() test suite', () => {
   let profileService: ProfileService;
@@ -81,7 +80,7 @@ describe('ProfileService.createOne() test suite', () => {
     try {
       await profileService.createOne(profileToCreate);
     } catch (e: any) {
-      expect(e).toBeInstanceOf(MongoServerError);
+      expect(e.message).toMatch(/duplicate key error/i);
       expect(e.code).toBe(11000);
     }
   });

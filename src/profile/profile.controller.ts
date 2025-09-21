@@ -168,7 +168,7 @@ export default class ProfileController {
   /**
    * Get all profiles
    *
-   * @remarks Read logged-in user Profile data
+   * @remarks Get all profiles
    */
   @ApiResponseDescription({
     success: {
@@ -179,13 +179,12 @@ export default class ProfileController {
     errors: [401, 404],
   })
   @Get()
-  @Authorize({ action: Action.read, subject: ProfileDto })
+  @UniformResponse(ModelName.PROFILE, ProfileDto)
   @OffsetPaginate(ModelName.PROFILE)
   @AddSearchQuery(ProfileDto)
   @AddSortQuery(ProfileDto)
-  @BasicGET(ModelName.PROFILE, ProfileDto)
   public async getAll(@GetAllQuery() query: IGetAllQuery) {
-    return this.service.readAll(query);
+    return this.service.getAll(query);
   }
 
   /**

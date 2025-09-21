@@ -15,6 +15,10 @@ import { envVars } from '../common/service/envHandler/envVars';
 import { GlobalChatService } from './service/globalChat.service';
 import { UseFilters } from '@nestjs/common';
 import { GlobalWsExceptionFilter } from './decorator/wsExceptionFilter.decorator';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
+import { RequestLoggerService } from '../common/service/logger/RequestLogger.service';
+import { WsLog } from '../common/service/logger/WsLog.decorator';
 
 const apiPort = Number.parseInt(envVars.PORT, 10);
 
@@ -25,6 +29,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly playerService: PlayerService,
     private readonly clanChatService: ClanChatService,
     private readonly globalChatService: GlobalChatService,
+    private readonly requestLoggerService: RequestLoggerService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   /**
@@ -48,6 +54,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       playerId,
       clanId,
       name: player.name,
+      avatar: player.avatar,
     };
 
     this.clanChatService.handleJoinChat(client);
@@ -65,14 +72,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('clanMessage')
+  @WsLog()
   async handleClanMessage(
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
     await this.clanChatService.handleNewClanMessage(client, message);
+
+    await this.eventEmitter.emitAsync('newDailyTaskEvent', {
+      playerId: client.user.playerId,
+      message,
+      serverTaskName: ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
+    });
   }
 
   @SubscribeMessage('clanMessageReaction')
+  @WsLog()
   async handleClanMessageReaction(
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
@@ -81,14 +96,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('globalMessage')
+  @WsLog()
   async handleGlobalMessage(
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
     await this.globalChatService.handleNewGlobalMessage(message, client);
+
+    await this.eventEmitter.emitAsync('newDailyTaskEvent', {
+      playerId: client.user.playerId,
+      message,
+      serverTaskName: ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
+    });
   }
 
   @SubscribeMessage('globalMessageReaction')
+  @WsLog()
   async handleGlobalMessageReaction(
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,

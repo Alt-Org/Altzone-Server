@@ -16,6 +16,8 @@ import {
 import UiDailyTasksService from '../../../dailyTasks/uiDailyTasks/uiDailyTasks.service';
 import { RequestHelperModule } from '../../../requestHelper/requestHelper.module';
 import { mongooseOptions, mongoString } from '../../test_utils/const/db';
+import { PlayerRewarder } from '../../../rewarder/playerRewarder/playerRewarder.service';
+import { Player, PlayerSchema } from '../../../player/schemas/player.schema';
 
 export default class DailyTasksCommonModule {
   private constructor() {}
@@ -29,6 +31,7 @@ export default class DailyTasksCommonModule {
           MongooseModule.forRoot(mongoString, mongooseOptions),
           MongooseModule.forFeature([
             { name: DailyTask.name, schema: DailyTaskSchema },
+            { name: Player.name, schema: PlayerSchema },
           ]),
           BullModule.registerQueue({
             name: 'daily-tasks',
@@ -44,6 +47,7 @@ export default class DailyTasksCommonModule {
           DailyTaskNotifier,
           DailyTaskQueue,
           DailyTaskProcessor,
+          PlayerRewarder,
         ],
       }).compile();
 

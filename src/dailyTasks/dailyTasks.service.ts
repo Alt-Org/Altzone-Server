@@ -16,6 +16,10 @@ import {
 } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { cancelTransaction } from '../common/function/cancelTransaction';
+import { OnEvent } from '@nestjs/event-emitter';
+import { WsMessageBodyDto } from '../chat/dto/wsMessageBody.dto';
+import { ServerTaskName } from './enum/serverTaskName.enum';
+import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
 
 @Injectable()
 export class DailyTasksService {
@@ -24,6 +28,7 @@ export class DailyTasksService {
     private readonly notifier: DailyTaskNotifier,
     private readonly taskQueue: DailyTaskQueue,
     private readonly taskGenerator: TaskGeneratorService,
+    private readonly playerRewarder: PlayerRewarder,
   ) {
     this.basicService = new BasicService(model);
     this.modelName = ModelName.DAILY_TASK;
@@ -152,12 +157,18 @@ export class DailyTasksService {
    * If the amount left reaches zero, the task is deleted. Otherwise, the task is updated.
    *
    * @param playerId - The ID of the player whose task is being updated.
+   * @param serverTaskName - (Optional) The specific server task name to filter the task.
    * @returns The updated task.
    * @throws Will throw an error if there is an issue reading or updating the task.
    */
-  async updateTask(playerId: string) {
+  async updateTask(playerId: string, serverTaskName?: ServerTaskName) {
+    const filter: any = { player_id: playerId };
+    if (serverTaskName) {
+      filter.type = serverTaskName;
+    }
+
     const [task, error] = await this.basicService.readOne<DailyTaskDto>({
-      filter: { player_id: playerId },
+      filter,
     });
     if (error) throw error;
 
@@ -168,7 +179,7 @@ export class DailyTasksService {
       this.notifier.taskCompleted(playerId, task);
     } else {
       const [_, updateError] = await this.basicService.updateOne(task, {
-        filter: { player_id: playerId },
+        filter,
       });
       if (updateError) throw updateError;
       this.notifier.taskUpdated(playerId, task);
@@ -223,5 +234,40 @@ export class DailyTasksService {
    */
   async createMany(dailyTasksToCreate: Omit<DailyTask, '_id'>[]) {
     return this.basicService.createMany(dailyTasksToCreate);
+  }
+
+  /**
+   * Handles a daily task event for a player.
+   *
+   * This method updates the reserved daily task for the player if it's the correct type.
+   * If the task.amountLeft goes to 0 task is completed and player is rewarded.
+   *
+   * @param payload - An object containing the player's ID, the WebSocket message body, and the server task name.
+   * @param payload.playerId - The unique identifier of the player.
+   * @param payload.message - The WebSocket message body associated with the event.
+   * @param payload.serverTaskName - The name of the server-side task to update.
+   * @returns A promise that resolves to the updated task object.
+   *
+   * @throws Will throw an error if updating the task or rewarding the player fails.
+   */
+  @OnEvent('newDailyTaskEvent')
+  async handleDailyTaskEvent(payload: {
+    playerId: string;
+    message: WsMessageBodyDto;
+    serverTaskName: ServerTaskName;
+  }) {
+    const task = await this.updateTask(
+      payload.playerId,
+      payload.serverTaskName,
+    );
+
+    if (task.amountLeft <= 0) {
+      await this.playerRewarder.rewardForPlayerTask(
+        payload.playerId,
+        task.points,
+      );
+    }
+
+    return task;
   }
 }

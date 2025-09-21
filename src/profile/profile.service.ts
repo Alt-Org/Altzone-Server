@@ -16,7 +16,10 @@ import { SEReason } from '../common/service/basicService/SEReason';
 import BasicService from '../common/service/basicService/BasicService';
 import { CreateProfileDto } from './dto/createProfile.dto';
 import { ProfileDto } from './dto/profile.dto';
-import { IServiceReturn } from '../common/service/basicService/IService';
+import {
+  IServiceReturn,
+  TIServiceReadManyOptions,
+} from '../common/service/basicService/IService';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
 import { ObjectId } from 'mongodb';
 import { GuestProfileDto } from './dto/guestProfile.dto';
@@ -49,6 +52,23 @@ export class ProfileService
   public readonly refsInModel: ModelName[];
   public readonly modelName: ModelName;
   public readonly basicService: BasicService;
+
+  /**
+   * This method serves as a replacement
+   * for the deprecated readAll method from the BasicServiceDummyAbstract.
+   * It should be renamed to readAll when the service is updated to the new way.
+   *
+   * @param options - Options for reading profiles.
+   * @returns - An array of profiles if succeeded or an array of ServiceErrors if error occurred.
+   */
+  async getAll(options?: TIServiceReadManyOptions) {
+    const optionsToApply = { ...(options || {}) };
+    const refs = new Set(optionsToApply.includeRefs || []);
+    this.refsInModel.forEach((ref) => refs.add(ref));
+    optionsToApply.includeRefs = Array.from(refs);
+
+    return this.basicService.readMany<ProfileDto>(optionsToApply);
+  }
 
   /**
    * Creates a new Profile in DB with hashed password.

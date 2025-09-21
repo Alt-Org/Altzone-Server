@@ -36,6 +36,9 @@ import { MetadataModule } from './metadata/metadata.module';
 import mongoose from 'mongoose';
 import { addBoxIdToSchemaPlugin } from './common/plugin/addBoxIdToSchema.plugin';
 import { BoxIdFilterInterceptor } from './box/auth/BoxIdFilter.interceptor';
+import { LoggerModule } from './common/service/logger/RequestLogger.module';
+import { RequestLoggerService } from './common/service/logger/RequestLogger.service';
+import { RequestLoggerInterceptor } from './common/service/logger/RequestLogger.interceptor';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -104,12 +107,20 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
     ClanShopModule,
     ShopModule,
 
+    LoggerModule,
+
     MetadataModule,
     ...(envVars.ENVIRONMENT === testEnvironmentName ? [FeedbackModule] : []),
   ],
   controllers: [AppController],
   providers: [
     AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useFactory: (loggerService: RequestLoggerService) =>
+        new RequestLoggerInterceptor(loggerService),
+      inject: [RequestLoggerService],
+    },
     { provide: APP_GUARD, useClass: authGuardClassToUse },
     ...(isTestingSession()
       ? [{ provide: APP_INTERCEPTOR, useClass: BoxIdFilterInterceptor }]
