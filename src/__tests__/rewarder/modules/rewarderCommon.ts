@@ -5,6 +5,9 @@ import { PlayerModule } from '../../../player/player.module';
 import { ClanModule } from '../../../clan/clan.module';
 import { PlayerRewarder } from '../../../rewarder/playerRewarder/playerRewarder.service';
 import { ClanRewarder } from '../../../rewarder/clanRewarder/clanRewarder.service';
+import { ModelName } from '../../../common/enum/modelName.enum';
+import { PlayerSchema } from '../../../player/schemas/player.schema';
+import { ClanSchema } from '../../../clan/clan.schema';
 
 export default class RewarderCommonModule {
   private constructor() {}
@@ -16,6 +19,10 @@ export default class RewarderCommonModule {
       RewarderCommonModule.module = await Test.createTestingModule({
         imports: [
           MongooseModule.forRoot(mongoString, mongooseOptions),
+          MongooseModule.forFeature([
+            { name: ModelName.PLAYER, schema: PlayerSchema },
+            { name: ModelName.CLAN, schema: ClanSchema },
+          ]),
           PlayerModule,
           ClanModule,
         ],

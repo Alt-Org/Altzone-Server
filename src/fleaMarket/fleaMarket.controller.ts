@@ -17,8 +17,9 @@ import HasClanRights from '../clan/role/decorator/guard/HasClanRights';
 import { ClanBasicRight } from '../clan/role/enum/clanBasicRight.enum';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { ItemIdDto } from './dto/itemId.dto';
-import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { VotingDto } from '../voting/dto/voting.dto';
+import { ChangeItemStatusDto } from './dto/changeItemStatus.dto';
+import { Status } from './enum/status.enum';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
@@ -82,7 +83,6 @@ export class FleaMarketController {
     },
     errors: [400, 401, 403, 404],
   })
-  @SwaggerTags('Release on 24.08.2025', 'FleaMarket')
   @Post('sell')
   @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
@@ -168,5 +168,97 @@ export class FleaMarketController {
       body.price,
       user.player_id,
     );
+  }
+
+  /**
+   * Change the status of a flea market item.
+   *
+   * @remarks Changes the status of a flea market item belonging to the players clan.
+   * Player will need a SHOP clan right.
+   * The status can only be changed between available and shipping.
+   * If the item is booked it's status can't be changed.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 403, 404],
+  })
+  @HasClanRights([ClanBasicRight.SHOP])
+  @Post('change-item-status')
+  @UniformResponse()
+  async changeItemStatus(
+    @Body() body: ChangeItemStatusDto,
+    @LoggedUser() user: User,
+  ) {
+    const [item, itemError] = await this.service.readOneById(body.item_id);
+    if (itemError) throw itemError;
+    if (item.status === Status.BOOKED)
+      throw new APIError({
+        reason: APIErrorReason.NOT_ALLOWED,
+        message: `The item is booked so it's status can't be currently changed.`,
+      });
+
+    const clanId = await this.service.getFleaMarketItemClanId(
+      body.item_id,
+      user.player_id,
+    );
+    if (!clanId)
+      throw new APIError({
+        reason: APIErrorReason.NOT_AUTHORIZED,
+        message: 'The item does not belong to the clan of logged in player',
+      });
+
+    if (body.status === Status.AVAILABLE) {
+      const [_, errors] = await this.service.checkClanItemSlots(clanId);
+      if (errors) throw errors;
+    }
+
+    const [_, updateError] = await this.service.basicService.updateOneById(
+      body.item_id,
+      {
+        status: body.status,
+      },
+    );
+
+    if (updateError) throw updateError;
+  }
+
+  /**
+   * Move item from fleamarket to stock.
+   *
+   * @remarks Moves the item from fleamarket to stock.
+   * Player will need a SHOP clan right.
+   * Item can't be moved if it's booked.
+   * Item must belong to the players clan.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 403, 404],
+  })
+  @HasClanRights([ClanBasicRight.SHOP])
+  @UniformResponse()
+  @Post('move-to-stock/:_id')
+  async removeItemFromFleaMarket(
+    @Param() param: _idDto,
+    @LoggedUser() user: User,
+  ) {
+    const clanId = await this.service.getFleaMarketItemClanId(
+      param._id,
+      user.player_id,
+    );
+    if (!clanId)
+      throw new APIError({
+        reason: APIErrorReason.NOT_AUTHORIZED,
+        message: 'The item does not belong to the clan of logged in player',
+      });
+
+    const [_, errors] = await this.service.moveFleaMarketItemToStock(
+      param._id,
+      clanId,
+    );
+    if (errors) throw errors;
   }
 }

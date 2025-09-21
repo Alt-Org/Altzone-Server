@@ -261,7 +261,6 @@ export class ClanController {
     errors: [400, 401, 403, 404],
   })
   @UniformResponse(ModelName.CLAN)
-  @SwaggerTags('Release on 24.08.2025', 'Clan')
   @Post('join')
   public async createJoin(
     @Body() body: JoinRequestDto,

@@ -10,6 +10,7 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
     _id: undefined,
     name: 'defaultPlayer',
     points: 0,
+    battlePoints: 0,
     backpackCapacity: 10,
     uniqueIdentifier: 'unique-id',
     above13: true,
@@ -57,6 +58,11 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
 
   setPoints(points: number) {
     this.base.points = points;
+    return this;
+  }
+
+  setBattlePoints(battlePoints: number) {
+    this.base.battlePoints = battlePoints;
     return this;
   }
 

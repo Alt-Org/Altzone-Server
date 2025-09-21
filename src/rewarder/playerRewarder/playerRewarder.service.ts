@@ -1,16 +1,24 @@
-import { MongooseError } from 'mongoose';
+import { Model, MongooseError } from 'mongoose';
 import { points } from './points';
 import { PlayerEvent } from './enum/PlayerEvent.enum';
-import { PlayerService } from '../../player/player.service';
 import { Injectable } from '@nestjs/common';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
-import { Message } from '../../player/message.schema';
 import { IServiceReturn } from '../../common/service/basicService/IService';
+import { PlayerDto } from '../../player/dto/player.dto';
+import BasicService from '../../common/service/basicService/BasicService';
+import { Player } from '../../player/schemas/player.schema';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class PlayerRewarder {
-  constructor(private readonly playerService: PlayerService) {}
+  private readonly playerService: BasicService;
+
+  constructor(
+    @InjectModel(Player.name) public readonly playerModel: Model<Player>,
+  ) {
+    this.playerService = new BasicService(playerModel);
+  }
 
   /**
    * Rewards specified player for an event happen
@@ -22,10 +30,7 @@ export class PlayerRewarder {
   async rewardForPlayerEvent(
     player_id: string,
     playerEvent: PlayerEvent,
-  ): Promise<[boolean, ServiceError[] | MongooseError]> {
-    if (playerEvent === PlayerEvent.MESSAGE_SENT)
-      return this.rewardSendMessages(player_id);
-
+  ): Promise<IServiceReturn<boolean>> {
     const pointAmount = points[playerEvent];
     if (pointAmount === undefined)
       return [
@@ -40,7 +45,7 @@ export class PlayerRewarder {
         ],
       ];
 
-    return this.increasePlayerPoints(player_id, pointAmount);
+    return this.updatePlayerBattlePoints(player_id, pointAmount);
   }
 
   /**
@@ -81,8 +86,7 @@ export class PlayerRewarder {
     player_id: string,
     points: number,
   ): Promise<IServiceReturn<true>> {
-    const result = await this.playerService.updateOneById({
-      _id: player_id,
+    const result = await this.playerService.updateOneById(player_id, {
       $inc: { points },
     });
 
@@ -91,41 +95,26 @@ export class PlayerRewarder {
     return [true, null];
   }
 
-  private async rewardSendMessages(
+  /**
+   * Update specified player battle points amount
+   * @param player_id player _id
+   * @param battlePoints amount of battle points to increase
+   * @throws MongooseError if any occurred
+   * @returns true if player was rewarded successfully
+   */
+  private async updatePlayerBattlePoints(
     player_id: string,
-  ): Promise<[boolean, ServiceError[] | MongooseError]> {
-    const today = new Date();
+    battlePoints: number,
+  ): Promise<IServiceReturn<boolean>> {
+    const [player, errors] =
+      await this.playerService.readOneById<PlayerDto>(player_id);
 
-    const playerResp = await this.playerService.readOneById(player_id);
-    if (playerResp instanceof MongooseError) return [false, playerResp];
+    if (errors) return [null, errors];
 
-    if (!playerResp.data[playerResp.metaData.dataKey])
-      return [
-        false,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            message: 'Could not read the player',
-          }),
-        ],
-      ];
+    battlePoints = Math.max(0, player.battlePoints + battlePoints);
 
-    const player = playerResp.data[playerResp.metaData.dataKey];
-    const messages: Message[] = player.gameStatistics.messages || [];
-    const todaysMessage: Message = messages.find(
-      (message) => message.date.toDateString() === today.toDateString(),
-    );
-
-    const messageCount = todaysMessage?.count;
-
-    if (messageCount === 3) player.points += points[PlayerEvent.MESSAGE_SENT];
-
-    const updateResp = await this.playerService.updateOneById({
-      ...player,
-      _id: player_id,
+    return await this.playerService.updateOneById(player_id, {
+      $set: { battlePoints },
     });
-    if (updateResp instanceof MongooseError) return [false, updateResp];
-
-    return [true, null];
   }
 }

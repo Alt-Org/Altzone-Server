@@ -1,46 +1,112 @@
 import RewarderModule from '../modules/clanRewarder.module';
-import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 import { PlayerRewarder } from '../../../rewarder/playerRewarder/playerRewarder.service';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import PlayerModule from '../../player/modules/player.module';
-import { MongooseError } from 'mongoose';
-import { PlayerEvent } from '../../../rewarder/playerRewarder/enum/PlayerEvent.enum';
-import { points } from '../../../rewarder/playerRewarder/points';
+import { Player } from '../../../player/schemas/player.schema';
 
 describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
   let rewarder: PlayerRewarder;
 
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
-  const existingPlayer = playerBuilder.setPoints(0).build();
+  let existingPlayer: Player;
   const playerModel = PlayerModule.getPlayerModel();
-  const messageBuilder = PlayerBuilderFactory.getBuilder('Message');
 
   beforeEach(async () => {
+    await playerModel.deleteMany({});
     rewarder = await RewarderModule.getPlayerRewarder();
+    existingPlayer = playerBuilder.setPoints(0).setBattlePoints(30).build();
 
     const createdPlayer = await playerModel.create(existingPlayer);
     existingPlayer._id = createdPlayer._id;
   });
 
-  it('Should return true and no errors if input is valid', async () => {
-    const [isSuccess, errors] = await rewarder.rewardForPlayerEvent(
-      existingPlayer._id,
-      PlayerEvent.BATTLE_PLAYED,
-    );
-
-    expect(errors).toBeNull();
-    expect(isSuccess).toBeTruthy();
-  });
-
-  it('Should update points amount of specified player with right value', async () => {
-    const event = PlayerEvent.BATTLE_PLAYED;
-    const expectedAddedPoints = points[event];
+  it('Should update players battles points if event type is battle_won', async () => {
+    const event = 'battle_won' as any;
     const playerBefore = await playerModel.findById(existingPlayer._id);
 
-    await rewarder.rewardForPlayerEvent(existingPlayer._id, event);
+    const [isSuccess, errors] = await rewarder.rewardForPlayerEvent(
+      existingPlayer._id,
+      event,
+    );
 
     const playerAfter = await playerModel.findById(existingPlayer._id);
-    expect(playerAfter.points).toBe(playerBefore.points + expectedAddedPoints);
+    expect(playerAfter.points).toBe(playerBefore.points);
+    expect(playerAfter.battlePoints).toBe(130);
+    expect(isSuccess).toBe(true);
+    expect(errors).toBeNull();
+  });
+
+  it('Should update players battles points if event type is battle_lose and has enough battle points', async () => {
+    playerModel.deleteMany({});
+    const event = 'battle_lose' as any;
+
+    const playerBefore = await playerModel.findById(existingPlayer._id);
+
+    const [isSuccess, errors] = await rewarder.rewardForPlayerEvent(
+      existingPlayer._id,
+      event,
+    );
+
+    const playerAfter = await playerModel.findById(existingPlayer._id);
+    expect(playerAfter.points).toBe(playerBefore.points);
+    expect(playerAfter.battlePoints).toBe(10);
+    expect(isSuccess).toBe(true);
+    expect(errors).toBeNull();
+  });
+
+  it('Should update players battles points if event type is battle_lose, but battle points could not be negative', async () => {
+    const event = 'battle_lose' as any;
+    await playerModel.deleteMany({});
+    existingPlayer = playerBuilder
+      .setName('loserPlayer')
+      .setUniqueIdentifier('loserIdentifier')
+      .setPoints(0)
+      .setBattlePoints(10)
+      .build();
+
+    const createdPlayer = await playerModel.create(existingPlayer);
+    existingPlayer._id = createdPlayer._id;
+
+    const playerBefore = await playerModel.findById(existingPlayer._id);
+
+    const [isSuccess, errors] = await rewarder.rewardForPlayerEvent(
+      existingPlayer._id,
+      event,
+    );
+
+    const playerAfter = await playerModel.findById(existingPlayer._id);
+    expect(playerAfter.points).toBe(playerBefore.points);
+    expect(playerAfter.battlePoints).toBe(0);
+    expect(isSuccess).toBe(true);
+    expect(errors).toBeNull();
+  });
+
+  it('Should not update players battles points if event type is battle_lose and battle points is 0', async () => {
+    await playerModel.deleteMany({});
+    const event = 'battle_lose' as any;
+    playerModel.deleteMany({});
+    existingPlayer = playerBuilder
+      .setName('loserPlayer')
+      .setUniqueIdentifier('loserIdentifier')
+      .setPoints(0)
+      .setBattlePoints(0)
+      .build();
+
+    const createdPlayer = await playerModel.create(existingPlayer);
+    existingPlayer._id = createdPlayer._id;
+
+    const playerBefore = await playerModel.findById(existingPlayer._id);
+
+    const [isSuccess, errors] = await rewarder.rewardForPlayerEvent(
+      existingPlayer._id,
+      event,
+    );
+
+    const playerAfter = await playerModel.findById(existingPlayer._id);
+    expect(playerAfter.points).toBe(playerBefore.points);
+    expect(playerAfter.battlePoints).toBe(0);
+    expect(isSuccess).toBe(false);
+    expect(errors).toBeNull();
   });
 
   it('Should not update points amount if the specified event does not exists and return WRONG_ENUM ServiceError', async () => {
@@ -58,63 +124,5 @@ describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
     expect(errors).toContainSE_WRONG_ENUM();
     expect(errors[0].field).toBe('playerEvent');
     expect(errors[0].value).toBe(event);
-  });
-
-  it('Should not update points amount of specified player if player sent less than 3 messages', async () => {
-    const event = PlayerEvent.MESSAGE_SENT;
-
-    await playerModel.findByIdAndUpdate(existingPlayer._id, {
-      gameStatistics: {
-        messages: [messageBuilder.setCount(1).build()],
-      },
-    });
-    const playerBefore = await playerModel.findById(existingPlayer._id);
-
-    await rewarder.rewardForPlayerEvent(existingPlayer._id, event);
-
-    const playerAfter = await playerModel.findById(existingPlayer._id);
-    expect(playerAfter.points).toBe(playerBefore.points);
-  });
-
-  it('Should update points amount of specified player if player sent 3 messages', async () => {
-    const event = PlayerEvent.MESSAGE_SENT;
-    const expectedAddedPoints = points[event];
-
-    await playerModel.findByIdAndUpdate(existingPlayer._id, {
-      gameStatistics: {
-        messages: [messageBuilder.setCount(3).build()],
-      },
-    });
-    const playerBefore = await playerModel.findById(existingPlayer._id);
-
-    await rewarder.rewardForPlayerEvent(existingPlayer._id, event);
-
-    const playerAfter = await playerModel.findById(existingPlayer._id);
-    expect(playerAfter.points).toBe(playerBefore.points + expectedAddedPoints);
-  });
-
-  it('Should not update points amount of specified player if player sent more than 3 messages', async () => {
-    const event = PlayerEvent.MESSAGE_SENT;
-
-    await playerModel.findByIdAndUpdate(existingPlayer._id, {
-      gameStatistics: {
-        messages: [messageBuilder.setCount(4).build()],
-      },
-    });
-    const playerBefore = await playerModel.findById(existingPlayer._id);
-
-    await rewarder.rewardForPlayerEvent(existingPlayer._id, event);
-
-    const playerAfter = await playerModel.findById(existingPlayer._id);
-    expect(playerAfter.points).toBe(playerBefore.points);
-  });
-
-  it('Should throw MongooseError if the player does not exists', async () => {
-    try {
-      const event = PlayerEvent.BATTLE_PLAYED;
-      await rewarder.rewardForPlayerEvent(getNonExisting_id(), event);
-    } catch (e) {
-      expect(e).toBeInstanceOf(MongooseError);
-    }
   });
 });
