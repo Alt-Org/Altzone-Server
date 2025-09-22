@@ -4,6 +4,7 @@ import { ModelName } from '../../common/enum/modelName.enum';
 import { ObjectId } from 'mongodb';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { BoxReference } from '../enum/BoxReference.enum';
+import { Session } from './session.schema';
 
 export type BoxDocument = HydratedDocument<Box>;
 
@@ -34,6 +35,11 @@ export class Box {
   @Prop({ type: ObjectId, required: true })
   adminPlayer_id: ObjectId;
 
+  /**
+   * Virtual field for sessions.
+   */
+  sessions?: Session[];
+
   @ExtractField()
   _id: ObjectId;
 }
@@ -57,6 +63,12 @@ BoxSchema.virtual(BoxReference.GROUP_ADMIN, {
   localField: 'adminPassword',
   foreignField: 'password',
   justOne: true,
+});
+BoxSchema.virtual('sessions', {
+  ref: ModelName.SESSION,
+  localField: '_id',
+  foreignField: 'box_id',
+  justOne: false,
 });
 
 export const publicReferences = Object.values(BoxReference);
