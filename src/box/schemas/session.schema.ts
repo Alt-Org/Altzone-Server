@@ -100,6 +100,7 @@ export class Session {
 }
 
 export const SessionSchema = SchemaFactory.createForClass(Session);
+SessionSchema.set('collection', ModelName.SESSION);
 SessionSchema.virtual(BoxReference.CLANS, {
   ref: ModelName.CLAN,
   localField: 'createdClan_ids',
