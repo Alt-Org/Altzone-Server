@@ -35,5 +35,6 @@ export enum ModelName {
   FLEA_MARKET_ITEM = 'FleaMarketItem',
   VOTING = 'Voting',
   BOX = 'Box',
+  SESSION = 'Session',
   GROUP_ADMIN = 'GroupAdmin',
 }
