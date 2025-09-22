@@ -39,7 +39,7 @@ export class Session {
 
   /**
    * Password for testers to claim their accounts in the box. Not hashed.
-   * It used as a proof that the claimer is eligible to access the particular box
+   * It is used as proof that the claimer is eligible to access the particular box
    */
   @Prop({ type: String, default: null })
   testersSharedPassword: string | null;
@@ -51,7 +51,7 @@ export class Session {
   boxRemovalTime: number;
 
   /**
-   * When the testing session be automatically reset, timestamp
+   * When the testing session will be automatically reset, timestamp
    */
   @Prop({ type: Number, required: true })
   sessionResetTime: number;
