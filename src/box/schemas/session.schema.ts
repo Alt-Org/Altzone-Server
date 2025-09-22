@@ -8,7 +8,7 @@ import { defaultPredefinedDailyTasks } from '../dailyTask/defaultPredefinedDaily
 import { HydratedDocument, Types } from 'mongoose';
 import { ClanToCreate, ClanToCreateSchema } from './ClanToCreate.schema';
 import { BoxReference } from '../enum/BoxReference.enum';
-import { ModelName } from 'src/common/enum/modelName.enum';
+import { ModelName } from '../../common/enum/modelName.enum';
 
 export type SessionDocument = HydratedDocument<Session>;
 
