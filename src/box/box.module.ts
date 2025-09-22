@@ -31,11 +31,13 @@ import AccountClaimerService from './accountClaimer/accountClaimer.service';
 import { TesterAccountService } from './accountClaimer/testerAccount.service';
 import UniqueFieldGenerator from './util/UniqueFieldGenerator';
 import { ItemSchema } from '../clanInventory/item/item.schema';
+import { SessionSchema } from './schemas/session.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: ModelName.BOX, schema: BoxSchema },
+      { name: ModelName.SESSION, schema: SessionSchema },
       { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
       { name: ModelName.PROFILE, schema: ProfileSchema },
       { name: ModelName.PLAYER, schema: PlayerSchema },
