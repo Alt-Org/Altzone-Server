@@ -14,13 +14,13 @@ import GameDataBuilderFactory from '../data/gameDataBuilderFactory';
 import AuthBuilderFactory from '../../auth/data/authBuilderFactory';
 import { ObjectId } from 'mongodb';
 
-describe('GameDataService.handleResultType() test suite',  () =>  {
+describe('GameDataService.handleResultType() test suite', () => {
   let playerService: PlayerService;
   let clanService: ClanService;
   let roomService: RoomService;
   let gameEventsHandler: GameEventsHandler;
   let gameDataService: GameDataService;
-  
+
   const gameDataModel = GameDataModule.getGameModel();
   const playerModel = GameDataModule.getPlayerModel();
 
@@ -29,11 +29,11 @@ describe('GameDataService.handleResultType() test suite',  () =>  {
   const p2 = playerBuilder.setName('p2').build();
   const p3 = playerBuilder.setName('p3').build();
   const p4 = playerBuilder.setName('p4').build();
-  
-   playerModel.create(p1);
-   playerModel.create(p2);
-   playerModel.create(p3);
-   playerModel.create(p4);
+
+  playerModel.create(p1);
+  playerModel.create(p2);
+  playerModel.create(p3);
+  playerModel.create(p4);
 
   const playerDtoBuilder = PlayerBuilderFactory.getBuilder('PlayerDto');
   const playerDto = playerDtoBuilder.setClanId('c1').build();
@@ -60,12 +60,14 @@ describe('GameDataService.handleResultType() test suite',  () =>  {
     .setDuration(100)
     .build();
 
-    const gameDtoBuilder = GameDataBuilderFactory.getBuilder('Game');
-    const game = gameDtoBuilder
+  const gameDtoBuilder = GameDataBuilderFactory.getBuilder('Game');
+  const game = gameDtoBuilder
     .setTeam1([p1._id, p2._id])
-    .setTeam2([p3._id, p4._id]).setWinner(1)
-    .setId(new ObjectId().toString()).build()
-    gameDataModel.create(game);
+    .setTeam2([p3._id, p4._id])
+    .setWinner(1)
+    .setId(new ObjectId().toString())
+    .build();
+  gameDataModel.create(game);
 
   beforeEach(async () => {
     gameDataModel.deleteMany();
