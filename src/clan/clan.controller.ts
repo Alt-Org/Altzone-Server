@@ -49,6 +49,8 @@ import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { ClanChatService } from '../chat/service/clanChat.service';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
 import { JukeboxSongsDto } from './dto/updateJukeboxSongs.dto';
+import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 
 @Controller('clan')
 export class ClanController {
@@ -60,6 +62,7 @@ export class ClanController {
     private readonly playerService: PlayerService,
     private readonly clanChatService: ClanChatService,
     private readonly passwordGenerator: PasswordGenerator,
+    private readonly emitterService: EventEmitterService,
   ) {}
 
   /**
@@ -365,5 +368,11 @@ export class ClanController {
       { filter: { _id: user.clan_id } },
     );
     if (errors) throw errors;
+
+    this.emitterService.EmittNewDailyTaskEvent(
+          user.player_id,
+          '',
+          ServerTaskName.CREATE_CLAN_PLAYLIST,
+        );
   }
 }
