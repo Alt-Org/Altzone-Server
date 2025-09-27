@@ -16,7 +16,11 @@ export default class EventEmitterService {
    * @param message free text
    * @param serverTaskName  name of the server task
    */
-  public async EmitNewDailyTaskEvent(player_Id: string, message: WsMessageBodyDto, serverTaskName: ServerTaskName) {
+  public async EmitNewDailyTaskEvent(
+    player_Id: string,
+    message: WsMessageBodyDto,
+    serverTaskName: ServerTaskName,
+  ) {
     await this.eventEmitter.emitAsync('newDailyTaskEvent', {
       playerId: player_Id,
       message, //TODO: need to consider if message is needed here at all
