@@ -15,10 +15,10 @@ import { envVars } from '../common/service/envHandler/envVars';
 import { GlobalChatService } from './service/globalChat.service';
 import { UseFilters } from '@nestjs/common';
 import { GlobalWsExceptionFilter } from './decorator/wsExceptionFilter.decorator';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { RequestLoggerService } from '../common/service/logger/RequestLogger.service';
 import { WsLog } from '../common/service/logger/WsLog.decorator';
+import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 
 const apiPort = Number.parseInt(envVars.PORT, 10);
 
@@ -30,7 +30,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly clanChatService: ClanChatService,
     private readonly globalChatService: GlobalChatService,
     private readonly requestLoggerService: RequestLoggerService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly emitterService: EventEmitterService,
   ) {}
 
   /**
@@ -79,11 +79,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     await this.clanChatService.handleNewClanMessage(client, message);
 
-    await this.eventEmitter.emitAsync('newDailyTaskEvent', {
-      playerId: client.user.playerId,
+    this.emitterService.EmittNewDailyTaskEvent(
+      client.user.playerId,
       message,
-      serverTaskName: ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
-    });
+      ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
+    );
   }
 
   @SubscribeMessage('clanMessageReaction')
@@ -103,11 +103,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     await this.globalChatService.handleNewGlobalMessage(message, client);
 
-    await this.eventEmitter.emitAsync('newDailyTaskEvent', {
-      playerId: client.user.playerId,
+    this.emitterService.EmittNewDailyTaskEvent(
+      client.user.playerId,
       message,
-      serverTaskName: ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
-    });
+      ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
+    );
   }
 
   @SubscribeMessage('globalMessageReaction')
