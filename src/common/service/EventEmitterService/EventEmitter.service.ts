@@ -6,9 +6,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
  */
 @Injectable()
 export default class EventEmitterService {
-  constructor(
-      private readonly eventEmitter: EventEmitter2,
-    ) {}
+  constructor(private readonly eventEmitter: EventEmitter2) {}
 
   /**
    * Emit a new daily task event
@@ -16,14 +14,11 @@ export default class EventEmitterService {
    * @param message free text
    * @param serverTaskName  name of the server task
    */
-  public async EmittNewDailyTaskEvent(player_Id, message, serverTaskName)
-  {
+  public async EmittNewDailyTaskEvent(player_Id, message, serverTaskName) {
     await this.eventEmitter.emitAsync('newDailyTaskEvent', {
-          playerId: player_Id,
-          message,
-          serverTaskName: serverTaskName,
-        });
-  }  
+      playerId: player_Id,
+      message,
+      serverTaskName: serverTaskName,
+    });
+  }
 }
-
-  
