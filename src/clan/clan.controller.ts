@@ -371,7 +371,7 @@ export class ClanController {
 
     this.emitterService.EmitNewDailyTaskEvent(
       user.player_id,
-      '',
+      '' as any,
       ServerTaskName.CREATE_CLAN_PLAYLIST,
     );
   }
