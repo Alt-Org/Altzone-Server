@@ -79,7 +79,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     await this.clanChatService.handleNewClanMessage(client, message);
 
-    this.emitterService.EmittNewDailyTaskEvent(
+    this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
       message,
       ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
@@ -103,7 +103,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     await this.globalChatService.handleNewGlobalMessage(message, client);
 
-    this.emitterService.EmittNewDailyTaskEvent(
+    this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
       message,
       ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,

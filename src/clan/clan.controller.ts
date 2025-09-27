@@ -369,7 +369,7 @@ export class ClanController {
     );
     if (errors) throw errors;
 
-    this.emitterService.EmittNewDailyTaskEvent(
+    this.emitterService.EmitNewDailyTaskEvent(
       user.player_id,
       '',
       ServerTaskName.CREATE_CLAN_PLAYLIST,

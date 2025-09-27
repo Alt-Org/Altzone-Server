@@ -14,7 +14,7 @@ export default class EventEmitterService {
    * @param message free text
    * @param serverTaskName  name of the server task
    */
-  public async EmittNewDailyTaskEvent(player_Id, message, serverTaskName) {
+  public async EmitNewDailyTaskEvent(player_Id, message, serverTaskName) {
     await this.eventEmitter.emitAsync('newDailyTaskEvent', {
       playerId: player_Id,
       message,
