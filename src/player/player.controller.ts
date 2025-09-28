@@ -124,9 +124,9 @@ export default class PlayerController {
   @BasicPUT(ModelName.PLAYER)
   public async update(@Body() body: UpdatePlayerDto) {
     const [player, _] = await this.service.getPlayerById(body._id);
-    const result = this.service.updateOneById(body);
+    const playerUpdateResults = this.service.updateOneById(body);
 
-    if (result instanceof Promise && body.avatar.clothes) {
+    if (playerUpdateResults instanceof Promise && body.avatar.clothes) {
       if (player.avatar.clothes !== body.avatar.clothes) {
         this.emitterService.EmitNewDailyTaskEvent(
           body._id,
@@ -135,7 +135,7 @@ export default class PlayerController {
       }
     }
 
-    return result;
+    return playerUpdateResults;
   }
 
   /**
