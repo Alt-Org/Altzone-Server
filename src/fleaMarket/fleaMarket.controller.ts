@@ -71,6 +71,7 @@ export class FleaMarketController {
 
   /**
    * Sell a clan item on flea market
+   * Emit a server event for daily task "SUGGEST_ITEM_TO_FLEA_MARKET"
    *
    * @remarks Sell an Item on the flea market.
    * This will start a voting in the Clan from which Item is being moved to the flea marked.
@@ -80,7 +81,6 @@ export class FleaMarketController {
    *
    * Notice that if a FleaMarketItem has already "Shipping" status 403 will be returned.
    *
-   * Emit a server event for daily task "SUGGEST_ITEM_TO_FLEA_MARKET"
    */
   @ApiResponseDescription({
     success: {
