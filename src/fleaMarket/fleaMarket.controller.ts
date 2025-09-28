@@ -79,7 +79,7 @@ export class FleaMarketController {
    * Notice that the player must be in the same clan, and it must have a basic right "Shop".
    *
    * Notice that if a FleaMarketItem has already "Shipping" status 403 will be returned.
-   * 
+   *
    * Emit a server event for daily task "SUGGEST_ITEM_TO_FLEA_MARKET"
    */
   @ApiResponseDescription({
