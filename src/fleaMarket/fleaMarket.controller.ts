@@ -21,7 +21,7 @@ import { VotingDto } from '../voting/dto/voting.dto';
 import { ChangeItemStatusDto } from './dto/changeItemStatus.dto';
 import { Status } from './enum/status.enum';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
-import { ServerTaskName } from 'src/dailyTasks/enum/serverTaskName.enum';
+import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
