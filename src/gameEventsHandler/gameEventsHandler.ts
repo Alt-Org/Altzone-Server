@@ -40,13 +40,13 @@ export class GameEventsHandler {
   /*
    * Emit events and handle player/clan events when player win a battle
    * @param player_id id of the player
-   * @returns 
+   * @returns
    */
   private async handleWinBattle(player_id: string) {
     this.emitterService.EmitNewDailyTaskEvent(
-          player_id,
-          ServerTaskName.WIN_BATTLE,
-        );
+      player_id,
+      ServerTaskName.WIN_BATTLE,
+    );
 
     const [, playerErrors] = await this.playerEventHandler.handlePlayerEvent(
       player_id,
