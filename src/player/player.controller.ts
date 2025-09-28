@@ -33,7 +33,10 @@ import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 
 @Controller('player')
 export default class PlayerController {
-  public constructor(private readonly service: PlayerService, private readonly emitterService: EventEmitterService,) {}
+  public constructor(
+    private readonly service: PlayerService,
+    private readonly emitterService: EventEmitterService,
+  ) {}
 
   /**
    * Create a player
@@ -123,17 +126,16 @@ export default class PlayerController {
     const [player, _] = await this.service.getPlayerById(body._id);
     const result = this.service.updateOneById(body);
 
-if (result instanceof Promise && body.avatar.clothes) {
-
-  if (player.avatar.clothes !== body.avatar.clothes) {
-    this.emitterService.EmitNewDailyTaskEvent(
+    if (result instanceof Promise && body.avatar.clothes) {
+      if (player.avatar.clothes !== body.avatar.clothes) {
+        this.emitterService.EmitNewDailyTaskEvent(
           body._id,
           ServerTaskName.CHANGE_AVATAR_CLOTHES,
         );
-  } 
-}
+      }
+    }
 
-  return result;
+    return result;
   }
 
   /**
