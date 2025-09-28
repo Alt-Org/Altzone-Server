@@ -253,7 +253,6 @@ export class DailyTasksService {
   @OnEvent('newDailyTaskEvent')
   async handleDailyTaskEvent(payload: {
     playerId: string;
-    message: WsMessageBodyDto;
     serverTaskName: ServerTaskName;
   }) {
     const task = await this.updateTask(

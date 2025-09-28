@@ -81,7 +81,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
-      message,
       ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
     );
   }
@@ -105,7 +104,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
-      message,
       ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
     );
   }
