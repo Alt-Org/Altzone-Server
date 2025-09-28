@@ -16,6 +16,7 @@ import { ClanSchema } from '../clan/clan.schema';
 import { StallController } from './stall/stall.controller';
 import { StallService } from './stall/stall.service';
 import { VotingSchema } from '../voting/schemas/voting.schema';
+import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { VotingSchema } from '../voting/schemas/voting.schema';
     FleaMarketHelperService,
     FleaMarketVotingProcessor,
     StallService,
+    EventEmitterService,
   ],
   exports: [],
 })
