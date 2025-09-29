@@ -45,7 +45,8 @@ export default class VotingCommonModule {
             },
             { name: ModelName.FLEA_MARKET_ITEM, schema: FleaMarketItemSchema },
           ]),
-          PlayerModule,EventEmitterCommonModule,
+          PlayerModule,
+          EventEmitterCommonModule,
           BullModule.registerQueue(
             { name: VotingQueueName.CLAN_ROLE },
             { name: VotingQueueName.CLAN_SHOP },

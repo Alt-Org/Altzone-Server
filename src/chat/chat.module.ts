@@ -27,15 +27,11 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
     PlayerModule,
     RequestHelperModule,
     forwardRef(() => BoxModule),
-    LoggerModule, EventEmitterCommonModule
+    LoggerModule,
+    EventEmitterCommonModule,
   ],
   controllers: [ChatController],
-  providers: [
-    ChatService,
-    ChatGateway,
-    ClanChatService,
-    GlobalChatService,
-  ],
+  providers: [ChatService, ChatGateway, ClanChatService, GlobalChatService],
   exports: [ChatService, ClanChatService],
 })
 export class ChatModule {}

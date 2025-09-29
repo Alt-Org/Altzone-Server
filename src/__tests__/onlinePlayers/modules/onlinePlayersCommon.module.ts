@@ -29,7 +29,11 @@ export default class OnlinePlayersCommonModule {
           RedisModule,
           EventEmitterCommonModule,
         ],
-        providers: [OnlinePlayersService, BattleQueueService,EventEmitterService],
+        providers: [
+          OnlinePlayersService,
+          BattleQueueService,
+          EventEmitterService,
+        ],
       })
         .overrideProvider(RedisService)
         .useClass(RedisServiceInMemory)
