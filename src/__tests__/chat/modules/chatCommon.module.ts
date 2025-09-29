@@ -9,6 +9,7 @@ import { ChatMessageSchema } from '../../../chat/schema/chatMessage.schema';
 import { ClanChatService } from '../../../chat/service/clanChat.service';
 import { GlobalChatService } from '../../../chat/service/globalChat.service';
 import { PlayerSchema } from '../../../player/schemas/player.schema';
+import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
 
 export default class ChatCommonModule {
   private constructor() {}
@@ -28,7 +29,7 @@ export default class ChatCommonModule {
           RequestHelperModule,
           GameEventsHandlerModule,
         ],
-        providers: [ChatService, ClanChatService, GlobalChatService],
+        providers: [ChatService, ClanChatService, GlobalChatService, EventEmitterService],
       }).compile();
 
     return ChatCommonModule.module;
