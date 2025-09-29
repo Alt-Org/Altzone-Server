@@ -11,7 +11,7 @@ import { AuthorizationModule } from '../authorization/authorization.module';
 import { CustomCharacterController } from './customCharacter/customCharacter.controller';
 import { CustomCharacterService } from './customCharacter/customCharacter.service';
 import { isCustomCharacterExists } from './customCharacter/decorator/validation/IsCustomCharacterExists.decorator';
-import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
 
 @Module({
   imports: [
@@ -21,6 +21,7 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
     ]),
     RequestHelperModule,
     AuthorizationModule,
+    EventEmitterCommonModule,
   ],
   controllers: [PlayerController, CustomCharacterController],
   providers: [
@@ -28,7 +29,6 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
     isPlayerExists,
     CustomCharacterService,
     isCustomCharacterExists,
-    EventEmitterService,
   ],
   exports: [PlayerService, CustomCharacterService],
 })

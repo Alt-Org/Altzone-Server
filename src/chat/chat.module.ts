@@ -14,7 +14,7 @@ import { BoxSchema } from '../box/schemas/box.schema';
 import { GroupAdminSchema } from '../box/groupAdmin/groupAdmin.schema';
 import { BoxModule } from '../box/box.module';
 import { LoggerModule } from '../common/service/logger/RequestLogger.module';
-import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
     PlayerModule,
     RequestHelperModule,
     forwardRef(() => BoxModule),
-    LoggerModule,
+    LoggerModule, EventEmitterCommonModule
   ],
   controllers: [ChatController],
   providers: [
@@ -35,7 +35,6 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
     ChatGateway,
     ClanChatService,
     GlobalChatService,
-    EventEmitterService,
   ],
   exports: [ChatService, ClanChatService],
 })

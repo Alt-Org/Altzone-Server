@@ -13,6 +13,7 @@ import { isCustomCharacterExists } from '../../../player/customCharacter/decorat
 import { ClanSchema } from '../../../clan/clan.schema';
 import { RoomSchema } from '../../../clanInventory/room/room.schema';
 import { DailyTaskSchema } from '../../../dailyTasks/dailyTasks.schema';
+import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
 
 export default class PlayerCommonModule {
   private constructor() {}
@@ -33,6 +34,7 @@ export default class PlayerCommonModule {
           ]),
           RequestHelperModule,
           AuthorizationModule,
+          EventEmitterCommonModule,
         ],
         providers: [
           PlayerService,
