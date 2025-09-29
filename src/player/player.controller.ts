@@ -132,7 +132,7 @@ export default class PlayerController {
         ServerTaskName.CHANGE_AVATAR_CLOTHES,
       );
     }
-    
+
     return playerUpdateResults;
   }
 
