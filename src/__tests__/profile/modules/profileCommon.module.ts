@@ -12,6 +12,7 @@ import { ClanSchema } from '../../../clan/clan.schema';
 import { PlayerSchema } from '../../../player/schemas/player.schema';
 import { BoxSchema } from '../../../box/schemas/box.schema';
 import { GroupAdminSchema } from '../../../box/groupAdmin/groupAdmin.schema';
+import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
 
 export default class ProfileCommonModule {
   private constructor() {}
@@ -32,6 +33,7 @@ export default class ProfileCommonModule {
           ]),
           PlayerModule,
           RequestHelperModule,
+          EventEmitterCommonModule,
         ],
         providers: [ProfileService, isProfileExists, PasswordGenerator],
       }).compile();
