@@ -13,6 +13,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { VotingQueueName } from '../../../voting/enum/VotingQueue.enum';
 import { FleaMarketItemVotingSchema } from '../../../voting/schemas/fleamarketItemVoting.schema';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
+import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
 
 export default class VotingCommonModule {
   private constructor() {}
@@ -45,6 +46,7 @@ export default class VotingCommonModule {
             { name: ModelName.FLEA_MARKET_ITEM, schema: FleaMarketItemSchema },
           ]),
           PlayerModule,
+          EventEmitterCommonModule,
           BullModule.registerQueue(
             { name: VotingQueueName.CLAN_ROLE },
             { name: VotingQueueName.CLAN_SHOP },

@@ -18,6 +18,7 @@ import { RequestHelperModule } from '../../../requestHelper/requestHelper.module
 import { mongooseOptions, mongoString } from '../../test_utils/const/db';
 import { PlayerRewarder } from '../../../rewarder/playerRewarder/playerRewarder.service';
 import { Player, PlayerSchema } from '../../../player/schemas/player.schema';
+import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
 
 export default class DailyTasksCommonModule {
   private constructor() {}
@@ -38,6 +39,7 @@ export default class DailyTasksCommonModule {
           }),
           PlayerModule,
           RequestHelperModule,
+          EventEmitterCommonModule,
         ],
 
         providers: [
