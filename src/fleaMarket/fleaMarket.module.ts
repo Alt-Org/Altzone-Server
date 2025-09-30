@@ -16,7 +16,7 @@ import { ClanSchema } from '../clan/clan.schema';
 import { StallController } from './stall/stall.controller';
 import { StallService } from './stall/stall.service';
 import { VotingSchema } from '../voting/schemas/voting.schema';
-import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
 
 @Module({
   imports: [
@@ -31,6 +31,7 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
     VotingModule,
     ClanModule,
     RequestHelperModule,
+    EventEmitterCommonModule,
   ],
   controllers: [FleaMarketController, StallController],
   providers: [
@@ -38,7 +39,6 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
     FleaMarketHelperService,
     FleaMarketVotingProcessor,
     StallService,
-    EventEmitterService,
   ],
   exports: [],
 })
