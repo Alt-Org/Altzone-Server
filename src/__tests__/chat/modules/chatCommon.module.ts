@@ -28,13 +28,9 @@ export default class ChatCommonModule {
 
           RequestHelperModule,
           GameEventsHandlerModule,
-          EventEmitterCommonModule
+          EventEmitterCommonModule,
         ],
-        providers: [
-          ChatService,
-          ClanChatService,
-          GlobalChatService,
-        ],
+        providers: [ChatService, ClanChatService, GlobalChatService],
       }).compile();
 
     return ChatCommonModule.module;
