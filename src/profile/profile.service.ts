@@ -24,7 +24,7 @@ import { PasswordGenerator } from '../common/function/passwordGenerator';
 import { ObjectId } from 'mongodb';
 import { GuestProfileDto } from './dto/guestProfile.dto';
 
-const ARGON2_CONFIG = {
+export const ARGON2_CONFIG = {
   type: argon2.argon2id,
   memoryCost: parseInt(envVars.PSW_MEMORY),
   timeCost: parseInt(envVars.PSW_TIME),
