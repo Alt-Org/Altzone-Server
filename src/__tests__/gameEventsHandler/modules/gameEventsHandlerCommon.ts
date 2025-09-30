@@ -11,7 +11,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { mongooseOptions, mongoString } from '../../test_utils/const/db';
 import UiDailyTaskHandler from '../../../gameEventsHandler/dailyTask/uiDailyTaskHandler';
 import DailyTaskNotifier from '../../../gameEventsHandler/dailyTask/DailyTaskNotifier';
-import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
+import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
 
 export default class GameEventsHandlerCommonModule {
   private constructor() {}
@@ -28,6 +28,7 @@ export default class GameEventsHandlerCommonModule {
           StatisticsKeeperModule,
           PlayerModule,
           RequestHelperModule,
+          EventEmitterCommonModule,
         ],
 
         providers: [
@@ -36,7 +37,6 @@ export default class GameEventsHandlerCommonModule {
           GameEventsHandler,
           UiDailyTaskHandler,
           DailyTaskNotifier,
-          EventEmitterService,
         ],
       }).compile();
 
