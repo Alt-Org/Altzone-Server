@@ -16,7 +16,7 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
     RewarderModule,
     StatisticsKeeperModule,
     PlayerModule,
-    EventEmitterCommonModule
+    EventEmitterCommonModule,
   ],
   providers: [
     PlayerEventHandler,
