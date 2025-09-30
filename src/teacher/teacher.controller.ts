@@ -1,11 +1,12 @@
-import { Controller, Inject, Post, Body } from '@nestjs/common';
+import { Controller, Inject, Post, Body, HttpCode } from '@nestjs/common';
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
 import { NoBoxIdFilter } from '../box/auth/decorator/NoBoxIdFilter.decorator';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { TeacherService } from './teacher.service';
-import { RegisterDto } from './dto/register.dto';
+import { CredentialsDto } from './dto/credentials.dto';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
-import { RegisterResponseDto } from './dto/register-response.dto';
+import { AccessTokenDto } from './dto/access-token.dto';
+import { ModelName } from '../common/enum/modelName.enum';
 
 @NoAuth()
 @Controller('teacher')
@@ -22,15 +23,35 @@ export class TeacherController {
   @ApiResponseDescription({
     success: {
       status: 201,
-      type: RegisterResponseDto,
+      type: AccessTokenDto,
     },
     hasAuth: false,
     errors: [400],
   })
   @NoBoxIdFilter()
-  @UniformResponse(null, RegisterResponseDto)
+  @UniformResponse(null, AccessTokenDto)
   @Post('register')
-  async register(@Body() body: RegisterDto) {
-    return await this.service.register(body);
+  async register(@Body() body: CredentialsDto) {
+    const { username, password } = body;
+    return await this.service.register(username, password);
+  }
+
+  /**
+   * Login with teacher profile
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 200,
+      type: AccessTokenDto,
+    },
+    errors: [400, 404],
+  })
+  @HttpCode(200)
+  @NoBoxIdFilter()
+  @UniformResponse(null, AccessTokenDto)
+  @Post('login')
+  async login(@Body() body: CredentialsDto) {
+    const { username, password } = body;
+    return await this.service.login(username, password);
   }
 }
