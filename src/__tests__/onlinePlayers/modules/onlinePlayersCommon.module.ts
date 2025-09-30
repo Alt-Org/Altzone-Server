@@ -10,6 +10,8 @@ import { RedisModule } from '../../../common/service/redis/redis.module';
 import { RedisServiceInMemory } from '../../common/service/redis/mocks/RedisServiceInMemory';
 import { RedisService } from '../../../common/service/redis/redis.service';
 import { BattleQueueService } from '../../../onlinePlayers/battleQueue/battleQueue.service';
+import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
+import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
 
 export default class OnlinePlayersCommonModule {
   private static module: TestingModule;
@@ -25,8 +27,13 @@ export default class OnlinePlayersCommonModule {
           PlayerModule,
           RequestHelperModule,
           RedisModule,
+          EventEmitterCommonModule,
         ],
-        providers: [OnlinePlayersService, BattleQueueService],
+        providers: [
+          OnlinePlayersService,
+          BattleQueueService,
+          EventEmitterService,
+        ],
       })
         .overrideProvider(RedisService)
         .useClass(RedisServiceInMemory)

@@ -8,6 +8,7 @@ import { StatisticsKeeperModule } from '../../../statisticsKeeper/statisticsKeep
 import { CustomCharacterSchema } from '../../../player/customCharacter/customCharacter.schema';
 import { RequestHelperModule } from '../../../requestHelper/requestHelper.module';
 import { PlayerModule } from '../../../player/player.module';
+import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
 
 export default class StatisticsKeeperCommonModule {
   private constructor() {}
@@ -26,6 +27,7 @@ export default class StatisticsKeeperCommonModule {
           StatisticsKeeperModule,
           PlayerModule,
           RequestHelperModule,
+          EventEmitterCommonModule,
         ],
         providers: [PlayerStatisticService],
       }).compile();
