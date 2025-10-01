@@ -39,6 +39,7 @@ import { BoxIdFilterInterceptor } from './box/auth/BoxIdFilter.interceptor';
 import { LoggerModule } from './common/service/logger/RequestLogger.module';
 import { RequestLoggerService } from './common/service/logger/RequestLogger.service';
 import { RequestLoggerInterceptor } from './common/service/logger/RequestLogger.interceptor';
+import { TeacherModule } from './teacher/teacher.module';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -111,6 +112,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
 
     MetadataModule,
     ...(envVars.ENVIRONMENT === testEnvironmentName ? [FeedbackModule] : []),
+    ...(isTestingSession() ? [TeacherModule] : []),
   ],
   controllers: [AppController],
   providers: [
