@@ -14,7 +14,7 @@ export class CredentialsDto {
   @MaxLength(20, { message: 'Username must be at most 20 characters ' })
   username: string;
 
-/**
+  /**
    * Password of the teacher
    *
    * @example P@ssw0rd
