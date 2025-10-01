@@ -6,9 +6,10 @@ import { TeacherService } from './teacher.service';
 import { CredentialsDto } from './dto/credentials.dto';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { AccessTokenDto } from './dto/access-token.dto';
-import { ModelName } from '../common/enum/modelName.enum';
+import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
 @NoAuth()
+@SwaggerTags('Teacher')
 @Controller('teacher')
 export class TeacherController {
   constructor(
@@ -26,7 +27,7 @@ export class TeacherController {
       type: AccessTokenDto,
     },
     hasAuth: false,
-    errors: [400],
+    errors: [400, 409],
   })
   @NoBoxIdFilter()
   @UniformResponse(null, AccessTokenDto)
@@ -44,7 +45,7 @@ export class TeacherController {
       status: 200,
       type: AccessTokenDto,
     },
-    errors: [400, 404],
+    errors: [400, 403, 404],
   })
   @HttpCode(200)
   @NoBoxIdFilter()
