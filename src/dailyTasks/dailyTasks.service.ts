@@ -280,5 +280,3 @@ export class DailyTasksService {
     return task;
   }
 }
-
-

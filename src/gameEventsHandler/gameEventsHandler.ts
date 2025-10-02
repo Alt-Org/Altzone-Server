@@ -43,13 +43,12 @@ export class GameEventsHandler {
    * @returns
    */
   private async handleWinBattle(player_id: string) {
-   
     const [, playerErrors] = await this.playerEventHandler.handlePlayerEvent(
       player_id,
       PlayerEvent.BATTLE_WON,
     );
-    
-     this.emitterService.EmitNewDailyTaskEvent(
+
+    this.emitterService.EmitNewDailyTaskEvent(
       player_id,
       ServerTaskName.WIN_BATTLE,
       true,
@@ -62,8 +61,7 @@ export class GameEventsHandler {
 
     if (clanEventErrors) return [null, clanEventErrors];
 
-    if (playerErrors)
-      return [null, playerErrors];
+    if (playerErrors) return [null, playerErrors];
 
     return [true, null];
   }
