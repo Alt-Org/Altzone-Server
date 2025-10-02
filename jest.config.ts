@@ -18,7 +18,7 @@ const config: Config = {
   collectCoverageFrom: [`${codeDir}/**/*.ts`],
   coverageDirectory: './coverage',
   coverageReporters: ['cobertura'],
-  reporters: ['jest-junit'],
+  reporters: ['default', 'jest-junit'],
 
   setupFiles: [
     `${testDir}/test_utils/env.ts`,
