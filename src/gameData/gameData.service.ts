@@ -53,7 +53,7 @@ export class GameDataService {
     user: User,
   ): Promise<IServiceReturn<BattleResponseDto>> {
     const currentTime = new Date();
-    
+
     const winningTeam =
       battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
     const playerInWinningTeam = winningTeam.includes(user.player_id);
@@ -89,9 +89,9 @@ export class GameDataService {
     this.createGameIfNotExists(battleResult, teamIds, currentTime);
 
     this.emitterService.EmitNewDailyTaskEvent(
-          user.player_id,
-          ServerTaskName.PLAY_BATTLE,
-        );
+      user.player_id,
+      ServerTaskName.PLAY_BATTLE,
+    );
 
     return this.generateResponse(
       battleResult,
