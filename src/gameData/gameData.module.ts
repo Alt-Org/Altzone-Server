@@ -7,6 +7,7 @@ import { PlayerModule } from '../player/player.module';
 import { ClanModule } from '../clan/clan.module';
 import { ClanInventoryModule } from '../clanInventory/clanInventory.module';
 import { GameEventsHandlerModule } from '../gameEventsHandler/gameEventsHandler.module';
+import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { GameEventsHandlerModule } from '../gameEventsHandler/gameEventsHandler.
     ClanModule,
     ClanInventoryModule,
     GameEventsHandlerModule,
+    EventEmitterCommonModule
   ],
   providers: [GameDataService],
   controllers: [GameDataController],

@@ -18,6 +18,8 @@ import { GameEventsHandler } from '../gameEventsHandler/gameEventsHandler';
 import { GameEventType } from '../gameEventsHandler/enum/GameEventType.enum';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
+import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
+import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 
 @Injectable()
 export class GameDataService {
@@ -28,6 +30,7 @@ export class GameDataService {
     public readonly roomService: RoomService,
     private readonly gameEventsBroker: GameEventsHandler,
     private readonly jwtService: JwtService,
+    private readonly emitterService: EventEmitterService,
   ) {
     this.basicService = new BasicService(model);
     this.refsInModel = [ModelName.STOCK];
@@ -50,6 +53,7 @@ export class GameDataService {
     user: User,
   ): Promise<IServiceReturn<BattleResponseDto>> {
     const currentTime = new Date();
+    
     const winningTeam =
       battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
     const playerInWinningTeam = winningTeam.includes(user.player_id);
@@ -83,6 +87,11 @@ export class GameDataService {
     if (teamIdsErrors) return [null, teamIdsErrors];
 
     this.createGameIfNotExists(battleResult, teamIds, currentTime);
+
+    this.emitterService.EmitNewDailyTaskEvent(
+          user.player_id,
+          ServerTaskName.PLAY_BATTLE,
+        );
 
     return this.generateResponse(
       battleResult,
