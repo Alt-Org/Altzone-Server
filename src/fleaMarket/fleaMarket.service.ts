@@ -180,9 +180,9 @@ export class FleaMarketService {
     if (err) return await cancelTransaction(session, err);
 
     this.emitterService.EmitNewDailyTaskEvent(
-          playerId,
-          ServerTaskName.ADD_ITEM_TO_FLEA_MARKET,
-        );
+      playerId,
+      ServerTaskName.ADD_ITEM_TO_FLEA_MARKET,
+    );
 
     const [voting, errors] = await this.votingService.startVoting({
       voterPlayer: player,
