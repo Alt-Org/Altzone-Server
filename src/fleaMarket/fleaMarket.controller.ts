@@ -20,12 +20,15 @@ import { ItemIdDto } from './dto/itemId.dto';
 import { VotingDto } from '../voting/dto/voting.dto';
 import { ChangeItemStatusDto } from './dto/changeItemStatus.dto';
 import { Status } from './enum/status.enum';
+import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
   constructor(
     private readonly service: FleaMarketService,
     private readonly playerService: PlayerService,
+    private readonly emitterService: EventEmitterService,
   ) {}
 
   /**
@@ -68,6 +71,7 @@ export class FleaMarketController {
 
   /**
    * Sell a clan item on flea market
+   * Emit a server event for daily task "SUGGEST_ITEM_TO_FLEA_MARKET"
    *
    * @remarks Sell an Item on the flea market.
    * This will start a voting in the Clan from which Item is being moved to the flea marked.
@@ -76,6 +80,7 @@ export class FleaMarketController {
    * Notice that the player must be in the same clan, and it must have a basic right "Shop".
    *
    * Notice that if a FleaMarketItem has already "Shipping" status 403 will be returned.
+   *
    */
   @ApiResponseDescription({
     success: {
@@ -105,6 +110,11 @@ export class FleaMarketController {
       sellFleaMarketItemDto,
       clanId,
       user.player_id,
+    );
+
+    this.emitterService.EmitNewDailyTaskEvent(
+      user.player_id,
+      ServerTaskName.SUGGEST_ITEM_TO_FLEA_MARKET,
     );
   }
 

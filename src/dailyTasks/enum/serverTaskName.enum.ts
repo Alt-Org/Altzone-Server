@@ -170,6 +170,11 @@ export enum ServerTaskName {
    */
   ADD_ITEM_TO_FLEA_MARKET = 'add_item_to_flea_market',
 
+  /**
+   * ehdottaa tavara kirpputorille
+   */
+  SUGGEST_ITEM_TO_FLEA_MARKET = 'suggest_item_to_flea_market',
+
   //Server, to own player + what is that?
   /**
    * kirjoita esittelytekstisi pelaajaprofiiliin

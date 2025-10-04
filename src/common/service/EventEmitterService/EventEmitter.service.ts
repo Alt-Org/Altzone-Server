@@ -18,10 +18,12 @@ export default class EventEmitterService {
   public async EmitNewDailyTaskEvent(
     player_Id: string,
     serverTaskName: ServerTaskName,
+    needsClanReward: boolean = false,
   ) {
     await this.eventEmitter.emitAsync('newDailyTaskEvent', {
       playerId: player_Id,
       serverTaskName,
+      needsClanReward,
     });
   }
 }

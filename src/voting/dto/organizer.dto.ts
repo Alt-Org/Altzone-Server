@@ -1,3 +1,4 @@
+import { Expose } from 'class-transformer';
 import { IsMongoId, IsOptional } from 'class-validator';
 
 export class Organizer {
@@ -6,6 +7,7 @@ export class Organizer {
    *
    * @example "662f4f1235faaf001ef7b5aa"
    */
+  @Expose()
   @IsMongoId()
   player_id: string;
 
@@ -14,6 +16,7 @@ export class Organizer {
    *
    * @example "662f4f1235faaf001ef7b5ab"
    */
+  @Expose()
   @IsMongoId()
   @IsOptional()
   clan_id: string;
