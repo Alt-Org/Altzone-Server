@@ -24,7 +24,6 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
     GameEventsHandler,
     UiDailyTaskHandler,
     DailyTaskNotifier,
-    EventEmitterCommonModule,
   ],
   controllers: [],
   exports: [GameEventsHandler],
