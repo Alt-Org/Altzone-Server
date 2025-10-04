@@ -165,7 +165,10 @@ export default class PlayerController {
    * @param player Current player data
    * @param body UpdatePlayerDto with new data
    */
-  private async emitEventIfAvatarChange(player: PlayerDto, body: UpdatePlayerDto) {
+  private async emitEventIfAvatarChange(
+    player: PlayerDto,
+    body: UpdatePlayerDto,
+  ) {
     if (player?.avatar?.clothes !== body?.avatar?.clothes) {
       this.emitterService.EmitNewDailyTaskEvent(
         body._id,
@@ -173,14 +176,18 @@ export default class PlayerController {
       );
     }
 
-    const oldAvatar = player?.avatar ? JSON.parse(JSON.stringify(player.avatar)) : {};
-    const newAvatar = body?.avatar ? JSON.parse(JSON.stringify(body.avatar)) : {};
+    const oldAvatar = player?.avatar
+      ? JSON.parse(JSON.stringify(player.avatar))
+      : {};
+    const newAvatar = body?.avatar
+      ? JSON.parse(JSON.stringify(body.avatar))
+      : {};
 
-      if (!isEqual(oldAvatar, newAvatar)) {
+    if (!isEqual(oldAvatar, newAvatar)) {
       this.emitterService.EmitNewDailyTaskEvent(
         body._id,
         ServerTaskName.CHANGE_AVATAR_OUTLOOK,
       );
-      }
+    }
   }
 }
