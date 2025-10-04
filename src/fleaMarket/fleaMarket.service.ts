@@ -36,6 +36,8 @@ import { SEReason } from '../common/service/basicService/SEReason';
 import { maxSlotsReachedError } from './errors/maxSlotsReached.error';
 import { ItemBookedError } from './errors/itemBooked.error';
 import { CreateItemDto } from '../clanInventory/item/dto/createItem.dto';
+import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
+import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 
 @Injectable()
 export class FleaMarketService {
@@ -49,6 +51,7 @@ export class FleaMarketService {
     private readonly votingService: VotingService,
     private readonly votingQueue: VotingQueue,
     private readonly clanService: ClanService,
+    private readonly emitterService: EventEmitterService,
     @InjectConnection() private readonly connection: Connection,
   ) {
     this.basicService = new BasicService(model);
@@ -175,6 +178,12 @@ export class FleaMarketService {
       session,
     );
     if (err) return await cancelTransaction(session, err);
+
+    this.emitterService.EmitNewDailyTaskEvent(
+          playerId,
+          ServerTaskName.ADD_ITEM_TO_FLEA_MARKET,
+        );
+
     const [voting, errors] = await this.votingService.startVoting({
       voterPlayer: player,
       type: VotingType.FLEA_MARKET_SELL_ITEM,
