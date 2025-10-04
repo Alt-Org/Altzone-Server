@@ -18,10 +18,13 @@ import { UniformResponse } from '../../common/decorator/response/UniformResponse
 import { IncludeQuery } from '../../common/decorator/param/IncludeQuery.decorator';
 import { publicReferences } from './customCharacter.schema';
 import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
+import EventEmitterService from '../../common/service/EventEmitterService/EventEmitter.service';
+import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
 
 @Controller('customCharacter')
 export class CustomCharacterController {
-  public constructor(private readonly service: CustomCharacterService) {}
+  public constructor(private readonly service: CustomCharacterService,
+     private readonly emitterService: EventEmitterService,) {}
 
   /**
    * Create a custom character
@@ -152,5 +155,10 @@ export class CustomCharacterController {
       filter: { player_id: user.player_id, _id: body._id },
     });
     if (errors) return [null, errors];
+
+    this.emitterService.EmitNewDailyTaskEvent(
+          user.player_id,
+          ServerTaskName.CHANGE_CHARACTER_STATS,
+        );
   }
 }
