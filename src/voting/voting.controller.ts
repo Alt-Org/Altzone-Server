@@ -14,8 +14,10 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
 
 @Controller('voting')
 export class VotingController {
-  constructor(private readonly service: VotingService,
-    private readonly emitterService: EventEmitterService,) {}
+  constructor(
+    private readonly service: VotingService,
+    private readonly emitterService: EventEmitterService,
+  ) {}
 
   /**
    * Get all votings
@@ -118,8 +120,8 @@ export class VotingController {
     this.service.addVote(body.voting_id, body.choice, user.player_id);
 
     this.emitterService.EmitNewDailyTaskEvent(
-          user.player_id,
-          ServerTaskName.PARTICIPATE_CLAN_VOTING,
-        );
+      user.player_id,
+      ServerTaskName.PARTICIPATE_CLAN_VOTING,
+    );
   }
 }
