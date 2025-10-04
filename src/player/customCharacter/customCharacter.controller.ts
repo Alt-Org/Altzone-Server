@@ -23,8 +23,10 @@ import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
 
 @Controller('customCharacter')
 export class CustomCharacterController {
-  public constructor(private readonly service: CustomCharacterService,
-     private readonly emitterService: EventEmitterService,) {}
+  public constructor(
+    private readonly service: CustomCharacterService,
+    private readonly emitterService: EventEmitterService,
+  ) {}
 
   /**
    * Create a custom character
@@ -157,8 +159,8 @@ export class CustomCharacterController {
     if (errors) return [null, errors];
 
     this.emitterService.EmitNewDailyTaskEvent(
-          user.player_id,
-          ServerTaskName.CHANGE_CHARACTER_STATS,
-        );
+      user.player_id,
+      ServerTaskName.CHANGE_CHARACTER_STATS,
+    );
   }
 }
