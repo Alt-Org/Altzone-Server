@@ -13,4 +13,5 @@ export enum BoxReference {
   TESTER_PROFILES = 'TesterProfiles',
   TESTER_PLAYERS = 'TesterPlayers',
   DAILY_TASKS = 'DailyTasks',
+  TEACHER_PROFILE = 'TeacherProfile',
 }
