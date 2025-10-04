@@ -9,10 +9,13 @@ import { VotingDto } from './dto/voting.dto';
 import { AddVoteDto } from './dto/addVote.dto';
 import { noPermissionError } from './error/noPermission.error';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
+import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
+import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 
 @Controller('voting')
 export class VotingController {
-  constructor(private readonly service: VotingService) {}
+  constructor(private readonly service: VotingService,
+    private readonly emitterService: EventEmitterService,) {}
 
   /**
    * Get all votings
@@ -112,6 +115,11 @@ export class VotingController {
     );
     if (!permission) return noPermissionError;
 
-    return this.service.addVote(body.voting_id, body.choice, user.player_id);
+    this.service.addVote(body.voting_id, body.choice, user.player_id);
+
+    this.emitterService.EmitNewDailyTaskEvent(
+          user.player_id,
+          ServerTaskName.PARTICIPATE_CLAN_VOTING,
+        );
   }
 }
