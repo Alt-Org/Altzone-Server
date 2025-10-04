@@ -116,6 +116,11 @@ export class FleaMarketController {
       user.player_id,
       ServerTaskName.SUGGEST_ITEM_TO_FLEA_MARKET,
     );
+
+    this.emitterService.EmitNewDailyTaskEvent(
+      user.player_id,
+      ServerTaskName.ADD_ITEM_TO_FLEA_MARKET,
+    );
   }
 
   /**
