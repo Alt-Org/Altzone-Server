@@ -19,6 +19,7 @@ import { VotingModule } from '../voting/voting.module';
 import { ClanRoleVotingProcessor } from './role/clanRole.processor';
 import { ChatModule } from '../chat/chat.module';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
+import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { PasswordGenerator } from '../common/function/passwordGenerator';
     GameEventsEmitterModule,
     VotingModule,
     ChatModule,
+    EventEmitterCommonModule,
   ],
   controllers: [ClanController, ClanRoleController],
   providers: [

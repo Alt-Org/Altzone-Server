@@ -79,6 +79,6 @@ export class ClanShopController {
         message: `Item ${body.itemName} not available in shop.`,
       });
 
-    await this.service.buyItem(user.player_id, user.clan_id, item);
+    return await this.service.buyItem(user.player_id, user.clan_id, item);
   }
 }
