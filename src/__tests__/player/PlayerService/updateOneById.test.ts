@@ -1,5 +1,4 @@
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
-import { MongoServerError } from 'mongodb';
 import { PlayerService } from '../../../player/player.service';
 import PlayerBuilderFactory from '../data/playerBuilderFactory';
 import { Player } from '../../../player/schemas/player.schema';
@@ -59,7 +58,6 @@ describe('PlayerService.updateOneById() test suite', () => {
     expect(updatedPlayer.battleCharacter_ids).toBe(null);
   });
 
-  //TODO: sometimes it fails and does not throw any error
   it('Should throw error if the name already exists', async () => {
     const notUniqueName = 'anotherName';
     const anotherPlayerData = playerBuilder
@@ -74,7 +72,7 @@ describe('PlayerService.updateOneById() test suite', () => {
       .build();
 
     await expect(playerService.updateOneById(updateData)).rejects.toThrow(
-      MongoServerError,
+      /duplicate key error/,
     );
   });
 

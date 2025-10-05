@@ -147,11 +147,12 @@ export class DailyTasksController {
     @LoggedUser() user: User,
     @Body() body: UpdateUIDailyTaskDto,
   ) {
-    const [[status, task], errors] = await this.uiDailyTasksService.updateTask(
+    const [data, errors] = await this.uiDailyTasksService.updateTask(
       user.player_id,
       body.amount,
     );
-    if (errors) return [null, errors];
+    if (errors) throw errors;
+    const [status, task] = data;
 
     await this.emitter.emitAsync('dailyTask.updateUIBasicTask', {
       status,

@@ -11,6 +11,7 @@ import { Request } from 'express';
 import { RequestHelperService } from '../../../requestHelper/requestHelper.service';
 import { ModelName } from '../../../common/enum/modelName.enum';
 import { IResponseShape } from '../../interface/IResponseShape';
+import { envVars } from '../../service/envHandler/envVars';
 
 /**
  * Extracts pagination data from queries and adds to the request object:
@@ -75,13 +76,14 @@ export function OffsetPaginate(
           };
 
           if (page === 1 || withItemCount) {
+            const mongoFilter = request['mongoFilter'] || {};
+            if (envVars.ENVIRONMENT === 'TESTING_SESSION') {
+              mongoFilter.box_id = request['user']?.box_id;
+            }
             const itemCount =
               data.paginationData && data.paginationData.itemCount
                 ? data.paginationData.itemCount
-                : await this.requestHelperService.count(
-                    modelName,
-                    request['mongoFilter'],
-                  );
+                : await this.requestHelperService.count(modelName, mongoFilter);
 
             paginationData.itemCount = itemCount;
             paginationData.pageCount = Math.ceil(itemCount / paginationLimit);

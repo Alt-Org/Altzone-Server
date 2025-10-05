@@ -1,4 +1,5 @@
 import { WebSocket } from 'ws';
+import { Avatar } from '../../player/schemas/avatar.schema';
 
 /**
  * Represents a user connected via WebSocket in the chat system.
@@ -11,6 +12,7 @@ export type WsUser = {
   playerId: string;
   clanId?: string;
   name: string;
+  avatar?: Avatar;
 };
 
 /**

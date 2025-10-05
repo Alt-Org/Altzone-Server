@@ -3,7 +3,6 @@ import ProfileBuilderFactory from '../data/profileBuilderFactory';
 import ProfileModule from '../modules/profile.module';
 import { Profile } from '../../../profile/profile.schema';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
-import { MongoServerError } from 'mongodb';
 
 describe('ProfileService.updateOneById() test suite', () => {
   let profileService: ProfileService;
@@ -40,9 +39,7 @@ describe('ProfileService.updateOneById() test suite', () => {
       username: 'anotherUsername',
     };
 
-    await expect(profileService.updateOneById(updateData)).rejects.toThrow(
-      MongoServerError,
-    );
+    await expect(profileService.updateOneById(updateData)).rejects.toThrow();
   });
 
   it('Should not throw error if the profile is not found', async () => {

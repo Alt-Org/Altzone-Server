@@ -47,6 +47,12 @@ export abstract class BaseChatService {
       return;
     }
 
+    createdMsg.sender = {
+      name: client.user.name,
+      _id: client.user.playerId.toString(),
+      avatar: client.user.avatar,
+    };
+
     const messageEnvelope: ChatEnvelopeDto = {
       chat: chatType,
       event: MessageEventType.NEW_MESSAGE,
