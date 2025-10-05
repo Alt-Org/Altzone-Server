@@ -20,6 +20,7 @@ import { ProfileDto } from '../profile/dto/profile.dto';
 import UniqueFieldGenerator from './util/UniqueFieldGenerator';
 import { Profile } from '../profile/profile.schema';
 import { generateRandomClanName } from './util/generateRandomClanName';
+import { Box as v2Box } from './schemas/box.v2.schema';
 
 @Injectable()
 export default class BoxCreator {
@@ -27,6 +28,8 @@ export default class BoxCreator {
     @InjectModel(Profile.name) private readonly profileModel: Model<Profile>,
     @InjectModel(Player.name) private readonly playerModel: Model<Player>,
     @InjectModel(Clan.name) private readonly clanModel: Model<Clan>,
+    @InjectModel(v2Box.name)
+    private readonly boxModel: Model<v2Box>,
     @InjectModel(GroupAdmin.name)
     private readonly groupAdminModel: Model<GroupAdmin>,
     private readonly boxHelper: BoxHelper,
@@ -143,6 +146,39 @@ export default class BoxCreator {
   }
 
   /**
+   * Initialize a box for testing session.
+   *
+   * Notice that if any errors occur on any of the initialization stage, all data of the box will be removed.
+   *
+   * @param teacherProfile_id
+   * @param boxName
+   */
+  public async v2createBox(teacherProfile_id: string, boxName: string) {
+    const [, maxLimitError] = await this.canCreateBox(teacherProfile_id);
+    if (maxLimitError) return [null, maxLimitError];
+
+    const boxToCreate_id = new ObjectId();
+    const boxToCreate: Partial<v2Box> = {};
+    boxToCreate.name = boxName;
+    boxToCreate.teacherProfile_id = new ObjectId(teacherProfile_id);
+    boxToCreate._id = boxToCreate_id;
+
+    const clanName1 = await this.uniqueFieldGenerator.generateUniqueFieldValue(
+      this.clanModel,
+      'name',
+      generateRandomClanName(),
+    );
+    const clanName2 = await this.uniqueFieldGenerator.generateUniqueFieldValue(
+      this.clanModel,
+      'name',
+      generateRandomClanName(),
+    );
+    boxToCreate.clansToCreate = [{ name: clanName1 }, { name: clanName2 }];
+
+    return await this.boxService.basicService.createOne(boxToCreate);
+  }
+
+  /**
    * Validates provided box data
    * @param boxToValidate box data to validate
    *
@@ -196,6 +232,33 @@ export default class BoxCreator {
             field: 'playerName',
             value: boxToValidate.playerName,
             message: 'Provided player name is already taken',
+          }),
+        ],
+      ];
+
+    return [true, null];
+  }
+
+  /**
+   * Validates provided box data
+   * @param boxToValidate box data to validate
+   *
+   * @returns true if data is valid or ServiceErrors if found:
+   *
+   * - NOT_UNIQUE if the provided adminPassword, player name already exist
+   * - NOT_FOUND if the provided admin password does not exist
+   */
+  private async canCreateBox(
+    teacherProfile_id: string,
+  ): Promise<IServiceReturn<true>> {
+    const boxCount = await this.boxModel.countDocuments({ teacherProfile_id });
+    if (boxCount >= 10)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.MORE_THAN_MAX,
+            message: 'Box limit reached. Delete one to create more.',
           }),
         ],
       ];
