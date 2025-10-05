@@ -240,13 +240,10 @@ export default class BoxCreator {
   }
 
   /**
-   * Validates provided box data
-   * @param boxToValidate box data to validate
+   * Checks if a box can be created
+   * @param teacherProfile_id
    *
-   * @returns true if data is valid or ServiceErrors if found:
-   *
-   * - NOT_UNIQUE if the provided adminPassword, player name already exist
-   * - NOT_FOUND if the provided admin password does not exist
+   * @returns true if box can be created or ServiceErrors if found
    */
   private async canCreateBox(
     teacherProfile_id: string,
