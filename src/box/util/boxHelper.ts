@@ -16,7 +16,7 @@ import { ObjectId } from 'mongodb';
 export class BoxHelper {
   public constructor(
     @InjectModel(Box.name) public readonly model: Model<Box>,
-    @InjectModel("v2Box") private readonly v2model: Model<v2Box>,
+    @InjectModel('v2Box') private readonly v2model: Model<v2Box>,
     @InjectModel(GroupAdmin.name)
     public readonly groupAdminModel: Model<GroupAdmin>,
     @InjectModel(Profile.name) public readonly profileModel: Model<Profile>,
@@ -127,10 +127,10 @@ export class BoxHelper {
    *
    * @returns true if box can be created or ServiceErrors if found
    */
-  async canCreateBox(
-    teacherProfile_id: string,
-  ): Promise<IServiceReturn<true>> {
-    const boxCount = await this.v2model.countDocuments({ teacherProfile_id: new ObjectId(teacherProfile_id) });
+  async canCreateBox(teacherProfile_id: string): Promise<IServiceReturn<true>> {
+    const boxCount = await this.v2model.countDocuments({
+      teacherProfile_id: new ObjectId(teacherProfile_id),
+    });
     if (boxCount >= 10)
       return [
         null,
@@ -145,18 +145,25 @@ export class BoxHelper {
     return [true, null];
   }
 
-  async duplicateName(teacherProfile_id: string, boxName: string): Promise<IServiceReturn<true>> {
-    const boxCount = await this.v2model.countDocuments({ teacherProfile_id: new ObjectId(teacherProfile_id), name: boxName });
+  async duplicateName(
+    teacherProfile_id: string,
+    boxName: string,
+  ): Promise<IServiceReturn<true>> {
+    const boxCount = await this.v2model.countDocuments({
+      teacherProfile_id: new ObjectId(teacherProfile_id),
+      name: boxName,
+    });
     if (boxCount > 0)
       return [
         null,
         [
           new ServiceError({
             reason: SEReason.NOT_UNIQUE,
-            message: 'Duplicate name. Teacher already has a session with that name.'
-          })
-        ]
-      ]
+            message:
+              'Duplicate name. Teacher already has a session with that name.',
+          }),
+        ],
+      ];
 
     return [true, null];
   }
