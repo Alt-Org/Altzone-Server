@@ -12,6 +12,7 @@ import { APIError } from '../../common/controller/APIError';
 import { APIErrorReason } from '../../common/controller/APIErrorReason';
 import { envVars } from '../../common/service/envHandler/envVars';
 import { BoxUser } from './BoxUser';
+import { BoxUserFactory } from '../box-user.factory';
 
 /**
  * Auth guard for testing sessions.
@@ -25,6 +26,7 @@ export class BoxAuthGuard implements CanActivate {
   public constructor(
     private readonly jwtService: JwtService,
     private readonly reflector: Reflector,
+    private readonly boxUserFactory: BoxUserFactory,
   ) {}
 
   public async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -70,7 +72,7 @@ export class BoxAuthGuard implements CanActivate {
       };
 
       if (profile_id && groupAdmin) {
-        request['user'] = new BoxUser(payload);
+        request['user'] = this.boxUserFactory.createFromJwtPayload(payload);
         return true;
       }
 
@@ -100,7 +102,7 @@ export class BoxAuthGuard implements CanActivate {
           ],
         });
 
-      request['user'] = new BoxUser(payload);
+      request['user'] = this.boxUserFactory.createFromJwtPayload(payload);
     } catch (e: any) {
       if (e instanceof UnauthorizedException) throw e;
 

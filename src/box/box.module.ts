@@ -31,6 +31,7 @@ import AccountClaimerService from './accountClaimer/accountClaimer.service';
 import { TesterAccountService } from './accountClaimer/testerAccount.service';
 import UniqueFieldGenerator from './util/UniqueFieldGenerator';
 import { ItemSchema } from '../clanInventory/item/item.schema';
+import { BoxUserFactory } from './box-user.factory';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { ItemSchema } from '../clanInventory/item/item.schema';
     AccountClaimerService,
     TesterAccountService,
     UniqueFieldGenerator,
+    BoxUserFactory,
   ],
   exports: [BoxService, GroupAdminGuard, BoxAuthHandler],
 })
