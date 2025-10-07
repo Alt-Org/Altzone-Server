@@ -154,8 +154,11 @@ export default class BoxCreator {
    * @param boxName
    */
   public async v2createBox(teacherProfile_id: string, boxName: string) {
-    const [, maxLimitError] = await this.canCreateBox(teacherProfile_id);
-    if (maxLimitError) return [null, maxLimitError];
+    const [, validationErrors] = await this.v2validateBox(
+      teacherProfile_id,
+      boxName,
+    );
+    if (validationErrors) return [null, validationErrors];
 
     const boxToCreate_id = new ObjectId();
     const boxToCreate: Partial<v2Box> = {};
@@ -239,26 +242,19 @@ export default class BoxCreator {
     return [true, null];
   }
 
-  /**
-   * Checks if a box can be created
-   * @param teacherProfile_id
-   *
-   * @returns true if box can be created or ServiceErrors if found
-   */
-  private async canCreateBox(
+  private async v2validateBox(
     teacherProfile_id: string,
-  ): Promise<IServiceReturn<true>> {
-    const boxCount = await this.boxModel.countDocuments({ teacherProfile_id });
-    if (boxCount >= 10)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.MORE_THAN_MAX,
-            message: 'Box limit reached. Delete one to create more.',
-          }),
-        ],
-      ];
+    boxName: string,
+  ): Promise<IServiceReturn<boolean>> {
+    const [, canCreateError] =
+      await this.boxHelper.canCreateBox(teacherProfile_id);
+    if (canCreateError) return [false, canCreateError];
+
+    const [, duplicateNameError] = await this.boxHelper.duplicateName(
+      teacherProfile_id,
+      boxName,
+    );
+    if (duplicateNameError) return [false, duplicateNameError];
 
     return [true, null];
   }
