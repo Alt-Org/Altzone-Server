@@ -7,9 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { ARGON2_CONFIG } from '../profile/profile.service';
 import { IServiceReturn } from '../common/service/basicService/IService';
-import ServiceError, {
-  isServiceError,
-} from '../common/service/basicService/ServiceError';
+import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 
 @Injectable()
@@ -42,6 +40,7 @@ export class TeacherService {
 
     const accessToken = await this.jwtService.signAsync({
       profile_id: createdProfile['_id'],
+      groupAdmin: true,
     });
 
     return [{ accessToken }, null];
@@ -77,6 +76,7 @@ export class TeacherService {
 
     const accessToken = await this.jwtService.signAsync({
       profile_id: profile['_id'],
+      groupAdmin: true,
     });
 
     return [{ accessToken }, null];
