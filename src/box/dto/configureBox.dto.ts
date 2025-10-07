@@ -45,4 +45,6 @@ export class ConfigureBoxDto {
   @IsNotEmpty()
   @IsOptional()
   testersSharedPassword?: string;
+
+  // TODO: Add the name when taking v2 in use 
 }
