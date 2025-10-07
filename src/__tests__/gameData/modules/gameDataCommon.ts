@@ -25,7 +25,7 @@ export default class GameDataCommonModule {
           ClanModule,
           ClanInventoryModule,
           GameEventsHandlerModule,
-          EventEmitterCommonModule
+          EventEmitterCommonModule,
         ],
         providers: [GameDataService],
       }).compile();

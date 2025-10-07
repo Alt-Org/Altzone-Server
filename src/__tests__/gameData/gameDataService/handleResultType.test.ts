@@ -88,7 +88,7 @@ describe('GameDataService.handleResultType() test suite', () => {
       { signAsync: jest.fn().mockResolvedValue('token') } as any,
       eventEmitterService,
     );
-   });
+  });
 
   it('should return NOT_ALLOWED error if player is not in the winning team', async () => {
     userDto = userBuilder.setPlayerId('p3').build();
