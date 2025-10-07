@@ -18,6 +18,7 @@ import {
   BuyClanShopItemVotingSchema,
 } from './schemas/buyShopItem.schema';
 import { FleaMarketItemVotingSchema } from './schemas/fleamarketItemVoting.schema';
+import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { FleaMarketItemVotingSchema } from './schemas/fleamarketItemVoting.schem
       { name: VotingQueueName.CLAN_SHOP },
       { name: VotingQueueName.FLEA_MARKET },
     ),
+    EventEmitterCommonModule,
   ],
   providers: [VotingService, VotingNotifier, VotingQueue],
   controllers: [VotingController],

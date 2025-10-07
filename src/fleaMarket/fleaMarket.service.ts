@@ -175,6 +175,7 @@ export class FleaMarketService {
       session,
     );
     if (err) return await cancelTransaction(session, err);
+
     const [voting, errors] = await this.votingService.startVoting({
       voterPlayer: player,
       type: VotingType.FLEA_MARKET_SELL_ITEM,

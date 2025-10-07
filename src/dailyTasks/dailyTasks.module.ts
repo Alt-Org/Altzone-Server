@@ -12,12 +12,15 @@ import { GameEventsEmitterModule } from '../gameEventsEmitter/gameEventsEmitter.
 import UiDailyTasksService from './uiDailyTasks/uiDailyTasks.service';
 import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
 import { Player, PlayerSchema } from '../player/schemas/player.schema';
+import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
+import { Clan, ClanSchema } from '../clan/clan.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: DailyTask.name, schema: DailyTaskSchema },
       { name: Player.name, schema: PlayerSchema },
+      { name: Clan.name, schema: ClanSchema },
     ]),
     BullModule.registerQueue({
       name: 'daily-tasks',
@@ -33,6 +36,7 @@ import { Player, PlayerSchema } from '../player/schemas/player.schema';
     DailyTaskQueue,
     DailyTaskProcessor,
     PlayerRewarder,
+    ClanRewarder,
   ],
   controllers: [DailyTasksController],
   exports: [DailyTasksService, UiDailyTasksService],

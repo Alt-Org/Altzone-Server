@@ -17,9 +17,9 @@ import {
 import { SEReason } from '../common/service/basicService/SEReason';
 import { cancelTransaction } from '../common/function/cancelTransaction';
 import { OnEvent } from '@nestjs/event-emitter';
-import { WsMessageBodyDto } from '../chat/dto/wsMessageBody.dto';
 import { ServerTaskName } from './enum/serverTaskName.enum';
 import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
+import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
 
 @Injectable()
 export class DailyTasksService {
@@ -29,6 +29,7 @@ export class DailyTasksService {
     private readonly taskQueue: DailyTaskQueue,
     private readonly taskGenerator: TaskGeneratorService,
     private readonly playerRewarder: PlayerRewarder,
+    private readonly clanRewarder: ClanRewarder,
   ) {
     this.basicService = new BasicService(model);
     this.modelName = ModelName.DAILY_TASK;
@@ -253,8 +254,8 @@ export class DailyTasksService {
   @OnEvent('newDailyTaskEvent')
   async handleDailyTaskEvent(payload: {
     playerId: string;
-    message: WsMessageBodyDto;
     serverTaskName: ServerTaskName;
+    needsClanReward?: boolean;
   }) {
     const task = await this.updateTask(
       payload.playerId,
@@ -266,6 +267,14 @@ export class DailyTasksService {
         payload.playerId,
         task.points,
       );
+
+      if (payload.needsClanReward ?? false) {
+        await this.clanRewarder.rewardClanForPlayerTask(
+          task.clan_id,
+          task.points,
+          task.coins,
+        );
+      }
     }
 
     return task;

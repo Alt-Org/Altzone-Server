@@ -8,10 +8,10 @@ import { Observable, mergeMap } from 'rxjs';
 import { BoxUser } from './BoxUser';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { envVars } from '../../common/service/envHandler/envVars';
 import { APIError } from '../../common/controller/APIError';
 import { APIErrorReason } from '../../common/controller/APIErrorReason';
 import { NO_BOX_ID_FILTER } from './decorator/NoBoxIdFilter.decorator';
+import { Request } from 'express';
 
 /**
  * Interceptor used for testing sessions to prevent data leaks.
@@ -36,43 +36,18 @@ export class BoxIdFilterInterceptor implements NestInterceptor {
     if (noFilter) return next.handle();
 
     const request = context.switchToHttp().getRequest();
-    const boxUser: BoxUser = request.user;
-    let boxId: string;
-    if (!boxUser) {
-      boxId = await this.getBoxIdFromRequest(request);
-    } else {
-      boxId = boxUser.box_id;
+    if (!request['user']) {
+      this.attachBoxUserToRequest(request);
     }
+    const boxUser: BoxUser = request.user;
 
     return next
       .handle()
-      .pipe(mergeMap(async (data) => this.filterByBoxId(await data, boxId)));
-  }
-
-  /**
-   * Used to extract the box_id from the request.
-   * @param request incoming http request.
-   * @returns The box ID
-   */
-  private async getBoxIdFromRequest(request: any): Promise<string | undefined> {
-    if (request.user && request.user.box_id) return request.user.box_id;
-
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    if (type === 'Bearer' && token) {
-      try {
-        const payload: BoxUser = await this.jwtService.verifyAsync(token, {
-          secret: envVars.JWT_SECRET,
-        });
-        return payload.box_id;
-      } catch {
-        throw new APIError({
-          reason: APIErrorReason.NOT_AUTHENTICATED,
-          message:
-            'All endpoints need to be provided an auth token in testing sessions.',
-        });
-      }
-    }
-    return undefined;
+      .pipe(
+        mergeMap(async (data) =>
+          this.filterByBoxId(await data, boxUser.box_id),
+        ),
+      );
   }
 
   /**
@@ -126,5 +101,30 @@ export class BoxIdFilterInterceptor implements NestInterceptor {
       }
     }
     return data;
+  }
+
+  /**
+   * Attaches the authenticated user's box ID to the request object.
+   *
+   * @param request - The incoming HTTP request object, expected to contain an authorization header with a JWT token.
+   * @throws {APIError} Throws an APIError with reason `NOT_AUTHENTICATED` if the JWT token is missing or invalid.
+   *
+   * @remarks
+   * This method extracts the JWT token from the `Authorization` header, verifies it,
+   * and attaches a new `BoxUser` instance to the request under the `user` property.
+   * If verification fails, an authentication error is thrown.
+   */
+  private attachBoxUserToRequest(request: Request) {
+    const token = request.headers.authorization?.split(' ')[1];
+    try {
+      const payload: BoxUser = this.jwtService.verify(token);
+      request['user'] = new BoxUser(payload);
+    } catch {
+      throw new APIError({
+        reason: APIErrorReason.NOT_AUTHENTICATED,
+        message:
+          'All endpoints need to be provided an auth token in testing sessions.',
+      });
+    }
   }
 }

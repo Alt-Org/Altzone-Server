@@ -12,6 +12,7 @@ import HasClanRights from '../../clan/role/decorator/guard/HasClanRights';
 import { ClanBasicRight } from '../../clan/role/enum/clanBasicRight.enum';
 import { BuyStallSlotDto } from './dto/buyStallSlot.dto';
 import { AdPosterDto } from './dto/adPoster.dto';
+import DetermineClanId from '../../common/guard/clanId.guard';
 
 @Controller('stall')
 export class StallController {
@@ -65,6 +66,7 @@ export class StallController {
   })
   @Post('/buy-slot')
   @UniformResponse()
+  @DetermineClanId()
   @HasClanRights([ClanBasicRight.SHOP])
   async buyStallSlot(@LoggedUser() user: User, @Body() body: BuyStallSlotDto) {
     const [, error] = await this.service.buyStallSlot(
@@ -87,6 +89,7 @@ export class StallController {
   })
   @Patch('/adPoster')
   @UniformResponse()
+  @DetermineClanId()
   @HasClanRights([ClanBasicRight.SHOP])
   async updateAdPoster(@LoggedUser() user: User, @Body() body: AdPosterDto) {
     const [, error] = await this.service.updateAdPosterByClanId(

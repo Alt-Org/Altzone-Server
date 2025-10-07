@@ -18,6 +18,9 @@ import { RequestHelperModule } from '../../../requestHelper/requestHelper.module
 import { mongooseOptions, mongoString } from '../../test_utils/const/db';
 import { PlayerRewarder } from '../../../rewarder/playerRewarder/playerRewarder.service';
 import { Player, PlayerSchema } from '../../../player/schemas/player.schema';
+import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
+import { ClanRewarder } from '../../../rewarder/clanRewarder/clanRewarder.service';
+import { Clan, ClanSchema } from '../../../clan/clan.schema';
 
 export default class DailyTasksCommonModule {
   private constructor() {}
@@ -32,12 +35,14 @@ export default class DailyTasksCommonModule {
           MongooseModule.forFeature([
             { name: DailyTask.name, schema: DailyTaskSchema },
             { name: Player.name, schema: PlayerSchema },
+            { name: Clan.name, schema: ClanSchema },
           ]),
           BullModule.registerQueue({
             name: 'daily-tasks',
           }),
           PlayerModule,
           RequestHelperModule,
+          EventEmitterCommonModule,
         ],
 
         providers: [
@@ -48,6 +53,7 @@ export default class DailyTasksCommonModule {
           DailyTaskQueue,
           DailyTaskProcessor,
           PlayerRewarder,
+          ClanRewarder,
         ],
       }).compile();
 
