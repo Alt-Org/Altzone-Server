@@ -178,7 +178,7 @@ export default class BoxCreator {
     );
     boxToCreate.clansToCreate = [{ name: clanName1 }, { name: clanName2 }];
 
-    return await this.boxService.basicService.createOne(boxToCreate);
+    return await this.boxService.v2basicService.createOne(boxToCreate);
   }
 
   /**

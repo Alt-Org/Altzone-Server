@@ -32,10 +32,12 @@ import { TesterAccountService } from './accountClaimer/testerAccount.service';
 import UniqueFieldGenerator from './util/UniqueFieldGenerator';
 import { ItemSchema } from '../clanInventory/item/item.schema';
 import { BoxUserFactory } from './box-user.factory';
+import { BoxSchema as v2BoxSchema } from './schemas/box.v2.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
+      { name: 'v2Box', schema: v2BoxSchema },
       { name: ModelName.BOX, schema: BoxSchema },
       { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
       { name: ModelName.PROFILE, schema: ProfileSchema },

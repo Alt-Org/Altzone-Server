@@ -1,15 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import { ModelName } from '../../common/enum/modelName.enum';
-import { ObjectId } from 'mongodb';
 import { SessionStage } from '../enum/SessionStage.enum';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { BoxReference } from '../enum/BoxReference.enum';
+import { ClanToCreate } from './ClanToCreate.v2.schema';
 import {
   PredefinedDailyTask,
   PredefinedDailyTaskSchema,
 } from '../dailyTask/predefinedDailyTask.schema';
-import { ClanToCreate, ClanToCreateSchema } from './ClanToCreate.schema';
 import { defaultPredefinedDailyTasks } from '../dailyTask/defaultPredefinedDailyTasks';
 
 export type BoxDocument = HydratedDocument<Box>;
@@ -69,20 +68,20 @@ export class Box {
   /**
    * Group teacher profile _id
    */
-  @Prop({ type: ObjectId, required: true })
-  teacherProfile_id: ObjectId;
+  @Prop({ type: Types.ObjectId, required: true })
+  teacherProfile_id: Types.ObjectId;
 
   /**
    * Clan data to be created when session goes to testing stage.
    */
-  @Prop({ type: [ClanToCreateSchema] })
+  @Prop({ type: [ClanToCreate] })
   clansToCreate: ClanToCreate[];
 
   /**
    * IDs of created clans when session goes to testing stage.
    */
-  @Prop({ type: [ObjectId] })
-  createdClan_ids: ObjectId[];
+  @Prop({ type: [Types.ObjectId] })
+  createdClan_ids: Types.ObjectId[];
 
   /**
    * Amount of testers accounts required for the testing session.
@@ -115,11 +114,12 @@ export class Box {
   dailyTasks: PredefinedDailyTask[];
 
   @ExtractField()
-  _id: ObjectId;
+  _id: Types.ObjectId;
 }
 
 export const BoxSchema = SchemaFactory.createForClass(Box);
-BoxSchema.set('collection', ModelName.BOX);
+// BoxSchema.set('collection', ModelName.BOX);
+BoxSchema.set('collection', 'v2Box');
 BoxSchema.virtual(BoxReference.TEACHER_PROFILE, {
   ref: ModelName.TEACHER_PROFILE,
   localField: 'teacherProfile_id',

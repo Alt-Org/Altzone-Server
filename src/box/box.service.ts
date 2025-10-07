@@ -21,11 +21,13 @@ import {
 import { ObjectId } from 'mongodb';
 import { SessionStage } from './enum/SessionStage.enum';
 import { Profile } from '../profile/profile.schema';
+import { Box as v2Box } from './schemas/box.v2.schema';
 
 @Injectable()
 export class BoxService {
   public constructor(
     @InjectModel(Box.name) public readonly model: Model<Box>,
+    @InjectModel('v2Box') public readonly v2model: Model<v2Box>,
     @InjectModel(Player.name) public readonly playerModel: Model<Player>,
     @InjectModel(Profile.name) private readonly profileModel: Model<Profile>,
     @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
@@ -36,11 +38,13 @@ export class BoxService {
   ) {
     this.refsInModel = publicReferences;
     this.basicService = new BasicService(model);
+    this.v2basicService = new BasicService(v2model);
     this.adminBasicService = new BasicService(groupAdminModel);
   }
 
   public readonly refsInModel: BoxReference[];
   public readonly basicService: BasicService;
+  public readonly v2basicService: BasicService;
   private readonly adminBasicService: BasicService;
 
   /**
