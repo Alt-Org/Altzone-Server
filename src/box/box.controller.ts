@@ -36,6 +36,8 @@ import { Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { NoBoxIdFilter } from './auth/decorator/NoBoxIdFilter.decorator';
 import { BoxNameDto } from './dto/boxName.dto';
+import { APIError } from 'src/common/controller/APIError';
+import { APIErrorReason } from 'src/common/controller/APIErrorReason';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
@@ -133,6 +135,46 @@ export class BoxController {
       _id: new ObjectId(user.box_id),
       ...body,
     });
+    if (err) return [null, err];
+  }
+
+  /**
+   * Update box configuration.
+   *
+   * @remarks Update box configuration.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+    },
+    errors: [400, 401, 403, 404],
+    hasAuth: true,
+  })
+  @v2IsGroupAdmin()
+  @UniformResponse()
+  @Patch('v2/:_id')
+  async v2configureBox(
+    @Body() body: ConfigureBoxDto,
+    @Param() param: _idDto,
+    @LoggedUser() user: BoxUser,
+  ) {
+    const [, boxErr] = await this.service.v2basicService.readOne({
+      filter: {
+        _id: new ObjectId(param._id),
+        teacherProfile_id: new ObjectId(user.profile_id),
+      },
+    });
+    if (boxErr) {
+      throw new APIError({
+        reason: APIErrorReason.NOT_AUTHORIZED,
+        message: "Box doesn't belong to the logged in profile",
+      });
+    }
+
+    const [, err] = await this.service.v2basicService.updateOneById(
+      param._id,
+      body,
+    );
     if (err) return [null, err];
   }
 
