@@ -69,6 +69,11 @@ export class BoxAuthGuard implements CanActivate {
         ...payload,
       };
 
+      if (profile_id && groupAdmin) {
+        request['user'] = new BoxUser(payload);
+        return true;
+      }
+
       if (profile_id && player_id && !box_id && groupAdmin === null)
         throw new UnauthorizedException({
           ...errorResponse,
