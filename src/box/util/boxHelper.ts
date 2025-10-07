@@ -9,11 +9,14 @@ import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import BasicService from '../../common/service/basicService/BasicService';
+import { Box as v2Box } from '../schemas/box.v2.schema';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class BoxHelper {
   public constructor(
     @InjectModel(Box.name) public readonly model: Model<Box>,
+    @InjectModel("v2Box") private readonly v2model: Model<v2Box>,
     @InjectModel(GroupAdmin.name)
     public readonly groupAdminModel: Model<GroupAdmin>,
     @InjectModel(Profile.name) public readonly profileModel: Model<Profile>,
@@ -116,5 +119,45 @@ export class BoxHelper {
     });
 
     return box ? true : false;
+  }
+
+  /**
+   * Checks if a box can be created
+   * @param teacherProfile_id
+   *
+   * @returns true if box can be created or ServiceErrors if found
+   */
+  async canCreateBox(
+    teacherProfile_id: string,
+  ): Promise<IServiceReturn<true>> {
+    const boxCount = await this.v2model.countDocuments({ teacherProfile_id: new ObjectId(teacherProfile_id) });
+    if (boxCount >= 10)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.MORE_THAN_MAX,
+            message: 'Box limit reached. Delete one to create more.',
+          }),
+        ],
+      ];
+
+    return [true, null];
+  }
+
+  async duplicateName(teacherProfile_id: string, boxName: string): Promise<IServiceReturn<true>> {
+    const boxCount = await this.v2model.countDocuments({ teacherProfile_id: new ObjectId(teacherProfile_id), name: boxName });
+    if (boxCount > 0)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_UNIQUE,
+            message: 'Duplicate name. Teacher already has a session with that name.'
+          })
+        ]
+      ]
+
+    return [true, null];
   }
 }
