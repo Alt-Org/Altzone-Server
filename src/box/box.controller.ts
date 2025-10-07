@@ -35,6 +35,7 @@ import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { NoBoxIdFilter } from './auth/decorator/NoBoxIdFilter.decorator';
+import { BoxNameDto } from './dto/boxName.dto';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
@@ -82,6 +83,30 @@ export class BoxController {
     });
 
     return [{ ...createdBox, accessToken: groupAdminAccessToken }, null];
+  }
+
+  /**
+   * Create a testing box.
+   *
+   * @remarks Create a testing box.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 201,
+      dto: CreatedBoxDto,
+      modelName: ModelName.BOX,
+    },
+    errors: [400, 401, 409],
+    hasAuth: true,
+  })
+  @Post('v2')
+  @NoBoxIdFilter()
+  @UniformResponse(ModelName.BOX, CreatedBoxDto)
+  async v2createBox(@Body() body: BoxNameDto, @LoggedUser() user: BoxUser) {
+    return await this.boxCreator.v2createBox(
+      user.profile_id.toString(),
+      body.boxName,
+    );
   }
 
   /**
