@@ -8,6 +8,7 @@ import { ClanService } from '../../../clan/clan.service';
 import { RoomService } from '../../../clanInventory/room/room.service';
 import { GameEventsHandler } from '../../../gameEventsHandler/gameEventsHandler';
 import { PlayerSchema } from '../../../player/schemas/player.schema';
+import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
 
 export default class GameDataModule {
   private constructor() {}
@@ -38,6 +39,11 @@ export default class GameDataModule {
   static async getRoomService() {
     const module = await GameDataCommonModule.getModule();
     return module.resolve(RoomService);
+  }
+
+  static async getEventEmitterService() {
+    const module = await GameDataCommonModule.getModule();
+    return module.resolve(EventEmitterService);
   }
 
   static async getGameEventHandler() {

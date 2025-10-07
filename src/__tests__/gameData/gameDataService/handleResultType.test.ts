@@ -13,6 +13,7 @@ import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 import GameDataBuilderFactory from '../data/gameDataBuilderFactory';
 import AuthBuilderFactory from '../../auth/data/authBuilderFactory';
 import { ObjectId } from 'mongodb';
+import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
 
 describe('GameDataService.handleResultType() test suite', () => {
   let playerService: PlayerService;
@@ -20,6 +21,7 @@ describe('GameDataService.handleResultType() test suite', () => {
   let roomService: RoomService;
   let gameEventsHandler: GameEventsHandler;
   let gameDataService: GameDataService;
+  let eventEmitterService: EventEmitterService;
 
   const gameDataModel = GameDataModule.getGameModel();
   const playerModel = GameDataModule.getPlayerModel();
@@ -76,15 +78,17 @@ describe('GameDataService.handleResultType() test suite', () => {
     clanService = await GameDataModule.getClanService();
     roomService = await GameDataModule.getRoomService();
     gameEventsHandler = await GameDataModule.getGameEventHandler();
+    eventEmitterService = await GameDataModule.getEventEmitterService();
     gameDataService = new GameDataService(
       {} as any, // model not needed for this test
       playerService,
       clanService,
       roomService,
       gameEventsHandler,
-      { signAsync: jest.fn().mockResolvedValue('token') } as any, // mock JwtService
+      { signAsync: jest.fn().mockResolvedValue('token') } as any,
+      eventEmitterService,
     );
-  });
+   });
 
   it('should return NOT_ALLOWED error if player is not in the winning team', async () => {
     userDto = userBuilder.setPlayerId('p3').build();
