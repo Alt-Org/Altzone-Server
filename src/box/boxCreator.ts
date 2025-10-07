@@ -20,6 +20,7 @@ import { ProfileDto } from '../profile/dto/profile.dto';
 import UniqueFieldGenerator from './util/UniqueFieldGenerator';
 import { Profile } from '../profile/profile.schema';
 import { generateRandomClanName } from './util/generateRandomClanName';
+import { Box as v2Box } from './schemas/box.v2.schema';
 
 @Injectable()
 export default class BoxCreator {
@@ -27,6 +28,8 @@ export default class BoxCreator {
     @InjectModel(Profile.name) private readonly profileModel: Model<Profile>,
     @InjectModel(Player.name) private readonly playerModel: Model<Player>,
     @InjectModel(Clan.name) private readonly clanModel: Model<Clan>,
+    @InjectModel(v2Box.name)
+    private readonly boxModel: Model<v2Box>,
     @InjectModel(GroupAdmin.name)
     private readonly groupAdminModel: Model<GroupAdmin>,
     private readonly boxHelper: BoxHelper,
@@ -143,6 +146,42 @@ export default class BoxCreator {
   }
 
   /**
+   * Initialize a box for testing session.
+   *
+   * Notice that if any errors occur on any of the initialization stage, all data of the box will be removed.
+   *
+   * @param teacherProfile_id
+   * @param boxName
+   */
+  public async v2createBox(teacherProfile_id: string, boxName: string) {
+    const [, validationErrors] = await this.v2validateBox(
+      teacherProfile_id,
+      boxName,
+    );
+    if (validationErrors) return [null, validationErrors];
+
+    const boxToCreate_id = new ObjectId();
+    const boxToCreate: Partial<v2Box> = {};
+    boxToCreate.name = boxName;
+    boxToCreate.teacherProfile_id = new ObjectId(teacherProfile_id);
+    boxToCreate._id = boxToCreate_id;
+
+    const clanName1 = await this.uniqueFieldGenerator.generateUniqueFieldValue(
+      this.clanModel,
+      'name',
+      generateRandomClanName(),
+    );
+    const clanName2 = await this.uniqueFieldGenerator.generateUniqueFieldValue(
+      this.clanModel,
+      'name',
+      generateRandomClanName(),
+    );
+    boxToCreate.clansToCreate = [{ name: clanName1 }, { name: clanName2 }];
+
+    return await this.boxService.basicService.createOne(boxToCreate);
+  }
+
+  /**
    * Validates provided box data
    * @param boxToValidate box data to validate
    *
@@ -199,6 +238,23 @@ export default class BoxCreator {
           }),
         ],
       ];
+
+    return [true, null];
+  }
+
+  private async v2validateBox(
+    teacherProfile_id: string,
+    boxName: string,
+  ): Promise<IServiceReturn<boolean>> {
+    const [, canCreateError] =
+      await this.boxHelper.canCreateBox(teacherProfile_id);
+    if (canCreateError) return [false, canCreateError];
+
+    const [, duplicateNameError] = await this.boxHelper.duplicateName(
+      teacherProfile_id,
+      boxName,
+    );
+    if (duplicateNameError) return [false, duplicateNameError];
 
     return [true, null];
   }

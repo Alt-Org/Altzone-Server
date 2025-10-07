@@ -40,7 +40,7 @@ export class BoxService {
   }
 
   public readonly refsInModel: BoxReference[];
-  private readonly basicService: BasicService;
+  public readonly basicService: BasicService;
   private readonly adminBasicService: BasicService;
 
   /**
