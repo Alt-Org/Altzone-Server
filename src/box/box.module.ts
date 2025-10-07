@@ -33,6 +33,7 @@ import UniqueFieldGenerator from './util/UniqueFieldGenerator';
 import { ItemSchema } from '../clanInventory/item/item.schema';
 import { BoxUserFactory } from './box-user.factory';
 import { BoxSchema as v2BoxSchema } from './schemas/box.v2.schema';
+import { v2GroupAdminGuard } from './auth/decorator/group-admin.v2.guard';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { BoxSchema as v2BoxSchema } from './schemas/box.v2.schema';
     DailyTaskService,
     BoxAuthHandler,
     GroupAdminGuard,
+    v2GroupAdminGuard,
     PasswordGenerator,
     SessionStarterService,
     AccountClaimerService,
@@ -72,6 +74,12 @@ import { BoxSchema as v2BoxSchema } from './schemas/box.v2.schema';
     UniqueFieldGenerator,
     BoxUserFactory,
   ],
-  exports: [BoxService, GroupAdminGuard, BoxAuthHandler],
+  exports: [
+    BoxService,
+    GroupAdminGuard,
+    v2GroupAdminGuard,
+    BoxAuthHandler,
+    BoxUserFactory,
+  ],
 })
 export class BoxModule {}

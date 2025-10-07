@@ -20,7 +20,7 @@ import { CreateBoxDto } from './dto/createBox.dto';
 import { IncludeQuery } from '../common/decorator/param/IncludeQuery.decorator';
 import { _idDto } from '../common/dto/_id.dto';
 import { publicReferences } from './schemas/box.schema';
-import { IsGroupAdmin } from './auth/decorator/IsGroupAdmin';
+import { IsGroupAdmin, v2IsGroupAdmin } from './auth/decorator/IsGroupAdmin';
 import { BoxUser } from './auth/BoxUser';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { BoxAuthGuard } from './auth/boxAuth.guard';
@@ -96,10 +96,11 @@ export class BoxController {
       dto: CreatedBoxDto,
       modelName: ModelName.BOX,
     },
-    errors: [400, 401, 409],
+    errors: [400, 401, 403, 409],
     hasAuth: true,
   })
   @Post('v2')
+  @v2IsGroupAdmin()
   @NoBoxIdFilter()
   @UniformResponse(ModelName.BOX, CreatedBoxDto)
   async v2createBox(@Body() body: BoxNameDto, @LoggedUser() user: BoxUser) {
