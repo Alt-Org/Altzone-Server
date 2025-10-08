@@ -74,13 +74,30 @@ describe('GameDataService.handleResultType() test suite', () => {
   beforeEach(async () => {
     gameDataModel.deleteMany();
     jest.clearAllMocks();
+
     playerService = await GameDataModule.getPlayerService();
     clanService = await GameDataModule.getClanService();
     roomService = await GameDataModule.getRoomService();
     gameEventsHandler = await GameDataModule.getGameEventHandler();
     eventEmitterService = await GameDataModule.getEventEmitterService();
+    const mockModel = {
+      findOne: jest.fn().mockReturnThis(),
+      sort: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue(game),
+      create: jest.fn(),
+    };
+    jest.spyOn(gameEventsHandler, 'handleEvent').mockImplementation();
+
+    // Mock playerService.getPlayerById for both teams
+    jest
+      .spyOn(playerService, 'getPlayerById')
+      .mockResolvedValueOnce([playerDto, null])
+      .mockResolvedValueOnce([playerDto, null]);
+
+    // Mock clanService.readOneById to return a clan with SoulHome
+    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clan1, null]);
     gameDataService = new GameDataService(
-      {} as any, // model not needed for this test
+      mockModel as any, // model not needed for this test
       playerService,
       clanService,
       roomService,
@@ -132,16 +149,7 @@ describe('GameDataService.handleResultType() test suite', () => {
   });
 
   it('should call createGameIfNotExists and generateResponse for winning player', async () => {
-    jest.spyOn(gameEventsHandler, 'handleEvent').mockImplementation();
-
-    // Mock playerService.getPlayerById for both teams
-    jest
-      .spyOn(playerService, 'getPlayerById')
-      .mockResolvedValueOnce([playerDto, null])
-      .mockResolvedValueOnce([playerDto, null]);
-
-    // Mock clanService.readOneById to return a clan with SoulHome
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clan1, null]);
+    
 
     const roomDtoBuilder = ClanInventoryBuilderFactory.getBuilder('RoomDto');
     const roomDto1 = roomDtoBuilder.setId('r1').build();
