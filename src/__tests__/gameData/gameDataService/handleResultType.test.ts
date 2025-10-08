@@ -149,8 +149,6 @@ describe('GameDataService.handleResultType() test suite', () => {
   });
 
   it('should call createGameIfNotExists and generateResponse for winning player', async () => {
-    
-
     const roomDtoBuilder = ClanInventoryBuilderFactory.getBuilder('RoomDto');
     const roomDto1 = roomDtoBuilder.setId('r1').build();
     const roomDto2 = roomDtoBuilder.setId('r2').build();
