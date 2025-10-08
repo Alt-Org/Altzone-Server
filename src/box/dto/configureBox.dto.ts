@@ -6,6 +6,7 @@ import {
   IsInt,
   IsNotEmpty,
   IsOptional,
+  IsPositive,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -31,6 +32,7 @@ export class ConfigureBoxDto {
    * @example 10
    */
   @IsInt()
+  @IsPositive()
   @IsOptional()
   testersAmount?: number;
 
@@ -43,4 +45,6 @@ export class ConfigureBoxDto {
   @IsNotEmpty()
   @IsOptional()
   testersSharedPassword?: string;
+
+  // TODO: Add the name when taking v2 in use
 }
