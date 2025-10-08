@@ -36,8 +36,8 @@ import { Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { NoBoxIdFilter } from './auth/decorator/NoBoxIdFilter.decorator';
 import { BoxNameDto } from './dto/boxName.dto';
-import { APIError } from 'src/common/controller/APIError';
-import { APIErrorReason } from 'src/common/controller/APIErrorReason';
+import { APIError } from '../common/controller/APIError';
+import { APIErrorReason } from '../common/controller/APIErrorReason';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
