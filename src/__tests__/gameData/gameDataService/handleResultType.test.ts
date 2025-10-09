@@ -61,10 +61,7 @@ describe('GameDataService.handleResultType() test suite', () => {
 
   const soulHomeDto = soulHomeDtoBuilder.setName('clan').build();
 
-  const clan = clanDtoBuilder
-    .setSoulHome(soulHomeDto)
-    .setName('clan')
-    .build();
+  const clan = clanDtoBuilder.setSoulHome(soulHomeDto).setName('clan').build();
 
   let userDto = userBuilder.setPlayerId(p1Id.toString()).build();
 
@@ -92,7 +89,7 @@ describe('GameDataService.handleResultType() test suite', () => {
     const roomDto2 = roomDtoBuilder.setId('r2').build();
 
     userDto = userBuilder.setPlayerId(p1Id.toString()).build();
-    
+
     playerService = await GameDataModule.getPlayerService();
     clanService = await GameDataModule.getClanService();
     roomService = await GameDataModule.getRoomService();
