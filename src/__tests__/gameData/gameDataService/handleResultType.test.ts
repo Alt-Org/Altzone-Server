@@ -31,7 +31,7 @@ describe('GameDataService.handleResultType() test suite', () => {
   const playerModel = GameDataModule.getPlayerModel();
   let mockModel: Model<Game>;
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
-  
+
   const p1Id = new ObjectId();
   const p2Id = new ObjectId();
   const p3Id = new ObjectId();
@@ -65,30 +65,30 @@ describe('GameDataService.handleResultType() test suite', () => {
 
   const battleResultDtoBuilder =
     GameDataBuilderFactory.getBuilder('BattleResultDto');
-let battleResultDto: BattleResultDto;
+  let battleResultDto: BattleResultDto;
 
   const gameDtoBuilder = GameDataBuilderFactory.getBuilder('Game');
 
- let game: Game;
+  let game: Game;
 
   beforeEach(async () => {
     jest.resetAllMocks();
     gameDataModel.deleteMany();
 
     battleResultDto = battleResultDtoBuilder
-  .setTeam1([p1Id.toString(), p2Id.toString()])
-  .setTeam2([p3Id.toString(), p4Id.toString()])
-  .setWinnerTeam(1)
-  .setDuration(100)
-  .build();
+      .setTeam1([p1Id.toString(), p2Id.toString()])
+      .setTeam2([p3Id.toString(), p4Id.toString()])
+      .setWinnerTeam(1)
+      .setDuration(100)
+      .build();
 
-  game = gameDtoBuilder
-  .setTeam1([p1Id.toString(), p2Id.toString()])
-  .setTeam2([p3Id.toString(), p4Id.toString()])
-  .setWinner(1)
-  .setId(new ObjectId().toString())
-  .build();
-  gameDataModel.create(game);
+    game = gameDtoBuilder
+      .setTeam1([p1Id.toString(), p2Id.toString()])
+      .setTeam2([p3Id.toString(), p4Id.toString()])
+      .setWinner(1)
+      .setId(new ObjectId().toString())
+      .build();
+    gameDataModel.create(game);
 
     userDto = userBuilder.setPlayerId(p1Id.toString()).build();
     playerService = await GameDataModule.getPlayerService();
@@ -108,22 +108,26 @@ let battleResultDto: BattleResultDto;
       .mockResolvedValue([[roomDto1, roomDto2], null]);
 
     jest.spyOn(gameEventsHandler, 'handleEvent').mockImplementation();
-    jest.spyOn(eventEmitterService, 'EmitNewDailyTaskEvent').mockImplementation();
+    jest
+      .spyOn(eventEmitterService, 'EmitNewDailyTaskEvent')
+      .mockImplementation();
 
     jest
       .spyOn(playerService, 'getPlayerById')
       .mockResolvedValue([playerDto, null]);
 
     jest.spyOn(clanService, 'readOneById').mockResolvedValue([clan1, null]);
-    
+
     gameDataService = await GameDataModule.getGameDataService();
     mockModel = gameDataService.model;
-    
+
     const execMock = jest.fn().mockResolvedValue(game);
     const query = { sort: jest.fn().mockReturnThis(), exec: execMock };
     const findOneMock = jest.fn().mockReturnValue(query);
-    mockModel = { findOne: findOneMock, create: jest.fn() } as unknown as Model<Game>;
-
+    mockModel = {
+      findOne: findOneMock,
+      create: jest.fn(),
+    } as unknown as Model<Game>;
   });
 
   afterEach(() => {
