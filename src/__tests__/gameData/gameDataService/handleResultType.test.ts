@@ -15,6 +15,9 @@ import AuthBuilderFactory from '../../auth/data/authBuilderFactory';
 import { ObjectId } from 'mongodb';
 import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
 import { JwtService } from '@nestjs/jwt';
+import { Game } from '../../../gameData/game.schema';
+import { Model } from 'mongoose';
+import { BattleResultDto } from '../../../gameData/dto/battleResult.dto';
 
 describe('GameDataService.handleResultType() test suite', () => {
   let playerService: PlayerService;
@@ -26,12 +29,18 @@ describe('GameDataService.handleResultType() test suite', () => {
 
   const gameDataModel = GameDataModule.getGameModel();
   const playerModel = GameDataModule.getPlayerModel();
-  let mockModel: any = {};
+  let mockModel: Model<Game>;
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
-  const p1 = playerBuilder.setName('p1').build();
-  const p2 = playerBuilder.setName('p2').build();
-  const p3 = playerBuilder.setName('p3').build();
-  const p4 = playerBuilder.setName('p4').build();
+  
+  const p1Id = new ObjectId();
+  const p2Id = new ObjectId();
+  const p3Id = new ObjectId();
+  const p4Id = new ObjectId();
+
+  const p1 = playerBuilder.setId(p1Id.toString()).setName('p1').build();
+  const p2 = playerBuilder.setId(p2Id.toString()).setName('p2').build();
+  const p3 = playerBuilder.setId(p3Id.toString()).setName('p3').build();
+  const p4 = playerBuilder.setId(p4Id.toString()).setName('p4').build();
 
   playerModel.create(p1);
   playerModel.create(p2);
@@ -52,32 +61,36 @@ describe('GameDataService.handleResultType() test suite', () => {
     .build();
 
   const userBuilder = AuthBuilderFactory.getBuilder('User');
-  let userDto = userBuilder.setPlayerId('p1').build();
+  let userDto = userBuilder.setPlayerId(p1Id.toString()).build();
 
   const battleResultDtoBuilder =
     GameDataBuilderFactory.getBuilder('BattleResultDto');
-  const battleResultDto = battleResultDtoBuilder
-    .setTeam1(['p1', 'p2'])
-    .setTeam2(['p3', 'p4'])
-    .setWinnerTeam(1)
-    .setDuration(100)
-    .build();
+let battleResultDto: BattleResultDto;
 
   const gameDtoBuilder = GameDataBuilderFactory.getBuilder('Game');
-  const game = gameDtoBuilder
-    .setTeam1([p1._id, p2._id])
-    .setTeam2([p3._id, p4._id])
-    .setWinner(1)
-    .setId(new ObjectId().toString())
-    .build();
-  gameDataModel.create(game);
+
+ let game: Game;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
-    //gameDataModel.deleteMany();
-    //playerModel.deleteMany();
+    jest.resetAllMocks();
+    gameDataModel.deleteMany();
 
-    userDto = userBuilder.setPlayerId('p1').build();
+    battleResultDto = battleResultDtoBuilder
+  .setTeam1([p1Id.toString(), p2Id.toString()])
+  .setTeam2([p3Id.toString(), p4Id.toString()])
+  .setWinnerTeam(1)
+  .setDuration(100)
+  .build();
+
+  game = gameDtoBuilder
+  .setTeam1([p1Id.toString(), p2Id.toString()])
+  .setTeam2([p3Id.toString(), p4Id.toString()])
+  .setWinner(1)
+  .setId(new ObjectId().toString())
+  .build();
+  gameDataModel.create(game);
+
+    userDto = userBuilder.setPlayerId(p1Id.toString()).build();
     playerService = await GameDataModule.getPlayerService();
     clanService = await GameDataModule.getClanService();
     roomService = await GameDataModule.getRoomService();
@@ -95,38 +108,26 @@ describe('GameDataService.handleResultType() test suite', () => {
       .mockResolvedValue([[roomDto1, roomDto2], null]);
 
     jest.spyOn(gameEventsHandler, 'handleEvent').mockImplementation();
+    jest.spyOn(eventEmitterService, 'EmitNewDailyTaskEvent').mockImplementation();
 
-    // Mock playerService.getPlayerById for both teams
     jest
       .spyOn(playerService, 'getPlayerById')
-      .mockResolvedValueOnce([playerDto, null]);
+      .mockResolvedValue([playerDto, null]);
 
-    // Mock clanService.readOneById to return a clan with SoulHome
     jest.spyOn(clanService, 'readOneById').mockResolvedValue([clan1, null]);
-    // gameDataService = await GameDataModule.getGameDataService();
-    // let  mockModel = gameDataService.model as Model<Game>;
-
-    // gameDataService = new GameDataService(
-    //   mockModel as any, // model not needed for this test
-    //   playerService,
-    //   clanService,
-    //   roomService,
-    //   gameEventsHandler,
-    //   { signAsync: jest.fn().mockResolvedValue('token') } as any,
-    //   eventEmitterService,
-    // );
+    
     gameDataService = await GameDataModule.getGameDataService();
     mockModel = gameDataService.model;
-    mockModel = {
-      findOne: jest.fn().mockReturnThis(),
-      sort: jest.fn().mockReturnThis(),
-      exec: jest.fn().mockResolvedValue(game),
-      create: jest.fn(),
-    };
+    
+    const execMock = jest.fn().mockResolvedValue(game);
+    const query = { sort: jest.fn().mockReturnThis(), exec: execMock };
+    const findOneMock = jest.fn().mockReturnValue(query);
+    mockModel = { findOne: findOneMock, create: jest.fn() } as unknown as Model<Game>;
+
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('should return NOT_ALLOWED error if player is not in the winning team', async () => {
@@ -156,24 +157,10 @@ describe('GameDataService.handleResultType() test suite', () => {
 
     jest
       .spyOn(playerService, 'getPlayerById')
-      .mockResolvedValueOnce([
-        null,
-        [new ServiceError({ reason: SEReason.NOT_FOUND, message: 'error' })],
-      ])
-      .mockResolvedValueOnce([
+      .mockResolvedValue([
         null,
         [new ServiceError({ reason: SEReason.NOT_FOUND, message: 'error' })],
       ]);
-
-    gameDataService = new GameDataService(
-      mockModel as any,
-      playerService,
-      clanService,
-      roomService,
-      gameEventsHandler,
-      { signAsync: jest.fn().mockResolvedValue('token') } as any,
-      eventEmitterService,
-    );
 
     const [result, error] = await gameDataService.handleResultType(
       battleResultDto,
@@ -188,7 +175,7 @@ describe('GameDataService.handleResultType() test suite', () => {
   it('should call createGameIfNotExists and generateResponse for winning player', async () => {
     jest
       .spyOn(playerService, 'getPlayerById')
-      .mockResolvedValueOnce([playerDto, null])
+      //.mockResolvedValueOnce([playerDto, null])
       .mockResolvedValueOnce([playerDto, null]);
     const [result, error] = await gameDataService.handleResultType(
       battleResultDto,
