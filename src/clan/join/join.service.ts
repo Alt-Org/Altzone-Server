@@ -13,6 +13,8 @@ import { Player } from '../../player/schemas/player.schema';
 import { MemberClanRole } from '../role/initializationClanRoles';
 import { ClanDto } from '../dto/clan.dto';
 import { IServiceReturn } from '../../common/service/basicService/IService';
+import ServiceError from 'src/common/service/basicService/ServiceError';
+import { SEReason } from 'src/common/service/basicService/SEReason';
 
 @Injectable()
 export class JoinService {
@@ -48,6 +50,11 @@ export class JoinService {
   ): Promise<IServiceReturn<ClanDto>> {
     const [clan] = await this.clanService.readOneById(clan_id);
     if (!clan) throw new NotFoundException('Clan with that _id is not found');
+    if (clan.playerCount >= 30)
+      throw new ServiceError({
+        reason: SEReason.MORE_THAN_MAX,
+        message: 'This clan is full (max 30 players).',
+      });
 
     const playerResp = await this.playerModel.findOne({ _id: player_id });
 
