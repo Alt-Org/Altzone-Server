@@ -13,8 +13,8 @@ import { Player } from '../../player/schemas/player.schema';
 import { MemberClanRole } from '../role/initializationClanRoles';
 import { ClanDto } from '../dto/clan.dto';
 import { IServiceReturn } from '../../common/service/basicService/IService';
-import ServiceError from 'src/common/service/basicService/ServiceError';
-import { SEReason } from 'src/common/service/basicService/SEReason';
+import ServiceError from '../../common/service/basicService/ServiceError';
+import { SEReason } from '../../common/service/basicService/SEReason';
 
 @Injectable()
 export class JoinService {
