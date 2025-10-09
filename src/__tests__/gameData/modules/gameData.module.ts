@@ -13,11 +13,6 @@ import EventEmitterService from '../../../common/service/EventEmitterService/Eve
 export default class GameDataModule {
   private constructor() {}
 
-  static async getGameDataService() {
-    const module = await GameDataCommonModule.getModule();
-    return module.resolve(GameDataService);
-  }
-
   static getGameModel() {
     return mongoose.model(ModelName.GAME, GameSchema);
   }
@@ -26,6 +21,11 @@ export default class GameDataModule {
     return mongoose.model(ModelName.PLAYER, PlayerSchema);
   }
 
+  static async getGameDataService() {
+    const module = await GameDataCommonModule.getModule();
+    return module.resolve(GameDataService);
+  }
+  
   static async getPlayerService() {
     const module = await GameDataCommonModule.getModule();
     return module.resolve(PlayerService);
@@ -50,4 +50,5 @@ export default class GameDataModule {
     const module = await GameDataCommonModule.getModule();
     return module.resolve(GameEventsHandler);
   }
+
 }
