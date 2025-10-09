@@ -16,21 +16,31 @@ import { ObjectId } from 'mongodb';
 import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
 import { JwtService } from '@nestjs/jwt';
 import { Game } from '../../../gameData/game.schema';
-import { Model } from 'mongoose';
 import { BattleResultDto } from '../../../gameData/dto/battleResult.dto';
 
 describe('GameDataService.handleResultType() test suite', () => {
+  const gameDataModel = GameDataModule.getGameModel();
+  const playerModel = GameDataModule.getPlayerModel();
+
+  const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
+  const battleResultDtoBuilder =
+    GameDataBuilderFactory.getBuilder('BattleResultDto');
+  const playerDtoBuilder = PlayerBuilderFactory.getBuilder('PlayerDto');
+  const soulHomeDtoBuilder =
+    ClanInventoryBuilderFactory.getBuilder('SoulHomeDto');
+  const clanDtoBuilder = ClanBuilderFactory.getBuilder('ClanDto');
+  const userBuilder = AuthBuilderFactory.getBuilder('User');
+  const gameDtoBuilder = GameDataBuilderFactory.getBuilder('Game');
+  const roomDtoBuilder = ClanInventoryBuilderFactory.getBuilder('RoomDto');
+
   let playerService: PlayerService;
   let clanService: ClanService;
   let roomService: RoomService;
   let gameEventsHandler: GameEventsHandler;
   let gameDataService: GameDataService;
   let eventEmitterService: EventEmitterService;
-
-  const gameDataModel = GameDataModule.getGameModel();
-  const playerModel = GameDataModule.getPlayerModel();
-  let mockModel: Model<Game>;
-  const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
+  let battleResultDto: BattleResultDto;
+  let game: Game;
 
   const p1Id = new ObjectId();
   const p2Id = new ObjectId();
@@ -47,29 +57,16 @@ describe('GameDataService.handleResultType() test suite', () => {
   playerModel.create(p3);
   playerModel.create(p4);
 
-  const playerDtoBuilder = PlayerBuilderFactory.getBuilder('PlayerDto');
   const playerDto = playerDtoBuilder.setClanId('c1').build();
 
-  const soulHomeDtoBuilder =
-    ClanInventoryBuilderFactory.getBuilder('SoulHomeDto');
-  const soulHomeDto = soulHomeDtoBuilder.setName('clan1').build();
+  const soulHomeDto = soulHomeDtoBuilder.setName('clan').build();
 
-  const clanDtoBuilder = ClanBuilderFactory.getBuilder('ClanDto');
-  const clan1 = clanDtoBuilder
+  const clan = clanDtoBuilder
     .setSoulHome(soulHomeDto)
-    .setName('clan1')
+    .setName('clan')
     .build();
 
-  const userBuilder = AuthBuilderFactory.getBuilder('User');
   let userDto = userBuilder.setPlayerId(p1Id.toString()).build();
-
-  const battleResultDtoBuilder =
-    GameDataBuilderFactory.getBuilder('BattleResultDto');
-  let battleResultDto: BattleResultDto;
-
-  const gameDtoBuilder = GameDataBuilderFactory.getBuilder('Game');
-
-  let game: Game;
 
   beforeEach(async () => {
     jest.resetAllMocks();
@@ -88,16 +85,18 @@ describe('GameDataService.handleResultType() test suite', () => {
       .setWinner(1)
       .setId(new ObjectId().toString())
       .build();
+
     gameDataModel.create(game);
 
+    const roomDto1 = roomDtoBuilder.setId('r1').build();
+    const roomDto2 = roomDtoBuilder.setId('r2').build();
+
     userDto = userBuilder.setPlayerId(p1Id.toString()).build();
+    
     playerService = await GameDataModule.getPlayerService();
     clanService = await GameDataModule.getClanService();
     roomService = await GameDataModule.getRoomService();
     gameEventsHandler = await GameDataModule.getGameEventHandler();
-    const roomDtoBuilder = ClanInventoryBuilderFactory.getBuilder('RoomDto');
-    const roomDto1 = roomDtoBuilder.setId('r1').build();
-    const roomDto2 = roomDtoBuilder.setId('r2').build();
 
     eventEmitterService = await GameDataModule.getEventEmitterService();
 
@@ -116,22 +115,13 @@ describe('GameDataService.handleResultType() test suite', () => {
       .spyOn(playerService, 'getPlayerById')
       .mockResolvedValue([playerDto, null]);
 
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clan1, null]);
+    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clan, null]);
 
     gameDataService = await GameDataModule.getGameDataService();
-    mockModel = gameDataService.model;
 
     const execMock = jest.fn().mockResolvedValue(game);
     const query = { sort: jest.fn().mockReturnThis(), exec: execMock };
-    const findOneMock = jest.fn().mockReturnValue(query);
-    mockModel = {
-      findOne: findOneMock,
-      create: jest.fn(),
-    } as unknown as Model<Game>;
-  });
-
-  afterEach(() => {
-    jest.resetAllMocks();
+    jest.fn().mockReturnValue(query);
   });
 
   it('should return NOT_ALLOWED error if player is not in the winning team', async () => {
@@ -156,9 +146,6 @@ describe('GameDataService.handleResultType() test suite', () => {
   });
 
   it('should return error if getClanIdForTeams returns error', async () => {
-    jest.clearAllMocks();
-    jest.spyOn(gameEventsHandler, 'handleEvent').mockImplementation();
-
     jest
       .spyOn(playerService, 'getPlayerById')
       .mockResolvedValue([
@@ -177,10 +164,6 @@ describe('GameDataService.handleResultType() test suite', () => {
   });
 
   it('should call createGameIfNotExists and generateResponse for winning player', async () => {
-    jest
-      .spyOn(playerService, 'getPlayerById')
-      //.mockResolvedValueOnce([playerDto, null])
-      .mockResolvedValueOnce([playerDto, null]);
     const [result, error] = await gameDataService.handleResultType(
       battleResultDto,
       userDto,
@@ -188,18 +171,13 @@ describe('GameDataService.handleResultType() test suite', () => {
 
     expect(result).toMatchObject({
       stealToken: 'token',
-      //soulHome_id: 'soulHomeId',
+      soulHome_id: clan?.SoulHome?._id,
       roomIds: ['r1', 'r2'],
     });
     expect(error).toBeNull();
   });
 
   it('should return error if clanService.readOneById returns error', async () => {
-    jest.spyOn(gameEventsHandler, 'handleEvent').mockImplementation();
-    jest
-      .spyOn(playerService, 'getPlayerById')
-      .mockResolvedValueOnce([playerDto, null])
-      .mockResolvedValueOnce([playerDto, null]);
     jest.spyOn(clanService, 'readOneById').mockResolvedValue([
       null,
       [
@@ -221,12 +199,6 @@ describe('GameDataService.handleResultType() test suite', () => {
   });
 
   it('should return error if roomService.readAllSoulHomeRooms returns error', async () => {
-    jest.spyOn(gameEventsHandler, 'handleEvent').mockImplementation();
-    jest
-      .spyOn(playerService, 'getPlayerById')
-      .mockResolvedValueOnce([playerDto, null])
-      .mockResolvedValueOnce([playerDto, null]);
-    jest.spyOn(clanService, 'readOneById').mockResolvedValue([clan1, null]);
     jest.spyOn(roomService, 'readAllSoulHomeRooms').mockResolvedValue([
       null,
       [
