@@ -25,7 +25,7 @@ export default class GameDataModule {
     const module = await GameDataCommonModule.getModule();
     return module.resolve(GameDataService);
   }
-  
+
   static async getPlayerService() {
     const module = await GameDataCommonModule.getModule();
     return module.resolve(PlayerService);
@@ -50,5 +50,4 @@ export default class GameDataModule {
     const module = await GameDataCommonModule.getModule();
     return module.resolve(GameEventsHandler);
   }
-
 }

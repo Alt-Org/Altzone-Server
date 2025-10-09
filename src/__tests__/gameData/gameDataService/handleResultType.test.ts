@@ -88,12 +88,12 @@ describe('GameDataService.handleResultType() test suite', () => {
 
     eventEmitterService = await GameDataModule.getEventEmitterService();
 
-    jest.spyOn(JwtService.prototype, 'signAsync').mockResolvedValue("token");
-    
-     jest
+    jest.spyOn(JwtService.prototype, 'signAsync').mockResolvedValue('token');
+
+    jest
       .spyOn(roomService, 'readAllSoulHomeRooms')
       .mockResolvedValue([[roomDto1, roomDto2], null]);
-    
+
     jest.spyOn(gameEventsHandler, 'handleEvent').mockImplementation();
 
     // Mock playerService.getPlayerById for both teams
@@ -105,7 +105,7 @@ describe('GameDataService.handleResultType() test suite', () => {
     jest.spyOn(clanService, 'readOneById').mockResolvedValue([clan1, null]);
     // gameDataService = await GameDataModule.getGameDataService();
     // let  mockModel = gameDataService.model as Model<Game>;
-    
+
     // gameDataService = new GameDataService(
     //   mockModel as any, // model not needed for this test
     //   playerService,
@@ -153,15 +153,19 @@ describe('GameDataService.handleResultType() test suite', () => {
   it('should return error if getClanIdForTeams returns error', async () => {
     jest.clearAllMocks();
     jest.spyOn(gameEventsHandler, 'handleEvent').mockImplementation();
-    
+
     jest
       .spyOn(playerService, 'getPlayerById')
       .mockResolvedValueOnce([
-        null,[new ServiceError({ reason: SEReason.NOT_FOUND, message: 'error' })]])
+        null,
+        [new ServiceError({ reason: SEReason.NOT_FOUND, message: 'error' })],
+      ])
       .mockResolvedValueOnce([
-        null,[new ServiceError({ reason: SEReason.NOT_FOUND, message: 'error' })]]);
-    
-        gameDataService = new GameDataService(
+        null,
+        [new ServiceError({ reason: SEReason.NOT_FOUND, message: 'error' })],
+      ]);
+
+    gameDataService = new GameDataService(
       mockModel as any,
       playerService,
       clanService,
