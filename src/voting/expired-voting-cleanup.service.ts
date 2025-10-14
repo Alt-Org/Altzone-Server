@@ -12,7 +12,7 @@ export class ExpiredVotingCleanupService {
   ) {}
 
   @Cron(CronExpression.EVERY_3_HOURS)
-  async handleExpiredVotingCleanup() {
+  private async handleExpiredVotingCleanup() {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
