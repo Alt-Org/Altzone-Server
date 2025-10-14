@@ -307,19 +307,11 @@ export class FleaMarketService {
     oldItemId: string,
     session?: ClientSession,
   ): Promise<IServiceReturn<FleaMarketItemDto>> {
-    if (!session) {
-      session = await this.connection.startSession();
-      session.startTransaction();
-    }
-
     const [created, createErrors] = await this.createOne(newItem, session);
-    if (createErrors) return await cancelTransaction(session, createErrors);
+    if (createErrors) return [null, createErrors];
 
     const [_, deleteErrors] = await this.itemService.deleteOneById(oldItemId);
-    if (deleteErrors) return await cancelTransaction(session, deleteErrors);
-
-    await session.commitTransaction();
-    session.endSession();
+    if (deleteErrors) return [null, createErrors];
 
     return [created, null];
   }
