@@ -4,6 +4,7 @@ import { VotingType } from '../../../voting/enum/VotingType.enum';
 import VotingBuilderFactory from '../data/voting/VotingBuilderFactory';
 import VotingModule from '../modules/voting.module';
 import { ExpiredVotingCleanupService } from '../../../voting/expired-voting-cleanup.service';
+import { envVars } from '../../../common/service/envHandler/envVars';
 
 describe('ExpiredVotingCleanupService.handleExpiredVotingCleanup() test suite', () => {
   const votingModel = VotingModule.getVotingModel();
@@ -17,8 +18,9 @@ describe('ExpiredVotingCleanupService.handleExpiredVotingCleanup() test suite', 
 
   const createTestVotings = async () => {
     const now = new Date();
-    const monthAgo = new Date();
-    monthAgo.setDate(monthAgo.getMonth() - 1);
+    const days = parseInt(envVars.VOTING_EXPIRATION_DAYS) + 1;
+    const expiredDate = new Date();
+    expiredDate.setDate(expiredDate.getDate() - days);
 
     const votings: CreateVotingDto[] = [];
 
@@ -37,8 +39,8 @@ describe('ExpiredVotingCleanupService.handleExpiredVotingCleanup() test suite', 
       votings.push(votingToCreate);
     }
 
-    votings[5].endsOn = monthAgo;
-    votings[8].endsOn = monthAgo;
+    votings[5].endsOn = expiredDate;
+    votings[8].endsOn = expiredDate;
 
     votings.forEach(async (voting) => await votingModel.create(voting));
   };

@@ -4,6 +4,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { ModelName } from '../common/enum/modelName.enum';
 import { Voting } from './schemas/voting.schema';
 import { Model } from 'mongoose';
+import { envVars } from '../common/service/envHandler/envVars';
 
 @Injectable()
 export class ExpiredVotingCleanupService {
@@ -13,9 +14,10 @@ export class ExpiredVotingCleanupService {
 
   @Cron(CronExpression.EVERY_3_HOURS)
   private async handleExpiredVotingCleanup() {
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const days = parseInt(envVars.VOTING_EXPIRATION_DAYS);
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
 
-    await this.model.deleteMany({ endsOn: { $lt: oneWeekAgo } });
+    await this.model.deleteMany({ endsOn: { $lt: cutoff } });
   }
 }
