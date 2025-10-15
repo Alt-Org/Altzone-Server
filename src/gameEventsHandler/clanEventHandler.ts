@@ -28,7 +28,7 @@ export class ClanEventHandler {
       const taskUpdate = await this.tasksService.updateTask(player_id);
       return this.handleClanAndPlayerReward(player_id, taskUpdate);
     } catch {
-      return [true, null];
+      return [true, null]; //TODO:should return with an error 
     }
   }
 
