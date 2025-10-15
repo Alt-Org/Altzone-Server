@@ -19,14 +19,16 @@ export class ClanEventHandler {
     private readonly playerRewarder: PlayerRewarder,
   ) {}
 
+  /** Handles player task completion
+   * @param player_id player _id that triggered the event
+   * @returns true if handled successfully or ServiceErrors
+   */
   async handlePlayerTask(player_id: string): Promise<IServiceReturn<boolean>> {
     try {
       const taskUpdate = await this.tasksService.updateTask(player_id);
       return this.handleClanAndPlayerReward(player_id, taskUpdate);
-    } catch (
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      e
-    ) {
+    } catch 
+   {
       return [true, null];
     }
   }
