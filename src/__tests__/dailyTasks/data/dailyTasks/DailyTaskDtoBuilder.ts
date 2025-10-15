@@ -19,7 +19,7 @@ export default class DailyTaskDtoBuilder {
     timeLimitMinutes: 60,
   };
 
-  build():  DailyTaskDto {
+  build(): DailyTaskDto {
     return { ...this.base } as DailyTaskDto;
   }
 
