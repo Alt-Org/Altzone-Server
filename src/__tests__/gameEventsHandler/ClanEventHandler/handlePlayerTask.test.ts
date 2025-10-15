@@ -29,11 +29,12 @@ describe('ClanEventHandler.handlePlayerTask() test suite', () => {
     jest.spyOn(tasksService, 'updateTask').mockResolvedValue(taskDto);
     jest.spyOn(clanRewarder, 'rewardClanForPlayerTask').mockImplementation();
     jest.spyOn(playerRewarder, 'rewardForPlayerTask').mockImplementation();
-
   });
 
   it('Should return with true and execute all of the dependent methods if inputs are fine', async () => {
-    const [result, error] = await clanEventHandler.handlePlayerTask(new ObjectId().toString());
+    const [result, error] = await clanEventHandler.handlePlayerTask(
+      new ObjectId().toString(),
+    );
 
     expect(result).toEqual(true);
     expect(error).toBeNull();
@@ -46,7 +47,9 @@ describe('ClanEventHandler.handlePlayerTask() test suite', () => {
     taskDto = taskDtoBuilder.setAmountLeft(1).build();
     jest.spyOn(tasksService, 'updateTask').mockResolvedValue(taskDto);
 
-    const [result, error] = await clanEventHandler.handlePlayerTask(new ObjectId().toString());
+    const [result, error] = await clanEventHandler.handlePlayerTask(
+      new ObjectId().toString(),
+    );
 
     expect(result).toEqual(true);
     expect(error).toBeNull();
@@ -57,10 +60,12 @@ describe('ClanEventHandler.handlePlayerTask() test suite', () => {
 
   it('Should return with true but do nothing if the tasksService.updateTask threw an exception', async () => {
     jest.spyOn(tasksService, 'updateTask').mockImplementationOnce(() => {
-     throw new Error('Test error');
+      throw new Error('Test error');
     });
 
-    const [result, error] = await clanEventHandler.handlePlayerTask(new ObjectId().toString());
+    const [result, error] = await clanEventHandler.handlePlayerTask(
+      new ObjectId().toString(),
+    );
 
     expect(result).toEqual(true);
     expect(error).toBeNull();
