@@ -13,18 +13,19 @@ describe('ClanEventHandler.handlePlayerTask() test suite', () => {
     clanEventHandler = await GameEventsHandlerModule.getClanEventHandler();
     clanRewarder = await GameEventsHandlerModule.getClanRewarder();
 
-    jest.spyOn(clanRewarder, 'rewardForClanEvent').mockResolvedValue([true, null]);
-    
+    jest
+      .spyOn(clanRewarder, 'rewardForClanEvent')
+      .mockResolvedValue([true, null]);
   });
 
   it('Should return with true if inputs are fine', async () => {
     const [result, error] = await clanEventHandler.handleClanEvent(
-      new ObjectId().toString(), null,
+      new ObjectId().toString(),
+      null,
     );
 
     expect(result).toEqual(true);
     expect(error).toBeNull();
     expect(clanRewarder.rewardForClanEvent).toHaveBeenCalledTimes(1);
   });
-
 });
