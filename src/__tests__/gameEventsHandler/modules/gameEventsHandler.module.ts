@@ -58,7 +58,7 @@ export default class GameEventsHandlerModule {
   }
 
   static async getEventEmitterService() {
-      const module = await GameEventsHandlerCommonModule.getModule();
-      return module.resolve(EventEmitterService);
-    }
+    const module = await GameEventsHandlerCommonModule.getModule();
+    return module.resolve(EventEmitterService);
+  }
 }

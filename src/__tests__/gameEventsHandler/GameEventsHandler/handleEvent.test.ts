@@ -18,19 +18,28 @@ describe('GameEventHandler.handleEvent() test suite', () => {
     gameEventHandler = await GameEventsHandlerModule.getGameEventHandler();
     clanEventHandler = await GameEventsHandlerModule.getClanEventHandler();
     playerEventHandler = await GameEventsHandlerModule.getPlayerEventHandler();
-    eventEmitterService = await GameEventsHandlerModule.getEventEmitterService();
-    
-    jest.spyOn(eventEmitterService, 'EmitNewDailyTaskEvent').mockImplementation();
-    jest.spyOn(clanEventHandler, 'handleClanEvent').mockImplementation(async () =>[null, null] as any);
-    jest.spyOn(clanEventHandler, 'handlePlayerTask').mockImplementation(async () =>[null, null] as any);
+    eventEmitterService =
+      await GameEventsHandlerModule.getEventEmitterService();
 
-    jest.spyOn(playerEventHandler, 'handlePlayerEvent').mockImplementation(async () => [true, null] as any);
-    
+    jest
+      .spyOn(eventEmitterService, 'EmitNewDailyTaskEvent')
+      .mockImplementation();
+    jest
+      .spyOn(clanEventHandler, 'handleClanEvent')
+      .mockImplementation(async () => [null, null] as any);
+    jest
+      .spyOn(clanEventHandler, 'handlePlayerTask')
+      .mockImplementation(async () => [null, null] as any);
+
+    jest
+      .spyOn(playerEventHandler, 'handlePlayerEvent')
+      .mockImplementation(async () => [true, null] as any);
   });
 
   it('Should return with true | PLAYER_WIN_BATTLE', async () => {
     const [result, error] = await gameEventHandler.handleEvent(
-      new ObjectId().toString(), GameEventType.PLAYER_WIN_BATTLE
+      new ObjectId().toString(),
+      GameEventType.PLAYER_WIN_BATTLE,
     );
 
     expect(result).toEqual(true);
@@ -38,5 +47,4 @@ describe('GameEventHandler.handleEvent() test suite', () => {
     expect(clanEventHandler.handleClanEvent).toHaveBeenCalledTimes(1);
     expect(playerEventHandler.handlePlayerEvent).toHaveBeenCalledTimes(1);
   });
-  
 });
