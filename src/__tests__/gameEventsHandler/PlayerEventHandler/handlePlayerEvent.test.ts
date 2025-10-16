@@ -14,16 +14,17 @@ describe('handlePlayerEvent.handlePlayerEvent() test suite', () => {
 
     playerEventHandler = await GameEventsHandlerModule.getPlayerEventHandler();
     playerRewarder = await GameEventsHandlerModule.getPlayerRewarder();
-    playerStatistics = await GameEventsHandlerModule.getPlayerStatisticService();
+    playerStatistics =
+      await GameEventsHandlerModule.getPlayerStatisticService();
 
     jest.spyOn(playerStatistics, 'updatePlayerStatistic').mockImplementation();
     jest.spyOn(playerRewarder, 'rewardForPlayerEvent').mockImplementation();
-    
   });
 
   it('Should return with true if input was fine', async () => {
     const [result, error] = await playerEventHandler.handlePlayerEvent(
-      new ObjectId().toString(), null
+      new ObjectId().toString(),
+      null,
     );
 
     expect(result).toEqual(true);
