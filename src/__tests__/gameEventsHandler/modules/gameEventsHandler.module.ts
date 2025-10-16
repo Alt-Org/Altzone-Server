@@ -7,6 +7,7 @@ import { PlayerRewarder } from '../../../rewarder/playerRewarder/playerRewarder.
 import { ClanRewarder } from '../../../rewarder/clanRewarder/clanRewarder.service';
 import { DailyTasksService } from '../../../dailyTasks/dailyTasks.service';
 import { PlayerStatisticService } from '../../../statisticsKeeper/playerStatisticKeeper/playerStatisticKeeper.service';
+import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
 
 export default class GameEventsHandlerModule {
   private constructor() {}
@@ -50,4 +51,14 @@ export default class GameEventsHandlerModule {
     const module = await GameEventsHandlerCommonModule.getModule();
     return module.resolve(PlayerRewarder);
   }
+
+  static async getGameEventHandler() {
+    const module = await GameEventsHandlerCommonModule.getModule();
+    return module.resolve(GameEventsHandler);
+  }
+
+  static async getEventEmitterService() {
+      const module = await GameEventsHandlerCommonModule.getModule();
+      return module.resolve(EventEmitterService);
+    }
 }
