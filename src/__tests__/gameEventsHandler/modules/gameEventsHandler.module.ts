@@ -6,6 +6,7 @@ import UiDailyTaskHandler from '../../../gameEventsHandler/dailyTask/uiDailyTask
 import { PlayerRewarder } from '../../../rewarder/playerRewarder/playerRewarder.service';
 import { ClanRewarder } from '../../../rewarder/clanRewarder/clanRewarder.service';
 import { DailyTasksService } from '../../../dailyTasks/dailyTasks.service';
+import { PlayerStatisticService } from '../../../statisticsKeeper/playerStatisticKeeper/playerStatisticKeeper.service';
 
 export default class GameEventsHandlerModule {
   private constructor() {}
@@ -13,6 +14,11 @@ export default class GameEventsHandlerModule {
   static async getPlayerEventHandler() {
     const module = await GameEventsHandlerCommonModule.getModule();
     return module.resolve(PlayerEventHandler);
+  }
+
+  static async getPlayerStatisticService() {
+    const module = await GameEventsHandlerCommonModule.getModule();
+    return module.resolve(PlayerStatisticService);
   }
 
   static async getClanEventHandler() {
