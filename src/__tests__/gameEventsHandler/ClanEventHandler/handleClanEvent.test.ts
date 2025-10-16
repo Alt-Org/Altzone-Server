@@ -31,7 +31,7 @@ describe('ClanEventHandler.handleClanEvent() test suite', () => {
     jest.spyOn(playerRewarder, 'rewardForPlayerTask').mockImplementation();
   });
 
-  it('Should return with true and execute all of the dependent methods if inputs are fine', async () => {
+  it('Should return with true and rewards clan/palyer if inputs are fine', async () => {
     const [result, error] = await clanEventHandler.handlePlayerTask(
       new ObjectId().toString(),
     );
@@ -43,7 +43,7 @@ describe('ClanEventHandler.handleClanEvent() test suite', () => {
     expect(playerRewarder.rewardForPlayerTask).toHaveBeenCalledTimes(1);
   });
 
-  it('Should return with true ', async () => {
+  it('Should return with true, do not reward if amountLeft was not 0', async () => {
     taskDto = taskDtoBuilder.setAmountLeft(1).build();
     jest.spyOn(tasksService, 'updateTask').mockResolvedValue(taskDto);
 
