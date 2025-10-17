@@ -54,12 +54,19 @@ describe('GameEventHandler.handleEvent() test suite', () => {
 
     expect(playerHandlePlayerEventSpy).toHaveBeenCalledTimes(1);
     expect(clanHandleClanEventSpy).toHaveBeenCalledTimes(1);
-    expect(emitSpy).toHaveBeenCalledWith(playerId, ServerTaskName.WIN_BATTLE, true);
+    expect(emitSpy).toHaveBeenCalledWith(
+      playerId,
+      ServerTaskName.WIN_BATTLE,
+      true,
+    );
   });
 
   it('PLAYER_WIN_BATTLE: when player handler returns errors -> return player errors', async () => {
     const playerErrors = [{ message: 'player failed' }];
-    playerHandlePlayerEventSpy.mockResolvedValueOnce([null, playerErrors] as any);
+    playerHandlePlayerEventSpy.mockResolvedValueOnce([
+      null,
+      playerErrors,
+    ] as any);
 
     const [result, error] = await gameEventHandler.handleEvent(
       new ObjectId().toString(),
@@ -104,7 +111,10 @@ describe('GameEventHandler.handleEvent() test suite', () => {
 
   it('PLAYER_LOSE_BATTLE: player handler error -> return player errors and skip clan', async () => {
     const playerErrors = [{ message: 'player lose error' }];
-    playerHandlePlayerEventSpy.mockResolvedValueOnce([null, playerErrors] as any);
+    playerHandlePlayerEventSpy.mockResolvedValueOnce([
+      null,
+      playerErrors,
+    ] as any);
 
     const [result, error] = await gameEventHandler.handleEvent(
       new ObjectId().toString(),
