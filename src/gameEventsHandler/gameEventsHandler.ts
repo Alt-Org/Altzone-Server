@@ -110,11 +110,4 @@ export class GameEventsHandler {
 
     return [true, null];
   }
-
-  private concatArrays(arr1?: any[], arr2?: any[]) {
-    //TODO: unsed private, we should remove it or move to common place
-    const arr1Copy = arr1 ? arr1 : [];
-    const arr2Copy = arr2 ? arr2 : [];
-    return [...arr1Copy, ...arr2Copy];
-  }
 }
