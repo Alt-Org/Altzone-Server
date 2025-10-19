@@ -8,6 +8,7 @@ import mongoose, { Model } from 'mongoose';
 import { CacheKeys } from '../common/service/redis/cacheKeys.enum';
 import { RedisService } from '../common/service/redis/redis.service';
 import { PlayerDocument } from '../player/schemas/player.schema';
+import { envVars } from '../common/service/envHandler/envVars';
 
 @Injectable()
 export class LeaderboardService {
@@ -18,9 +19,12 @@ export class LeaderboardService {
   ) {}
 
   /**
-   * Leaderboard data update interval in second, 3h
+   * Leaderboard data update interval in seconds
    */
-  private readonly LEADERBOARD_TTL_S = 10800;
+  private readonly LEADERBOARD_TTL_S = parseInt(
+    envVars.LEADERBOARD_UPDATE_DELAY_SECONDS,
+    10,
+  );
 
   /**
    * Retrieves the clan leaderboard data.
