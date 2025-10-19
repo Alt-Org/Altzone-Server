@@ -32,7 +32,6 @@ export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
     language: Language.NONE,
     roles: [],
     stall: new Stall(),
-    jukeboxSongs: [],
   };
 
   // Returns a new Clan object with the current base properties
@@ -137,11 +136,6 @@ export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
 
   setSoulHome(stall: SoulHomeDto) {
     this.base.SoulHome = stall;
-    return this;
-  }
-
-  setJukeboxSongs(songs: string[]) {
-    this.base.jukeboxSongs = songs;
     return this;
   }
 }

@@ -192,11 +192,4 @@ export class ClanDto {
   @Type(() => StallDto)
   @Expose()
   stall?: StallDto;
-
-  /**
-   * Clan jukebox songs
-   * @example [ "exampleSong1", "exampleSong2" ]
-   */
-  @Expose()
-  jukeboxSongs: string[];
 }
