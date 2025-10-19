@@ -10,8 +10,7 @@ import { Language } from '../../../../common/enum/language.enum';
 import { VotingQueueName } from '../../../../voting/enum/VotingQueue.enum.js';
 
 export default class CreateStartItemVotingParamsDtoBuilder
-  implements IDataBuilder<StartVotingParams>
-{
+  implements IDataBuilder<StartVotingParams> {
   private readonly base: Partial<StartVotingParams> = {
     voterPlayer: {
       _id: new ObjectId().toString(),
@@ -46,7 +45,6 @@ export default class CreateStartItemVotingParamsDtoBuilder
         SoulHome: null,
         roles: [],
         battlePoints: 0,
-        jukeboxSongs: [],
       },
       CustomCharacter: [],
     },
