@@ -17,7 +17,7 @@ export class JukeboxController {
   constructor(
     private readonly service: JukeboxService,
     private readonly emitterService: EventEmitterService,
-  ) { }
+  ) {}
 
   /**
    * Get song queue.
@@ -54,7 +54,10 @@ export class JukeboxController {
   @Post()
   @DetermineClanId()
   @UniformResponse()
-  async addSongToClanPlaylist(@Body() body: AddSongDto, @LoggedUser() user: User) {
+  async addSongToClanPlaylist(
+    @Body() body: AddSongDto,
+    @LoggedUser() user: User,
+  ) {
     await this.service.addSongToClanPlaylist(
       user.clan_id,
       user.player_id,
@@ -77,6 +80,6 @@ export class JukeboxController {
   @DetermineClanId()
   @UniformResponse()
   removeSongFromQueue(@Param() param: _idDto, @LoggedUser() user: User) {
-    this.service.removeSongFromQueue(user.clan_id, user.player_id, param._id)
+    this.service.removeSongFromQueue(user.clan_id, user.player_id, param._id);
   }
 }
