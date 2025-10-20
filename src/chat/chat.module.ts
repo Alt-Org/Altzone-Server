@@ -14,6 +14,7 @@ import { BoxSchema } from '../box/schemas/box.schema';
 import { GroupAdminSchema } from '../box/groupAdmin/groupAdmin.schema';
 import { BoxModule } from '../box/box.module';
 import { LoggerModule } from '../common/service/logger/RequestLogger.module';
+import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { LoggerModule } from '../common/service/logger/RequestLogger.module';
     RequestHelperModule,
     forwardRef(() => BoxModule),
     LoggerModule,
+    EventEmitterCommonModule,
   ],
   controllers: [ChatController],
   providers: [ChatService, ChatGateway, ClanChatService, GlobalChatService],

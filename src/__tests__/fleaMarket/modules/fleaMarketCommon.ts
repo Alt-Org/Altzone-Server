@@ -14,6 +14,7 @@ import { FleaMarketHelperService } from '../../../fleaMarket/fleaMarketHelper.se
 import { FleaMarketVotingProcessor } from '../../../fleaMarket/fleaMarketVoting.processor';
 import { StallService } from '../../../fleaMarket/stall/stall.service';
 import { VotingSchema } from '../../../voting/schemas/voting.schema';
+import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
 
 export default class FleaMarketCommonModule {
   private constructor() {}
@@ -37,6 +38,7 @@ export default class FleaMarketCommonModule {
           VotingModule,
           ClanModule,
           RequestHelperModule,
+          EventEmitterCommonModule,
         ],
         providers: [
           FleaMarketService,
