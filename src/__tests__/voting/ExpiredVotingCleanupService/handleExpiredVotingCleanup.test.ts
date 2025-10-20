@@ -42,7 +42,7 @@ describe('ExpiredVotingCleanupService.handleExpiredVotingCleanup() test suite', 
     votings[5].endsOn = expiredDate;
     votings[8].endsOn = expiredDate;
 
-    await Promise.all(votings.map(v => votingModel.create(v)));
+    await Promise.all(votings.map((v) => votingModel.create(v)));
   };
   it('Should delete over week old votings', async () => {
     await createTestVotings();
