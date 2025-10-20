@@ -101,6 +101,9 @@ interface EnvVars {
 
   /** How many days before a voting expires. */
   VOTING_EXPIRATION_DAYS: string;
+
+  /** How often leaderboard updates. In seconds */
+  LEADERBOARD_UPDATE_DELAY_SECONDS: string;
 }
 
 /**
@@ -144,4 +147,7 @@ export const envVars: EnvVars = {
   MIN_GAME_BUILD_VERSION: process.env.MIN_GAME_BUILD_VERSION,
 
   VOTING_EXPIRATION_DAYS: process.env.VOTING_EXPIRATION_DAYS ?? '7',
+
+  LEADERBOARD_UPDATE_DELAY_SECONDS:
+    process.env.LEADERBOARD_UPDATE_DELAY ?? '60',
 };
