@@ -371,11 +371,6 @@ export default class ClanRoleService {
       if (updateErrors) return [null, updateErrors];
     }
 
-    const [, deleteErrors] =
-      await this.votingService.basicService.deleteOneById(voting._id);
-
-    if (deleteErrors) return [null, deleteErrors];
-
     return [true, null];
   }
 }
