@@ -222,7 +222,7 @@ describe('GameEventHandler.handleEvent() test suite', () => {
     expect(result).toBeNull();
     expect(error).toBeDefined();
     expect(Array.isArray(error)).toBe(true);
-    
+
     const first = (error as any)[0];
     expect(first).toBeInstanceOf(ServiceError);
     expect(first.message).toContain('not supported');
