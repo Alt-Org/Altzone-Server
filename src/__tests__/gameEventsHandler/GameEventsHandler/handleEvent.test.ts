@@ -11,7 +11,6 @@ import ServiceError from '../../../common/service/basicService/ServiceError';
 describe('GameEventHandler.handleEvent() test suite', () => {
   let gameEventHandler: GameEventsHandler;
 
-  // spies (on prototypes to catch DI instances)
   let emitSpy: jest.SpyInstance;
   let clanHandleClanEventSpy: jest.SpyInstance;
   let clanHandlePlayerTaskSpy: jest.SpyInstance;
@@ -20,10 +19,8 @@ describe('GameEventHandler.handleEvent() test suite', () => {
   beforeEach(async () => {
     jest.resetAllMocks();
 
-    // ensure module is initialized and we have the handler instance
     gameEventHandler = await GameEventsHandlerModule.getGameEventHandler();
 
-    // spy on prototypes so injected instances are intercepted
     emitSpy = jest
       .spyOn(EventEmitterService.prototype as any, 'EmitNewDailyTaskEvent')
       .mockResolvedValue(undefined);
@@ -76,9 +73,7 @@ describe('GameEventHandler.handleEvent() test suite', () => {
     expect(result).toBeNull();
     expect(error).toBe(playerErrors);
     expect(playerHandlePlayerEventSpy).toHaveBeenCalledTimes(1);
-    // emitter still called (implementation calls emitter as side-effect)
     expect(emitSpy).toHaveBeenCalled();
-    // clan handler was still invoked in implementation before finalizing errors
     expect(clanHandleClanEventSpy).toHaveBeenCalled();
   });
 
@@ -124,7 +119,6 @@ describe('GameEventHandler.handleEvent() test suite', () => {
     expect(result).toBeNull();
     expect(error).toBe(playerErrors);
     expect(playerHandlePlayerEventSpy).toHaveBeenCalledTimes(1);
-    // clan handler should not be called because playerErrors cause early return in lose branch
     expect(clanHandleClanEventSpy).not.toHaveBeenCalled();
   });
 
@@ -140,7 +134,6 @@ describe('GameEventHandler.handleEvent() test suite', () => {
     expect(result).toBeNull();
     expect(error).toBe(clanErrors);
     expect(playerHandlePlayerEventSpy).toHaveBeenCalledTimes(1);
-    // clan handler should not be called because playerErrors cause early return in lose branch
     expect(clanHandleClanEventSpy).not.toHaveBeenCalled();
   });
 
@@ -219,7 +212,7 @@ describe('GameEventHandler.handleEvent() test suite', () => {
     expect(clanHandlePlayerTaskSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('unknown event -> returns ServiceError saying not supported', async () => {
+  it('Unknown event -> returns ServiceError saying not supported', async () => {
     const unknownEvent = 999 as unknown as GameEventType;
     const [result, error] = await gameEventHandler.handleEvent(
       new ObjectId().toString(),
@@ -229,6 +222,7 @@ describe('GameEventHandler.handleEvent() test suite', () => {
     expect(result).toBeNull();
     expect(error).toBeDefined();
     expect(Array.isArray(error)).toBe(true);
+    
     const first = (error as any)[0];
     expect(first).toBeInstanceOf(ServiceError);
     expect(first.message).toContain('not supported');
