@@ -3,12 +3,16 @@ export interface Song {
   songDurationSeconds: number;
   playerId: string;
   id: string;
-  startedAt?: number;
 }
 
 export interface Jukebox {
   clanId: string;
   songQueue: Song[];
+  currentSong: CurrentSong | null;
+}
+
+export interface CurrentSong extends Song {
+  startedAt: number;
 }
 
 export type ClanId = string;
