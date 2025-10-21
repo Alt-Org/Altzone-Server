@@ -7,6 +7,15 @@ import { JukeboxService } from './jukebox.service';
 export class JukeboxQueue {
   constructor(@InjectQueue('playlist') private readonly queue: Queue) {}
 
+  /**
+   * Schedule a job that will trigger song change event after given delay.
+   *
+   * Retries automatically on failure with exponential backoff.
+   *
+   * @param - Id of the clan whose jukebox to update.
+   * @param - Amount to delay the song change in seconds (duration of the current song).
+   * @throws If the scheduling of the next song fails.
+   */
   async scheduleNextSong(clanId: string, delaySeconds: number) {
     try {
       return await this.queue.add(
@@ -36,6 +45,12 @@ export class JukeboxProcessor extends WorkerHost {
     super();
   }
 
+  /**
+   * Process a queued job to start the next song.
+   *
+   * @param - The job object containing the clanId
+   * @throws If starting the next song errors.
+   */
   async process(job: Job): Promise<any> {
     try {
       const { clanId } = job.data;
