@@ -133,13 +133,15 @@ export class JukeboxService {
    */
   removeSongFromQueue(clanId: string, playerId: string, songId: string) {
     const jukebox = this.clanJukeboxMap.get(clanId);
-    const songToRemove = jukebox.songQueue.find(
-      (song) => song.id === songId && song.playerId === playerId,
-    );
-    if (!songToRemove) throw new ServiceError({ reason: SEReason.NOT_FOUND });
+    if (!jukebox) throw new ServiceError({ reason: SEReason.NOT_FOUND });
 
-    jukebox.songQueue = jukebox.songQueue.filter((song) => song.id !== songId);
-    this.clanJukeboxMap.set(clanId, jukebox);
+    const initialLength = jukebox.songQueue.length;
+    jukebox.songQueue = jukebox.songQueue.filter(
+      (song) => !(song.id === songId && song.playerId === playerId),
+    );
+
+    if (jukebox.songQueue.length === initialLength)
+      throw new ServiceError({ reason: SEReason.NOT_FOUND });
   }
 
   /**
