@@ -10,7 +10,7 @@ import { AddSongDto } from './dto/AddSong.dto';
 import { ModelName } from '../common/enum/modelName.enum';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { _idDto } from '../common/dto/_id.dto';
-import { SongDto } from './dto/songQueue.dto';
+import { JukeboxDto } from './dto/Jukebox.dto';
 
 @Controller('jukebox')
 export class JukeboxController {
@@ -35,7 +35,7 @@ export class JukeboxController {
   })
   @Get()
   @DetermineClanId()
-  @UniformResponse('SongQueue' as ModelName, SongDto)
+  @UniformResponse('Jukebox' as ModelName, JukeboxDto)
   async getClanSongQueue(@LoggedUser() user: User) {
     return this.service.getClanSongQueue(user.clan_id);
   }

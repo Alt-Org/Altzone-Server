@@ -20,7 +20,15 @@ export class JukeboxService {
 
   getClanSongQueue(clanId: string) {
     const jukebox = this.clanJukeboxMap.get(clanId);
-    return jukebox?.songQueue ?? [];
+    return jukebox;
+  }
+
+  private countPlayerAddedSongs(jukebox: Jukebox, playerId: string): number {
+    let n = jukebox.songQueue.filter(
+      (song) => song.playerId === playerId,
+    ).length;
+    if (jukebox.currentSong?.playerId === playerId) n++;
+    return n;
   }
 
   async addSongToClanPlaylist(
@@ -28,61 +36,56 @@ export class JukeboxService {
     playerId: string,
     song: AddSongDto,
   ) {
-    const jukebox = this.clanJukeboxMap.get(clanId) ?? {
+    const jukebox: Jukebox = this.clanJukeboxMap.get(clanId) ?? {
       clanId,
       songQueue: [],
+      currentSong: null,
     };
-    const playerAddedSongs = jukebox.songQueue.filter(
-      (song) => song.playerId === playerId,
-    );
-
+    const playerAddedSongsCount = this.countPlayerAddedSongs(jukebox, playerId);
     const maxSongAmount = await this.getMaxSongAmount(clanId);
-    if (playerAddedSongs.length >= maxSongAmount)
+    if (playerAddedSongsCount >= maxSongAmount)
       throw new ServiceError({
         reason: SEReason.MORE_THAN_MAX,
         message: 'Players can have only 5 songs in the queue at time.',
       });
 
-    const firstSong = jukebox.songQueue.length === 0;
     const newSong: Song = {
       playerId,
       songId: song.songId,
       songDurationSeconds: song.songDurationSeconds,
       id: new ObjectId().toString(),
     };
-    jukebox.songQueue.push(newSong);
-    this.clanJukeboxMap.set(clanId, jukebox);
 
-    if (firstSong) {
-      newSong.startedAt = Date.now();
+    if (!jukebox.currentSong) {
+      jukebox.currentSong = { ...newSong, startedAt: Date.now() };
       await this.notifier.songChange(
-        { songId: newSong.songId, startedAt: newSong.startedAt },
+        { songId: newSong.songId, startedAt: jukebox.currentSong.startedAt },
         clanId,
       );
       await this.scheduler.scheduleNextSong(
         clanId,
         newSong.songDurationSeconds,
       );
+    } else {
+      jukebox.songQueue.push(newSong);
     }
+    this.clanJukeboxMap.set(clanId, jukebox);
   }
 
   async startNextSong(clanId: string) {
     const jukebox = this.clanJukeboxMap.get(clanId);
     if (!jukebox) return;
 
-    jukebox.songQueue.shift();
-    if (jukebox.songQueue.length === 0) {
+    const nextSong = jukebox.songQueue.shift();
+
+    if (!nextSong) {
       this.clanJukeboxMap.delete(clanId);
       return;
     }
 
-    const startTime = Date.now();
-
-    const nextSong = jukebox.songQueue[0];
-    nextSong.startedAt = startTime;
-
+    jukebox.currentSong = { ...nextSong, startedAt: Date.now() };
     await this.notifier.songChange(
-      { songId: nextSong.songId, startedAt: startTime },
+      { songId: nextSong.songId, startedAt: jukebox.currentSong.startedAt },
       clanId,
     );
 
