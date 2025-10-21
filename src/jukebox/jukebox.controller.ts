@@ -58,11 +58,7 @@ export class JukeboxController {
     @Body() body: AddSongDto,
     @LoggedUser() user: User,
   ) {
-    await this.service.addSongToClanPlaylist(
-      user.clan_id,
-      user.player_id,
-      body,
-    );
+    await this.service.addSongToClanJukebox(user.clan_id, user.player_id, body);
 
     this.emitterService.EmitNewDailyTaskEvent(
       user.player_id,
