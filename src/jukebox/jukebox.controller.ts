@@ -11,7 +11,9 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { _idDto } from '../common/dto/_id.dto';
 import { JukeboxDto } from './dto/Jukebox.dto';
+import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
+@SwaggerTags('Jukebox')
 @Controller('jukebox')
 export class JukeboxController {
   constructor(
