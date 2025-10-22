@@ -1,5 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
+import {
+  HydratedDocument,
+  Schema as MongooseSchema,
+  UpdateQuery,
+} from 'mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { FriendshipStatus } from './enum/friendship-status.enum';
 
@@ -55,6 +59,19 @@ FriendshipSchema.pre('validate', function (next) {
 FriendshipSchema.pre('save', function (next) {
   if (this.isModified('status') && this.status === FriendshipStatus.ACCEPTED) {
     this.requester = undefined;
+  }
+  next();
+});
+FriendshipSchema.pre('updateOne', function (next) {
+  const update = this.getUpdate();
+
+  if (update && !Array.isArray(update)) {
+    const u = update as UpdateQuery<FriendshipDocument>;
+
+    if (u.$set.status === FriendshipStatus.ACCEPTED) {
+      u.$unset = u.$unset || {};
+      u.$unset.requester = '';
+    }
   }
   next();
 });
