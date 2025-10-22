@@ -39,7 +39,7 @@ export class FriendshipDto {
   status: FriendshipStatus;
 
   /**
-   * Unique player ID
+   * Unique player ID of the player who requested the friendship
    *
    * @example "60f7c2d9a2d3c7b7e56d01df"
    */
