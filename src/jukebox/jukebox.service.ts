@@ -69,7 +69,7 @@ export class JukeboxService {
     if (playerAddedSongsCount >= maxSongAmount)
       throw new ServiceError({
         reason: SEReason.MORE_THAN_MAX,
-        message: 'Players can have only 5 songs in the queue at time.',
+        message: `Players can have only ${maxSongAmount} songs in the queue at time.`,
       });
 
     const newSong: Song = {
