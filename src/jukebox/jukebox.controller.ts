@@ -20,15 +20,13 @@ export class JukeboxController {
   ) {}
 
   /**
-   * Get song queue.
+   * Get jukebox.
    *
-   * @remarks Get jukebox song queue of the player's clan.
+   * @remarks Get jukebox of the player's clan.
    */
   @ApiResponseDescription({
     success: {
       status: 200,
-      isArray: true,
-      dataKey: 'jukeboxSongs',
     },
     errors: [400, 403, 404],
     hasAuth: true,
@@ -37,7 +35,7 @@ export class JukeboxController {
   @DetermineClanId()
   @UniformResponse('Jukebox' as ModelName, JukeboxDto)
   async getClanSongQueue(@LoggedUser() user: User) {
-    return this.service.getClanSongQueue(user.clan_id);
+    return this.service.getClanJukebox(user.clan_id);
   }
 
   /**
@@ -50,6 +48,7 @@ export class JukeboxController {
       status: 201,
     },
     errors: [400, 403, 404],
+    hasAuth: true,
   })
   @Post()
   @DetermineClanId()
@@ -66,11 +65,17 @@ export class JukeboxController {
     );
   }
 
+  /**
+   * Delete song from queue.
+   *
+   * @remarks Deletes a song from player's clan song queue if the song was added by the requesting player.
+   */
   @ApiResponseDescription({
     success: {
       status: 204,
     },
-    errors: [400],
+    errors: [400, 403, 404],
+    hasAuth: true,
   })
   @Delete('/:_id')
   @DetermineClanId()
