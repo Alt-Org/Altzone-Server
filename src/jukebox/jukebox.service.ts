@@ -23,7 +23,7 @@ export class JukeboxService {
    *
    * @param - Id of the clan whose jukebox to get.
    */
-  getClanSongQueue(clanId: string) {
+  getClanJukebox(clanId: string) {
     return (
       this.clanJukeboxMap.get(clanId) ?? { songQueue: [], currentCong: null }
     );
