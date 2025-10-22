@@ -8,6 +8,7 @@ import { FriendlistDto } from './dto/friend-list.dto';
 import { _idDto } from '../common/dto/_id.dto';
 import { FriendshipStatus } from './enum/friendship-status.enum';
 import { FriendshipDto } from './dto/friendship.dto';
+import { ObjectId } from 'mongodb';
 
 @Controller('friendship')
 export class FriendshipController {
@@ -42,13 +43,20 @@ export class FriendshipController {
 
   @Post('accept/:_id')
   @UniformResponse(ModelName.FRIENDSHIP)
-  async acceptRequest(@Param() param: _idDto) {
+  async acceptRequest(@Param() param: _idDto, @LoggedUser() user: User) {
     return await this.service.basicService.updateOne(
       {
         $set: { status: FriendshipStatus.ACCEPTED },
-        $unset: { requester: undefined },
+        $unset: { requester: '' },
       },
-      { filter: { _id: param._id, status: FriendshipStatus.PENDING } },
+      {
+        filter: {
+          _id: param._id,
+          status: FriendshipStatus.PENDING,
+          requester: { $ne: user.player_id },
+          $or: [{ playerA: user.player_id }, { playerB: user.player_id }],
+        },
+      },
     );
   }
 }
