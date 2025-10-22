@@ -104,6 +104,12 @@ interface EnvVars {
 
   /** How often leaderboard updates. In seconds */
   LEADERBOARD_UPDATE_DELAY_SECONDS: string;
+
+  /** Max amount of songs a player can add to song queue for a clan with more than 10 players */
+  JUKEBOX_MAX_SONG_AMOUNT_SMALL: string;
+
+  /** Max amount of songs a player can add to song queue for a clan with less than 10 players */
+  JUKEBOX_MAX_SONG_AMOUNT_BIG: string;
 }
 
 /**
@@ -150,4 +156,8 @@ export const envVars: EnvVars = {
 
   LEADERBOARD_UPDATE_DELAY_SECONDS:
     process.env.LEADERBOARD_UPDATE_DELAY ?? '60',
+
+  JUKEBOX_MAX_SONG_AMOUNT_SMALL:
+    process.env.JUKEBOX_MAX_SONG_AMOUNT_SMALL ?? '5',
+  JUKEBOX_MAX_SONG_AMOUNT_BIG: process.env.JUKEBOX_MAX_SONG_AMOUNT_BIG ?? '10',
 };
