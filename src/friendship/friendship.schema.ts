@@ -54,7 +54,7 @@ FriendshipSchema.pre('validate', function (next) {
 });
 FriendshipSchema.pre('save', function (next) {
   if (this.isModified('status') && this.status === FriendshipStatus.ACCEPTED) {
-    delete this.requester;
+    this.requester = undefined;
   }
   next();
 });
