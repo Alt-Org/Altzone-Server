@@ -5,7 +5,9 @@ import { Friendship } from './friendship.schema';
 import { Model } from 'mongoose';
 import { FriendshipStatus } from './enum/friendship-status.enum';
 import { IServiceReturn } from '../common/service/basicService/IService';
-import { convertMongooseToServiceErrors } from '../common/service/basicService/BasicService';
+import BasicService, {
+  convertMongooseToServiceErrors,
+} from '../common/service/basicService/BasicService';
 import { PopulatedFriendship } from './type/populated-friendship.type';
 import { NotFoundServiceError } from './error/not-found.error';
 
@@ -13,7 +15,11 @@ import { NotFoundServiceError } from './error/not-found.error';
 export class FriendshipService {
   constructor(
     @InjectModel(ModelName.FRIENDSHIP) public readonly model: Model<Friendship>,
-  ) {}
+  ) {
+    this.basicService = new BasicService(model);
+  }
+
+  public readonly basicService: BasicService;
 
   async getPlayerFriendlist(
     playerId: string,
