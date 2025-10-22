@@ -7,6 +7,7 @@ import { ClanId, Jukebox, Song } from './type/playlist';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { ClanService } from '../clan/clan.service';
+import { envVars } from '../common/service/envHandler/envVars';
 
 @Injectable()
 export class JukeboxService {
@@ -151,10 +152,11 @@ export class JukeboxService {
    * @returns the max number of songs allowed per player
    */
   private async getMaxSongAmount(clanId: string): Promise<number> {
-    let maxSongAmount = 5;
+    let maxSongAmount = parseInt(envVars.JUKEBOX_MAX_SONG_AMOUNT_BIG);
     const [clan] = await this.clanService.readOneById(clanId);
 
-    if (clan?.playerCount < 10) maxSongAmount = 10;
+    if (clan?.playerCount < 10)
+      maxSongAmount = parseInt(envVars.JUKEBOX_MAX_SONG_AMOUNT_BIG);
 
     return maxSongAmount;
   }
