@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { FriendshipStatus } from './enum/friendship-status.enum';
 
@@ -7,11 +7,19 @@ export type FriendshipDocument = HydratedDocument<Friendship>;
 
 @Schema({ timestamps: true })
 export class Friendship {
-  @Prop({ type: Types.ObjectId, ref: ModelName.PLAYER, required: true })
-  playerA: Types.ObjectId;
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: ModelName.PLAYER,
+    required: true,
+  })
+  playerA: MongooseSchema.Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: ModelName.PLAYER, required: true })
-  playerB: Types.ObjectId;
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: ModelName.PLAYER,
+    required: true,
+  })
+  playerB: MongooseSchema.Types.ObjectId;
 
   @Prop({
     type: String,
@@ -22,13 +30,13 @@ export class Friendship {
   status: FriendshipStatus;
 
   @Prop({
-    type: Types.ObjectId,
+    type: MongooseSchema.Types.ObjectId,
     ref: ModelName.PLAYER,
     required: function () {
       return this.status === FriendshipStatus.PENDING;
     },
   })
-  requester?: Types.ObjectId;
+  requester?: MongooseSchema.Types.ObjectId;
 
   @Prop({ type: String, required: true })
   pairKey: string;
