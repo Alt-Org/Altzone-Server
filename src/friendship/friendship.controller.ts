@@ -7,6 +7,7 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { FriendlistDto } from './dto/friend-list.dto';
 import { _idDto } from '../common/dto/_id.dto';
 import { FriendshipStatus } from './enum/friendship-status.enum';
+import { FriendshipDto } from './dto/friendship.dto';
 
 @Controller('friendship')
 export class FriendshipController {
@@ -16,6 +17,17 @@ export class FriendshipController {
   @UniformResponse(ModelName.FRIENDSHIP, FriendlistDto)
   async getFriendlist(@LoggedUser() user: User) {
     return await this.service.getPlayerFriendlist(user.player_id);
+  }
+
+  @Get('requests')
+  @UniformResponse(ModelName.FRIENDSHIP, FriendshipDto)
+  async getRequests(@LoggedUser() user: User) {
+    return await this.service.basicService.readMany({
+      filter: {
+        $or: [{ playerA: user.player_id }, { playerB: user.player_id }],
+        status: FriendshipStatus.PENDING,
+      },
+    });
   }
 
   @Post('add/:_id')
