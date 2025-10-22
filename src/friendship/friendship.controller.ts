@@ -6,6 +6,7 @@ import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { ModelName } from '../common/enum/modelName.enum';
 import { FriendlistDto } from './dto/friend-list.dto';
 import { _idDto } from '../common/dto/_id.dto';
+import { FriendshipStatus } from './enum/friendship-status.enum';
 
 @Controller('friendship')
 export class FriendshipController {
@@ -25,5 +26,17 @@ export class FriendshipController {
       playerB: param._id,
       requester: user.player_id,
     });
+  }
+
+  @Post('accept/:_id')
+  @UniformResponse(ModelName.FRIENDSHIP)
+  async acceptRequest(@Param() param: _idDto) {
+    return await this.service.basicService.updateOne(
+      {
+        $set: { status: FriendshipStatus.ACCEPTED },
+        $unset: { requester: undefined },
+      },
+      { filter: { _id: param._id, status: FriendshipStatus.PENDING } },
+    );
   }
 }
