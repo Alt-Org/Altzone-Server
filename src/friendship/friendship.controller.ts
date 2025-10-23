@@ -8,18 +8,38 @@ import { FriendlistDto } from './dto/friend-list.dto';
 import { _idDto } from '../common/dto/_id.dto';
 import { FriendshipStatus } from './enum/friendship-status.enum';
 import { FriendshipDto } from './dto/friendship.dto';
-import { ObjectId } from 'mongodb';
+import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 
 @Controller('friendship')
 export class FriendshipController {
   constructor(private readonly service: FriendshipService) {}
 
+  @ApiResponseDescription({
+    success: {
+      dto: FriendlistDto,
+      modelName: ModelName.FRIENDSHIP,
+      status: 200,
+      returnsArray: true,
+    },
+    errors: [400, 401, 403, 404],
+    hasAuth: true,
+  })
   @Get()
   @UniformResponse(ModelName.FRIENDSHIP, FriendlistDto)
   async getFriendlist(@LoggedUser() user: User) {
     return await this.service.getPlayerFriendlist(user.player_id);
   }
 
+  @ApiResponseDescription({
+    success: {
+      dto: FriendshipDto,
+      modelName: ModelName.FRIENDSHIP,
+      status: 200,
+      returnsArray: true,
+    },
+    errors: [400, 401, 403, 404],
+    hasAuth: true,
+  })
   @Get('requests')
   @UniformResponse(ModelName.FRIENDSHIP, FriendshipDto)
   async getRequests(@LoggedUser() user: User) {
