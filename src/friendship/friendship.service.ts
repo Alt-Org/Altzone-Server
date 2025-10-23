@@ -54,7 +54,7 @@ export class FriendshipService {
           doc.playerA._id.toString() === me ? doc.playerB : doc.playerA;
 
         return {
-          id: friend._id.toString(),
+          player_id: friend._id.toString(),
           name: friend.name,
           avatar: friend.avatar,
           clan: friend.Clan?.name ?? null,
