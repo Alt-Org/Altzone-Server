@@ -9,7 +9,7 @@ import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { DailyTaskDto } from '../dto/dailyTask.dto';
 import { UITaskName } from '../enum/uiTaskName.enum';
-import { cancelTransaction } from '../../common/function/cancelTransaction';
+import { cancelTransaction } from '../../common/function/Transactions';
 
 @Injectable()
 export default class UIDailyTasksService {

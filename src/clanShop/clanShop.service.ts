@@ -17,7 +17,7 @@ import { VotingQueueParams } from '../fleaMarket/types/votingQueueParams.type';
 import { ItemName } from '../clanInventory/item/enum/itemName.enum';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 import { ClientSession, Connection } from 'mongoose';
-import { cancelTransaction } from '../common/function/cancelTransaction';
+import { cancelTransaction } from '../common/function/Transactions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { IServiceReturn } from '../common/service/basicService/IService';
 
