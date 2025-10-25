@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { FriendshipService } from './friendship.service';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
@@ -53,6 +53,14 @@ export class FriendshipController {
     });
   }
 
+  @ApiResponseDescription({
+    success: {
+      modelName: ModelName.FRIENDSHIP,
+      status: 201,
+    },
+    errors: [400, 401, 403, 404],
+    hasAuth: true,
+  })
   @Post('add/:_id')
   @UniformResponse(ModelName.FRIENDSHIP)
   async addFriend(@Param() param: _idDto, @LoggedUser() user: User) {
@@ -63,6 +71,14 @@ export class FriendshipController {
     });
   }
 
+  @ApiResponseDescription({
+    success: {
+      modelName: ModelName.FRIENDSHIP,
+      status: 201,
+    },
+    errors: [400, 401, 403, 404],
+    hasAuth: true,
+  })
   @Post('accept/:_id')
   @UniformResponse(ModelName.FRIENDSHIP)
   async acceptRequest(@Param() param: _idDto, @LoggedUser() user: User) {
@@ -80,5 +96,25 @@ export class FriendshipController {
         },
       },
     );
+  }
+
+  @ApiResponseDescription({
+    success: {
+      modelName: ModelName.FRIENDSHIP,
+      status: 204,
+    },
+    errors: [400, 401, 403, 404],
+    hasAuth: true,
+  })
+  @Delete(':_id')
+  @UniformResponse(ModelName.FRIENDSHIP)
+  async deleteFriendship(@Param() param: _idDto, @LoggedUser() user: User) {
+    const [, error] = await this.service.basicService.deleteOne({
+      filter: {
+        _id: param._id,
+        $or: [{ playerA: user.player_id }, { playerB: user.player_id }],
+      },
+    });
+    if (error) return error;
   }
 }
