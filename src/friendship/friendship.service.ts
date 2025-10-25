@@ -22,6 +22,14 @@ export class FriendshipService {
 
   public readonly basicService: BasicService;
 
+  /**
+   * Returns a friendlist for a player.
+   * Finds accepted friendships for the given player and populates player and clan data
+   * then filters out the data of the requesting player so only the friend's data remains.
+   *
+   * @param - id of the player whose friendlist to return
+   * @returns Friendlist with player_id, name, avatar and clan name
+   */
   async getPlayerFriendlist(
     playerId: string,
   ): Promise<IServiceReturn<PopulatedFriendship[]>> {
