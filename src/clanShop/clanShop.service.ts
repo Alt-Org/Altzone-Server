@@ -17,7 +17,11 @@ import { VotingQueueParams } from '../fleaMarket/types/votingQueueParams.type';
 import { ItemName } from '../clanInventory/item/enum/itemName.enum';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 import { ClientSession, Connection } from 'mongoose';
-import { cancelTransaction } from '../common/function/Transactions';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../common/function/Transactions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { IServiceReturn } from '../common/service/basicService/IService';
 
@@ -55,8 +59,7 @@ export class ClanShopService {
     clanId: string,
     item: ItemProperty,
   ): Promise<IServiceReturn<boolean>> {
-    const session = await this.connection.startSession();
-    session.startTransaction();
+    const session = await InitializeSession(this.connection);
 
     const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
       includeRefs: [ModelName.STOCK],
@@ -93,9 +96,7 @@ export class ClanShopService {
       queue: VotingQueueName.CLAN_SHOP,
     });
 
-    await session.commitTransaction();
-    session.endSession();
-    return [true, null];
+    return endTransaction(session);
   }
 
   /**
@@ -134,8 +135,7 @@ export class ClanShopService {
    */
   async checkVotingOnExpire(data: VotingQueueParams) {
     const { voting, price, clanId, stockId } = data;
-    const session = await this.connection.startSession();
-    session.startTransaction();
+    const session = await InitializeSession(this.connection);
 
     const votePassed = await this.votingService.checkVotingSuccess(voting);
     if (votePassed) {
@@ -146,8 +146,7 @@ export class ClanShopService {
       if (rejectError) await cancelTransaction(session, rejectError);
     }
 
-    await session.commitTransaction();
-    await session.endSession();
+    await endTransaction(session);
   }
 
   /**
