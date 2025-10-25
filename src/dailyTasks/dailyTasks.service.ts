@@ -15,7 +15,7 @@ import {
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
-import { cancelTransaction } from '../common/function/Transactions';
+import { cancelTransaction, endTransaction, InitializeSession } from '../common/function/Transactions';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ServerTaskName } from './enum/serverTaskName.enum';
 import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
@@ -87,8 +87,7 @@ export class DailyTasksService {
     if (error) throw error;
     if (task.player_id && task.player_id !== playerId) throw taskReservedError;
 
-    const session = await this.model.db.startSession();
-    session.startTransaction();
+    const session = await InitializeSession(this.model.db);
 
     const [, unreserveError] = await this.unreserveTask(playerId);
     if (unreserveError && unreserveError[0].reason !== SEReason.NOT_FOUND)
@@ -104,8 +103,7 @@ export class DailyTasksService {
     );
     if (updateError) await cancelTransaction(session, updateError);
 
-    session.commitTransaction();
-    session.endSession();
+    await endTransaction(session);
 
     await this.taskQueue.addDailyTask(task);
     await this.notifier.taskReceived(playerId, task);
