@@ -1,6 +1,21 @@
-import { ClientSession } from 'mongoose';
+import { ClientSession, Connection } from 'mongoose';
 import ServiceError from '../service/basicService/ServiceError';
 import { IServiceReturn } from '../service/basicService/IService';
+
+/**
+ * Initializes and starts a database session for transactions.
+ *
+ * @param connection - Mongoose database connection.
+ *
+ * @returns A promise that resolves to the started database session.
+ */
+export async function InitializeSession(
+  connection: Connection,
+): Promise<ClientSession> {
+  const session = await connection.startSession();
+  session.startTransaction();
+  return session;
+}
 
 /**
  * Aborts the database transaction and ends the session.
