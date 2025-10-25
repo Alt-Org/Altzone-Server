@@ -9,7 +9,9 @@ import { _idDto } from '../common/dto/_id.dto';
 import { FriendshipStatus } from './enum/friendship-status.enum';
 import { FriendshipDto } from './dto/friendship.dto';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
+import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 
+@SwaggerTags('Friendship')
 @Controller('friendship')
 export class FriendshipController {
   constructor(private readonly service: FriendshipService) {}

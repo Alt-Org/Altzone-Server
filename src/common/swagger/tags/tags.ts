@@ -26,6 +26,7 @@ export type SwaggerTagName =
   | 'OnlinePlayers'
   | 'GameData'
   | 'Metadata'
+  | 'Friendship'
   | 'Feedback';
 
 /**
@@ -133,6 +134,10 @@ export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
   Feedback: {
     name: 'Feedback',
     description: 'Players feedback about the game',
+  },
+  Friendship: {
+    name: 'Friendship',
+    description: 'Friendships between players.',
   },
 };
 
