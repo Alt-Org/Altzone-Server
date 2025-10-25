@@ -18,3 +18,18 @@ export async function cancelTransaction(
   await session.endSession();
   return [null, error];
 }
+
+/**
+ * Commits the database transaction and ends the session.
+ *
+ * @param session - Started database session.
+ *
+ * @returns A promise that resolves to a successful service return.
+ */
+export async function endTransaction(
+  session: ClientSession,
+): Promise<IServiceReturn<any>> {
+  await session.commitTransaction();
+  await session.endSession();
+  return [true, null];
+}
