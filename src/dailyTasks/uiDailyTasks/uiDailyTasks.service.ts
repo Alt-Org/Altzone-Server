@@ -9,7 +9,7 @@ import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { DailyTaskDto } from '../dto/dailyTask.dto';
 import { UITaskName } from '../enum/uiTaskName.enum';
-import { cancelTransaction } from '../../common/function/Transactions';
+import { cancelTransaction, endTransaction, InitializeSession } from '../../common/function/Transactions';
 
 @Injectable()
 export default class UIDailyTasksService {
@@ -140,8 +140,7 @@ export default class UIDailyTasksService {
     task: DailyTask,
     decreaseAmount: number,
   ): Promise<IServiceReturn<true>> {
-    const updatingSession = await this.model.db.startSession();
-    updatingSession.startTransaction();
+    const updatingSession = await InitializeSession(this.model.db);
 
     const updatedAmount = task.amountLeft - decreaseAmount;
 
@@ -155,10 +154,7 @@ export default class UIDailyTasksService {
       return [null, updateErrors];
     }
 
-    await updatingSession.commitTransaction();
-    await updatingSession.endSession();
-
-    return [true, null];
+    return await endTransaction(updatingSession);
   }
 
   /**
@@ -172,8 +168,7 @@ export default class UIDailyTasksService {
   private async handleTaskCompletion(
     task: DailyTask,
   ): Promise<IServiceReturn<true>> {
-    const deletionSession = await this.model.db.startSession();
-    deletionSession.startTransaction();
+    const deletionSession = await InitializeSession(this.model.db);
 
     const [, deletionErrors] = await this.basicService.deleteOneById(
       task._id.toString(),
@@ -184,9 +179,6 @@ export default class UIDailyTasksService {
       return [null, deletionErrors];
     }
 
-    await deletionSession.commitTransaction();
-    await deletionSession.endSession();
-
-    return [true, null];
+    return endTransaction(deletionSession);
   }
 }
