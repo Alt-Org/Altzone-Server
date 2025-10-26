@@ -53,6 +53,8 @@ FriendshipSchema.index({ pairKey: 1 }, { unique: true });
 FriendshipSchema.pre('validate', function (next) {
   const a = this.playerA.toString();
   const b = this.playerB.toString();
+  if (a === b) return next(new Error('playerA and playerB cannot be the same'));
+
   this.pairKey = [a, b].sort().join('_');
   next();
 });
