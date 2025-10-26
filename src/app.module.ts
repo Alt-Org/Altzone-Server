@@ -41,8 +41,6 @@ import { RequestLoggerService } from './common/service/logger/RequestLogger.serv
 import { RequestLoggerInterceptor } from './common/service/logger/RequestLogger.interceptor';
 import { JukeboxModule } from './jukebox/jukebox.module';
 import { FriendshipModule } from './friendship/friendship.module';
-import { JukeboxModule } from './jukebox/jukebox.module';
-import { FriendshipModule } from './friendship/friendship.module';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
