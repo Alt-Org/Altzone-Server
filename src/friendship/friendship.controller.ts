@@ -10,8 +10,8 @@ import { FriendshipStatus } from './enum/friendship-status.enum';
 import { FriendshipDto } from './dto/friendship.dto';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
-import { FriendshipDocument } from './friendship.schema';
 import { FriendRequestDto } from './dto/FriendRequest.dto';
+import { PlayerIdDto } from '../common/dto/player_id.dto';
 
 @SwaggerTags('Friendship')
 @Controller('friendship')
@@ -60,20 +60,8 @@ export class FriendshipController {
   })
   @Post('add/:_id')
   @UniformResponse(ModelName.FRIENDSHIP)
-  async addFriend(@Param() param: _idDto, @LoggedUser() user: User) {
-    const [friendship, error] = await this.service.basicService.createOne<
-      any,
-      FriendshipDocument
-    >({
-      playerA: user.player_id,
-      playerB: param._id,
-      requester: user.player_id,
-    });
-    if (error) return [friendship, error];
-
-    await this.service.sendNewFriendRequestNotification(friendship);
-
-    return [friendship, error];
+  async addFriend(@Param() param: PlayerIdDto, @LoggedUser() user: User) {
+    return await this.service.addFriend(user.player_id, param._id);
   }
 
   @ApiResponseDescription({
