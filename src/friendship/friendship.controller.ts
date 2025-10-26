@@ -10,6 +10,8 @@ import { FriendshipStatus } from './enum/friendship-status.enum';
 import { FriendshipDto } from './dto/friendship.dto';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
+import { FriendshipDocument } from './friendship.schema';
+import { FriendRequestDto } from './dto/FriendRequest.dto';
 
 @SwaggerTags('Friendship')
 @Controller('friendship')
@@ -43,14 +45,9 @@ export class FriendshipController {
     hasAuth: true,
   })
   @Get('requests')
-  @UniformResponse(ModelName.FRIENDSHIP, FriendshipDto)
+  @UniformResponse(ModelName.FRIENDSHIP, FriendRequestDto)
   async getRequests(@LoggedUser() user: User) {
-    return await this.service.basicService.readMany({
-      filter: {
-        $or: [{ playerA: user.player_id }, { playerB: user.player_id }],
-        status: FriendshipStatus.PENDING,
-      },
-    });
+    return await this.service.getFriendRequests(user.player_id);
   }
 
   @ApiResponseDescription({
@@ -64,11 +61,19 @@ export class FriendshipController {
   @Post('add/:_id')
   @UniformResponse(ModelName.FRIENDSHIP)
   async addFriend(@Param() param: _idDto, @LoggedUser() user: User) {
-    return await this.service.basicService.createOne({
+    const [friendship, error] = await this.service.basicService.createOne<
+      any,
+      FriendshipDocument
+    >({
       playerA: user.player_id,
       playerB: param._id,
       requester: user.player_id,
     });
+    if (error) return [friendship, error];
+
+    await this.service.sendNewFriendRequestNotification(friendship);
+
+    return [friendship, error];
   }
 
   @ApiResponseDescription({
