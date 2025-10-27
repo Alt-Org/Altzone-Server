@@ -20,5 +20,5 @@ export enum NotificationResource {
   /**
    * Notification about friendships
    */
-  FRIENDSHIP = 'friendsihp',
+  FRIENDSHIP = 'friendship',
 }
