@@ -28,7 +28,7 @@ import { VotingService } from '../voting/voting.service';
 import { PlayerDto } from '../player/dto/player.dto';
 import { VotingQueue } from '../voting/voting.queue';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
-import { cancelTransaction } from '../common/function/Transactions';
+import { cancelTransaction, endTransaction, InitializeSession } from '../common/function/Transactions';
 import { SellFleaMarketItemDto } from './dto/sellFleaMarketItem.dto';
 import { itemNotAuthorizedError } from './errors/itemNotAuthorized.error';
 import ServiceError from '../common/service/basicService/ServiceError';
@@ -151,8 +151,7 @@ export class FleaMarketService {
     clanId: string,
     playerId: string,
   ): Promise<IServiceReturn<boolean>> {
-    const session = await this.connection.startSession();
-    session.startTransaction();
+    const session = await InitializeSession(this.connection);
 
     const [item, itemErrors] = await this.itemService.readOneById(
       sellFleaMarketItemDto.item_id,
@@ -202,10 +201,7 @@ export class FleaMarketService {
       price: sellFleaMarketItemDto.price,
     });
 
-    await session.commitTransaction();
-    await session.endSession();
-
-    return [true, null];
+    return await endTransaction(session);
   }
 
   /**
@@ -328,8 +324,7 @@ export class FleaMarketService {
     voting: VotingDto,
     stockId: string,
   ): Promise<IServiceReturn<boolean>> {
-    const session = await this.connection.startSession();
-    session.startTransaction();
+    const session = await InitializeSession(this.connection);
 
     const [item, itemErrors] =
       await this.basicService.readOneById<FleaMarketItemDto>(
@@ -353,10 +348,7 @@ export class FleaMarketService {
     if (itemDeleteErrors)
       return await cancelTransaction(session, itemDeleteErrors);
 
-    await session.commitTransaction();
-    await session.endSession();
-
-    return [true, null];
+    return await endTransaction(session);
   }
 
   /**
@@ -373,8 +365,7 @@ export class FleaMarketService {
     clanId: string,
     itemPrice: number,
   ): Promise<IServiceReturn<boolean>> {
-    const session = await this.model.db.startSession();
-    session.startTransaction();
+    const session = await InitializeSession(this.model.db);
 
     const [_, updateErrors] = await this.basicService.updateOneById(
       voting.fleaMarketItem_id,
@@ -392,10 +383,7 @@ export class FleaMarketService {
     if (clanUpdateErrors)
       return await cancelTransaction(session, clanUpdateErrors);
 
-    await session.commitTransaction();
-    await session.endSession();
-
-    return [true, null];
+    return await endTransaction(session);
   }
 
   /**
@@ -431,8 +419,7 @@ export class FleaMarketService {
       await this.basicService.readOneById(fmItemId);
     if (fmItemErrors) throw fmItemErrors;
 
-    const session = await this.connection.startSession();
-    session.startTransaction();
+    const session = await InitializeSession(this.connection);
 
     const [_, deleteErrors] = await this.basicService.deleteOneById(
       fmItem._id.toString(),
@@ -449,10 +436,7 @@ export class FleaMarketService {
     });
     if (createErrors) return cancelTransaction(session, createErrors);
 
-    await session.commitTransaction();
-    await session.endSession();
-
-    return [true, null];
+    return await endTransaction(session);
   }
 
   /**
@@ -511,8 +495,7 @@ export class FleaMarketService {
     item: FleaMarketItemDto,
     player: PlayerDto,
   ): Promise<IServiceReturn<VotingDto>> {
-    const session = await this.model.startSession();
-    session.startTransaction();
+    const session = await InitializeSession(this.model.db);
 
     const [, itemChangeErr] = await this.changeItemStatus(
       item,
@@ -538,8 +521,7 @@ export class FleaMarketService {
     if (createVotingErrors)
       return await cancelTransaction(session, createVotingErrors);
 
-    await session.commitTransaction();
-    await session.endSession();
+    await endTransaction(session);
 
     return [voting, null];
   }
@@ -574,8 +556,7 @@ export class FleaMarketService {
     if (item.clan_id.toString() !== player.clan_id.toString())
       return [null, [itemNotAuthorizedError]];
 
-    const session = await this.connection.startSession();
-    session.startTransaction();
+    const session = await InitializeSession(this.connection);
 
     const [_, updateErrors] = await this.basicService.updateOneById(
       item._id,
@@ -602,8 +583,7 @@ export class FleaMarketService {
       queue: VotingQueueName.FLEA_MARKET,
     });
 
-    await session.commitTransaction();
-    await session.endSession();
+    await endTransaction(session);
 
     return [voting, null];
   }
@@ -724,8 +704,7 @@ export class FleaMarketService {
     itemDto: CreateItemDto,
     fleaMarketItemId: string,
   ) {
-    const session = await this.connection.startSession();
-    session.startTransaction();
+    const session = await InitializeSession(this.connection);
 
     const [, createErrors] = await this.itemService.createOne(itemDto, {
       session,
@@ -739,9 +718,6 @@ export class FleaMarketService {
 
     if (deleteErrors) return await cancelTransaction(session, deleteErrors);
 
-    await session.commitTransaction();
-    await session.endSession();
-
-    return [true, null];
+    return await endTransaction(session);
   }
 }
