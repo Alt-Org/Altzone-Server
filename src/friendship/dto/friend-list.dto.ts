@@ -13,7 +13,7 @@ export class FriendlistDto {
   _id: string;
 
   /**
-   * name of the frien
+   * name of the friend
    *
    * @example "PlayJeri"
    */
