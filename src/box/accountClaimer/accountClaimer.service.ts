@@ -3,13 +3,14 @@ import { JwtService } from '@nestjs/jwt';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import BasicService from '../../common/service/basicService/BasicService';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Box } from '../schemas/box.schema';
-import { Model } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import ClaimedAccount from './payloads/claimedAccount';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import { TesterAccountService } from './testerAccount.service';
 import { ClanDto } from '../../clan/dto/clan.dto';
+import { cancelTransaction, endTransaction, InitializeSession } from '../../common/function/Transactions';
 
 @Injectable()
 export default class AccountClaimerService {
@@ -17,6 +18,7 @@ export default class AccountClaimerService {
     @InjectModel(Box.name) private readonly boxModel: Model<Box>,
     private readonly testerService: TesterAccountService,
     private readonly jwtService: JwtService,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     this.basicService = new BasicService(boxModel);
   }
@@ -64,16 +66,18 @@ export default class AccountClaimerService {
         ],
       ];
 
+    const session = await InitializeSession(this.connection);
+    
     const [account, accountCreationErrors] =
       await this.testerService.createTester(box._id.toString());
-    if (accountCreationErrors) return [null, accountCreationErrors];
+    if (accountCreationErrors) return await cancelTransaction(session, accountCreationErrors);
 
     const [accountClan, clanAssigningErrors] =
       await this.testerService.addTesterToClan(
         account.Player._id,
         box.createdClan_ids,
       );
-    if (clanAssigningErrors) return [null, clanAssigningErrors];
+    if (clanAssigningErrors) return await cancelTransaction(session, clanAssigningErrors);;
 
     const accessToken = await this.jwtService.signAsync({
       player_id: account.Player._id.toString(),
@@ -82,6 +86,8 @@ export default class AccountClaimerService {
       box_id: box._id.toString(),
       groupAdmin: false,
     });
+
+    await endTransaction(session);
 
     return [
       {
