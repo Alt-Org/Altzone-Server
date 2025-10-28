@@ -1,0 +1,9 @@
+import { Clan } from '../../clan/clan.schema';
+import { Player } from '../../player/schemas/player.schema';
+import { Friendship } from '../friendship.schema';
+
+export type PopulatedFriendship = Omit<Friendship, 'playerA' | 'playerB'> & {
+  _id: string;
+  playerA: Player & { _id: string; Clan?: Clan };
+  playerB: Player & { _id: string; Clan?: Clan };
+};

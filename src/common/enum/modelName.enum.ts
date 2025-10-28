@@ -36,4 +36,5 @@ export enum ModelName {
   VOTING = 'Voting',
   BOX = 'Box',
   GROUP_ADMIN = 'GroupAdmin',
+  FRIENDSHIP = 'Friendship',
 }
