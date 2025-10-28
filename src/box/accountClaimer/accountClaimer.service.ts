@@ -10,7 +10,11 @@ import ClaimedAccount from './payloads/claimedAccount';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import { TesterAccountService } from './testerAccount.service';
 import { ClanDto } from '../../clan/dto/clan.dto';
-import { cancelTransaction, endTransaction, InitializeSession } from '../../common/function/Transactions';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../../common/function/Transactions';
 
 @Injectable()
 export default class AccountClaimerService {
@@ -67,17 +71,19 @@ export default class AccountClaimerService {
       ];
 
     const session = await InitializeSession(this.connection);
-    
+
     const [account, accountCreationErrors] =
       await this.testerService.createTester(box._id.toString());
-    if (accountCreationErrors) return await cancelTransaction(session, accountCreationErrors);
+    if (accountCreationErrors)
+      return await cancelTransaction(session, accountCreationErrors);
 
     const [accountClan, clanAssigningErrors] =
       await this.testerService.addTesterToClan(
         account.Player._id,
         box.createdClan_ids,
       );
-    if (clanAssigningErrors) return await cancelTransaction(session, clanAssigningErrors);;
+    if (clanAssigningErrors)
+      return await cancelTransaction(session, clanAssigningErrors);
 
     const accessToken = await this.jwtService.signAsync({
       player_id: account.Player._id.toString(),
