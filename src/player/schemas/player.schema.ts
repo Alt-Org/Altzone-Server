@@ -11,6 +11,7 @@ export type PlayerDocument = HydratedDocument<Player>;
 @Schema({
   toJSON: { virtuals: true, getters: true },
   toObject: { virtuals: true, getters: true },
+  timestamps: true,
 })
 export class Player {
   @Prop({ type: String, required: true, unique: true })
