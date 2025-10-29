@@ -43,12 +43,9 @@ export async function cancelTransaction(
  */
 export async function endTransaction<T = true>(
   session: ClientSession,
-  returnValue?: T,
 ): Promise<IServiceReturn<T | true>> {
   await session.commitTransaction();
   await session.endSession();
 
-  const result: T | true =
-    typeof returnValue === 'undefined' ? true : returnValue;
-  return [result, null];
+  return [true, null];
 }
