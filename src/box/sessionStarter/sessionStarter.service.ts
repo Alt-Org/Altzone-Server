@@ -72,18 +72,18 @@ export default class SessionStarterService {
     const [boxInDB, error] = await this.getAndValidateBox(box_id);
     if (error) return [null, error];
 
-    const session = await InitializeSession(this.connection);
-
     const [clans, err] = await this.createBoxClans(
       boxInDB.clansToCreate[0].name,
       boxInDB.clansToCreate[1].name,
       box_id.toString(),
     );
-    if (err) return await cancelTransaction(session, err);
+    if (err) return [null, err];
 
     boxInDB.createdClan_ids = clans.map((c) => {
       return new ObjectId(c._id);
     });
+
+    const session = await InitializeSession(this.connection);
 
     const [_, updateErr] = await this.basicService.updateOneById(
       box_id.toString(),
