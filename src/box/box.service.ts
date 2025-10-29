@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { FilterQuery, Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import mongoose, { Connection, FilterQuery, Model } from 'mongoose';
 import { Box, BoxDocument, publicReferences } from './schemas/box.schema';
 import BasicService, {
   convertMongooseToServiceErrors,
@@ -21,6 +21,11 @@ import {
 import { ObjectId } from 'mongodb';
 import { SessionStage } from './enum/SessionStage.enum';
 import { Profile } from '../profile/profile.schema';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../common/function/Transactions';
 
 @Injectable()
 export class BoxService {
@@ -33,6 +38,7 @@ export class BoxService {
     @InjectModel(GroupAdmin.name)
     public readonly groupAdminModel: Model<GroupAdmin>,
     private readonly boxHelper: BoxHelper,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     this.refsInModel = publicReferences;
     this.basicService = new BasicService(model);
@@ -146,6 +152,8 @@ export class BoxService {
     const [box, readErrors] = await this.basicService.readOneById(parsed_id);
     if (readErrors) return [null, readErrors];
 
+    const session = await InitializeSession(this.connection);
+
     const [, clearingErrors] = await this.clearSession(parsed_id, [
       ModelName.BOX,
       ModelName.GROUP_ADMIN,
@@ -154,6 +162,10 @@ export class BoxService {
       ModelName.PROFILE,
     ]);
 
+    if (clearingErrors) {
+      return await cancelTransaction(session, clearingErrors);
+    }
+
     const [, adminProfileErrors] = await this.clearBoxCollection<Profile>(
       parsed_id,
       this.profileModel,
@@ -161,6 +173,11 @@ export class BoxService {
         filter: { _id: { $ne: box.adminProfile_id } },
       },
     );
+
+    if (adminProfileErrors) {
+      return await cancelTransaction(session, adminProfileErrors);
+    }
+
     const [, adminPlayerErrors] = await this.clearBoxCollection<Player>(
       parsed_id,
       this.playerModel,
@@ -168,6 +185,10 @@ export class BoxService {
         filter: { _id: { $ne: box.adminPlayer_id } },
       },
     );
+
+    if (adminPlayerErrors) {
+      return await cancelTransaction(session, adminPlayerErrors);
+    }
 
     await this.basicService.updateOneById<Partial<Box>>(parsed_id, {
       sessionStage: SessionStage.PREPARING,
@@ -178,9 +199,9 @@ export class BoxService {
       ...(adminProfileErrors ?? []),
       ...(adminPlayerErrors ?? []),
     ];
-    if (occurredErrors.length !== 0) return [null, occurredErrors];
+    if (occurredErrors.length !== 0) return await cancelTransaction(session, occurredErrors);
 
-    return [true, null];
+    return await endTransaction(session);
   }
 
   /**
