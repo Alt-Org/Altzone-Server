@@ -49,7 +49,6 @@ export class TesterAccountService {
   async createTester(
     box_id: string,
   ): Promise<IServiceReturn<Omit<Tester, 'Clan'>>> {
-
     const session = await InitializeSession(this.connection);
 
     const password = this.passwordGenerator.generatePassword('fi');
@@ -57,17 +56,19 @@ export class TesterAccountService {
       box_id,
       password,
     );
-    if (profileCreationErrors) return await cancelTransaction(session, profileCreationErrors);
+    if (profileCreationErrors)
+      return await cancelTransaction(session, profileCreationErrors);
 
     const [createdPlayer, playerCreationErrors] = await this.createPlayer(
       box_id,
       password,
       createdProfile,
     );
-    if (playerCreationErrors) return await cancelTransaction(session, playerCreationErrors);
+    if (playerCreationErrors)
+      return await cancelTransaction(session, playerCreationErrors);
 
     await endTransaction(session);
-    
+
     return [
       {
         Profile: createdProfile,
