@@ -41,10 +41,13 @@ export async function cancelTransaction(
  *
  * @returns A promise that resolves to a successful service return.
  */
-export async function endTransaction(
+export async function endTransaction<T = true>(
   session: ClientSession,
-): Promise<IServiceReturn<any>> {
+  returnValue?: T,
+): Promise<IServiceReturn<T | true>> {
   await session.commitTransaction();
   await session.endSession();
-  return [true, null];
+
+  const result: T | true = typeof returnValue === 'undefined' ? true : returnValue;
+  return [result, null];
 }
