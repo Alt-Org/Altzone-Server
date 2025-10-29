@@ -48,6 +48,7 @@ export async function endTransaction<T = true>(
   await session.commitTransaction();
   await session.endSession();
 
-  const result: T | true = typeof returnValue === 'undefined' ? true : returnValue;
+  const result: T | true =
+    typeof returnValue === 'undefined' ? true : returnValue;
   return [result, null];
 }
