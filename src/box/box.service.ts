@@ -199,7 +199,8 @@ export class BoxService {
       ...(adminProfileErrors ?? []),
       ...(adminPlayerErrors ?? []),
     ];
-    if (occurredErrors.length !== 0) return await cancelTransaction(session, occurredErrors);
+    if (occurredErrors.length !== 0)
+      return await cancelTransaction(session, occurredErrors);
 
     return await endTransaction(session);
   }
