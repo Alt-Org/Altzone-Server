@@ -111,7 +111,8 @@ export default class SessionStarterService {
       sessionResetTime: timeAfterWeek,
       boxRemovalTime: timeAfterMonth,
     });
-    if (boxUpdateErrors) return await cancelTransaction(session, boxUpdateErrors);
+    if (boxUpdateErrors)
+      return await cancelTransaction(session, boxUpdateErrors);
 
     return await endTransaction(session);
   }
@@ -149,7 +150,7 @@ export default class SessionStarterService {
     if (clan2Errors) return [null, clan2Errors];
 
     await endTransaction(session);
-    
+
     return [[clan1Resp, clan2Resp], null];
   }
 
@@ -166,7 +167,7 @@ export default class SessionStarterService {
   private async createBoxClan(
     clanName: string,
     box_id: string,
-    session : ClientSession,
+    session: ClientSession,
   ): Promise<IServiceReturn<Clan>> {
     const defaultClanData = {
       tag: '',
@@ -180,13 +181,15 @@ export default class SessionStarterService {
         ...defaultClanData,
       });
 
-    if (clanCreationErrors) return await cancelTransaction(session, clanCreationErrors);
+    if (clanCreationErrors)
+      return await cancelTransaction(session, clanCreationErrors);
 
     const [, clanUpdateErrors] = await this.clanService.updateOneById({
       box_id,
       _id: createdClan._id.toString(),
     } as any);
-    if (clanUpdateErrors) return await cancelTransaction(session, clanUpdateErrors);
+    if (clanUpdateErrors)
+      return await cancelTransaction(session, clanUpdateErrors);
 
     const { soulHome, soulHomeItems, stock } = createdClan;
 
@@ -245,11 +248,13 @@ export default class SessionStarterService {
 
     const [, clan1TasksCreationErrors] =
       await this.dailyTasksService.createMany(clan1Tasks);
-    if (clan1TasksCreationErrors) return await cancelTransaction(session, clan1TasksCreationErrors);
+    if (clan1TasksCreationErrors)
+      return await cancelTransaction(session, clan1TasksCreationErrors);
 
     const [, clan2TasksCreationErrors] =
       await this.dailyTasksService.createMany(clan2Tasks);
-    if (clan2TasksCreationErrors) return await cancelTransaction(session, clan2TasksCreationErrors);
+    if (clan2TasksCreationErrors)
+      return await cancelTransaction(session, clan2TasksCreationErrors);
 
     return [true, null];
   }
