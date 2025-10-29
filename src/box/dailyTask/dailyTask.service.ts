@@ -18,8 +18,10 @@ import {
 
 @Injectable()
 export class DailyTaskService {
-  public constructor(@InjectModel(Box.name) public readonly model: Model<Box>,
-  @InjectConnection() private readonly connection: Connection,) {
+  public constructor(
+    @InjectModel(Box.name) public readonly model: Model<Box>,
+    @InjectConnection() private readonly connection: Connection,
+  ) {
     this.refsInModel = publicReferences;
     this.basicService = new BasicService(model);
   }
@@ -76,7 +78,6 @@ export class DailyTaskService {
       { $push: { dailyTasks: task } },
     );
     if (updateErrors && updateErrors[0].reason === SEReason.NOT_FOUND)
-
       return await cancelTransaction(session, [
         new ServiceError({
           ...updateErrors[0],
@@ -150,14 +151,13 @@ export class DailyTaskService {
       { $push: { dailyTasks: tasks } },
     );
     if (updateErrors && updateErrors[0].reason === SEReason.NOT_FOUND)
-      return await cancelTransaction(session,
-        [
-          new ServiceError({
-            ...updateErrors[0],
-            field: 'box_id',
-            message: 'Box with this _id not found',
-          }),
-        ]);
+      return await cancelTransaction(session, [
+        new ServiceError({
+          ...updateErrors[0],
+          field: 'box_id',
+          message: 'Box with this _id not found',
+        }),
+      ]);
 
     if (updateErrors) return await cancelTransaction(session, updateErrors);
 
@@ -173,7 +173,7 @@ export class DailyTaskService {
       );
       if (createdTask) createdTasks.push(createdTask);
     }
-    
+
     await endTransaction(session);
 
     return [createdTasks, null];
