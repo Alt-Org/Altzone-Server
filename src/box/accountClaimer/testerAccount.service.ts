@@ -5,8 +5,8 @@ import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { PasswordGenerator } from '../../common/function/passwordGenerator';
 import { Profile, ProfileDocument } from '../../profile/profile.schema';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { Player, PlayerDocument } from '../../player/schemas/player.schema';
 import { ProfileService } from '../../profile/profile.service';
 import { ProfileDto } from '../../profile/dto/profile.dto';
@@ -14,6 +14,11 @@ import Tester from './payloads/tester';
 import BasicService from '../../common/service/basicService/BasicService';
 import { Clan, ClanDocument } from '../../clan/clan.schema';
 import UniqueFieldGenerator from '../util/UniqueFieldGenerator';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../../common/function/Transactions';
 
 @Injectable()
 export class TesterAccountService {
@@ -27,6 +32,7 @@ export class TesterAccountService {
     private readonly playerModel: Model<PlayerDocument>,
     @InjectModel(Clan.name)
     private readonly clanModel: Model<ClanDocument>,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     this.playerBasicService = new BasicService(playerModel);
   }
@@ -43,19 +49,25 @@ export class TesterAccountService {
   async createTester(
     box_id: string,
   ): Promise<IServiceReturn<Omit<Tester, 'Clan'>>> {
+
+    const session = await InitializeSession(this.connection);
+
     const password = this.passwordGenerator.generatePassword('fi');
     const [createdProfile, profileCreationErrors] = await this.createProfile(
       box_id,
       password,
     );
-    if (profileCreationErrors) return [null, profileCreationErrors];
+    if (profileCreationErrors) return await cancelTransaction(session, profileCreationErrors);
+
     const [createdPlayer, playerCreationErrors] = await this.createPlayer(
       box_id,
       password,
       createdProfile,
     );
-    if (playerCreationErrors) return [null, playerCreationErrors];
+    if (playerCreationErrors) return await cancelTransaction(session, playerCreationErrors);
 
+    await endTransaction(session);
+    
     return [
       {
         Profile: createdProfile,
