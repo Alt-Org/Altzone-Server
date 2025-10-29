@@ -36,7 +36,7 @@ describe('ProfileService.createGuestAccount() test suite', () => {
 
     expect(profile).toBeDefined();
     expect(profile.isGuest).toBe(true);
-    expect(profile.username).toMatch(/guest-account-/);
+    expect(profile.username).toMatch(/Guest-/);
     expect(profile.password).not.toBeNull();
 
     expect(player).toBeDefined();

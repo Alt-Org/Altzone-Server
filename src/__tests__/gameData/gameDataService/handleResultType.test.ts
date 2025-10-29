@@ -47,10 +47,10 @@ describe('GameDataService.handleResultType() test suite', () => {
   const p3Id = new ObjectId();
   const p4Id = new ObjectId();
 
-  const p1 = playerBuilder.setId(p1Id.toString()).setName('p1').build();
-  const p2 = playerBuilder.setId(p2Id.toString()).setName('p2').build();
-  const p3 = playerBuilder.setId(p3Id.toString()).setName('p3').build();
-  const p4 = playerBuilder.setId(p4Id.toString()).setName('p4').build();
+  const p1 = playerBuilder.setId(p1Id.toString()).setName('p10').build();
+  const p2 = playerBuilder.setId(p2Id.toString()).setName('p20').build();
+  const p3 = playerBuilder.setId(p3Id.toString()).setName('p30').build();
+  const p4 = playerBuilder.setId(p4Id.toString()).setName('p40').build();
 
   playerModel.create(p1);
   playerModel.create(p2);
