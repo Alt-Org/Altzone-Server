@@ -79,7 +79,7 @@ export default class BoxCreator {
     const boxToCreate: Partial<Box> = {};
     boxToCreate.adminPassword = boxToInit.adminPassword;
     boxToCreate._id = boxToCreate_id;
-    
+
     const weekMs = 1000 * 60 * 60 * 24 * 7;
     boxToCreate.sessionResetTime = new Date().getTime() + weekMs;
     const monthMs = 1000 * 60 * 60 * 24 * 30;
@@ -142,7 +142,7 @@ export default class BoxCreator {
     } = (adminPlayer as any).toObject();
 
     await endTransaction(session);
-    
+
     return [
       {
         ...createdBox.toObject(),
