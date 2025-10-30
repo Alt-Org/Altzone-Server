@@ -97,9 +97,7 @@ export class DailyTaskService {
       this.areSameTasks(dTask, task),
     );
 
-    await endTransaction(session);
-
-    return [createdTask, null];
+    return await endTransaction(session, createdTask);
   }
 
   /**
@@ -174,9 +172,7 @@ export class DailyTaskService {
       if (createdTask) createdTasks.push(createdTask);
     }
 
-    await endTransaction(session);
-
-    return [createdTasks, null];
+    return await endTransaction(session, createdTasks);
   }
 
   /**

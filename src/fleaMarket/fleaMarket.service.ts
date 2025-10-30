@@ -525,9 +525,7 @@ export class FleaMarketService {
     if (createVotingErrors)
       return await cancelTransaction(session, createVotingErrors);
 
-    await endTransaction(session);
-
-    return [voting, null];
+    return await endTransaction(session, voting);
   }
 
   /**
@@ -587,9 +585,7 @@ export class FleaMarketService {
       queue: VotingQueueName.FLEA_MARKET,
     });
 
-    await endTransaction(session);
-
-    return [voting, null];
+    return await endTransaction(session, voting);
   }
 
   /**

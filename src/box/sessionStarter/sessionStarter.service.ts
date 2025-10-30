@@ -149,9 +149,7 @@ export default class SessionStarterService {
     );
     if (clan2Errors) return [null, clan2Errors];
 
-    await endTransaction(session);
-
-    return [[clan1Resp, clan2Resp], null];
+    return await endTransaction(session, [clan1Resp, clan2Resp]);
   }
 
   /**

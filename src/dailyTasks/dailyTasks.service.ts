@@ -107,12 +107,10 @@ export class DailyTasksService {
     );
     if (updateError) await cancelTransaction(session, updateError);
 
-    await endTransaction(session);
-
     await this.taskQueue.addDailyTask(task);
     await this.notifier.taskReceived(playerId, task);
 
-    return task;
+    return await endTransaction(session, task);
   }
 
   /**

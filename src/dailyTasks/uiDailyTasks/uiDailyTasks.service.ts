@@ -183,6 +183,6 @@ export default class UIDailyTasksService {
       return [null, deletionErrors];
     }
 
-    return endTransaction(deletionSession);
+    return await endTransaction(deletionSession);
   }
 }

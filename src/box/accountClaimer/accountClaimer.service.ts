@@ -93,19 +93,14 @@ export default class AccountClaimerService {
       groupAdmin: false,
     });
 
-    await endTransaction(session);
-
-    return [
-      {
-        ...account.Player,
-        password: account.Profile.username,
-        profile_id: account.Profile._id.toString(),
-        accessToken,
-        clan_id: accountClan._id.toString(),
-        Clan: accountClan as ClanDto,
-      },
-      null,
-    ];
+    return await endTransaction(session, {
+      ...account.Player,
+      password: account.Profile.username,
+      profile_id: account.Profile._id.toString(),
+      accessToken,
+      clan_id: accountClan._id.toString(),
+      Clan: accountClan as ClanDto,
+    });
   }
 
   /**

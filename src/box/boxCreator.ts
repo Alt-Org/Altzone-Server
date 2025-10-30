@@ -141,15 +141,10 @@ export default class BoxCreator {
       ...createdAdminPlayer
     } = (adminPlayer as any).toObject();
 
-    await endTransaction(session);
-
-    return [
-      {
-        ...createdBox.toObject(),
-        adminPlayer: createdAdminPlayer,
-      },
-      null,
-    ];
+    return await endTransaction(session, {
+      ...createdBox.toObject(),
+      adminPlayer: createdAdminPlayer,
+    });
   }
 
   /**

@@ -67,15 +67,10 @@ export class TesterAccountService {
     if (playerCreationErrors)
       return await cancelTransaction(session, playerCreationErrors);
 
-    await endTransaction(session);
-
-    return [
-      {
-        Profile: createdProfile,
-        Player: createdPlayer,
-      },
-      null,
-    ];
+    return await endTransaction(session, {
+      Profile: createdProfile,
+      Player: createdPlayer,
+    });
   }
 
   /**
