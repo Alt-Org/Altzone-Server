@@ -38,14 +38,25 @@ export async function cancelTransaction(
  * Commits the database transaction and ends the session.
  *
  * @param session - Started database session.
+ * @param returnValue - (Optional) Value to return upon successful transaction completion.
  *
  * @returns A promise that resolves to a successful service return.
  */
+export async function endTransaction(
+  session: ClientSession,
+): Promise<IServiceReturn<true>>;
+export async function endTransaction<T>(
+  session: ClientSession,
+  returnValue: T,
+): Promise<IServiceReturn<T>>;
 export async function endTransaction<T = true>(
   session: ClientSession,
+  returnValue?: T,
 ): Promise<IServiceReturn<T | true>> {
   await session.commitTransaction();
   await session.endSession();
 
-  return [true, null];
+  const result: T | true =
+    typeof returnValue === 'undefined' ? (true as const) : returnValue;
+  return [result, null];
 }
