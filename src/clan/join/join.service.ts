@@ -3,8 +3,8 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { ClanService } from '../clan.service';
 import { PlayerCounterFactory } from '../clan.counters';
@@ -15,6 +15,8 @@ import { ClanDto } from '../dto/clan.dto';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
+import { cancelTransaction, endTransaction, InitializeSession }
+ from '../../common/function/Transactions';
 
 @Injectable()
 export class JoinService {
@@ -22,6 +24,7 @@ export class JoinService {
     private readonly playerCounterFactory: PlayerCounterFactory,
     private readonly clanService: ClanService,
     @InjectModel(Player.name) public readonly playerModel: Model<Player>,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     this.refsInModel = [];
     this.modelName = ModelName.JOIN;
@@ -71,6 +74,8 @@ export class JoinService {
       throw new UnauthorizedException('Incorrect password');
     }
 
+    const session = await InitializeSession(this.connection);
+    try {
     if (player.clan_id) {
       const [pclan] = await this.clanService.readOneById(player.clan_id);
       if (pclan.playerCount <= 1) {
@@ -79,10 +84,15 @@ export class JoinService {
         await this.playerCounter.decreaseByIdOnOne(player.clan_id);
       }
     }
-
+    
     await this.joinClan(player_id, clan_id);
 
-    return [clan, null];
+    } catch (error) {
+      await cancelTransaction(session, error as ServiceError[]);
+      throw error;
+    }
+
+    return await endTransaction(session, clan);
   }
 
   /**
@@ -109,6 +119,9 @@ export class JoinService {
     const [clan] = await this.clanService.readOneById(clan_id);
     if (!clan) throw new NotFoundException('Clan with that _id not found');
 
+    const session = await InitializeSession(this.connection);
+    try {
+      
     if (clan.playerCount <= 1) {
       await this.clanService.deleteOneById(clan._id);
     } else {
@@ -120,6 +133,12 @@ export class JoinService {
         clan_id: null,
       },
     );
+    } catch (error) {
+      await cancelTransaction(session, error as ServiceError[]);
+      throw error;
+    }
+
+    await endTransaction(session);
   }
 
   /**
@@ -139,6 +158,8 @@ export class JoinService {
 
     if (!clan) throw new NotFoundException('Clan with that _id not found');
 
+    const session = await InitializeSession(this.connection);
+    try {
     //If the last player
     if (clan.playerCount <= 1) {
       await this.clanService.deleteOneById(clan._id);
@@ -151,6 +172,12 @@ export class JoinService {
         clan_id: null,
       },
     ); // update clan_id for the requested player;
+    } catch (error) {
+      await cancelTransaction(session, error as ServiceError[]);
+      throw error;
+    }
+
+    await endTransaction(session);
   }
 
   /**
