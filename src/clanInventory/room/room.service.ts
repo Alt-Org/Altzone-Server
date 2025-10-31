@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { Room } from './room.schema';
 import { UpdateRoomDto } from './dto/updateRoom.dto';
 import { CreateRoomDto } from './dto/createRoom.dto';
@@ -15,11 +15,18 @@ import {
   TIServiceReadManyOptions,
 } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../../common/function/Transactions';
+import e from 'express';
 
 @Injectable()
 export class RoomService {
   public constructor(
     @InjectModel(Room.name) public readonly model: Model<Room>,
+    @InjectConnection() private readonly connection: Connection,
     private readonly roomHelper: RoomHelperService,
     private readonly itemService: ItemService,
   ) {
@@ -146,8 +153,16 @@ export class RoomService {
    * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
    */
   async deleteOneById(_id: string) {
-    await this.itemService.deleteAllRoomItems(_id);
-    return this.basicService.deleteOneById(_id);
+    const session = await InitializeSession(this.connection);
+    const [_, error] = await this.itemService.deleteAllRoomItems(_id);
+    if (error) {
+      return await cancelTransaction(session, error);
+    }
+    const [__, errorOne] = await this.basicService.deleteOneById(_id);
+    if (errorOne) {
+      return await cancelTransaction(session, errorOne);
+    }
+    return await endTransaction(session);
   }
 
   /**
@@ -166,10 +181,16 @@ export class RoomService {
     });
     if (errors || !soulHomeRooms) return [null, errors];
 
+    const session = await InitializeSession(this.connection);
+    try {
     for (let i = 0, l = soulHomeRooms.length; i < l; i++)
       await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id);
 
-    return this.basicService.deleteMany({ filter: { soulHome_id } });
+    this.basicService.deleteMany({ filter: { soulHome_id } });
+    } catch (error) {
+      return await cancelTransaction(session, error as ServiceError[]);
+    }
+    return await endTransaction(session);
   }
 
   /**
