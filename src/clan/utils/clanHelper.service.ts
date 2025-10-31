@@ -14,6 +14,13 @@ import { ItemDto } from '../../clanInventory/item/dto/item.dto';
 import { SoulHomeDto } from '../../clanInventory/soulhome/dto/soulhome.dto';
 import { RoomDto } from '../../clanInventory/room/dto/room.dto';
 import { SoulHome } from '../../clanInventory/soulhome/soulhome.schema';
+import { Connection } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../../common/function/Transactions';
 
 @Injectable()
 export default class ClanHelperService {
@@ -22,6 +29,7 @@ export default class ClanHelperService {
     private readonly soulHomeService: SoulHomeService,
     private readonly roomService: RoomService,
     private readonly itemService: ItemService,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   /**
@@ -38,24 +46,23 @@ export default class ClanHelperService {
   ): Promise<
     [{ Stock: StockDto; Item: ItemDto[] } | null, ServiceError[] | null]
   > {
+
+    const session = await InitializeSession(this.connection);
     const [stock, stockErrors] = await this.stockService.createOne({
       cellCount: 20,
       clan_id,
     });
-    if (stockErrors || !stock) return [null, stockErrors];
+    if (stockErrors || !stock) return await cancelTransaction(session, stockErrors);
 
     const [items, itemsErrors] = await this.itemService.createMany(
       getStockDefaultItems(stock._id),
     );
-    if (itemsErrors || !items) return [null, itemsErrors];
+    if (itemsErrors || !items) return await cancelTransaction(session, itemsErrors);
 
-    return [
-      {
-        Stock: stock,
-        Item: items,
-      },
-      null,
-    ];
+    return await endTransaction(session, {
+      Stock: stock,
+      Item: items,
+    });
   }
 
   /**
@@ -80,6 +87,7 @@ export default class ClanHelperService {
       ServiceError[] | null,
     ]
   > {
+    const session = await InitializeSession(this.connection);
     const [soulHome, soulHomeErrors] =
       await this.soulHomeService.basicService.createOne<
         Partial<SoulHome>,
@@ -88,28 +96,25 @@ export default class ClanHelperService {
         name,
         clan_id,
       });
-    if (soulHomeErrors || !soulHome) return [null, soulHomeErrors];
+    if (soulHomeErrors || !soulHome) return await cancelTransaction(session, soulHomeErrors);
 
     const defaultRooms = this.getDefaultRooms(soulHome._id, roomsCount);
     const [rooms, roomsErrors] =
       await this.roomService.createMany(defaultRooms);
-    if (roomsErrors || !rooms) return [null, roomsErrors];
+    if (roomsErrors || !rooms) return await cancelTransaction(session, roomsErrors);
 
     const firstRoom = rooms[0];
 
     const [items, itemsErrors] = await this.itemService.createMany(
       getRoomDefaultItems(firstRoom._id),
     );
-    if (itemsErrors || !items) return [null, itemsErrors];
+    if (itemsErrors || !items) return await cancelTransaction(session, itemsErrors);
 
-    return [
-      {
-        SoulHome: soulHome,
-        Room: rooms,
-        Item: items,
-      },
-      null,
-    ];
+    return await endTransaction(session, {
+      SoulHome: soulHome,
+      Room: rooms,
+      Item: items,
+    });
   }
 
   /**
