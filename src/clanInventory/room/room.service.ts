@@ -183,10 +183,10 @@ export class RoomService {
 
     const session = await InitializeSession(this.connection);
     try {
-    for (let i = 0, l = soulHomeRooms.length; i < l; i++)
-      await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id);
+      for (let i = 0, l = soulHomeRooms.length; i < l; i++)
+        await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id);
 
-    this.basicService.deleteMany({ filter: { soulHome_id } });
+      this.basicService.deleteMany({ filter: { soulHome_id } });
     } catch (error) {
       return await cancelTransaction(session, error as ServiceError[]);
     }

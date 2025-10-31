@@ -46,18 +46,19 @@ export default class ClanHelperService {
   ): Promise<
     [{ Stock: StockDto; Item: ItemDto[] } | null, ServiceError[] | null]
   > {
-
     const session = await InitializeSession(this.connection);
     const [stock, stockErrors] = await this.stockService.createOne({
       cellCount: 20,
       clan_id,
     });
-    if (stockErrors || !stock) return await cancelTransaction(session, stockErrors);
+    if (stockErrors || !stock)
+      return await cancelTransaction(session, stockErrors);
 
     const [items, itemsErrors] = await this.itemService.createMany(
       getStockDefaultItems(stock._id),
     );
-    if (itemsErrors || !items) return await cancelTransaction(session, itemsErrors);
+    if (itemsErrors || !items)
+      return await cancelTransaction(session, itemsErrors);
 
     return await endTransaction(session, {
       Stock: stock,
@@ -96,19 +97,22 @@ export default class ClanHelperService {
         name,
         clan_id,
       });
-    if (soulHomeErrors || !soulHome) return await cancelTransaction(session, soulHomeErrors);
+    if (soulHomeErrors || !soulHome)
+      return await cancelTransaction(session, soulHomeErrors);
 
     const defaultRooms = this.getDefaultRooms(soulHome._id, roomsCount);
     const [rooms, roomsErrors] =
       await this.roomService.createMany(defaultRooms);
-    if (roomsErrors || !rooms) return await cancelTransaction(session, roomsErrors);
+    if (roomsErrors || !rooms)
+      return await cancelTransaction(session, roomsErrors);
 
     const firstRoom = rooms[0];
 
     const [items, itemsErrors] = await this.itemService.createMany(
       getRoomDefaultItems(firstRoom._id),
     );
-    if (itemsErrors || !items) return await cancelTransaction(session, itemsErrors);
+    if (itemsErrors || !items)
+      return await cancelTransaction(session, itemsErrors);
 
     return await endTransaction(session, {
       SoulHome: soulHome,
