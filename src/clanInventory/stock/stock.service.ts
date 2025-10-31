@@ -123,7 +123,7 @@ export class StockService {
   async deleteOneById(_id: string) {
     const session = await InitializeSession(this.connection);
 
-    const [_,errors] = await this.itemService.deleteAllStockItems(_id);
+    const [_, errors] = await this.itemService.deleteAllStockItems(_id);
     if (errors) {
       return await cancelTransaction(session, errors);
     }
