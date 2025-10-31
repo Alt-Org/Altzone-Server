@@ -15,8 +15,11 @@ import { ClanDto } from '../dto/clan.dto';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
-import { cancelTransaction, endTransaction, InitializeSession }
- from '../../common/function/Transactions';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../../common/function/Transactions';
 
 @Injectable()
 export class JoinService {
@@ -76,17 +79,16 @@ export class JoinService {
 
     const session = await InitializeSession(this.connection);
     try {
-    if (player.clan_id) {
-      const [pclan] = await this.clanService.readOneById(player.clan_id);
-      if (pclan.playerCount <= 1) {
-        await this.clanService.deleteOneById(pclan._id);
-      } else {
-        await this.playerCounter.decreaseByIdOnOne(player.clan_id);
+      if (player.clan_id) {
+        const [pclan] = await this.clanService.readOneById(player.clan_id);
+        if (pclan.playerCount <= 1) {
+          await this.clanService.deleteOneById(pclan._id);
+        } else {
+          await this.playerCounter.decreaseByIdOnOne(player.clan_id);
+        }
       }
-    }
-    
-    await this.joinClan(player_id, clan_id);
 
+      await this.joinClan(player_id, clan_id);
     } catch (error) {
       await cancelTransaction(session, error as ServiceError[]);
       throw error;
@@ -121,18 +123,17 @@ export class JoinService {
 
     const session = await InitializeSession(this.connection);
     try {
-      
-    if (clan.playerCount <= 1) {
-      await this.clanService.deleteOneById(clan._id);
-    } else {
-      await this.playerCounter.decreaseByIdOnOne(clan_id);
-    }
-    await this.playerModel.updateOne(
-      { _id: player_id },
-      {
-        clan_id: null,
-      },
-    );
+      if (clan.playerCount <= 1) {
+        await this.clanService.deleteOneById(clan._id);
+      } else {
+        await this.playerCounter.decreaseByIdOnOne(clan_id);
+      }
+      await this.playerModel.updateOne(
+        { _id: player_id },
+        {
+          clan_id: null,
+        },
+      );
     } catch (error) {
       await cancelTransaction(session, error as ServiceError[]);
       throw error;
@@ -160,18 +161,18 @@ export class JoinService {
 
     const session = await InitializeSession(this.connection);
     try {
-    //If the last player
-    if (clan.playerCount <= 1) {
-      await this.clanService.deleteOneById(clan._id);
-    } else {
-      await this.playerCounter.decreaseByIdOnOne(clan_id);
-    }
-    await this.playerModel.updateOne(
-      { _id: player_id },
-      {
-        clan_id: null,
-      },
-    ); // update clan_id for the requested player;
+      //If the last player
+      if (clan.playerCount <= 1) {
+        await this.clanService.deleteOneById(clan._id);
+      } else {
+        await this.playerCounter.decreaseByIdOnOne(clan_id);
+      }
+      await this.playerModel.updateOne(
+        { _id: player_id },
+        {
+          clan_id: null,
+        },
+      ); // update clan_id for the requested player;
     } catch (error) {
       await cancelTransaction(session, error as ServiceError[]);
       throw error;

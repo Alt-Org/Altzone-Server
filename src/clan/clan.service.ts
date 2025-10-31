@@ -82,7 +82,8 @@ export class ClanService {
     const [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>(
       clanWithAdmin,
     );
-    if (clanErrors || !clan) return await cancelTransaction(session,clanErrors);
+    if (clanErrors || !clan)
+      return await cancelTransaction(session, clanErrors);
 
     const leaderRole = clan.roles.find(
       (role) => role.name === LeaderClanRole.name,
@@ -92,22 +93,24 @@ export class ClanService {
       clan_id: clan._id,
       clanRole_id: leaderRole._id,
     });
-    if (playerErrors) return await cancelTransaction(session,playerErrors);
+    if (playerErrors) return await cancelTransaction(session, playerErrors);
 
     const [stock, stockErrors] =
       await this.clanHelperService.createDefaultStock(clan._id);
-    if (stockErrors || !stock) return await cancelTransaction(session,stockErrors);
+    if (stockErrors || !stock)
+      return await cancelTransaction(session, stockErrors);
 
     const [soulHome, soulHomeErrors] =
       await this.clanHelperService.createDefaultSoulHome(clan._id, clan.name);
-    if (soulHomeErrors || !soulHome) return await cancelTransaction(session,soulHomeErrors);
+    if (soulHomeErrors || !soulHome)
+      return await cancelTransaction(session, soulHomeErrors);
 
     clan.SoulHome = soulHome.SoulHome;
     clan.Stock = stock.Stock;
 
     this.emitter.emitAsync('clan.create', { clan_id: clan._id });
 
-    return await endTransaction(session,clan);
+    return await endTransaction(session, clan);
   }
 
   /**
@@ -130,15 +133,18 @@ export class ClanService {
       ...clanToCreate,
       playerCount: 0,
     });
-    if (clanErrors || !clan) return await cancelTransaction(session,clanErrors);
+    if (clanErrors || !clan)
+      return await cancelTransaction(session, clanErrors);
 
     const [stock, stockErrors] =
       await this.clanHelperService.createDefaultStock(clan._id);
-    if (stockErrors || !stock) return await cancelTransaction(session,stockErrors);
+    if (stockErrors || !stock)
+      return await cancelTransaction(session, stockErrors);
 
     const [soulHome, soulHomeErrors] =
       await this.clanHelperService.createDefaultSoulHome(clan._id, clan.name);
-    if (soulHomeErrors || !soulHome) return await cancelTransaction(session,soulHomeErrors);
+    if (soulHomeErrors || !soulHome)
+      return await cancelTransaction(session, soulHomeErrors);
 
     clan.soulHome = soulHome.SoulHome;
     clan.rooms = soulHome.Room;
@@ -146,7 +152,7 @@ export class ClanService {
     clan.stock = stock.Stock;
     clan.stockItems = stock.Item;
 
-    return await endTransaction(session,clan);
+    return await endTransaction(session, clan);
   }
 
   /**
@@ -202,7 +208,8 @@ export class ClanService {
 
     const [clan, clanErrors] =
       await this.basicService.readOneById<ClanDto>(_id);
-    if (clanErrors || !clan) return await cancelTransaction(session,clanErrors);
+    if (clanErrors || !clan)
+      return await cancelTransaction(session, clanErrors);
 
     let admin_ids: string[] = clan.admin_ids;
 
@@ -216,12 +223,14 @@ export class ClanService {
     }
 
     if (admin_ids.length === 0)
-      return await cancelTransaction(session,[new ServiceError({
-            message:
-              'Clan can not be without at least one admin. You are trying to delete all clan admins',
-            field: 'admin_ids',
-            reason: SEReason.REQUIRED,
-          })]);
+      return await cancelTransaction(session, [
+        new ServiceError({
+          message:
+            'Clan can not be without at least one admin. You are trying to delete all clan admins',
+          field: 'admin_ids',
+          reason: SEReason.REQUIRED,
+        }),
+      ]);
 
     //add only players that are clan members
     const playersInClan: string[] = [];
@@ -247,19 +256,21 @@ export class ClanService {
     }
 
     if (playersInClan.length === 0)
-      return await cancelTransaction(session,[new ServiceError({
-            message:
-              'Clan can not be without at least one admin. You are trying to delete all clan admins',
-            field: 'admin_ids',
-            reason: SEReason.REQUIRED,
-          })]);
-  
+      return await cancelTransaction(session, [
+        new ServiceError({
+          message:
+            'Clan can not be without at least one admin. You are trying to delete all clan admins',
+          field: 'admin_ids',
+          reason: SEReason.REQUIRED,
+        }),
+      ]);
+
     const [_, errors] = await this.basicService.updateOneById(_id, {
       ...fieldsToUpdate,
       admin_ids: playersInClan,
     });
 
-    if (errors) return await cancelTransaction(session,errors);
+    if (errors) return await cancelTransaction(session, errors);
 
     return await endTransaction(session);
   }
@@ -295,24 +306,24 @@ export class ClanService {
       _id,
       { includeRefs: [ModelName.SOULHOME, ModelName.STOCK, ModelName.PLAYER] },
     );
-    if (clanErrors || !clan) return await cancelTransaction(session,clanErrors);
+    if (clanErrors || !clan)
+      return await cancelTransaction(session, clanErrors);
 
     try {
-    if (clan.Player) {
-      for (let i = 0, l = clan.Player.length; i < l; i++) {
-        const player = clan.Player[i];
-        await this.playerService.updateOneById(player._id, { clan_id: null });
+      if (clan.Player) {
+        for (let i = 0, l = clan.Player.length; i < l; i++) {
+          const player = clan.Player[i];
+          await this.playerService.updateOneById(player._id, { clan_id: null });
+        }
       }
-    }
 
-    if (clan.Stock) await this.stockService.deleteOneById(clan.Stock._id);
-    if (clan.SoulHome)
-      await this.soulhomeService.deleteOneById(clan.SoulHome._id);
+      if (clan.Stock) await this.stockService.deleteOneById(clan.Stock._id);
+      if (clan.SoulHome)
+        await this.soulhomeService.deleteOneById(clan.SoulHome._id);
 
-    await this.basicService.deleteOneById(_id);
-    }
-    catch (error) {
-      return await cancelTransaction(session,error as ServiceError[]);
+      await this.basicService.deleteOneById(_id);
+    } catch (error) {
+      return await cancelTransaction(session, error as ServiceError[]);
     }
 
     return await endTransaction(session);
