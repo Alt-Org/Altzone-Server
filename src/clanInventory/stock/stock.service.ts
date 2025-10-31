@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Stock } from './stock.schema';
 import { CreateStockDto } from './dto/createStock.dto';
 import { UpdateStockDto } from './dto/updateStock.dto';
@@ -13,11 +13,17 @@ import {
   TIServiceReadManyOptions,
 } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../../common/function/Transactions';
 
 @Injectable()
 export class StockService {
   public constructor(
     @InjectModel(Stock.name) public readonly model: Model<Stock>,
+    @InjectConnection() private readonly connection: Connection,
     private readonly itemService: ItemService,
   ) {
     this.refsInModel = [ModelName.CLAN, ModelName.ITEM];
@@ -115,7 +121,18 @@ export class StockService {
    * @returns _true_ if Stock was removed successfully, or a ServiceError array if the Stock was not found or something else went wrong
    */
   async deleteOneById(_id: string) {
-    await this.itemService.deleteAllStockItems(_id);
-    return this.basicService.deleteOneById(_id);
+    const session = await InitializeSession(this.connection);
+
+    const [_,errors] = await this.itemService.deleteAllStockItems(_id);
+    if (errors) {
+      return await cancelTransaction(session, errors);
+    }
+
+    const [__, errorsOne] = await this.basicService.deleteOneById(_id);
+    if (errorsOne) {
+      return await cancelTransaction(session, errorsOne);
+    }
+
+    return await endTransaction(session);
   }
 }
