@@ -61,7 +61,7 @@ export class ClanController {
   ) {}
 
   /**
-   * Create Clan
+   * Create a new Clan.
    *
    * @remarks The creator of the Clan becomes its admin.
    *
