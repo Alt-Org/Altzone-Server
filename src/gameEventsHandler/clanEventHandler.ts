@@ -9,6 +9,13 @@ import UIDailyTasksService from '../dailyTasks/uiDailyTasks/uiDailyTasks.service
 import { GameEventPayload } from '../gameEventsEmitter/gameEvent';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { ClanEvent } from '../rewarder/clanRewarder/enum/ClanEvent.enum';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../common/function/Transactions';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 
 @Injectable()
 export class ClanEventHandler {
@@ -17,18 +24,23 @@ export class ClanEventHandler {
     private readonly uiTasksService: UIDailyTasksService,
     private readonly clanRewarder: ClanRewarder,
     private readonly playerRewarder: PlayerRewarder,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   async handlePlayerTask(player_id: string): Promise<IServiceReturn<boolean>> {
+    const session = await InitializeSession(this.connection);
     try {
       const taskUpdate = await this.tasksService.updateTask(player_id);
-      return this.handleClanAndPlayerReward(player_id, taskUpdate);
+      const [, error] = await this.handleClanAndPlayerReward(player_id, taskUpdate);
+      if (error) return await cancelTransaction(session, error);
+      
     } catch (
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       e
     ) {
-      return [true, null];
+      await cancelTransaction(session, e as ServiceError[]);
     }
+    return await endTransaction(session);
   }
 
   /** Handles clan events
@@ -58,9 +70,17 @@ export class ClanEventHandler {
 
     if (errors) throw errors;
 
+    const session = await InitializeSession(this.connection);
+    try
+    {
     const [serverTasks] =
       this.tasksService.generateServerTasksForNewClan(clan_idStr);
     await this.tasksService.createMany([...serverTasks, ...uiDailyTasks]);
+    } catch (e) {
+      return await cancelTransaction(session, e as ServiceError[]);
+    }
+
+    await endTransaction(session);
   }
 
   private async handleClanAndPlayerReward(
