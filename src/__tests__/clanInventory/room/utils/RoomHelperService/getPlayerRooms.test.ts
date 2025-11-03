@@ -59,9 +59,7 @@ describe('RoomHelperService.getPlayerRooms() test suite', () => {
     const clearedRooms = clearDBRespDefaultFields(rooms);
 
     expect(errors).toBeNull();
-    expect(clearedRooms).toEqual(
-      expect.objectContaining([existingRoom1, existingRoom2]),
-    );
+    expect(clearedRooms).toEqual([existingRoom1, existingRoom2]);
   });
 
   it('Should return NOT_FOUND if player does not exists', async () => {
