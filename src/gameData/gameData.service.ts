@@ -162,7 +162,7 @@ export class GameDataService {
     }
     const [roomIds, roomErrors] = await this.getRoomIds(clan.SoulHome._id);
     if (roomErrors) {
-      return [null, errors];
+      return [null, roomErrors];
     }
 
     const stealToken = await this.generateStealToken(
