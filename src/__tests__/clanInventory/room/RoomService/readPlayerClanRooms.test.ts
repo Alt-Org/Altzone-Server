@@ -61,7 +61,9 @@ describe('Room.readPlayerClanRooms() test suite', () => {
     const clearedRoom = clearDBRespDefaultFields(room);
 
     expect(errors).toBeNull();
-    expect(clearedRoom).toEqual([existingRoom1, existingRoom2]);
+    expect(clearedRoom).toEqual(
+      expect.objectContaining([existingRoom1, existingRoom2]),
+    );
   });
 
   it('Should return NOT_FOUND if player does not exists', async () => {

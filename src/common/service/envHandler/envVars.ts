@@ -98,12 +98,6 @@ interface EnvVars {
 
   /** The required minimum version for the game client to function correctly */
   MIN_GAME_BUILD_VERSION: string;
-
-  /** How many days before a voting expires. */
-  VOTING_EXPIRATION_DAYS: string;
-
-  /** How often leaderboard updates. In seconds */
-  LEADERBOARD_UPDATE_DELAY_SECONDS: string;
 }
 
 /**
@@ -145,9 +139,4 @@ export const envVars: EnvVars = {
   MOSQUITTO_PUBLISHER: process.env.MOSQUITTO_PUBLISHER,
   MOSQUITTO_PUBLISHER_PASSWORD: process.env.MOSQUITTO_PUBLISHER_PASSWORD,
   MIN_GAME_BUILD_VERSION: process.env.MIN_GAME_BUILD_VERSION,
-
-  VOTING_EXPIRATION_DAYS: process.env.VOTING_EXPIRATION_DAYS ?? '7',
-
-  LEADERBOARD_UPDATE_DELAY_SECONDS:
-    process.env.LEADERBOARD_UPDATE_DELAY ?? '60',
 };

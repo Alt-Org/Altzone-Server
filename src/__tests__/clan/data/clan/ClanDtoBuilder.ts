@@ -7,7 +7,6 @@ import { ClanDto } from '../../../../clan/dto/clan.dto';
 import { ClanLogoDto } from '../../../../clan/dto/clanLogo.dto';
 import ClanRoleDto from '../../../../clan/role/dto/clanRole.dto';
 import { Stall } from '../../../../clan/stall/stall.schema';
-import { SoulHomeDto } from '../../../../clanInventory/soulhome/dto/soulhome.dto';
 
 export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
   private readonly base: ClanDto = {
@@ -20,7 +19,6 @@ export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
     battlePoints: 0,
     admin_ids: [],
     playerCount: 0,
-    SoulHome: undefined,
     itemCount: 0,
     stockCount: 0,
     isOpen: true,
@@ -132,11 +130,6 @@ export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
 
   setStall(stall: Stall) {
     this.base.stall = stall;
-    return this;
-  }
-
-  setSoulHome(stall: SoulHomeDto) {
-    this.base.SoulHome = stall;
     return this;
   }
 

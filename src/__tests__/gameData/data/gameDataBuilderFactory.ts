@@ -1,11 +1,9 @@
-import { BattleResultDtoBuilder } from './gameData/BattleResultDtoBuilder';
 import { GameBuilder } from './gameData/GameBuilder';
 
-type BuilderName = 'Game' | 'BattleResultDto';
+type BuilderName = 'Game';
 
 type BuilderMap = {
   Game: GameBuilder;
-  BattleResultDto: BattleResultDtoBuilder;
 };
 
 export default class GameDataBuilderFactory {
@@ -13,8 +11,6 @@ export default class GameDataBuilderFactory {
     switch (builderName) {
       case 'Game':
         return new GameBuilder() as BuilderMap[T];
-      case 'BattleResultDto':
-        return new BattleResultDtoBuilder() as BuilderMap[T];
       default:
         throw new Error(`Unknown builder name: ${builderName}`);
     }

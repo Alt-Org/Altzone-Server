@@ -22,7 +22,7 @@ describe('ClanRoleService.checkVotingOnExpire', () => {
     await playerModel.deleteMany({});
   });
 
-  it('should update player role if vote passed', async () => {
+  it('should update player role and delete voting if vote passed', async () => {
     // Create a player and a role
     const player = await playerModel.create(playerBuilder.build());
     const role_id = new ObjectId();
@@ -42,6 +42,10 @@ describe('ClanRoleService.checkVotingOnExpire', () => {
     // Run checkVotingOnExpire
     const [result, errors] = await roleService.checkVotingOnExpire(votingDto);
 
+    // Voting should be deleted
+    const votingInDb = await votingModel.findById(votingDto._id);
+    expect(votingInDb).toBeNull();
+
     // Player should have updated clanRole_id
     const updatedPlayer = await playerModel.findById(player._id);
     expect(updatedPlayer.clanRole_id.toString()).toBe(role_id.toString());
@@ -50,7 +54,7 @@ describe('ClanRoleService.checkVotingOnExpire', () => {
     expect(errors).toBeNull();
   });
 
-  it('should not update player if vote did not pass', async () => {
+  it('should delete voting but not update player if vote did not pass', async () => {
     // Create a player and a role
     const clanRoleId = new ObjectId();
     const player = await playerModel.create(
@@ -72,6 +76,10 @@ describe('ClanRoleService.checkVotingOnExpire', () => {
 
     // Run checkVotingOnExpire
     const [result, errors] = await roleService.checkVotingOnExpire(votingDto);
+
+    // Voting should be deleted
+    const votingInDb = await votingModel.findById(votingDto._id);
+    expect(votingInDb).toBeNull();
 
     // Player should NOT have updated clanRole_id
     const updatedPlayer = await playerModel.findById(player._id);

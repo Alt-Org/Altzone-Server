@@ -7,7 +7,6 @@ import { ClanModule } from '../../../clan/clan.module';
 import { GameEventsHandlerModule } from '../../../gameEventsHandler/gameEventsHandler.module';
 import { Game, GameSchema } from '../../../gameData/game.schema';
 import { GameDataService } from '../../../gameData/gameData.service';
-import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
 
 export default class GameDataCommonModule {
   private constructor() {}
@@ -25,7 +24,6 @@ export default class GameDataCommonModule {
           ClanModule,
           ClanInventoryModule,
           GameEventsHandlerModule,
-          EventEmitterCommonModule,
         ],
         providers: [GameDataService],
       }).compile();

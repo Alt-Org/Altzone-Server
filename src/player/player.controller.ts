@@ -176,8 +176,8 @@ export default class PlayerController {
       );
     }
 
-    const oldAvatar = JSON.parse(JSON.stringify(player?.avatar));
-    const newAvatar = JSON.parse(JSON.stringify(body?.avatar));
+    const oldAvatar = player?.avatar ?? {};
+    const newAvatar = body?.avatar ?? {};
 
     if (!isEqual(oldAvatar, newAvatar)) {
       this.emitterService.EmitNewDailyTaskEvent(
