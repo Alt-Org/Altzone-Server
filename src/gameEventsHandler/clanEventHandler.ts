@@ -31,9 +31,11 @@ export class ClanEventHandler {
     const session = await InitializeSession(this.connection);
     try {
       const taskUpdate = await this.tasksService.updateTask(player_id);
-      const [, error] = await this.handleClanAndPlayerReward(player_id, taskUpdate);
+      const [, error] = await this.handleClanAndPlayerReward(
+        player_id,
+        taskUpdate,
+      );
       if (error) return await cancelTransaction(session, error);
-      
     } catch (
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       e
@@ -71,11 +73,10 @@ export class ClanEventHandler {
     if (errors) throw errors;
 
     const session = await InitializeSession(this.connection);
-    try
-    {
-    const [serverTasks] =
-      this.tasksService.generateServerTasksForNewClan(clan_idStr);
-    await this.tasksService.createMany([...serverTasks, ...uiDailyTasks]);
+    try {
+      const [serverTasks] =
+        this.tasksService.generateServerTasksForNewClan(clan_idStr);
+      await this.tasksService.createMany([...serverTasks, ...uiDailyTasks]);
     } catch (e) {
       return await cancelTransaction(session, e as ServiceError[]);
     }
