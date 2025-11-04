@@ -7,6 +7,13 @@ import { PlayerEvent } from '../rewarder/playerRewarder/enum/PlayerEvent.enum';
 import { ClanEvent } from '../rewarder/clanRewarder/enum/ClanEvent.enum';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../common/function/Transactions';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 
 @Injectable()
 export class GameEventsHandler {
@@ -14,6 +21,7 @@ export class GameEventsHandler {
     private readonly playerEventHandler: PlayerEventHandler,
     private readonly clanEventHandler: ClanEventHandler,
     private readonly emitterService: EventEmitterService,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   async handleEvent(player_id: string, event: GameEventType) {
@@ -43,6 +51,7 @@ export class GameEventsHandler {
    * @returns
    */
   private async handleWinBattle(player_id: string) {
+    const session = await InitializeSession(this.connection);
     const [, playerErrors] = await this.playerEventHandler.handlePlayerEvent(
       player_id,
       PlayerEvent.BATTLE_WON,
@@ -59,56 +68,61 @@ export class GameEventsHandler {
       ClanEvent.BATTLE_WON,
     );
 
-    if (clanEventErrors) return [null, clanEventErrors];
+    if (clanEventErrors) return await cancelTransaction(session, clanEventErrors);
 
-    if (playerErrors) return [null, playerErrors];
+    if (playerErrors) return await cancelTransaction(session, playerErrors);
 
-    return [true, null];
+    return await endTransaction(session);
   }
 
   private async handleLoseBattle(player_id: string) {
+    const session = await InitializeSession(this.connection);
     const [, playerErrors] = await this.playerEventHandler.handlePlayerEvent(
       player_id,
       PlayerEvent.BATTLE_LOSE,
     );
 
-    if (playerErrors) return [null, playerErrors];
+    if (playerErrors) return await cancelTransaction(session, playerErrors);
 
     const [, clanEventErrors] = await this.clanEventHandler.handleClanEvent(
       player_id,
       ClanEvent.BATTLE_LOSE,
     );
 
-    if (clanEventErrors) return [null, clanEventErrors];
+    if (clanEventErrors) return await cancelTransaction(session, clanEventErrors);
 
-    return [true, null];
+    return await endTransaction(session);
   }
 
   private async handleStartVoting(player_id: string) {
+    const session = await InitializeSession(this.connection);
     const [, clanErrors] =
       await this.clanEventHandler.handlePlayerTask(player_id);
 
-    if (clanErrors) return [null, clanErrors];
+    if (clanErrors) return await cancelTransaction(session, clanErrors);
 
-    return [true, null];
+    return await endTransaction(session);
   }
 
   private async handleCollectDiamonds(player_id: string) {
+    const session = await InitializeSession(this.connection);
     const [, clanErrors] =
       await this.clanEventHandler.handlePlayerTask(player_id);
 
-    if (clanErrors) return [null, clanErrors];
+    if (clanErrors) return await cancelTransaction(session, clanErrors);
 
-    return [true, null];
+    return await endTransaction(session);
   }
 
   private async handleNewCharacter(player_id: string) {
+    const session = await InitializeSession(this.connection);
+
     const [, clanErrors] =
       await this.clanEventHandler.handlePlayerTask(player_id);
 
-    if (clanErrors) return [null, clanErrors];
+    if (clanErrors) return await cancelTransaction(session, clanErrors);
 
-    return [true, null];
+    return await endTransaction(session);
   }
 
   private concatArrays(arr1?: any[], arr2?: any[]) {
