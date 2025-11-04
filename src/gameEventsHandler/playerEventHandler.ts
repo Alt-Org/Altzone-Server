@@ -25,12 +25,19 @@ export class PlayerEventHandler {
   ): Promise<[boolean, ServiceError[]]> {
     const session = await InitializeSession(this.connection);
 
-    const [_, playerStatError] = await this.playerStatistics.updatePlayerStatistic(player_id, event);
-    if (playerStatError) return await cancelTransaction(session, playerStatError as ServiceError[]);
+    const [_, playerStatError] =
+      await this.playerStatistics.updatePlayerStatistic(player_id, event);
+    if (playerStatError)
+      return await cancelTransaction(
+        session,
+        playerStatError as ServiceError[],
+      );
 
-    const [__, playerEventError] =await this.playerRewarder.rewardForPlayerEvent(player_id, event);
-    if (playerEventError) return await cancelTransaction(session, playerEventError);
-    
+    const [__, playerEventError] =
+      await this.playerRewarder.rewardForPlayerEvent(player_id, event);
+    if (playerEventError)
+      return await cancelTransaction(session, playerEventError);
+
     return await endTransaction(session);
   }
 }

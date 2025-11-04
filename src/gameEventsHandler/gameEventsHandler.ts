@@ -68,7 +68,8 @@ export class GameEventsHandler {
       ClanEvent.BATTLE_WON,
     );
 
-    if (clanEventErrors) return await cancelTransaction(session, clanEventErrors);
+    if (clanEventErrors)
+      return await cancelTransaction(session, clanEventErrors);
 
     if (playerErrors) return await cancelTransaction(session, playerErrors);
 
@@ -89,7 +90,8 @@ export class GameEventsHandler {
       ClanEvent.BATTLE_LOSE,
     );
 
-    if (clanEventErrors) return await cancelTransaction(session, clanEventErrors);
+    if (clanEventErrors)
+      return await cancelTransaction(session, clanEventErrors);
 
     return await endTransaction(session);
   }
