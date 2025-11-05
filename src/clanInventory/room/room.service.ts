@@ -186,7 +186,7 @@ export class RoomService {
       for (let i = 0, l = soulHomeRooms.length; i < l; i++)
         await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id);
 
-      this.basicService.deleteMany({ filter: { soulHome_id } });
+      await this.basicService.deleteMany({ filter: { soulHome_id } });
     } catch (error) {
       return await cancelTransaction(session, error as ServiceError[]);
     }
