@@ -160,7 +160,7 @@ export class TesterAccountService {
     names: string,
     profile: ProfileDto,
   ) {
-    const uniqueName = await this.uniqueFieldGenerator.generateUniqueFieldValue(
+    let uniqueName = await this.uniqueFieldGenerator.generateUniqueFieldValue(
       this.playerModel,
       'name',
       names,
@@ -170,6 +170,8 @@ export class TesterAccountService {
       'uniqueIdentifier',
       names,
     );
+
+    if (uniqueName.length > 20) uniqueName = uniqueName.slice(0, 20);
 
     const player: Omit<Player, '_id'> & { box_id: string } = {
       box_id,

@@ -29,6 +29,7 @@ export class JukeboxController {
   @ApiResponseDescription({
     success: {
       status: 200,
+      dto: JukeboxDto,
     },
     errors: [400, 403, 404],
     hasAuth: true,
@@ -59,6 +60,7 @@ export class JukeboxController {
     @Body() body: AddSongDto,
     @LoggedUser() user: User,
   ) {
+    console.error('USER: ', user);
     await this.service.addSongToClanJukebox(user.clan_id, user.player_id, body);
 
     this.emitterService.EmitNewDailyTaskEvent(
@@ -84,5 +86,12 @@ export class JukeboxController {
   @UniformResponse()
   removeSongFromQueue(@Param() param: _idDto, @LoggedUser() user: User) {
     this.service.removeSongFromQueue(user.clan_id, user.player_id, param._id);
+  }
+
+  @Post('skip')
+  @DetermineClanId()
+  async skipSong(@LoggedUser() user: User) {
+    console.error(user);
+    await this.service.skipSong(user.clan_id);
   }
 }
