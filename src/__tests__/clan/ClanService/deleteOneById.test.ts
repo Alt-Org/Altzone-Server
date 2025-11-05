@@ -68,9 +68,11 @@ describe('ClanService.deleteOneById() test suite', () => {
   });
 
   it('Should delete its Stock and SoulHome from DB', async () => {
-    await clanService.deleteOneById(existingClan_id);
+    const [ret, error] = await clanService.deleteOneById(existingClan_id);
+    expect(error).toBeNull();
+    expect(ret).toBe(true);
 
-    const deletedStock = await stockModel.findById(clanStock._id);
+    const deletedStock = await stockModel.findById(existingClan_id);
     expect(deletedStock).toBeNull();
 
     const deletedSoulHome = await soulHomeModel.findById(clanSoulHome._id);
