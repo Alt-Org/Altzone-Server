@@ -52,6 +52,7 @@ export class JukeboxProcessor extends WorkerHost {
    * @throws If starting the next song errors.
    */
   async process(job: Job): Promise<any> {
+    console.error('PROCESSING: ', job);
     try {
       const { clanId } = job.data;
       await this.service.startNextSong(clanId);
