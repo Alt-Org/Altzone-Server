@@ -154,10 +154,8 @@ export class RoomService {
    */
   async deleteOneById(_id: string) {
     const session = await InitializeSession(this.connection);
-    const [_, error] = await this.itemService.deleteAllRoomItems(_id);
-    if (error) {
-      return await cancelTransaction(session, error);
-    }
+    await this.itemService.deleteAllRoomItems(_id);
+    
     const [__, errorOne] = await this.basicService.deleteOneById(_id);
     if (errorOne) {
       return await cancelTransaction(session, errorOne);
