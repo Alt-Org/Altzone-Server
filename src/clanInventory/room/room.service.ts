@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Connection, Model } from 'mongoose';
+import { ClientSession, Connection, Model } from 'mongoose';
 import { Room } from './room.schema';
 import { UpdateRoomDto } from './dto/updateRoom.dto';
 import { CreateRoomDto } from './dto/createRoom.dto';
@@ -20,7 +20,6 @@ import {
   endTransaction,
   InitializeSession,
 } from '../../common/function/Transactions';
-import e from 'express';
 
 @Injectable()
 export class RoomService {
@@ -155,7 +154,7 @@ export class RoomService {
   async deleteOneById(_id: string) {
     const session = await InitializeSession(this.connection);
     await this.itemService.deleteAllRoomItems(_id);
-    
+
     const [__, errorOne] = await this.basicService.deleteOneById(_id);
     if (errorOne) {
       return await cancelTransaction(session, errorOne);
@@ -173,22 +172,27 @@ export class RoomService {
    */
   async deleteAllSoulHomeRooms(
     soulHome_id: string,
+    openSession?: ClientSession,
   ): Promise<[true | null, ServiceError[] | null]> {
     const [soulHomeRooms, errors] = await this.basicService.readMany<RoomDto>({
       filter: { soulHome_id },
     });
     if (errors || !soulHomeRooms) return [null, errors];
 
-    const session = await InitializeSession(this.connection);
+    const session = await InitializeSession(this.connection, openSession);
     try {
       for (let i = 0, l = soulHomeRooms.length; i < l; i++)
         await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id);
 
       await this.basicService.deleteMany({ filter: { soulHome_id } });
     } catch (error) {
-      return await cancelTransaction(session, error as ServiceError[]);
+      return await cancelTransaction(
+        session,
+        error as ServiceError[],
+        openSession,
+      );
     }
-    return await endTransaction(session);
+    return await endTransaction(session, openSession);
   }
 
   /**
