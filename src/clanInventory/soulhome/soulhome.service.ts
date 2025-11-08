@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { publicReferences, SoulHome } from './soulhome.schema';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { RoomService } from '../room/room.service';
 import { SoulHomeDto } from './dto/soulhome.dto';
 import { CreateSoulHomeDto } from './dto/createSoulHome.dto';
@@ -9,11 +9,17 @@ import { UpdateSoulHomeDto } from './dto/updateSoulHome.dto';
 import { ModelName } from '../../common/enum/modelName.enum';
 import BasicService from '../../common/service/basicService/BasicService';
 import { TReadByIdOptions } from '../../common/service/basicService/IService';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../../common/function/Transactions';
 
 @Injectable()
 export class SoulHomeService {
   public constructor(
     @InjectModel(SoulHome.name) public readonly model: Model<SoulHome>,
+    @InjectConnection() private readonly connection: Connection,
     private readonly roomService: RoomService,
   ) {
     this.basicService = new BasicService(model);
@@ -72,7 +78,14 @@ export class SoulHomeService {
    * @returns _true_ if SoulHome was removed successfully, or a ServiceError array if the SoulHome was not found or something else went wrong
    */
   async deleteOneById(_id: string) {
-    await this.roomService.deleteAllSoulHomeRooms(_id);
-    return this.basicService.deleteOneById(_id);
+    const session = await InitializeSession(this.connection);
+    await this.roomService.deleteAllSoulHomeRooms(_id, session);
+
+    const [deleteResponse, error] = await this.basicService.deleteOneById(_id);
+    if (error) {
+      return await cancelTransaction(session, error);
+    }
+
+    return await endTransaction(session, deleteResponse);
   }
 }
