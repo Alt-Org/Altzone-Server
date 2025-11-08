@@ -26,4 +26,14 @@ export default class EventEmitterService {
       needsClanReward,
     });
   }
+
+  /**
+   * Emit a player created event
+   *  @param playerId of the created player
+   */
+  public async EmitPlayerCreatedEvent(playerId: string) {
+    this.eventEmitter.emit('player.created', {
+      playerId,
+    });
+  }
 }
