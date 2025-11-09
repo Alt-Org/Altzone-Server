@@ -15,7 +15,7 @@ import {
   InitializeSession,
 } from '../common/function/Transactions';
 import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
+import { ClientSession, Connection } from 'mongoose';
 
 @Injectable()
 export class ClanEventHandler {
@@ -27,22 +27,27 @@ export class ClanEventHandler {
     @InjectConnection() private readonly connection: Connection,
   ) {}
 
-  async handlePlayerTask(player_id: string): Promise<IServiceReturn<boolean>> {
-    const session = await InitializeSession(this.connection);
+  /** Handles player daily task update
+   * @param player_id player _id whose task to update
+   * @param openedSession - (Optional) An already opened ClientSession to use
+   * @returns true if handled successfully or ServiceErrors
+   */
+  async handlePlayerTask(player_id: string, openedSession?: ClientSession): Promise<IServiceReturn<boolean>> {
+    const session = await InitializeSession(this.connection, openedSession);
     try {
       const taskUpdate = await this.tasksService.updateTask(player_id);
       const [, error] = await this.handleClanAndPlayerReward(
         player_id,
         taskUpdate,
       );
-      if (error) return await cancelTransaction(session, error);
+      if (error) return await cancelTransaction(session, error, openedSession);
     } catch (
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       e
     ) {
-      await cancelTransaction(session, e as ServiceError[]);
+      await cancelTransaction(session, e as ServiceError[], openedSession);
     }
-    return await endTransaction(session);
+    return await endTransaction(session, openedSession);
   }
 
   /** Handles clan events

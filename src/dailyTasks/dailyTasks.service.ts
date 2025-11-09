@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { ModelName } from '../common/enum/modelName.enum';
 import DailyTaskNotifier from './dailyTask.notifier';
@@ -81,21 +81,23 @@ export class DailyTasksService {
    * @param playerId - The ID of the player reserving the task.
    * @param taskId - The ID of the task to be reserved.
    * @param clanId - The ID of the clan to which the task belongs.
+   * @param openedSession - (Optional) An already opened ClientSession to use
+   * 
    * @returns The reserved task.
    * @throws Will throw an error if the task is already reserved by another player or if any database operation fails.
    */
-  async reserveTask(playerId: string, taskId: string, clanId: string) {
+  async reserveTask(playerId: string, taskId: string, clanId: string, openedSession?: ClientSession) {
     const [task, error] = await this.basicService.readOne<DailyTaskDto>({
       filter: { _id: taskId, clan_id: clanId },
     });
     if (error) throw error;
     if (task.player_id && task.player_id !== playerId) throw taskReservedError;
 
-    const session = await InitializeSession(this.model.db);
+    const session = await InitializeSession(this.model.db, openedSession);
 
     const [, unreserveError] = await this.unreserveTask(playerId);
     if (unreserveError && unreserveError[0].reason !== SEReason.NOT_FOUND)
-      await cancelTransaction(session, unreserveError);
+      await cancelTransaction(session, unreserveError, openedSession);
 
     const startedAt = new Date();
     task.player_id = playerId;
@@ -105,12 +107,12 @@ export class DailyTasksService {
       taskId,
       task,
     );
-    if (updateError) await cancelTransaction(session, updateError);
+    if (updateError) await cancelTransaction(session, updateError, openedSession);
 
     await this.taskQueue.addDailyTask(task);
     await this.notifier.taskReceived(playerId, task);
 
-    return await endTransaction(session, task);
+    return await endTransaction(session, task, openedSession);
   }
 
   /**

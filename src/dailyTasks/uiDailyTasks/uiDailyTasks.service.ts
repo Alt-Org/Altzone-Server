@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DailyTask } from '../dailyTasks.schema';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import BasicService from '../../common/service/basicService/BasicService';
 import { UIDailyTaskData, uiDailyTasks } from './uiDailyTasks';
 import { IServiceReturn } from '../../common/service/basicService/IService';
@@ -69,31 +69,35 @@ export default class UIDailyTasksService {
    *
    * @param player_id - The ID of the player whose task is being updated.
    * @param amount - Amount of completed atomic tasks, default is 1
+   * @param openedSession - (Optional) An already opened ClientSession to use
    * @returns The updated task and status or ServiceErrors if any occurred.
    */
   async updateTask(
     player_id: string,
     amount = 1,
+    openedSession?: ClientSession,
   ): Promise<IServiceReturn<['updated' | 'completed', DailyTask]>> {
     const [task, errors] = await this.findUIDailyTask(player_id);
     if (errors) return [null, errors];
 
     const isTaskCompleted = task.amountLeft - amount <= 0;
 
+    const session = await InitializeSession(this.model.db, openedSession);
     if (isTaskCompleted) {
-      const [_isSuccess, errors] = await this.handleTaskCompletion(task);
-      if (errors) return [null, errors];
+      const [_isSuccess, errors] = await this.handleTaskCompletion(task, session);
+      if (errors) return await cancelTransaction(session, errors, openedSession);
 
-      return [['completed', task], null];
+      return await endTransaction(session, ['completed', task], openedSession);
     }
 
     const [_isSuccess, updateErrors] = await this.handleTaskAmountUpdate(
       task,
       amount,
+      session,
     );
-    if (updateErrors) return [null, updateErrors];
+    if (updateErrors) return await cancelTransaction(session, updateErrors, openedSession);
 
-    return [['updated', task], null];
+    return await endTransaction(session, ['updated', task], openedSession);
   }
 
   /**
@@ -136,6 +140,7 @@ export default class UIDailyTasksService {
    *
    * @param task task data to update
    * @param decreaseAmount amount to decrease
+   * @param openedSession - (Optional) An already opened ClientSession to use
    * @private
    *
    * @returns true if task was updated successfully or ServiceErrors if any occurred
@@ -143,8 +148,9 @@ export default class UIDailyTasksService {
   private async handleTaskAmountUpdate(
     task: DailyTask,
     decreaseAmount: number,
+    openedSession?: ClientSession,
   ): Promise<IServiceReturn<true>> {
-    const updatingSession = await InitializeSession(this.model.db);
+    const updatingSession = await InitializeSession(this.model.db, openedSession);
 
     const updatedAmount = task.amountLeft - decreaseAmount;
 
@@ -154,35 +160,35 @@ export default class UIDailyTasksService {
     );
 
     if (updateErrors) {
-      await cancelTransaction(updatingSession, updateErrors);
-      return [null, updateErrors];
+      return await cancelTransaction(updatingSession, updateErrors, openedSession);
     }
 
-    return await endTransaction(updatingSession);
+    return await endTransaction(updatingSession, openedSession);
   }
 
   /**
    * Handles daily task completion logic, which is removing the task from DB.
    *
    * @param task completed task data
+   * @param openedSession - (Optional) An already opened ClientSession to use
    * @private
    *
    * @returns true if task completion was handled successfully or ServiceErrors if any occurred
    */
   private async handleTaskCompletion(
     task: DailyTask,
+    openedSession?: ClientSession,
   ): Promise<IServiceReturn<true>> {
-    const deletionSession = await InitializeSession(this.model.db);
+    const deletionSession = await InitializeSession(this.model.db, openedSession);
 
     const [, deletionErrors] = await this.basicService.deleteOneById(
       task._id.toString(),
     );
 
     if (deletionErrors) {
-      await cancelTransaction(deletionSession, deletionErrors);
-      return [null, deletionErrors];
+      return await cancelTransaction(deletionSession, deletionErrors, openedSession);
     }
 
-    return await endTransaction(deletionSession);
+    return await endTransaction(deletionSession, openedSession);
   }
 }

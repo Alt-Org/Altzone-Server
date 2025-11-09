@@ -149,17 +149,18 @@ export class RoomService {
    * Notice that the method also removes all Items inside the Room
    *
    * @param _id - The Mongo _id of the Room to delete.
+   * @operationId - Optional operation id for logging purposes
    * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
    */
-  async deleteOneById(_id: string) {
-    const session = await InitializeSession(this.connection);
+  async deleteOneById(_id: string, openedSession?: ClientSession) {
+    const session = await InitializeSession(this.connection, openedSession);
     await this.itemService.deleteAllRoomItems(_id);
 
     const [__, errorOne] = await this.basicService.deleteOneById(_id);
     if (errorOne) {
-      return await cancelTransaction(session, errorOne);
+      return await cancelTransaction(session, errorOne, openedSession);
     }
-    return await endTransaction(session);
+    return await endTransaction(session, openedSession);
   }
 
   /**
@@ -168,18 +169,19 @@ export class RoomService {
    * Notice that the method also removes all Items inside these Rooms
    *
    * @param soulHome_id - The Mongo _id of the Room to delete.
+   * @param openedSession - (Optional) An already opened ClientSession to use
    * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
    */
   async deleteAllSoulHomeRooms(
     soulHome_id: string,
-    openSession?: ClientSession,
+    openedSession?: ClientSession,
   ): Promise<[true | null, ServiceError[] | null]> {
     const [soulHomeRooms, errors] = await this.basicService.readMany<RoomDto>({
       filter: { soulHome_id },
     });
     if (errors || !soulHomeRooms) return [null, errors];
 
-    const session = await InitializeSession(this.connection, openSession);
+    const session = await InitializeSession(this.connection, openedSession);
     try {
       for (let i = 0, l = soulHomeRooms.length; i < l; i++)
         await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id);
@@ -189,10 +191,10 @@ export class RoomService {
       return await cancelTransaction(
         session,
         error as ServiceError[],
-        openSession,
+        openedSession,
       );
     }
-    return await endTransaction(session, openSession);
+    return await endTransaction(session, openedSession);
   }
 
   /**

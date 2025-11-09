@@ -55,6 +55,7 @@ export class GameEventsHandler {
     const [, playerErrors] = await this.playerEventHandler.handlePlayerEvent(
       player_id,
       PlayerEvent.BATTLE_WON,
+      session,
     );
 
     this.emitterService.EmitNewDailyTaskEvent(
@@ -81,6 +82,7 @@ export class GameEventsHandler {
     const [, playerErrors] = await this.playerEventHandler.handlePlayerEvent(
       player_id,
       PlayerEvent.BATTLE_LOSE,
+      session,
     );
 
     if (playerErrors) return await cancelTransaction(session, playerErrors);
@@ -99,7 +101,7 @@ export class GameEventsHandler {
   private async handleStartVoting(player_id: string) {
     const session = await InitializeSession(this.connection);
     const [, clanErrors] =
-      await this.clanEventHandler.handlePlayerTask(player_id);
+      await this.clanEventHandler.handlePlayerTask(player_id, session);
 
     if (clanErrors) return await cancelTransaction(session, clanErrors);
 
@@ -109,7 +111,7 @@ export class GameEventsHandler {
   private async handleCollectDiamonds(player_id: string) {
     const session = await InitializeSession(this.connection);
     const [, clanErrors] =
-      await this.clanEventHandler.handlePlayerTask(player_id);
+      await this.clanEventHandler.handlePlayerTask(player_id, session);
 
     if (clanErrors) return await cancelTransaction(session, clanErrors);
 
@@ -120,7 +122,7 @@ export class GameEventsHandler {
     const session = await InitializeSession(this.connection);
 
     const [, clanErrors] =
-      await this.clanEventHandler.handlePlayerTask(player_id);
+      await this.clanEventHandler.handlePlayerTask(player_id, session);
 
     if (clanErrors) return await cancelTransaction(session, clanErrors);
 

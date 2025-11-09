@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import { ClientSession, Connection, Model } from 'mongoose';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Stock } from './stock.schema';
 import { CreateStockDto } from './dto/createStock.dto';
@@ -118,21 +118,22 @@ export class StockService {
    * Notice that the method will also delete all Items inside of the Stock.
    *
    * @param _id - The Mongo _id of the Stock to delete.
+   * @param openedSession - (Optional) An already opened ClientSession to use.
    * @returns _true_ if Stock was removed successfully, or a ServiceError array if the Stock was not found or something else went wrong
    */
-  async deleteOneById(_id: string) {
-    const session = await InitializeSession(this.connection);
+  async deleteOneById(_id: string, openedSession?: ClientSession) {
+    const session = await InitializeSession(this.connection, openedSession);
 
     const [_, errors] = await this.itemService.deleteAllStockItems(_id);
     if (errors) {
-      return await cancelTransaction(session, errors);
+      return await cancelTransaction(session, errors, openedSession);
     }
 
     const [__, errorsOne] = await this.basicService.deleteOneById(_id);
     if (errorsOne) {
-      return await cancelTransaction(session, errorsOne);
+      return await cancelTransaction(session, errorsOne, openedSession);
     }
 
-    return await endTransaction(session);
+    return await endTransaction(session, openedSession);
   }
 }

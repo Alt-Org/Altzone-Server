@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { publicReferences, SoulHome } from './soulhome.schema';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Connection, Model } from 'mongoose';
+import { ClientSession, Connection, Model } from 'mongoose';
 import { RoomService } from '../room/room.service';
 import { SoulHomeDto } from './dto/soulhome.dto';
 import { CreateSoulHomeDto } from './dto/createSoulHome.dto';
@@ -75,17 +75,18 @@ export class SoulHomeService {
    * Notice that the method will also delete associated rooms.
    *
    * @param _id - The Mongo _id of the SoulHome to delete.
+   * @param openedSession - (Optional) An already opened ClientSession to use.
    * @returns _true_ if SoulHome was removed successfully, or a ServiceError array if the SoulHome was not found or something else went wrong
    */
-  async deleteOneById(_id: string) {
-    const session = await InitializeSession(this.connection);
+  async deleteOneById(_id: string, openedSession?: ClientSession) {
+    const session = await InitializeSession(this.connection, openedSession);
     await this.roomService.deleteAllSoulHomeRooms(_id, session);
 
-    const [deleteResponse, error] = await this.basicService.deleteOneById(_id);
+    const [_, error] = await this.basicService.deleteOneById(_id);
     if (error) {
-      return await cancelTransaction(session, error);
+      return await cancelTransaction(session, error, openedSession);
     }
 
-    return await endTransaction(session, deleteResponse);
+    return await endTransaction(session, openedSession);
   }
 }

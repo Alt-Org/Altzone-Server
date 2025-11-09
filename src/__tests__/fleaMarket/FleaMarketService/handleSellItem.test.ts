@@ -122,7 +122,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       clanId,
       fleaMarketItem: createdFleaMarketItemDto,
       queue: 'flea_market',
-    });
+    }, sessionMock);
     expect(addVotingCheckJob).toHaveBeenCalledWith(
       expect.objectContaining({
         voting: expect.objectContaining({

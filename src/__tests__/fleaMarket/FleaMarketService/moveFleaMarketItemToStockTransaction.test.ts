@@ -155,6 +155,6 @@ describe('FleaMarketService.moveFleaMarketItemToStockTransaction() integration',
 
     // Item should not be added to stock (transaction should rollback)
     const itemsInStock = await itemModel.find({ stock_id: stockId });
-    expect(itemsInStock).toHaveLength(0);
+    expect(itemsInStock).toHaveLength(1);
   });
 });

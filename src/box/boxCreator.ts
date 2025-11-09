@@ -3,7 +3,7 @@ import { CreateBoxDto } from './dto/createBox.dto';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Box, BoxDocument } from './schemas/box.schema';
-import { Connection, Model, MongooseError } from 'mongoose';
+import { ClientSession, Connection, Model, MongooseError } from 'mongoose';
 import { Player } from '../player/schemas/player.schema';
 import { Clan } from '../clan/clan.schema';
 import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
@@ -48,6 +48,7 @@ export default class BoxCreator {
    * Notice that if any errors occur on any of the initialization stage, all data of the box will be removed.
    *
    * @param boxToInit box to create
+   * @param openedSession optional opened session for transaction management
    *
    * @returns created box and all corresponding data to it on success or ServiceErrors:
    *
@@ -57,6 +58,7 @@ export default class BoxCreator {
    */
   public async createBox(
     boxToInit: CreateBoxDto,
+    openedSession?: ClientSession,
   ): Promise<IServiceReturn<CreatedBox>> {
     if (!boxToInit)
       return [
@@ -97,15 +99,15 @@ export default class BoxCreator {
     );
     boxToCreate.clansToCreate = [{ name: clanName1 }, { name: clanName2 }];
 
-    const session = await InitializeSession(this.connection);
+    const session = await InitializeSession(this.connection, openedSession);
 
     const [adminProfile, adminProfileErrors] = await this.createAdminProfile(
       boxToInit.adminPassword,
       boxToCreate_id.toString(),
     );
     if (adminProfileErrors) {
-      await this.boxService.reset(boxToCreate._id);
-      return await cancelTransaction(session, adminProfileErrors);
+      await this.boxService.reset(boxToCreate._id, session);
+      return await cancelTransaction(session, adminProfileErrors, openedSession);
     }
     boxToCreate.adminProfile_id = adminProfile._id as unknown as ObjectId;
 
@@ -119,8 +121,8 @@ export default class BoxCreator {
       box_id: boxToCreate_id.toString(),
     });
     if (adminPlayerErrors) {
-      await this.boxService.reset(boxToCreate._id);
-      return await cancelTransaction(session, adminPlayerErrors);
+      await this.boxService.reset(boxToCreate._id, session);
+      return await cancelTransaction(session, adminPlayerErrors, openedSession);
     }
     boxToCreate.adminPlayer_id = adminPlayer._id as unknown as ObjectId;
 
@@ -128,7 +130,7 @@ export default class BoxCreator {
       boxToCreate as BoxDocument,
     );
 
-    if (errors) return await cancelTransaction(session, errors);
+    if (errors) return await cancelTransaction(session, errors, openedSession);
 
     await this.groupAdminModel.findOneAndUpdate(
       { password: boxToInit.adminPassword },
@@ -144,7 +146,7 @@ export default class BoxCreator {
     return await endTransaction(session, {
       ...createdBox.toObject(),
       adminPlayer: createdAdminPlayer,
-    });
+    }, openedSession);
   }
 
   /**
