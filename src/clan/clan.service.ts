@@ -95,7 +95,8 @@ export class ClanService {
       clan_id: clan._id,
       clanRole_id: leaderRole._id,
     });
-    if (playerErrors) return await cancelTransaction(session, playerErrors, openedSession);
+    if (playerErrors)
+      return await cancelTransaction(session, playerErrors, openedSession);
 
     const [stock, stockErrors] =
       await this.clanHelperService.createDefaultStock(clan._id);
@@ -103,7 +104,12 @@ export class ClanService {
       return await cancelTransaction(session, stockErrors, openedSession);
 
     const [soulHome, soulHomeErrors] =
-      await this.clanHelperService.createDefaultSoulHome(clan._id, clan.name, 30, session);
+      await this.clanHelperService.createDefaultSoulHome(
+        clan._id,
+        clan.name,
+        30,
+        session,
+      );
     if (soulHomeErrors || !soulHome)
       return await cancelTransaction(session, soulHomeErrors, openedSession);
 
@@ -146,7 +152,12 @@ export class ClanService {
       return await cancelTransaction(session, stockErrors, openedSession);
 
     const [soulHome, soulHomeErrors] =
-      await this.clanHelperService.createDefaultSoulHome(clan._id, clan.name, 30, session);
+      await this.clanHelperService.createDefaultSoulHome(
+        clan._id,
+        clan.name,
+        30,
+        session,
+      );
     if (soulHomeErrors || !soulHome)
       return await cancelTransaction(session, soulHomeErrors, openedSession);
 
@@ -229,14 +240,18 @@ export class ClanService {
     }
 
     if (admin_ids.length === 0)
-      return await cancelTransaction(session, [
-        new ServiceError({
-          message:
-            'Clan can not be without at least one admin. You are trying to delete all clan admins',
-          field: 'admin_ids',
-          reason: SEReason.REQUIRED,
-        }),
-      ], openedSession);
+      return await cancelTransaction(
+        session,
+        [
+          new ServiceError({
+            message:
+              'Clan can not be without at least one admin. You are trying to delete all clan admins',
+            field: 'admin_ids',
+            reason: SEReason.REQUIRED,
+          }),
+        ],
+        openedSession,
+      );
 
     //add only players that are clan members
     const playersInClan: string[] = [];
@@ -262,14 +277,18 @@ export class ClanService {
     }
 
     if (playersInClan.length === 0)
-      return await cancelTransaction(session, [
-        new ServiceError({
-          message:
-            'Clan can not be without at least one admin. You are trying to delete all clan admins',
-          field: 'admin_ids',
-          reason: SEReason.REQUIRED,
-        }),
-      ], openedSession);
+      return await cancelTransaction(
+        session,
+        [
+          new ServiceError({
+            message:
+              'Clan can not be without at least one admin. You are trying to delete all clan admins',
+            field: 'admin_ids',
+            reason: SEReason.REQUIRED,
+          }),
+        ],
+        openedSession,
+      );
 
     const [_, errors] = await this.basicService.updateOneById(_id, {
       ...fieldsToUpdate,
@@ -302,7 +321,7 @@ export class ClanService {
    *
    * @param _id - The Mongo _id of the Clan to delete.
    * @param openedSession - (Optional) An already opened ClientSession to use
-   * 
+   *
    * @returns _true_ if Clan was removed successfully,
    * or a ServiceError array if the Clan was not found or something else went wrong
    */
@@ -326,13 +345,18 @@ export class ClanService {
         }
       }
 
-      if (clan.Stock) await this.stockService.deleteOneById(clan.Stock._id, session);
+      if (clan.Stock)
+        await this.stockService.deleteOneById(clan.Stock._id, session);
       if (clan.SoulHome)
         await this.soulhomeService.deleteOneById(clan.SoulHome._id, session);
 
       await this.basicService.deleteOneById(_id);
     } catch (error) {
-      return await cancelTransaction(session, error as ServiceError[], openedSession);
+      return await cancelTransaction(
+        session,
+        error as ServiceError[],
+        openedSession,
+      );
     }
 
     return await endTransaction(session, openedSession);

@@ -100,8 +100,10 @@ export class GameEventsHandler {
 
   private async handleStartVoting(player_id: string) {
     const session = await InitializeSession(this.connection);
-    const [, clanErrors] =
-      await this.clanEventHandler.handlePlayerTask(player_id, session);
+    const [, clanErrors] = await this.clanEventHandler.handlePlayerTask(
+      player_id,
+      session,
+    );
 
     if (clanErrors) return await cancelTransaction(session, clanErrors);
 
@@ -110,8 +112,10 @@ export class GameEventsHandler {
 
   private async handleCollectDiamonds(player_id: string) {
     const session = await InitializeSession(this.connection);
-    const [, clanErrors] =
-      await this.clanEventHandler.handlePlayerTask(player_id, session);
+    const [, clanErrors] = await this.clanEventHandler.handlePlayerTask(
+      player_id,
+      session,
+    );
 
     if (clanErrors) return await cancelTransaction(session, clanErrors);
 
@@ -121,8 +125,10 @@ export class GameEventsHandler {
   private async handleNewCharacter(player_id: string) {
     const session = await InitializeSession(this.connection);
 
-    const [, clanErrors] =
-      await this.clanEventHandler.handlePlayerTask(player_id, session);
+    const [, clanErrors] = await this.clanEventHandler.handlePlayerTask(
+      player_id,
+      session,
+    );
 
     if (clanErrors) return await cancelTransaction(session, clanErrors);
 

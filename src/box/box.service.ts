@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import mongoose, { ClientSession, Connection, FilterQuery, Model } from 'mongoose';
+import mongoose, {
+  ClientSession,
+  Connection,
+  FilterQuery,
+  Model,
+} from 'mongoose';
 import { Box, BoxDocument, publicReferences } from './schemas/box.schema';
 import BasicService, {
   convertMongooseToServiceErrors,
@@ -144,7 +149,10 @@ export class BoxService {
    * - REQUIRED - if the box_id is null, undefined or empty string
    * - NOT_FOUND - if there are no box with this _id
    */
-  public async reset(box_id: string | ObjectId, openedSession?: ClientSession): Promise<IServiceReturn<true>> {
+  public async reset(
+    box_id: string | ObjectId,
+    openedSession?: ClientSession,
+  ): Promise<IServiceReturn<true>> {
     const [, validationErrors] = this.validateBoxId(box_id);
     if (validationErrors) return [null, validationErrors];
 
@@ -176,7 +184,11 @@ export class BoxService {
     );
 
     if (adminProfileErrors) {
-      return await cancelTransaction(session, adminProfileErrors, openedSession);
+      return await cancelTransaction(
+        session,
+        adminProfileErrors,
+        openedSession,
+      );
     }
 
     const [, adminPlayerErrors] = await this.clearBoxCollection<Player>(

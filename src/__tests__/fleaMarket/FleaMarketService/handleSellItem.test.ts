@@ -116,13 +116,16 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     expect(sessionMock.startTransaction).toHaveBeenCalled();
     expect(sessionMock.commitTransaction).toHaveBeenCalled();
     expect(sessionMock.endSession).toHaveBeenCalled();
-    expect(votingService.startVoting).toHaveBeenCalledWith({
-      voterPlayer: playerDto,
-      type: 'flea_market_sell_item',
-      clanId,
-      fleaMarketItem: createdFleaMarketItemDto,
-      queue: 'flea_market',
-    }, sessionMock);
+    expect(votingService.startVoting).toHaveBeenCalledWith(
+      {
+        voterPlayer: playerDto,
+        type: 'flea_market_sell_item',
+        clanId,
+        fleaMarketItem: createdFleaMarketItemDto,
+        queue: 'flea_market',
+      },
+      sessionMock,
+    );
     expect(addVotingCheckJob).toHaveBeenCalledWith(
       expect.objectContaining({
         voting: expect.objectContaining({

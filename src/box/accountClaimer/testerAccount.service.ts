@@ -44,9 +44,9 @@ export class TesterAccountService {
    *
    * @param box_id _id of the box with which tester is associated with
    *
-   * 
+   *
    * @param openedSession - (Optional) An already opened ClientSession to use.
-   * 
+   *
    * @returns created tester or ServiceError if any errors occurred during the creation process
    */
   async createTester(
@@ -61,7 +61,11 @@ export class TesterAccountService {
       password,
     );
     if (profileCreationErrors)
-      return await cancelTransaction(session, profileCreationErrors, openedSession);
+      return await cancelTransaction(
+        session,
+        profileCreationErrors,
+        openedSession,
+      );
 
     const [createdPlayer, playerCreationErrors] = await this.createPlayer(
       box_id,
@@ -69,12 +73,20 @@ export class TesterAccountService {
       createdProfile,
     );
     if (playerCreationErrors)
-      return await cancelTransaction(session, playerCreationErrors, openedSession);
+      return await cancelTransaction(
+        session,
+        playerCreationErrors,
+        openedSession,
+      );
 
-    return await endTransaction(session, {
-      Profile: createdProfile,
-      Player: createdPlayer,
-    }, openedSession);
+    return await endTransaction(
+      session,
+      {
+        Profile: createdProfile,
+        Player: createdPlayer,
+      },
+      openedSession,
+    );
   }
 
   /**

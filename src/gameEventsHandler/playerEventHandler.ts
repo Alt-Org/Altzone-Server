@@ -31,7 +31,7 @@ export class PlayerEventHandler {
   async handlePlayerEvent(
     player_id: string,
     event: PlayerEvent,
-    openedSession?: ClientSession
+    openedSession?: ClientSession,
   ): Promise<[boolean, ServiceError[]]> {
     const session = await InitializeSession(this.connection, openedSession);
 
@@ -41,7 +41,7 @@ export class PlayerEventHandler {
       return await cancelTransaction(
         session,
         playerStatError as ServiceError[],
-        openedSession
+        openedSession,
       );
 
     const [__, playerEventError] =

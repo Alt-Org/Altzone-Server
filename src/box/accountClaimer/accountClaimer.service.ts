@@ -38,7 +38,7 @@ export default class AccountClaimerService {
    * @param password shared password for the claiming account in a box.
    *
    * @param openedSession - (Optional) An already opened ClientSession to use.
-   * 
+   *
    * @returns Claimed account data, as well as an access token, or ServiceErrors:
    * - REQUIRED - if the password is not provided
    * - NOT_FOUND - if there are no box with this password
@@ -78,7 +78,11 @@ export default class AccountClaimerService {
     const [account, accountCreationErrors] =
       await this.testerService.createTester(box._id.toString(), session);
     if (accountCreationErrors)
-      return await cancelTransaction(session, accountCreationErrors, openedSession);
+      return await cancelTransaction(
+        session,
+        accountCreationErrors,
+        openedSession,
+      );
 
     const [accountClan, clanAssigningErrors] =
       await this.testerService.addTesterToClan(
@@ -86,7 +90,11 @@ export default class AccountClaimerService {
         box.createdClan_ids,
       );
     if (clanAssigningErrors)
-      return await cancelTransaction(session, clanAssigningErrors, openedSession);
+      return await cancelTransaction(
+        session,
+        clanAssigningErrors,
+        openedSession,
+      );
 
     const accessToken = await this.jwtService.signAsync({
       player_id: account.Player._id.toString(),
@@ -96,14 +104,18 @@ export default class AccountClaimerService {
       groupAdmin: false,
     });
 
-    return await endTransaction(session, {
-      ...account.Player,
-      password: account.Profile.username,
-      profile_id: account.Profile._id.toString(),
-      accessToken,
-      clan_id: accountClan._id.toString(),
-      Clan: accountClan as ClanDto,
-    }, openedSession);
+    return await endTransaction(
+      session,
+      {
+        ...account.Player,
+        password: account.Profile.username,
+        profile_id: account.Profile._id.toString(),
+        accessToken,
+        clan_id: accountClan._id.toString(),
+        Clan: accountClan as ClanDto,
+      },
+      openedSession,
+    );
   }
 
   /**

@@ -162,13 +162,19 @@ export class FleaMarketService {
     const [item, itemErrors] = await this.itemService.readOneById(
       sellFleaMarketItemDto.item_id,
     );
-    if (itemErrors) return await cancelTransaction(session, itemErrors, openedSession);
+    if (itemErrors)
+      return await cancelTransaction(session, itemErrors, openedSession);
     if (!item.stock_id)
-      return await cancelTransaction(session, [itemNotInStockError], openedSession);
+      return await cancelTransaction(
+        session,
+        [itemNotInStockError],
+        openedSession,
+      );
 
     const [player, playerErrors] =
       await this.playerService.getPlayerById(playerId);
-    if (playerErrors) return await cancelTransaction(session, playerErrors, openedSession);
+    if (playerErrors)
+      return await cancelTransaction(session, playerErrors, openedSession);
 
     const newItem = await this.helperService.itemToCreateFleaMarketItem(
       item,
@@ -181,13 +187,16 @@ export class FleaMarketService {
     );
     if (err) return await cancelTransaction(session, err, openedSession);
 
-    const [voting, errors] = await this.votingService.startVoting({
-      voterPlayer: player,
-      type: VotingType.FLEA_MARKET_SELL_ITEM,
-      clanId,
-      fleaMarketItem: createdItem,
-      queue: VotingQueueName.FLEA_MARKET,
-    }, session);
+    const [voting, errors] = await this.votingService.startVoting(
+      {
+        voterPlayer: player,
+        type: VotingType.FLEA_MARKET_SELL_ITEM,
+        clanId,
+        fleaMarketItem: createdItem,
+        queue: VotingQueueName.FLEA_MARKET,
+      },
+      session,
+    );
     if (errors) return await cancelTransaction(session, errors, openedSession);
 
     const [, votingUpdateErrors] =
@@ -338,7 +347,8 @@ export class FleaMarketService {
       await this.basicService.readOneById<FleaMarketItemDto>(
         voting.fleaMarketItem_id,
       );
-    if (itemErrors) return await cancelTransaction(session, itemErrors, openedSession);
+    if (itemErrors)
+      return await cancelTransaction(session, itemErrors, openedSession);
 
     const newItem = this.helperService.fleaMarketItemToCreateItemDto(
       item,
@@ -381,10 +391,12 @@ export class FleaMarketService {
       voting.fleaMarketItem_id,
       { status: Status.AVAILABLE },
     );
-    if (updateErrors) return await cancelTransaction(session, updateErrors, openedSession);
+    if (updateErrors)
+      return await cancelTransaction(session, updateErrors, openedSession);
 
     const [clan, clanErrors] = await this.clanService.readOneById(clanId);
-    if (clanErrors) return await cancelTransaction(session, clanErrors, openedSession);
+    if (clanErrors)
+      return await cancelTransaction(session, clanErrors, openedSession);
 
     const [__, clanUpdateErrors] = await this.clanService.updateOne(
       { gameCoins: clan.gameCoins + itemPrice },
@@ -436,14 +448,16 @@ export class FleaMarketService {
     const [_, deleteErrors] = await this.basicService.deleteOneById(
       fmItem._id.toString(),
     );
-    if (deleteErrors) return cancelTransaction(session, deleteErrors, openedSession);
+    if (deleteErrors)
+      return cancelTransaction(session, deleteErrors, openedSession);
 
     const item = this.helperService.fleaMarketItemToCreateItemDto(
       fmItem,
       stockId,
     );
     const [__, createErrors] = await this.itemService.createOne(item);
-    if (createErrors) return cancelTransaction(session, createErrors, openedSession);
+    if (createErrors)
+      return cancelTransaction(session, createErrors, openedSession);
 
     return await endTransaction(session, openedSession);
   }
@@ -570,9 +584,10 @@ export class FleaMarketService {
     const [_, updateErrors] = await this.basicService.updateOneById(
       item._id,
       { status: Status.SHIPPING },
-      { session }
+      { session },
     );
-    if (updateErrors) return await cancelTransaction(session, updateErrors, openedSession);
+    if (updateErrors)
+      return await cancelTransaction(session, updateErrors, openedSession);
 
     const [voting, votingErrors] = await this.votingService.startVoting(
       {
@@ -585,7 +600,8 @@ export class FleaMarketService {
       },
       session,
     );
-    if (votingErrors) return await cancelTransaction(session, votingErrors, openedSession);
+    if (votingErrors)
+      return await cancelTransaction(session, votingErrors, openedSession);
 
     await this.votingQueue.addVotingCheckJob({
       voting,
@@ -716,9 +732,8 @@ export class FleaMarketService {
     const [, createErrors] = await this.itemService.createOne(itemDto);
     if (createErrors) return await cancelTransaction(session, createErrors);
 
-    const [, deleteErrors] = await this.basicService.deleteOneById(
-      fleaMarketItemId,
-    );
+    const [, deleteErrors] =
+      await this.basicService.deleteOneById(fleaMarketItemId);
 
     if (deleteErrors) return await cancelTransaction(session, deleteErrors);
 

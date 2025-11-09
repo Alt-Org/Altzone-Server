@@ -80,15 +80,20 @@ export class DailyTaskService {
       { $push: { dailyTasks: task } },
     );
     if (updateErrors && updateErrors[0].reason === SEReason.NOT_FOUND)
-      return await cancelTransaction(session, [
-        new ServiceError({
-          ...updateErrors[0],
-          field: 'box_id',
-          message: 'Box with this _id not found',
-        }),
-      ], openedSession);
+      return await cancelTransaction(
+        session,
+        [
+          new ServiceError({
+            ...updateErrors[0],
+            field: 'box_id',
+            message: 'Box with this _id not found',
+          }),
+        ],
+        openedSession,
+      );
 
-    if (updateErrors) await cancelTransaction(session, updateErrors, openedSession);
+    if (updateErrors)
+      await cancelTransaction(session, updateErrors, openedSession);
 
     const [updatedBox, readErrors] =
       await this.basicService.readOneById<BoxDocument>(convertedBox_id);
@@ -107,7 +112,7 @@ export class DailyTaskService {
    * @param box_id _id of the box
    * @param tasks tasks to add
    * @param openedSession - (Optional) An already opened ClientSession to use
-   * 
+   *
    * @returns created tasks, or ServiceError:
    * - NOT_FOUND if the box was not found
    * - REQUIRED if box_id is null, undefined or empty string, or tasks is null, undefined or empty array
@@ -161,11 +166,13 @@ export class DailyTaskService {
         }),
       ]);
 
-    if (updateErrors) return await cancelTransaction(session, updateErrors, openedSession);
+    if (updateErrors)
+      return await cancelTransaction(session, updateErrors, openedSession);
 
     const [updatedBox, readErrors] =
       await this.basicService.readOneById<BoxDocument>(convertedBox_id);
-    if (readErrors) return await cancelTransaction(session, readErrors, openedSession);
+    if (readErrors)
+      return await cancelTransaction(session, readErrors, openedSession);
 
     const createdTasks: PredefinedDailyTask[] = [];
     for (let i = 0; i < tasks.length; i++) {

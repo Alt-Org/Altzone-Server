@@ -82,11 +82,16 @@ export class DailyTasksService {
    * @param taskId - The ID of the task to be reserved.
    * @param clanId - The ID of the clan to which the task belongs.
    * @param openedSession - (Optional) An already opened ClientSession to use
-   * 
+   *
    * @returns The reserved task.
    * @throws Will throw an error if the task is already reserved by another player or if any database operation fails.
    */
-  async reserveTask(playerId: string, taskId: string, clanId: string, openedSession?: ClientSession) {
+  async reserveTask(
+    playerId: string,
+    taskId: string,
+    clanId: string,
+    openedSession?: ClientSession,
+  ) {
     const [task, error] = await this.basicService.readOne<DailyTaskDto>({
       filter: { _id: taskId, clan_id: clanId },
     });
@@ -107,7 +112,8 @@ export class DailyTasksService {
       taskId,
       task,
     );
-    if (updateError) await cancelTransaction(session, updateError, openedSession);
+    if (updateError)
+      await cancelTransaction(session, updateError, openedSession);
 
     await this.taskQueue.addDailyTask(task);
     await this.notifier.taskReceived(playerId, task);

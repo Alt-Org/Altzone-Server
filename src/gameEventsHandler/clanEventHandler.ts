@@ -32,7 +32,10 @@ export class ClanEventHandler {
    * @param openedSession - (Optional) An already opened ClientSession to use
    * @returns true if handled successfully or ServiceErrors
    */
-  async handlePlayerTask(player_id: string, openedSession?: ClientSession): Promise<IServiceReturn<boolean>> {
+  async handlePlayerTask(
+    player_id: string,
+    openedSession?: ClientSession,
+  ): Promise<IServiceReturn<boolean>> {
     const session = await InitializeSession(this.connection, openedSession);
     try {
       const taskUpdate = await this.tasksService.updateTask(player_id);

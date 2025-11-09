@@ -46,7 +46,7 @@ export class ClanShopService {
    * @param clanId - The unique identifier of the clan associated with the purchase.
    * @param item - The item being purchased, including its properties such as price.
    * @param openedSession - An optional MongoDB client session for transaction management
-   * 
+   *
    * @throws Will cancel the transaction and throw errors if:
    * - The clan cannot be retrieved or has insufficient game coins.
    * - Funds cannot be reserved for the purchase.
@@ -66,16 +66,22 @@ export class ClanShopService {
     const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
       includeRefs: [ModelName.STOCK],
     });
-    if (clanErrors) return await cancelTransaction(session, clanErrors, openedSession);
+    if (clanErrors)
+      return await cancelTransaction(session, clanErrors, openedSession);
     if (clan.gameCoins < item.price)
-      return await cancelTransaction(session, [notEnoughCoinsError], openedSession);
+      return await cancelTransaction(
+        session,
+        [notEnoughCoinsError],
+        openedSession,
+      );
 
     const [, error] = await this.reserveFunds(clan._id, item.price, session);
     if (error) return await cancelTransaction(session, error, openedSession);
 
     const [player, playerError] =
       await this.playerService.getPlayerById(playerId);
-    if (playerError) return await cancelTransaction(session, playerError, openedSession);
+    if (playerError)
+      return await cancelTransaction(session, playerError, openedSession);
 
     const [voting, votingErrors] = await this.votingService.startVoting(
       {
@@ -125,7 +131,7 @@ export class ClanShopService {
    *
    * @param data - An object containing the voting details, price, clan ID, and stock ID.
    * @param openedSession - (Optional) An already opened ClientSession to use
-   * 
+   *
    * The method performs the following steps:
    * 1. Starts a database session and transaction.
    * 2. Checks if the voting process was successful.
@@ -136,17 +142,22 @@ export class ClanShopService {
    *
    * If any error occurs during the process, the transaction is canceled, and the session is ended.
    */
-  async checkVotingOnExpire(data: VotingQueueParams, openedSession?: ClientSession) {
+  async checkVotingOnExpire(
+    data: VotingQueueParams,
+    openedSession?: ClientSession,
+  ) {
     const { voting, price, clanId, stockId } = data;
     const session = await InitializeSession(this.connection, openedSession);
 
     const votePassed = await this.votingService.checkVotingSuccess(voting);
     if (votePassed) {
       const [, passedError] = await this.handleVotePassed(voting, stockId);
-      if (passedError) await cancelTransaction(session, passedError, openedSession);
+      if (passedError)
+        await cancelTransaction(session, passedError, openedSession);
     } else {
       const [, rejectError] = await this.handleVoteRejected(clanId, price);
-      if (rejectError) await cancelTransaction(session, rejectError, openedSession);
+      if (rejectError)
+        await cancelTransaction(session, rejectError, openedSession);
     }
 
     await endTransaction(session, openedSession);

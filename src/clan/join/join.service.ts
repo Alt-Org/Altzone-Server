@@ -152,7 +152,11 @@ export class JoinService {
    * @param clan_id
    * @param openedSession - (Optional) An already opened ClientSession to use
    */
-  public async removePlayerFromClan(player_id: string, clan_id: string, openedSession?: ClientSession) {
+  public async removePlayerFromClan(
+    player_id: string,
+    clan_id: string,
+    openedSession?: ClientSession,
+  ) {
     // get the player to remove
     const playerResp = await this.playerModel.findOne({ _id: player_id });
 

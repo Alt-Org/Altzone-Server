@@ -84,8 +84,12 @@ export default class UIDailyTasksService {
 
     const session = await InitializeSession(this.model.db, openedSession);
     if (isTaskCompleted) {
-      const [_isSuccess, errors] = await this.handleTaskCompletion(task, session);
-      if (errors) return await cancelTransaction(session, errors, openedSession);
+      const [_isSuccess, errors] = await this.handleTaskCompletion(
+        task,
+        session,
+      );
+      if (errors)
+        return await cancelTransaction(session, errors, openedSession);
 
       return await endTransaction(session, ['completed', task], openedSession);
     }
@@ -95,7 +99,8 @@ export default class UIDailyTasksService {
       amount,
       session,
     );
-    if (updateErrors) return await cancelTransaction(session, updateErrors, openedSession);
+    if (updateErrors)
+      return await cancelTransaction(session, updateErrors, openedSession);
 
     return await endTransaction(session, ['updated', task], openedSession);
   }
@@ -150,7 +155,10 @@ export default class UIDailyTasksService {
     decreaseAmount: number,
     openedSession?: ClientSession,
   ): Promise<IServiceReturn<true>> {
-    const updatingSession = await InitializeSession(this.model.db, openedSession);
+    const updatingSession = await InitializeSession(
+      this.model.db,
+      openedSession,
+    );
 
     const updatedAmount = task.amountLeft - decreaseAmount;
 
@@ -160,7 +168,11 @@ export default class UIDailyTasksService {
     );
 
     if (updateErrors) {
-      return await cancelTransaction(updatingSession, updateErrors, openedSession);
+      return await cancelTransaction(
+        updatingSession,
+        updateErrors,
+        openedSession,
+      );
     }
 
     return await endTransaction(updatingSession, openedSession);
@@ -179,14 +191,21 @@ export default class UIDailyTasksService {
     task: DailyTask,
     openedSession?: ClientSession,
   ): Promise<IServiceReturn<true>> {
-    const deletionSession = await InitializeSession(this.model.db, openedSession);
+    const deletionSession = await InitializeSession(
+      this.model.db,
+      openedSession,
+    );
 
     const [, deletionErrors] = await this.basicService.deleteOneById(
       task._id.toString(),
     );
 
     if (deletionErrors) {
-      return await cancelTransaction(deletionSession, deletionErrors, openedSession);
+      return await cancelTransaction(
+        deletionSession,
+        deletionErrors,
+        openedSession,
+      );
     }
 
     return await endTransaction(deletionSession, openedSession);

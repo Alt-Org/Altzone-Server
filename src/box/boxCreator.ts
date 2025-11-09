@@ -107,7 +107,11 @@ export default class BoxCreator {
     );
     if (adminProfileErrors) {
       await this.boxService.reset(boxToCreate._id, session);
-      return await cancelTransaction(session, adminProfileErrors, openedSession);
+      return await cancelTransaction(
+        session,
+        adminProfileErrors,
+        openedSession,
+      );
     }
     boxToCreate.adminProfile_id = adminProfile._id as unknown as ObjectId;
 
@@ -143,10 +147,14 @@ export default class BoxCreator {
       ...createdAdminPlayer
     } = (adminPlayer as any).toObject();
 
-    return await endTransaction(session, {
-      ...createdBox.toObject(),
-      adminPlayer: createdAdminPlayer,
-    }, openedSession);
+    return await endTransaction(
+      session,
+      {
+        ...createdBox.toObject(),
+        adminPlayer: createdAdminPlayer,
+      },
+      openedSession,
+    );
   }
 
   /**

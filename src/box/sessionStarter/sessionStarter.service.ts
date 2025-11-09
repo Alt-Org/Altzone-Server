@@ -55,14 +55,17 @@ export default class SessionStarterService {
    * - Sets reset and removal times of the box
    *
    * @param box_id _id of the box where to start the session
-   * 
+   *
    * @param openedSession - (Optional) An already opened ClientSession to use.
    *
    * @returns true if the session is started successfully, or ServiceErrors:
    * - REQUIRED if the box_id is not provided
    * - NOT_FOUND if the box with that _id does not exist
    */
-  async start(box_id: ObjectId | string, openedSession?: ClientSession): Promise<IServiceReturn<true>> {
+  async start(
+    box_id: ObjectId | string,
+    openedSession?: ClientSession,
+  ): Promise<IServiceReturn<true>> {
     const randNumber = Math.floor(1 + Math.random() * 99);
     const testersPassword =
       this.passwordGenerator.generatePassword('fi') + `-${randNumber}`;
@@ -93,7 +96,8 @@ export default class SessionStarterService {
         createdClan_ids: boxInDB.createdClan_ids,
       },
     );
-    if (updateErr) return await cancelTransaction(session, updateErr, openedSession);
+    if (updateErr)
+      return await cancelTransaction(session, updateErr, openedSession);
 
     const dailyTasksToCreate = boxInDB.dailyTasks.map((task) => task['_doc']);
     const [, tasksCreationErrors] = await this.createDailyTasks(
@@ -143,14 +147,16 @@ export default class SessionStarterService {
       box_id,
       session,
     );
-    if (clan1Errors) return await cancelTransaction(session, clan1Errors, openedSession);
+    if (clan1Errors)
+      return await cancelTransaction(session, clan1Errors, openedSession);
 
     const [clan2Resp, clan2Errors] = await this.createBoxClan(
       clanName2,
       box_id,
       session,
     );
-    if (clan2Errors) return await cancelTransaction(session, clan2Errors, openedSession);
+    if (clan2Errors)
+      return await cancelTransaction(session, clan2Errors, openedSession);
 
     return await endTransaction(session, [clan1Resp, clan2Resp], openedSession);
   }

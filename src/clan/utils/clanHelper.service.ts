@@ -40,7 +40,7 @@ export default class ClanHelperService {
    * @param clan_id _id of the Clan for which Stock should be created
    *
    * @param openedSession - (Optional) An already opened ClientSession to use
-   * 
+   *
    * @returns created _Stock_ and its _items_, or array of ServiceErrors if something went wrong
    */
   async createDefaultStock(
@@ -53,7 +53,6 @@ export default class ClanHelperService {
     const [stock, stockErrors] = await this.stockService.createOne({
       cellCount: 20,
       clan_id,
-      
     });
     if (stockErrors || !stock)
       return await cancelTransaction(session, stockErrors, openedSession);
@@ -81,7 +80,7 @@ export default class ClanHelperService {
    * @param name name of the SoulHome to be created
    * @param roomsCount how much rooms need to be created, 30 is default
    * @param openedSession - (Optional) An already opened ClientSession to use
-   * 
+   *
    * @returns created _SoulHome_, _Rooms_ and _Items_, or array of ServiceErrors if something went wrong
    */
   async createDefaultSoulHome(
@@ -121,11 +120,15 @@ export default class ClanHelperService {
     if (itemsErrors || !items)
       return await cancelTransaction(session, itemsErrors, openedSession);
 
-    return await endTransaction(session, {
-      SoulHome: soulHome,
-      Room: rooms,
-      Item: items,
-    }, openedSession);
+    return await endTransaction(
+      session,
+      {
+        SoulHome: soulHome,
+        Room: rooms,
+        Item: items,
+      },
+      openedSession,
+    );
   }
 
   /**
