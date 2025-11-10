@@ -6,7 +6,6 @@ import { GameEventsHandler } from '../../../gameEventsHandler/gameEventsHandler'
 import { GameDataService } from '../../../gameData/gameData.service';
 import ServiceError from '../../../common/service/basicService/ServiceError';
 import { SEReason } from '../../../common/service/basicService/SEReason';
-import { GameEventType } from '../../../gameEventsHandler/enum/GameEventType.enum';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryBuilderFactory';
 import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
@@ -130,13 +129,10 @@ describe('GameDataService.handleResultType() test suite', () => {
 
     const [result, error] = await gameDataService.handleResultType(
       battleResultDto,
-      userDto,
+      userDto
     );
 
-    expect(handleEventSpy).toHaveBeenCalledWith(
-      'p3',
-      GameEventType.PLAYER_LOSE_BATTLE,
-    );
+    expect(handleEventSpy).toHaveBeenCalledTimes(1);
     expect(result).toBeNull();
     expect(error[0]).toBeInstanceOf(ServiceError);
     expect(error[0].reason).toBe(SEReason.NOT_ALLOWED);

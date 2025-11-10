@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Game } from './game.schema';
-import { Model } from 'mongoose';
+import { ClientSession, Connection, Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { CreateGameDto } from './dto/createGame.dto';
 import { PlayerService } from '../player/player.service';
@@ -20,6 +20,11 @@ import { IServiceReturn } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../common/function/Transactions';
 
 @Injectable()
 export class GameDataService {
@@ -31,6 +36,7 @@ export class GameDataService {
     private readonly gameEventsBroker: GameEventsHandler,
     private readonly jwtService: JwtService,
     private readonly emitterService: EventEmitterService,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     this.basicService = new BasicService(model);
     this.refsInModel = [ModelName.STOCK];
@@ -46,11 +52,13 @@ export class GameDataService {
    *
    * @param battleResult - The battleResult of the request containing battle result data.
    * @param user - The user making the request.
+   * @param openedSession - (Optional) An already opened ClientSession to use
    * @returns - Returns a promise that resolves to the response or an API error.
    */
   async handleResultType(
     battleResult: BattleResultDto,
     user: User,
+    openedSession?: ClientSession,
   ): Promise<IServiceReturn<BattleResponseDto>> {
     const currentTime = new Date();
 
@@ -58,28 +66,32 @@ export class GameDataService {
       battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
     const playerInWinningTeam = winningTeam.includes(user.player_id);
 
+    const session = await InitializeSession(this.connection, openedSession);
     if (!playerInWinningTeam) {
       this.gameEventsBroker.handleEvent(
         user.player_id,
         GameEventType.PLAYER_LOSE_BATTLE,
+        session,
       );
 
-      return [
-        null,
+      return await cancelTransaction(
+        session,
         [
           new ServiceError({
             reason: SEReason.NOT_ALLOWED,
             message:
               'Player is not in the winning team and therefore is not allowed to steal',
           }),
-        ],
-      ];
+        ], openedSession,
+      );
     }
 
     this.gameEventsBroker.handleEvent(
       user.player_id,
       GameEventType.PLAYER_WIN_BATTLE,
+      session,
     );
+
     const [teamIds, teamIdsErrors] = await this.getClanIdForTeams([
       battleResult.team1[0],
       battleResult.team2[0],
@@ -93,12 +105,17 @@ export class GameDataService {
       ServerTaskName.PLAY_BATTLE,
     );
 
-    return this.generateResponse(
+    
+    const [response, error] =  await this.generateResponse(
       battleResult,
       teamIds.team1Id,
       teamIds.team2Id,
       user,
     );
+    
+    if (error) return await cancelTransaction(session, error, openedSession);
+
+    return await endTransaction(session, response, openedSession);
   }
 
   /**
