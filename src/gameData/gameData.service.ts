@@ -82,7 +82,8 @@ export class GameDataService {
             message:
               'Player is not in the winning team and therefore is not allowed to steal',
           }),
-        ], openedSession,
+        ],
+        openedSession,
       );
     }
 
@@ -105,14 +106,13 @@ export class GameDataService {
       ServerTaskName.PLAY_BATTLE,
     );
 
-    
-    const [response, error] =  await this.generateResponse(
+    const [response, error] = await this.generateResponse(
       battleResult,
       teamIds.team1Id,
       teamIds.team2Id,
       user,
     );
-    
+
     if (error) return await cancelTransaction(session, error, openedSession);
 
     return await endTransaction(session, response, openedSession);

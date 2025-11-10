@@ -129,7 +129,7 @@ describe('GameDataService.handleResultType() test suite', () => {
 
     const [result, error] = await gameDataService.handleResultType(
       battleResultDto,
-      userDto
+      userDto,
     );
 
     expect(handleEventSpy).toHaveBeenCalledTimes(1);

@@ -31,7 +31,11 @@ export class GameEventsHandler {
    * @param openedSession (optional) An already opened ClientSession to use
    * @returns
    */
-  async handleEvent(player_id: string, event: GameEventType, openedSession?: ClientSession) {
+  async handleEvent(
+    player_id: string,
+    event: GameEventType,
+    openedSession?: ClientSession,
+  ) {
     switch (event) {
       case GameEventType.PLAYER_WIN_BATTLE:
         return this.handleWinBattle(player_id, openedSession);
@@ -58,7 +62,10 @@ export class GameEventsHandler {
    * @param openedSession (optional) An already opened ClientSession to use
    * @returns
    */
-  private async handleWinBattle(player_id: string, openedSession?: ClientSession) {
+  private async handleWinBattle(
+    player_id: string,
+    openedSession?: ClientSession,
+  ) {
     const session = await InitializeSession(this.connection, openedSession);
     const [, playerErrors] = await this.playerEventHandler.handlePlayerEvent(
       player_id,
@@ -80,7 +87,8 @@ export class GameEventsHandler {
     if (clanEventErrors)
       return await cancelTransaction(session, clanEventErrors, openedSession);
 
-    if (playerErrors) return await cancelTransaction(session, playerErrors, openedSession);
+    if (playerErrors)
+      return await cancelTransaction(session, playerErrors, openedSession);
 
     return await endTransaction(session, openedSession);
   }
@@ -91,7 +99,10 @@ export class GameEventsHandler {
    * @param openedSession (optional) An already opened ClientSession to use
    * @returns
    */
-  private async handleLoseBattle(player_id: string, openedSession?: ClientSession) {
+  private async handleLoseBattle(
+    player_id: string,
+    openedSession?: ClientSession,
+  ) {
     const session = await InitializeSession(this.connection, openedSession);
 
     const [, playerErrors] = await this.playerEventHandler.handlePlayerEvent(
@@ -100,7 +111,8 @@ export class GameEventsHandler {
       session,
     );
 
-    if (playerErrors) return await cancelTransaction(session, playerErrors, openedSession);
+    if (playerErrors)
+      return await cancelTransaction(session, playerErrors, openedSession);
 
     const [, clanEventErrors] = await this.clanEventHandler.handleClanEvent(
       player_id,
@@ -118,15 +130,19 @@ export class GameEventsHandler {
    * @param openedSession - (Optional) An already opened ClientSession to use
    * @returns true if handled successfully or ServiceErrors
    */
-  private async handleStartVoting(player_id: string, openedSession?: ClientSession) {
+  private async handleStartVoting(
+    player_id: string,
+    openedSession?: ClientSession,
+  ) {
     const session = await InitializeSession(this.connection, openedSession);
-    
+
     const [, clanErrors] = await this.clanEventHandler.handlePlayerTask(
       player_id,
       session,
     );
 
-    if (clanErrors) return await cancelTransaction(session, clanErrors, openedSession);
+    if (clanErrors)
+      return await cancelTransaction(session, clanErrors, openedSession);
 
     return await endTransaction(session, openedSession);
   }
@@ -136,7 +152,10 @@ export class GameEventsHandler {
    * @param openedSession - (Optional) An already opened ClientSession to use
    * @returns true if handled successfully or ServiceErrors
    */
-  private async handleCollectDiamonds(player_id: string, openedSession?: ClientSession) {
+  private async handleCollectDiamonds(
+    player_id: string,
+    openedSession?: ClientSession,
+  ) {
     const session = await InitializeSession(this.connection, openedSession);
 
     const [, clanErrors] = await this.clanEventHandler.handlePlayerTask(
@@ -144,7 +163,8 @@ export class GameEventsHandler {
       session,
     );
 
-    if (clanErrors) return await cancelTransaction(session, clanErrors, openedSession);
+    if (clanErrors)
+      return await cancelTransaction(session, clanErrors, openedSession);
 
     return await endTransaction(session, openedSession);
   }
@@ -154,7 +174,10 @@ export class GameEventsHandler {
    * @param openedSession - (Optional) An already opened ClientSession to use
    * @returns true if handled successfully or ServiceErrors
    */
-  private async handleNewCharacter(player_id: string, openedSession?: ClientSession) {
+  private async handleNewCharacter(
+    player_id: string,
+    openedSession?: ClientSession,
+  ) {
     const session = await InitializeSession(this.connection, openedSession);
 
     const [, clanErrors] = await this.clanEventHandler.handlePlayerTask(
@@ -162,7 +185,8 @@ export class GameEventsHandler {
       session,
     );
 
-    if (clanErrors) return await cancelTransaction(session, clanErrors, openedSession);
+    if (clanErrors)
+      return await cancelTransaction(session, clanErrors, openedSession);
 
     return await endTransaction(session, openedSession);
   }
