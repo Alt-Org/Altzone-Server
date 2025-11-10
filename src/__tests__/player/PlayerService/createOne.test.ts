@@ -175,8 +175,6 @@ describe('PlayerService.createOne() test suite', () => {
 
     await playerService.createOnePostHook({}, output);
 
-    expect(emitSpy).toHaveBeenCalledWith('player.created', {
-      playerId: output._id.toString(),
-    });
+    expect(emitSpy).toHaveBeenCalledWith(output._id);
   });
 });
