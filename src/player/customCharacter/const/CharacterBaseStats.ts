@@ -138,31 +138,31 @@ export const CharacterBaseStats: Record<CharacterId, Stats> = {
 
   // 400 code characters don't have HP
   // currently server should just set the default
-  // hp for 400 code characters as 1
+  // hp for 400 code characters as 0
   [CharacterId.Provocateur_401]: {
     defence: defence[3],
-    hp: 1,
+    hp: 0,
     size: size[3],
     attack: attack[2],
     speed: speed[3],
   },
   [CharacterId.Scapegoat_402]: {
     defence: defence[3],
-    hp: 1,
+    hp: 0,
     size: size[2],
     attack: attack[3],
     speed: speed[3],
   },
   [CharacterId.Projection_403]: {
     defence: defence[3],
-    hp: 1,
+    hp: 0,
     size: size[2],
     attack: attack[3],
     speed: speed[3],
   },
   [CharacterId.Delusion_404]: {
     defence: defence[2],
-    hp: 1,
+    hp: 0,
     size: size[2],
     attack: attack[3],
     speed: speed[3],
