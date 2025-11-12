@@ -32,8 +32,6 @@ export default class EventEmitterService {
    *  @param playerId of the created player
    */
   public async EmitPlayerCreatedEvent(playerId: string) {
-    this.eventEmitter.emit('player.created', {
-      playerId,
-    });
+    this.eventEmitter.emit('player.created', playerId);
   }
 }
