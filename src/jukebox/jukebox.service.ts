@@ -90,25 +90,25 @@ export class JukeboxService {
     const session = await InitializeSession(this.connection);
 
     try {
-    if (!jukebox.currentSong) {
-      jukebox.currentSong = { ...newSong, startedAt: Date.now() };
-      await this.notifier.songChange(
-        { songId: newSong.songId, startedAt: jukebox.currentSong.startedAt },
-        clanId,
-      );
-      await this.scheduler.scheduleNextSong(
-        clanId,
-        newSong.songDurationSeconds,
-      );
-    } else {
-      jukebox.songQueue.push(newSong);
-    }
-    this.clanJukeboxMap.set(clanId, jukebox);
-  }  catch (error) {
+      if (!jukebox.currentSong) {
+        jukebox.currentSong = { ...newSong, startedAt: Date.now() };
+        await this.notifier.songChange(
+          { songId: newSong.songId, startedAt: jukebox.currentSong.startedAt },
+          clanId,
+        );
+        await this.scheduler.scheduleNextSong(
+          clanId,
+          newSong.songDurationSeconds,
+        );
+      } else {
+        jukebox.songQueue.push(newSong);
+      }
+      this.clanJukeboxMap.set(clanId, jukebox);
+    } catch (error) {
       await cancelTransaction(session, error as unknown as any);
       throw error;
     }
-    
+
     await endTransaction(session);
   }
 

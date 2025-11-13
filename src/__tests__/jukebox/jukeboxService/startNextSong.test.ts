@@ -1,7 +1,11 @@
+import { Clan } from 'src/clan/clan.schema';
 import { ClanService } from '../../../clan/clan.service';
 import JukeboxNotifier from '../../../jukebox/jukebox.notifier';
 import { JukeboxQueue } from '../../../jukebox/jukebox.queue';
 import { JukeboxService } from '../../../jukebox/jukebox.service';
+import { Model } from 'mongoose';
+import createMockSession from '../../common/MongooseSession/CreateMockSession';
+import createMockDataBase from '../../common/MongooseSession/CreateMockDataBase';
 
 describe('jukeboxService.startNextSong() test suite', () => {
   let jukeboxService: JukeboxService;
@@ -10,6 +14,12 @@ describe('jukeboxService.startNextSong() test suite', () => {
   let clanService: ClanService;
 
   beforeEach(async () => {
+    const mockDb = createMockDataBase();
+    
+    const mockModel = {
+      db: mockDb,
+    } as unknown as Model<Clan>;
+        
     jukeboxNotifier = { songChange: jest.fn() } as any;
     jukeboxScheduler = { scheduleNextSong: jest.fn() } as any;
     clanService = {
@@ -20,7 +30,10 @@ describe('jukeboxService.startNextSong() test suite', () => {
       jukeboxScheduler,
       jukeboxNotifier,
       clanService,
+      mockDb as any,
     );
+
+    createMockSession(mockModel);
   });
 
   it('should start next song', async () => {
