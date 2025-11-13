@@ -8,6 +8,13 @@ import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { ClanService } from '../clan/clan.service';
 import { envVars } from '../common/service/envHandler/envVars';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../common/function/Transactions';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 
 @Injectable()
 export class JukeboxService {
@@ -15,6 +22,7 @@ export class JukeboxService {
     private readonly scheduler: JukeboxQueue,
     private readonly notifier: JukeboxNotifier,
     private readonly clanService: ClanService,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   private clanJukeboxMap = new Map<ClanId, Jukebox>();
@@ -79,6 +87,9 @@ export class JukeboxService {
       id: new ObjectId().toString(),
     };
 
+    const session = await InitializeSession(this.connection);
+
+    try {
     if (!jukebox.currentSong) {
       jukebox.currentSong = { ...newSong, startedAt: Date.now() };
       await this.notifier.songChange(
@@ -93,6 +104,12 @@ export class JukeboxService {
       jukebox.songQueue.push(newSong);
     }
     this.clanJukeboxMap.set(clanId, jukebox);
+  }  catch (error) {
+      await cancelTransaction(session, error as unknown as any);
+      throw error;
+    }
+    
+    await endTransaction(session);
   }
 
   /**
