@@ -15,11 +15,11 @@ describe('jukeboxService.startNextSong() test suite', () => {
 
   beforeEach(async () => {
     const mockDb = createMockDataBase();
-    
+
     const mockModel = {
       db: mockDb,
     } as unknown as Model<Clan>;
-        
+
     jukeboxNotifier = { songChange: jest.fn() } as any;
     jukeboxScheduler = { scheduleNextSong: jest.fn() } as any;
     clanService = {
