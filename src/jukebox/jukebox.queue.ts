@@ -1,7 +1,8 @@
 import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import { JukeboxService } from './jukebox.service';
+import { envVars } from '../common/service/envHandler/envVars';
 
 @Injectable()
 export class JukeboxQueue {
@@ -23,10 +24,10 @@ export class JukeboxQueue {
         { clanId },
         {
           delay: delaySeconds * 1000,
-          removeOnComplete: true,
-          removeOnFail: false,
-          attempts: 3,
-          backoff: { type: 'exponential', delay: 3000 },
+          // removeOnComplete: true,
+          // removeOnFail: false,
+          // attempts: 3,
+          // backoff: { type: 'exponential', delay: 3000 },
         },
       );
     } catch (err) {
@@ -42,6 +43,7 @@ export class JukeboxProcessor extends WorkerHost {
     @Inject(forwardRef(() => JukeboxService))
     private readonly service: JukeboxService,
   ) {
+    console.error('\n\n\n✅ JukeboxProcessor loaded \n\n\n');
     super();
   }
 
@@ -52,6 +54,7 @@ export class JukeboxProcessor extends WorkerHost {
    * @throws If starting the next song errors.
    */
   async process(job: Job): Promise<any> {
+    console.error('PROCESSING: ', job);
     try {
       const { clanId } = job.data;
       await this.service.startNextSong(clanId);

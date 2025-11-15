@@ -159,4 +159,24 @@ export class JukeboxService {
 
     return maxSongAmount;
   }
+
+  async skipSong(clanId: string) {
+    console.error(clanId);
+    const jukebox = this.clanJukeboxMap.get(clanId);
+    if (!jukebox) return;
+    console.error(jukebox);
+
+    const currentSong = jukebox.currentSong;
+    if (!currentSong) return;
+    console.error(currentSong);
+
+    const now = Date.now();
+    const songEndTime =
+      currentSong.startedAt + currentSong.songDurationSeconds * 1000;
+
+    if (now < songEndTime) return;
+    console.error('START');
+
+    await this.startNextSong(clanId);
+  }
 }

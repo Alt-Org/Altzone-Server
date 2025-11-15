@@ -8,6 +8,7 @@ export type ProfileDocument = HydratedDocument<Profile>;
 @Schema({
   toJSON: { virtuals: true, getters: true },
   toObject: { virtuals: true, getters: true },
+  timestamps: true,
 })
 export class Profile {
   @Prop({ type: String, required: true, unique: true })
