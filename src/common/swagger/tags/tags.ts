@@ -4,7 +4,7 @@ import { ExternalDocumentationObject } from '@nestjs/swagger/dist/interfaces/ope
  * Swagger tag name
  */
 export type SwaggerTagName =
-  | 'Release on 20.10.2025'
+  | 'Release on 3.11.2025'
   | 'Profile'
   | 'Auth'
   | 'Player'
@@ -27,16 +27,17 @@ export type SwaggerTagName =
   | 'OnlinePlayers'
   | 'GameData'
   | 'Metadata'
-  | 'Feedback';
+  | 'Feedback'
+  | 'Jukebox';
 
 /**
  * All swagger tags and their data
  *
  */
 export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
-  'Release on 20.10.2025': {
-    name: 'Release on 20.10.2025',
-    description: 'Changes made on release 20.10.2025',
+  'Release on 3.11.2025': {
+    name: 'Release on 3.11.2025',
+    description: 'Changes made on release 3.11.2025',
   },
   Profile: {
     name: 'Profile',
@@ -138,6 +139,10 @@ export const swaggerTags: Record<SwaggerTagName, SwaggerTag> = {
   Feedback: {
     name: 'Feedback',
     description: 'Players feedback about the game',
+  },
+  Jukebox: {
+    name: 'Jukebox',
+    description: 'Clan jukebox information',
   },
 };
 

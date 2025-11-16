@@ -67,7 +67,7 @@ describe('ClanRoleService.setRoleToPlayer() test suite', () => {
   it('should return NOT_FOUND if player is not in a clan', async () => {
     const player = await playerModel.create(
       playerBuilder
-        .setName('unique-name-' + Date.now()) // Ensure unique name
+        .setName(Date.now().toString()) // Ensure unique name
         .setUniqueIdentifier('unique-id-' + Date.now()) // Also ensure unique identifier if needed
         .setClanRoleId(null)
         .setClanId(null)

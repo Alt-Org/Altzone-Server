@@ -13,4 +13,8 @@ export enum NotificationResource {
    * Notification about voting
    */
   VOTING = 'voting',
+  /**
+   * Notifications about jukebox
+   */
+  JUKEBOX = 'jukebox',
 }

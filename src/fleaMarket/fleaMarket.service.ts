@@ -289,6 +289,8 @@ export class FleaMarketService {
           );
         break;
     }
+
+    await this.votingService.basicService.deleteOneById(voting._id);
   }
 
   /**
@@ -307,11 +309,19 @@ export class FleaMarketService {
     oldItemId: string,
     session?: ClientSession,
   ): Promise<IServiceReturn<FleaMarketItemDto>> {
+    if (!session) {
+      session = await this.connection.startSession();
+      session.startTransaction();
+    }
+
     const [created, createErrors] = await this.createOne(newItem, session);
-    if (createErrors) return [null, createErrors];
+    if (createErrors) return await cancelTransaction(session, createErrors);
 
     const [_, deleteErrors] = await this.itemService.deleteOneById(oldItemId);
-    if (deleteErrors) return [null, createErrors];
+    if (deleteErrors) return await cancelTransaction(session, deleteErrors);
+
+    await session.commitTransaction();
+    session.endSession();
 
     return [created, null];
   }

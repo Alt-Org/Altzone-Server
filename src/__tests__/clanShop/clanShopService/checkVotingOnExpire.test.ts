@@ -71,7 +71,7 @@ describe('ClanShopService.checkVotingOnExpire() test suite', () => {
       .addVote(voteToCreate)
       .setShopItemName(item.name)
       .build();
-    await votingModel.create(votingToCreate);
+    const createdVoting = await votingModel.create(votingToCreate);
 
     await expect(
       clanShopService.checkVotingOnExpire({
@@ -82,6 +82,9 @@ describe('ClanShopService.checkVotingOnExpire() test suite', () => {
         clanId: clanToCreate._id,
       }),
     ).resolves.not.toThrow();
+
+    const votingExists = await votingModel.findById(createdVoting._id);
+    expect(votingExists).toBeNull();
 
     const dbItem = await itemModel.find();
     expect(dbItem[0]).toMatchObject(itemProperties[item.name]);
@@ -101,7 +104,7 @@ describe('ClanShopService.checkVotingOnExpire() test suite', () => {
       .addVote(failingVoteToCreate)
       .addVote(failingVoteToCreate2)
       .build();
-    await votingModel.create(failingVotingToCreate);
+    const createdVoting = await votingModel.create(failingVotingToCreate);
     const clan = await clanModel.findOne();
 
     await expect(
@@ -114,6 +117,8 @@ describe('ClanShopService.checkVotingOnExpire() test suite', () => {
       }),
     ).resolves.not.toThrow();
 
+    const votingExists = await votingModel.findById(createdVoting._id);
+    expect(votingExists).toBeNull();
     const clan2 = await clanModel.findOne();
     expect(clan.gameCoins).toEqual(clan2.gameCoins - 100);
   });

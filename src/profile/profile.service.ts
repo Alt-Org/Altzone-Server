@@ -23,6 +23,7 @@ import {
 import { PasswordGenerator } from '../common/function/passwordGenerator';
 import { ObjectId } from 'mongodb';
 import { GuestProfileDto } from './dto/guestProfile.dto';
+import { createHash } from 'crypto';
 
 const ARGON2_CONFIG = {
   type: argon2.argon2id,
@@ -96,7 +97,12 @@ export class ProfileService
    */
   async createGuestAccount(): Promise<IServiceReturn<GuestProfileDto>> {
     const password = this.passwordGenerator.generatePassword('fi');
-    const username = 'guest-account-' + new ObjectId().toString();
+    const prefix = 'Guest';
+    const uniqueIdentifier = createHash('sha1')
+      .update(new ObjectId().toHexString())
+      .digest('hex')
+      .slice(0, 8);
+    const username = prefix + '-' + uniqueIdentifier;
     const isGuest = true;
 
     const [createdProfile, errors] = await this.createWithHashedPassword({

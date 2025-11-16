@@ -215,7 +215,6 @@ export class VotingService {
     };
     return this.basicService.readMany<VotingDto>({
       filter,
-      sort: { endsOn: -1 },
     });
   }
 }

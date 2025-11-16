@@ -6,6 +6,8 @@ import {
   IsMongoId,
   IsOptional,
   IsString,
+  MaxLength,
+  MinLength,
   ValidateNested,
 } from 'class-validator';
 import { IsProfileExists } from '../../profile/decorator/validation/IsProfileExists.decorator';
@@ -24,6 +26,8 @@ export class CreatePlayerDto {
    */
   @ApiProperty({ uniqueItems: true })
   @IsString()
+  @MinLength(3)
+  @MaxLength(20)
   name: string;
 
   /**

@@ -40,12 +40,7 @@ export class Clan {
   @Prop({ type: [String], default: [] })
   admin_ids: string[];
 
-  @Prop({
-    type: Number,
-    default: 1,
-    min: 0,
-    max: 30,
-  })
+  @Prop({ type: Number, default: 1, min: 0 })
   playerCount: number;
 
   @Prop({ type: Number, default: 0, min: 0 })
@@ -85,12 +80,6 @@ export class Clan {
     default: getDefaultStall(),
   })
   stall: Stall;
-
-  @Prop({
-    type: [String],
-    default: [],
-  })
-  jukeboxSongs: string[];
 
   @ExtractField()
   _id: string;
