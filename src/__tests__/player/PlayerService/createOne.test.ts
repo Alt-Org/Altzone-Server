@@ -156,4 +156,25 @@ describe('PlayerService.createOne() test suite', () => {
 
     expect(_idBefore.toString()).toBe(_idAfter.toString());
   });
+
+  it('should trigger the create one post hook', async () => {
+    const spy = jest.spyOn(playerService, 'createOnePostHook');
+
+    const playerName = 'john';
+    const playerToCreate = playerBuilder.setName(playerName).build();
+
+    await playerService.createOne(playerToCreate);
+
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('should emit player.created event', async () => {
+    const eventEmitter = await PlayerModule.getEventEmitter();
+    const emitSpy = jest.spyOn(eventEmitter, 'EmitPlayerCreatedEvent');
+    const output = { _id: new ObjectId().toString() } as any;
+
+    await playerService.createOnePostHook({}, output);
+
+    expect(emitSpy).toHaveBeenCalledWith(output._id);
+  });
 });

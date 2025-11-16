@@ -1,26 +1,19 @@
 import { ClanService } from '../../../clan/clan.service';
 import JukeboxNotifier from '../../../jukebox/jukebox.notifier';
-import { JukeboxQueue } from '../../../jukebox/jukebox.queue';
 import { JukeboxService } from '../../../jukebox/jukebox.service';
 
 describe('jukeboxService.addSongToclanJukebox() test suite', () => {
   let jukeboxService: JukeboxService;
   let jukeboxNotifier: JukeboxNotifier;
-  let jukeboxScheduler: JukeboxQueue;
   let clanService: ClanService;
 
   beforeEach(async () => {
     jukeboxNotifier = { songChange: jest.fn() } as any;
-    jukeboxScheduler = { scheduleNextSong: jest.fn() } as any;
     clanService = {
       readOneById: jest.fn().mockResolvedValue([{ playerCount: 3 }]),
     } as any;
 
-    jukeboxService = new JukeboxService(
-      jukeboxScheduler,
-      jukeboxNotifier,
-      clanService,
-    );
+    jukeboxService = new JukeboxService(jukeboxNotifier, clanService);
   });
 
   it('should call scheduler and notifier for first song', async () => {
@@ -38,11 +31,6 @@ describe('jukeboxService.addSongToclanJukebox() test suite', () => {
     expect(notifiedArg.songId).toBe(song.songId);
     expect(notifiedArg.startedAt).toBe(startTime);
     expect(typeof notifiedArg.startedAt).toBe('number');
-
-    expect(jukeboxScheduler.scheduleNextSong).toHaveBeenCalledWith(
-      clanId,
-      song.songDurationSeconds,
-    );
   });
 
   it('should throw MORE_THAN_MAX error when player has too many songs', async () => {

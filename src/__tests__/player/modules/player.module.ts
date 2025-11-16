@@ -4,6 +4,7 @@ import PlayerCommonModule from './playerCommon.module';
 import { PlayerService } from '../../../player/player.service';
 import { isPlayerExists } from '../../../player/decorator/validation/IsPlayerExists.decorator';
 import { PlayerSchema } from '../../../player/schemas/player.schema';
+import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
 
 export default class PlayerModule {
   private constructor() {}
@@ -20,5 +21,10 @@ export default class PlayerModule {
 
   static getPlayerModel() {
     return mongoose.model(ModelName.PLAYER, PlayerSchema);
+  }
+
+  static async getEventEmitter() {
+    const module = await PlayerCommonModule.getModule();
+    return await module.resolve(EventEmitterService);
   }
 }

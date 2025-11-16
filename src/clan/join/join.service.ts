@@ -13,6 +13,8 @@ import { Player } from '../../player/schemas/player.schema';
 import { MemberClanRole } from '../role/initializationClanRoles';
 import { ClanDto } from '../dto/clan.dto';
 import { IServiceReturn } from '../../common/service/basicService/IService';
+import { ClanDocument } from '../clan.schema';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class JoinService {
@@ -168,5 +170,24 @@ export class JoinService {
       },
     );
     await this.playerCounter.increaseByIdOnOne(clan_id);
+  }
+
+  /**
+   * Finds a clan and joins a newly created player to it.
+   *
+   * @param playerId _id of the player
+   */
+  @OnEvent('player.created')
+  async findClanForNewPlayer(playerId: string) {
+    const randomClan = await this.clanService.model
+      .aggregate<ClanDocument>([
+        { $match: { isOpen: true, playerCount: { $lt: 30 } } },
+        { $sample: { size: 1 } },
+      ])
+      .then((res) => res[0]);
+
+    if (!randomClan) return;
+
+    await this.joinClan(playerId, randomClan._id.toString());
   }
 }
