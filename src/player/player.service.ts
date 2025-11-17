@@ -90,13 +90,11 @@ export class PlayerService
     _id: Types.ObjectId,
     _ignoreReferences?: IgnoreReferencesType,
   ): Promise<void> => {
-
     const session = await InitializeSession(this.connection);
     const isClanRefCleanSuccess = await this.clearClanReferences(
       _id.toString(),
     );
-    if (isClanRefCleanSuccess instanceof Error)
-    {
+    if (isClanRefCleanSuccess instanceof Error) {
       await cancelTransaction(session, [isClanRefCleanSuccess as any]);
       throw new BadRequestException(isClanRefCleanSuccess.message);
     }
@@ -124,10 +122,10 @@ export class PlayerService
         -1,
       );
 
-      if (error) {
-        await cancelTransaction(session, error as any);
-        return false;
-      }
+    if (error) {
+      await cancelTransaction(session, error as any);
+      return false;
+    }
 
     const isPlayerCountIncreased = await changeCounterValue(
       ModelName.CLAN,
@@ -143,7 +141,7 @@ export class PlayerService
       ]);
       return false;
     }
-    
+
     const [transactionSuccess] = await endTransaction(session);
     return transactionSuccess;
   };
