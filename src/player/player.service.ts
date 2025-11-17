@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Model, Types, UpdateQuery } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
+import { Connection, Model, Types, UpdateQuery } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Player, publicReferences } from './schemas/player.schema';
 import { RequestHelperService } from '../requestHelper/requestHelper.service';
 import { IBasicService } from '../common/base/interface/IBasicService';
@@ -21,6 +21,12 @@ import {
   TIServiceReadManyOptions,
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../common/function/Transactions';
+import e from 'express';
 
 @Injectable()
 @AddBasicService()
@@ -32,6 +38,7 @@ export class PlayerService
     @InjectModel(Player.name) public readonly model: Model<Player>,
     private readonly customCharacterService: CustomCharacterService,
     private readonly requestHelperService: RequestHelperService,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     super();
     this.basicService = new BasicService(model);
@@ -78,16 +85,23 @@ export class PlayerService
     return this.basicService.readMany<PlayerDto>(optionsToApply);
   }
 
+  /// Clear all references to the deleted Player in other collections
   public clearCollectionReferences = async (
     _id: Types.ObjectId,
     _ignoreReferences?: IgnoreReferencesType,
   ): Promise<void> => {
+
+    const session = await InitializeSession(this.connection);
     const isClanRefCleanSuccess = await this.clearClanReferences(
       _id.toString(),
     );
     if (isClanRefCleanSuccess instanceof Error)
+    {
+      await cancelTransaction(session, [isClanRefCleanSuccess as any]);
       throw new BadRequestException(isClanRefCleanSuccess.message);
+    }
     await this.customCharacterService.deleteMany({ player_id: _id });
+    await endTransaction(session);
   };
 
   public updateOnePostHook: PostHookFunction = async (
@@ -97,10 +111,11 @@ export class PlayerService
   ): Promise<boolean> => {
     if (!input?.clan_id) return true;
 
+    const session = await InitializeSession(this.connection);
     const changeCounterValue = this.requestHelperService.changeCounterValue;
 
     //decrease playerCounter from old clan
-    const clanRemoveFrom_id = oldDoc.clan_id;
+    const [clanRemoveFrom_id, error] = oldDoc.clan_id;
     if (clanRemoveFrom_id)
       await changeCounterValue(
         ModelName.CLAN,
@@ -109,14 +124,28 @@ export class PlayerService
         -1,
       );
 
+      if (error) {
+        await cancelTransaction(session, error as any);
+        return false;
+      }
+
     const isPlayerCountIncreased = await changeCounterValue(
       ModelName.CLAN,
       { _id: input.clan_id },
       'playerCount',
       1,
     );
-
-    return isPlayerCountIncreased;
+    if (!isPlayerCountIncreased) {
+      await cancelTransaction(session, [
+        new Error(
+          `Failed to increase playerCount for clan with _id '${input.clan_id}'`,
+        ) as any,
+      ]);
+      return false;
+    }
+    
+    const [transactionSuccess] = await endTransaction(session);
+    return transactionSuccess;
   };
 
   /**
