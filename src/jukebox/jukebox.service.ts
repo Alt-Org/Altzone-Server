@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { JukeboxQueue } from './jukebox.queue';
 import { ObjectId } from 'mongodb';
 import JukeboxNotifier from './jukebox.notifier';
 import { AddSongDto } from './dto/AddSong.dto';
@@ -19,7 +18,6 @@ import { Connection } from 'mongoose';
 @Injectable()
 export class JukeboxService {
   constructor(
-    private readonly scheduler: JukeboxQueue,
     private readonly notifier: JukeboxNotifier,
     private readonly clanService: ClanService,
     @InjectConnection() private readonly connection: Connection,
@@ -87,29 +85,19 @@ export class JukeboxService {
       id: new ObjectId().toString(),
     };
 
-    const session = await InitializeSession(this.connection);
-
-    try {
-      if (!jukebox.currentSong) {
-        jukebox.currentSong = { ...newSong, startedAt: Date.now() };
-        await this.notifier.songChange(
-          { songId: newSong.songId, startedAt: jukebox.currentSong.startedAt },
-          clanId,
-        );
-        await this.scheduler.scheduleNextSong(
-          clanId,
-          newSong.songDurationSeconds,
-        );
-      } else {
-        jukebox.songQueue.push(newSong);
-      }
-      this.clanJukeboxMap.set(clanId, jukebox);
-    } catch (error) {
-      await cancelTransaction(session, error as unknown as any);
-      throw error;
+    if (!jukebox.currentSong) {
+      jukebox.currentSong = { ...newSong, startedAt: Date.now() };
+      await this.notifier.songChange(
+        { songId: newSong.songId, startedAt: jukebox.currentSong.startedAt },
+        clanId,
+      );
+      setTimeout(async () => {
+        await this.startNextSong(clanId);
+      }, song.songDurationSeconds * 1000);
+    } else {
+      jukebox.songQueue.push(newSong);
     }
-
-    await endTransaction(session);
+    this.clanJukeboxMap.set(clanId, jukebox);
   }
 
   /**
@@ -138,7 +126,9 @@ export class JukeboxService {
       clanId,
     );
 
-    await this.scheduler.scheduleNextSong(clanId, nextSong.songDurationSeconds);
+    setTimeout(async () => {
+      await this.startNextSong(clanId);
+    }, nextSong.songDurationSeconds * 1000);
   }
 
   /**
@@ -169,7 +159,7 @@ export class JukeboxService {
    * @returns the max number of songs allowed per player
    */
   private async getMaxSongAmount(clanId: string): Promise<number> {
-    let maxSongAmount = parseInt(envVars.JUKEBOX_MAX_SONG_AMOUNT_BIG);
+    let maxSongAmount = parseInt(envVars.JUKEBOX_MAX_SONG_AMOUNT_SMALL);
     const [clan] = await this.clanService.readOneById(clanId);
 
     if (clan?.playerCount < 10)

@@ -12,6 +12,7 @@ import { AddBasicService } from '../common/base/decorator/AddBasicService.decora
 import { ClanDto } from '../clan/dto/clan.dto';
 import {
   IHookImplementer,
+  PostCreateHookFunction,
   PostHookFunction,
 } from '../common/interface/IHookImplementer';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
@@ -21,12 +22,7 @@ import {
   TIServiceReadManyOptions,
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
-import {
-  cancelTransaction,
-  endTransaction,
-  InitializeSession,
-} from '../common/function/Transactions';
-import e from 'express';
+import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 
 @Injectable()
 @AddBasicService()
@@ -38,7 +34,7 @@ export class PlayerService
     @InjectModel(Player.name) public readonly model: Model<Player>,
     private readonly customCharacterService: CustomCharacterService,
     private readonly requestHelperService: RequestHelperService,
-    @InjectConnection() private readonly connection: Connection,
+    private readonly eventEmitterService: EventEmitterService,
   ) {
     super();
     this.basicService = new BasicService(model);
@@ -99,7 +95,17 @@ export class PlayerService
       throw new BadRequestException(isClanRefCleanSuccess.message);
     }
     await this.customCharacterService.deleteMany({ player_id: _id });
-    await endTransaction(session);
+  };
+
+  /**
+   * Triggers on player creation and emits the player.created event
+   */
+  public createOnePostHook: PostCreateHookFunction<any, any> = (
+    _,
+    output: Partial<Player>,
+  ): boolean => {
+    this.eventEmitterService.EmitPlayerCreatedEvent(output._id.toString());
+    return true;
   };
 
   public updateOnePostHook: PostHookFunction = async (

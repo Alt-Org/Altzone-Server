@@ -1,7 +1,6 @@
 import { Clan } from 'src/clan/clan.schema';
 import { ClanService } from '../../../clan/clan.service';
 import JukeboxNotifier from '../../../jukebox/jukebox.notifier';
-import { JukeboxQueue } from '../../../jukebox/jukebox.queue';
 import { JukeboxService } from '../../../jukebox/jukebox.service';
 import { Model } from 'mongoose';
 import createMockSession from '../../common/MongooseSession/CreateMockSession';
@@ -10,7 +9,6 @@ import createMockDataBase from '../../common/MongooseSession/CreateMockDataBase'
 describe('jukeboxService.startNextSong() test suite', () => {
   let jukeboxService: JukeboxService;
   let jukeboxNotifier: JukeboxNotifier;
-  let jukeboxScheduler: JukeboxQueue;
   let clanService: ClanService;
 
   beforeEach(async () => {
@@ -21,19 +19,11 @@ describe('jukeboxService.startNextSong() test suite', () => {
     } as unknown as Model<Clan>;
 
     jukeboxNotifier = { songChange: jest.fn() } as any;
-    jukeboxScheduler = { scheduleNextSong: jest.fn() } as any;
     clanService = {
       readOneById: jest.fn().mockResolvedValue([{ playerCount: 3 }]),
     } as any;
 
-    jukeboxService = new JukeboxService(
-      jukeboxScheduler,
-      jukeboxNotifier,
-      clanService,
-      mockDb as any,
-    );
-
-    createMockSession(mockModel);
+    jukeboxService = new JukeboxService(jukeboxNotifier, clanService);
   });
 
   it('should start next song', async () => {
@@ -64,7 +54,6 @@ describe('jukeboxService.startNextSong() test suite', () => {
     expect(updatedJukebox).not.toEqual(oldCurrentSong);
     expect(updatedJukebox.songQueue).toHaveLength(2);
     expect(jukeboxNotifier.songChange).toHaveBeenCalledTimes(1);
-    expect(jukeboxScheduler.scheduleNextSong).toHaveBeenCalledTimes(1);
   });
 
   it('delete the jukebox if the queue is empty', async () => {
@@ -89,6 +78,5 @@ describe('jukeboxService.startNextSong() test suite', () => {
     const updatedJukebox = jukeboxService['clanJukeboxMap'].get(clanId);
     expect(updatedJukebox).toBeFalsy();
     expect(jukeboxNotifier.songChange).not.toHaveBeenCalled();
-    expect(jukeboxScheduler.scheduleNextSong).not.toHaveBeenCalled();
   });
 });

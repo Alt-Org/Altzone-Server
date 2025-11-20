@@ -1,7 +1,6 @@
 import { Model } from 'mongoose';
 import { ClanService } from '../../../clan/clan.service';
 import JukeboxNotifier from '../../../jukebox/jukebox.notifier';
-import { JukeboxQueue } from '../../../jukebox/jukebox.queue';
 import { JukeboxService } from '../../../jukebox/jukebox.service';
 import createMockSession from '../../common/MongooseSession/CreateMockSession';
 import { Clan } from '../../../clan/clan.schema';
@@ -10,7 +9,6 @@ import createMockDataBase from '../../common/MongooseSession/CreateMockDataBase'
 describe('jukeboxService.addSongToclanJukebox() test suite', () => {
   let jukeboxService: JukeboxService;
   let jukeboxNotifier: JukeboxNotifier;
-  let jukeboxScheduler: JukeboxQueue;
   let clanService: ClanService;
 
   beforeEach(async () => {
@@ -20,19 +18,13 @@ describe('jukeboxService.addSongToclanJukebox() test suite', () => {
       db: mockDb,
     } as unknown as Model<Clan>;
     jukeboxNotifier = { songChange: jest.fn() } as any;
-    jukeboxScheduler = { scheduleNextSong: jest.fn() } as any;
     clanService = {
       readOneById: jest.fn().mockResolvedValue([{ playerCount: 3 }]),
     } as any;
 
     createMockSession(mockModel);
 
-    jukeboxService = new JukeboxService(
-      jukeboxScheduler,
-      jukeboxNotifier,
-      clanService,
-      mockDb as any,
-    );
+    jukeboxService = new JukeboxService(jukeboxNotifier, clanService);
   });
 
   it('should call scheduler and notifier for first song', async () => {
@@ -50,11 +42,6 @@ describe('jukeboxService.addSongToclanJukebox() test suite', () => {
     expect(notifiedArg.songId).toBe(song.songId);
     expect(notifiedArg.startedAt).toBe(startTime);
     expect(typeof notifiedArg.startedAt).toBe('number');
-
-    expect(jukeboxScheduler.scheduleNextSong).toHaveBeenCalledWith(
-      clanId,
-      song.songDurationSeconds,
-    );
   });
 
   it('should throw MORE_THAN_MAX error when player has too many songs', async () => {

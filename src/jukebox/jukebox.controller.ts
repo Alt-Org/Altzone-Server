@@ -29,6 +29,7 @@ export class JukeboxController {
   @ApiResponseDescription({
     success: {
       status: 200,
+      dto: JukeboxDto,
     },
     errors: [400, 403, 404],
     hasAuth: true,

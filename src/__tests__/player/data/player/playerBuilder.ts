@@ -48,6 +48,9 @@ export default class PlayerBuilder {
   }
 
   setName(name: string) {
+    if (name.length < 3 || name.length > 20) {
+      throw new Error(`Player name must be between 3 and 20 characters`);
+    }
     this.base.name = name;
     return this;
   }
