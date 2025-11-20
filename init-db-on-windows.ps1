@@ -21,7 +21,7 @@ docker run -d `
   -e "MONGO_INITDB_DATABASE=$DATABASE" `
   -v "${VOLUME_NAME}:/data/db" `
   -p "${MONGO_PORT}" `
-  mongo:8
+  mongo:8.0.12-rc0-noble
 
 # Step 2: Wait for MongoDB to be ready
 Write-Host "2. Waiting for MongoDB to start..."
