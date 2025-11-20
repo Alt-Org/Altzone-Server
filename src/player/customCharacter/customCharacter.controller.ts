@@ -119,17 +119,10 @@ export class CustomCharacterController {
   })
   @Get()
   @Authorize({ action: Action.read, subject: CustomCharacterDto })
-  @OffsetPaginate(ModelName.CUSTOM_CHARACTER)
-  @AddSearchQuery(CustomCharacterDto)
-  @AddSortQuery(CustomCharacterDto)
   @UniformResponse(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
-  public async getAll(
-    @GetAllQuery() query: IGetAllQuery,
-    @LoggedUser() user: User,
-  ) {
+  public async getAll(@LoggedUser() user: User) {
     return this.service.readMany({
-      ...query,
-      filter: { ...query.filter, player_id: user.player_id },
+      filter: { player_id: user.player_id },
     });
   }
 
