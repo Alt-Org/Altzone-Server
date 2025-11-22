@@ -1,8 +1,8 @@
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
-import { AdPosterDto } from '../../../../fleaMarket/stall/dto/adPoster.dto';
+import { FleaMarketAdPosterDto } from '../../../../fleaMarket/stall/dto/adPoster.dto';
 
-export default class AdPosterDtoBuilder implements IDataBuilder<AdPosterDto> {
-  private readonly base: AdPosterDto = {
+export default class AdPosterDtoBuilder implements IDataBuilder<FleaMarketAdPosterDto> {
+  private readonly base: FleaMarketAdPosterDto = {
     border: 'defaultBorder',
     colour: 'defaultColour',
     mainFurniture: 'defaultFurniture',
@@ -21,7 +21,7 @@ export default class AdPosterDtoBuilder implements IDataBuilder<AdPosterDto> {
     return this;
   }
 
-  build(): AdPosterDto {
+  build(): FleaMarketAdPosterDto {
     return { ...this.base };
   }
 }

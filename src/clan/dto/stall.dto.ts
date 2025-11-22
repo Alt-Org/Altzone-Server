@@ -1,7 +1,7 @@
 /**
  * DTO for AdPoster embedded document in Stall
  */
-export class AdPosterDto {
+export class ClanAdPosterDto {
   /** Border style of the stall's advertisement poster */
   border: string;
 
@@ -17,7 +17,7 @@ export class AdPosterDto {
  */
 export class StallDto {
   /** Stall's advertisement poster */
-  adPoster: AdPosterDto;
+  adPoster: ClanAdPosterDto;
 
   /** Maximum number of item slots in this stall */
   maxSlots: number;

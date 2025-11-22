@@ -11,7 +11,7 @@ import { User } from '../../auth/user';
 import HasClanRights from '../../clan/role/decorator/guard/HasClanRights';
 import { ClanBasicRight } from '../../clan/role/enum/clanBasicRight.enum';
 import { BuyStallSlotDto } from './dto/buyStallSlot.dto';
-import { AdPosterDto } from './dto/adPoster.dto';
+import { FleaMarketAdPosterDto } from './dto/adPoster.dto';
 import DetermineClanId from '../../common/guard/clanId.guard';
 
 @Controller('stall')
@@ -91,7 +91,7 @@ export class StallController {
   @UniformResponse()
   @DetermineClanId()
   @HasClanRights([ClanBasicRight.SHOP])
-  async updateAdPoster(@LoggedUser() user: User, @Body() body: AdPosterDto) {
+  async updateAdPoster(@LoggedUser() user: User, @Body() body: FleaMarketAdPosterDto) {
     const [, error] = await this.service.updateAdPosterByClanId(
       user.clan_id,
       body,
