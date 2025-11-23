@@ -54,8 +54,9 @@ describe('PlayerService.getAll() test suite', () => {
       playerUpdate,
     );
 
-    player1.clan_id = existingClan._id;
-    player2.clan_id = existingClan._id;
+    // reload players to reflect updated timestamps and clan reference from DB
+    player1 = (await playerModel.findOne({ name: playerName1 })).toObject();
+    player2 = (await playerModel.findOne({ name: playerName2 })).toObject();
   });
 
   it('Should find all existing players in DB', async () => {

@@ -23,6 +23,7 @@ import {
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { cancelTransaction, endTransaction, InitializeSession } from '../common/function/Transactions';
 
 @Injectable()
 @AddBasicService()
@@ -35,6 +36,7 @@ export class PlayerService
     private readonly customCharacterService: CustomCharacterService,
     private readonly requestHelperService: RequestHelperService,
     private readonly eventEmitterService: EventEmitterService,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     super();
     this.basicService = new BasicService(model);

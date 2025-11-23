@@ -24,7 +24,7 @@ describe('jukeboxService.addSongToclanJukebox() test suite', () => {
 
     createMockSession(mockModel);
 
-    jukeboxService = new JukeboxService(jukeboxNotifier, clanService);
+    jukeboxService = new JukeboxService(jukeboxNotifier, clanService, mockDb as any);
   });
 
   it('should call scheduler and notifier for first song', async () => {

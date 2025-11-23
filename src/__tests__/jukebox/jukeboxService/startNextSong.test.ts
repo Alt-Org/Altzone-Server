@@ -23,7 +23,7 @@ describe('jukeboxService.startNextSong() test suite', () => {
       readOneById: jest.fn().mockResolvedValue([{ playerCount: 3 }]),
     } as any;
 
-    jukeboxService = new JukeboxService(jukeboxNotifier, clanService);
+    jukeboxService = new JukeboxService(jukeboxNotifier, clanService, mockDb as any);
   });
 
   it('should start next song', async () => {

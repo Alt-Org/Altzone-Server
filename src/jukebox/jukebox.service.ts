@@ -85,19 +85,28 @@ export class JukeboxService {
       id: new ObjectId().toString(),
     };
 
-    if (!jukebox.currentSong) {
-      jukebox.currentSong = { ...newSong, startedAt: Date.now() };
-      await this.notifier.songChange(
-        { songId: newSong.songId, startedAt: jukebox.currentSong.startedAt },
-        clanId,
-      );
-      setTimeout(async () => {
-        await this.startNextSong(clanId);
-      }, song.songDurationSeconds * 1000);
-    } else {
-      jukebox.songQueue.push(newSong);
-    }
-    this.clanJukeboxMap.set(clanId, jukebox);
+    const session = await InitializeSession(this.connection);
+    
+    try {
+      if (!jukebox.currentSong) {
+        jukebox.currentSong = { ...newSong, startedAt: Date.now() };
+        await this.notifier.songChange(
+          { songId: newSong.songId, startedAt: jukebox.currentSong.startedAt },
+          clanId,
+        );
+        setTimeout(async () => {
+          await this.startNextSong(clanId);
+        }, song.songDurationSeconds * 1000);
+      } else {
+        jukebox.songQueue.push(newSong);
+      }
+      this.clanJukeboxMap.set(clanId, jukebox);
+    }  catch (error) {
+        await cancelTransaction(session, error as unknown as any);
+       throw error;
+      }
+        
+    await endTransaction(session);
   }
 
   /**

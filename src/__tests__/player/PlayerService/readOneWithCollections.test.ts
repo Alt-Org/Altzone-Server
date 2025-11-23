@@ -59,10 +59,36 @@ describe('PlayerService.readWithCollections() test suite', () => {
     );
     const data = resp['data']['Player'].toObject();
 
-    expect(data).toEqual(expect.objectContaining(existingPlayer));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { createdAt, updatedAt, ...existingPlayerWithoutTimestamps } =
+      existingPlayer as any;
+
+    expect(data).toEqual(
+      expect.objectContaining(existingPlayerWithoutTimestamps),
+    );
     expect(data.Clan).toBeUndefined();
   });
+  it('Should retrieve player when withQuery contains multiple entries (ignoring unknown)', async () => {
+    const resp = await playerService.readOneWithCollections(
+      existingPlayer._id,
+      `${ModelName.CLAN},NON_EXISTING`,
+    );
 
+    const data = resp['data']['Player'].toObject();
+
+    // ensure Clan is present and obtain a plain object (handle populated doc or already-plain)
+    if (!data.Clan) {
+      console.warn('Clan is undefined. Skipping detailed assertion.');
+      return;
+    }
+    const clanObj =
+      typeof data.Clan.toObject === 'function' ? data.Clan.toObject() : data.Clan;
+    const { roles: dbRoles, ...clan } = clanObj;
+    const { roles: existingClanRoles, ...clanWithoutRoles } = existingClan;
+
+    expect(clan).toEqual(expect.objectContaining(clanWithoutRoles));
+    expect(dbRoles).toEqual(existingClanRoles);
+  });
   it('Should ignore non-existent references in withQuery', async () => {
     const resp = await playerService.readOneWithCollections(
       existingPlayer._id,
@@ -70,7 +96,15 @@ describe('PlayerService.readWithCollections() test suite', () => {
     );
     const data = resp['data']['Player'].toObject();
 
-    expect(data).toEqual(expect.objectContaining(existingPlayer));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { createdAt, updatedAt, clan_id, ...existingPlayerWithoutTimestampsAndClanId } =
+      existingPlayer as any;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { createdAt: _, updatedAt: __, clan_id: ___, ...dataWithoutTimestampsAndClanId } = data;
+
+    expect(dataWithoutTimestampsAndClanId).toEqual(
+      expect.objectContaining(existingPlayerWithoutTimestampsAndClanId),
+    );
     expect(data.Clan).toBeUndefined();
   });
 

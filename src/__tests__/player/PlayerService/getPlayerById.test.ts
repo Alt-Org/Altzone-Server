@@ -37,6 +37,11 @@ describe('PlayerService.getPlayerById() test suite', () => {
       .build();
     await playerModel.updateOne({ _id: existingPlayer._id }, playerUpdate);
     existingPlayer.clan_id = existingClan._id;
+    // refresh existingPlayer to pick up DB-updated fields (timestamps, etc.)
+    const refreshed = await playerModel.findById(existingPlayer._id);
+    if (refreshed) {
+      existingPlayer = refreshed.toObject();
+    }
   });
 
   it('Should find existing player from DB', async () => {
