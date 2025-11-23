@@ -82,7 +82,9 @@ describe('PlayerService.readWithCollections() test suite', () => {
       return;
     }
     const clanObj =
-      typeof data.Clan.toObject === 'function' ? data.Clan.toObject() : data.Clan;
+      typeof data.Clan.toObject === 'function'
+        ? data.Clan.toObject()
+        : data.Clan;
     const { roles: dbRoles, ...clan } = clanObj;
     const { roles: existingClanRoles, ...clanWithoutRoles } = existingClan;
 
@@ -97,10 +99,19 @@ describe('PlayerService.readWithCollections() test suite', () => {
     const data = resp['data']['Player'].toObject();
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { createdAt, updatedAt, clan_id, ...existingPlayerWithoutTimestampsAndClanId } =
-      existingPlayer as any;
+    const {
+      createdAt,
+      updatedAt,
+      clan_id,
+      ...existingPlayerWithoutTimestampsAndClanId
+    } = existingPlayer as any;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { createdAt: _, updatedAt: __, clan_id: ___, ...dataWithoutTimestampsAndClanId } = data;
+    const {
+      createdAt: _,
+      updatedAt: __,
+      clan_id: ___,
+      ...dataWithoutTimestampsAndClanId
+    } = data;
 
     expect(dataWithoutTimestampsAndClanId).toEqual(
       expect.objectContaining(existingPlayerWithoutTimestampsAndClanId),

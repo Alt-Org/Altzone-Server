@@ -17,7 +17,11 @@ import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { ClanDocument } from '../clan.schema';
 import { OnEvent } from '@nestjs/event-emitter';
-import { cancelTransaction, endTransaction, InitializeSession } from '../../common/function/Transactions';
+import {
+  cancelTransaction,
+  endTransaction,
+  InitializeSession,
+} from '../../common/function/Transactions';
 
 @Injectable()
 export class JoinService {
