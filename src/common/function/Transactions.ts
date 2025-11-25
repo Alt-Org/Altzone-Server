@@ -32,13 +32,15 @@ export async function initializeSession(
  */
 export async function cancelTransaction(
   session: ClientSession,
-  errors: ServiceError[],
+  errors: ServiceError | ServiceError[],
   openedSession?: ClientSession,
 ): Promise<IServiceReturn<any>> {
-  if (openedSession) return [null, errors];
+  const errorsArray = Array.isArray(errors) ? errors : [errors];
+
+  if (openedSession) return [null, errorsArray];
   await session.abortTransaction();
   await session.endSession();
-  return [null, errors];
+  return [null, errorsArray];
 }
 
 /**
