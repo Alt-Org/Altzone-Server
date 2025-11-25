@@ -12,7 +12,7 @@ import { UITaskName } from '../enum/uiTaskName.enum';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../../common/function/Transactions';
 
 @Injectable()
@@ -82,7 +82,7 @@ export default class UIDailyTasksService {
 
     const isTaskCompleted = task.amountLeft - amount <= 0;
 
-    const session = await InitializeSession(this.model.db, openedSession);
+    const session = await initializeSession(this.model.db, openedSession);
     if (isTaskCompleted) {
       const [_isSuccess, errors] = await this.handleTaskCompletion(
         task,
@@ -155,7 +155,7 @@ export default class UIDailyTasksService {
     decreaseAmount: number,
     openedSession?: ClientSession,
   ): Promise<IServiceReturn<true>> {
-    const updatingSession = await InitializeSession(
+    const updatingSession = await initializeSession(
       this.model.db,
       openedSession,
     );
@@ -191,7 +191,7 @@ export default class UIDailyTasksService {
     task: DailyTask,
     openedSession?: ClientSession,
   ): Promise<IServiceReturn<true>> {
-    const deletionSession = await InitializeSession(
+    const deletionSession = await initializeSession(
       this.model.db,
       openedSession,
     );

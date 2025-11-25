@@ -16,7 +16,7 @@ import ServiceError from '../../common/service/basicService/ServiceError';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../../common/function/Transactions';
 
 @Injectable()
@@ -122,7 +122,7 @@ export class StockService {
    * @returns _true_ if Stock was removed successfully, or a ServiceError array if the Stock was not found or something else went wrong
    */
   async deleteOneById(_id: string, openedSession?: ClientSession) {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [_, errors] = await this.itemService.deleteAllStockItems(_id);
     if (errors) {

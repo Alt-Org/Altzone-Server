@@ -12,7 +12,7 @@ import { ClanEvent } from '../rewarder/clanRewarder/enum/ClanEvent.enum';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../common/function/Transactions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { ClientSession, Connection } from 'mongoose';
@@ -36,7 +36,7 @@ export class ClanEventHandler {
     player_id: string,
     openedSession?: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
     try {
       const taskUpdate = await this.tasksService.updateTask(player_id);
       const [, error] = await this.handleClanAndPlayerReward(
@@ -80,7 +80,7 @@ export class ClanEventHandler {
 
     if (errors) throw errors;
 
-    const session = await InitializeSession(this.connection);
+    const session = await initializeSession(this.connection);
     try {
       const [serverTasks] =
         this.tasksService.generateServerTasksForNewClan(clan_idStr);

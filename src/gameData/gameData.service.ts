@@ -23,7 +23,7 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../common/function/Transactions';
 
 @Injectable()
@@ -66,7 +66,7 @@ export class GameDataService {
       battleResult.winnerTeam === 1 ? battleResult.team1 : battleResult.team2;
     const playerInWinningTeam = winningTeam.includes(user.player_id);
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
     if (!playerInWinningTeam) {
       this.gameEventsBroker.handleEvent(
         user.player_id,

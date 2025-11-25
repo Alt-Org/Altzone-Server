@@ -20,7 +20,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../../common/function/Transactions';
 
 @Injectable()
@@ -81,7 +81,7 @@ export class JoinService {
       throw new UnauthorizedException('Incorrect password');
     }
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
     try {
       if (player.clan_id) {
         const [pclan] = await this.clanService.readOneById(player.clan_id);
@@ -126,7 +126,7 @@ export class JoinService {
     const [clan] = await this.clanService.readOneById(clan_id);
     if (!clan) throw new NotFoundException('Clan with that _id not found');
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
     try {
       if (clan.playerCount <= 1) {
         await this.clanService.deleteOneById(clan._id, session);
@@ -169,7 +169,7 @@ export class JoinService {
 
     if (!clan) throw new NotFoundException('Clan with that _id not found');
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
     try {
       //If the last player
       if (clan.playerCount <= 1) {

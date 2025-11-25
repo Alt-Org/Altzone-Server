@@ -31,7 +31,7 @@ import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../common/function/Transactions';
 import { SellFleaMarketItemDto } from './dto/sellFleaMarketItem.dto';
 import { itemNotAuthorizedError } from './errors/itemNotAuthorized.error';
@@ -157,7 +157,7 @@ export class FleaMarketService {
     playerId: string,
     openedSession?: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [item, itemErrors] = await this.itemService.readOneById(
       sellFleaMarketItemDto.item_id,
@@ -341,7 +341,7 @@ export class FleaMarketService {
     stockId: string,
     openedSession?: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [item, itemErrors] =
       await this.basicService.readOneById<FleaMarketItemDto>(
@@ -385,7 +385,7 @@ export class FleaMarketService {
     itemPrice: number,
     openedSession?: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
-    const session = await InitializeSession(this.model.db, openedSession);
+    const session = await initializeSession(this.model.db, openedSession);
 
     const [_, updateErrors] = await this.basicService.updateOneById(
       voting.fleaMarketItem_id,
@@ -443,7 +443,7 @@ export class FleaMarketService {
       await this.basicService.readOneById(fmItemId);
     if (fmItemErrors) throw fmItemErrors;
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [_, deleteErrors] = await this.basicService.deleteOneById(
       fmItem._id.toString(),
@@ -518,7 +518,7 @@ export class FleaMarketService {
     item: FleaMarketItemDto,
     player: PlayerDto,
   ): Promise<IServiceReturn<VotingDto>> {
-    const session = await InitializeSession(this.model.db);
+    const session = await initializeSession(this.model.db);
 
     const [, itemChangeErr] = await this.changeItemStatus(
       item,
@@ -579,7 +579,7 @@ export class FleaMarketService {
     if (item.clan_id.toString() !== player.clan_id.toString())
       return [null, [itemNotAuthorizedError]];
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [_, updateErrors] = await this.basicService.updateOneById(
       item._id,
@@ -727,7 +727,7 @@ export class FleaMarketService {
     itemDto: CreateItemDto,
     fleaMarketItemId: string,
   ) {
-    const session = await InitializeSession(this.connection);
+    const session = await initializeSession(this.connection);
 
     const [, createErrors] = await this.itemService.createOne(itemDto);
     if (createErrors) return await cancelTransaction(session, createErrors);

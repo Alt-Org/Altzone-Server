@@ -10,7 +10,7 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../common/function/Transactions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { ClientSession, Connection } from 'mongoose';
@@ -66,7 +66,7 @@ export class GameEventsHandler {
     player_id: string,
     openedSession?: ClientSession,
   ) {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
     const [, playerErrors] = await this.playerEventHandler.handlePlayerEvent(
       player_id,
       PlayerEvent.BATTLE_WON,
@@ -103,7 +103,7 @@ export class GameEventsHandler {
     player_id: string,
     openedSession?: ClientSession,
   ) {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [, playerErrors] = await this.playerEventHandler.handlePlayerEvent(
       player_id,
@@ -134,7 +134,7 @@ export class GameEventsHandler {
     player_id: string,
     openedSession?: ClientSession,
   ) {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [, clanErrors] = await this.clanEventHandler.handlePlayerTask(
       player_id,
@@ -156,7 +156,7 @@ export class GameEventsHandler {
     player_id: string,
     openedSession?: ClientSession,
   ) {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [, clanErrors] = await this.clanEventHandler.handlePlayerTask(
       player_id,
@@ -178,7 +178,7 @@ export class GameEventsHandler {
     player_id: string,
     openedSession?: ClientSession,
   ) {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [, clanErrors] = await this.clanEventHandler.handlePlayerTask(
       player_id,

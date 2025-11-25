@@ -18,7 +18,7 @@ import ServiceError from '../../common/service/basicService/ServiceError';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../../common/function/Transactions';
 
 @Injectable()
@@ -153,7 +153,7 @@ export class RoomService {
    * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
    */
   async deleteOneById(_id: string, openedSession?: ClientSession) {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
     await this.itemService.deleteAllRoomItems(_id);
 
     const [__, errorOne] = await this.basicService.deleteOneById(_id);
@@ -181,7 +181,7 @@ export class RoomService {
     });
     if (errors || !soulHomeRooms) return [null, errors];
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
     try {
       for (let i = 0, l = soulHomeRooms.length; i < l; i++)
         await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id);

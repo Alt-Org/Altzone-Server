@@ -12,7 +12,7 @@ import { TReadByIdOptions } from '../../common/service/basicService/IService';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../../common/function/Transactions';
 
 @Injectable()
@@ -79,7 +79,7 @@ export class SoulHomeService {
    * @returns _true_ if SoulHome was removed successfully, or a ServiceError array if the SoulHome was not found or something else went wrong
    */
   async deleteOneById(_id: string, openedSession?: ClientSession) {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
     await this.roomService.deleteAllSoulHomeRooms(_id, session);
 
     const [_, error] = await this.basicService.deleteOneById(_id);

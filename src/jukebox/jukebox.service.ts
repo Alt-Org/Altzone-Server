@@ -10,7 +10,7 @@ import { envVars } from '../common/service/envHandler/envVars';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../common/function/Transactions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -85,7 +85,7 @@ export class JukeboxService {
       id: new ObjectId().toString(),
     };
 
-    const session = await InitializeSession(this.connection);
+    const session = await initializeSession(this.connection);
 
     try {
       if (!jukebox.currentSong) {

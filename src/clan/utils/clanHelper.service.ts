@@ -19,7 +19,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../../common/function/Transactions';
 
 @Injectable()
@@ -49,7 +49,7 @@ export default class ClanHelperService {
   ): Promise<
     [{ Stock: StockDto; Item: ItemDto[] } | null, ServiceError[] | null]
   > {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
     const [stock, stockErrors] = await this.stockService.createOne({
       cellCount: 20,
       clan_id,
@@ -94,7 +94,7 @@ export default class ClanHelperService {
       ServiceError[] | null,
     ]
   > {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
     const [soulHome, soulHomeErrors] =
       await this.soulHomeService.basicService.createOne<
         Partial<SoulHome>,

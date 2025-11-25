@@ -13,7 +13,7 @@ import { SEReason } from '../../common/service/basicService/SEReason';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../../common/function/Transactions';
 
 @Injectable()
@@ -73,7 +73,7 @@ export class DailyTaskService {
     const convertedBox_id =
       typeof box_id === 'string' ? box_id : box_id.toString();
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [, updateErrors] = await this.basicService.updateOneById(
       convertedBox_id,
@@ -151,7 +151,7 @@ export class DailyTaskService {
     const convertedBox_id =
       typeof box_id === 'string' ? box_id : box_id.toString();
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [, updateErrors] = await this.basicService.updateOneById(
       convertedBox_id,

@@ -13,7 +13,7 @@ import { ClanDto } from '../../clan/dto/clan.dto';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../../common/function/Transactions';
 
 @Injectable()
@@ -73,7 +73,7 @@ export default class AccountClaimerService {
         ],
       ];
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [account, accountCreationErrors] =
       await this.testerService.createTester(box._id.toString(), session);

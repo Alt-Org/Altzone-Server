@@ -26,7 +26,7 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../common/function/Transactions';
 
 @Injectable()
@@ -92,7 +92,7 @@ export class PlayerService
     _id: Types.ObjectId,
     _ignoreReferences?: IgnoreReferencesType,
   ): Promise<void> => {
-    const session = await InitializeSession(this.connection);
+    const session = await initializeSession(this.connection);
     const isClanRefCleanSuccess = await this.clearClanReferences(
       _id.toString(),
     );
@@ -121,7 +121,7 @@ export class PlayerService
   ): Promise<boolean> => {
     if (!input?.clan_id) return true;
 
-    const session = await InitializeSession(this.connection);
+    const session = await initializeSession(this.connection);
     const changeCounterValue = this.requestHelperService.changeCounterValue;
 
     //decrease playerCounter from old clan

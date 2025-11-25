@@ -11,7 +11,7 @@ import { IServiceReturn } from '../service/basicService/IService';
  *
  * @returns A promise that resolves to the started database session.
  */
-export async function InitializeSession(
+export async function initializeSession(
   connection: Connection,
   openedSession?: ClientSession,
 ): Promise<ClientSession> {
@@ -26,19 +26,19 @@ export async function InitializeSession(
  * Aborts the database transaction and ends the session.
  *
  * @param session - Started database session.
- * @param error - The error to be thrown.
+ * @param errors - The error to be thrown.
  * @param openedSession - (Optional) An already opened ClientSession to use.
  * @throws Will throw an unexpected service error.
  */
 export async function cancelTransaction(
   session: ClientSession,
-  error: ServiceError[],
+  errors: ServiceError[],
   openedSession?: ClientSession,
 ): Promise<IServiceReturn<any>> {
-  if (openedSession) return [null, error];
+  if (openedSession) return [null, errors];
   await session.abortTransaction();
   await session.endSession();
-  return [null, error];
+  return [null, errors];
 }
 
 /**

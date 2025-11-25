@@ -23,7 +23,7 @@ import { generateRandomClanName } from './util/generateRandomClanName';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../common/function/Transactions';
 
 @Injectable()
@@ -99,7 +99,7 @@ export default class BoxCreator {
     );
     boxToCreate.clansToCreate = [{ name: clanName1 }, { name: clanName2 }];
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [adminProfile, adminProfileErrors] = await this.createAdminProfile(
       boxToInit.adminPassword,

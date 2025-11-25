@@ -6,7 +6,7 @@ import ServiceError from '../common/service/basicService/ServiceError';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../common/function/Transactions';
 import { ClientSession, Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -33,7 +33,7 @@ export class PlayerEventHandler {
     event: PlayerEvent,
     openedSession?: ClientSession,
   ): Promise<[boolean, ServiceError[]]> {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [_, playerStatError] =
       await this.playerStatistics.updatePlayerStatistic(player_id, event);

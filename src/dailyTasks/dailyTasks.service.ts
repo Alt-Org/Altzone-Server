@@ -18,7 +18,7 @@ import { SEReason } from '../common/service/basicService/SEReason';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../common/function/Transactions';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ServerTaskName } from './enum/serverTaskName.enum';
@@ -98,7 +98,7 @@ export class DailyTasksService {
     if (error) throw error;
     if (task.player_id && task.player_id !== playerId) throw taskReservedError;
 
-    const session = await InitializeSession(this.model.db, openedSession);
+    const session = await initializeSession(this.model.db, openedSession);
 
     const [, unreserveError] = await this.unreserveTask(playerId);
     if (unreserveError && unreserveError[0].reason !== SEReason.NOT_FOUND)

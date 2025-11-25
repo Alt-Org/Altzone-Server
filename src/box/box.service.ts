@@ -29,7 +29,7 @@ import { Profile } from '../profile/profile.schema';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../common/function/Transactions';
 
 @Injectable()
@@ -161,7 +161,7 @@ export class BoxService {
     const [box, readErrors] = await this.basicService.readOneById(parsed_id);
     if (readErrors) return [null, readErrors];
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [, clearingErrors] = await this.clearSession(parsed_id, [
       ModelName.BOX,

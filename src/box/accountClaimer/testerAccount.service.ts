@@ -17,7 +17,7 @@ import UniqueFieldGenerator from '../util/UniqueFieldGenerator';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../../common/function/Transactions';
 
 @Injectable()
@@ -53,7 +53,7 @@ export class TesterAccountService {
     box_id: string,
     openedSession?: ClientSession,
   ): Promise<IServiceReturn<Omit<Tester, 'Clan'>>> {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const password = this.passwordGenerator.generatePassword('fi');
     const [createdProfile, profileCreationErrors] = await this.createProfile(

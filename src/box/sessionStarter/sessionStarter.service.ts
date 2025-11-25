@@ -22,7 +22,7 @@ import { ClanService } from '../../clan/clan.service';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../../common/function/Transactions';
 
 /**
@@ -88,7 +88,7 @@ export default class SessionStarterService {
       return new ObjectId(c._id);
     });
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [_, updateErr] = await this.basicService.updateOneById(
       box_id.toString(),
@@ -140,7 +140,7 @@ export default class SessionStarterService {
     box_id: string,
     openedSession?: ClientSession,
   ): Promise<IServiceReturn<Clan[]>> {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [clan1Resp, clan1Errors] = await this.createBoxClan(
       clanName1,

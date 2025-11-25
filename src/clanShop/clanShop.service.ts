@@ -20,7 +20,7 @@ import { ClientSession, Connection } from 'mongoose';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../common/function/Transactions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { IServiceReturn } from '../common/service/basicService/IService';
@@ -61,7 +61,7 @@ export class ClanShopService {
     item: ItemProperty,
     openedSession?: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
       includeRefs: [ModelName.STOCK],
@@ -147,7 +147,7 @@ export class ClanShopService {
     openedSession?: ClientSession,
   ) {
     const { voting, price, clanId, stockId } = data;
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     const votePassed = await this.votingService.checkVotingSuccess(voting);
     if (votePassed) {

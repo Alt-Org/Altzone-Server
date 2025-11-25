@@ -32,7 +32,7 @@ import { Item } from '../clanInventory/item/item.schema';
 import {
   cancelTransaction,
   endTransaction,
-  InitializeSession,
+  initializeSession,
 } from '../common/function/Transactions';
 
 type CreateWithoutDtoType = Clan & {
@@ -80,7 +80,7 @@ export class ClanService {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
     }
     const clanWithAdmin = { ...clanToCreate, admin_ids: [player_id] };
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
     const [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>(
       clanWithAdmin,
     );
@@ -138,7 +138,7 @@ export class ClanService {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
     }
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
     const [clan, clanErrors] = await this.basicService.createOne({
       ...clanToCreate,
       playerCount: 0,
@@ -218,7 +218,7 @@ export class ClanService {
     const { _id, admin_idsToDelete, admin_idsToAdd, ...fieldsToUpdate } =
       clanToUpdate;
 
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
 
     if (!admin_idsToAdd && !admin_idsToDelete)
       return this.basicService.updateOneById(_id, fieldsToUpdate);
@@ -329,7 +329,7 @@ export class ClanService {
     _id: string,
     openedSession?: ClientSession,
   ): Promise<[true | null, ServiceError[] | null]> {
-    const session = await InitializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.connection, openedSession);
     const [clan, clanErrors] = await this.basicService.readOneById<ClanDto>(
       _id,
       { includeRefs: [ModelName.SOULHOME, ModelName.STOCK, ModelName.PLAYER] },
