@@ -1,7 +1,9 @@
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 import { FleaMarketAdPosterDto } from '../../../../fleaMarket/stall/dto/adPoster.dto';
 
-export default class AdPosterDtoBuilder implements IDataBuilder<FleaMarketAdPosterDto> {
+export default class AdPosterDtoBuilder
+  implements IDataBuilder<FleaMarketAdPosterDto>
+{
   private readonly base: FleaMarketAdPosterDto = {
     border: 'defaultBorder',
     colour: 'defaultColour',

@@ -91,7 +91,10 @@ export class StallController {
   @UniformResponse()
   @DetermineClanId()
   @HasClanRights([ClanBasicRight.SHOP])
-  async updateAdPoster(@LoggedUser() user: User, @Body() body: FleaMarketAdPosterDto) {
+  async updateAdPoster(
+    @LoggedUser() user: User,
+    @Body() body: FleaMarketAdPosterDto,
+  ) {
     const [, error] = await this.service.updateAdPosterByClanId(
       user.clan_id,
       body,
