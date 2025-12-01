@@ -1,8 +1,8 @@
 import { IsOptional, IsString } from 'class-validator';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 
-@AddType('AdPosterDto')
-export class AdPosterDto {
+@AddType('FleaMarketAdPosterDto')
+export class FleaMarketAdPosterDto {
   /**
    * Border style of the stall's advertisement poster
    * @example "border1"
