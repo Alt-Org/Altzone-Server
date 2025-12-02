@@ -158,7 +158,7 @@ export class RoomService {
     const [_, itemErr] = await this.itemService.deleteAllRoomItems(_id, {
       session,
     });
-    
+
     if (
       itemErr &&
       !(itemErr.length === 1 && itemErr[0].reason === SEReason.NOT_FOUND)
@@ -190,7 +190,7 @@ export class RoomService {
     const [soulHomeRooms, errors] = await this.basicService.readMany<RoomDto>({
       filter: { soulHome_id },
     });
-     if (errors || !soulHomeRooms) return [null, errors];
+    if (errors || !soulHomeRooms) return [null, errors];
 
     const rooms = soulHomeRooms ?? [];
 

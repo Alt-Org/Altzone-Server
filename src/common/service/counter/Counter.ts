@@ -27,7 +27,11 @@ export default class Counter implements ICounter {
     this.counterField = counterField;
   }
 
-  public async decrease(filter: object, amount: number, options?: { session?: ClientSession }) {
+  public async decrease(
+    filter: object,
+    amount: number,
+    options?: { session?: ClientSession },
+  ) {
     return changeCounterValue(
       this.model,
       filter,
@@ -36,7 +40,11 @@ export default class Counter implements ICounter {
       options?.session,
     );
   }
-  public async decreaseById(_id: string, amount: number, options?: { session?: ClientSession }) {
+  public async decreaseById(
+    _id: string,
+    amount: number,
+    options?: { session?: ClientSession },
+  ) {
     return changeCounterValue(
       this.model,
       { _id },
@@ -46,14 +54,36 @@ export default class Counter implements ICounter {
     );
   }
 
-  public async decreaseOnOne(filter: object, options?: { session?: ClientSession }) {
-    return changeCounterValue(this.model, filter, this.counterField, -1, options?.session);
+  public async decreaseOnOne(
+    filter: object,
+    options?: { session?: ClientSession },
+  ) {
+    return changeCounterValue(
+      this.model,
+      filter,
+      this.counterField,
+      -1,
+      options?.session,
+    );
   }
-  public async decreaseByIdOnOne(_id: string, options?: { session?: ClientSession }) {
-    return changeCounterValue(this.model, { _id }, this.counterField, -1, options?.session);
+  public async decreaseByIdOnOne(
+    _id: string,
+    options?: { session?: ClientSession },
+  ) {
+    return changeCounterValue(
+      this.model,
+      { _id },
+      this.counterField,
+      -1,
+      options?.session,
+    );
   }
 
-  public async increase(filter: object, amount: number, options?: { session?: ClientSession }) {
+  public async increase(
+    filter: object,
+    amount: number,
+    options?: { session?: ClientSession },
+  ) {
     return changeCounterValue(
       this.model,
       filter,
@@ -62,7 +92,11 @@ export default class Counter implements ICounter {
       options?.session,
     );
   }
-  public async increaseById(_id: string, amount: number, options?: { session?: ClientSession }) {
+  public async increaseById(
+    _id: string,
+    amount: number,
+    options?: { session?: ClientSession },
+  ) {
     return changeCounterValue(
       this.model,
       { _id },
@@ -72,11 +106,29 @@ export default class Counter implements ICounter {
     );
   }
 
-  public async increaseOnOne(filter: object, options?: { session?: ClientSession }) {
-    return changeCounterValue(this.model, filter, this.counterField, 1, options?.session);
+  public async increaseOnOne(
+    filter: object,
+    options?: { session?: ClientSession },
+  ) {
+    return changeCounterValue(
+      this.model,
+      filter,
+      this.counterField,
+      1,
+      options?.session,
+    );
   }
-  public async increaseByIdOnOne(_id: string, options?: { session?: ClientSession }) {
-    return changeCounterValue(this.model, { _id }, this.counterField, 1, options?.session);
+  public async increaseByIdOnOne(
+    _id: string,
+    options?: { session?: ClientSession },
+  ) {
+    return changeCounterValue(
+      this.model,
+      { _id },
+      this.counterField,
+      1,
+      options?.session,
+    );
   }
 
   private readonly model: Model<any>;

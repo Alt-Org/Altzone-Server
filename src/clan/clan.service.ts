@@ -347,7 +347,11 @@ export class ClanService {
             { session },
           );
           if (playerUpdateErr)
-           return await cancelTransaction(session, playerUpdateErr, openedSession);
+            return await cancelTransaction(
+              session,
+              playerUpdateErr,
+              openedSession,
+            );
         }
       }
 
@@ -360,7 +364,7 @@ export class ClanService {
         session,
       });
       if (clanDeleteErr)
-       return await cancelTransaction(session, clanDeleteErr, openedSession);
+        return await cancelTransaction(session, clanDeleteErr, openedSession);
     } catch (error) {
       return await cancelTransaction(
         session,

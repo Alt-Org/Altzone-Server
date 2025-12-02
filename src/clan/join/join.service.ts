@@ -89,12 +89,11 @@ export class JoinService {
       if (player.clan_id) {
         const [pclan] = await this.clanService.readOneById(player.clan_id);
         if (pclan.playerCount <= 1) {
-           await this.clanService.deleteOneById(
-            pclan._id,
-            session,
-          );
+          await this.clanService.deleteOneById(pclan._id, session);
         } else {
-          await this.playerCounter.decreaseByIdOnOne(player.clan_id, { session });
+          await this.playerCounter.decreaseByIdOnOne(player.clan_id, {
+            session,
+          });
         }
       }
 
@@ -137,7 +136,7 @@ export class JoinService {
       if (clan.playerCount <= 1) {
         await this.clanService.deleteOneById(clan._id, session);
       } else {
-      await this.playerCounter.decreaseByIdOnOne(clan_id, { session });
+        await this.playerCounter.decreaseByIdOnOne(clan_id, { session });
       }
       const mongooseOpts = session ? { session } : undefined;
       await this.playerModel.updateOne(
@@ -208,7 +207,11 @@ export class JoinService {
    * @param player_id _id of the player to be added
    * @param clan_id _id of the clan where the player should be added
    */
-  private async joinClan(player_id: string, clan_id: string, openedSession?: ClientSession) {
+  private async joinClan(
+    player_id: string,
+    clan_id: string,
+    openedSession?: ClientSession,
+  ) {
     const [clan, _clanReadingErrors] =
       await this.clanService.readOneById(clan_id);
     const memberRole = clan.roles.find(
