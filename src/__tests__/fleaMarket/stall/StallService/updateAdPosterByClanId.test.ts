@@ -7,7 +7,7 @@ import FleaMarketBuilderFactory from '../../data/fleaMarketBuilderFactory';
 import { ClanDto } from '../../../../clan/dto/clan.dto';
 import { ObjectId } from 'mongodb';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
-import { AdPosterDto } from '../../../../fleaMarket/stall/dto/adPoster.dto';
+import { FleaMarketAdPosterDto } from '../../../../fleaMarket/stall/dto/adPoster.dto';
 
 describe('StallService.updateAdPosterByClanId() test suite', () => {
   let stallService: StallService;
@@ -19,7 +19,7 @@ describe('StallService.updateAdPosterByClanId() test suite', () => {
   const stallBuilder = ClanBuilderFactory.getBuilder('Stall');
 
   let adPoster: AdPoster;
-  let adPosterDto: AdPosterDto;
+  let adPosterDto: FleaMarketAdPosterDto;
   let stall: Stall;
   let clanToCreate: ClanDto;
 
