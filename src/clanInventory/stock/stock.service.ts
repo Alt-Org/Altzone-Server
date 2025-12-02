@@ -122,18 +122,22 @@ export class StockService {
    * @returns _true_ if Stock was removed successfully, or a ServiceError array if the Stock was not found or something else went wrong
    */
   async deleteOneById(_id: string, openedSession?: ClientSession) {
-    const session = await initializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.model.db, openedSession);
 
-    const [_, errors] = await this.itemService.deleteAllStockItems(_id);
+    const [_, errors] = await this.itemService.deleteAllStockItems(_id, {
+      session,
+    });
     if (errors) {
       return await cancelTransaction(session, errors, openedSession);
     }
 
-    const [__, errorsOne] = await this.basicService.deleteOneById(_id);
+    const [__, errorsOne] = await this.basicService.deleteOneById(_id, {
+      session,
+    });
     if (errorsOne) {
       return await cancelTransaction(session, errorsOne, openedSession);
     }
 
-    return await endTransaction(session, openedSession);
+    return await endTransaction(session, true, openedSession);
   }
 }

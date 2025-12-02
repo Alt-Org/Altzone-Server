@@ -80,7 +80,7 @@ export class ClanService {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
     }
     const clanWithAdmin = { ...clanToCreate, admin_ids: [player_id] };
-    const session = await initializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.model.db, openedSession);
     const [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>(
       clanWithAdmin,
     );
@@ -138,7 +138,7 @@ export class ClanService {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
     }
 
-    const session = await initializeSession(this.connection, openedSession);
+    const session = await initializeSession(this.model.db, openedSession);
     const [clan, clanErrors] = await this.basicService.createOne({
       ...clanToCreate,
       playerCount: 0,
@@ -341,7 +341,13 @@ export class ClanService {
       if (clan.Player) {
         for (let i = 0, l = clan.Player.length; i < l; i++) {
           const player = clan.Player[i];
-          await this.playerService.updateOneById(player._id, { clan_id: null });
+          const [, playerUpdateErr] = await this.playerService.updateOneById(
+            player._id,
+            { clan_id: null },
+            { session },
+          );
+          if (playerUpdateErr)
+           return await cancelTransaction(session, playerUpdateErr, openedSession);
         }
       }
 
@@ -350,7 +356,11 @@ export class ClanService {
       if (clan.SoulHome)
         await this.soulhomeService.deleteOneById(clan.SoulHome._id, session);
 
-      await this.basicService.deleteOneById(_id);
+      const [, clanDeleteErr] = await this.basicService.deleteOneById(_id, {
+        session,
+      });
+      if (clanDeleteErr)
+       return await cancelTransaction(session, clanDeleteErr, openedSession);
     } catch (error) {
       return await cancelTransaction(
         session,

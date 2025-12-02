@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Item } from './item.schema';
 import { CreateItemDto } from './dto/createItem.dto';
@@ -116,8 +116,8 @@ export class ItemService {
    * @param _id - The Mongo _id of the Item to delete.
    * @returns _true_ if Item was removed successfully, or a ServiceError array if the Item was not found or something else went wrong
    */
-  async deleteOneById(_id: string) {
-    return this.basicService.deleteOneById(_id);
+  async deleteOneById(_id: string, options?: { session?: ClientSession }) {
+    return this.basicService.deleteOneById(_id, options);
   }
 
   /**
@@ -126,8 +126,13 @@ export class ItemService {
    * @param stock_id - The Mongo _id of the Stock from which all items should be deleted
    * @returns _true_ if Items was removed successfully, or a ServiceError array if any Items of the Stock was not found or something else went wrong
    */
-  async deleteAllStockItems(stock_id: string) {
-    return this.basicService.deleteMany({ filter: { stock_id } });
+  async deleteAllStockItems(
+    stock_id: string,
+    options?: { session?: ClientSession },
+  ) {
+    const opts: any = { filter: { stock_id } };
+    if (options?.session) opts.session = options.session;
+    return this.basicService.deleteMany(opts);
   }
 
   /**
@@ -136,7 +141,12 @@ export class ItemService {
    * @param room_id - The Mongo _id of the Stock from which all items should be deleted
    * @returns _true_ if Items was removed successfully, or a ServiceError array if any Items of the Room was not found or something else went wrong
    */
-  async deleteAllRoomItems(room_id: string) {
-    return this.basicService.deleteMany({ filter: { room_id } });
+  async deleteAllRoomItems(
+    room_id: string,
+    options?: { session?: ClientSession },
+  ) {
+    const opts: any = { filter: { room_id } };
+    if (options?.session) opts.session = options.session;
+    return this.basicService.deleteMany(opts);
   }
 }

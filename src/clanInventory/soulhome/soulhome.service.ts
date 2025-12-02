@@ -1,3 +1,4 @@
+  
 import { Injectable } from '@nestjs/common';
 import { publicReferences, SoulHome } from './soulhome.schema';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
@@ -79,10 +80,14 @@ export class SoulHomeService {
    * @returns _true_ if SoulHome was removed successfully, or a ServiceError array if the SoulHome was not found or something else went wrong
    */
   async deleteOneById(_id: string, openedSession?: ClientSession) {
-    const session = await initializeSession(this.connection, openedSession);
-    await this.roomService.deleteAllSoulHomeRooms(_id, session);
+    const session = await initializeSession(this.model.db, openedSession);
+    const [_roomResult, roomErr] = await this.roomService.deleteAllSoulHomeRooms(
+      _id,
+      session,
+    );
+    if (roomErr) return await cancelTransaction(session, roomErr, openedSession);
 
-    const [_, error] = await this.basicService.deleteOneById(_id);
+    const [_deleteResult, error] = await this.basicService.deleteOneById(_id, { session });
     if (error) {
       return await cancelTransaction(session, error, openedSession);
     }

@@ -81,18 +81,24 @@ export class JoinService {
       throw new UnauthorizedException('Incorrect password');
     }
 
-    const session = await initializeSession(this.connection, openedSession);
+    const session = await initializeSession(
+      this.clanService.model.db,
+      openedSession,
+    );
     try {
       if (player.clan_id) {
         const [pclan] = await this.clanService.readOneById(player.clan_id);
         if (pclan.playerCount <= 1) {
-          await this.clanService.deleteOneById(pclan._id, session);
+           await this.clanService.deleteOneById(
+            pclan._id,
+            session,
+          );
         } else {
-          await this.playerCounter.decreaseByIdOnOne(player.clan_id);
+          await this.playerCounter.decreaseByIdOnOne(player.clan_id, { session });
         }
       }
 
-      await this.joinClan(player_id, clan_id);
+      await this.joinClan(player_id, clan_id, session);
     } catch (error) {
       await cancelTransaction(session, error as ServiceError[], openedSession);
       throw error;
@@ -131,20 +137,22 @@ export class JoinService {
       if (clan.playerCount <= 1) {
         await this.clanService.deleteOneById(clan._id, session);
       } else {
-        await this.playerCounter.decreaseByIdOnOne(clan_id);
+      await this.playerCounter.decreaseByIdOnOne(clan_id, { session });
       }
+      const mongooseOpts = session ? { session } : undefined;
       await this.playerModel.updateOne(
         { _id: player_id },
         {
           clan_id: null,
         },
+        mongooseOpts,
       );
     } catch (error) {
       await cancelTransaction(session, error as ServiceError[], openedSession);
       throw error;
     }
 
-    await endTransaction(session, openedSession);
+    await endTransaction(session, true, openedSession);
   }
 
   /**
@@ -175,13 +183,15 @@ export class JoinService {
       if (clan.playerCount <= 1) {
         await this.clanService.deleteOneById(clan._id, session);
       } else {
-        await this.playerCounter.decreaseByIdOnOne(clan_id);
+        await this.playerCounter.decreaseByIdOnOne(clan_id, { session });
       }
+      const mongooseOpts = session ? { session } : undefined;
       await this.playerModel.updateOne(
         { _id: player_id },
         {
           clan_id: null,
         },
+        mongooseOpts,
       ); // update clan_id for the requested player;
     } catch (error) {
       await cancelTransaction(session, error as ServiceError[], openedSession);
@@ -198,21 +208,23 @@ export class JoinService {
    * @param player_id _id of the player to be added
    * @param clan_id _id of the clan where the player should be added
    */
-  private async joinClan(player_id: string, clan_id: string) {
+  private async joinClan(player_id: string, clan_id: string, openedSession?: ClientSession) {
     const [clan, _clanReadingErrors] =
       await this.clanService.readOneById(clan_id);
     const memberRole = clan.roles.find(
       (role) => role.name === MemberClanRole.name,
     );
-
+    const session = openedSession;
+    const mongooseOpts = session ? { session } : undefined;
     await this.playerModel.updateOne(
       { _id: player_id },
       {
         clan_id,
         clanRole_id: memberRole._id,
       },
+      mongooseOpts,
     );
-    await this.playerCounter.increaseByIdOnOne(clan_id);
+    await this.playerCounter.increaseByIdOnOne(clan_id, { session });
   }
 
   /**

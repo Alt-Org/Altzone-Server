@@ -1,5 +1,5 @@
 import ICounter from './ICounter';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 
 /**
  * @property model - where the field is located
@@ -27,52 +27,56 @@ export default class Counter implements ICounter {
     this.counterField = counterField;
   }
 
-  public async decrease(filter: object, amount: number) {
+  public async decrease(filter: object, amount: number, options?: { session?: ClientSession }) {
     return changeCounterValue(
       this.model,
       filter,
       this.counterField,
       -Math.abs(amount),
+      options?.session,
     );
   }
-  public async decreaseById(_id: string, amount: number) {
+  public async decreaseById(_id: string, amount: number, options?: { session?: ClientSession }) {
     return changeCounterValue(
       this.model,
       { _id },
       this.counterField,
       -Math.abs(amount),
+      options?.session,
     );
   }
 
-  public async decreaseOnOne(filter: object) {
-    return changeCounterValue(this.model, filter, this.counterField, -1);
+  public async decreaseOnOne(filter: object, options?: { session?: ClientSession }) {
+    return changeCounterValue(this.model, filter, this.counterField, -1, options?.session);
   }
-  public async decreaseByIdOnOne(_id: string) {
-    return changeCounterValue(this.model, { _id }, this.counterField, -1);
+  public async decreaseByIdOnOne(_id: string, options?: { session?: ClientSession }) {
+    return changeCounterValue(this.model, { _id }, this.counterField, -1, options?.session);
   }
 
-  public async increase(filter: object, amount: number) {
+  public async increase(filter: object, amount: number, options?: { session?: ClientSession }) {
     return changeCounterValue(
       this.model,
       filter,
       this.counterField,
       Math.abs(amount),
+      options?.session,
     );
   }
-  public async increaseById(_id: string, amount: number) {
+  public async increaseById(_id: string, amount: number, options?: { session?: ClientSession }) {
     return changeCounterValue(
       this.model,
       { _id },
       this.counterField,
       Math.abs(amount),
+      options?.session,
     );
   }
 
-  public async increaseOnOne(filter: object) {
-    return changeCounterValue(this.model, filter, this.counterField, 1);
+  public async increaseOnOne(filter: object, options?: { session?: ClientSession }) {
+    return changeCounterValue(this.model, filter, this.counterField, 1, options?.session);
   }
-  public async increaseByIdOnOne(_id: string) {
-    return changeCounterValue(this.model, { _id }, this.counterField, 1);
+  public async increaseByIdOnOne(_id: string, options?: { session?: ClientSession }) {
+    return changeCounterValue(this.model, { _id }, this.counterField, 1, options?.session);
   }
 
   private readonly model: Model<any>;
@@ -96,8 +100,11 @@ async function changeCounterValue(
   filter: object,
   counterField: string,
   counterChange: number,
+  session?: ClientSession,
 ): Promise<boolean> {
-  const docToUpdate = await model.findOne(filter);
+  const findQuery = model.findOne(filter);
+  if (session) findQuery.session(session as any);
+  const docToUpdate = await findQuery;
   if (!docToUpdate) return false;
 
   const currentCount = docToUpdate[counterField];
@@ -106,9 +113,11 @@ async function changeCounterValue(
   const newCount = currentCount + counterChange;
   if (newCount < 0) return false;
 
+  const mongooseOpts: any = session ? { session } : undefined;
   const updateResponse = await model.updateOne(
     { _id: docToUpdate._id },
     { [counterField]: newCount },
+    mongooseOpts,
   );
   const isCountModified = updateResponse.modifiedCount !== 0;
   return isCountModified;

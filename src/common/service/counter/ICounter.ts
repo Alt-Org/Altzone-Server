@@ -13,7 +13,7 @@ export default interface ICounter {
    *
    * _false_ if the counter could not be decreased
    */
-  decrease: (filter: object, amount: number) => Promise<boolean>;
+  decrease: (filter: object, amount: number, options?: { session?: any }) => Promise<boolean>;
   /**
    * Decrease the counter field by the specified amount.
    *
@@ -25,7 +25,7 @@ export default interface ICounter {
    *
    * _false_ if the counter could not be decreased
    */
-  decreaseById: (_id: string, amount: number) => Promise<boolean>;
+  decreaseById: (_id: string, amount: number, options?: { session?: any }) => Promise<boolean>;
 
   /**
    * Decrease the counter field by one.
@@ -37,7 +37,7 @@ export default interface ICounter {
    *
    * _false_ if the counter could not be decreased
    */
-  decreaseOnOne: (filter: object) => Promise<boolean>;
+  decreaseOnOne: (filter: object, options?: { session?: any }) => Promise<boolean>;
   /**
    * Decrease the counter field by one.
    *
@@ -49,7 +49,7 @@ export default interface ICounter {
    *
    * _false_ if the counter could not be decreased
    */
-  decreaseByIdOnOne: (_id: string) => Promise<boolean>;
+  decreaseByIdOnOne: (_id: string, options?: { session?: any }) => Promise<boolean>;
 
   /**
    * Increase the counter field by the specified amount.
@@ -59,7 +59,7 @@ export default interface ICounter {
    *
    * _false_ if the counter could not be increased
    */
-  increase: (filter: object, amount: number) => Promise<boolean>;
+  increase: (filter: object, amount: number, options?: { session?: any }) => Promise<boolean>;
   /**
    * Increase the counter field by the specified amount.
    * @param _id Mongo _id of the document
@@ -68,7 +68,7 @@ export default interface ICounter {
    *
    * _false_ if the counter could not be increased
    */
-  increaseById: (_id: string, amount: number) => Promise<boolean>;
+  increaseById: (_id: string, amount: number, options?: { session?: any }) => Promise<boolean>;
 
   /**
    * Increase the counter field by one.
@@ -77,7 +77,7 @@ export default interface ICounter {
    *
    * _false_ if the counter could not be increased
    */
-  increaseOnOne: (filter: object) => Promise<boolean>;
+  increaseOnOne: (filter: object, options?: { session?: any }) => Promise<boolean>;
   /**
    * Increase the counter field by one.
    * @param _id Mongo _id of the document
@@ -85,5 +85,5 @@ export default interface ICounter {
    *
    * _false_ if the counter could not be increased
    */
-  increaseByIdOnOne: (_id: string) => Promise<boolean>;
+  increaseByIdOnOne: (_id: string, options?: { session?: any }) => Promise<boolean>;
 }
