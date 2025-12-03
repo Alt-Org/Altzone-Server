@@ -49,6 +49,7 @@ describe('BaseChatService.handleNewReaction() test suite', () => {
   it('should broadcast updated message if addReaction succeeds', async () => {
     const updatedMessage = {
       id: 'mid',
+      type: ChatType.CLAN,
       reactions: [{ playerName: 'TestUser', emoji: '🔥' }],
     };
     (chatService.addReaction as jest.Mock).mockResolvedValue([
