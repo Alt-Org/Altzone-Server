@@ -33,8 +33,10 @@ export default class MQTTConnector {
    * @returns MQTTClient from the mqtt library.
    */
   connect() {
+    const protocol = process.env.MOSQUITTO_PORT == '9001' ? 'ws' : 'mqtt';
+
     return mqtt.connect(
-      `mqtt://${envVars.MOSQUITTO_HOST}:${envVars.MOSQUITTO_PORT}`,
+      `${protocol}://${envVars.MOSQUITTO_HOST}:${envVars.MOSQUITTO_PORT}`,
       {
         username: envVars.MOSQUITTO_PUBLISHER,
         password: envVars.MOSQUITTO_PUBLISHER_PASSWORD,
