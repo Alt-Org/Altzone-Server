@@ -32,14 +32,14 @@ export class CreateChatMessageDto {
   sender_id: string | ObjectId;
 
   /**
-   * Text content of the message
-   * content must not exceed 64 characters
+   * Text content of the message.
+   * Content must not exceed 64 characters
    * 
    * @example "Let’s meet at Soul Arena!"
    */
   @IsString()
   @IsNotEmpty()
-  @MaxLength(64, { message: "content must not exceed 64 characters" })
+  @MaxLength(64)
   content: string;
 
   /**
