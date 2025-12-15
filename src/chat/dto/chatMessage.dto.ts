@@ -3,6 +3,7 @@ import { ReactionDto } from './reaction.dto';
 import { Sender } from './messageSender.dto';
 import { Feeling } from '../enum/feeling.enum';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
+import { ChatType } from '../enum/chatMessageType.enum';
 
 export class ChatMessageDto {
   /**
@@ -48,7 +49,7 @@ export class ChatMessageDto {
    * @example "clan"
    */
   @Expose()
-  type: string;
+  type: ChatType;
 
   /**
    * Feeling of the chat message

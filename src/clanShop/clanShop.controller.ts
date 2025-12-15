@@ -10,8 +10,8 @@ import { ClanShopService } from './clanShop.service';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { ItemName } from '../clanInventory/item/enum/itemName.enum';
-import HasClanRights from '../clan/role/decorator/guard/HasClanRights';
-import { ClanBasicRight } from '../clan/role/enum/clanBasicRight.enum';
+// import HasClanRights from '../clan/role/decorator/guard/HasClanRights'; TODO: temporary disable
+// import { ClanBasicRight } from '../clan/role/enum/clanBasicRight.enum'; TODO: temporary disable
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import ClanShopItemDto from './dto/ClanShopItem.dto';
 
@@ -55,6 +55,7 @@ export class ClanShopController {
    *
    * Notice that the player must be in the same clan and it must have a basic right "Shop"
    */
+  // @HasClanRights([ClanBasicRight.SHOP]) TODO: temporary disable for testing. enable later
   @ApiResponseDescription({
     success: {
       status: 204,
@@ -63,7 +64,6 @@ export class ClanShopController {
   })
   @Post('buy')
   @DetermineClanId()
-  @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
   async buyItem(
     @Body() body: { itemName: ItemName },

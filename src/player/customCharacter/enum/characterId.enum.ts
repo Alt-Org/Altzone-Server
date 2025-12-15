@@ -42,6 +42,6 @@ export enum CharacterId {
   Wiseacre_701 = '701',
   Capitalism_702 = '702',
   Ocd_703 = '703',
-  // Overcomplication_704 = '704',
-  // Nitpicking_705 = '705',
+  Overcomplication_704 = '704',
+  Nitpicking_705 = '705',
 }
