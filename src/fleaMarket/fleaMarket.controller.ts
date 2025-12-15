@@ -82,6 +82,7 @@ export class FleaMarketController {
    * Notice that if a FleaMarketItem has already "Shipping" status 403 will be returned.
    *
    */
+  // @HasClanRights([ClanBasicRight.SHOP]) TODO: Temporary disable for testing
   @ApiResponseDescription({
     success: {
       status: 204,
@@ -89,7 +90,6 @@ export class FleaMarketController {
     errors: [400, 401, 403, 404],
   })
   @Post('sell')
-  @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
   async sell(
     @Body() sellFleaMarketItemDto: SellFleaMarketItemDto,

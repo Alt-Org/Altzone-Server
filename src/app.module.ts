@@ -53,6 +53,7 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
 // Set up redis connection
 const redisHost = envVars.REDIS_HOST;
 const redisPort = parseInt(envVars.REDIS_PORT);
+const redisEnvPrefix = envVars.REDIS_ENV_PREFIX;
 const testEnvironmentName = 'TESTING_SESSION';
 
 const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
@@ -77,6 +78,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
         host: redisHost,
         port: redisPort,
       },
+      prefix: `bullmq:${redisEnvPrefix}`,
     }),
     GameDataModule,
     ChatModule,

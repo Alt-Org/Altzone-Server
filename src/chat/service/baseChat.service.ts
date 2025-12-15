@@ -121,7 +121,7 @@ export abstract class BaseChatService {
     }
 
     const messageEnvelope: ChatEnvelopeDto = {
-      chat: ChatType.CLAN,
+      chat: updatedMessage.type,
       event: MessageEventType.NEW_REACTION,
       message: updatedMessage,
     };

@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  MaxLength,
   ValidateIf,
 } from 'class-validator';
 import { ChatType } from '../enum/chatMessageType.enum';
@@ -31,12 +32,14 @@ export class CreateChatMessageDto {
   sender_id: string | ObjectId;
 
   /**
-   * Text content of the message
-   *
+   * Text content of the message.
+   * Content must not exceed 64 characters
+   * 
    * @example "Let’s meet at Soul Arena!"
    */
   @IsString()
   @IsNotEmpty()
+  @MaxLength(64)
   content: string;
 
   /**
