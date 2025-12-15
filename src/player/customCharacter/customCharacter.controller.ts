@@ -7,11 +7,6 @@ import { CreateCustomCharacterDto } from './dto/createCustomCharacter.dto';
 import { CustomCharacterDto } from './dto/customCharacter.dto';
 import { Authorize } from '../../authorization/decorator/Authorize';
 import { Action } from '../../authorization/enum/action.enum';
-import { AddSearchQuery } from '../../common/interceptor/request/addSearchQuery.interceptor';
-import { GetAllQuery } from '../../common/decorator/param/GetAllQuery';
-import { IGetAllQuery } from '../../common/interface/IGetAllQuery';
-import { OffsetPaginate } from '../../common/interceptor/request/offsetPagination.interceptor';
-import { AddSortQuery } from '../../common/interceptor/request/addSortQuery.interceptor';
 import { LoggedUser } from '../../common/decorator/param/LoggedUser.decorator';
 import { User } from '../../auth/user';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
@@ -119,17 +114,10 @@ export class CustomCharacterController {
   })
   @Get()
   @Authorize({ action: Action.read, subject: CustomCharacterDto })
-  @OffsetPaginate(ModelName.CUSTOM_CHARACTER)
-  @AddSearchQuery(CustomCharacterDto)
-  @AddSortQuery(CustomCharacterDto)
   @UniformResponse(ModelName.CUSTOM_CHARACTER, CustomCharacterDto)
-  public async getAll(
-    @GetAllQuery() query: IGetAllQuery,
-    @LoggedUser() user: User,
-  ) {
+  public async getAll(@LoggedUser() user: User) {
     return this.service.readMany({
-      ...query,
-      filter: { ...query.filter, player_id: user.player_id },
+      filter: { player_id: user.player_id },
     });
   }
 

@@ -6,7 +6,7 @@ import { IServiceReturn } from 'src/common/service/basicService/IService';
 import { getStallDefaultValues } from '../../clan/defaultValues/stall';
 import { StallResponse } from './dto/stallResponse.dto';
 import { Stall } from '../../clan/stall/stall.schema';
-import { AdPosterDto } from './dto/adPoster.dto';
+import { FleaMarketAdPosterDto } from './dto/adPoster.dto';
 
 @Injectable()
 export class StallService {
@@ -99,7 +99,7 @@ export class StallService {
    */
   async updateAdPosterByClanId(
     clan_id: string,
-    adPosterToUpdate: AdPosterDto,
+    adPosterToUpdate: FleaMarketAdPosterDto,
   ): Promise<IServiceReturn<boolean>> {
     const [clan, error] = await this.clanService.readOneById(clan_id);
     if (error) {
@@ -134,7 +134,7 @@ export class StallService {
    */
   private async mapAdPosterDtoToAdPoster(
     stall: Stall,
-    adPosterToUpdate: AdPosterDto,
+    adPosterToUpdate: FleaMarketAdPosterDto,
   ): Promise<Stall> {
     if (adPosterToUpdate.border) {
       stall.adPoster.border = adPosterToUpdate.border;
