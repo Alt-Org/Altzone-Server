@@ -56,9 +56,21 @@ FriendshipSchema.pre('validate', function (next) {
   const b = this.playerB.toString();
   if (a === b) return next(new Error('playerA and playerB cannot be the same'));
 
+  if (this.status === FriendshipStatus.PENDING) {
+    if (!this.requester) {
+      return next(new Error('requester is required when status is PENDING'));
+    }
+
+    const requesterStr = this.requester.toString();
+    if (requesterStr !== a && requesterStr !== b) {
+      return next(new Error('requester must be either playerA or playerB'));
+    }
+  }
+
   this.pairKey = [a, b].sort().join('_');
   next();
 });
+
 FriendshipSchema.pre('save', function (next) {
   if (this.isModified('status') && this.status === FriendshipStatus.ACCEPTED) {
     this.requester = undefined;
