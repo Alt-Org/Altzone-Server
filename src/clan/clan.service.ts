@@ -328,6 +328,7 @@ export class ClanService {
   async deleteOneById(
     _id: string,
     openedSession?: ClientSession,
+    excludePlayerId?: string,
   ): Promise<[true | null, ServiceError[] | null]> {
     const session = await initializeSession(this.connection, openedSession);
     const [clan, clanErrors] = await this.basicService.readOneById<ClanDto>(
@@ -338,27 +339,27 @@ export class ClanService {
       return await cancelTransaction(session, clanErrors, openedSession);
 
     try {
-      if (clan.Player) {
-        for (let i = 0, l = clan.Player.length; i < l; i++) {
-          const player = clan.Player[i];
-          const [, playerUpdateErr] = await this.playerService.updateOneById(
-            player._id,
-            { clan_id: null },
-            { session },
-          );
-          if (playerUpdateErr)
-            return await cancelTransaction(
-              session,
-              playerUpdateErr,
-              openedSession,
-            );
-        }
-      }
+      // update all players clan_id to null
+      await this.playerModel.updateMany(
+        { clan_id: _id },
+        { clan_id: null },
+        { session },
+      );
 
-      if (clan.Stock)
-        await this.stockService.deleteOneById(clan.Stock._id, session);
-      if (clan.SoulHome)
-        await this.soulhomeService.deleteOneById(clan.SoulHome._id, session);
+      // delete stock
+      const [, stockDeleteErrors] = await this.stockService.basicService.deleteMany(
+        { filter: { clan_id: _id }, session },
+      );
+      if (stockDeleteErrors)
+        return await cancelTransaction(session, stockDeleteErrors, openedSession);
+
+      // delete soulhome
+      const [, soulHomeDeleteErrors] =
+        await this.soulhomeService.basicService.deleteMany(
+          { filter: { clan_id: _id }, session },
+        );
+      if (soulHomeDeleteErrors)
+        return await cancelTransaction(session, soulHomeDeleteErrors, openedSession);
 
       const [, clanDeleteErr] = await this.basicService.deleteOneById(_id, {
         session,
