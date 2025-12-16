@@ -347,19 +347,30 @@ export class ClanService {
       );
 
       // delete stock
-      const [, stockDeleteErrors] = await this.stockService.basicService.deleteMany(
-        { filter: { clan_id: _id }, session },
-      );
+      const [, stockDeleteErrors] =
+        await this.stockService.basicService.deleteMany({
+          filter: { clan_id: _id },
+          session,
+        });
       if (stockDeleteErrors)
-        return await cancelTransaction(session, stockDeleteErrors, openedSession);
+        return await cancelTransaction(
+          session,
+          stockDeleteErrors,
+          openedSession,
+        );
 
       // delete soulhome
       const [, soulHomeDeleteErrors] =
-        await this.soulhomeService.basicService.deleteMany(
-          { filter: { clan_id: _id }, session },
-        );
+        await this.soulhomeService.basicService.deleteMany({
+          filter: { clan_id: _id },
+          session,
+        });
       if (soulHomeDeleteErrors)
-        return await cancelTransaction(session, soulHomeDeleteErrors, openedSession);
+        return await cancelTransaction(
+          session,
+          soulHomeDeleteErrors,
+          openedSession,
+        );
 
       const [, clanDeleteErr] = await this.basicService.deleteOneById(_id, {
         session,
