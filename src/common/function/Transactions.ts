@@ -48,12 +48,12 @@ export async function cancelTransaction(
  *
  * @param session - Started database session.
  * @param returnValue - (Optional) Value to return upon successful transaction completion.
- * @param openwsSession - (Optional) An already opened ClientSession to use.
+ * @param openedSession - (Optional) An already opened ClientSession to use.
  * @returns A promise that resolves to a successful service return.
  */
 export async function endTransaction(
   session: ClientSession,
-  openwsSession?: ClientSession,
+  openedSession?: ClientSession,
 ): Promise<IServiceReturn<true>>;
 export async function endTransaction<T>(
   session: ClientSession,
