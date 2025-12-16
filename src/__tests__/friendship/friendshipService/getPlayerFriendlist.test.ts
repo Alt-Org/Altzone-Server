@@ -47,10 +47,10 @@ describe('Friendship.getPlayerFriendlist() test suite', () => {
     await friendshipModel.deleteMany({});
     friendshipService = await FriendshipModule.getFriendshipService();
 
-    await friendshipModel.create(...createdFriendships);
+    await friendshipModel.create(createdFriendships);
   });
 
-  it('Should get two friendships with status ACCEPTED', async () => {
+  it('Should get two friendships for player1', async () => {
     const [friendships, err] = await friendshipService.getPlayerFriendlist(
       player1_id.toString(),
     );
@@ -69,7 +69,7 @@ describe('Friendship.getPlayerFriendlist() test suite', () => {
     expect(friendships).toBeNull();
   });
 
-  it('Should return only one friendship for player2', async () => {
+  it('Should get only one friendship for player2', async () => {
     const [friendships, err] = await friendshipService.getPlayerFriendlist(
       player2_id.toString(),
     );
