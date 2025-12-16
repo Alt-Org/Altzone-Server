@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
-import IDataBuilder from "src/__tests__/test_utils/interface/IDataBuilder";
-import { FriendlistDto } from "src/friendship/dto/friend-list.dto";
+import IDataBuilder from "../../../test_utils/interface/IDataBuilder";
+import { FriendlistDto } from "../../../../friendship/dto/friend-list.dto";
 
 export default class FriendlistDtoBuilder 
     implements IDataBuilder<FriendlistDto>

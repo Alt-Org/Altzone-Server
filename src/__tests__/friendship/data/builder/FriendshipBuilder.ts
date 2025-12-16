@@ -1,7 +1,7 @@
-import { ObjectId } from "mongoose";
-import IDataBuilder from "src/__tests__/test_utils/interface/IDataBuilder";
-import { FriendshipStatus } from "src/friendship/enum/friendship-status.enum";
-import { Friendship } from "src/friendship/friendship.schema";
+import { Types } from "mongoose";
+import IDataBuilder from "../../../test_utils/interface/IDataBuilder";
+import { FriendshipStatus } from "../../../../friendship/enum/friendship-status.enum";
+import { Friendship } from "../../../../friendship/friendship.schema";
 
 export default class FriendshipBuilder
     implements IDataBuilder<Friendship>
@@ -9,7 +9,7 @@ export default class FriendshipBuilder
     private readonly base: Friendship = {
         playerA: undefined,
         playerB: undefined,
-        status: FriendshipStatus.PENDING,
+        status: FriendshipStatus.ACCEPTED,
         requester: undefined,
         pairKey: undefined,
     }
@@ -18,12 +18,12 @@ export default class FriendshipBuilder
         return {...this.base} as Friendship;
     }
 
-    setPlayerA(playerA: ObjectId | undefined): this {
+    setPlayerA(playerA: Types.ObjectId): this {
         this.base.playerA = playerA;
         return this;
     }
 
-    setPlayerB(playerB: ObjectId | undefined): this {
+    setPlayerB(playerB: Types.ObjectId): this {
         this.base.playerB = playerB;
         return this;
     }
@@ -33,7 +33,7 @@ export default class FriendshipBuilder
         return this;
     }
 
-    setRequester(requester: ObjectId | undefined): this {
+    setRequester(requester: Types.ObjectId): this {
         this.base.requester = requester;
         return this;
     }

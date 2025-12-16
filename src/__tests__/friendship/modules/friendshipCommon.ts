@@ -1,12 +1,12 @@
 import { MongooseModule } from "@nestjs/mongoose";
 import { Test, TestingModule } from "@nestjs/testing";
-import { mongooseOptions, mongoString } from "src/__tests__/test_utils/const/db";
-import { ModelName } from "src/common/enum/modelName.enum";
-import FriendshipNotifier from "src/friendship/friendship.notifier";
-import { FriendshipSchema } from "src/friendship/friendship.schema";
-import { FriendshipService } from "src/friendship/friendship.service";
-import { PlayerModule } from "src/player/player.module";
-import { PlayerSchema } from "src/player/schemas/player.schema";
+import { mongooseOptions, mongoString } from "../../test_utils/const/db";
+import { ModelName } from "../../../common/enum/modelName.enum";
+import FriendshipNotifier from "../../../friendship/friendship.notifier";
+import { FriendshipSchema } from "../../../friendship/friendship.schema";
+import { FriendshipService } from "../../../friendship/friendship.service";
+import { PlayerModule } from "../../../player/player.module";
+import { PlayerSchema } from "../../../player/schemas/player.schema";
 
 export default class FriendshipCommonModule {
     private constructor() {}
@@ -25,7 +25,7 @@ export default class FriendshipCommonModule {
 
                     PlayerModule
                 ],
-                providers: [FriendshipService],
+                providers: [FriendshipService, FriendshipNotifier],
             }).compile();
             
         return FriendshipCommonModule.module;

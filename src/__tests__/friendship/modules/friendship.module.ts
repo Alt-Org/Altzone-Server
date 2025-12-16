@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import { FriendshipService } from "src/friendship/friendship.service";
+import { FriendshipService } from "../../../friendship/friendship.service";
 import FriendshipCommonModule from "./friendshipCommon";
-import FriendshipNotifier from "src/friendship/friendship.notifier";
-import { ModelName } from "src/common/enum/modelName.enum";
-import { FriendshipSchema } from "src/friendship/friendship.schema";
+import FriendshipNotifier from "../../../friendship/friendship.notifier";
+import { ModelName } from "../../../common/enum/modelName.enum";
+import { FriendshipSchema } from "../../../friendship/friendship.schema";
 
 export default class FriendshipModule {
     private constructor() {}
