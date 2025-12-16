@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {
   HydratedDocument,
   Schema as MongooseSchema,
+  Types,
   UpdateQuery,
 } from 'mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
@@ -16,14 +17,14 @@ export class Friendship {
     ref: ModelName.PLAYER,
     required: true,
   })
-  playerA: MongooseSchema.Types.ObjectId;
+  playerA: Types.ObjectId;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: ModelName.PLAYER,
     required: true,
   })
-  playerB: MongooseSchema.Types.ObjectId;
+  playerB: Types.ObjectId;
 
   @Prop({
     type: String,
@@ -36,11 +37,11 @@ export class Friendship {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: ModelName.PLAYER,
-    required: function () {
+    required: function (this: Friendship) {
       return this.status === FriendshipStatus.PENDING;
     },
   })
-  requester?: MongooseSchema.Types.ObjectId;
+  requester?: Types.ObjectId;
 
   @Prop({ type: String, required: true })
   pairKey: string;
