@@ -43,7 +43,7 @@ export class FriendshipService {
         playerId,
         FriendshipStatus.ACCEPTED,
       );
-      if (error) throw error;
+      if (error) return [null, error];
 
       const filtered: FriendlistDto[] = friendships.map((doc) => {
         if (!doc.playerA || !doc.playerB) return null;
