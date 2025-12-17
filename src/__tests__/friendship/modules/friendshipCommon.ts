@@ -7,6 +7,7 @@ import { FriendshipSchema } from "../../../friendship/friendship.schema";
 import { FriendshipService } from "../../../friendship/friendship.service";
 import { PlayerModule } from "../../../player/player.module";
 import { PlayerSchema } from "../../../player/schemas/player.schema";
+import { ClanSchema } from "../../../clan/clan.schema";
 
 export default class FriendshipCommonModule {
     private constructor() {}
@@ -21,6 +22,7 @@ export default class FriendshipCommonModule {
                     MongooseModule.forFeature([
                         { name: ModelName.FRIENDSHIP, schema: FriendshipSchema },
                         { name: ModelName.PLAYER, schema: PlayerSchema },
+                        { name: ModelName.CLAN, schema: ClanSchema },
                     ]),
 
                     PlayerModule
