@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { FilterQuery, Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import mongoose, {
+  ClientSession,
+  Connection,
+  FilterQuery,
+  Model,
+} from 'mongoose';
 import { Box, BoxDocument, publicReferences } from './schemas/box.schema';
 import BasicService, {
   convertMongooseToServiceErrors,
@@ -21,6 +26,11 @@ import {
 import { ObjectId } from 'mongodb';
 import { SessionStage } from './enum/SessionStage.enum';
 import { Profile } from '../profile/profile.schema';
+import {
+  cancelTransaction,
+  endTransaction,
+  initializeSession,
+} from '../common/function/Transactions';
 
 @Injectable()
 export class BoxService {
@@ -33,6 +43,7 @@ export class BoxService {
     @InjectModel(GroupAdmin.name)
     public readonly groupAdminModel: Model<GroupAdmin>,
     private readonly boxHelper: BoxHelper,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     this.refsInModel = publicReferences;
     this.basicService = new BasicService(model);
@@ -133,11 +144,15 @@ export class BoxService {
    *
    * @param box_id _id of the box, which data should be reset
    *
+   * @param openedSession - (Optional) An already opened ClientSession to use.
    * @returns true if box was reset or ServiceErrors:
    * - REQUIRED - if the box_id is null, undefined or empty string
    * - NOT_FOUND - if there are no box with this _id
    */
-  public async reset(box_id: string | ObjectId): Promise<IServiceReturn<true>> {
+  public async reset(
+    box_id: string | ObjectId,
+    openedSession?: ClientSession,
+  ): Promise<IServiceReturn<true>> {
     const [, validationErrors] = this.validateBoxId(box_id);
     if (validationErrors) return [null, validationErrors];
 
@@ -145,6 +160,8 @@ export class BoxService {
 
     const [box, readErrors] = await this.basicService.readOneById(parsed_id);
     if (readErrors) return [null, readErrors];
+
+    const session = await initializeSession(this.connection, openedSession);
 
     const [, clearingErrors] = await this.clearSession(parsed_id, [
       ModelName.BOX,
@@ -154,6 +171,10 @@ export class BoxService {
       ModelName.PROFILE,
     ]);
 
+    if (clearingErrors) {
+      return await cancelTransaction(session, clearingErrors, openedSession);
+    }
+
     const [, adminProfileErrors] = await this.clearBoxCollection<Profile>(
       parsed_id,
       this.profileModel,
@@ -161,6 +182,15 @@ export class BoxService {
         filter: { _id: { $ne: box.adminProfile_id } },
       },
     );
+
+    if (adminProfileErrors) {
+      return await cancelTransaction(
+        session,
+        adminProfileErrors,
+        openedSession,
+      );
+    }
+
     const [, adminPlayerErrors] = await this.clearBoxCollection<Player>(
       parsed_id,
       this.playerModel,
@@ -168,6 +198,10 @@ export class BoxService {
         filter: { _id: { $ne: box.adminPlayer_id } },
       },
     );
+
+    if (adminPlayerErrors) {
+      return await cancelTransaction(session, adminPlayerErrors, openedSession);
+    }
 
     await this.basicService.updateOneById<Partial<Box>>(parsed_id, {
       sessionStage: SessionStage.PREPARING,
@@ -178,9 +212,10 @@ export class BoxService {
       ...(adminProfileErrors ?? []),
       ...(adminPlayerErrors ?? []),
     ];
-    if (occurredErrors.length !== 0) return [null, occurredErrors];
+    if (occurredErrors.length !== 0)
+      return await cancelTransaction(session, occurredErrors, openedSession);
 
-    return [true, null];
+    return await endTransaction(session, openedSession);
   }
 
   /**

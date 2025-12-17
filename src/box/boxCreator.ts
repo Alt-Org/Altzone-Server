@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBoxDto } from './dto/createBox.dto';
 import { IServiceReturn } from '../common/service/basicService/IService';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Box, BoxDocument } from './schemas/box.schema';
-import { Model, MongooseError } from 'mongoose';
+import { ClientSession, Connection, Model, MongooseError } from 'mongoose';
 import { Player } from '../player/schemas/player.schema';
 import { Clan } from '../clan/clan.schema';
 import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
@@ -20,6 +20,11 @@ import { ProfileDto } from '../profile/dto/profile.dto';
 import UniqueFieldGenerator from './util/UniqueFieldGenerator';
 import { Profile } from '../profile/profile.schema';
 import { generateRandomClanName } from './util/generateRandomClanName';
+import {
+  cancelTransaction,
+  endTransaction,
+  initializeSession,
+} from '../common/function/Transactions';
 
 @Injectable()
 export default class BoxCreator {
@@ -34,6 +39,7 @@ export default class BoxCreator {
     private readonly playerService: PlayerService,
     private readonly boxService: BoxService,
     private readonly uniqueFieldGenerator: UniqueFieldGenerator,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   /**
@@ -42,6 +48,7 @@ export default class BoxCreator {
    * Notice that if any errors occur on any of the initialization stage, all data of the box will be removed.
    *
    * @param boxToInit box to create
+   * @param openedSession optional opened session for transaction management
    *
    * @returns created box and all corresponding data to it on success or ServiceErrors:
    *
@@ -51,6 +58,7 @@ export default class BoxCreator {
    */
   public async createBox(
     boxToInit: CreateBoxDto,
+    openedSession?: ClientSession,
   ): Promise<IServiceReturn<CreatedBox>> {
     if (!boxToInit)
       return [
@@ -74,31 +82,6 @@ export default class BoxCreator {
     boxToCreate.adminPassword = boxToInit.adminPassword;
     boxToCreate._id = boxToCreate_id;
 
-    const [adminProfile, adminProfileErrors] = await this.createAdminProfile(
-      boxToInit.adminPassword,
-      boxToCreate_id.toString(),
-    );
-    if (adminProfileErrors) {
-      await this.boxService.reset(boxToCreate._id);
-      return [null, adminProfileErrors];
-    }
-    boxToCreate.adminProfile_id = adminProfile._id as unknown as ObjectId;
-
-    const [adminPlayer, adminPlayerErrors] = await this.createAdminPlayer({
-      name: boxToInit.playerName,
-      backpackCapacity: 0,
-      uniqueIdentifier: boxToInit.playerName,
-      above13: true,
-      parentalAuth: true,
-      profile_id: adminProfile._id,
-      box_id: boxToCreate_id.toString(),
-    });
-    if (adminPlayerErrors) {
-      await this.boxService.reset(boxToCreate._id);
-      return [null, adminPlayerErrors];
-    }
-    boxToCreate.adminPlayer_id = adminPlayer._id as unknown as ObjectId;
-
     const weekMs = 1000 * 60 * 60 * 24 * 7;
     boxToCreate.sessionResetTime = new Date().getTime() + weekMs;
     const monthMs = 1000 * 60 * 60 * 24 * 30;
@@ -116,11 +99,42 @@ export default class BoxCreator {
     );
     boxToCreate.clansToCreate = [{ name: clanName1 }, { name: clanName2 }];
 
+    const session = await initializeSession(this.connection, openedSession);
+
+    const [adminProfile, adminProfileErrors] = await this.createAdminProfile(
+      boxToInit.adminPassword,
+      boxToCreate_id.toString(),
+    );
+    if (adminProfileErrors) {
+      await this.boxService.reset(boxToCreate._id, session);
+      return await cancelTransaction(
+        session,
+        adminProfileErrors,
+        openedSession,
+      );
+    }
+    boxToCreate.adminProfile_id = adminProfile._id as unknown as ObjectId;
+
+    const [adminPlayer, adminPlayerErrors] = await this.createAdminPlayer({
+      name: boxToInit.playerName,
+      backpackCapacity: 0,
+      uniqueIdentifier: boxToInit.playerName,
+      above13: true,
+      parentalAuth: true,
+      profile_id: adminProfile._id,
+      box_id: boxToCreate_id.toString(),
+    });
+    if (adminPlayerErrors) {
+      await this.boxService.reset(boxToCreate._id, session);
+      return await cancelTransaction(session, adminPlayerErrors, openedSession);
+    }
+    boxToCreate.adminPlayer_id = adminPlayer._id as unknown as ObjectId;
+
     const [createdBox, errors] = await this.boxService.createOne(
       boxToCreate as BoxDocument,
     );
 
-    if (errors) return [null, errors];
+    if (errors) return await cancelTransaction(session, errors, openedSession);
 
     await this.groupAdminModel.findOneAndUpdate(
       { password: boxToInit.adminPassword },
@@ -133,13 +147,14 @@ export default class BoxCreator {
       ...createdAdminPlayer
     } = (adminPlayer as any).toObject();
 
-    return [
+    return await endTransaction(
+      session,
       {
         ...createdBox.toObject(),
         adminPlayer: createdAdminPlayer,
       },
-      null,
-    ];
+      openedSession,
+    );
   }
 
   /**
