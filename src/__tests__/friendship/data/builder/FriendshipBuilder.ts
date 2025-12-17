@@ -2,12 +2,13 @@ import { Types } from 'mongoose';
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 import { FriendshipStatus } from '../../../../friendship/enum/friendship-status.enum';
 import { Friendship } from '../../../../friendship/friendship.schema';
+import { ObjectId } from 'mongodb';
 
 export default class FriendshipBuilder implements IDataBuilder<Friendship> {
-  private playerA: Types.ObjectId;
-  private playerB: Types.ObjectId;
+  private playerA: string | ObjectId;
+  private playerB: string | ObjectId;
   private status: FriendshipStatus;
-  private requester?: Types.ObjectId;
+  private requester?: string | ObjectId;
   private pairKey?: string;
 
   build(): Friendship {
@@ -25,12 +26,12 @@ export default class FriendshipBuilder implements IDataBuilder<Friendship> {
     return friendship as Friendship;
   }
 
-  setPlayerA(playerA: Types.ObjectId): this {
+  setPlayerA(playerA: string | ObjectId): this {
     this.playerA = playerA;
     return this;
   }
 
-  setPlayerB(playerB: Types.ObjectId): this {
+  setPlayerB(playerB: string | ObjectId): this {
     this.playerB = playerB;
     return this;
   }
@@ -40,7 +41,7 @@ export default class FriendshipBuilder implements IDataBuilder<Friendship> {
     return this;
   }
 
-  setRequester(requester: Types.ObjectId): this {
+  setRequester(requester: string | ObjectId): this {
     this.requester = requester;
     return this;
   }

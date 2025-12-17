@@ -2,17 +2,17 @@ import { FriendshipService } from '../../../friendship/friendship.service';
 import FriendshipModule from '../modules/friendship.module';
 import FriendshipBuilderFactory from '../data/friendshipBuilderFactory';
 import { Friendship } from '../../../friendship/friendship.schema';
-import { Types } from 'mongoose';
 import { FriendshipStatus } from '../../../friendship/enum/friendship-status.enum';
+import { ObjectId } from 'mongodb';
 
 describe('Friendship.getPlayerFriendlist() test suite', () => {
   let friendshipService: FriendshipService;
   const friendshipModel = FriendshipModule.getFriendshipModel();
   const friendshipBuilder = FriendshipBuilderFactory.getBuilder('Friendship');
 
-  const player1_id = new Types.ObjectId();
-  const player2_id = new Types.ObjectId();
-  const player3_id = new Types.ObjectId();
+  const player1_id = new ObjectId();
+  const player2_id = new ObjectId();
+  const player3_id = new ObjectId();
 
   const createdFriendships: Friendship[] = [];
 
@@ -60,7 +60,7 @@ describe('Friendship.getPlayerFriendlist() test suite', () => {
   });
 
   it('Should return an empty array if no player_id match the filter', async () => {
-    const randomPlayer_id = new Types.ObjectId();
+    const randomPlayer_id = new ObjectId();
     const [friendships, err] = await friendshipService.getPlayerFriendlist(
       randomPlayer_id.toString(),
     );
