@@ -93,7 +93,7 @@ describe('Friendship.getFriendRequests() test suites', () => {
     expect(friendships).toBeNull();
   });
 
-  it('...', async () => {
+  it('Should avoid status ACCEPTED and return one friendship request', async () => {
     const [friendships, err] = await friendshipService.getFriendRequests(
       player3_id.toString(),
     );
