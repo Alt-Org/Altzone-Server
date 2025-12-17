@@ -86,10 +86,13 @@ export class ProfileService
 
     if (errors) return [null, errors];
 
-    return this.basicService.createOne<any, ProfileDto>({
-      ...profile,
-      password: hashedPassword,
-    }, { session });
+    return this.basicService.createOne<any, ProfileDto>(
+      {
+        ...profile,
+        password: hashedPassword,
+      },
+      { session },
+    );
   }
 
   /**

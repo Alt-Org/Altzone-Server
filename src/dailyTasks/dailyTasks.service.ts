@@ -234,7 +234,10 @@ export class DailyTasksService {
    *
    * @returns created daily task or ServiceError if any occurred
    */
-  async createMany(dailyTasksToCreate: Omit<DailyTask, '_id'>[], session?: ClientSession) {
+  async createMany(
+    dailyTasksToCreate: Omit<DailyTask, '_id'>[],
+    session?: ClientSession,
+  ) {
     return this.basicService.createMany(dailyTasksToCreate, { session });
   }
 

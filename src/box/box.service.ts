@@ -65,7 +65,10 @@ export class BoxService {
    * - NOT_UNIQUE if a box with provided admin password already exists
    * - validation errors if input is invalid
    */
-  public async createOne(box: Box, session?: ClientSession): Promise<IServiceReturn<BoxDocument>> {
+  public async createOne(
+    box: Box,
+    session?: ClientSession,
+  ): Promise<IServiceReturn<BoxDocument>> {
     const [, validationErrors] = await this.boxHelper.validateBox(box);
 
     if (validationErrors) return [null, validationErrors];

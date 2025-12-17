@@ -205,18 +205,37 @@ export default class SessionStarterService {
     const soulHomeItemIds = soulHomeItems.map((item) => item._id);
 
     try {
-      await this.soulHomeModel.findByIdAndUpdate(soulHome._id, { box_id }, { session });
-      await this.roomModel.updateMany({ soulHome_id: soulHome._id }, { box_id }, { session });
+      await this.soulHomeModel.findByIdAndUpdate(
+        soulHome._id,
+        { box_id },
+        { session },
+      );
+      await this.roomModel.updateMany(
+        { soulHome_id: soulHome._id },
+        { box_id },
+        { session },
+      );
       await this.itemModel.updateMany(
         { _id: { $in: soulHomeItemIds } },
         { box_id },
-        { session }
+        { session },
       );
 
-      await this.stockModel.findByIdAndUpdate(stock._id, { box_id }, { session });
-      await this.itemModel.updateMany({ stock_id: stock._id }, { box_id }, { session });
+      await this.stockModel.findByIdAndUpdate(
+        stock._id,
+        { box_id },
+        { session },
+      );
+      await this.itemModel.updateMany(
+        { stock_id: stock._id },
+        { box_id },
+        { session },
+      );
     } catch (e) {
-      return await cancelTransaction(session, convertMongooseToServiceErrors([e]));
+      return await cancelTransaction(
+        session,
+        convertMongooseToServiceErrors([e]),
+      );
     }
 
     return [createdClan, null];
