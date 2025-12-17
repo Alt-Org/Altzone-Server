@@ -1,4 +1,3 @@
-import { Types } from 'mongoose';
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 import { FriendshipStatus } from '../../../../friendship/enum/friendship-status.enum';
 import { Friendship } from '../../../../friendship/friendship.schema';
