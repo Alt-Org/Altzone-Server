@@ -6,7 +6,9 @@ import { SEReason } from '../../common/service/basicService/SEReason';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Box, BoxDocument } from '../schemas/box.schema';
 import { ClientSession, Connection, Model } from 'mongoose';
-import BasicService from '../../common/service/basicService/BasicService';
+import BasicService, {
+  convertMongooseToServiceErrors,
+} from '../../common/service/basicService/BasicService';
 import { DailyTasksService } from '../../dailyTasks/dailyTasks.service';
 import { Player } from '../../player/schemas/player.schema';
 import { Clan } from '../../clan/clan.schema';
@@ -202,15 +204,20 @@ export default class SessionStarterService {
 
     const soulHomeItemIds = soulHomeItems.map((item) => item._id);
 
-    await this.soulHomeModel.findByIdAndUpdate(soulHome._id, { box_id });
-    await this.roomModel.updateMany({ soulHome_id: soulHome._id }, { box_id });
-    await this.itemModel.updateMany(
-      { _id: { $in: soulHomeItemIds } },
-      { box_id },
-    );
+    try {
+      await this.soulHomeModel.findByIdAndUpdate(soulHome._id, { box_id }, { session });
+      await this.roomModel.updateMany({ soulHome_id: soulHome._id }, { box_id }, { session });
+      await this.itemModel.updateMany(
+        { _id: { $in: soulHomeItemIds } },
+        { box_id },
+        { session }
+      );
 
-    await this.stockModel.findByIdAndUpdate(stock._id, { box_id });
-    await this.itemModel.updateMany({ stock_id: stock._id }, { box_id });
+      await this.stockModel.findByIdAndUpdate(stock._id, { box_id }, { session });
+      await this.itemModel.updateMany({ stock_id: stock._id }, { box_id }, { session });
+    } catch (e) {
+      return await cancelTransaction(session, convertMongooseToServiceErrors([e]));
+    }
 
     return [createdClan, null];
   }
@@ -254,12 +261,12 @@ export default class SessionStarterService {
     });
 
     const [, clan1TasksCreationErrors] =
-      await this.dailyTasksService.createMany(clan1Tasks);
+      await this.dailyTasksService.createMany(clan1Tasks, session);
     if (clan1TasksCreationErrors)
       return await cancelTransaction(session, clan1TasksCreationErrors);
 
     const [, clan2TasksCreationErrors] =
-      await this.dailyTasksService.createMany(clan2Tasks);
+      await this.dailyTasksService.createMany(clan2Tasks, session);
     if (clan2TasksCreationErrors)
       return await cancelTransaction(session, clan2TasksCreationErrors);
 

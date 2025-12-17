@@ -57,6 +57,7 @@ export class BoxService {
   /**
    * Creates a new box
    * @param box box to create
+   * @param session optional opened session for transaction management
    * @returns created box on success or ServiceErrors:
    *
    * - REQUIRED if the provided input is null or undefined
@@ -64,12 +65,12 @@ export class BoxService {
    * - NOT_UNIQUE if a box with provided admin password already exists
    * - validation errors if input is invalid
    */
-  public async createOne(box: Box): Promise<IServiceReturn<BoxDocument>> {
+  public async createOne(box: Box, session?: ClientSession): Promise<IServiceReturn<BoxDocument>> {
     const [, validationErrors] = await this.boxHelper.validateBox(box);
 
     if (validationErrors) return [null, validationErrors];
 
-    return this.basicService.createOne(box);
+    return this.basicService.createOne(box, { session });
   }
 
   /**
