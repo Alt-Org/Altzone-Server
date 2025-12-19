@@ -1,53 +1,42 @@
 import { FriendshipService } from '../../../friendship/friendship.service';
 import FriendshipModule from '../modules/friendship.module';
-import FriendshipBuilderFactory from '../data/friendshipBuilderFactory';
-import { Friendship } from '../../../friendship/friendship.schema';
 import { FriendshipStatus } from '../../../friendship/enum/friendship-status.enum';
 import { ObjectId } from 'mongodb';
+import { createMockFriendships } from '../data/mockData/createData.mock';
+import { Friendship } from 'src/friendship/friendship.schema';
 
 describe('Friendship.getPlayerFriendlist() test suite', () => {
   let friendshipService: FriendshipService;
-  const friendshipModel = FriendshipModule.getFriendshipModel();
-  const friendshipBuilder = FriendshipBuilderFactory.getBuilder('Friendship');
 
-  const player1_id = new ObjectId();
-  const player2_id = new ObjectId();
-  const player3_id = new ObjectId();
+  const player1_id = new ObjectId().toString();
+  const player2_id = new ObjectId().toString();
+  const player3_id = new ObjectId().toString();
 
-  const createdFriendships: Friendship[] = [];
+  const friendshipConfigs: Partial<Friendship>[] = [
+    {
+      playerA: player1_id,
+      playerB: player2_id,
+      status: FriendshipStatus.ACCEPTED,
 
-  beforeAll(() => {
-    const friendshipToCreate1 = friendshipBuilder
-      .setPlayerA(player1_id)
-      .setPlayerB(player2_id)
-      .setStatus(FriendshipStatus.ACCEPTED)
-      .build();
+    },
+    {
+      playerA: player1_id,
+      playerB: player3_id,
+      status: FriendshipStatus.ACCEPTED,
 
-    createdFriendships.push(friendshipToCreate1);
-
-    const friendshipToCreate2 = friendshipBuilder
-      .setPlayerA(player1_id)
-      .setPlayerB(player3_id)
-      .setStatus(FriendshipStatus.ACCEPTED)
-      .build();
-
-    createdFriendships.push(friendshipToCreate2);
-
-    const friendshipToCreate3 = friendshipBuilder
-      .setPlayerA(player2_id)
-      .setPlayerB(player3_id)
-      .setStatus(FriendshipStatus.PENDING)
-      .setRequester(player2_id)
-      .build();
-
-    createdFriendships.push(friendshipToCreate3);
-  });
+    },
+    {
+      playerA: player2_id,
+      playerB: player3_id,
+      status: FriendshipStatus.PENDING,
+      requester: player2_id,
+    },
+  ];
 
   beforeEach(async () => {
-    await friendshipModel.deleteMany({});
     friendshipService = await FriendshipModule.getFriendshipService();
 
-    await friendshipModel.create(createdFriendships);
+    await createMockFriendships(friendshipConfigs);
   });
 
   it('Should get two friendships for player1', async () => {

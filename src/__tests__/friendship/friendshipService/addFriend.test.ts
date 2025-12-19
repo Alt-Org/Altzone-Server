@@ -1,20 +1,16 @@
 import { ObjectId } from 'mongodb';
 import { FriendshipService } from '../../../friendship/friendship.service';
 import FriendshipModule from '../modules/friendship.module';
-import FriendshipBuilderFactory from '../data/friendshipBuilderFactory';
 import { FriendshipStatus } from '../../../friendship/enum/friendship-status.enum';
-import { Friendship } from '../../../friendship/friendship.schema';
 import {
     createMockClans,
+    createMockFriendships,
     createMockPlayers,
 } from '../data/mockData/createData.mock';
+import { Friendship } from 'src/friendship/friendship.schema';
 
 describe('FriendshipService.sendNewFriendRequestNotification()', () => {
     let friendshipService: FriendshipService;
-    const clanModel = FriendshipModule.getClanModel();
-    const playerModel = FriendshipModule.getPlayerModel();
-    const friendshipModel = FriendshipModule.getFriendshipModel();
-    const createdFriendships: Friendship[] = [];
 
     const player1_id = new ObjectId().toString();
     const player2_id = new ObjectId().toString();
@@ -22,40 +18,22 @@ describe('FriendshipService.sendNewFriendRequestNotification()', () => {
 
     const clan_id = new ObjectId().toString();
 
-    beforeAll(async () => {
-        const friendshipConfigs = [
-            {
-                playerA: player1_id,
-                playerB: player2_id,
-                status: FriendshipStatus.PENDING,
-                requester: player1_id,
-            },
-            {
-                playerA: player1_id,
-                playerB: player3_id,
-                status: FriendshipStatus.ACCEPTED,
-            },
-        ];
-
-        for (const config of friendshipConfigs) {
-            const builder = FriendshipBuilderFactory.getBuilder('Friendship');
-            builder
-                .setPlayerA(config.playerA)
-                .setPlayerB(config.playerB)
-                .setStatus(config.status);
-
-            if (config.requester) {
-                builder.setRequester(config.requester);
-            }
-            createdFriendships.push(builder.build());
-        }
-    });
+    const friendshipConfigs: Partial<Friendship>[] = [
+        {
+            playerA: player1_id,
+            playerB: player2_id,
+            status: FriendshipStatus.PENDING,
+            requester: player1_id,
+        },
+        {
+            playerA: player1_id,
+            playerB: player3_id,
+            status: FriendshipStatus.ACCEPTED,
+        },
+    ];
 
     beforeEach(async () => {
         friendshipService = await FriendshipModule.getFriendshipService();
-        await friendshipModel.deleteMany({});
-        await clanModel.deleteMany({});
-        await playerModel.deleteMany({});
 
         await createMockClans([{ _id: clan_id, name: 'TestClan' }]);
         await createMockPlayers([
@@ -78,7 +56,7 @@ describe('FriendshipService.sendNewFriendRequestNotification()', () => {
                 uniqueIdentifier: 'unique-3',
             },
         ]);
-        await friendshipModel.create(createdFriendships);
+        await createMockFriendships(friendshipConfigs);
     });
 
     it('Should return undefined if addFriend is successful', async () => {

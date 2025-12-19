@@ -1,76 +1,58 @@
 import { ObjectId } from "mongodb";
 import { FriendshipService } from "../../../friendship/friendship.service"
 import FriendshipModule from "../modules/friendship.module";
-import { Friendship } from "../../../friendship/friendship.schema";
 import { FriendshipStatus } from "../../../friendship/enum/friendship-status.enum";
-import FriendshipBuilderFactory from "../data/friendshipBuilderFactory";
+import { createMockFriendships } from "../data/mockData/createData.mock";
+import { Friendship } from "src/friendship/friendship.schema";
 
 describe('FriendshipService.getFriendshipsWithStatus() test suites', () => {
     let friendshipService: FriendshipService;
-    const friendshipModel = FriendshipModule.getFriendshipModel();
-    const createdFriendships: Friendship[] = [];
 
     const player1_id = new ObjectId().toString();
     const player2_id = new ObjectId().toString();
     const player3_id = new ObjectId().toString();
     const player4_id = new ObjectId().toString();
 
-    beforeAll(() => {
-        const friendshipConfigs = [
-            {
-                playerA: player1_id,
-                playerB: player2_id,
-                status: FriendshipStatus.PENDING,
-                requester: player1_id,
-            },
-            {
-                playerA: player1_id,
-                playerB: player3_id,
-                status: FriendshipStatus.PENDING,
-                requester: player1_id,
-            },
-            {
-                playerA: player1_id,
-                playerB: player4_id,
-                status: FriendshipStatus.PENDING,
-                requester: player1_id,
-            },
-            {
-                playerA: player2_id,
-                playerB: player3_id,
-                status: FriendshipStatus.ACCEPTED,
-            },
-            {
-                playerA: player2_id,
-                playerB: player4_id,
-                status: FriendshipStatus.ACCEPTED,
-            },
-            {
-                playerA: player3_id,
-                playerB: player4_id,
-                status: FriendshipStatus.BLOCKED,
-            },
-        ];
-
-        for (const config of friendshipConfigs) {
-            const builder = FriendshipBuilderFactory.getBuilder('Friendship');
-            builder
-                .setPlayerA(config.playerA)
-                .setPlayerB(config.playerB)
-                .setStatus(config.status);
-
-            if (config.requester) {
-                builder.setRequester(config.requester);
-            }
-            createdFriendships.push(builder.build());
-        }
-    });
+    const friendshipConfigs: Partial<Friendship>[] = [
+        {
+            playerA: player1_id,
+            playerB: player2_id,
+            status: FriendshipStatus.PENDING,
+            requester: player1_id,
+        },
+        {
+            playerA: player1_id,
+            playerB: player3_id,
+            status: FriendshipStatus.PENDING,
+            requester: player1_id,
+        },
+        {
+            playerA: player1_id,
+            playerB: player4_id,
+            status: FriendshipStatus.PENDING,
+            requester: player1_id,
+        },
+        {
+            playerA: player2_id,
+            playerB: player3_id,
+            status: FriendshipStatus.ACCEPTED,
+        },
+        {
+            playerA: player2_id,
+            playerB: player4_id,
+            status: FriendshipStatus.ACCEPTED,
+        },
+        {
+            playerA: player3_id,
+            playerB: player4_id,
+            status: FriendshipStatus.BLOCKED,
+        },
+    ];
 
     beforeEach(async () => {
-        await friendshipModel.deleteMany({});
         friendshipService = await FriendshipModule.getFriendshipService();
 
-        await friendshipModel.create(createdFriendships);
+        await createMockFriendships(friendshipConfigs);
     });
 
     it('Should get all friendship with status PENDING', async () => {
