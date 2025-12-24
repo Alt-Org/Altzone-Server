@@ -14,6 +14,7 @@ import { FriendlistDto } from './dto/friend-list.dto';
 import { Player } from '../player/schemas/player.schema';
 import FriendshipNotifier from './friendship.notifier';
 import { InvalidIdsServiceError } from './error/duplicateId.error';
+import { FriendRequestDto } from './dto/FriendRequest.dto';
 
 @Injectable()
 export class FriendshipService {
@@ -37,13 +38,13 @@ export class FriendshipService {
    */
   async getPlayerFriendlist(
     playerId: string,
-  ): Promise<IServiceReturn<PopulatedFriendship[]>> {
+  ): Promise<IServiceReturn<FriendlistDto[]>> {
     try {
       const [friendships, error] = await this.getFriendshipsWithStatus(
         playerId,
         FriendshipStatus.ACCEPTED,
       );
-      if (error) throw error;
+      if (error) return [null, error];
 
       const filtered: FriendlistDto[] = friendships.map((doc) => {
         if (!doc.playerA || !doc.playerB) return null;
@@ -57,10 +58,10 @@ export class FriendshipService {
           avatar: friend.avatar,
           clanName: friend.Clan?.name ?? null,
           clan_id: friend.clan_id.toString(),
-        };
+        } as FriendlistDto;
       });
 
-      return [filtered as any, null];
+      return [filtered, null];
     } catch (error) {
       const errors = convertMongooseToServiceErrors(error);
       return [null, errors];
@@ -75,15 +76,17 @@ export class FriendshipService {
    * @param - playerId of the player whose friendlist to return
    * @returns Friend request list
    */
-  async getFriendRequests(playerId: string) {
+  async getFriendRequests(
+    playerId: string
+  ): Promise<IServiceReturn<FriendRequestDto[]>> {
     try {
       const [requests, error] = await this.getFriendshipsWithStatus(
         playerId,
         FriendshipStatus.PENDING,
       );
-      if (error) throw error;
+      if (error) return [null, error];
 
-      const filtered = requests.map((doc) => {
+      const filtered: FriendRequestDto[] = requests.map((doc) => {
         if (!doc.playerA || !doc.playerB) return null;
         const friend =
           doc.playerA._id.toString() === playerId ? doc.playerB : doc.playerA;
@@ -100,7 +103,7 @@ export class FriendshipService {
             clan_id: friend.clan_id.toString(),
             clanName: friend.Clan?.name ?? null,
           },
-        };
+        } as FriendRequestDto;
       });
 
       return [filtered, null];
