@@ -1,6 +1,10 @@
 import { ClientSession, Connection } from 'mongoose';
 import ServiceError from '../service/basicService/ServiceError';
 import { IServiceReturn } from '../service/basicService/IService';
+import { Logger } from '@nestjs/common';
+import TransactionCommitError from './TransactionCommitError';
+
+const logger = new Logger();
 
 /**
  * Initializes and starts a database session for transactions.
@@ -27,19 +31,28 @@ export async function initializeSession(
  *
  * @param session - Started database session.
  * @param errors - The error to be thrown.
- * @param openedSession - (Optional) An already opened ClientSession to use.
  * @throws Will throw an unexpected service error.
  */
 export async function cancelTransaction(
   session: ClientSession,
   errors: ServiceError | ServiceError[],
-  openedSession?: ClientSession,
-): Promise<IServiceReturn<any>> {
+): Promise<IServiceReturn<void>> {
   const errorsArray = Array.isArray(errors) ? errors : [errors];
 
-  if (openedSession) return [null, errorsArray];
-  await session.abortTransaction();
-  await session.endSession();
+  try {
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
+  } catch (abortError) {
+    logger.error('Failed to abort transaction', abortError);
+  } finally {
+    try {
+      await session.endSession();
+    } catch (endError) {
+      logger.error('Failed to end transaction', endError);
+    }
+  }
+
   return [null, errorsArray];
 }
 
@@ -48,31 +61,40 @@ export async function cancelTransaction(
  *
  * @param session - Started database session.
  * @param returnValue - (Optional) Value to return upon successful transaction completion.
- * @param openedSession - (Optional) An already opened ClientSession to use.
  * @returns A promise that resolves to a successful service return.
  */
 export async function endTransaction(
   session: ClientSession,
-  openedSession?: ClientSession,
+  value?: ClientSession,
 ): Promise<IServiceReturn<true>>;
 export async function endTransaction<T>(
   session: ClientSession,
-  returnValue: T,
-  openedSession?: ClientSession,
+  value?: T,
 ): Promise<IServiceReturn<T>>;
 export async function endTransaction<T = true>(
   session: ClientSession,
-  returnValue?: T,
-  openedSession?: ClientSession,
+  value?: T,
 ): Promise<IServiceReturn<T | true>> {
-  const result: T | true =
-    typeof returnValue === 'undefined' ? (true as const) : returnValue;
+  const result = typeof value === 'undefined' ? (true as const) : value;
 
-  if (openedSession) {
-    return [result, null];
+  let commitError: unknown;
+
+  try {
+    await session.commitTransaction();
+  } catch (err) {
+    commitError = err;
+  } finally {
+    try {
+      await session.endSession();
+    } catch (endError) {
+      logger.error('Failed to end session', endError);
+    }
   }
-  await session.commitTransaction();
-  await session.endSession();
+
+  if (commitError) {
+    logger.error('Commit failed', commitError);
+    return [null, [new TransactionCommitError(commitError)]];
+  }
 
   return [result, null];
 }
