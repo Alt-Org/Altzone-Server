@@ -30,13 +30,13 @@ export async function initializeSession(
  * Aborts the database transaction and ends the session.
  *
  * @param session - Started database session.
- * @param errors - The error to be thrown.
- * @throws Will throw an unexpected service error.
+ * @param errors - The error to be returned.
+ * @returns A promise that returns an unexpected service error.
  */
 export async function cancelTransaction(
   session: ClientSession,
   errors: ServiceError | ServiceError[],
-): Promise<IServiceReturn<void>> {
+): Promise<IServiceReturn<never>> {
   const errorsArray = Array.isArray(errors) ? errors : [errors];
 
   try {
@@ -53,7 +53,7 @@ export async function cancelTransaction(
     }
   }
 
-  return [null, errorsArray];
+  return [null as never, errorsArray];
 }
 
 /**
