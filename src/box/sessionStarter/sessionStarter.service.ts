@@ -99,7 +99,7 @@ export default class SessionStarterService {
       },
     );
     if (updateErr)
-      return await cancelTransaction(session, updateErr, openedSession);
+      return await cancelTransaction(session, updateErr);
 
     const dailyTasksToCreate = boxInDB.dailyTasks.map((task) => task['_doc']);
     const [, tasksCreationErrors] = await this.createDailyTasks(
@@ -120,7 +120,7 @@ export default class SessionStarterService {
       boxRemovalTime: timeAfterMonth,
     });
     if (boxUpdateErrors)
-      return await cancelTransaction(session, boxUpdateErrors, openedSession);
+      return await cancelTransaction(session, boxUpdateErrors);
 
     return await endTransaction(session, openedSession);
   }
@@ -150,7 +150,7 @@ export default class SessionStarterService {
       session,
     );
     if (clan1Errors)
-      return await cancelTransaction(session, clan1Errors, openedSession);
+      return await cancelTransaction(session, clan1Errors);
 
     const [clan2Resp, clan2Errors] = await this.createBoxClan(
       clanName2,
@@ -158,9 +158,9 @@ export default class SessionStarterService {
       session,
     );
     if (clan2Errors)
-      return await cancelTransaction(session, clan2Errors, openedSession);
+      return await cancelTransaction(session, clan2Errors);
 
-    return await endTransaction(session, [clan1Resp, clan2Resp], openedSession);
+    return await endTransaction(session, [clan1Resp, clan2Resp]);
   }
 
   /**

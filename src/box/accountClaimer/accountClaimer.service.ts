@@ -81,7 +81,6 @@ export default class AccountClaimerService {
       return await cancelTransaction(
         session,
         accountCreationErrors,
-        openedSession,
       );
 
     const [accountClan, clanAssigningErrors] =
@@ -93,7 +92,6 @@ export default class AccountClaimerService {
       return await cancelTransaction(
         session,
         clanAssigningErrors,
-        openedSession,
       );
 
     const accessToken = await this.jwtService.signAsync({
@@ -114,7 +112,6 @@ export default class AccountClaimerService {
         clan_id: accountClan._id.toString(),
         Clan: accountClan as ClanDto,
       },
-      openedSession,
     );
   }
 

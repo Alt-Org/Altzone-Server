@@ -176,7 +176,7 @@ export class BoxService {
     ]);
 
     if (clearingErrors) {
-      return await cancelTransaction(session, clearingErrors, openedSession);
+      return await cancelTransaction(session, clearingErrors);
     }
 
     const [, adminProfileErrors] = await this.clearBoxCollection<Profile>(
@@ -191,7 +191,6 @@ export class BoxService {
       return await cancelTransaction(
         session,
         adminProfileErrors,
-        openedSession,
       );
     }
 
@@ -204,7 +203,7 @@ export class BoxService {
     );
 
     if (adminPlayerErrors) {
-      return await cancelTransaction(session, adminPlayerErrors, openedSession);
+      return await cancelTransaction(session, adminPlayerErrors);
     }
 
     await this.basicService.updateOneById<Partial<Box>>(parsed_id, {
@@ -217,9 +216,9 @@ export class BoxService {
       ...(adminPlayerErrors ?? []),
     ];
     if (occurredErrors.length !== 0)
-      return await cancelTransaction(session, occurredErrors, openedSession);
+      return await cancelTransaction(session, occurredErrors);
 
-    return await endTransaction(session, openedSession);
+    return await endTransaction(session);
   }
 
   /**

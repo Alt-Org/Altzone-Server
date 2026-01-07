@@ -89,22 +89,21 @@ export class DailyTaskService {
             message: 'Box with this _id not found',
           }),
         ],
-        openedSession,
       );
 
     if (updateErrors)
-      await cancelTransaction(session, updateErrors, openedSession);
+      await cancelTransaction(session, updateErrors);
 
     const [updatedBox, readErrors] =
       await this.basicService.readOneById<BoxDocument>(convertedBox_id);
 
-    if (readErrors) await cancelTransaction(session, readErrors, openedSession);
+    if (readErrors) await cancelTransaction(session, readErrors);
 
     const createdTask = updatedBox.dailyTasks.find((dTask) =>
       this.areSameTasks(dTask, task),
     );
 
-    return await endTransaction(session, createdTask, openedSession);
+    return await endTransaction(session, createdTask);
   }
 
   /**
@@ -167,12 +166,12 @@ export class DailyTaskService {
       ]);
 
     if (updateErrors)
-      return await cancelTransaction(session, updateErrors, openedSession);
+      return await cancelTransaction(session, updateErrors);
 
     const [updatedBox, readErrors] =
       await this.basicService.readOneById<BoxDocument>(convertedBox_id);
     if (readErrors)
-      return await cancelTransaction(session, readErrors, openedSession);
+      return await cancelTransaction(session, readErrors);
 
     const createdTasks: PredefinedDailyTask[] = [];
     for (let i = 0; i < tasks.length; i++) {
@@ -183,7 +182,7 @@ export class DailyTaskService {
       if (createdTask) createdTasks.push(createdTask);
     }
 
-    return await endTransaction(session, createdTasks, openedSession);
+    return await endTransaction(session, createdTasks);
   }
 
   /**

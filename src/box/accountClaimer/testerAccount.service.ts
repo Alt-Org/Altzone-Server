@@ -64,7 +64,6 @@ export class TesterAccountService {
       return await cancelTransaction(
         session,
         profileCreationErrors,
-        openedSession,
       );
 
     const [createdPlayer, playerCreationErrors] = await this.createPlayer(
@@ -76,7 +75,6 @@ export class TesterAccountService {
       return await cancelTransaction(
         session,
         playerCreationErrors,
-        openedSession,
       );
 
     return await endTransaction(
@@ -85,7 +83,6 @@ export class TesterAccountService {
         Profile: createdProfile,
         Player: createdPlayer,
       },
-      openedSession,
     );
   }
 
