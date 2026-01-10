@@ -4,12 +4,15 @@
     "types": ["node", "multer"],
     "noEmitOnError": true,
     "declaration": false,
-    "sourceMap": false
+    "sourceMap": false,
+    "outDir": "./dist",
+    "rootDir": "./src"
   },
   "exclude": [
     "node_modules",
     "**/*.test.ts",
     "**/*.spec.ts",
     "**/__tests__/**"
-  ]
+  ],
+  "include": ["src/**/*"]
 }

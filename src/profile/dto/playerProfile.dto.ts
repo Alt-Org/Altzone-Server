@@ -13,5 +13,6 @@ export class PlayerProfileDto extends CreatePlayerDto {
   @IsProfileExists()
   @IsMongoId()
   @IsOptional()
-  override profile_id: string;
+  override profile_id = '';
+
 }
