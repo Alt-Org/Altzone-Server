@@ -147,15 +147,13 @@ export class BoxService {
    * That means removing all the data associated with the box created after the stage 2.
    *
    * @param box_id _id of the box, which data should be reset
-   *
-   * @param openedSession - (Optional) An already opened ClientSession to use.
+   * 
    * @returns true if box was reset or ServiceErrors:
    * - REQUIRED - if the box_id is null, undefined or empty string
    * - NOT_FOUND - if there are no box with this _id
    */
   public async reset(
     box_id: string | ObjectId,
-    openedSession?: ClientSession,
   ): Promise<IServiceReturn<true>> {
     const [, validationErrors] = this.validateBoxId(box_id);
     if (validationErrors) return [null, validationErrors];
@@ -165,7 +163,8 @@ export class BoxService {
     const [box, readErrors] = await this.basicService.readOneById(parsed_id);
     if (readErrors) return [null, readErrors];
 
-    const session = await initializeSession(this.connection, openedSession);
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
 
     const [, clearingErrors] = await this.clearSession(parsed_id, [
       ModelName.BOX,

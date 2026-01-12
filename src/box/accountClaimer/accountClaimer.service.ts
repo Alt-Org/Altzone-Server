@@ -5,7 +5,7 @@ import { SEReason } from '../../common/service/basicService/SEReason';
 import BasicService from '../../common/service/basicService/BasicService';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Box } from '../schemas/box.schema';
-import { ClientSession, Connection, Model } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import ClaimedAccount from './payloads/claimedAccount';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import { TesterAccountService } from './testerAccount.service';
@@ -37,8 +37,6 @@ export default class AccountClaimerService {
    *
    * @param password shared password for the claiming account in a box.
    *
-   * @param openedSession - (Optional) An already opened ClientSession to use.
-   *
    * @returns Claimed account data, as well as an access token, or ServiceErrors:
    * - REQUIRED - if the password is not provided
    * - NOT_FOUND - if there are no box with this password
@@ -46,7 +44,6 @@ export default class AccountClaimerService {
    */
   async claimAccount(
     password: string,
-    openedSession?: ClientSession,
   ): Promise<IServiceReturn<ClaimedAccount>> {
     const [box, boxReadErrors] = await this.getBoxByPassword(password);
     if (boxReadErrors) return [null, boxReadErrors];
@@ -73,10 +70,11 @@ export default class AccountClaimerService {
         ],
       ];
 
-    const session = await initializeSession(this.connection, openedSession);
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
 
     const [account, accountCreationErrors] =
-      await this.testerService.createTester(box._id.toString(), session);
+      await this.testerService.createTester(box._id.toString());
     if (accountCreationErrors)
       return await cancelTransaction(
         session,

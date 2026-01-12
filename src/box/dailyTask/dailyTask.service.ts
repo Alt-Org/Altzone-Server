@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { ClientSession, Connection, Model } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { Box, BoxDocument, publicReferences } from '../schemas/box.schema';
 import { BoxReference } from '../enum/BoxReference.enum';
 import BasicService from '../../common/service/basicService/BasicService';
@@ -33,7 +33,6 @@ export class DailyTaskService {
    * Adds a new daily task to box daily tasks array
    * @param box_id _id of the box
    * @param task task to add
-   * @param openedSession - (Optional) An already opened ClientSession to use
    *
    * @returns created task, or ServiceError:
    * - NOT_FOUND if the box was not found
@@ -42,7 +41,6 @@ export class DailyTaskService {
   async addOne(
     box_id: string | ObjectId,
     task: CreateDailyTask,
-    openedSession?: ClientSession,
   ): Promise<IServiceReturn<PredefinedDailyTask>> {
     if (!box_id)
       return [
@@ -73,7 +71,8 @@ export class DailyTaskService {
     const convertedBox_id =
       typeof box_id === 'string' ? box_id : box_id.toString();
 
-    const session = await initializeSession(this.connection, openedSession);
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
 
     const [, updateErrors] = await this.basicService.updateOneById(
       convertedBox_id,
@@ -92,12 +91,13 @@ export class DailyTaskService {
       );
 
     if (updateErrors)
-      await cancelTransaction(session, updateErrors);
+      return await cancelTransaction(session, updateErrors);
 
     const [updatedBox, readErrors] =
       await this.basicService.readOneById<BoxDocument>(convertedBox_id);
 
-    if (readErrors) await cancelTransaction(session, readErrors);
+    if (readErrors)
+      return await cancelTransaction(session, readErrors);
 
     const createdTask = updatedBox.dailyTasks.find((dTask) =>
       this.areSameTasks(dTask, task),
@@ -110,7 +110,6 @@ export class DailyTaskService {
    * Adds multiple daily tasks to box daily tasks
    * @param box_id _id of the box
    * @param tasks tasks to add
-   * @param openedSession - (Optional) An already opened ClientSession to use
    *
    * @returns created tasks, or ServiceError:
    * - NOT_FOUND if the box was not found
@@ -119,7 +118,6 @@ export class DailyTaskService {
   async addMultiple(
     box_id: string | ObjectId,
     tasks: CreateDailyTask[],
-    openedSession?: ClientSession,
   ): Promise<IServiceReturn<PredefinedDailyTask[]>> {
     if (!box_id)
       return [
@@ -150,20 +148,23 @@ export class DailyTaskService {
     const convertedBox_id =
       typeof box_id === 'string' ? box_id : box_id.toString();
 
-    const session = await initializeSession(this.connection, openedSession);
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
 
     const [, updateErrors] = await this.basicService.updateOneById(
       convertedBox_id,
       { $push: { dailyTasks: tasks } },
     );
     if (updateErrors && updateErrors[0].reason === SEReason.NOT_FOUND)
-      return await cancelTransaction(session, [
-        new ServiceError({
-          ...updateErrors[0],
-          field: 'box_id',
-          message: 'Box with this _id not found',
-        }),
-      ]);
+      return await cancelTransaction(
+        session,
+        [
+          new ServiceError({
+            ...updateErrors[0],
+            field: 'box_id',
+            message: 'Box with this _id not found',
+          }),
+        ]);
 
     if (updateErrors)
       return await cancelTransaction(session, updateErrors);

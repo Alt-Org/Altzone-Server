@@ -6,7 +6,7 @@ import { SEReason } from '../../common/service/basicService/SEReason';
 import { PasswordGenerator } from '../../common/function/passwordGenerator';
 import { Profile, ProfileDocument } from '../../profile/profile.schema';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { ClientSession, Connection, Model } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { Player, PlayerDocument } from '../../player/schemas/player.schema';
 import { ProfileService } from '../../profile/profile.service';
 import { ProfileDto } from '../../profile/dto/profile.dto';
@@ -44,16 +44,13 @@ export class TesterAccountService {
    *
    * @param box_id _id of the box with which tester is associated with
    *
-   *
-   * @param openedSession - (Optional) An already opened ClientSession to use.
-   *
    * @returns created tester or ServiceError if any errors occurred during the creation process
    */
   async createTester(
     box_id: string,
-    openedSession?: ClientSession,
   ): Promise<IServiceReturn<Omit<Tester, 'Clan'>>> {
-    const session = await initializeSession(this.connection, openedSession);
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
 
     const password = this.passwordGenerator.generatePassword('fi');
     const [createdProfile, profileCreationErrors] = await this.createProfile(

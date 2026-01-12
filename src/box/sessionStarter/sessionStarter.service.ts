@@ -58,15 +58,12 @@ export default class SessionStarterService {
    *
    * @param box_id _id of the box where to start the session
    *
-   * @param openedSession - (Optional) An already opened ClientSession to use.
-   *
    * @returns true if the session is started successfully, or ServiceErrors:
    * - REQUIRED if the box_id is not provided
    * - NOT_FOUND if the box with that _id does not exist
    */
   async start(
     box_id: ObjectId | string,
-    openedSession?: ClientSession,
   ): Promise<IServiceReturn<true>> {
     const randNumber = Math.floor(1 + Math.random() * 99);
     const testersPassword =
@@ -90,7 +87,8 @@ export default class SessionStarterService {
       return new ObjectId(c._id);
     });
 
-    const session = await initializeSession(this.connection, openedSession);
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
 
     const [_, updateErr] = await this.basicService.updateOneById(
       box_id.toString(),
@@ -122,7 +120,7 @@ export default class SessionStarterService {
     if (boxUpdateErrors)
       return await cancelTransaction(session, boxUpdateErrors);
 
-    return await endTransaction(session, openedSession);
+    return await endTransaction(session);
   }
 
   /**
@@ -133,16 +131,15 @@ export default class SessionStarterService {
    * @param clanName1 name of the first clan
    * @param clanName2 name of the second clan
    * @param box_id Id of the box clan belongs to.
-   * @param openedSession - (Optional) An already opened ClientSession to use
    * @returns created clans or ServiceErrors if any occurred
    */
   public async createBoxClans(
     clanName1: string,
     clanName2: string,
     box_id: string,
-    openedSession?: ClientSession,
   ): Promise<IServiceReturn<Clan[]>> {
-    const session = await initializeSession(this.connection, openedSession);
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
 
     const [clan1Resp, clan1Errors] = await this.createBoxClan(
       clanName1,
