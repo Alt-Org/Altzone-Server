@@ -3,10 +3,12 @@ import { ObjectId } from 'mongodb';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Box, BoxDocument } from '../schemas/box.schema';
-import { Model } from 'mongoose';
-import BasicService from '../../common/service/basicService/BasicService';
+import { ClientSession, Connection, Model } from 'mongoose';
+import BasicService, {
+  convertMongooseToServiceErrors,
+} from '../../common/service/basicService/BasicService';
 import { DailyTasksService } from '../../dailyTasks/dailyTasks.service';
 import { Player } from '../../player/schemas/player.schema';
 import { Clan } from '../../clan/clan.schema';
@@ -19,6 +21,11 @@ import { Stock } from '../../clanInventory/stock/stock.schema';
 import { Item } from '../../clanInventory/item/item.schema';
 import { ClanLabel } from '../../clan/enum/clanLabel.enum';
 import { ClanService } from '../../clan/clan.service';
+import {
+  cancelTransaction,
+  endTransaction,
+  initializeSession,
+} from '../../common/function/Transactions';
 
 /**
  * Class responsible for starting the testing session process.
@@ -32,6 +39,7 @@ export default class SessionStarterService {
     @InjectModel(Room.name) private readonly roomModel: Model<Room>,
     @InjectModel(Stock.name) private readonly stockModel: Model<Stock>,
     @InjectModel(Item.name) private readonly itemModel: Model<Item>,
+    @InjectConnection() private readonly connection: Connection,
     private readonly clanService: ClanService,
     private readonly dailyTasksService: DailyTasksService,
     private readonly passwordGenerator: PasswordGenerator,
@@ -54,7 +62,17 @@ export default class SessionStarterService {
    * - REQUIRED if the box_id is not provided
    * - NOT_FOUND if the box with that _id does not exist
    */
-  async start(box_id: ObjectId | string): Promise<IServiceReturn<true>> {
+  async start(
+    box_id: ObjectId | string,
+  ): Promise<IServiceReturn<true>> {
+    const randNumber = Math.floor(1 + Math.random() * 99);
+    const testersPassword =
+      this.passwordGenerator.generatePassword('fi') + `-${randNumber}`;
+
+    const now = new Date().getTime();
+    const timeAfterWeek = now + 60 * 60 * 24 * 7;
+    const timeAfterMonth = now + 60 * 60 * 24 * 30;
+
     const [boxInDB, error] = await this.getAndValidateBox(box_id);
     if (error) return [null, error];
 
@@ -64,9 +82,13 @@ export default class SessionStarterService {
       box_id.toString(),
     );
     if (err) return [null, err];
+
     boxInDB.createdClan_ids = clans.map((c) => {
       return new ObjectId(c._id);
     });
+
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
 
     const [_, updateErr] = await this.basicService.updateOneById(
       box_id.toString(),
@@ -74,7 +96,8 @@ export default class SessionStarterService {
         createdClan_ids: boxInDB.createdClan_ids,
       },
     );
-    if (updateErr) return [null, updateErr];
+    if (updateErr)
+      return await cancelTransaction(session, updateErr);
 
     const dailyTasksToCreate = boxInDB.dailyTasks.map((task) => task['_doc']);
     const [, tasksCreationErrors] = await this.createDailyTasks(
@@ -82,16 +105,9 @@ export default class SessionStarterService {
       clans[0]._id,
       clans[1]._id,
       box_id.toString(),
+      session,
     );
     if (tasksCreationErrors) return [null, tasksCreationErrors];
-
-    const randNumber = Math.floor(1 + Math.random() * 99);
-    const testersPassword =
-      this.passwordGenerator.generatePassword('fi') + `-${randNumber}`;
-
-    const now = new Date().getTime();
-    const timeAfterWeek = now + 60 * 60 * 24 * 7;
-    const timeAfterMonth = now + 60 * 60 * 24 * 30;
 
     const [, boxUpdateErrors] = await this.basicService.updateOneById<
       Partial<Box>
@@ -101,9 +117,10 @@ export default class SessionStarterService {
       sessionResetTime: timeAfterWeek,
       boxRemovalTime: timeAfterMonth,
     });
-    if (boxUpdateErrors) return [null, boxUpdateErrors];
+    if (boxUpdateErrors)
+      return await cancelTransaction(session, boxUpdateErrors);
 
-    return [true, null];
+    return await endTransaction(session);
   }
 
   /**
@@ -114,7 +131,6 @@ export default class SessionStarterService {
    * @param clanName1 name of the first clan
    * @param clanName2 name of the second clan
    * @param box_id Id of the box clan belongs to.
-   *
    * @returns created clans or ServiceErrors if any occurred
    */
   public async createBoxClans(
@@ -122,19 +138,26 @@ export default class SessionStarterService {
     clanName2: string,
     box_id: string,
   ): Promise<IServiceReturn<Clan[]>> {
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
     const [clan1Resp, clan1Errors] = await this.createBoxClan(
       clanName1,
       box_id,
+      session,
     );
-    if (clan1Errors) return [null, clan1Errors];
+    if (clan1Errors)
+      return await cancelTransaction(session, clan1Errors);
 
     const [clan2Resp, clan2Errors] = await this.createBoxClan(
       clanName2,
       box_id,
+      session,
     );
-    if (clan2Errors) return [null, clan2Errors];
+    if (clan2Errors)
+      return await cancelTransaction(session, clan2Errors);
 
-    return [[clan1Resp, clan2Resp], null];
+    return await endTransaction(session, [clan1Resp, clan2Resp]);
   }
 
   /**
@@ -150,6 +173,7 @@ export default class SessionStarterService {
   private async createBoxClan(
     clanName: string,
     box_id: string,
+    session: ClientSession,
   ): Promise<IServiceReturn<Clan>> {
     const defaultClanData = {
       tag: '',
@@ -163,27 +187,53 @@ export default class SessionStarterService {
         ...defaultClanData,
       });
 
-    if (clanCreationErrors) return [null, clanCreationErrors];
+    if (clanCreationErrors)
+      return await cancelTransaction(session, clanCreationErrors);
 
     const [, clanUpdateErrors] = await this.clanService.updateOneById({
       box_id,
       _id: createdClan._id.toString(),
     } as any);
-    if (clanUpdateErrors) return [null, clanUpdateErrors];
+    if (clanUpdateErrors)
+      return await cancelTransaction(session, clanUpdateErrors);
 
     const { soulHome, soulHomeItems, stock } = createdClan;
 
     const soulHomeItemIds = soulHomeItems.map((item) => item._id);
 
-    await this.soulHomeModel.findByIdAndUpdate(soulHome._id, { box_id });
-    await this.roomModel.updateMany({ soulHome_id: soulHome._id }, { box_id });
-    await this.itemModel.updateMany(
-      { _id: { $in: soulHomeItemIds } },
-      { box_id },
-    );
+    try {
+      await this.soulHomeModel.findByIdAndUpdate(
+        soulHome._id,
+        { box_id },
+        { session },
+      );
+      await this.roomModel.updateMany(
+        { soulHome_id: soulHome._id },
+        { box_id },
+        { session },
+      );
+      await this.itemModel.updateMany(
+        { _id: { $in: soulHomeItemIds } },
+        { box_id },
+        { session },
+      );
 
-    await this.stockModel.findByIdAndUpdate(stock._id, { box_id });
-    await this.itemModel.updateMany({ stock_id: stock._id }, { box_id });
+      await this.stockModel.findByIdAndUpdate(
+        stock._id,
+        { box_id },
+        { session },
+      );
+      await this.itemModel.updateMany(
+        { stock_id: stock._id },
+        { box_id },
+        { session },
+      );
+    } catch (e) {
+      return await cancelTransaction(
+        session,
+        convertMongooseToServiceErrors([e]),
+      );
+    }
 
     return [createdClan, null];
   }
@@ -204,6 +254,7 @@ export default class SessionStarterService {
     clan1_id: string | ObjectId,
     clan2_id: string | ObjectId,
     box_id: string,
+    session: ClientSession,
   ): Promise<IServiceReturn<true>> {
     const dailyTasksToCreate = tasks.map((dailyTask) => {
       return {
@@ -226,12 +277,14 @@ export default class SessionStarterService {
     });
 
     const [, clan1TasksCreationErrors] =
-      await this.dailyTasksService.createMany(clan1Tasks);
-    if (clan1TasksCreationErrors) return [null, clan1TasksCreationErrors];
+      await this.dailyTasksService.createMany(clan1Tasks, session);
+    if (clan1TasksCreationErrors)
+      return await cancelTransaction(session, clan1TasksCreationErrors);
 
     const [, clan2TasksCreationErrors] =
-      await this.dailyTasksService.createMany(clan2Tasks);
-    if (clan2TasksCreationErrors) return [null, clan2TasksCreationErrors];
+      await this.dailyTasksService.createMany(clan2Tasks, session);
+    if (clan2TasksCreationErrors)
+      return await cancelTransaction(session, clan2TasksCreationErrors);
 
     return [true, null];
   }

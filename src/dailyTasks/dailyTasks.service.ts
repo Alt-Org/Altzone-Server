@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { ModelName } from '../common/enum/modelName.enum';
 import DailyTaskNotifier from './dailyTask.notifier';
@@ -230,11 +230,15 @@ export class DailyTasksService {
    * Creates multiple daily tasks in DB.
    *
    * @param dailyTasksToCreate daily tasks to create
+   * @param session optional transaction session
    *
    * @returns created daily task or ServiceError if any occurred
    */
-  async createMany(dailyTasksToCreate: Omit<DailyTask, '_id'>[]) {
-    return this.basicService.createMany(dailyTasksToCreate);
+  async createMany(
+    dailyTasksToCreate: Omit<DailyTask, '_id'>[],
+    session?: ClientSession,
+  ) {
+    return this.basicService.createMany(dailyTasksToCreate, { session });
   }
 
   /**

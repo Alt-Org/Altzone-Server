@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
 import { Box, BoxDocument, publicReferences } from '../schemas/box.schema';
 import { BoxReference } from '../enum/BoxReference.enum';
 import BasicService from '../../common/service/basicService/BasicService';
@@ -10,10 +10,18 @@ import { PredefinedDailyTask } from './predefinedDailyTask.schema';
 import { CreateDailyTask } from './payloads/CreateDailyTask';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
+import {
+  cancelTransaction,
+  endTransaction,
+  initializeSession,
+} from '../../common/function/Transactions';
 
 @Injectable()
 export class DailyTaskService {
-  public constructor(@InjectModel(Box.name) public readonly model: Model<Box>) {
+  public constructor(
+    @InjectModel(Box.name) public readonly model: Model<Box>,
+    @InjectConnection() private readonly connection: Connection,
+  ) {
     this.refsInModel = publicReferences;
     this.basicService = new BasicService(model);
   }
@@ -63,13 +71,16 @@ export class DailyTaskService {
     const convertedBox_id =
       typeof box_id === 'string' ? box_id : box_id.toString();
 
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
     const [, updateErrors] = await this.basicService.updateOneById(
       convertedBox_id,
       { $push: { dailyTasks: task } },
     );
     if (updateErrors && updateErrors[0].reason === SEReason.NOT_FOUND)
-      return [
-        null,
+      return await cancelTransaction(
+        session,
         [
           new ServiceError({
             ...updateErrors[0],
@@ -77,18 +88,22 @@ export class DailyTaskService {
             message: 'Box with this _id not found',
           }),
         ],
-      ];
+      );
 
-    if (updateErrors) return [null, updateErrors];
+    if (updateErrors)
+      return await cancelTransaction(session, updateErrors);
 
     const [updatedBox, readErrors] =
       await this.basicService.readOneById<BoxDocument>(convertedBox_id);
-    if (readErrors) return [null, readErrors];
+
+    if (readErrors)
+      return await cancelTransaction(session, readErrors);
 
     const createdTask = updatedBox.dailyTasks.find((dTask) =>
       this.areSameTasks(dTask, task),
     );
-    return [createdTask, null];
+
+    return await endTransaction(session, createdTask);
   }
 
   /**
@@ -133,27 +148,31 @@ export class DailyTaskService {
     const convertedBox_id =
       typeof box_id === 'string' ? box_id : box_id.toString();
 
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
     const [, updateErrors] = await this.basicService.updateOneById(
       convertedBox_id,
       { $push: { dailyTasks: tasks } },
     );
     if (updateErrors && updateErrors[0].reason === SEReason.NOT_FOUND)
-      return [
-        null,
+      return await cancelTransaction(
+        session,
         [
           new ServiceError({
             ...updateErrors[0],
             field: 'box_id',
             message: 'Box with this _id not found',
           }),
-        ],
-      ];
+        ]);
 
-    if (updateErrors) return [null, updateErrors];
+    if (updateErrors)
+      return await cancelTransaction(session, updateErrors);
 
     const [updatedBox, readErrors] =
       await this.basicService.readOneById<BoxDocument>(convertedBox_id);
-    if (readErrors) return [null, readErrors];
+    if (readErrors)
+      return await cancelTransaction(session, readErrors);
 
     const createdTasks: PredefinedDailyTask[] = [];
     for (let i = 0; i < tasks.length; i++) {
@@ -164,7 +183,7 @@ export class DailyTaskService {
       if (createdTask) createdTasks.push(createdTask);
     }
 
-    return [createdTasks, null];
+    return await endTransaction(session, createdTasks);
   }
 
   /**

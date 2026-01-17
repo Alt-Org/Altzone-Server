@@ -34,7 +34,7 @@ export class CreateChatMessageDto {
   /**
    * Text content of the message.
    * Content must not exceed 64 characters
-   * 
+   *
    * @example "Let’s meet at Soul Arena!"
    */
   @IsString()

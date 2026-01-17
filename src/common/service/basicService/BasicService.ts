@@ -49,7 +49,10 @@ export default class BasicService implements IService {
     options?: TIServiceCreateManyOptions,
   ): Promise<IServiceReturn<TOutput[]>> {
     try {
-      const data = await this.model.create(input, options);
+      const createOptions = options?.session
+        ? { ...options, ordered: true }
+        : options;
+      const data = await this.model.create(input, createOptions);
       return [data, null];
     } catch (error) {
       const errors = convertMongooseToServiceErrors(error);

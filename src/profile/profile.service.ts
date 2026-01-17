@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model, Types } from 'mongoose';
+import { ClientSession, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Profile, ProfileDocument } from './profile.schema';
 import { RequestHelperService } from '../requestHelper/requestHelper.service';
@@ -75,19 +75,24 @@ export class ProfileService
    * Creates a new Profile in DB with hashed password.
    *
    * @param profile - The Profile data to create.
+   * @param session - Optional transaction session.
    * @returns  created Profile or an array of service errors if any occurred.
    */
   async createWithHashedPassword(
     profile: CreateProfileDto,
+    session?: ClientSession,
   ): Promise<IServiceReturn<ProfileDto>> {
     const [hashedPassword, errors] = await this.hashPassword(profile.password);
 
     if (errors) return [null, errors];
 
-    return this.basicService.createOne<any, ProfileDto>({
-      ...profile,
-      password: hashedPassword,
-    });
+    return this.basicService.createOne<any, ProfileDto>(
+      {
+        ...profile,
+        password: hashedPassword,
+      },
+      { session },
+    );
   }
 
   /**

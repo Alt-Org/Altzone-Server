@@ -1,7 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { FriendshipService } from '../../../friendship/friendship.service';
 import FriendshipModule from '../modules/friendship.module';
-import FriendshipBuilderFactory from '../data/friendshipBuilderFactory';
 import { FriendshipStatus } from '../../../friendship/enum/friendship-status.enum';
 import {
   createMockClans,
