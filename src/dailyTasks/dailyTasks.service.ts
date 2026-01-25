@@ -15,11 +15,15 @@ import {
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
-import { cancelTransaction } from '../common/function/cancelTransaction';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ServerTaskName } from './enum/serverTaskName.enum';
 import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
 import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
+import { 
+  cancelTransaction, 
+  endTransaction, 
+  initializeSession 
+} from '../common/function/Transactions';
 
 @Injectable()
 export class DailyTasksService {
@@ -87,12 +91,14 @@ export class DailyTasksService {
     if (error) throw error;
     if (task.player_id && task.player_id !== playerId) throw taskReservedError;
 
-    const session = await this.model.db.startSession();
-    session.startTransaction();
+    const connection = this.model.db;
+    const [session, initErrors] = await initializeSession(connection);
+    if (initErrors)
+      return [null, initErrors];
 
     const [, unreserveError] = await this.unreserveTask(playerId);
     if (unreserveError && unreserveError[0].reason !== SEReason.NOT_FOUND)
-      await cancelTransaction(session, unreserveError);
+      return await cancelTransaction(session, unreserveError);
 
     const startedAt = new Date();
     task.player_id = playerId;
@@ -102,13 +108,13 @@ export class DailyTasksService {
       taskId,
       task,
     );
-    if (updateError) await cancelTransaction(session, updateError);
+    if (updateError)
+      return await cancelTransaction(session, updateError);
 
-    session.commitTransaction();
-    session.endSession();
+    await endTransaction(session, task);
 
     await this.taskQueue.addDailyTask(task);
-    await this.notifier.taskReceived(playerId, task);
+    this.notifier.taskReceived(playerId, task);
 
     return task;
   }
