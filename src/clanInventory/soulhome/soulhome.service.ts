@@ -73,13 +73,10 @@ export class SoulHomeService {
    */
 
   // Update deleteOneById as well to add transaction support to the Clan module (#744)
-  async deleteOneById(
-  _id: string, 
-  session?: ClientSession 
-  ) {
+  async deleteOneById(_id: string, session?: ClientSession) {
     // 1. Tell RoomService to delete all rooms belonging to this SoulHome
     await this.roomService.deleteMany({ soulHome_id: _id }, { session });
-    
+
     // Delete the soulhome itself
     return this.basicService.deleteOneById(_id, { session }); // mandatory session passed here to fix previous issues
   }

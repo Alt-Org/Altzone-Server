@@ -77,7 +77,7 @@ export class FriendshipService {
    * @returns Friend request list
    */
   async getFriendRequests(
-    playerId: string
+    playerId: string,
   ): Promise<IServiceReturn<FriendRequestDto[]>> {
     try {
       const [requests, error] = await this.getFriendshipsWithStatus(

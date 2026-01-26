@@ -62,9 +62,7 @@ export default class SessionStarterService {
    * - REQUIRED if the box_id is not provided
    * - NOT_FOUND if the box with that _id does not exist
    */
-  async start(
-    box_id: ObjectId | string,
-  ): Promise<IServiceReturn<true>> {
+  async start(box_id: ObjectId | string): Promise<IServiceReturn<true>> {
     const randNumber = Math.floor(1 + Math.random() * 99);
     const testersPassword =
       this.passwordGenerator.generatePassword('fi') + `-${randNumber}`;
@@ -96,8 +94,7 @@ export default class SessionStarterService {
         createdClan_ids: boxInDB.createdClan_ids,
       },
     );
-    if (updateErr)
-      return await cancelTransaction(session, updateErr);
+    if (updateErr) return await cancelTransaction(session, updateErr);
 
     const dailyTasksToCreate = boxInDB.dailyTasks.map((task) => task['_doc']);
     const [, tasksCreationErrors] = await this.createDailyTasks(
@@ -146,16 +143,14 @@ export default class SessionStarterService {
       box_id,
       session,
     );
-    if (clan1Errors)
-      return await cancelTransaction(session, clan1Errors);
+    if (clan1Errors) return await cancelTransaction(session, clan1Errors);
 
     const [clan2Resp, clan2Errors] = await this.createBoxClan(
       clanName2,
       box_id,
       session,
     );
-    if (clan2Errors)
-      return await cancelTransaction(session, clan2Errors);
+    if (clan2Errors) return await cancelTransaction(session, clan2Errors);
 
     return await endTransaction(session, [clan1Resp, clan2Resp]);
   }

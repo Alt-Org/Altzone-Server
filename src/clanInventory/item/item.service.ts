@@ -29,10 +29,13 @@ export class ItemService {
   private readonly basicService: BasicService;
 
   /**
-   * Public "bridge" to allow other services to delete multiple items 
+   * Public "bridge" to allow other services to delete multiple items
    * within a transaction session. Essential for transaction support.
    */
-  public async deleteMany(condition: any, options?: { session: ClientSession }) {
+  public async deleteMany(
+    condition: any,
+    options?: { session: ClientSession },
+  ) {
     return this.basicService.deleteMany(condition, options);
   }
 
@@ -55,11 +58,11 @@ export class ItemService {
    */
 
   async createMany(
-  data: any[], 
-  options?: { session: ClientSession } // Added this for transaction support
-) {
-  return this.basicService.createMany(data, options);
-}
+    data: any[],
+    options?: { session: ClientSession }, // Added this for transaction support
+  ) {
+    return this.basicService.createMany(data, options);
+  }
 
   /**
    * Creates many new Items in DB.
@@ -149,6 +152,6 @@ export class ItemService {
    * @returns _true_ if Items was removed successfully, or a ServiceError array if any Items of the Room was not found or something else went wrong
    */
   async deleteAllRoomItems(room_id: string, session?: ClientSession) {
-  return this.deleteMany({ room_id }, { session });
+    return this.deleteMany({ room_id }, { session });
   }
 }

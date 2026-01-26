@@ -31,10 +31,13 @@ export class RoomService {
   private readonly basicService: BasicService;
 
   /**
-   * Public "bridge" to allow other services to delete multiple items 
+   * Public "bridge" to allow other services to delete multiple items
    * within a transaction session. Essential for transaction support.
    */
-  public async deleteMany(condition: any, options?: { session: ClientSession }) {
+  public async deleteMany(
+    condition: any,
+    options?: { session: ClientSession },
+  ) {
     return this.basicService.deleteMany(condition, options);
   }
 
@@ -56,11 +59,11 @@ export class RoomService {
    */
 
   async createMany(
-  data: any[], 
-  options?: { session: ClientSession } // Added this for transaction support on the clan module as well (#744)
-) {
-  return this.basicService.createMany(data, options);
-}
+    data: any[],
+    options?: { session: ClientSession }, // Added this for transaction support on the clan module as well (#744)
+  ) {
+    return this.basicService.createMany(data, options);
+  }
 
   /**
    * Reads a Room by its _id in DB.
@@ -172,20 +175,20 @@ export class RoomService {
    */
   async deleteAllSoulHomeRooms(
     soulHome_id: string,
-    session?: ClientSession // 1. Accept the "session baton" here
-): Promise<[true | null, ServiceError[] | null]> {
+    session?: ClientSession, // 1. Accept the "session baton" here
+  ): Promise<[true | null, ServiceError[] | null]> {
     const [soulHomeRooms, errors] = await this.basicService.readMany<RoomDto>({
-        filter: { soulHome_id },
+      filter: { soulHome_id },
     });
     if (errors || !soulHomeRooms) return [null, errors];
 
     for (let i = 0, l = soulHomeRooms.length; i < l; i++)
-        // 2. Pass the "session baton" to the ItemService
-        await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id, session);
+      // 2. Pass the "session baton" to the ItemService
+      await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id, session);
 
     // 3. Pass the "session baton" to the bridge method
     return this.deleteMany({ soulHome_id }, { session });
-}
+  }
 
   /**
    * Activates specified rooms.

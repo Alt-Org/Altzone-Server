@@ -39,7 +39,7 @@ export default class ClanHelperService {
     // Pass session in options object for BasicService compatibility inside StockService
     const [stock, stockErrors] = await this.stockService.createOne(
       { cellCount: 20, clan_id },
-      { session }, 
+      { session },
     );
     if (stockErrors || !stock) return [null, stockErrors];
 
@@ -74,15 +74,14 @@ export default class ClanHelperService {
       await this.soulHomeService.basicService.createOne<
         Partial<SoulHome>,
         SoulHomeDto
-      >(
-        { name, clan_id },
-        { session }
-      );
+      >({ name, clan_id }, { session });
     if (soulHomeErrors || !soulHome) return [null, soulHomeErrors];
 
     const defaultRooms = this.getDefaultRooms(soulHome._id, roomsCount);
-    const [rooms, roomsErrors] =
-      await this.roomService.createMany(defaultRooms, { session });
+    const [rooms, roomsErrors] = await this.roomService.createMany(
+      defaultRooms,
+      { session },
+    );
     if (roomsErrors || !rooms) return [null, roomsErrors];
 
     const firstRoom = rooms[0];

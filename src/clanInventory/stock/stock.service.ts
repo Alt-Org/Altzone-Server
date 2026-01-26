@@ -36,12 +36,12 @@ export class StockService {
    * @returns created Stock or an array of service errors if any occurred.
    */
   // Update createOne
-async createOne(
-  stock: CreateStockDto, 
-  options?: { session: ClientSession } // To address the session problems created earlier in order to add transaction support
-) {
-  return this.basicService.createOne(stock, options);
-}
+  async createOne(
+    stock: CreateStockDto,
+    options?: { session: ClientSession }, // To address the session problems created earlier in order to add transaction support
+  ) {
+    return this.basicService.createOne(stock, options);
+  }
 
   /**
    * Reads a Stock by its _id in DB.
@@ -120,8 +120,8 @@ async createOne(
    */
   async deleteOneById(_id: string, session?: ClientSession) {
     // Ensure the sub-deletion also uses the session for unit tests
-  await this.itemService.deleteMany({ stock_id: _id }, { session });
-  // 3. Pass it to basicService as an options object here
-  return this.basicService.deleteOneById(_id, { session });
-}
+    await this.itemService.deleteMany({ stock_id: _id }, { session });
+    // 3. Pass it to basicService as an options object here
+    return this.basicService.deleteOneById(_id, { session });
+  }
 }

@@ -58,10 +58,7 @@ export class TesterAccountService {
       password,
     );
     if (profileCreationErrors)
-      return await cancelTransaction(
-        session,
-        profileCreationErrors,
-      );
+      return await cancelTransaction(session, profileCreationErrors);
 
     const [createdPlayer, playerCreationErrors] = await this.createPlayer(
       box_id,
@@ -69,18 +66,12 @@ export class TesterAccountService {
       createdProfile,
     );
     if (playerCreationErrors)
-      return await cancelTransaction(
-        session,
-        playerCreationErrors,
-      );
+      return await cancelTransaction(session, playerCreationErrors);
 
-    return await endTransaction(
-      session,
-      {
-        Profile: createdProfile,
-        Player: createdPlayer,
-      },
-    );
+    return await endTransaction(session, {
+      Profile: createdProfile,
+      Player: createdPlayer,
+    });
   }
 
   /**
