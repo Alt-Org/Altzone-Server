@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { publicReferences, SoulHome } from './soulhome.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ClientSession } from 'mongoose';
 import { RoomService } from '../room/room.service';
 import { SoulHomeDto } from './dto/soulhome.dto';
 import { CreateSoulHomeDto } from './dto/createSoulHome.dto';
@@ -71,8 +71,16 @@ export class SoulHomeService {
    * @param _id - The Mongo _id of the SoulHome to delete.
    * @returns _true_ if SoulHome was removed successfully, or a ServiceError array if the SoulHome was not found or something else went wrong
    */
-  async deleteOneById(_id: string) {
-    await this.roomService.deleteAllSoulHomeRooms(_id);
-    return this.basicService.deleteOneById(_id);
+
+  // Update deleteOneById as well to add transaction support to the Clan module (#744)
+  async deleteOneById(
+  _id: string, 
+  session?: ClientSession 
+  ) {
+    // 1. Tell RoomService to delete all rooms belonging to this SoulHome
+    await this.roomService.deleteMany({ soulHome_id: _id }, { session });
+    
+    // Delete the soulhome itself
+    return this.basicService.deleteOneById(_id, { session }); // mandatory session passed here to fix previous issues
   }
 }

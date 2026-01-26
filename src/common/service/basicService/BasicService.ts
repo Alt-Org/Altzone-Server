@@ -1,11 +1,9 @@
-import { Error, Model } from 'mongoose';
+import { Error, Model, ClientSession } from 'mongoose';
 import {
   IService,
   IServiceReturn,
   TIServiceCreateManyOptions,
   TIServiceCreateOneOptions,
-  TIServiceDeleteByIdOptions,
-  TIServiceDeleteManyOptions,
   TIServiceDeleteOneOptions,
   TIServiceReadManyOptions,
   TIServiceReadOneOptions,
@@ -247,30 +245,32 @@ export default class BasicService implements IService {
   }
 
   async deleteOneById(
-    _id: string,
-    options?: TIServiceDeleteByIdOptions,
-  ): Promise<IServiceReturn<true>> {
-    try {
-      const resp = await this.model.deleteOne({ _id }, options);
-      if (resp.deletedCount === 0)
-        return [
-          null,
-          [
-            new ServiceError({
-              reason: SEReason.NOT_FOUND,
-              message: 'Could not find any objects by specified _id',
-              field: '_id',
-              value: _id,
-            }),
-          ],
-        ];
+  _id: string,
+  options?: { session: ClientSession } // Ensure this matches what services are passing
+): Promise<IServiceReturn<true>> {
+  try {
+    // We pass the options object (which contains the session) as the second argument here
+    const resp = await this.model.deleteOne({ _id }, options);
 
-      return [true, null];
-    } catch (error) {
-      const errors = convertMongooseToServiceErrors(error);
-      return [null, errors];
-    }
+    if (resp.deletedCount === 0)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            message: 'Could not find any objects by specified _id',
+            field: '_id',
+            value: _id,
+          }),
+        ],
+      ];
+
+    return [true, null];
+  } catch (error) {
+    const errors = convertMongooseToServiceErrors(error);
+    return [null, errors];
   }
+}
 
   async deleteOne(
     options: TIServiceDeleteOneOptions,
@@ -296,31 +296,34 @@ export default class BasicService implements IService {
       return [null, errors];
     }
   }
+// Update the signature to accept two arguments: filter and options
+async deleteMany(
+  filterOrOptions: any, 
+  options?: { session: ClientSession }
+): Promise<IServiceReturn<true>> {
+  try {
+    // In order to fix unit tests previously we add the old logic with the new logic here
+    const actualFilter = filterOrOptions?.filter ? filterOrOptions.filter : filterOrOptions;
+    const actualOptions = options ? options : (filterOrOptions?.session ? { session: filterOrOptions.session } : undefined);
+    const resp = await this.model.deleteMany(actualFilter, actualOptions);
 
-  async deleteMany(
-    options: TIServiceDeleteManyOptions,
-  ): Promise<IServiceReturn<true>> {
-    try {
-      const { filter, session } = options ? options : { filter: undefined };
-      const mongooseOptions = session ? { session } : undefined;
-      const resp = await this.model.deleteMany(filter, mongooseOptions);
-      if (resp.deletedCount === 0)
-        return [
-          null,
-          [
-            new ServiceError({
-              reason: SEReason.NOT_FOUND,
-              message: 'Could not find any objects by specified condition',
-            }),
-          ],
-        ];
+    if (resp.deletedCount === 0)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            message: 'Could not find any objects by specified condition',
+          }),
+        ],
+      ];
 
-      return [true, null];
-    } catch (error) {
-      const errors = convertMongooseToServiceErrors(error);
-      return [null, errors];
-    }
+    return [true, null];
+  } catch (error) {
+    const errors = convertMongooseToServiceErrors(error);
+    return [null, errors];
   }
+}
 }
 
 /**

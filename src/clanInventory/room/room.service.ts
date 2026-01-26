@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ClientSession } from 'mongoose';
 import { Room } from './room.schema';
 import { UpdateRoomDto } from './dto/updateRoom.dto';
 import { CreateRoomDto } from './dto/createRoom.dto';
@@ -31,6 +31,14 @@ export class RoomService {
   private readonly basicService: BasicService;
 
   /**
+   * Public "bridge" to allow other services to delete multiple items 
+   * within a transaction session. Essential for transaction support.
+   */
+  public async deleteMany(condition: any, options?: { session: ClientSession }) {
+    return this.basicService.deleteMany(condition, options);
+  }
+
+  /**
    * Creates a new Room in DB.
    *
    * @param room - The Room data to create.
@@ -46,9 +54,13 @@ export class RoomService {
    * @param rooms - The Rooms data to create.
    * @returns  created Rooms or an array of service errors if any occurred.
    */
-  async createMany(rooms: CreateRoomDto[]) {
-    return this.basicService.createMany<CreateRoomDto, RoomDto>(rooms);
-  }
+
+  async createMany(
+  data: any[], 
+  options?: { session: ClientSession } // Added this for transaction support on the clan module as well (#744)
+) {
+  return this.basicService.createMany(data, options);
+}
 
   /**
    * Reads a Room by its _id in DB.
@@ -145,9 +157,9 @@ export class RoomService {
    * @param _id - The Mongo _id of the Room to delete.
    * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
    */
-  async deleteOneById(_id: string) {
-    await this.itemService.deleteAllRoomItems(_id);
-    return this.basicService.deleteOneById(_id);
+  async deleteOneById(_id: string, session?: ClientSession) {
+    await this.itemService.deleteAllRoomItems(_id, session); // Pass session to ItemService
+    return this.basicService.deleteOneById(_id, { session }); // Pass session to BasicService
   }
 
   /**
@@ -160,17 +172,20 @@ export class RoomService {
    */
   async deleteAllSoulHomeRooms(
     soulHome_id: string,
-  ): Promise<[true | null, ServiceError[] | null]> {
+    session?: ClientSession // 1. Accept the "session baton" here
+): Promise<[true | null, ServiceError[] | null]> {
     const [soulHomeRooms, errors] = await this.basicService.readMany<RoomDto>({
-      filter: { soulHome_id },
+        filter: { soulHome_id },
     });
     if (errors || !soulHomeRooms) return [null, errors];
 
     for (let i = 0, l = soulHomeRooms.length; i < l; i++)
-      await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id);
+        // 2. Pass the "session baton" to the ItemService
+        await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id, session);
 
-    return this.basicService.deleteMany({ filter: { soulHome_id } });
-  }
+    // 3. Pass the "session baton" to the bridge method
+    return this.deleteMany({ soulHome_id }, { session });
+}
 
   /**
    * Activates specified rooms.

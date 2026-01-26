@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, ClientSession } from 'mongoose'; // Added ClientSession as an import to add transaction support
 import { InjectModel } from '@nestjs/mongoose';
 import { Stock } from './stock.schema';
 import { CreateStockDto } from './dto/createStock.dto';
@@ -35,9 +35,13 @@ export class StockService {
    * @param stock - The Stock data to create.
    * @returns created Stock or an array of service errors if any occurred.
    */
-  async createOne(stock: CreateStockDto) {
-    return this.basicService.createOne<CreateStockDto, StockDto>(stock);
-  }
+  // Update createOne
+async createOne(
+  stock: CreateStockDto, 
+  options?: { session: ClientSession } // To address the session problems created earlier in order to add transaction support
+) {
+  return this.basicService.createOne(stock, options);
+}
 
   /**
    * Reads a Stock by its _id in DB.
@@ -114,8 +118,10 @@ export class StockService {
    * @param _id - The Mongo _id of the Stock to delete.
    * @returns _true_ if Stock was removed successfully, or a ServiceError array if the Stock was not found or something else went wrong
    */
-  async deleteOneById(_id: string) {
-    await this.itemService.deleteAllStockItems(_id);
-    return this.basicService.deleteOneById(_id);
-  }
+  async deleteOneById(_id: string, session?: ClientSession) {
+    // Ensure the sub-deletion also uses the session for unit tests
+  await this.itemService.deleteMany({ stock_id: _id }, { session });
+  // 3. Pass it to basicService as an options object here
+  return this.basicService.deleteOneById(_id, { session });
+}
 }

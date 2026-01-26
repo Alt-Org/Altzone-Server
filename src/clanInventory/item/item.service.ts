@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, ClientSession } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Item } from './item.schema';
 import { CreateItemDto } from './dto/createItem.dto';
@@ -29,6 +29,14 @@ export class ItemService {
   private readonly basicService: BasicService;
 
   /**
+   * Public "bridge" to allow other services to delete multiple items 
+   * within a transaction session. Essential for transaction support.
+   */
+  public async deleteMany(condition: any, options?: { session: ClientSession }) {
+    return this.basicService.deleteMany(condition, options);
+  }
+
+  /**
    * Creates an new Item in DB.
    *
    * @param item - The Item data to create.
@@ -45,9 +53,13 @@ export class ItemService {
    * @param items - The Items data to create.
    * @returns created Item or an array of service errors if any occurred.
    */
-  async createMany(items: CreateItemDto[]) {
-    return this.basicService.createMany<CreateItemDto, ItemDto>(items);
-  }
+
+  async createMany(
+  data: any[], 
+  options?: { session: ClientSession } // Added this for transaction support
+) {
+  return this.basicService.createMany(data, options);
+}
 
   /**
    * Creates many new Items in DB.
@@ -136,7 +148,7 @@ export class ItemService {
    * @param room_id - The Mongo _id of the Stock from which all items should be deleted
    * @returns _true_ if Items was removed successfully, or a ServiceError array if any Items of the Room was not found or something else went wrong
    */
-  async deleteAllRoomItems(room_id: string) {
-    return this.basicService.deleteMany({ filter: { room_id } });
+  async deleteAllRoomItems(room_id: string, session?: ClientSession) {
+  return this.deleteMany({ room_id }, { session });
   }
 }
