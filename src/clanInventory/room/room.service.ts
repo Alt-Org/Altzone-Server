@@ -31,15 +31,20 @@ export class RoomService {
   private readonly basicService: BasicService;
 
   /**
-   * Public "bridge" to allow other services to delete multiple items
-   * within a transaction session. Essential for transaction support.
-   */
+ * Deletes multiple records based on the provided condition.
+ * Supports database transactions by accepting an optional session within the options object.
+ * * @param condition - The Mongoose filter criteria for deletion.
+ * @param options - Additional settings, including the ClientSession for transaction integrity.
+ */
   public async deleteMany(
     condition: any,
     options?: { session: ClientSession },
-  ) {
-    return this.basicService.deleteMany(condition, options);
-  }
+) {
+    return this.basicService.deleteMany({
+        filter: condition,
+        session: options?.session 
+    });
+}
 
   /**
    * Creates a new Room in DB.

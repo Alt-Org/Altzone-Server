@@ -246,29 +246,18 @@ export default class BasicService implements IService {
 
   async deleteOneById(
     _id: string,
-    options?: { session: ClientSession }, // Ensure this matches what services are passing
+    options?: { session?: ClientSession }, 
   ): Promise<IServiceReturn<true>> {
     try {
-      // We pass the options object (which contains the session) as the second argument here
+      // Passing the options (containing the session) to Mongoose
       const resp = await this.model.deleteOne({ _id }, options);
 
       if (resp.deletedCount === 0)
-        return [
-          null,
-          [
-            new ServiceError({
-              reason: SEReason.NOT_FOUND,
-              message: 'Could not find any objects by specified _id',
-              field: '_id',
-              value: _id,
-            }),
-          ],
-        ];
+        return [null, [new ServiceError({ reason: SEReason.NOT_FOUND, message: 'Not Found' })]];
 
       return [true, null];
     } catch (error) {
-      const errors = convertMongooseToServiceErrors(error);
-      return [null, errors];
+      return [null, convertMongooseToServiceErrors(error)];
     }
   }
 
@@ -296,22 +285,13 @@ export default class BasicService implements IService {
       return [null, errors];
     }
   }
-  // Update the signature to accept two arguments: filter and options
   async deleteMany(
-    filterOrOptions: any,
-    options?: { session: ClientSession },
+    options: TIServiceDeleteOneOptions, // Reverted to standard single-argument style
   ): Promise<IServiceReturn<true>> {
     try {
-      // In order to fix unit tests previously we add the old logic with the new logic here
-      const actualFilter = filterOrOptions?.filter
-        ? filterOrOptions.filter
-        : filterOrOptions;
-      const actualOptions = options
-        ? options
-        : filterOrOptions?.session
-          ? { session: filterOrOptions.session }
-          : undefined;
-      const resp = await this.model.deleteMany(actualFilter, actualOptions);
+      const { filter, ...mongooseOptions } = options;
+      
+      const resp = await this.model.deleteMany(filter, mongooseOptions);
 
       if (resp.deletedCount === 0)
         return [

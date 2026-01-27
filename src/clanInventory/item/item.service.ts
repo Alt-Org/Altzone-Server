@@ -29,17 +29,6 @@ export class ItemService {
   private readonly basicService: BasicService;
 
   /**
-   * Public "bridge" to allow other services to delete multiple items
-   * within a transaction session. Essential for transaction support.
-   */
-  public async deleteMany(
-    condition: any,
-    options?: { session: ClientSession },
-  ) {
-    return this.basicService.deleteMany(condition, options);
-  }
-
-  /**
    * Creates an new Item in DB.
    *
    * @param item - The Item data to create.
@@ -137,21 +126,21 @@ export class ItemService {
 
   /**
    * Deletes all Items of the specified by _id Stock from DB.
-   *
-   * @param stock_id - The Mongo _id of the Stock from which all items should be deleted
-   * @returns _true_ if Items was removed successfully, or a ServiceError array if any Items of the Stock was not found or something else went wrong
    */
-  async deleteAllStockItems(stock_id: string) {
-    return this.basicService.deleteMany({ filter: { stock_id } });
+  async deleteAllStockItems(stock_id: string, session?: ClientSession) {
+    return this.basicService.deleteMany({ 
+      filter: { stock_id }, 
+      session 
+    });
   }
 
   /**
    * Deletes all Items of the specified by _id Room from DB.
-   *
-   * @param room_id - The Mongo _id of the Stock from which all items should be deleted
-   * @returns _true_ if Items was removed successfully, or a ServiceError array if any Items of the Room was not found or something else went wrong
    */
   async deleteAllRoomItems(room_id: string, session?: ClientSession) {
-    return this.deleteMany({ room_id }, { session });
+    return this.basicService.deleteMany({ 
+      filter: { room_id }, 
+      session 
+    });
   }
 }
