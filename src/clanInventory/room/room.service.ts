@@ -31,22 +31,6 @@ export class RoomService {
   private readonly basicService: BasicService;
 
   /**
-   * Deletes multiple records based on the provided condition.
-   * Supports database transactions by accepting an optional session within the options object.
-   * * @param condition - The Mongoose filter criteria for deletion.
-   * @param options - Additional settings, including the ClientSession for transaction integrity.
-   */
-  public async deleteMany(
-    condition: any,
-    options?: { session: ClientSession },
-  ) {
-    return this.basicService.deleteMany({
-      filter: condition,
-      session: options?.session,
-    });
-  }
-
-  /**
    * Creates a new Room in DB.
    *
    * @param room - The Room data to create.
@@ -59,13 +43,13 @@ export class RoomService {
   /**
    * Creates multiple Rooms in DB.
    *
-   * @param rooms - The Rooms data to create.
+   * @param data - The Rooms data to create.
+   * @param options - Options including session for transactions.
    * @returns  created Rooms or an array of service errors if any occurred.
    */
-
   async createMany(
     data: any[],
-    options?: { session: ClientSession }, // Added this for transaction support on the clan module as well (#744)
+    options?: { session: ClientSession },
   ) {
     return this.basicService.createMany(data, options);
   }
@@ -163,11 +147,12 @@ export class RoomService {
    * Notice that the method also removes all Items inside the Room
    *
    * @param _id - The Mongo _id of the Room to delete.
+   * @param session - Optional session for transaction support.
    * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
    */
   async deleteOneById(_id: string, session?: ClientSession) {
-    await this.itemService.deleteAllRoomItems(_id, session); // Pass session to ItemService
-    return this.basicService.deleteOneById(_id, { session }); // Pass session to BasicService
+    await this.itemService.deleteAllRoomItems(_id, session);
+    return this.basicService.deleteOneById(_id, { session });
   }
 
   /**
@@ -175,12 +160,13 @@ export class RoomService {
    *
    * Notice that the method also removes all Items inside these Rooms
    *
-   * @param soulHome_id - The Mongo _id of the Room to delete.
-   * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
+   * @param soulHome_id - The Mongo _id of the SoulHome.
+   * @param session - Optional session for transaction support.
+   * @returns _true_ if Rooms were removed successfully, or a ServiceError array if any error occurred.
    */
   async deleteAllSoulHomeRooms(
     soulHome_id: string,
-    session?: ClientSession, // 1. Accept the "session baton" here
+    session?: ClientSession,
   ): Promise<[true | null, ServiceError[] | null]> {
     const [soulHomeRooms, errors] = await this.basicService.readMany<RoomDto>({
       filter: { soulHome_id },
@@ -188,11 +174,13 @@ export class RoomService {
     if (errors || !soulHomeRooms) return [null, errors];
 
     for (let i = 0, l = soulHomeRooms.length; i < l; i++)
-      // 2. Pass the "session baton" to the ItemService
       await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id, session);
 
-    // 3. Pass the "session baton" to the bridge method
-    return this.deleteMany({ soulHome_id }, { session });
+    // Call basicService.deleteMany directly using the original syntax here
+    return this.basicService.deleteMany({
+      filter: { soulHome_id },
+      session,
+    });
   }
 
   /**

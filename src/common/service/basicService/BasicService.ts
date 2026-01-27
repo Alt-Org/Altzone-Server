@@ -1,9 +1,11 @@
-import { Error, Model, ClientSession } from 'mongoose';
+import { Error, Model } from 'mongoose';
 import {
   IService,
   IServiceReturn,
   TIServiceCreateManyOptions,
   TIServiceCreateOneOptions,
+  TIServiceDeleteByIdOptions,
+  TIServiceDeleteManyOptions,
   TIServiceDeleteOneOptions,
   TIServiceReadManyOptions,
   TIServiceReadOneOptions,
@@ -246,26 +248,27 @@ export default class BasicService implements IService {
 
   async deleteOneById(
     _id: string,
-    options?: { session?: ClientSession },
+    options?: TIServiceDeleteByIdOptions,
   ): Promise<IServiceReturn<true>> {
     try {
-      // Passing the options (containing the session) to Mongoose
       const resp = await this.model.deleteOne({ _id }, options);
-
       if (resp.deletedCount === 0)
         return [
           null,
           [
             new ServiceError({
               reason: SEReason.NOT_FOUND,
-              message: 'Not Found',
+              message: 'Could not find any objects by specified _id',
+              field: '_id',
+              value: _id,
             }),
           ],
         ];
 
       return [true, null];
     } catch (error) {
-      return [null, convertMongooseToServiceErrors(error)];
+      const errors = convertMongooseToServiceErrors(error);
+      return [null, errors];
     }
   }
 
@@ -293,14 +296,14 @@ export default class BasicService implements IService {
       return [null, errors];
     }
   }
+
   async deleteMany(
-    options: TIServiceDeleteOneOptions, // Reverted to standard single-argument style
+    options: TIServiceDeleteManyOptions,
   ): Promise<IServiceReturn<true>> {
     try {
-      const { filter, ...mongooseOptions } = options;
-
+      const { filter, session } = options ? options : { filter: undefined };
+      const mongooseOptions = session ? { session } : undefined;
       const resp = await this.model.deleteMany(filter, mongooseOptions);
-
       if (resp.deletedCount === 0)
         return [
           null,

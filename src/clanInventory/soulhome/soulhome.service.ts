@@ -69,15 +69,13 @@ export class SoulHomeService {
    * Notice that the method will also delete associated rooms.
    *
    * @param _id - The Mongo _id of the SoulHome to delete.
-   * @returns _true_ if SoulHome was removed successfully, or a ServiceError array if the SoulHome was not found or something else went wrong
+   * @param session - Optional session for transaction support.
+   * @returns _true_ if SoulHome was removed successfully, or a ServiceError array if any error occurred.
    */
-
-  // Update deleteOneById as well to add transaction support to the Clan module (#744)
   async deleteOneById(_id: string, session?: ClientSession) {
-    // 1. Tell RoomService to delete all rooms belonging to this SoulHome
-    await this.roomService.deleteMany({ soulHome_id: _id }, { session });
+    await this.roomService.deleteAllSoulHomeRooms(_id, session);
 
-    // Delete the soulhome itself
-    return this.basicService.deleteOneById(_id, { session }); // mandatory session passed here to fix previous issues
+    // Call basicService using the original signature (id, options)
+    return this.basicService.deleteOneById(_id, { session });
   }
 }

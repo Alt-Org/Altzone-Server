@@ -120,8 +120,8 @@ export class ItemService {
    * @param _id - The Mongo _id of the Item to delete.
    * @returns _true_ if Item was removed successfully, or a ServiceError array if the Item was not found or something else went wrong
    */
-  async deleteOneById(_id: string) {
-    return this.basicService.deleteOneById(_id);
+  async deleteOneById(_id: string, session?: ClientSession) {
+    return this.basicService.deleteOneById(_id, { session });
   }
 
   /**
