@@ -47,10 +47,7 @@ export class RoomService {
    * @param options - Options including session for transactions.
    * @returns  created Rooms or an array of service errors if any occurred.
    */
-  async createMany(
-    data: any[],
-    options?: { session: ClientSession },
-  ) {
+  async createMany(data: any[], options?: { session: ClientSession }) {
     return this.basicService.createMany(data, options);
   }
 
