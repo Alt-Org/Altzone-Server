@@ -118,7 +118,7 @@ export class StockService {
    * @param _id - The Mongo _id of the Stock to delete.
    * @returns _true_ if Stock was removed successfully, or a ServiceError array if the Stock was not found or something else went wrong
    */
-  
+
   async deleteOneById(_id: string, session?: ClientSession) {
     // Call the specific item service method
     await this.itemService.deleteAllStockItems(_id, session);

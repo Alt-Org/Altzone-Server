@@ -128,9 +128,9 @@ export class ItemService {
    * Deletes all Items of the specified by _id Stock from DB.
    */
   async deleteAllStockItems(stock_id: string, session?: ClientSession) {
-    return this.basicService.deleteMany({ 
-      filter: { stock_id }, 
-      session 
+    return this.basicService.deleteMany({
+      filter: { stock_id },
+      session,
     });
   }
 
@@ -138,9 +138,9 @@ export class ItemService {
    * Deletes all Items of the specified by _id Room from DB.
    */
   async deleteAllRoomItems(room_id: string, session?: ClientSession) {
-    return this.basicService.deleteMany({ 
-      filter: { room_id }, 
-      session 
+    return this.basicService.deleteMany({
+      filter: { room_id },
+      session,
     });
   }
 }

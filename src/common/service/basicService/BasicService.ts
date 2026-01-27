@@ -246,14 +246,22 @@ export default class BasicService implements IService {
 
   async deleteOneById(
     _id: string,
-    options?: { session?: ClientSession }, 
+    options?: { session?: ClientSession },
   ): Promise<IServiceReturn<true>> {
     try {
       // Passing the options (containing the session) to Mongoose
       const resp = await this.model.deleteOne({ _id }, options);
 
       if (resp.deletedCount === 0)
-        return [null, [new ServiceError({ reason: SEReason.NOT_FOUND, message: 'Not Found' })]];
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_FOUND,
+              message: 'Not Found',
+            }),
+          ],
+        ];
 
       return [true, null];
     } catch (error) {
@@ -290,7 +298,7 @@ export default class BasicService implements IService {
   ): Promise<IServiceReturn<true>> {
     try {
       const { filter, ...mongooseOptions } = options;
-      
+
       const resp = await this.model.deleteMany(filter, mongooseOptions);
 
       if (resp.deletedCount === 0)

@@ -79,56 +79,61 @@ export class ClanService {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
-  // 1. Logic outside the transaction for prepping
-  if (clanToCreate && !clanToCreate.isOpen && !clanToCreate.password) {
-  clanToCreate.password = this.passwordGenerator.generatePassword('fi');
-  }
+    // 1. Logic outside the transaction for prepping
+    if (clanToCreate && !clanToCreate.isOpen && !clanToCreate.password) {
+      clanToCreate.password = this.passwordGenerator.generatePassword('fi');
+    }
 
-  // 2. Create the Clan
-  const [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>(
-  { ...clanToCreate, admin_ids: [player_id] },
-  { session }
-  );
-  if (clanErrors) return await cancelTransaction(session, clanErrors);
+    // 2. Create the Clan
+    const [clan, clanErrors] = await this.basicService.createOne<any, ClanDto>(
+      { ...clanToCreate, admin_ids: [player_id] },
+      { session },
+    );
+    if (clanErrors) return await cancelTransaction(session, clanErrors);
 
-  // 3. Find the role (Standard array logic, no session needed)
-  const leaderRole = clan.roles.find(
-  (role) => role.name === LeaderClanRole.name,
-  );
+    // 3. Find the role (Standard array logic, no session needed)
+    const leaderRole = clan.roles.find(
+      (role) => role.name === LeaderClanRole.name,
+    );
 
-  // 4. Update the player (Passing the session "baton")
-  const [, playerErrors] = await this.playerService.updateOneById(
-  player_id,
-  { clan_id: clan._id, clanRole_id: leaderRole._id },
-  { session },
-  );
-  if (playerErrors) return await cancelTransaction(session, playerErrors);
+    // 4. Update the player (Passing the session "baton")
+    const [, playerErrors] = await this.playerService.updateOneById(
+      player_id,
+      { clan_id: clan._id, clanRole_id: leaderRole._id },
+      { session },
+    );
+    if (playerErrors) return await cancelTransaction(session, playerErrors);
 
-  // 5. Create Default Stock
-  const [stock, stockErrors] = await this.clanHelperService.createDefaultStock(clan._id, session);
-  if (stockErrors) return await cancelTransaction(session, stockErrors);
+    // 5. Create Default Stock
+    const [stock, stockErrors] =
+      await this.clanHelperService.createDefaultStock(clan._id, session);
+    if (stockErrors) return await cancelTransaction(session, stockErrors);
 
-  // 6. Create Default SoulHome
-  const [soulHome, soulHomeErrors] = await this.clanHelperService.createDefaultSoulHome(
-    clan._id,
-    clan.name,
-    30,
-    session,
-  );
-  if (soulHomeErrors) return await cancelTransaction(session, soulHomeErrors);
+    // 6. Create Default SoulHome
+    const [soulHome, soulHomeErrors] =
+      await this.clanHelperService.createDefaultSoulHome(
+        clan._id,
+        clan.name,
+        30,
+        session,
+      );
+    if (soulHomeErrors) return await cancelTransaction(session, soulHomeErrors);
 
-  // 7. Attach nested data for the return object
-  clan.SoulHome = soulHome.SoulHome;
-  clan.Stock = stock.Stock;
+    // 7. Attach nested data for the return object
+    clan.SoulHome = soulHome.SoulHome;
+    clan.Stock = stock.Stock;
 
-  // 8. Commit the transaction
-  const [result, commitError] = await endTransaction<ClanDto>(session, clan as any);
-  if (commitError) return [null, commitError];
+    // 8. Commit the transaction
+    const [result, commitError] = await endTransaction<ClanDto>(
+      session,
+      clan as any,
+    );
+    if (commitError) return [null, commitError];
 
-  // 9. Fire-and-forget event (No session needed here as DB work is done)
-  this.emitter.emitAsync('clan.create', { clan_id: clan._id });
+    // 9. Fire-and-forget event (No session needed here as DB work is done)
+    this.emitter.emitAsync('clan.create', { clan_id: clan._id });
 
-  return [result, null];
+    return [result, null];
   }
 
   public async createOneWithoutAdmin(
@@ -138,42 +143,44 @@ export class ClanService {
     if (!session) return [null, initErrors];
 
     // 1. Password Prepping here (Safe to stay outside the transaction logic)
-  if (clanToCreate && !clanToCreate.isOpen && !clanToCreate.password) {
-    clanToCreate.password = this.passwordGenerator.generatePassword('fi');
-  }
+    if (clanToCreate && !clanToCreate.isOpen && !clanToCreate.password) {
+      clanToCreate.password = this.passwordGenerator.generatePassword('fi');
+    }
 
-  // 2. Create the Clan (Passing the session)
-  const [clan, clanErrors] = await this.basicService.createOne(
-    { ...clanToCreate, playerCount: 0 },
-    { session },
-  );
-  if (clanErrors) return await cancelTransaction(session, clanErrors);
-
-  // 3. Create Default Stock (Passing session)
-  const [stock, stockErrors] = await this.clanHelperService.createDefaultStock(clan._id, session);
-  if (stockErrors) return await cancelTransaction(session, stockErrors);
-
-  // 4. Create Default SoulHome (Passing session)
-  const [soulHome, soulHomeErrors] = await this.clanHelperService.createDefaultSoulHome(
-      clan._id,
-      clan.name,
-      30,
-      session,
+    // 2. Create the Clan (Passing the session)
+    const [clan, clanErrors] = await this.basicService.createOne(
+      { ...clanToCreate, playerCount: 0 },
+      { session },
     );
-  if (soulHomeErrors) return await cancelTransaction(session, soulHomeErrors);
+    if (clanErrors) return await cancelTransaction(session, clanErrors);
 
-  // 5. Map the nested data to the clan object
-  // Note: These lowercase property names match your 'CreateWithoutDtoType'
-  clan.soulHome = soulHome.SoulHome;
-  clan.rooms = soulHome.Room;
-  clan.soulHomeItems = soulHome.Item;
-  clan.stock = stock.Stock;
-  clan.stockItems = stock.Item;
+    // 3. Create Default Stock (Passing session)
+    const [stock, stockErrors] =
+      await this.clanHelperService.createDefaultStock(clan._id, session);
+    if (stockErrors) return await cancelTransaction(session, stockErrors);
 
-  // 6. Finalize and Return
-  // endTransaction returns the [data, error] tuple Hoan wants. 
-  // We cast 'clan' to the expected return type.
-  return await endTransaction<CreateWithoutDtoType>(session, clan as any);
+    // 4. Create Default SoulHome (Passing session)
+    const [soulHome, soulHomeErrors] =
+      await this.clanHelperService.createDefaultSoulHome(
+        clan._id,
+        clan.name,
+        30,
+        session,
+      );
+    if (soulHomeErrors) return await cancelTransaction(session, soulHomeErrors);
+
+    // 5. Map the nested data to the clan object
+    // Note: These lowercase property names match your 'CreateWithoutDtoType'
+    clan.soulHome = soulHome.SoulHome;
+    clan.rooms = soulHome.Room;
+    clan.soulHomeItems = soulHome.Item;
+    clan.stock = stock.Stock;
+    clan.stockItems = stock.Item;
+
+    // 6. Finalize and Return
+    // endTransaction returns the [data, error] tuple Hoan wants.
+    // We cast 'clan' to the expected return type.
+    return await endTransaction<CreateWithoutDtoType>(session, clan as any);
   }
 
   async readOneById(_id: string, options?: TReadByIdOptions) {
