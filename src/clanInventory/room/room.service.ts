@@ -13,6 +13,10 @@ import {
   TReadByIdOptions,
   TIServiceReadOneOptions,
   TIServiceReadManyOptions,
+  TIServiceCreateManyOptions,
+  TIServiceDeleteByIdOptions,
+  TIServiceCreateOneOptions,
+  TIServiceDeleteManyOptions,
 } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
 
@@ -34,21 +38,22 @@ export class RoomService {
    * Creates a new Room in DB.
    *
    * @param room - The Room data to create.
+   * @param options - Optional mongoose ClientSession for transaction support.
    * @returns  created Room or an array of service errors if any occurred.
    */
-  async createOne(room: CreateRoomDto) {
-    return this.basicService.createOne<CreateRoomDto, RoomDto>(room);
+  async createOne(room: CreateRoomDto, options?: TIServiceCreateOneOptions) {
+    return this.basicService.createOne<CreateRoomDto, RoomDto>(room, options);
   }
 
   /**
    * Creates multiple Rooms in DB.
    *
-   * @param data - The Rooms data to create.
-   * @param options - Options including session for transactions.
+   * @param rooms - The Rooms data to create.
+   * @param options - Optional mongoose ClientSession for transaction support.
    * @returns  created Rooms or an array of service errors if any occurred.
    */
-  async createMany(data: any[], options?: { session: ClientSession }) {
-    return this.basicService.createMany(data, options);
+  async createMany(rooms: CreateRoomDto[], options?: TIServiceCreateManyOptions) {
+    return this.basicService.createMany<CreateRoomDto, RoomDto>(rooms, options);
   }
 
   /**
@@ -144,12 +149,12 @@ export class RoomService {
    * Notice that the method also removes all Items inside the Room
    *
    * @param _id - The Mongo _id of the Room to delete.
-   * @param session - Optional session for transaction support.
+   * @param options - Optional mongoose ClientSession for transaction support.
    * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
    */
-  async deleteOneById(_id: string, session?: ClientSession) {
-    await this.itemService.deleteAllRoomItems(_id, session);
-    return this.basicService.deleteOneById(_id, { session });
+  async deleteOneById(_id: string, options?: TIServiceDeleteByIdOptions) {
+    await this.itemService.deleteAllRoomItems(_id, options);
+    return this.basicService.deleteOneById(_id, options);
   }
 
   /**
@@ -157,27 +162,23 @@ export class RoomService {
    *
    * Notice that the method also removes all Items inside these Rooms
    *
-   * @param soulHome_id - The Mongo _id of the SoulHome.
-   * @param session - Optional session for transaction support.
-   * @returns _true_ if Rooms were removed successfully, or a ServiceError array if any error occurred.
+   * @param soulHome_id - The Mongo _id of the Room to delete.
+   * @param options - Optional mongoose ClientSession for transaction support.
+   * @returns _true_ if Room was removed successfully, or a ServiceError array if the Room was not found or something else went wrong
    */
   async deleteAllSoulHomeRooms(
     soulHome_id: string,
-    session?: ClientSession,
+    options?: TIServiceDeleteByIdOptions,
   ): Promise<[true | null, ServiceError[] | null]> {
     const [soulHomeRooms, errors] = await this.basicService.readMany<RoomDto>({
       filter: { soulHome_id },
     });
     if (errors || !soulHomeRooms) return [null, errors];
 
-    for (let i = 0, l = soulHomeRooms.length; i < l; i++)
-      await this.itemService.deleteAllRoomItems(soulHomeRooms[i]._id, session);
+    for (const soulHomeRoom of soulHomeRooms)
+      await this.itemService.deleteAllRoomItems(soulHomeRoom._id, options);
 
-    // Call basicService.deleteMany directly using the original syntax here
-    return this.basicService.deleteMany({
-      filter: { soulHome_id },
-      session,
-    });
+    return this.basicService.deleteMany({ filter: { soulHome_id }, ...options });
   }
 
   /**

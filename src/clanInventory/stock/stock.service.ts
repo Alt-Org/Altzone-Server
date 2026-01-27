@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model, ClientSession } from 'mongoose'; // Added ClientSession as an import to add transaction support
+import { Model, ClientSession } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Stock } from './stock.schema';
 import { CreateStockDto } from './dto/createStock.dto';
@@ -11,6 +11,8 @@ import BasicService from '../../common/service/basicService/BasicService';
 import {
   TReadByIdOptions,
   TIServiceReadManyOptions,
+  TIServiceCreateOneOptions,
+  TIServiceDeleteByIdOptions,
 } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
 
@@ -33,14 +35,11 @@ export class StockService {
    * Creates a new Stock in DB.
    *
    * @param stock - The Stock data to create.
+   * @param options - DB query options.
    * @returns created Stock or an array of service errors if any occurred.
    */
-  // Update createOne
-  async createOne(
-    stock: CreateStockDto,
-    options?: { session: ClientSession }, // To address the session problems created earlier in order to add transaction support
-  ) {
-    return this.basicService.createOne(stock, options);
+  async createOne(stock: CreateStockDto, options?: TIServiceCreateOneOptions) {
+    return this.basicService.createOne<CreateStockDto, StockDto>(stock, options);
   }
 
   /**
@@ -116,13 +115,11 @@ export class StockService {
    * Notice that the method will also delete all Items inside of the Stock.
    *
    * @param _id - The Mongo _id of the Stock to delete.
+   * @param options - Optional session for transaction support.
    * @returns _true_ if Stock was removed successfully, or a ServiceError array if the Stock was not found or something else went wrong
    */
-
-  async deleteOneById(_id: string, session?: ClientSession) {
-    // Call the specific item service method
-    await this.itemService.deleteAllStockItems(_id, session);
-    // 2. Pass the session to basicService as an options object
-    return this.basicService.deleteOneById(_id, { session });
+  async deleteOneById(_id: string, options?: TIServiceDeleteByIdOptions) {
+    await this.itemService.deleteAllStockItems(_id, options);
+    return this.basicService.deleteOneById(_id, options);
   }
 }

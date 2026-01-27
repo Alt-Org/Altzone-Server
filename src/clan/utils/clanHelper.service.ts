@@ -29,14 +29,14 @@ export default class ClanHelperService {
    * Creates a default Stock for the specified Clan.
    * @param clan_id _id of the Clan
    * @param session optional session for transaction support
+   * @returns created _Stock_ and its _items_, or array of ServiceErrors if something went wrong
    */
   async createDefaultStock(
     clan_id: string,
-    session?: ClientSession, // Added session
+    session?: ClientSession
   ): Promise<
     [{ Stock: StockDto; Item: ItemDto[] } | null, ServiceError[] | null]
   > {
-    // Pass session in options object for BasicService compatibility inside StockService
     const [stock, stockErrors] = await this.stockService.createOne(
       { cellCount: 20, clan_id },
       { session },
@@ -58,12 +58,13 @@ export default class ClanHelperService {
    * @param name name of the SoulHome
    * @param roomsCount default 30
    * @param session optional session for transaction support
+   * @returns created _SoulHome_, _Rooms_ and _Items_, or array of ServiceErrors if something went wrong
    */
   async createDefaultSoulHome(
     clan_id: string,
     name: string,
     roomsCount = 30,
-    session?: ClientSession, // Appended to avoid positional conflict with roomsCount
+    session?: ClientSession,
   ): Promise<
     [
       { SoulHome: SoulHomeDto; Room: RoomDto[]; Item: ItemDto[] } | null,
@@ -95,7 +96,14 @@ export default class ClanHelperService {
     return [{ SoulHome: soulHome, Room: rooms, Item: items }, null];
   }
 
-  private getDefaultRooms(soulHome_id: string, count: number) {
+  /**
+   * Generate array of default Rooms belonging to the specified SoulHome.
+   *
+   * @param soulHome_id _id of SoulHome to which Rooms will belong to
+   * @param count Amount of Rooms to generate
+   * @returns Array of default CreateRoomDto objects
+   */
+  private getDefaultRooms(soulHome_id: string, count: number): CreateRoomDto[] {
     const defaultRooms: CreateRoomDto[] = [];
     const defaultRoom: CreateRoomDto = {
       floorType: 'default',
