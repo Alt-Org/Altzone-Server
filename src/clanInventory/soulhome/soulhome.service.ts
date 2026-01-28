@@ -8,7 +8,11 @@ import { CreateSoulHomeDto } from './dto/createSoulHome.dto';
 import { UpdateSoulHomeDto } from './dto/updateSoulHome.dto';
 import { ModelName } from '../../common/enum/modelName.enum';
 import BasicService from '../../common/service/basicService/BasicService';
-import { TIServiceCreateOneOptions, TIServiceDeleteByIdOptions, TReadByIdOptions } from '../../common/service/basicService/IService';
+import {
+  TIServiceCreateOneOptions,
+  TIServiceDeleteByIdOptions,
+  TReadByIdOptions,
+} from '../../common/service/basicService/IService';
 
 @Injectable()
 export class SoulHomeService {
@@ -29,10 +33,13 @@ export class SoulHomeService {
    * @param options - DB query options.
    * @returns  created SoulHome or an array of service errors if any occurred.
    */
-  async createOne(soulHome: CreateSoulHomeDto, options?: TIServiceCreateOneOptions) {
+  async createOne(
+    soulHome: CreateSoulHomeDto,
+    options?: TIServiceCreateOneOptions,
+  ) {
     return this.basicService.createOne<CreateSoulHomeDto, SoulHomeDto>(
       soulHome,
-      options
+      options,
     );
   }
 

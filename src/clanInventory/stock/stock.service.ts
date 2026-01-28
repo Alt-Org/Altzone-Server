@@ -39,7 +39,10 @@ export class StockService {
    * @returns created Stock or an array of service errors if any occurred.
    */
   async createOne(stock: CreateStockDto, options?: TIServiceCreateOneOptions) {
-    return this.basicService.createOne<CreateStockDto, StockDto>(stock, options);
+    return this.basicService.createOne<CreateStockDto, StockDto>(
+      stock,
+      options,
+    );
   }
 
   /**

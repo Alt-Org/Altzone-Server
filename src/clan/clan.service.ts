@@ -116,10 +116,7 @@ export class ClanService {
     clan.SoulHome = soulHome.SoulHome;
     clan.Stock = stock.Stock;
 
-    const [result, commitError] = await endTransaction<ClanDto>(
-      session,
-      clan,
-    );
+    const [result, commitError] = await endTransaction<ClanDto>(session, clan);
     if (commitError) return [null, commitError];
 
     this.emitter.emitAsync('clan.create', { clan_id: clan._id });
@@ -246,7 +243,8 @@ export class ClanService {
         null,
         [
           new ServiceError({
-            message: 'Clan can not be without at least one admin. You are trying to delete all clan admins',
+            message:
+              'Clan can not be without at least one admin. You are trying to delete all clan admins',
             field: 'admin_ids',
             reason: SEReason.REQUIRED,
           }),
@@ -270,7 +268,8 @@ export class ClanService {
         null,
         [
           new ServiceError({
-            message: 'Clan can not be without at least one admin. You are trying to delete all clan admins',
+            message:
+              'Clan can not be without at least one admin. You are trying to delete all clan admins',
             field: 'admin_ids',
             reason: SEReason.REQUIRED,
           }),
@@ -347,7 +346,9 @@ export class ClanService {
       if (shDelErrors) return await cancelTransaction(session, shDelErrors);
     }
 
-    const [, deleteErrors] = await this.basicService.deleteOneById(_id, { session });
+    const [, deleteErrors] = await this.basicService.deleteOneById(_id, {
+      session,
+    });
     if (deleteErrors) return await cancelTransaction(session, deleteErrors);
 
     return await endTransaction<true>(session, true);
