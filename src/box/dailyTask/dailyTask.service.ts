@@ -79,25 +79,20 @@ export class DailyTaskService {
       { $push: { dailyTasks: task } },
     );
     if (updateErrors && updateErrors[0].reason === SEReason.NOT_FOUND)
-      return await cancelTransaction(
-        session,
-        [
-          new ServiceError({
-            ...updateErrors[0],
-            field: 'box_id',
-            message: 'Box with this _id not found',
-          }),
-        ],
-      );
+      return await cancelTransaction(session, [
+        new ServiceError({
+          ...updateErrors[0],
+          field: 'box_id',
+          message: 'Box with this _id not found',
+        }),
+      ]);
 
-    if (updateErrors)
-      return await cancelTransaction(session, updateErrors);
+    if (updateErrors) return await cancelTransaction(session, updateErrors);
 
     const [updatedBox, readErrors] =
       await this.basicService.readOneById<BoxDocument>(convertedBox_id);
 
-    if (readErrors)
-      return await cancelTransaction(session, readErrors);
+    if (readErrors) return await cancelTransaction(session, readErrors);
 
     const createdTask = updatedBox.dailyTasks.find((dTask) =>
       this.areSameTasks(dTask, task),
@@ -156,23 +151,19 @@ export class DailyTaskService {
       { $push: { dailyTasks: tasks } },
     );
     if (updateErrors && updateErrors[0].reason === SEReason.NOT_FOUND)
-      return await cancelTransaction(
-        session,
-        [
-          new ServiceError({
-            ...updateErrors[0],
-            field: 'box_id',
-            message: 'Box with this _id not found',
-          }),
-        ]);
+      return await cancelTransaction(session, [
+        new ServiceError({
+          ...updateErrors[0],
+          field: 'box_id',
+          message: 'Box with this _id not found',
+        }),
+      ]);
 
-    if (updateErrors)
-      return await cancelTransaction(session, updateErrors);
+    if (updateErrors) return await cancelTransaction(session, updateErrors);
 
     const [updatedBox, readErrors] =
       await this.basicService.readOneById<BoxDocument>(convertedBox_id);
-    if (readErrors)
-      return await cancelTransaction(session, readErrors);
+    if (readErrors) return await cancelTransaction(session, readErrors);
 
     const createdTasks: PredefinedDailyTask[] = [];
     for (let i = 0; i < tasks.length; i++) {

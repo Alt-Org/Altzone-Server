@@ -147,14 +147,12 @@ export class BoxService {
    * That means removing all the data associated with the box created after the stage 2.
    *
    * @param box_id _id of the box, which data should be reset
-   * 
+   *
    * @returns true if box was reset or ServiceErrors:
    * - REQUIRED - if the box_id is null, undefined or empty string
    * - NOT_FOUND - if there are no box with this _id
    */
-  public async reset(
-    box_id: string | ObjectId,
-  ): Promise<IServiceReturn<true>> {
+  public async reset(box_id: string | ObjectId): Promise<IServiceReturn<true>> {
     const [, validationErrors] = this.validateBoxId(box_id);
     if (validationErrors) return [null, validationErrors];
 
@@ -187,10 +185,7 @@ export class BoxService {
     );
 
     if (adminProfileErrors) {
-      return await cancelTransaction(
-        session,
-        adminProfileErrors,
-      );
+      return await cancelTransaction(session, adminProfileErrors);
     }
 
     const [, adminPlayerErrors] = await this.clearBoxCollection<Player>(

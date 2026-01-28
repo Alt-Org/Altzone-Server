@@ -18,17 +18,19 @@ describe('ClanService.createOne() test suite', () => {
 
   beforeEach(async () => {
     clanService = await ClanModule.getClanService();
+    await clanModel.createIndexes();
+    await playerModel.createIndexes();
   });
 
   it('Should create a closed clan with a random password if password is not provided', async () => {
     const closedClan = clanCreateBuilder
-      .setName('closedRandomPassClan')
+      .setName('anythingElse')
       .setIsOpen(false)
       .build();
 
     await clanService.createOne(closedClan, loggedPlayer._id);
 
-    const dbResp = await clanModel.findOne({ name: 'closedRandomPassClan' });
+    const dbResp = await clanModel.findOne({ name: 'anythingElse' });
     expect(dbResp).toBeTruthy();
     expect(dbResp.password).toBeDefined();
     expect(typeof dbResp.password).toBe('string');

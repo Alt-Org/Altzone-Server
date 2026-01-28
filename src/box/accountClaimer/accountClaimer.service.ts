@@ -76,10 +76,7 @@ export default class AccountClaimerService {
     const [account, accountCreationErrors] =
       await this.testerService.createTester(box._id.toString());
     if (accountCreationErrors)
-      return await cancelTransaction(
-        session,
-        accountCreationErrors,
-      );
+      return await cancelTransaction(session, accountCreationErrors);
 
     const [accountClan, clanAssigningErrors] =
       await this.testerService.addTesterToClan(
@@ -87,10 +84,7 @@ export default class AccountClaimerService {
         box.createdClan_ids,
       );
     if (clanAssigningErrors)
-      return await cancelTransaction(
-        session,
-        clanAssigningErrors,
-      );
+      return await cancelTransaction(session, clanAssigningErrors);
 
     const accessToken = await this.jwtService.signAsync({
       player_id: account.Player._id.toString(),
@@ -100,17 +94,14 @@ export default class AccountClaimerService {
       groupAdmin: false,
     });
 
-    return await endTransaction(
-      session,
-      {
-        ...account.Player,
-        password: account.Profile.username,
-        profile_id: account.Profile._id.toString(),
-        accessToken,
-        clan_id: accountClan._id.toString(),
-        Clan: accountClan as ClanDto,
-      },
-    );
+    return await endTransaction(session, {
+      ...account.Player,
+      password: account.Profile.username,
+      profile_id: account.Profile._id.toString(),
+      accessToken,
+      clan_id: accountClan._id.toString(),
+      Clan: accountClan as ClanDto,
+    });
   }
 
   /**

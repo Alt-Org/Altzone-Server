@@ -17,13 +17,11 @@ describe('Friendship.getPlayerFriendlist() test suite', () => {
       playerA: player1_id,
       playerB: player2_id,
       status: FriendshipStatus.ACCEPTED,
-
     },
     {
       playerA: player1_id,
       playerB: player3_id,
       status: FriendshipStatus.ACCEPTED,
-
     },
     {
       playerA: player2_id,
