@@ -50,7 +50,7 @@ export class ItemService {
    */
 
   async createMany(items: CreateItemDto[], options?: TIServiceCreateOneOptions) {
-    return this.basicService.createMany(items, options);
+    return this.basicService.createMany<CreateItemDto, ItemDto>(items, options);
   }
 
   /**
