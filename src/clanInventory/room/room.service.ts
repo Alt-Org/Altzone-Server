@@ -52,7 +52,10 @@ export class RoomService {
    * @param options - Optional mongoose ClientSession for transaction support.
    * @returns  created Rooms or an array of service errors if any occurred.
    */
-  async createMany(rooms: CreateRoomDto[], options?: TIServiceCreateManyOptions) {
+  async createMany(
+    rooms: CreateRoomDto[],
+    options?: TIServiceCreateManyOptions,
+  ) {
     return this.basicService.createMany<CreateRoomDto, RoomDto>(rooms, options);
   }
 
@@ -178,7 +181,10 @@ export class RoomService {
     for (const soulHomeRoom of soulHomeRooms)
       await this.itemService.deleteAllRoomItems(soulHomeRoom._id, options);
 
-    return this.basicService.deleteMany({ filter: { soulHome_id }, ...options });
+    return this.basicService.deleteMany({
+      filter: { soulHome_id },
+      ...options,
+    });
   }
 
   /**
