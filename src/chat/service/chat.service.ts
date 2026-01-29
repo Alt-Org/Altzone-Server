@@ -2,13 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {} from '../../common/base/decorator/AddBasicService.decorator';
 import { ChatMessage } from '../schema/chatMessage.schema';
-import { Model } from 'mongoose';
+import { Model, ClientSession } from 'mongoose';
 import BasicService from '../../common/service/basicService/BasicService';
 import { ChatMessageDto } from '../dto/chatMessage.dto';
 import { CreateChatMessageDto } from '../dto/createMessage.dto';
 import {
   IServiceReturn,
   TIServiceReadManyOptions,
+  TIServiceCreateOneOptions,
+  TIServiceUpdateManyOptions,
 } from '../../common/service/basicService/IService';
 import { UpdateChatMessageDto } from '../dto/updateChatMessage.dto';
 import ServiceError from '../../common/service/basicService/ServiceError';
@@ -31,9 +33,13 @@ export class ChatService {
    * @param message - Message data to create.
    * @returns Created message.
    */
-  async createChatMessage(message: CreateChatMessageDto) {
+  async createChatMessage(
+    message: CreateChatMessageDto,
+    options?: TIServiceCreateOneOptions,
+  ) {
     return this.basicService.createOne<CreateChatMessageDto, ChatMessageDto>(
       message,
+      options,
     );
   }
 
@@ -49,9 +55,13 @@ export class ChatService {
     messageId: string,
     playerName: string,
     emoji: string,
+    options?: TIServiceUpdateManyOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
     const [message, error] =
-      await this.basicService.readOneById<ChatMessageDto>(messageId);
+      await this.basicService.readOneById<ChatMessageDto>(
+        messageId,
+        options as any,
+      );
 
     if (error) return [null, error];
 
@@ -64,6 +74,7 @@ export class ChatService {
     const [, updateError] = await this.basicService.updateOneById(
       message._id,
       message,
+      options,
     );
 
     if (updateError) return [null, updateError];

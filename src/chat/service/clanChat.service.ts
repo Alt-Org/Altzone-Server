@@ -6,6 +6,10 @@ import { ChatType } from '../enum/chatMessageType.enum';
 import { AddReactionDto } from '../dto/addReaction.dto';
 import { WsMessageBodyDto } from '../dto/wsMessageBody.dto';
 import { BaseChatService } from './baseChat.service';
+import {
+  TIServiceCreateOneOptions,
+  TIServiceUpdateManyOptions,
+} from '../../common/service/basicService/IService';
 
 @Injectable()
 export class ClanChatService extends BaseChatService {
@@ -63,18 +67,20 @@ export class ClanChatService extends BaseChatService {
    * @param client
    * @param message
    */
-  async handleNewClanMessage(client: WebSocketUser, message: WsMessageBodyDto) {
-    const chatMessage = new CreateChatMessageDto({
+  async handleNewClanMessage(
+    client: WebSocketUser,
+    message: WsMessageBodyDto,
+    options?: TIServiceCreateOneOptions,
+  ) {
+    const chatMessage: CreateChatMessageDto = {
       type: ChatType.CLAN,
       clan_id: client.user.clanId,
       sender_id: client.user.playerId,
       content: message.content,
       feeling: message.feeling,
-    });
+    };
 
-    const recipients = this.clanRooms.get(client.user?.clanId);
-
-    await this.handleNewMessage(chatMessage, client, ChatType.CLAN, recipients);
+    return await this.chatService.createChatMessage(chatMessage, options);
   }
 
   /**
@@ -117,8 +123,9 @@ export class ClanChatService extends BaseChatService {
   async handleNewClanReaction(
     client: WebSocketUser,
     reaction: AddReactionDto,
+    options?: TIServiceUpdateManyOptions,
   ): Promise<void> {
     const recipients = this.clanRooms.get(client.user?.clanId);
-    await this.handleNewReaction(client, reaction, recipients);
+    await this.handleNewReaction(client, reaction, recipients, options);
   }
 }

@@ -1,3 +1,4 @@
+import { TIServiceCreateOneOptions } from '../../common/service/basicService/IService';
 import { Injectable } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { WebSocketUser } from '../types/WsUser.type';
@@ -43,19 +44,20 @@ export class GlobalChatService extends BaseChatService {
   async handleNewGlobalMessage(
     message: WsMessageBodyDto,
     client: WebSocketUser,
+    options?: TIServiceCreateOneOptions,
   ) {
-    const chatMessage = new CreateChatMessageDto({
+    const chatMessage: CreateChatMessageDto = {
       type: ChatType.GLOBAL,
       sender_id: client.user.playerId,
       content: message.content,
       feeling: message.feeling,
-    });
-
+    };
     await this.handleNewMessage(
       chatMessage,
       client,
       ChatType.GLOBAL,
       this.connectedUsers,
+      options,
     );
   }
 
@@ -70,7 +72,13 @@ export class GlobalChatService extends BaseChatService {
   async handleNewGlobalReaction(
     client: WebSocketUser,
     reaction: AddReactionDto,
+    options?: any,
   ) {
-    await this.handleNewReaction(client, reaction, this.connectedUsers);
+    await this.handleNewReaction(
+      client,
+      reaction,
+      this.connectedUsers,
+      options,
+    );
   }
 }

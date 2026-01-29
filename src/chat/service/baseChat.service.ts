@@ -8,6 +8,7 @@ import { ChatType } from '../enum/chatMessageType.enum';
 import { AddReactionDto } from '../dto/addReaction.dto';
 import { plainToInstance } from 'class-transformer';
 import { ChatMessageDto } from '../dto/chatMessage.dto';
+import { TIServiceCreateOneOptions } from '../../common/service/basicService/IService';
 
 export abstract class BaseChatService {
   constructor(protected readonly chatService: ChatService) {}
@@ -29,6 +30,7 @@ export abstract class BaseChatService {
     client: WebSocketUser,
     chatType: ChatType,
     recipients: Set<WebSocketUser>,
+    options?: TIServiceCreateOneOptions,
   ) {
     const errors = await validate(chatMessage);
 
@@ -39,8 +41,10 @@ export abstract class BaseChatService {
       return;
     }
 
-    const [createdMsg, error] =
-      await this.chatService.createChatMessage(chatMessage);
+    const [createdMsg, error] = await this.chatService.createChatMessage(
+      chatMessage,
+      options,
+    );
 
     if (error) {
       client.send(JSON.stringify({ error }));
@@ -108,11 +112,13 @@ export abstract class BaseChatService {
     client: WebSocketUser,
     reaction: AddReactionDto,
     recipients: Set<WebSocketUser>,
+    options?: any,
   ) {
     const [updatedMessage, error] = await this.chatService.addReaction(
       reaction.message_id,
       client.user.name,
       reaction.emoji,
+      options,
     );
 
     if (error) {
