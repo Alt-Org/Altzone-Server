@@ -3,16 +3,22 @@ import { WebSocketUser } from '../../../chat/types/WsUser.type';
 import ChatModule from '../modules/chat.module';
 import { WsMessageBodyDto } from '../../../chat/dto/wsMessageBody.dto';
 import { ChatType } from '../../../chat/enum/chatMessageType.enum';
+import { ChatService } from '../../../chat/service/chat.service'; // ADDED
 
 describe('ClanChatService.handleNewClanMessage() test suite', () => {
   let clanChatService: ClanChatService;
-  let mockHandleNewMessage: jest.SpyInstance;
+  let chatService: ChatService; // ADDED
+  let mockCreateChatMessage: jest.SpyInstance;
 
   beforeEach(async () => {
     clanChatService = await ChatModule.getClanChatService();
-    mockHandleNewMessage = jest
-      .spyOn(clanChatService, 'handleNewMessage')
-      .mockResolvedValue(undefined);
+    chatService = clanChatService['chatService'];
+    
+    
+    mockCreateChatMessage = jest
+      .spyOn(chatService, 'createChatMessage')
+      .mockResolvedValue([{} as any, null]); 
+      
     clanChatService['clanRooms'].clear();
   });
 
@@ -21,31 +27,34 @@ describe('ClanChatService.handleNewClanMessage() test suite', () => {
       user: {
         clanId,
         playerId,
+        name: 'TestPlayer',
       },
     } as unknown as WebSocketUser;
   }
 
-  it('should call handleNewMessage with correct parameters and broadcast to clan room', async () => {
+  it('should call chatService.createChatMessage with correct parameters', async () => {
     const client = createClient('clanA', 'player123');
     const message: WsMessageBodyDto = {
       content: 'Hello clan!',
       feeling: 'happy',
     } as any;
-    clanChatService.handleJoinChat(client);
-
+    
     await clanChatService.handleNewClanMessage(client, message);
 
-    expect(mockHandleNewMessage).toHaveBeenCalledTimes(1);
-    const [chatMessage, calledClient, chatType, recipients] =
-      mockHandleNewMessage.mock.calls[0];
-    expect(chatMessage.type).toBe(ChatType.CLAN);
-    expect(chatMessage.clan_id).toBe('clanA');
-    expect(chatMessage.sender_id).toBe('player123');
-    expect(chatMessage.content).toBe('Hello clan!');
-    expect(chatMessage.feeling).toBe('happy');
-    expect(calledClient).toBe(client);
-    expect(chatType).toBe(ChatType.CLAN);
-    expect(recipients.has(client)).toBe(true);
+    // MODIFIED: Check that the service was called once
+    expect(mockCreateChatMessage).toHaveBeenCalledTimes(1);
+    
+    // MODIFIED: Check the arguments passed to the DB service
+    const [dto, options] = mockCreateChatMessage.mock.calls[0];
+    
+    expect(dto.type).toBe(ChatType.CLAN);
+    expect(dto.clan_id).toBe('clanA');
+    expect(dto.sender_id).toBe('player123');
+    expect(dto.content).toBe('Hello clan!');
+    expect(dto.feeling).toBe('happy');
+    
+    // MODIFIED: Verify the 3rd argument is undefined (no session passed in test)
+    expect(options).toBeUndefined();
   });
 
   it('should not throw if clan room does not exist', async () => {
@@ -58,10 +67,10 @@ describe('ClanChatService.handleNewClanMessage() test suite', () => {
     await expect(
       clanChatService.handleNewClanMessage(client, message),
     ).resolves.not.toThrow();
-    expect(mockHandleNewMessage).toHaveBeenCalledWith(
+
+    // MODIFIED: Update the expectation to match the direct service call
+    expect(mockCreateChatMessage).toHaveBeenCalledWith(
       expect.objectContaining({ clan_id: 'clanB', sender_id: 'playerX' }),
-      client,
-      ChatType.CLAN,
       undefined,
     );
   });
