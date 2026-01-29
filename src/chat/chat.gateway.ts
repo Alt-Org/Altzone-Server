@@ -21,6 +21,9 @@ import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { RequestLoggerService } from '../common/service/logger/RequestLogger.service';
 import { WsLog } from '../common/service/logger/WsLog.decorator';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { initializeSession, cancelTransaction, endTransaction } from '../common/function/Transactions';
+import ServiceError from '../common/service/basicService/ServiceError';
+import { SEReason } from '../common/service/basicService/SEReason';
 
 const apiPort = Number.parseInt(envVars.PORT, 10);
 
@@ -76,101 +79,100 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('clanMessage')
-  @WsLog()
-  async handleClanMessage(
-    @MessageBody() message: WsMessageBodyDto,
-    @ConnectedSocket() client: WebSocketUser,
-  ) {
-    const session = await this.connection.startSession();
-    session.startTransaction();
+async handleNewClanMessage(
+  @MessageBody() message: WsMessageBodyDto,
+  @ConnectedSocket() client: WebSocketUser,
+) {
 
-    return this.clanChatService
-      .handleNewClanMessage(client, message, { session })
-      .then(async () => {
-        await session.commitTransaction();
-      })
-      .catch(async (error) => {
-        await session.abortTransaction();
-        client.send?.(
-          JSON.stringify({ event: 'error', message: 'Message failed' }),
-        );
-        throw error;
-      })
-      .finally(async () => {
-        await session.endSession();
-      });
+  const [session, sessionError] = await initializeSession(this.connection);
+  if (sessionError) return [null, sessionError];
+  
+  try {
+    const [, error] = await this.clanChatService.handleNewClanMessage(client, message, { session });
+    if (error) return await cancelTransaction(session, error);
+
+    this.emitterService.EmitNewDailyTaskEvent(
+      client.user.playerId,
+      ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
+    );
+
+    return await endTransaction(session);
+  } catch (err) {
+    return await cancelTransaction(session, new ServiceError({
+        reason: SEReason.UNEXPECTED,
+        message: err instanceof Error ? err.message : 'Clan message failed',
+        value: err
+    }));
   }
+}
 
   @SubscribeMessage('clanMessageReaction')
   @WsLog()
-  async handleClanMessageReaction(
+  async handleNewClanReaction(
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
-    const session = await this.connection.startSession();
-    session.startTransaction();
+    const [session, sessionError] = await initializeSession(this.connection);
+    if (sessionError) return [null, sessionError];
 
-    this.clanChatService
-      .handleNewClanReaction(client, reaction, { session } as any)
-      .then(async () => {
-        await session.commitTransaction();
-      })
-      .catch(async (err) => {
-        await session.abortTransaction();
-        this.logger.error(err);
-      })
-      .finally(() => {
-        session.endSession();
-      });
+    try {
+      await this.clanChatService.handleNewClanReaction(client, reaction, { session } as any);
+      return await endTransaction(session);
+    } catch (err) {
+      return await cancelTransaction(session, new ServiceError({
+          reason: SEReason.UNEXPECTED,
+          message: err instanceof Error ? err.message : 'Clan reaction failed',
+          value: err
+      }));
+    }
   }
 
   @SubscribeMessage('globalMessage')
-  @WsLog()
-  async handleGlobalMessage(
+  async handleNewGlobalMessage(
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
-    const session = await this.connection.startSession();
-    session.startTransaction();
+    const [session, sessionError] = await initializeSession(this.connection);
+    if (sessionError) return [null, sessionError];
 
-    this.globalChatService
-      .handleNewGlobalMessage(message, client, { session })
-      .then(async () => {
-        this.emitterService.EmitNewDailyTaskEvent(
-          client.user.playerId,
-          ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
-        );
-        await session.commitTransaction();
-      })
-      .catch(async (err) => {
-        await session.abortTransaction();
-        this.logger.error(err);
-      })
-      .finally(() => {
-        session.endSession();
-      });
+    try {
+
+      await this.globalChatService.handleNewGlobalMessage(message, client, { session });
+      
+      this.emitterService.EmitNewDailyTaskEvent(
+        client.user.playerId,
+        ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
+      );
+
+      return await endTransaction(session);
+    } catch (err) {
+      return await cancelTransaction(session, new ServiceError({
+          reason: SEReason.UNEXPECTED,
+          message: err instanceof Error ? err.message : 'Global message failed',
+          value: err
+      }));
+    }
   }
 
   @SubscribeMessage('globalMessageReaction')
-  @WsLog()
-  async handleGlobalMessageReaction(
+  async handleNewGlobalReaction(
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
-    const session = await this.connection.startSession();
-    session.startTransaction();
+    const [session, sessionError] = await initializeSession(this.connection);
+    if (sessionError) return [null, sessionError];
 
-    this.globalChatService
-      .handleNewGlobalReaction(client, reaction, { session } as any)
-      .then(async () => {
-        await session.commitTransaction();
-      })
-      .catch(async (err) => {
-        await session.abortTransaction();
-        this.logger.error(err);
-      })
-      .finally(() => {
-        session.endSession();
-      });
+    try {
+      
+      await this.globalChatService.handleNewGlobalReaction(client, reaction, { session } as any);
+
+      return await endTransaction(session);
+    } catch (err) {
+      return await cancelTransaction(session, new ServiceError({
+          reason: SEReason.UNEXPECTED,
+          message: err instanceof Error ? err.message : 'Global reaction failed',
+          value: err
+      }));
+    }
   }
 }
