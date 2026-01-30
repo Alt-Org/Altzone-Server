@@ -28,7 +28,7 @@ describe('ChatService.addReaction() test suite', () => {
       chat._id.toString(),
       reactPlayerName,
       '👍',
-      mockSenderId
+      mockSenderId,
     );
 
     expect(err).toBeNull();
@@ -44,7 +44,7 @@ describe('ChatService.addReaction() test suite', () => {
       chat._id.toString(),
       reactPlayerName,
       '😂',
-      mockSenderId
+      mockSenderId,
     );
 
     expect(err).toBeNull();
@@ -60,7 +60,7 @@ describe('ChatService.addReaction() test suite', () => {
       chat._id.toString(),
       reactPlayerName,
       '',
-      mockSenderId
+      mockSenderId,
     );
 
     expect(err).toBeNull();
@@ -73,7 +73,7 @@ describe('ChatService.addReaction() test suite', () => {
       fakeId,
       'NoPlayer',
       '🔥',
-      mockSenderId
+      mockSenderId,
     );
 
     expect(updated).toBeNull();
