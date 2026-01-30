@@ -1,83 +1,58 @@
-import { IsInt, IsString } from 'class-validator';
+import { IsHexColor, IsOptional, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { AvatarPieceDto } from './avatar.dto';
 
 export class ModifyAvatarDto {
-  /**
-   * Head variant ID
-   *
-   * @example 1
-   */
-  @IsInt()
-  head: number;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  head?: AvatarPieceDto;
 
-  /**
-   * Hair style ID
-   *
-   * @example 3
-   */
-  @IsInt()
-  hair: number;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  hair?: AvatarPieceDto;
 
-  /**
-   * Eyes style ID
-   *
-   * @example 2
-   */
-  @IsInt()
-  eyes: number;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  eyes?: AvatarPieceDto;
 
-  /**
-   * Nose style ID
-   *
-   * @example 1
-   */
-  @IsInt()
-  nose: number;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  nose?: AvatarPieceDto;
 
-  /**
-   * Mouth style ID
-   *
-   * @example 2
-   */
-  @IsInt()
-  mouth: number;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  mouth?: AvatarPieceDto;
 
-  /**
-   * Eyebrows style ID
-   *
-   * @example 1
-   */
-  @IsInt()
-  eyebrows: number;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  eyebrows?: AvatarPieceDto;
 
-  /**
-   * Clothes set ID
-   *
-   * @example 4
-   */
-  @IsInt()
-  clothes: number;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  clothes?: AvatarPieceDto;
 
-  /**
-   * Feet (footwear) ID
-   *
-   * @example 1
-   */
-  @IsInt()
-  feet: number;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  feet?: AvatarPieceDto;
 
-  /**
-   * Hands (gloves/accessories) ID
-   *
-   * @example 2
-   */
-  @IsInt()
-  hands: number;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  hands?: AvatarPieceDto;
 
   /**
    * Skin color as a hex string
-   *
    * @example "#FAD9B5"
    */
-  @IsString()
-  skinColor: string;
+  @IsOptional()
+  @IsHexColor()
+  skinColor?: string;
 }

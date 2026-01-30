@@ -1,83 +1,75 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
+import { IsNumber, IsHexColor, ValidateNested } from 'class-validator';
+
+export class AvatarPieceDto {
+  /**
+   * Piece identifier
+   * @example 1
+   */
+  @Expose()
+  @IsNumber()
+  id: number;
+
+  /**
+   * Piece color in HEX format
+   * @example "#ff0000"
+   */
+  @Expose()
+  @IsHexColor()
+  color: string;
+}
 
 export class AvatarDto {
-  /**
-   * Head variant identifier
-   *
-   * @example 1
-   */
   @Expose()
-  head: number;
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  head: AvatarPieceDto;
 
-  /**
-   * Hairstyle identifier
-   *
-   * @example 2
-   */
   @Expose()
-  hair: number;
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  hair: AvatarPieceDto;
 
-  /**
-   * Eye style identifier
-   *
-   * @example 3
-   */
   @Expose()
-  eyes: number;
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  eyes: AvatarPieceDto;
 
-  /**
-   * Nose style identifier
-   *
-   * @example 1
-   */
   @Expose()
-  nose: number;
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  nose: AvatarPieceDto;
 
-  /**
-   * Mouth style identifier
-   *
-   * @example 2
-   */
   @Expose()
-  mouth: number;
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  mouth: AvatarPieceDto;
 
-  /**
-   * Eyebrows style identifier
-   *
-   * @example 1
-   */
   @Expose()
-  eyebrows: number;
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  eyebrows: AvatarPieceDto;
 
-  /**
-   * Clothes identifier
-   *
-   * @example 4
-   */
   @Expose()
-  clothes: number;
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  clothes: AvatarPieceDto;
 
-  /**
-   * Feet (footwear) identifier
-   *
-   * @example 1
-   */
   @Expose()
-  feet: number;
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  feet: AvatarPieceDto;
 
-  /**
-   * Hands (gloves, etc.) identifier
-   *
-   * @example 2
-   */
   @Expose()
-  hands: number;
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  hands: AvatarPieceDto;
 
   /**
    * Avatar skin color in HEX format
-   *
    * @example "#FAD9B5"
    */
   @Expose()
+  @IsHexColor()
   skinColor: string;
 }

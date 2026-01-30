@@ -1,4 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+@Schema({ _id: false })
+export class AvatarPiece {
+  @Prop({ type: Number, required: true })
+  id: number;
+
+  @Prop({ type: String, required: true })
+  color: string;
+}
+
+const AvatarPieceSchema = SchemaFactory.createForClass(AvatarPiece);
 
 @Schema({
   toJSON: { virtuals: true },
@@ -6,32 +16,32 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
   _id: false,
 })
 export class Avatar {
-  @Prop({ type: Number, required: true })
-  head: number;
+  @Prop({ type: AvatarPieceSchema, required: true })
+  head: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  hair: number;
+  @Prop({ type: AvatarPieceSchema, required: true })
+  hair: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  eyes: number;
+  @Prop({ type: AvatarPieceSchema, required: true })
+  eyes: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  nose: number;
+  @Prop({ type: AvatarPieceSchema, required: true })
+  nose: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  mouth: number;
+  @Prop({ type: AvatarPieceSchema, required: true })
+  mouth: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  eyebrows: number;
+  @Prop({ type: AvatarPieceSchema, required: true })
+  eyebrows: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  clothes: number;
+  @Prop({ type: AvatarPieceSchema, required: true })
+  clothes: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  feet: number;
+  @Prop({ type: AvatarPieceSchema, required: true })
+  feet: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  hands: number;
+  @Prop({ type: AvatarPieceSchema, required: true })
+  hands: AvatarPiece;
 
   @Prop({ type: String, required: true })
   skinColor: string;
