@@ -17,10 +17,10 @@ import { VotingQueueParams } from '../fleaMarket/types/votingQueueParams.type';
 import { ItemName } from '../clanInventory/item/enum/itemName.enum';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 import { ClientSession, Connection } from 'mongoose';
-import { 
-  initializeSession, 
-  cancelTransaction, 
-  endTransaction 
+import {
+  initializeSession,
+  cancelTransaction,
+  endTransaction,
 } from '../common/function/Transactions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { IServiceReturn } from '../common/service/basicService/IService';
@@ -55,13 +55,14 @@ export class ClanShopService {
         includeRefs: [ModelName.STOCK],
       });
       if (clanErrors) return await cancelTransaction(session, clanErrors);
-      
+
       if (clan.gameCoins < item.price)
         return await cancelTransaction(session, [notEnoughCoinsError]);
 
       const [, error] = await this.reserveFunds(clan._id, item.price, session);
       if (error) return await cancelTransaction(session, error);
-      const [player, playerError] = await this.playerService.getPlayerById(playerId);
+      const [player, playerError] =
+        await this.playerService.getPlayerById(playerId);
       if (playerError) return await cancelTransaction(session, playerError);
 
       const [voting, votingErrors] = await this.votingService.startVoting(
@@ -85,11 +86,14 @@ export class ClanShopService {
 
       return await endTransaction(session);
     } catch (error) {
-      return await cancelTransaction(session, new ServiceError({
-        reason: SEReason.UNEXPECTED,
-        message: error instanceof Error ? error.message : 'Buy item failed',
-        value: error
-      }));
+      return await cancelTransaction(
+        session,
+        new ServiceError({
+          reason: SEReason.UNEXPECTED,
+          message: error instanceof Error ? error.message : 'Buy item failed',
+          value: error,
+        }),
+      );
     }
   }
 
@@ -110,47 +114,69 @@ export class ClanShopService {
    * Handles the expiration of a voting process.
    * Ensures that item creation or coin refunds happen atomically.
    */
-  async checkVotingOnExpire(data: VotingQueueParams): Promise<IServiceReturn<boolean>> {
+  async checkVotingOnExpire(
+    data: VotingQueueParams,
+  ): Promise<IServiceReturn<boolean>> {
     const { voting, price, clanId, stockId } = data;
     const [session, sessionError] = await initializeSession(this.connection);
     if (sessionError) return [null, sessionError];
 
     try {
       const votePassed = await this.votingService.checkVotingSuccess(voting);
-      
+
       if (votePassed) {
-        const [, passedError] = await this.handleVotePassed(voting, stockId, session);
+        const [, passedError] = await this.handleVotePassed(
+          voting,
+          stockId,
+          session,
+        );
         if (passedError) return await cancelTransaction(session, passedError);
       } else {
-        const [, rejectError] = await this.handleVoteRejected(clanId, price, session);
+        const [, rejectError] = await this.handleVoteRejected(
+          clanId,
+          price,
+          session,
+        );
         if (rejectError) return await cancelTransaction(session, rejectError);
       }
 
       return await endTransaction(session);
     } catch (error) {
-      return await cancelTransaction(session, new ServiceError({
-        reason: SEReason.UNEXPECTED,
-        message: error instanceof Error ? error.message : 'Voting expiration failed',
-        value: error
-      }));
+      return await cancelTransaction(
+        session,
+        new ServiceError({
+          reason: SEReason.UNEXPECTED,
+          message:
+            error instanceof Error ? error.message : 'Voting expiration failed',
+          value: error,
+        }),
+      );
     }
   }
 
   /**
    * Returns the reserved coin amount to the clan.
    */
-  private async handleVoteRejected(clanId: string, price: number, session: ClientSession) {
+  private async handleVoteRejected(
+    clanId: string,
+    price: number,
+    session: ClientSession,
+  ) {
     return this.clanService.basicService.updateOneById(
-      clanId, 
-      { $inc: { gameCoins: price } } as any, 
-      { session }
+      clanId,
+      { $inc: { gameCoins: price } } as any,
+      { session },
     );
   }
 
   /**
    * Creates the purchased item in the clan stock.
    */
-  private async handleVotePassed(voting: VotingDto, stockId: string, session: ClientSession) {
+  private async handleVotePassed(
+    voting: VotingDto,
+    stockId: string,
+    session: ClientSession,
+  ) {
     const newItem = this.getCreateItemDto(voting.shopItemName, stockId);
     return await this.itemService.createOne(newItem, { session } as any);
   }

@@ -22,6 +22,5 @@ export class ClanShopVotingProcessor extends WorkerHost {
       throw new Error(`ClanShop Voting Job failed: ${JSON.stringify(error)}`);
     }
     return true;
-    
   }
 }
