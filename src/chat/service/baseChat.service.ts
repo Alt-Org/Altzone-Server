@@ -113,6 +113,7 @@ export abstract class BaseChatService {
       reaction.message_id,
       client.user.name,
       reaction.emoji,
+      client.user.playerId,
     );
 
     if (error) {

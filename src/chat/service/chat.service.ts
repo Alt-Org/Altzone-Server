@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {} from '../../common/base/decorator/AddBasicService.decorator';
 import { ChatMessage } from '../schema/chatMessage.schema';
 import { Model } from 'mongoose';
 import BasicService from '../../common/service/basicService/BasicService';
@@ -16,6 +15,7 @@ import { SEReason } from '../../common/service/basicService/SEReason';
 
 @Injectable()
 export class ChatService {
+  private readonly basicService: BasicService;
   public constructor(
     @InjectModel(ChatMessage.name)
     public readonly model: Model<ChatMessage>,
@@ -23,14 +23,6 @@ export class ChatService {
     this.basicService = new BasicService(model);
   }
 
-  private readonly basicService: BasicService;
-
-  /**
-   * Creates a message in database.
-   *
-   * @param message - Message data to create.
-   * @returns Created message.
-   */
   async createChatMessage(message: CreateChatMessageDto) {
     return this.basicService.createOne<CreateChatMessageDto, ChatMessageDto>(
       message,
@@ -38,17 +30,19 @@ export class ChatService {
   }
 
   /**
-   * Adds an reaction to chat message.
+   * Adds a reaction to chat message.
    *
    * @param messageId - ID of the message reaction is to.
    * @param playerName - Name of the player who reacted.
    * @param emoji - String representation of the emoji.
+   * @param sender_id - Unique ID of the player reacting.
    * @returns Message with added reaction.
    */
   async addReaction(
     messageId: string,
     playerName: string,
     emoji: string,
+    sender_id: string,
   ): Promise<IServiceReturn<ChatMessageDto>> {
     const [message, error] =
       await this.basicService.readOneById<ChatMessageDto>(messageId);
@@ -59,7 +53,7 @@ export class ChatService {
       (r) => r.playerName !== playerName,
     );
 
-    if (emoji) message.reactions.push({ playerName, emoji });
+    if (emoji) message.reactions.push({ playerName, emoji, sender_id });
 
     const [, updateError] = await this.basicService.updateOneById(
       message._id,
@@ -71,12 +65,6 @@ export class ChatService {
     return [message, null];
   }
 
-  /**
-   * Retrieves messages from database.
-   *
-   * @param options - Database query options.
-   * @returns An array of chat messages.
-   */
   async getMessages(
     options?: TIServiceReadManyOptions,
   ): Promise<IServiceReturn<ChatMessageDto[]>> {
@@ -87,15 +75,6 @@ export class ChatService {
     return await this.basicService.readMany<ChatMessageDto>(opts);
   }
 
-  /**
-   * Updates a ChatMessage by its _id in DB. The _id field is read-only and must be found from the parameter
-   *
-   * @param chat - The data needs to be updated of the ChatMessage.
-   * @returns _true_ if ChatMessage was updated successfully, _false_ if nothing was updated for the ChatMessage,
-   * or a ServiceError:
-   * - NOT_FOUND if the ChatMessage was not found
-   * - REQUIRED if _id is not provided
-   */
   async updateOneById(
     chat: Partial<UpdateChatMessageDto>,
   ): Promise<[boolean | null, ServiceError[] | null]> {
@@ -122,15 +101,6 @@ export class ChatService {
     return [isSuccess, errors];
   }
 
-  /**
-   * Deletes the chatmessage.
-   *
-   * @param chatId - The ID of the chatmessage to delete.
-   * @returns _true_ if ChatMessage was deleted successfully, _false_ if nothing was deleted
-   * or a ServiceError:
-   * - NOT_FOUND if the ChatMessage was not found
-   * - REQUIRED if _id is not provided
-   */
   async deleteChatMessageById(chatId: string): Promise<IServiceReturn<true>> {
     return await this.basicService.deleteOneById(chatId);
   }

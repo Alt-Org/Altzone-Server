@@ -6,4 +6,7 @@ export class Reaction {
 
   @Prop({ type: String, required: true })
   emoji: string;
+
+  @Prop({ type: String, required: true })
+  sender_id: string;
 }
