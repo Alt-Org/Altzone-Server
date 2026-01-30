@@ -7,6 +7,7 @@ describe('ChatService.addReaction() test suite', () => {
   let chatService: ChatService;
   const chatMessageBuilder = ChatBuilderFactory.getBuilder('ChatMessage');
   const chatModel = ChatModule.getChatModel();
+  const mockSenderId = '60f7c2d9a2d3c7b7e56d01df';
 
   const senderId = new ObjectId();
   const reactPlayerName = 'ReactMan420';
@@ -27,11 +28,12 @@ describe('ChatService.addReaction() test suite', () => {
       chat._id.toString(),
       reactPlayerName,
       '👍',
+      mockSenderId
     );
 
     expect(err).toBeNull();
     expect(updated.reactions).toEqual([
-      { playerName: reactPlayerName, emoji: '👍' },
+      { playerName: reactPlayerName, emoji: '👍', sender_id: mockSenderId },
     ]);
   });
 
@@ -42,11 +44,12 @@ describe('ChatService.addReaction() test suite', () => {
       chat._id.toString(),
       reactPlayerName,
       '😂',
+      mockSenderId
     );
 
     expect(err).toBeNull();
     expect(updated.reactions).toEqual([
-      { playerName: reactPlayerName, emoji: '😂' },
+      { playerName: reactPlayerName, emoji: '😂', sender_id: mockSenderId },
     ]);
   });
 
@@ -57,6 +60,7 @@ describe('ChatService.addReaction() test suite', () => {
       chat._id.toString(),
       reactPlayerName,
       '',
+      mockSenderId
     );
 
     expect(err).toBeNull();
@@ -69,6 +73,7 @@ describe('ChatService.addReaction() test suite', () => {
       fakeId,
       'NoPlayer',
       '🔥',
+      mockSenderId
     );
 
     expect(updated).toBeNull();
