@@ -15,28 +15,23 @@ import { AddReactionDto } from './dto/addReaction.dto';
 import { WsMessageBodyDto } from './dto/wsMessageBody.dto';
 import { envVars } from '../common/service/envHandler/envVars';
 import { GlobalChatService } from './service/globalChat.service';
-import { Logger, UseFilters } from '@nestjs/common';
+import { UseFilters } from '@nestjs/common';
 import { GlobalWsExceptionFilter } from './decorator/wsExceptionFilter.decorator';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
-import { RequestLoggerService } from '../common/service/logger/RequestLogger.service';
 import { WsLog } from '../common/service/logger/WsLog.decorator';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { initializeSession, cancelTransaction, endTransaction } from '../common/function/Transactions';
-import ServiceError from '../common/service/basicService/ServiceError';
-import { SEReason } from '../common/service/basicService/SEReason';
 
 const apiPort = Number.parseInt(envVars.PORT, 10);
 
 @WebSocketGateway(apiPort)
 @UseFilters(GlobalWsExceptionFilter)
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  private readonly logger = new Logger(ChatGateway.name);
   constructor(
     @InjectConnection() private readonly connection: Connection,
     private readonly playerService: PlayerService,
     private readonly clanChatService: ClanChatService,
     private readonly globalChatService: GlobalChatService,
-    private readonly requestLoggerService: RequestLoggerService,
     private readonly emitterService: EventEmitterService,
   ) {}
 
@@ -79,100 +74,81 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('clanMessage')
-async handleNewClanMessage(
+  async handleClanMessage(
   @MessageBody() message: WsMessageBodyDto,
   @ConnectedSocket() client: WebSocketUser,
 ) {
 
-  const [session, sessionError] = await initializeSession(this.connection);
-  if (sessionError) return [null, sessionError];
+  const [session, initErrors] = await initializeSession(this.connection);
+  if (initErrors) return [null, initErrors];
   
-  try {
-    const [, error] = await this.clanChatService.handleNewClanMessage(client, message, { session });
-    if (error) return await cancelTransaction(session, error);
+  const [, error] = await this.clanChatService.handleNewClanMessage(client, message, { session });
+  
+  if (error) return await cancelTransaction(session, error);
 
-    this.emitterService.EmitNewDailyTaskEvent(
-      client.user.playerId,
-      ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
-    );
+  this.emitterService.EmitNewDailyTaskEvent(
+    client.user.playerId,
+    ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
+  );
 
-    return await endTransaction(session);
-  } catch (err) {
-    return await cancelTransaction(session, new ServiceError({
-        reason: SEReason.UNEXPECTED,
-        message: err instanceof Error ? err.message : 'Clan message failed',
-        value: err
-    }));
-  }
+  return await endTransaction(session);
 }
 
   @SubscribeMessage('clanMessageReaction')
   @WsLog()
-  async handleNewClanReaction(
+  async handleClanReaction(
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
     const [session, sessionError] = await initializeSession(this.connection);
     if (sessionError) return [null, sessionError];
 
-    try {
-      await this.clanChatService.handleNewClanReaction(client, reaction, { session } as any);
-      return await endTransaction(session);
-    } catch (err) {
-      return await cancelTransaction(session, new ServiceError({
-          reason: SEReason.UNEXPECTED,
-          message: err instanceof Error ? err.message : 'Clan reaction failed',
-          value: err
-      }));
-    }
+    const [, error] = await this.clanChatService.handleNewClanReaction(client, reaction, { session });
+  
+    if (error) return await cancelTransaction(session, error);
+
+    return await endTransaction(session);
   }
 
   @SubscribeMessage('globalMessage')
+  @WsLog()
   async handleNewGlobalMessage(
-    @MessageBody() message: WsMessageBodyDto,
-    @ConnectedSocket() client: WebSocketUser,
-  ) {
-    const [session, sessionError] = await initializeSession(this.connection);
-    if (sessionError) return [null, sessionError];
+  @MessageBody() message: WsMessageBodyDto,
+  @ConnectedSocket() client: WebSocketUser,
+) {
+  const [session, sessionError] = await initializeSession(this.connection);
+  if (sessionError) return[null, sessionError];
 
-    try {
+  const [, error] = await this.globalChatService.handleNewGlobalMessage(message, client, { session });
 
-      await this.globalChatService.handleNewGlobalMessage(message, client, { session });
-      
-      this.emitterService.EmitNewDailyTaskEvent(
-        client.user.playerId,
-        ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
-      );
-
-      return await endTransaction(session);
-    } catch (err) {
-      return await cancelTransaction(session, new ServiceError({
-          reason: SEReason.UNEXPECTED,
-          message: err instanceof Error ? err.message : 'Global message failed',
-          value: err
-      }));
-    }
+  if (error) {
+    return await cancelTransaction(session, error);
   }
 
+  this.emitterService.EmitNewDailyTaskEvent(
+    client.user.playerId,
+    ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
+  );
+
+  return await endTransaction(session);
+}
+
   @SubscribeMessage('globalMessageReaction')
+  @WsLog()
   async handleNewGlobalReaction(
-    @MessageBody() reaction: AddReactionDto,
-    @ConnectedSocket() client: WebSocketUser,
-  ) {
-    const [session, sessionError] = await initializeSession(this.connection);
-    if (sessionError) return [null, sessionError];
+  @MessageBody() reaction: AddReactionDto,
+  @ConnectedSocket() client: WebSocketUser,
+) {
+  const [session, sessionError] = await initializeSession(this.connection);
+  if (sessionError) return[null, sessionError];
 
-    try {
-      
-      await this.globalChatService.handleNewGlobalReaction(client, reaction, { session } as any);
+  
+  const [, error] = await this.globalChatService.handleNewGlobalReaction(client, reaction, { session });
 
-      return await endTransaction(session);
-    } catch (err) {
-      return await cancelTransaction(session, new ServiceError({
-          reason: SEReason.UNEXPECTED,
-          message: err instanceof Error ? err.message : 'Global reaction failed',
-          value: err
-      }));
-    }
+  if (error) {
+    return await cancelTransaction(session, error);
+  }
+
+  return await endTransaction(session);
   }
 }

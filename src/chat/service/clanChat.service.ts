@@ -2,14 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { WebSocketUser } from '../types/WsUser.type';
 import { ChatService } from './chat.service';
 import { CreateChatMessageDto } from '../dto/createMessage.dto';
+import { ChatMessageDto } from '../dto/chatMessage.dto';
 import { ChatType } from '../enum/chatMessageType.enum';
 import { AddReactionDto } from '../dto/addReaction.dto';
 import { WsMessageBodyDto } from '../dto/wsMessageBody.dto';
 import { BaseChatService } from './baseChat.service';
-import {
-  TIServiceCreateOneOptions,
-  TIServiceUpdateManyOptions,
-} from '../../common/service/basicService/IService';
+import { TIServiceUpdateByIdOptions, TIServiceCreateOneOptions } from '../../common/service/basicService/IService';
+import { IServiceReturn } from '../../common/service/basicService/IService';
 
 @Injectable()
 export class ClanChatService extends BaseChatService {
@@ -66,6 +65,7 @@ export class ClanChatService extends BaseChatService {
    *
    * @param client
    * @param message
+   * @param options - Optional service configurations, such as a Mongoose session for transactions.
    */
   async handleNewClanMessage(
     client: WebSocketUser,
@@ -80,7 +80,14 @@ export class ClanChatService extends BaseChatService {
       feeling: message.feeling,
     };
 
-    return await this.chatService.createChatMessage(chatMessage, options);
+    const recipients = this.clanRooms.get(client.user.clanId);
+    return await this.handleNewMessage(
+    chatMessage,
+    client,
+    ChatType.CLAN,
+    recipients,
+    options
+    );
   }
 
   /**
@@ -118,14 +125,22 @@ export class ClanChatService extends BaseChatService {
    *
    * @param client - The WebSocket user initiating the reaction.
    * @param reaction - The reaction data to be added.
+   * @param options - Supports database transactions via 'session' and other execution modifiers defined in the TIService options interfaces.
    * @returns A promise that resolves when the reaction has been processed.
    */
   async handleNewClanReaction(
     client: WebSocketUser,
     reaction: AddReactionDto,
-    options?: TIServiceUpdateManyOptions,
-  ): Promise<void> {
+    options?: TIServiceUpdateByIdOptions,
+  ): Promise<IServiceReturn<ChatMessageDto>> {
+
     const recipients = this.clanRooms.get(client.user?.clanId);
-    await this.handleNewReaction(client, reaction, recipients, options);
+
+    return await this.handleNewReaction(
+    client, 
+    reaction, 
+    recipients, 
+    options
+    );
   }
 }

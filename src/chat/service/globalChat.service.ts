@@ -1,8 +1,10 @@
-import { TIServiceCreateOneOptions } from '../../common/service/basicService/IService';
+import { TIServiceCreateOneOptions, TIServiceUpdateByIdOptions } from '../../common/service/basicService/IService';
+import { IServiceReturn } from '../../common/service/basicService/IService';
 import { Injectable } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { WebSocketUser } from '../types/WsUser.type';
 import { WsMessageBodyDto } from '../dto/wsMessageBody.dto';
+import { ChatMessageDto } from '../dto/chatMessage.dto';
 import { CreateChatMessageDto } from '../dto/createMessage.dto';
 import { ChatType } from '../enum/chatMessageType.enum';
 import { BaseChatService } from './baseChat.service';
@@ -41,23 +43,23 @@ export class GlobalChatService extends BaseChatService {
    * @param message - The incoming message data from the client.
    * @param client - The WebSocket client sending the message.
    */
-  async handleNewGlobalMessage(
+    async handleNewGlobalMessage(
     message: WsMessageBodyDto,
     client: WebSocketUser,
     options?: TIServiceCreateOneOptions,
-  ) {
+    ): Promise<IServiceReturn<ChatMessageDto>> {
     const chatMessage: CreateChatMessageDto = {
       type: ChatType.GLOBAL,
       sender_id: client.user.playerId,
       content: message.content,
       feeling: message.feeling,
     };
-    await this.handleNewMessage(
-      chatMessage,
-      client,
-      ChatType.GLOBAL,
-      this.connectedUsers,
-      options,
+    return await this.handleNewMessage(
+    chatMessage, 
+    client, 
+    ChatType.GLOBAL, 
+    this.connectedUsers,
+    options
     );
   }
 
@@ -69,16 +71,17 @@ export class GlobalChatService extends BaseChatService {
    * @param reaction - The reaction data to be added.
    * @returns A promise that resolves when the reaction has been processed.
    */
-  async handleNewGlobalReaction(
+    async handleNewGlobalReaction(
     client: WebSocketUser,
     reaction: AddReactionDto,
-    options?: any,
-  ) {
-    await this.handleNewReaction(
-      client,
-      reaction,
-      this.connectedUsers,
-      options,
-    );
+    options?: TIServiceUpdateByIdOptions,
+    ): Promise<IServiceReturn<ChatMessageDto>> {
+      
+    return await this.handleNewReaction(
+    client, 
+    reaction, 
+    this.connectedUsers,
+    options
+  );
   }
 }

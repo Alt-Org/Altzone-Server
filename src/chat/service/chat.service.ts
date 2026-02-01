@@ -10,7 +10,8 @@ import {
   IServiceReturn,
   TIServiceReadManyOptions,
   TIServiceCreateOneOptions,
-  TIServiceUpdateManyOptions,
+  TIServiceUpdateByIdOptions,
+  TIServiceReadOneOptions
 } from '../../common/service/basicService/IService';
 import { UpdateChatMessageDto } from '../dto/updateChatMessage.dto';
 import ServiceError from '../../common/service/basicService/ServiceError';
@@ -55,12 +56,12 @@ export class ChatService {
     messageId: string,
     playerName: string,
     emoji: string,
-    options?: TIServiceUpdateManyOptions,
+    options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
     const [message, error] =
       await this.basicService.readOneById<ChatMessageDto>(
         messageId,
-        options as any,
+        options as TIServiceReadOneOptions,
       );
 
     if (error) return [null, error];
@@ -109,6 +110,7 @@ export class ChatService {
    */
   async updateOneById(
     chat: Partial<UpdateChatMessageDto>,
+    options?: TIServiceUpdateByIdOptions,
   ): Promise<[boolean | null, ServiceError[] | null]> {
     if (!chat._id)
       return [
