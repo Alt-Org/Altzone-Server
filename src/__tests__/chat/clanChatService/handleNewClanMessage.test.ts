@@ -13,12 +13,11 @@ describe('ClanChatService.handleNewClanMessage() test suite', () => {
   beforeEach(async () => {
     clanChatService = await ChatModule.getClanChatService();
     chatService = clanChatService['chatService'];
-    
-    
+
     mockCreateChatMessage = jest
       .spyOn(chatService, 'createChatMessage')
-      .mockResolvedValue([{} as any, null]); 
-      
+      .mockResolvedValue([{} as any, null]);
+
     clanChatService['clanRooms'].clear();
   });
 
@@ -38,21 +37,21 @@ describe('ClanChatService.handleNewClanMessage() test suite', () => {
       content: 'Hello clan!',
       feeling: 'happy',
     } as any;
-    
+
     await clanChatService.handleNewClanMessage(client, message);
 
     // MODIFIED: Check that the service was called once
     expect(mockCreateChatMessage).toHaveBeenCalledTimes(1);
-    
+
     // MODIFIED: Check the arguments passed to the DB service
     const [dto, options] = mockCreateChatMessage.mock.calls[0];
-    
+
     expect(dto.type).toBe(ChatType.CLAN);
     expect(dto.clan_id).toBe('clanA');
     expect(dto.sender_id).toBe('player123');
     expect(dto.content).toBe('Hello clan!');
     expect(dto.feeling).toBe('happy');
-    
+
     // MODIFIED: Verify the 3rd argument is undefined (no session passed in test)
     expect(options).toBeUndefined();
   });

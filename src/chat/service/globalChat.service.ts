@@ -1,4 +1,7 @@
-import { TIServiceCreateOneOptions, TIServiceUpdateByIdOptions } from '../../common/service/basicService/IService';
+import {
+  TIServiceCreateOneOptions,
+  TIServiceUpdateByIdOptions,
+} from '../../common/service/basicService/IService';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import { Injectable } from '@nestjs/common';
 import { ChatService } from './chat.service';
@@ -43,11 +46,11 @@ export class GlobalChatService extends BaseChatService {
    * @param message - The incoming message data from the client.
    * @param client - The WebSocket client sending the message.
    */
-    async handleNewGlobalMessage(
+  async handleNewGlobalMessage(
     message: WsMessageBodyDto,
     client: WebSocketUser,
     options?: TIServiceCreateOneOptions,
-    ): Promise<IServiceReturn<ChatMessageDto>> {
+  ): Promise<IServiceReturn<ChatMessageDto>> {
     const chatMessage: CreateChatMessageDto = {
       type: ChatType.GLOBAL,
       sender_id: client.user.playerId,
@@ -55,11 +58,11 @@ export class GlobalChatService extends BaseChatService {
       feeling: message.feeling,
     };
     return await this.handleNewMessage(
-    chatMessage, 
-    client, 
-    ChatType.GLOBAL, 
-    this.connectedUsers,
-    options
+      chatMessage,
+      client,
+      ChatType.GLOBAL,
+      this.connectedUsers,
+      options,
     );
   }
 
@@ -71,17 +74,16 @@ export class GlobalChatService extends BaseChatService {
    * @param reaction - The reaction data to be added.
    * @returns A promise that resolves when the reaction has been processed.
    */
-    async handleNewGlobalReaction(
+  async handleNewGlobalReaction(
     client: WebSocketUser,
     reaction: AddReactionDto,
     options?: TIServiceUpdateByIdOptions,
-    ): Promise<IServiceReturn<ChatMessageDto>> {
-      
+  ): Promise<IServiceReturn<ChatMessageDto>> {
     return await this.handleNewReaction(
-    client, 
-    reaction, 
-    this.connectedUsers,
-    options
-  );
+      client,
+      reaction,
+      this.connectedUsers,
+      options,
+    );
   }
 }

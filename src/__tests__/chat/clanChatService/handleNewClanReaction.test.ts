@@ -51,7 +51,7 @@ describe('ClanChatService.handleNewClanReaction() test suite', () => {
       client,
       reaction,
       undefined,
-      undefined
+      undefined,
     );
   });
 });

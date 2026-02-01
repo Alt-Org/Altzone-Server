@@ -11,7 +11,7 @@ import {
   TIServiceReadManyOptions,
   TIServiceCreateOneOptions,
   TIServiceUpdateByIdOptions,
-  TIServiceReadOneOptions
+  TIServiceReadOneOptions,
 } from '../../common/service/basicService/IService';
 import { UpdateChatMessageDto } from '../dto/updateChatMessage.dto';
 import ServiceError from '../../common/service/basicService/ServiceError';

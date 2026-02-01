@@ -8,7 +8,11 @@ import { ChatType } from '../enum/chatMessageType.enum';
 import { AddReactionDto } from '../dto/addReaction.dto';
 import { plainToInstance } from 'class-transformer';
 import { ChatMessageDto } from '../dto/chatMessage.dto';
-import { IServiceReturn, TIServiceCreateOneOptions, TIServiceUpdateByIdOptions } from '../../common/service/basicService/IService';
+import {
+  IServiceReturn,
+  TIServiceCreateOneOptions,
+  TIServiceUpdateByIdOptions,
+} from '../../common/service/basicService/IService';
 
 export abstract class BaseChatService {
   constructor(protected readonly chatService: ChatService) {}
@@ -16,7 +20,7 @@ export abstract class BaseChatService {
   /**
    * Handles the creation and broadcasting of a new chat message.
    */
-    async handleNewMessage(
+  async handleNewMessage(
     chatMessage: CreateChatMessageDto,
     client: WebSocketUser,
     chatType: ChatType,
@@ -26,19 +30,17 @@ export abstract class BaseChatService {
     let errors = await validate(chatMessage);
 
     if (process.env.NODE_ENV === 'test' && errors.length > 0) {
+      const hasData = Object.keys(chatMessage).length > 0;
 
-    const hasData = Object.keys(chatMessage).length > 0;
-
-    if (hasData) {
-    errors = [];
+      if (hasData) {
+        errors = [];
+      }
     }
-  }
     if (errors.length > 0) {
-  
       client.send?.(
         JSON.stringify({ error: 'Validation failed', details: errors }),
       );
-    
+
       return [null, [{ message: 'Validation failed' } as any]];
     }
 
@@ -50,10 +52,9 @@ export abstract class BaseChatService {
     const [createdMsg, error] = result || [null, null];
 
     if (error || !createdMsg) {
-    
-    if (error) client.send?.(JSON.stringify({ error }));
+      if (error) client.send?.(JSON.stringify({ error }));
 
-    return [null, error || ([{ message: 'Message creation failed' }] as any)];
+      return [null, error || ([{ message: 'Message creation failed' }] as any)];
     }
 
     createdMsg.sender = {
@@ -108,7 +109,6 @@ export abstract class BaseChatService {
     recipients: Set<WebSocketUser>,
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
-  
     const result = await this.chatService.addReaction(
       reaction.message_id,
       client.user.name,
@@ -120,7 +120,7 @@ export abstract class BaseChatService {
 
     if (error || !updatedMessage) {
       client.send?.(JSON.stringify({ error: 'reaction error' }));
-  
+
       return [null, error || ([{ message: 'Reaction failed' }] as any)];
     }
 

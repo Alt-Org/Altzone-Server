@@ -49,7 +49,10 @@ export class ItemService {
    * @returns created Item or an array of service errors if any occurred.
    */
 
-  async createMany(items: CreateItemDto[], options?: TIServiceCreateOneOptions) {
+  async createMany(
+    items: CreateItemDto[],
+    options?: TIServiceCreateOneOptions,
+  ) {
     return this.basicService.createMany<CreateItemDto, ItemDto>(items, options);
   }
 
@@ -132,7 +135,10 @@ export class ItemService {
    * @param options - Optional mongoose ClientSession for transaction support.
    * @returns _true_ if Items were removed successfully, or a ServiceError array if the Items were not found or something else went wrong
    */
-  async deleteAllStockItems(stock_id: string, options?: TIServiceDeleteByIdOptions) {
+  async deleteAllStockItems(
+    stock_id: string,
+    options?: TIServiceDeleteByIdOptions,
+  ) {
     return this.basicService.deleteMany({
       filter: { stock_id },
       ...options,
@@ -141,12 +147,15 @@ export class ItemService {
 
   /**
    * Deletes all Items of the specified by _id Room from DB.
-   * 
+   *
    * @param room_id - The Mongo _id of the Room from which all items should be deleted
    * @param options - Optional mongoose ClientSession for transaction support.
    * @returns _true_ if Items were removed successfully, or a ServiceError array if the Items were not found or something else went wrong
    */
-  async deleteAllRoomItems(room_id: string, options?: TIServiceDeleteByIdOptions) {
+  async deleteAllRoomItems(
+    room_id: string,
+    options?: TIServiceDeleteByIdOptions,
+  ) {
     return this.basicService.deleteMany({
       filter: { room_id },
       ...options,

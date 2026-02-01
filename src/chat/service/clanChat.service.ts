@@ -7,7 +7,10 @@ import { ChatType } from '../enum/chatMessageType.enum';
 import { AddReactionDto } from '../dto/addReaction.dto';
 import { WsMessageBodyDto } from '../dto/wsMessageBody.dto';
 import { BaseChatService } from './baseChat.service';
-import { TIServiceUpdateByIdOptions, TIServiceCreateOneOptions } from '../../common/service/basicService/IService';
+import {
+  TIServiceUpdateByIdOptions,
+  TIServiceCreateOneOptions,
+} from '../../common/service/basicService/IService';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 
 @Injectable()
@@ -82,11 +85,11 @@ export class ClanChatService extends BaseChatService {
 
     const recipients = this.clanRooms.get(client.user.clanId);
     return await this.handleNewMessage(
-    chatMessage,
-    client,
-    ChatType.CLAN,
-    recipients,
-    options
+      chatMessage,
+      client,
+      ChatType.CLAN,
+      recipients,
+      options,
     );
   }
 
@@ -133,14 +136,8 @@ export class ClanChatService extends BaseChatService {
     reaction: AddReactionDto,
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
-
     const recipients = this.clanRooms.get(client.user?.clanId);
 
-    return await this.handleNewReaction(
-    client, 
-    reaction, 
-    recipients, 
-    options
-    );
+    return await this.handleNewReaction(client, reaction, recipients, options);
   }
 }

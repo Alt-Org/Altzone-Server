@@ -33,7 +33,7 @@ export default class ClanHelperService {
    */
   async createDefaultStock(
     clan_id: string,
-    session?: ClientSession
+    session?: ClientSession,
   ): Promise<
     [{ Stock: StockDto; Item: ItemDto[] } | null, ServiceError[] | null]
   > {

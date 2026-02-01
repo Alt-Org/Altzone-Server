@@ -20,7 +20,11 @@ import { GlobalWsExceptionFilter } from './decorator/wsExceptionFilter.decorator
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { WsLog } from '../common/service/logger/WsLog.decorator';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
-import { initializeSession, cancelTransaction, endTransaction } from '../common/function/Transactions';
+import {
+  initializeSession,
+  cancelTransaction,
+  endTransaction,
+} from '../common/function/Transactions';
 
 const apiPort = Number.parseInt(envVars.PORT, 10);
 
@@ -75,24 +79,27 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('clanMessage')
   async handleClanMessage(
-  @MessageBody() message: WsMessageBodyDto,
-  @ConnectedSocket() client: WebSocketUser,
-) {
+    @MessageBody() message: WsMessageBodyDto,
+    @ConnectedSocket() client: WebSocketUser,
+  ) {
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (initErrors) return [null, initErrors];
 
-  const [session, initErrors] = await initializeSession(this.connection);
-  if (initErrors) return [null, initErrors];
-  
-  const [, error] = await this.clanChatService.handleNewClanMessage(client, message, { session });
-  
-  if (error) return await cancelTransaction(session, error);
+    const [, error] = await this.clanChatService.handleNewClanMessage(
+      client,
+      message,
+      { session },
+    );
 
-  this.emitterService.EmitNewDailyTaskEvent(
-    client.user.playerId,
-    ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
-  );
+    if (error) return await cancelTransaction(session, error);
 
-  return await endTransaction(session);
-}
+    this.emitterService.EmitNewDailyTaskEvent(
+      client.user.playerId,
+      ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
+    );
+
+    return await endTransaction(session);
+  }
 
   @SubscribeMessage('clanMessageReaction')
   @WsLog()
@@ -103,8 +110,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const [session, sessionError] = await initializeSession(this.connection);
     if (sessionError) return [null, sessionError];
 
-    const [, error] = await this.clanChatService.handleNewClanReaction(client, reaction, { session });
-  
+    const [, error] = await this.clanChatService.handleNewClanReaction(
+      client,
+      reaction,
+      { session },
+    );
+
     if (error) return await cancelTransaction(session, error);
 
     return await endTransaction(session);
@@ -113,42 +124,49 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('globalMessage')
   @WsLog()
   async handleNewGlobalMessage(
-  @MessageBody() message: WsMessageBodyDto,
-  @ConnectedSocket() client: WebSocketUser,
-) {
-  const [session, sessionError] = await initializeSession(this.connection);
-  if (sessionError) return[null, sessionError];
+    @MessageBody() message: WsMessageBodyDto,
+    @ConnectedSocket() client: WebSocketUser,
+  ) {
+    const [session, sessionError] = await initializeSession(this.connection);
+    if (sessionError) return [null, sessionError];
 
-  const [, error] = await this.globalChatService.handleNewGlobalMessage(message, client, { session });
+    const [, error] = await this.globalChatService.handleNewGlobalMessage(
+      message,
+      client,
+      { session },
+    );
 
-  if (error) {
-    return await cancelTransaction(session, error);
+    if (error) {
+      return await cancelTransaction(session, error);
+    }
+
+    this.emitterService.EmitNewDailyTaskEvent(
+      client.user.playerId,
+      ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
+    );
+
+    return await endTransaction(session);
   }
-
-  this.emitterService.EmitNewDailyTaskEvent(
-    client.user.playerId,
-    ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
-  );
-
-  return await endTransaction(session);
-}
 
   @SubscribeMessage('globalMessageReaction')
   @WsLog()
   async handleNewGlobalReaction(
-  @MessageBody() reaction: AddReactionDto,
-  @ConnectedSocket() client: WebSocketUser,
-) {
-  const [session, sessionError] = await initializeSession(this.connection);
-  if (sessionError) return[null, sessionError];
+    @MessageBody() reaction: AddReactionDto,
+    @ConnectedSocket() client: WebSocketUser,
+  ) {
+    const [session, sessionError] = await initializeSession(this.connection);
+    if (sessionError) return [null, sessionError];
 
-  
-  const [, error] = await this.globalChatService.handleNewGlobalReaction(client, reaction, { session });
+    const [, error] = await this.globalChatService.handleNewGlobalReaction(
+      client,
+      reaction,
+      { session },
+    );
 
-  if (error) {
-    return await cancelTransaction(session, error);
-  }
+    if (error) {
+      return await cancelTransaction(session, error);
+    }
 
-  return await endTransaction(session);
+    return await endTransaction(session);
   }
 }
