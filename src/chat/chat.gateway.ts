@@ -25,6 +25,8 @@ import {
   cancelTransaction,
   endTransaction,
 } from '../common/function/Transactions';
+import { ChatMessageDto } from './dto/chatMessage.dto';
+import { IServiceReturn } from 'src/common/service/basicService/IService';
 
 const apiPort = Number.parseInt(envVars.PORT, 10);
 
@@ -78,14 +80,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('clanMessage')
+  @WsLog()
   async handleClanMessage(
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
-  ) {
-    const [session, initErrors] = await initializeSession(this.connection);
-    if (initErrors) return [null, initErrors];
+  ): Promise<IServiceReturn<ChatMessageDto>> {
 
-    const [, error] = await this.clanChatService.handleNewClanMessage(
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
+    const [newMessage, error] = await this.clanChatService.handleNewClanMessage(
       client,
       message,
       { session },
@@ -98,75 +102,72 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
     );
 
-    return await endTransaction(session);
+    return endTransaction(session, newMessage);
   }
 
   @SubscribeMessage('clanMessageReaction')
   @WsLog()
-  async handleClanReaction(
+  async handleClanMessageReaction(
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
-  ) {
-    const [session, sessionError] = await initializeSession(this.connection);
-    if (sessionError) return [null, sessionError];
+  ): Promise<IServiceReturn<ChatMessageDto>> {
+    
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
 
-    const [, error] = await this.clanChatService.handleNewClanReaction(
+    const [updatedMessage, error] = await this.clanChatService.handleNewClanReaction(
       client,
       reaction,
       { session },
     );
 
-    if (error) return await cancelTransaction(session, error);
+    if (error) return cancelTransaction(session, error);
 
-    return await endTransaction(session);
+    return endTransaction(session, updatedMessage);
   }
 
   @SubscribeMessage('globalMessage')
   @WsLog()
-  async handleNewGlobalMessage(
+  async handleGlobalMessage(
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
-  ) {
-    const [session, sessionError] = await initializeSession(this.connection);
-    if (sessionError) return [null, sessionError];
+  ): Promise<IServiceReturn<ChatMessageDto>> {
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
 
-    const [, error] = await this.globalChatService.handleNewGlobalMessage(
+    const [newMessage, error] = await this.globalChatService.handleNewGlobalMessage(
       message,
       client,
       { session },
     );
 
-    if (error) {
-      return await cancelTransaction(session, error);
-    }
+    if (error) return cancelTransaction(session, error);
 
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
       ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
     );
 
-    return await endTransaction(session);
+    return endTransaction(session, newMessage);
   }
 
   @SubscribeMessage('globalMessageReaction')
   @WsLog()
-  async handleNewGlobalReaction(
+  async handleGlobalReaction(
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
-  ) {
-    const [session, sessionError] = await initializeSession(this.connection);
-    if (sessionError) return [null, sessionError];
+  ): Promise<IServiceReturn<ChatMessageDto>> {
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
 
-    const [, error] = await this.globalChatService.handleNewGlobalReaction(
+    const [updatedMessage, error] = await this.globalChatService.handleNewGlobalReaction(
       client,
       reaction,
       { session },
     );
 
-    if (error) {
-      return await cancelTransaction(session, error);
-    }
+    if (error) return cancelTransaction(session, error);
 
-    return await endTransaction(session);
+    return endTransaction(session, updatedMessage);
   }
 }

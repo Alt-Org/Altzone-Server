@@ -45,19 +45,23 @@ export class GlobalChatService extends BaseChatService {
    *
    * @param message - The incoming message data from the client.
    * @param client - The WebSocket client sending the message.
+   * @param options - Optional service configurations, such as a Mongoose session for transactions.
+   * @returns A promise resolving to the created Global ChatMessageDto or an array of ServiceErrors.
    */
   async handleNewGlobalMessage(
     message: WsMessageBodyDto,
     client: WebSocketUser,
     options?: TIServiceCreateOneOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
+
     const chatMessage: CreateChatMessageDto = {
       type: ChatType.GLOBAL,
       sender_id: client.user.playerId,
       content: message.content,
       feeling: message.feeling,
     };
-    return await this.handleNewMessage(
+
+    return this.handleNewMessage(
       chatMessage,
       client,
       ChatType.GLOBAL,
@@ -72,6 +76,7 @@ export class GlobalChatService extends BaseChatService {
    *
    * @param client - The WebSocket user who is adding the reaction.
    * @param reaction - The reaction data to be added.
+   * @param options - Optional service configurations, such as a Mongoose session for transactions.
    * @returns A promise that resolves when the reaction has been processed.
    */
   async handleNewGlobalReaction(
@@ -79,7 +84,8 @@ export class GlobalChatService extends BaseChatService {
     reaction: AddReactionDto,
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
-    return await this.handleNewReaction(
+
+    return this.handleNewReaction(
       client,
       reaction,
       this.connectedUsers,

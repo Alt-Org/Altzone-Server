@@ -66,9 +66,10 @@ export class ClanChatService extends BaseChatService {
    * Creates a new message in the DB.
    * Broadcasts the message.
    *
-   * @param client
-   * @param message
+   * @param client - The WebSocket user sending the message.
+   * @param message - The message data sent by the user.
    * @param options - Optional service configurations, such as a Mongoose session for transactions.
+   * @returns A promise that resolves to the created Clan ChatMessageDto or an array of ServiceErrors.
    */
   async handleNewClanMessage(
     client: WebSocketUser,
@@ -83,8 +84,8 @@ export class ClanChatService extends BaseChatService {
       feeling: message.feeling,
     };
 
-    const recipients = this.clanRooms.get(client.user.clanId);
-    return await this.handleNewMessage(
+    const recipients = this.clanRooms.get(client.user?.clanId);
+    return this.handleNewMessage(
       chatMessage,
       client,
       ChatType.CLAN,
@@ -128,7 +129,7 @@ export class ClanChatService extends BaseChatService {
    *
    * @param client - The WebSocket user initiating the reaction.
    * @param reaction - The reaction data to be added.
-   * @param options - Supports database transactions via 'session' and other execution modifiers defined in the TIService options interfaces.
+   * @param options - Optional service configurations, such as a Mongoose session for transactions.
    * @returns A promise that resolves when the reaction has been processed.
    */
   async handleNewClanReaction(
@@ -138,6 +139,6 @@ export class ClanChatService extends BaseChatService {
   ): Promise<IServiceReturn<ChatMessageDto>> {
     const recipients = this.clanRooms.get(client.user?.clanId);
 
-    return await this.handleNewReaction(client, reaction, recipients, options);
+    return this.handleNewReaction(client, reaction, recipients, options);
   }
 }

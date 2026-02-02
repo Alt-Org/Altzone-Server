@@ -19,6 +19,16 @@ export abstract class BaseChatService {
 
   /**
    * Handles the creation and broadcasting of a new chat message.
+   * Validates the incoming chat message, sends validation errors to the client if any,
+   * creates the chat message using the chat service, and broadcasts the new message
+   * to the specified recipients. If message creation fails, sends the error to the client.
+   *
+   * @param chatMessage - The DTO containing the new chat message data.
+   * @param client - The WebSocket user who sent the message.
+   * @param chatType - The type of chat (e.g., group, private).
+   * @param recipients - The set of WebSocket users to broadcast the message to.
+   * @param options - Optional mongoose ClientSession for transaction support.
+   * @returns A promise resolving to the created ChatMessageDto or an array of ServiceErrors.
    */
   async handleNewMessage(
     chatMessage: CreateChatMessageDto,
@@ -27,34 +37,24 @@ export abstract class BaseChatService {
     recipients: Set<WebSocketUser>,
     options?: TIServiceCreateOneOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
-    let errors = await validate(chatMessage);
+    
+    const errors = await validate(chatMessage);
 
-    if (process.env.NODE_ENV === 'test' && errors.length > 0) {
-      const hasData = Object.keys(chatMessage).length > 0;
-
-      if (hasData) {
-        errors = [];
-      }
-    }
     if (errors.length > 0) {
-      client.send?.(
+      client.send(
         JSON.stringify({ error: 'Validation failed', details: errors }),
       );
-
-      return [null, [{ message: 'Validation failed' } as any]];
+      return;
     }
 
-    const result = await this.chatService.createChatMessage(
+    const [createdMsg, error] = await this.chatService.createChatMessage(
       chatMessage,
       options,
     );
 
-    const [createdMsg, error] = result || [null, null];
-
-    if (error || !createdMsg) {
-      if (error) client.send?.(JSON.stringify({ error }));
-
-      return [null, error || ([{ message: 'Message creation failed' }] as any)];
+    if (error) {
+      client.send?.(JSON.stringify({ error }));
+      return;
     }
 
     createdMsg.sender = {
@@ -75,6 +75,11 @@ export abstract class BaseChatService {
 
   /**
    * Broadcasts a chat message to a set of WebSocket recipients.
+   * Iterates over the provided recipients and sends the serialized message
+   * to each recipient whose WebSocket connection is open and supports the `send` method.
+   *
+   * @param message The chat message envelope to broadcast.
+   * @param recipients A set of WebSocket users to receive the message.
    */
   protected broadcast(
     message: ChatEnvelopeDto,
@@ -91,10 +96,10 @@ export abstract class BaseChatService {
       recipients.forEach((recipient) => {
         if (
           recipient &&
-          recipient.readyState === 1 &&
+          recipient.readyState === WebSocket.OPEN &&
           typeof recipient.send === 'function'
         ) {
-          recipient.send(JSON.stringify({ message: envelopeToSend }));
+          recipient.send?.(JSON.stringify({ message: envelopeToSend }));
         }
       });
     }
@@ -102,6 +107,14 @@ export abstract class BaseChatService {
 
   /**
    * Handles reaction to a chat message.
+   * 
+   * Adds the reaction to the message in DB
+   * and broadcasts the updated message.
+   * @param client - The WebSocket user who sent the message.
+   * @param reaction - The WebSocket user who sent the message.
+   * @param recipients - The set of WebSocket users to broadcast the message to.
+   * @param options - Optional mongoose ClientSession for transaction support.
+   * @returns The updated chat message with the new reaction or an array of ServiceErrors.
    */
   async handleNewReaction(
     client: WebSocketUser,
@@ -109,19 +122,17 @@ export abstract class BaseChatService {
     recipients: Set<WebSocketUser>,
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
-    const result = await this.chatService.addReaction(
+
+    const [updatedMessage, error] = await this.chatService.addReaction(
       reaction.message_id,
       client.user.name,
       reaction.emoji,
       options,
     );
 
-    const [updatedMessage, error] = result || [null, null];
-
-    if (error || !updatedMessage) {
-      client.send?.(JSON.stringify({ error: 'reaction error' }));
-
-      return [null, error || ([{ message: 'Reaction failed' }] as any)];
+    if (error) {
+      client.send(JSON.stringify({ error }));
+      return [null, error];
     }
 
     const messageEnvelope: ChatEnvelopeDto = {
