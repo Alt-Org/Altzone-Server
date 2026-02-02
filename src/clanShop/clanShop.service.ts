@@ -41,18 +41,18 @@ export class ClanShopService {
    * Uses centralized transaction utilities for consistency.
    */
   async buyItem(
-  playerId: string,
-  clanId: string,
-  item: ItemProperty,
-): Promise<IServiceReturn<boolean>> {
-
+    playerId: string,
+    clanId: string,
+    item: ItemProperty,
+  ): Promise<IServiceReturn<boolean>> {
     const [session, sessionError] = await initializeSession(this.connection);
     if (sessionError) return [null, sessionError];
-    if (!session) return [null, [{ message: 'Could not initialize session' } as any]];
+    if (!session)
+      return [null, [{ message: 'Could not initialize session' } as any]];
 
     const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
       includeRefs: [ModelName.STOCK],
-      session
+      session,
     } as any);
     if (clanErrors) return cancelTransaction(session, clanErrors);
 
@@ -60,36 +60,41 @@ export class ClanShopService {
       return cancelTransaction(session, [notEnoughCoinsError]);
     }
 
-    const [, reserveError] = await this.reserveFunds(clan._id, item.price, session);
+    const [, reserveError] = await this.reserveFunds(
+      clan._id,
+      item.price,
+      session,
+    );
     if (reserveError) return cancelTransaction(session, reserveError);
 
-    const [player, playerError] = await this.playerService.getPlayerById(playerId);
+    const [player, playerError] =
+      await this.playerService.getPlayerById(playerId);
     if (playerError) return cancelTransaction(session, playerError);
 
     const [voting, votingErrors] = await this.votingService.startVoting(
-    {
-      voterPlayer: player,
-      type: VotingType.SHOP_BUY_ITEM,
-      queue: VotingQueueName.CLAN_SHOP,
-      clanId,
-      shopItem: item.name,
-    },
-    session,
+      {
+        voterPlayer: player,
+        type: VotingType.SHOP_BUY_ITEM,
+        queue: VotingQueueName.CLAN_SHOP,
+        clanId,
+        shopItem: item.name,
+      },
+      session,
     );
     if (votingErrors) return cancelTransaction(session, votingErrors);
 
     await this.votingQueue.addVotingCheckJob({
-    voting,
-    stockId: clan.Stock._id,
-    price: item.price,
-    queue: VotingQueueName.CLAN_SHOP,
-    clanId,
-    shopItem: item.name,
+      voting,
+      stockId: clan.Stock._id,
+      price: item.price,
+      queue: VotingQueueName.CLAN_SHOP,
+      clanId,
+      shopItem: item.name,
     });
 
     // 4. Clean Exit
     return endTransaction(session, true);
-}
+  }
 
   /**
    * Reserves funds from a clan by decrementing gameCoins within a session.
@@ -111,33 +116,33 @@ export class ClanShopService {
   async checkVotingOnExpire(
     data: VotingQueueParams,
   ): Promise<IServiceReturn<boolean>> {
-
     const { voting, price, clanId, stockId } = data;
     const [session, sessionError] = await initializeSession(this.connection);
-    
+
     if (sessionError) return [null, sessionError];
-    if (!session) return [null, [{ message: 'Session initialization failed' } as any]];
+    if (!session)
+      return [null, [{ message: 'Session initialization failed' } as any]];
 
     const votePassed = await this.votingService.checkVotingSuccess(voting);
 
     if (votePassed) {
-    const [, passedError] = await this.handleVotePassed(
-      voting,
-      stockId,
-      session,
-    );
-    if (passedError) return cancelTransaction(session, passedError);
+      const [, passedError] = await this.handleVotePassed(
+        voting,
+        stockId,
+        session,
+      );
+      if (passedError) return cancelTransaction(session, passedError);
     } else {
-    const [, rejectError] = await this.handleVoteRejected(
-      clanId,
-      price,
-      session,
-    );
-    if (rejectError) return cancelTransaction(session, rejectError);
+      const [, rejectError] = await this.handleVoteRejected(
+        clanId,
+        price,
+        session,
+      );
+      if (rejectError) return cancelTransaction(session, rejectError);
     }
 
     return endTransaction(session, true);
-    }
+  }
 
   /**
    * Returns the reserved coin amount to the clan.

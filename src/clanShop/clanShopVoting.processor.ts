@@ -18,12 +18,19 @@ export class ClanShopVotingProcessor extends WorkerHost {
    * @param job - The job to be processed.
    */
   async process(job: Job<VotingQueueParams>): Promise<boolean> {
-    const [result, error] = await this.clanShopService.checkVotingOnExpire(job.data);
+    const [result, error] = await this.clanShopService.checkVotingOnExpire(
+      job.data,
+    );
 
     if (error) {
-      this.logger.error(`ClanShop Voting Job ${job.id} failed`, JSON.stringify(error));
+      this.logger.error(
+        `ClanShop Voting Job ${job.id} failed`,
+        JSON.stringify(error),
+      );
 
-      throw new Error(`ClanShop Voting Job failed: ${error[0]?.message || 'Unknown Error'}`);
+      throw new Error(
+        `ClanShop Voting Job failed: ${error[0]?.message || 'Unknown Error'}`,
+      );
     }
     return result;
   }
