@@ -8,4 +8,5 @@ export type VotingQueueParams = {
   stockId?: string;
   fleaMarketItemId?: string;
   queue: VotingQueueName;
+  shopItem?: string;
 };
