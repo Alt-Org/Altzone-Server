@@ -61,6 +61,7 @@ describe('GlobalChatService.handleNewGlobalMessage() test suite', () => {
       client,
       ChatType.GLOBAL,
       expect.any(Set),
+      undefined,
     );
   });
 });

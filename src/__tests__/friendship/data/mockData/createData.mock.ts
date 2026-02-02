@@ -7,7 +7,7 @@ import { Friendship } from 'src/friendship/friendship.schema';
 import FriendshipBuilderFactory from '../friendshipBuilderFactory';
 
 export async function createMockFriendships(
-  overides: Partial<Friendship>[]
+  overides: Partial<Friendship>[],
 ): Promise<void> {
   const model = FriendshipModule.getFriendshipModel();
 
@@ -23,7 +23,7 @@ export async function createMockFriendships(
 }
 
 export async function createMockPlayers(
-  overides: Partial<Player>[]
+  overides: Partial<Player>[],
 ): Promise<void> {
   const model = FriendshipModule.getPlayerModel();
 
@@ -40,7 +40,7 @@ export async function createMockPlayers(
 }
 
 export async function createMockClans(
-  overides: Partial<Clan>[]
+  overides: Partial<Clan>[],
 ): Promise<void> {
   const model = FriendshipModule.getClanModel();
 

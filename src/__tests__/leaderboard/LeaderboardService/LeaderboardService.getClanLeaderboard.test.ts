@@ -23,6 +23,11 @@ describe('LeaderboardService.getClanLeaderboard() test suite', () => {
     await clanModel.create(clan3);
   });
 
+  // Cleaning up the DB each time from ghost entries uncovered in npm run test unit tests here
+  afterEach(async () => {
+    await clanModel.deleteMany({});
+  });
+
   it('Should return leading clans in valid order', async () => {
     const query = queryBuilder.setLimit(10).setSkip(0).build();
 

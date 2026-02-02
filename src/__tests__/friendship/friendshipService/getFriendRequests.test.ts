@@ -42,40 +42,36 @@ describe('Friendship.getFriendRequests() test suites', () => {
   beforeEach(async () => {
     friendshipService = await FriendshipModule.getFriendshipService();
 
-    await createMockFriendships(friendshipConfigs)
+    await createMockFriendships(friendshipConfigs);
   });
 
   it('Should get two friendship requests for player1', async () => {
-    const [friendships, err] = await friendshipService.getFriendRequests(
-      player1_id,
-    );
+    const [friendships, err] =
+      await friendshipService.getFriendRequests(player1_id);
 
     expect(err).toBeNull();
     expect(friendships).toHaveLength(2);
   });
 
   it('Should get one friendship request for player2', async () => {
-    const [friendships, err] = await friendshipService.getFriendRequests(
-      player2_id,
-    );
+    const [friendships, err] =
+      await friendshipService.getFriendRequests(player2_id);
 
     expect(err).toBeNull();
     expect(friendships).toHaveLength(1);
   });
 
   it('should return NOT_FOUND for player4', async () => {
-    const [friendships, err] = await friendshipService.getFriendRequests(
-      player4_id,
-    );
+    const [friendships, err] =
+      await friendshipService.getFriendRequests(player4_id);
 
     expect(err).toContainSE_NOT_FOUND();
     expect(friendships).toBeNull();
   });
 
   it('Should avoid status ACCEPTED and return one friendship request', async () => {
-    const [friendships, err] = await friendshipService.getFriendRequests(
-      player3_id,
-    );
+    const [friendships, err] =
+      await friendshipService.getFriendRequests(player3_id);
 
     expect(err).toBeNull();
     expect(friendships).toHaveLength(1);
