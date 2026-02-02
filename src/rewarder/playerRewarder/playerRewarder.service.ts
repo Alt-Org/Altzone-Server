@@ -1,4 +1,4 @@
-import { ClientSession, Model, MongooseError } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { points } from './points';
 import { PlayerEvent } from './enum/PlayerEvent.enum';
 import { Injectable } from '@nestjs/common';
