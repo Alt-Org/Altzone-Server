@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {} from '../../common/base/decorator/AddBasicService.decorator';
 import { ChatMessage } from '../schema/chatMessage.schema';
 import { Model } from 'mongoose';
 import BasicService from '../../common/service/basicService/BasicService';
@@ -9,6 +8,9 @@ import { CreateChatMessageDto } from '../dto/createMessage.dto';
 import {
   IServiceReturn,
   TIServiceReadManyOptions,
+  TIServiceCreateOneOptions,
+  TIServiceUpdateByIdOptions,
+  TIServiceReadOneOptions,
 } from '../../common/service/basicService/IService';
 import { UpdateChatMessageDto } from '../dto/updateChatMessage.dto';
 import ServiceError from '../../common/service/basicService/ServiceError';
@@ -29,11 +31,16 @@ export class ChatService {
    * Creates a message in database.
    *
    * @param message - Message data to create.
+   * @param options - Optional mongoose ClientSession for transaction support.
    * @returns Created message.
    */
-  async createChatMessage(message: CreateChatMessageDto) {
+  async createChatMessage(
+    message: CreateChatMessageDto,
+    options?: TIServiceCreateOneOptions,
+  ) {
     return this.basicService.createOne<CreateChatMessageDto, ChatMessageDto>(
       message,
+      options,
     );
   }
 
@@ -43,12 +50,14 @@ export class ChatService {
    * @param messageId - ID of the message reaction is to.
    * @param playerName - Name of the player who reacted.
    * @param emoji - String representation of the emoji.
+   * @param options - Optional mongoose ClientSession for transaction support.
    * @returns Message with added reaction.
    */
   async addReaction(
     messageId: string,
     playerName: string,
     emoji: string,
+    options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
     const [message, error] =
       await this.basicService.readOneById<ChatMessageDto>(messageId);
@@ -64,6 +73,7 @@ export class ChatService {
     const [, updateError] = await this.basicService.updateOneById(
       message._id,
       message,
+      options,
     );
 
     if (updateError) return [null, updateError];
@@ -74,7 +84,7 @@ export class ChatService {
   /**
    * Retrieves messages from database.
    *
-   * @param options - Database query options.
+   * @param options - Optional mongoose ClientSession for transaction support.
    * @returns An array of chat messages.
    */
   async getMessages(
@@ -91,6 +101,7 @@ export class ChatService {
    * Updates a ChatMessage by its _id in DB. The _id field is read-only and must be found from the parameter
    *
    * @param chat - The data needs to be updated of the ChatMessage.
+   * @param options - Optional mongoose ClientSession for transaction support.
    * @returns _true_ if ChatMessage was updated successfully, _false_ if nothing was updated for the ChatMessage,
    * or a ServiceError:
    * - NOT_FOUND if the ChatMessage was not found
@@ -98,6 +109,7 @@ export class ChatService {
    */
   async updateOneById(
     chat: Partial<UpdateChatMessageDto>,
+    options?: TIServiceUpdateByIdOptions,
   ): Promise<[boolean | null, ServiceError[] | null]> {
     if (!chat._id)
       return [
@@ -117,6 +129,7 @@ export class ChatService {
     const [isSuccess, errors] = await this.basicService.updateOneById(
       _id,
       fieldsToUpdate,
+      options,
     );
 
     return [isSuccess, errors];
