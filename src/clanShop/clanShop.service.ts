@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { itemProperties, ItemProperty } from '../clanInventory/item/const/itemProperties';
+import {
+  itemProperties,
+  ItemProperty,
+} from '../clanInventory/item/const/itemProperties';
 import { ClanService } from '../clan/clan.service';
 import { ModelName } from '../common/enum/modelName.enum';
 import { notEnoughCoinsError } from '../fleaMarket/errors/notEnoughCoins.error';
@@ -51,7 +54,7 @@ export class ClanShopService {
   ): Promise<IServiceReturn<boolean>> {
     const [session, sessionError] = await initializeSession(this.connection);
     if (sessionError) return [null, sessionError];
-  
+
     const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
       includeRefs: [ModelName.STOCK],
     });
@@ -69,7 +72,8 @@ export class ClanShopService {
     );
     if (reserveError) return cancelTransaction(session, reserveError);
 
-    const [player, playerError] = await this.playerService.getPlayerById(playerId);
+    const [player, playerError] =
+      await this.playerService.getPlayerById(playerId);
     if (playerError) return cancelTransaction(session, playerError);
 
     const [voting, votingErrors] = await this.votingService.startVoting(
@@ -93,7 +97,7 @@ export class ClanShopService {
       queue: VotingQueueName.CLAN_SHOP,
       clanId,
     });
-    
+
     return result;
   }
 

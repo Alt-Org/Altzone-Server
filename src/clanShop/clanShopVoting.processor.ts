@@ -28,5 +28,6 @@ export class ClanShopVotingProcessor extends WorkerHost {
         JSON.stringify(error),
       );
       return;
+    }
   }
-}}
+}
