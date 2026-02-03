@@ -63,6 +63,7 @@ describe('ClanChatService.handleNewClanMessage() test suite', () => {
       client,
       ChatType.CLAN,
       undefined,
+      undefined,
     );
   });
 });

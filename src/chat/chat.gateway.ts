@@ -6,6 +6,8 @@ import {
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets';
+import { Connection } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
 import { PlayerService } from '../player/player.service';
 import { WebSocketUser } from './types/WsUser.type';
 import { ClanChatService } from './service/clanChat.service';
@@ -16,9 +18,15 @@ import { GlobalChatService } from './service/globalChat.service';
 import { UseFilters } from '@nestjs/common';
 import { GlobalWsExceptionFilter } from './decorator/wsExceptionFilter.decorator';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
-import { RequestLoggerService } from '../common/service/logger/RequestLogger.service';
 import { WsLog } from '../common/service/logger/WsLog.decorator';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import {
+  initializeSession,
+  cancelTransaction,
+  endTransaction,
+} from '../common/function/Transactions';
+import { ChatMessageDto } from './dto/chatMessage.dto';
+import { IServiceReturn } from 'src/common/service/basicService/IService';
 
 const apiPort = Number.parseInt(envVars.PORT, 10);
 
@@ -26,10 +34,10 @@ const apiPort = Number.parseInt(envVars.PORT, 10);
 @UseFilters(GlobalWsExceptionFilter)
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
+    @InjectConnection() private readonly connection: Connection,
     private readonly playerService: PlayerService,
     private readonly clanChatService: ClanChatService,
     private readonly globalChatService: GlobalChatService,
-    private readonly requestLoggerService: RequestLoggerService,
     private readonly emitterService: EventEmitterService,
   ) {}
 
@@ -76,13 +84,25 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleClanMessage(
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
-  ) {
-    await this.clanChatService.handleNewClanMessage(client, message);
+  ): Promise<IServiceReturn<ChatMessageDto>> {
+
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
+    const [newMessage, error] = await this.clanChatService.handleNewClanMessage(
+      client,
+      message,
+      { session },
+    );
+
+    if (error) return await cancelTransaction(session, error);
 
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
       ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
     );
+
+    return endTransaction(session, newMessage);
   }
 
   @SubscribeMessage('clanMessageReaction')
@@ -90,8 +110,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleClanMessageReaction(
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
-  ) {
-    await this.clanChatService.handleNewClanReaction(client, reaction);
+  ): Promise<IServiceReturn<ChatMessageDto>> {
+    
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
+    const [updatedMessage, error] = await this.clanChatService.handleNewClanReaction(
+      client,
+      reaction,
+      { session },
+    );
+
+    if (error) return cancelTransaction(session, error);
+
+    return endTransaction(session, updatedMessage);
   }
 
   @SubscribeMessage('globalMessage')
@@ -99,21 +131,43 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleGlobalMessage(
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
-  ) {
-    await this.globalChatService.handleNewGlobalMessage(message, client);
+  ): Promise<IServiceReturn<ChatMessageDto>> {
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
+    const [newMessage, error] = await this.globalChatService.handleNewGlobalMessage(
+      message,
+      client,
+      { session },
+    );
+
+    if (error) return cancelTransaction(session, error);
 
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
       ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
     );
+
+    return endTransaction(session, newMessage);
   }
 
   @SubscribeMessage('globalMessageReaction')
   @WsLog()
-  async handleGlobalMessageReaction(
+  async handleGlobalReaction(
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
-  ) {
-    await this.globalChatService.handleNewGlobalReaction(client, reaction);
+  ): Promise<IServiceReturn<ChatMessageDto>> {
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
+    const [updatedMessage, error] = await this.globalChatService.handleNewGlobalReaction(
+      client,
+      reaction,
+      { session },
+    );
+
+    if (error) return cancelTransaction(session, error);
+
+    return endTransaction(session, updatedMessage);
   }
 }
