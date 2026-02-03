@@ -1,8 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import {
-  itemProperties,
-  ItemProperty,
-} from '../clanInventory/item/const/itemProperties';
+import { Injectable, Logger } from '@nestjs/common';
+import { itemProperties, ItemProperty } from '../clanInventory/item/const/itemProperties';
 import { ClanService } from '../clan/clan.service';
 import { ModelName } from '../common/enum/modelName.enum';
 import { notEnoughCoinsError } from '../fleaMarket/errors/notEnoughCoins.error';
@@ -16,7 +13,8 @@ import { VotingQueue } from '../voting/voting.queue';
 import { VotingQueueParams } from '../fleaMarket/types/votingQueueParams.type';
 import { ItemName } from '../clanInventory/item/enum/itemName.enum';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
-import { ClientSession, Connection } from 'mongoose';
+import { ClientSession, Connection, UpdateQuery } from 'mongoose';
+import { Clan } from '../clan/clan.schema';
 import {
   initializeSession,
   cancelTransaction,
@@ -27,6 +25,8 @@ import { IServiceReturn } from '../common/service/basicService/IService';
 
 @Injectable()
 export class ClanShopService {
+  private readonly logger = new Logger(ClanShopService.name);
+
   constructor(
     private readonly clanService: ClanService,
     private readonly votingService: VotingService,
@@ -37,8 +37,12 @@ export class ClanShopService {
   ) {}
 
   /**
-   * Handles the process of purchasing an item from shop.
-   * Uses centralized transaction utilities for consistency.
+   * Handles the process of purchasing an item from the shop.
+   * Initializes a transaction, reserves clan funds, and starts a voting process.
+   * * @param playerId - The ID of the player initiating the purchase.
+   * @param clanId - The ID of the clan the player belongs to.
+   * @param item - The properties of the item being purchased.
+   * @returns A promise resolving to an IServiceReturn indicating success or containing errors.
    */
   async buyItem(
     playerId: string,
@@ -47,13 +51,11 @@ export class ClanShopService {
   ): Promise<IServiceReturn<boolean>> {
     const [session, sessionError] = await initializeSession(this.connection);
     if (sessionError) return [null, sessionError];
-    if (!session)
-      return [null, [{ message: 'Could not initialize session' } as any]];
-
+  
     const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
       includeRefs: [ModelName.STOCK],
-      session,
-    } as any);
+    });
+
     if (clanErrors) return cancelTransaction(session, clanErrors);
 
     if (clan.gameCoins < item.price) {
@@ -67,8 +69,7 @@ export class ClanShopService {
     );
     if (reserveError) return cancelTransaction(session, reserveError);
 
-    const [player, playerError] =
-      await this.playerService.getPlayerById(playerId);
+    const [player, playerError] = await this.playerService.getPlayerById(playerId);
     if (playerError) return cancelTransaction(session, playerError);
 
     const [voting, votingErrors] = await this.votingService.startVoting(
@@ -83,44 +84,47 @@ export class ClanShopService {
     );
     if (votingErrors) return cancelTransaction(session, votingErrors);
 
+    const result = await endTransaction(session, true);
+
     await this.votingQueue.addVotingCheckJob({
       voting,
       stockId: clan.Stock._id,
       price: item.price,
       queue: VotingQueueName.CLAN_SHOP,
       clanId,
-      shopItem: item.name,
     });
     
-    return endTransaction(session, true);
+    return result;
   }
 
   /**
-   * Reserves funds from a clan by decrementing gameCoins within a session.
+   * Reserves funds from a clan by decrementing gameCoins.
+   * * @param clanId - The ID of the clan.
+   * @param price - The amount to deduct.
+   * @param session - The active database session for the transaction.
+   * @returns A promise with the update result.
    */
   async reserveFunds(clanId: string, price: number, session: ClientSession) {
     return await this.clanService.basicService.updateOneById(
       clanId,
       {
         $inc: { gameCoins: -price },
-      },
+      } as UpdateQuery<Clan>,
       { session },
     );
   }
 
   /**
-   * Handles the expiration of a voting process.
-   * Ensures that item creation or coin refunds happen atomically.
+   * Processes the result of a finished vote when the queue job expires.
+   * * @param data - The parameters passed from the background job.
+   * @returns A promise resolving to an IServiceReturn.
    */
   async checkVotingOnExpire(
     data: VotingQueueParams,
   ): Promise<IServiceReturn<boolean>> {
     const { voting, price, clanId, stockId } = data;
     const [session, sessionError] = await initializeSession(this.connection);
-
     if (sessionError) return [null, sessionError];
-    if (!session)
-      return [null, [{ message: 'Session initialization failed' } as any]];
 
     const votePassed = await this.votingService.checkVotingSuccess(voting);
 
@@ -144,7 +148,10 @@ export class ClanShopService {
   }
 
   /**
-   * Returns the reserved coin amount to the clan.
+   * Returns the reserved coin amount to the clan if a vote fails.
+   * * @param clanId - The ID of the clan.
+   * @param price - The amount to return.
+   * @param session - The active database session.
    */
   private async handleVoteRejected(
     clanId: string,
@@ -153,13 +160,16 @@ export class ClanShopService {
   ) {
     return await this.clanService.basicService.updateOneById(
       clanId,
-      { $inc: { gameCoins: price } } as any,
+      { $inc: { gameCoins: price } } as UpdateQuery<Clan>,
       { session },
     );
   }
 
   /**
-   * Creates the purchased item in the clan stock.
+   * Finalizes the purchase by creating the item in the clan stock.
+   * * @param voting - The voting record containing item details.
+   * @param stockId - The ID of the stock where the item will be placed.
+   * @param session - The active database session.
    */
   private async handleVotePassed(
     voting: VotingDto,
@@ -167,21 +177,23 @@ export class ClanShopService {
     session: ClientSession,
   ) {
     const newItem = this.getCreateItemDto(voting.shopItemName, stockId);
-    return await this.itemService.createOne(newItem, { session } as any);
+    return await this.itemService.createOne(newItem, { session });
   }
 
   /**
-   * Helper to map shop items to CreateItemDto.
+   * Helper to map shop items to a CreateItemDto for the ItemService.
+   * * @param itemName - The name of the item.
+   * @param stockId - The ID of the destination stock.
+   * @returns A populated CreateItemDto.
    */
-  private getCreateItemDto(itemName: ItemName, stockId: string) {
+  private getCreateItemDto(itemName: ItemName, stockId: string): CreateItemDto {
     const item = itemProperties[itemName];
-    const newItem: CreateItemDto = {
+    return {
       ...item,
       location: [0, 1],
       unityKey: item.name,
       stock_id: stockId,
       room_id: null,
     };
-    return newItem;
   }
 }

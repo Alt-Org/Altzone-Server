@@ -24,14 +24,9 @@ export class ClanShopVotingProcessor extends WorkerHost {
 
     if (error) {
       this.logger.error(
-        `ClanShop Voting Job ${job.id} failed`,
+        `ClanShop Voting Job ${job.id} stopped due to an error`,
         JSON.stringify(error),
       );
-
-      throw new Error(
-        `ClanShop Voting Job failed: ${error[0]?.message || 'Unknown Error'}`,
-      );
-    }
-    return result;
+      return;
   }
-}
+}}

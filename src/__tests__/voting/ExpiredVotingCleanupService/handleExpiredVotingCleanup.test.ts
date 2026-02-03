@@ -12,6 +12,7 @@ describe('ExpiredVotingCleanupService.handleExpiredVotingCleanup() test suite', 
   let expiredVotingCleanupService: ExpiredVotingCleanupService;
 
   beforeEach(async () => {
+    await votingModel.deleteMany({});
     expiredVotingCleanupService =
       await VotingModule.getExpiredVotingCleanupService();
   });
