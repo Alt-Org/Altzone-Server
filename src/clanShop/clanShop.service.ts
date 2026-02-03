@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   itemProperties,
   ItemProperty,
@@ -16,7 +16,7 @@ import { VotingQueue } from '../voting/voting.queue';
 import { VotingQueueParams } from '../fleaMarket/types/votingQueueParams.type';
 import { ItemName } from '../clanInventory/item/enum/itemName.enum';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
-import { ClientSession, Connection, UpdateQuery } from 'mongoose';
+import { ClientSession, Connection } from 'mongoose';
 import { Clan } from '../clan/clan.schema';
 import {
   initializeSession,
@@ -28,7 +28,6 @@ import { IServiceReturn } from '../common/service/basicService/IService';
 
 @Injectable()
 export class ClanShopService {
-  private readonly logger = new Logger(ClanShopService.name);
 
   constructor(
     private readonly clanService: ClanService,
@@ -40,12 +39,15 @@ export class ClanShopService {
   ) {}
 
   /**
-   * Handles the process of purchasing an item from the shop.
-   * Initializes a transaction, reserves clan funds, and starts a voting process.
-   * * @param playerId - The ID of the player initiating the purchase.
-   * @param clanId - The ID of the clan the player belongs to.
-   * @param item - The properties of the item being purchased.
-   * @returns A promise resolving to an IServiceReturn indicating success or containing errors.
+   * Handles the process of purchasing an item from shop.
+   * This method performs several operations including validating the clan's funds,
+   * reserving the required amount, initiating a voting process, and scheduling a voting check job.
+   * All operations are executed within a transaction to ensure consistency.
+   * 
+   * @param playerId - The unique identifier of the player attempting to buy the item.
+   * @param clanId - The unique identifier of the clan associated with the purchase.
+   * @param item - The item being purchased, including its properties such as price.
+   * @returns A promise that resolves when the transaction is successfully committed.
    */
   async buyItem(
     playerId: string,
@@ -102,30 +104,42 @@ export class ClanShopService {
   }
 
   /**
-   * Reserves funds from a clan by decrementing gameCoins.
-   * * @param clanId - The ID of the clan.
-   * @param price - The amount to deduct.
-   * @param session - The active database session for the transaction.
+   * Reserves funds from a clan by decrementing the specified price from the clan's gameCoins.
+   *
+   * @param clanId - The unique identifier of the clan whose funds are to be reserved.
+   * @param price - The amount to be deducted from the clan's gameCoins.
+   * @param session - mongoose ClientSession for transaction support.
    * @returns A promise with the update result.
    */
   async reserveFunds(clanId: string, price: number, session: ClientSession) {
     return await this.clanService.basicService.updateOneById(
       clanId,
-      {
-        $inc: { gameCoins: -price },
-      } as UpdateQuery<Clan>,
+      { $inc: { gameCoins: -price } },
       { session },
     );
   }
 
   /**
-   * Processes the result of a finished vote when the queue job expires.
-   * * @param data - The parameters passed from the background job.
-   * @returns A promise resolving to an IServiceReturn.
+   * Handles the expiration of a voting process by determining its outcome,
+   * performing the necessary actions based on the result, and cleaning up
+   * the associated voting record.
+   *
+   * @param data - An object containing the voting details, price, clan ID, and stock ID.
+   *
+   * The method performs the following steps:
+   * 1. Starts a database session and transaction.
+   * 2. Checks if the voting process was successful.
+   *    - If successful, processes the passed vote and handles any errors.
+   *    - If rejected, processes the rejected vote and handles any errors.
+   * 3. Deletes the voting record from the database and handles any errors.
+   * 4. Commits the transaction and ends the session.
+   *
+   * If any error occurs during the process, the transaction is canceled, and the session is ended.
+   * 
+   * @returns A promise that resolves to a boolean indicating the success of the operation or an error if any step fails.
    */
-  async checkVotingOnExpire(
-    data: VotingQueueParams,
-  ): Promise<IServiceReturn<boolean>> {
+  async checkVotingOnExpire(data: VotingQueueParams): Promise<IServiceReturn<boolean>> {
+    
     const { voting, price, clanId, stockId } = data;
     const [session, sessionError] = await initializeSession(this.connection);
     if (sessionError) return [null, sessionError];
@@ -152,10 +166,13 @@ export class ClanShopService {
   }
 
   /**
-   * Returns the reserved coin amount to the clan if a vote fails.
-   * * @param clanId - The ID of the clan.
-   * @param price - The amount to return.
-   * @param session - The active database session.
+   * Handles the event when a vote is rejected.
+   * Return the reserved coin amount to clan.
+   *
+   * @param clanId - The unique identifier of the clan.
+   * @param price - The amount to increment the clan's game coins by.
+   * @param session - mongoose ClientSession for transaction support.
+   * @returns A promise that resolves with the result of the update operation.
    */
   private async handleVoteRejected(
     clanId: string,
@@ -164,16 +181,21 @@ export class ClanShopService {
   ) {
     return await this.clanService.basicService.updateOneById(
       clanId,
-      { $inc: { gameCoins: price } } as UpdateQuery<Clan>,
+      { $inc: { gameCoins: price } },
       { session },
     );
   }
 
   /**
-   * Finalizes the purchase by creating the item in the clan stock.
-   * * @param voting - The voting record containing item details.
-   * @param stockId - The ID of the stock where the item will be placed.
-   * @param session - The active database session.
+   * Handles the event when a vote has passed.
+   *
+   * This method creates a new item based on the voting details and stock ID,
+   * and then delegates the creation to the item service.
+   *
+   * @param voting - The voting details containing information about the entity.
+   * @param stockId - The identifier of the stock associated with the vote.
+   * @param session - mongoose ClientSession for transaction support.
+   * @returns A promise that resolves to the created item.
    */
   private async handleVotePassed(
     voting: VotingDto,
@@ -185,10 +207,11 @@ export class ClanShopService {
   }
 
   /**
-   * Helper to map shop items to a CreateItemDto for the ItemService.
-   * * @param itemName - The name of the item.
-   * @param stockId - The ID of the destination stock.
-   * @returns A populated CreateItemDto.
+   * Creates a new `CreateItemDto` object based on the provided item name and stock ID.
+   *
+   * @param itemName - The name of the item to retrieve properties for.
+   * @param stockId - The unique identifier for the stock to associate with the item.
+   * @returns A new `CreateItemDto` object containing the item's properties and additional metadata.
    */
   private getCreateItemDto(itemName: ItemName, stockId: string): CreateItemDto {
     const item = itemProperties[itemName];
