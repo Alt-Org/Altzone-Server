@@ -23,6 +23,12 @@ export class ChatService {
     this.basicService = new BasicService(model);
   }
 
+  /**
+   * Creates a message in the database.
+   *
+   * @param message - Message data to create.
+   * @returns Created message.
+   */
   async createChatMessage(message: CreateChatMessageDto) {
     return this.basicService.createOne<CreateChatMessageDto, ChatMessageDto>(
       message,
@@ -30,7 +36,7 @@ export class ChatService {
   }
 
   /**
-   * Adds a reaction to chat message.
+   * Adds a reaction to the chat message.
    *
    * @param messageId - ID of the message reaction is to.
    * @param playerName - Name of the player who reacted.
@@ -65,6 +71,12 @@ export class ChatService {
     return [message, null];
   }
 
+  /**
+   * Retrieves messages from the database.
+   *
+   * @param options - Database query options.
+   * @returns An array of chat messages.
+   */
   async getMessages(
     options?: TIServiceReadManyOptions,
   ): Promise<IServiceReturn<ChatMessageDto[]>> {
@@ -75,6 +87,15 @@ export class ChatService {
     return await this.basicService.readMany<ChatMessageDto>(opts);
   }
 
+  /**
+   * Updates a ChatMessage by its _id in the DB. The _id field is read-only and must be found from the parameter
+   *
+   * @param chat - The data needs to be updated of the ChatMessage.
+   * @returns _true_ if ChatMessage was updated successfully, _false_ if nothing was updated for the ChatMessage,
+   * or a ServiceError:
+   * - NOT_FOUND if the ChatMessage was not found
+   * - REQUIRED if _id is not provided
+   */
   async updateOneById(
     chat: Partial<UpdateChatMessageDto>,
   ): Promise<[boolean | null, ServiceError[] | null]> {
@@ -101,6 +122,15 @@ export class ChatService {
     return [isSuccess, errors];
   }
 
+  /**
+   * Deletes the chatmessage.
+   *
+   * @param chatId - The ID of the chatmessage to delete.
+   * @returns _true_ if ChatMessage was deleted successfully, _false_ if nothing was deleted
+   * or a ServiceError:
+   * - NOT_FOUND if the ChatMessage was not found
+   * - REQUIRED if _id is not provided
+   */
   async deleteChatMessageById(chatId: string): Promise<IServiceReturn<true>> {
     return await this.basicService.deleteOneById(chatId);
   }
