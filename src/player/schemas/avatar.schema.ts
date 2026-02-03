@@ -16,7 +16,7 @@ export class AvatarPiece {
 const AvatarPieceSchema = SchemaFactory.createForClass(AvatarPiece);
 
 @Schema({
-  toJSON: { virtuals: true, getters: true }, 
+  toJSON: { virtuals: true, getters: true },
   toObject: { virtuals: true, getters: true },
   _id: false,
 })
