@@ -91,8 +91,7 @@ export class ClanShopService {
       clanId,
       shopItem: item.name,
     });
-
-    // 4. Clean Exit
+    
     return endTransaction(session, true);
   }
 
