@@ -1,4 +1,4 @@
-import { Model, MongooseError } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { points } from './points';
 import { PlayerEvent } from './enum/PlayerEvent.enum';
 import { Injectable } from '@nestjs/common';
@@ -52,12 +52,14 @@ export class PlayerRewarder {
    * Rewards specified player for a completed player task
    * @param player_id player _id to reward
    * @param points amount of points to reward
+   * @clientSession session to use for transaction
    * @throws MongooseError if any occurred
    * @returns true if player was rewarded successfully
    */
   async rewardForPlayerTask(
     player_id: string,
     points: number,
+    session?: ClientSession,
   ): Promise<IServiceReturn<true>> {
     if (points < 0)
       return [
@@ -72,25 +74,28 @@ export class PlayerRewarder {
         ],
       ];
 
-    return this.increasePlayerPoints(player_id, points);
+    return this.increasePlayerPoints(player_id, points, session);
   }
 
   /**
    * Increases specified player points amount
    * @param player_id player _id
    * @param points amount of points to increase
+   * @param session optional client session for transaction
    * @throws MongooseError if any occurred
    * @returns true if player was rewarded successfully
    */
   private async increasePlayerPoints(
     player_id: string,
     points: number,
+    session?: ClientSession,
   ): Promise<IServiceReturn<true>> {
-    const result = await this.playerService.updateOneById(player_id, {
-      $inc: { points },
-    });
+    const [_, errors] = await this.playerService.updateOneById(
+      player_id, 
+      { $inc: { points } },
+      { session });
 
-    if (result instanceof MongooseError) throw result;
+    if (errors) return [null, errors];
 
     return [true, null];
   }
