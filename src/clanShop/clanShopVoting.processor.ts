@@ -6,7 +6,6 @@ import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 
 @Processor(VotingQueueName.CLAN_SHOP)
 export class ClanShopVotingProcessor extends WorkerHost {
-
   constructor(private readonly clanShopService: ClanShopService) {
     super();
   }

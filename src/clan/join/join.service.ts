@@ -8,7 +8,7 @@ import { Model } from 'mongoose';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { ClanService } from '../clan.service';
 import { PlayerCounterFactory } from '../clan.counters';
-import { CreateClanDto } from '../dto/createClan.dto'
+import { CreateClanDto } from '../dto/createClan.dto';
 import ICounter from '../../common/service/counter/ICounter';
 import { Player } from '../../player/schemas/player.schema';
 import { MemberClanRole } from '../role/initializationClanRoles';
@@ -188,49 +188,51 @@ export class JoinService {
    */
   @OnEvent('player.created')
   async findClanForNewPlayer(playerId: string) {
-
-  const availableClan = await this.clanService.model.findOne({
-    isOpen: true,
-    playerCount: { $lt: 30 }
-  });
-
-  if (availableClan) {
-    return await this.joinClan(playerId, availableClan._id.toString());
-  }
-
-  const joinableClanCount = await this.clanService.model.countDocuments({
-    isOpen: true,
-    playerCount: { $lt: 30 }
-  });
-
-  if (joinableClanCount > 0) {
-    return;
-  }
-
-  try {
-    const totalClans = await this.clanService.model.countDocuments();
-    const now = new Date();
-    const suffix = `${now.getHours()}${now.getMinutes()}`; 
-    const newClanName = `Expedition ${totalClans + 1}-${suffix}`;
-
-    const createClanDto: CreateClanDto = {
-      name: newClanName,
-      tag: 'AUTO',
-      phrase: 'A new expedition begins!',
+    const availableClan = await this.clanService.model.findOne({
       isOpen: true,
-      labels: [],
-    };
+      playerCount: { $lt: 30 },
+    });
 
-    const [newClan, errors] = await this.clanService.createOneWithoutAdmin(createClanDto);
+    if (availableClan) {
+      return await this.joinClan(playerId, availableClan._id.toString());
+    }
 
-    if (errors || !newClan) {
+    const joinableClanCount = await this.clanService.model.countDocuments({
+      isOpen: true,
+      playerCount: { $lt: 30 },
+    });
+
+    if (joinableClanCount > 0) {
       return;
     }
 
-    await this.joinClan(playerId, newClan._id.toString());
-    
-  } catch (err: any) {
-    this.logger.error(`Auto-clan creation failed for player ${playerId}:`, err?.stack);
+    try {
+      const totalClans = await this.clanService.model.countDocuments();
+      const now = new Date();
+      const suffix = `${now.getHours()}${now.getMinutes()}`;
+      const newClanName = `Expedition ${totalClans + 1}-${suffix}`;
+
+      const createClanDto: CreateClanDto = {
+        name: newClanName,
+        tag: 'AUTO',
+        phrase: 'A new expedition begins!',
+        isOpen: true,
+        labels: [],
+      };
+
+      const [newClan, errors] =
+        await this.clanService.createOneWithoutAdmin(createClanDto);
+
+      if (errors || !newClan) {
+        return;
+      }
+
+      await this.joinClan(playerId, newClan._id.toString());
+    } catch (err: any) {
+      this.logger.error(
+        `Auto-clan creation failed for player ${playerId}:`,
+        err?.stack,
+      );
+    }
   }
-}
 }
