@@ -28,7 +28,6 @@ import { IServiceReturn } from '../common/service/basicService/IService';
 
 @Injectable()
 export class ClanShopService {
-
   constructor(
     private readonly clanService: ClanService,
     private readonly votingService: VotingService,
@@ -43,7 +42,7 @@ export class ClanShopService {
    * This method performs several operations including validating the clan's funds,
    * reserving the required amount, initiating a voting process, and scheduling a voting check job.
    * All operations are executed within a transaction to ensure consistency.
-   * 
+   *
    * @param playerId - The unique identifier of the player attempting to buy the item.
    * @param clanId - The unique identifier of the clan associated with the purchase.
    * @param item - The item being purchased, including its properties such as price.
@@ -135,11 +134,12 @@ export class ClanShopService {
    * 4. Commits the transaction and ends the session.
    *
    * If any error occurs during the process, the transaction is canceled, and the session is ended.
-   * 
+   *
    * @returns A promise that resolves to a boolean indicating the success of the operation or an error if any step fails.
    */
-  async checkVotingOnExpire(data: VotingQueueParams): Promise<IServiceReturn<boolean>> {
-    
+  async checkVotingOnExpire(
+    data: VotingQueueParams,
+  ): Promise<IServiceReturn<boolean>> {
     const { voting, price, clanId, stockId } = data;
     const [session, sessionError] = await initializeSession(this.connection);
     if (sessionError) return [null, sessionError];

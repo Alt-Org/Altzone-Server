@@ -21,9 +21,10 @@ export class ClanEventHandler {
 
   async handlePlayerTask(player_id: string): Promise<IServiceReturn<boolean>> {
     try {
-      const [taskUpdate, errors] = await this.tasksService.updateTask(player_id);
+      const [taskUpdate, errors] =
+        await this.tasksService.updateTask(player_id);
       if (errors) return [null, errors];
-      
+
       return this.handleClanAndPlayerReward(player_id, taskUpdate);
     } catch (
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

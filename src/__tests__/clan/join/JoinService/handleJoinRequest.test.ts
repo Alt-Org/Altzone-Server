@@ -142,4 +142,21 @@ describe('JoinService.handleJoinRequest() test suite', () => {
 
     expect(oldClanInDB.playerCount).toBe(1);
   });
+
+  it('Should create a new Expedition clan if all existing open clans are full', async () => {
+
+    await clanModel.deleteMany({}); 
+
+    const fullClan = clanBuilder.setIsOpen(true).setPlayerCount(30).setName('Full').build();
+    await clanModel.create(fullClan);
+
+    const newPlayer = await playerModel.create(playerBuilder.build());
+
+    await joinService.findClanForNewPlayer(newPlayer._id.toString());
+
+    const createdClan = await clanModel.findOne({ name: { $regex: /Expedition/i } });
+    
+    expect(createdClan).not.toBeNull();
+    expect(createdClan.name).toMatch(/Expedition/);
+  });
 });

@@ -22,7 +22,7 @@ import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
 import {
   cancelTransaction,
   endTransaction,
-  initializeSession
+  initializeSession,
 } from '../common/function/Transactions';
 
 @Injectable()
@@ -84,16 +84,13 @@ export class DailyTasksService {
    * @param clanId - The ID of the clan to which the task belongs.
    * @returns DailyTask with the given player _id on succeed or an array of ServiceErrors if any occurred.
    */
-  async reserveTask(
-    playerId: string,
-    taskId: string,
-    clanId: string,
-  ) {
+  async reserveTask(playerId: string, taskId: string, clanId: string) {
     const [task, error] = await this.basicService.readOne<DailyTaskDto>({
       filter: { _id: taskId, clan_id: clanId },
     });
     if (error) throw error;
-    if (task.player_id && task.player_id !== playerId) return [null, taskReservedError];
+    if (task.player_id && task.player_id !== playerId)
+      return [null, taskReservedError];
 
     const [session, initErrors] = await initializeSession(this.connection);
     if (initErrors) return [null, initErrors];
@@ -128,10 +125,7 @@ export class DailyTasksService {
    * @param session - Optional MongoDB client session for transaction support.
    * @returns A promise that resolves with the result of the update operation.
    */
-  async unreserveTask(
-    playerId: string,
-    session?: ClientSession,
-  ) {
+  async unreserveTask(playerId: string, session?: ClientSession) {
     return this.basicService.updateOne(
       { $unset: { player_id: '', startedAt: '' } },
       { filter: { player_id: playerId }, session },
@@ -198,7 +192,12 @@ export class DailyTasksService {
     task.amountLeft--;
 
     if (task.amountLeft <= 0) {
-      await this.deleteTask(task._id.toString(), task.clan_id, playerId, session);
+      await this.deleteTask(
+        task._id.toString(),
+        task.clan_id,
+        playerId,
+        session,
+      );
       this.notifier.taskCompleted(playerId, task);
     } else {
       const [_, updateError] = await this.basicService.updateOne(task, {
@@ -282,7 +281,6 @@ export class DailyTasksService {
     serverTaskName: ServerTaskName;
     needsClanReward?: boolean;
   }): Promise<IServiceReturn<DailyTaskDto>> {
-    
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
@@ -295,22 +293,26 @@ export class DailyTasksService {
     if (updateErrors) return cancelTransaction(session, updateErrors);
 
     if (task.amountLeft <= 0) {
-      const [_, playerRewardErrors] = await this.playerRewarder.rewardForPlayerTask(
-        payload.playerId,
-        task.points,
-        session,
-      );
-
-      if (playerRewardErrors) return cancelTransaction(session, playerRewardErrors);
-
-      if (payload.needsClanReward ?? false) {
-        const [_, clanRewardErrors] = await this.clanRewarder.rewardClanForPlayerTask(
-          task.clan_id,
+      const [_, playerRewardErrors] =
+        await this.playerRewarder.rewardForPlayerTask(
+          payload.playerId,
           task.points,
-          task.coins,
           session,
         );
-        if (clanRewardErrors) return cancelTransaction(session, clanRewardErrors);
+
+      if (playerRewardErrors)
+        return cancelTransaction(session, playerRewardErrors);
+
+      if (payload.needsClanReward ?? false) {
+        const [_, clanRewardErrors] =
+          await this.clanRewarder.rewardClanForPlayerTask(
+            task.clan_id,
+            task.points,
+            task.coins,
+            session,
+          );
+        if (clanRewardErrors)
+          return cancelTransaction(session, clanRewardErrors);
       }
     }
     return endTransaction(session, task);

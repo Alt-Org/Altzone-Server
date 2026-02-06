@@ -8,6 +8,7 @@ import { Model } from 'mongoose';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { ClanService } from '../clan.service';
 import { PlayerCounterFactory } from '../clan.counters';
+import { CreateClanDto } from '../dto/createClan.dto';
 import ICounter from '../../common/service/counter/ICounter';
 import { Player } from '../../player/schemas/player.schema';
 import { MemberClanRole } from '../role/initializationClanRoles';
@@ -15,11 +16,13 @@ import { ClanDto } from '../dto/clan.dto';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
-import { ClanDocument } from '../clan.schema';
 import { OnEvent } from '@nestjs/event-emitter';
+import { Logger } from '@nestjs/common';
+import { ClanDocument } from '../clan.schema';
 
 @Injectable()
 export class JoinService {
+  private readonly logger = new Logger(JoinService.name);
   public constructor(
     private readonly playerCounterFactory: PlayerCounterFactory,
     private readonly clanService: ClanService,
@@ -180,21 +183,51 @@ export class JoinService {
   }
 
   /**
-   * Finds a clan and joins a newly created player to it.
-   *
+   * Finds a joinable clan and assigns the player to it.
+   * If clans exist, it picks one at random to ensure even distribution.
+   * If no clans are available, it triggers an automatic clan creation.
    * @param playerId _id of the player
    */
   @OnEvent('player.created')
   async findClanForNewPlayer(playerId: string) {
     const randomClan = await this.clanService.model
-      .aggregate<ClanDocument>([
-        { $match: { isOpen: true, playerCount: { $lt: 30 } } },
-        { $sample: { size: 1 } },
-      ])
-      .then((res) => res[0]);
+    .aggregate<ClanDocument>([
+      { $match: { isOpen: true, playerCount: { $lt: 30 } } },
+      { $sample: { size: 1 } },
+    ])
+    .then((res) => res[0]);
 
-    if (!randomClan) return;
+    if (!randomClan)
+      return this.createAndJoinExpeditionClan(playerId);
 
-    await this.joinClan(playerId, randomClan._id.toString());
+    await this.joinClan(playerId, String(randomClan._id));
+  }
+
+  /**
+   * Creates a new clan with a unique name with the tag "AUTO" and a default phrase,
+   * then makes the player join into it.
+   * @param playerId _id of the player
+   */
+  private async createAndJoinExpeditionClan(playerId: string) {
+    const totalClans = await this.clanService.model.countDocuments();
+    const randomSuffix = Math.floor(Math.random() * 1000);
+    const newClanName = `Expedition ${totalClans + 1}-${randomSuffix}`;
+
+    const createClanDto: CreateClanDto = {
+      name: newClanName,
+      tag: 'AUTO',
+      phrase: 'A new expedition begins!',
+      isOpen: true,
+      labels: [],
+    };
+
+    const [newClan, errors] =
+      await this.clanService.createOneWithoutAdmin(createClanDto);
+
+    if (errors || !newClan) {
+      return;
+    }
+
+    return await this.joinClan(playerId, String(newClan._id));
   }
 }
