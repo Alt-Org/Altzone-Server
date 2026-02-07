@@ -191,14 +191,13 @@ export class JoinService {
   @OnEvent('player.created')
   async findClanForNewPlayer(playerId: string) {
     const randomClan = await this.clanService.model
-    .aggregate<ClanDocument>([
-      { $match: { isOpen: true, playerCount: { $lt: 30 } } },
-      { $sample: { size: 1 } },
-    ])
-    .then((res) => res[0]);
+      .aggregate<ClanDocument>([
+        { $match: { isOpen: true, playerCount: { $lt: 30 } } },
+        { $sample: { size: 1 } },
+      ])
+      .then((res) => res[0]);
 
-    if (!randomClan)
-      return this.createAndJoinExpeditionClan(playerId);
+    if (!randomClan) return this.createAndJoinExpeditionClan(playerId);
 
     await this.joinClan(playerId, String(randomClan._id));
   }
