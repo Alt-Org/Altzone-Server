@@ -35,7 +35,7 @@ export class OnlinePlayersService {
   async addPlayerOnline(
     playerInfo: AddOnlinePlayer,
   ): Promise<IServiceReturn<void>> {
-    const { player_id, status } = playerInfo;
+    const { player_id, status, client_version } = playerInfo;
 
     const [player, errors] = await this.playerService.getPlayerById(player_id);
     if (errors) return [null, errors];
@@ -44,6 +44,7 @@ export class OnlinePlayersService {
       _id: player_id,
       name: player.name,
       status: status ?? OnlinePlayerStatus.UI,
+      client_version: client_version,
     };
 
     if (status === OnlinePlayerStatus.BATTLE_WAIT) {
@@ -69,7 +70,10 @@ export class OnlinePlayersService {
    * @returns Array of OnlinePlayers or empty array if nothing found
    */
   async getOnlinePlayers(options?: {
-    filter?: { status?: OnlinePlayerStatus[] };
+    filter?: { 
+    status?: OnlinePlayerStatus[];
+    client_version?: string; 
+    };
   }): Promise<OnlinePlayer[]> {
     const players = await this.redisService.getValuesByKeyPattern(
       `${this.ONLINE_PLAYERS_KEY}:*`,
@@ -82,9 +86,15 @@ export class OnlinePlayersService {
     ) as OnlinePlayer[];
 
     //TODO: Remove it after there are no versions anymore that uses old implementation of saving online players
-    const filteredPlayers = onlinePlayers.filter(
+    let filteredPlayers = onlinePlayers.filter(
       (player) => typeof player !== 'string' && typeof player !== 'number',
     );
+
+    if (options?.filter?.client_version) {
+      filteredPlayers = filteredPlayers.filter(
+        (p) => p.client_version === options.filter.client_version,
+      );
+    }
 
     if (options?.filter?.status) {
       return filteredPlayers.filter((p) =>

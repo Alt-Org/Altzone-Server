@@ -62,6 +62,21 @@ export class BattleQueueService {
 
     if (filterErrors) return [null, filterErrors];
 
+    const firstVersion = validPlayers[0].client_version;
+    const hasVersionMismatch = validPlayers.some(p => p.client_version !== firstVersion);
+
+    if (hasVersionMismatch) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
+            message: 'Version mismatch: Players in queue have different client versions',
+          }),
+        ],
+      ];
+    }
+
     const queueNumbers = validPlayers.map((p) => p.additional.queueNumber);
 
     const queueMax = this.queueNumberMax + 1;
