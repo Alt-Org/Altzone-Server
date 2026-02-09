@@ -70,22 +70,29 @@ describe('OnlinePlayersService.addPlayerOnline() test suite', () => {
       .setStatus(OnlinePlayerStatus.BATTLE_WAIT)
       .build();
     const expectedKey = `${CacheKeys.ONLINE_PLAYERS}:${player1._id}`;
-    const expectedPayload = JSON.stringify(
-      onlinePlayerBuilder
-        .setId(playerToAdd.player_id)
-        .setName(player1.name)
-        .setStatus(playerToAdd.status)
-        .setAdditional({ queueNumber: 0 })
-        .build(),
-    );
+    const builtPlayer = onlinePlayerBuilder
+      .setId(playerToAdd.player_id)
+      .setName(player1.name)
+      .setStatus(playerToAdd.status)
+      .setAdditional({ queueNumber: 0 })
+      .build();
+
+    (builtPlayer as any).client_version = '0.0.0';
+
+    const expectedPayload = JSON.stringify(builtPlayer);
 
     const redisSet = jest.spyOn(redisService, 'set');
 
     await service.addPlayerOnline({
       player_id: player1._id,
       status: OnlinePlayerStatus.BATTLE_WAIT,
+      client_version: '0.0.0',
     });
 
-    expect(redisSet).toHaveBeenCalledWith(expectedKey, expectedPayload, 90);
+    const actualPayloadSent = redisSet.mock.calls[2][1];
+
+    expect(JSON.parse(actualPayloadSent)).toEqual(JSON.parse(expectedPayload));
+
+    expect(redisSet).toHaveBeenCalledWith(expectedKey, expect.any(String), 90);
   });
 });
