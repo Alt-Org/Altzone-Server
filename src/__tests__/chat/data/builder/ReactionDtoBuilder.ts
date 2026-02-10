@@ -21,4 +21,9 @@ export default class ReactionDtoBuilder implements IDataBuilder<ReactionDto> {
     this.base.emoji = emoji;
     return this;
   }
+
+  setSenderId(id: string) {
+    this.base.sender_id = id;
+    return this;
+  }
 }
