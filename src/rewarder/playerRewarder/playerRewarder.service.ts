@@ -91,9 +91,10 @@ export class PlayerRewarder {
     session?: ClientSession,
   ): Promise<IServiceReturn<true>> {
     const [_, errors] = await this.playerService.updateOneById(
-      player_id, 
+      player_id,
       { $inc: { points } },
-      { session });
+      { session },
+    );
 
     if (errors) return [null, errors];
 

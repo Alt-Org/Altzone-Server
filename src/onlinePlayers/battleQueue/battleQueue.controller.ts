@@ -31,10 +31,10 @@ export class BattleQueueController {
   @UniformResponse(null, OnlinePlayerDto)
   async getBattleQueue(@Query('version') clientVersion: string) {
     const queuePlayers = await this.onlinePlayersService.getOnlinePlayers({
-      filter: { 
+      filter: {
         status: [OnlinePlayerStatus.BATTLE_WAIT],
-        client_version: clientVersion 
-      }
+        client_version: clientVersion,
+      },
     });
     return this.service.sortPlayersByQueueNumber(queuePlayers);
   }

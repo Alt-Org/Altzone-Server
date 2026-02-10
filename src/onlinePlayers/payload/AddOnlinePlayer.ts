@@ -24,5 +24,4 @@ export default class AddOnlinePlayer {
    */
   @IsString()
   client_version: string;
-
 }
