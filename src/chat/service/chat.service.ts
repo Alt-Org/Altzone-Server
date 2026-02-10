@@ -18,6 +18,7 @@ import { SEReason } from '../../common/service/basicService/SEReason';
 
 @Injectable()
 export class ChatService {
+  private readonly basicService: BasicService;
   public constructor(
     @InjectModel(ChatMessage.name)
     public readonly model: Model<ChatMessage>,
@@ -25,10 +26,8 @@ export class ChatService {
     this.basicService = new BasicService(model);
   }
 
-  private readonly basicService: BasicService;
-
   /**
-   * Creates a message in database.
+   * Creates a message in the database.
    *
    * @param message - Message data to create.
    * @param options - Optional mongoose ClientSession for transaction support.
@@ -45,11 +44,12 @@ export class ChatService {
   }
 
   /**
-   * Adds an reaction to chat message.
+   * Adds a reaction to the chat message.
    *
    * @param messageId - ID of the message reaction is to.
    * @param playerName - Name of the player who reacted.
    * @param emoji - String representation of the emoji.
+   * @param sender_id - Unique ID of the player reacting.
    * @param options - Optional mongoose ClientSession for transaction support.
    * @returns Message with added reaction.
    */
@@ -57,6 +57,7 @@ export class ChatService {
     messageId: string,
     playerName: string,
     emoji: string,
+    sender_id: string,
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
     const [message, error] =
@@ -68,7 +69,7 @@ export class ChatService {
       (r) => r.playerName !== playerName,
     );
 
-    if (emoji) message.reactions.push({ playerName, emoji });
+    if (emoji) message.reactions.push({ playerName, emoji, sender_id });
 
     const [, updateError] = await this.basicService.updateOneById(
       message._id,
@@ -82,7 +83,7 @@ export class ChatService {
   }
 
   /**
-   * Retrieves messages from database.
+   * Retrieves messages from the database.
    *
    * @param options - Optional mongoose ClientSession for transaction support.
    * @returns An array of chat messages.
@@ -98,7 +99,7 @@ export class ChatService {
   }
 
   /**
-   * Updates a ChatMessage by its _id in DB. The _id field is read-only and must be found from the parameter
+   * Updates a ChatMessage by its _id in the DB. The _id field is read-only and must be found from the parameter
    *
    * @param chat - The data needs to be updated of the ChatMessage.
    * @param options - Optional mongoose ClientSession for transaction support.
