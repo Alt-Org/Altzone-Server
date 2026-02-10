@@ -11,10 +11,8 @@ describe('ChatService.addReaction() test suite', () => {
   const mockSenderId = '60f7c2d9a2d3c7b7e56d01df';
   const reactPlayerName = 'ReactMan420';
 
-  const getInitialChat = () => chatMessageBuilder
-    .setSenderId(new ObjectId())
-    .setReactions([]) 
-    .build();
+  const getInitialChat = () =>
+    chatMessageBuilder.setSenderId(new ObjectId()).setReactions([]).build();
 
   beforeEach(async () => {
     chatService = await ChatModule.getChatService();
@@ -45,7 +43,9 @@ describe('ChatService.addReaction() test suite', () => {
 
   it('Should replace previous reaction from the same player', async () => {
     const initialChat = chatMessageBuilder
-      .setReactions([{ playerName: reactPlayerName, emoji: '👍', sender_id: mockSenderId }])
+      .setReactions([
+        { playerName: reactPlayerName, emoji: '👍', sender_id: mockSenderId },
+      ])
       .build();
     const chat = await chatModel.create(initialChat);
 
@@ -64,7 +64,9 @@ describe('ChatService.addReaction() test suite', () => {
 
   it('Should remove reaction if emoji is empty', async () => {
     const initialChat = chatMessageBuilder
-      .setReactions([{ playerName: reactPlayerName, emoji: '👍', sender_id: mockSenderId }])
+      .setReactions([
+        { playerName: reactPlayerName, emoji: '👍', sender_id: mockSenderId },
+      ])
       .build();
     const chat = await chatModel.create(initialChat);
 
