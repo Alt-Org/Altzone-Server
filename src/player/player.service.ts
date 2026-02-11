@@ -23,6 +23,7 @@ import {
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { PlayerEmotion } from '../common/enum/playerEmotion.enum';
 
 @Injectable()
 @AddBasicService()
@@ -247,5 +248,43 @@ export class PlayerService
       update,
     );
     if (updateErrors) throw updateErrors;
+  }
+
+  /**
+   * Checks if the player has already submitted an emotion today.
+   * @param playerId - The unique identifier of the player.
+   * @returns Boolean indicating if an entry for today exists.
+   */
+  async checkIfEmotionSentToday(playerId: string): Promise<boolean> {
+    const player = await this.model.findById(playerId).select('emotions').exec();
+    if (!player || !player.emotions || player.emotions.length === 0) return false;
+
+    const lastEntry = player.emotions[player.emotions.length - 1];
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const entryDate = new Date(lastEntry.date);
+    entryDate.setHours(0, 0, 0, 0);
+
+    return today.getTime() === entryDate.getTime();
+  }
+
+  /**
+   * Adds a new emotion entry for the player if they haven't sent one today.
+   * @param playerId - The unique identifier of the player.
+   * @param emotion - The emotion enum value.
+   * @returns The updated player document or throws BadRequestException.
+   */
+  async addEmotion(playerId: string, emotion: PlayerEmotion) {
+    const isSent = await this.checkIfEmotionSentToday(playerId);
+    
+    if (isSent) {
+      throw new BadRequestException('Emotion for today has already been registered.');
+    }
+
+    return this.updatePlayerById(playerId, {
+      $push: { emotions: { emotion, date: new Date() } }
+    });
   }
 }

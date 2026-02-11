@@ -7,10 +7,13 @@ import {
   Param,
   Post,
   Put,
+  Req
 } from '@nestjs/common';
+import { Request } from 'express';
 import { PlayerService } from './player.service';
 import { CreatePlayerDto } from './dto/createPlayer.dto';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
+import { UpdateEmotionDto } from './dto/updateEmotion.dto';
 import { PlayerDto } from './dto/player.dto';
 import { _idDto } from '../common/dto/_id.dto';
 import { BasicDELETE } from '../common/base/decorator/BasicDELETE.decorator';
@@ -41,19 +44,9 @@ export default class PlayerController {
 
   /**
    * Create a player
-   *
-   * @remarks Create a new Player. This is not recommended way of creating a new Player and it should be used only in edge cases.
-   * The recommended way is to create it via /profile POST endpoint.
-   *
-   * Player is representing an object, which holds data related to game player. This object can be used inside the game for example while joining a Clan.
-   * Notice, that the Profile object should not be used inside the game (except for logging-in).
    */
   @ApiResponseDescription({
-    success: {
-      dto: PlayerDto,
-      modelName: ModelName.PLAYER,
-      status: 201,
-    },
+    success: { dto: PlayerDto, modelName: ModelName.PLAYER, status: 201 },
     errors: [400, 401, 403, 409],
     hasAuth: false,
   })
@@ -65,15 +58,41 @@ export default class PlayerController {
   }
 
   /**
+   * Checks if the authenticated player has already submitted an emotion for the current day.
+   * This is used by the game client on startup to determine if the emotion selection 
+   * popup should be displayed or not.
+   * @param req - The request object containing the authenticated user's data.
+   * @returns An object containing `sentToday` (boolean).
+   */
+  @Get('/emotioncheck')
+  async checkDailyEmotion(@Req() req) {
+    const sentToday = await this.service.checkIfEmotionSentToday(req.user.player_id);
+    return { sentToday };
+  }
+
+  /**
+   * Registers the player's selected emotion for the current day.
+   * This will append the emotion to the player's history. 
+   * @param req - The request object containing the authenticated user's data.
+   * @param body - The DTO containing the selected PlayerEmotion enum value.
+   * @returns The updated player document including the new emotion entry.
+   * @throws BadRequestException - If the player attempts to submit more than once per day.
+   */
+  @Post('/emotion')
+  @UniformResponse(ModelName.PLAYER, PlayerDto)
+  async setDailyEmotion(@Req() req, @Body() body: UpdateEmotionDto) {
+
+    return this.service.addEmotion(req.user.player_id, body.emotion);
+  }
+
+
+  /**
    * Get player by _id
    *
    * @remarks Read Player data by its _id field
    */
   @ApiResponseDescription({
-    success: {
-      dto: PlayerDto,
-      modelName: ModelName.PLAYER,
-    },
+    success: { dto: PlayerDto, modelName: ModelName.PLAYER },
     errors: [400, 401, 404],
   })
   @Get('/:_id')
@@ -88,14 +107,9 @@ export default class PlayerController {
 
   /**
    * Get all players
-   *
-   * @remarks Read all created Players. Remember about the pagination
    */
   @ApiResponseDescription({
-    success: {
-      dto: PlayerDto,
-      modelName: ModelName.PLAYER,
-    },
+    success: { dto: PlayerDto, modelName: ModelName.PLAYER },
     errors: [401, 404],
   })
   @Get()
@@ -109,50 +123,23 @@ export default class PlayerController {
 
   /**
    * Update player
-   * Emit a server event if avatar clothes changed
-   *
-   * @remarks Update the Player, which _id is specified in the body. Only Player, which belong to the logged-in Profile can be changed.
    */
-  @ApiResponseDescription({
-    success: {
-      status: 204,
-    },
-    errors: [401, 403, 404, 409],
-  })
+  @ApiResponseDescription({ success: { status: 204 }, errors: [401, 403, 404, 409] })
   @Put()
   @HttpCode(204)
   @Authorize({ action: Action.update, subject: UpdatePlayerDto })
   @BasicPUT(ModelName.PLAYER)
   public async update(@Body() body: UpdatePlayerDto) {
     const [player, _] = await this.service.getPlayerById(body._id);
-
     const playerUpdateResults = await this.service.updateOneById(body);
-
     await this.emitEventIfAvatarChange(player, body);
-
     return playerUpdateResults;
   }
 
   /**
    * Delete player by _id
-   *
-   * @remarks Delete Player by its _id field. Notice that only Player, which belongs to loggen-in user Profile can be deleted.
-   * In case when the Player is the only admin in some Clan and the Clan has some other Players, the Player can not be removed.
-   * User should be asked to first determine at least one admin for the Clan.
-   *
-   * Also, it is not recommended to delete the Player since it can itroduce unexpected behaviour for the user with Profile,
-   * but without Player. The better way to remove the Player is do it via /profile DELETE.
-   *
-   * Player removal basically means removing all data, which is related to the Player:
-   * CustomCharacters, Clan, except for the Profile data.
-   * In the case when the Profile does not have a Player, user can only login to the system, but can not play the game.
    */
-  @ApiResponseDescription({
-    success: {
-      status: 204,
-    },
-    errors: [400, 401, 403, 404],
-  })
+  @ApiResponseDescription({ success: { status: 204 }, errors: [400, 401, 403, 404] })
   @Delete('/:_id')
   @Authorize({ action: Action.delete, subject: PlayerDto })
   @BasicDELETE(ModelName.PLAYER)
@@ -160,15 +147,7 @@ export default class PlayerController {
     return this.service.deleteOneById(param._id);
   }
 
-  /**
-   * Check if avatar changed and emit event
-   * @param player Current player data
-   * @param body UpdatePlayerDto with new data
-   */
-  private async emitEventIfAvatarChange(
-    player: PlayerDto,
-    body: UpdatePlayerDto,
-  ) {
+  private async emitEventIfAvatarChange(player: PlayerDto, body: UpdatePlayerDto) {
     if (player?.avatar?.clothes !== body?.avatar?.clothes) {
       this.emitterService.EmitNewDailyTaskEvent(
         body._id,
