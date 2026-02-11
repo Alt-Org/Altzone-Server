@@ -85,7 +85,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
   ): Promise<IServiceReturn<ChatMessageDto>> {
-
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
@@ -111,15 +110,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
   ): Promise<IServiceReturn<ChatMessageDto>> {
-    
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
-    const [updatedMessage, error] = await this.clanChatService.handleNewClanReaction(
-      client,
-      reaction,
-      { session },
-    );
+    const [updatedMessage, error] =
+      await this.clanChatService.handleNewClanReaction(client, reaction, {
+        session,
+      });
 
     if (error) return cancelTransaction(session, error);
 
@@ -135,11 +132,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
-    const [newMessage, error] = await this.globalChatService.handleNewGlobalMessage(
-      message,
-      client,
-      { session },
-    );
+    const [newMessage, error] =
+      await this.globalChatService.handleNewGlobalMessage(message, client, {
+        session,
+      });
 
     if (error) return cancelTransaction(session, error);
 
@@ -160,11 +156,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
-    const [updatedMessage, error] = await this.globalChatService.handleNewGlobalReaction(
-      client,
-      reaction,
-      { session },
-    );
+    const [updatedMessage, error] =
+      await this.globalChatService.handleNewGlobalReaction(client, reaction, {
+        session,
+      });
 
     if (error) return cancelTransaction(session, error);
 

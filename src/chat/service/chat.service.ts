@@ -54,35 +54,40 @@ export class ChatService {
    * @returns Message with added reaction.
    */
   async addReaction(
-  messageId: string,
-  playerName: string,
-  emoji: string,
-  sender_id: string,
-  options?: TIServiceUpdateByIdOptions,
+    messageId: string,
+    playerName: string,
+    emoji: string,
+    sender_id: string,
+    options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
+    await this.model.updateOne(
+      { _id: messageId },
+      { $pull: { reactions: { playerName } } },
+      options,
+    );
 
-  await this.model.updateOne(
-    { _id: messageId },
-    { $pull: { reactions: { playerName } } },
-    options
-  );
-  
-  const update = emoji 
-    ? { $push: { reactions: { playerName, emoji, sender_id } } } 
-    : {};
+    const update = emoji
+      ? { $push: { reactions: { playerName, emoji, sender_id } } }
+      : {};
 
-  const updatedDoc = await this.model.findOneAndUpdate(
-    { _id: messageId },
-    update,
-    { new: true, ...options }
-  ).exec();
+    const updatedDoc = await this.model
+      .findOneAndUpdate({ _id: messageId }, update, { new: true, ...options })
+      .exec();
 
-  if (!updatedDoc) {
-    return [null, [new ServiceError({ reason: SEReason.NOT_FOUND, message: 'Msg not found' })]];
+    if (!updatedDoc) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            message: 'Msg not found',
+          }),
+        ],
+      ];
+    }
+
+    return [updatedDoc as unknown as ChatMessageDto, null];
   }
-
-  return [updatedDoc as unknown as ChatMessageDto, null];
-}
 
   /**
    * Retrieves messages from the database.
@@ -97,11 +102,12 @@ export class ChatService {
       ...options,
       populate: [{ path: 'sender' }],
     };
-    const [messages, errors] = await this.basicService.readMany<ChatMessageDto>(opts);
-  
+    const [messages, errors] =
+      await this.basicService.readMany<ChatMessageDto>(opts);
+
     if (errors) return [null, errors];
 
-    const cleanMessages = (messages || []).filter(msg => msg !== null);
+    const cleanMessages = (messages || []).filter((msg) => msg !== null);
 
     return [cleanMessages, null];
   }

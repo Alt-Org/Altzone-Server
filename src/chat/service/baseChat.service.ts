@@ -37,7 +37,6 @@ export abstract class BaseChatService {
     recipients: Set<WebSocketUser>,
     options?: TIServiceCreateOneOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
-    
     const errors = await validate(chatMessage);
 
     if (errors.length > 0) {
@@ -107,7 +106,7 @@ export abstract class BaseChatService {
 
   /**
    * Handles reaction to a chat message.
-   * 
+   *
    * Adds the reaction to the message in DB
    * and broadcasts the updated message.
    * @param client - The WebSocket user who sent the message.
@@ -122,13 +121,12 @@ export abstract class BaseChatService {
     recipients: Set<WebSocketUser>,
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
-
     const [updatedMessage, error] = await this.chatService.addReaction(
       reaction.message_id,
       client.user.name,
       reaction.emoji,
       client.user.playerId,
-      options
+      options,
     );
 
     if (error) {
