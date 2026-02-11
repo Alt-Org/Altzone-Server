@@ -7,7 +7,7 @@ import {
   Param,
   Post,
   Put,
-  Req
+  Req,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { PlayerService } from './player.service';
@@ -59,20 +59,22 @@ export default class PlayerController {
 
   /**
    * Checks if the authenticated player has already submitted an emotion for the current day.
-   * This is used by the game client on startup to determine if the emotion selection 
+   * This is used by the game client on startup to determine if the emotion selection
    * popup should be displayed or not.
    * @param req - The request object containing the authenticated user's data.
    * @returns An object containing `sentToday` (boolean).
    */
   @Get('/emotioncheck')
   async checkDailyEmotion(@Req() req) {
-    const sentToday = await this.service.checkIfEmotionSentToday(req.user.player_id);
+    const sentToday = await this.service.checkIfEmotionSentToday(
+      req.user.player_id,
+    );
     return { sentToday };
   }
 
   /**
    * Registers the player's selected emotion for the current day.
-   * This will append the emotion to the player's history. 
+   * This will append the emotion to the player's history.
    * @param req - The request object containing the authenticated user's data.
    * @param body - The DTO containing the selected PlayerEmotion enum value.
    * @returns The updated player document including the new emotion entry.
@@ -81,10 +83,8 @@ export default class PlayerController {
   @Post('/emotion')
   @UniformResponse(ModelName.PLAYER, PlayerDto)
   async setDailyEmotion(@Req() req, @Body() body: UpdateEmotionDto) {
-
     return this.service.addEmotion(req.user.player_id, body.emotion);
   }
-
 
   /**
    * Get player by _id
@@ -124,7 +124,10 @@ export default class PlayerController {
   /**
    * Update player
    */
-  @ApiResponseDescription({ success: { status: 204 }, errors: [401, 403, 404, 409] })
+  @ApiResponseDescription({
+    success: { status: 204 },
+    errors: [401, 403, 404, 409],
+  })
   @Put()
   @HttpCode(204)
   @Authorize({ action: Action.update, subject: UpdatePlayerDto })
@@ -139,7 +142,10 @@ export default class PlayerController {
   /**
    * Delete player by _id
    */
-  @ApiResponseDescription({ success: { status: 204 }, errors: [400, 401, 403, 404] })
+  @ApiResponseDescription({
+    success: { status: 204 },
+    errors: [400, 401, 403, 404],
+  })
   @Delete('/:_id')
   @Authorize({ action: Action.delete, subject: PlayerDto })
   @BasicDELETE(ModelName.PLAYER)
@@ -147,7 +153,10 @@ export default class PlayerController {
     return this.service.deleteOneById(param._id);
   }
 
-  private async emitEventIfAvatarChange(player: PlayerDto, body: UpdatePlayerDto) {
+  private async emitEventIfAvatarChange(
+    player: PlayerDto,
+    body: UpdatePlayerDto,
+  ) {
     if (player?.avatar?.clothes !== body?.avatar?.clothes) {
       this.emitterService.EmitNewDailyTaskEvent(
         body._id,

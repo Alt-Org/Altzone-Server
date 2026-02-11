@@ -71,14 +71,18 @@ export class Player {
   clanRole_id: string | ObjectId | null;
 
   @Prop({
-  type: [
-    {
-      emotion: { type: String, enum: Object.values(PlayerEmotion), required: true },
-      date: { type: Date, default: Date.now },
-    },
-  ],
-  _id: false,
-  default: [],
+    type: [
+      {
+        emotion: {
+          type: String,
+          enum: Object.values(PlayerEmotion),
+          required: true,
+        },
+        date: { type: Date, default: Date.now },
+      },
+    ],
+    _id: false,
+    default: [],
   })
   emotions?: { emotion: PlayerEmotion; date: Date }[];
 

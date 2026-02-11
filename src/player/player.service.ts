@@ -256,11 +256,15 @@ export class PlayerService
    * @returns Boolean indicating if an entry for today exists.
    */
   async checkIfEmotionSentToday(playerId: string): Promise<boolean> {
-    const player = await this.model.findById(playerId).select('emotions').exec();
-    if (!player || !player.emotions || player.emotions.length === 0) return false;
+    const player = await this.model
+      .findById(playerId)
+      .select('emotions')
+      .exec();
+    if (!player || !player.emotions || player.emotions.length === 0)
+      return false;
 
     const lastEntry = player.emotions[player.emotions.length - 1];
-    
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -278,13 +282,15 @@ export class PlayerService
    */
   async addEmotion(playerId: string, emotion: PlayerEmotion) {
     const isSent = await this.checkIfEmotionSentToday(playerId);
-    
+
     if (isSent) {
-      throw new BadRequestException('Emotion for today has already been registered.');
+      throw new BadRequestException(
+        'Emotion for today has already been registered.',
+      );
     }
 
     return this.updatePlayerById(playerId, {
-      $push: { emotions: { emotion, date: new Date() } }
+      $push: { emotions: { emotion, date: new Date() } },
     });
   }
 }
