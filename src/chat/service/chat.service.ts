@@ -54,33 +54,35 @@ export class ChatService {
    * @returns Message with added reaction.
    */
   async addReaction(
-    messageId: string,
-    playerName: string,
-    emoji: string,
-    sender_id: string,
-    options?: TIServiceUpdateByIdOptions,
+  messageId: string,
+  playerName: string,
+  emoji: string,
+  sender_id: string,
+  options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
-    const [message, error] =
-      await this.basicService.readOneById<ChatMessageDto>(messageId);
 
-    if (error) return [null, error];
+  await this.model.updateOne(
+    { _id: messageId },
+    { $pull: { reactions: { playerName } } },
+    options
+  );
+  
+  const update = emoji 
+    ? { $push: { reactions: { playerName, emoji, sender_id } } } 
+    : {};
 
-    message.reactions = (message.reactions || []).filter(
-      (r) => r.playerName !== playerName,
-    );
+  const updatedDoc = await this.model.findOneAndUpdate(
+    { _id: messageId },
+    update,
+    { new: true, ...options }
+  ).exec();
 
-    if (emoji) message.reactions.push({ playerName, emoji, sender_id });
-
-    const [, updateError] = await this.basicService.updateOneById(
-      message._id,
-      message,
-      options,
-    );
-
-    if (updateError) return [null, updateError];
-
-    return [message, null];
+  if (!updatedDoc) {
+    return [null, [new ServiceError({ reason: SEReason.NOT_FOUND, message: 'Msg not found' })]];
   }
+
+  return [updatedDoc as unknown as ChatMessageDto, null];
+}
 
   /**
    * Retrieves messages from the database.
@@ -95,7 +97,13 @@ export class ChatService {
       ...options,
       populate: [{ path: 'sender' }],
     };
-    return await this.basicService.readMany<ChatMessageDto>(opts);
+    const [messages, errors] = await this.basicService.readMany<ChatMessageDto>(opts);
+  
+    if (errors) return [null, errors];
+
+    const cleanMessages = (messages || []).filter(msg => msg !== null);
+
+    return [cleanMessages, null];
   }
 
   /**
