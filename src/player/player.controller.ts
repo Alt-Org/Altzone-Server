@@ -44,6 +44,12 @@ export default class PlayerController {
 
   /**
    * Create a player
+   * 
+   * @remarks Create a new Player. This is not recommended way of creating a new Player and it should be used only in edge cases.
+   * The recommended way is to create it via /profile POST endpoint.
+   *
+   * Player is representing an object, which holds data related to game player. This object can be used inside the game for example while joining a Clan.
+   * Notice, that the Profile object should not be used inside the game (except for logging-in).
    */
   @ApiResponseDescription({
     success: { dto: PlayerDto, modelName: ModelName.PLAYER, status: 201 },
@@ -107,6 +113,8 @@ export default class PlayerController {
 
   /**
    * Get all players
+   * 
+   * @remarks Read all created Players. Remember about the pagination.
    */
   @ApiResponseDescription({
     success: { dto: PlayerDto, modelName: ModelName.PLAYER },
@@ -123,6 +131,9 @@ export default class PlayerController {
 
   /**
    * Update player
+   * * Emit a server event if avatar clothes changed
+   * @remarks Update the Player, which _id is specified in the body. 
+   * Only Player, which belong to the logged-in Profile can be changed.
    */
   @ApiResponseDescription({
     success: { status: 204 },
@@ -141,6 +152,16 @@ export default class PlayerController {
 
   /**
    * Delete player by _id
+   * @remarks Delete Player by its _id field. Notice that only Player, which belongs to a logged-in user Profile can be deleted.
+   * In case when the Player is the only admin in some Clan and the Clan has some other Players, the Player can not be removed.
+   * User should be asked to first determine at least one admin for the Clan.
+   *
+   * Also, it is not recommended to delete the Player since it can introduce unexpected behaviour for the user with Profile,
+   * but without Player. The better way to remove the Player is do it via /profile DELETE.
+   *
+   * Player removal basically means removing all data, which is related to the Player:
+   * CustomCharacters, Clan, except for the Profile data.
+   * In the case when the Profile does not have a Player, user can only login to the system, but can not play the game.
    */
   @ApiResponseDescription({
     success: { status: 204 },
@@ -153,6 +174,11 @@ export default class PlayerController {
     return this.service.deleteOneById(param._id);
   }
 
+  /**
+   * Check if avatar changed and emit event
+   * @param player Current player data
+   * @param body UpdatePlayerDto with new data
+   */
   private async emitEventIfAvatarChange(
     player: PlayerDto,
     body: UpdatePlayerDto,
