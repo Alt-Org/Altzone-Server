@@ -1,4 +1,5 @@
 import {
+  Allow,
   IsEnum,
   IsMongoId,
   IsNotEmpty,
@@ -28,7 +29,8 @@ export class CreateChatMessageDto {
    *
    * @example "60f7c2d9a2d3c7b7e56d01df"
    */
-  @IsMongoId()
+  @IsNotEmpty()
+  @Allow()
   sender_id: string | ObjectId;
 
   /**
@@ -50,8 +52,8 @@ export class CreateChatMessageDto {
    */
   @ValidateIf((o) => o.type === ChatType.CLAN)
   @IsNotEmpty({ message: 'clan_id must be provided for clan messages' })
-  @IsMongoId()
-  clan_id?: string;
+  @Allow()
+  clan_id?: string | ObjectId;
 
   /**
    * ID of the recipient.
