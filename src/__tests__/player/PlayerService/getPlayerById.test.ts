@@ -45,8 +45,12 @@ describe('PlayerService.getPlayerById() test suite', () => {
     );
 
     expect(errors).toBeNull();
-    expect((player as any).toObject()).toEqual(
-      expect.objectContaining(existingPlayer),
+    expect(player as any).toEqual(
+      expect.objectContaining({
+        ...existingPlayer,
+        updatedAt: expect.any(Date),
+        createdAt: expect.any(Date)
+      }),
     );
   });
 
@@ -90,7 +94,7 @@ describe('PlayerService.getPlayerById() test suite', () => {
 
     expect(errors).toBeNull();
 
-    const { roles: dbRoles, ...clan } = (player.Clan as any).toObject();
+    const { roles: dbRoles, ...clan } = player.Clan;
     const { roles: existingClanRoles, ...clanWithoutRoles } = existingClan;
 
     expect(clan).toEqual(expect.objectContaining(clanWithoutRoles));

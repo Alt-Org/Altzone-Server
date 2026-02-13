@@ -194,6 +194,11 @@ export class TesterAccountService {
       profile_id: profile._id,
       clan_id: null,
       clanRole_id: null,
+      carbonFootprint: 0,
+      clanCoinsAccumulated: 0,
+      playstyle: 'Balanced',
+      classStatistics: new Map(),
+      characterStatistics: new Map(),
     };
 
     return this.playerBasicService.createOne<Omit<Player, '_id'>, Player>(

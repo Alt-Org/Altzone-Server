@@ -13,6 +13,11 @@ export default class PlayerBuilder {
     above13: true,
     parentalAuth: true,
     currentAvatarId: 101,
+    carbonFootprint: 0,
+    clanCoinsAccumulated: 0,
+    playstyle: 'Balanced',
+    classStatistics: new Map(),
+    characterStatistics: new Map(),
     gameStatistics: {
       playedBattles: 0,
       wonBattles: 0,

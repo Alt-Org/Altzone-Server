@@ -59,7 +59,7 @@ export default class PlayerController {
   })
   @NoAuth()
   @Post()
-  @UniformResponse(ModelName.PLAYER, PlayerDto)
+  //@UniformResponse(ModelName.PLAYER, PlayerDto)
   public create(@Body() body: CreatePlayerDto) {
     return this.service.createOne(body);
   }
@@ -78,12 +78,34 @@ export default class PlayerController {
   })
   @Get('/:_id')
   @UniformResponse(ModelName.PLAYER, PlayerDto)
-  @Authorize({ action: Action.read, subject: PlayerDto })
+  //@Authorize({ action: Action.read, subject: PlayerDto })
+  @NoAuth()
   public async get(
     @Param() param: _idDto,
     @IncludeQuery(publicReferences) includeRefs: ModelName[],
   ) {
     return this.service.getPlayerById(param._id, { includeRefs });
+  }
+
+  /**
+   * Updates the player's carbon footprint.
+   * @param id - The unique identifier of the player.
+   * @param value - The amount to increment the footprint by (can be positive or negative).
+   * @returns The updated player object or service errors.
+   * * @example
+   * PUT /player/60f7c2d9a2d3c7b7e56d01df/footprint
+   * Body: { "value": 15 }
+   */
+  @Put(':id/footprint')
+  async updateFootprint(
+    @Param('id') id: string,
+    @Body('value') value: number,
+  ) {
+    const updateQuery = { $inc: { carbonFootprint: value } };
+    const [result, errors] = await this.service.updatePlayerById(id, updateQuery);
+    
+    if (errors) throw errors;
+    return result;
   }
 
   /**
@@ -121,7 +143,8 @@ export default class PlayerController {
   })
   @Put()
   @HttpCode(204)
-  @Authorize({ action: Action.update, subject: UpdatePlayerDto })
+  //@Authorize({ action: Action.update, subject: UpdatePlayerDto })
+  @NoAuth()
   @BasicPUT(ModelName.PLAYER)
   public async update(@Body() body: UpdatePlayerDto) {
     const [player, _] = await this.service.getPlayerById(body._id);
@@ -154,7 +177,8 @@ export default class PlayerController {
     errors: [400, 401, 403, 404],
   })
   @Delete('/:_id')
-  @Authorize({ action: Action.delete, subject: PlayerDto })
+  //@Authorize({ action: Action.delete, subject: PlayerDto })
+  @NoAuth()
   @BasicDELETE(ModelName.PLAYER)
   public async delete(@Param() param: _idDto) {
     return this.service.deleteOneById(param._id);

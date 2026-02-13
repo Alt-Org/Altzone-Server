@@ -36,6 +36,7 @@ describe('PlayerService.readOneById() test suite', () => {
       .setClanId(existingClan._id)
       .build();
     await playerModel.updateOne({ _id: existingPlayer._id }, playerUpdate);
+    existingPlayer.clan_id = existingClan._id;
   });
 
   it('Should find existing player from DB', async () => {
@@ -43,7 +44,11 @@ describe('PlayerService.readOneById() test suite', () => {
 
     const data = resp['data']['Player'].toObject();
 
-    expect(data).toEqual(expect.objectContaining(existingPlayer));
+    expect(data).toEqual(expect.objectContaining({
+  ...existingPlayer,
+  updatedAt: expect.any(Date),
+  createdAt: expect.any(Date),
+  }));
   });
 
   it('Should return null for non-existing player', async () => {

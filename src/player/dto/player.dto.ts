@@ -9,6 +9,17 @@ import { AvatarDto } from './avatar.dto';
 import { Min } from 'class-validator';
 
 @AddType('PlayerDto')
+
+export class StatDetailDto {
+  @Expose()
+  name: string;
+
+  @Expose()
+  gamesPlayed: number;
+
+  @Expose()
+  wins: number;
+}
 export class PlayerDto {
   /**
    * Unique player ID
@@ -144,4 +155,46 @@ export class PlayerDto {
   @ExtractField()
   @Expose()
   clanRole_id?: string;
+
+  /**
+   * Date when the account was created
+   * @example "2024-01-20T12:00:00Z"
+   */
+  @Expose()
+  createdAt?: Date;
+
+  /**
+   * Player playstyle
+   * @example "Aggressive"
+   */
+  @Expose()
+  playstyle?: string;
+
+  /**
+   * Total carbon footprint
+   * @example 450
+   */
+  @Expose()
+  carbonFootprint?: number;
+
+  /**
+   * Amount of coins accumulated for the clan
+   * @example 1500
+   */
+  @Expose()
+  clanCoinsAccumulated?: number;
+
+  /**
+   * Favourite defense class information
+   */
+  @Type(() => StatDetailDto)
+  @Expose()
+  favouriteClass?: StatDetailDto;
+
+  /**
+   * Favourite defence character information
+   */
+  @Type(() => StatDetailDto)
+  @Expose()
+  favouriteCharacter?: StatDetailDto;
 }
