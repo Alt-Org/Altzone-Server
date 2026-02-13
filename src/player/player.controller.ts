@@ -59,7 +59,7 @@ export default class PlayerController {
   })
   @NoAuth()
   @Post()
-  //@UniformResponse(ModelName.PLAYER, PlayerDto)
+  @UniformResponse(ModelName.PLAYER, PlayerDto)
   public create(@Body() body: CreatePlayerDto) {
     return this.service.createOne(body);
   }
@@ -78,8 +78,7 @@ export default class PlayerController {
   })
   @Get('/:_id')
   @UniformResponse(ModelName.PLAYER, PlayerDto)
-  //@Authorize({ action: Action.read, subject: PlayerDto })
-  @NoAuth()
+  @Authorize({ action: Action.read, subject: PlayerDto })
   public async get(
     @Param() param: _idDto,
     @IncludeQuery(publicReferences) includeRefs: ModelName[],
@@ -97,13 +96,13 @@ export default class PlayerController {
    * Body: { "value": 15 }
    */
   @Put(':id/footprint')
-  async updateFootprint(
-    @Param('id') id: string,
-    @Body('value') value: number,
-  ) {
+  async updateFootprint(@Param('id') id: string, @Body('value') value: number) {
     const updateQuery = { $inc: { carbonFootprint: value } };
-    const [result, errors] = await this.service.updatePlayerById(id, updateQuery);
-    
+    const [result, errors] = await this.service.updatePlayerById(
+      id,
+      updateQuery,
+    );
+
     if (errors) throw errors;
     return result;
   }
@@ -143,8 +142,7 @@ export default class PlayerController {
   })
   @Put()
   @HttpCode(204)
-  //@Authorize({ action: Action.update, subject: UpdatePlayerDto })
-  @NoAuth()
+  @Authorize({ action: Action.update, subject: UpdatePlayerDto })
   @BasicPUT(ModelName.PLAYER)
   public async update(@Body() body: UpdatePlayerDto) {
     const [player, _] = await this.service.getPlayerById(body._id);
@@ -177,8 +175,7 @@ export default class PlayerController {
     errors: [400, 401, 403, 404],
   })
   @Delete('/:_id')
-  //@Authorize({ action: Action.delete, subject: PlayerDto })
-  @NoAuth()
+  @Authorize({ action: Action.delete, subject: PlayerDto })
   @BasicDELETE(ModelName.PLAYER)
   public async delete(@Param() param: _idDto) {
     return this.service.deleteOneById(param._id);
