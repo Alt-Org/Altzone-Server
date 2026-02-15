@@ -60,11 +60,13 @@ describe('PlayerService.readWithCollections() test suite', () => {
     );
     const data = resp['data']['Player'].toObject();
 
-    expect(data).toEqual(expect.objectContaining({
-      ...existingPlayer,
-      updatedAt: expect.any(Date),
-      createdAt: expect.any(Date)
-    }));
+    expect(data).toEqual(
+      expect.objectContaining({
+        ...existingPlayer,
+        updatedAt: expect.any(Date),
+        createdAt: expect.any(Date),
+      }),
+    );
     expect(data.Clan).toBeUndefined();
   });
 
@@ -75,11 +77,13 @@ describe('PlayerService.readWithCollections() test suite', () => {
     );
     const data = resp['data']['Player'].toObject();
 
-    expect(data).toEqual(expect.objectContaining({
-      ...existingPlayer,
-      updatedAt: expect.any(Date),
-      createdAt: expect.any(Date)
-    }));
+    expect(data).toEqual(
+      expect.objectContaining({
+        ...existingPlayer,
+        updatedAt: expect.any(Date),
+        createdAt: expect.any(Date),
+      }),
+    );
     expect(data.Clan).toBeUndefined();
   });
 

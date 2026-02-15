@@ -44,11 +44,13 @@ describe('PlayerService.readOneById() test suite', () => {
 
     const data = resp['data']['Player'].toObject();
 
-    expect(data).toEqual(expect.objectContaining({
-  ...existingPlayer,
-  updatedAt: expect.any(Date),
-  createdAt: expect.any(Date),
-  }));
+    expect(data).toEqual(
+      expect.objectContaining({
+        ...existingPlayer,
+        updatedAt: expect.any(Date),
+        createdAt: expect.any(Date),
+      }),
+    );
   });
 
   it('Should return null for non-existing player', async () => {

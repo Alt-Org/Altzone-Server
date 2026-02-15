@@ -9,7 +9,6 @@ import { AvatarDto } from './avatar.dto';
 import { Min } from 'class-validator';
 
 @AddType('PlayerDto')
-
 export class StatDetailDto {
   @Expose()
   name: string;

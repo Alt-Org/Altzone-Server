@@ -4,15 +4,19 @@ import { DailyTask } from '../dailyTasks.schema';
 import { Connection, Model } from 'mongoose';
 import BasicService from '../../common/service/basicService/BasicService';
 import { UIDailyTaskData, uiDailyTasks } from './uiDailyTasks';
-import { IServiceReturn, TIServiceDeleteByIdOptions, TIServiceUpdateByIdOptions } from '../../common/service/basicService/IService';
+import {
+  IServiceReturn,
+  TIServiceDeleteByIdOptions,
+  TIServiceUpdateByIdOptions,
+} from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { DailyTaskDto } from '../dto/dailyTask.dto';
 import { UITaskName } from '../enum/uiTaskName.enum';
-import { 
+import {
   cancelTransaction,
-  endTransaction, 
-  initializeSession 
+  endTransaction,
+  initializeSession,
 } from '../../common/function/Transactions';
 
 @Injectable()
@@ -85,10 +89,9 @@ export default class UIDailyTasksService {
     if (!session) return [null, initErrors];
 
     if (isTaskCompleted) {
-      const [_isSuccess, errors] = await this.handleTaskCompletion(
-        task,
-        { session },
-      );
+      const [_isSuccess, errors] = await this.handleTaskCompletion(task, {
+        session,
+      });
       if (errors) return cancelTransaction(session, errors);
 
       const [_, endErrors] = await endTransaction(session);
@@ -100,7 +103,7 @@ export default class UIDailyTasksService {
     const [_isSuccess, updateErrors] = await this.handleTaskAmountUpdate(
       task,
       amount,
-      { session }
+      { session },
     );
 
     if (updateErrors) return cancelTransaction(session, updateErrors);
@@ -161,7 +164,6 @@ export default class UIDailyTasksService {
     decreaseAmount: number,
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<true>> {
-
     const updatedAmount = task.amountLeft - decreaseAmount;
 
     const [_, updateErrors] = await this.basicService.updateOneById(
@@ -186,9 +188,8 @@ export default class UIDailyTasksService {
    */
   private async handleTaskCompletion(
     task: DailyTask,
-    options?: TIServiceDeleteByIdOptions
+    options?: TIServiceDeleteByIdOptions,
   ): Promise<IServiceReturn<true>> {
-
     const [, deletionErrors] = await this.basicService.deleteOneById(
       task._id.toString(),
       options,

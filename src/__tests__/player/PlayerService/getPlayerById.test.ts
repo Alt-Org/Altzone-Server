@@ -49,7 +49,7 @@ describe('PlayerService.getPlayerById() test suite', () => {
       expect.objectContaining({
         ...existingPlayer,
         updatedAt: expect.any(Date),
-        createdAt: expect.any(Date)
+        createdAt: expect.any(Date),
       }),
     );
   });

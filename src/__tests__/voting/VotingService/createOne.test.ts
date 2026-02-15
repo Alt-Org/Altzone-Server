@@ -22,7 +22,7 @@ describe('VotingService.createOne() test suite', () => {
     await votingService.createOne(votingToCreate);
 
     const dbData = await votingModel.findOne({ minPercentage: minPercentage });
-    
+
     expect(dbData).not.toBeNull();
     const dbObject = dbData!.toObject();
     const clearedResp = clearDBRespDefaultFields(dbObject);

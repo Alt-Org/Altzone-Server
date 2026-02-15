@@ -53,7 +53,6 @@ export class GlobalChatService extends BaseChatService {
     client: WebSocketUser,
     options?: TIServiceCreateOneOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
-
     const chatMessage: CreateChatMessageDto = {
       type: ChatType.GLOBAL,
       sender_id: client.user.playerId,
@@ -84,7 +83,6 @@ export class GlobalChatService extends BaseChatService {
     reaction: AddReactionDto,
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
-
     return this.handleNewReaction(
       client,
       reaction,

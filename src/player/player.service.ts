@@ -53,26 +53,38 @@ export class PlayerService
    * @param options - Optional settings for retrieving the player.
    * @returns An PlayerDTO if succeeded or an array of ServiceErrors.
    */
-  async getPlayerById(_id: string, options?: TReadByIdOptions): Promise<[PlayerDto, any]> {
-  const optionsToApply = options;
-  if (options?.includeRefs) {
-    optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
-      this.refsInModel.includes(ref),
+  async getPlayerById(
+    _id: string,
+    options?: TReadByIdOptions,
+  ): Promise<[PlayerDto, any]> {
+    const optionsToApply = options;
+    if (options?.includeRefs) {
+      optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
+        this.refsInModel.includes(ref),
+      );
+    }
+
+    const [player, errors] = await this.basicService.readOneById<PlayerDto>(
+      _id,
+      optionsToApply,
     );
+
+    if (errors || !player) {
+      return [player, errors];
+    }
+
+    const playerObject: any = (player as any).toObject
+      ? (player as any).toObject()
+      : player;
+    playerObject.favouriteClass = this.getFavourite(
+      playerObject['classStatistics'],
+    );
+    playerObject.favouriteCharacter = this.getFavourite(
+      playerObject['characterStatistics'],
+    );
+
+    return [playerObject, null];
   }
-
-  const [player, errors] = await this.basicService.readOneById<PlayerDto>(_id, optionsToApply);
-
-  if (errors || !player) {
-    return [player, errors];
-  }
-
-  const playerObject: any = (player as any).toObject ? (player as any).toObject() : player;
-  playerObject.favouriteClass = this.getFavourite(playerObject['classStatistics']);
-  playerObject.favouriteCharacter = this.getFavourite(playerObject['characterStatistics']);
-
-  return [playerObject, null];
-}
 
   /**
    * This method is used in the LeaderboardService and serves as a replacement
@@ -192,7 +204,9 @@ export class PlayerService
   /**
    * Internal "helper" to calculate the favorite class/character from statistics maps.
    */
-  private getFavourite(statsMap: Map<string, { gamesPlayed: number; wins: number }>): StatDetailDto | undefined {
+  private getFavourite(
+    statsMap: Map<string, { gamesPlayed: number; wins: number }>,
+  ): StatDetailDto | undefined {
     if (!statsMap || statsMap.size === 0) return undefined;
 
     let favoriteKey = '';
