@@ -16,6 +16,7 @@ import {
 } from './IService';
 import ServiceError from './ServiceError';
 import { SEReason } from './SEReason';
+import { ObjectId } from 'mongodb';
 
 /**
  * Provides all basic operations with DB.
@@ -61,7 +62,7 @@ export default class BasicService implements IService {
   }
 
   async readOneById<TOutput = any>(
-    _id: string,
+    _id: string | ObjectId,
     options?: TReadByIdOptions,
   ): Promise<IServiceReturn<TOutput>> {
     try {
@@ -152,7 +153,7 @@ export default class BasicService implements IService {
   }
 
   async updateOneById<TInput = any>(
-    _id: string,
+    _id: string | ObjectId,
     input: TInput,
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<boolean>> {
@@ -247,7 +248,7 @@ export default class BasicService implements IService {
   }
 
   async deleteOneById(
-    _id: string,
+    _id: string | ObjectId,
     options?: TIServiceDeleteByIdOptions,
   ): Promise<IServiceReturn<true>> {
     try {
