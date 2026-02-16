@@ -1,6 +1,5 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsMongoId, IsOptional, IsString } from 'class-validator';
 import { ObjectId } from 'mongodb';
-import { IsMongoIdOrObjectId } from '../decorator/isMongoIdOrObjectId.decorator';
 
 /**
  * DTO for adding reaction to a chat message.
@@ -9,7 +8,7 @@ export class AddReactionDto {
   /**
    * ID of the message reaction is attached to.
    */
-  @IsMongoIdOrObjectId()
+  @IsMongoId()
   message_id: string | ObjectId;
 
   /**

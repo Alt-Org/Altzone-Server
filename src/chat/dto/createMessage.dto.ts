@@ -1,5 +1,6 @@
 import {
   IsEnum,
+  IsMongoId,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -9,7 +10,6 @@ import {
 import { ChatType } from '../enum/chatMessageType.enum';
 import { Feeling } from '../enum/feeling.enum';
 import { ObjectId } from 'mongodb';
-import { IsMongoIdOrObjectId } from '../decorator/isMongoIdOrObjectId.decorator';
 
 export class CreateChatMessageDto {
   constructor(partial: Partial<CreateChatMessageDto>) {
@@ -29,7 +29,7 @@ export class CreateChatMessageDto {
    * @example "60f7c2d9a2d3c7b7e56d01df"
    */
   @IsNotEmpty()
-  @IsMongoIdOrObjectId()
+  @IsMongoId()
   sender_id: string | ObjectId;
 
   /**
@@ -51,7 +51,7 @@ export class CreateChatMessageDto {
    */
   @ValidateIf((o) => o.type === ChatType.CLAN)
   @IsNotEmpty({ message: 'clan_id must be provided for clan messages' })
-  @IsMongoIdOrObjectId()
+  @IsMongoId()
   clan_id?: string | ObjectId;
 
   /**
@@ -62,7 +62,7 @@ export class CreateChatMessageDto {
    */
   @ValidateIf((o) => o.type === ChatType.PRIVATE)
   @IsNotEmpty({ message: 'recipient_id must be provided for private messages' })
-  @IsMongoIdOrObjectId()
+  @IsMongoId()
   recipient_id?: string;
 
   /**
