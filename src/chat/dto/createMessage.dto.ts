@@ -52,7 +52,7 @@ export class CreateChatMessageDto {
   @ValidateIf((o) => o.type === ChatType.CLAN)
   @IsNotEmpty({ message: 'clan_id must be provided for clan messages' })
   @IsMongoId()
-  clan_id?: string | ObjectId;
+  clan_id?: string;
 
   /**
    * ID of the recipient.

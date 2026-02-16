@@ -8,7 +8,6 @@ import {
 } from 'class-validator';
 import { ChatType } from '../enum/chatMessageType.enum';
 import { Feeling } from '../enum/feeling.enum';
-import { ObjectId } from 'mongodb';
 
 export class UpdateChatMessageDto {
   constructor(partial: Partial<UpdateChatMessageDto>) {
@@ -21,7 +20,7 @@ export class UpdateChatMessageDto {
    * @example "60f7c2d9a2d3c7b7e56d01df"
    */
   @IsMongoId()
-  _id: string | ObjectId;
+  _id: string;
 
   /**
    * Specifies the type of the chat message.
@@ -39,7 +38,7 @@ export class UpdateChatMessageDto {
    */
   @IsOptional()
   @IsMongoId()
-  sender_id?: string | ObjectId;
+  sender_id?: string;
 
   /**
    * Text content of the message
@@ -61,7 +60,7 @@ export class UpdateChatMessageDto {
   @ValidateIf((o) => o.type === ChatType.CLAN)
   @IsNotEmpty({ message: 'clan_id must be provided for clan messages' })
   @IsMongoId()
-  clan_id?: string | ObjectId;
+  clan_id?: string;
 
   /**
    * ID of the recipient.
@@ -73,7 +72,7 @@ export class UpdateChatMessageDto {
   @ValidateIf((o) => o.type === ChatType.PRIVATE)
   @IsNotEmpty({ message: 'recipient_id must be provided for private messages' })
   @IsMongoId()
-  recipient_id?: string | ObjectId;
+  recipient_id?: string;
 
   /**
    * Feeling of the message.

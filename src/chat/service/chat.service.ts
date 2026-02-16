@@ -10,12 +10,10 @@ import {
   TIServiceReadManyOptions,
   TIServiceCreateOneOptions,
   TIServiceUpdateByIdOptions,
-  TIServiceReadOneOptions,
 } from '../../common/service/basicService/IService';
 import { UpdateChatMessageDto } from '../dto/updateChatMessage.dto';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
-import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class ChatService {
@@ -55,7 +53,7 @@ export class ChatService {
    * @returns Message with added reaction.
    */
   async addReaction(
-    messageId: string | ObjectId,
+    messageId: string,
     playerName: string,
     emoji: string,
     sender_id: string,
