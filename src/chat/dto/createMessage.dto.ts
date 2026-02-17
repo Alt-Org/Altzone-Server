@@ -28,6 +28,7 @@ export class CreateChatMessageDto {
    *
    * @example "60f7c2d9a2d3c7b7e56d01df"
    */
+  @IsNotEmpty()
   @IsMongoId()
   sender_id: string | ObjectId;
 

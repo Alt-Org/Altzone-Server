@@ -76,13 +76,13 @@ export class ClanChatService extends BaseChatService {
     message: WsMessageBodyDto,
     options?: TIServiceCreateOneOptions,
   ) {
-    const chatMessage: CreateChatMessageDto = {
+    const chatMessage = new CreateChatMessageDto({
       type: ChatType.CLAN,
       clan_id: client.user.clanId,
       sender_id: client.user.playerId,
       content: message.content,
       feeling: message.feeling,
-    };
+    });
 
     const recipients = this.clanRooms.get(client.user?.clanId);
     return this.handleNewMessage(
