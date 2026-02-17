@@ -25,8 +25,6 @@ import {
   cancelTransaction,
   endTransaction,
 } from '../common/function/Transactions';
-import { ChatMessageDto } from './dto/chatMessage.dto';
-import { IServiceReturn } from 'src/common/service/basicService/IService';
 
 const apiPort = Number.parseInt(envVars.PORT, 10);
 
