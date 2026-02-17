@@ -8,7 +8,6 @@ import {
 } from 'class-validator';
 import { ChatType } from '../enum/chatMessageType.enum';
 import { Feeling } from '../enum/feeling.enum';
-import { ObjectId } from 'mongodb';
 
 export class UpdateChatMessageDto {
   constructor(partial: Partial<UpdateChatMessageDto>) {
@@ -39,7 +38,7 @@ export class UpdateChatMessageDto {
    */
   @IsOptional()
   @IsMongoId()
-  sender_id?: string | ObjectId;
+  sender_id?: string;
 
   /**
    * Text content of the message

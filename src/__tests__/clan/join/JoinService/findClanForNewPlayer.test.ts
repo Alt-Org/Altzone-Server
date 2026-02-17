@@ -31,13 +31,15 @@ describe('JoinService.findClanForNewPlayer() test suite', () => {
     expect(updatedPlayer.clan_id.toString()).toEqual(clan._id);
   });
 
-  it('should not join player to clan if no open clan with room is found', async () => {
+  it('should create an AUTO clan and join the player if no open clan with room is found', async () => {
     const playerResp = await playerModel.create(player);
     player._id = playerResp._id.toString();
 
     await joinService.findClanForNewPlayer(player._id);
 
     const updatedPlayer = await playerModel.findById(player._id);
-    expect(updatedPlayer.clan_id).toBeUndefined();
+    expect(updatedPlayer.clan_id).toBeDefined();
+    const clan = await clanModel.findById(updatedPlayer.clan_id);
+    expect(clan.tag).toBe('AUTO');
   });
 });

@@ -201,6 +201,13 @@ export const CharacterBaseStats: Record<CharacterId, Stats> = {
     attack: 3,
     speed: 6,
   },
+  [CharacterId.Shopping_507]: {
+    defence: 8,
+    hp: 5,
+    size: 8,
+    attack: 3,
+    speed: 6,
+  },
 
   [CharacterId.SoulSisters_601]: {
     defence: 9,
