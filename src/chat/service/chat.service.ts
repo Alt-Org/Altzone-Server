@@ -94,7 +94,14 @@ export class ChatService {
       ...options,
       populate: [{ path: 'sender' }],
     };
-    return await this.basicService.readMany<ChatMessageDto>(opts);
+    const [messages, errors] =
+      await this.basicService.readMany<ChatMessageDto>(opts);
+
+    if (errors) return [null, errors];
+
+    const cleanMessages = (messages || []).filter((msg) => msg !== null);
+
+    return [cleanMessages, null];
   }
 
   /**
