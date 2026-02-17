@@ -59,33 +59,26 @@ export class ChatService {
     sender_id: string,
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
-    await this.model.updateOne(
-      { _id: messageId },
-      { $pull: { reactions: { playerName } } },
+    const [message, error] =
+      await this.basicService.readOneById<ChatMessageDto>(messageId);
+
+    if (error) return [null, error];
+
+    message.reactions = (message.reactions || []).filter(
+      (r) => r.playerName !== playerName,
+    );
+
+    if (emoji) message.reactions.push({ playerName, emoji, sender_id });
+
+    const [, updateError] = await this.basicService.updateOneById(
+      message._id,
+      message,
       options,
     );
 
-    const update = emoji
-      ? { $push: { reactions: { playerName, emoji, sender_id } } }
-      : {};
+    if (updateError) return [null, updateError];
 
-    const updatedDoc = await this.model
-      .findOneAndUpdate({ _id: messageId }, update, { new: true, ...options })
-      .exec();
-
-    if (!updatedDoc) {
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            message: 'Msg not found',
-          }),
-        ],
-      ];
-    }
-
-    return [updatedDoc as unknown as ChatMessageDto, null];
+    return [message, null];
   }
 
   /**
