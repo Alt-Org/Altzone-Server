@@ -20,6 +20,7 @@ import BasicService from '../../common/service/basicService/BasicService';
 import { CharacterBaseStats } from './const/CharacterBaseStats';
 import { UpdateCustomCharacterDto } from './dto/updateCustomCharacter.dto';
 import { ObjectId } from 'mongodb';
+import { NewCharacterBase } from './const/NewCharacterBase';
 
 @Injectable()
 export class CustomCharacterService {
@@ -41,6 +42,8 @@ export class CustomCharacterService {
   /**
    * Creates a new CustomCharacter in DB.
    *
+   * Base stats are added to deltas stored in DB before returning.
+   *
    * @param customCharacterToCreate  custom character data to create
    * @param owner_id player _id, which will own the character
    *
@@ -56,18 +59,22 @@ export class CustomCharacterService {
       return [null, characterValidationErrors];
     }
 
-    const expectedSpecs =
-      CharacterBaseStats[customCharacterToCreate.characterId];
-
     const newCharacter: CustomCharacter = {
-      ...expectedSpecs,
+      ...NewCharacterBase,
       ...customCharacterToCreate,
       player_id: owner_id as any,
     };
 
-    return this.basicService.createOne<CustomCharacter, CustomCharacter>(
-      newCharacter,
-    );
+    let doc: CustomCharacter | null;
+    let errors: ServiceError[] | null;
+
+    [doc, errors] = await this.basicService.createOne<
+      CustomCharacter,
+      CustomCharacter
+    >(newCharacter);
+
+    if (doc) doc = this.addValues((doc as any).toObject());
+    return [doc, errors];
   };
 
   /**
@@ -132,6 +139,8 @@ export class CustomCharacterService {
   /**
    * Reads a custom character by its _id in DB.
    *
+   * Base stats are added to deltas stored in DB before returning.
+   *
    * @param _id - The Mongo _id of the character to read.
    * @param options - Options for reading the character.
    *
@@ -159,11 +168,23 @@ export class CustomCharacterService {
       optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
         this.refsInModel.includes(ref),
       );
-    return this.basicService.readOneById<CustomCharacter>(_id, optionsToApply);
+
+    let doc: CustomCharacter | null;
+    let errors: ServiceError[] | null;
+
+    [doc, errors] = await this.basicService.readOneById<CustomCharacter>(
+      _id,
+      optionsToApply,
+    );
+
+    if (doc) doc = this.addValues((doc as any).toObject());
+    return [doc, errors];
   }
 
   /**
    * Reads a custom character by specified condition.
+   *
+   * Base stats are added to deltas stored in DB before returning.
    *
    * @param options - Options for reading the character.
    *
@@ -190,11 +211,21 @@ export class CustomCharacterService {
       optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
         this.refsInModel.includes(ref),
       );
-    return this.basicService.readOne<CustomCharacter>(optionsToApply);
+
+    let doc: CustomCharacter | null;
+    let errors: ServiceError[] | null;
+
+    [doc, errors] =
+      await this.basicService.readOne<CustomCharacter>(optionsToApply);
+
+    if (doc) doc = this.addValues((doc as any).toObject());
+    return [doc, errors];
   }
 
   /**
    * Reads custom characters from DB with specified configuration.
+   *
+   * Base stats are added to deltas stored in DB before returning.
    *
    * Notice that if the options is undefined or null, or filter option is undefined, null or empty object all custom characters will be returned.
    *
@@ -210,11 +241,21 @@ export class CustomCharacterService {
       optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
         this.refsInModel.includes(ref),
       );
-    return this.basicService.readMany<CustomCharacter>(optionsToApply);
+
+    let docs: CustomCharacter[] | null;
+    let errors: ServiceError[] | null;
+
+    [docs, errors] =
+      await this.basicService.readMany<CustomCharacter>(optionsToApply);
+
+    if (docs) docs = docs.map((doc) => this.addValues((doc as any).toObject()));
+    return [docs, errors];
   };
 
   /**
    * Reads custom characters that player has chosen as a battle characters
+   *
+   * Base stats are added to deltas stored in DB before returning.
    *
    * Notice that if some characters are not found, they will be ignored.
    *
@@ -255,13 +296,38 @@ export class CustomCharacterService {
         ],
       ];
 
-    return this.basicService.readMany({
+    let docs: CustomCharacter[] | null;
+    let errors: ServiceError[] | null;
+
+    [docs, errors] = await this.basicService.readMany({
       filter: {
         player_id: player._id,
         _id: { $in: player.battleCharacter_ids },
       },
     });
+
+    if (docs) docs = docs.map((doc) => this.addValues((doc as any).toObject()));
+    return [docs, errors];
   };
+
+  /**
+   * Sum character stat deltas stored in DB with matching characters base stats
+   *
+   * @param doc - Plain object to add to
+   *
+   * @returns Result with added values
+   */
+  public addValues(doc: CustomCharacter) {
+    const result = { ...doc };
+    const baseStats = CharacterBaseStats[doc.characterId];
+    if (!baseStats) return result;
+
+    for (const [key] of Object.entries(baseStats)) {
+      if (!doc.hasOwnProperty(key)) continue;
+      result[key] = (doc[key] ?? 0) + (baseStats[key] ?? 0);
+    }
+    return result;
+  }
 
   /**
    * Updates a custom character by its _id in DB. The _id field is read-only and is required
@@ -271,8 +337,10 @@ export class CustomCharacterService {
    * @returns _true_ if CustomCharacter was updated successfully, _false_ if nothing was updated for the CustomCharacter,
    * SE REQUIRED if _id is not provided or SE NOT_FOUND if no characters were found
    */
-  async updateOneById(customCharacterToUpdate: UpdateCustomCharacterDto) {
-    const { _id, ...fieldsToUpdate } = customCharacterToUpdate;
+  async updateOneById(
+    customCharacterToUpdate: UpdateCustomCharacterDto,
+  ): Promise<IServiceReturn<boolean>> {
+    const { _id } = customCharacterToUpdate;
 
     if (!_id)
       return [
@@ -286,6 +354,8 @@ export class CustomCharacterService {
           }),
         ],
       ];
+
+    const fieldsToUpdate = this.getFieldsToUpdate(customCharacterToUpdate);
 
     return this.basicService.updateOneById(_id, fieldsToUpdate);
   }
@@ -302,7 +372,7 @@ export class CustomCharacterService {
   async updateOneByCondition(
     customCharacterToUpdate: Partial<CustomCharacter>,
     condition: TIServiceUpdateOneOptions<CustomCharacter>,
-  ) {
+  ): Promise<IServiceReturn<boolean>> {
     if (!customCharacterToUpdate || !condition)
       return [
         null,
@@ -314,12 +384,31 @@ export class CustomCharacterService {
         ],
       ];
 
-    const { _id, ...fieldsToUpdate } = {
-      ...customCharacterToUpdate,
-      _id: null,
-    };
+    const fieldsToUpdate = this.getFieldsToUpdate(customCharacterToUpdate);
 
     return this.basicService.updateOne(fieldsToUpdate, condition);
+  }
+
+  /**
+   * Add key value pairs to correct key, $inc or $set.
+   *
+   * Inc increments existing values in DB, set replaces existing values.
+   *
+   * @param customCharacterToUpdate - Data to updated in DB
+   *
+   * @returns Object with $inc and $set used to update character data in DB
+   */
+  public getFieldsToUpdate(customCharacterToUpdate: Partial<CustomCharacter>) {
+    const stats: string[] = ['defence', 'hp', 'size', 'attack', 'speed'];
+    const $inc: Record<string, number> = {};
+    const $set: Record<string, any> = {};
+
+    for (const [key, value] of Object.entries(customCharacterToUpdate)) {
+      if (key === '_id' || value === undefined) continue;
+      if (stats.includes(key) && typeof value === 'number') $inc[key] = value;
+      else $set[key] = value;
+    }
+    return { $inc, $set };
   }
 
   /**

@@ -41,7 +41,10 @@ describe('CustomCharacterService.updateOneByCondition() test suite', () => {
       existingCharacter._id,
     );
     const clearedCharacter = clearDBRespDefaultFields(updatedCharacter);
-    expect(clearedCharacter).toEqual({ ...existingCharacter, size: newSize });
+    expect(clearedCharacter).toEqual({
+      ...existingCharacter,
+      size: existingCharacter.size + newSize,
+    });
   });
 
   it('Should return ServiceError NOT_FOUND if no characters match the provided filter', async () => {
