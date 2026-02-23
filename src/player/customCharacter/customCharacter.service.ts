@@ -390,13 +390,11 @@ export class CustomCharacterService {
   }
 
   /**
-   * Add key value pairs to correct key, $inc or $set.
-   *
-   * Inc increments existing values in DB, set replaces existing values.
+   * Reduce base stats to get deltas.
    *
    * @param customCharacterToUpdate - Data to updated in DB
    *
-   * @returns Object with $inc and $set used to update character data in DB
+   * @returns Object with $set used to update character data in DB
    */
   public getFieldsToUpdate(customCharacterToUpdate: Partial<CustomCharacter>) {
     const stats: string[] = ['defence', 'hp', 'size', 'attack', 'speed'];
