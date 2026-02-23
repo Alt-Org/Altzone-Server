@@ -43,7 +43,7 @@ describe('CustomCharacterService.updateOneByCondition() test suite', () => {
     const clearedCharacter = clearDBRespDefaultFields(updatedCharacter);
     expect(clearedCharacter).toEqual({
       ...existingCharacter,
-      size: existingCharacter.size + newSize,
+      size: newSize,
     });
   });
 

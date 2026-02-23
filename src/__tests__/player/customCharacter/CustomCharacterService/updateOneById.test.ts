@@ -42,7 +42,7 @@ describe('CustomCharacter.updateOneById() test suite', () => {
     const clearedCharacter = clearDBRespDefaultFields(updatedCharacter);
     expect(clearedCharacter).toEqual({
       ...existingCharacter,
-      size: existingCharacter.size + updatedSize,
+      size: updatedSize,
     });
   });
 

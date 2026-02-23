@@ -400,15 +400,17 @@ export class CustomCharacterService {
    */
   public getFieldsToUpdate(customCharacterToUpdate: Partial<CustomCharacter>) {
     const stats: string[] = ['defence', 'hp', 'size', 'attack', 'speed'];
-    const $inc: Record<string, number> = {};
     const $set: Record<string, any> = {};
+    const base = CharacterBaseStats[customCharacterToUpdate.characterId]
 
     for (const [key, value] of Object.entries(customCharacterToUpdate)) {
-      if (key === '_id' || value === undefined) continue;
-      if (stats.includes(key) && typeof value === 'number') $inc[key] = value;
+      if (key === '_id' || value === undefined) 
+        continue;
+      if (stats.includes(key) && typeof value === 'number')
+        $set[key] = value - (base?.[key] ?? 0)
       else $set[key] = value;
     }
-    return { $inc, $set };
+    return { $set };
   }
 
   /**
