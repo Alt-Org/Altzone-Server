@@ -2,8 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { useContainer, ValidationError } from 'class-validator';
-import { APIError } from './common/controller/APIError';
-import { validationToAPIErrors } from './common/exceptionFilter/ValidationExceptionFilter';
 import EnvHandler from './common/service/envHandler/envHandler';
 import cookieParser from 'cookie-parser';
 import SwaggerInitializer from './common/swagger/swaggerInitializer';
@@ -56,15 +54,34 @@ bootstrap();
  * @returns bad request exception
  */
 function errorFactory(validationErrors: ValidationError[]) {
-  const apiErrors: APIError[] = [];
-  for (let i = 0, l = validationErrors.length; i < l; i++) {
-    const errors = validationToAPIErrors(validationErrors[i]);
-    apiErrors.push(...errors);
-  }
+  const detailedErrors: any[] = [];
+
+  // Helper function for nested validation errors
+  const shoutAtErrors = (errors: ValidationError[], parentPath = '') => {
+    errors.forEach((error) => {
+
+      const path = parentPath ? `${parentPath}.${error.property}` : error.property;
+
+      if (error.constraints) {
+        detailedErrors.push({
+          field: path,
+          messages: Object.values(error.constraints),
+          receivedValue: error.value,
+        });
+      }
+
+      if (error.children && error.children.length > 0) {
+        shoutAtErrors(error.children, path);
+      }
+    });
+  };
+
+  shoutAtErrors(validationErrors);
 
   return new BadRequestException({
     statusCode: 400,
     error: 'Bad Request',
-    errors: apiErrors,
+    message: 'Validation failed',
+    errors: detailedErrors,
   });
 }
