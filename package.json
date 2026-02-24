@@ -17,7 +17,11 @@
     "test:watch": "jest --watch",
     "test:quiet": "DOTENV_CONFIG_QUIET=true jest",
     "sonar:analize": "docker compose -f sonar_docker-compose.yml up -d && sonar-scanner \\\n  -Dsonar.projectKey=AltzoneLocal \\\n  -Dsonar.sources=. \\\n  -Dsonar.host.url=http://localhost:9000 \\\n  -Dsonar.login=sqp_d0d523f9a2cf5e1e8f7587e0da315df0adc86568 \\\n  && echo \"Remember to stop the sonar server with: \\n docker compose -f sonar_docker-compose.yml down\"\n",
-    "prepare": "husky"
+    "prepare": "husky",
+    "migrate:create": "migrate-mongo create",
+    "migrate:up": "migrate-mongo up",
+    "migrate:down": "migrate-mongo down",
+    "migrate:status": "migrate-mongo status"
   },
   "keywords": [],
   "author": "",
@@ -47,6 +51,7 @@
     "ioredis": "5.8.2",
     "jsonwebtoken": "^9.0.2",
     "lodash": "4.17.21",
+    "migrate-mongo": "^14.0.7",
     "mongodb": "6.20.0",
     "mongoose": "8.19.4",
     "mqtt": "5.14.1",
