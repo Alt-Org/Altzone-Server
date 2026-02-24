@@ -34,13 +34,13 @@ export class CreateChatMessageDto {
 
   /**
    * Text content of the message.
-   * Content must not exceed 64 characters
+   * Content must not exceed 256 characters
    *
    * @example "Let’s meet at Soul Arena!"
    */
   @IsString()
   @IsNotEmpty()
-  @MaxLength(64)
+  @MaxLength(256)
   content: string;
 
   /**
