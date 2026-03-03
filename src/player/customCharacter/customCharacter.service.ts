@@ -62,19 +62,13 @@ export class CustomCharacterService {
     const newCharacter: CustomCharacter = {
       ...NewCharacterBase,
       ...customCharacterToCreate,
-      player_id: owner_id as any,
+      player_id: owner_id,
     };
 
-    let doc: CustomCharacter | null;
-    let errors: ServiceError[] | null;
-
-    [doc, errors] = await this.basicService.createOne<
+    return await this.basicService.createOne<
       CustomCharacter,
       CustomCharacter
     >(newCharacter);
-
-    if (doc) doc = this.addValues((doc as any).toObject());
-    return [doc, errors];
   };
 
   /**
@@ -169,16 +163,14 @@ export class CustomCharacterService {
         this.refsInModel.includes(ref),
       );
 
-    let doc: CustomCharacter | null;
-    let errors: ServiceError[] | null;
-
-    [doc, errors] = await this.basicService.readOneById<CustomCharacter>(
+    const [doc, errors] = await this.basicService.readOneById<CustomCharacter>(
       _id,
       optionsToApply,
     );
 
-    if (doc) doc = this.addValues((doc as any).toObject());
-    return [doc, errors];
+    if (errors || !doc) return [doc, errors];
+
+    return [this.addValues(doc), errors];
   }
 
   /**
@@ -212,14 +204,12 @@ export class CustomCharacterService {
         this.refsInModel.includes(ref),
       );
 
-    let doc: CustomCharacter | null;
-    let errors: ServiceError[] | null;
-
-    [doc, errors] =
+    const [doc, errors] =
       await this.basicService.readOne<CustomCharacter>(optionsToApply);
 
-    if (doc) doc = this.addValues((doc as any).toObject());
-    return [doc, errors];
+    if (errors || !doc) return [doc, errors];
+
+    return [this.addValues(doc), errors];
   }
 
   /**
@@ -242,14 +232,10 @@ export class CustomCharacterService {
         this.refsInModel.includes(ref),
       );
 
-    let docs: CustomCharacter[] | null;
-    let errors: ServiceError[] | null;
-
-    [docs, errors] =
+    const [docs, errors] =
       await this.basicService.readMany<CustomCharacter>(optionsToApply);
 
-    if (docs) docs = docs.map((doc) => this.addValues((doc as any).toObject()));
-    return [docs, errors];
+    return [docs?.map(doc => this.addValues(doc)), errors];
   };
 
   /**
@@ -296,18 +282,14 @@ export class CustomCharacterService {
         ],
       ];
 
-    let docs: CustomCharacter[] | null;
-    let errors: ServiceError[] | null;
-
-    [docs, errors] = await this.basicService.readMany({
+    const [docs, errors] = await this.basicService.readMany<CustomCharacter>({
       filter: {
         player_id: player._id,
         _id: { $in: player.battleCharacter_ids },
       },
     });
 
-    if (docs) docs = docs.map((doc) => this.addValues((doc as any).toObject()));
-    return [docs, errors];
+    return [docs?.map(doc => this.addValues(doc)), errors];
   };
 
   /**
@@ -323,10 +305,11 @@ export class CustomCharacterService {
     if (!baseStats) return result;
 
     for (const [key] of Object.entries(baseStats)) {
-      if (!doc.hasOwnProperty(key)) continue;
+      if (!Object.prototype.hasOwnProperty.call(doc, key)) continue;
       result[key] = (doc[key] ?? 0) + (baseStats[key] ?? 0);
     }
-    return result;
+    
+    return result as CustomCharacter;
   }
 
   /**
@@ -402,7 +385,7 @@ export class CustomCharacterService {
     const base = CharacterBaseStats[customCharacterToUpdate.characterId]
 
     for (const [key, value] of Object.entries(customCharacterToUpdate)) {
-      if (key === '_id' || value === undefined) 
+      if (key === '_id' || value === undefined)
         continue;
       if (stats.includes(key) && typeof value === 'number')
         $set[key] = value - (base?.[key] ?? 0)
@@ -441,5 +424,5 @@ export class CustomCharacterService {
   public clearCollectionReferences = async (
     _id: Types.ObjectId,
     _ignoreReferences?: IgnoreReferencesType,
-  ): Promise<void> => {};
+  ): Promise<void> => { };
 }
