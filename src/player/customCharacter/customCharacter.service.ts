@@ -173,7 +173,7 @@ export class CustomCharacterService {
 
     if (errors || !doc) return [doc, errors];
 
-    return [this.addValues(doc), errors];
+    return [this.addValues(doc), null];
   }
 
   /**
@@ -212,7 +212,7 @@ export class CustomCharacterService {
 
     if (errors || !doc) return [doc, errors];
 
-    return [this.addValues(doc), errors];
+    return [this.addValues(doc), null];
   }
 
   /**
@@ -238,7 +238,9 @@ export class CustomCharacterService {
     const [docs, errors] =
       await this.basicService.readMany<CustomCharacter>(optionsToApply);
 
-    return [docs?.map(doc => this.addValues(doc)), errors];
+    if (!docs || errors) return [null, errors];
+
+    return [docs?.map(doc => this.addValues(doc)), null];
   };
 
   /**
@@ -292,7 +294,9 @@ export class CustomCharacterService {
       },
     });
 
-    return [docs?.map(doc => this.addValues(doc)), errors];
+    if (!docs || errors) return [null, errors];
+
+    return [docs?.map(doc => this.addValues(doc)), null];
   };
 
   /**
