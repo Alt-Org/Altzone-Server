@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model, Types } from 'mongoose';
+import { Document, Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { RequestHelperService } from '../../requestHelper/requestHelper.service';
 import { IgnoreReferencesType } from '../../common/type/ignoreReferences.type';
@@ -65,10 +65,13 @@ export class CustomCharacterService {
       player_id: owner_id,
     };
 
-    return await this.basicService.createOne<
-      CustomCharacter,
+    const [doc, errors] = await this.basicService.createOne<
       CustomCharacter
     >(newCharacter);
+
+    if (!doc || errors) return [null, errors];
+
+    return [this.addValues(doc), errors];
   };
 
   /**
@@ -295,21 +298,24 @@ export class CustomCharacterService {
   /**
    * Sum character stat deltas stored in DB with matching characters base stats
    *
-   * @param doc - Plain object to add to
+   * @param doc - Document<Customcharacter> or CustomCharacter Object to add to
    *
-   * @returns Result with added values
+   * @returns value of CustomCharacter with updated stats (baseStats + stored Delta)
    */
-  public addValues(doc: CustomCharacter) {
-    const result = { ...doc };
-    const baseStats = CharacterBaseStats[doc.characterId];
-    if (!baseStats) return result;
+  public addValues(doc: Document<CustomCharacter> | CustomCharacter): CustomCharacter {
+    const character = 'toObject' in doc ? doc.toObject() : { ...doc };
 
-    for (const [key] of Object.entries(baseStats)) {
-      if (!Object.prototype.hasOwnProperty.call(doc, key)) continue;
-      result[key] = (doc[key] ?? 0) + (baseStats[key] ?? 0);
-    }
-    
-    return result as CustomCharacter;
+    const baseStats = CharacterBaseStats[character.characterId];
+    if (!baseStats) return character;
+
+    const updated = Object.fromEntries(
+      Object.entries(character).map(([key, value]) => [
+        key,
+        key in baseStats ? (value ?? 0) + (baseStats[key] ?? 0) : value,
+      ]),
+    ) as CustomCharacter;
+
+    return updated;
   }
 
   /**
