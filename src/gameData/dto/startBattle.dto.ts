@@ -26,7 +26,7 @@ export class StartBattleDto {
   team2: string[];
 
   /**
-   * Optional custom match ID. If not provided, server generates one.
+   * Optional custom match ID. If these are not provided, the server generates one.
    * @example "match_12345"
    */
   @IsOptional()
