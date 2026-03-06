@@ -1,4 +1,10 @@
-import { IsEnum, IsArray, IsMongoId, IsOptional, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsArray,
+  IsMongoId,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { GameType } from '../enum/gameType.enum';
 
 export class StartBattleDto {

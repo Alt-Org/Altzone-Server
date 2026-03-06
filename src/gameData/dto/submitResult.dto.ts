@@ -1,4 +1,11 @@
-import { IsString, IsInt, IsNotEmpty, Min, Max, IsPositive } from 'class-validator';
+import {
+  IsString,
+  IsInt,
+  IsNotEmpty,
+  Min,
+  Max,
+  IsPositive,
+} from 'class-validator';
 
 export class SubmitResultDto {
   /**
@@ -18,7 +25,7 @@ export class SubmitResultDto {
   duration: number;
 
   /**
-   * The result of the battle. 
+   * The result of the battle.
    * 1 represents a win for Team 1, 2 represents a win for Team 2.
    * @example 1
    */

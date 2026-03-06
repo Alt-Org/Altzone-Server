@@ -43,13 +43,18 @@ export class Game {
   status: BattleStatus;
 
   @Prop({
-    type: [{
-      playerId: { type: MongooseSchema.Types.ObjectId, ref: ModelName.PLAYER },
-      winnerTeam: Number,
-      duration: Number,
-      receivedAt: { type: Date, default: Date.now }
-    }],
-    default: []
+    type: [
+      {
+        playerId: {
+          type: MongooseSchema.Types.ObjectId,
+          ref: ModelName.PLAYER,
+        },
+        winnerTeam: Number,
+        duration: Number,
+        receivedAt: { type: Date, default: Date.now },
+      },
+    ],
+    default: [],
   })
   receivedResults: {
     playerId: string;
@@ -78,12 +83,16 @@ export const GameSchema = SchemaFactory.createForClass(Game);
 
 // Making sure players can't be on both teams at the same time
 GameSchema.pre('validate', function (next) {
-  const t1 = (this.team1 || []).map(id => id.toString());
-  const t2 = (this.team2 || []).map(id => id.toString());
-  
-  const intersection = t1.filter(id => t2.includes(id));
+  const t1 = (this.team1 || []).map((id) => id.toString());
+  const t2 = (this.team2 || []).map((id) => id.toString());
+
+  const intersection = t1.filter((id) => t2.includes(id));
   if (intersection.length > 0) {
-    return next(new Error(`Player ${intersection[0]} cannot be on both teams at the same time`));
+    return next(
+      new Error(
+        `Player ${intersection[0]} cannot be on both teams at the same time`,
+      ),
+    );
   }
   next();
 });

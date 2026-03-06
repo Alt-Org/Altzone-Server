@@ -16,7 +16,7 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
     ClanModule,
     ClanInventoryModule,
     GameEventsHandlerModule,
-    EventEmitterCommonModule
+    EventEmitterCommonModule,
   ],
   providers: [GameDataService],
   controllers: [GameDataController],

@@ -2,14 +2,13 @@ import { BattleResultDto } from '../../../../gameData/dto/battleResult.dto';
 import { RequestType } from '../../../../gameData/enum/requestType.enum';
 
 export class BattleResultDtoBuilder {
-
   private readonly base: any = {
     matchId: 'default-match',
     type: RequestType.RESULT,
     team1: [],
     team2: [],
     duration: 0,
-    result: 0, 
+    result: 0,
     winnerTeam: 0,
   };
 
@@ -40,7 +39,7 @@ export class BattleResultDtoBuilder {
 
   setWinnerTeam(team: number): this {
     this.base.result = team;
-    this.base.winnerTeam = team; 
+    this.base.winnerTeam = team;
     return this;
   }
 

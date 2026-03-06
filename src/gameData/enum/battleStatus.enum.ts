@@ -5,8 +5,8 @@ export enum BattleStatus {
   /** Match is registered and awaiting results from the players. */
   OPEN = 'OPEN',
 
-  /** * Conflicting results detected or 2+ results received. 
-   * Indicates the conflict resolution timer is active. 
+  /** * Conflicting results detected or 2+ results received.
+   * Indicates the conflict resolution timer is active.
    */
   PROCESSING = 'PROCESSING',
 

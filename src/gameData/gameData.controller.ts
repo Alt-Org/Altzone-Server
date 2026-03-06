@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Put, UseGuards, Request } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Put,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { GameDataService } from './gameData.service';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
@@ -72,20 +79,22 @@ export class GameDataController {
 
   @Post('battle/start')
   async startBattle(@Body() startBattleDto: StartBattleDto) {
-  return this.service.registerBattle(startBattleDto);
-}
+    return this.service.registerBattle(startBattleDto);
+  }
 
-@Put('battle/result')
-async submitResult(
-  @LoggedUser() user: User, 
-  @Body() SubmitResultDto: SubmitResultDto
-) {
-  const legacyDto = new BattleResultDto();
-  legacyDto.matchId = SubmitResultDto.matchId;
-  legacyDto.result = SubmitResultDto.result;
-  legacyDto.duration = SubmitResultDto.duration;
-  
-  return this.service.handleBattleResult(legacyDto as BattleResultDto, user.player_id);
-}
+  @Put('battle/result')
+  async submitResult(
+    @LoggedUser() user: User,
+    @Body() SubmitResultDto: SubmitResultDto,
+  ) {
+    const legacyDto = new BattleResultDto();
+    legacyDto.matchId = SubmitResultDto.matchId;
+    legacyDto.result = SubmitResultDto.result;
+    legacyDto.duration = SubmitResultDto.duration;
 
+    return this.service.handleBattleResult(
+      legacyDto as BattleResultDto,
+      user.player_id,
+    );
+  }
 }
