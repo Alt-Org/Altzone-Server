@@ -169,7 +169,7 @@ export default class PlayerController {
     player: PlayerDto,
     body: UpdatePlayerDto,
   ) {
-    if (player?.avatar?.clothes !== body?.avatar?.clothes) {
+    if (player?.avatar?.clothes?.id !== body?.avatar?.clothes?.id) {
       this.emitterService.EmitNewDailyTaskEvent(
         body._id,
         ServerTaskName.CHANGE_AVATAR_CLOTHES,
