@@ -200,7 +200,7 @@ export default class ProfileController {
   })
   @Put()
   @Authorize({ action: Action.update, subject: UpdateProfileDto })
-  @BasicPUT(ModelName.PROFILE)
+  @UniformResponse(ModelName.PROFILE)
   public async update(@Body() body: UpdateProfileDto) {
     return this.service.updateOneById(body);
   }
