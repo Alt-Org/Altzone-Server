@@ -77,11 +77,39 @@ export class GameDataController {
     }
   }
 
+  /**
+   * Initialize a new battle record
+   * * @remarks This endpoint is used to register the start of a battle. 
+   * It creates a record in the database with the initial participants and returns the unique match ID.
+   * * This match ID must be stored by the client and used in the `PUT battle/result` call.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 201,
+    },
+    errors: [400, 401],
+  })
   @Post('battle/start')
   async startBattle(@Body() startBattleDto: StartBattleDto) {
     return this.service.registerBattle(startBattleDto);
   }
 
+  /**
+   * Submit player battle result
+   * * @remarks Endpoint for players to report the outcome of a specific match.
+   * * The logic will compare the result with other players in the same matchId. 
+   * If all results match, the battle is finalized and rewards are calculated.
+   * * Notice that if results conflict, the battle status will move to "PROCESSING" 
+   * for further verification.
+   * * @param user - The authenticated player submitting the result.
+   * @param dto - Contains the matchId, winning team, and match duration.
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: BattleResponseDto,
+    },
+    errors: [400, 401, 403, 404],
+  })
   @Put('battle/result')
   async submitResult(
     @LoggedUser() user: User,
