@@ -15,7 +15,6 @@ import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { ProfileDto } from './dto/profile.dto';
 import { BasicGET } from '../common/base/decorator/BasicGET.decorator';
 import { BasicDELETE } from '../common/base/decorator/BasicDELETE.decorator';
-import { BasicPUT } from '../common/base/decorator/BasicPUT.decorator';
 import { ModelName } from '../common/enum/modelName.enum';
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
 import { Action } from '../authorization/enum/action.enum';
@@ -200,7 +199,7 @@ export default class ProfileController {
   })
   @Put()
   @Authorize({ action: Action.update, subject: UpdateProfileDto })
-  @BasicPUT(ModelName.PROFILE)
+  @UniformResponse(ModelName.PROFILE)
   public async update(@Body() body: UpdateProfileDto) {
     return this.service.updateOneById(body);
   }

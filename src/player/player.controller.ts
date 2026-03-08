@@ -14,7 +14,6 @@ import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { PlayerDto } from './dto/player.dto';
 import { _idDto } from '../common/dto/_id.dto';
 import { BasicDELETE } from '../common/base/decorator/BasicDELETE.decorator';
-import { BasicPUT } from '../common/base/decorator/BasicPUT.decorator';
 import { ModelName } from '../common/enum/modelName.enum';
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
 import { Authorize } from '../authorization/decorator/Authorize';
@@ -31,6 +30,7 @@ import ApiResponseDescription from '../common/swagger/response/ApiResponseDescri
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { isEqual } from 'lodash';
+import { MongooseError } from 'mongoose';
 
 @Controller('player')
 export default class PlayerController {
@@ -122,7 +122,7 @@ export default class PlayerController {
   @Put()
   @HttpCode(204)
   @Authorize({ action: Action.update, subject: UpdatePlayerDto })
-  @BasicPUT(ModelName.PLAYER)
+  @UniformResponse()
   public async update(@Body() body: UpdatePlayerDto) {
     const [player, _] = await this.service.getPlayerById(body._id);
 
@@ -130,7 +130,8 @@ export default class PlayerController {
 
     await this.emitEventIfAvatarChange(player, body);
 
-    return playerUpdateResults;
+    if (playerUpdateResults instanceof MongooseError)
+      return playerUpdateResults;
   }
 
   /**
