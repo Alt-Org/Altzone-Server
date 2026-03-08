@@ -1,7 +1,7 @@
 import { IsHexColor, IsOptional, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AvatarPieceDto } from './avatar.dto';
-import AddType from 'src/common/base/decorator/AddType.decorator';
+import AddType from '../../common/base/decorator/AddType.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 
 /**
