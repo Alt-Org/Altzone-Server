@@ -2,9 +2,7 @@ import {
   Body,
   Controller,
   Post,
-  Put,
-  UseGuards,
-  Request,
+  Put
 } from '@nestjs/common';
 import { GameDataService } from './gameData.service';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
@@ -79,7 +77,7 @@ export class GameDataController {
 
   /**
    * Initialize a new battle record
-   * * @remarks This endpoint is used to register the start of a battle. 
+   * * @remarks This endpoint is used to register the start of a battle.
    * It creates a record in the database with the initial participants and returns the unique match ID.
    * * This match ID must be stored by the client and used in the `PUT battle/result` call.
    */
@@ -97,9 +95,9 @@ export class GameDataController {
   /**
    * Submit player battle result
    * * @remarks Endpoint for players to report the outcome of a specific match.
-   * * The logic will compare the result with other players in the same matchId. 
+   * * The logic will compare the result with other players in the same matchId.
    * If all results match, the battle is finalized and rewards are calculated.
-   * * Notice that if results conflict, the battle status will move to "PROCESSING" 
+   * * Notice that if results conflict, the battle status will move to "PROCESSING"
    * for further verification.
    * * @param user - The authenticated player submitting the result.
    * @param dto - Contains the matchId, winning team, and match duration.
