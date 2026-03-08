@@ -72,7 +72,7 @@ export class BattleQueueService {
         null,
         [
           new ServiceError({
-            reason: SEReason.VALIDATION,
+            reason: SEReason.VERSION_MISMATCH,
             message:
               'Version mismatch: Players in queue have different client versions',
           }),
