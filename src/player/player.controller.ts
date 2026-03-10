@@ -7,9 +7,8 @@ import {
   Param,
   Post,
   Put,
-  Req,
+  BadRequestException
 } from '@nestjs/common';
-import { Request } from 'express';
 import { PlayerService } from './player.service';
 import { CreatePlayerDto } from './dto/createPlayer.dto';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
@@ -22,6 +21,8 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
 import { Authorize } from '../authorization/decorator/Authorize';
 import { Action } from '../authorization/enum/action.enum';
+import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
+import { User } from '../auth/user';
 import { OffsetPaginate } from '../common/interceptor/request/offsetPagination.interceptor';
 import { AddSearchQuery } from '../common/interceptor/request/addSearchQuery.interceptor';
 import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
@@ -34,6 +35,8 @@ import ApiResponseDescription from '../common/swagger/response/ApiResponseDescri
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { isEqual } from 'lodash';
+import { IServiceReturn } from '../common/service/basicService/IService';
+import { EmotionCheckDto } from './dto/emotionCheck.dto';
 
 @Controller('player')
 export default class PlayerController {
@@ -64,32 +67,43 @@ export default class PlayerController {
   }
 
   /**
+   * Player emotion check
    * Checks if the authenticated player has already submitted an emotion for the current day.
-   * This is used by the game client on startup to determine if the emotion selection
-   * popup should be displayed or not.
-   * @param req - The request object containing the authenticated user's data.
-   * @returns An object containing `sentToday` (boolean).
    */
+  @ApiResponseDescription({
+    success: { status: 200 },
+    errors: [401, 403, 404],
+  })
   @Get('/emotioncheck')
-  async checkDailyEmotion(@Req() req) {
-    const sentToday = await this.service.checkIfEmotionSentToday(
-      req.user.player_id,
-    );
-    return { sentToday };
+  @Authorize({ action: Action.read, subject: PlayerDto })
+  public async checkDailyEmotion(
+    @LoggedUser() user: User,
+  ): Promise<IServiceReturn<EmotionCheckDto>> {
+    
+    return await this.service.checkIfEmotionSentToday(user.player_id);
   }
 
   /**
-   * Registers the player's selected emotion for the current day.
-   * This will append the emotion to the player's history.
-   * @param req - The request object containing the authenticated user's data.
-   * @param body - The DTO containing the selected PlayerEmotion enum value.
-   * @returns The updated player document including the new emotion entry.
-   * @throws BadRequestException - If the player attempts to submit more than once per day.
-   */
+  * Registers the player's selected emotion for the current day.
+  */
+  @ApiResponseDescription({
+  success: { dto: PlayerDto, modelName: ModelName.PLAYER, status: 201 },
+  errors: [400, 401, 403, 409],
+  })
   @Post('/emotion')
   @UniformResponse(ModelName.PLAYER, PlayerDto)
-  async setDailyEmotion(@Req() req, @Body() body: UpdateEmotionDto) {
-    return this.service.addEmotion(req.user.player_id, body.emotion);
+  @Authorize({ action: Action.create, subject: PlayerDto })
+  public async setDailyEmotion(
+    @LoggedUser() user: User,
+    @Body() body: UpdateEmotionDto,
+  ): Promise<PlayerDto> {
+    const [player, error] = await this.service.addEmotion(user.player_id, body.emotion);
+
+    if (error) {
+      throw new BadRequestException(error[0].message);
+    }
+
+    return player;
   }
 
   /**

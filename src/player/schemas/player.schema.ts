@@ -5,14 +5,10 @@ import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { GameStatistics } from '../gameStatistics.schema';
 import { ObjectId } from 'mongodb';
 import { Avatar, AvatarSchema } from './avatar.schema';
-import { PlayerEmotion } from '../../common/enum/playerEmotion.enum';
+import { PlayerEmotion } from '../enum/playerEmotion.enum';
+import { EmotionDto } from '../dto/emotion.dto';
 
 export type PlayerDocument = HydratedDocument<Player>;
-
-export interface IPlayerEmotion {
-  emotion: PlayerEmotion;
-  date: Date;
-}
 
 @Schema({
   toJSON: { virtuals: true, getters: true },
@@ -84,7 +80,7 @@ export class Player {
     _id: false,
     default: [],
   })
-  emotions?: { emotion: PlayerEmotion; date: Date }[];
+  emotions?: EmotionDto[];
 
   @ExtractField()
   _id: string;

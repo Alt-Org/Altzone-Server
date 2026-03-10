@@ -7,7 +7,7 @@ import { GameStatisticsDto } from './gameStatistics.dto';
 import { TaskDto } from './task.dto';
 import { AvatarDto } from './avatar.dto';
 import { Min } from 'class-validator';
-import { IPlayerEmotion } from '../schemas/player.schema';
+import { EmotionDto } from './emotion.dto';
 
 @AddType('PlayerDto')
 export class PlayerDto {
@@ -149,8 +149,9 @@ export class PlayerDto {
   /**
    * A historical list of emotions recorded by the player on a daily basis.
    * Each entry contains the emotion type and the timestamp of the recording.
-   * @type {IPlayerEmotion[]}
+   * @type {[EmotionDto]}
    */
+  @Type(() => EmotionDto)
   @Expose()
-  emotions?: IPlayerEmotion[];
+  emotions?: EmotionDto[];
 }
