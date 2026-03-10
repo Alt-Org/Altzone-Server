@@ -28,18 +28,19 @@ export class CreateChatMessageDto {
    *
    * @example "60f7c2d9a2d3c7b7e56d01df"
    */
+  @IsNotEmpty()
   @IsMongoId()
   sender_id: string | ObjectId;
 
   /**
    * Text content of the message.
-   * Content must not exceed 64 characters
+   * Content must not exceed 256 characters
    *
    * @example "Let’s meet at Soul Arena!"
    */
   @IsString()
   @IsNotEmpty()
-  @MaxLength(64)
+  @MaxLength(256)
   content: string;
 
   /**
