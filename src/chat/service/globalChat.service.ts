@@ -53,12 +53,12 @@ export class GlobalChatService extends BaseChatService {
     client: WebSocketUser,
     options?: TIServiceCreateOneOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
-    const chatMessage: CreateChatMessageDto = {
+    const chatMessage = new CreateChatMessageDto({
       type: ChatType.GLOBAL,
       sender_id: client.user.playerId,
       content: message.content,
       feeling: message.feeling,
-    };
+    });
 
     return this.handleNewMessage(
       chatMessage,

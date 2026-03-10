@@ -25,8 +25,6 @@ import {
   cancelTransaction,
   endTransaction,
 } from '../common/function/Transactions';
-import { ChatMessageDto } from './dto/chatMessage.dto';
-import { IServiceReturn } from 'src/common/service/basicService/IService';
 
 const apiPort = Number.parseInt(envVars.PORT, 10);
 
@@ -39,7 +37,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly clanChatService: ClanChatService,
     private readonly globalChatService: GlobalChatService,
     private readonly emitterService: EventEmitterService,
-  ) {}
+  ) { }
 
   /**
    * Handles a new WebSocket client connection.
@@ -84,24 +82,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleClanMessage(
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
-  ): Promise<IServiceReturn<ChatMessageDto>> {
-    const [session, initErrors] = await initializeSession(this.connection);
-    if (!session) return [null, initErrors];
+  ) {
+    const [_, error] = await this.clanChatService.handleNewClanMessage(client, message);
 
-    const [newMessage, error] = await this.clanChatService.handleNewClanMessage(
-      client,
-      message,
-      { session },
-    );
-
-    if (error) return await cancelTransaction(session, error);
+    if (error) return [null, error];
 
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
       ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
     );
-
-    return endTransaction(session, newMessage);
   }
 
   @SubscribeMessage('clanMessageReaction')
@@ -109,7 +98,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleClanMessageReaction(
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
-  ): Promise<IServiceReturn<ChatMessageDto>> {
+  ) {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
@@ -120,7 +109,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     if (error) return cancelTransaction(session, error);
 
-    return endTransaction(session, updatedMessage);
+    const [_, endError] = await endTransaction(session, updatedMessage);
+    if (endError) return [null, endError];
   }
 
   @SubscribeMessage('globalMessage')
@@ -128,23 +118,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleGlobalMessage(
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
-  ): Promise<IServiceReturn<ChatMessageDto>> {
-    const [session, initErrors] = await initializeSession(this.connection);
-    if (!session) return [null, initErrors];
+  ) {
+    const [_, error] = await this.globalChatService.handleNewGlobalMessage(message, client);
 
-    const [newMessage, error] =
-      await this.globalChatService.handleNewGlobalMessage(message, client, {
-        session,
-      });
-
-    if (error) return cancelTransaction(session, error);
+    if (error) return [null, error];
 
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
       ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
     );
-
-    return endTransaction(session, newMessage);
   }
 
   @SubscribeMessage('globalMessageReaction')
@@ -152,7 +134,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleGlobalReaction(
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
-  ): Promise<IServiceReturn<ChatMessageDto>> {
+  ) {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
@@ -163,6 +145,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     if (error) return cancelTransaction(session, error);
 
-    return endTransaction(session, updatedMessage);
+    const [_, endError] = await endTransaction(session, updatedMessage);
+    if (endError) return [null, endError];
   }
 }

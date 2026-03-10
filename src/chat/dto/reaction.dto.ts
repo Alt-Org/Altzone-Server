@@ -17,4 +17,11 @@ export class ReactionDto {
    */
   @Expose()
   emoji: string;
+
+  /**
+   * Player id of the user
+   * @example "123456789"
+   */
+  @Expose()
+  sender_id: string;
 }

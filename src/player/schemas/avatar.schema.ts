@@ -1,39 +1,55 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
+const wrapLegacyPiece = (val: any) => {
+  return typeof val === 'number' ? { id: val, color: '#ffffff' } : val;
+};
+
+@Schema({ _id: false })
+export class AvatarPiece {
+  @Prop({ type: Number, required: true })
+  id: number;
+
+  @Prop({ type: String, required: true })
+  color: string;
+}
+
+const AvatarPieceSchema = SchemaFactory.createForClass(AvatarPiece);
+
 @Schema({
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true },
+  toJSON: { virtuals: true, getters: true },
+  toObject: { virtuals: true, getters: true },
   _id: false,
 })
 export class Avatar {
-  @Prop({ type: Number, required: true })
-  head: number;
+  @Prop({ type: AvatarPieceSchema, required: true, get: wrapLegacyPiece })
+  head: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  hair: number;
+  @Prop({ type: AvatarPieceSchema, required: true, get: wrapLegacyPiece })
+  hair: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  eyes: number;
+  @Prop({ type: AvatarPieceSchema, required: true, get: wrapLegacyPiece })
+  eyes: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  nose: number;
+  @Prop({ type: AvatarPieceSchema, required: true, get: wrapLegacyPiece })
+  nose: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  mouth: number;
+  @Prop({ type: AvatarPieceSchema, required: true, get: wrapLegacyPiece })
+  mouth: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  eyebrows: number;
+  @Prop({ type: AvatarPieceSchema, required: true, get: wrapLegacyPiece })
+  eyebrows: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  clothes: number;
+  @Prop({ type: AvatarPieceSchema, required: true, get: wrapLegacyPiece })
+  clothes: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  feet: number;
+  @Prop({ type: AvatarPieceSchema, required: true, get: wrapLegacyPiece })
+  feet: AvatarPiece;
 
-  @Prop({ type: Number, required: true })
-  hands: number;
+  @Prop({ type: AvatarPieceSchema, required: true, get: wrapLegacyPiece })
+  hands: AvatarPiece;
 
   @Prop({ type: String, required: true })
   skinColor: string;
 }
+
 export const AvatarSchema = SchemaFactory.createForClass(Avatar);
