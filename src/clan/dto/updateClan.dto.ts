@@ -22,6 +22,8 @@ import { Language } from '../../common/enum/language.enum';
 import { ClanLogoDto } from './clanLogo.dto';
 import { Type } from 'class-transformer';
 import { StallDto } from './stall.dto';
+import { CreateClanRoleDto } from '../role/dto/createClanRole.dto';
+import { ClanGovernanceUpdate } from '../interface/clanGovernanceUpdate.interface';
 
 @AddType('UpdateClanDto')
 export class UpdateClanDto {
@@ -60,6 +62,14 @@ export class UpdateClanDto {
   @Type(() => ClanLogoDto)
   @IsOptional()
   clanLogo?: ClanLogoDto;
+
+  /**
+   * Governance payload for role and admin updates (fully optional).
+   * Used when an update is processed after a successful vote.
+   */
+  @ValidateNested()
+  @IsOptional()
+  governancePayload?: ClanGovernanceUpdate;
 
   /**
    * Updated labels for the clan (max 5, optional)
@@ -147,6 +157,22 @@ export class UpdateClanDto {
   @IsEnum(Language)
   @IsOptional()
   language?: Language;
+
+  /**
+   * Proposed roles for the clan (optional)
+   * * @example
+   * [
+   * {
+   * "name": "Veteran",
+   * "rights": { "shop": true, "edit_soulhome": true }
+   * }
+   * ]
+   */
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => CreateClanRoleDto)
+  roles?: CreateClanRoleDto[];
 
   /**
    * Clan stall

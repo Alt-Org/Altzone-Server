@@ -53,6 +53,11 @@ import { ExpiredVotingCleanupService } from './expired-voting-cleanup.service';
             schema: BuyClanShopItemVotingSchema,
             value: VotingType.SHOP_BUY_ITEM,
           },
+          {
+            name: 'ClanGovernanceUpdateVoting',
+            schema: VotingSchema,
+            value: VotingType.CLAN_GOVERNANCE_UPDATE,
+          },
         ],
       },
     ]),

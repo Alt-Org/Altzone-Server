@@ -25,7 +25,7 @@ describe('ClanService.updateOne() test suite', () => {
     const newName = 'updatedClan1';
     const updateData = clanUpdateBuilder.setName(newName).build();
 
-    const [wasUpdated, errors] = await clanService.updateOne(updateData, {
+    const [wasUpdated, errors] = await clanService.updateOne(updateData as any, {
       filter,
     });
 
@@ -40,7 +40,7 @@ describe('ClanService.updateOne() test suite', () => {
     const filter = { name: 'non-existing-clan' };
     const updateData = clanUpdateBuilder.setName('newName').build();
 
-    const [wasUpdated, errors] = await clanService.updateOne(updateData, {
+    const [wasUpdated, errors] = await clanService.updateOne(updateData as any, {
       filter,
     });
 
