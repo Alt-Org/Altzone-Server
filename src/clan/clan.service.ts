@@ -1,6 +1,6 @@
 import { CreateClanDto } from './dto/createClan.dto';
 import { UpdateClanDto } from './dto/updateClan.dto';
-import { ClanGovernanceUpdate } from './interface/clanGovernanceUpdate.interface';
+import { ClanGovernanceUpdateDto } from './dto/clanGovernanceUpdate.dto';
 import { deleteNotUniqueArrayElements } from '../common/function/deleteNotUniqueArrayElements';
 import { deleteArrayElements } from '../common/function/deleteArrayElements';
 import { PlayerDto } from '../player/dto/player.dto';
@@ -225,10 +225,10 @@ export class ClanService {
   }
 
   /**
-   * Updates clan data. If the update includes governance-sensitive fields 
+   * Updates clan data. If the update includes governance-sensitive fields
    * (roles or admin changes), it initiates a voting process instead of a direct update.
    * * @param clanToUpdate - DTO containing fields to update.
-   * @param player_id - (Optional) ID of the player requesting the update. 
+   * @param player_id - (Optional) ID of the player requesting the update.
    * Required to initiate a vote.
    * @returns A promise resolving to true if action was successful (or vote started).
    */
@@ -272,7 +272,7 @@ export class ClanService {
 
   /**
    * Performs a direct database update for clan data.
-   * Handles logic for adding/deleting administrators and ensuring 
+   * Handles logic for adding/deleting administrators and ensuring
    * a clan is never left without at least one valid admin.
    * * @param clanToUpdate - DTO containing update data.
    * @returns A promise resolving to the update status.
@@ -362,7 +362,7 @@ export class ClanService {
     if (clanErrors || !clan)
       return await cancelTransaction(session, clanErrors);
 
-    const fieldsToUpdate: ClanGovernanceUpdate = {};
+    const fieldsToUpdate: ClanGovernanceUpdateDto = {};
     if (payload.roles) fieldsToUpdate.roles = payload.roles;
 
     let admin_ids: string[] = clan.admin_ids;
@@ -484,7 +484,7 @@ export class ClanService {
 
   /**
    * Determines if the proposed update requires clan governance (voting).
-   * Governance is required if roles are being modified or if admins are 
+   * Governance is required if roles are being modified or if admins are
    * being added or removed.
    * * @param clanToUpdate - The update DTO to check.
    * @returns True if governance is required, false otherwise.

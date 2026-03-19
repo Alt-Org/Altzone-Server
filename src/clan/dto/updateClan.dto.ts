@@ -23,7 +23,7 @@ import { ClanLogoDto } from './clanLogo.dto';
 import { Type } from 'class-transformer';
 import { StallDto } from './stall.dto';
 import { CreateClanRoleDto } from '../role/dto/createClanRole.dto';
-import { ClanGovernanceUpdate } from '../interface/clanGovernanceUpdate.interface';
+import { ClanGovernanceUpdateDto } from './clanGovernanceUpdate.dto';
 
 @AddType('UpdateClanDto')
 export class UpdateClanDto {
@@ -68,8 +68,9 @@ export class UpdateClanDto {
    * Used when an update is processed after a successful vote.
    */
   @ValidateNested()
+  @Type(() => ClanGovernanceUpdateDto)
   @IsOptional()
-  governancePayload?: ClanGovernanceUpdate;
+  governancePayload?: ClanGovernanceUpdateDto;
 
   /**
    * Updated labels for the clan (max 5, optional)
