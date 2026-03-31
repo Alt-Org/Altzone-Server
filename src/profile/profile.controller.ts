@@ -141,7 +141,7 @@ export default class ProfileController {
     hasAuth: false
   })
   @NoAuth()
-  @Post('securityquestion')
+  @Post('/securityquestion')
   @UniformResponse(ModelName.PROFILE)
   public async getSecurityQuestion(@Body('username') username: string) {
     return this.service.getSecurityQuestion(username)
