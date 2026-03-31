@@ -24,6 +24,10 @@ import { PasswordGenerator } from '../common/function/passwordGenerator';
 import { ObjectId } from 'mongodb';
 import { GuestProfileDto } from './dto/guestProfile.dto';
 import { createHash } from 'crypto';
+import { JwtService } from '@nestjs/jwt';
+import { UpdateProfileDto } from './dto/updateProfile.dto';
+import { RecoveryConstants } from './const/recoveryConst';
+import { FullProfileDto } from './dto/fullProfile.dto';
 
 const ARGON2_CONFIG = {
   type: argon2.argon2id,
@@ -43,6 +47,7 @@ export class ProfileService
     private readonly playerService: PlayerService,
     private readonly requestHelperService: RequestHelperService,
     private readonly passwordGenerator: PasswordGenerator,
+    private readonly jwtService: JwtService,
   ) {
     super();
     this.refsInModel = [ModelName.PLAYER];
@@ -85,6 +90,25 @@ export class ProfileService
     const [hashedPassword, errors] = await this.hashPassword(profile.password);
 
     if (errors) return [null, errors];
+
+    if ((profile.securityQuestion && !profile.securityAnswer) || (!profile.securityQuestion && profile.securityAnswer))
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            message: 'securityQuestion and securityAsnwer are both required',
+          }),
+        ],
+      ];
+
+    if (profile.securityAnswer) {
+      const [hashedAnswer, errors] = await this.hashPassword(profile.securityAnswer);
+
+      if (errors) return [null, errors];
+      
+      profile.securityAnswer = hashedAnswer;
+    }
 
     return this.basicService.createOne<any, ProfileDto>(
       {
@@ -199,5 +223,345 @@ export class ProfileService
     profile.Player = player;
 
     return [profile, null];
+  }
+
+  /**
+   * Get profile securityQuestion
+   * 
+   * @param username - Profile username
+   * @returns securityQuestion
+   */
+  async getSecurityQuestion(
+    username: string
+  ): Promise<IServiceReturn<string>> {
+    if (!username)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            message: 'Method param is required',
+          }),
+        ],
+      ];
+
+    const [profile, errors] = await this.basicService.readOne({ filter: { username } });
+
+    if (errors) return [null, errors];
+
+    if (!profile || !profile.securityQuestion)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            message: 'Security question not available',
+          }),
+        ],
+      ];
+
+    return [profile.securityQuestion, null];
+  }
+
+  /**
+   * Verify profile securityAnswer
+   * 
+   * Verify answer against profile answer.
+   * 
+   * @param username - Profile username 
+   * @param answer - Security answer
+   * @returns If _true_, returns resetToken, else error
+   */
+  async verifySecurityAnswer(
+    username: string, 
+    answer: string
+  ): Promise<IServiceReturn<{ resetToken: string }>> {
+    if (!username || !answer)
+      return this.handleVerifyFailure()
+
+    const [profile, errors] = await this.basicService.readOne({ filter: { username } });
+
+    if (errors) return [null, errors];
+
+    let updatedProfile: FullProfileDto = profile;
+    let updateErrors: ServiceError[];
+    const now = new Date();
+
+    if (profile.recoveryLockedUntil && profile.recoveryLockedUntil <= now) {
+      const update = {
+        $set: { 
+          failedRecoveryAttempts: 0,
+          recoveryLockedUntil: null
+        }
+      };
+
+      [updatedProfile, updateErrors] = await this.basicService.findByIdAndUpdate(profile._id, update);
+
+      if (updateErrors) return [null, updateErrors];
+    }
+
+    if (updatedProfile.recoveryLockedUntil && updatedProfile.recoveryLockedUntil > now)
+      return this.handleVerifyFailure();
+
+    if (!updatedProfile.securityAnswer)
+      return this.handleVerifyFailure();
+
+    let isRight: boolean;
+    try {
+      isRight = await argon2.verify(updatedProfile.securityAnswer, answer);
+    } catch (error) {
+      return this.handleVerifyFailure();
+    }
+
+    if (!isRight)
+      return this.handleFailedAttempt(updatedProfile._id);
+
+    return this.handleSuccessfulAttempt(
+      updatedProfile._id, 
+      updatedProfile.tokenVersion ?? 0
+    );
+  }
+
+  /**
+   * Helper function for verifySecurityAnswer.
+   * 
+   * Increments failedRecoveryAttempts, sets recoveryLockedUntil if count >= max attempts.
+   * 
+   * @param _id - Profile _id
+   * @returns error
+   */
+  private async handleFailedAttempt(
+    _id: string
+  ): Promise<IServiceReturn<null>> {
+    const [updatedProfile, errors] = await this.basicService.findByIdAndUpdate(
+      _id, 
+      { $inc: { failedRecoveryAttempts: 1 } }
+    );
+
+    if (errors) return [null, errors];
+
+    if (updatedProfile.failedRecoveryAttempts >= RecoveryConstants.maxAttempts) {
+      const update = {
+        $set: {
+          recoveryLockedUntil: new Date(
+            Date.now() + RecoveryConstants.lockoutTime
+          )
+        }
+      };
+
+      const [, errors] = await this.basicService.updateOneById(updatedProfile._id, update);
+
+      if (errors) return [null, errors];
+    }
+
+    return this.handleVerifyFailure();
+  }
+
+  /**
+   * Helper function for verifySecurityAnswer
+   * 
+   * Sets failedRecoveryAttempts to 0 and recoveryLockedUntil to null. Generates resetToken.
+   * 
+   * @param _id - Profile _id
+   * @param tokenVersion - Profile tokenVersion, used in token validation
+   * @returns resetToken
+   */
+  private async handleSuccessfulAttempt(
+    _id: string,
+    tokenVersion: number
+  ): Promise<IServiceReturn<{ resetToken: string }>> {
+    const update = {
+      $set: {
+        failedRecoveryAttempts: 0,
+        recoveryLockedUntil: null
+      }
+    };
+
+    const [, errors] = await this.basicService.updateOneById(_id, update);
+
+    if (errors) return [null, errors];
+
+    const payload = {
+      _id,
+      type: "recovery",
+      tokenVersion: tokenVersion
+    };
+
+    const resetToken = {
+      resetToken: await this.jwtService.signAsync(
+        payload, 
+        { expiresIn: RecoveryConstants.tokenTime as any }
+      )
+    };
+
+    return [resetToken, null];
+  }
+
+  /**
+   * Handle verification errors
+   * 
+   * @returns error
+   */
+  private handleVerifyFailure(): IServiceReturn<null> {
+    return [
+      null,
+      [
+        new ServiceError({
+          reason: SEReason.NOT_ALLOWED,
+          message: 'Invalid username or answer',
+        }),
+      ],
+    ];
+  }
+
+  /**
+   * Reset profile password
+   * 
+   * _id, type and tokenVersion are used to validate token
+   * 
+   * @param resetToken - Token required to change password
+   * @param newPassword - New password
+   * @returns If successful, _true_, else errors
+   */
+  async resetPassword(
+    resetToken: string, 
+    newPassword: string
+  ): Promise<IServiceReturn<boolean>> {
+    if (!resetToken || !newPassword)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            message: 'Method params are required',
+          }),
+        ],
+      ];
+
+    let payload: { type: string, _id: string, tokenVersion: number }
+    try {
+      payload = await this.jwtService.verifyAsync(resetToken);
+    } catch (error) {
+      return this.handleTokenFailure();
+    }
+
+    const [profile, readErrors] = await this.basicService.readOneById(payload._id);
+
+    if (readErrors) return [null, readErrors];
+
+    if (payload.type !== "recovery")
+      return this.handleTokenFailure();
+
+    const profileVersion = profile.tokenVersion ?? 0;
+    if (profileVersion !== payload.tokenVersion)
+      return this.handleTokenFailure();
+
+    const [hashedPassword, hashErrors] = await this.hashPassword(newPassword);
+
+    if (hashErrors) return [null, hashErrors];
+
+    const update = { 
+      $set: { 
+        password: hashedPassword,
+        failedRecoveryAttempts: 0,
+        recoveryLockedUntil: null
+      },
+      $inc: {
+        tokenVersion: 1
+      }
+    };
+
+    return this.basicService.updateOneById(payload._id, update);
+  }
+
+  private handleTokenFailure(): IServiceReturn<null> {
+    return [
+      null,
+      [
+        new ServiceError({
+          reason: SEReason.NOT_ALLOWED,
+          message: 'Invalid token',
+        }),
+      ],
+    ];
+  }
+
+  /**
+   * Update profile
+   * 
+   * Replaces deprecated updateOneById
+   * 
+   * @param _id - Id from accessToken.
+   * @param profileToUpdate - Object with fields to update. 
+   * Note that securityQuestion and securityAnswer are required together.
+   * @returns If successful, _true_, else error
+   */
+  async updateProfileById(
+    _id: string,
+    profileToUpdate: UpdateProfileDto
+  ): Promise<IServiceReturn<boolean>> {
+    if (!_id || !profileToUpdate)
+      return [
+        null, 
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            message: 'Method params are required',
+          }),
+        ],
+      ];
+
+    const { 
+      username, 
+      password, 
+      securityQuestion, 
+      securityAnswer 
+    } = profileToUpdate;
+
+    const update: Record<string, any> = { $set: {} };
+
+    if (username)
+      update.$set.username = username;
+
+    if (password) {
+      const [hashedPassword, errors] = await this.hashPassword(password);
+
+      if (errors) return [null, errors];
+      
+      update.$set.password = hashedPassword;
+    }
+
+    if ((securityQuestion && !securityAnswer) || (!securityQuestion && securityAnswer))
+      return [
+        null, 
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            message: 'securityQuestion and securityAnswer are both required',
+          }),
+        ],
+      ];
+
+    if (securityQuestion && securityAnswer) {
+      const [hashedAnswer, errors] = await this.hashPassword(securityAnswer);
+
+      if (errors) return [null, errors];
+      
+      update.$set.securityQuestion = securityQuestion;
+      update.$set.securityAnswer = hashedAnswer;
+    }
+
+    if (Object.keys(update.$set).length === 0)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            message: 'No fields provided for update',
+          }),
+        ],
+      ];
+
+    return this.basicService.updateOneById(_id, update);
   }
 }

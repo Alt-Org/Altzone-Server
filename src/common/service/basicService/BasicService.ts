@@ -246,6 +246,34 @@ export default class BasicService implements IService {
     }
   }
 
+  async findByIdAndUpdate<TInput = any, TOutput = any>(
+    _id: string,
+    input: TInput,
+    options?: TIServiceUpdateByIdOptions,
+  ): Promise<IServiceReturn<TOutput>> {
+    try {
+      const resp = await this.model.findByIdAndUpdate(_id, input, { returnDocument: 'after', options });
+      
+      if (!resp)
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_FOUND,
+              message: 'Could not find any objects with specified id',
+              field: '_id',
+              value: _id,
+            }),
+          ],
+        ];
+
+      return [resp, null];
+    } catch (error) {
+      const errors = convertMongooseToServiceErrors(error);
+      return [null, errors];
+    }
+  }
+
   async deleteOneById(
     _id: string,
     options?: TIServiceDeleteByIdOptions,

@@ -8,6 +8,8 @@ export default class UpdateProfileDtoBuilder
     _id: undefined,
     username: undefined,
     password: undefined,
+    securityQuestion: undefined,
+    securityAnswer: undefined
   };
 
   build(): UpdateProfileDto {
@@ -26,6 +28,16 @@ export default class UpdateProfileDtoBuilder
 
   setPassword(password: string) {
     this.base.password = password;
+    return this;
+  }
+
+  setSecurityQuestion(securityQuestion: string) {
+    this.base.securityQuestion = securityQuestion;
+    return this;
+  }
+
+  setSecurityAnswer(securityAnswer: string) {
+    this.base.securityAnswer = securityAnswer;
     return this;
   }
 }
