@@ -1,7 +1,7 @@
-import { ProfileService } from "src/profile/profile.service";
+import { ProfileService } from '../../../profile/profile.service';
 import ProfileModule from "../modules/profile.module";
 import ProfileBuilderFactory from "../data/profileBuilderFactory";
-import { Profile } from "src/profile/profile.schema";
+import { Profile } from '../../../profile/profile.schema';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 
 describe('ProfileService.updateProfileById() test suite', () => {

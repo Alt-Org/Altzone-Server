@@ -1,8 +1,10 @@
+import { StringValue } from 'ms'
+
 /**
  * Recovery constants
  */
 type RecoveryConstants = {
-  tokenTime: string;
+  tokenTime: StringValue;
   maxAttempts: number;
   lockoutTime: number;
 }

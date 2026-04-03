@@ -27,7 +27,6 @@ import { createHash } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { RecoveryConstants } from './const/recoveryConst';
-import { FullProfileDto } from './dto/fullProfile.dto';
 
 const ARGON2_CONFIG = {
   type: argon2.argon2id,
@@ -97,7 +96,7 @@ export class ProfileService
         [
           new ServiceError({
             reason: SEReason.REQUIRED,
-            message: 'securityQuestion and securityAsnwer are both required',
+            message: 'securityQuestion and securityAsnwer are required together',
           }),
         ],
       ];
@@ -233,7 +232,7 @@ export class ProfileService
    */
   async getSecurityQuestion(
     username: string
-  ): Promise<IServiceReturn<string>> {
+  ): Promise<IServiceReturn<{ securityQuestion: string }>> {
     if (!username)
       return [
         null,
@@ -260,7 +259,7 @@ export class ProfileService
         ],
       ];
 
-    return [profile.securityQuestion, null];
+    return [{ securityQuestion: profile.securityQuestion }, null];
   }
 
   /**
@@ -283,7 +282,7 @@ export class ProfileService
 
     if (errors) return [null, errors];
 
-    let updatedProfile: FullProfileDto = profile;
+    let updatedProfile: Profile = profile;
     let updateErrors: ServiceError[];
     const now = new Date();
 
@@ -295,7 +294,10 @@ export class ProfileService
         }
       };
 
-      [updatedProfile, updateErrors] = await this.basicService.findByIdAndUpdate(profile._id, update);
+      [updatedProfile, updateErrors] = await this.basicService.findByIdAndUpdate<Profile>(
+        profile._id, 
+        update
+      );
 
       if (updateErrors) return [null, updateErrors];
     }
@@ -333,7 +335,7 @@ export class ProfileService
   private async handleFailedAttempt(
     _id: string
   ): Promise<IServiceReturn<null>> {
-    const [updatedProfile, errors] = await this.basicService.findByIdAndUpdate(
+    const [updatedProfile, errors] = await this.basicService.findByIdAndUpdate<Profile>(
       _id, 
       { $inc: { failedRecoveryAttempts: 1 } }
     );
@@ -368,7 +370,7 @@ export class ProfileService
    */
   private async handleSuccessfulAttempt(
     _id: string,
-    tokenVersion: number
+    tokenVersion: Number
   ): Promise<IServiceReturn<{ resetToken: string }>> {
     const update = {
       $set: {
@@ -390,7 +392,7 @@ export class ProfileService
     const resetToken = {
       resetToken: await this.jwtService.signAsync(
         payload, 
-        { expiresIn: RecoveryConstants.tokenTime as any }
+        { expiresIn: RecoveryConstants.tokenTime }
       )
     };
 
@@ -518,7 +520,7 @@ export class ProfileService
       securityAnswer 
     } = profileToUpdate;
 
-    const update: Record<string, any> = { $set: {} };
+    const update: { $set: Partial<UpdateProfileDto> } = { $set: {} };
 
     if (username)
       update.$set.username = username;
@@ -537,7 +539,7 @@ export class ProfileService
         [
           new ServiceError({
             reason: SEReason.REQUIRED,
-            message: 'securityQuestion and securityAnswer are both required',
+            message: 'securityQuestion and securityAsnwer are required together',
           }),
         ],
       ];

@@ -1,4 +1,4 @@
-import { Error, Model } from 'mongoose';
+import { Error, Model, UpdateQuery } from 'mongoose';
 import {
   IService,
   IServiceReturn,
@@ -246,13 +246,13 @@ export default class BasicService implements IService {
     }
   }
 
-  async findByIdAndUpdate<TInput = any, TOutput = any>(
+  async findByIdAndUpdate<T extends object>(
     _id: string,
-    input: TInput,
+    input: UpdateQuery<T>,
     options?: TIServiceUpdateByIdOptions,
-  ): Promise<IServiceReturn<TOutput>> {
+  ): Promise<IServiceReturn<T>> {
     try {
-      const resp = await this.model.findByIdAndUpdate(_id, input, { returnDocument: 'after', options });
+      const resp = await this.model.findByIdAndUpdate(_id, input, { returnDocument: 'after', ...options });
       
       if (!resp)
         return [
