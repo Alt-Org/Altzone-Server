@@ -78,17 +78,17 @@ export default class PlayerController {
   @Authorize({ action: Action.read, subject: PlayerDto })
   public async checkDailyEmotion(
     @LoggedUser() user: User,
-  ): Promise<IServiceReturn<EmotionCheckDto>> {
+  ): Promise<IServiceReturn<boolean>> {
     
     return await this.service.checkIfEmotionSentToday(user.player_id);
   }
 
   /**
-  * Registers the player's selected emotion for the current day.
-  */
+   * Registers the player's selected emotion for the current day.
+   */
   @ApiResponseDescription({
-  success: { dto: PlayerDto, modelName: ModelName.PLAYER, status: 201 },
-  errors: [400, 401, 403, 409],
+    success: { dto: null, modelName: ModelName.PLAYER, status: 204 },
+    errors: [400, 401, 403, 409],
   })
   @Post('/emotion')
   @UniformResponse(ModelName.PLAYER, PlayerDto)
@@ -96,15 +96,14 @@ export default class PlayerController {
   public async setDailyEmotion(
     @LoggedUser() user: User,
     @Body() body: UpdateEmotionDto,
-  ): Promise<PlayerDto> {
-    const [player, error] = await this.service.addEmotion(user.player_id, body.emotion);
+  ): Promise<void> {
+    const [error] = await this.service.addEmotion(user.player_id, body.emotion);
 
     if (error) {
       throw new BadRequestException(error[0].message);
     }
 
-    return player;
-  }
+    }
 
   /**
    * Get player by _id

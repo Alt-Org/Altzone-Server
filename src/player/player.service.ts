@@ -255,32 +255,33 @@ export class PlayerService
   }
 
   /**
-   * Checks if the player has already submitted an emotion today.
-   * @param playerId - The unique identifier of the player.
-   * @returns - A classic tuple setup [boolean, ServiceError[]] indicating if an entry for today exists.
-   */
-  async checkIfEmotionSentToday(playerId: string): Promise<IServiceReturn<EmotionCheckDto>> {
-    const player = await this.model
-      .findById(playerId)
-      .select('emotions')
-      .exec();
+  * Checks if the player has already submitted an emotion today.
+  * @param playerId - The unique identifier of the player.
+  * @returns - A classic tuple setup [boolean, ServiceError[]] indicating if an entry for today exists.
+  */
+  async checkIfEmotionSentToday(playerId: string): Promise<IServiceReturn<boolean>> {
+  const player = await this.model
+    .findById(playerId)
+    .select('emotions')
+    .exec();
 
-    if (!player) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
+  if (!player) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
 
-    const lastEntry = player.emotions[player.emotions.length - 1];
-    
-    const today = new Date().setHours(0, 0, 0, 0);
-    const entryDate = lastEntry ? new Date(lastEntry.date).setHours(0, 0, 0, 0) : null;
+  const lastEntry = player.emotions[player.emotions.length - 1];
+  
+  const today = new Date().setHours(0, 0, 0, 0);
+  const entryDate = lastEntry ? new Date(lastEntry.date).setHours(0, 0, 0, 0) : null;
 
   if (entryDate !== today) {
-    return [new EmotionCheckDto(false, PlayerEmotion.BLANK), null];
+
+    return [false, null];
   }
 
   const emotionValue = lastEntry.emotion as PlayerEmotion;
 
   const isSent = emotionValue !== PlayerEmotion.BLANK;
   
-  return [new EmotionCheckDto(isSent, emotionValue), null];
+  return [isSent, null];
   }
 
   /**
