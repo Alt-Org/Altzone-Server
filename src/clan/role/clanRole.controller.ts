@@ -6,18 +6,20 @@ import { User } from '../../auth/user';
 import HasClanRights from './decorator/guard/HasClanRights';
 import { ClanBasicRight } from './enum/clanBasicRight.enum';
 import ClanRoleDto from './dto/clanRole.dto';
-import ClanRoleService from './clanRole.service';
+import ClanRoleService from './clanRole.service'
 import { CreateClanRoleDto } from './dto/createClanRole.dto';
 import DetermineClanId from '../../common/guard/clanId.guard';
 import { _idDto } from '../../common/dto/_id.dto';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { APIError } from '../../common/controller/APIError';
 import { APIErrorReason } from '../../common/controller/APIErrorReason';
+import { UpdateClanDto } from '../dto/updateClan.dto';
 import { UpdateClanRoleDto } from './dto/updateClanRole.dto';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import SetClanRoleDto from './dto/setClanRole.dto';
 import SwaggerTags from '../../common/swagger/tags/SwaggerTags.decorator';
 import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
+import { PlayerDto } from '../../player/dto/player.dto';
 
 @SwaggerTags('Clan')
 @Controller('clan/role')
@@ -77,6 +79,34 @@ export class ClanRoleController {
   ) {
     const [, errors] = await this.service.updateOneById(body, user.clan_id);
 
+    return this.handleErrorReturnIfFound(errors);
+  }
+
+  /**
+   * Update clan governance.
+   * * @remarks This is the "Heavy" update endpoint. If you are changing the
+   * admin list or the entire roles array, send it here. It will automatically
+   * start a governance vote.
+   */
+  @ApiResponseDescription({
+    success: { status: 202 },
+    errors: [400, 401, 403, 404],
+  })
+  @Put('governance')
+  @HasClanRights([ClanBasicRight.MANAGE_ROLE])
+  @DetermineClanId()
+  @UniformResponse(ModelName.CLAN, ClanRoleDto)
+  public async updateGovernance(
+    @Body() body: UpdateClanDto, 
+    @LoggedUser() user: User
+  ) {
+    const voter = {
+      _id: user.player_id,
+      clan_id: user.clan_id,
+    } as PlayerDto;
+
+    const [, errors] = await this.service.startGovernanceVoting(body, voter);
+    
     return this.handleErrorReturnIfFound(errors);
   }
 

@@ -190,17 +190,15 @@ export class ClanController {
     },
     errors: [400, 401, 403, 404, 409],
   })
-  @Put('/:_id')
+  @Put()
   @DetermineClanId()
   @HasClanRights([ClanBasicRight.EDIT_CLAN_DATA])
   @UniformResponse()
   public async update(
     @Param('_id') _id: string,
     @Body() body: UpdateClanDto,
-    @LoggedUser() user: User
-    ) {
-
-    body._id = _id;
+    @LoggedUser() user: User,
+  ) {
 
     if (user.clan_id.toString() !== body._id.toString())
       return [
@@ -221,7 +219,7 @@ export class ClanController {
     ) {
       body.password = this.passwordGenerator.generatePassword('fi');
     }
-    const [, errors] = await this.service.updateOneById(body, user.player_id);
+    const [, errors] = await this.service.updateOneById(body._id, body);
     if (errors) return [null, errors];
   }
 

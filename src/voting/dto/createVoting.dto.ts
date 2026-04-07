@@ -91,7 +91,7 @@ export class CreateVotingDto {
   price?: number;
 
   /**
-   * Optional "payload" for governance-related voting, 
+   * Optional "payload" for governance-related voting,
    * containing proposed changes to clan roles and administrators.
    *
    * @example {

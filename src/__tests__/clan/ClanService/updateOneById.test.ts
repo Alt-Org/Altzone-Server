@@ -130,12 +130,11 @@ describe('ClanService.updateOneById() test suite', () => {
       .build();
     const admin2Resp = await playerModel.create(admin2Create);
     const admin2 = admin2Resp.toObject();
-
-    const addedAdmins = clanBuilder
-      .setId(existingClan._id)
-      .setAdminIds([admin1._id.toString(), admin2._id.toString()])
-      .build();
-    await clanModel.findByIdAndUpdate(existingClan._id, addedAdmins);
+    
+    await clanModel.findByIdAndUpdate(
+      existingClan._id, 
+      { $set: { admin_ids: [admin1._id.toString(), admin2._id.toString()] } }
+    );
 
     const adminsToDelete = [admin1._id.toString()];
     const updateData = clanUpdateBuilder

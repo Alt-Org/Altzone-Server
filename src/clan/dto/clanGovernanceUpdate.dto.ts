@@ -1,4 +1,9 @@
-import { IsArray, IsOptional, IsMongoId, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsOptional,
+  IsMongoId,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateClanRoleDto } from '../role/dto/createClanRole.dto';
 
