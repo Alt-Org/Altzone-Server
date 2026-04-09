@@ -5,6 +5,8 @@ import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { GameStatistics } from '../gameStatistics.schema';
 import { ObjectId } from 'mongodb';
 import { Avatar, AvatarSchema } from './avatar.schema';
+import { PlayerEmotion } from '../enum/playerEmotion.enum';
+import { EmotionDto } from '../dto/emotion.dto';
 
 export type PlayerDocument = HydratedDocument<Player>;
 
@@ -83,6 +85,22 @@ export class Player {
 
   @Prop({ type: ObjectId, default: null })
   clanRole_id: string | ObjectId | null;
+
+  @Prop({
+    type: [
+      {
+        emotion: {
+          type: String,
+          enum: Object.values(PlayerEmotion),
+          required: true,
+        },
+        date: { type: Date, default: Date.now },
+      },
+    ],
+    _id: false,
+    default: [],
+  })
+  emotions?: EmotionDto[];
 
   @ExtractField()
   _id: string;

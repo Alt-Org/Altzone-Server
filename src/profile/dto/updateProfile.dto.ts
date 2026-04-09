@@ -22,7 +22,7 @@ export class UpdateProfileDto {
   @ApiProperty({ uniqueItems: true })
   @IsString()
   @IsOptional()
-  username: string;
+  username?: string;
 
   /**
    * Updated password (will be hashed before storing)
@@ -31,5 +31,23 @@ export class UpdateProfileDto {
    */
   @IsString()
   @IsOptional()
-  password: string;
+  password?: string;
+
+  /**
+   * Updated securityQuestion
+   *
+   * @example "First pet's name?"
+   */
+  @IsString()
+  @IsOptional()
+  securityQuestion?: string;
+
+  /**
+   * Updated securityAnswer (will be hashed before storing)
+   *
+   * @example "Rover"
+   */
+  @IsString()
+  @IsOptional()
+  securityAnswer?: string;
 }

@@ -20,8 +20,29 @@ export class CreateProfileDto {
    *
    * @example "SecureP@ssw0rd!"
    */
+  @ApiProperty()
   @IsString()
   password: string;
+
+  /**
+   * SecurityQuestion for password recovery
+   *
+   * @example "First pet's name?"
+   */
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  securityQuestion?: string
+
+  /**
+   * SecurityAnswer for password recovery (should be hashed before storing)
+   *
+   * @example "Rover"
+   */
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  securityAnswer?: string
 
   /**
    * Optional player data to associate with this profile

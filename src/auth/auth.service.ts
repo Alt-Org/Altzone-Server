@@ -84,7 +84,16 @@ export class AuthService {
     if (clan)
       profile['Clan'] = { ...clan.toObject(), _id: clan._id.toString() };
 
-    const { password: _p, isSystemAdmin: _a, ...serializedProfile } = profile;
+    const { 
+      password: _p, 
+      isSystemAdmin: _a,
+      securityAnswer: _sa,
+      securityQuestion: _sq,
+      failedRecoveryAttempts: _fra,
+      recoveryLockedUntil: _rlu,
+      tokenVersion: _tv,
+      ...serializedProfile 
+    } = profile;
 
     return {
       ...serializedProfile,

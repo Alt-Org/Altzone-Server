@@ -16,13 +16,18 @@ import {
   PostHookFunction,
 } from '../common/interface/IHookImplementer';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
-import { PlayerDto, StatDetailDto } from './dto/player.dto';
+import { PlayerDto } from './dto/player.dto';
+import { EmotionCheckDto } from './dto/emotionCheck.dto';
 import BasicService from '../common/service/basicService/BasicService';
+import ServiceError from '../common/service/basicService/ServiceError';
+import { SEReason } from '../common/service/basicService/SEReason';
 import {
   TIServiceReadManyOptions,
   TReadByIdOptions,
+  IServiceReturn
 } from '../common/service/basicService/IService';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { PlayerEmotion } from './enum/playerEmotion.enum';
 
 @Injectable()
 @AddBasicService()
@@ -297,4 +302,74 @@ export class PlayerService
     );
     if (updateErrors) throw updateErrors;
   }
-}
+
+  /**
+  * Checks if the player has already submitted an emotion today.
+  * @param playerId - The unique identifier of the player.
+  * @returns - A classic tuple setup [boolean, ServiceError[]] indicating if an entry for today exists.
+  */
+  async checkIfEmotionSentToday(playerId: string): Promise<IServiceReturn<boolean>> {
+  const player = await this.model
+    .findById(playerId)
+    .select('emotions')
+    .exec();
+
+  if (!player) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
+
+  const lastEntry = player.emotions[player.emotions.length - 1];
+  
+  const today = new Date().setHours(0, 0, 0, 0);
+  const entryDate = lastEntry ? new Date(lastEntry.date).setHours(0, 0, 0, 0) : null;
+
+  if (entryDate !== today) {
+
+    return [false, null];
+  }
+
+  const emotionValue = lastEntry.emotion as PlayerEmotion;
+
+  const isSent = emotionValue !== PlayerEmotion.BLANK;
+  
+  return [isSent, null];
+  }
+
+  /**
+   * Registers or updates the player's selected emotion for the current day.
+   * Uses atomic operators via basicService to ensure data integrity and DTO consistency.
+   * * @param playerId - The unique identifier of the player.
+   * @param emotion - The selected emotion enum value.
+   * @returns The updated player data or service errors.
+   */
+    async addEmotion(playerId: string, emotion: PlayerEmotion): Promise<IServiceReturn<PlayerDto>> {
+
+    const [player, errors] = await this.getPlayerById(playerId);
+    if (errors) return [null, errors];
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const index = (player.emotions || []).findIndex((e) => {
+      const entryDate = new Date(e.date);
+      entryDate.setHours(0, 0, 0, 0);
+      return entryDate.getTime() === today.getTime();
+    });
+
+    let updateQuery: UpdateQuery<Player>;
+    if (index > -1) {
+      updateQuery = {
+        $set: {
+          [`emotions.${index}.emotion`]: emotion,
+          [`emotions.${index}.date`]: new Date(),
+        },
+      };
+    } else {
+      updateQuery = {
+        $push: { emotions: { emotion, date: new Date() } },
+      };
+    }
+
+    const [_, updateErrors] = await this.basicService.updateOneById(playerId, updateQuery);
+    if (updateErrors) return [null, updateErrors];
+
+    return this.getPlayerById(playerId);
+  }}
