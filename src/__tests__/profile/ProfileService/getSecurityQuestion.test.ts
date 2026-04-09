@@ -23,7 +23,7 @@ describe('ProfileService.getSecurityQuestion() test suite', () => {
     const profileToCreate = profileBuilder
       .setUsername(username)
       .setSecurityQuestion(question)
-      .build() as CreateProfileDto;
+      .build() as unknown as CreateProfileDto;
 
     await profileService.createOne(profileToCreate);
 
@@ -41,7 +41,7 @@ describe('ProfileService.getSecurityQuestion() test suite', () => {
     const username2 = 'user2';
     const profileToCreate = profileBuilder
       .setUsername(username)
-      .build() as CreateProfileDto;
+      .build() as unknown as CreateProfileDto;
 
     await profileService.createOne(profileToCreate);
 
@@ -56,7 +56,7 @@ describe('ProfileService.getSecurityQuestion() test suite', () => {
    const username = 'user';
     const profileToCreate = profileBuilder
       .setUsername(username)
-      .build() as CreateProfileDto;
+      .build() as unknown as CreateProfileDto;
 
     await profileService.createOne(profileToCreate);
 

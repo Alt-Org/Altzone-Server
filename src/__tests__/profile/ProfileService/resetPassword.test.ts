@@ -37,7 +37,7 @@ describe('ProfileService.resetPassword() test suite', () => {
       .setPassword(password)
       .setSecurityQuestion(question)
       .setSecurityAnswer(answer)
-      .build() as CreateProfileDto;
+      .build() as unknown as CreateProfileDto;
 
     await profileService.createWithHashedPassword(profileToCreate);
 
@@ -56,7 +56,7 @@ describe('ProfileService.resetPassword() test suite', () => {
       .setPassword(password)
       .setSecurityQuestion(question)
       .setSecurityAnswer(answer)
-      .build() as CreateProfileDto;
+      .build() as unknown as CreateProfileDto;
 
     await profileService.createWithHashedPassword(profileToCreate);
 

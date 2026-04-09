@@ -197,7 +197,7 @@ export class PlayerDto {
   @Type(() => StatDetailDto)
   @Expose()
   favouriteCharacter?: StatDetailDto;
-   * A historical list of emotions recorded by the player on a daily basis.
+   /* A historical list of emotions recorded by the player on a daily basis.
    * Each entry contains the emotion type and the timestamp of the recording.
    * @type {[EmotionDto]}
    */
