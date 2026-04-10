@@ -99,7 +99,14 @@ export class FriendshipService {
           friend: {
             _id: friend._id.toString(),
             name: friend.name,
-            avatar: friend.avatar,
+            //return an empty object if the avatar data is in the old format. return null if avatar data is null
+            avatar:
+              friend.avatar === null
+                ? null
+                : typeof friend.avatar === 'object' &&
+                  Object.values(friend.avatar).some(v => typeof v === 'number')
+                ? {}
+                : friend.avatar,
             clan_id: friend.clan_id.toString(),
             clanName: friend.Clan?.name ?? null,
           },
