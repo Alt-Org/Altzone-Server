@@ -104,9 +104,11 @@ export class FriendshipService {
               friend.avatar === null
                 ? null
                 : typeof friend.avatar === 'object' &&
-                  Object.values(friend.avatar).some(v => typeof v === 'number')
-                ? {}
-                : friend.avatar,
+                    Object.values(friend.avatar).some(
+                      (v) => typeof v === 'number',
+                    )
+                  ? {}
+                  : friend.avatar,
             clan_id: friend.clan_id.toString(),
             clanName: friend.Clan?.name ?? null,
           },
