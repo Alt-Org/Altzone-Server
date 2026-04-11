@@ -37,7 +37,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly clanChatService: ClanChatService,
     private readonly globalChatService: GlobalChatService,
     private readonly emitterService: EventEmitterService,
-  ) { }
+  ) {}
 
   /**
    * Handles a new WebSocket client connection.
@@ -83,7 +83,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
-    const [_, error] = await this.clanChatService.handleNewClanMessage(client, message);
+    const [_, error] = await this.clanChatService.handleNewClanMessage(
+      client,
+      message,
+    );
 
     if (error) return [null, error];
 
@@ -119,7 +122,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
-    const [_, error] = await this.globalChatService.handleNewGlobalMessage(message, client);
+    const [_, error] = await this.globalChatService.handleNewGlobalMessage(
+      message,
+      client,
+    );
 
     if (error) return [null, error];
 
