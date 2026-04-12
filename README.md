@@ -34,6 +34,66 @@ Teacher pages https://devapi.altzone.fi/teacher (dev branch)
    npm install
    ```
 
+### Set up the .env file
+
+For this script and repo to work on your local machine, you need create an .env file at the root of your project. This .env file is a custom one, and because of the secrets contained in it, it won't be shown here. Here is the create command, run this at the root of the project in your own terminal: 
+
+   ```shell
+   bash touch .env
+      ```
+Here is an example of a local .env file taken from a working Linux Pop_OS setup, you can get a working one for yourself with the secrets intact when joining yourself:
+
+   ```makefile
+   # --- SERVER SETTINGS ---
+PORT=8080
+JWT_SECRET=
+JWT_EXPIRES=3600
+MIN_GAME_BUILD_VERSION=0.1.0
+
+# --- PASSWORD HASHING (Argon2) ---
+# Optimized for 16GB RAM & i7 Multi-threading
+# 65536 (64MB) is the sweet spot for security vs speed on high-end hardware
+PSW_MEMORY=65536
+PSW_TIME=3
+PSW_PARALLELISM=4
+
+# --- SWAGGER (API DOCS) ---
+SWAGGER_PATH=api
+SWAGGER_USER=
+SWAGGER_PASSWORD=
+
+# --- MONGODB ---
+# Changed from 'db_dev' to 'localhost'
+MONGO_USERNAME=
+MONGO_PASSWORD=
+MONGO_HOST=localhost
+MONGO_PORT=27017
+MONGO_DB_NAME=altzone_dev
+
+# Connection string updated for local machine access
+MONGO_URL=mongodb://usernamehere:passwordhere@localhost:27017/altzone_dev?authSource=admin&directConnection=true
+
+# --- REDIS ---
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# --- MOSQUITTO ---
+MOSQUITTO_HOST=localhost
+MOSQUITTO_PORT=1883
+MOSQUITTO_SUBSCRIBER=
+MOSQUITTO_SUBSCRIBER_PASSWORD=
+MOSQUITTO_PUBLISHER=
+MOSQUITTO_PUBLISHER_PASSWORD=
+
+# --- OWNCLOUD (Placeholders) ---
+OWNCLOUD_HOST=localhost
+OWNCLOUD_PORT=8080
+OWNCLOUD_USER=dummy
+OWNCLOUD_PASSWORD=dummy
+OWNCLOUD_LOG_FILES_SECRET=dummy
+OWNCLOUD_LOG_FILES_ROOT=remote.php/dav/files/admin/
+   ```
+
 ### Start required services
 
 1. First, you need to set up the DB. So please run a script for it from the project root folder:

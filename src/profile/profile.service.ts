@@ -370,7 +370,7 @@ export class ProfileService
    */
   private async handleSuccessfulAttempt(
     _id: string,
-    tokenVersion: Number
+    tokenVersion: number
   ): Promise<IServiceReturn<{ resetToken: string }>> {
     const update = {
       $set: {
