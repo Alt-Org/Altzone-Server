@@ -36,7 +36,7 @@ Teacher pages https://devapi.altzone.fi/teacher (dev branch)
 
 ### Set up the .env file
 
-For this script and repo to work on your local machine, you need create an .env file at the root of your project. This .env file is a custom one, and because of the secrets contained in it, it won't be shown here. Here is the create command, run this at the root of the project in your own terminal: 
+For this script and repo to work on your local machine, you need to create an .env file at the root of your project. This .env file is a custom one, and because of the secrets contained in it, it won't be shown here. Here is the create command, run this at the root of the project in your own terminal: 
 
    ```shell
    bash touch .env
