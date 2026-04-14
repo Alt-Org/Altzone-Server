@@ -34,8 +34,8 @@ export class Profile {
   @Prop({ type: Date })
   recoveryLockedUntil?: Date;
 
-  @Prop({type: Number})
-  tokenVersion?: Number;
+  @Prop({ type: Number })
+  tokenVersion?: number;
 
   Player?: Player;
 

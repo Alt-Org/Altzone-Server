@@ -9,7 +9,7 @@ export default class UpdateProfileDtoBuilder
     username: undefined,
     password: undefined,
     securityQuestion: undefined,
-    securityAnswer: undefined
+    securityAnswer: undefined,
   };
 
   build(): UpdateProfileDto {

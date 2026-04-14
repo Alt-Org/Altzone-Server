@@ -252,8 +252,11 @@ export default class BasicService implements IService {
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<T>> {
     try {
-      const resp = await this.model.findByIdAndUpdate(_id, input, { returnDocument: 'after', ...options });
-      
+      const resp = await this.model.findByIdAndUpdate(_id, input, {
+        returnDocument: 'after',
+        ...options,
+      });
+
       if (!resp)
         return [
           null,

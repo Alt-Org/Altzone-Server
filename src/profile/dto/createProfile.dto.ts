@@ -32,7 +32,7 @@ export class CreateProfileDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  securityQuestion?: string
+  securityQuestion?: string;
 
   /**
    * SecurityAnswer for password recovery (should be hashed before storing)
@@ -42,7 +42,7 @@ export class CreateProfileDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  securityAnswer?: string
+  securityAnswer?: string;
 
   /**
    * Optional player data to associate with this profile

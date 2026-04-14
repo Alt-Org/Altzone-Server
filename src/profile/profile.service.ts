@@ -90,22 +90,28 @@ export class ProfileService
 
     if (errors) return [null, errors];
 
-    if ((profile.securityQuestion && !profile.securityAnswer) || (!profile.securityQuestion && profile.securityAnswer))
+    if (
+      (profile.securityQuestion && !profile.securityAnswer) ||
+      (!profile.securityQuestion && profile.securityAnswer)
+    )
       return [
         null,
         [
           new ServiceError({
             reason: SEReason.REQUIRED,
-            message: 'securityQuestion and securityAsnwer are required together',
+            message:
+              'securityQuestion and securityAsnwer are required together',
           }),
         ],
       ];
 
     if (profile.securityAnswer) {
-      const [hashedAnswer, errors] = await this.hashPassword(profile.securityAnswer);
+      const [hashedAnswer, errors] = await this.hashPassword(
+        profile.securityAnswer,
+      );
 
       if (errors) return [null, errors];
-      
+
       profile.securityAnswer = hashedAnswer;
     }
 
@@ -226,12 +232,12 @@ export class ProfileService
 
   /**
    * Get profile securityQuestion
-   * 
+   *
    * @param username - Profile username
    * @returns securityQuestion
    */
   async getSecurityQuestion(
-    username: string
+    username: string,
   ): Promise<IServiceReturn<{ securityQuestion: string }>> {
     if (!username)
       return [
@@ -244,7 +250,9 @@ export class ProfileService
         ],
       ];
 
-    const [profile, errors] = await this.basicService.readOne({ filter: { username } });
+    const [profile, errors] = await this.basicService.readOne({
+      filter: { username },
+    });
 
     if (errors) return [null, errors];
 
@@ -264,21 +272,22 @@ export class ProfileService
 
   /**
    * Verify profile securityAnswer
-   * 
+   *
    * Verify answer against profile answer.
-   * 
-   * @param username - Profile username 
+   *
+   * @param username - Profile username
    * @param answer - Security answer
    * @returns If _true_, returns resetToken, else error
    */
   async verifySecurityAnswer(
-    username: string, 
-    answer: string
+    username: string,
+    answer: string,
   ): Promise<IServiceReturn<{ resetToken: string }>> {
-    if (!username || !answer)
-      return this.handleVerifyFailure()
+    if (!username || !answer) return this.handleVerifyFailure();
 
-    const [profile, errors] = await this.basicService.readOne({ filter: { username } });
+    const [profile, errors] = await this.basicService.readOne({
+      filter: { username },
+    });
 
     if (errors) return [null, errors];
 
@@ -288,25 +297,25 @@ export class ProfileService
 
     if (profile.recoveryLockedUntil && profile.recoveryLockedUntil <= now) {
       const update = {
-        $set: { 
+        $set: {
           failedRecoveryAttempts: 0,
-          recoveryLockedUntil: null
-        }
+          recoveryLockedUntil: null,
+        },
       };
 
-      [updatedProfile, updateErrors] = await this.basicService.findByIdAndUpdate<Profile>(
-        profile._id, 
-        update
-      );
+      [updatedProfile, updateErrors] =
+        await this.basicService.findByIdAndUpdate<Profile>(profile._id, update);
 
       if (updateErrors) return [null, updateErrors];
     }
 
-    if (updatedProfile.recoveryLockedUntil && updatedProfile.recoveryLockedUntil > now)
+    if (
+      updatedProfile.recoveryLockedUntil &&
+      updatedProfile.recoveryLockedUntil > now
+    )
       return this.handleVerifyFailure();
 
-    if (!updatedProfile.securityAnswer)
-      return this.handleVerifyFailure();
+    if (!updatedProfile.securityAnswer) return this.handleVerifyFailure();
 
     let isRight: boolean;
     try {
@@ -315,43 +324,47 @@ export class ProfileService
       return this.handleVerifyFailure();
     }
 
-    if (!isRight)
-      return this.handleFailedAttempt(updatedProfile._id);
+    if (!isRight) return this.handleFailedAttempt(updatedProfile._id);
 
     return this.handleSuccessfulAttempt(
-      updatedProfile._id, 
-      updatedProfile.tokenVersion ?? 0
+      updatedProfile._id,
+      updatedProfile.tokenVersion ?? 0,
     );
   }
 
   /**
    * Helper function for verifySecurityAnswer.
-   * 
+   *
    * Increments failedRecoveryAttempts, sets recoveryLockedUntil if count >= max attempts.
-   * 
+   *
    * @param _id - Profile _id
    * @returns error
    */
   private async handleFailedAttempt(
-    _id: string
+    _id: string,
   ): Promise<IServiceReturn<null>> {
-    const [updatedProfile, errors] = await this.basicService.findByIdAndUpdate<Profile>(
-      _id, 
-      { $inc: { failedRecoveryAttempts: 1 } }
-    );
+    const [updatedProfile, errors] =
+      await this.basicService.findByIdAndUpdate<Profile>(_id, {
+        $inc: { failedRecoveryAttempts: 1 },
+      });
 
     if (errors) return [null, errors];
 
-    if (updatedProfile.failedRecoveryAttempts >= RecoveryConstants.maxAttempts) {
+    if (
+      updatedProfile.failedRecoveryAttempts >= RecoveryConstants.maxAttempts
+    ) {
       const update = {
         $set: {
           recoveryLockedUntil: new Date(
-            Date.now() + RecoveryConstants.lockoutTime
-          )
-        }
+            Date.now() + RecoveryConstants.lockoutTime,
+          ),
+        },
       };
 
-      const [, errors] = await this.basicService.updateOneById(updatedProfile._id, update);
+      const [, errors] = await this.basicService.updateOneById(
+        updatedProfile._id,
+        update,
+      );
 
       if (errors) return [null, errors];
     }
@@ -361,22 +374,22 @@ export class ProfileService
 
   /**
    * Helper function for verifySecurityAnswer
-   * 
+   *
    * Sets failedRecoveryAttempts to 0 and recoveryLockedUntil to null. Generates resetToken.
-   * 
+   *
    * @param _id - Profile _id
    * @param tokenVersion - Profile tokenVersion, used in token validation
    * @returns resetToken
    */
   private async handleSuccessfulAttempt(
     _id: string,
-    tokenVersion: Number
+    tokenVersion: number,
   ): Promise<IServiceReturn<{ resetToken: string }>> {
     const update = {
       $set: {
         failedRecoveryAttempts: 0,
-        recoveryLockedUntil: null
-      }
+        recoveryLockedUntil: null,
+      },
     };
 
     const [, errors] = await this.basicService.updateOneById(_id, update);
@@ -385,15 +398,14 @@ export class ProfileService
 
     const payload = {
       _id,
-      type: "recovery",
-      tokenVersion: tokenVersion
+      type: 'recovery',
+      tokenVersion: tokenVersion,
     };
 
     const resetToken = {
-      resetToken: await this.jwtService.signAsync(
-        payload, 
-        { expiresIn: RecoveryConstants.tokenTime }
-      )
+      resetToken: await this.jwtService.signAsync(payload, {
+        expiresIn: RecoveryConstants.tokenTime,
+      }),
     };
 
     return [resetToken, null];
@@ -401,7 +413,7 @@ export class ProfileService
 
   /**
    * Handle verification errors
-   * 
+   *
    * @returns error
    */
   private handleVerifyFailure(): IServiceReturn<null> {
@@ -418,16 +430,16 @@ export class ProfileService
 
   /**
    * Reset profile password
-   * 
+   *
    * _id, type and tokenVersion are used to validate token
-   * 
+   *
    * @param resetToken - Token required to change password
    * @param newPassword - New password
    * @returns If successful, _true_, else errors
    */
   async resetPassword(
-    resetToken: string, 
-    newPassword: string
+    resetToken: string,
+    newPassword: string,
   ): Promise<IServiceReturn<boolean>> {
     if (!resetToken || !newPassword)
       return [
@@ -440,19 +452,20 @@ export class ProfileService
         ],
       ];
 
-    let payload: { type: string, _id: string, tokenVersion: number }
+    let payload: { type: string; _id: string; tokenVersion: number };
     try {
       payload = await this.jwtService.verifyAsync(resetToken);
     } catch (error) {
       return this.handleTokenFailure();
     }
 
-    const [profile, readErrors] = await this.basicService.readOneById(payload._id);
+    const [profile, readErrors] = await this.basicService.readOneById(
+      payload._id,
+    );
 
     if (readErrors) return [null, readErrors];
 
-    if (payload.type !== "recovery")
-      return this.handleTokenFailure();
+    if (payload.type !== 'recovery') return this.handleTokenFailure();
 
     const profileVersion = profile.tokenVersion ?? 0;
     if (profileVersion !== payload.tokenVersion)
@@ -462,15 +475,15 @@ export class ProfileService
 
     if (hashErrors) return [null, hashErrors];
 
-    const update = { 
-      $set: { 
+    const update = {
+      $set: {
         password: hashedPassword,
         failedRecoveryAttempts: 0,
-        recoveryLockedUntil: null
+        recoveryLockedUntil: null,
       },
       $inc: {
-        tokenVersion: 1
-      }
+        tokenVersion: 1,
+      },
     };
 
     return this.basicService.updateOneById(payload._id, update);
@@ -490,21 +503,21 @@ export class ProfileService
 
   /**
    * Update profile
-   * 
+   *
    * Replaces deprecated updateOneById
-   * 
+   *
    * @param _id - Id from accessToken.
-   * @param profileToUpdate - Object with fields to update. 
+   * @param profileToUpdate - Object with fields to update.
    * Note that securityQuestion and securityAnswer are required together.
    * @returns If successful, _true_, else error
    */
   async updateProfileById(
     _id: string,
-    profileToUpdate: UpdateProfileDto
+    profileToUpdate: UpdateProfileDto,
   ): Promise<IServiceReturn<boolean>> {
     if (!_id || !profileToUpdate)
       return [
-        null, 
+        null,
         [
           new ServiceError({
             reason: SEReason.REQUIRED,
@@ -513,33 +526,32 @@ export class ProfileService
         ],
       ];
 
-    const { 
-      username, 
-      password, 
-      securityQuestion, 
-      securityAnswer 
-    } = profileToUpdate;
+    const { username, password, securityQuestion, securityAnswer } =
+      profileToUpdate;
 
     const update: { $set: Partial<UpdateProfileDto> } = { $set: {} };
 
-    if (username)
-      update.$set.username = username;
+    if (username) update.$set.username = username;
 
     if (password) {
       const [hashedPassword, errors] = await this.hashPassword(password);
 
       if (errors) return [null, errors];
-      
+
       update.$set.password = hashedPassword;
     }
 
-    if ((securityQuestion && !securityAnswer) || (!securityQuestion && securityAnswer))
+    if (
+      (securityQuestion && !securityAnswer) ||
+      (!securityQuestion && securityAnswer)
+    )
       return [
-        null, 
+        null,
         [
           new ServiceError({
             reason: SEReason.REQUIRED,
-            message: 'securityQuestion and securityAsnwer are required together',
+            message:
+              'securityQuestion and securityAsnwer are required together',
           }),
         ],
       ];
@@ -548,7 +560,7 @@ export class ProfileService
       const [hashedAnswer, errors] = await this.hashPassword(securityAnswer);
 
       if (errors) return [null, errors];
-      
+
       update.$set.securityQuestion = securityQuestion;
       update.$set.securityAnswer = hashedAnswer;
     }

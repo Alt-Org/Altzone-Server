@@ -126,9 +126,9 @@ export default class ProfileController {
 
   /**
    * Post username to get profile securityQuestion
-   * 
+   *
    * Note, Post is used here because securityQuestion is part of password recovery flow
-   * 
+   *
    * @remarks Post username to get profile securityQuestion
    */
   @ApiResponseDescription({
@@ -137,24 +137,24 @@ export default class ProfileController {
       modelName: ModelName.PROFILE,
     },
     errors: [401, 404],
-    hasAuth: false
+    hasAuth: false,
   })
   @NoAuth()
   @Post('/securityquestion')
   @UniformResponse(ModelName.PROFILE)
   public async getSecurityQuestion(@Body('username') username: string) {
-    return this.service.getSecurityQuestion(username)
+    return this.service.getSecurityQuestion(username);
   }
 
   /**
    * Post securityAnswer
-   * 
+   *
    * @remarks Verify securityAnswer
    */
   @ApiResponseDescription({
     success: {
       status: 200,
-      modelName: ModelName.PROFILE
+      modelName: ModelName.PROFILE,
     },
     errors: [401, 404],
     hasAuth: false,
@@ -165,21 +165,18 @@ export default class ProfileController {
   public async verifySecurityAnswer(@Body() body: SecurityAnswerDto) {
     const { username, securityAnswer } = body;
 
-    return this.service.verifySecurityAnswer(
-      username, 
-      securityAnswer
-    )
+    return this.service.verifySecurityAnswer(username, securityAnswer);
   }
 
   /**
    * Post resetToken and newPassword
-   * 
+   *
    * @remarks Reset profile password using resetToken and newPassword.
    */
   @ApiResponseDescription({
     success: {
       status: 204,
-      modelName: ModelName.PROFILE
+      modelName: ModelName.PROFILE,
     },
     errors: [400, 401],
     hasAuth: false,
@@ -190,10 +187,7 @@ export default class ProfileController {
   public async resetPassword(@Body() body: ResetPasswordDto) {
     const { resetToken, newPassword } = body;
 
-    return this.service.resetPassword(
-      resetToken, 
-      newPassword
-    )
+    return this.service.resetPassword(resetToken, newPassword);
   }
 
   /**
@@ -275,10 +269,10 @@ export default class ProfileController {
   @Authorize({ action: Action.update, subject: UpdateProfileDto })
   @UniformResponse(ModelName.PROFILE)
   public async update(
-    @Body() body: UpdateProfileDto, 
-    @LoggedUser() user: User
+    @Body() body: UpdateProfileDto,
+    @LoggedUser() user: User,
   ) {
-    return this.service.updateProfileById(user.profile_id, body)
+    return this.service.updateProfileById(user.profile_id, body);
   }
 
   /**
