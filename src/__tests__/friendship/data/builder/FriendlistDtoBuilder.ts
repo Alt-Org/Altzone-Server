@@ -22,7 +22,7 @@ export default class FriendlistDtoBuilder
     this.base._friendship_id = friendshipId;
     return this;
   }
-  
+
   setId(Id: string): this {
     this.base._id = Id;
     return this;
