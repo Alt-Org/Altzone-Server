@@ -24,7 +24,7 @@ import { SEReason } from '../common/service/basicService/SEReason';
 import {
   TIServiceReadManyOptions,
   TReadByIdOptions,
-  IServiceReturn
+  IServiceReturn,
 } from '../common/service/basicService/IService';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { PlayerEmotion } from './enum/playerEmotion.enum';
@@ -255,33 +255,37 @@ export class PlayerService
   }
 
   /**
-  * Checks if the player has already submitted an emotion today.
-  * @param playerId - The unique identifier of the player.
-  * @returns - A classic tuple setup [boolean, ServiceError[]] indicating if an entry for today exists.
-  */
-  async checkIfEmotionSentToday(playerId: string): Promise<IServiceReturn<boolean>> {
-  const player = await this.model
-    .findById(playerId)
-    .select('emotions')
-    .exec();
+   * Checks if the player has already submitted an emotion today.
+   * @param playerId - The unique identifier of the player.
+   * @returns - A classic tuple setup [boolean, ServiceError[]] indicating if an entry for today exists.
+   */
+  async checkIfEmotionSentToday(
+    playerId: string,
+  ): Promise<IServiceReturn<boolean>> {
+    const player = await this.model
+      .findById(playerId)
+      .select('emotions')
+      .exec();
 
-  if (!player) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
+    if (!player)
+      return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
 
-  const lastEntry = player.emotions[player.emotions.length - 1];
-  
-  const today = new Date().setHours(0, 0, 0, 0);
-  const entryDate = lastEntry ? new Date(lastEntry.date).setHours(0, 0, 0, 0) : null;
+    const lastEntry = player.emotions[player.emotions.length - 1];
 
-  if (entryDate !== today) {
+    const today = new Date().setHours(0, 0, 0, 0);
+    const entryDate = lastEntry
+      ? new Date(lastEntry.date).setHours(0, 0, 0, 0)
+      : null;
 
-    return [false, null];
-  }
+    if (entryDate !== today) {
+      return [false, null];
+    }
 
-  const emotionValue = lastEntry.emotion as PlayerEmotion;
+    const emotionValue = lastEntry.emotion as PlayerEmotion;
 
-  const isSent = emotionValue !== PlayerEmotion.BLANK;
-  
-  return [isSent, null];
+    const isSent = emotionValue !== PlayerEmotion.BLANK;
+
+    return [isSent, null];
   }
 
   /**
@@ -291,8 +295,10 @@ export class PlayerService
    * @param emotion - The selected emotion enum value.
    * @returns The updated player data or service errors.
    */
-    async addEmotion(playerId: string, emotion: PlayerEmotion): Promise<IServiceReturn<PlayerDto>> {
-
+  async addEmotion(
+    playerId: string,
+    emotion: PlayerEmotion,
+  ): Promise<IServiceReturn<PlayerDto>> {
     const [player, errors] = await this.getPlayerById(playerId);
     if (errors) return [null, errors];
 
@@ -319,8 +325,12 @@ export class PlayerService
       };
     }
 
-    const [_, updateErrors] = await this.basicService.updateOneById(playerId, updateQuery);
+    const [_, updateErrors] = await this.basicService.updateOneById(
+      playerId,
+      updateQuery,
+    );
     if (updateErrors) return [null, updateErrors];
 
     return this.getPlayerById(playerId);
-  }}
+  }
+}

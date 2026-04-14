@@ -1,5 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 import AddType from '../../common/base/decorator/AddType.decorator';
 
 @AddType('ResetPasswordDto')
@@ -13,7 +13,7 @@ export class ResetPasswordDto {
 
   /**
    * New password
-   * 
+   *
    * @example "NewSecureP@ssw0rd!"
    */
   @ApiProperty()

@@ -74,7 +74,7 @@ describe('ProfileService.createWithHashedPassword() test suite', () => {
 
   it('Should not create profile if securityQuestion and no securityAnswer and vice versa', async () => {
     const invalidProfileDataOne = {
-      securityQuestion: 'First pet\'s name?',
+      securityQuestion: "First pet's name?",
       ...createProfileData,
     } as CreateProfileDto;
 
@@ -83,16 +83,16 @@ describe('ProfileService.createWithHashedPassword() test suite', () => {
       ...createProfileData,
     } as CreateProfileDto;
 
-    const [profileOne, errorsOne] = 
+    const [profileOne, errorsOne] =
       await profileService.createWithHashedPassword(invalidProfileDataOne);
 
-    const [profileTwo, errorsTwo] = 
+    const [profileTwo, errorsTwo] =
       await profileService.createWithHashedPassword(invalidProfileDataTwo);
-  
+
     expect(profileOne).toBeNull();
     expect(errorsOne).toContainSE_REQUIRED();
 
     expect(profileTwo).toBeNull();
     expect(errorsTwo).toContainSE_REQUIRED();
-  })
+  });
 });
