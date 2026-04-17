@@ -2,6 +2,7 @@ import { HydratedDocument } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { Player } from '../player/schemas/player.schema';
+import { Environment } from '../common/enum/environment.enum';
 
 export type ProfileDocument = HydratedDocument<Profile>;
 
@@ -36,6 +37,16 @@ export class Profile {
 
   @Prop({ type: Number })
   tokenVersion?: number;
+
+  @Prop({
+    type: Number,
+    default: Environment.TEACHING_DEMO,
+    enum: [Environment.TEACHING_DEMO, Environment.OPEN_DEMO],
+  })
+  environment?: number;
+
+  @Prop({ type: Date, expires: 60 * 60 })
+  expireAt?: Date;
 
   Player?: Player;
 

@@ -1,4 +1,10 @@
-import { IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsDate,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { CreatePlayerDto } from '../../player/dto/createPlayer.dto';
 import { Type } from 'class-transformer';
 import AddType from '../../common/base/decorator/AddType.decorator';
@@ -43,6 +49,28 @@ export class CreateProfileDto {
   @IsOptional()
   @IsString()
   securityAnswer?: string;
+
+  /**
+   * Environment mode that the profile uses (Teaching Mode or Open Mode)
+   * 0 = teaching mode (default), 1 = open mode
+   *
+   * @example 0
+   * @example 1
+   */
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  environment?: number;
+
+  /**
+   * Expiration date (```environment``` works as this field's setter)
+   *
+   * @example ```new Date()```
+   */
+  @ApiProperty()
+  @IsOptional()
+  @IsDate()
+  expireAt?: Date;
 
   /**
    * Optional player data to associate with this profile
