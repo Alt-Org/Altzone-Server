@@ -28,9 +28,14 @@ export const profileRules: RulesSetter<Ability, Subjects> = (user, subject) => {
   }
 
   if (subject === UpdateProfileDto) {
-    can(Action.update_request, subject, ['username', 'password', 'securityQuestion', 'securityAnswer'], {
-      _id: user.profile_id,
-    });
+    can(
+      Action.update_request,
+      subject,
+      ['username', 'password', 'securityQuestion', 'securityAnswer'],
+      {
+        _id: user.profile_id,
+      },
+    );
   }
 
   return build({

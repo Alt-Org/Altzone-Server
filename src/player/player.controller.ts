@@ -7,7 +7,7 @@ import {
   Param,
   Post,
   Put,
-  BadRequestException
+  BadRequestException,
 } from '@nestjs/common';
 import { PlayerService } from './player.service';
 import { CreatePlayerDto } from './dto/createPlayer.dto';
@@ -47,7 +47,7 @@ export default class PlayerController {
 
   /**
    * Create a player
-   * 
+   *
    * @remarks Create a new Player. This is not recommended way of creating a new Player and it should be used only in edge cases.
    * The recommended way is to create it via /profile POST endpoint.
    *
@@ -79,7 +79,6 @@ export default class PlayerController {
   public async checkDailyEmotion(
     @LoggedUser() user: User,
   ): Promise<IServiceReturn<boolean>> {
-    
     return await this.service.checkIfEmotionSentToday(user.player_id);
   }
 
@@ -102,8 +101,7 @@ export default class PlayerController {
     if (error) {
       throw new BadRequestException(error[0].message);
     }
-
-    }
+  }
 
   /**
    * Get player by _id
@@ -147,7 +145,7 @@ export default class PlayerController {
 
   /**
    * Get all players
-   * 
+   *
    * @remarks Read all created Players. Remember about the pagination.
    */
   @ApiResponseDescription({
@@ -166,7 +164,7 @@ export default class PlayerController {
   /**
    * Update player
    * * Emit a server event if avatar clothes changed
-   * @remarks Update the Player, which _id is specified in the body. 
+   * @remarks Update the Player, which _id is specified in the body.
    * Only Player, which belong to the logged-in Profile can be changed.
    */
   @ApiResponseDescription({

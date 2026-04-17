@@ -1,6 +1,6 @@
 import { ProfileService } from '../../../profile/profile.service';
-import ProfileModule from "../modules/profile.module";
-import ProfileBuilderFactory from "../data/profileBuilderFactory";
+import ProfileModule from '../modules/profile.module';
+import ProfileBuilderFactory from '../data/profileBuilderFactory';
 import { CreateProfileDto } from '../../../profile/dto/createProfile.dto';
 import ProfileBuilder from '../data/profile/profileBuilder';
 import { JwtService } from '@nestjs/jwt';
@@ -9,7 +9,7 @@ describe('ProfileService.verifySecurityAnswer() test suite', () => {
   const resetToken = 'reset-token';
   const tokenExpires = new Date().getTime();
   const username = 'user';
-  const password = 'password'
+  const password = 'password';
   const question = 'Favorite color?';
   const answer = 'green';
 
@@ -20,9 +20,9 @@ describe('ProfileService.verifySecurityAnswer() test suite', () => {
 
   let profileService: ProfileService;
   let profileBuilder: ProfileBuilder;
-  
+
   const profileModel = ProfileModule.getProfileModel();
-    
+
   beforeEach(async () => {
     profileService = await ProfileModule.getProfileService();
     profileBuilder = ProfileBuilderFactory.getBuilder('Profile');
@@ -40,8 +40,10 @@ describe('ProfileService.verifySecurityAnswer() test suite', () => {
 
     await profileService.createWithHashedPassword(profileToCreate);
 
-    const [profileToken, errors] = 
-      await profileService.verifySecurityAnswer(username, answer);
+    const [profileToken, errors] = await profileService.verifySecurityAnswer(
+      username,
+      answer,
+    );
 
     expect(errors).toBeNull();
     expect(profileToken).not.toBeNull();
@@ -57,8 +59,10 @@ describe('ProfileService.verifySecurityAnswer() test suite', () => {
 
     await profileService.createWithHashedPassword(profileToCreate);
 
-    const [profileToken, errors] = 
-      await profileService.verifySecurityAnswer('user2', answer);
+    const [profileToken, errors] = await profileService.verifySecurityAnswer(
+      'user2',
+      answer,
+    );
 
     expect(errors).not.toBeNull();
 
@@ -74,8 +78,10 @@ describe('ProfileService.verifySecurityAnswer() test suite', () => {
 
     await profileService.createWithHashedPassword(profileToCreate);
 
-    const [profileToken, errors] = 
-      await profileService.verifySecurityAnswer(username, answer);
+    const [profileToken, errors] = await profileService.verifySecurityAnswer(
+      username,
+      answer,
+    );
 
     expect(errors).not.toBeNull();
 
@@ -96,8 +102,10 @@ describe('ProfileService.verifySecurityAnswer() test suite', () => {
 
     await profileService.createWithHashedPassword(profileToCreate);
 
-    const [profileToken, errors] = 
-      await profileService.verifySecurityAnswer(username, answer);
+    const [profileToken, errors] = await profileService.verifySecurityAnswer(
+      username,
+      answer,
+    );
 
     expect(errors).not.toBeNull();
 
@@ -117,8 +125,10 @@ describe('ProfileService.verifySecurityAnswer() test suite', () => {
 
     await profileService.createWithHashedPassword(profileToCreate);
 
-    const [profileToken, errors] = 
-      await profileService.verifySecurityAnswer(username, wrongAnswer);
+    const [profileToken, errors] = await profileService.verifySecurityAnswer(
+      username,
+      wrongAnswer,
+    );
 
     expect(errors).not.toBeNull();
 

@@ -65,9 +65,8 @@ export class CustomCharacterService {
       player_id: owner_id,
     };
 
-    const [doc, errors] = await this.basicService.createOne<
-      CustomCharacter
-    >(newCharacter);
+    const [doc, errors] =
+      await this.basicService.createOne<CustomCharacter>(newCharacter);
 
     if (!doc || errors) return [null, errors];
 
@@ -240,7 +239,7 @@ export class CustomCharacterService {
 
     if (!docs || errors) return [null, errors];
 
-    return [docs?.map(doc => this.addValues(doc)), null];
+    return [docs?.map((doc) => this.addValues(doc)), null];
   };
 
   /**
@@ -296,7 +295,7 @@ export class CustomCharacterService {
 
     if (!docs || errors) return [null, errors];
 
-    return [docs?.map(doc => this.addValues(doc)), null];
+    return [docs?.map((doc) => this.addValues(doc)), null];
   };
 
   /**
@@ -306,7 +305,9 @@ export class CustomCharacterService {
    *
    * @returns value of CustomCharacter with updated stats (baseStats + stored Delta)
    */
-  public addValues(doc: Document<CustomCharacter> | CustomCharacter): CustomCharacter {
+  public addValues(
+    doc: Document<CustomCharacter> | CustomCharacter,
+  ): CustomCharacter {
     const character = 'toObject' in doc ? doc.toObject() : { ...doc };
 
     const baseStats = CharacterBaseStats[character.characterId];
@@ -392,13 +393,12 @@ export class CustomCharacterService {
   public getFieldsToUpdate(customCharacterToUpdate: Partial<CustomCharacter>) {
     const stats: string[] = ['defence', 'hp', 'size', 'attack', 'speed'];
     const $set: Record<string, any> = {};
-    const base = CharacterBaseStats[customCharacterToUpdate.characterId]
+    const base = CharacterBaseStats[customCharacterToUpdate.characterId];
 
     for (const [key, value] of Object.entries(customCharacterToUpdate)) {
-      if (key === '_id' || value === undefined)
-        continue;
+      if (key === '_id' || value === undefined) continue;
       if (stats.includes(key) && typeof value === 'number')
-        $set[key] = value - (base?.[key] ?? 0)
+        $set[key] = value - (base?.[key] ?? 0);
       else $set[key] = value;
     }
     return { $set };
@@ -434,5 +434,5 @@ export class CustomCharacterService {
   public clearCollectionReferences = async (
     _id: Types.ObjectId,
     _ignoreReferences?: IgnoreReferencesType,
-  ): Promise<void> => { };
+  ): Promise<void> => {};
 }

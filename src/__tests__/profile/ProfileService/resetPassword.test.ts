@@ -1,6 +1,6 @@
 import { ProfileService } from '../../../profile/profile.service';
-import ProfileModule from "../modules/profile.module";
-import ProfileBuilderFactory from "../data/profileBuilderFactory";
+import ProfileModule from '../modules/profile.module';
+import ProfileBuilderFactory from '../data/profileBuilderFactory';
 import { CreateProfileDto } from '../../../profile/dto/createProfile.dto';
 import ProfileBuilder from '../data/profile/profileBuilder';
 import { JwtService } from '@nestjs/jwt';
@@ -9,7 +9,7 @@ describe('ProfileService.resetPassword() test suite', () => {
   const resetToken = 'reset-token';
   const tokenExpires = new Date().getTime();
   const username = 'user';
-  const password = 'password'
+  const password = 'password';
   const question = 'Favorite color?';
   const answer = 'green';
   const newPassword = 'newPassword';
@@ -23,11 +23,11 @@ describe('ProfileService.resetPassword() test suite', () => {
   let profileBuilder: ProfileBuilder;
 
   const profileModel = ProfileModule.getProfileModel();
-  
+
   beforeEach(async () => {
     profileService = await ProfileModule.getProfileService();
     profileBuilder = ProfileBuilderFactory.getBuilder('Profile');
-    
+
     await profileModel.deleteMany({});
   });
 
@@ -41,9 +41,15 @@ describe('ProfileService.resetPassword() test suite', () => {
 
     await profileService.createWithHashedPassword(profileToCreate);
 
-    const [resetToken,] = await profileService.verifySecurityAnswer(username, answer);
-  
-    const resp = await profileService.resetPassword(resetToken.resetToken, newPassword);
+    const [resetToken] = await profileService.verifySecurityAnswer(
+      username,
+      answer,
+    );
+
+    const resp = await profileService.resetPassword(
+      resetToken.resetToken,
+      newPassword,
+    );
 
     expect(resp).toBeTruthy();
   });
@@ -60,7 +66,10 @@ describe('ProfileService.resetPassword() test suite', () => {
 
     await profileService.createWithHashedPassword(profileToCreate);
 
-    const [resp , errors] = await profileService.resetPassword(invalidToken, newPassword);
+    const [resp, errors] = await profileService.resetPassword(
+      invalidToken,
+      newPassword,
+    );
 
     expect(resp).toBeNull();
 

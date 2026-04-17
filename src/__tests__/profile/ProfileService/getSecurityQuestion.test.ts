@@ -1,6 +1,6 @@
 import { ProfileService } from '../../../profile/profile.service';
-import ProfileModule from "../modules/profile.module";
-import ProfileBuilderFactory from "../data/profileBuilderFactory";
+import ProfileModule from '../modules/profile.module';
+import ProfileBuilderFactory from '../data/profileBuilderFactory';
 import { CreateProfileDto } from '../../../profile/dto/createProfile.dto';
 import ProfileBuilder from '../data/profile/profileBuilder';
 
@@ -9,7 +9,7 @@ describe('ProfileService.getSecurityQuestion() test suite', () => {
   let profileBuilder: ProfileBuilder;
 
   const profileModel = ProfileModule.getProfileModel();
-  
+
   beforeEach(async () => {
     profileService = await ProfileModule.getProfileService();
     profileBuilder = ProfileBuilderFactory.getBuilder('Profile');
@@ -27,7 +27,7 @@ describe('ProfileService.getSecurityQuestion() test suite', () => {
 
     await profileService.createOne(profileToCreate);
 
-    const [securityQuestion, errors] = 
+    const [securityQuestion, errors] =
       await profileService.getSecurityQuestion(username);
 
     expect(errors).toBeNull();
@@ -45,7 +45,7 @@ describe('ProfileService.getSecurityQuestion() test suite', () => {
 
     await profileService.createOne(profileToCreate);
 
-    const [securityQuestion, errors] = 
+    const [securityQuestion, errors] =
       await profileService.getSecurityQuestion(username2);
 
     expect(securityQuestion).toBeNull();
@@ -53,14 +53,14 @@ describe('ProfileService.getSecurityQuestion() test suite', () => {
   });
 
   it('Should return NOT_FOUND ServiceErrors if no securityQuestion', async () => {
-   const username = 'user';
+    const username = 'user';
     const profileToCreate = profileBuilder
       .setUsername(username)
       .build() as unknown as CreateProfileDto;
 
     await profileService.createOne(profileToCreate);
 
-    const [securityQuestion, errors] = 
+    const [securityQuestion, errors] =
       await profileService.getSecurityQuestion(username);
 
     expect(securityQuestion).toBeNull();
