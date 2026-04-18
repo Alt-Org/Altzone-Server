@@ -2,10 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { WebSocketUser } from '../types/WsUser.type';
 import { ChatService } from './chat.service';
 import { CreateChatMessageDto } from '../dto/createMessage.dto';
+import { ChatMessageDto } from '../dto/chatMessage.dto';
 import { ChatType } from '../enum/chatMessageType.enum';
 import { AddReactionDto } from '../dto/addReaction.dto';
 import { WsMessageBodyDto } from '../dto/wsMessageBody.dto';
 import { BaseChatService } from './baseChat.service';
+import {
+  TIServiceUpdateByIdOptions,
+  TIServiceCreateOneOptions,
+} from '../../common/service/basicService/IService';
+import { IServiceReturn } from '../../common/service/basicService/IService';
 
 @Injectable()
 export class ClanChatService extends BaseChatService {
@@ -60,10 +66,16 @@ export class ClanChatService extends BaseChatService {
    * Creates a new message in the DB.
    * Broadcasts the message.
    *
-   * @param client
-   * @param message
+   * @param client - The WebSocket user sending the message.
+   * @param message - The message data sent by the user.
+   * @param options - Optional service configurations, such as a Mongoose session for transactions.
+   * @returns A promise that resolves to the created Clan ChatMessageDto or an array of ServiceErrors.
    */
-  async handleNewClanMessage(client: WebSocketUser, message: WsMessageBodyDto) {
+  async handleNewClanMessage(
+    client: WebSocketUser,
+    message: WsMessageBodyDto,
+    options?: TIServiceCreateOneOptions,
+  ) {
     const chatMessage = new CreateChatMessageDto({
       type: ChatType.CLAN,
       clan_id: client.user.clanId,
@@ -73,8 +85,13 @@ export class ClanChatService extends BaseChatService {
     });
 
     const recipients = this.clanRooms.get(client.user?.clanId);
-
-    await this.handleNewMessage(chatMessage, client, ChatType.CLAN, recipients);
+    return this.handleNewMessage(
+      chatMessage,
+      client,
+      ChatType.CLAN,
+      recipients,
+      options,
+    );
   }
 
   /**
@@ -112,13 +129,16 @@ export class ClanChatService extends BaseChatService {
    *
    * @param client - The WebSocket user initiating the reaction.
    * @param reaction - The reaction data to be added.
+   * @param options - Optional service configurations, such as a Mongoose session for transactions.
    * @returns A promise that resolves when the reaction has been processed.
    */
   async handleNewClanReaction(
     client: WebSocketUser,
     reaction: AddReactionDto,
-  ): Promise<void> {
+    options?: TIServiceUpdateByIdOptions,
+  ): Promise<IServiceReturn<ChatMessageDto>> {
     const recipients = this.clanRooms.get(client.user?.clanId);
-    await this.handleNewReaction(client, reaction, recipients);
+
+    return this.handleNewReaction(client, reaction, recipients, options);
   }
 }

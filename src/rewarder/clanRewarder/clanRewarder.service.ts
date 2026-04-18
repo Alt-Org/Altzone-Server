@@ -7,7 +7,7 @@ import { points } from './points';
 import BasicService from '../../common/service/basicService/BasicService';
 import { InjectModel } from '@nestjs/mongoose';
 import { Clan } from '../../clan/clan.schema';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { ClanDto } from '../../clan/dto/clan.dto';
 import { PlayerDto } from '../../player/dto/player.dto';
 import { Player } from '../../player/schemas/player.schema';
@@ -38,6 +38,7 @@ export class ClanRewarder {
    * @param clan_id clan _id for which to increase
    * @param points amount of points to add, default 0
    * @param coins amount of coins to add, default 0
+   * @param session optional client session for transaction
    * @throws ServiceError if clan can not be found during the clan data fetching
    *
    * @returns true if the clan was rewarder successfully or ServiceErrors:
@@ -47,7 +48,8 @@ export class ClanRewarder {
     clan_id: string,
     points: number,
     coins: number,
-  ) {
+    session?: ClientSession,
+  ): Promise<IServiceReturn<boolean>> {
     if (points < 0)
       return [
         null,
@@ -76,7 +78,7 @@ export class ClanRewarder {
 
     const [clanToUpdate, errors] = await this.clanService.readOneById(clan_id);
 
-    if (errors) throw errors;
+    if (errors) return [null, errors];
 
     const { points: clanPoints, gameCoins } = clanToUpdate;
     const newPoints = Math.min(this.clanMaxPoints, clanPoints + points);
@@ -86,7 +88,7 @@ export class ClanRewarder {
         points: newPoints,
         gameCoins: gameCoins + coins,
       },
-      { filter: { _id: clan_id } },
+      { filter: { _id: clan_id }, session },
     );
   }
 

@@ -31,7 +31,7 @@ export default class UpdateChatMessageDtoBuilder
     return this;
   }
 
-  setSenderId(senderId: string | ObjectId): this {
+  setSenderId(senderId: string): this {
     this.base.sender_id = senderId;
     return this;
   }

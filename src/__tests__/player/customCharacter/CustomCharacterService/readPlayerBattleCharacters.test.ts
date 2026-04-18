@@ -5,6 +5,7 @@ import CustomCharacterModule from '../../modules/customCharacter.module';
 import PlayerBuilderFactory from '../../data/playerBuilderFactory';
 import PlayerModule from '../../modules/player.module';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
+import { CharacterBaseStats } from '../../../../player/customCharacter/const/CharacterBaseStats';
 
 describe('CustomCharacterService.readPlayerBattleCharacters() test suite', () => {
   let characterService: CustomCharacterService;
@@ -82,13 +83,23 @@ describe('CustomCharacterService.readPlayerBattleCharacters() test suite', () =>
 
     const clearedCharacters = clearDBRespDefaultFields(characters);
 
+    const expected1 = clearDBRespDefaultFields(
+      characterService.addValues(player1Character1),
+    );
+    const expected2 = clearDBRespDefaultFields(
+      characterService.addValues(player1Character2),
+    );
+    const expected3 = clearDBRespDefaultFields(
+      characterService.addValues(player1Character3),
+    );
+
     expect(errors).toBeNull();
     expect(clearedCharacters).toHaveLength(3);
     expect(clearedCharacters).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ ...player1Character1 }),
-        expect.objectContaining({ ...player1Character2 }),
-        expect.objectContaining({ ...player1Character3 }),
+        expect.objectContaining(expected1),
+        expect.objectContaining(expected2),
+        expect.objectContaining(expected3),
       ]),
     );
   });
@@ -104,12 +115,14 @@ describe('CustomCharacterService.readPlayerBattleCharacters() test suite', () =>
       await characterService.readPlayerBattleCharacters(player1._id);
     const clearedCharacters = clearDBRespDefaultFields(characters);
 
+    const expected1 = clearDBRespDefaultFields(
+      characterService.addValues(player1Character1),
+    );
+
     expect(errors).toBeNull();
     expect(clearedCharacters).toHaveLength(1);
     expect(clearedCharacters).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ ...player1Character1 }),
-      ]),
+      expect.arrayContaining([expect.objectContaining(expected1)]),
     );
   });
 
@@ -124,12 +137,14 @@ describe('CustomCharacterService.readPlayerBattleCharacters() test suite', () =>
       await characterService.readPlayerBattleCharacters(player1._id);
     const clearedCharacters = clearDBRespDefaultFields(characters);
 
+    const expected1 = clearDBRespDefaultFields(
+      characterService.addValues(player1Character1),
+    );
+
     expect(errors).toBeNull();
     expect(clearedCharacters).toHaveLength(1);
     expect(clearedCharacters).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ ...player1Character1 }),
-      ]),
+      expect.arrayContaining([expect.objectContaining(expected1)]),
     );
   });
 
