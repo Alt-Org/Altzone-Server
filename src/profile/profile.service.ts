@@ -27,6 +27,7 @@ import { createHash } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { RecoveryConstants } from './const/recoveryConst';
+import { Environment } from '../common/enum/environment.enum';
 
 const ARGON2_CONFIG = {
   type: argon2.argon2id,
@@ -100,7 +101,7 @@ export class ProfileService
           new ServiceError({
             reason: SEReason.REQUIRED,
             message:
-              'securityQuestion and securityAsnwer are required together',
+              'securityQuestion and securityAnswer are required together',
           }),
         ],
       ];
@@ -114,6 +115,16 @@ export class ProfileService
 
       profile.securityAnswer = hashedAnswer;
     }
+
+    const environment = profile.environment ?? Environment.TEACHING_DEMO;
+
+    if (environment === Environment.TEACHING_DEMO) {
+      profile.expiresAt = new Date(Date.now() + 1000 * 60 * 60); // expires in 1 hour
+    } else {
+      profile.expiresAt = undefined;
+    }
+
+    profile.environment = environment;
 
     return this.basicService.createOne<any, ProfileDto>(
       {
