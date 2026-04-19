@@ -65,12 +65,12 @@ export class CreateProfileDto {
   /**
    * Expiration date (```environment``` works as this field's setter)
    *
-   * @example ```new Date()```
+   * @example ```new Date() + 1000 * 60 * 60 // 1 hour```
    */
   @ApiProperty()
   @IsOptional()
   @IsDate()
-  expireAt?: Date;
+  expiresAt?: Date;
 
   /**
    * Optional player data to associate with this profile

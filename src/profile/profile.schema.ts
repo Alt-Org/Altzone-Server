@@ -45,8 +45,8 @@ export class Profile {
   })
   environment?: number;
 
-  @Prop({ type: Date, expires: 60 * 60 })
-  expireAt?: Date;
+  @Prop({ type: Date })
+  expiresAt?: Date;
 
   Player?: Player;
 
@@ -61,3 +61,4 @@ ProfileSchema.virtual(ModelName.PLAYER, {
   foreignField: 'profile_id',
   justOne: true,
 });
+ProfileSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
