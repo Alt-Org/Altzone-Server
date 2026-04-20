@@ -34,6 +34,8 @@ import {
   endTransaction,
   initializeSession,
 } from '../common/function/Transactions';
+import { Environment } from '../common/enum/environment.enum';
+import { Profile } from '../profile/profile.schema';
 
 type CreateWithoutDtoType = Clan & {
   soulHome: SoulHome;
@@ -62,6 +64,8 @@ export class ClanService {
   public readonly basicService: BasicService;
   public readonly playerService: BasicService;
 
+  private readonly profileModel: Model<Profile>;
+
   /**
    * Crete a new Clan with other default objects.
    *
@@ -78,6 +82,15 @@ export class ClanService {
   ): Promise<IServiceReturn<ClanDto>> {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
+
+    const playerProfile = await this.profileModel.findOne({ player_id });
+
+    if (playerProfile.environment === Environment.TEACHING_DEMO) {
+      clanToCreate.environment = Environment.TEACHING_DEMO;
+      clanToCreate.expiresAt = playerProfile.expiresAt;
+    } else {
+      clanToCreate.environment = Environment.OPEN_DEMO;
+    }
 
     if (clanToCreate && !clanToCreate.isOpen && !clanToCreate.password) {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
@@ -217,8 +230,13 @@ export class ClanService {
   public async updateOneById(
     clanToUpdate: UpdateClanDto,
   ): Promise<[boolean | null, ServiceError[] | null]> {
-    const { _id, admin_idsToDelete, admin_idsToAdd, ...fieldsToUpdate } =
-      clanToUpdate;
+    const {
+      _id,
+      admin_idsToDelete,
+      admin_idsToAdd,
+      environment,
+      ...fieldsToUpdate
+    } = clanToUpdate;
 
     if (!admin_idsToAdd && !admin_idsToDelete)
       return this.basicService.updateOneById(_id, fieldsToUpdate);
@@ -256,6 +274,21 @@ export class ClanService {
       const [player, playerErrors] =
         await this.playerService.readOneById<PlayerDto>(player_id);
       if (playerErrors || !player || !player.clan_id) continue;
+
+      const playerProfile = await this.profileModel.findOne({ player_id });
+
+      if (playerProfile.environment !== environment) {
+        return [
+          null,
+          [
+            new ServiceError({
+              message: 'Player and clan must be in the same environment mode.',
+              field: 'environment',
+              reason: SEReason.ENVIRONMENT_MISMATCH,
+            }),
+          ],
+        ];
+      }
 
       const parsedPlayerClan_id = player.clan_id.toString();
       const parsed_id = _id.toString();
