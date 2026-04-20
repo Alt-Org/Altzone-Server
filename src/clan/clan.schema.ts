@@ -11,6 +11,7 @@ import { ClanRole, ClanRoleSchema } from './role/ClanRole.schema';
 import { initializationClanRoles } from './role/initializationClanRoles';
 import { Stall } from './stall/stall.schema';
 import { getDefaultStall } from './defaultValues/stall';
+import { Environment } from '../common/enum/environment.enum';
 
 export type ClanDocument = HydratedDocument<Clan>;
 
@@ -86,6 +87,15 @@ export class Clan {
   })
   stall: Stall;
 
+  @Prop({
+    type: Number,
+    enum: [Environment.TEACHING_DEMO, Environment.OPEN_DEMO],
+  })
+  environment?: number;
+
+  @Prop({ type: Date })
+  expiresAt?: Date;
+
   @ExtractField()
   _id: string;
 }
@@ -111,6 +121,7 @@ ClanSchema.virtual(ModelName.SOULHOME, {
 });
 ClanSchema.index({ points: -1 });
 ClanSchema.index({ battlePoints: -1 });
+ClanSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export const publicReferences = [
   ModelName.PLAYER,

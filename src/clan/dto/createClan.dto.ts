@@ -7,6 +7,7 @@ import {
   IsString,
   ValidateNested,
   MaxLength,
+  IsDate,
 } from 'class-validator';
 import { ClanLabel } from '../enum/clanLabel.enum';
 import { AgeRange } from '../enum/ageRange.enum';
@@ -16,6 +17,7 @@ import { Type } from 'class-transformer';
 import { ClanLogoDto } from './clanLogo.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { StallDto } from './stall.dto';
+import { Environment } from '../../common/enum/environment.enum';
 
 /**
  * DTO for creating a clan.
@@ -111,4 +113,24 @@ export class CreateClanDto {
   @Type(() => StallDto)
   @IsOptional()
   stall?: StallDto;
+
+  /**
+   * Environment mode that the clan uses (Teaching Mode or Open Mode)
+   * 0 = teaching mode (default), 1 = open mode
+   *
+   * @example 0
+   * @example 1
+   */
+  @IsEnum(Environment)
+  @IsOptional()
+  environment?: Environment;
+
+  /**
+   * Expiration date (```environment``` works as this field's setter)
+   *
+   * @example ```new Date() + 1000 * 60 * 60 // 1 hour```
+   */
+  @IsOptional()
+  @IsDate()
+  expiresAt?: Date;
 }

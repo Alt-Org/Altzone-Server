@@ -22,6 +22,7 @@ import { Language } from '../../common/enum/language.enum';
 import { ClanLogoDto } from './clanLogo.dto';
 import { Type } from 'class-transformer';
 import { StallDto } from './stall.dto';
+import { Environment } from '../../common/enum/environment.enum';
 
 @AddType('UpdateClanDto')
 export class UpdateClanDto {
@@ -155,4 +156,15 @@ export class UpdateClanDto {
   @Type(() => StallDto)
   @IsOptional()
   stall?: StallDto;
+
+  /**
+   * Environment mode that the clan uses (Teaching Mode or Open Mode)
+   * 0 = teaching mode (default), 1 = open mode
+   *
+   * @example 0
+   * @example 1
+   */
+  @IsEnum(Environment)
+  @IsOptional()
+  environment?: Environment;
 }
