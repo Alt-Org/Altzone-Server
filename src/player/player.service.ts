@@ -17,7 +17,6 @@ import {
 } from '../common/interface/IHookImplementer';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { PlayerDto } from './dto/player.dto';
-import { EmotionCheckDto } from './dto/emotionCheck.dto';
 import BasicService from '../common/service/basicService/BasicService';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
@@ -28,6 +27,8 @@ import {
 } from '../common/service/basicService/IService';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { PlayerEmotion } from './enum/playerEmotion.enum';
+import { Clan } from '../clan/clan.schema';
+import { Environment } from '../common/enum/environment.enum';
 
 @Injectable()
 @AddBasicService()
@@ -50,6 +51,7 @@ export class PlayerService
   public readonly refsInModel: ModelName[];
   public readonly modelName: ModelName;
   public readonly basicService: BasicService;
+  public readonly clanModel: Model<Clan>;
 
   /**
    * Retrieves a player by their unique identifier.
@@ -181,6 +183,25 @@ export class PlayerService
     if (playerErrors) throw playerErrors;
 
     return player.clan_id?.toString();
+  }
+
+  /**
+   * Gets the clan environment of the player.
+   *
+   * @param playerId - The ID of the player.
+   * @returns The clan environment of the player or undefined if not set.
+   * @throws Will throw if there are errors reading the player document.
+   */
+  async getPlayerClanEnvironment(playerId: string): Promise<Environment> {
+    const [player, playerErrors] = await this.getPlayerById(playerId, {
+      includeRefs: [ModelName.CLAN],
+    });
+    if (playerErrors) throw playerErrors;
+
+    const clanEnvironment = (await this.clanModel.findById(player.clan_id))
+      .environment;
+
+    return clanEnvironment;
   }
 
   private clearClanReferences = async (

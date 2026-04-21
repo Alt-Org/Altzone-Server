@@ -86,6 +86,9 @@ export class LeaderboardController {
   @UniformResponse()
   async getClanPosition(@LoggedUser() user: User) {
     const clanId = await this.playerService.getPlayerClanId(user.player_id);
-    return this.leaderBoardService.getClanPosition(clanId);
+    const clanEnvironment = await this.playerService.getPlayerClanEnvironment(
+      user.player_id,
+    );
+    return this.leaderBoardService.getClanPosition(clanId, clanEnvironment);
   }
 }
