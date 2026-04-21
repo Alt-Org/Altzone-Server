@@ -83,7 +83,7 @@ export class ClanService {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
-    const playerProfile = await this.profileModel.findOne({ player_id });
+    const playerProfile = await this.profileModel.findById(player_id);
 
     if (playerProfile.environment === Environment.TEACHING_DEMO) {
       clanToCreate.environment = Environment.TEACHING_DEMO;
@@ -275,7 +275,7 @@ export class ClanService {
         await this.playerService.readOneById<PlayerDto>(player_id);
       if (playerErrors || !player || !player.clan_id) continue;
 
-      const playerProfile = await this.profileModel.findOne({ player_id });
+      const playerProfile = await this.profileModel.findById(player_id);
 
       if (playerProfile.environment !== environment) {
         return [
