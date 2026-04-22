@@ -51,7 +51,6 @@ export class PlayerService
   public readonly refsInModel: ModelName[];
   public readonly modelName: ModelName;
   public readonly basicService: BasicService;
-  public readonly clanModel: Model<Clan>;
 
   /**
    * Retrieves a player by their unique identifier.
@@ -186,11 +185,11 @@ export class PlayerService
   }
 
   /**
-   * Gets the clan environment of the player.
+   * Gets the clan environment value of the player.
    *
    * @param playerId - The ID of the player.
-   * @returns The clan environment of the player or undefined if not set.
-   * @throws Will throw if there are errors reading the player document.
+   * @returns The clan environment value of the player.
+   * @throws Will throw if there are errors reading the player or clan document.
    */
   async getPlayerClanEnvironment(playerId: string): Promise<Environment> {
     const [player, playerErrors] = await this.getPlayerById(playerId, {
@@ -198,10 +197,12 @@ export class PlayerService
     });
     if (playerErrors) throw playerErrors;
 
-    const clanEnvironment = (await this.clanModel.findById(player.clan_id))
-      .environment;
+    const [clan, clanErrors] = await this.basicService.readOneById<Clan>(
+      player.clan_id,
+    );
+    if (clanErrors) throw clanErrors;
 
-    return clanEnvironment;
+    return clan.environment;
   }
 
   private clearClanReferences = async (
