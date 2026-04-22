@@ -64,8 +64,6 @@ export class ClanService {
   public readonly basicService: BasicService;
   public readonly playerService: BasicService;
 
-  private readonly profileModel: Model<Profile>;
-
   /**
    * Crete a new Clan with other default objects.
    *
@@ -83,11 +81,14 @@ export class ClanService {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
-    const playerProfile = await this.profileModel.findById(player_id);
+    const [profile, profileErrors] =
+      await this.basicService.readOneById<Profile>(player_id);
 
-    if (playerProfile.environment === Environment.TEACHING_DEMO) {
+    if (profileErrors) return await cancelTransaction(session, profileErrors);
+
+    if (profile.environment === Environment.TEACHING_DEMO) {
       clanToCreate.environment = Environment.TEACHING_DEMO;
-      clanToCreate.expiresAt = playerProfile.expiresAt;
+      clanToCreate.expiresAt = profile.expiresAt;
     } else {
       clanToCreate.environment = Environment.OPEN_DEMO;
     }
@@ -275,9 +276,10 @@ export class ClanService {
         await this.playerService.readOneById<PlayerDto>(player_id);
       if (playerErrors || !player || !player.clan_id) continue;
 
-      const playerProfile = await this.profileModel.findById(player_id);
+      const [profile, _profileErrors] =
+        await this.basicService.readOneById<Profile>(player_id);
 
-      if (playerProfile.environment !== environment) {
+      if (profile.environment !== environment) {
         return [
           null,
           [
