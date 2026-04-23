@@ -7,10 +7,12 @@ import { getStallDefaultValues } from '../../clan/defaultValues/stall';
 import { StallResponse } from './dto/stallResponse.dto';
 import { Stall } from '../../clan/stall/stall.schema';
 import { FleaMarketAdPosterDto } from './dto/adPoster.dto';
-
+import { ItemService } from 'src/clanInventory/item/item.service';
 @Injectable()
 export class StallService {
-  constructor(private readonly clanService: ClanService) {}
+  constructor(
+    private readonly clanService: ClanService,
+    private readonly itemService: ItemService) {}
 
   /**
    * Returns the stall by clan id
@@ -28,7 +30,10 @@ export class StallService {
   }
 
   /**
-   * Returns all stalls for all clans
+   * Returns all stalls for all clans and get also furniture items for each stall
+   *
+   * @returns Array of StallResponse objects containing stall details and furniture items
+   *
    */
   async readAll(): Promise<IServiceReturn<StallResponse[]>> {
     const [clans, error] = await this.clanService.readAll({
@@ -38,8 +43,24 @@ export class StallService {
     if (error) {
       return [null, error];
     }
+    
+    // get furniture items for each stall and add them to the response
+    const stallsWithFurniture: StallResponse[] = [];
+    for (const clan of clans) {
+      const stall = clan.stall;
+      const furnitureItems = await this.itemService.readMany({
+        filter: {
+          isFurniture: true,
+        },
+      });
+      stallsWithFurniture.push({
+        adPoster: stall.adPoster,
+        maxSlots: stall.maxSlots,
+        furnitureItems: furnitureItems[0].map(item => item.name),
+      });
+    }
 
-    return [clans.map((clan) => clan.stall), null];
+    return [stallsWithFurniture, null];
   }
 
   /**
