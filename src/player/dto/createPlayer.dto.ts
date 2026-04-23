@@ -2,6 +2,8 @@ import {
   ArrayMaxSize,
   IsArray,
   IsBoolean,
+  IsDate,
+  IsEnum,
   IsInt,
   IsMongoId,
   IsOptional,
@@ -16,6 +18,7 @@ import { Type } from 'class-transformer';
 import { ModifyAvatarDto } from './modifyAvatar.dto';
 import { IsMongoIdOrNull } from '../../common/decorator/validation/IsMongoIdOrNull.decorator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Environment } from '../../common/enum/environment.enum';
 
 @AddType('CreatePlayerDto')
 export class CreatePlayerDto {
@@ -102,4 +105,25 @@ export class CreatePlayerDto {
   @ValidateNested()
   @Type(() => ModifyAvatarDto)
   avatar?: ModifyAvatarDto;
+
+  /**
+   * Environment mode linked to the player profile (Teaching Mode or Open Mode)
+   * 0 = teaching mode (default), 1 = open mode
+   *
+   * @example 0
+   * @example 1
+   */
+  @IsOptional()
+  @IsEnum([Environment.TEACHING_DEMO, Environment.OPEN_DEMO])
+  @IsInt()
+  environment?: number;
+
+  /**
+   * Expiration date linked to the player profile
+   *
+   * @example "2025-05-16T10:00:00.000Z"
+   */
+  @IsOptional()
+  @IsDate()
+  expiresAt?: Date;
 }

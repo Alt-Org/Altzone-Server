@@ -7,6 +7,7 @@ import { ObjectId } from 'mongodb';
 import { Avatar, AvatarSchema } from './avatar.schema';
 import { PlayerEmotion } from '../enum/playerEmotion.enum';
 import { EmotionDto } from '../dto/emotion.dto';
+import { Environment } from '../../common/enum/environment.enum';
 
 export type PlayerDocument = HydratedDocument<Player>;
 
@@ -82,6 +83,16 @@ export class Player {
   })
   emotions?: EmotionDto[];
 
+  @Prop({
+    type: Number,
+    enum: [Environment.TEACHING_DEMO, Environment.OPEN_DEMO],
+    ref: ModelName.PROFILE,
+  })
+  environment?: number;
+
+  @Prop({ type: Date, ref: ModelName.PROFILE })
+  expiresAt?: Date;
+
   @ExtractField()
   _id: string;
 }
@@ -112,6 +123,7 @@ PlayerSchema.virtual(ModelName.DAILY_TASK, {
 });
 PlayerSchema.index({ points: -1 });
 PlayerSchema.index({ battlePoints: -1 });
+PlayerSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export const publicReferences = [
   ModelName.CLAN,

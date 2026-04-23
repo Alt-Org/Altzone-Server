@@ -15,4 +15,10 @@ export class ProfileDto {
   @Type(() => PlayerDto)
   @Expose()
   Player: PlayerDto;
+
+  @Expose()
+  environment?: number;
+
+  @Expose()
+  expiresAt?: Date;
 }

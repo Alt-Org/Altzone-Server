@@ -154,4 +154,16 @@ export class PlayerDto {
   @Type(() => EmotionDto)
   @Expose()
   emotions?: EmotionDto[];
+
+  /**
+   * Environment value linked to player profile
+   */
+  @Expose()
+  environment?: number;
+
+  /**
+   * Expiration date linked to player profile
+   */
+  @Expose()
+  expiresAt?: Date;
 }
