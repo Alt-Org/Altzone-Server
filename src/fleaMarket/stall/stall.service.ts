@@ -12,7 +12,8 @@ import { ItemService } from 'src/clanInventory/item/item.service';
 export class StallService {
   constructor(
     private readonly clanService: ClanService,
-    private readonly itemService: ItemService) {}
+    private readonly itemService: ItemService,
+  ) {}
 
   /**
    * Returns the stall by clan id
@@ -43,7 +44,7 @@ export class StallService {
     if (error) {
       return [null, error];
     }
-    
+
     // get furniture items for each stall and add them to the response
     const stallsWithFurniture: StallResponse[] = [];
     for (const clan of clans) {
@@ -56,7 +57,7 @@ export class StallService {
       stallsWithFurniture.push({
         adPoster: stall.adPoster,
         maxSlots: stall.maxSlots,
-        furnitureItems: furnitureItems[0].map(item => item.name),
+        furnitureItems: furnitureItems[0].map((item) => item.name),
       });
     }
 
