@@ -35,7 +35,6 @@ import {
   initializeSession,
 } from '../common/function/Transactions';
 import { Environment } from '../common/enum/environment.enum';
-import { Profile } from '../profile/profile.schema';
 
 type CreateWithoutDtoType = Clan & {
   soulHome: SoulHome;
@@ -81,14 +80,15 @@ export class ClanService {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
-    const [profile, profileErrors] =
-      await this.basicService.readOneById<Profile>(player_id);
+    const [clanCreator, clanCreatorErrors] =
+      await this.playerService.readOneById<PlayerDto>(player_id);
 
-    if (profileErrors) return await cancelTransaction(session, profileErrors);
+    if (clanCreatorErrors)
+      return await cancelTransaction(session, clanCreatorErrors);
 
-    if (profile.environment === Environment.TEACHING_DEMO) {
+    if (clanCreator.environment === Environment.TEACHING_DEMO) {
       clanToCreate.environment = Environment.TEACHING_DEMO;
-      clanToCreate.expiresAt = profile.expiresAt;
+      clanToCreate.expiresAt = clanCreator.expiresAt;
     } else {
       clanToCreate.environment = Environment.OPEN_DEMO;
     }
@@ -276,10 +276,7 @@ export class ClanService {
         await this.playerService.readOneById<PlayerDto>(player_id);
       if (playerErrors || !player || !player.clan_id) continue;
 
-      const [profile, _profileErrors] =
-        await this.basicService.readOneById<Profile>(player_id);
-
-      if (profile.environment !== environment) {
+      if (player.environment !== environment) {
         return [
           null,
           [
