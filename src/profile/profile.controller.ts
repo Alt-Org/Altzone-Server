@@ -37,6 +37,7 @@ import { AuthService } from '../auth/auth.service';
 import { GuestProfileDto } from './dto/guestProfile.dto';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
 import { SecurityAnswerDto } from './dto/securityAnswer.dto';
+import { Environment } from '../common/enum/environment.enum';
 
 @Controller('profile')
 export default class ProfileController {
@@ -77,7 +78,17 @@ export default class ProfileController {
     if (errors) return [null, errors];
 
     const createdProfile_id = createdProfile._id;
+    const createdProfile_environment =
+      createdProfile.environment ?? Environment.TEACHING_DEMO;
+    const createdProfile_expiresAt = createdProfile.expiresAt;
+
     Player['profile_id'] = createdProfile_id;
+    Player['environment'] = createdProfile_environment;
+
+    if (Player['environment'] == Environment.TEACHING_DEMO) {
+      Player['expiresAt'] = createdProfile_expiresAt;
+    }
+
     try {
       const playerResp = await this.playerService.createOne(Player);
       if (playerResp && !(playerResp instanceof MongooseError))
