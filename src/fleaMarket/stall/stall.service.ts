@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { ClanService } from '../../clan/clan.service';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
@@ -7,12 +8,14 @@ import { getStallDefaultValues } from '../../clan/defaultValues/stall';
 import { StallResponse } from './dto/stallResponse.dto';
 import { Stall } from '../../clan/stall/stall.schema';
 import { FleaMarketAdPosterDto } from './dto/adPoster.dto';
-import { ItemService } from 'src/clanInventory/item/item.service';
+import { Model } from 'mongoose';
+import { FleaMarketItem } from '../fleaMarketItem.schema';
 @Injectable()
 export class StallService {
   constructor(
     private readonly clanService: ClanService,
-    private readonly itemService: ItemService,
+    @InjectModel(FleaMarketItem.name)
+    private readonly fleaMarketItemModel: Model<FleaMarketItem>,
   ) {}
 
   /**
@@ -49,15 +52,24 @@ export class StallService {
     const stallsWithFurniture: StallResponse[] = [];
     for (const clan of clans) {
       const stall = clan.stall;
-      const furnitureItems = await this.itemService.readMany({
-        filter: {
-          isFurniture: true,
-        },
+      const furnitureItems = await this.fleaMarketItemModel.find({
+        clan_id: clan._id,
+        isFurniture: true,
       });
+
+      // check if furnitureItems is empty and if so, return the stall without furniture items
+      if (furnitureItems.length === 0) {
+        stallsWithFurniture.push({
+          adPoster: stall.adPoster,
+          maxSlots: stall.maxSlots,
+          furnitureItems: [],
+        });
+        continue;
+      }
       stallsWithFurniture.push({
         adPoster: stall.adPoster,
         maxSlots: stall.maxSlots,
-        furnitureItems: furnitureItems[0].map((item) => item.name),
+        furnitureItems: furnitureItems.map((item) => item.name),
       });
     }
 
