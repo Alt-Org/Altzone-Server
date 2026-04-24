@@ -89,9 +89,9 @@ export class Clan {
 
   @Prop({
     type: Number,
-    enum: [Environment.TEACHING_DEMO, Environment.OPEN_DEMO],
+    enum: Environment,
   })
-  environment?: number;
+  environment?: Environment;
 
   @Prop({ type: Date })
   expiresAt?: Date;

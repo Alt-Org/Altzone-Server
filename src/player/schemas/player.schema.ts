@@ -85,10 +85,10 @@ export class Player {
 
   @Prop({
     type: Number,
-    enum: [Environment.TEACHING_DEMO, Environment.OPEN_DEMO],
+    enum: Environment,
     ref: ModelName.PROFILE,
   })
-  environment?: number;
+  environment?: Environment;
 
   @Prop({ type: Date, ref: ModelName.PROFILE })
   expiresAt?: Date;
