@@ -22,6 +22,8 @@ import { ChangeItemStatusDto } from './dto/changeItemStatus.dto';
 import { Status } from './enum/status.enum';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
+import { ClanService } from 'src/clan/clan.service';
+import { ItemService } from 'src/clanInventory/item/item.service';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
@@ -29,7 +31,57 @@ export class FleaMarketController {
     private readonly service: FleaMarketService,
     private readonly playerService: PlayerService,
     private readonly emitterService: EventEmitterService,
+    private readonly clanService: ClanService,
+    private readonly itemService: ItemService,
   ) {}
+
+  /**
+   * Fetch all the furniture, that the clan has accepted for selling
+   * The furniture can be in a stall or not. If no furniture is found,
+   * null is returned.
+   *
+   * @remarks Fetch all the furniture, that the clan has accepted for selling
+   * The furniture can be in a stall or not.
+   * Player will need a SHOP clan right.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 200,
+      modelName: ModelName.STALL,
+    },
+    errors: [400, 403, 404],
+  })
+  @HasClanRights([ClanBasicRight.SHOP])
+  @Get('ownClan')
+  @UniformResponse(ModelName.STALL)
+  async getOwnClanStall(@LoggedUser() user: User) {
+    const clanId = await this.playerService.getPlayerClanId(user.player_id);
+
+    if (!clanId) {
+      throw new APIError({
+        reason: APIErrorReason.NOT_AUTHORIZED,
+        message: 'Player must be a member of a clan to access this resource',
+      });
+    }
+
+    const [clan, clanErrors] = await this.clanService.readOneById(clanId);
+    if (clanErrors) return [null, clanErrors];
+
+    const [items, itemErrors] = await this.service.readMany({
+      filter: {
+        clan_id: clanId,
+        isFurniture: true,
+      },
+    });
+
+    if (itemErrors) return [null, itemErrors];
+
+    return {
+      adPoster: clan.stall?.adPoster ?? null,
+      maxSlots: clan.stall?.maxSlots ?? 0,
+      furnitureItems: items,
+    };
+  }
 
   /**
    * Get flea market item by _id.
