@@ -7,15 +7,19 @@ import { AdPoster, Stall } from '../../../../clan/stall/stall.schema';
 import ServiceError from '../../../../common/service/basicService/ServiceError';
 import { SEReason } from '../../../../common/service/basicService/SEReason';
 import { ClanService } from '../../../../clan/clan.service';
+import FleaMarketItemBuilder from '../../data/fleaMarket/FleaMarketItemBuilder';
+import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
 
 describe('StallService.ReadAll() test suite', () => {
   let stallService: StallService;
   let clanService: ClanService;
 
   const clanModel = ClanModule.getClanModel();
+  const fleaMarketItemModel = FleaMarketModule.getFleaMarketItemModel();
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
   const adPosterBuilder = ClanBuilderFactory.getBuilder('AdPoster');
   const stallBuilder = ClanBuilderFactory.getBuilder('Stall');
+  const fleaMarketItemBuilder = new FleaMarketItemBuilder();
 
   let adPoster1: AdPoster;
   let stall1: Stall;
@@ -30,6 +34,7 @@ describe('StallService.ReadAll() test suite', () => {
 
   beforeEach(async () => {
     await clanModel.deleteMany({});
+    await fleaMarketItemModel.deleteMany({});
     await jest.clearAllMocks();
 
     stallService = await FleaMarketModule.getStallService();
@@ -41,7 +46,7 @@ describe('StallService.ReadAll() test suite', () => {
       .setMainFurniture('table')
       .build();
     stall1 = stallBuilder.setAdPoster(adPoster1).setMaxSlots(10).build();
-    clanToCreate1 = clanBuilder.setName('clan1').setStall(stall1).build();
+    clanToCreate1 = clanBuilder.setName('clan1_').setStall(stall1).build();
 
     adPoster2 = adPosterBuilder
       .setBorder('border2')
@@ -49,7 +54,7 @@ describe('StallService.ReadAll() test suite', () => {
       .setMainFurniture('chair')
       .build();
     stall2 = stallBuilder.setAdPoster(adPoster2).setMaxSlots(12).build();
-    clanToCreate2 = clanBuilder.setName('clan2').setStall(stall2).build();
+    clanToCreate2 = clanBuilder.setName('clan2_').setStall(stall2).build();
   });
 
   it('Should return all stalls for clans with stalls', async () => {
@@ -71,11 +76,48 @@ describe('StallService.ReadAll() test suite', () => {
     });
   });
 
+  it('Should return only furniture items belonging to each clan stall', async () => {
+    const createdClan1 = await clanModel.create(clanToCreate1);
+    const createdClan2 = await clanModel.create(clanToCreate2);
+
+    await fleaMarketItemModel.create(
+      fleaMarketItemBuilder
+        .setName(ItemName.CLOSET_RAKKAUS)
+        .setUnityKey('stall-readall-clan1-furniture')
+        .setClanId(createdClan1._id.toString())
+        .setIsFurniture(true)
+        .build(),
+    );
+    await fleaMarketItemModel.create(
+      fleaMarketItemBuilder
+        .setName(ItemName.WORK_TABLE)
+        .setUnityKey('stall-readall-clan2-furniture')
+        .setClanId(createdClan2._id.toString())
+        .setIsFurniture(true)
+        .build(),
+    );
+    await fleaMarketItemModel.create(
+      fleaMarketItemBuilder
+        .setName(ItemName.MIRROR_RAKKAUS)
+        .setUnityKey('stall-readall-clan1-nonfurniture')
+        .setClanId(createdClan1._id.toString())
+        .setIsFurniture(false)
+        .build(),
+    );
+
+    const [result, error] = await stallService.readAll();
+
+    expect(error).toBeNull();
+    expect(result).toHaveLength(2);
+    expect(result[0].furnitureItems).toEqual([ItemName.CLOSET_RAKKAUS]);
+    expect(result[1].furnitureItems).toEqual([ItemName.WORK_TABLE]);
+  });
+
   it('Should return NOT_FOUND error when no clans with stalls', async () => {
     await clanModel.deleteMany({});
 
-    clanToCreateNoStall1 = clanBuilder.setName('clan1').setStall(null).build();
-    clanToCreateNoStall2 = clanBuilder.setName('clan2').setStall(null).build();
+    clanToCreateNoStall1 = clanBuilder.setName('clan1_').setStall(null).build();
+    clanToCreateNoStall2 = clanBuilder.setName('clan2_').setStall(null).build();
     await clanModel.create(clanToCreateNoStall1);
     await clanModel.create(clanToCreateNoStall2);
 
