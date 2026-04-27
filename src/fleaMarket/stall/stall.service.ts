@@ -67,7 +67,6 @@ export class StallService {
         maxSlots: stall.maxSlots,
         furnitureItems: furnitureItemNames,
       });
-      
     }
 
     return [stallsWithFurniture, null];
