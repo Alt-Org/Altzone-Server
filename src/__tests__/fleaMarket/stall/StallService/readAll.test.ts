@@ -34,7 +34,6 @@ describe('StallService.ReadAll() test suite', () => {
 
   beforeEach(async () => {
     await clanModel.deleteMany({});
-    await fleaMarketItemModel.deleteMany({});
     await jest.clearAllMocks();
 
     stallService = await FleaMarketModule.getStallService();
@@ -46,7 +45,7 @@ describe('StallService.ReadAll() test suite', () => {
       .setMainFurniture('table')
       .build();
     stall1 = stallBuilder.setAdPoster(adPoster1).setMaxSlots(10).build();
-    clanToCreate1 = clanBuilder.setName('clan1_').setStall(stall1).build();
+    clanToCreate1 = clanBuilder.setName('clan1').setStall(stall1).build();
 
     adPoster2 = adPosterBuilder
       .setBorder('border2')
@@ -54,7 +53,7 @@ describe('StallService.ReadAll() test suite', () => {
       .setMainFurniture('chair')
       .build();
     stall2 = stallBuilder.setAdPoster(adPoster2).setMaxSlots(12).build();
-    clanToCreate2 = clanBuilder.setName('clan2_').setStall(stall2).build();
+    clanToCreate2 = clanBuilder.setName('clan2').setStall(stall2).build();
   });
 
   it('Should return all stalls for clans with stalls', async () => {
@@ -62,15 +61,19 @@ describe('StallService.ReadAll() test suite', () => {
     await clanModel.create(clanToCreate2);
 
     const [result, error] = await stallService.readAll();
-
+    // take into result only adPoster and maxSlots fields for easier assertion
+    const processedResult = result.map((stall) => ({
+      adPoster: stall.adPoster,
+      maxSlots: stall.maxSlots,
+    }));
     expect(error).toBeNull();
-    expect(result).toHaveLength(2);
+    expect(processedResult).toHaveLength(2);
 
-    expect(result[0]).toMatchObject({
+    expect(processedResult[0]).toMatchObject({
       adPoster: adPoster1,
       maxSlots: stall1.maxSlots,
     });
-    expect(result[1]).toMatchObject({
+    expect(processedResult[1]).toMatchObject({
       adPoster: adPoster2,
       maxSlots: stall2.maxSlots,
     });
@@ -116,8 +119,8 @@ describe('StallService.ReadAll() test suite', () => {
   it('Should return NOT_FOUND error when no clans with stalls', async () => {
     await clanModel.deleteMany({});
 
-    clanToCreateNoStall1 = clanBuilder.setName('clan1_').setStall(null).build();
-    clanToCreateNoStall2 = clanBuilder.setName('clan2_').setStall(null).build();
+    clanToCreateNoStall1 = clanBuilder.setName('clan1').setStall(null).build();
+    clanToCreateNoStall2 = clanBuilder.setName('clan2').setStall(null).build();
     await clanModel.create(clanToCreateNoStall1);
     await clanModel.create(clanToCreateNoStall2);
 
