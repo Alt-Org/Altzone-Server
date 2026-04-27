@@ -57,20 +57,17 @@ export class StallService {
         isFurniture: true,
       });
 
-      // check if furnitureItems is empty and if so, return the stall without furniture items
-      if (furnitureItems.length === 0) {
-        stallsWithFurniture.push({
-          adPoster: stall.adPoster,
-          maxSlots: stall.maxSlots,
-          furnitureItems: [],
-        });
-        continue;
-      }
+      // if clan's stall has no furniture item, return empty list, otherwise return list of furniture item names
+      const furnitureItemNames = furnitureItems.length
+        ? furnitureItems.map((item) => item.name)
+        : [];
+
       stallsWithFurniture.push({
         adPoster: stall.adPoster,
         maxSlots: stall.maxSlots,
-        furnitureItems: furnitureItems.map((item) => item.name),
+        furnitureItems: furnitureItemNames,
       });
+      
     }
 
     return [stallsWithFurniture, null];
