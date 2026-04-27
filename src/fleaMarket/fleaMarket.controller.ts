@@ -22,8 +22,6 @@ import { ChangeItemStatusDto } from './dto/changeItemStatus.dto';
 import { Status } from './enum/status.enum';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
-import { ClanService } from 'src/clan/clan.service';
-import { ItemService } from 'src/clanInventory/item/item.service';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
@@ -31,8 +29,6 @@ export class FleaMarketController {
     private readonly service: FleaMarketService,
     private readonly playerService: PlayerService,
     private readonly emitterService: EventEmitterService,
-    private readonly clanService: ClanService,
-    private readonly itemService: ItemService,
   ) {}
 
   /**
@@ -64,23 +60,7 @@ export class FleaMarketController {
       });
     }
 
-    const [clan, clanErrors] = await this.clanService.readOneById(clanId);
-    if (clanErrors) return [null, clanErrors];
-
-    const [items, itemErrors] = await this.service.readMany({
-      filter: {
-        clan_id: clanId,
-        isFurniture: true,
-      },
-    });
-
-    if (itemErrors) return [null, itemErrors];
-
-    return {
-      adPoster: clan.stall?.adPoster ?? null,
-      maxSlots: clan.stall?.maxSlots ?? 0,
-      furnitureItems: items,
-    };
+    return await this.service.getClanFurnitureItems(clanId);
   }
 
   /**
