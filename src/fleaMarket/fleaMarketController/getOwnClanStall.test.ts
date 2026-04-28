@@ -99,7 +99,9 @@ describe('FleaMarketController.getOwnClanStall() test suite', () => {
 
   it('Should return service errors if flea market has no furniture items for the clan', async () => {
     const clan = clanBuilder.build();
-    const itemErrors = [{ message: 'Could not find any objects with specified condition' }] as any;
+    const itemErrors = [
+      { message: 'Could not find any objects with specified condition' },
+    ] as any;
 
     playerService.getPlayerClanId.mockResolvedValue(clanId);
     clanService.readOneById.mockResolvedValue([clan, null]);
