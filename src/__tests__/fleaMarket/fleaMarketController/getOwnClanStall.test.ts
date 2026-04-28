@@ -110,4 +110,41 @@ describe('FleaMarketController.getOwnClanStall() test suite', () => {
 
     expect(result).toEqual([null, itemErrors]);
   });
+  
+  // test, that the furniture created here are returned in the response, if they're in a stall
+  it('Should return furniture items in the response if they are in a stall', async () => {
+    const item1 = fleaMarketItemBuilder
+      .setId('item-1')
+      .setClanId(clanId)
+      .setIsFurniture(true)
+      .build();
+    const item2 = fleaMarketItemBuilder
+      .setId('item-2')
+      .setClanId(clanId)
+      .setIsFurniture(true)
+      .build();
+
+    const clan = clanBuilder
+      .setStall({
+        adPoster: {
+          border: 'solid',
+          colour: 'blue',
+          mainFurniture: 'Closet_Rakkaus',
+        },
+        maxSlots: 7,
+      } as any)
+      .build();
+
+    playerService.getPlayerClanId.mockResolvedValue(clanId);
+    clanService.readOneById.mockResolvedValue([clan, null]);
+    fleaMarketService.readMany.mockResolvedValue([[item1, item2], null]);
+
+    const result = await controller.getOwnClanStall(user);
+
+    expect(result).toEqual({
+      adPoster: clan.stall.adPoster,
+      maxSlots: clan.stall.maxSlots,
+      furnitureItems: [item1, item2],
+    });
+  });
 });
