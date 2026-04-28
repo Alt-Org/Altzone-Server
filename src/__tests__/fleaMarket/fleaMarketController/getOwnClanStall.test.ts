@@ -1,10 +1,10 @@
-import { FleaMarketController } from '../../fleaMarket/fleaMarket.controller';
-import { FleaMarketService } from '../../fleaMarket/fleaMarket.service';
-import { PlayerService } from '../../player/player.service';
-import EventEmitterService from '../../common/service/EventEmitterService/EventEmitter.service';
-import { ClanService } from '../../clan/clan.service';
-import { User } from '../../auth/user';
-import { APIErrorReason } from '../../common/controller/APIErrorReason';
+import { FleaMarketController } from '../../../fleaMarket/fleaMarket.controller';
+import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
+import { PlayerService } from '../../../player/player.service';
+import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
+import { ClanService } from '../../../clan/clan.service';
+import { User } from '../../../auth/user';
+import { APIErrorReason } from '../../../common/controller/APIErrorReason';
 import FleaMarketBuilderFactory from 'src/__tests__/fleaMarket/data/fleaMarketBuilderFactory';
 import ClanBuilderFactory from 'src/__tests__/clan/data/clanBuilderFactory';
 
