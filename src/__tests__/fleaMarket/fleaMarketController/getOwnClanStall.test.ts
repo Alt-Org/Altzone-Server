@@ -110,7 +110,7 @@ describe('FleaMarketController.getOwnClanStall() test suite', () => {
 
     expect(result).toEqual([null, itemErrors]);
   });
-  
+
   // test, that the furniture created here are returned in the response, if they're in a stall
   it('Should return furniture items in the response if they are in a stall', async () => {
     const item1 = fleaMarketItemBuilder
