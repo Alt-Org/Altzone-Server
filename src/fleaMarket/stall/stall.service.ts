@@ -57,7 +57,7 @@ export class StallService {
         isFurniture: true,
       });
 
-      // if clan's stall has no furniture item, return empty list, otherwise return list of furniture item names
+      // if clan's stall has no furniture items, return empty list, otherwise return list of furniture item names
       const furnitureItemNames = furnitureItems.length
         ? furnitureItems.map((item) => item.name)
         : [];
