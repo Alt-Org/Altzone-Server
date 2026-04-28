@@ -5,8 +5,8 @@ import EventEmitterService from '../../../common/service/EventEmitterService/Eve
 import { ClanService } from '../../../clan/clan.service';
 import { User } from '../../../auth/user';
 import { APIErrorReason } from '../../../common/controller/APIErrorReason';
-import FleaMarketBuilderFactory from 'src/__tests__/fleaMarket/data/fleaMarketBuilderFactory';
-import ClanBuilderFactory from 'src/__tests__/clan/data/clanBuilderFactory';
+import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
+import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 
 describe('FleaMarketController.getOwnClanStall() test suite', () => {
   let controller: FleaMarketController;

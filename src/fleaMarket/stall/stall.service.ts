@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ClanService } from '../../clan/clan.service';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
-import { IServiceReturn } from 'src/common/service/basicService/IService';
+import { IServiceReturn } from '../../common/service/basicService/IService';
 import { getStallDefaultValues } from '../../clan/defaultValues/stall';
 import { StallResponse } from './dto/stallResponse.dto';
 import { Stall } from '../../clan/stall/stall.schema';
