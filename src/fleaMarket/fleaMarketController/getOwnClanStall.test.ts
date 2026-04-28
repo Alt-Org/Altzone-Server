@@ -3,7 +3,6 @@ import { FleaMarketService } from '../../fleaMarket/fleaMarket.service';
 import { PlayerService } from '../../player/player.service';
 import EventEmitterService from '../../common/service/EventEmitterService/EventEmitter.service';
 import { ClanService } from '../../clan/clan.service';
-import { ItemService } from '../../clanInventory/item/item.service';
 import { User } from '../../auth/user';
 import { APIErrorReason } from '../../common/controller/APIErrorReason';
 import FleaMarketBuilderFactory from 'src/__tests__/fleaMarket/data/fleaMarketBuilderFactory';
