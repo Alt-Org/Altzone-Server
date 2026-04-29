@@ -9,7 +9,6 @@ import { CacheKeys } from '../common/service/redis/cacheKeys.enum';
 import { RedisService } from '../common/service/redis/redis.service';
 import { PlayerDocument } from '../player/schemas/player.schema';
 import { envVars } from '../common/service/envHandler/envVars';
-import { Environment } from '../common/enum/environment.enum';
 
 @Injectable()
 export class LeaderboardService {
@@ -120,19 +119,18 @@ export class LeaderboardService {
    * Method to get the position on the clan leaderboard.
    *
    * @param clanId - The ID of the clan.
-   * @param clanEnvironment . The environment of the clan
    * @returns An object { position: number }
    */
-  async getClanPosition(clanId: string, clanEnvironment?: Environment) {
+  async getClanPosition(clanId: string) {
     const leaderboard = await this.getLeaderboard(
       CacheKeys.CLAN_LEADERBOARD,
       this.clanService.model,
     );
 
-    if (!clanEnvironment) throw new ServiceError({ reason: SEReason.REQUIRED });
+    const [clanData, _] = await this.clanService.readOneById(clanId);
 
     const filteredLeaderboard = leaderboard.filter(
-      (clan) => clan['environment'] === clanEnvironment,
+      (clan) => clan['environment'] === clanData.environment,
     );
 
     const position =
