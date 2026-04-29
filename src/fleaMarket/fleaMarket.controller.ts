@@ -32,6 +32,38 @@ export class FleaMarketController {
   ) {}
 
   /**
+   * Fetch all the furniture, that the clan has accepted for selling
+   * The furniture can be in a stall or not. If no furniture is found,
+   * null is returned.
+   *
+   * @remarks Fetch all the furniture, that the clan has accepted for selling
+   * The furniture can be in a stall or not.
+   * Player has a right to SHOP.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 200,
+      modelName: ModelName.STALL,
+    },
+    errors: [400, 403, 404],
+  })
+  @HasClanRights([ClanBasicRight.SHOP])
+  @Get('ownClan')
+  @UniformResponse(ModelName.STALL)
+  async getOwnClanStall(@LoggedUser() user: User) {
+    const clanId = await this.playerService.getPlayerClanId(user.player_id);
+
+    if (!clanId) {
+      throw new APIError({
+        reason: APIErrorReason.NOT_AUTHORIZED,
+        message: 'Player must be a member of a clan to access this resource',
+      });
+    }
+
+    return await this.service.getClanFurnitureItems(clanId);
+  }
+
+  /**
    * Get flea market item by _id.
    *
    * @remarks Get an individual FleaMarketItem by its mongo _id field.

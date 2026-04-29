@@ -46,4 +46,11 @@ export class StallResponse {
    */
   @Expose()
   maxSlots?: number;
+
+  /**
+   * Furniture items that are currently in the stall
+   * @example ["chair", "lamp"]
+   */
+  @Expose()
+  furnitureItems?: string[];
 }

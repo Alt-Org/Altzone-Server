@@ -36,6 +36,7 @@ import { SEReason } from '../common/service/basicService/SEReason';
 import { maxSlotsReachedError } from './errors/maxSlotsReached.error';
 import { ItemBookedError } from './errors/itemBooked.error';
 import { CreateItemDto } from '../clanInventory/item/dto/createItem.dto';
+import { StallResponse } from './stall/dto/stallResponse.dto';
 
 @Injectable()
 export class FleaMarketService {
@@ -85,6 +86,34 @@ export class FleaMarketService {
       _id,
       optionsToApply,
     );
+  }
+
+  /**
+   * Fetches all furniture items of a clan for the flea market.
+   *
+   * @param clan_id - The id of clan the logged-in user belongs to
+   * @returns An object containing the clan's ad poster, max stall slots, and furniture items, or an array of service errors if any occurred.
+   *
+   */
+  async getClanFurnitureItems(clan_id: string): Promise<IServiceReturn<StallResponse[]>> {
+    const [clan, clanErrors] = await this.clanService.readOneById(clan_id);
+    if (clanErrors) return [null, clanErrors];
+
+    // read items from flea market with the clan_id and isFurniture filter
+    const [items, itemErrors] = await this.readMany({
+      filter: {
+        clan_id: clan_id,
+        isFurniture: true,
+      },
+    });
+
+    if (itemErrors) return [null, itemErrors];
+
+    return {
+      adPoster: clan.stall?.adPoster ?? null,
+      maxSlots: clan.stall?.maxSlots ?? 0,
+      furnitureItems: items,
+    };
   }
 
   /**

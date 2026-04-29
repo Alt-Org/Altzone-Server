@@ -1,16 +1,22 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { ClanService } from '../../clan/clan.service';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
-import { IServiceReturn } from 'src/common/service/basicService/IService';
+import { IServiceReturn } from '../../common/service/basicService/IService';
 import { getStallDefaultValues } from '../../clan/defaultValues/stall';
 import { StallResponse } from './dto/stallResponse.dto';
 import { Stall } from '../../clan/stall/stall.schema';
 import { FleaMarketAdPosterDto } from './dto/adPoster.dto';
-
+import { Model } from 'mongoose';
+import { FleaMarketItem } from '../fleaMarketItem.schema';
 @Injectable()
 export class StallService {
-  constructor(private readonly clanService: ClanService) {}
+  constructor(
+    private readonly clanService: ClanService,
+    @InjectModel(FleaMarketItem.name)
+    private readonly fleaMarketItemModel: Model<FleaMarketItem>,
+  ) {}
 
   /**
    * Returns the stall by clan id
@@ -28,7 +34,10 @@ export class StallService {
   }
 
   /**
-   * Returns all stalls for all clans
+   * Returns all stalls for all clans and get also furniture items for each stall
+   *
+   * @returns Array of StallResponse objects containing stall details and furniture items
+   *
    */
   async readAll(): Promise<IServiceReturn<StallResponse[]>> {
     const [clans, error] = await this.clanService.readAll({
@@ -39,7 +48,28 @@ export class StallService {
       return [null, error];
     }
 
-    return [clans.map((clan) => clan.stall), null];
+    // get furniture items for each stall and add them to the response
+    const stallsWithFurniture: StallResponse[] = [];
+    for (const clan of clans) {
+      const stall = clan.stall;
+      const furnitureItems = await this.fleaMarketItemModel.find({
+        clan_id: clan._id,
+        isFurniture: true,
+      });
+
+      // if clan's stall has no furniture items, return empty list, otherwise return list of furniture item names
+      const furnitureItemNames = furnitureItems.length
+        ? furnitureItems.map((item) => item.name)
+        : [];
+
+      stallsWithFurniture.push({
+        adPoster: stall.adPoster,
+        maxSlots: stall.maxSlots,
+        furnitureItems: furnitureItemNames,
+      });
+    }
+
+    return [stallsWithFurniture, null];
   }
 
   /**
