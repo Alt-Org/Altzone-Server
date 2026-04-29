@@ -38,7 +38,7 @@ export class FleaMarketController {
    *
    * @remarks Fetch all the furniture, that the clan has accepted for selling
    * The furniture can be in a stall or not.
-   * Player will need a SHOP clan right.
+   * Player has a right to SHOP.
    */
   @ApiResponseDescription({
     success: {
