@@ -166,12 +166,12 @@ export class ClanShopService {
       voting._id,
     );
     if (deleteError) await cancelTransaction(session, deleteError);
-    
+
     await session.commitTransaction();
     await session.endSession();
-    
+
     return endTransaction(session, true);
-  } 
+  }
 
   /**
    * Handles the event when a vote is rejected.
