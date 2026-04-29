@@ -98,7 +98,7 @@ export class FleaMarketService {
   async getClanFurnitureItems(
     clan_id: string,
   ): Promise<IServiceReturn<StallResponse>> {
-    const [items, itemErrors] = await this.itemService.readMany({
+    const [items, itemErrors] = await this.basicService.readMany({
       filter: {
         clan_id: clan_id,
         isFurniture: true,
@@ -109,7 +109,7 @@ export class FleaMarketService {
 
     return [
       {
-        furnitureItems: items.map((item) => item._id.toString()),
+        furnitureItems: items,
       },
       null,
     ];
