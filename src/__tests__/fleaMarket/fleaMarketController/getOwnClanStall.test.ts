@@ -2,11 +2,12 @@ import { FleaMarketController } from '../../../fleaMarket/fleaMarket.controller'
 import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
 import { PlayerService } from '../../../player/player.service';
 import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
-import { ClanService } from '../../../clan/clan.service';
 import { User } from '../../../auth/user';
 import { APIErrorReason } from '../../../common/controller/APIErrorReason';
 import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
-import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
+import { StallResponse } from '../../../fleaMarket/stall/dto/stallResponse.dto';
+import { IServiceReturn } from '../../../common/service/basicService/IService';
+import ServiceError from '../../../common/service/basicService/ServiceError';
 
 describe('FleaMarketController.getOwnClanStall() test suite', () => {
   let controller: FleaMarketController;
@@ -14,11 +15,9 @@ describe('FleaMarketController.getOwnClanStall() test suite', () => {
   let fleaMarketService: jest.Mocked<Partial<FleaMarketService>>;
   let playerService: jest.Mocked<Partial<PlayerService>>;
   let emitterService: jest.Mocked<Partial<EventEmitterService>>;
-  let clanService: jest.Mocked<Partial<ClanService>>;
 
   const fleaMarketItemBuilder =
     FleaMarketBuilderFactory.getBuilder('FleaMarketItemDto');
-  const clanBuilder = ClanBuilderFactory.getBuilder('ClanDto');
 
   const playerId = '69e3e045a752c7ade8734165';
   const clanId = '69e3e045a752c7ade873416f';
@@ -26,15 +25,12 @@ describe('FleaMarketController.getOwnClanStall() test suite', () => {
 
   beforeEach(() => {
     fleaMarketService = {
-      readMany: jest.fn(),
+      getClanFurnitureItems: jest.fn(),
     };
     playerService = {
       getPlayerClanId: jest.fn(),
     };
     emitterService = {};
-    clanService = {
-      readOneById: jest.fn(),
-    };
 
     controller = new FleaMarketController(
       fleaMarketService as unknown as FleaMarketService,
@@ -43,7 +39,7 @@ describe('FleaMarketController.getOwnClanStall() test suite', () => {
     );
   });
 
-  it('Should return clan stall data with furniture items accepted for selling', async () => {
+  it("Should return clan furniture items whether they're in the stall or not", async () => {
     const item1 = fleaMarketItemBuilder
       .setId('item-1')
       .setClanId(clanId)
@@ -55,36 +51,22 @@ describe('FleaMarketController.getOwnClanStall() test suite', () => {
       .setIsFurniture(true)
       .build();
 
-    const clan = clanBuilder
-      .setStall({
-        adPoster: {
-          border: 'solid',
-          colour: 'blue',
-          mainFurniture: 'Closet_Rakkaus',
-        },
-        maxSlots: 7,
-      } as any)
-      .build();
-
     playerService.getPlayerClanId.mockResolvedValue(clanId);
-    clanService.readOneById.mockResolvedValue([clan, null]);
-    fleaMarketService.readMany.mockResolvedValue([[item1, item2], null]);
+
+    const serviceReturn: IServiceReturn<StallResponse> = [
+      { furnitureItems: ['item-1', 'item-2'] },
+      null,
+    ];
+    fleaMarketService.getClanFurnitureItems.mockResolvedValue(serviceReturn);
 
     const result = await controller.getOwnClanStall(user);
 
-    expect(playerService.getPlayerClanId).toHaveBeenCalledWith(playerId);
-    expect(clanService.readOneById).toHaveBeenCalledWith(clanId);
-    expect(fleaMarketService.readMany).toHaveBeenCalledWith({
-      filter: {
-        clan_id: clanId,
-        isFurniture: true,
-      },
-    });
-    expect(result).toEqual({
-      adPoster: clan.stall.adPoster,
-      maxSlots: clan.stall.maxSlots,
-      furnitureItems: [item1, item2],
-    });
+    // check that the created items are returned in the response
+    expect(result[0]).toBeDefined();
+    expect(result[0].furnitureItems).toHaveLength(2);
+    expect(result[0].furnitureItems).toEqual(
+      expect.arrayContaining(['item-1', 'item-2']),
+    );
   });
 
   it('Should throw NOT_AUTHORIZED if player is not in a clan', async () => {
@@ -97,54 +79,17 @@ describe('FleaMarketController.getOwnClanStall() test suite', () => {
   });
 
   it('Should return service errors if flea market has no furniture items for the clan', async () => {
-    const clan = clanBuilder.build();
-    const itemErrors = [
+    const itemErrors: ServiceError[] = [
       { message: 'Could not find any objects with specified condition' },
-    ] as any;
+    ] as unknown as ServiceError[];
 
     playerService.getPlayerClanId.mockResolvedValue(clanId);
-    clanService.readOneById.mockResolvedValue([clan, null]);
-    fleaMarketService.readMany.mockResolvedValue([null, itemErrors]);
+
+    const serviceReturn: IServiceReturn<StallResponse> = [null, itemErrors];
+    fleaMarketService.getClanFurnitureItems.mockResolvedValue(serviceReturn);
 
     const result = await controller.getOwnClanStall(user);
 
     expect(result).toEqual([null, itemErrors]);
-  });
-
-  // test, that the furniture created here are returned in the response, if they're in a stall
-  it('Should return furniture items in the response if they are in a stall', async () => {
-    const item1 = fleaMarketItemBuilder
-      .setId('item-1')
-      .setClanId(clanId)
-      .setIsFurniture(true)
-      .build();
-    const item2 = fleaMarketItemBuilder
-      .setId('item-2')
-      .setClanId(clanId)
-      .setIsFurniture(true)
-      .build();
-
-    const clan = clanBuilder
-      .setStall({
-        adPoster: {
-          border: 'solid',
-          colour: 'blue',
-          mainFurniture: 'Closet_Rakkaus',
-        },
-        maxSlots: 7,
-      } as any)
-      .build();
-
-    playerService.getPlayerClanId.mockResolvedValue(clanId);
-    clanService.readOneById.mockResolvedValue([clan, null]);
-    fleaMarketService.readMany.mockResolvedValue([[item1, item2], null]);
-
-    const result = await controller.getOwnClanStall(user);
-
-    expect(result).toEqual({
-      adPoster: clan.stall.adPoster,
-      maxSlots: clan.stall.maxSlots,
-      furnitureItems: [item1, item2],
-    });
   });
 });
