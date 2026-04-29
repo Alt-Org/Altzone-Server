@@ -48,6 +48,14 @@ export class StallResponse {
   maxSlots?: number;
 
   /**
+   * ID of the stall's furniture items
+   * The ID is indirectly related to the stall the furniture item is in
+   * @example "507f1f77bcf86cd799440011"
+   */
+  @Expose()
+  _id?: string;
+  
+  /**
    * Furniture items that are currently in the stall
    * @example ["chair", "lamp"]
    */
