@@ -59,12 +59,12 @@ export class StallService {
 
       // return ID of furniture item and furniture name
       const furnitureItemIds = furnitureItems.length
-      ? furnitureItems.map((item) => item._id.toString())
-      : [];
-    
+        ? furnitureItems.map((item) => item._id.toString())
+        : [];
+
       const furnitureItemNames = furnitureItems.length
-      ? furnitureItems.map((item) => item.name)
-      : [];
+        ? furnitureItems.map((item) => item.name)
+        : [];
 
       stallsWithFurniture.push({
         adPoster: stall.adPoster,
