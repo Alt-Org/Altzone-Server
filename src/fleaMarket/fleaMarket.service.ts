@@ -100,16 +100,19 @@ export class FleaMarketService {
   ): Promise<IServiceReturn<StallResponse>> {
     const [items, itemErrors] = await this.itemService.readMany({
       filter: {
-          clan_id: clan_id,
-          isFurniture: true,
-        },
-      });
+        clan_id: clan_id,
+        isFurniture: true,
+      },
+    });
 
     if (itemErrors) return [null, itemErrors];
 
-    return [{
-      furnitureItems: items.map(item => item._id.toString())
-    }, null];
+    return [
+      {
+        furnitureItems: items.map((item) => item._id.toString()),
+      },
+      null,
+    ];
   }
 
   /**
