@@ -83,7 +83,7 @@ describe('StallService.ReadAll() test suite', () => {
     const createdClan1 = await clanModel.create(clanToCreate1);
     const createdClan2 = await clanModel.create(clanToCreate2);
 
-    await fleaMarketItemModel.create(
+    const furniture1 = await fleaMarketItemModel.create(
       fleaMarketItemBuilder
         .setName(ItemName.CLOSET_RAKKAUS)
         .setUnityKey('stall-readall-clan1-furniture')
@@ -91,7 +91,7 @@ describe('StallService.ReadAll() test suite', () => {
         .setIsFurniture(true)
         .build(),
     );
-    await fleaMarketItemModel.create(
+    const furniture2 = await fleaMarketItemModel.create(
       fleaMarketItemBuilder
         .setName(ItemName.WORK_TABLE)
         .setUnityKey('stall-readall-clan2-furniture')
@@ -112,7 +112,11 @@ describe('StallService.ReadAll() test suite', () => {
 
     expect(error).toBeNull();
     expect(result).toHaveLength(2);
+
+    expect(result[0].furnitureItemIds).toEqual([furniture1._id.toString()]);
     expect(result[0].furnitureItems).toEqual([ItemName.CLOSET_RAKKAUS]);
+
+    expect(result[1].furnitureItemIds).toEqual([furniture2._id.toString()]);
     expect(result[1].furnitureItems).toEqual([ItemName.WORK_TABLE]);
   });
 
