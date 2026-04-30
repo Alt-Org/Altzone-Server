@@ -33,12 +33,17 @@ export class LeaderboardService {
    * This method fetches and caches the clan leaderboard data based on the provided query parameters.
    *
    * @param reqQuery - The query parameters containing pagination info.
+   * @param environment - The environment of the clan.
    * @returns - A promise that resolves to the clan leaderboard data.
    */
-  async getClanLeaderboard(reqQuery: IGetAllQuery) {
+  async getClanLeaderboard(
+    reqQuery: IGetAllQuery,
+    environment: Environment = Environment.TEACHING_DEMO,
+  ) {
     return this.getLeaderboard(
-      CacheKeys.CLAN_LEADERBOARD,
+      `${CacheKeys.CLAN_LEADERBOARD}:env:${environment}`,
       this.clanService.model,
+      environment,
       reqQuery,
     );
   }
@@ -49,12 +54,17 @@ export class LeaderboardService {
    * This method fetches and caches the player leaderboard data based on the provided query parameters.
    *
    * @param reqQuery - The query parameters containing pagination info.
+   * @param environment - The environment of the clan.
    * @returns - A promise that resolves to the player leaderboard data.
    */
-  async getPlayerLeaderboard(reqQuery: IGetAllQuery) {
+  async getPlayerLeaderboard(
+    reqQuery: IGetAllQuery,
+    environment: Environment = Environment.TEACHING_DEMO,
+  ) {
     return this.getLeaderboard(
-      CacheKeys.PLAYER_LEADERBOARD,
+      `${CacheKeys.PLAYER_LEADERBOARD}:env:${environment}`,
       this.playerService.model,
+      environment,
       reqQuery,
     );
   }
@@ -65,19 +75,24 @@ export class LeaderboardService {
    * @param cacheKey - The key to use for caching.
    * @param model - The Mongoose model to fetch data from. (Player | Clan)
    * @param reqQuery - The query parameters containing pagination info.
+   * @param environment - The environment value (Player | Clan).
    * @returns - A subset of the data array based on the limit and skip values.
    * @throws - If no data is found.
    */
   private async getLeaderboard(
     cacheKey: string,
     model: mongoose.Model<any>,
+    environment: Environment,
     reqQuery?: IGetAllQuery,
   ): Promise<object[]> {
     const dataRaw = await this.redisService.get(cacheKey);
     let data: object[] = JSON.parse(dataRaw);
 
     if (!data) {
-      const fetchedData = await model.find().sort({ battlePoints: -1 }).exec();
+      const fetchedData = await model
+        .find({ environment: environment })
+        .sort({ battlePoints: -1 })
+        .exec();
       if (!fetchedData) throw new ServiceError({ reason: SEReason.NOT_FOUND });
 
       data = await this.processCacheData(model, fetchedData);
@@ -120,24 +135,23 @@ export class LeaderboardService {
    * Method to get the position on the clan leaderboard.
    *
    * @param clanId - The ID of the clan.
-   * @param clanEnvironment . The environment of the clan
+   * @param environment - The environment of the clan
    * @returns An object { position: number }
    */
-  async getClanPosition(clanId: string, clanEnvironment?: Environment) {
+  async getClanPosition(
+    clanId: string,
+    environment: Environment = Environment.TEACHING_DEMO,
+  ) {
     const leaderboard = await this.getLeaderboard(
-      CacheKeys.CLAN_LEADERBOARD,
+      `${CacheKeys.CLAN_LEADERBOARD}:env:${environment}`,
       this.clanService.model,
+      environment,
     );
 
-    if (!clanEnvironment) throw new ServiceError({ reason: SEReason.REQUIRED });
+    const position = leaderboard.findIndex((clan) => clan['id'] == clanId) + 1;
 
-    const filteredLeaderboard = leaderboard.filter(
-      (clan) => clan['environment'] === clanEnvironment,
-    );
-
-    const position =
-      filteredLeaderboard.findIndex((clan) => clan['id'] == clanId) + 1;
     if (position === 0) throw new ServiceError({ reason: SEReason.NOT_FOUND });
+
     return { position };
   }
 
