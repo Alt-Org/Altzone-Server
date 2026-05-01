@@ -10,6 +10,7 @@ import { Stall } from '../../clan/stall/stall.schema';
 import { FleaMarketAdPosterDto } from './dto/adPoster.dto';
 import { Model } from 'mongoose';
 import { FleaMarketItem } from '../fleaMarketItem.schema';
+import { Status } from '../enum/status.enum';
 @Injectable()
 export class StallService {
   constructor(
@@ -55,6 +56,7 @@ export class StallService {
       const furnitureItems = await this.fleaMarketItemModel.find({
         clan_id: clan._id,
         isFurniture: true,
+        status: Status.AVAILABLE,
       });
 
       // return ID of furniture item and furniture name
