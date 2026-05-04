@@ -10,6 +10,16 @@ import { Min } from 'class-validator';
 import { EmotionDto } from './emotion.dto';
 
 @AddType('PlayerDto')
+export class StatDetailDto {
+  @Expose()
+  name: string;
+
+  @Expose()
+  gamesPlayed: number;
+
+  @Expose()
+  wins: number;
+}
 export class PlayerDto {
   /**
    * Unique player ID
@@ -147,7 +157,47 @@ export class PlayerDto {
   clanRole_id?: string;
 
   /**
-   * A historical list of emotions recorded by the player on a daily basis.
+   * Date when the account was created
+   * @example "2024-01-20T12:00:00Z"
+   */
+  @Expose()
+  createdAt?: Date;
+
+  /**
+   * Player playstyle
+   * @example "Aggressive"
+   */
+  @Expose()
+  playstyle?: string;
+
+  /**
+   * Total carbon footprint
+   * @example 450
+   */
+  @Expose()
+  carbonFootprint?: number;
+
+  /**
+   * Amount of coins accumulated for the clan
+   * @example 1500
+   */
+  @Expose()
+  clanCoinsAccumulated?: number;
+
+  /**
+   * Favourite defense class information
+   */
+  @Type(() => StatDetailDto)
+  @Expose()
+  favouriteClass?: StatDetailDto;
+
+  /**
+   * Favourite defence character information
+   */
+  @Type(() => StatDetailDto)
+  @Expose()
+  favouriteCharacter?: StatDetailDto;
+   /* A historical list of emotions recorded by the player on a daily basis.
    * Each entry contains the emotion type and the timestamp of the recording.
    * @type {[EmotionDto]}
    */

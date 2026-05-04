@@ -40,6 +40,11 @@ export default class LoggedUser {
     parentalAuth: true,
     above13: true,
     clanRole_id: null,
+    carbonFootprint: 0,
+    clanCoinsAccumulated: 0,
+    playstyle: 'Balanced',
+    classStatistics: new Map(),
+    characterStatistics: new Map(),
   };
 
   /**
