@@ -9,6 +9,7 @@ import { SEReason } from '../../../../common/service/basicService/SEReason';
 import { ClanService } from '../../../../clan/clan.service';
 import FleaMarketItemBuilder from '../../data/fleaMarket/FleaMarketItemBuilder';
 import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
+import { Status } from '../../../../fleaMarket/enum/status.enum';
 
 describe('StallService.ReadAll() test suite', () => {
   let stallService: StallService;
@@ -83,7 +84,7 @@ describe('StallService.ReadAll() test suite', () => {
     const createdClan1 = await clanModel.create(clanToCreate1);
     const createdClan2 = await clanModel.create(clanToCreate2);
 
-    await fleaMarketItemModel.create(
+    const furniture1 = await fleaMarketItemModel.create(
       fleaMarketItemBuilder
         .setName(ItemName.CLOSET_RAKKAUS)
         .setUnityKey('stall-readall-clan1-furniture')
@@ -91,7 +92,7 @@ describe('StallService.ReadAll() test suite', () => {
         .setIsFurniture(true)
         .build(),
     );
-    await fleaMarketItemModel.create(
+    const furniture2 = await fleaMarketItemModel.create(
       fleaMarketItemBuilder
         .setName(ItemName.WORK_TABLE)
         .setUnityKey('stall-readall-clan2-furniture')
@@ -112,7 +113,71 @@ describe('StallService.ReadAll() test suite', () => {
 
     expect(error).toBeNull();
     expect(result).toHaveLength(2);
+
+    expect(result[0].furnitureItemIds).toEqual([furniture1._id.toString()]);
     expect(result[0].furnitureItems).toEqual([ItemName.CLOSET_RAKKAUS]);
+
+    expect(result[1].furnitureItemIds).toEqual([furniture2._id.toString()]);
+    expect(result[1].furnitureItems).toEqual([ItemName.WORK_TABLE]);
+  });
+
+  it('Should return only available furniture items belonging to each clan stall', async () => {
+    const createdClan1 = await clanModel.create(clanToCreate1);
+    const createdClan2 = await clanModel.create(clanToCreate2);
+
+    const clan1StallFurniture = await fleaMarketItemModel.create(
+      fleaMarketItemBuilder
+        .setName(ItemName.CLOSET_RAKKAUS)
+        .setUnityKey('stall-readall-clan1-available-furniture')
+        .setClanId(createdClan1._id.toString())
+        .setIsFurniture(true)
+        .setStatus(Status.AVAILABLE)
+        .build(),
+    );
+
+    const clan2StallFurniture = await fleaMarketItemModel.create(
+      fleaMarketItemBuilder
+        .setName(ItemName.WORK_TABLE)
+        .setUnityKey('stall-readall-clan2-available-furniture')
+        .setClanId(createdClan2._id.toString())
+        .setIsFurniture(true)
+        .setStatus(Status.AVAILABLE)
+        .build(),
+    );
+
+    await fleaMarketItemModel.create(
+      fleaMarketItemBuilder
+        .setName(ItemName.MIRROR_RAKKAUS)
+        .setUnityKey('stall-readall-clan1-shipping-furniture')
+        .setClanId(createdClan1._id.toString())
+        .setIsFurniture(true)
+        .setStatus(Status.SHIPPING)
+        .build(),
+    );
+
+    await fleaMarketItemModel.create(
+      fleaMarketItemBuilder
+        .setName(ItemName.CARPET_RAKKAUS)
+        .setUnityKey('stall-readall-clan1-available-nonfurniture')
+        .setClanId(createdClan1._id.toString())
+        .setIsFurniture(false)
+        .setStatus(Status.AVAILABLE)
+        .build(),
+    );
+
+    const [result, error] = await stallService.readAll();
+
+    expect(error).toBeNull();
+    expect(result).toHaveLength(2);
+
+    expect(result[0].furnitureItemIds).toEqual([
+      clan1StallFurniture._id.toString(),
+    ]);
+    expect(result[0].furnitureItems).toEqual([ItemName.CLOSET_RAKKAUS]);
+
+    expect(result[1].furnitureItemIds).toEqual([
+      clan2StallFurniture._id.toString(),
+    ]);
     expect(result[1].furnitureItems).toEqual([ItemName.WORK_TABLE]);
   });
 

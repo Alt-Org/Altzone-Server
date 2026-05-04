@@ -114,7 +114,7 @@ export class FleaMarketController {
    * Notice that if a FleaMarketItem has already "Shipping" status 403 will be returned.
    *
    */
-  // @HasClanRights([ClanBasicRight.SHOP]) TODO: Temporary disable for testing
+  @HasClanRights([ClanBasicRight.SHOP])
   @ApiResponseDescription({
     success: {
       status: 204,

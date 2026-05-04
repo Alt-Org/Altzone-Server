@@ -48,6 +48,15 @@ export class StallResponse {
   maxSlots?: number;
 
   /**
+   * IDs of the stall's furniture items
+   * These IDs are related to the furniture items in the stall and can
+   * be used to fetch more detailed information about the items if needed.
+   * @example ["507f1f77bcf86cd799440011", "507f1f77bcf86cd799440012"]
+   */
+  @Expose()
+  furnitureItemIds?: string[];
+
+  /**
    * Furniture items that are currently in the stall
    * @example ["chair", "lamp"]
    */

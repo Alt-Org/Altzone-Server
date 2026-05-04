@@ -10,6 +10,7 @@ import { Stall } from '../../clan/stall/stall.schema';
 import { FleaMarketAdPosterDto } from './dto/adPoster.dto';
 import { Model } from 'mongoose';
 import { FleaMarketItem } from '../fleaMarketItem.schema';
+import { Status } from '../enum/status.enum';
 @Injectable()
 export class StallService {
   constructor(
@@ -55,9 +56,14 @@ export class StallService {
       const furnitureItems = await this.fleaMarketItemModel.find({
         clan_id: clan._id,
         isFurniture: true,
+        status: Status.AVAILABLE,
       });
 
-      // if clan's stall has no furniture items, return empty list, otherwise return list of furniture item names
+      // return ID of furniture item and furniture name
+      const furnitureItemIds = furnitureItems.length
+        ? furnitureItems.map((item) => item._id.toString())
+        : [];
+
       const furnitureItemNames = furnitureItems.length
         ? furnitureItems.map((item) => item.name)
         : [];
@@ -65,6 +71,7 @@ export class StallService {
       stallsWithFurniture.push({
         adPoster: stall.adPoster,
         maxSlots: stall.maxSlots,
+        furnitureItemIds: furnitureItemIds,
         furnitureItems: furnitureItemNames,
       });
     }
