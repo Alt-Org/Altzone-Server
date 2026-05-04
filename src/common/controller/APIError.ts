@@ -201,7 +201,9 @@ function determineStatus(reason: APIErrorReason) {
 
   const notAuthorized = [APIErrorReason.NOT_AUTHORIZED];
 
-  const conflict = [APIErrorReason.NOT_UNIQUE];
+  const conflict = [APIErrorReason.NOT_UNIQUE, APIErrorReason.ALREADY_VOTED];
+
+  const gone = [APIErrorReason.VOTING_EXPIRED];
 
   const tooManyRequests = [APIErrorReason.TOO_MANY_REQUESTS];
 
@@ -214,6 +216,8 @@ function determineStatus(reason: APIErrorReason) {
   if (reason === APIErrorReason.NOT_FOUND) return 404;
 
   if (conflict.includes(reason)) return 409;
+
+  if (gone.includes(reason)) return 410;
 
   if (tooManyRequests.includes(reason)) return 429;
 

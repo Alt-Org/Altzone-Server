@@ -78,4 +78,13 @@ export enum SEReason {
    * For example created class instance is missing a required field to perform some action.
    */
   MISCONFIGURED = 'MISCONFIGURED',
+
+  /**
+   * Logged in user has already voted.
+   */
+  ALREADY_VOTED = 'ALREADY_VOTED',
+  /**
+   * Voting is expired.
+   */
+  VOTING_EXPIRED = 'VOTING_EXPIRED',
 }

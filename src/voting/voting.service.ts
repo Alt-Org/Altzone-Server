@@ -17,6 +17,7 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { addVoteError } from './error/addVote.error';
 import { TIServiceCreateOneOptions } from '../common/service/basicService/IService';
 import { VotingType } from './enum/VotingType.enum';
+import { votingExpiredError } from './error/votingExpired.error';
 
 @Injectable()
 export class VotingService {
@@ -181,23 +182,47 @@ export class VotingService {
    * @throws Throws if there is an error reading from DB.
    */
   async addVote(votingId: string, choice: Choice, playerId: string) {
-    const [voting, errors] = await this.basicService.readOneById(votingId, {
+  //Fetch voting (needed for business rules + notifier refs)
+  const [voting, errors] = await this.basicService.readOneById(votingId, {
+    includeRefs: [ModelName.PLAYER, ModelName.FLEA_MARKET_ITEM],
+  });
+
+  if (errors) throw errors;
+
+
+  //Check expiration
+  if (voting.endsOn <= new Date()) {
+    throw votingExpiredError;
+  }
+
+  //Check duplicate vote
+  if (voting.votes.some(
+  (v) => v.player_id.toString() === playerId.toString())) {
+    throw alreadyVotedError;
+  }
+
+  //Add vote
+  const newVote: Vote = { player_id: playerId, choice };
+
+  const success = await this.basicService.updateOneById(votingId, {
+    $push: {
+      votes: newVote,
+    },
+  });
+
+  if (!success) throw addVoteError;
+
+  //Fetch updated voting for notifier
+  const [updatedVoting, updatedErrors] =
+    await this.basicService.readOneById(votingId, {
       includeRefs: [ModelName.PLAYER, ModelName.FLEA_MARKET_ITEM],
     });
-    if (errors) throw errors;
 
-    voting.votes.forEach((vote) => {
-      if (vote.player_id === playerId) throw alreadyVotedError;
-    });
+  if (updatedErrors) throw updatedErrors;
 
-    const newVote: Vote = { player_id: playerId, choice };
-    const success = await this.basicService.updateOneById(votingId, {
-      votes: [...voting.votes, newVote],
-    });
-    if (!success) throw addVoteError;
-
-    this.notifier.votingUpdated(voting, voting.FleaMarketItem, voting.Player);
-  }
+  //Notify
+  this.notifier.votingUpdated(updatedVoting, updatedVoting.FleaMarketItem, updatedVoting.Player,);
+}
 
   /**
    * Get all votings where the organizer is the player or player's clan.

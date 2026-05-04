@@ -106,4 +106,12 @@ export enum APIErrorReason {
    * Any unexpected error happen on the server side
    */
   UNEXPECTED = 'UNEXPECTED',
+  /**
+   * Logged in user has already voted.
+   */
+  ALREADY_VOTED = 'ALREADY_VOTED',
+  /**
+   * Voting is expired.
+   */
+  VOTING_EXPIRED = 'VOTING_EXPIRED',
 }
