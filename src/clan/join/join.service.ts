@@ -66,6 +66,13 @@ export class JoinService {
     if (!playerResp)
       throw new NotFoundException('Player with that _id is not found');
 
+    if (playerResp.environment !== clan.environment) {
+      throw new ServiceError({
+        reason: SEReason.ENVIRONMENT_MISMATCH,
+        message: 'Player and clan must be in the same environment.',
+      });
+    }
+
     const player = {
       ...playerResp.toObject(),
       _id: playerResp._id.toString(),
@@ -168,6 +175,16 @@ export class JoinService {
   private async joinClan(player_id: string, clan_id: string) {
     const [clan, _clanReadingErrors] =
       await this.clanService.readOneById(clan_id);
+
+    const playerResp = await this.playerModel.findOne({ _id: player_id });
+
+    if (playerResp.environment !== clan.environment) {
+      throw new ServiceError({
+        reason: SEReason.ENVIRONMENT_MISMATCH,
+        message: 'Player and clan must be in the same environment.',
+      });
+    }
+
     const memberRole = clan.roles.find(
       (role) => role.name === MemberClanRole.name,
     );
@@ -190,9 +207,20 @@ export class JoinService {
    */
   @OnEvent('player.created')
   async findClanForNewPlayer(playerId: string) {
+    const playerResp = await this.playerModel.findById(playerId);
+
+    if (!playerResp)
+      throw new NotFoundException('Player with that _id is not found');
+
     const randomClan = await this.clanService.model
       .aggregate<ClanDocument>([
-        { $match: { isOpen: true, playerCount: { $lt: 30 } } },
+        {
+          $match: {
+            isOpen: true,
+            playerCount: { $lt: 30 },
+            environment: playerResp.environment,
+          },
+        },
         { $sample: { size: 1 } },
       ])
       .then((res) => res[0]);
@@ -212,12 +240,18 @@ export class JoinService {
     const randomSuffix = Math.floor(Math.random() * 1000);
     const newClanName = `Expedition ${totalClans + 1}-${randomSuffix}`;
 
+    const playerResp = await this.playerModel.findById(playerId);
+
+    if (!playerResp)
+      throw new NotFoundException('Player with that _id is not found');
+
     const createClanDto: CreateClanDto = {
       name: newClanName,
       tag: 'AUTO',
       phrase: 'A new expedition begins!',
       isOpen: true,
       labels: [],
+      environment: playerResp.environment,
     };
 
     const [newClan, errors] =
