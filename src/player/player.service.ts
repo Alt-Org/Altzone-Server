@@ -28,6 +28,7 @@ import {
 } from '../common/service/basicService/IService';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { PlayerEmotion } from './enum/playerEmotion.enum';
+import { prizePool } from '../rewarder/const/prizePool';
 
 @Injectable()
 @AddBasicService()
@@ -332,5 +333,54 @@ export class PlayerService
     if (updateErrors) return [null, updateErrors];
 
     return this.getPlayerById(playerId);
+  }
+
+  /**
+   * Claim Player reward. Removes claimable reward from claimableRewards, return chosen reward.
+   * 
+   * Currently, Player rewards are not implemented, so a mock reward is instead returned.
+   * 
+   * @param _id Player Id
+   * @param reward_id Reward Id - Currently, there are no rewards, so placeholder rewards are used
+   * @returns Placeholder reward, Errors if errors
+   */
+  async claimReward(
+    _id: string, 
+    reward_id: number
+  ) {
+    const [player, playerErrors] = await this.getPlayerById(_id);
+    if (playerErrors) return [null, playerErrors];
+
+    if (!player.claimableRewards.includes(prizePool.maxPoints))
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            message: 'Player can\'t claim final reward',
+          }),
+        ],
+      ];
+
+    const playerReward = prizePool.finalRewards.find(reward => reward.id === reward_id)
+    if (!playerReward)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            message: 'No reward with given ID',
+          }),
+        ],
+      ];
+
+    const update = {
+      $pull: { claimableRewards: prizePool.maxPoints }
+    };
+
+    const [, updateErrors] = await this.basicService.updateOneById(_id, update);
+    if (updateErrors) return [null, updateErrors];
+
+    return [{ playerReward: playerReward }, null];
   }
 }

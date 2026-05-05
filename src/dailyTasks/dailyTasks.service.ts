@@ -24,6 +24,8 @@ import {
   endTransaction,
   initializeSession,
 } from '../common/function/Transactions';
+import { ClanProgression } from '../rewarder/clanProgression/clanProgression.service';
+import { prizePool } from '../rewarder/const/prizePool';
 
 @Injectable()
 export class DailyTasksService {
@@ -35,6 +37,7 @@ export class DailyTasksService {
     private readonly taskGenerator: TaskGeneratorService,
     private readonly playerRewarder: PlayerRewarder,
     private readonly clanRewarder: ClanRewarder,
+    private readonly clanProgression: ClanProgression,
   ) {
     this.basicService = new BasicService(model);
     this.modelName = ModelName.DAILY_TASK;
@@ -293,7 +296,7 @@ export class DailyTasksService {
     if (updateErrors) return cancelTransaction(session, updateErrors);
 
     if (task.amountLeft <= 0) {
-      const [_, playerRewardErrors] =
+      const [, playerRewardErrors] =
         await this.playerRewarder.rewardForPlayerTask(
           payload.playerId,
           task.points,
@@ -303,18 +306,30 @@ export class DailyTasksService {
       if (playerRewardErrors)
         return cancelTransaction(session, playerRewardErrors);
 
-      if (payload.needsClanReward ?? false) {
-        const [_, clanRewardErrors] =
-          await this.clanRewarder.rewardClanForPlayerTask(
-            task.clan_id,
-            task.points,
-            task.coins,
-            session,
-          );
-        if (clanRewardErrors)
-          return cancelTransaction(session, clanRewardErrors);
-      }
+      
+      const [updatedClan, clanRewardErrors] =
+        await this.clanRewarder.rewardClanForPlayerTask(
+          task.clan_id,
+          task.points,
+          task.coins,
+          session,
+        );
+      if (clanRewardErrors)
+        return cancelTransaction(session, clanRewardErrors);
+      
+
+      const [, clanProgressionErrors] = 
+        await this.clanProgression.handleClanProgression(
+          updatedClan, 
+          session
+        )
+      if (clanProgressionErrors) 
+        return cancelTransaction(session, clanProgressionErrors);
     }
     return endTransaction(session, task);
+  }
+
+  async getRewards() {
+    return { prizePool: prizePool };
   }
 }

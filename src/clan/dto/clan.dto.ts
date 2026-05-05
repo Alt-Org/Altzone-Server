@@ -79,6 +79,12 @@ export class ClanDto {
   battlePoints: number;
 
   /**
+   * Unlocked milestones
+   */
+  @Expose()
+  unlockedMilestones: number[];
+
+  /**
    * List of user IDs that are administrators of the clan
    *
    * @example ["67fe4e2d8a54d4cc39266a41", "67fe4e2d8a54d4cc39266a42"]
