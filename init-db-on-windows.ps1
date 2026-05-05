@@ -10,7 +10,7 @@ $USERNAME = "rootUser"
 $PASSWORD = "superSecretPassword"
 $DATABASE = "altzone_dev"
 $REPLICA_NAME = "rs0"
-$REPLICA_HOST = "altzone_db_dev"
+$REPLICA_HOST = "localhost"
 
 # Step 1: Start temp container
 Write-Host "1. Starting temporary Mongo container to set volume metadata up..."
