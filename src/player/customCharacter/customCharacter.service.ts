@@ -392,7 +392,7 @@ export class CustomCharacterService {
    */
   public getFieldsToUpdate(customCharacterToUpdate: Partial<CustomCharacter>) {
     const stats: string[] = ['defence', 'hp', 'size', 'attack', 'speed'];
-    const $set: Record<string, any> = {};
+    const $set: Partial<Omit<CustomCharacter, '_id'>> = {};
     const base = CharacterBaseStats[customCharacterToUpdate.characterId];
 
     for (const [key, value] of Object.entries(customCharacterToUpdate)) {
