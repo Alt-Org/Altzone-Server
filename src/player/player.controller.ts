@@ -123,6 +123,27 @@ export default class PlayerController {
   }
 
   /**
+   * Updates the player's carbon footprint.
+   * @param id - The unique identifier of the player.
+   * @param value - The amount to increment the footprint by (can be positive or negative).
+   * @returns The updated player object or service errors.
+   * * @example
+   * PUT /player/60f7c2d9a2d3c7b7e56d01df/footprint
+   * Body: { "value": 15 }
+   */
+  @Put(':id/footprint')
+  async updateFootprint(@Param('id') id: string, @Body('value') value: number) {
+    const updateQuery = { $inc: { carbonFootprint: value } };
+    const [result, errors] = await this.service.updatePlayerById(
+      id,
+      updateQuery,
+    );
+
+    if (errors) throw errors;
+    return result;
+  }
+
+  /**
    * Get all players
    *
    * @remarks Read all created Players. Remember about the pagination.

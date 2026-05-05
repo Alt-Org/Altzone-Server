@@ -66,9 +66,15 @@ describe('PlayerService.getAll() test suite', () => {
       returnedPlayers.push((player as any).toObject());
 
     expect(errors).toBeNull();
+
+    const timestampMatcher = {
+      updatedAt: expect.any(Date),
+      createdAt: expect.any(Date),
+    };
+
     expect(returnedPlayers).toEqual([
-      expect.objectContaining(player1),
-      expect.objectContaining(player2),
+      expect.objectContaining({ ...player1, ...timestampMatcher }),
+      expect.objectContaining({ ...player2, ...timestampMatcher }),
     ]);
   });
 
