@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Game } from './game.schema';
 import { Model } from 'mongoose';
@@ -298,6 +298,25 @@ export class GameDataService {
       battleResult.team2,
       currentTime,
     );
+
+    const [team1Clan, t1ReadingErrors] = await this.clanService.readOneById(
+      teamIds.team1Id,
+    );
+    const [team2Clan, t2ReadingErrors] = await this.clanService.readOneById(
+      teamIds.team2Id,
+    );
+
+    if (t1ReadingErrors || t2ReadingErrors) {
+      throw new NotFoundException('Clan with given ID does not exist.');
+    }
+
+    if (team1Clan.environment !== team2Clan.environment) {
+      throw new ServiceError({
+        reason: SEReason.ENVIRONMENT_MISMATCH,
+        message: 'Cannot create a game with clans from different environments.',
+      });
+    }
+
     if (!existingGame) {
       const newGame = this.createNewGameObject(
         battleResult,
@@ -305,6 +324,7 @@ export class GameDataService {
         teamIds.team2Id,
         currentTime,
       );
+
       return await this.createOne(newGame);
     }
   }
