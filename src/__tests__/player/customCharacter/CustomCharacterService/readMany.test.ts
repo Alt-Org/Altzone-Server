@@ -57,12 +57,22 @@ describe('CustomCharacterService.readMany() test suite', () => {
 
     const clearedCharacters = clearDBRespDefaultFields(characters);
 
+    const expected1 = clearDBRespDefaultFields(
+      characterService.addValues(character1),
+    );
+    const expected2 = clearDBRespDefaultFields(
+      characterService.addValues(character2),
+    );
+    const expected3 = clearDBRespDefaultFields(
+      characterService.addValues(character3),
+    );
+
     expect(errors).toBeNull();
     expect(clearedCharacters).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ ...character1 }),
-        expect.objectContaining({ ...character2 }),
-        expect.objectContaining({ ...character3 }),
+        expect.objectContaining(expected1),
+        expect.objectContaining(expected2),
+        expect.objectContaining(expected3),
       ]),
     );
   });
@@ -72,12 +82,22 @@ describe('CustomCharacterService.readMany() test suite', () => {
       filter: undefined,
     });
 
+    const expected1 = clearDBRespDefaultFields(
+      characterService.addValues(character1),
+    );
+    const expected2 = clearDBRespDefaultFields(
+      characterService.addValues(character2),
+    );
+    const expected3 = clearDBRespDefaultFields(
+      characterService.addValues(character3),
+    );
+
     expect(errors).toBeNull();
     expect(characters).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ ...character1 }),
-        expect.objectContaining({ ...character2 }),
-        expect.objectContaining({ ...character3 }),
+        expect.objectContaining(expected1),
+        expect.objectContaining(expected2),
+        expect.objectContaining(expected3),
       ]),
     );
   });
@@ -87,12 +107,22 @@ describe('CustomCharacterService.readMany() test suite', () => {
       filter: {},
     });
 
+    const expected1 = clearDBRespDefaultFields(
+      characterService.addValues(character1),
+    );
+    const expected2 = clearDBRespDefaultFields(
+      characterService.addValues(character2),
+    );
+    const expected3 = clearDBRespDefaultFields(
+      characterService.addValues(character3),
+    );
+
     expect(errors).toBeNull();
     expect(characters).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ ...character1 }),
-        expect.objectContaining({ ...character2 }),
-        expect.objectContaining({ ...character3 }),
+        expect.objectContaining(expected1),
+        expect.objectContaining(expected2),
+        expect.objectContaining(expected3),
       ]),
     );
   });
@@ -100,12 +130,22 @@ describe('CustomCharacterService.readMany() test suite', () => {
   it('Should return all characters in DB if options are undefined', async () => {
     const [characters, errors] = await characterService.readMany(undefined);
 
+    const expected1 = clearDBRespDefaultFields(
+      characterService.addValues(character1),
+    );
+    const expected2 = clearDBRespDefaultFields(
+      characterService.addValues(character2),
+    );
+    const expected3 = clearDBRespDefaultFields(
+      characterService.addValues(character3),
+    );
+
     expect(errors).toBeNull();
     expect(characters).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ ...character1 }),
-        expect.objectContaining({ ...character2 }),
-        expect.objectContaining({ ...character3 }),
+        expect.objectContaining(expected1),
+        expect.objectContaining(expected2),
+        expect.objectContaining(expected3),
       ]),
     );
   });
@@ -113,12 +153,22 @@ describe('CustomCharacterService.readMany() test suite', () => {
   it('Should return all characters in DB if options are null', async () => {
     const [characters, errors] = await characterService.readMany(null);
 
+    const expected1 = clearDBRespDefaultFields(
+      characterService.addValues(character1),
+    );
+    const expected2 = clearDBRespDefaultFields(
+      characterService.addValues(character2),
+    );
+    const expected3 = clearDBRespDefaultFields(
+      characterService.addValues(character3),
+    );
+
     expect(errors).toBeNull();
     expect(characters).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ ...character1 }),
-        expect.objectContaining({ ...character2 }),
-        expect.objectContaining({ ...character3 }),
+        expect.objectContaining(expected1),
+        expect.objectContaining(expected2),
+        expect.objectContaining(expected3),
       ]),
     );
   });
@@ -161,12 +211,19 @@ describe('CustomCharacterService.readMany() test suite', () => {
       sort,
     });
 
+    const expected2 = clearDBRespDefaultFields(
+      characterService.addValues(character2),
+    );
+    const expected3 = clearDBRespDefaultFields(
+      characterService.addValues(character3),
+    );
+
     expect(errors).toBeNull();
     expect(characters).toHaveLength(2);
     expect(characters).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ ...character2 }),
-        expect.objectContaining({ ...character3 }),
+        expect.objectContaining(expected2),
+        expect.objectContaining(expected3),
       ]),
     );
   });
@@ -179,11 +236,21 @@ describe('CustomCharacterService.readMany() test suite', () => {
       sort,
     });
 
+    const expected1 = clearDBRespDefaultFields(
+      characterService.addValues(character1),
+    );
+    const expected2 = clearDBRespDefaultFields(
+      characterService.addValues(character2),
+    );
+    const expected3 = clearDBRespDefaultFields(
+      characterService.addValues(character3),
+    );
+
     expect(errors).toBeNull();
     expect(characters.map((characters) => characters.speed)).toEqual([
-      character1.speed,
-      character2.speed,
-      character3.speed,
+      expected1.speed,
+      expected2.speed,
+      expected3.speed,
     ]);
   });
 

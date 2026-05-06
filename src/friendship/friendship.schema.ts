@@ -6,6 +6,7 @@ import {
 } from 'mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { FriendshipStatus } from './enum/friendship-status.enum';
+import { ObjectId } from 'mongodb';
 
 export type FriendshipDocument = HydratedDocument<Friendship>;
 
@@ -16,14 +17,14 @@ export class Friendship {
     ref: ModelName.PLAYER,
     required: true,
   })
-  playerA: MongooseSchema.Types.ObjectId;
+  playerA: string | ObjectId;
 
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: ModelName.PLAYER,
     required: true,
   })
-  playerB: MongooseSchema.Types.ObjectId;
+  playerB: string | ObjectId;
 
   @Prop({
     type: String,
@@ -36,11 +37,11 @@ export class Friendship {
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: ModelName.PLAYER,
-    required: function () {
+    required: function (this: Friendship) {
       return this.status === FriendshipStatus.PENDING;
     },
   })
-  requester?: MongooseSchema.Types.ObjectId;
+  requester?: string | ObjectId;
 
   @Prop({ type: String, required: true })
   pairKey: string;
@@ -55,9 +56,21 @@ FriendshipSchema.pre('validate', function (next) {
   const b = this.playerB.toString();
   if (a === b) return next(new Error('playerA and playerB cannot be the same'));
 
+  if (this.status === FriendshipStatus.PENDING) {
+    if (!this.requester) {
+      return next(new Error('requester is required when status is PENDING'));
+    }
+
+    const requesterStr = this.requester.toString();
+    if (requesterStr !== a && requesterStr !== b) {
+      return next(new Error('requester must be either playerA or playerB'));
+    }
+  }
+
   this.pairKey = [a, b].sort().join('_');
   next();
 });
+
 FriendshipSchema.pre('save', function (next) {
   if (this.isModified('status') && this.status === FriendshipStatus.ACCEPTED) {
     this.requester = undefined;

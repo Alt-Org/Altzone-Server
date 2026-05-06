@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { ClientSession, Connection, Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { ModelName } from '../common/enum/modelName.enum';
 import DailyTaskNotifier from './dailyTask.notifier';
@@ -15,16 +15,21 @@ import {
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
-import { cancelTransaction } from '../common/function/cancelTransaction';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ServerTaskName } from './enum/serverTaskName.enum';
 import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
 import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
+import {
+  cancelTransaction,
+  endTransaction,
+  initializeSession,
+} from '../common/function/Transactions';
 
 @Injectable()
 export class DailyTasksService {
   public constructor(
     @InjectModel(DailyTask.name) public readonly model: Model<DailyTask>,
+    @InjectConnection() private readonly connection: Connection,
     private readonly notifier: DailyTaskNotifier,
     private readonly taskQueue: DailyTaskQueue,
     private readonly taskGenerator: TaskGeneratorService,
@@ -77,20 +82,20 @@ export class DailyTasksService {
    * @param playerId - The ID of the player reserving the task.
    * @param taskId - The ID of the task to be reserved.
    * @param clanId - The ID of the clan to which the task belongs.
-   * @returns The reserved task.
-   * @throws Will throw an error if the task is already reserved by another player or if any database operation fails.
+   * @returns DailyTask with the given player _id on succeed or an array of ServiceErrors if any occurred.
    */
   async reserveTask(playerId: string, taskId: string, clanId: string) {
     const [task, error] = await this.basicService.readOne<DailyTaskDto>({
       filter: { _id: taskId, clan_id: clanId },
     });
     if (error) throw error;
-    if (task.player_id && task.player_id !== playerId) throw taskReservedError;
+    if (task.player_id && task.player_id !== playerId)
+      return [null, taskReservedError];
 
-    const session = await this.model.db.startSession();
-    session.startTransaction();
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (initErrors) return [null, initErrors];
 
-    const [, unreserveError] = await this.unreserveTask(playerId);
+    const [, unreserveError] = await this.unreserveTask(playerId, session);
     if (unreserveError && unreserveError[0].reason !== SEReason.NOT_FOUND)
       await cancelTransaction(session, unreserveError);
 
@@ -101,28 +106,29 @@ export class DailyTasksService {
     const [_, updateError] = await this.basicService.updateOneById(
       taskId,
       task,
+      { session },
     );
     if (updateError) await cancelTransaction(session, updateError);
 
-    session.commitTransaction();
-    session.endSession();
+    await endTransaction(session, task);
 
     await this.taskQueue.addDailyTask(task);
-    await this.notifier.taskReceived(playerId, task);
+    this.notifier.taskReceived(playerId, task);
 
-    return task;
+    return [task, null];
   }
 
   /**
    * Unreserve a task for a given player by unsetting the player_id field.
    *
    * @param playerId - The ID of the player whose task should be unreserved.
+   * @param session - Optional MongoDB client session for transaction support.
    * @returns A promise that resolves with the result of the update operation.
    */
-  async unreserveTask(playerId: string) {
+  async unreserveTask(playerId: string, session?: ClientSession) {
     return this.basicService.updateOne(
       { $unset: { player_id: '', startedAt: '' } },
-      { filter: { player_id: playerId } },
+      { filter: { player_id: playerId }, session },
     );
   }
 
@@ -132,9 +138,15 @@ export class DailyTasksService {
    * @param taskId - The ID of the task to be deleted.
    * @param clanId - The ID of the clan associated with the task.
    * @param playerId - The ID of the player associated with the task.
+   * @param session - Optional MongoDB client session for transaction support.
    * @returns A promise that resolves to the result of the update operation.
    */
-  async deleteTask(taskId: string, clanId: string, playerId: string) {
+  async deleteTask(
+    taskId: string,
+    clanId: string,
+    playerId: string,
+    session?: ClientSession,
+  ) {
     const newValues = this.taskGenerator.createTaskRandomValues();
     const filter: any = { _id: taskId, clan_id: clanId };
     filter.$or = [{ player_id: playerId }, { player_id: { $exists: false } }];
@@ -149,7 +161,7 @@ export class DailyTasksService {
           startedAt: '',
         },
       },
-      { filter },
+      { filter, session },
     );
   }
 
@@ -159,10 +171,14 @@ export class DailyTasksService {
    *
    * @param playerId - The ID of the player whose task is being updated.
    * @param serverTaskName - (Optional) The specific server task name to filter the task.
-   * @returns The updated task.
-   * @throws Will throw an error if there is an issue reading or updating the task.
+   * @param session - (Optional) MongoDB client session for transaction support.
+   * @returns DailyTaskDto with the updated task or an array of ServiceErrors if any occurred.
    */
-  async updateTask(playerId: string, serverTaskName?: ServerTaskName) {
+  async updateTask(
+    playerId: string,
+    serverTaskName?: ServerTaskName,
+    session?: ClientSession,
+  ): Promise<IServiceReturn<DailyTaskDto>> {
     const filter: any = { player_id: playerId };
     if (serverTaskName) {
       filter.type = serverTaskName;
@@ -171,22 +187,28 @@ export class DailyTasksService {
     const [task, error] = await this.basicService.readOne<DailyTaskDto>({
       filter,
     });
-    if (error) throw error;
+    if (error) return [null, error];
 
     task.amountLeft--;
 
     if (task.amountLeft <= 0) {
-      await this.deleteTask(task._id.toString(), task.clan_id, playerId);
+      await this.deleteTask(
+        task._id.toString(),
+        task.clan_id,
+        playerId,
+        session,
+      );
       this.notifier.taskCompleted(playerId, task);
     } else {
       const [_, updateError] = await this.basicService.updateOne(task, {
         filter,
+        session,
       });
-      if (updateError) throw updateError;
+      if (updateError) return [null, updateError];
       this.notifier.taskUpdated(playerId, task);
     }
 
-    return task;
+    return [task, null];
   }
 
   /**
@@ -230,11 +252,15 @@ export class DailyTasksService {
    * Creates multiple daily tasks in DB.
    *
    * @param dailyTasksToCreate daily tasks to create
+   * @param session optional transaction session
    *
    * @returns created daily task or ServiceError if any occurred
    */
-  async createMany(dailyTasksToCreate: Omit<DailyTask, '_id'>[]) {
-    return this.basicService.createMany(dailyTasksToCreate);
+  async createMany(
+    dailyTasksToCreate: Omit<DailyTask, '_id'>[],
+    session?: ClientSession,
+  ) {
+    return this.basicService.createMany(dailyTasksToCreate, { session });
   }
 
   /**
@@ -247,36 +273,48 @@ export class DailyTasksService {
    * @param payload.playerId - The unique identifier of the player.
    * @param payload.message - The WebSocket message body associated with the event.
    * @param payload.serverTaskName - The name of the server-side task to update.
-   * @returns A promise that resolves to the updated task object.
-   *
-   * @throws Will throw an error if updating the task or rewarding the player fails.
+   * @returns DailyTaskDto with the updated task or an array of ServiceErrors if any occurred.
    */
   @OnEvent('newDailyTaskEvent')
   async handleDailyTaskEvent(payload: {
     playerId: string;
     serverTaskName: ServerTaskName;
     needsClanReward?: boolean;
-  }) {
-    const task = await this.updateTask(
+  }): Promise<IServiceReturn<DailyTaskDto>> {
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
+    const [task, updateErrors] = await this.updateTask(
       payload.playerId,
       payload.serverTaskName,
+      session,
     );
 
+    if (updateErrors) return cancelTransaction(session, updateErrors);
+
     if (task.amountLeft <= 0) {
-      await this.playerRewarder.rewardForPlayerTask(
-        payload.playerId,
-        task.points,
-      );
+      const [_, playerRewardErrors] =
+        await this.playerRewarder.rewardForPlayerTask(
+          payload.playerId,
+          task.points,
+          session,
+        );
+
+      if (playerRewardErrors)
+        return cancelTransaction(session, playerRewardErrors);
 
       if (payload.needsClanReward ?? false) {
-        await this.clanRewarder.rewardClanForPlayerTask(
-          task.clan_id,
-          task.points,
-          task.coins,
-        );
+        const [_, clanRewardErrors] =
+          await this.clanRewarder.rewardClanForPlayerTask(
+            task.clan_id,
+            task.points,
+            task.coins,
+            session,
+          );
+        if (clanRewardErrors)
+          return cancelTransaction(session, clanRewardErrors);
       }
     }
-
-    return task;
+    return endTransaction(session, task);
   }
 }

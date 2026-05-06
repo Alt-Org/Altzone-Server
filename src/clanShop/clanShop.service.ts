@@ -17,7 +17,12 @@ import { VotingQueueParams } from '../fleaMarket/types/votingQueueParams.type';
 import { ItemName } from '../clanInventory/item/enum/itemName.enum';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 import { ClientSession, Connection } from 'mongoose';
-import { cancelTransaction } from '../common/function/cancelTransaction';
+import { Clan } from '../clan/clan.schema';
+import {
+  initializeSession,
+  cancelTransaction,
+  endTransaction,
+} from '../common/function/Transactions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { IServiceReturn } from '../common/service/basicService/IService';
 
@@ -41,13 +46,6 @@ export class ClanShopService {
    * @param playerId - The unique identifier of the player attempting to buy the item.
    * @param clanId - The unique identifier of the clan associated with the purchase.
    * @param item - The item being purchased, including its properties such as price.
-   *
-   * @throws Will cancel the transaction and throw errors if:
-   * - The clan cannot be retrieved or has insufficient game coins.
-   * - Funds cannot be reserved for the purchase.
-   * - The player cannot be retrieved.
-   * - The voting process cannot be initiated.
-   *
    * @returns A promise that resolves when the transaction is successfully committed.
    */
   async buyItem(
@@ -55,22 +53,29 @@ export class ClanShopService {
     clanId: string,
     item: ItemProperty,
   ): Promise<IServiceReturn<boolean>> {
-    const session = await this.connection.startSession();
-    session.startTransaction();
+    const [session, sessionError] = await initializeSession(this.connection);
+    if (sessionError) return [null, sessionError];
 
     const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
       includeRefs: [ModelName.STOCK],
     });
-    if (clanErrors) return await cancelTransaction(session, clanErrors);
-    if (clan.gameCoins < item.price)
-      return await cancelTransaction(session, [notEnoughCoinsError]);
 
-    const [, error] = await this.reserveFunds(clan._id, item.price, session);
-    if (error) return await cancelTransaction(session, error);
+    if (clanErrors) return cancelTransaction(session, clanErrors);
+
+    if (clan.gameCoins < item.price) {
+      return cancelTransaction(session, [notEnoughCoinsError]);
+    }
+
+    const [, reserveError] = await this.reserveFunds(
+      clan._id,
+      item.price,
+      session,
+    );
+    if (reserveError) return cancelTransaction(session, reserveError);
 
     const [player, playerError] =
       await this.playerService.getPlayerById(playerId);
-    if (playerError) return await cancelTransaction(session, playerError);
+    if (playerError) return cancelTransaction(session, playerError);
 
     const [voting, votingErrors] = await this.votingService.startVoting(
       {
@@ -82,20 +87,19 @@ export class ClanShopService {
       },
       session,
     );
-    if (votingErrors) {
-      return await cancelTransaction(session, votingErrors);
-    }
+    if (votingErrors) return cancelTransaction(session, votingErrors);
+
+    const result = await endTransaction(session, true);
 
     await this.votingQueue.addVotingCheckJob({
       voting,
       stockId: clan.Stock._id,
       price: item.price,
       queue: VotingQueueName.CLAN_SHOP,
+      clanId,
     });
 
-    await session.commitTransaction();
-    session.endSession();
-    return [true, null];
+    return result;
   }
 
   /**
@@ -103,14 +107,13 @@ export class ClanShopService {
    *
    * @param clanId - The unique identifier of the clan whose funds are to be reserved.
    * @param price - The amount to be deducted from the clan's gameCoins.
-   * @returns A promise that resolves to the result of the update operation.
+   * @param session - mongoose ClientSession for transaction support.
+   * @returns A promise with the update result.
    */
   async reserveFunds(clanId: string, price: number, session: ClientSession) {
     return await this.clanService.basicService.updateOneById(
       clanId,
-      {
-        $inc: { gameCoins: -price },
-      },
+      { $inc: { gameCoins: -price } },
       { session },
     );
   }
@@ -131,19 +134,32 @@ export class ClanShopService {
    * 4. Commits the transaction and ends the session.
    *
    * If any error occurs during the process, the transaction is canceled, and the session is ended.
+   *
+   * @returns A promise that resolves to a boolean indicating the success of the operation or an error if any step fails.
    */
-  async checkVotingOnExpire(data: VotingQueueParams) {
+  async checkVotingOnExpire(
+    data: VotingQueueParams,
+  ): Promise<IServiceReturn<boolean>> {
     const { voting, price, clanId, stockId } = data;
-    const session = await this.connection.startSession();
-    session.startTransaction();
+    const [session, sessionError] = await initializeSession(this.connection);
+    if (sessionError) return [null, sessionError];
 
     const votePassed = await this.votingService.checkVotingSuccess(voting);
+
     if (votePassed) {
-      const [, passedError] = await this.handleVotePassed(voting, stockId);
-      if (passedError) await cancelTransaction(session, passedError);
+      const [, passedError] = await this.handleVotePassed(
+        voting,
+        stockId,
+        session,
+      );
+      if (passedError) return cancelTransaction(session, passedError);
     } else {
-      const [, rejectError] = await this.handleVoteRejected(clanId, price);
-      if (rejectError) await cancelTransaction(session, rejectError);
+      const [, rejectError] = await this.handleVoteRejected(
+        clanId,
+        price,
+        session,
+      );
+      if (rejectError) return cancelTransaction(session, rejectError);
     }
 
     const [, deleteError] = await this.votingService.basicService.deleteOneById(
@@ -153,6 +169,8 @@ export class ClanShopService {
 
     await session.commitTransaction();
     await session.endSession();
+
+    return endTransaction(session, true);
   }
 
   /**
@@ -161,12 +179,19 @@ export class ClanShopService {
    *
    * @param clanId - The unique identifier of the clan.
    * @param price - The amount to increment the clan's game coins by.
+   * @param session - mongoose ClientSession for transaction support.
    * @returns A promise that resolves with the result of the update operation.
    */
-  private async handleVoteRejected(clanId, price) {
-    return this.clanService.basicService.updateOneById(clanId, {
-      $inc: { gameCoins: price },
-    });
+  private async handleVoteRejected(
+    clanId: string,
+    price: number,
+    session: ClientSession,
+  ) {
+    return await this.clanService.basicService.updateOneById(
+      clanId,
+      { $inc: { gameCoins: price } },
+      { session },
+    );
   }
 
   /**
@@ -177,11 +202,16 @@ export class ClanShopService {
    *
    * @param voting - The voting details containing information about the entity.
    * @param stockId - The identifier of the stock associated with the vote.
+   * @param session - mongoose ClientSession for transaction support.
    * @returns A promise that resolves to the created item.
    */
-  private async handleVotePassed(voting: VotingDto, stockId: string) {
+  private async handleVotePassed(
+    voting: VotingDto,
+    stockId: string,
+    session: ClientSession,
+  ) {
     const newItem = this.getCreateItemDto(voting.shopItemName, stockId);
-    return await this.itemService.createOne(newItem);
+    return await this.itemService.createOne(newItem, { session });
   }
 
   /**
@@ -191,15 +221,14 @@ export class ClanShopService {
    * @param stockId - The unique identifier for the stock to associate with the item.
    * @returns A new `CreateItemDto` object containing the item's properties and additional metadata.
    */
-  private getCreateItemDto(itemName: ItemName, stockId: string) {
+  private getCreateItemDto(itemName: ItemName, stockId: string): CreateItemDto {
     const item = itemProperties[itemName];
-    const newItem: CreateItemDto = {
+    return {
       ...item,
       location: [0, 1],
       unityKey: item.name,
       stock_id: stockId,
       room_id: null,
     };
-    return newItem;
   }
 }

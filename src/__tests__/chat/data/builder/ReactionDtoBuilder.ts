@@ -5,6 +5,7 @@ export default class ReactionDtoBuilder implements IDataBuilder<ReactionDto> {
   private readonly base: ReactionDto = {
     playerName: 'TestPlayer420',
     emoji: '👍',
+    sender_id: '60f7c2d9a2d3c7b7e56d01df',
   };
 
   build(): ReactionDto {
@@ -18,6 +19,11 @@ export default class ReactionDtoBuilder implements IDataBuilder<ReactionDto> {
 
   setEmoji(emoji: string) {
     this.base.emoji = emoji;
+    return this;
+  }
+
+  setSenderId(id: string) {
+    this.base.sender_id = id;
     return this;
   }
 }

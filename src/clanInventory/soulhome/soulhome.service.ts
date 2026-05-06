@@ -1,14 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { publicReferences, SoulHome } from './soulhome.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ClientSession } from 'mongoose';
 import { RoomService } from '../room/room.service';
 import { SoulHomeDto } from './dto/soulhome.dto';
 import { CreateSoulHomeDto } from './dto/createSoulHome.dto';
 import { UpdateSoulHomeDto } from './dto/updateSoulHome.dto';
 import { ModelName } from '../../common/enum/modelName.enum';
 import BasicService from '../../common/service/basicService/BasicService';
-import { TReadByIdOptions } from '../../common/service/basicService/IService';
+import {
+  TIServiceCreateOneOptions,
+  TIServiceDeleteByIdOptions,
+  TReadByIdOptions,
+} from '../../common/service/basicService/IService';
 
 @Injectable()
 export class SoulHomeService {
@@ -26,11 +30,16 @@ export class SoulHomeService {
    * Creates a new SoulHome in DB.
    *
    * @param soulHome - The SoulHome data to create.
+   * @param options - DB query options.
    * @returns  created SoulHome or an array of service errors if any occurred.
    */
-  async createOne(soulHome: CreateSoulHomeDto) {
+  async createOne(
+    soulHome: CreateSoulHomeDto,
+    options?: TIServiceCreateOneOptions,
+  ) {
     return this.basicService.createOne<CreateSoulHomeDto, SoulHomeDto>(
       soulHome,
+      options,
     );
   }
 
@@ -69,10 +78,11 @@ export class SoulHomeService {
    * Notice that the method will also delete associated rooms.
    *
    * @param _id - The Mongo _id of the SoulHome to delete.
+   * @param options - Optional session for transaction support.
    * @returns _true_ if SoulHome was removed successfully, or a ServiceError array if the SoulHome was not found or something else went wrong
    */
-  async deleteOneById(_id: string) {
-    await this.roomService.deleteAllSoulHomeRooms(_id);
-    return this.basicService.deleteOneById(_id);
+  async deleteOneById(_id: string, options?: TIServiceDeleteByIdOptions) {
+    await this.roomService.deleteAllSoulHomeRooms(_id, options);
+    return this.basicService.deleteOneById(_id, options);
   }
 }

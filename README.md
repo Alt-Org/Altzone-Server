@@ -22,9 +22,11 @@ Teacher pages https://devapi.altzone.fi/teacher (dev branch)
 
 ## Getting started
 
+
 ### Install required software
 
-1. Install Node and npm, choose your platform and node version, which should be LTS [here](https://nodejs.org/en/download).
+0. First make sure to pick the required versions of npm and node, currently the project works fully on at least version 25.3.0 but not on version 20.0 or older at all.
+1. Install Node and npm, choose your platform and node version (should be 25.3.0, 20.0 doesn't work), which should be LTS [here](https://nodejs.org/en/download).
 2. Install docker. Instructions can be [found here](https://docs.docker.com/engine/install/).
 3. Clone the API repo from GitHub https://github.com/Alt-Org/Altzone-Server.git.
 4. Open a cloned repo in the IDE and install required dependencies with.

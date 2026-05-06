@@ -32,6 +32,7 @@ export enum CharacterId {
   Stoner_504 = '504',
   Martyrdom_505 = '505',
   Self_Harm_506 = '506',
+  Shopping_507 = '507',
 
   SoulSisters_601 = '601',
   Limerence_602 = '602',
