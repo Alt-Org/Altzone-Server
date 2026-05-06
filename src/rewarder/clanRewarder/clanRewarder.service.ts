@@ -28,12 +28,12 @@ export class ClanRewarder {
     this.playerService = new BasicService(playerModel);
   }
 
-  clanMaxPoints = 10000;
+  clanMaxPoints = 2000;
 
   /**
    * Increases specified clan points and coins amounts.
    *
-   * Notice that clan can have 10000 points at max
+   * Notice that clan can have 2000 points at max
    *
    * @param clan_id clan _id for which to increase
    * @param points amount of points to add, default 0
@@ -41,7 +41,7 @@ export class ClanRewarder {
    * @param session optional client session for transaction
    * @throws ServiceError if clan can not be found during the clan data fetching
    *
-   * @returns true if the clan was rewarder successfully or ServiceErrors:
+   * @returns updated Clan if the clan was rewarder successfully or ServiceErrors:
    * - NOT_FOUND if the clan can not be found during the update
    */
   async rewardClanForPlayerTask(
@@ -49,7 +49,7 @@ export class ClanRewarder {
     points: number,
     coins: number,
     session?: ClientSession,
-  ): Promise<IServiceReturn<boolean>> {
+  ): Promise<IServiceReturn<Clan>> {
     if (points < 0)
       return [
         null,
@@ -83,12 +83,15 @@ export class ClanRewarder {
     const { points: clanPoints, gameCoins } = clanToUpdate;
     const newPoints = Math.min(this.clanMaxPoints, clanPoints + points);
 
-    return this.clanService.updateOne(
-      {
-        points: newPoints,
-        gameCoins: gameCoins + coins,
+    return this.clanService.findByIdAndUpdate<Clan>(
+      clan_id,
+      { 
+        $set: {
+          points: newPoints,
+          gameCoins: gameCoins + coins
+        }
       },
-      { filter: { _id: clan_id }, session },
+      { session },
     );
   }
 

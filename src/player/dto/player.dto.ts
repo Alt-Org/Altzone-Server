@@ -55,6 +55,9 @@ export class PlayerDto {
   @Expose()
   battlePoints: number;
 
+  @Expose()
+  claimableRewards: number[];
+
   /**
    * Maximum capacity of player's backpack
    *

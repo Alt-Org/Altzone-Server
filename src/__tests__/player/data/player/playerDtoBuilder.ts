@@ -11,6 +11,7 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
     name: 'defaultPlayer',
     points: 0,
     battlePoints: 0,
+    claimableRewards: [],
     backpackCapacity: 10,
     uniqueIdentifier: 'unique-id',
     above13: true,

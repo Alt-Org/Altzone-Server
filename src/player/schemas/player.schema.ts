@@ -37,6 +37,8 @@ export class Player {
   @Prop({ type: Number, default: 0, min: 0 })
   battlePoints: number;
 
+  @Prop({ type: [Number], default: [] })
+  claimableRewards: number[];
   @Prop({ type: Number, default: 0, min: 0 })
   clanCoinsAccumulated: number;
 

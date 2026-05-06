@@ -9,6 +9,7 @@ export default class PlayerBuilder {
     backpackCapacity: 10,
     points: 0,
     battlePoints: 0,
+    claimableRewards: [],
     uniqueIdentifier: 'unique-id',
     above13: true,
     parentalAuth: true,

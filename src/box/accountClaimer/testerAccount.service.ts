@@ -189,6 +189,7 @@ export class TesterAccountService {
       parentalAuth: true,
       points: 0,
       battlePoints: 0,
+      claimableRewards: [],
       name: uniqueName,
       uniqueIdentifier: uniqueId,
       profile_id: profile._id,
