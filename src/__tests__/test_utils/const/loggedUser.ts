@@ -37,9 +37,15 @@ export default class LoggedUser {
     profile_id: '',
     points: 0,
     battlePoints: 0,
+    claimableRewards: [],
     parentalAuth: true,
     above13: true,
     clanRole_id: null,
+    carbonFootprint: 0,
+    clanCoinsAccumulated: 0,
+    playstyle: 'Balanced',
+    classStatistics: new Map(),
+    characterStatistics: new Map(),
   };
 
   /**

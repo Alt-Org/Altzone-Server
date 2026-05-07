@@ -1,4 +1,4 @@
-import { Error, Model } from 'mongoose';
+import { Error, Model, UpdateQuery } from 'mongoose';
 import {
   IService,
   IServiceReturn,
@@ -240,6 +240,37 @@ export default class BasicService implements IService {
 
       const wasUpdated = resp.modifiedCount !== 0;
       return [wasUpdated, null];
+    } catch (error) {
+      const errors = convertMongooseToServiceErrors(error);
+      return [null, errors];
+    }
+  }
+
+  async findByIdAndUpdate<T extends object>(
+    _id: string,
+    input: UpdateQuery<T>,
+    options?: TIServiceUpdateByIdOptions,
+  ): Promise<IServiceReturn<T>> {
+    try {
+      const resp = await this.model.findByIdAndUpdate(_id, input, {
+        returnDocument: 'after',
+        ...options,
+      });
+
+      if (!resp)
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_FOUND,
+              message: 'Could not find any objects with specified id',
+              field: '_id',
+              value: _id,
+            }),
+          ],
+        ];
+
+      return [resp, null];
     } catch (error) {
       const errors = convertMongooseToServiceErrors(error);
       return [null, errors];

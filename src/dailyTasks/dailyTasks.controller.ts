@@ -63,6 +63,23 @@ export class DailyTasksController {
   }
 
   /**
+   * Get Daily task Prize pool.
+   * 
+   * Current implementation fetches a hard-coded object
+   */
+  @ApiResponseDescription({
+    success: {
+      modelName: ModelName.DAILY_TASK,
+    },
+    errors : [400, 404]
+  })
+  @Get('/rewards')
+  @UniformResponse(ModelName.DAILY_TASK)
+  async getRewards() {
+    return this.dailyTasksService.getRewards();
+  }
+
+  /**
    * Get a daily task by _id
    *
    * @remarks Get specific daily task by _id
@@ -78,6 +95,26 @@ export class DailyTasksController {
   @UniformResponse(ModelName.DAILY_TASK, DailyTaskDto)
   async getTask(@Param() param: _idDto) {
     return this.dailyTasksService.readOneById(param._id);
+  }
+
+  /**
+   * Claim player reward.
+   * 
+   * Param 1-3
+   */
+  @ApiResponseDescription({
+    success: {
+      modelName: ModelName.DAILY_TASK,
+    },
+    errors : [400, 404]
+  })
+  @Put('/rewards/:reward')
+  @UniformResponse(ModelName.DAILY_TASK)
+  async claimReward(@Param('reward') reward: string, @LoggedUser() user: User) {
+    return this.playerService.claimReward(
+      user.player_id,
+      +reward
+    )
   }
 
   /**

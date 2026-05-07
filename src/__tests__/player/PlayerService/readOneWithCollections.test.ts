@@ -36,6 +36,7 @@ describe('PlayerService.readWithCollections() test suite', () => {
       .setClanId(existingClan._id)
       .build();
     await playerModel.updateOne({ _id: existingPlayer._id }, playerUpdate);
+    existingPlayer.clan_id = existingClan._id;
   });
 
   it('Should retrieve player with specified references', async () => {
@@ -59,7 +60,13 @@ describe('PlayerService.readWithCollections() test suite', () => {
     );
     const data = resp['data']['Player'].toObject();
 
-    expect(data).toEqual(expect.objectContaining(existingPlayer));
+    expect(data).toEqual(
+      expect.objectContaining({
+        ...existingPlayer,
+        updatedAt: expect.any(Date),
+        createdAt: expect.any(Date),
+      }),
+    );
     expect(data.Clan).toBeUndefined();
   });
 
@@ -70,7 +77,13 @@ describe('PlayerService.readWithCollections() test suite', () => {
     );
     const data = resp['data']['Player'].toObject();
 
-    expect(data).toEqual(expect.objectContaining(existingPlayer));
+    expect(data).toEqual(
+      expect.objectContaining({
+        ...existingPlayer,
+        updatedAt: expect.any(Date),
+        createdAt: expect.any(Date),
+      }),
+    );
     expect(data.Clan).toBeUndefined();
   });
 

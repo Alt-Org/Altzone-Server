@@ -5,12 +5,15 @@ import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { GameStatistics } from '../gameStatistics.schema';
 import { ObjectId } from 'mongodb';
 import { Avatar, AvatarSchema } from './avatar.schema';
+import { PlayerEmotion } from '../enum/playerEmotion.enum';
+import { EmotionDto } from '../dto/emotion.dto';
 
 export type PlayerDocument = HydratedDocument<Player>;
 
 @Schema({
   toJSON: { virtuals: true, getters: true },
   toObject: { virtuals: true, getters: true },
+  timestamps: true,
 })
 export class Player {
   @Prop({
@@ -29,7 +32,18 @@ export class Player {
   points: number;
 
   @Prop({ type: Number, default: 0, min: 0 })
+  carbonFootprint: number;
+
+  @Prop({ type: Number, default: 0, min: 0 })
   battlePoints: number;
+
+  @Prop({ type: [Number], default: [] })
+  claimableRewards: number[];
+  @Prop({ type: Number, default: 0, min: 0 })
+  clanCoinsAccumulated: number;
+
+  @Prop({ type: String, default: 'Balanced' })
+  playstyle: string;
 
   @Prop({ type: String, required: true, unique: true })
   uniqueIdentifier: string;
@@ -45,6 +59,16 @@ export class Player {
 
   @Prop({ type: GameStatistics, default: () => ({}) })
   gameStatistics?: GameStatistics;
+
+  /**
+   * Requirement: Favourite defense class/character tracking.
+   * Storing a record of ClassName -> { gamesPlayed, wins }
+   */
+  @Prop({ type: Map, of: Object, default: {} })
+  classStatistics: Map<string, { gamesPlayed: number; wins: number }>;
+
+  @Prop({ type: Map, of: Object, default: {} })
+  characterStatistics: Map<string, { gamesPlayed: number; wins: number }>;
 
   @ExtractField()
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.PROFILE })
@@ -63,6 +87,22 @@ export class Player {
 
   @Prop({ type: ObjectId, default: null })
   clanRole_id: string | ObjectId | null;
+
+  @Prop({
+    type: [
+      {
+        emotion: {
+          type: String,
+          enum: Object.values(PlayerEmotion),
+          required: true,
+        },
+        date: { type: Date, default: Date.now },
+      },
+    ],
+    _id: false,
+    default: [],
+  })
+  emotions?: EmotionDto[];
 
   @ExtractField()
   _id: string;

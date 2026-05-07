@@ -22,6 +22,21 @@ export class Profile {
   @Prop({ type: Boolean, default: false })
   isGuest: boolean;
 
+  @Prop({ type: String })
+  securityQuestion?: string;
+
+  @Prop({ type: String })
+  securityAnswer?: string;
+
+  @Prop({ type: Number })
+  failedRecoveryAttempts?: number;
+
+  @Prop({ type: Date })
+  recoveryLockedUntil?: Date;
+
+  @Prop({ type: Number })
+  tokenVersion?: number;
+
   Player?: Player;
 
   _id: string;

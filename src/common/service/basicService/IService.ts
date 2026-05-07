@@ -43,6 +43,11 @@ export type TReadByIdOptions = {
    * @example [ModelName.CLAN]
    */
   includeRefs?: ModelName[];
+
+  /**
+   * Optional Mongoose session for transaction support.
+   */
+  session?: ClientSession;
 };
 
 export type TIServiceReadOneOptions<TObject = any> = {
@@ -99,6 +104,11 @@ export type TIServiceReadOneOptions<TObject = any> = {
    * @example [ModelName.CLAN]
    */
   includeRefs?: ModelName[];
+
+  /**
+   * Optional Mongoose session for transaction support.
+   */
+  session?: ClientSession;
 };
 
 export type TIServiceReadManyOptions<TObject = any> = {
@@ -174,6 +184,11 @@ export type TIServiceReadManyOptions<TObject = any> = {
    * @example [ModelName.CLAN]
    */
   includeRefs?: ModelName[];
+
+  /**
+   * Optional Mongoose session for transaction support.
+   */
+  session?: ClientSession;
 };
 
 export type TIServiceUpdateByIdOptions = {

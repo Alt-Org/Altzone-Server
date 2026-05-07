@@ -7,6 +7,7 @@ import { ObjectId } from 'mongodb';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
 import CustomCharacterModule from '../../modules/customCharacter.module';
 import PlayerBuilderFactory from '../../data/playerBuilderFactory';
+import { NewCharacterBase } from '../../../../player/customCharacter/const/NewCharacterBase';
 
 describe('CustomCharacterService.createOne() test suite', () => {
   let characterService: CustomCharacterService;
@@ -34,7 +35,7 @@ describe('CustomCharacterService.createOne() test suite', () => {
     });
     const clearedCharacter = clearDBRespDefaultFields(createdCharacter);
 
-    const expectedSpecs = CharacterBaseStats[characterId];
+    const expectedSpecs = NewCharacterBase;
 
     expect(clearedCharacter).toHaveLength(1);
     expect(clearedCharacter[0]).toEqual({

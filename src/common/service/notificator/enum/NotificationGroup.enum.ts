@@ -10,4 +10,8 @@ export enum NotificationGroup {
    * Player's personal notifications
    */
   PLAYER = 'player',
+  /**
+   * All users
+   */
+  SYSTEM = 'system'
 }

@@ -16,13 +16,19 @@ import {
   PostHookFunction,
 } from '../common/interface/IHookImplementer';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
-import { PlayerDto } from './dto/player.dto';
+import { PlayerDto, StatDetailDto } from './dto/player.dto';
+import { EmotionCheckDto } from './dto/emotionCheck.dto';
 import BasicService from '../common/service/basicService/BasicService';
+import ServiceError from '../common/service/basicService/ServiceError';
+import { SEReason } from '../common/service/basicService/SEReason';
 import {
   TIServiceReadManyOptions,
   TReadByIdOptions,
+  IServiceReturn,
 } from '../common/service/basicService/IService';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { PlayerEmotion } from './enum/playerEmotion.enum';
+import { prizePool } from '../rewarder/const/prizePool';
 
 @Injectable()
 @AddBasicService()
@@ -53,14 +59,37 @@ export class PlayerService
    * @param options - Optional settings for retrieving the player.
    * @returns An PlayerDTO if succeeded or an array of ServiceErrors.
    */
-  async getPlayerById(_id: string, options?: TReadByIdOptions) {
+  async getPlayerById(
+    _id: string,
+    options?: TReadByIdOptions,
+  ): Promise<[PlayerDto, any]> {
     const optionsToApply = options;
     if (options?.includeRefs) {
       optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
         this.refsInModel.includes(ref),
       );
     }
-    return this.basicService.readOneById<PlayerDto>(_id, optionsToApply);
+
+    const [player, errors] = await this.basicService.readOneById<PlayerDto>(
+      _id,
+      optionsToApply,
+    );
+
+    if (errors || !player) {
+      return [player, errors];
+    }
+
+    const playerObject: any = (player as any).toObject
+      ? (player as any).toObject()
+      : player;
+    playerObject.favouriteClass = this.getFavourite(
+      playerObject['classStatistics'],
+    );
+    playerObject.favouriteCharacter = this.getFavourite(
+      playerObject['characterStatistics'],
+    );
+
+    return [playerObject, null];
   }
 
   /**
@@ -178,6 +207,32 @@ export class PlayerService
     return player.clan_id?.toString();
   }
 
+  /**
+   * Internal "helper" to calculate the favorite class/character from statistics maps.
+   */
+  private getFavourite(
+    statsMap: Map<string, { gamesPlayed: number; wins: number }>,
+  ): StatDetailDto | undefined {
+    if (!statsMap || statsMap.size === 0) return undefined;
+
+    let favoriteKey = '';
+    let maxGames = -1;
+
+    for (const [key, value] of statsMap.entries()) {
+      if (value.gamesPlayed > maxGames) {
+        maxGames = value.gamesPlayed;
+        favoriteKey = key;
+      }
+    }
+
+    const favorite = statsMap.get(favoriteKey);
+    return {
+      name: favoriteKey,
+      gamesPlayed: favorite?.gamesPlayed || 0,
+      wins: favorite?.wins || 0,
+    };
+  }
+
   private clearClanReferences = async (
     _id: string,
   ): Promise<boolean | Error> => {
@@ -247,5 +302,134 @@ export class PlayerService
       update,
     );
     if (updateErrors) throw updateErrors;
+  }
+
+  /**
+   * Checks if the player has already submitted an emotion today.
+   * @param playerId - The unique identifier of the player.
+   * @returns - A classic tuple setup [boolean, ServiceError[]] indicating if an entry for today exists.
+   */
+  async checkIfEmotionSentToday(
+    playerId: string,
+  ): Promise<IServiceReturn<boolean>> {
+    const player = await this.model
+      .findById(playerId)
+      .select('emotions')
+      .exec();
+
+    if (!player)
+      return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
+
+    const lastEntry = player.emotions[player.emotions.length - 1];
+
+    const today = new Date().setHours(0, 0, 0, 0);
+    const entryDate = lastEntry
+      ? new Date(lastEntry.date).setHours(0, 0, 0, 0)
+      : null;
+
+    if (entryDate !== today) {
+      return [false, null];
+    }
+
+    const emotionValue = lastEntry.emotion as PlayerEmotion;
+
+    const isSent = emotionValue !== PlayerEmotion.BLANK;
+
+    return [isSent, null];
+  }
+
+  /**
+   * Registers or updates the player's selected emotion for the current day.
+   * Uses atomic operators via basicService to ensure data integrity and DTO consistency.
+   * * @param playerId - The unique identifier of the player.
+   * @param emotion - The selected emotion enum value.
+   * @returns The updated player data or service errors.
+   */
+  async addEmotion(
+    playerId: string,
+    emotion: PlayerEmotion,
+  ): Promise<IServiceReturn<PlayerDto>> {
+    const [player, errors] = await this.getPlayerById(playerId);
+    if (errors) return [null, errors];
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const index = (player.emotions || []).findIndex((e) => {
+      const entryDate = new Date(e.date);
+      entryDate.setHours(0, 0, 0, 0);
+      return entryDate.getTime() === today.getTime();
+    });
+
+    let updateQuery: UpdateQuery<Player>;
+    if (index > -1) {
+      updateQuery = {
+        $set: {
+          [`emotions.${index}.emotion`]: emotion,
+          [`emotions.${index}.date`]: new Date(),
+        },
+      };
+    } else {
+      updateQuery = {
+        $push: { emotions: { emotion, date: new Date() } },
+      };
+    }
+
+    const [_, updateErrors] = await this.basicService.updateOneById(
+      playerId,
+      updateQuery,
+    );
+    if (updateErrors) return [null, updateErrors];
+
+    return this.getPlayerById(playerId);
+  }
+
+  /**
+   * Claim Player reward. Removes claimable reward from claimableRewards, return chosen reward.
+   * 
+   * Currently, Player rewards are not implemented, so a mock reward is instead returned.
+   * 
+   * @param _id Player Id
+   * @param reward_id Reward Id - Currently, there are no rewards, so placeholder rewards are used
+   * @returns Placeholder reward, Errors if errors
+   */
+  async claimReward(
+    _id: string, 
+    reward_id: number
+  ) {
+    const [player, playerErrors] = await this.getPlayerById(_id);
+    if (playerErrors) return [null, playerErrors];
+
+    if (!player.claimableRewards.includes(prizePool.maxPoints))
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            message: 'Player can\'t claim final reward',
+          }),
+        ],
+      ];
+
+    const playerReward = prizePool.finalRewards.find(reward => reward.id === reward_id)
+    if (!playerReward)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            message: 'No reward with given ID',
+          }),
+        ],
+      ];
+
+    const update = {
+      $pull: { claimableRewards: prizePool.maxPoints }
+    };
+
+    const [, updateErrors] = await this.basicService.updateOneById(_id, update);
+    if (updateErrors) return [null, updateErrors];
+
+    return [{ playerReward: playerReward }, null];
   }
 }
