@@ -1,4 +1,9 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Put
+} from '@nestjs/common';
 import { GameDataService } from './gameData.service';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
@@ -11,6 +16,8 @@ import { RequestTypeDto } from './dto/requestType.dto';
 import { BattleResultDto } from './dto/battleResult.dto';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { BattleResponseDto } from './dto/battleResponse.dto';
+import { StartBattleDto } from './dto/startBattle.dto';
+import { SubmitResultDto } from './dto/submitResult.dto';
 
 @Controller('gameData')
 export class GameDataController {
@@ -66,5 +73,54 @@ export class GameDataController {
       default:
         return new APIError({ reason: APIErrorReason.BAD_REQUEST });
     }
+  }
+
+  /**
+   * Initialize a new battle record
+   * * @remarks This endpoint is used to register the start of a battle.
+   * It creates a record in the database with the initial participants and returns the unique match ID.
+   * * This match ID must be stored by the client and used in the `PUT battle/result` call.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 201,
+    },
+    errors: [400, 401],
+  })
+  @Post('battle/start')
+  async startBattle(@Body() startBattleDto: StartBattleDto) {
+    return this.service.registerBattle(startBattleDto);
+  }
+
+  /**
+   * Submit player battle result
+   * * @remarks Endpoint for players to report the outcome of a specific match.
+   * * The logic will compare the result with other players in the same matchId.
+   * If all results match, the battle is finalized and rewards are calculated.
+   * * Notice that if results conflict, the battle status will move to "PROCESSING"
+   * for further verification.
+   * * @param user - The authenticated player submitting the result.
+   * @param dto - Contains the matchId, winning team, and match duration.
+   */
+  @ApiResponseDescription({
+    success: {
+      dto: BattleResponseDto,
+    },
+    errors: [400, 401, 403, 404],
+  })
+  @Put('battle/result')
+  async submitResult(
+    @LoggedUser() user: User,
+    @Body() SubmitResultDto: SubmitResultDto,
+  ) {
+    const legacyDto = new BattleResultDto();
+    legacyDto.matchId = SubmitResultDto.matchId;
+    legacyDto.result = SubmitResultDto.result;
+    legacyDto.duration = SubmitResultDto.duration;
+
+    return this.service.handleBattleResult(
+      legacyDto as BattleResultDto,
+      user.player_id,
+    );
   }
 }
