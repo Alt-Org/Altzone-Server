@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { StockService } from './stock.service';
 import { StockDto } from './dto/stock.dto';
 import { publicReferences } from './stock.schema';
@@ -14,6 +14,7 @@ import { AddSortQuery } from '../../common/interceptor/request/addSortQuery.inte
 import { OffsetPaginate } from '../../common/interceptor/request/offsetPagination.interceptor';
 import { IGetAllQuery } from '../../common/interface/IGetAllQuery';
 import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
+import { Environment } from '../../common/enum/environment.enum';
 
 @Controller('stock')
 export class StockController {
@@ -62,7 +63,10 @@ export class StockController {
   @AddSearchQuery(StockDto)
   @AddSortQuery(StockDto)
   @UniformResponse(ModelName.STOCK)
-  public getAll(@GetAllQuery() query: IGetAllQuery) {
-    return this.service.readAll(query);
+  public getAll(
+    @GetAllQuery() query: IGetAllQuery,
+    @Query('environment', ParseIntPipe) environment?: Environment,
+  ) {
+    return this.service.readAll(query, environment);
   }
 }

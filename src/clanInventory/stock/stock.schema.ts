@@ -3,6 +3,7 @@ import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { Clan } from '../../clan/clan.schema';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { ModelName } from '../../common/enum/modelName.enum';
+import { Environment } from '../../common/enum/environment.enum';
 
 export type StockDocument = HydratedDocument<Stock>;
 
@@ -20,6 +21,15 @@ export class Stock {
 
   @ExtractField()
   _id: string;
+
+  @Prop({
+    type: Number,
+    enum: Environment,
+  })
+  environment?: Environment;
+
+  @Prop({ type: Date })
+  expiresAt?: Date;
 }
 export const StockSchema = SchemaFactory.createForClass(Stock);
 StockSchema.set('collection', ModelName.STOCK);
@@ -34,5 +44,6 @@ StockSchema.virtual(ModelName.ITEM, {
   localField: '_id',
   foreignField: 'stock_id',
 });
+StockSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export const publicReferences = [ModelName.CLAN, ModelName.ITEM];

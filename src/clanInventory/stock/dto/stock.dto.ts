@@ -3,6 +3,7 @@ import { ItemDto } from '../../item/dto/item.dto';
 import { ClanDto } from '../../../clan/dto/clan.dto';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 import { ExtractField } from '../../../common/decorator/response/ExtractField';
+import { Environment } from '../../../common/enum/environment.enum';
 
 @AddType('StockDto')
 export class StockDto {
@@ -45,4 +46,10 @@ export class StockDto {
   @Type(() => ItemDto)
   @Expose()
   Item: ItemDto[];
+
+  /**
+   * Environment of the stock
+   */
+  @Expose()
+  environment?: Environment;
 }
