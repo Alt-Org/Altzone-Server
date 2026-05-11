@@ -5,6 +5,7 @@ import ClanBuilderFactory from '../data/clanBuilderFactory';
 import ClanModule from '../modules/clan.module';
 import { LeaderClanRole } from '../../../clan/role/initializationClanRoles';
 import PlayerModule from '../../player/modules/player.module';
+import { AgeRange } from '../../../clan/enum/ageRange.enum';
 
 describe('ClanService.createOne() test suite', () => {
   let clanService: ClanService;
@@ -99,6 +100,18 @@ describe('ClanService.createOne() test suite', () => {
 
     expect(dbResp).toHaveLength(1);
     expect(clanInDB).toEqual(expect.objectContaining({ ...clanToCreate }));
+  });
+
+  it('Should save Elderly as clan age range', async () => {
+    const elderlyClan = clanCreateBuilder
+      .setName('elderlyClan')
+      .setAgeRange(AgeRange.ELDERLY)
+      .build();
+
+    await clanService.createOne(elderlyClan, loggedPlayer._id);
+
+    const dbResp = await clanModel.findOne({ name: elderlyClan.name });
+    expect(dbResp.ageRange).toBe(AgeRange.ELDERLY);
   });
 
   it('Should return saved clan data, if input is valid', async () => {
