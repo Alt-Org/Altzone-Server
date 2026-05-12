@@ -80,7 +80,7 @@ export class ClanService {
 
     if (process.env.NODE_ENV === 'test') {
       clanToCreate.name = `T_${Math.random().toString(36).substring(7, 12)}`;
-      console.log('DEBUG: Test running on DB ->', this.connection.name);
+      // console.log('DEBUG: Test running on DB ->', this.connection.name);
     }
 
     const [clan, clanErrors] = await this.basicService.createOne<Clan, ClanDto>(
@@ -169,7 +169,7 @@ export class ClanService {
       _id: clanId,
     } as UpdateClanDto;
 
-    return this.clanRoleService.applyGovernance(clanId, fullBody, body);
+    return await this.clanRoleService.applyGovernance(clanId, fullBody, body);
   }
 
   async readOneById(_id: string, options?: TReadByIdOptions) {
@@ -179,7 +179,7 @@ export class ClanService {
         publicReferences.includes(ref),
       );
     }
-    return this.basicService.readOneById<ClanDto>(_id, optionsToApply);
+    return await this.basicService.readOneById<ClanDto>(_id, optionsToApply);
   }
 
   async readAll(options?: TIServiceReadManyOptions) {
@@ -189,14 +189,14 @@ export class ClanService {
         publicReferences.includes(ref),
       );
     }
-    return this.basicService.readMany<ClanDto>(optionsToApply);
+    return await this.basicService.readMany<ClanDto>(optionsToApply);
   }
 
   async updateOne(
     updateInfo: Partial<Clan>,
     options: TIServiceUpdateOneOptions,
   ) {
-    return this.basicService.updateOne(updateInfo, options);
+    return await this.basicService.updateOne(updateInfo, options);
   }
 
   /**
@@ -240,54 +240,40 @@ export class ClanService {
           }
         }
 
-        // Build the update object using MongoDB operators
-        const mongooseUpdate: any = {};
+        const toDeleteStrings = (updateData.admin_idsToDelete || []).map(id => String(id));
+        const adminsAfterDeletion = (clan.admin_ids || [])
+          .map(id => String(id))
+          .filter(adminId => !toDeleteStrings.includes(adminId));
+        const adminIds = Array.from(new Set([
+          ...adminsAfterDeletion,
+          ...(updateData.admin_idsToAdd || [])
+            .map(id => String(id))
+            .filter(adminId => !toDeleteStrings.includes(adminId)),
+        ]));
+        const playersInClan: string[] = [];
 
-        // Check if we have both operations - if so, consolidate them
-        const hasDeletions = updateData.admin_idsToDelete && (updateData.admin_idsToDelete || []).length > 0;
-        const hasAdditions = updateData.admin_idsToAdd && (updateData.admin_idsToAdd || []).length > 0;
-
-        if (hasDeletions && hasAdditions) {
-          // Both operations: use $set to consolidate (avoid $pull/$addToSet conflict)
-          let finalAdminIds = (clan.admin_ids || []).map(id => String(id));
-          
-          // Remove admins to delete
-          const toDeleteStrings = (updateData.admin_idsToDelete || []).map(id => String(id));
-          finalAdminIds = finalAdminIds.filter(adminId => !toDeleteStrings.includes(adminId));
-          
-          // Add new admins
-          const uniqueAdmins = new Set([
-            ...finalAdminIds,
-            ...(updateData.admin_idsToAdd || []).map(id => String(id))
-          ]);
-          finalAdminIds = Array.from(uniqueAdmins);
-
-          mongooseUpdate.$set = { admin_ids: finalAdminIds };
-        } else if (hasDeletions) {
-          // Only deletions: use $pull - iterate and pull each ID individually
-          // MongoDB $pull with string values - pull each admin to delete
-          const adminsToPull = (updateData.admin_idsToDelete || []).map(id => String(id));
-          
-          // If multiple admins to delete, use $in; if single, use direct value
-          if (adminsToPull.length === 1) {
-            mongooseUpdate.$pull = { admin_ids: adminsToPull[0] };
-          } else {
-            mongooseUpdate.$pull = { admin_ids: { $in: adminsToPull } };
+        for (const player_id of adminIds) {
+          const [player] = await this.playerService.readOneById<Player>(
+            player_id,
+          );
+          if (player?.clan_id?.toString() === id.toString()) {
+            playersInClan.push(player_id);
           }
-        } else if (hasAdditions) {
-          // Only additions: use $addToSet
-          mongooseUpdate.$addToSet = {
-            admin_ids: { 
-              $each: (updateData.admin_idsToAdd || []).map(id => String(id)) 
-            }
-          };
+        }
+
+        if (playersInClan.length === 0) {
+          return [false, [new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'admin_ids',
+            message: 'Clan must have at least one admin'
+          })]];
         }
 
         // Only pass the admin_ids update to the service
         // Don't include other fields when handling admin changes
         const [wasUpdated, updateErrors] = await this.basicService.updateOneById(
             id, 
-            mongooseUpdate, 
+            { admin_ids: playersInClan }, 
             options
         );
 
