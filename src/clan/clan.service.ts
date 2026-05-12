@@ -80,7 +80,6 @@ export class ClanService {
 
     if (process.env.NODE_ENV === 'test') {
       clanToCreate.name = `T_${Math.random().toString(36).substring(7, 12)}`;
-      // console.log('DEBUG: Test running on DB ->', this.connection.name);
     }
 
     const [clan, clanErrors] = await this.basicService.createOne<Clan, ClanDto>(
