@@ -31,6 +31,7 @@ import { VotingQueue } from '../../voting/voting.queue';
 import { VotingQueueName } from '../../voting/enum/VotingQueue.enum';
 import { VotingDto } from '../../voting/dto/voting.dto';
 import { GovernancePayload } from '../../voting/type/governancePayload';
+import { VoteChoice } from '../../voting/enum/choiceType.enum';
 
 @Injectable()
 export default class ClanRoleService {
@@ -382,59 +383,31 @@ export default class ClanRoleService {
   }
 
   async checkVotingOnExpire(voting: VotingDto): Promise<IServiceReturn<true>> {
-    if (process.env.NODE_ENV === 'test') {
-      console.log('DEBUG Test 1 - checkVotingOnExpire called');
-      console.log('  votingService exists:', !!this.votingService);
-    }
-    if (!this.votingService) {
-      if (process.env.NODE_ENV === 'test') {
-        console.log('  votingService is null, returning early');
-      }
+    const votePassed = this.votingService
+      ? await this.votingService.checkVotingSuccess(voting)
+      : voting.votes?.length > 0 &&
+        (voting.votes.filter((vote) => vote.choice === VoteChoice.YES).length /
+          voting.votes.length) *
+          100 >=
+          (voting.minPercentage || 51);
+    if (!votePassed) {
       return [true, null];
     }
 
-    try {
-      const votePassed = await this.votingService.checkVotingSuccess(voting);
-      if (process.env.NODE_ENV === 'test') {
-        console.log('  votePassed:', votePassed);
-      }
+    if (!voting.setClanRole?.player_id || !voting.setClanRole?.role_id) {
+      return [null, [new ServiceError({
+        reason: SEReason.REQUIRED,
+        field: 'setClanRole',
+        value: voting.setClanRole,
+        message: 'Voting is missing player_id or role_id for clan role update',
+      })]];
+    }
 
-      if (votePassed && voting.setClanRole) {
-        const playerIdToUpdate = voting.setClanRole.player_id?.toString ? voting.setClanRole.player_id.toString() : voting.setClanRole.player_id;
-        const roleIdToSet = voting.setClanRole.role_id;
-        
-        if (process.env.NODE_ENV === 'test') {
-          console.log('DEBUG Test 1 - Player role update:');
-          console.log('  votePassed:', votePassed);
-          console.log('  voting.setClanRole exists:', !!voting.setClanRole);
-          console.log('  playerIdToUpdate:', playerIdToUpdate);
-          console.log('  roleIdToSet:', roleIdToSet);
-        }
-        
-        if (playerIdToUpdate && roleIdToSet) {
-          // Find the player, manually assign the role_id, and save
-          const player = await this.playerModel.findById(playerIdToUpdate);
-          if (process.env.NODE_ENV === 'test') {
-            console.log('  Found player:', !!player);
-          }
-          if (player) {
-            player.clanRole_id = roleIdToSet;
-            const savedPlayer = await player.save();
-            if (process.env.NODE_ENV === 'test') {
-              console.log('  Saved player clanRole_id:', savedPlayer.clanRole_id);
-            }
-          }
-        }
-      }
-    } catch (error) {
-      if (process.env.NODE_ENV === 'test') {
-        console.log('  Error in checkVotingSuccess:', error instanceof Error ? error.message : error);
-      }
-    }
-    
-    if (process.env.NODE_ENV === 'test') {
-      await new Promise(resolve => setTimeout(resolve, 300));
-    }
+    const [, updateErrors] = await this.playerBasicService.updateOneById(
+      voting.setClanRole.player_id.toString(),
+      { clanRole_id: new ObjectId(voting.setClanRole.role_id.toString()) },
+    );
+    if (updateErrors) return [null, updateErrors];
 
     return [true, null];
   }
