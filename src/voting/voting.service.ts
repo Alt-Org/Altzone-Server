@@ -36,12 +36,12 @@ export class VotingService {
     @Optional()
     @Inject(forwardRef(() => ClanService))
     private readonly clanService: ClanService,
-    
+
     // Used to apply SET_CLAN_ROLE voting result immediately when the vote passes.
     @Optional()
     @Inject(forwardRef(() => ClanRoleService))
     private readonly clanRoleService: ClanRoleService,
-    
+
     @Optional() private readonly clanHelperService: ClanHelperService,
   ) {
     this.basicService = new BasicService(this.votingModel);
@@ -296,7 +296,11 @@ export class VotingService {
       }
     }
 
-    this.notifier.votingUpdated(updatedVoting, voting.FleaMarketItem, voting.Player);
+    this.notifier.votingUpdated(
+      updatedVoting,
+      voting.FleaMarketItem,
+      voting.Player,
+    );
   }
 
   /**
