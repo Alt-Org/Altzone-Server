@@ -21,7 +21,6 @@ import { addVoteError } from './error/addVote.error';
 import { TIServiceCreateOneOptions } from '../common/service/basicService/IService';
 import { VotingType } from './enum/VotingType.enum';
 import ClanHelperService from '../clan/utils/clanHelper.service';
-import ClanRoleService from '../clan/role/clanRole.service';
 
 /**
  * Service responsible for managing the voting lifecycle, including item purchases,
@@ -36,12 +35,6 @@ export class VotingService {
     @Optional()
     @Inject(forwardRef(() => ClanService))
     private readonly clanService: ClanService,
-
-    // Used to apply SET_CLAN_ROLE voting result immediately when the vote passes.
-    @Optional()
-    @Inject(forwardRef(() => ClanRoleService))
-    private readonly clanRoleService: ClanRoleService,
-
     @Optional() private readonly clanHelperService: ClanHelperService,
   ) {
     this.basicService = new BasicService(this.votingModel);
@@ -288,7 +281,7 @@ export class VotingService {
       }
 
       if (updatedVoting.type === VotingType.SET_CLAN_ROLE) {
-        await this.clanRoleService.checkVotingOnExpire(updatedVoting);
+        await this.finalizeSetClanRoleVote(updatedVoting);
 
         await this.basicService.updateOneById(updatedVoting._id, {
           endedAt: new Date(),
@@ -301,6 +294,16 @@ export class VotingService {
       voting.FleaMarketItem,
       voting.Player,
     );
+  }
+
+  private async finalizeSetClanRoleVote(voting: VotingDto): Promise<void> {
+    if (!voting.setClanRole?.player_id || !voting.setClanRole?.role_id) return;
+
+    const [, updateErrors] = await this.playerService.updatePlayerById(
+      voting.setClanRole.player_id.toString(),
+      { clanRole_id: voting.setClanRole.role_id.toString() },
+    );
+    if (updateErrors) throw updateErrors;
   }
 
   /**

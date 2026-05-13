@@ -10,8 +10,6 @@ import FleaMarketModule from '../../fleaMarket/modules/fleaMarketModule';
 import PlayerModule from '../../player/modules/player.module';
 import createMockMqttClient from '../../common/service/notificator/mocks/createMockMqttClient';
 import { ObjectId } from 'mongodb';
-import ClanModule from '../../clan/modules/clan.module';
-import ClanRoleService from '../../../clan/role/clanRole.service';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -20,7 +18,6 @@ jest.mock('mqtt', () => ({
 describe('VotingService.addVote() test suite', () => {
   let votingService: VotingService;
   let playerService: PlayerService;
-  let clanRoleService: ClanRoleService;
 
   const votingBuilder = VotingBuilderFactory.getBuilder('CreateVotingDto');
   const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
@@ -31,8 +28,6 @@ describe('VotingService.addVote() test suite', () => {
   beforeEach(async () => {
     votingService = await VotingModule.getVotingService();
     playerService = await PlayerModule.getPlayerService();
-    clanRoleService = await ClanModule.getClanRoleService();
-    (votingService as any).clanRoleService = clanRoleService;
     createMockMqttClient('topic', 'payload');
   });
 
