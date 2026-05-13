@@ -289,6 +289,8 @@ export class FleaMarketService {
           );
         break;
     }
+
+    await this.votingService.finalizeVoting(voting._id);
   }
 
   /**

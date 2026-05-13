@@ -139,10 +139,18 @@ export class VotingService {
         voting.governancePayload,
       );
 
-      await this.basicService.updateOneById(voting._id, {
-        endedAt: new Date(),
-      });
+      await this.finalizeVoting(voting._id);
     }
+  }
+
+  /**
+   * Marks a voting as ended by setting the endedAt timestamp.
+   * @param votingId - The ID of the voting to finalize.
+   */
+  async finalizeVoting(votingId: string): Promise<void> {
+    await this.basicService.updateOneById(votingId, {
+      endedAt: new Date(),
+    });
   }
 
   /**
@@ -273,19 +281,16 @@ export class VotingService {
 
     // IMPORTANT:
     // If the voting has already passed after this vote, finalize it now.
-    // Previously this only finalized governance voting, so SET_CLAN_ROLE could
-    // remain unapplied until the queue job runs.
     if (await this.checkVotingSuccess(updatedVoting)) {
       if (updatedVoting.type === VotingType.CLAN_GOVERNANCE_UPDATE) {
         await this.finalizeGovernanceVote(updatedVoting);
-      }
-
-      if (updatedVoting.type === VotingType.SET_CLAN_ROLE) {
+      } else if (updatedVoting.type === VotingType.SET_CLAN_ROLE) {
         await this.finalizeSetClanRoleVote(updatedVoting);
-
-        await this.basicService.updateOneById(updatedVoting._id, {
-          endedAt: new Date(),
-        });
+        await this.finalizeVoting(updatedVoting._id);
+      } else {
+        // For other types (Flea Market, Clan Shop), we mark them as ended.
+        // The respective processors will see they are ended and skip or finalize.
+        await this.finalizeVoting(updatedVoting._id);
       }
     }
 

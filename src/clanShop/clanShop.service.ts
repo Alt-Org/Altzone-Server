@@ -162,6 +162,8 @@ export class ClanShopService {
       if (rejectError) return cancelTransaction(session, rejectError);
     }
 
+    await this.votingService.finalizeVoting(voting._id);
+
     return endTransaction(session, true);
   }
 

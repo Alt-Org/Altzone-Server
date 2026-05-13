@@ -34,6 +34,12 @@ export class Voting {
 
   @Prop({ type: Object, required: false })
   governancePayload?: GovernancePayload;
+
+  @Prop({ type: Date, default: Date.now })
+  startedAt?: Date;
+
+  @Prop({ type: Date, required: false })
+  endedAt?: Date;
 }
 
 export const VotingSchema = SchemaFactory.createForClass(Voting);

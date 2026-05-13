@@ -494,6 +494,8 @@ export default class ClanRoleService {
     );
     if (updateErrors) return [null, updateErrors];
 
+    await this.votingService.finalizeVoting(voting._id);
+
     return [true, null];
   }
 }
