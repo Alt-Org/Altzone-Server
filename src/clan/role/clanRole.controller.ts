@@ -6,7 +6,7 @@ import { User } from '../../auth/user';
 import HasClanRights from './decorator/guard/HasClanRights';
 import { ClanBasicRight } from './enum/clanBasicRight.enum';
 import ClanRoleDto from './dto/clanRole.dto';
-import ClanRoleService from './clanRole.service'
+import ClanRoleService from './clanRole.service';
 import { CreateClanRoleDto } from './dto/createClanRole.dto';
 import DetermineClanId from '../../common/guard/clanId.guard';
 import { _idDto } from '../../common/dto/_id.dto';
@@ -97,8 +97,8 @@ export class ClanRoleController {
   @DetermineClanId()
   @UniformResponse(ModelName.CLAN, ClanRoleDto)
   public async updateGovernance(
-    @Body() body: UpdateClanDto, 
-    @LoggedUser() user: User
+    @Body() body: UpdateClanDto,
+    @LoggedUser() user: User,
   ) {
     const voter = {
       _id: user.player_id,
@@ -106,7 +106,7 @@ export class ClanRoleController {
     } as PlayerDto;
 
     const [, errors] = await this.service.startGovernanceVoting(body, voter);
-    
+
     return this.handleErrorReturnIfFound(errors);
   }
 
@@ -156,8 +156,13 @@ export class ClanRoleController {
   @HasClanRights([ClanBasicRight.EDIT_MEMBER_RIGHTS])
   @DetermineClanId()
   @UniformResponse()
-  public async setRole(@Body() body: SetClanRoleDto) {
-    const [, errors] = await this.service.setRoleToPlayer(body);
+  public async setRole(@Body() body: SetClanRoleDto, @LoggedUser() user: User) {
+    const voter = {
+      _id: user.player_id,
+      clan_id: user.clan_id,
+    } as PlayerDto;
+
+    const [, errors] = await this.service.setRoleToPlayer(body, voter);
     return this.handleErrorReturnIfFound(errors);
   }
 

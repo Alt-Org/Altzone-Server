@@ -37,7 +37,8 @@ import { VoteChoice } from '../../voting/enum/choiceType.enum';
 export default class ClanRoleService {
   public constructor(
     @Optional()
-    @InjectModel(ClanRole.name) private readonly clanRoleModel: Model<ClanRole>,
+    @InjectModel(ClanRole.name)
+    private readonly clanRoleModel: Model<ClanRole>,
     @InjectModel(Clan.name) private readonly clanModel: Model<Clan>,
     @InjectModel(Player.name) private readonly playerModel: Model<Player>,
     @Inject(forwardRef(() => ClanService))
@@ -99,9 +100,8 @@ export default class ClanRoleService {
     roleToUpdate: UpdateClanRoleDto,
     clan_id: string | ObjectId,
   ): Promise<IServiceReturn<true>> {
-    const [clan, clanReadingErrors] = await this.clanBasicService.readOneById<Clan>(
-      clan_id.toString(),
-    );
+    const [clan, clanReadingErrors] =
+      await this.clanBasicService.readOneById<Clan>(clan_id.toString());
 
     if (clanReadingErrors) return [null, clanReadingErrors];
 
@@ -156,8 +156,10 @@ export default class ClanRoleService {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
-    const [clan, clanErrors] = await this.clanBasicService.readOneById<ClanDto>(clanId);
-    if (clanErrors || !clan) return await cancelTransaction(session, clanErrors);
+    const [clan, clanErrors] =
+      await this.clanBasicService.readOneById<ClanDto>(clanId);
+    if (clanErrors || !clan)
+      return await cancelTransaction(session, clanErrors);
 
     const [playersInClan, adminErrors] = await this.calculateNewAdmins(
       clanId,
@@ -180,7 +182,10 @@ export default class ClanRoleService {
     );
     if (updateErrors) return await cancelTransaction(session, updateErrors);
 
-    const [finalResult, commitError] = await endTransaction<boolean>(session, result);
+    const [finalResult, commitError] = await endTransaction<boolean>(
+      session,
+      result,
+    );
     if (commitError) return [null, commitError];
 
     this.emitter.emitAsync('clan.update', { clan_id: clanId });
@@ -218,33 +223,40 @@ export default class ClanRoleService {
     clanId: string,
     currentAdminIds: string[],
     toAdd?: string[],
-    toDelete?: string[]
+    toDelete?: string[],
   ): Promise<IServiceReturn<string[]>> {
-    let admin_ids = (currentAdminIds || []).map(id => String(id).trim());
+    let admin_ids = (currentAdminIds || []).map((id) => String(id).trim());
 
     if (toDelete) {
-      const deleteIds = toDelete.map(id => String(id).trim());
-      admin_ids = admin_ids.filter(id => !deleteIds.includes(id));
+      const deleteIds = toDelete.map((id) => String(id).trim());
+      admin_ids = admin_ids.filter((id) => !deleteIds.includes(id));
     }
-    
+
     if (toAdd) {
-      const addIds = toAdd.map(id => String(id).trim());
+      const addIds = toAdd.map((id) => String(id).trim());
       admin_ids = Array.from(new Set([...admin_ids, ...addIds]));
     }
 
     const playersInClan: string[] = [];
     for (const p_id of admin_ids) {
-      const [player, pErrors] = await this.playerBasicService.readOneById<PlayerDto>(p_id);
-      if (pErrors || !player || String(player.clan_id) !== String(clanId)) continue;
+      const [player, pErrors] =
+        await this.playerBasicService.readOneById<PlayerDto>(p_id);
+      if (pErrors || !player || String(player.clan_id) !== String(clanId))
+        continue;
       playersInClan.push(p_id);
     }
 
     if (playersInClan.length === 0) {
-      return [null, [new ServiceError({
-        reason: SEReason.REQUIRED,
-        field: 'admin_ids',
-        message: 'Clan must have at least one admin'
-      })]];
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'admin_ids',
+            message: 'Clan must have at least one admin',
+          }),
+        ],
+      ];
     }
 
     return [playersInClan, null];
@@ -254,7 +266,9 @@ export default class ClanRoleService {
     clan_id: string | ObjectId,
     role_id: string | ObjectId,
   ): Promise<[true | null, ServiceError[] | null]> {
-    const [clan] = await this.clanBasicService.readOneById<Clan>(clan_id.toString());
+    const [clan] = await this.clanBasicService.readOneById<Clan>(
+      clan_id.toString(),
+    );
 
     const [roleToDelete, roleExistenceErrors] = this.findRoleFromRoles(
       role_id,
@@ -275,26 +289,69 @@ export default class ClanRoleService {
     return [true, null];
   }
 
-  async setRoleToPlayer(setData: SetClanRoleDto): Promise<IServiceReturn<true>> {
-    const [player, playerReadErrors] = await this.playerBasicService.readOneById<PlayerDto>(
-      setData.player_id.toString(),
-    );
+  async setRoleToPlayer(
+    setData: SetClanRoleDto,
+    voterPlayer: PlayerDto,
+  ): Promise<IServiceReturn<true>> {
+    const [player, playerReadErrors] =
+      await this.playerBasicService.readOneById<PlayerDto>(
+        setData.player_id.toString(),
+      );
     if (playerReadErrors)
-      return [null, [new ServiceError({ ...playerReadErrors[0], field: 'player_id' })]];
+      return [
+        null,
+        [new ServiceError({ ...playerReadErrors[0], field: 'player_id' })],
+      ];
 
     if (!player.clan_id)
-      return [null, [new ServiceError({
-        reason: SEReason.NOT_FOUND,
-        field: 'clan_id',
-        value: player.clan_id,
-        message: 'Player is not in any clan',
-      })]];
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'clan_id',
+            value: player.clan_id,
+            message: 'Player is not in any clan',
+          }),
+        ],
+      ];
 
-    const [clan, clanReadErrors] = await this.clanBasicService.readOneById<Clan>(player.clan_id);
+    if (!voterPlayer?.clan_id)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'voterPlayer.clan_id',
+            value: voterPlayer?.clan_id,
+            message: 'Voting organizer must be a member of a clan',
+          }),
+        ],
+      ];
+
+    if (player.clan_id.toString() !== voterPlayer.clan_id.toString())
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_AUTHORIZED,
+            field: 'player_id',
+            value: setData.player_id,
+            message: 'Role can be set only for a player in the same clan',
+          }),
+        ],
+      ];
+
+    const [clan, clanReadErrors] =
+      await this.clanBasicService.readOneById<Clan>(player.clan_id);
     if (clanReadErrors) return [null, clanReadErrors];
 
-    const [roleToSet, roleErrors] = this.findRoleFromRoles(setData.role_id.toString(), clan.roles);
-    if (roleErrors) return [null, [new ServiceError({ ...roleErrors[0], field: 'role_id' })]];
+    const [roleToSet, roleErrors] = this.findRoleFromRoles(
+      setData.role_id.toString(),
+      clan.roles,
+    );
+    if (roleErrors)
+      return [null, [new ServiceError({ ...roleErrors[0], field: 'role_id' })]];
 
     const [, roleTypeErrors] = this.validateRoleType(roleToSet, [
       ClanRoleType.NAMED,
@@ -303,9 +360,9 @@ export default class ClanRoleService {
     if (roleTypeErrors) return [null, roleTypeErrors];
 
     const [voting, votingErrors] = await this.votingService.startVoting({
-      voterPlayer: player,
+      voterPlayer,
       type: VotingType.SET_CLAN_ROLE,
-      clanId: player.clan_id.toString(),
+      clanId: voterPlayer.clan_id.toString(),
       setClanRole: setData,
       queue: VotingQueueName.CLAN_ROLE,
       endsOn: new Date(Date.now() + 60 * 60 * 1000),
@@ -325,28 +382,40 @@ export default class ClanRoleService {
     roles: ClanRole[],
   ): IServiceReturn<true> {
     if (isRoleNameExists(roles, roleToValidate.name))
-      return [null, [new ServiceError({
-        reason: SEReason.NOT_UNIQUE,
-        field: 'name',
-        value: roleToValidate.name,
-        message: 'Role with this name already exists',
-      })]];
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_UNIQUE,
+            field: 'name',
+            value: roleToValidate.name,
+            message: 'Role with this name already exists',
+          }),
+        ],
+      ];
 
     if (doesRoleWithRightsExists(roles, roleToValidate.rights))
-      return [null, [new ServiceError({
-        reason: SEReason.NOT_UNIQUE,
-        field: 'rights',
-        value: roleToValidate.rights,
-        message: 'Role with the same rights already exists',
-      })]];
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_UNIQUE,
+            field: 'rights',
+            value: roleToValidate.rights,
+            message: 'Role with the same rights already exists',
+          }),
+        ],
+      ];
     return [true, null];
   }
 
   public isGovernanceAction(clanToUpdate: UpdateClanDto): boolean {
     return (
       !!clanToUpdate.roles ||
-      (!!clanToUpdate.admin_idsToAdd && clanToUpdate.admin_idsToAdd.length > 0) ||
-      (!!clanToUpdate.admin_idsToDelete && clanToUpdate.admin_idsToDelete.length > 0)
+      (!!clanToUpdate.admin_idsToAdd &&
+        clanToUpdate.admin_idsToAdd.length > 0) ||
+      (!!clanToUpdate.admin_idsToDelete &&
+        clanToUpdate.admin_idsToDelete.length > 0)
     );
   }
 
@@ -355,12 +424,17 @@ export default class ClanRoleService {
     allowedTypes: ClanRoleType[],
   ): IServiceReturn<true> {
     if (!allowedTypes.includes(roleToValidate.clanRoleType)) {
-      return [null, [new ServiceError({
-        reason: SEReason.NOT_ALLOWED,
-        field: 'clanRoleType',
-        value: roleToValidate.clanRoleType,
-        message: `Can process only role with type ${allowedTypes.toString()}`,
-      })]];
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'clanRoleType',
+            value: roleToValidate.clanRoleType,
+            message: `Can process only role with type ${allowedTypes.toString()}`,
+          }),
+        ],
+      ];
     }
     return [true, null];
   }
@@ -373,12 +447,17 @@ export default class ClanRoleService {
       (role) => role._id.toString() === role_id.toString(),
     );
     if (!foundRole)
-      return [null, [new ServiceError({
-        reason: SEReason.NOT_FOUND,
-        field: '_id',
-        value: role_id.toString(),
-        message: 'Role with this _id is not found',
-      })]];
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: '_id',
+            value: role_id.toString(),
+            message: 'Role with this _id is not found',
+          }),
+        ],
+      ];
     return [foundRole, null];
   }
 
@@ -395,12 +474,18 @@ export default class ClanRoleService {
     }
 
     if (!voting.setClanRole?.player_id || !voting.setClanRole?.role_id) {
-      return [null, [new ServiceError({
-        reason: SEReason.REQUIRED,
-        field: 'setClanRole',
-        value: voting.setClanRole,
-        message: 'Voting is missing player_id or role_id for clan role update',
-      })]];
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'setClanRole',
+            value: voting.setClanRole,
+            message:
+              'Voting is missing player_id or role_id for clan role update',
+          }),
+        ],
+      ];
     }
 
     const [, updateErrors] = await this.playerBasicService.updateOneById(
