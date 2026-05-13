@@ -92,16 +92,18 @@ describe('VotingService.addVote() test suite', () => {
       player._id.toString(),
     );
 
-    try {
-      await votingService.addVote(
+    await expect(
+      votingService.addVote(
         voting._id.toString(),
         VoteChoice.YES,
         player._id.toString(),
-      );
-    } catch (error: any) {
-      expect(error).toBeSE_NOT_ALLOWED();
-      expect(error.message).toBe('Logged in user has already voted.');
-    }
+      ),
+    ).rejects.toMatchObject({
+      message: 'Logged in user has already voted.',
+    });
+
+    const votingFromDb = await votingModel.findById(voting._id);
+    expect(votingFromDb.votes).toHaveLength(1);
   });
 
   it('Should return error if organizer ID is invalid', async () => {

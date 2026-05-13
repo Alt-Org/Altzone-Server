@@ -254,7 +254,7 @@ export class VotingService {
     });
     if (errors) throw errors;
 
-    if (voting.votes.some((v) => v.player_id === playerId)) {
+    if (voting.votes.some((v) => v.player_id.toString() === playerId)) {
       throw alreadyVotedError;
     }
 
