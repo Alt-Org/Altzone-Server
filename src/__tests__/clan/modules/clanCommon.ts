@@ -13,6 +13,7 @@ import { isClanExists } from '../../../clan/decorator/validation/IsClanExists.de
 import { PlayerCounterFactory } from '../../../clan/clan.counters';
 import { GameEventsEmitterModule } from '../../../gameEventsEmitter/gameEventsEmitter.module';
 import ClanRoleService from '../../../clan/role/clanRole.service';
+import { ClanRoleVotingProcessor } from '../../../clan/role/clanRole.processor';
 import { PlayerModule } from '../../../player/player.module';
 import { VotingModule } from '../../../voting/voting.module';
 import { PasswordGenerator } from '../../../common/function/passwordGenerator';
@@ -45,6 +46,7 @@ export default class ClanCommonModule {
           ClanHelperService,
           JoinService,
           ClanRoleService,
+          ClanRoleVotingProcessor,
           PasswordGenerator,
         ],
       }).compile();

@@ -9,6 +9,9 @@ import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import FleaMarketModule from '../../fleaMarket/modules/fleaMarketModule';
 import PlayerModule from '../../player/modules/player.module';
 import createMockMqttClient from '../../common/service/notificator/mocks/createMockMqttClient';
+import { ObjectId } from 'mongodb';
+import ClanModule from '../../clan/modules/clan.module';
+import ClanRoleService from '../../../clan/role/clanRole.service';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -17,6 +20,7 @@ jest.mock('mqtt', () => ({
 describe('VotingService.addVote() test suite', () => {
   let votingService: VotingService;
   let playerService: PlayerService;
+  let clanRoleService: ClanRoleService;
 
   const votingBuilder = VotingBuilderFactory.getBuilder('CreateVotingDto');
   const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
@@ -27,6 +31,8 @@ describe('VotingService.addVote() test suite', () => {
   beforeEach(async () => {
     votingService = await VotingModule.getVotingService();
     playerService = await PlayerModule.getPlayerService();
+    clanRoleService = await ClanModule.getClanRoleService();
+    (votingService as any).clanRoleService = clanRoleService;
     createMockMqttClient('topic', 'payload');
   });
 
@@ -118,5 +124,52 @@ describe('VotingService.addVote() test suite', () => {
         player._id.toString(),
       ),
     ).rejects.toEqual(expect.anything());
+  });
+
+  it('Should apply a clan role when a SET_CLAN_ROLE voting passes after adding a vote', async () => {
+    const testId = new ObjectId().toString();
+    const organizer = await playerModel.create(
+      playerBuilder
+        .setName(`organizer-${testId}`)
+        .setUniqueIdentifier(`organizer-${testId}`)
+        .build(),
+    );
+    const voter = await playerModel.create(
+      playerBuilder
+        .setName(`voter-${testId}`)
+        .setUniqueIdentifier(`voter-${testId}`)
+        .build(),
+    );
+    const targetPlayer = await playerModel.create(
+      playerBuilder
+        .setName(`target-${testId}`)
+        .setUniqueIdentifier(`target-${testId}`)
+        .build(),
+    );
+    const roleId = new ObjectId();
+
+    const voting = await votingModel.create({
+      organizer: {
+        player_id: organizer._id,
+        clan_id: new ObjectId(),
+      },
+      endsOn: new Date(Date.now() + 3600000),
+      type: VotingType.SET_CLAN_ROLE,
+      minPercentage: 51,
+      votes: [{ player_id: organizer._id, choice: VoteChoice.YES }],
+      setClanRole: {
+        player_id: targetPlayer._id,
+        role_id: roleId,
+      },
+    });
+
+    await votingService.addVote(
+      voting._id.toString(),
+      VoteChoice.YES,
+      voter._id.toString(),
+    );
+
+    const updatedPlayer = await playerModel.findById(targetPlayer._id);
+    expect(updatedPlayer.clanRole_id.toString()).toBe(roleId.toString());
   });
 });
