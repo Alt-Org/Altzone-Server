@@ -127,10 +127,10 @@ describe('VotingService.addVote() test suite', () => {
   });
 
   it('Should apply a clan role when a SET_CLAN_ROLE voting passes after adding a vote', async () => {
-    const testId = new ObjectId().toString();
+    const testId = new ObjectId().toString().slice(-6);
     const organizer = await playerModel.create(
       playerBuilder
-        .setName(`organizer-${testId}`)
+        .setName(`org-${testId}`)
         .setUniqueIdentifier(`organizer-${testId}`)
         .build(),
     );
