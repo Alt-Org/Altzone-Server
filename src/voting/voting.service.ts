@@ -21,6 +21,7 @@ import { addVoteError } from './error/addVote.error';
 import { TIServiceCreateOneOptions } from '../common/service/basicService/IService';
 import { VotingType } from './enum/VotingType.enum';
 import ClanHelperService from '../clan/utils/clanHelper.service';
+import ClanRoleService from '../clan/role/clanRole.service';
 
 /**
  * Service responsible for managing the voting lifecycle, including item purchases,
@@ -35,6 +36,12 @@ export class VotingService {
     @Optional()
     @Inject(forwardRef(() => ClanService))
     private readonly clanService: ClanService,
+    
+    // Used to apply SET_CLAN_ROLE voting result immediately when the vote passes.
+    @Optional()
+    @Inject(forwardRef(() => ClanRoleService))
+    private readonly clanRoleService: ClanRoleService,
+    
     @Optional() private readonly clanHelperService: ClanHelperService,
   ) {
     this.basicService = new BasicService(this.votingModel);
@@ -254,22 +261,42 @@ export class VotingService {
     });
     if (errors) throw errors;
 
-    if (voting.votes.some((v) => v.player_id === playerId))
+    if (voting.votes.some((v) => v.player_id === playerId)) {
       throw alreadyVotedError;
+    }
 
     const newVote: Vote = { player_id: playerId, choice };
+
     const success = await this.basicService.updateOneById(votingId, {
       votes: [...voting.votes, newVote],
     });
     if (!success) throw addVoteError;
 
+    // IMPORTANT:
+    // Read the voting again after updating votes.
+    // The original `voting` variable does not contain the newly added vote.
     const [updatedVoting] =
       await this.basicService.readOneById<VotingDto>(votingId);
+
+    // IMPORTANT:
+    // If the voting has already passed after this vote, finalize it now.
+    // Previously this only finalized governance voting, so SET_CLAN_ROLE could
+    // remain unapplied until the queue job runs.
     if (await this.checkVotingSuccess(updatedVoting)) {
-      await this.finalizeGovernanceVote(updatedVoting);
+      if (updatedVoting.type === VotingType.CLAN_GOVERNANCE_UPDATE) {
+        await this.finalizeGovernanceVote(updatedVoting);
+      }
+
+      if (updatedVoting.type === VotingType.SET_CLAN_ROLE) {
+        await this.clanRoleService.checkVotingOnExpire(updatedVoting);
+
+        await this.basicService.updateOneById(updatedVoting._id, {
+          endedAt: new Date(),
+        });
+      }
     }
 
-    this.notifier.votingUpdated(voting, voting.FleaMarketItem, voting.Player);
+    this.notifier.votingUpdated(updatedVoting, voting.FleaMarketItem, voting.Player);
   }
 
   /**
