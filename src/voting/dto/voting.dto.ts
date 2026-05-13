@@ -116,6 +116,7 @@ export class VotingDto {
    * @example { "player_id": "6630af1234cd5ef001a1b4c5", "role_id": "6630af1234cd5ef001a1b4c3" }
    */
   @Expose()
+  @Type(() => SetClanRole)
   setClanRole: SetClanRole;
 
   /**

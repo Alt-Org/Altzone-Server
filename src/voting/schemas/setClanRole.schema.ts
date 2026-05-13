@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Schema as MongooseSchema } from 'mongoose';
 import { ModelName } from '../../common/enum/modelName.enum';
+import { Expose } from 'class-transformer';
 
 /**
  * Represents a clan role assignment for a player within a voting context.
@@ -12,6 +13,7 @@ export class SetClanRole {
    *
    * @example "6630ab1234cd5ef001a1b2c3"
    */
+  @Expose()
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     ref: ModelName.PLAYER,
@@ -24,6 +26,7 @@ export class SetClanRole {
    *
    * @example "6640bc2345de6fa002b2c3d4"
    */
+  @Expose()
   @Prop({
     type: MongooseSchema.Types.ObjectId,
     required: true,
