@@ -1,5 +1,7 @@
 import { Game } from '../../../../gameData/game.schema';
 import { ObjectId } from 'mongodb';
+import { BattleStatus } from '../../../../gameData/enum/battleStatus.enum';
+import { GameType } from '../../../../gameData/enum/gameType.enum';
 
 export class GameBuilder {
   private readonly base: Game = {
@@ -10,7 +12,11 @@ export class GameBuilder {
     winner: 1,
     startedAt: new Date(),
     endedAt: new Date(),
-    _id: undefined,
+    _id: undefined as unknown as string,
+    gameType: GameType.CASUAL,
+    status: BattleStatus.OPEN,
+    receivedResults: [],
+    finalWinner: 0,
   };
 
   build(): Game {
@@ -21,39 +27,42 @@ export class GameBuilder {
     this.base.team1 = team1;
     return this;
   }
-
   setTeam2(team2: string[]): this {
     this.base.team2 = team2;
     return this;
   }
-
   setTeam1Clan(team1Clan: string): this {
     this.base.team1Clan = team1Clan;
     return this;
   }
-
   setTeam2Clan(team2Clan: string): this {
     this.base.team2Clan = team2Clan;
     return this;
   }
-
   setWinner(winner: 1 | 2): this {
     this.base.winner = winner;
     return this;
   }
-
   setStartedAt(date: Date): this {
     this.base.startedAt = date;
     return this;
   }
-
   setEndedAt(date: Date): this {
     this.base.endedAt = date;
     return this;
   }
-
   setId(id: string): this {
     this.base._id = id;
+    return this;
+  }
+
+  setStatus(status: BattleStatus): this {
+    this.base.status = status;
+    return this;
+  }
+
+  setGameType(gameType: GameType): this {
+    this.base.gameType = gameType;
     return this;
   }
 }

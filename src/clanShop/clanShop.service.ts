@@ -162,6 +162,14 @@ export class ClanShopService {
       if (rejectError) return cancelTransaction(session, rejectError);
     }
 
+    const [, deleteError] = await this.votingService.basicService.deleteOneById(
+      voting._id,
+    );
+    if (deleteError) await cancelTransaction(session, deleteError);
+
+    await session.commitTransaction();
+    await session.endSession();
+
     return endTransaction(session, true);
   }
 

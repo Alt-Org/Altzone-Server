@@ -17,6 +17,7 @@ export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
     labels: [],
     gameCoins: 0,
     points: 0,
+    unlockedMilestones: [],
     battlePoints: 0,
     admin_ids: [],
     playerCount: 0,

@@ -34,6 +34,14 @@ Teacher pages https://devapi.altzone.fi/teacher (dev branch)
    npm install
    ```
 
+### Set up the .env file
+
+For this script and repo to work on your local machine, you need to create an .env file at the root of your project. Any .env file is a custom one, and because of the secrets contained in it, it won't be shown here. Here is the create command, run this at the root of the project in your own terminal to get started: 
+
+   ```shell
+   bash touch .env
+      ```
+
 ### Start required services
 
 1. First, you need to set up the DB. So please run a script for it from the project root folder:

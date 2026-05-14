@@ -6,6 +6,7 @@ export default class FriendlistDtoBuilder
   implements IDataBuilder<FriendlistDto>
 {
   private readonly base: FriendlistDto = {
+    _friendship_id: new ObjectId().toString(),
     _id: new ObjectId().toString(),
     name: 'defaultName',
     avatar: undefined,
@@ -15,6 +16,11 @@ export default class FriendlistDtoBuilder
 
   build(): FriendlistDto {
     return { ...this.base } as FriendlistDto;
+  }
+
+  setFriendshipId(friendshipId: string): this {
+    this.base._friendship_id = friendshipId;
+    return this;
   }
 
   setId(Id: string): this {
