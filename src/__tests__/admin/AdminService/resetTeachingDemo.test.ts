@@ -1,15 +1,26 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { AdminService } from '../../../admin/admin.service';
-import { Environment } from '../../../common/enum/environment.enum';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { Model } from 'mongoose';
 import { AdminProfileDto } from '../../../admin/dto/AdminProfile.dto';
+import { AdminService } from '../../../admin/admin.service';
+import { Clan } from '../../../clan/clan.schema';
+import { Environment } from '../../../common/enum/environment.enum';
+import { Player } from '../../../player/schemas/player.schema';
+import { Profile } from '../../../profile/profile.schema';
 import { SEReason } from '../../../common/service/basicService/SEReason';
+import { Stock } from '../../../clanInventory/stock/stock.schema';
 
 describe('AdminService.resetTeachingDemo() test suite', () => {
   let adminService: AdminService;
-  let clanModel: any;
-  let profileModel: any;
-  let playerModel: any;
-  let stockModel: any;
+
+  type MockModel<T> = {
+    deleteMany?: jest.Mock<any>;
+    findById?: jest.Mock<any>;
+  };
+
+  let clanModel: MockModel<Clan>;
+  let profileModel: MockModel<Profile>;
+  let playerModel: MockModel<Player>;
+  let stockModel: MockModel<Stock>;
 
   const nonAdminProfile: AdminProfileDto = {
     _id: 'randomid01',
@@ -27,29 +38,32 @@ describe('AdminService.resetTeachingDemo() test suite', () => {
     clanModel = {
       deleteMany: jest.fn(),
     };
+
     profileModel = {
       findById: jest.fn(),
       deleteMany: jest.fn(),
     };
+
     playerModel = {
       deleteMany: jest.fn(),
     };
+
     stockModel = {
       deleteMany: jest.fn(),
     };
 
     adminService = new AdminService(
-      clanModel,
-      profileModel,
-      playerModel,
-      stockModel,
+      clanModel as unknown as Model<Clan>,
+      profileModel as unknown as Model<Profile>,
+      playerModel as unknown as Model<Player>,
+      stockModel as unknown as Model<Stock>,
     );
   });
 
   it('Should return NOT_FOUND error when profile does not exist', async () => {
     const profileId = 'non-existent-profile-id';
-    profileModel.findById.mockReturnValue({
-      populate: (jest.fn() as any).mockResolvedValue(null),
+    profileModel.findById!.mockReturnValue({
+      populate: () => Promise.resolve(null),
     });
 
     const response = await adminService.resetTeachingDemo(profileId);
@@ -62,8 +76,8 @@ describe('AdminService.resetTeachingDemo() test suite', () => {
   });
 
   it('Should return NOT_AUTHORIZED error when profile is not a system admin', async () => {
-    profileModel.findById.mockReturnValue({
-      populate: (jest.fn() as any).mockResolvedValue(nonAdminProfile),
+    profileModel.findById!.mockReturnValue({
+      populate: () => Promise.resolve(nonAdminProfile),
     });
 
     const response = await adminService.resetTeachingDemo(nonAdminProfile._id);
@@ -75,8 +89,8 @@ describe('AdminService.resetTeachingDemo() test suite', () => {
   });
 
   it('Should delete all teaching demo data when profile is a system admin', async () => {
-    profileModel.findById.mockReturnValue({
-      populate: (jest.fn() as any).mockResolvedValue(adminProfile),
+    profileModel.findById!.mockReturnValue({
+      populate: () => Promise.resolve(adminProfile),
     });
 
     const result = await adminService.resetTeachingDemo(adminProfile._id);
