@@ -1,11 +1,13 @@
 import {
-  IsBoolean,
+  IsHexadecimal,
   IsMongoId,
-  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
 import AddType from '../../../common/base/decorator/AddType.decorator';
+import { Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+import { ItemSummaryDto } from 'src/clanInventory/item/dto/itemSummary.dto';
 
 @AddType('UpdateRoomDto')
 export class UpdateRoomDto {
@@ -18,38 +20,33 @@ export class UpdateRoomDto {
   _id: string;
 
   /**
+   * Room colour in hexadecimal
+   */
+  @IsHexadecimal()
+  roomColour: string;
+
+  /**
    * Updated floor type
    *
    * @example "Stone"
    */
   @IsString()
   @IsOptional()
-  floorType: string;
+  floor: string;
 
   /**
-   * Updated wall type
+   * Updated wallpaper
    *
    * @example "Painted"
    */
   @IsString()
   @IsOptional()
-  wallType: string;
+  wallpaper: string;
 
   /**
-   * Update lift availability
-   *
-   * @example true
+   * Room items
    */
-  @IsBoolean()
-  @IsOptional()
-  hasLift: boolean;
-
-  /**
-   * Updated number of cells in the room
-   *
-   * @example 16
-   */
-  @IsNumber()
-  @IsOptional()
-  cellCount: number;
+  @Type(() => ItemSummaryDto)
+  @ApiProperty({ type: () => [ItemSummaryDto] })
+  furniture: ItemSummaryDto[];
 }

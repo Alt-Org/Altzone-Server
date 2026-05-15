@@ -8,6 +8,8 @@ import { ItemName } from './enum/itemName.enum';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { Material } from './enum/material.enum';
+import { ItemRotation } from './enum/itemRotation.enum';
+import { ItemPosition } from './enum/itemPosition.enum';
 
 export type ItemDocument = HydratedDocument<Item>;
 
@@ -33,6 +35,21 @@ export class Item {
 
   @Prop({ type: [Number], required: true })
   location: number[];
+
+  @Prop({ type: [Number], required: true })
+  furnitureSize: number[];
+
+  @Prop({ type: String, required: true })
+  rotation: ItemRotation;
+
+  @Prop({ type: String, required: true })
+  position: ItemPosition;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.ITEM })
+  placedOn_id: string;
+
+  @Prop({ type: [Number], required: true })
+  placedOnLocation: number[];
 
   @Prop({ type: Number, required: true })
   price: number;

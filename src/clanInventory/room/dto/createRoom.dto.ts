@@ -1,21 +1,36 @@
 import {
   IsBoolean,
+  IsEnum,
+  IsHexadecimal,
   IsMongoId,
   IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
 import AddType from '../../../common/base/decorator/AddType.decorator';
+import { RoomStatus } from '../enum/roomStatus.enum';
 
 @AddType('CreateRoomDto')
 export class CreateRoomDto {
+  /**
+   * Order of rooms
+   */
+  @IsNumber()
+  roomPosition: number;
+  
+  /**
+   * Room colour in hexadecimal
+   */
+  @IsHexadecimal()
+  roomColour: string;
+
   /**
    * Type of floor design used in the room
    *
    * @example "Wooden"
    */
   @IsString()
-  floorType: string;
+  floor: string;
 
   /**
    * Type of wall design used in the room
@@ -23,24 +38,15 @@ export class CreateRoomDto {
    * @example "Brick"
    */
   @IsString()
-  wallType: string;
+  wallpaper: string;
 
   /**
-   * Indicates whether the room includes a lift
+   * Room status
    *
-   * @example true
+   * @example Active
    */
-  @IsBoolean()
-  @IsOptional()
-  hasLift: boolean;
-
-  /**
-   * Number of cells (or zones) inside the room
-   *
-   * @example 9
-   */
-  @IsNumber()
-  cellCount: number;
+  @IsEnum(RoomStatus)
+  roomStatus: RoomStatus;
 
   /**
    * ID of the Soul Home this room belongs to

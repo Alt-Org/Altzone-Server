@@ -32,6 +32,9 @@ export class Clan {
   gameCoins: number;
 
   @Prop({ type: Number, default: 0 })
+  furnitureTotalValue: number;
+
+  @Prop({ type: Number, default: 0 })
   points: number;
 
   @Prop({ type: [Number], default: [] })
