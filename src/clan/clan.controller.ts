@@ -199,7 +199,6 @@ export class ClanController {
     @Body() body: UpdateClanDto,
     @LoggedUser() user: User,
   ) {
-
     if (user.clan_id.toString() !== body._id.toString())
       return [
         null,

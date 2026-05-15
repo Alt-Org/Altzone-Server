@@ -88,7 +88,9 @@ export class ClanService {
     );
     if (clanErrors) return await cancelTransaction(session, clanErrors);
 
-    const leaderRole = clan.roles?.find((role) => role.name === LeaderClanRole.name);
+    const leaderRole = clan.roles?.find(
+      (role) => role.name === LeaderClanRole.name,
+    );
 
     const [, playerErrors] = await this.playerService.updateOneById(
       player_id,
@@ -97,12 +99,17 @@ export class ClanService {
     );
     if (playerErrors) return await cancelTransaction(session, playerErrors);
 
-    const [stock, stockErrors] = await this.clanHelperService.createDefaultStock(clan._id, session);
+    const [stock, stockErrors] =
+      await this.clanHelperService.createDefaultStock(clan._id, session);
     if (stockErrors) return await cancelTransaction(session, stockErrors);
 
-    const [soulHome, soulHomeErrors] = await this.clanHelperService.createDefaultSoulHome(
-        clan._id, clan.name, 30, session
-    );
+    const [soulHome, soulHomeErrors] =
+      await this.clanHelperService.createDefaultSoulHome(
+        clan._id,
+        clan.name,
+        30,
+        session,
+      );
     if (soulHomeErrors) return await cancelTransaction(session, soulHomeErrors);
 
     clan.SoulHome = soulHome.SoulHome;
@@ -136,12 +143,17 @@ export class ClanService {
 
     const extendedClan = clan as unknown as CreateWithoutDtoType;
 
-    const [stock, stockErrors] = await this.clanHelperService.createDefaultStock(clan._id, session);
+    const [stock, stockErrors] =
+      await this.clanHelperService.createDefaultStock(clan._id, session);
     if (stockErrors) return await cancelTransaction(session, stockErrors);
 
-    const [soulHome, soulHomeErrors] = await this.clanHelperService.createDefaultSoulHome(
-      clan._id, clan.name, 30, session,
-    );
+    const [soulHome, soulHomeErrors] =
+      await this.clanHelperService.createDefaultSoulHome(
+        clan._id,
+        clan.name,
+        30,
+        session,
+      );
     if (soulHomeErrors) return await cancelTransaction(session, soulHomeErrors);
 
     extendedClan.soulHome = soulHome.SoulHome;
@@ -161,7 +173,7 @@ export class ClanService {
     body: Partial<UpdateClanDto>,
   ): Promise<IServiceReturn<boolean>> {
     if (!this.clanRoleService) {
-        return [true, null];
+      return [true, null];
     }
     const fullBody: UpdateClanDto = {
       ...body,
@@ -199,92 +211,114 @@ export class ClanService {
   }
 
   /**
-  * Updates clan metadata
-  */
+   * Updates clan metadata
+   */
   public async updateOneById(
-    idOrBody: string | UpdateClanDto, 
-    body?: UpdateClanDto, 
-    options?: TIServiceUpdateOneOptions
+    idOrBody: string | UpdateClanDto,
+    body?: UpdateClanDto,
+    options?: TIServiceUpdateOneOptions,
   ): Promise<IServiceReturn<boolean>> {
     const id = typeof idOrBody === 'string' ? idOrBody : idOrBody._id;
-    const updateData = typeof idOrBody === 'string' ? { ...body } : { ...idOrBody };
+    const updateData =
+      typeof idOrBody === 'string' ? { ...body } : { ...idOrBody };
 
     // Handle admin_ids changes
     if (updateData.admin_idsToAdd || updateData.admin_idsToDelete) {
-        const clan = await this.model.findById(id);
-        
-        if (!clan) {
-            return [null, [
-                new ServiceError({
-                    reason: SEReason.NOT_FOUND,
-                    message: `Clan with ID ${id} not found`,
-                }),
-            ]];
-        }
+      const clan = await this.model.findById(id);
 
-        // Validate we still have at least one admin after deletion
-        if (updateData.admin_idsToDelete && (updateData.admin_idsToDelete || []).length > 0) {
-          const clanAdminStrings = (clan.admin_ids || []).map(id => String(id));
-          const toDeleteStrings = (updateData.admin_idsToDelete || []).map(id => String(id));
-          const remainingAdmins = clanAdminStrings.filter(
-            adminId => !toDeleteStrings.includes(adminId)
-          );
-          
-          if (remainingAdmins.length === 0) {
-            return [false, [new ServiceError({
-              reason: SEReason.REQUIRED,
-              field: 'admin_ids',
-              message: 'Clan must have at least one admin'
-            })]];
-          }
-        }
+      if (!clan) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_FOUND,
+              message: `Clan with ID ${id} not found`,
+            }),
+          ],
+        ];
+      }
 
-        const toDeleteStrings = (updateData.admin_idsToDelete || []).map(id => String(id));
-        const adminsAfterDeletion = (clan.admin_ids || [])
-          .map(id => String(id))
-          .filter(adminId => !toDeleteStrings.includes(adminId));
-        const adminIds = Array.from(new Set([
-          ...adminsAfterDeletion,
-          ...(updateData.admin_idsToAdd || [])
-            .map(id => String(id))
-            .filter(adminId => !toDeleteStrings.includes(adminId)),
-        ]));
-        const playersInClan: string[] = [];
-
-        for (const player_id of adminIds) {
-          const [player] = await this.playerService.readOneById<Player>(
-            player_id,
-          );
-          if (player?.clan_id?.toString() === id.toString()) {
-            playersInClan.push(player_id);
-          }
-        }
-
-        if (playersInClan.length === 0) {
-          return [false, [new ServiceError({
-            reason: SEReason.REQUIRED,
-            field: 'admin_ids',
-            message: 'Clan must have at least one admin'
-          })]];
-        }
-
-        // Only pass the admin_ids update to the service
-        // Don't include other fields when handling admin changes
-        const [wasUpdated, updateErrors] = await this.basicService.updateOneById(
-            id, 
-            { admin_ids: playersInClan }, 
-            options
+      // Validate we still have at least one admin after deletion
+      if (
+        updateData.admin_idsToDelete &&
+        (updateData.admin_idsToDelete || []).length > 0
+      ) {
+        const clanAdminStrings = (clan.admin_ids || []).map((id) => String(id));
+        const toDeleteStrings = (updateData.admin_idsToDelete || []).map((id) =>
+          String(id),
+        );
+        const remainingAdmins = clanAdminStrings.filter(
+          (adminId) => !toDeleteStrings.includes(adminId),
         );
 
-        if (updateErrors) return [null, updateErrors];
-        
-        return [wasUpdated, null];
+        if (remainingAdmins.length === 0) {
+          return [
+            false,
+            [
+              new ServiceError({
+                reason: SEReason.REQUIRED,
+                field: 'admin_ids',
+                message: 'Clan must have at least one admin',
+              }),
+            ],
+          ];
+        }
+      }
+
+      const toDeleteStrings = (updateData.admin_idsToDelete || []).map((id) =>
+        String(id),
+      );
+      const adminsAfterDeletion = (clan.admin_ids || [])
+        .map((id) => String(id))
+        .filter((adminId) => !toDeleteStrings.includes(adminId));
+      const adminIds = Array.from(
+        new Set([
+          ...adminsAfterDeletion,
+          ...(updateData.admin_idsToAdd || [])
+            .map((id) => String(id))
+            .filter((adminId) => !toDeleteStrings.includes(adminId)),
+        ]),
+      );
+      const playersInClan: string[] = [];
+
+      for (const player_id of adminIds) {
+        const [player] =
+          await this.playerService.readOneById<Player>(player_id);
+        if (player?.clan_id?.toString() === id.toString()) {
+          playersInClan.push(player_id);
+        }
+      }
+
+      if (playersInClan.length === 0) {
+        return [
+          false,
+          [
+            new ServiceError({
+              reason: SEReason.REQUIRED,
+              field: 'admin_ids',
+              message: 'Clan must have at least one admin',
+            }),
+          ],
+        ];
+      }
+
+      // Only pass the admin_ids update to the service
+      // Don't include other fields when handling admin changes
+      const [wasUpdated, updateErrors] = await this.basicService.updateOneById(
+        id,
+        { admin_ids: playersInClan },
+        options,
+      );
+
+      if (updateErrors) return [null, updateErrors];
+
+      return [wasUpdated, null];
     }
 
     const [wasUpdated, updateErrors] = await this.basicService.updateOneById(
-        id, 
-        updateData, 
-        options
+      id,
+      updateData,
+      options,
     );
 
     if (updateErrors) return [null, updateErrors];
@@ -295,7 +329,9 @@ export class ClanService {
   /**
    * Deletes a clan and cleans up references.
    */
-  async deleteOneById(_id: string): Promise<[true | null, ServiceError[] | null]> {
+  async deleteOneById(
+    _id: string,
+  ): Promise<[true | null, ServiceError[] | null]> {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
@@ -303,18 +339,27 @@ export class ClanService {
       _id,
       { includeRefs: [ModelName.SOULHOME, ModelName.STOCK, ModelName.PLAYER] },
     );
-    if (clanErrors || !clan) return await cancelTransaction(session, clanErrors);
+    if (clanErrors || !clan)
+      return await cancelTransaction(session, clanErrors);
 
     if (clan.Player) {
       for (const player of clan.Player) {
-        await this.playerService.updateOneById(player._id, { clan_id: null }, { session });
+        await this.playerService.updateOneById(
+          player._id,
+          { clan_id: null },
+          { session },
+        );
       }
     }
 
-    if (clan.Stock) await this.stockService.deleteOneById(clan.Stock._id, { session });
-    if (clan.SoulHome) await this.soulhomeService.deleteOneById(clan.SoulHome._id, { session });
+    if (clan.Stock)
+      await this.stockService.deleteOneById(clan.Stock._id, { session });
+    if (clan.SoulHome)
+      await this.soulhomeService.deleteOneById(clan.SoulHome._id, { session });
 
-    const [, deleteErrors] = await this.basicService.deleteOneById(_id, { session });
+    const [, deleteErrors] = await this.basicService.deleteOneById(_id, {
+      session,
+    });
     if (deleteErrors) return await cancelTransaction(session, deleteErrors);
 
     return await endTransaction<true>(session, true);

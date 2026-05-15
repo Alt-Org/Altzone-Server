@@ -286,7 +286,10 @@ export class FleaMarketService {
   async checkVotingOnExpire(params: VotingQueueParams) {
     const { voting, price, clanId, stockId, fleaMarketItemId } = params;
 
-    const votePassed = await this.votingService.checkVotingSuccess(voting, true);
+    const votePassed = await this.votingService.checkVotingSuccess(
+      voting,
+      true,
+    );
 
     switch (voting.type) {
       case VotingType.FLEA_MARKET_BUY_ITEM:
