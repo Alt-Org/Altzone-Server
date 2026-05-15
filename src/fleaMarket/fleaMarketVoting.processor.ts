@@ -27,10 +27,6 @@ export class FleaMarketVotingProcessor extends WorkerHost {
 
     if (errors || !freshVoting) return;
 
-    // If the voting has already been finalized (e.g., by reaching the threshold early),
-    // we don't need to process it again here.
-    if (freshVoting.endedAt) return;
-
     await this.fleaMarketService.checkVotingOnExpire({
       ...job.data,
       voting: freshVoting,

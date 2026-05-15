@@ -1,4 +1,5 @@
 import { Injectable, forwardRef, Inject, Optional } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
@@ -36,6 +37,7 @@ export class VotingService {
     @Inject(forwardRef(() => ClanService))
     private readonly clanService: ClanService,
     @Optional() private readonly clanHelperService: ClanHelperService,
+    private readonly eventEmitter: EventEmitter2,
   ) {
     this.basicService = new BasicService(this.votingModel);
   }
@@ -226,12 +228,28 @@ export class VotingService {
    * @param voting - The voting data to check.
    * @returns A promise resolving to true if successful.
    */
-  async checkVotingSuccess(voting: VotingDto) {
+  async checkVotingSuccess(
+    voting: VotingDto,
+    useClanMajority: boolean = false,
+  ): Promise<boolean> {
     const yesVotes = voting.votes.filter(
       (v) => v.choice === VoteChoice.YES,
     ).length;
-    const totalVotes = voting.votes.length;
-    return (yesVotes / totalVotes) * 100 >= (voting.minPercentage || 51);
+
+    let divisor = voting.votes.length;
+
+    if (useClanMajority && voting.organizer?.clan_id && this.clanService) {
+      const [clan] = await this.clanService.readOneById(
+        voting.organizer.clan_id,
+      );
+      if (clan) {
+        divisor = clan.playerCount;
+      }
+    }
+
+    if (divisor === 0) return false;
+
+    return (yesVotes / divisor) * 100 >= (voting.minPercentage || 51);
   }
 
   /**
@@ -281,17 +299,24 @@ export class VotingService {
 
     // IMPORTANT:
     // If the voting has already passed after this vote, finalize it now.
-    if (await this.checkVotingSuccess(updatedVoting)) {
+    const isFleaMarketVoting = [
+      VotingType.FLEA_MARKET_BUY_ITEM,
+      VotingType.FLEA_MARKET_SELL_ITEM,
+      VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE,
+    ].includes(updatedVoting.type);
+
+    if (await this.checkVotingSuccess(updatedVoting, isFleaMarketVoting)) {
       if (updatedVoting.type === VotingType.CLAN_GOVERNANCE_UPDATE) {
         await this.finalizeGovernanceVote(updatedVoting);
       } else if (updatedVoting.type === VotingType.SET_CLAN_ROLE) {
         await this.finalizeSetClanRoleVote(updatedVoting);
         await this.finalizeVoting(updatedVoting._id);
       } else {
-        // For other types (Flea Market, Clan Shop), we mark them as ended.
-        // The respective processors will see they are ended and skip or finalize.
         await this.finalizeVoting(updatedVoting._id);
       }
+
+      // Emit event for immediate processing in other services (e.g. FleaMarketService)
+      this.eventEmitter.emit('voting.passed', { voting: updatedVoting });
     }
 
     this.notifier.votingUpdated(
