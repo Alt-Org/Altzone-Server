@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongooseModule } from '@nestjs/mongoose';
+import { forwardRef } from '@nestjs/common';
 import { RequestHelperModule } from '../../../requestHelper/requestHelper.module';
 import { ModelName } from '../../../common/enum/modelName.enum';
 import { mongooseOptions, mongoString } from '../../test_utils/const/db';
@@ -14,13 +15,8 @@ import { PlayerSchema } from '../../../player/schemas/player.schema';
 import { ClanSchema } from '../../../clan/clan.schema';
 
 export default class FeedbackCommonModule {
-  private constructor() {}
-
-  private static module: TestingModule;
-
   static async getModule() {
-    if (!FeedbackCommonModule.module)
-      FeedbackCommonModule.module = await Test.createTestingModule({
+    return await Test.createTestingModule({
         imports: [
           MongooseModule.forRoot(mongoString, mongooseOptions),
           MongooseModule.forFeature([
@@ -29,15 +25,9 @@ export default class FeedbackCommonModule {
             { name: ModelName.PLAYER, schema: PlayerSchema },
             { name: ModelName.CLAN, schema: ClanSchema },
           ]),
-          ClanInventoryModule,
-          PlayerModule,
-          VotingModule,
-          ClanModule,
           RequestHelperModule,
         ],
         providers: [FeedbackService],
       }).compile();
-
-    return FeedbackCommonModule.module;
   }
 }
