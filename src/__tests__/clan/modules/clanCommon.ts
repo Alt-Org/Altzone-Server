@@ -80,17 +80,22 @@ export default class ClanCommonModule {
             provide: VotingService,
             useFactory: (votingModel: Model<Voting>) => ({
               model: votingModel,
-              checkVotingSuccess: jest.fn().mockImplementation(async (voting) => {
-                const yesVotes = voting.votes?.filter((v) => v.choice === 'accept').length || 0;
-                const totalVotes = voting.votes?.length || 0;
-                if (totalVotes === 0) return false;
-                return (yesVotes / totalVotes) * 100 >= 51;
-              }),
+              checkVotingSuccess: jest
+                .fn()
+                .mockImplementation(async (voting) => {
+                  const yesVotes =
+                    voting.votes?.filter((v) => v.choice === 'accept').length ||
+                    0;
+                  const totalVotes = voting.votes?.length || 0;
+                  if (totalVotes === 0) return false;
+                  return (yesVotes / totalVotes) * 100 >= 51;
+                }),
               startVoting: jest.fn().mockImplementation(async (dto) => {
                 const votingData = {
                   ...dto,
                   organizer: {
-                    player_id: dto.voterPlayer?._id || new ObjectId().toString(),
+                    player_id:
+                      dto.voterPlayer?._id || new ObjectId().toString(),
                     clan_id: dto.clanId || new ObjectId().toString(),
                   },
                 };
@@ -107,16 +112,26 @@ export default class ClanCommonModule {
                   const result = await votingModel.findByIdAndDelete(id).lean();
                   return [result, null];
                 }),
-                updateOneById: jest.fn().mockImplementation(async (id, update) => {
-                  const result = await votingModel.findByIdAndUpdate(id, update, { new: true }).lean();
-                  return [result, null];
-                })
-              }
+                updateOneById: jest
+                  .fn()
+                  .mockImplementation(async (id, update) => {
+                    const result = await votingModel
+                      .findByIdAndUpdate(id, update, { new: true })
+                      .lean();
+                    return [result, null];
+                  }),
+              },
             }),
             inject: [getModelToken(ModelName.VOTING)],
           },
-          { provide: VotingQueue, useValue: { addVotingCheckJob: jest.fn().mockResolvedValue(null) } },
-          { provide: VotingNotifier, useValue: { newVoting: jest.fn().mockResolvedValue(null) } },
+          {
+            provide: VotingQueue,
+            useValue: { addVotingCheckJob: jest.fn().mockResolvedValue(null) },
+          },
+          {
+            provide: VotingNotifier,
+            useValue: { newVoting: jest.fn().mockResolvedValue(null) },
+          },
           {
             provide: PlayerService,
             useFactory: (playerModel: Model<Player>) => ({

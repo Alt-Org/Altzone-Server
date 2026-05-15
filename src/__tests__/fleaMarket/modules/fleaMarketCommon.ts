@@ -97,39 +97,82 @@ export default class FleaMarketCommonModule {
                   }
                 }
                 const result = await query.lean({ virtuals: true }).exec();
-                if (!result) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
+                if (!result)
+                  return [
+                    null,
+                    [new ServiceError({ reason: SEReason.NOT_FOUND })],
+                  ];
                 return [result, null];
               }),
               readAll: jest.fn().mockImplementation(async (options) => {
-                const result = await clanModel.find(options?.filter).lean({ virtuals: true }).exec();
-                if (!result || result.length === 0) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND, message: 'Could not find any objects with specified condition' })]];
+                const result = await clanModel
+                  .find(options?.filter)
+                  .lean({ virtuals: true })
+                  .exec();
+                if (!result || result.length === 0)
+                  return [
+                    null,
+                    [
+                      new ServiceError({
+                        reason: SEReason.NOT_FOUND,
+                        message:
+                          'Could not find any objects with specified condition',
+                      }),
+                    ],
+                  ];
                 return [result, null];
               }),
-              updateOneById: jest.fn().mockImplementation(async (id, update) => {
-                const result = await clanModel.findByIdAndUpdate(id, update, { new: true }).lean({ virtuals: true }).exec();
-                return [result, null];
-              }),
-              updateOne: jest.fn().mockImplementation(async (filter, update) => {
-                const result = await clanModel.findOneAndUpdate(filter, update, { new: true }).lean({ virtuals: true }).exec();
-                return [result, null];
-              }),
+              updateOneById: jest
+                .fn()
+                .mockImplementation(async (id, update) => {
+                  const result = await clanModel
+                    .findByIdAndUpdate(id, update, { new: true })
+                    .lean({ virtuals: true })
+                    .exec();
+                  return [result, null];
+                }),
+              updateOne: jest
+                .fn()
+                .mockImplementation(async (filter, update) => {
+                  const result = await clanModel
+                    .findOneAndUpdate(filter, update, { new: true })
+                    .lean({ virtuals: true })
+                    .exec();
+                  return [result, null];
+                }),
               basicService: {
                 readOneById: jest.fn().mockImplementation(async (id) => {
                   const result = await clanModel.findById(id).lean();
-                  if (!result) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
+                  if (!result)
+                    return [
+                      null,
+                      [new ServiceError({ reason: SEReason.NOT_FOUND })],
+                    ];
                   return [result, null];
                 }),
-                updateOneById: jest.fn().mockImplementation(async (id, update) => {
-                  const result = await clanModel.findByIdAndUpdate(id, update, { new: true }).lean();
-                  if (!result) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
-                  return [result, null];
-                }),
+                updateOneById: jest
+                  .fn()
+                  .mockImplementation(async (id, update) => {
+                    const result = await clanModel
+                      .findByIdAndUpdate(id, update, { new: true })
+                      .lean();
+                    if (!result)
+                      return [
+                        null,
+                        [new ServiceError({ reason: SEReason.NOT_FOUND })],
+                      ];
+                    return [result, null];
+                  }),
                 deleteOneById: jest.fn().mockImplementation(async (id) => {
                   const result = await clanModel.findByIdAndDelete(id).lean();
-                  if (!result) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
+                  if (!result)
+                    return [
+                      null,
+                      [new ServiceError({ reason: SEReason.NOT_FOUND })],
+                    ];
                   return [result, null];
                 }),
-              }
+              },
             }),
             inject: [getModelToken(ModelName.CLAN)],
           },
@@ -137,17 +180,22 @@ export default class FleaMarketCommonModule {
             provide: VotingService,
             useFactory: (votingModel: Model<Voting>) => ({
               model: votingModel,
-              checkVotingSuccess: jest.fn().mockImplementation(async (voting) => {
-                const yesVotes = voting.votes?.filter((v) => v.choice === 'accept').length || 0;
-                const totalVotes = voting.votes?.length || 0;
-                if (totalVotes === 0) return false;
-                return (yesVotes / totalVotes) * 100 >= 51;
-              }),
+              checkVotingSuccess: jest
+                .fn()
+                .mockImplementation(async (voting) => {
+                  const yesVotes =
+                    voting.votes?.filter((v) => v.choice === 'accept').length ||
+                    0;
+                  const totalVotes = voting.votes?.length || 0;
+                  if (totalVotes === 0) return false;
+                  return (yesVotes / totalVotes) * 100 >= 51;
+                }),
               startVoting: jest.fn().mockImplementation(async (dto) => {
                 const votingData = {
                   ...dto,
                   organizer: {
-                    player_id: dto.voterPlayer?._id || '6a072f5bcba03f65b3faa85b',
+                    player_id:
+                      dto.voterPlayer?._id || '6a072f5bcba03f65b3faa85b',
                     clan_id: dto.clanId || '6a072f5bcba03f65b3faa85c',
                   },
                 };
@@ -159,25 +207,35 @@ export default class FleaMarketCommonModule {
               }),
               finalizeVoting: jest.fn().mockResolvedValue([null, null]),
               basicService: {
-                readOneById: jest.fn().mockImplementation(async (id, options) => {
-                  let query = votingModel.findById(id);
-                  if (options?.includeRefs) {
-                    for (const ref of options.includeRefs) {
-                      query = query.populate(ref);
+                readOneById: jest
+                  .fn()
+                  .mockImplementation(async (id, options) => {
+                    let query = votingModel.findById(id);
+                    if (options?.includeRefs) {
+                      for (const ref of options.includeRefs) {
+                        query = query.populate(ref);
+                      }
                     }
-                  }
-                  const result = await query.lean({ virtuals: true }).exec();
-                  return [result, null];
-                }),
+                    const result = await query.lean({ virtuals: true }).exec();
+                    return [result, null];
+                  }),
                 deleteOneById: jest.fn().mockImplementation(async (id) => {
-                  const result = await votingModel.findByIdAndDelete(id).lean({ virtuals: true }).exec();
+                  const result = await votingModel
+                    .findByIdAndDelete(id)
+                    .lean({ virtuals: true })
+                    .exec();
                   return [result, null];
                 }),
-                updateOneById: jest.fn().mockImplementation(async (id, update) => {
-                  const result = await votingModel.findByIdAndUpdate(id, update, { new: true }).lean({ virtuals: true }).exec();
-                  return [result, null];
-                })
-              }
+                updateOneById: jest
+                  .fn()
+                  .mockImplementation(async (id, update) => {
+                    const result = await votingModel
+                      .findByIdAndUpdate(id, update, { new: true })
+                      .lean({ virtuals: true })
+                      .exec();
+                    return [result, null];
+                  }),
+              },
             }),
             inject: [getModelToken(ModelName.VOTING)],
           },
@@ -196,14 +254,23 @@ export default class FleaMarketCommonModule {
                 return [result, null];
               }),
               getPlayerById: jest.fn().mockImplementation(async (id) => {
-                const result = await playerModel.findById(id).lean({ virtuals: true }).exec();
+                const result = await playerModel
+                  .findById(id)
+                  .lean({ virtuals: true })
+                  .exec();
                 return [result, null];
               }),
             }),
             inject: [getModelToken(ModelName.PLAYER)],
           },
-          { provide: VotingQueue, useValue: { addVotingCheckJob: jest.fn().mockResolvedValue(null) } },
-          { provide: VotingNotifier, useValue: { newVoting: jest.fn().mockResolvedValue(null) } },
+          {
+            provide: VotingQueue,
+            useValue: { addVotingCheckJob: jest.fn().mockResolvedValue(null) },
+          },
+          {
+            provide: VotingNotifier,
+            useValue: { newVoting: jest.fn().mockResolvedValue(null) },
+          },
         ],
       }).compile();
 

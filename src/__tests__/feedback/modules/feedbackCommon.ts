@@ -17,17 +17,17 @@ import { ClanSchema } from '../../../clan/clan.schema';
 export default class FeedbackCommonModule {
   static async getModule() {
     return await Test.createTestingModule({
-        imports: [
-          MongooseModule.forRoot(mongoString, mongooseOptions),
-          MongooseModule.forFeature([
-            { name: ModelName.FEEDBACK, schema: FeedbackSchema },
-            { name: ModelName.PROFILE, schema: ProfileSchema },
-            { name: ModelName.PLAYER, schema: PlayerSchema },
-            { name: ModelName.CLAN, schema: ClanSchema },
-          ]),
-          RequestHelperModule,
-        ],
-        providers: [FeedbackService],
-      }).compile();
+      imports: [
+        MongooseModule.forRoot(mongoString, mongooseOptions),
+        MongooseModule.forFeature([
+          { name: ModelName.FEEDBACK, schema: FeedbackSchema },
+          { name: ModelName.PROFILE, schema: ProfileSchema },
+          { name: ModelName.PLAYER, schema: PlayerSchema },
+          { name: ModelName.CLAN, schema: ClanSchema },
+        ]),
+        RequestHelperModule,
+      ],
+      providers: [FeedbackService],
+    }).compile();
   }
 }

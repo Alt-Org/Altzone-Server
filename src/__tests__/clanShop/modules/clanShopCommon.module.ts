@@ -83,31 +83,71 @@ export default class ClanShopCommonModule {
                   }
                 }
                 const result = await query.lean().exec();
-                if (!result) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
+                if (!result)
+                  return [
+                    null,
+                    [new ServiceError({ reason: SEReason.NOT_FOUND })],
+                  ];
                 return [result, null];
               }),
               readAll: jest.fn().mockImplementation(async (options) => {
                 const result = await clanModel.find(options?.filter).lean();
-                if (!result || result.length === 0) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND, message: 'Could not find any objects with specified condition' })]];
+                if (!result || result.length === 0)
+                  return [
+                    null,
+                    [
+                      new ServiceError({
+                        reason: SEReason.NOT_FOUND,
+                        message:
+                          'Could not find any objects with specified condition',
+                      }),
+                    ],
+                  ];
                 return [result, null];
               }),
-               updateOneById: jest.fn().mockImplementation(async (id, update, options) => {
-                 const result = await clanModel.findByIdAndUpdate(id, update, { new: true, session: options?.session }).lean();
-                 if (!result) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
-                 return [result, null];
-               }),
+              updateOneById: jest
+                .fn()
+                .mockImplementation(async (id, update, options) => {
+                  const result = await clanModel
+                    .findByIdAndUpdate(id, update, {
+                      new: true,
+                      session: options?.session,
+                    })
+                    .lean();
+                  if (!result)
+                    return [
+                      null,
+                      [new ServiceError({ reason: SEReason.NOT_FOUND })],
+                    ];
+                  return [result, null];
+                }),
               basicService: {
                 readOneById: jest.fn().mockImplementation(async (id) => {
                   const result = await clanModel.findById(id).lean();
-                  if (!result) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
+                  if (!result)
+                    return [
+                      null,
+                      [new ServiceError({ reason: SEReason.NOT_FOUND })],
+                    ];
                   return [result, null];
                 }),
-                updateOneById: jest.fn().mockImplementation(async (id, update, options) => {
-                  const result = await clanModel.findByIdAndUpdate(id, update, { new: true, session: options?.session }).lean();
-                  if (!result) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
-                  return [result, null];
-                }),
-              }
+                updateOneById: jest
+                  .fn()
+                  .mockImplementation(async (id, update, options) => {
+                    const result = await clanModel
+                      .findByIdAndUpdate(id, update, {
+                        new: true,
+                        session: options?.session,
+                      })
+                      .lean();
+                    if (!result)
+                      return [
+                        null,
+                        [new ServiceError({ reason: SEReason.NOT_FOUND })],
+                      ];
+                    return [result, null];
+                  }),
+              },
             }),
             inject: [getModelToken(ModelName.CLAN)],
           },
@@ -115,17 +155,22 @@ export default class ClanShopCommonModule {
             provide: VotingService,
             useFactory: (votingModel: Model<Voting>) => ({
               model: votingModel,
-              checkVotingSuccess: jest.fn().mockImplementation(async (voting) => {
-                const yesVotes = voting.votes?.filter((v) => v.choice === 'accept').length || 0;
-                const totalVotes = voting.votes?.length || 0;
-                if (totalVotes === 0) return false;
-                return (yesVotes / totalVotes) * 100 >= 51;
-              }),
+              checkVotingSuccess: jest
+                .fn()
+                .mockImplementation(async (voting) => {
+                  const yesVotes =
+                    voting.votes?.filter((v) => v.choice === 'accept').length ||
+                    0;
+                  const totalVotes = voting.votes?.length || 0;
+                  if (totalVotes === 0) return false;
+                  return (yesVotes / totalVotes) * 100 >= 51;
+                }),
               startVoting: jest.fn().mockImplementation(async (dto) => {
                 const votingData = {
                   ...dto,
                   organizer: {
-                    player_id: dto.voterPlayer?._id || new ObjectId().toString(),
+                    player_id:
+                      dto.voterPlayer?._id || new ObjectId().toString(),
                     clan_id: dto.clanId || new ObjectId().toString(),
                   },
                 };
@@ -137,22 +182,50 @@ export default class ClanShopCommonModule {
               }),
               finalizeVoting: jest.fn().mockResolvedValue([null, null]),
               basicService: {
-                readOneById: jest.fn().mockImplementation(async (id, options) => {
-                  const result = await votingModel.findById(id).session(options?.session || null).lean();
-                  if (!result) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
-                  return [result, null];
-                }),
-                deleteOneById: jest.fn().mockImplementation(async (id, options) => {
-                  const result = await votingModel.findByIdAndDelete(id, { session: options?.session }).lean();
-                  if (!result) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
-                  return [result, null];
-                }),
-                updateOneById: jest.fn().mockImplementation(async (id, update, options) => {
-                  const result = await votingModel.findByIdAndUpdate(id, update, { new: true, session: options?.session }).lean();
-                  if (!result) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
-                  return [result, null];
-                })
-              }
+                readOneById: jest
+                  .fn()
+                  .mockImplementation(async (id, options) => {
+                    const result = await votingModel
+                      .findById(id)
+                      .session(options?.session || null)
+                      .lean();
+                    if (!result)
+                      return [
+                        null,
+                        [new ServiceError({ reason: SEReason.NOT_FOUND })],
+                      ];
+                    return [result, null];
+                  }),
+                deleteOneById: jest
+                  .fn()
+                  .mockImplementation(async (id, options) => {
+                    const result = await votingModel
+                      .findByIdAndDelete(id, { session: options?.session })
+                      .lean();
+                    if (!result)
+                      return [
+                        null,
+                        [new ServiceError({ reason: SEReason.NOT_FOUND })],
+                      ];
+                    return [result, null];
+                  }),
+                updateOneById: jest
+                  .fn()
+                  .mockImplementation(async (id, update, options) => {
+                    const result = await votingModel
+                      .findByIdAndUpdate(id, update, {
+                        new: true,
+                        session: options?.session,
+                      })
+                      .lean();
+                    if (!result)
+                      return [
+                        null,
+                        [new ServiceError({ reason: SEReason.NOT_FOUND })],
+                      ];
+                    return [result, null];
+                  }),
+              },
             }),
             inject: [getModelToken(ModelName.VOTING)],
           },
@@ -161,19 +234,38 @@ export default class ClanShopCommonModule {
             useFactory: (playerModel: Model<Player>) => ({
               model: playerModel,
               readOneById: jest.fn().mockImplementation(async (id, options) => {
-                const result = await playerModel.findById(id).session(options?.session || null).lean();
-                if (!result) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
+                const result = await playerModel
+                  .findById(id)
+                  .session(options?.session || null)
+                  .lean();
+                if (!result)
+                  return [
+                    null,
+                    [new ServiceError({ reason: SEReason.NOT_FOUND })],
+                  ];
                 return [result, null];
               }),
-              getPlayerById: jest.fn().mockImplementation(async (id, options) => {
-                const result = await playerModel.findById(id).session(options?.session || null).lean();
-                if (!result) return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
-                return [result, null];
-              }),
+              getPlayerById: jest
+                .fn()
+                .mockImplementation(async (id, options) => {
+                  const result = await playerModel
+                    .findById(id)
+                    .session(options?.session || null)
+                    .lean();
+                  if (!result)
+                    return [
+                      null,
+                      [new ServiceError({ reason: SEReason.NOT_FOUND })],
+                    ];
+                  return [result, null];
+                }),
             }),
             inject: [getModelToken(ModelName.PLAYER)],
           },
-          { provide: VotingQueue, useValue: { addVotingCheckJob: jest.fn().mockResolvedValue(null) } },
+          {
+            provide: VotingQueue,
+            useValue: { addVotingCheckJob: jest.fn().mockResolvedValue(null) },
+          },
         ],
       }).compile();
 
