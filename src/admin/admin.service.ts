@@ -5,6 +5,7 @@ import { AdminProfileDto } from './dto/AdminProfile.dto';
 import { Clan } from '../clan/clan.schema';
 import BasicService from '../common/service/basicService/BasicService';
 import { Environment } from '../common/enum/environment.enum';
+import { Game } from '../gameData/game.schema';
 import { Player } from '../player/schemas/player.schema';
 import { Profile } from '../profile/profile.schema';
 import { SEReason } from '../common/service/basicService/SEReason';
@@ -18,6 +19,7 @@ export class AdminService {
     @InjectModel(Profile.name) private profileModel: Model<Profile>,
     @InjectModel(Player.name) private playerModel: Model<Player>,
     @InjectModel(Stock.name) private stockModel: Model<Stock>,
+    @InjectModel(Game.name) private gameModel: Model<Game>,
   ) {
     this.profileService = new BasicService(profileModel);
   }
@@ -58,6 +60,10 @@ export class AdminService {
     });
 
     await this.stockModel.deleteMany({
+      environment: Environment.TEACHING_DEMO,
+    });
+
+    await this.gameModel.deleteMany({
       environment: Environment.TEACHING_DEMO,
     });
   }

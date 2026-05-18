@@ -4,6 +4,7 @@ import { AdminProfileDto } from '../../../admin/dto/AdminProfile.dto';
 import { AdminService } from '../../../admin/admin.service';
 import { Clan } from '../../../clan/clan.schema';
 import { Environment } from '../../../common/enum/environment.enum';
+import { Game } from '../../../gameData/game.schema';
 import { Player } from '../../../player/schemas/player.schema';
 import { Profile } from '../../../profile/profile.schema';
 import { SEReason } from '../../../common/service/basicService/SEReason';
@@ -21,6 +22,7 @@ describe('AdminService.resetTeachingDemo() test suite', () => {
   let profileModel: MockModel<Profile>;
   let playerModel: MockModel<Player>;
   let stockModel: MockModel<Stock>;
+  let gameModel: MockModel<Game>;
 
   const nonAdminProfile: AdminProfileDto = {
     _id: 'randomid01',
@@ -52,11 +54,16 @@ describe('AdminService.resetTeachingDemo() test suite', () => {
       deleteMany: jest.fn(),
     };
 
+    gameModel = {
+      deleteMany: jest.fn(),
+    };
+
     adminService = new AdminService(
       clanModel as unknown as Model<Clan>,
       profileModel as unknown as Model<Profile>,
       playerModel as unknown as Model<Player>,
       stockModel as unknown as Model<Stock>,
+      gameModel as unknown as Model<Game>,
     );
   });
 
@@ -106,6 +113,9 @@ describe('AdminService.resetTeachingDemo() test suite', () => {
       environment: Environment.TEACHING_DEMO,
     });
     expect(stockModel.deleteMany).toHaveBeenCalledWith({
+      environment: Environment.TEACHING_DEMO,
+    });
+    expect(gameModel.deleteMany).toHaveBeenCalledWith({
       environment: Environment.TEACHING_DEMO,
     });
   });
