@@ -3,6 +3,15 @@ import { GameEventPayload } from '../../gameEventsEmitter/gameEvent';
 import { Injectable } from '@nestjs/common';
 import DailyTaskNotifier from './DailyTaskNotifier';
 import { ClanRewarder } from '../../rewarder/clanRewarder/clanRewarder.service';
+import { PlayerRewarder } from '../../rewarder/playerRewarder/playerRewarder.service';
+import { ClanProgression } from '../../rewarder/clanProgression/clanProgression.service';
+import { 
+  initializeSession, 
+  cancelTransaction, 
+  endTransaction 
+} from '../../common/function/Transactions';
+import { Connection } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
 
 /**
  * Handles all side effects regarding UI daily tasks
@@ -12,6 +21,9 @@ export default class UiDailyTaskHandler {
   constructor(
     private readonly notifier: DailyTaskNotifier,
     private readonly clanRewarder: ClanRewarder,
+    private readonly playerRewarder: PlayerRewarder,
+    private readonly clanProgression: ClanProgression,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   /**
@@ -19,6 +31,7 @@ export default class UiDailyTaskHandler {
    * - Updates amountLeft field of a task
    * - Removes dailyTask if it is completed (amountLeft=0)
    * - Adds points and coins to player's clan if the task is completed
+   * - Adds points to player if task is completed
    * - Sends a MQTT notification about the updated / completed task
    *
    * @param payload required task data to handle the event
@@ -42,10 +55,33 @@ export default class UiDailyTaskHandler {
 
     this.notifier.taskCompleted(player_id, task);
 
-    await this.clanRewarder.rewardClanForPlayerTask(
-      clan_id,
-      task.points,
-      task.coins,
-    );
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
+    const [updatedClan, clanErrors] = 
+      await this.clanRewarder.rewardClanForPlayerTask(
+        clan_id,
+        task.points,
+        task.coins,
+        session
+      );
+    if (clanErrors) return cancelTransaction(session, clanErrors);
+
+    const [, playerErrors] = 
+      await this.playerRewarder.rewardForPlayerTask(
+        player_id,
+        task.points,
+        session
+      )
+    if (playerErrors) return cancelTransaction(session, playerErrors);
+
+    const [, progressErrors] = 
+      await this.clanProgression.handleClanProgression(
+        updatedClan,
+        session
+      )
+    if (progressErrors) return cancelTransaction(session, progressErrors);
+
+    return endTransaction(session, task);
   }
 }
