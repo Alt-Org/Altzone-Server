@@ -461,14 +461,19 @@ export default class ClanRoleService {
     return [foundRole, null];
   }
 
+  /**
+   * Handles the process when a buy voting has passed
+   *
+   * @param voting - The voting data.
+   *
+   * @throws ServiceError if the voting data is missing required fields or if there is an error updating the player's clan role.
+   */
   async checkVotingOnExpire(voting: VotingDto): Promise<IServiceReturn<true>> {
-    const votePassed = this.votingService
-      ? await this.votingService.checkVotingSuccess(voting)
-      : voting.votes?.length > 0 &&
-        (voting.votes.filter((vote) => vote.choice === VoteChoice.YES).length /
-          voting.votes.length) *
-          100 >=
-          (voting.minPercentage || 51);
+    const votePassed = await this.votingService.checkVotingSuccess(
+      voting,
+      true,
+    );
+    
     if (!votePassed) {
       return [true, null];
     }
