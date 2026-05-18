@@ -206,7 +206,7 @@ export default class ClanRoleService {
         admin_idsToDelete: clanToUpdate.admin_idsToDelete ?? [],
       },
       queue: VotingQueueName.CLAN_ROLE,
-      endsOn: new Date(Date.now() + 10 * 60 * 1000),  // 10 minutes
+      endsOn: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
     });
 
     if (error) return [null, error];
