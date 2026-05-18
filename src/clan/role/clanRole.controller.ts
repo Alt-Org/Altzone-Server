@@ -156,8 +156,13 @@ export class ClanRoleController {
   @HasClanRights([ClanBasicRight.EDIT_MEMBER_RIGHTS])
   @DetermineClanId()
   @UniformResponse()
-  public async setRole(@Body() body: SetClanRoleDto) {
-    const [, errors] = await this.service.setRoleToPlayer(body);
+  public async setRole(@Body() body: SetClanRoleDto, @LoggedUser() user: User) {
+    const voter = {
+      _id: user.player_id,
+      clan_id: user.clan_id,
+    } as PlayerDto;
+
+    const [, errors] = await this.service.setRoleToPlayer(body, voter);
     return this.handleErrorReturnIfFound(errors);
   }
 

@@ -7,6 +7,8 @@ import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import { ClanRoleType } from '../../../../clan/role/enum/clanRoleType.enum';
 import { SEReason } from '../../../../common/service/basicService/SEReason';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
+import VotingModule from '../../../voting/modules/voting.module';
+import { VotingType } from '../../../../voting/enum/VotingType.enum';
 
 describe('ClanRoleService.setRoleToPlayer() test suite', () => {
   let roleService: ClanRoleService;
@@ -30,9 +32,12 @@ describe('ClanRoleService.setRoleToPlayer() test suite', () => {
     .setClanRoleId(null)
     .build();
   const playerModel = PlayerModule.getPlayerModel();
+  const votingModel = VotingModule.getVotingModel();
+  let voterPlayer;
 
   beforeEach(async () => {
     roleService = await ClanModule.getClanRoleService();
+    await votingModel.deleteMany({});
 
     const createdClan = await clanModel.create(existingClan);
     existingClan._id = createdClan._id;
@@ -41,6 +46,15 @@ describe('ClanRoleService.setRoleToPlayer() test suite', () => {
     existingPlayer.clan_id = createdClan._id;
     const createdPlayer = await playerModel.create(existingPlayer);
     existingPlayer._id = createdPlayer._id;
+
+    voterPlayer = await playerModel.create(
+      playerBuilder
+        .setName(`voter-${Date.now().toString().slice(-6)}`)
+        .setUniqueIdentifier(`voter-${Date.now()}`)
+        .setClanRoleId(existingRole._id)
+        .setClanId(createdClan._id)
+        .build(),
+    );
   });
 
   it('should start voting and return true when setting a valid role to a player', async () => {
@@ -48,9 +62,33 @@ describe('ClanRoleService.setRoleToPlayer() test suite', () => {
       player_id: existingPlayer._id,
       role_id: existingRole._id,
     };
-    const [result, errors] = await roleService.setRoleToPlayer(setData);
+    const [result, errors] = await roleService.setRoleToPlayer(
+      setData,
+      voterPlayer,
+    );
     expect(result).toBe(true);
     expect(errors).toBeNull();
+  });
+
+  it('should use the voting starter as organizer instead of the target player', async () => {
+    const setData = {
+      player_id: existingPlayer._id,
+      role_id: existingRole._id,
+    };
+
+    await roleService.setRoleToPlayer(setData, voterPlayer);
+
+    const voting = await votingModel.findOne({
+      type: VotingType.SET_CLAN_ROLE,
+      'setClanRole.player_id': existingPlayer._id,
+    });
+
+    expect(voting.organizer.player_id.toString()).toBe(
+      voterPlayer._id.toString(),
+    );
+    expect(voting.organizer.clan_id.toString()).toBe(
+      existingClan._id.toString(),
+    );
   });
 
   it('should return NOT_FOUND if player does not exist', async () => {
@@ -58,7 +96,10 @@ describe('ClanRoleService.setRoleToPlayer() test suite', () => {
       player_id: getNonExisting_id(),
       role_id: existingRole._id,
     };
-    const [result, errors] = await roleService.setRoleToPlayer(setData);
+    const [result, errors] = await roleService.setRoleToPlayer(
+      setData,
+      voterPlayer,
+    );
     expect(result).toBeNull();
     expect(errors).toBeTruthy();
     expect(errors?.[0].reason).toBe(SEReason.NOT_FOUND);
@@ -77,7 +118,10 @@ describe('ClanRoleService.setRoleToPlayer() test suite', () => {
       player_id: player._id,
       role_id: existingRole._id,
     };
-    const [result, errors] = await roleService.setRoleToPlayer(setData);
+    const [result, errors] = await roleService.setRoleToPlayer(
+      setData,
+      voterPlayer,
+    );
     expect(result).toBeNull();
     expect(errors).toBeTruthy();
     expect(errors?.[0].reason).toBe(SEReason.NOT_FOUND);
@@ -90,7 +134,10 @@ describe('ClanRoleService.setRoleToPlayer() test suite', () => {
     };
     // Remove clan
     await clanModel.deleteOne({ _id: existingClan._id });
-    const [result, errors] = await roleService.setRoleToPlayer(setData);
+    const [result, errors] = await roleService.setRoleToPlayer(
+      setData,
+      voterPlayer,
+    );
     expect(result).toBeNull();
     expect(errors).toBeTruthy();
     expect(errors?.[0].reason).toBe(SEReason.NOT_FOUND);
@@ -101,7 +148,10 @@ describe('ClanRoleService.setRoleToPlayer() test suite', () => {
       player_id: existingPlayer._id,
       role_id: getNonExisting_id(),
     };
-    const [result, errors] = await roleService.setRoleToPlayer(setData);
+    const [result, errors] = await roleService.setRoleToPlayer(
+      setData,
+      voterPlayer,
+    );
     expect(result).toBeNull();
     expect(errors).toBeTruthy();
     expect(errors?.[0].reason).toBe(SEReason.NOT_FOUND);
@@ -125,7 +175,10 @@ describe('ClanRoleService.setRoleToPlayer() test suite', () => {
       player_id: existingPlayer._id,
       role_id: insertedRole._id, // Use the actual _id
     };
-    const [result, errors] = await roleService.setRoleToPlayer(setData);
+    const [result, errors] = await roleService.setRoleToPlayer(
+      setData,
+      voterPlayer,
+    );
     expect(result).toBeNull();
     expect(errors).toBeTruthy();
     expect(errors?.[0].reason).toBe(SEReason.NOT_ALLOWED);

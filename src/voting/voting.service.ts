@@ -1,4 +1,5 @@
 import { Injectable, forwardRef, Inject, Optional } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
@@ -36,6 +37,7 @@ export class VotingService {
     @Inject(forwardRef(() => ClanService))
     private readonly clanService: ClanService,
     @Optional() private readonly clanHelperService: ClanHelperService,
+    private readonly eventEmitter: EventEmitter2,
   ) {
     this.basicService = new BasicService(this.votingModel);
   }
@@ -139,10 +141,18 @@ export class VotingService {
         voting.governancePayload,
       );
 
-      await this.basicService.updateOneById(voting._id, {
-        endedAt: new Date(),
-      });
+      await this.finalizeVoting(voting._id);
     }
+  }
+
+  /**
+   * Marks a voting as ended by setting the endedAt timestamp.
+   * @param votingId - The ID of the voting to finalize.
+   */
+  async finalizeVoting(votingId: string): Promise<void> {
+    await this.basicService.updateOneById(votingId, {
+      endedAt: new Date(),
+    });
   }
 
   /**
@@ -218,12 +228,28 @@ export class VotingService {
    * @param voting - The voting data to check.
    * @returns A promise resolving to true if successful.
    */
-  async checkVotingSuccess(voting: VotingDto) {
+  async checkVotingSuccess(
+    voting: VotingDto,
+    useClanMajority: boolean = false,
+  ): Promise<boolean> {
     const yesVotes = voting.votes.filter(
       (v) => v.choice === VoteChoice.YES,
     ).length;
-    const totalVotes = voting.votes.length;
-    return (yesVotes / totalVotes) * 100 >= (voting.minPercentage || 51);
+
+    let divisor = voting.votes.length;
+
+    if (useClanMajority && voting.organizer?.clan_id && this.clanService) {
+      const [clan] = await this.clanService.readOneById(
+        voting.organizer.clan_id,
+      );
+      if (clan) {
+        divisor = clan.playerCount;
+      }
+    }
+
+    if (divisor === 0) return false;
+
+    return (yesVotes / divisor) * 100 >= (voting.minPercentage || 51);
   }
 
   /**
@@ -254,22 +280,60 @@ export class VotingService {
     });
     if (errors) throw errors;
 
-    if (voting.votes.some((v) => v.player_id === playerId))
+    if (voting.votes.some((v) => v.player_id.toString() === playerId)) {
       throw alreadyVotedError;
+    }
 
     const newVote: Vote = { player_id: playerId, choice };
+
     const success = await this.basicService.updateOneById(votingId, {
       votes: [...voting.votes, newVote],
     });
     if (!success) throw addVoteError;
 
+    // IMPORTANT:
+    // Read the voting again after updating votes.
+    // The original `voting` variable does not contain the newly added vote.
     const [updatedVoting] =
       await this.basicService.readOneById<VotingDto>(votingId);
-    if (await this.checkVotingSuccess(updatedVoting)) {
-      await this.finalizeGovernanceVote(updatedVoting);
+
+    // IMPORTANT:
+    // If the voting has already passed after this vote, finalize it now.
+    const isFleaMarketVoting = [
+      VotingType.FLEA_MARKET_BUY_ITEM,
+      VotingType.FLEA_MARKET_SELL_ITEM,
+      VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE,
+    ].includes(updatedVoting.type);
+
+    if (await this.checkVotingSuccess(updatedVoting, isFleaMarketVoting)) {
+      if (updatedVoting.type === VotingType.CLAN_GOVERNANCE_UPDATE) {
+        await this.finalizeGovernanceVote(updatedVoting);
+      } else if (updatedVoting.type === VotingType.SET_CLAN_ROLE) {
+        await this.finalizeSetClanRoleVote(updatedVoting);
+        await this.finalizeVoting(updatedVoting._id);
+      } else {
+        await this.finalizeVoting(updatedVoting._id);
+      }
+
+      // Emit event for immediate processing in other services (e.g. FleaMarketService)
+      this.eventEmitter.emit('voting.passed', { voting: updatedVoting });
     }
 
-    this.notifier.votingUpdated(voting, voting.FleaMarketItem, voting.Player);
+    this.notifier.votingUpdated(
+      updatedVoting,
+      voting.FleaMarketItem,
+      voting.Player,
+    );
+  }
+
+  private async finalizeSetClanRoleVote(voting: VotingDto): Promise<void> {
+    if (!voting.setClanRole?.player_id || !voting.setClanRole?.role_id) return;
+
+    const [, updateErrors] = await this.playerService.updatePlayerById(
+      voting.setClanRole.player_id.toString(),
+      { clanRole_id: voting.setClanRole.role_id.toString() },
+    );
+    if (updateErrors) throw updateErrors;
   }
 
   /**

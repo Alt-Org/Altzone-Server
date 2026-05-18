@@ -206,7 +206,7 @@ export default class ClanRoleService {
         admin_idsToDelete: clanToUpdate.admin_idsToDelete ?? [],
       },
       queue: VotingQueueName.CLAN_ROLE,
-      endsOn: new Date(Date.now() + 60 * 60 * 1000),
+      endsOn: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
     });
 
     if (error) return [null, error];
@@ -291,6 +291,7 @@ export default class ClanRoleService {
 
   async setRoleToPlayer(
     setData: SetClanRoleDto,
+    voterPlayer: PlayerDto,
   ): Promise<IServiceReturn<true>> {
     const [player, playerReadErrors] =
       await this.playerBasicService.readOneById<PlayerDto>(
@@ -315,6 +316,32 @@ export default class ClanRoleService {
         ],
       ];
 
+    if (!voterPlayer?.clan_id)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'voterPlayer.clan_id',
+            value: voterPlayer?.clan_id,
+            message: 'Voting organizer must be a member of a clan',
+          }),
+        ],
+      ];
+
+    if (player.clan_id.toString() !== voterPlayer.clan_id.toString())
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_AUTHORIZED,
+            field: 'player_id',
+            value: setData.player_id,
+            message: 'Role can be set only for a player in the same clan',
+          }),
+        ],
+      ];
+
     const [clan, clanReadErrors] =
       await this.clanBasicService.readOneById<Clan>(player.clan_id);
     if (clanReadErrors) return [null, clanReadErrors];
@@ -333,12 +360,12 @@ export default class ClanRoleService {
     if (roleTypeErrors) return [null, roleTypeErrors];
 
     const [voting, votingErrors] = await this.votingService.startVoting({
-      voterPlayer: player,
+      voterPlayer,
       type: VotingType.SET_CLAN_ROLE,
-      clanId: player.clan_id.toString(),
+      clanId: voterPlayer.clan_id.toString(),
       setClanRole: setData,
       queue: VotingQueueName.CLAN_ROLE,
-      endsOn: new Date(Date.now() + 60 * 60 * 1000),
+      endsOn: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
     });
     if (votingErrors) return [null, votingErrors];
 
@@ -434,14 +461,19 @@ export default class ClanRoleService {
     return [foundRole, null];
   }
 
+  /**
+   * Handles the process when a buy voting has passed
+   *
+   * @param voting - The voting data.
+   *
+   * @throws ServiceError if the voting data is missing required fields or if there is an error updating the player's clan role.
+   */
   async checkVotingOnExpire(voting: VotingDto): Promise<IServiceReturn<true>> {
-    const votePassed = this.votingService
-      ? await this.votingService.checkVotingSuccess(voting)
-      : voting.votes?.length > 0 &&
-        (voting.votes.filter((vote) => vote.choice === VoteChoice.YES).length /
-          voting.votes.length) *
-          100 >=
-          (voting.minPercentage || 51);
+    const votePassed = await this.votingService.checkVotingSuccess(
+      voting,
+      true,
+    );
+
     if (!votePassed) {
       return [true, null];
     }
@@ -466,6 +498,8 @@ export default class ClanRoleService {
       { clanRole_id: new ObjectId(voting.setClanRole.role_id.toString()) },
     );
     if (updateErrors) return [null, updateErrors];
+
+    await this.votingService.finalizeVoting(voting._id);
 
     return [true, null];
   }
