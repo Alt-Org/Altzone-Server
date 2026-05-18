@@ -473,7 +473,7 @@ export default class ClanRoleService {
       voting,
       true,
     );
-    
+
     if (!votePassed) {
       return [true, null];
     }
