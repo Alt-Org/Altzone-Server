@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { ExtractField } from '../common/decorator/response/ExtractField';
+import { Environment } from '../common/service/envHandler/enum/environment.enum';
 
 export type GameDocument = HydratedDocument<Game>;
 
@@ -43,6 +44,9 @@ export class Game {
 
   @Prop({ type: Date, required: true })
   endedAt: Date;
+
+  @Prop({ type: Number, enum: Environment })
+  environment?: Environment;
 
   @ExtractField()
   _id: string;

@@ -20,6 +20,7 @@ import { IServiceReturn } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { Environment } from '../common/enum/environment.enum';
 
 @Injectable()
 export class GameDataService {
@@ -125,6 +126,7 @@ export class GameDataService {
     team1Id: string,
     team2Id: string,
     currentTime: Date,
+    environment: Environment,
   ) {
     const newGame: CreateGameDto = {
       team1: battleResult.team1,
@@ -134,6 +136,7 @@ export class GameDataService {
       winner: battleResult.winnerTeam,
       startedAt: new Date(currentTime.getTime() - battleResult.duration * 1000),
       endedAt: currentTime,
+      environment: environment,
     };
     return newGame;
   }
@@ -323,6 +326,7 @@ export class GameDataService {
         teamIds.team1Id,
         teamIds.team2Id,
         currentTime,
+        team1Clan.environment,
       );
 
       return await this.createOne(newGame);

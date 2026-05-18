@@ -7,6 +7,7 @@ import {
   IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Environment } from '../../common/enum/environment.enum';
 
 export class CreateGameDto {
   @IsArray()
@@ -41,4 +42,8 @@ export class CreateGameDto {
   @Type(() => Date)
   @IsNotEmpty()
   endedAt: Date;
+
+  @IsEnum(Environment)
+  @Type(() => Number)
+  environment?: Environment;
 }
