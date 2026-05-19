@@ -225,7 +225,7 @@ export class FleaMarketService {
         VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE,
       ].includes(payload.voting.type)
     ) {
-      await this.checkVotingOnExpire({ voting: payload.voting } as any);
+      await this.checkVotingOnExpire({ voting: payload.voting } as VotingQueueParams);
     }
   }
 
