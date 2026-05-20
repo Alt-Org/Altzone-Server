@@ -99,6 +99,10 @@ export class CreatePlayerDto {
   /**
    * Custom avatar setup for this player
    */
+  @ApiProperty({
+  type: () => ModifyAvatarDto,
+  required: false,
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => ModifyAvatarDto)

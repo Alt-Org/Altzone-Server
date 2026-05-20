@@ -24,6 +24,8 @@ import { Type } from 'class-transformer';
 import { StallDto } from './stall.dto';
 import { CreateClanRoleDto } from '../role/dto/createClanRole.dto';
 import { ClanGovernanceUpdateDto } from './clanGovernanceUpdate.dto';
+import { ApiProperty } from '@nestjs/swagger';
+
 
 @AddType('UpdateClanDto')
 export class UpdateClanDto {
@@ -58,6 +60,10 @@ export class UpdateClanDto {
   /**
    * New logo configuration for the clan (optional)
    */
+  @ApiProperty({
+  type: () => ClanLogoDto,
+  required: false,
+  })
   @ValidateNested()
   @Type(() => ClanLogoDto)
   @IsOptional()
@@ -75,7 +81,7 @@ export class UpdateClanDto {
   /**
    * Updated labels for the clan (max 5, optional)
    *
-   * @example ["ELÄINRAKKAAT", "SYVÄLLISET"]
+   * @example ["eläinrakkaat", "syvälliset"]
    */
   @IsArray()
   @ArrayMaxSize(5)
