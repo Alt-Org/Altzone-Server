@@ -84,6 +84,8 @@ export default class PlayerController {
 
   /**
    * Registers the player's selected emotion for the current day.
+   * 
+   * @remarks Emotion must be one of these: Sorrow, Anger, Joy, Playful, Love, Blank
    */
   @ApiResponseDescription({
     success: { dto: null, modelName: ModelName.PLAYER, status: 204 },
