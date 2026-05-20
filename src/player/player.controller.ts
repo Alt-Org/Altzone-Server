@@ -96,7 +96,7 @@ export default class PlayerController {
     @LoggedUser() user: User,
     @Body() body: UpdateEmotionDto,
   ): Promise<void> {
-    const [error] = await this.service.addEmotion(user.player_id, body.emotion);
+    const [, error] = await this.service.addEmotion(user.player_id, body.emotion);
 
     if (error) {
       throw new BadRequestException(error[0].message);
