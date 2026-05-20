@@ -15,6 +15,7 @@ import { Type } from 'class-transformer';
 import { Organizer } from './organizer.dto';
 import { ItemName } from '../../clanInventory/item/enum/itemName.enum';
 import SetClanRoleDto from '../../clan/role/dto/setClanRole.dto';
+import { GovernancePayload } from '../type/governancePayload';
 
 @AddType('CreateVotingDto')
 export class CreateVotingDto {
@@ -88,4 +89,18 @@ export class CreateVotingDto {
   @IsInt()
   @Min(0)
   price?: number;
+
+  /**
+   * Optional "payload" for governance-related voting,
+   * containing proposed changes to clan roles and administrators.
+   *
+   * @example {
+   * "roles": [{ "name": "Veteran", "rights": { "shop": true } }],
+   * "admin_idsToAdd": ["67fe4e2d8a54d4cc39266a42"]
+   * }
+   */
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => Object)
+  governancePayload?: GovernancePayload;
 }

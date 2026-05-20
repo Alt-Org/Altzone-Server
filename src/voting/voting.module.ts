@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
+import { ClanModule } from '../clan/clan.module';
 import { Voting, VotingSchema } from './schemas/voting.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { VotingController } from './voting.controller';
@@ -53,10 +54,16 @@ import { ExpiredVotingCleanupService } from './expired-voting-cleanup.service';
             schema: BuyClanShopItemVotingSchema,
             value: VotingType.SHOP_BUY_ITEM,
           },
+          {
+            name: 'ClanGovernanceUpdateVoting',
+            schema: VotingSchema,
+            value: VotingType.CLAN_GOVERNANCE_UPDATE,
+          },
         ],
       },
     ]),
     PlayerModule,
+    forwardRef(() => ClanModule),
     BullModule.registerQueue(
       { name: VotingQueueName.CLAN_ROLE },
       { name: VotingQueueName.CLAN_SHOP },

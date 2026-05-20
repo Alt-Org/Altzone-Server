@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { FleaMarketItem, publicReferences } from './fleaMarketItem.schema';
 import BasicService from '../common/service/basicService/BasicService';
@@ -237,7 +238,29 @@ export class FleaMarketService {
   }
 
   /**
-   * Handles the process of starting a buy item voting.
+   * Listens for successful voting events and processes them immediately.
+   * This ensures that price changes and other flea market actions are applied
+   * as soon as the threshold is met, instead of waiting for the 10-minute timer.
+   * @param payload - The event payload containing the voting DTO.
+   */
+  @OnEvent('voting.passed')
+  async handleVotingPassed(payload: { voting: VotingDto }) {
+    // We only handle Flea Market specific votings here
+    if (
+      [
+        VotingType.FLEA_MARKET_BUY_ITEM,
+        VotingType.FLEA_MARKET_SELL_ITEM,
+        VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE,
+      ].includes(payload.voting.type)
+    ) {
+      await this.checkVotingOnExpire({
+        voting: payload.voting,
+      } as VotingQueueParams);
+    }
+  }
+
+  /**
+   * Processes the outcome of a voting process after expiration.
    *
    * @param clanId - The ID of the clan.
    * @param itemId - The ID of the item.
@@ -293,7 +316,10 @@ export class FleaMarketService {
   async checkVotingOnExpire(params: VotingQueueParams) {
     const { voting, price, clanId, stockId, fleaMarketItemId } = params;
 
-    const votePassed = await this.votingService.checkVotingSuccess(voting);
+    const votePassed = await this.votingService.checkVotingSuccess(
+      voting,
+      true,
+    );
 
     switch (voting.type) {
       case VotingType.FLEA_MARKET_BUY_ITEM:
@@ -317,6 +343,8 @@ export class FleaMarketService {
           );
         break;
     }
+
+    await this.votingService.finalizeVoting(voting._id);
   }
 
   /**
@@ -616,7 +644,7 @@ export class FleaMarketService {
       {
         voterPlayer: player,
         type: VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE,
-        queue: VotingQueueName.CLAN_SHOP,
+        queue: VotingQueueName.FLEA_MARKET,
         clanId: player.clan_id?.toString(),
         newItemPrice: price,
         fleaMarketItem: item,
@@ -628,6 +656,7 @@ export class FleaMarketService {
     await this.votingQueue.addVotingCheckJob({
       voting,
       queue: VotingQueueName.FLEA_MARKET,
+      price: price,
     });
 
     await session.commitTransaction();

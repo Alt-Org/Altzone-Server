@@ -15,6 +15,10 @@ import { FleaMarketItemVotingSchema } from '../../../voting/schemas/fleamarketIt
 import { VotingType } from '../../../voting/enum/VotingType.enum';
 import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
 import { ExpiredVotingCleanupService } from '../../../voting/expired-voting-cleanup.service';
+import {
+  SetClanRoleVoting,
+  SetClanRoleVotingSchema,
+} from '../../../voting/schemas/setClanRoleVoting.schema';
 
 export default class VotingCommonModule {
   private constructor() {}
@@ -41,6 +45,11 @@ export default class VotingCommonModule {
                   name: 'SellFleaMarketItemVoting',
                   schema: FleaMarketItemVotingSchema,
                   value: VotingType.FLEA_MARKET_SELL_ITEM,
+                },
+                {
+                  name: SetClanRoleVoting.name,
+                  schema: SetClanRoleVotingSchema,
+                  value: VotingType.SET_CLAN_ROLE,
                 },
               ],
             },
