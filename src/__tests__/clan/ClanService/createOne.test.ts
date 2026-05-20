@@ -87,7 +87,7 @@ describe('ClanService.createOne() test suite', () => {
   });
 
   it('Should save Elderly as clan age range', async () => {
-    const elderlyClan = clanCreateBuilder
+    const elderlyClan = ClanBuilderFactory.getBuilder('CreateClanDto')
       .setName('elderlyClan')
       .setAgeRange(AgeRange.ELDERLY)
       .build();
