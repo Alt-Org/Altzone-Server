@@ -13,6 +13,8 @@ import {
   TIServiceDeleteByIdOptions,
   TReadByIdOptions,
 } from '../../common/service/basicService/IService';
+import { Clan } from 'src/clan/clan.schema';
+import { Environment } from 'src/common/enum/environment.enum';
 
 @Injectable()
 export class SoulHomeService {
@@ -37,6 +39,20 @@ export class SoulHomeService {
     soulHome: CreateSoulHomeDto,
     options?: TIServiceCreateOneOptions,
   ) {
+    const [clan, clanErrors] = await this.basicService.readOneById<Clan>(
+      soulHome.clan_id,
+    );
+
+    if (clanErrors) {
+      return clanErrors;
+    }
+
+    if (clan.environment === Environment.TEACHING_DEMO) {
+      soulHome.environment = Environment.TEACHING_DEMO;
+    } else {
+      soulHome.environment = Environment.OPEN_DEMO;
+    }
+
     return this.basicService.createOne<CreateSoulHomeDto, SoulHomeDto>(
       soulHome,
       options,

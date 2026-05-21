@@ -8,6 +8,7 @@ import { Game } from '../../../gameData/game.schema';
 import { Player } from '../../../player/schemas/player.schema';
 import { Profile } from '../../../profile/profile.schema';
 import { SEReason } from '../../../common/service/basicService/SEReason';
+import { SoulHome } from '../../../clanInventory/soulhome/soulhome.schema';
 import { Stock } from '../../../clanInventory/stock/stock.schema';
 
 describe('AdminService.resetTeachingDemo() test suite', () => {
@@ -23,6 +24,7 @@ describe('AdminService.resetTeachingDemo() test suite', () => {
   let playerModel: MockModel<Player>;
   let stockModel: MockModel<Stock>;
   let gameModel: MockModel<Game>;
+  let soulHomeModel: MockModel<SoulHome>;
 
   const nonAdminProfile: AdminProfileDto = {
     _id: 'randomid01',
@@ -64,6 +66,7 @@ describe('AdminService.resetTeachingDemo() test suite', () => {
       playerModel as unknown as Model<Player>,
       stockModel as unknown as Model<Stock>,
       gameModel as unknown as Model<Game>,
+      soulHomeModel as unknown as Model<SoulHome>,
     );
   });
 
@@ -116,6 +119,9 @@ describe('AdminService.resetTeachingDemo() test suite', () => {
       environment: Environment.TEACHING_DEMO,
     });
     expect(gameModel.deleteMany).toHaveBeenCalledWith({
+      environment: Environment.TEACHING_DEMO,
+    });
+    expect(soulHomeModel.deleteMany).toHaveBeenCalledWith({
       environment: Environment.TEACHING_DEMO,
     });
   });

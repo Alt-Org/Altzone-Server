@@ -10,6 +10,7 @@ import { Player } from '../player/schemas/player.schema';
 import { Profile } from '../profile/profile.schema';
 import { SEReason } from '../common/service/basicService/SEReason';
 import ServiceError from '../common/service/basicService/ServiceError';
+import { SoulHome } from '../clanInventory/soulhome/soulhome.schema';
 import { Stock } from '../clanInventory/stock/stock.schema';
 
 @Injectable()
@@ -20,6 +21,7 @@ export class AdminService {
     @InjectModel(Player.name) private playerModel: Model<Player>,
     @InjectModel(Stock.name) private stockModel: Model<Stock>,
     @InjectModel(Game.name) private gameModel: Model<Game>,
+    @InjectModel(SoulHome.name) private soulHomeModel: Model<SoulHome>,
   ) {
     this.profileService = new BasicService(profileModel);
   }
@@ -64,6 +66,10 @@ export class AdminService {
     });
 
     await this.gameModel.deleteMany({
+      environment: Environment.TEACHING_DEMO,
+    });
+
+    await this.soulHomeModel.deleteMany({
       environment: Environment.TEACHING_DEMO,
     });
   }

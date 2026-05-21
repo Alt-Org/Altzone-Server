@@ -1,6 +1,7 @@
-import { IsMongoId, IsString } from 'class-validator';
+import { IsEnum, IsMongoId, IsString } from 'class-validator';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Environment } from '../../../common/enum/environment.enum';
 
 @AddType('CreateSoulHomeDto')
 export class CreateSoulHomeDto {
@@ -20,4 +21,12 @@ export class CreateSoulHomeDto {
   @ApiProperty({ uniqueItems: true })
   @IsMongoId()
   clan_id: string;
+
+  /**
+   * Environment of the Soul Home
+   *
+   * @example Environment.OPEN_DEMO
+   */
+  @IsEnum(Environment)
+  environment?: Environment;
 }
