@@ -1,4 +1,10 @@
-import { Error, Model, UpdateQuery } from 'mongoose';
+import { 
+  AnyBulkWriteOperation, 
+  Error, 
+  Model, 
+  MongooseBulkWriteOptions, 
+  UpdateQuery 
+} from 'mongoose';
 import {
   IService,
   IServiceReturn,
@@ -347,6 +353,39 @@ export default class BasicService implements IService {
         ];
 
       return [true, null];
+    } catch (error) {
+      const errors = convertMongooseToServiceErrors(error);
+      return [null, errors];
+    }
+  }
+
+  async bulkWrite<T extends object>(
+    operations: AnyBulkWriteOperation<T>[],
+    options?: MongooseBulkWriteOptions,
+  ): Promise<IServiceReturn<boolean>> {
+    try {
+      const resp = await this.model.bulkWrite(
+        operations,
+        options,
+      );
+      if (resp.matchedCount === 0)
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_FOUND,
+              message: 'Could not find any objects with specified condition',
+            }),
+          ],
+        ];
+
+      const wasUpdated = 
+        resp.modifiedCount > 0 ||
+        resp.insertedCount > 0 ||
+        resp.deletedCount > 0 ||
+        resp.upsertedCount > 0;
+        
+      return [wasUpdated, null];
     } catch (error) {
       const errors = convertMongooseToServiceErrors(error);
       return [null, errors];

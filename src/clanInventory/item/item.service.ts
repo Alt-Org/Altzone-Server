@@ -28,7 +28,7 @@ export class ItemService {
 
   public readonly refsInModel: ModelName[];
   public readonly modelName: ModelName;
-  private readonly basicService: BasicService;
+  public readonly basicService: BasicService;
 
   /**
    * Creates an new Item in DB.

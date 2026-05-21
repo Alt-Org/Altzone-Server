@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, ClientSession } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Model, ClientSession, Connection } from 'mongoose';
 import { Room } from './room.schema';
 import { UpdateRoomDto } from './dto/updateRoom.dto';
 import { CreateRoomDto } from './dto/createRoom.dto';
@@ -17,8 +17,10 @@ import {
   TIServiceDeleteByIdOptions,
   TIServiceCreateOneOptions,
   TIServiceDeleteManyOptions,
+  IServiceReturn,
 } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
+import { cancelTransaction } from '../../common/function/Transactions';
 
 @Injectable()
 export class RoomService {
@@ -26,13 +28,14 @@ export class RoomService {
     @InjectModel(Room.name) public readonly model: Model<Room>,
     private readonly roomHelper: RoomHelperService,
     private readonly itemService: ItemService,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     this.refsInModel = [ModelName.ITEM, ModelName.SOULHOME];
     this.basicService = new BasicService(model);
   }
 
   public readonly refsInModel: ModelName[];
-  private readonly basicService: BasicService;
+  public readonly basicService: BasicService;
 
   /**
    * Creates a new Room in DB.
@@ -212,5 +215,81 @@ export class RoomService {
     return await this.basicService.readMany<RoomDto>({
       filter: { soulHome_id },
     });
+  }
+
+  /**
+   * Update Rooms and Room Items
+   * 
+   * @param roomUpdate - Array of Rooms with Items
+   * @returns _true_ if updates succesful, else Errors
+   */
+  async updateSoulHomeRooms(
+    roomUpdate: UpdateRoomDto | UpdateRoomDto[]
+  ): Promise<IServiceReturn<boolean>> {
+    const session = await this.connection.startSession();
+    const rooms = Array.isArray(roomUpdate) ? roomUpdate : [roomUpdate];
+    const roomBulk = [];
+    const itemBulk = [];
+
+    for (const room of rooms) {
+      const { _id, furniture, ...roomFields } = room;
+
+      roomBulk.push({
+        updateOne: {
+          filter: { _id },
+          update: { $set: roomFields }
+        }
+      })
+
+      for (const item of furniture) {
+        const { 
+          _id, 
+          location, 
+          rotation, 
+          position, 
+          placedOn_id, 
+          placedOnLocation,
+          stock_id,
+          room_id
+        } = item;
+
+        const itemFields = {
+          location, 
+          rotation, 
+          position, 
+          placedOn_id, 
+          placedOnLocation,
+          stock_id,
+          room_id
+        }
+
+        itemBulk.push({
+          updateOne: {
+            filter: { _id },
+            update: { $set: itemFields }
+          }
+        })
+      }
+    }
+
+    try {
+      await session.withTransaction(async () => {
+        if (roomBulk.length > 0) {
+          const [, roomErrors] = await this.basicService.bulkWrite(roomBulk, { session });
+          if (roomErrors) return cancelTransaction(session, roomErrors);
+        }
+        
+        if ( itemBulk.length > 0) {
+          const [, itemErrors] = await this.itemService.basicService.bulkWrite(itemBulk, { session });
+          if (itemErrors) return cancelTransaction(session, itemErrors);
+        }
+      });
+
+      return [true, null];
+    } catch (error) {
+      console.error('Room update failed', error);
+    } finally {
+      session.endSession();
+    }
   }
 }

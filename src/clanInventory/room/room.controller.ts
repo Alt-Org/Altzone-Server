@@ -111,8 +111,8 @@ export class RoomController {
   @Put()
   @Authorize({ action: Action.update, subject: UpdateRoomDto })
   @UniformResponse()
-  public async update(@Body() body: UpdateRoomDto) {
-    const [, errors] = await this.service.updateOneById(body);
+  public async update(@Body() body: UpdateRoomDto | UpdateRoomDto[]) {
+    const [, errors] = await this.service.updateSoulHomeRooms(body);
     if (errors) return [null, errors];
   }
 
