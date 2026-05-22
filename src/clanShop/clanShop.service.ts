@@ -163,10 +163,7 @@ export class ClanShopService {
 
     await this.votingService.finalizeVoting(voting._id);
 
-    await session.commitTransaction();
-    await session.endSession();
-
-    return endTransaction(session, true);
+    return await endTransaction(session, true);
   }
 
   /**
