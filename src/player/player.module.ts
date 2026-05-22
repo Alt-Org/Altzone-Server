@@ -12,6 +12,7 @@ import { CustomCharacterController } from './customCharacter/customCharacter.con
 import { CustomCharacterService } from './customCharacter/customCharacter.service';
 import { isCustomCharacterExists } from './customCharacter/decorator/validation/IsCustomCharacterExists.decorator';
 import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
+import { PlayerEmotionCleanupTask } from './player-emotion-cleanup.task';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
     isPlayerExists,
     CustomCharacterService,
     isCustomCharacterExists,
+    PlayerEmotionCleanupTask,
   ],
   exports: [PlayerService, CustomCharacterService],
 })
