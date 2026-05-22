@@ -13,8 +13,8 @@ import {
   TIServiceDeleteByIdOptions,
   TReadByIdOptions,
 } from '../../common/service/basicService/IService';
-import { Clan } from 'src/clan/clan.schema';
-import { Environment } from 'src/common/enum/environment.enum';
+import { Clan } from '../../clan/clan.schema';
+import { Environment } from '../../common/enum/environment.enum';
 
 @Injectable()
 export class SoulHomeService {
