@@ -130,8 +130,7 @@ export class ClanShopService {
    * 2. Checks if the voting process was successful.
    *    - If successful, processes the passed vote and handles any errors.
    *    - If rejected, processes the rejected vote and handles any errors.
-   * 3. Deletes the voting record from the database and handles any errors.
-   * 4. Commits the transaction and ends the session.
+   * 3. Commits the transaction and ends the session.
    *
    * If any error occurs during the process, the transaction is canceled, and the session is ended.
    *
@@ -144,7 +143,7 @@ export class ClanShopService {
     const [session, sessionError] = await initializeSession(this.connection);
     if (sessionError) return [null, sessionError];
 
-    const votePassed = await this.votingService.checkVotingSuccess(voting);
+    const votePassed = await this.votingService.checkVotingSuccess(voting, true);
 
     if (votePassed) {
       const [, passedError] = await this.handleVotePassed(
