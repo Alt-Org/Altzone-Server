@@ -25,6 +25,7 @@ import {
 } from '../common/function/Transactions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { IServiceReturn } from '../common/service/basicService/IService';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class ClanShopService {
@@ -161,9 +162,32 @@ export class ClanShopService {
       if (rejectError) return cancelTransaction(session, rejectError);
     }
 
-    await this.votingService.finalizeVoting(voting._id);
+    if (!voting.endedAt) {
+      await this.votingService.finalizeVoting(voting._id);
+    }
 
     return await endTransaction(session, true);
+  }
+
+  @OnEvent('voting.passed')
+  async handleVotingPassed(payload: { voting: VotingDto }) {
+    if (payload.voting.type !== VotingType.SHOP_BUY_ITEM) return;
+
+    const clanId = payload.voting.organizer.clan_id;
+    const item = itemProperties[payload.voting.shopItemName];
+
+    const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
+      includeRefs: [ModelName.STOCK],
+    });
+    if (clanErrors) return;
+
+    await this.checkVotingOnExpire({
+      voting: payload.voting,
+      price: item.price,
+      clanId,
+      stockId: clan.Stock._id,
+      queue: VotingQueueName.CLAN_SHOP,
+    });
   }
 
   /**
