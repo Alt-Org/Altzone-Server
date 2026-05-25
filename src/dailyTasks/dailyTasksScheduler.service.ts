@@ -19,7 +19,8 @@ export class DailyTasksScheduler {
   constructor(
     @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
     @InjectModel(Player.name) public readonly playerModel: Model<Player>,
-    @InjectModel(DailyTask.name) public readonly dailyTaskModel: Model<DailyTask>,
+    @InjectModel(DailyTask.name)
+    public readonly dailyTaskModel: Model<DailyTask>,
 
     @InjectConnection() private readonly connection: Connection,
 
@@ -34,9 +35,9 @@ export class DailyTasksScheduler {
 
   /**
    * Creates new dailyTasks, removes old and adds new.
-   * 
+   *
    * Resets Clan points and unlockedMilestones
-   * 
+   *
    * Resets Player points and claimableRewards
    */
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -49,12 +50,14 @@ export class DailyTasksScheduler {
         if (clansErrors) throw new Error('Failed to get clans');
 
         const newTasks = [];
-    
+
         for (const clan of clans) {
-          const [uiTasks, uiTasksErrors] = this.uiDailyTasksService.getUITasksForClan(clan._id);
+          const [uiTasks, uiTasksErrors] =
+            this.uiDailyTasksService.getUITasksForClan(clan._id);
           if (uiTasksErrors) throw new Error('Failed to create ui tasks');
 
-          const [tasks, tasksErrors] = this.dailyTasksService.generateServerTasksForNewClan(clan._id);
+          const [tasks, tasksErrors] =
+            this.dailyTasksService.generateServerTasksForNewClan(clan._id);
           if (tasksErrors) throw new Error('Failed to create tasks');
 
           newTasks.push(...uiTasks, ...tasks);
@@ -64,21 +67,23 @@ export class DailyTasksScheduler {
           throw new Error('Failed to create tasks');
         }
 
-        const [, taskDeleteErrors] = await this.dailyTasksBasicService.deleteMany({ filter: {} });
+        const [, taskDeleteErrors] =
+          await this.dailyTasksBasicService.deleteMany({ filter: {} });
         if (taskDeleteErrors) throw new Error('Failed to delete tasks');
 
-        const [, taskCreateErrors] = await this.dailyTasksBasicService.createMany(newTasks);
+        const [, taskCreateErrors] =
+          await this.dailyTasksBasicService.createMany(newTasks);
         if (taskCreateErrors) throw new Error('Failed to add tasks');
 
         const [, clansUpdateErrors] = await this.clanService.updateMany(
           [{ $set: { points: 0, unlockedMilestones: [] } }],
-          { filter: {} }
+          { filter: {} },
         );
         if (clansUpdateErrors) throw new Error('Failed to update clans');
 
         const [, playersUpdateErrors] = await this.playerService.updateMany(
           [{ $set: { points: 0, claimableRewards: [] } }],
-          { filter: {} }
+          { filter: {} },
         );
         if (playersUpdateErrors) throw new Error('Failed to update players');
       });

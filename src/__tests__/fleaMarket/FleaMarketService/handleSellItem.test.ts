@@ -45,10 +45,9 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
 
   const clanId = 'clan';
   const playerId = 'player';
-  const playerDto = PlayerDtoBuilder
-  .setClanId(clanId)
-  .setClanRoleId({ toString: () => 'memberRoleId' } as any)
-  .build();
+  const playerDto = PlayerDtoBuilder.setClanId(clanId)
+    .setClanRoleId({ toString: () => 'memberRoleId' } as any)
+    .build();
   const error = [];
 
   const newItem = fleaMarketItemBuilder.build();
@@ -83,18 +82,18 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
 
     const memberRoleId = 'memberRoleId';
     const clanWithMemberRole = {
-    _id: clanId,
-    roles: [
-    {
-      _id: { toString: () => memberRoleId },
-      name: 'member',
-    },
-  ],
-  };
+      _id: clanId,
+      roles: [
+        {
+          _id: { toString: () => memberRoleId },
+          name: 'member',
+        },
+      ],
+    };
 
-jest
-  .spyOn(clanService, 'readOneById')
-  .mockResolvedValue([clanWithMemberRole as any, null]);
+    jest
+      .spyOn(clanService, 'readOneById')
+      .mockResolvedValue([clanWithMemberRole as any, null]);
   });
 
   it('Should process selling item and add voting check job', async () => {

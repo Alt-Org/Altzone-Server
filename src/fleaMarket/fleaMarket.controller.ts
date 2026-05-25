@@ -102,19 +102,19 @@ export class FleaMarketController {
   }
 
   /**
-  * Sell a clan item on the flea market
-  * Emit a server event for daily task "SUGGEST_ITEM_TO_FLEA_MARKET, ADD_ITEM_TO_FLEA_MARKET"
-  *
-  * @remarks Sell an item from the clan's stock on the flea market.
-  *
-  * The behavior depends on the selling player's clan rights:
-  * - With the SHOP right, the item is moved to the flea market directly
-  *   with SHIPPING status. It can later be made buyable via the
-  *   change-item-status endpoint.
-  * - Without the SHOP right, a voting process is started; the item moves
-  *   to the flea market only if the majority of clan members vote to accept
-  *   the listing.
-  */
+   * Sell a clan item on the flea market
+   * Emit a server event for daily task "SUGGEST_ITEM_TO_FLEA_MARKET, ADD_ITEM_TO_FLEA_MARKET"
+   *
+   * @remarks Sell an item from the clan's stock on the flea market.
+   *
+   * The behavior depends on the selling player's clan rights:
+   * - With the SHOP right, the item is moved to the flea market directly
+   *   with SHIPPING status. It can later be made buyable via the
+   *   change-item-status endpoint.
+   * - Without the SHOP right, a voting process is started; the item moves
+   *   to the flea market only if the majority of clan members vote to accept
+   *   the listing.
+   */
   @ApiResponseDescription({
     success: {
       status: 204,
@@ -154,19 +154,19 @@ export class FleaMarketController {
   }
 
   /**
-  * Buy an item on the flea market for your clan
-  *
-  * @remarks Buy an Item from the flea market.
-  * The behavior depends on the buying player's clan rights:
-  * - With the SHOP right, the item is bought directly and added to the
-  *   clan's stock.
-  * - Without the SHOP right, a voting process is started; the item is
-  *   delivered only if the majority of clan members vote to accept it
-  *   within the voting period.
-  *
-  * In both cases, the clan must have enough coins to cover the item's price
-  * and the item must have an AVAILABLE status.
-  */
+   * Buy an item on the flea market for your clan
+   *
+   * @remarks Buy an Item from the flea market.
+   * The behavior depends on the buying player's clan rights:
+   * - With the SHOP right, the item is bought directly and added to the
+   *   clan's stock.
+   * - Without the SHOP right, a voting process is started; the item is
+   *   delivered only if the majority of clan members vote to accept it
+   *   within the voting period.
+   *
+   * In both cases, the clan must have enough coins to cover the item's price
+   * and the item must have an AVAILABLE status.
+   */
   @ApiResponseDescription({
     success: {
       status: 204,

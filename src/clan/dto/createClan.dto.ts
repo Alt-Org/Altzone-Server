@@ -44,12 +44,12 @@ export class CreateClanDto {
    * @example { logoType: "Heart", pieceColors: [#FFFFFF] }
    */
   @ApiProperty({
-  type: () => ClanLogoDto,
-  required: false,
-  example: {
-    logoType: 'Heart',
-    pieceColors: ['#FFFFFF'],
-  },
+    type: () => ClanLogoDto,
+    required: false,
+    example: {
+      logoType: 'Heart',
+      pieceColors: ['#FFFFFF'],
+    },
   })
   @Type(() => ClanLogoDto)
   @IsOptional()
@@ -61,9 +61,9 @@ export class CreateClanDto {
    * @example ["eläinrakkaat", "syvälliset"]
    */
   @ApiProperty({
-  enum: ClanLabel,
-  isArray: true,
-  example: ['eläinrakkaat', 'syvälliset'],
+    enum: ClanLabel,
+    isArray: true,
+    example: ['eläinrakkaat', 'syvälliset'],
   })
   @IsArray()
   @ArrayMaxSize(5)
@@ -122,16 +122,16 @@ export class CreateClanDto {
    * @example { adPoster: { border: "border1", colour: "red", mainFurniture: "table" }, maxSlots: 10 }
    */
   @ApiProperty({
-  type: () => StallDto,
-  required: false,
-  example: {
-    adPoster: {
-      border: 'border1',
-      colour: 'red',
-      mainFurniture: 'table',
+    type: () => StallDto,
+    required: false,
+    example: {
+      adPoster: {
+        border: 'border1',
+        colour: 'red',
+        mainFurniture: 'table',
+      },
+      maxSlots: 10,
     },
-    maxSlots: 10,
-  },
   })
   @Type(() => StallDto)
   @IsOptional()

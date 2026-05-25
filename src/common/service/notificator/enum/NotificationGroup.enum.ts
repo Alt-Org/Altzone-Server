@@ -13,5 +13,5 @@ export enum NotificationGroup {
   /**
    * All users
    */
-  SYSTEM = 'system'
+  SYSTEM = 'system',
 }

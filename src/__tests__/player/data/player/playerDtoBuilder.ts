@@ -124,8 +124,8 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
   }
 
   setClanRoleId(clanRoleId: string | ObjectId): PlayerDtoBuilder {
-  this.base.clanRole_id = clanRoleId as any;
-  return this;
+    this.base.clanRole_id = clanRoleId as any;
+    return this;
   }
 
   setCustomCharacters(customCharacters: CustomCharacterDto[]) {

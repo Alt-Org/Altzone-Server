@@ -42,7 +42,7 @@ export class ClanShopController {
     return this.clanShopScheduler.currentShopItems;
   }
 
-   /**
+  /**
    * Buy an item from clan shop
    *
    * @remarks Buy an item from a clan shop.
