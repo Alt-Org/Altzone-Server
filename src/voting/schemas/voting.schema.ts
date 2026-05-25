@@ -4,6 +4,7 @@ import { ModelName } from '../../common/enum/modelName.enum';
 import { VotingType } from '../enum/VotingType.enum';
 import { Vote, VoteSchema } from './vote.schema';
 import { Organizer } from './organizer.schema';
+import { GovernancePayload } from '../type/governancePayload';
 
 export type VotingDocument = HydratedDocument<Voting>;
 
@@ -30,6 +31,15 @@ export class Voting {
 
   @Prop({ type: [VoteSchema], default: [] })
   votes: Vote[];
+
+  @Prop({ type: Object, required: false })
+  governancePayload?: GovernancePayload;
+
+  @Prop({ type: Date, default: Date.now })
+  startedAt?: Date;
+
+  @Prop({ type: Date, required: false })
+  endedAt?: Date;
 }
 
 export const VotingSchema = SchemaFactory.createForClass(Voting);

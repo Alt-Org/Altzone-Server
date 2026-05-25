@@ -24,6 +24,7 @@ import {
 } from '../common/function/Transactions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { IServiceReturn } from '../common/service/basicService/IService';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class ClanShopService {
@@ -198,8 +199,7 @@ private async buyViaVote(
    * 2. Checks if the voting process was successful.
    *    - If successful, processes the passed vote and handles any errors.
    *    - If rejected, processes the rejected vote and handles any errors.
-   * 3. Deletes the voting record from the database and handles any errors.
-   * 4. Commits the transaction and ends the session.
+   * 3. Commits the transaction and ends the session.
    *
    * If any error occurs during the process, the transaction is canceled, and the session is ended.
    *
@@ -212,7 +212,7 @@ private async buyViaVote(
     const [session, sessionError] = await initializeSession(this.connection);
     if (sessionError) return [null, sessionError];
 
-    const votePassed = await this.votingService.checkVotingSuccess(voting);
+    const votePassed = await this.votingService.checkVotingSuccess(voting, true);
 
     if (votePassed) {
       const [, passedError] = await this.handleVotePassed(
@@ -230,15 +230,32 @@ private async buyViaVote(
       if (rejectError) return cancelTransaction(session, rejectError);
     }
 
-    const [, deleteError] = await this.votingService.basicService.deleteOneById(
-      voting._id,
-    );
-    if (deleteError) await cancelTransaction(session, deleteError);
+    if (!voting.endedAt) {
+      await this.votingService.finalizeVoting(voting._id);
+    }
 
-    await session.commitTransaction();
-    await session.endSession();
+    return await endTransaction(session, true);
+  }
 
-    return endTransaction(session, true);
+  @OnEvent('voting.passed')
+  async handleVotingPassed(payload: { voting: VotingDto }) {
+    if (payload.voting.type !== VotingType.SHOP_BUY_ITEM) return;
+
+    const clanId = payload.voting.organizer.clan_id;
+    const item = itemProperties[payload.voting.shopItemName];
+
+    const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
+      includeRefs: [ModelName.STOCK],
+    });
+    if (clanErrors) return;
+
+    await this.checkVotingOnExpire({
+      voting: payload.voting,
+      price: item.price,
+      clanId,
+      stockId: clan.Stock._id,
+      queue: VotingQueueName.CLAN_SHOP,
+    });
   }
 
   /**

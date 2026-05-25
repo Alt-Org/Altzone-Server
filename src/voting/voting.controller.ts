@@ -117,7 +117,7 @@ export class VotingController {
     );
     if (!permission) return noPermissionError;
 
-    this.service.addVote(body.voting_id, body.choice, user.player_id);
+    await this.service.addVote(body.voting_id, body.choice, user.player_id);
 
     this.emitterService.EmitNewDailyTaskEvent(
       user.player_id,

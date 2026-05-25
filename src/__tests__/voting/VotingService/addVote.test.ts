@@ -9,6 +9,7 @@ import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import FleaMarketModule from '../../fleaMarket/modules/fleaMarketModule';
 import PlayerModule from '../../player/modules/player.module';
 import createMockMqttClient from '../../common/service/notificator/mocks/createMockMqttClient';
+import { ObjectId } from 'mongodb';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -91,16 +92,18 @@ describe('VotingService.addVote() test suite', () => {
       player._id.toString(),
     );
 
-    try {
-      await votingService.addVote(
+    await expect(
+      votingService.addVote(
         voting._id.toString(),
         VoteChoice.YES,
         player._id.toString(),
-      );
-    } catch (error: any) {
-      expect(error).toBeSE_NOT_ALLOWED();
-      expect(error.message).toBe('Logged in user has already voted.');
-    }
+      ),
+    ).rejects.toMatchObject({
+      message: 'Logged in user has already voted.',
+    });
+
+    const votingFromDb = await votingModel.findById(voting._id);
+    expect(votingFromDb.votes).toHaveLength(1);
   });
 
   it('Should return error if organizer ID is invalid', async () => {
@@ -118,5 +121,52 @@ describe('VotingService.addVote() test suite', () => {
         player._id.toString(),
       ),
     ).rejects.toEqual(expect.anything());
+  });
+
+  it('Should apply a clan role when a SET_CLAN_ROLE voting passes after adding a vote', async () => {
+    const testId = new ObjectId().toString().slice(-6);
+    const organizer = await playerModel.create(
+      playerBuilder
+        .setName(`org-${testId}`)
+        .setUniqueIdentifier(`organizer-${testId}`)
+        .build(),
+    );
+    const voter = await playerModel.create(
+      playerBuilder
+        .setName(`voter-${testId}`)
+        .setUniqueIdentifier(`voter-${testId}`)
+        .build(),
+    );
+    const targetPlayer = await playerModel.create(
+      playerBuilder
+        .setName(`target-${testId}`)
+        .setUniqueIdentifier(`target-${testId}`)
+        .build(),
+    );
+    const roleId = new ObjectId();
+
+    const voting = await votingModel.create({
+      organizer: {
+        player_id: organizer._id,
+        clan_id: new ObjectId(),
+      },
+      endsOn: new Date(Date.now() + 3600000),
+      type: VotingType.SET_CLAN_ROLE,
+      minPercentage: 51,
+      votes: [{ player_id: organizer._id, choice: VoteChoice.YES }],
+      setClanRole: {
+        player_id: targetPlayer._id,
+        role_id: roleId,
+      },
+    });
+
+    await votingService.addVote(
+      voting._id.toString(),
+      VoteChoice.YES,
+      voter._id.toString(),
+    );
+
+    const updatedPlayer = await playerModel.findById(targetPlayer._id);
+    expect(updatedPlayer.clanRole_id.toString()).toBe(roleId.toString());
   });
 });

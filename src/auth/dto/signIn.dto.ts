@@ -1,5 +1,6 @@
 import { IsString } from 'class-validator';
 import AddType from '../../common/base/decorator/AddType.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 
 @AddType('SignInDto')
 export class SignInDto {

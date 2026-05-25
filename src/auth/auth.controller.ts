@@ -28,8 +28,8 @@ export class AuthController {
   @ApiResponseDescription({
     success: {
       status: 201,
-      modelName: ModelName.CLAN,
-      type: ProfileDto,
+      modelName: ModelName.PLAYER,
+      type: SignInDto,
     },
     errors: [400, 401],
   })

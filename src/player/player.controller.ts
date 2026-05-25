@@ -84,6 +84,8 @@ export default class PlayerController {
 
   /**
    * Registers the player's selected emotion for the current day.
+   * 
+   * @remarks Emotion must be one of these: Sorrow, Anger, Joy, Playful, Love, Blank
    */
   @ApiResponseDescription({
     success: { dto: null, modelName: ModelName.PLAYER, status: 204 },
@@ -96,7 +98,7 @@ export default class PlayerController {
     @LoggedUser() user: User,
     @Body() body: UpdateEmotionDto,
   ): Promise<void> {
-    const [error] = await this.service.addEmotion(user.player_id, body.emotion);
+    const [, error] = await this.service.addEmotion(user.player_id, body.emotion);
 
     if (error) {
       throw new BadRequestException(error[0].message);
