@@ -10,8 +10,6 @@ import { ClanShopService } from './clanShop.service';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { ItemName } from '../clanInventory/item/enum/itemName.enum';
-import HasClanRights from '../clan/role/decorator/guard/HasClanRights';
-import { ClanBasicRight } from '../clan/role/enum/clanBasicRight.enum';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import ClanShopItemDto from './dto/ClanShopItem.dto';
 
@@ -44,18 +42,18 @@ export class ClanShopController {
     return this.clanShopScheduler.currentShopItems;
   }
 
-  /**
+   /**
    * Buy an item from clan shop
    *
    * @remarks Buy an item from a clan shop.
    *
-   * Notice that the item will not be bought right away, but before majority of clan members should vote to buy the item.
+   * The behavior depends on the buying player's clan rights:
+   * - With the SHOP right, the item is bought directly and added to the clan's stock.
+   * - Without the SHOP right, a voting process is started; the item is delivered only
+   *   if the majority of clan members vote to accept it within the voting period.
    *
-   * There should be also enough coins to buy an item.
-   *
-   * Notice that the player must be in the same clan and it must have a basic right "Shop"
+   * In both cases, the clan must have enough coins to cover the item's price.
    */
-  @HasClanRights([ClanBasicRight.SHOP])
   @ApiResponseDescription({
     success: {
       status: 204,
