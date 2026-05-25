@@ -69,6 +69,11 @@ export enum SEReason {
   VALIDATION = 'VALIDATION',
 
   /**
+   * Provided game versions are incompatible with each other
+   */
+  VERSION_MISMATCH = 'VERSION_MISMATCH',
+
+  /**
    * The error is unexpected
    */
   UNEXPECTED = 'UNEXPECTED',
