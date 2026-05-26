@@ -2,6 +2,7 @@ import { GameStatistics } from '../../../../player/gameStatistics.schema';
 import { Player } from '../../../../player/schemas/player.schema';
 import { ObjectId } from 'mongodb';
 import { Avatar } from '../../../../player/schemas/avatar.schema';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class PlayerBuilder {
   private readonly base: Player = {
@@ -36,6 +37,7 @@ export default class PlayerBuilder {
     },
     clanRole_id: null,
     _id: undefined,
+    environment: Environment.OPEN_DEMO,
   };
 
   build(): Player {

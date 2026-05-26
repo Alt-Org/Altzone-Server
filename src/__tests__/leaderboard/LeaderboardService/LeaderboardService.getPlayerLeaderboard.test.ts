@@ -7,6 +7,7 @@ import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import PlayerModule from '../../player/modules/player.module';
 import { Player } from '../../../player/schemas/player.schema';
 import LoggedUser from '../../test_utils/const/loggedUser';
+import { Environment } from '../../../common/enum/environment.enum';
 
 describe('LeaderboardService.getPlayerLeaderboard() test suite', () => {
   let service: LeaderboardService;
@@ -55,7 +56,10 @@ describe('LeaderboardService.getPlayerLeaderboard() test suite', () => {
   it('Should return leading players in valid order', async () => {
     const query = queryBuilder.setLimit(10).build();
 
-    const leaders = (await service.getPlayerLeaderboard(query)) as Player[];
+    const leaders = (await service.getPlayerLeaderboard(
+      query,
+      Environment.OPEN_DEMO,
+    )) as Player[];
 
     const playerNames = leaders.map((leader) => leader.name);
 
@@ -65,21 +69,30 @@ describe('LeaderboardService.getPlayerLeaderboard() test suite', () => {
   it('Should return clanLogo data if player is in a clan', async () => {
     const query = queryBuilder.setLimit(10).build();
 
-    const leaders = (await service.getPlayerLeaderboard(query)) as any[];
+    const leaders = (await service.getPlayerLeaderboard(
+      query,
+      Environment.OPEN_DEMO,
+    )) as any[];
 
     expect(leaders[0].clanLogo).toEqual(clan.clanLogo);
   });
 
   it('Should return requested amount of leading players', async () => {
     const query = queryBuilder.setLimit(2).setSkip(0).build();
-    const leaders = await service.getPlayerLeaderboard(query);
+    const leaders = await service.getPlayerLeaderboard(
+      query,
+      Environment.OPEN_DEMO,
+    );
 
     expect(leaders).toHaveLength(2);
   });
 
   it('Should be able to skip leading players', async () => {
     const query = queryBuilder.setLimit(10).setSkip(2).build();
-    const leaders = (await service.getPlayerLeaderboard(query)) as Player[];
+    const leaders = (await service.getPlayerLeaderboard(
+      query,
+      Environment.OPEN_DEMO,
+    )) as Player[];
 
     expect(leaders).toHaveLength(1);
     expect(leaders[0].name).toBe(player3.name);
