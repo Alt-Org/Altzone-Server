@@ -104,13 +104,18 @@ export class StockService {
     options?: TIServiceReadManyOptions,
     environment: Environment = Environment.TEACHING_DEMO,
   ) {
-    const optionsToApply = options;
-    if (options?.includeRefs)
+    const optionsToApply: TIServiceReadManyOptions = { ...(options || {}) };
+
+    if (options?.includeRefs) {
       optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
         this.refsInModel.includes(ref),
       );
+    }
 
-    optionsToApply.filter = { environment: environment };
+    optionsToApply.filter = {
+      ...(options?.filter || {}),
+      environment,
+    };
 
     return this.basicService.readMany<StockDto>(optionsToApply);
   }
