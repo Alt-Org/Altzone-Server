@@ -2,6 +2,7 @@ import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
 import FleaMarketModule from '../modules/fleaMarketModule';
 import { ItemService } from '../../../clanInventory/item/item.service';
 import { PlayerService } from '../../../player/player.service';
+import { ClanService } from '../../../clan/clan.service';
 import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryBuilderFactory';
 import FleaMarketBuilderFactory from '../data/fleaMarketBuilderFactory';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
@@ -18,6 +19,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   let fleaMarketService: FleaMarketService;
   let itemService: ItemService;
   let playerService: PlayerService;
+  let clanService: ClanService;
   let helperService: FleaMarketHelperService;
   let votingService: VotingService;
   let votingQueue: VotingQueue;
@@ -43,7 +45,9 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
 
   const clanId = 'clan';
   const playerId = 'player';
-  const playerDto = PlayerDtoBuilder.setClanId(clanId).build();
+  const playerDto = PlayerDtoBuilder.setClanId(clanId)
+    .setClanId({ toString: () => 'memberRoleId' } as any) // change by hand to match exisiting methods
+    .build();
   const error = [];
 
   const newItem = fleaMarketItemBuilder.build();
@@ -56,6 +60,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
     fleaMarketService = await FleaMarketModule.getFleaMarketService();
     itemService = await FleaMarketModule.getItemService();
     playerService = await FleaMarketModule.getPlayerService();
+    clanService = await FleaMarketModule.getClanService();
     helperService = await FleaMarketModule.getFleaMarketHelperService();
     votingService = await FleaMarketModule.getVotingService();
     votingQueue = await FleaMarketModule.getVotingQueue();
@@ -74,6 +79,21 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       .spyOn(fleaMarketService, 'createOne')
       .mockResolvedValue([createdFleaMarketItemDto, null]);
     jest.spyOn(itemService, 'deleteOneById').mockResolvedValue([true, null]);
+
+    const memberRoleId = 'memberRoleId';
+    const clanWithMemberRole = {
+      _id: clanId,
+      roles: [
+        {
+          _id: { toString: () => memberRoleId },
+          name: 'member',
+        },
+      ],
+    };
+
+    jest
+      .spyOn(clanService, 'readOneById')
+      .mockResolvedValue([clanWithMemberRole as any, null]);
   });
 
   it('Should process selling item and add voting check job', async () => {
