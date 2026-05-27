@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { publicReferences, SoulHome } from './soulhome.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ClientSession } from 'mongoose';
+import { Model, Connection } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
 import { RoomService } from '../room/room.service';
 import { SoulHomeDto } from './dto/soulhome.dto';
 import { CreateSoulHomeDto } from './dto/createSoulHome.dto';
@@ -13,7 +14,6 @@ import {
   TIServiceDeleteByIdOptions,
   TReadByIdOptions,
 } from '../../common/service/basicService/IService';
-import { Clan } from '../../clan/clan.schema';
 import { Environment } from '../../common/enum/environment.enum';
 
 @Injectable()
@@ -21,6 +21,7 @@ export class SoulHomeService {
   public constructor(
     @InjectModel(SoulHome.name) public readonly model: Model<SoulHome>,
     private readonly roomService: RoomService,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     this.basicService = new BasicService(model);
   }
@@ -39,24 +40,37 @@ export class SoulHomeService {
     soulHome: CreateSoulHomeDto,
     options?: TIServiceCreateOneOptions,
   ) {
-    const [clan, clanErrors] = await this.basicService.readOneById<Clan>(
-      soulHome.clan_id,
-    );
+    const [created, createErrors] = await this.basicService.createOne<
+      CreateSoulHomeDto,
+      SoulHomeDto
+    >(soulHome, options);
 
-    if (clanErrors) {
-      return clanErrors;
-    }
+    if (createErrors) return [null, createErrors];
 
-    if (clan.environment === Environment.TEACHING_DEMO) {
-      soulHome.environment = Environment.TEACHING_DEMO;
-    } else {
-      soulHome.environment = Environment.OPEN_DEMO;
-    }
+    const clan = await this.connection
+      .model(ModelName.CLAN)
+      .findById(soulHome.clan_id);
 
-    return this.basicService.createOne<CreateSoulHomeDto, SoulHomeDto>(
-      soulHome,
-      options,
-    );
+    if (!clan) return [created, null];
+
+    const env =
+      clan.environment === Environment.TEACHING_DEMO
+        ? Environment.TEACHING_DEMO
+        : Environment.OPEN_DEMO;
+
+    if (created.environment === env) return [created, null];
+
+    const updateOptions = options?.session ? { session: options.session } : {};
+    const [updated, updateErrors] =
+      await this.basicService.findByIdAndUpdate<SoulHome>(
+        created._id.toString(),
+        { environment: env },
+        updateOptions,
+      );
+
+    if (updateErrors) return [created, null];
+
+    return [updated, null];
   }
 
   /**
