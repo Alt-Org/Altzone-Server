@@ -63,12 +63,7 @@ export default class VotingCommonModule {
             { name: VotingQueueName.FLEA_MARKET },
           ),
         ],
-        providers: [
-          VotingService,
-          VotingNotifier,
-          VotingQueue,
-          ExpiredVotingCleanupService,
-        ],
+        providers: [VotingService, VotingNotifier, VotingQueue],
       }).compile();
 
     return VotingCommonModule.module;
