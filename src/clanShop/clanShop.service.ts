@@ -242,11 +242,19 @@ export class ClanShopService {
       if (rejectError) return cancelTransaction(session, rejectError);
     }
 
+    const [, deleteError] = await this.votingService.basicService.deleteOneById(
+      voting._id,
+    );
+    if (deleteError) await cancelTransaction(session, deleteError);
+
+    await session.commitTransaction();
+    await session.endSession();
+
     if (!voting.endedAt) {
       await this.votingService.finalizeVoting(voting._id);
     }
 
-    return await endTransaction(session, true);
+    return endTransaction(session, true);
   }
 
   @OnEvent('voting.passed')
