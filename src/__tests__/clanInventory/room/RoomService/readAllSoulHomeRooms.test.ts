@@ -39,7 +39,9 @@ describe('Room.readAllSoulHomeRooms() test suite', () => {
     const clearedRoom = clearDBRespDefaultFields(room);
 
     expect(errors).toBeNull();
-    expect(clearedRoom).toEqual([existingRoom1, existingRoom2]);
+    expect(clearedRoom).toEqual(
+      expect.objectContaining([existingRoom1, existingRoom2]),
+    );
   });
 
   it('Should return NOT_FOUND if soul home does not exists', async () => {

@@ -3,7 +3,7 @@ import FriendshipModule from '../../modules/friendship.module';
 import PlayerBuilder from '../../../player/data/player/playerBuilder';
 import { Clan } from '../../../../clan/clan.schema';
 import ClanBuilder from '../../../clan/data/clan/ClanBuilder';
-import { Friendship } from 'src/friendship/friendship.schema';
+import { Friendship } from '../../../../friendship/friendship.schema';
 import FriendshipBuilderFactory from '../friendshipBuilderFactory';
 
 export async function createMockFriendships(
