@@ -60,6 +60,10 @@ describe('AdminService.resetTeachingDemo() test suite', () => {
       deleteMany: jest.fn(),
     };
 
+    soulHomeModel = {
+      deleteMany: jest.fn(),
+    };
+
     adminService = new AdminService(
       clanModel as unknown as Model<Clan>,
       profileModel as unknown as Model<Profile>,
