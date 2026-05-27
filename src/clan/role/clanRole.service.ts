@@ -31,7 +31,6 @@ import { VotingQueue } from '../../voting/voting.queue';
 import { VotingQueueName } from '../../voting/enum/VotingQueue.enum';
 import { VotingDto } from '../../voting/dto/voting.dto';
 import { GovernancePayload } from '../../voting/type/governancePayload';
-import { VoteChoice } from '../../voting/enum/choiceType.enum';
 
 @Injectable()
 export default class ClanRoleService {
@@ -41,17 +40,16 @@ export default class ClanRoleService {
     private readonly clanRoleModel: Model<ClanRole>,
     @InjectModel(Clan.name) private readonly clanModel: Model<Clan>,
     @InjectModel(Player.name) private readonly playerModel: Model<Player>,
-    @Inject(forwardRef(() => ClanService))
-    private readonly clanService: ClanService,
     @InjectConnection() private readonly connection: Connection,
-    @Optional()
-    private readonly votingService: VotingService,
     @Optional()
     private readonly votingQueue: VotingQueue,
     private readonly emitter: GameEventEmitter,
+    @Inject(forwardRef(() => VotingService))
+    private readonly votingService: VotingService,
   ) {
     if (clanModel) this.clanBasicService = new BasicService(clanModel);
     if (playerModel) this.playerBasicService = new BasicService(playerModel);
+    this.votingService = votingService;
   }
 
   public readonly clanBasicService: BasicService;

@@ -18,25 +18,11 @@ describe('ClanRoleService.checkVotingOnExpire', () => {
 
   beforeEach(async () => {
     roleService = await ClanModule.getClanRoleService();
-    // Mock votingService to prevent "Cannot read properties of undefined (reading 'finalizeVoting')"
-    (roleService as any).votingService = {
-      checkVotingSuccess: jest.fn().mockImplementation(async (voting) => {
-        return (
-          voting.votes?.length > 0 &&
-          (voting.votes.filter((vote: any) => vote.choice === VoteChoice.YES)
-            .length /
-            voting.votes.length) *
-            100 >=
-            (voting.minPercentage || 51)
-        );
-      }),
-      finalizeVoting: jest.fn().mockResolvedValue(undefined),
-    };
     await votingModel.deleteMany({});
     await playerModel.deleteMany({});
   });
 
-  it('should update player role and delete voting if vote passed', async () => {
+  it('should update player role and update voting if vote passed', async () => {
     // Create a player and a role
     const player = await playerModel.create(playerBuilder.build());
     const role_id = new ObjectId();
@@ -56,9 +42,9 @@ describe('ClanRoleService.checkVotingOnExpire', () => {
     // Run checkVotingOnExpire
     const [result, errors] = await roleService.checkVotingOnExpire(votingDto);
 
-    // Voting should be deleted
+    // Voting should be updated with endedAt value
     const votingInDb = await votingModel.findById(votingDto._id);
-    expect(votingInDb).toBeNull();
+    expect(votingInDb).toHaveProperty('endedAt');
 
     // Player should have updated clanRole_id
     const updatedPlayer = await playerModel.findById(player._id);
@@ -68,7 +54,7 @@ describe('ClanRoleService.checkVotingOnExpire', () => {
     expect(errors).toBeNull();
   });
 
-  it('should delete voting but not update player if vote did not pass', async () => {
+  it('should update voting but not update player if vote did not pass', async () => {
     // Create a player and a role
     const clanRoleId = new ObjectId();
     const player = await playerModel.create(
@@ -91,9 +77,9 @@ describe('ClanRoleService.checkVotingOnExpire', () => {
     // Run checkVotingOnExpire
     const [result, errors] = await roleService.checkVotingOnExpire(votingDto);
 
-    // Voting should be deleted
+    // Voting should be updated with endedAt value
     const votingInDb = await votingModel.findById(votingDto._id);
-    expect(votingInDb).toBeNull();
+    expect(votingInDb).toHaveProperty('endedAt');
 
     // Player should NOT have updated clanRole_id
     const updatedPlayer = await playerModel.findById(player._id);

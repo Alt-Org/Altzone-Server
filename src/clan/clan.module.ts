@@ -31,8 +31,8 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
     RequestHelperModule,
     PlayerModule,
     GameEventsEmitterModule,
-    VotingModule,
     ChatModule,
+    VotingModule,
     EventEmitterCommonModule,
   ],
   controllers: [ClanController, ClanRoleController],
@@ -50,7 +50,6 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
     ClanService,
     PlayerCounterFactory,
     ClanRoleService,
-    PasswordGenerator,
   ],
 })
 export class ClanModule {}
