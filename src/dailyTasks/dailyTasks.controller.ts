@@ -64,14 +64,14 @@ export class DailyTasksController {
 
   /**
    * Get Daily task Prize pool.
-   * 
+   *
    * Current implementation fetches a hard-coded object
    */
   @ApiResponseDescription({
     success: {
       modelName: ModelName.DAILY_TASK,
     },
-    errors : [400, 404]
+    errors: [400, 404],
   })
   @Get('/rewards')
   @UniformResponse(ModelName.DAILY_TASK)
@@ -99,22 +99,19 @@ export class DailyTasksController {
 
   /**
    * Claim player reward.
-   * 
+   *
    * Param 1-3
    */
   @ApiResponseDescription({
     success: {
       modelName: ModelName.DAILY_TASK,
     },
-    errors : [400, 404]
+    errors: [400, 404],
   })
   @Put('/rewards/:reward')
   @UniformResponse(ModelName.DAILY_TASK)
   async claimReward(@Param('reward') reward: string, @LoggedUser() user: User) {
-    return this.playerService.claimReward(
-      user.player_id,
-      +reward
-    )
+    return this.playerService.claimReward(user.player_id, +reward);
   }
 
   /**

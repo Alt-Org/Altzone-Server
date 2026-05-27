@@ -306,7 +306,6 @@ export class DailyTasksService {
       if (playerRewardErrors)
         return cancelTransaction(session, playerRewardErrors);
 
-      
       const [updatedClan, clanRewardErrors] =
         await this.clanRewarder.rewardClanForPlayerTask(
           task.clan_id,
@@ -314,16 +313,11 @@ export class DailyTasksService {
           task.coins,
           session,
         );
-      if (clanRewardErrors)
-        return cancelTransaction(session, clanRewardErrors);
-      
+      if (clanRewardErrors) return cancelTransaction(session, clanRewardErrors);
 
-      const [, clanProgressionErrors] = 
-        await this.clanProgression.handleClanProgression(
-          updatedClan, 
-          session
-        )
-      if (clanProgressionErrors) 
+      const [, clanProgressionErrors] =
+        await this.clanProgression.handleClanProgression(updatedClan, session);
+      if (clanProgressionErrors)
         return cancelTransaction(session, clanProgressionErrors);
     }
     return endTransaction(session, task);

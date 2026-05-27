@@ -5,10 +5,10 @@ import DailyTaskNotifier from './DailyTaskNotifier';
 import { ClanRewarder } from '../../rewarder/clanRewarder/clanRewarder.service';
 import { PlayerRewarder } from '../../rewarder/playerRewarder/playerRewarder.service';
 import { ClanProgression } from '../../rewarder/clanProgression/clanProgression.service';
-import { 
-  initializeSession, 
-  cancelTransaction, 
-  endTransaction 
+import {
+  initializeSession,
+  cancelTransaction,
+  endTransaction,
 } from '../../common/function/Transactions';
 import { Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -58,28 +58,26 @@ export default class UiDailyTaskHandler {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
-    const [updatedClan, clanErrors] = 
+    const [updatedClan, clanErrors] =
       await this.clanRewarder.rewardClanForPlayerTask(
         clan_id,
         task.points,
         task.coins,
-        session
+        session,
       );
     if (clanErrors) return cancelTransaction(session, clanErrors);
 
-    const [, playerErrors] = 
-      await this.playerRewarder.rewardForPlayerTask(
-        player_id,
-        task.points,
-        session
-      )
+    const [, playerErrors] = await this.playerRewarder.rewardForPlayerTask(
+      player_id,
+      task.points,
+      session,
+    );
     if (playerErrors) return cancelTransaction(session, playerErrors);
 
-    const [, progressErrors] = 
-      await this.clanProgression.handleClanProgression(
-        updatedClan,
-        session
-      )
+    const [, progressErrors] = await this.clanProgression.handleClanProgression(
+      updatedClan,
+      session,
+    );
     if (progressErrors) return cancelTransaction(session, progressErrors);
 
     return endTransaction(session, task);

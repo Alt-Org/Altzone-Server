@@ -70,6 +70,7 @@ export class FleaMarketService {
       FleaMarketItemDto
     >(item, { session });
   }
+
   /**
    * Reads an Item by its _id in DB.
    *
@@ -169,13 +170,52 @@ export class FleaMarketService {
   }
 
   /**
-   * Handles the process of moving an item to the flea market and starting a voting process.
+   * Handles the process of selling an item to the flea market.
+   * Determines the sell path based on the selling player's clan rights:
+   * - If the player has the SHOP right, the item is moved to the flea market
+   *   directly with SHIPPING status (matching the post-vote state).
+   * - If the player does not have the SHOP right, a voting process is started
+   *   and the item only moves to the flea market if the vote passes.
    *
    * @param sellFleaMarketItemDto - The Dto of the item to be moved.
    * @param clanId - The ID of the clan to which the item belongs to.
    * @param playerId - The ID of the player starting the process.
    */
   async handleSellItem(
+    sellFleaMarketItemDto: SellFleaMarketItemDto,
+    clanId: string,
+    playerId: string,
+  ): Promise<IServiceReturn<boolean>> {
+    const [player, playerError] =
+      await this.playerService.getPlayerById(playerId);
+    if (playerError) return [null, playerError];
+
+    const [clan, clanError] = await this.clanService.readOneById(clanId);
+    if (clanError) return [null, clanError];
+
+    const role = clan.roles?.find(
+      (r) => r._id.toString() === player.clanRole_id?.toString(),
+    );
+    const hasShopRight = role?.rights?.shop === true;
+
+    if (hasShopRight) {
+      return this.sellDirectly(sellFleaMarketItemDto, clanId);
+    }
+    return this.sellViaVote(sellFleaMarketItemDto, clanId, playerId);
+  }
+
+  /**
+   * Handles the sale of an item to the flea market through a voting process.
+   * This path is taken when the selling player does not have the SHOP clan right.
+   * The method moves the item to the flea market (with SHIPPING status), starts
+   * a voting process, attaches the selling price to the voting record, and
+   * schedules a voting check job.
+   *
+   * @param sellFleaMarketItemDto - The Dto of the item to be moved.
+   * @param clanId - The ID of the clan to which the item belongs to.
+   * @param playerId - The ID of the player starting the process.
+   */
+  private async sellViaVote(
     sellFleaMarketItemDto: SellFleaMarketItemDto,
     clanId: string,
     playerId: string,
@@ -260,16 +300,106 @@ export class FleaMarketService {
   }
 
   /**
-   * Processes the outcome of a voting process after expiration.
+   * Handles the direct sale of an item to the flea market, bypassing the
+   * voting process. This path is taken when the selling player has the SHOP
+   * clan right. The method creates a FleaMarketItem with the agreed selling
+   * price and removes the original item from stock. The FleaMarketItem is
+   * created with SHIPPING status to match the state produced by a passed
+   * sell vote and the item can later be made available via the change-item-status
+   * endpoint. All operations are executed within a transaction.
+   *
+   * @param sellFleaMarketItemDto - The DTO containing the item ID and selling price.
+   * @param clanId - The ID of the selling clan.
+   * @returns A promise that resolves to a boolean indicating success, or an
+   * error if the operation fails.
+   */
+  private async sellDirectly(
+    sellFleaMarketItemDto: SellFleaMarketItemDto,
+    clanId: string,
+  ): Promise<IServiceReturn<boolean>> {
+    const session = await this.connection.startSession();
+    session.startTransaction();
+
+    const [item, itemErrors] = await this.itemService.readOneById(
+      sellFleaMarketItemDto.item_id,
+    );
+    if (itemErrors) return await cancelTransaction(session, itemErrors);
+    if (!item.stock_id)
+      return await cancelTransaction(session, [itemNotInStockError]);
+
+    const newItem = await this.helperService.itemToCreateFleaMarketItem(
+      item,
+      clanId,
+    );
+    newItem.price = sellFleaMarketItemDto.price;
+
+    const [, createErrors] = await this.createOne(newItem, session);
+    if (createErrors) return await cancelTransaction(session, createErrors);
+
+    const [, deleteErrors] = await this.itemService.deleteOneById(
+      sellFleaMarketItemDto.item_id,
+    );
+    if (deleteErrors) return await cancelTransaction(session, deleteErrors);
+
+    await session.commitTransaction();
+    await session.endSession();
+
+    return [true, null];
+  }
+
+  /**
+   * Handles the process of purchasing an item from the flea market.
+   * Determines the purchase path based on the buying player's clan rights:
+   * - If the player has the SHOP right, the item is bought directly and added
+   *   to the clan's stock.
+   * - If the player does not have the SHOP right, a voting process is started
+   *   and the item will only be delivered if the vote passes.
    *
    * @param clanId - The ID of the clan.
    * @param itemId - The ID of the item.
    * @param playerId - The ID of the player.
    *
-   * @throws Will throw a service error if item is not available
+   * @throws Will throw a service error if the item is not available
    * or if the clan doesn't have enough coins for the item.
    */
   async handleBuyItem(
+    clanId: string,
+    itemId: string,
+    playerId: string,
+  ): Promise<IServiceReturn<boolean>> {
+    const [player, playerError] =
+      await this.playerService.getPlayerById(playerId);
+    if (playerError) return [false, playerError];
+
+    const [clan, clanError] = await this.clanService.readOneById(clanId);
+    if (clanError) return [false, clanError];
+
+    const role = clan.roles?.find(
+      (r) => r._id.toString() === player.clanRole_id?.toString(),
+    );
+    const hasShopRight = role?.rights?.shop === true;
+
+    if (hasShopRight) {
+      return this.buyDirectly(clanId, itemId);
+    }
+    return this.buyViaVote(clanId, itemId, playerId);
+  }
+
+  /**
+   * Handles the purchase of a flea market item through a voting process.
+   * This path is taken when the buying player does not have the SHOP clan right.
+   * The method validates the clan's funds and item availability, books the item,
+   * reserves the required amount, initiates a voting process, and schedules a
+   * voting check job.
+   *
+   * @param clanId - The ID of the clan.
+   * @param itemId - The ID of the item.
+   * @param playerId - The ID of the player.
+   *
+   * @throws Will throw a service error if the item is not available
+   * or if the clan doesn't have enough coins for the item.
+   */
+  private async buyViaVote(
     clanId: string,
     itemId: string,
     playerId: string,
@@ -299,6 +429,60 @@ export class FleaMarketService {
       stockId: clan.Stock?._id.toString(),
       queue: VotingQueueName.FLEA_MARKET,
     });
+
+    return [true, null];
+  }
+
+  /**
+   * Handles the direct purchase of a flea market item, bypassing the voting process.
+   * This path is taken when the buying player has the SHOP clan right.
+   * The method validates the clan's funds and item availability, deducts the
+   * item's price, creates the item in the buyer's stock, and removes the
+   * FleaMarketItem. All operations are executed within a transaction.
+   *
+   * @param clanId - The ID of the buying clan.
+   * @param itemId - The ID of the FleaMarketItem being purchased.
+   * @returns A promise that resolves to a boolean indicating success, or an
+   * error if the operation fails.
+   */
+  private async buyDirectly(
+    clanId: string,
+    itemId: string,
+  ): Promise<IServiceReturn<boolean>> {
+    const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
+      includeRefs: [ModelName.STOCK],
+    });
+    if (clanErrors) return [false, clanErrors];
+
+    const [item, itemErrors] = await this.readOneById(itemId);
+    if (itemErrors) return [false, itemErrors];
+
+    if (item.status !== Status.AVAILABLE)
+      return [false, [itemNotAvailableError]];
+    if (clan.gameCoins < item.price) return [false, [notEnoughCoinsError]];
+
+    const session = await this.connection.startSession();
+    session.startTransaction();
+
+    const [, reserveError] = await this.reserveFunds(clan, item.price, session);
+    if (reserveError) return await cancelTransaction(session, reserveError);
+
+    const newItem = this.helperService.fleaMarketItemToCreateItemDto(
+      item,
+      clan.Stock._id,
+    );
+    const [, createError] = await this.itemService.createOne(newItem, {
+      session,
+    });
+    if (createError) return await cancelTransaction(session, createError);
+
+    const [, deleteError] = await this.basicService.deleteOneById(itemId, {
+      session,
+    });
+    if (deleteError) return await cancelTransaction(session, deleteError);
+
+    await session.commitTransaction();
+    await session.endSession();
 
     return [true, null];
   }
@@ -554,11 +738,11 @@ export class FleaMarketService {
   }
 
   /**
-   * Reserves funds by deducting the specified amount from the clan's gameCoins.
+   * Handles booking an item from the flea market.
    *
-   * @param clan - The ClanDto representing the clan whose funds are to be reserved.
-   * @param amount - The amount to be reserved.
-   * @param session - The current database session.
+   * @param clan - The ClanDto representing the buying clan.
+   * @param item - The FleaMarketItemDto to be booked.
+   * @param player - The PlayerDto representing the player starting the booking.
    *
    * @throws Will throw an error if there is an issue with the database transaction.
    */

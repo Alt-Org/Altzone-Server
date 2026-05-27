@@ -18,32 +18,31 @@ export class PlayerEmotionCleanupTask {
     private readonly playerModel: Model<Player>,
   ) {}
 
-@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-async handle() {
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async handle() {
+    /**
+     * Date object for current date. Päivämäärä objekti nykyhetkelle.
+     *
+     * Subtract 7 days from current date. Vähennetään 7 päivää nykyisesta ajasta.
+     */
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  /** 
-   * Date object for current date. Päivämäärä objekti nykyhetkelle.
-   * 
-   * Subtract 7 days from current date. Vähennetään 7 päivää nykyisesta ajasta.
-  */
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-  /**
-   * Update all player documents. Päivitä kaikki player-dokumentit.
-   * Delete all emotions objects that are more than a week old. Poistaa kaikki yli viikon vanhat emotions-objektit. 
-   */
-  const result = await this.playerModel.updateMany(
-    {},
-    {
-      $pull: {
-        emotions: {
-          date: {
-            $lt: sevenDaysAgo,
+    /**
+     * Update all player documents. Päivitä kaikki player-dokumentit.
+     * Delete all emotions objects that are more than a week old. Poistaa kaikki yli viikon vanhat emotions-objektit.
+     */
+    const result = await this.playerModel.updateMany(
+      {},
+      {
+        $pull: {
+          emotions: {
+            date: {
+              $lt: sevenDaysAgo,
+            },
           },
         },
       },
-    },
-  );
-}
+    );
+  }
 }

@@ -26,7 +26,6 @@ import { CreateClanRoleDto } from '../role/dto/createClanRole.dto';
 import { ClanGovernanceUpdateDto } from './clanGovernanceUpdate.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
-
 @AddType('UpdateClanDto')
 export class UpdateClanDto {
   /**
@@ -61,8 +60,8 @@ export class UpdateClanDto {
    * New logo configuration for the clan (optional)
    */
   @ApiProperty({
-  type: () => ClanLogoDto,
-  required: false,
+    type: () => ClanLogoDto,
+    required: false,
   })
   @ValidateNested()
   @Type(() => ClanLogoDto)
