@@ -15,6 +15,8 @@ describe('JoinService.findClanForNewPlayer() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const player = playerBuilder.build();
 
+  clan.environment = player.environment;
+
   beforeEach(async () => {
     joinService = await ClanModule.getJoinService();
   });
@@ -22,6 +24,7 @@ describe('JoinService.findClanForNewPlayer() test suite', () => {
   it('should join player to clan if open clan with room is found', async () => {
     const playerResp = await playerModel.create(player);
     player._id = playerResp._id.toString();
+
     const clanResp = await clanModel.create(clan);
     clan._id = clanResp._id.toString();
 

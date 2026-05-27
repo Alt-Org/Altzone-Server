@@ -24,6 +24,9 @@ describe('JoinService.handleJoinRequest() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const player = playerBuilder.build();
 
+  openClan.environment = player.environment;
+  closedClan.environment = player.environment;
+
   beforeEach(async () => {
     const playerResp = await playerModel.create(player);
     player._id = playerResp._id.toString();
