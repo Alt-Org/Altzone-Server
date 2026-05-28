@@ -153,6 +153,11 @@ export class JukeboxService {
 
     if (jukebox.songQueue.length === initialLength)
       throw new ServiceError({ reason: SEReason.NOT_FOUND });
+      
+    this.clanJukeboxMap.set(clanId, jukebox);
+
+    // Publish the playlist update after removing the song
+    this.publishPlaylistUpdate(clanId, jukebox);
   }
 
   /**
