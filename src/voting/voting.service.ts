@@ -375,11 +375,13 @@ export class VotingService {
     // IMPORTANT:
     // Read the voting again after updating votes.
     // The original `voting` variable does not contain the newly added vote.
-    const [updatedVoting] = await this.basicService.readOneById<
-      VotingWithNotificationRefs
-    >(votingId, {
-      includeRefs: [ModelName.FLEA_MARKET_ITEM],
-    });
+    const [updatedVoting] =
+      await this.basicService.readOneById<VotingWithNotificationRefs>(
+        votingId,
+        {
+          includeRefs: [ModelName.FLEA_MARKET_ITEM],
+        },
+      );
 
     // IMPORTANT:
     // If the voting has already passed after this vote, finalize it now.
