@@ -153,6 +153,31 @@ export class VotingService {
     }
   }
 
+  private buildVotingUpdateNotificationEntity(
+    voting: VotingDto & { FleaMarketItem?: unknown },
+  ): unknown {
+    switch (voting.type) {
+      case VotingType.FLEA_MARKET_BUY_ITEM:
+      case VotingType.FLEA_MARKET_SELL_ITEM:
+        return voting.FleaMarketItem ?? {
+          fleaMarketItem_id: voting.fleaMarketItem_id?.toString(),
+        };
+      case VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE:
+        return {
+          fleaMarketItem: voting.FleaMarketItem ?? {
+            fleaMarketItem_id: voting.fleaMarketItem_id?.toString(),
+          },
+          price: voting.price,
+        };
+      case VotingType.SHOP_BUY_ITEM:
+        return { shopItemName: voting.shopItemName };
+      case VotingType.SET_CLAN_ROLE:
+        return voting.setClanRole;
+      case VotingType.CLAN_GOVERNANCE_UPDATE:
+        return voting.governancePayload;
+    }
+  }
+
   /**
    * Finalizes a governance vote. If the vote passed, it triggers the
    * ClanService to apply the changes to the database.
@@ -304,13 +329,18 @@ export class VotingService {
    */
   async addVote(votingId: string, choice: Choice, playerId: string) {
     const [voting, errors] = await this.basicService.readOneById(votingId, {
-      includeRefs: [ModelName.PLAYER, ModelName.FLEA_MARKET_ITEM],
+      includeRefs: [ModelName.FLEA_MARKET_ITEM],
     });
     if (errors) throw errors;
 
     if (voting.votes.some((v) => v.player_id.toString() === playerId)) {
       throw alreadyVotedError;
     }
+
+    const [voter, voterErrors] = await this.playerService.getPlayerById(
+      playerId,
+    );
+    if (voterErrors) throw voterErrors;
 
     const newVote: Vote = { player_id: playerId, choice };
 
@@ -322,8 +352,11 @@ export class VotingService {
     // IMPORTANT:
     // Read the voting again after updating votes.
     // The original `voting` variable does not contain the newly added vote.
-    const [updatedVoting] =
-      await this.basicService.readOneById<VotingDto>(votingId);
+    const [updatedVoting] = await this.basicService.readOneById<
+      VotingDto & { FleaMarketItem?: unknown }
+    >(votingId, {
+      includeRefs: [ModelName.FLEA_MARKET_ITEM],
+    });
 
     // IMPORTANT:
     // If the voting has already passed after this vote, finalize it now.
@@ -349,8 +382,8 @@ export class VotingService {
 
     this.notifier.votingUpdated(
       updatedVoting,
-      voting.FleaMarketItem,
-      voting.Player,
+      this.buildVotingUpdateNotificationEntity(updatedVoting),
+      voter,
     );
   }
 
