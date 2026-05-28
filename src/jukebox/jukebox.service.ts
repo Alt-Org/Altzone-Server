@@ -90,7 +90,7 @@ export class JukeboxService {
       jukebox.songQueue.push(newSong);
     }
     this.clanJukeboxMap.set(clanId, jukebox);
-    
+
     // Publish the playlist update after adding the song
     await this.publishPlaylistUpdate(clanId, jukebox);
   }
