@@ -56,6 +56,48 @@ describe('VotingService.startItemVoting() test suite', () => {
     expect(publishAsyncMock).toHaveBeenCalledTimes(1);
   });
 
+  it('Should send flea market item as entity when starting flea market voting', async () => {
+    const votingToStart = createValidVotingParams();
+    const newVotingSpy = jest
+      .spyOn((votingService as any).notifier, 'newVoting')
+      .mockResolvedValue(undefined);
+
+    const [voting, errors] = await votingService.startVoting(votingToStart);
+
+    expect(errors).toBeNull();
+    expect(voting).not.toBeNull();
+    expect(newVotingSpy).toHaveBeenCalledWith(
+      voting,
+      votingToStart.fleaMarketItem,
+      votingToStart.voterPlayer,
+    );
+  });
+
+  it('Should send flea market item and price as entity when starting price change voting', async () => {
+    const votingToStart = createValidVotingParams();
+    const newPrice = 123;
+    const newVotingSpy = jest
+      .spyOn((votingService as any).notifier, 'newVoting')
+      .mockResolvedValue(undefined);
+
+    const [voting, errors] = await votingService.startVoting({
+      ...votingToStart,
+      type: VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE,
+      newItemPrice: newPrice,
+    });
+
+    expect(errors).toBeNull();
+    expect(voting).not.toBeNull();
+    expect(newVotingSpy).toHaveBeenCalledWith(
+      voting,
+      {
+        fleaMarketItem: votingToStart.fleaMarketItem,
+        price: newPrice,
+      },
+      votingToStart.voterPlayer,
+    );
+  });
+
   it('Should send shop item as entity when starting clan shop voting', async () => {
     const player = PlayerBuilderFactory.getBuilder('PlayerDto')
       .setId(new ObjectId())
@@ -79,6 +121,31 @@ describe('VotingService.startItemVoting() test suite', () => {
       { shopItemName: ItemName.SOFA_TAAKKA },
       player,
     );
+  });
+
+  it('Should send role assignment as entity when starting set clan role voting', async () => {
+    const player = PlayerBuilderFactory.getBuilder('PlayerDto')
+      .setId(new ObjectId())
+      .build();
+    const setClanRole = {
+      player_id: new ObjectId().toString(),
+      role_id: new ObjectId().toString(),
+    };
+    const newVotingSpy = jest
+      .spyOn((votingService as any).notifier, 'newVoting')
+      .mockResolvedValue(undefined);
+
+    const [voting, errors] = await votingService.startVoting({
+      voterPlayer: player,
+      clanId: player.clan_id.toString(),
+      type: VotingType.SET_CLAN_ROLE,
+      queue: VotingQueueName.CLAN_ROLE,
+      setClanRole,
+    });
+
+    expect(errors).toBeNull();
+    expect(voting).not.toBeNull();
+    expect(newVotingSpy).toHaveBeenCalledWith(voting, setClanRole, player);
   });
 
   it('Should send governance payload as entity when starting governance voting', async () => {
