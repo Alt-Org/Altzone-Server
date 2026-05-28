@@ -310,11 +310,11 @@ export class GameDataService {
     );
 
     if (t1ReadingErrors || t2ReadingErrors) {
-      throw new NotFoundException('Clan with given ID does not exist.');
+      return new NotFoundException('Clan with given ID does not exist.');
     }
 
     if (team1Clan.environment !== team2Clan.environment) {
-      throw new ServiceError({
+      return new ServiceError({
         reason: SEReason.ENVIRONMENT_MISMATCH,
         message: 'Cannot create a game with clans from different environments.',
       });
