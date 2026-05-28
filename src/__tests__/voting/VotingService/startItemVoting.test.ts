@@ -104,7 +104,11 @@ describe('VotingService.startItemVoting() test suite', () => {
 
     expect(errors).toBeNull();
     expect(voting).not.toBeNull();
-    expect(newVotingSpy).toHaveBeenCalledWith(voting, governancePayload, player);
+    expect(newVotingSpy).toHaveBeenCalledWith(
+      voting,
+      governancePayload,
+      player,
+    );
   });
 
   it('Should return a validation error if entity_id is invalid', async () => {
