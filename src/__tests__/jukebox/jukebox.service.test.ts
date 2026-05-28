@@ -16,7 +16,9 @@ function createMockMqttBroker() {
 
   const createClient = (): MockMqttClient => {
     const subscriptions = new Set<string>();
-    let messageCallback: ((topic: string, payload: string | Buffer) => void) | undefined;
+    let messageCallback:
+      | ((topic: string, payload: string | Buffer) => void)
+      | undefined;
 
     const client: MockMqttClient = {
       publishAsync: jest.fn(async (topic: string, payload: string | Buffer) => {
@@ -47,7 +49,10 @@ function createMockMqttBroker() {
       }),
       on: jest.fn((event: string, callback: (...args: any[]) => void) => {
         if (event === 'message') {
-          messageCallback = callback as (topic: string, payload: string | Buffer) => void;
+          messageCallback = callback as (
+            topic: string,
+            payload: string | Buffer,
+          ) => void;
         }
       }),
       end: jest.fn(() => {
@@ -83,13 +88,15 @@ describe('JukeboxService', () => {
 
   beforeEach(async () => {
     jest.resetModules();
-    
+
     mqtt = jest.requireMock('mqtt');
     broker = createMockMqttBroker();
 
     mqtt.connect.mockImplementation(() => broker.createClient());
 
-    const { default: JukeboxNotifier } = await import('../../jukebox/jukebox.notifier');
+    const { default: JukeboxNotifier } = await import(
+      '../../jukebox/jukebox.notifier'
+    );
     const { JukeboxService } = await import('../../jukebox/jukebox.service');
 
     clanServiceMock = {
@@ -98,29 +105,30 @@ describe('JukeboxService', () => {
 
     notifier = new JukeboxNotifier();
     service = new JukeboxService(notifier, clanServiceMock);
-
   });
 
   it('addSongToClanJukebox publishes songChange to the expected MQTT topic', async () => {
     const song: AddSongDto = { songId: 'song-1', songDurationSeconds: 3600 };
-    
+
     await service.addSongToClanJukebox(clanId, 'player-1', song);
 
     const backendClient = broker.clients[0];
-    
+
     expect(backendClient.publishAsync).toHaveBeenCalledTimes(2);
     expect(backendClient.publishAsync).toHaveBeenNthCalledWith(
-    1,
-    `/clan/${clanId}/jukebox/song/update`,
-    expect.any(String),
+      1,
+      `/clan/${clanId}/jukebox/song/update`,
+      expect.any(String),
     );
     expect(backendClient.publishAsync).toHaveBeenNthCalledWith(
-    2,
-    `/clan/${clanId}/jukebox/playlist/update`,
-    expect.any(String),
+      2,
+      `/clan/${clanId}/jukebox/playlist/update`,
+      expect.any(String),
     );
-    
-    const payload = JSON.parse(backendClient.publishAsync.mock.calls[0][1].toString());
+
+    const payload = JSON.parse(
+      backendClient.publishAsync.mock.calls[0][1].toString(),
+    );
     expect(payload.song).toEqual(expect.objectContaining({ songId: 'song-1' }));
 
     const jukebox: Jukebox = service.getClanJukebox(clanId);
@@ -130,8 +138,14 @@ describe('JukeboxService', () => {
   });
 
   it('removeSongFromQueue removes only the queued song and throws when song is not found', async () => {
-    const firstSong: AddSongDto = { songId: 'song-1', songDurationSeconds: 3600 };
-    const secondSong: AddSongDto = { songId: 'song-2', songDurationSeconds: 3600 };
+    const firstSong: AddSongDto = {
+      songId: 'song-1',
+      songDurationSeconds: 3600,
+    };
+    const secondSong: AddSongDto = {
+      songId: 'song-2',
+      songDurationSeconds: 3600,
+    };
 
     await service.addSongToClanJukebox(clanId, 'player-1', firstSong);
     await service.addSongToClanJukebox(clanId, 'player-2', secondSong);
@@ -143,39 +157,47 @@ describe('JukeboxService', () => {
     expect(service.getClanJukebox(clanId).songQueue).toHaveLength(0);
 
     try {
-        service.removeSongFromQueue(clanId, 'player-2', 'non-existent-id');
-        throw new Error('Expected removeSongFromQueue to throw');
+      service.removeSongFromQueue(clanId, 'player-2', 'non-existent-id');
+      throw new Error('Expected removeSongFromQueue to throw');
     } catch (err: any) {
-        expect(err).toBeDefined();
-        expect(err.reason).toBe('NOT_FOUND');
+      expect(err).toBeDefined();
+      expect(err.reason).toBe('NOT_FOUND');
     }
   });
 
   it('startNextSong advances to the next song and publishes the new current song', async () => {
-    const firstSong: AddSongDto = { songId: 'song-1', songDurationSeconds: 3600 };
-    const secondSong: AddSongDto = { songId: 'song-2', songDurationSeconds: 3600 };
+    const firstSong: AddSongDto = {
+      songId: 'song-1',
+      songDurationSeconds: 3600,
+    };
+    const secondSong: AddSongDto = {
+      songId: 'song-2',
+      songDurationSeconds: 3600,
+    };
 
     await service.addSongToClanJukebox(clanId, 'player-1', firstSong);
     await service.addSongToClanJukebox(clanId, 'player-2', secondSong);
 
     const backendClient = broker.clients[0];
-    
+
     expect(service.getClanJukebox(clanId).songQueue).toHaveLength(1);
     const songUpdateCallsBefore = backendClient.publishAsync.mock.calls.filter(
-        (c) => c[0] === `/clan/${clanId}/jukebox/song/update`,
+      (c) => c[0] === `/clan/${clanId}/jukebox/song/update`,
     );
     expect(songUpdateCallsBefore.length).toBeGreaterThanOrEqual(1);
 
     await service.startNextSong(clanId);
 
     const songUpdateCalls = backendClient.publishAsync.mock.calls.filter(
-        (c) => c[0] === `/clan/${clanId}/jukebox/song/update`,
+      (c) => c[0] === `/clan/${clanId}/jukebox/song/update`,
     );
     expect(songUpdateCalls.length).toBeGreaterThanOrEqual(2);
 
     const lastSongCall = songUpdateCalls[songUpdateCalls.length - 1];
     const secondPayload = JSON.parse(lastSongCall[1].toString());
-    expect(secondPayload.song).toEqual(expect.objectContaining({ songId: 'song-2' }));
+    expect(secondPayload.song).toEqual(
+      expect.objectContaining({ songId: 'song-2' }),
+    );
     expect(service.getClanJukebox(clanId).currentSong.songId).toBe('song-2');
   });
 
@@ -188,9 +210,18 @@ describe('JukeboxService', () => {
       received.push({ topic, payload: payload.toString() });
     });
 
-    const firstSong: AddSongDto = { songId: 'song-1', songDurationSeconds: 3600 };
-    const secondSong: AddSongDto = { songId: 'song-2', songDurationSeconds: 3600 };
-    const thirdSong: AddSongDto = { songId: 'song-3', songDurationSeconds: 3600 };
+    const firstSong: AddSongDto = {
+      songId: 'song-1',
+      songDurationSeconds: 3600,
+    };
+    const secondSong: AddSongDto = {
+      songId: 'song-2',
+      songDurationSeconds: 3600,
+    };
+    const thirdSong: AddSongDto = {
+      songId: 'song-3',
+      songDurationSeconds: 3600,
+    };
 
     await service.addSongToClanJukebox(clanId, 'player-1', firstSong);
     await service.addSongToClanJukebox(clanId, 'player-2', secondSong);
