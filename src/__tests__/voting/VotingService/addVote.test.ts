@@ -62,6 +62,9 @@ describe('VotingService.addVote() test suite', () => {
       { player_id: player._id, clan_id: null },
       fleaMarket._id.toString(),
     );
+    const votingUpdatedSpy = jest
+      .spyOn((votingService as any).notifier, 'votingUpdated')
+      .mockResolvedValue(undefined);
 
     await votingService.addVote(
       voting._id.toString(),
@@ -74,6 +77,13 @@ describe('VotingService.addVote() test suite', () => {
     ).toObject();
     expect(votingFromDb.votes).toHaveLength(1);
     expect(votingFromDb.votes[0].player_id.toString()).toBe(
+      player._id.toString(),
+    );
+    expect(votingUpdatedSpy).toHaveBeenCalledTimes(1);
+    expect(votingUpdatedSpy.mock.calls[0][1]._id.toString()).toBe(
+      fleaMarket._id.toString(),
+    );
+    expect(votingUpdatedSpy.mock.calls[0][2]._id.toString()).toBe(
       player._id.toString(),
     );
   });
@@ -159,6 +169,9 @@ describe('VotingService.addVote() test suite', () => {
         role_id: roleId,
       },
     });
+    const votingUpdatedSpy = jest
+      .spyOn((votingService as any).notifier, 'votingUpdated')
+      .mockResolvedValue(undefined);
 
     await votingService.addVote(
       voting._id.toString(),
@@ -168,5 +181,15 @@ describe('VotingService.addVote() test suite', () => {
 
     const updatedPlayer = await playerModel.findById(targetPlayer._id);
     expect(updatedPlayer.clanRole_id.toString()).toBe(roleId.toString());
+    expect(votingUpdatedSpy).toHaveBeenCalledTimes(1);
+    expect(votingUpdatedSpy.mock.calls[0][1].player_id.toString()).toBe(
+      targetPlayer._id.toString(),
+    );
+    expect(votingUpdatedSpy.mock.calls[0][1].role_id.toString()).toBe(
+      roleId.toString(),
+    );
+    expect(votingUpdatedSpy.mock.calls[0][2]._id.toString()).toBe(
+      voter._id.toString(),
+    );
   });
 });
