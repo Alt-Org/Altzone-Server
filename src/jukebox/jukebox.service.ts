@@ -111,6 +111,12 @@ export class JukeboxService {
     const nextSong = jukebox.songQueue.shift();
 
     if (!nextSong) {
+      const emptyJukebox: Jukebox = {
+        clanId,
+        songQueue: [],
+        currentSong: null,
+      };
+      await this.notifier.playlistUpdate(emptyJukebox, clanId);
       this.clanJukeboxMap.delete(clanId);
       return;
     }
@@ -120,6 +126,8 @@ export class JukeboxService {
       { songId: nextSong.songId, startedAt: jukebox.currentSong.startedAt },
       clanId,
     );
+
+    await this.publishPlaylistUpdate(clanId, jukebox);
 
     setTimeout(async () => {
       await this.startNextSong(clanId);
