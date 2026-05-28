@@ -9,6 +9,11 @@ import { FleaMarketItemDto } from '../fleaMarket/dto/fleaMarketItem.dto';
 import { PlayerDto } from '../player/dto/player.dto';
 import { VotingDto } from './dto/voting.dto';
 
+type VotingNotificationStatus =
+  | NotificationStatus.NEW
+  | NotificationStatus.UPDATE
+  | NotificationStatus.END;
+
 /**
  * Class for sending voting notifications
  */
@@ -19,7 +24,7 @@ export default class VotingNotifier {
   private async buildPayload(
     voting: VotingDto,
     entity: any,
-    status: NotificationStatus,
+    status: VotingNotificationStatus,
     player?: PlayerDto,
   ): Promise<VotingPayload> {
     const payload: VotingPayload = {
