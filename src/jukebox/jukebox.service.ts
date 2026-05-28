@@ -90,6 +90,9 @@ export class JukeboxService {
       jukebox.songQueue.push(newSong);
     }
     this.clanJukeboxMap.set(clanId, jukebox);
+    
+    // Publish the playlist update after adding the song
+    await this.publishPlaylistUpdate(clanId, jukebox);
   }
 
   /**
@@ -159,7 +162,7 @@ export class JukeboxService {
 
     return maxSongAmount;
   }
-  
+
   /**
    * Helper method to publish the playlist update after any change in the jukebox state (song change, song addition, song removal).
    *
@@ -171,5 +174,4 @@ export class JukeboxService {
     this.clanJukeboxMap.set(clanId, jukebox);
     await this.notifier.playlistUpdate(jukebox, clanId);
   }
-
 }
