@@ -79,10 +79,10 @@ export class VotingService {
 
     if (errors) return [null, errors];
 
-    const { shopItem, fleaMarketItem, setClanRole, voterPlayer } = params;
+    const { voterPlayer } = params;
     this.notifier.newVoting(
       voting,
-      shopItem ?? fleaMarketItem ?? setClanRole,
+      this.buildVotingNotificationEntity(params),
       voterPlayer,
     );
 
@@ -120,9 +120,37 @@ export class VotingService {
       return [null, errors];
     }
 
-    this.notifier.newVoting(voting, null, params.voterPlayer);
+    this.notifier.newVoting(
+      voting,
+      params.governancePayload,
+      params.voterPlayer,
+    );
 
     return [voting, null];
+  }
+
+  /**
+   * Builds the entity part of the voting notification payload.
+   * Keep this mapping close to voting creation so every started voting has a
+   * frontend-consumable subject, regardless of voting type.
+   */
+  private buildVotingNotificationEntity(params: StartVotingParams): unknown {
+    switch (params.type) {
+      case VotingType.FLEA_MARKET_BUY_ITEM:
+      case VotingType.FLEA_MARKET_SELL_ITEM:
+        return params.fleaMarketItem;
+      case VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE:
+        return {
+          fleaMarketItem: params.fleaMarketItem,
+          price: params.newItemPrice,
+        };
+      case VotingType.SHOP_BUY_ITEM:
+        return { shopItemName: params.shopItem };
+      case VotingType.SET_CLAN_ROLE:
+        return params.setClanRole;
+      case VotingType.CLAN_GOVERNANCE_UPDATE:
+        return params.governancePayload;
+    }
   }
 
   /**

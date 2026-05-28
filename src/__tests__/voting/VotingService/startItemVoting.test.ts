@@ -7,6 +7,7 @@ import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import { ObjectId } from 'mongodb';
 import createMockMqttClient from '../../common/service/notificator/mocks/createMockMqttClient';
 import { VotingQueueName } from '../../../voting/enum/VotingQueue.enum';
+import { ItemName } from '../../../clanInventory/item/enum/itemName.enum';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -53,6 +54,57 @@ describe('VotingService.startItemVoting() test suite', () => {
     expect(dbVoting).not.toBeNull();
     expect(dbVoting.type.toString()).toBe(votingToStart.type);
     expect(publishAsyncMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('Should send shop item as entity when starting clan shop voting', async () => {
+    const player = PlayerBuilderFactory.getBuilder('PlayerDto')
+      .setId(new ObjectId())
+      .build();
+    const newVotingSpy = jest
+      .spyOn((votingService as any).notifier, 'newVoting')
+      .mockResolvedValue(undefined);
+
+    const [voting, errors] = await votingService.startVoting({
+      voterPlayer: player,
+      clanId: player.clan_id.toString(),
+      type: VotingType.SHOP_BUY_ITEM,
+      queue: VotingQueueName.CLAN_SHOP,
+      shopItem: ItemName.SOFA_TAAKKA,
+    });
+
+    expect(errors).toBeNull();
+    expect(voting).not.toBeNull();
+    expect(newVotingSpy).toHaveBeenCalledWith(
+      voting,
+      { shopItemName: ItemName.SOFA_TAAKKA },
+      player,
+    );
+  });
+
+  it('Should send governance payload as entity when starting governance voting', async () => {
+    const player = PlayerBuilderFactory.getBuilder('PlayerDto')
+      .setId(new ObjectId())
+      .build();
+    const governancePayload = {
+      admin_idsToAdd: [new ObjectId().toString()],
+      admin_idsToDelete: [],
+      roles: [],
+    };
+    const newVotingSpy = jest
+      .spyOn((votingService as any).notifier, 'newVoting')
+      .mockResolvedValue(undefined);
+
+    const [voting, errors] = await votingService.startVoting({
+      voterPlayer: player,
+      clanId: player.clan_id.toString(),
+      type: VotingType.CLAN_GOVERNANCE_UPDATE,
+      queue: VotingQueueName.CLAN_ROLE,
+      governancePayload,
+    });
+
+    expect(errors).toBeNull();
+    expect(voting).not.toBeNull();
+    expect(newVotingSpy).toHaveBeenCalledWith(voting, governancePayload, player);
   });
 
   it('Should return a validation error if entity_id is invalid', async () => {
