@@ -8,7 +8,11 @@ describe('jukeboxService.addSongToclanJukebox() test suite', () => {
   let clanService: ClanService;
 
   beforeEach(async () => {
-    jukeboxNotifier = { songChange: jest.fn() } as any;
+    jukeboxNotifier = {
+      songChange: jest.fn(),
+      playlistUpdate: jest.fn(),
+    } as any;
+
     clanService = {
       readOneById: jest.fn().mockResolvedValue([{ playerCount: 3 }]),
     } as any;
