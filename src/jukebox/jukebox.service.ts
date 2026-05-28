@@ -159,4 +159,17 @@ export class JukeboxService {
 
     return maxSongAmount;
   }
+  
+  /**
+   * Helper method to publish the playlist update after any change in the jukebox state (song change, song addition, song removal).
+   *
+   * @param clanId Id of the clan whose jukebox to update
+   * @param jukebox the updated jukebox to be sent in the notification
+   *
+   */
+  private async publishPlaylistUpdate(clanId: string, jukebox: Jukebox) {
+    this.clanJukeboxMap.set(clanId, jukebox);
+    await this.notifier.playlistUpdate(jukebox, clanId);
+  }
+
 }
