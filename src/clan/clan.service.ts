@@ -86,11 +86,16 @@ export class ClanService {
     if (clanCreatorErrors)
       return await cancelTransaction(session, clanCreatorErrors);
 
-    if (clanCreator.environment === Environment.TEACHING_DEMO) {
-      clanToCreate.environment = Environment.TEACHING_DEMO;
-      clanToCreate.expiresAt = clanCreator.expiresAt;
-    } else {
-      clanToCreate.environment = Environment.OPEN_DEMO;
+    if (clanToCreate) {
+      const environment =
+        clanCreator.environment === Environment.TEACHING_DEMO
+          ? Environment.TEACHING_DEMO
+          : Environment.OPEN_DEMO;
+      clanToCreate.environment = environment;
+
+      if (environment === Environment.TEACHING_DEMO) {
+        clanToCreate.expiresAt = clanCreator.expiresAt;
+      }
     }
 
     if (clanToCreate && !clanToCreate.isOpen && !clanToCreate.password) {
