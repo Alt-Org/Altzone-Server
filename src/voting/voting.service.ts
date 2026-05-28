@@ -205,9 +205,30 @@ export class VotingService {
    * @param votingId - The ID of the voting to finalize.
    */
   async finalizeVoting(votingId: string): Promise<void> {
-    await this.basicService.updateOneById(votingId, {
-      endedAt: new Date(),
+    const endedAt = new Date();
+    const updateResult = await this.votingModel.updateOne(
+      {
+        _id: votingId,
+        $or: [{ endedAt: { $exists: false } }, { endedAt: null }],
+      },
+      {
+        $set: { endedAt },
+      },
+    );
+
+    if (updateResult.modifiedCount === 0) return;
+
+    const [endedVoting, errors] = await this.basicService.readOneById<
+      VotingDto & { FleaMarketItem?: unknown }
+    >(votingId, {
+      includeRefs: [ModelName.FLEA_MARKET_ITEM],
     });
+    if (errors || !endedVoting) return;
+
+    this.notifier.votingCompleted(
+      endedVoting,
+      this.buildVotingUpdateNotificationEntity(endedVoting),
+    );
   }
 
   /**
