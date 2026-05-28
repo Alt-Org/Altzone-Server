@@ -159,9 +159,11 @@ export class VotingService {
     switch (voting.type) {
       case VotingType.FLEA_MARKET_BUY_ITEM:
       case VotingType.FLEA_MARKET_SELL_ITEM:
-        return voting.FleaMarketItem ?? {
-          fleaMarketItem_id: voting.fleaMarketItem_id?.toString(),
-        };
+        return (
+          voting.FleaMarketItem ?? {
+            fleaMarketItem_id: voting.fleaMarketItem_id?.toString(),
+          }
+        );
       case VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE:
         return {
           fleaMarketItem: voting.FleaMarketItem ?? {
@@ -337,9 +339,8 @@ export class VotingService {
       throw alreadyVotedError;
     }
 
-    const [voter, voterErrors] = await this.playerService.getPlayerById(
-      playerId,
-    );
+    const [voter, voterErrors] =
+      await this.playerService.getPlayerById(playerId);
     if (voterErrors) throw voterErrors;
 
     const newVote: Vote = { player_id: playerId, choice };
