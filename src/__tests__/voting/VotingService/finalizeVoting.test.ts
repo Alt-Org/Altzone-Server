@@ -7,14 +7,12 @@ import VotingModule from '../modules/voting.module';
 describe('VotingService.finalizeVoting() test suite', () => {
   let votingService: VotingService;
 
-  const votingModel = VotingModule.getVotingModel();
-
   beforeEach(async () => {
     votingService = await VotingModule.getVotingService();
   });
 
   const createClanShopVoting = async (endedAt?: Date) => {
-    return await votingModel.create({
+    return await votingService.votingModel.create({
       organizer: {
         player_id: new ObjectId(),
         clan_id: new ObjectId(),
@@ -30,13 +28,14 @@ describe('VotingService.finalizeVoting() test suite', () => {
 
   it('Should set endedAt and send completed notification for active voting', async () => {
     const voting = await createClanShopVoting();
+    expect(voting.shopItemName).toBe(ItemName.SOFA_TAAKKA);
     const votingCompletedSpy = jest
       .spyOn((votingService as any).notifier, 'votingCompleted')
       .mockResolvedValue(undefined);
 
     await votingService.finalizeVoting(voting._id.toString());
 
-    const votingFromDb = await votingModel.findById(voting._id);
+    const votingFromDb = await votingService.votingModel.findById(voting._id);
 
     expect(votingFromDb.endedAt).toBeInstanceOf(Date);
     expect(votingCompletedSpy).toHaveBeenCalledTimes(1);
