@@ -150,24 +150,16 @@ export class VotingService {
       case VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE:
         return {
           fleaMarketItem: this.buildFleaMarketVotingEntity(source),
-          price: isStartParams
-            ? source.newItemPrice
-            : this.getVotingField<number>(source, 'price'),
+          price: isStartParams ? source.newItemPrice : source.price,
         };
       case VotingType.SHOP_BUY_ITEM:
         return {
-          shopItemName: isStartParams
-            ? source.shopItem
-            : this.getVotingField(source, 'shopItemName'),
+          shopItemName: isStartParams ? source.shopItem : source.shopItemName,
         };
       case VotingType.SET_CLAN_ROLE:
-        return isStartParams
-          ? source.setClanRole
-          : this.getVotingField(source, 'setClanRole');
+        return source.setClanRole;
       case VotingType.CLAN_GOVERNANCE_UPDATE:
-        return isStartParams
-          ? source.governancePayload
-          : this.getVotingField(source, 'governancePayload');
+        return source.governancePayload;
     }
   }
 
@@ -177,12 +169,8 @@ export class VotingService {
     if (this.isStartVotingParams(source)) return source.fleaMarketItem;
 
     return (
-      source.FleaMarketItem ??
-      this.getVotingField(source, 'FleaMarketItem') ?? {
-        fleaMarketItem_id: this.getVotingField<string>(
-          source,
-          'fleaMarketItem_id',
-        )?.toString(),
+      source.FleaMarketItem ?? {
+        fleaMarketItem_id: source.fleaMarketItem_id?.toString(),
       }
     );
   }
@@ -191,20 +179,6 @@ export class VotingService {
     source: VotingNotificationSource,
   ): source is StartVotingParams {
     return 'voterPlayer' in source;
-  }
-
-  private getVotingField<TValue = unknown>(
-    voting: VotingWithNotificationRefs,
-    field: string,
-  ): TValue {
-    const value = (voting as unknown as Record<string, unknown>)[field];
-    if (value !== undefined) return value as TValue;
-
-    const mongooseDocument = voting as unknown as {
-      get?: (path: string) => unknown;
-    };
-
-    return mongooseDocument.get?.(field) as TValue;
   }
 
   /**
@@ -233,25 +207,30 @@ export class VotingService {
    */
   async finalizeVoting(votingId: string): Promise<void> {
     const endedAt = new Date();
-    const endedVoting = await this.votingModel
-      .findOneAndUpdate(
-        {
-          _id: votingId,
-          $or: [{ endedAt: { $exists: false } }, { endedAt: null }],
-        },
-        {
-          $set: { endedAt },
-        },
-        { new: true },
-      )
-      .populate(ModelName.FLEA_MARKET_ITEM);
+    const updateResult = await this.votingModel.updateOne(
+      {
+        _id: votingId,
+        $or: [{ endedAt: { $exists: false } }, { endedAt: null }],
+      },
+      {
+        $set: { endedAt },
+      },
+    );
 
-    if (!endedVoting) return;
+    if (updateResult.modifiedCount === 0) return;
 
-    const endedVotingDto = endedVoting as unknown as VotingWithNotificationRefs;
+    const [endedVoting, errors] =
+      await this.basicService.readOneById<VotingWithNotificationRefs>(
+        votingId,
+        {
+          includeRefs: [ModelName.FLEA_MARKET_ITEM],
+        },
+      );
+    if (errors || !endedVoting) return;
+
     this.notifier.votingCompleted(
-      endedVotingDto,
-      this.buildVotingNotificationEntity(endedVotingDto),
+      endedVoting,
+      this.buildVotingNotificationEntity(endedVoting),
     );
   }
 
