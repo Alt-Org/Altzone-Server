@@ -23,6 +23,9 @@ import { TIServiceCreateOneOptions } from '../common/service/basicService/IServi
 import { VotingType } from './enum/VotingType.enum';
 import ClanHelperService from '../clan/utils/clanHelper.service';
 
+type VotingWithNotificationRefs = VotingDto & { FleaMarketItem?: unknown };
+type VotingNotificationSource = StartVotingParams | VotingWithNotificationRefs;
+
 /**
  * Service responsible for managing the voting lifecycle, including item purchases,
  * price changes, and clan governance updates.
@@ -103,12 +106,13 @@ export class VotingService {
     },
     session?: ClientSession,
   ): Promise<[VotingDto, ServiceError[]]> {
-    const votingData = this.buildVotingData({
+    const votingParams = {
       voterPlayer: params.voterPlayer,
       type: VotingType.CLAN_GOVERNANCE_UPDATE,
       clanId: params.clanId,
       governancePayload: params.governancePayload,
-    } as StartVotingParams);
+    } as StartVotingParams;
+    const votingData = this.buildVotingData(votingParams);
 
     const [voting, errors] = await this.basicService.createOne<
       CreateVotingDto,
@@ -122,7 +126,7 @@ export class VotingService {
 
     this.notifier.newVoting(
       voting,
-      params.governancePayload,
+      this.buildVotingNotificationEntity(votingParams),
       params.voterPlayer,
     );
 
@@ -131,53 +135,50 @@ export class VotingService {
 
   /**
    * Builds the entity part of the voting notification payload.
-   * Keep this mapping close to voting creation so every started voting has a
-   * frontend-consumable subject, regardless of voting type.
+   * Supports both start params and persisted voting DTOs so new/update/end
+   * notifications describe each voting type consistently.
    */
-  private buildVotingNotificationEntity(params: StartVotingParams): unknown {
-    switch (params.type) {
+  private buildVotingNotificationEntity(
+    source: VotingNotificationSource,
+  ): unknown {
+    const isStartParams = this.isStartVotingParams(source);
+
+    switch (source.type) {
       case VotingType.FLEA_MARKET_BUY_ITEM:
       case VotingType.FLEA_MARKET_SELL_ITEM:
-        return params.fleaMarketItem;
+        return this.buildFleaMarketVotingEntity(source);
       case VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE:
         return {
-          fleaMarketItem: params.fleaMarketItem,
-          price: params.newItemPrice,
+          fleaMarketItem: this.buildFleaMarketVotingEntity(source),
+          price: isStartParams ? source.newItemPrice : source.price,
         };
       case VotingType.SHOP_BUY_ITEM:
-        return { shopItemName: params.shopItem };
+        return {
+          shopItemName: isStartParams ? source.shopItem : source.shopItemName,
+        };
       case VotingType.SET_CLAN_ROLE:
-        return params.setClanRole;
+        return source.setClanRole;
       case VotingType.CLAN_GOVERNANCE_UPDATE:
-        return params.governancePayload;
+        return source.governancePayload;
     }
   }
 
-  private buildVotingUpdateNotificationEntity(
-    voting: VotingDto & { FleaMarketItem?: unknown },
+  private buildFleaMarketVotingEntity(
+    source: VotingNotificationSource,
   ): unknown {
-    switch (voting.type) {
-      case VotingType.FLEA_MARKET_BUY_ITEM:
-      case VotingType.FLEA_MARKET_SELL_ITEM:
-        return (
-          voting.FleaMarketItem ?? {
-            fleaMarketItem_id: voting.fleaMarketItem_id?.toString(),
-          }
-        );
-      case VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE:
-        return {
-          fleaMarketItem: voting.FleaMarketItem ?? {
-            fleaMarketItem_id: voting.fleaMarketItem_id?.toString(),
-          },
-          price: voting.price,
-        };
-      case VotingType.SHOP_BUY_ITEM:
-        return { shopItemName: voting.shopItemName };
-      case VotingType.SET_CLAN_ROLE:
-        return voting.setClanRole;
-      case VotingType.CLAN_GOVERNANCE_UPDATE:
-        return voting.governancePayload;
-    }
+    if (this.isStartVotingParams(source)) return source.fleaMarketItem;
+
+    return (
+      source.FleaMarketItem ?? {
+        fleaMarketItem_id: source.fleaMarketItem_id?.toString(),
+      }
+    );
+  }
+
+  private isStartVotingParams(
+    source: VotingNotificationSource,
+  ): source is StartVotingParams {
+    return 'voterPlayer' in source;
   }
 
   /**
@@ -227,7 +228,7 @@ export class VotingService {
 
     this.notifier.votingCompleted(
       endedVoting,
-      this.buildVotingUpdateNotificationEntity(endedVoting),
+      this.buildVotingNotificationEntity(endedVoting),
     );
   }
 
@@ -375,7 +376,7 @@ export class VotingService {
     // Read the voting again after updating votes.
     // The original `voting` variable does not contain the newly added vote.
     const [updatedVoting] = await this.basicService.readOneById<
-      VotingDto & { FleaMarketItem?: unknown }
+      VotingWithNotificationRefs
     >(votingId, {
       includeRefs: [ModelName.FLEA_MARKET_ITEM],
     });
@@ -404,7 +405,7 @@ export class VotingService {
 
     this.notifier.votingUpdated(
       updatedVoting,
-      this.buildVotingUpdateNotificationEntity(updatedVoting),
+      this.buildVotingNotificationEntity(updatedVoting),
       voter,
     );
   }
