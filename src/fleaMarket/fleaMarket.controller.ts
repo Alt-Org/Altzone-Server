@@ -82,22 +82,22 @@ export class FleaMarketController {
   }
 
   /**
-  * Get all flea market items
-  *
-  * @deprecated This endpoint returns ALL FleaMarketItems across every clan
-  * and is not scalable as the flea market grows. Use `GET /stock/{_id}`
-  * instead, which now includes the calling clan's FleaMarketItems alongside
-  * its stock items. This endpoint will be removed in a future release.
-  *
-  * @remarks Get all FleaMarketItems of the flea market.
-  */
+   * Get all flea market items
+   *
+   * @deprecated This endpoint returns ALL FleaMarketItems across every clan
+   * and is not scalable as the flea market grows. Use `GET /stock/{_id}`
+   * instead, which now includes the calling clan's FleaMarketItems alongside
+   * its stock items. This endpoint will be removed in a future release.
+   *
+   * @remarks Get all FleaMarketItems of the flea market.
+   */
   @ApiResponseDescription({
-  success: {
-    dto: FleaMarketItemDto,
-    modelName: ModelName.FLEA_MARKET_ITEM,
-    returnsArray: true,
-  },
-  errors: [400, 401, 404],
+    success: {
+      dto: FleaMarketItemDto,
+      modelName: ModelName.FLEA_MARKET_ITEM,
+      returnsArray: true,
+    },
+    errors: [400, 401, 404],
   })
   @Get()
   @OffsetPaginate(ModelName.FLEA_MARKET_ITEM)

@@ -82,45 +82,45 @@ describe('VotingService.addVote() test suite', () => {
   });
 
   it('Should not allow voting twice by the same user', async () => {
-  const player = await createTestPlayer();
-  const fleaMarket = await createTestFleaMarketItem();
-  
-  // Pre-seed NO votes so the player's YES vote doesn't trigger finalization
-  // (1 yes / 3 votes = 33%, below 51%)
-  const votingToCreate = votingBuilder
-    .setMinPercentage(51)
-    .setType(VotingType.FLEA_MARKET_SELL_ITEM)
-    .setOrganizer({ player_id: player._id, clan_id: null })
-    .setFleamarketItemId(fleaMarket._id.toString())
-    .build();
+    const player = await createTestPlayer();
+    const fleaMarket = await createTestFleaMarketItem();
 
-  const voting = await votingModel.create({
-    ...votingToCreate,
-    endsOn: new Date(Date.now() + 60 * 60 * 1000),
-    votes: [
-      { player_id: new ObjectId(), choice: VoteChoice.NO },
-      { player_id: new ObjectId(), choice: VoteChoice.NO },
-    ],
-  });
+    // Pre-seed NO votes so the player's YES vote doesn't trigger finalization
+    // (1 yes / 3 votes = 33%, below 51%)
+    const votingToCreate = votingBuilder
+      .setMinPercentage(51)
+      .setType(VotingType.FLEA_MARKET_SELL_ITEM)
+      .setOrganizer({ player_id: player._id, clan_id: null })
+      .setFleamarketItemId(fleaMarket._id.toString())
+      .build();
 
-  await votingService.addVote(
-    voting._id.toString(),
-    VoteChoice.YES,
-    player._id.toString(),
-  );
+    const voting = await votingModel.create({
+      ...votingToCreate,
+      endsOn: new Date(Date.now() + 60 * 60 * 1000),
+      votes: [
+        { player_id: new ObjectId(), choice: VoteChoice.NO },
+        { player_id: new ObjectId(), choice: VoteChoice.NO },
+      ],
+    });
 
-  await expect(
-    votingService.addVote(
+    await votingService.addVote(
       voting._id.toString(),
       VoteChoice.YES,
       player._id.toString(),
-    ),
-  ).rejects.toMatchObject({
-    message: 'Logged in user has already voted.',
-  });
+    );
 
-  const votingFromDb = await votingModel.findById(voting._id);
-  expect(votingFromDb.votes).toHaveLength(3); // 2 seeded NOs + 1 player YES
+    await expect(
+      votingService.addVote(
+        voting._id.toString(),
+        VoteChoice.YES,
+        player._id.toString(),
+      ),
+    ).rejects.toMatchObject({
+      message: 'Logged in user has already voted.',
+    });
+
+    const votingFromDb = await votingModel.findById(voting._id);
+    expect(votingFromDb.votes).toHaveLength(3); // 2 seeded NOs + 1 player YES
   });
 
   it('Should return error if organizer ID is invalid', async () => {
