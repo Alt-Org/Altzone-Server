@@ -69,7 +69,7 @@ export class ClanShopService {
     if (hasShopRight) {
       return this.buyDirectly(clanId, item);
     }
-    return this.buyViaVote(playerId, clanId, item);
+    return await this.buyViaVote(playerId, clanId, item);
   }
 
   /**
