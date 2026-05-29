@@ -64,7 +64,7 @@ export class ClanShopService {
       (r) => r._id.toString() === player.clanRole_id?.toString(),
     );
     const hasShopRight = role?.rights?.shop === true;
-    
+
     if (hasShopRight) {
       return await this.buyDirectly(clanId, item);
     } else {
@@ -169,7 +169,7 @@ export class ClanShopService {
     if (votingErrors) return await cancelTransaction(session, votingErrors);
 
     const result = await endTransaction(session, true);
-      
+
     await this.votingQueue.addVotingCheckJob({
       voting,
       stockId: clan.Stock._id,
@@ -177,7 +177,7 @@ export class ClanShopService {
       queue: VotingQueueName.CLAN_SHOP,
       clanId,
     });
-    
+
     return result;
   }
 
