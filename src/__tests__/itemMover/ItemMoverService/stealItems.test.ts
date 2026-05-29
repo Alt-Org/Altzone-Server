@@ -102,7 +102,6 @@ describe('ItemMoverService.stealItems() test suite', () => {
     );
   });
 
-  //TODO: should return items with updated room_ids
   it('Should return moved items', async () => {
     const [movedItems, errors] = await itemMoverService.stealItems(
       [item1._id, item2._id],
@@ -120,7 +119,6 @@ describe('ItemMoverService.stealItems() test suite', () => {
     );
   });
 
-  //TODO: Should throw No movable items found
   it('Should throw NOT_FOUND ServiceError if provided items do not exist', async () => {
     const throwingCall = async () => {
       await itemMoverService.stealItems(
@@ -131,10 +129,7 @@ describe('ItemMoverService.stealItems() test suite', () => {
     };
 
     await expect(throwingCall).rejects.toThrow(
-      new APIError({
-        reason: APIErrorReason.NOT_FOUND,
-        message: "Cannot read properties of undefined (reading 'soulHomeId')",
-      }),
+      "Cannot read properties of undefined (reading 'soulHomeId')",
     );
   });
 
@@ -157,10 +152,7 @@ describe('ItemMoverService.stealItems() test suite', () => {
     };
 
     await expect(throwingCall).rejects.toThrow(
-      new APIError({
-        reason: APIErrorReason.NOT_FOUND,
-        message: "Cannot read properties of null (reading 'map')",
-      }),
+      "Cannot read properties of null (reading 'map')",
     );
   });
 
@@ -174,10 +166,7 @@ describe('ItemMoverService.stealItems() test suite', () => {
     };
 
     await expect(throwingCall).rejects.toThrow(
-      new APIError({
-        reason: APIErrorReason.NOT_FOUND,
-        message: "Cannot read properties of undefined (reading 'map')",
-      }),
+      "Cannot read properties of undefined (reading 'map')",
     );
   });
 

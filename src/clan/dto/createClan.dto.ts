@@ -43,6 +43,14 @@ export class CreateClanDto {
    * Optional logo of the clan.
    * @example { logoType: "Heart", pieceColors: [#FFFFFF] }
    */
+  @ApiProperty({
+  type: () => ClanLogoDto,
+  required: false,
+  example: {
+    logoType: 'Heart',
+    pieceColors: ['#FFFFFF'],
+  },
+  })
   @Type(() => ClanLogoDto)
   @IsOptional()
   @ValidateNested()
@@ -50,8 +58,13 @@ export class CreateClanDto {
 
   /**
    * List of labels describing the clan (max 5).
-   * @example ["ELÄINRAKKAAT", "SYVÄLLISET"]
+   * @example ["eläinrakkaat", "syvälliset"]
    */
+  @ApiProperty({
+  enum: ClanLabel,
+  isArray: true,
+  example: ['eläinrakkaat', 'syvälliset'],
+  })
   @IsArray()
   @ArrayMaxSize(5)
   @IsEnum(ClanLabel, { each: true })
@@ -75,7 +88,7 @@ export class CreateClanDto {
 
   /**
    * Optional age range preference for clan members.
-   * @example "ALL"
+   * @example "All"
    */
   @IsEnum(AgeRange)
   @IsOptional()
@@ -108,6 +121,18 @@ export class CreateClanDto {
    * Clan stall, optional
    * @example { adPoster: { border: "border1", colour: "red", mainFurniture: "table" }, maxSlots: 10 }
    */
+  @ApiProperty({
+  type: () => StallDto,
+  required: false,
+  example: {
+    adPoster: {
+      border: 'border1',
+      colour: 'red',
+      mainFurniture: 'table',
+    },
+    maxSlots: 10,
+  },
+  })
   @Type(() => StallDto)
   @IsOptional()
   stall?: StallDto;

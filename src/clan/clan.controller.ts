@@ -194,7 +194,11 @@ export class ClanController {
   @DetermineClanId()
   @HasClanRights([ClanBasicRight.EDIT_CLAN_DATA])
   @UniformResponse()
-  public async update(@Body() body: UpdateClanDto, @LoggedUser() user: User) {
+  public async update(
+    @Param('_id') _id: string,
+    @Body() body: UpdateClanDto,
+    @LoggedUser() user: User,
+  ) {
     if (user.clan_id.toString() !== body._id.toString())
       return [
         null,
@@ -214,7 +218,7 @@ export class ClanController {
     ) {
       body.password = this.passwordGenerator.generatePassword('fi');
     }
-    const [, errors] = await this.service.updateOneById(body);
+    const [, errors] = await this.service.updateOneById(body._id, body);
     if (errors) return [null, errors];
   }
 

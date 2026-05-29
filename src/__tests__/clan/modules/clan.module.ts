@@ -8,6 +8,7 @@ import ClanHelperService from '../../../clan/utils/clanHelper.service';
 import { JoinService } from '../../../clan/join/join.service';
 import { isClanExists } from '../../../clan/decorator/validation/IsClanExists.decorator';
 import ClanRoleService from '../../../clan/role/clanRole.service';
+import { ClanRoleVotingProcessor } from '../../../clan/role/clanRole.processor';
 
 export default class ClanModule {
   private constructor() {}
@@ -44,5 +45,10 @@ export default class ClanModule {
   static async getClanRoleService() {
     const module = await ClanCommonModule.getModule();
     return module.resolve(ClanRoleService);
+  }
+
+  static async getClanRoleVotingProcessor() {
+    const module = await ClanCommonModule.getModule();
+    return module.resolve(ClanRoleVotingProcessor);
   }
 }

@@ -16,7 +16,7 @@ import {
   PostHookFunction,
 } from '../common/interface/IHookImplementer';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
-import { PlayerDto } from './dto/player.dto';
+import { PlayerDto, StatDetailDto } from './dto/player.dto';
 import { EmotionCheckDto } from './dto/emotionCheck.dto';
 import BasicService from '../common/service/basicService/BasicService';
 import ServiceError from '../common/service/basicService/ServiceError';
@@ -28,6 +28,7 @@ import {
 } from '../common/service/basicService/IService';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { PlayerEmotion } from './enum/playerEmotion.enum';
+import { prizePool } from '../rewarder/const/prizePool';
 
 @Injectable()
 @AddBasicService()
@@ -58,14 +59,37 @@ export class PlayerService
    * @param options - Optional settings for retrieving the player.
    * @returns An PlayerDTO if succeeded or an array of ServiceErrors.
    */
-  async getPlayerById(_id: string, options?: TReadByIdOptions) {
+  async getPlayerById(
+    _id: string,
+    options?: TReadByIdOptions,
+  ): Promise<[PlayerDto, any]> {
     const optionsToApply = options;
     if (options?.includeRefs) {
       optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
         this.refsInModel.includes(ref),
       );
     }
-    return this.basicService.readOneById<PlayerDto>(_id, optionsToApply);
+
+    const [player, errors] = await this.basicService.readOneById<PlayerDto>(
+      _id,
+      optionsToApply,
+    );
+
+    if (errors || !player) {
+      return [player, errors];
+    }
+
+    const playerObject: any = (player as any).toObject
+      ? (player as any).toObject()
+      : player;
+    playerObject.favouriteClass = this.getFavourite(
+      playerObject['classStatistics'],
+    );
+    playerObject.favouriteCharacter = this.getFavourite(
+      playerObject['characterStatistics'],
+    );
+
+    return [playerObject, null];
   }
 
   /**
@@ -181,6 +205,32 @@ export class PlayerService
     if (playerErrors) throw playerErrors;
 
     return player.clan_id?.toString();
+  }
+
+  /**
+   * Internal "helper" to calculate the favorite class/character from statistics maps.
+   */
+  private getFavourite(
+    statsMap: Map<string, { gamesPlayed: number; wins: number }>,
+  ): StatDetailDto | undefined {
+    if (!statsMap || statsMap.size === 0) return undefined;
+
+    let favoriteKey = '';
+    let maxGames = -1;
+
+    for (const [key, value] of statsMap.entries()) {
+      if (value.gamesPlayed > maxGames) {
+        maxGames = value.gamesPlayed;
+        favoriteKey = key;
+      }
+    }
+
+    const favorite = statsMap.get(favoriteKey);
+    return {
+      name: favoriteKey,
+      gamesPlayed: favorite?.gamesPlayed || 0,
+      wins: favorite?.wins || 0,
+    };
   }
 
   private clearClanReferences = async (
@@ -332,5 +382,54 @@ export class PlayerService
     if (updateErrors) return [null, updateErrors];
 
     return this.getPlayerById(playerId);
+  }
+
+  /**
+   * Claim Player reward. Removes claimable reward from claimableRewards, return chosen reward.
+   * 
+   * Currently, Player rewards are not implemented, so a mock reward is instead returned.
+   * 
+   * @param _id Player Id
+   * @param reward_id Reward Id - Currently, there are no rewards, so placeholder rewards are used
+   * @returns Placeholder reward, Errors if errors
+   */
+  async claimReward(
+    _id: string, 
+    reward_id: number
+  ) {
+    const [player, playerErrors] = await this.getPlayerById(_id);
+    if (playerErrors) return [null, playerErrors];
+
+    if (!player.claimableRewards.includes(prizePool.maxPoints))
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            message: 'Player can\'t claim final reward',
+          }),
+        ],
+      ];
+
+    const playerReward = prizePool.finalRewards.find(reward => reward.id === reward_id)
+    if (!playerReward)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            message: 'No reward with given ID',
+          }),
+        ],
+      ];
+
+    const update = {
+      $pull: { claimableRewards: prizePool.maxPoints }
+    };
+
+    const [, updateErrors] = await this.basicService.updateOneById(_id, update);
+    if (updateErrors) return [null, updateErrors];
+
+    return [{ playerReward: playerReward }, null];
   }
 }

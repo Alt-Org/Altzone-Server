@@ -31,6 +31,7 @@ export class OnlinePlayersController {
     return this.onlinePlayersService.addPlayerOnline({
       player_id: user.player_id,
       status: body.status,
+      client_version: body.client_version,
     });
   }
 

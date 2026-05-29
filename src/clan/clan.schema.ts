@@ -34,6 +34,9 @@ export class Clan {
   @Prop({ type: Number, default: 0 })
   points: number;
 
+  @Prop({ type: [Number], default: [] })
+  unlockedMilestones: number[];
+
   @Prop({ type: Number, default: 0, min: 0 })
   battlePoints: number;
 

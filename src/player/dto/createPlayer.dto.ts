@@ -5,6 +5,7 @@ import {
   IsInt,
   IsMongoId,
   IsOptional,
+  IsObject,
   IsString,
   MaxLength,
   MinLength,
@@ -98,8 +99,26 @@ export class CreatePlayerDto {
   /**
    * Custom avatar setup for this player
    */
+  @ApiProperty({
+  type: () => ModifyAvatarDto,
+  required: false,
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => ModifyAvatarDto)
   avatar?: ModifyAvatarDto;
+
+  /**
+   * Statistics for each defense class
+   */
+  @IsOptional()
+  @IsObject()
+  classStatistics?: Record<string, { gamesPlayed: number; wins: number }>;
+
+  /**
+   * Statistics for each defense character
+   */
+  @IsOptional()
+  @IsObject()
+  characterStatistics?: Record<string, { gamesPlayed: number; wins: number }>;
 }
