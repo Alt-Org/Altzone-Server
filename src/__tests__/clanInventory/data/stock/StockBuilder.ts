@@ -7,7 +7,7 @@ export default class StockBuilder {
     cellCount: 10,
     clan_id: undefined,
     _id: undefined,
-    environment: undefined,
+    environment: Environment.TEACHING_DEMO,
   };
 
   build() {

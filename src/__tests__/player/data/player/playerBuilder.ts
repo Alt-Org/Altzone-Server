@@ -37,7 +37,7 @@ export default class PlayerBuilder {
     },
     clanRole_id: null,
     _id: undefined,
-    environment: Environment.OPEN_DEMO,
+    environment: Environment.TEACHING_DEMO,
   };
 
   build(): Player {
@@ -119,6 +119,11 @@ export default class PlayerBuilder {
 
   setClanRoleId(clanRole_id: string | ObjectId | null) {
     this.base.clanRole_id = clanRole_id as any;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }
