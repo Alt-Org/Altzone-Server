@@ -56,10 +56,7 @@ describe('LeaderboardService.getPlayerLeaderboard() test suite', () => {
   it('Should return leading players in valid order', async () => {
     const query = queryBuilder.setLimit(10).build();
 
-    const leaders = (await service.getPlayerLeaderboard(
-      query,
-      Environment.OPEN_DEMO,
-    )) as Player[];
+    const leaders = (await service.getPlayerLeaderboard(query)) as Player[];
 
     const playerNames = leaders.map((leader) => leader.name);
 
@@ -69,30 +66,21 @@ describe('LeaderboardService.getPlayerLeaderboard() test suite', () => {
   it('Should return clanLogo data if player is in a clan', async () => {
     const query = queryBuilder.setLimit(10).build();
 
-    const leaders = (await service.getPlayerLeaderboard(
-      query,
-      Environment.OPEN_DEMO,
-    )) as any[];
+    const leaders = (await service.getPlayerLeaderboard(query)) as any[];
 
     expect(leaders[0].clanLogo).toEqual(clan.clanLogo);
   });
 
   it('Should return requested amount of leading players', async () => {
     const query = queryBuilder.setLimit(2).setSkip(0).build();
-    const leaders = await service.getPlayerLeaderboard(
-      query,
-      Environment.OPEN_DEMO,
-    );
+    const leaders = await service.getPlayerLeaderboard(query);
 
     expect(leaders).toHaveLength(2);
   });
 
   it('Should be able to skip leading players', async () => {
     const query = queryBuilder.setLimit(10).setSkip(2).build();
-    const leaders = (await service.getPlayerLeaderboard(
-      query,
-      Environment.OPEN_DEMO,
-    )) as Player[];
+    const leaders = (await service.getPlayerLeaderboard(query)) as Player[];
 
     expect(leaders).toHaveLength(1);
     expect(leaders[0].name).toBe(player3.name);
