@@ -35,7 +35,7 @@ export class VotingController {
   @Get()
   @UniformResponse(ModelName.VOTING, VotingDto)
   async getClanVotings(@LoggedUser() user: User) {
-    return this.service.getClanVotings(user.player_id);
+    return await this.service.getClanVotings(user.player_id);
   }
 
   /**

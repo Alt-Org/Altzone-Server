@@ -25,7 +25,6 @@ import {
 import { InjectConnection } from '@nestjs/mongoose';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { OnEvent } from '@nestjs/event-emitter';
-
 @Injectable()
 export class ClanShopService {
   constructor(
@@ -67,9 +66,10 @@ export class ClanShopService {
     const hasShopRight = role?.rights?.shop === true;
 
     if (hasShopRight) {
-      return this.buyDirectly(clanId, item);
+      return await this.buyDirectly(clanId, item);
+    } else {
+      return await this.buyViaVote(playerId, clanId, item);
     }
-    return this.buyViaVote(playerId, clanId, item);
   }
 
   /**
@@ -92,10 +92,10 @@ export class ClanShopService {
     const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
       includeRefs: [ModelName.STOCK],
     });
-    if (clanErrors) return cancelTransaction(session, clanErrors);
+    if (clanErrors) return await cancelTransaction(session, clanErrors);
 
     if (clan.gameCoins < item.price) {
-      return cancelTransaction(session, [notEnoughCoinsError]);
+      return await cancelTransaction(session, [notEnoughCoinsError]);
     }
 
     const [, deductError] = await this.reserveFunds(
@@ -109,9 +109,9 @@ export class ClanShopService {
     const [, createError] = await this.itemService.createOne(newItem, {
       session,
     });
-    if (createError) return cancelTransaction(session, createError);
+    if (createError) return await cancelTransaction(session, createError);
 
-    return endTransaction(session, true);
+    return await endTransaction(session, true);
   }
 
   /**
@@ -138,10 +138,10 @@ export class ClanShopService {
       includeRefs: [ModelName.STOCK],
     });
 
-    if (clanErrors) return cancelTransaction(session, clanErrors);
+    if (clanErrors) return await cancelTransaction(session, clanErrors);
 
     if (clan.gameCoins < item.price) {
-      return cancelTransaction(session, [notEnoughCoinsError]);
+      return await cancelTransaction(session, [notEnoughCoinsError]);
     }
 
     const [, reserveError] = await this.reserveFunds(
@@ -165,7 +165,8 @@ export class ClanShopService {
       },
       session,
     );
-    if (votingErrors) return cancelTransaction(session, votingErrors);
+
+    if (votingErrors) return await cancelTransaction(session, votingErrors);
 
     const result = await endTransaction(session, true);
 
@@ -239,7 +240,7 @@ export class ClanShopService {
         price,
         session,
       );
-      if (rejectError) return cancelTransaction(session, rejectError);
+      if (rejectError) return await cancelTransaction(session, rejectError);
     }
 
     if (!voting.endedAt) {
