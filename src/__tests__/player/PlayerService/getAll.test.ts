@@ -7,6 +7,10 @@ import ClanModule from '../../clan/modules/clan.module';
 import { ModelName } from '../../../common/enum/modelName.enum';
 import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultFields';
 import { Player } from '../../../player/schemas/player.schema';
+import ServiceError from '../../../common/service/basicService/ServiceError';
+import { PlayerDto } from '../../../player/dto/player.dto';
+import { PlayerObject } from 'src/common/type/playerObject.type';
+import { ClanDto } from 'src/clan/dto/clan.dto';
 
 describe('PlayerService.getAll() test suite', () => {
   let playerService: PlayerService;
@@ -110,9 +114,9 @@ describe('PlayerService.getAll() test suite', () => {
   });
 
   it('Should return desc sorted by name players if requested', async () => {
-    const [players, errors] = await playerService.getAll({
+    const [players, errors] = (await playerService.getAll({
       sort: { name: -1 },
-    });
+    })) as [PlayerObject[], ServiceError[]];
 
     expect(errors).toBeNull();
     expect(players[0].name).toBe(player2.name);
@@ -120,10 +124,10 @@ describe('PlayerService.getAll() test suite', () => {
   });
 
   it('Should be able to skip first found player in DB if requested', async () => {
-    const [players, errors] = await playerService.getAll({
+    const [players, errors] = (await playerService.getAll({
       skip: 1,
       sort: { name: -1 },
-    });
+    })) as [PlayerObject[], ServiceError[]];
 
     expect(errors).toBeNull();
     expect(players).toHaveLength(1);
@@ -131,19 +135,19 @@ describe('PlayerService.getAll() test suite', () => {
   });
 
   it("Should include get players' clan if requested", async () => {
-    const [players, errors] = await playerService.getAll({
+    const [players, errors] = (await playerService.getAll({
       includeRefs: [ModelName.CLAN],
-    });
+    })) as [PlayerObject[], ServiceError[]];
 
     expect(errors).toBeNull();
 
-    const { roles: dbRoles1, ...clan1 } = (players[0].Clan as any).toObject();
+    const { roles: dbRoles1, ...clan1 } = players[0].Clan as Clan;
     const { roles: existingClanRoles1, ...clanWithoutRoles1 } = existingClan;
 
     expect(clan1).toEqual(expect.objectContaining(clanWithoutRoles1));
     expect(dbRoles1).toEqual(existingClanRoles1);
 
-    const { roles: dbRoles2, ...clan2 } = (players[1].Clan as any).toObject();
+    const { roles: dbRoles2, ...clan2 } = players[1].Clan as Clan;
     const { roles: existingClanRoles2, ...clanWithoutRoles2 } = existingClan;
 
     expect(clan2).toEqual(expect.objectContaining(clanWithoutRoles2));
