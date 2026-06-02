@@ -139,19 +139,15 @@ describe('PlayerService.getAll() test suite', () => {
       includeRefs: [ModelName.CLAN],
     })) as [PlayerObject[], ServiceError[]];
 
+    const clearedResp = clearDBRespDefaultFields(players[0]);
+    const { roles: dbRoles, ...clan } = clearedResp.Clan;
+    const { roles: existingClanRoles, ...clanWithoutRoles } =
+    clearDBRespDefaultFields(existingClan);
     expect(errors).toBeNull();
 
-    const { roles: dbRoles1, ...clan1 } = players[0].Clan as Clan;
-    const { roles: existingClanRoles1, ...clanWithoutRoles1 } = existingClan;
-
-    expect(clan1).toEqual(expect.objectContaining(clanWithoutRoles1));
-    expect(dbRoles1).toEqual(existingClanRoles1);
-
-    const { roles: dbRoles2, ...clan2 } = players[1].Clan as Clan;
-    const { roles: existingClanRoles2, ...clanWithoutRoles2 } = existingClan;
-
-    expect(clan2).toEqual(expect.objectContaining(clanWithoutRoles2));
-    expect(dbRoles2).toEqual(existingClanRoles2);
+    expect(clan).toEqual(expect.objectContaining(clanWithoutRoles));
+    expect(dbRoles).toEqual(existingClanRoles);
+    expect(errors).toBeNull();
   });
 
   it('Should ignore non-existing references requested', async () => {
