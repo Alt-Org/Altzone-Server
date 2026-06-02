@@ -1,4 +1,5 @@
-import util from 'util';import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
+import util from 'util';
+import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import PlayerModule from '../../player/modules/player.module';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 import { PlayerService } from '../../../player/player.service';
@@ -10,7 +11,6 @@ import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultF
 import { Player } from '../../../player/schemas/player.schema';
 
 describe('PlayerService.getPlayerById() test suite', () => {
-  
   let playerService: PlayerService;
   const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
   const updatePlayerBuilder =
@@ -44,7 +44,7 @@ describe('PlayerService.getPlayerById() test suite', () => {
     const [player, errors] = await playerService.getPlayerById(
       existingPlayer._id,
     );
-    
+
     expect(errors).toBeNull();
     expect(player).toBeDefined();
 
@@ -58,7 +58,7 @@ describe('PlayerService.getPlayerById() test suite', () => {
       }),
     );
   });
-  
+
   it('Should return NOT_FOUND ServiceError for non-existing player', async () => {
     const [player, errors] =
       await playerService.getPlayerById(getNonExisting_id());
@@ -92,17 +92,17 @@ describe('PlayerService.getPlayerById() test suite', () => {
   });
 
   it("Should include get player's clan if requested", async () => {
-
     const [player, errors] = await playerService.getPlayerById(
       existingPlayer._id,
-      { includeRefs: [ModelName.CLAN] }
+      { includeRefs: [ModelName.CLAN] },
     );
 
     expect(errors).toBeNull();
 
-     const clearedClan = clearDBRespDefaultFields(player.Clan);
-     const { roles: dbRoles, ...clan } = clearedClan;
-     const { roles: existingClanRoles, ...clanWithoutRoles } = clearDBRespDefaultFields(existingClan);
+    const clearedClan = clearDBRespDefaultFields(player.Clan);
+    const { roles: dbRoles, ...clan } = clearedClan;
+    const { roles: existingClanRoles, ...clanWithoutRoles } =
+      clearDBRespDefaultFields(existingClan);
 
     expect(clan).toEqual(expect.objectContaining(clanWithoutRoles));
     expect(dbRoles).toEqual(existingClanRoles);

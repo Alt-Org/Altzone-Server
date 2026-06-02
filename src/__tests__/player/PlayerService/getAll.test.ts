@@ -142,7 +142,7 @@ describe('PlayerService.getAll() test suite', () => {
     const clearedResp = clearDBRespDefaultFields(players[0]);
     const { roles: dbRoles, ...clan } = clearedResp.Clan;
     const { roles: existingClanRoles, ...clanWithoutRoles } =
-    clearDBRespDefaultFields(existingClan);
+      clearDBRespDefaultFields(existingClan);
     expect(errors).toBeNull();
 
     expect(clan).toEqual(expect.objectContaining(clanWithoutRoles));
