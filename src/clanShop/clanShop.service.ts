@@ -25,6 +25,7 @@ import {
 import { InjectConnection } from '@nestjs/mongoose';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { OnEvent } from '@nestjs/event-emitter';
+import ServiceError from 'src/common/service/basicService/ServiceError';
 @Injectable()
 export class ClanShopService {
   constructor(
@@ -55,7 +56,7 @@ export class ClanShopService {
   ): Promise<IServiceReturn<boolean>> {
     const [player, playerError] =
       await this.playerService.getPlayerById(playerId);
-    if (playerError) return [null, playerError];
+    if (playerError) return [null, playerError as ServiceError[]];
 
     const [clan, clanError] = await this.clanService.readOneById(clanId);
     if (clanError) return [null, clanError];
@@ -153,7 +154,8 @@ export class ClanShopService {
 
     const [player, playerError] =
       await this.playerService.getPlayerById(playerId);
-    if (playerError) return cancelTransaction(session, playerError);
+    if (playerError)
+      return cancelTransaction(session, playerError as ServiceError[]);
 
     const [voting, votingErrors] = await this.votingService.startVoting(
       {
