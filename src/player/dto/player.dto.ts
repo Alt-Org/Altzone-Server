@@ -207,7 +207,7 @@ export class PlayerDto {
   @Type(() => EmotionDto)
   @Expose()
   emotions?: EmotionDto[];
-  
+
   @Expose()
   @IsOptional()
   clanName?: string;
