@@ -126,7 +126,7 @@ export class PlayerService
     const clanIds = Array.from(
       new Set(
         playerObjects
-          .map(p => p.clan_id ? p.clan_id.toString() : null)
+          .map((p) => (p.clan_id ? p.clan_id.toString() : null))
           .filter(Boolean),
       ),
     );
