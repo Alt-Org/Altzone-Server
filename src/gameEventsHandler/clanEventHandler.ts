@@ -3,12 +3,13 @@ import { DailyTasksService } from '../dailyTasks/dailyTasks.service';
 import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
 import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
 import ServiceError from '../common/service/basicService/ServiceError';
-import { DailyTaskDto } from '../dailyTasks/dto/dailyTask.dto';
 import { OnGameEvent } from '../gameEventsEmitter/onGameEvent';
 import UIDailyTasksService from '../dailyTasks/uiDailyTasks/uiDailyTasks.service';
 import { GameEventPayload } from '../gameEventsEmitter/gameEvent';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { ClanEvent } from '../rewarder/clanRewarder/enum/ClanEvent.enum';
+import { DailyTaskProgressResult } from '../dailyTasks/type/dailyTaskProgressResult.type';
+import { DailyTaskDto } from '../dailyTasks/dto/dailyTask.dto';
 
 @Injectable()
 export class ClanEventHandler {
@@ -68,9 +69,11 @@ export class ClanEventHandler {
 
   private async handleClanAndPlayerReward(
     player_id: string,
-    task: DailyTaskDto,
+    progressResult: DailyTaskProgressResult<DailyTaskDto>,
   ): Promise<[boolean, ServiceError[]]> {
-    if (task.amountLeft !== 0) return [true, null];
+    if (progressResult.status !== 'completed') return [true, null];
+
+    const { task } = progressResult;
     await this.clanRewarder.rewardClanForPlayerTask(
       task.clan_id,
       task.points,

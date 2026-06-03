@@ -44,11 +44,12 @@ export default class UiDailyTaskHandler {
   ) {
     const { info } = payload;
 
-    const { status, task } = info;
+    const { result } = info;
+    const { status, task } = result;
     const player_id = task.player_id.toString();
     const clan_id = task.clan_id.toString();
 
-    if (status === 'updated') {
+    if (status === 'advanced') {
       this.notifier.taskUpdated(player_id, task);
       return;
     }
