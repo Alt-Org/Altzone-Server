@@ -10,11 +10,23 @@ type NotifiableDailyTask = {
   type: ServerTaskName | UITaskName;
 };
 
+type DailyTaskClanCompletionPayload<TTask> = {
+  task: TTask;
+  completedByPlayerId: string;
+};
+
+type DailyTaskMilestonePayload<TTask> = {
+  task: TTask;
+  completedByPlayerId: string;
+  reachedMilestones: number[];
+};
+
 /**
  * Class for sending player tasks (or daily tasks on game side) notifications
  */
 export default class DailyTaskNotifier {
   private readonly group = NotificationGroup.PLAYER;
+  private readonly clanGroup = NotificationGroup.CLAN;
   private readonly resource = NotificationResource.DAILY_TASK;
 
   /**
@@ -72,5 +84,52 @@ export default class DailyTaskNotifier {
       .addGroup(this.group, player_id)
       .addResource(this.resource, task.type)
       .send(NotificationStatus.END, task);
+  }
+
+  /**
+   * A clan member completed a task.
+   * @param clan_id the DB _id of the clan for whom notification is addressed
+   * @param task info of the completed task
+   * @param completedByPlayerId the DB _id of the player who completed the task
+   */
+  taskCompletedForClan<TTask extends NotifiableDailyTask>(
+    clan_id: string,
+    task: TTask,
+    completedByPlayerId: string,
+  ) {
+    const payload: DailyTaskClanCompletionPayload<TTask> = {
+      task,
+      completedByPlayerId,
+    };
+
+    NotificationSender.buildNotification<DailyTaskClanCompletionPayload<TTask>>()
+      .addGroup(this.clanGroup, clan_id)
+      .addResource(this.resource, task.type)
+      .send(NotificationStatus.END, payload);
+  }
+
+  /**
+   * A clan reached new daily task reward milestones.
+   * @param clan_id the DB _id of the clan for whom notification is addressed
+   * @param task task that triggered the milestone update
+   * @param completedByPlayerId the DB _id of the player who completed the task
+   * @param reachedMilestones milestone point values reached by the clan
+   */
+  milestoneReached<TTask extends NotifiableDailyTask>(
+    clan_id: string,
+    task: TTask,
+    completedByPlayerId: string,
+    reachedMilestones: number[],
+  ) {
+    const payload: DailyTaskMilestonePayload<TTask> = {
+      task,
+      completedByPlayerId,
+      reachedMilestones,
+    };
+
+    NotificationSender.buildNotification<DailyTaskMilestonePayload<TTask>>()
+      .addGroup(this.clanGroup, clan_id)
+      .addResource(this.resource, 'milestone')
+      .send(NotificationStatus.UPDATE, payload);
   }
 }
