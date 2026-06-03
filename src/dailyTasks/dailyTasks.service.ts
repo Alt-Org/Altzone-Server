@@ -17,16 +17,14 @@ import {
 import { SEReason } from '../common/service/basicService/SEReason';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ServerTaskName } from './enum/serverTaskName.enum';
-import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
-import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
 import {
   cancelTransaction,
   endTransaction,
   initializeSession,
 } from '../common/function/Transactions';
-import { ClanProgression } from '../rewarder/clanProgression/clanProgression.service';
 import { prizePool } from '../rewarder/const/prizePool';
 import { DailyTaskProgressResult } from './type/dailyTaskProgressResult.type';
+import { DailyTaskProgressService } from './dailyTaskProgress.service';
 
 @Injectable()
 export class DailyTasksService {
@@ -36,9 +34,7 @@ export class DailyTasksService {
     private readonly notifier: DailyTaskNotifier,
     private readonly taskQueue: DailyTaskQueue,
     private readonly taskGenerator: TaskGeneratorService,
-    private readonly playerRewarder: PlayerRewarder,
-    private readonly clanRewarder: ClanRewarder,
-    private readonly clanProgression: ClanProgression,
+    private readonly progressService: DailyTaskProgressService,
   ) {
     this.basicService = new BasicService(model);
     this.modelName = ModelName.DAILY_TASK;
@@ -199,20 +195,19 @@ export class DailyTasksService {
     task.amountLeft = currentAmountLeft;
 
     if (currentAmountLeft <= 0) {
-      await this.deleteTask(
+      const [, deleteErrors] = await this.deleteTask(
         task._id.toString(),
         task.clan_id,
         playerId,
         session,
       );
-      this.notifier.taskCompleted(playerId, task);
+      if (deleteErrors) return [null, deleteErrors];
     } else {
       const [_, updateError] = await this.basicService.updateOne(task, {
         filter,
         session,
       });
       if (updateError) return [null, updateError];
-      this.notifier.taskUpdated(playerId, task);
     }
 
     return [
@@ -310,33 +305,12 @@ export class DailyTasksService {
 
     if (updateErrors) return cancelTransaction(session, updateErrors);
 
-    const { task } = progressResult;
+    const [, progressErrors] = await this.progressService.handleProgress(
+      progressResult,
+      session,
+    );
+    if (progressErrors) return cancelTransaction(session, progressErrors);
 
-    if (progressResult.status === 'completed') {
-      const [, playerRewardErrors] =
-        await this.playerRewarder.rewardForPlayerTask(
-          payload.playerId,
-          task.points,
-          session,
-        );
-
-      if (playerRewardErrors)
-        return cancelTransaction(session, playerRewardErrors);
-
-      const [updatedClan, clanRewardErrors] =
-        await this.clanRewarder.rewardClanForPlayerTask(
-          task.clan_id,
-          task.points,
-          task.coins,
-          session,
-        );
-      if (clanRewardErrors) return cancelTransaction(session, clanRewardErrors);
-
-      const [, clanProgressionErrors] =
-        await this.clanProgression.handleClanProgression(updatedClan, session);
-      if (clanProgressionErrors)
-        return cancelTransaction(session, clanProgressionErrors);
-    }
     return endTransaction(session, progressResult);
   }
 

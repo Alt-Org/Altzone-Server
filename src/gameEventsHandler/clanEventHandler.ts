@@ -1,15 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { DailyTasksService } from '../dailyTasks/dailyTasks.service';
 import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
-import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
-import ServiceError from '../common/service/basicService/ServiceError';
 import { OnGameEvent } from '../gameEventsEmitter/onGameEvent';
 import UIDailyTasksService from '../dailyTasks/uiDailyTasks/uiDailyTasks.service';
 import { GameEventPayload } from '../gameEventsEmitter/gameEvent';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { ClanEvent } from '../rewarder/clanRewarder/enum/ClanEvent.enum';
-import { DailyTaskProgressResult } from '../dailyTasks/type/dailyTaskProgressResult.type';
-import { DailyTaskDto } from '../dailyTasks/dto/dailyTask.dto';
+import { DailyTaskProgressService } from '../dailyTasks/dailyTaskProgress.service';
 
 @Injectable()
 export class ClanEventHandler {
@@ -17,7 +14,7 @@ export class ClanEventHandler {
     private readonly tasksService: DailyTasksService,
     private readonly uiTasksService: UIDailyTasksService,
     private readonly clanRewarder: ClanRewarder,
-    private readonly playerRewarder: PlayerRewarder,
+    private readonly progressService: DailyTaskProgressService,
   ) {}
 
   async handlePlayerTask(player_id: string): Promise<IServiceReturn<boolean>> {
@@ -26,7 +23,11 @@ export class ClanEventHandler {
         await this.tasksService.updateTask(player_id);
       if (errors) return [null, errors];
 
-      return this.handleClanAndPlayerReward(player_id, taskUpdate);
+      const [, progressErrors] =
+        await this.progressService.handleProgress(taskUpdate);
+      if (progressErrors) return [null, progressErrors];
+
+      return [true, null];
     } catch (
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       e
@@ -65,22 +66,5 @@ export class ClanEventHandler {
     const [serverTasks] =
       this.tasksService.generateServerTasksForNewClan(clan_idStr);
     await this.tasksService.createMany([...serverTasks, ...uiDailyTasks]);
-  }
-
-  private async handleClanAndPlayerReward(
-    player_id: string,
-    progressResult: DailyTaskProgressResult<DailyTaskDto>,
-  ): Promise<[boolean, ServiceError[]]> {
-    if (progressResult.status !== 'completed') return [true, null];
-
-    const { task } = progressResult;
-    await this.clanRewarder.rewardClanForPlayerTask(
-      task.clan_id,
-      task.points,
-      task.coins,
-    );
-    await this.playerRewarder.rewardForPlayerTask(player_id, task.points);
-
-    return [true, null];
   }
 }

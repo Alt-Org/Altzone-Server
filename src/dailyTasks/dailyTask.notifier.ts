@@ -4,7 +4,11 @@ import { NotificationResource } from '../common/service/notificator/enum/Notific
 import { NotificationStatus } from '../common/service/notificator/enum/NotificationStatus.enum';
 import NotificationSender from '../common/service/notificator/NotificationSender';
 import { ServerTaskName } from './enum/serverTaskName.enum';
-import { Task } from './type/task.type';
+import { UITaskName } from './enum/uiTaskName.enum';
+
+type NotifiableDailyTask = {
+  type: ServerTaskName | UITaskName;
+};
 
 /**
  * Class for sending player tasks (or daily tasks on game side) notifications
@@ -18,8 +22,11 @@ export default class DailyTaskNotifier {
    * @param player_id the DB _id of the player for whom notification is addressed
    * @param task the task to do
    */
-  taskReceived(player_id: string, task: Task) {
-    NotificationSender.buildNotification<Task>()
+  taskReceived<TTask extends NotifiableDailyTask>(
+    player_id: string,
+    task: TTask,
+  ) {
+    NotificationSender.buildNotification<TTask>()
       .addGroup(this.group, player_id)
       .addResource(this.resource, task.type)
       .send(NotificationStatus.NEW, task);
@@ -30,8 +37,11 @@ export default class DailyTaskNotifier {
    * @param player_id the DB _id of the player for whom notification is addressed
    * @param task updated info of the task
    */
-  taskUpdated(player_id: string, task: Task) {
-    NotificationSender.buildNotification<Task>()
+  taskUpdated<TTask extends NotifiableDailyTask>(
+    player_id: string,
+    task: TTask,
+  ) {
+    NotificationSender.buildNotification<TTask>()
       .addGroup(this.group, player_id)
       .addResource(this.resource, task.type)
       .send(NotificationStatus.UPDATE, task);
@@ -54,8 +64,11 @@ export default class DailyTaskNotifier {
    * @param player_id the DB _id of the player for whom notification is addressed
    * @param task info of the completed task
    */
-  taskCompleted(player_id: string, task: Task) {
-    NotificationSender.buildNotification<Task>()
+  taskCompleted<TTask extends NotifiableDailyTask>(
+    player_id: string,
+    task: TTask,
+  ) {
+    NotificationSender.buildNotification<TTask>()
       .addGroup(this.group, player_id)
       .addResource(this.resource, task.type)
       .send(NotificationStatus.END, task);
