@@ -25,7 +25,7 @@ import {
 import { InjectConnection } from '@nestjs/mongoose';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { OnEvent } from '@nestjs/event-emitter';
-import ServiceError from 'src/common/service/basicService/ServiceError';
+import ServiceError from '../common/service/basicService/ServiceError';
 @Injectable()
 export class ClanShopService {
   constructor(
