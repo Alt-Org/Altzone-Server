@@ -56,8 +56,15 @@ describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
     const event = gameEventBuilder
       .setEventName('dailyTask.updateUIBasicTask')
       .setInfo({
-        status: 'completed',
-        task: createdTask,
+        result: {
+          status: 'completed',
+          task: createdTask,
+          completedByPlayerId: loggedPlayer._id.toString(),
+          clanId: existingClan._id.toString(),
+          completedAmount: 1,
+          previousAmountLeft: 1,
+          currentAmountLeft: 0,
+        },
       })
       .build() as any;
 
@@ -88,8 +95,15 @@ describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
     const event = gameEventBuilder
       .setEventName('dailyTask.updateUIBasicTask')
       .setInfo({
-        status: 'completed',
-        task: createdTask,
+        result: {
+          status: 'completed',
+          task: createdTask,
+          completedByPlayerId: loggedPlayer._id.toString(),
+          clanId: existingClan._id.toString(),
+          completedAmount: 1,
+          previousAmountLeft: 1,
+          currentAmountLeft: 0,
+        },
       })
       .build() as any;
 
