@@ -13,21 +13,22 @@ describe('DailyTaskProgressService', () => {
     taskType: string,
     points = 10,
     coins = 5,
-  ) => ({
-    status,
-    task: {
-      clan_id: 'clan-1',
-      player_id: 'player-1',
-      type: taskType,
-      points,
-      coins,
-    },
-    completedByPlayerId: 'player-1',
-    clanId: 'clan-1',
-    completedAmount: 1,
-    previousAmountLeft: 2,
-    currentAmountLeft: status === 'advanced' ? 1 : 0,
-  } as any);
+  ) =>
+    ({
+      status,
+      task: {
+        clan_id: 'clan-1',
+        player_id: 'player-1',
+        type: taskType,
+        points,
+        coins,
+      },
+      completedByPlayerId: 'player-1',
+      clanId: 'clan-1',
+      completedAmount: 1,
+      previousAmountLeft: 2,
+      currentAmountLeft: status === 'advanced' ? 1 : 0,
+    }) as any;
 
   beforeEach(() => {
     notifier = {
@@ -68,10 +69,7 @@ describe('DailyTaskProgressService', () => {
 
     expect(error).toBeNull();
     expect(handled).toBe(result);
-    expect(notifier.taskUpdated).toHaveBeenCalledWith(
-      'player-1',
-      result.task,
-    );
+    expect(notifier.taskUpdated).toHaveBeenCalledWith('player-1', result.task);
     expect(notifier.taskCompleted).not.toHaveBeenCalled();
     expect(clanRewarder.rewardClanForPlayerTask).not.toHaveBeenCalled();
     expect(clanProgression.handleClanProgression).not.toHaveBeenCalled();
@@ -84,10 +82,7 @@ describe('DailyTaskProgressService', () => {
 
     expect(error).toBeNull();
     expect(handled).toBe(result);
-    expect(notifier.taskUpdated).toHaveBeenCalledWith(
-      'player-1',
-      result.task,
-    );
+    expect(notifier.taskUpdated).toHaveBeenCalledWith('player-1', result.task);
     expect(notifier.taskCompleted).not.toHaveBeenCalled();
     expect(clanRewarder.rewardClanForPlayerTask).not.toHaveBeenCalled();
     expect(clanProgression.handleClanProgression).not.toHaveBeenCalled();
