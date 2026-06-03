@@ -81,6 +81,21 @@ export class DailyTaskProgressService {
       await this.clanProgression.handleClanProgression(updatedClan, session);
     if (clanProgressionErrors) return [null, clanProgressionErrors];
 
+    this.notifier.taskCompletedForClan(
+      result.clanId,
+      task,
+      result.completedByPlayerId,
+    );
+
+    if (result.reachedMilestones?.length) {
+      this.notifier.milestoneReached(
+        result.clanId,
+        task,
+        result.completedByPlayerId,
+        result.reachedMilestones,
+      );
+    }
+
     return [result, null];
   }
 }
