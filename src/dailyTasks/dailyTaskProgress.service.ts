@@ -38,8 +38,6 @@ export class DailyTaskProgressService {
       return [result, null];
     }
 
-    this.notifier.taskCompleted(result.completedByPlayerId, result.task);
-
     if (session) return this.handleCompletion(result, session);
 
     const [newSession, initErrors] = await initializeSession(this.connection);
@@ -60,12 +58,11 @@ export class DailyTaskProgressService {
   ): Promise<IServiceReturn<DailyTaskProgressResult<TTask>>> {
     const { task } = result;
 
-    const [, playerRewardErrors] =
-      await this.playerRewarder.rewardForPlayerTask(
-        result.completedByPlayerId,
-        task.points,
-        session,
-      );
+    const [, playerRewardErrors] = await this.playerRewarder.rewardForPlayerTask(
+      result.completedByPlayerId,
+      task.points,
+      session,
+    );
     if (playerRewardErrors) return [null, playerRewardErrors];
 
     const [updatedClan, clanRewardErrors] =
@@ -83,6 +80,7 @@ export class DailyTaskProgressService {
 
     result.reachedMilestones = progressionResult.reachedMilestones;
 
+    this.notifier.taskCompleted(result.completedByPlayerId, task);
     this.notifier.taskCompletedForClan(
       result.clanId,
       task,
