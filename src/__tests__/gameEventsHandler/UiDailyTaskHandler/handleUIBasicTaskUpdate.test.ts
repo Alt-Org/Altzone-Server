@@ -10,6 +10,8 @@ import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import GameEventsEmitterBuilderFactory from '../../gameEventsEmitter/data/gameEventsEmitterBuilderFactory';
 import GameEventBuilder from '../../gameEventsEmitter/data/gameEventsEmitter/GameEventBuilder';
 import { UITaskName } from '../../../dailyTasks/enum/uiTaskName.enum';
+import StockBuilder from '../../clanInventory/data/stock/StockBuilder';
+import DailyTaskNotifier from '../../../dailyTasks/dailyTask.notifier';
 
 describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
   let handler: UiDailyTaskHandler;
@@ -27,6 +29,8 @@ describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
 
   const taskBuilder = DailyTaskBuilderFactory.getBuilder('DailyTask');
   const taskModel = DailyTasksModule.getDailyTaskModel();
+  const stockModel = DailyTasksModule.getStockModel();
+  const stockBuilder = new StockBuilder();
 
   beforeEach(async () => {
     handler = await GameEventsHandlerModule.getUiDailyTaskHandler();
@@ -114,6 +118,51 @@ describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
 
     expect(clanAfterEventHandled.gameCoins).toBe(
       clanBeforeEventHandled.gameCoins + createdTask.coins,
+    );
+  });
+
+  it('Should notify reached milestones if task completion advances clan progression', async () => {
+    const taskType = UITaskName.PRESS_FAMOUS_CHARACTER;
+    const milestonePoints = 300;
+    const dailyTaskToCreate = taskBuilder
+      .setClanId(existingClan._id)
+      .setPlayerId(loggedPlayer._id)
+      .setAmount(1)
+      .setAmountLeft(1)
+      .setType(taskType)
+      .setPoints(milestonePoints)
+      .setCoins(10)
+      .setPlayerId(loggedPlayer._id)
+      .setClanId(existingClan._id)
+      .build();
+    const stockToCreate = stockBuilder.setClanId(existingClan._id).build();
+    await stockModel.create(stockToCreate);
+    const createdTask = await taskModel.create(dailyTaskToCreate);
+    const event = gameEventBuilder
+      .setEventName('dailyTask.updateUIBasicTask')
+      .setInfo({
+        result: {
+          status: 'completed',
+          task: createdTask,
+          completedByPlayerId: loggedPlayer._id.toString(),
+          clanId: existingClan._id.toString(),
+          completedAmount: 1,
+          previousAmountLeft: 1,
+          currentAmountLeft: 0,
+        },
+      })
+      .build() as any;
+    const milestoneReachedSpy = jest
+      .spyOn(DailyTaskNotifier.prototype, 'milestoneReached')
+      .mockImplementation();
+
+    await handler.handleUIBasicTaskUpdate(event);
+
+    expect(milestoneReachedSpy).toHaveBeenCalledWith(
+      existingClan._id.toString(),
+      createdTask,
+      loggedPlayer._id.toString(),
+      [milestonePoints],
     );
   });
 });
