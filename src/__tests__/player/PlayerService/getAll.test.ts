@@ -8,9 +8,7 @@ import { ModelName } from '../../../common/enum/modelName.enum';
 import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultFields';
 import { Player } from '../../../player/schemas/player.schema';
 import ServiceError from '../../../common/service/basicService/ServiceError';
-import { PlayerDto } from '../../../player/dto/player.dto';
 import { PlayerObject } from 'src/common/type/playerObject.type';
-import { ClanDto } from 'src/clan/dto/clan.dto';
 
 describe('PlayerService.getAll() test suite', () => {
   let playerService: PlayerService;
