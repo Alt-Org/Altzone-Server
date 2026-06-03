@@ -58,11 +58,12 @@ export class DailyTaskProgressService {
   ): Promise<IServiceReturn<DailyTaskProgressResult<TTask>>> {
     const { task } = result;
 
-    const [, playerRewardErrors] = await this.playerRewarder.rewardForPlayerTask(
-      result.completedByPlayerId,
-      task.points,
-      session,
-    );
+    const [, playerRewardErrors] =
+      await this.playerRewarder.rewardForPlayerTask(
+        result.completedByPlayerId,
+        task.points,
+        session,
+      );
     if (playerRewardErrors) return [null, playerRewardErrors];
 
     const [updatedClan, clanRewardErrors] =
