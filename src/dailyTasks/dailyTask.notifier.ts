@@ -102,7 +102,9 @@ export default class DailyTaskNotifier {
       completedByPlayerId,
     };
 
-    NotificationSender.buildNotification<DailyTaskClanCompletionPayload<TTask>>()
+    NotificationSender.buildNotification<
+      DailyTaskClanCompletionPayload<TTask>
+    >()
       .addGroup(this.clanGroup, clan_id)
       .addResource(this.resource, task.type)
       .send(NotificationStatus.END, payload);
