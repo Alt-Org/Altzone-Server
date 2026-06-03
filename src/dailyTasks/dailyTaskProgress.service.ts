@@ -77,9 +77,11 @@ export class DailyTaskProgressService {
       );
     if (clanRewardErrors) return [null, clanRewardErrors];
 
-    const [, clanProgressionErrors] =
+    const [progressionResult, clanProgressionErrors] =
       await this.clanProgression.handleClanProgression(updatedClan, session);
     if (clanProgressionErrors) return [null, clanProgressionErrors];
+
+    result.reachedMilestones = progressionResult.reachedMilestones;
 
     this.notifier.taskCompletedForClan(
       result.clanId,
