@@ -86,10 +86,7 @@ export default class UIDailyTasksService {
 
     const previousAmountLeft = task.amountLeft;
     const completedAmount = Math.min(amount, previousAmountLeft);
-    const currentAmountLeft = Math.max(
-      previousAmountLeft - completedAmount,
-      0,
-    );
+    const currentAmountLeft = Math.max(previousAmountLeft - completedAmount, 0);
     const isTaskCompleted = currentAmountLeft <= 0;
 
     const [session, initErrors] = await initializeSession(this.connection);
@@ -119,10 +116,9 @@ export default class UIDailyTasksService {
       ];
     }
 
-    const [_isSuccess, updateErrors] = await this.handleTaskAmountUpdate(
-      task,
-      { session },
-    );
+    const [_isSuccess, updateErrors] = await this.handleTaskAmountUpdate(task, {
+      session,
+    });
 
     if (updateErrors) return cancelTransaction(session, updateErrors);
 
