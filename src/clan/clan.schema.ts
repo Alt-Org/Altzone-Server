@@ -91,10 +91,7 @@ export class Clan {
     type: Number,
     enum: Environment,
   })
-  environment?: Environment;
-
-  @Prop({ type: Date })
-  expiresAt?: Date;
+  environment: Environment;
 
   @ExtractField()
   _id: string;
@@ -121,7 +118,6 @@ ClanSchema.virtual(ModelName.SOULHOME, {
 });
 ClanSchema.index({ points: -1 });
 ClanSchema.index({ battlePoints: -1 });
-ClanSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export const publicReferences = [
   ModelName.PLAYER,

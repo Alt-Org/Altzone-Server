@@ -43,7 +43,7 @@ export class Profile {
     default: Environment.TEACHING_DEMO,
     enum: Environment,
   })
-  environment?: Environment;
+  environment: Environment;
 
   @Prop({ type: Date })
   expiresAt?: Date;

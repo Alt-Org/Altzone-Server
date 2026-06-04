@@ -52,5 +52,5 @@ export class SoulHomeDto {
    * Environment for the Soul Home
    */
   @Expose()
-  environment?: Environment;
+  environment: Environment;
 }

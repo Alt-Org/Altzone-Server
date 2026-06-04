@@ -45,8 +45,8 @@ export class Game {
   @Prop({ type: Date, required: true })
   endedAt: Date;
 
-  @Prop({ type: Number, enum: Environment })
-  environment?: Environment;
+  @Prop({ type: Number, enum: Environment, required: true })
+  environment: Environment;
 
   @ExtractField()
   _id: string;

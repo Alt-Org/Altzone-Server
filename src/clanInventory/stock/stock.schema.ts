@@ -26,10 +26,7 @@ export class Stock {
     type: Number,
     enum: Environment,
   })
-  environment?: Environment;
-
-  @Prop({ type: Date })
-  expiresAt?: Date;
+  environment: Environment;
 }
 export const StockSchema = SchemaFactory.createForClass(Stock);
 StockSchema.set('collection', ModelName.STOCK);
@@ -44,6 +41,5 @@ StockSchema.virtual(ModelName.ITEM, {
   localField: '_id',
   foreignField: 'stock_id',
 });
-StockSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export const publicReferences = [ModelName.CLAN, ModelName.ITEM];

@@ -8,6 +8,7 @@ import { TaskDto } from './task.dto';
 import { AvatarDto } from './avatar.dto';
 import { Min } from 'class-validator';
 import { EmotionDto } from './emotion.dto';
+import { Environment } from '../../common/enum/environment.enum';
 
 @AddType('PlayerDto')
 export class PlayerDto {
@@ -158,12 +159,7 @@ export class PlayerDto {
   /**
    * Environment value linked to player profile
    */
+  @Type(() => Number)
   @Expose()
-  environment?: number;
-
-  /**
-   * Expiration date linked to player profile
-   */
-  @Expose()
-  expiresAt?: Date;
+  environment: Environment;
 }

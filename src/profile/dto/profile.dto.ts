@@ -17,7 +17,7 @@ export class ProfileDto {
   Player: PlayerDto;
 
   @Expose()
-  environment?: number;
+  environment: number;
 
   @Expose()
   expiresAt?: Date;

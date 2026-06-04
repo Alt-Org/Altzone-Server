@@ -28,5 +28,5 @@ export class CreateSoulHomeDto {
    * @example Environment.OPEN_DEMO
    */
   @IsEnum(Environment)
-  environment?: Environment;
+  environment: Environment;
 }

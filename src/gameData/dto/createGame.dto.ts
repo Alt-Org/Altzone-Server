@@ -43,7 +43,7 @@ export class CreateGameDto {
   @IsNotEmpty()
   endedAt: Date;
 
-  @IsEnum(Environment)
   @Type(() => Number)
-  environment?: Environment;
+  @IsEnum(Environment)
+  environment: Environment;
 }

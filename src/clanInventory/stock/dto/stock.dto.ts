@@ -51,5 +51,5 @@ export class StockDto {
    * Environment of the stock
    */
   @Expose()
-  environment?: Environment;
+  environment: Environment;
 }

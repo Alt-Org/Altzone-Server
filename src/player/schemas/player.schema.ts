@@ -88,10 +88,7 @@ export class Player {
     enum: Environment,
     ref: ModelName.PROFILE,
   })
-  environment?: Environment;
-
-  @Prop({ type: Date, ref: ModelName.PROFILE })
-  expiresAt?: Date;
+  environment: Environment;
 
   @ExtractField()
   _id: string;
@@ -123,7 +120,6 @@ PlayerSchema.virtual(ModelName.DAILY_TASK, {
 });
 PlayerSchema.index({ points: -1 });
 PlayerSchema.index({ battlePoints: -1 });
-PlayerSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export const publicReferences = [
   ModelName.CLAN,

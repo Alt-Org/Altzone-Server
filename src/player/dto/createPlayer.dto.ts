@@ -2,7 +2,6 @@ import {
   ArrayMaxSize,
   IsArray,
   IsBoolean,
-  IsDate,
   IsEnum,
   IsInt,
   IsMongoId,
@@ -113,17 +112,7 @@ export class CreatePlayerDto {
    * @example 0
    * @example 1
    */
-  @IsOptional()
-  @IsEnum([Environment.TEACHING_DEMO, Environment.OPEN_DEMO])
-  @IsInt()
-  environment?: number;
-
-  /**
-   * Expiration date linked to the player profile
-   *
-   * @example "2025-05-16T10:00:00.000Z"
-   */
-  @IsOptional()
-  @IsDate()
-  expiresAt?: Date;
+  @Type(() => Number)
+  @IsEnum(Environment)
+  environment: number;
 }

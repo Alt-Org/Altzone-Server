@@ -90,7 +90,7 @@ export class GameDto {
    *
    * @example Environment.TEACHING_DEMO
    */
-  @IsEnum(Environment)
   @Type(() => Number)
-  environment?: Environment;
+  @IsEnum(Environment)
+  environment: Environment;
 }

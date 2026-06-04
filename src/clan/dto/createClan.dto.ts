@@ -7,7 +7,6 @@ import {
   IsString,
   ValidateNested,
   MaxLength,
-  IsDate,
 } from 'class-validator';
 import { ClanLabel } from '../enum/clanLabel.enum';
 import { AgeRange } from '../enum/ageRange.enum';
@@ -121,16 +120,7 @@ export class CreateClanDto {
    * @example 0
    * @example 1
    */
+  @Type(() => Number)
   @IsEnum(Environment)
-  @IsOptional()
-  environment?: Environment;
-
-  /**
-   * Expiration date (```environment``` works as this field's setter)
-   *
-   * @example ```new Date() + 1000 * 60 * 60 // 1 hour```
-   */
-  @IsOptional()
-  @IsDate()
-  expiresAt?: Date;
+  environment: Environment;
 }
