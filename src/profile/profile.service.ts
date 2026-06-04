@@ -28,6 +28,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { RecoveryConstants } from './const/recoveryConst';
 import { Environment } from '../common/enum/environment.enum';
+import { CreatePlayerDto } from '../player/dto/createPlayer.dto';
 
 const ARGON2_CONFIG = {
   type: argon2.argon2id,
@@ -119,9 +120,8 @@ export class ProfileService
     const environment = profile.environment ?? Environment.TEACHING_DEMO;
 
     if (environment === Environment.TEACHING_DEMO) {
-      profile.expiresAt = new Date(Date.now() + 1000 * 60 * 60); // expires in 1 hour
-    } else {
-      profile.expiresAt = undefined;
+      const expiresAt = new Date(Date.now() + 1000 * 60 * 60);
+      profile.expiresAt = expiresAt;
     }
 
     profile.environment = environment;
@@ -149,11 +149,13 @@ export class ProfileService
       .slice(0, 8);
     const username = prefix + '-' + uniqueIdentifier;
     const isGuest = true;
+    const environment = Environment.OPEN_DEMO;
 
     const [createdProfile, errors] = await this.createWithHashedPassword({
       username,
       password,
-      isGuest,
+      isGuest: isGuest,
+      environment: environment,
     } as CreateProfileDto);
 
     if (errors) return [null, errors];
@@ -164,7 +166,8 @@ export class ProfileService
         name: username,
         uniqueIdentifier: username,
         backpackCapacity: 0,
-      });
+        environment: createdProfile.environment,
+      } as CreatePlayerDto);
     } catch (e) {
       await this.deleteOneById(createdProfile._id);
       throw e;
@@ -174,6 +177,7 @@ export class ProfileService
       {
         username: username,
         password: password,
+        environment: environment,
       } as GuestProfileDto,
       null,
     ];
