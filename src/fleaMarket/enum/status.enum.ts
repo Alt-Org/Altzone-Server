@@ -9,7 +9,6 @@
  *   clan. Lives in the FleaMarketItem collection.
  * - BOOKED: Another clan has reserved the item and is in the process of
  *   voting whether to buy it. Lives in the FleaMarketItem collection.
- * Step 2 next tomorrow, delete this when there.
  */
 export enum Status {
   IN_STOCK = 'in_stock',
