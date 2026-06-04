@@ -52,7 +52,10 @@ describe('VotingService.addVote() test suite', () => {
       .setFleamarketItemId(entityId)
       .build();
 
-    return await votingModel.create(votingToCreate);
+    return await votingModel.create({
+      ...votingToCreate,
+      endsOn: new Date(Date.now() + 60 * 60 * 1000),
+    });
   };
 
   it('Should add a vote successfully for a valid input', async () => {
@@ -81,10 +84,24 @@ describe('VotingService.addVote() test suite', () => {
   it('Should not allow voting twice by the same user', async () => {
     const player = await createTestPlayer();
     const fleaMarket = await createTestFleaMarketItem();
-    const voting = await createTestVoting(
-      { player_id: player._id, clan_id: null },
-      fleaMarket._id.toString(),
-    );
+
+    // Pre-seed NO votes so the player's YES vote doesn't trigger finalization
+    // (1 yes / 3 votes = 33%, below 51%)
+    const votingToCreate = votingBuilder
+      .setMinPercentage(51)
+      .setType(VotingType.FLEA_MARKET_SELL_ITEM)
+      .setOrganizer({ player_id: player._id, clan_id: null })
+      .setFleamarketItemId(fleaMarket._id.toString())
+      .build();
+
+    const voting = await votingModel.create({
+      ...votingToCreate,
+      endsOn: new Date(Date.now() + 60 * 60 * 1000),
+      votes: [
+        { player_id: new ObjectId(), choice: VoteChoice.NO },
+        { player_id: new ObjectId(), choice: VoteChoice.NO },
+      ],
+    });
 
     await votingService.addVote(
       voting._id.toString(),
@@ -103,7 +120,7 @@ describe('VotingService.addVote() test suite', () => {
     });
 
     const votingFromDb = await votingModel.findById(voting._id);
-    expect(votingFromDb.votes).toHaveLength(1);
+    expect(votingFromDb.votes).toHaveLength(3); // 2 seeded NOs + 1 player YES
   });
 
   it('Should return error if organizer ID is invalid', async () => {
@@ -121,6 +138,62 @@ describe('VotingService.addVote() test suite', () => {
         player._id.toString(),
       ),
     ).rejects.toEqual(expect.anything());
+  });
+
+  it('Should not allow voting on an expired voting (endsOn in past)', async () => {
+    const player = await createTestPlayer();
+    const fleaMarket = await createTestFleaMarketItem();
+    const voting = await createTestVoting(
+      { player_id: player._id, clan_id: null },
+      fleaMarket._id.toString(),
+    );
+
+    // Manually expire the voting after creation.
+    await votingModel.updateOne(
+      { _id: voting._id },
+      { $set: { endsOn: new Date(Date.now() - 60 * 1000) } },
+    );
+
+    await expect(
+      votingService.addVote(
+        voting._id.toString(),
+        VoteChoice.YES,
+        player._id.toString(),
+      ),
+    ).rejects.toMatchObject({
+      message: 'Voting has expired.',
+    });
+
+    const votingFromDb = await votingModel.findById(voting._id);
+    expect(votingFromDb.votes).toHaveLength(0);
+  });
+
+  it('Should not allow voting on a finalized voting (endedAt set)', async () => {
+    const player = await createTestPlayer();
+    const fleaMarket = await createTestFleaMarketItem();
+    const voting = await createTestVoting(
+      { player_id: player._id, clan_id: null },
+      fleaMarket._id.toString(),
+    );
+
+    // Mark the voting as finalized after creation.
+    await votingModel.updateOne(
+      { _id: voting._id },
+      { $set: { endedAt: new Date() } },
+    );
+
+    await expect(
+      votingService.addVote(
+        voting._id.toString(),
+        VoteChoice.YES,
+        player._id.toString(),
+      ),
+    ).rejects.toMatchObject({
+      message: 'Voting has expired.',
+    });
+
+    const votingFromDb = await votingModel.findById(voting._id);
+    expect(votingFromDb.votes).toHaveLength(0);
   });
 
   it('Should apply a clan role when a SET_CLAN_ROLE voting passes after adding a vote', async () => {
