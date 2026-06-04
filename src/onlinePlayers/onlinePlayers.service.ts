@@ -38,7 +38,7 @@ export class OnlinePlayersService {
     const { player_id, status, client_version } = playerInfo;
 
     const [player, errors] = await this.playerService.getPlayerById(player_id);
-    if (errors) return [null, errors];
+    if (errors) return [null, errors as ServiceError[]];
 
     const payload: OnlinePlayer = {
       _id: player_id,

@@ -229,14 +229,14 @@ export class GameDataService {
       playerIds[0],
     );
     if (team1Errors) {
-      return [null, team1Errors];
+      return [null, team1Errors as ServiceError[]];
     }
 
     const [team2Player, team2Errors] = await this.playerService.getPlayerById(
       playerIds[1],
     );
     if (team2Errors) {
-      return [null, team2Errors];
+      return [null, team2Errors as ServiceError[]];
     }
 
     const clanIds = {
