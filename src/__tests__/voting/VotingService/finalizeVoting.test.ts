@@ -12,7 +12,7 @@ describe('VotingService.finalizeVoting() test suite', () => {
     votingService = await VotingModule.getVotingService();
   });
 
-  const createClanShopVoting  = async (endedAt?: Date) => {
+  const createClanShopVoting = async (endedAt?: Date) => {
     return await votingService.votingModel.create({
       organizer: {
         player_id: new ObjectId(),
@@ -29,7 +29,7 @@ describe('VotingService.finalizeVoting() test suite', () => {
 
   it('Should set endedAt and send completed notification for active voting', async () => {
     const voting = await createClanShopVoting();
-    
+
     expect((voting as any).shopItemName).toBe(ItemName.SOFA_TAAKKA);
     const votingCompletedSpy = jest
       .spyOn((votingService as any).notifier, 'votingCompleted')
