@@ -6,9 +6,15 @@ import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { MemberClanRole } from '../../../../clan/role/initializationClanRoles';
+import MQTTConnector from '../../../../common/service/notificator/MQTTConnector';
+
+jest.mock('../../../../common/service/notificator/MQTTConnector', () => ({
+  getInstance: jest.fn(),
+}));
 
 describe('JoinService.handleJoinRequest() test suite', () => {
   let joinService: JoinService;
+  let publishMock: jest.Mock;
   const joinBuilder = ClanBuilderFactory.getBuilder('JoinRequestDto');
 
   const clanModel = ClanModule.getClanModel();
@@ -25,6 +31,11 @@ describe('JoinService.handleJoinRequest() test suite', () => {
   const player = playerBuilder.build();
 
   beforeEach(async () => {
+    publishMock = jest.fn();
+    (MQTTConnector.getInstance as jest.Mock).mockReturnValue({
+      publish: publishMock,
+    });
+
     const playerResp = await playerModel.create(player);
     player._id = playerResp._id.toString();
     const clanResp1 = await clanModel.create(openClan);
@@ -163,5 +174,24 @@ describe('JoinService.handleJoinRequest() test suite', () => {
 
     expect(createdClan).not.toBeNull();
     expect(createdClan.name).toMatch(/Expedition/);
+  });
+
+  it('Should publish an MQTT join notification when player joins the clan', async () => {
+    const joinToCreate = joinBuilder.setClanId(openClan._id).build();
+
+    await joinService.handleJoinRequest(
+      joinToCreate.clan_id,
+      player._id,
+    );
+
+    expect(publishMock).toHaveBeenCalledTimes(1);
+    const [topic, payload] = publishMock.mock.calls[0];
+    expect(topic).toBe(`/clan/${openClan._id}/member/join/new`);
+
+    const parsedPayload = JSON.parse(payload);
+    expect(parsedPayload.topic).toBe(`/clan/${openClan._id}/member/join`);
+    expect(parsedPayload.playerId).toBe(player._id);
+    expect(parsedPayload.event).toBe('join');
+    expect(parsedPayload.ts).toBeLessThanOrEqual(Date.now());
   });
 });
