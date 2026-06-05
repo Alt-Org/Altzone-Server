@@ -179,10 +179,7 @@ describe('JoinService.handleJoinRequest() test suite', () => {
   it('Should publish an MQTT join notification when player joins the clan', async () => {
     const joinToCreate = joinBuilder.setClanId(openClan._id).build();
 
-    await joinService.handleJoinRequest(
-      joinToCreate.clan_id,
-      player._id,
-    );
+    await joinService.handleJoinRequest(joinToCreate.clan_id, player._id);
 
     expect(publishMock).toHaveBeenCalledTimes(1);
     const [topic, payload] = publishMock.mock.calls[0];
