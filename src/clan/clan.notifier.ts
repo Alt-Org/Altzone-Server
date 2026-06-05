@@ -12,7 +12,12 @@ export default class ClanNotifier {
     NotificationSender.buildNotification()
       .addGroup(this.group, clanId)
       .addResource(this.resource, 'join')
-      .send(NotificationStatus.NEW, { topic, playerId, event: 'join', ts: Date.now() });
+      .send(NotificationStatus.NEW, {
+        topic,
+        playerId,
+        event: 'join',
+        ts: Date.now(),
+      });
   }
 
   memberLeave(clanId: string, playerId: string) {
@@ -20,6 +25,11 @@ export default class ClanNotifier {
     NotificationSender.buildNotification()
       .addGroup(this.group, clanId)
       .addResource(this.resource, 'leave')
-      .send(NotificationStatus.UPDATE, { topic, playerId, event: 'leave', ts: Date.now() });
+      .send(NotificationStatus.UPDATE, {
+        topic,
+        playerId,
+        event: 'leave',
+        ts: Date.now(),
+      });
   }
 }
