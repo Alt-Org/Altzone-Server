@@ -3,6 +3,7 @@ import { ItemName } from '../../../clanInventory/item/enum/itemName.enum';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
 import { VotingService } from '../../../voting/voting.service';
 import VotingModule from '../modules/voting.module';
+import { Voting } from 'src/voting/schemas/voting.schema';
 
 describe('VotingService.finalizeVoting() test suite', () => {
   let votingService: VotingService;
@@ -11,7 +12,7 @@ describe('VotingService.finalizeVoting() test suite', () => {
     votingService = await VotingModule.getVotingService();
   });
 
-  const createClanShopVoting = async (endedAt?: Date) => {
+  const createClanShopVoting  = async (endedAt?: Date) => {
     return await votingService.votingModel.create({
       organizer: {
         player_id: new ObjectId(),
@@ -28,7 +29,8 @@ describe('VotingService.finalizeVoting() test suite', () => {
 
   it('Should set endedAt and send completed notification for active voting', async () => {
     const voting = await createClanShopVoting();
-    expect(voting.shopItemName).toBe(ItemName.SOFA_TAAKKA);
+    
+    expect((voting as any).shopItemName).toBe(ItemName.SOFA_TAAKKA);
     const votingCompletedSpy = jest
       .spyOn((votingService as any).notifier, 'votingCompleted')
       .mockResolvedValue(undefined);
