@@ -72,7 +72,7 @@ describe('VotingService.addVote() test suite', () => {
       VoteChoice.YES,
       player._id.toString(),
     );
-
+    
     const votingFromDb = (
       await votingModel.findOne({ _id: voting._id })
     ).toObject();
@@ -81,10 +81,10 @@ describe('VotingService.addVote() test suite', () => {
       player._id.toString(),
     );
     expect(votingUpdatedSpy).toHaveBeenCalledTimes(1);
-    expect(votingUpdatedSpy.mock.calls[0][1]._id.toString()).toBe(
+    expect((votingUpdatedSpy.mock.calls[0][1] as any)._id.toString()).toBe(
       fleaMarket._id.toString(),
     );
-    expect(votingUpdatedSpy.mock.calls[0][2]._id.toString()).toBe(
+    expect((votingUpdatedSpy.mock.calls[0][2] as any)._id.toString()).toBe(
       player._id.toString(),
     );
   });
@@ -121,7 +121,7 @@ describe('VotingService.addVote() test suite', () => {
     const player = await createTestPlayer();
     const fleaMarket = await createTestFleaMarketItem();
     const voting = await createTestVoting(
-      { player_id: 'invalidId', clan_id: null },
+      { player_id: player._id, clan_id: null },
       fleaMarket._id.toString(),
     );
 
@@ -129,7 +129,7 @@ describe('VotingService.addVote() test suite', () => {
       votingService.addVote(
         voting._id.toString(),
         VoteChoice.YES,
-        player._id.toString(),
+        'invalidId',
       ),
     ).rejects.toEqual(expect.anything());
   });
@@ -173,9 +173,8 @@ describe('VotingService.addVote() test suite', () => {
     expect(votingUpdatedSpy.mock.calls[0][1]).toEqual({
       shopItemName: ItemName.SOFA_TAAKKA,
     });
-    expect(votingUpdatedSpy.mock.calls[0][2]._id.toString()).toBe(
-      voter._id.toString(),
-    );
+    expect(
+      (votingUpdatedSpy.mock.calls[0][2] as any)._id.toString()).toBe(voter._id.toString());
   });
 
   it('Should send governance payload entity when adding a vote to governance voting', async () => {
@@ -220,9 +219,7 @@ describe('VotingService.addVote() test suite', () => {
 
     expect(votingUpdatedSpy).toHaveBeenCalledTimes(1);
     expect(votingUpdatedSpy.mock.calls[0][1]).toEqual(governancePayload);
-    expect(votingUpdatedSpy.mock.calls[0][2]._id.toString()).toBe(
-      voter._id.toString(),
-    );
+    expect((votingUpdatedSpy.mock.calls[0][2] as any)._id.toString()).toBe(voter._id.toString());
   });
 
   it('Should apply a clan role when a SET_CLAN_ROLE voting passes after adding a vote', async () => {
@@ -274,13 +271,22 @@ describe('VotingService.addVote() test suite', () => {
     const updatedPlayer = await playerModel.findById(targetPlayer._id);
     expect(updatedPlayer.clanRole_id.toString()).toBe(roleId.toString());
     expect(votingUpdatedSpy).toHaveBeenCalledTimes(1);
-    expect(votingUpdatedSpy.mock.calls[0][1].player_id.toString()).toBe(
+    expect(votingUpdatedSpy).toHaveBeenCalledTimes(1);
+
+    const notificationEntity = votingUpdatedSpy.mock.calls[0]?.[1];
+    if (!notificationEntity) {
+      throw new Error(`votingUpdated not called correctly. Calls: ${JSON.stringify(votingUpdatedSpy.mock.calls)}`);
+    }
+    
+    expect((notificationEntity as any).player_id.toString()).toEqual(
       targetPlayer._id.toString(),
     );
-    expect(votingUpdatedSpy.mock.calls[0][1].role_id.toString()).toBe(
+    
+    expect((notificationEntity as any).role_id.toString()).toEqual(
       roleId.toString(),
     );
-    expect(votingUpdatedSpy.mock.calls[0][2]._id.toString()).toBe(
+    
+    expect((votingUpdatedSpy.mock.calls[0][2] as any)._id.toString()).toBe(
       voter._id.toString(),
     );
   });
