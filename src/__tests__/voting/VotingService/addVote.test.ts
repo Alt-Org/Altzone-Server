@@ -72,7 +72,7 @@ describe('VotingService.addVote() test suite', () => {
       VoteChoice.YES,
       player._id.toString(),
     );
-    
+
     const votingFromDb = (
       await votingModel.findOne({ _id: voting._id })
     ).toObject();
@@ -126,11 +126,7 @@ describe('VotingService.addVote() test suite', () => {
     );
 
     await expect(
-      votingService.addVote(
-        voting._id.toString(),
-        VoteChoice.YES,
-        'invalidId',
-      ),
+      votingService.addVote(voting._id.toString(), VoteChoice.YES, 'invalidId'),
     ).rejects.toEqual(expect.anything());
   });
 
@@ -173,8 +169,9 @@ describe('VotingService.addVote() test suite', () => {
     expect(votingUpdatedSpy.mock.calls[0][1]).toEqual({
       shopItemName: ItemName.SOFA_TAAKKA,
     });
-    expect(
-      (votingUpdatedSpy.mock.calls[0][2] as any)._id.toString()).toBe(voter._id.toString());
+    expect((votingUpdatedSpy.mock.calls[0][2] as any)._id.toString()).toBe(
+      voter._id.toString(),
+    );
   });
 
   it('Should send governance payload entity when adding a vote to governance voting', async () => {
@@ -219,7 +216,9 @@ describe('VotingService.addVote() test suite', () => {
 
     expect(votingUpdatedSpy).toHaveBeenCalledTimes(1);
     expect(votingUpdatedSpy.mock.calls[0][1]).toEqual(governancePayload);
-    expect((votingUpdatedSpy.mock.calls[0][2] as any)._id.toString()).toBe(voter._id.toString());
+    expect((votingUpdatedSpy.mock.calls[0][2] as any)._id.toString()).toBe(
+      voter._id.toString(),
+    );
   });
 
   it('Should apply a clan role when a SET_CLAN_ROLE voting passes after adding a vote', async () => {
@@ -275,17 +274,19 @@ describe('VotingService.addVote() test suite', () => {
 
     const notificationEntity = votingUpdatedSpy.mock.calls[0]?.[1];
     if (!notificationEntity) {
-      throw new Error(`votingUpdated not called correctly. Calls: ${JSON.stringify(votingUpdatedSpy.mock.calls)}`);
+      throw new Error(
+        `votingUpdated not called correctly. Calls: ${JSON.stringify(votingUpdatedSpy.mock.calls)}`,
+      );
     }
-    
+
     expect((notificationEntity as any).player_id.toString()).toEqual(
       targetPlayer._id.toString(),
     );
-    
+
     expect((notificationEntity as any).role_id.toString()).toEqual(
       roleId.toString(),
     );
-    
+
     expect((votingUpdatedSpy.mock.calls[0][2] as any)._id.toString()).toBe(
       voter._id.toString(),
     );
