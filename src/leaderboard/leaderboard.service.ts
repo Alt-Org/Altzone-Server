@@ -36,10 +36,7 @@ export class LeaderboardService {
    * @param environment - The environment of the clan.
    * @returns - A promise that resolves to the clan leaderboard data.
    */
-  async getClanLeaderboard(
-    reqQuery: IGetAllQuery,
-    environment: Environment = Environment.TEACHING_DEMO,
-  ) {
+  async getClanLeaderboard(reqQuery: IGetAllQuery, environment: Environment) {
     return this.getLeaderboard(
       `${CacheKeys.CLAN_LEADERBOARD}:env:${environment}`,
       this.clanService.model,
@@ -57,10 +54,7 @@ export class LeaderboardService {
    * @param environment - The environment of the clan.
    * @returns - A promise that resolves to the player leaderboard data.
    */
-  async getPlayerLeaderboard(
-    reqQuery: IGetAllQuery,
-    environment: Environment = Environment.TEACHING_DEMO,
-  ) {
+  async getPlayerLeaderboard(reqQuery: IGetAllQuery, environment: Environment) {
     return this.getLeaderboard(
       `${CacheKeys.PLAYER_LEADERBOARD}:env:${environment}`,
       this.playerService.model,
@@ -138,10 +132,17 @@ export class LeaderboardService {
    * @param environment - The environment of the clan
    * @returns An object { position: number }
    */
-  async getClanPosition(
-    clanId: string,
-    environment: Environment = Environment.TEACHING_DEMO,
-  ) {
+  async getClanPosition(clanId: string) {
+    const [clan, clanErrors] = await this.clanService.readOneById(clanId);
+
+    if (!clan || clanErrors) {
+      throw new ServiceError({
+        reason: SEReason.NOT_FOUND,
+        message: 'Clan not found',
+      });
+    }
+
+    const environment = clan.environment;
     const leaderboard = await this.getLeaderboard(
       `${CacheKeys.CLAN_LEADERBOARD}:env:${environment}`,
       this.clanService.model,

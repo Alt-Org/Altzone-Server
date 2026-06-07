@@ -44,7 +44,7 @@ export class LeaderboardController {
   @OffsetPaginate(ModelName.PLAYER)
   async getPlayerLeaderboard(
     @GetAllQuery() query: IGetAllQuery,
-    @Query('environment', ParseIntPipe) environment?: Environment,
+    @Query('environment', ParseIntPipe) environment: Environment,
   ) {
     return this.leaderBoardService.getPlayerLeaderboard(query, environment);
   }
@@ -71,7 +71,7 @@ export class LeaderboardController {
   @OffsetPaginate(ModelName.CLAN)
   async getClanLeaderboard(
     @GetAllQuery() query: IGetAllQuery,
-    @Query('environment', ParseIntPipe) environment?: Environment,
+    @Query('environment', ParseIntPipe) environment: Environment,
   ) {
     return this.leaderBoardService.getClanLeaderboard(query, environment);
   }
@@ -93,10 +93,7 @@ export class LeaderboardController {
   @UniformResponse()
   async getClanPosition(@LoggedUser() user: User) {
     const clanId = await this.playerService.getPlayerClanId(user.player_id);
-    const clanEnvironment = await this.playerService.getPlayerClanEnvironment(
-      user.player_id,
-    );
 
-    return this.leaderBoardService.getClanPosition(clanId, clanEnvironment);
+    return this.leaderBoardService.getClanPosition(clanId);
   }
 }
