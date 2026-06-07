@@ -34,7 +34,6 @@ import {
   endTransaction,
   initializeSession,
 } from '../common/function/Transactions';
-import { Environment } from '../common/enum/environment.enum';
 
 type CreateWithoutDtoType = Clan & {
   soulHome: SoulHome;
@@ -87,15 +86,8 @@ export class ClanService {
       return await cancelTransaction(session, clanCreatorErrors);
 
     if (clanToCreate) {
-      const environment =
-        clanCreator.environment === Environment.TEACHING_DEMO
-          ? Environment.TEACHING_DEMO
-          : Environment.OPEN_DEMO;
+      const environment = clanCreator.environment;
       clanToCreate.environment = environment;
-
-      if (environment === Environment.TEACHING_DEMO) {
-        clanToCreate.expiresAt = clanCreator.expiresAt;
-      }
     }
 
     if (clanToCreate && !clanToCreate.isOpen && !clanToCreate.password) {
@@ -162,7 +154,11 @@ export class ClanService {
     }
 
     const [clan, clanErrors] = await this.basicService.createOne(
-      { ...clanToCreate, playerCount: 0 },
+      {
+        ...clanToCreate,
+        playerCount: 0,
+        environment: clanToCreate.environment,
+      },
       { session },
     );
     if (clanErrors) return await cancelTransaction(session, clanErrors);

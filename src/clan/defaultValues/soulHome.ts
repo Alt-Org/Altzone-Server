@@ -1,3 +1,4 @@
+import { Environment } from '../../common/enum/environment.enum';
 import { CreateSoulHomeDto } from '../../clanInventory/soulhome/dto/createSoulHome.dto';
 
 /**
@@ -5,10 +6,14 @@ import { CreateSoulHomeDto } from '../../clanInventory/soulhome/dto/createSoulHo
  * @param clan_id to which the SoulHome belongs to
  * @returns
  */
-export function getDefaultSoulHome(clan_id: string): CreateSoulHomeDto {
+export function getDefaultSoulHome(
+  clan_id: string,
+  environment: Environment,
+): CreateSoulHomeDto {
   return {
     name: 'clan',
     clan_id,
+    environment,
   };
 }
 

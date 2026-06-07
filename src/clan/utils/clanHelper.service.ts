@@ -14,16 +14,24 @@ import { ItemDto } from '../../clanInventory/item/dto/item.dto';
 import { SoulHomeDto } from '../../clanInventory/soulhome/dto/soulhome.dto';
 import { RoomDto } from '../../clanInventory/room/dto/room.dto';
 import { SoulHome } from '../../clanInventory/soulhome/soulhome.schema';
-import { ClientSession } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
+import { Clan } from '../clan.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import BasicService from '../../common/service/basicService/BasicService';
 
 @Injectable()
 export default class ClanHelperService {
   constructor(
+    @InjectModel(Clan.name) private readonly clanModel: Model<Clan>,
     private readonly stockService: StockService,
     private readonly soulHomeService: SoulHomeService,
     private readonly roomService: RoomService,
     private readonly itemService: ItemService,
-  ) {}
+  ) {
+    this.basicService = new BasicService(clanModel);
+  }
+
+  private readonly basicService: BasicService;
 
   /**
    * Creates a default Stock for the specified Clan.
@@ -37,8 +45,17 @@ export default class ClanHelperService {
   ): Promise<
     [{ Stock: StockDto; Item: ItemDto[] } | null, ServiceError[] | null]
   > {
+    const [clan, clanErrors] =
+      await this.basicService.readOneById<Clan>(clan_id);
+
+    if (clanErrors || !clan) {
+      return [null, clanErrors];
+    }
+
+    const environment = clan.environment;
+
     const [stock, stockErrors] = await this.stockService.createOne(
-      { cellCount: 20, clan_id },
+      { cellCount: 20, clan_id, environment },
       { session },
     );
     if (stockErrors || !stock) return [null, stockErrors];
@@ -71,11 +88,19 @@ export default class ClanHelperService {
       ServiceError[] | null,
     ]
   > {
+    const [clan, clanErrors] =
+      await this.basicService.readOneById<Clan>(clan_id);
+
+    if (clanErrors || !clan) {
+      return [null, clanErrors];
+    }
+
+    const environment = clan.environment;
     const [soulHome, soulHomeErrors] =
       await this.soulHomeService.basicService.createOne<
         Partial<SoulHome>,
         SoulHomeDto
-      >({ name, clan_id }, { session });
+      >({ name, clan_id, environment }, { session });
     if (soulHomeErrors || !soulHome) return [null, soulHomeErrors];
 
     const defaultRooms = this.getDefaultRooms(soulHome._id, roomsCount);

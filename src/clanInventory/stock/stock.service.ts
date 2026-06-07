@@ -66,10 +66,6 @@ export class StockService {
 
     if (!clanErrors && clan) {
       stock.environment = clan.environment;
-
-      if (clan.environment === Environment.TEACHING_DEMO && clan.expiresAt) {
-        stock.expiresAt = clan.expiresAt;
-      }
     }
 
     return this.basicService.createOne<CreateStockDto, StockDto>(
