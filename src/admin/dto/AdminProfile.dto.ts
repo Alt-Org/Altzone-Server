@@ -13,7 +13,4 @@ export class AdminProfileDto {
 
   @Expose()
   isSystemAdmin: boolean;
-
-  @Expose()
-  environment?: number;
 }

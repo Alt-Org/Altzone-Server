@@ -5,6 +5,7 @@ import { ClanLabel } from '../../../../clan/enum/clanLabel.enum';
 import { AgeRange } from '../../../../clan/enum/ageRange.enum';
 import { Goal } from '../../../../clan/enum/goal.enum';
 import { LogoType } from '../../../../clan/enum/logoType.enum';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class CreateClanDtoBuilder
   implements IDataBuilder<CreateClanDto>
@@ -19,6 +20,7 @@ export default class CreateClanDtoBuilder
     goal: Goal.GRINDAUS,
     language: Language.ENGLISH,
     clanLogo: { logoType: LogoType.HEART, pieceColors: ['#FFFFFF', '#000000'] },
+    environment: Environment.TEACHING_DEMO,
   };
 
   build() {
@@ -67,6 +69,11 @@ export default class CreateClanDtoBuilder
 
   setLanguage(language: Language) {
     this.base.language = language;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }

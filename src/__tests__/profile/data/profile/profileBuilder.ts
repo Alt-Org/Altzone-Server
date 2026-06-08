@@ -1,5 +1,6 @@
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 import { Profile } from '../../../../profile/profile.schema';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class ProfileBuilder implements IDataBuilder<Profile> {
   private readonly base: Profile = {
@@ -13,6 +14,8 @@ export default class ProfileBuilder implements IDataBuilder<Profile> {
     failedRecoveryAttempts: 0,
     recoveryLockedUntil: null,
     tokenVersion: 0,
+    environment: Environment.TEACHING_DEMO,
+    expiresAt: undefined,
   };
 
   build(): Profile {
@@ -61,6 +64,11 @@ export default class ProfileBuilder implements IDataBuilder<Profile> {
 
   setTokenVersion(tokenVersion: number) {
     this.base.tokenVersion = tokenVersion;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }

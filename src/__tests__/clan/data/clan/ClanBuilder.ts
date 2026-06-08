@@ -149,4 +149,9 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
     this.base.stall.maxSlots = amount;
     return this;
   }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
+    return this;
+  }
 }

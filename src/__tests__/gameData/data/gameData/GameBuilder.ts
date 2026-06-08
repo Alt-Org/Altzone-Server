@@ -1,5 +1,6 @@
 import { Game } from '../../../../gameData/game.schema';
 import { ObjectId } from 'mongodb';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export class GameBuilder {
   private readonly base: Game = {
@@ -11,6 +12,7 @@ export class GameBuilder {
     startedAt: new Date(),
     endedAt: new Date(),
     _id: undefined,
+    environment: Environment.TEACHING_DEMO,
   };
 
   build(): Game {
@@ -54,6 +56,11 @@ export class GameBuilder {
 
   setId(id: string): this {
     this.base._id = id;
+    return this;
+  }
+
+  setEnvironment(environment: Environment): this {
+    this.base.environment = environment;
     return this;
   }
 }

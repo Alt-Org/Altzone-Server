@@ -4,6 +4,7 @@ import { ClanDto } from '../../../../clan/dto/clan.dto';
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 import { ObjectId } from 'mongodb';
 import { AvatarDto } from '../../../../player/dto/avatar.dto';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
   private readonly base: PlayerDto = {
@@ -16,6 +17,7 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
     above13: true,
     parentalAuth: false,
     currentAvatarId: 101,
+    environment: Environment.TEACHING_DEMO,
     avatar: {
       head: { id: 1, color: '#ffffff' },
       hair: { id: 1, color: '#ffffff' },
@@ -123,6 +125,11 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
 
   setCustomCharacters(customCharacters: CustomCharacterDto[]) {
     this.base.CustomCharacter = customCharacters;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }

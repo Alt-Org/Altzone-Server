@@ -8,6 +8,7 @@ import { AgeRange } from '../../../../clan/enum/ageRange.enum';
 import { Goal } from '../../../../clan/enum/goal.enum';
 import { Language } from '../../../../common/enum/language.enum';
 import { VotingQueueName } from '../../../../voting/enum/VotingQueue.enum.js';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class CreateStartItemVotingParamsDtoBuilder
   implements IDataBuilder<StartVotingParams>
@@ -24,6 +25,7 @@ export default class CreateStartItemVotingParamsDtoBuilder
       gameStatistics: null,
       profile_id: new ObjectId().toString(),
       clan_id: new ObjectId().toString(),
+      environment: undefined,
       Clan: {
         _id: new ObjectId().toString(),
         name: 'clan-1',
@@ -90,6 +92,11 @@ export default class CreateStartItemVotingParamsDtoBuilder
     if (this.base.voterPlayer) {
       this.base.voterPlayer.battlePoints = battlePoints;
     }
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.voterPlayer.environment = environment;
     return this;
   }
 }
