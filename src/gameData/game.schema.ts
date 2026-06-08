@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { ExtractField } from '../common/decorator/response/ExtractField';
-import { Environment } from '../common/service/envHandler/enum/environment.enum';
+import { Environment } from '../common/enum/environment.enum';
 
 export type GameDocument = HydratedDocument<Game>;
 
