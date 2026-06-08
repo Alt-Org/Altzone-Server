@@ -16,6 +16,7 @@ import { Choice } from './type/choice.type';
 import { GovernancePayload } from './type/governancePayload';
 import { ClanService } from '../clan/clan.service';
 import { alreadyVotedError } from './error/alreadyVoted.error';
+import { votingExpiredError } from './error/votingExpired.error';
 import { Vote } from './schemas/vote.schema';
 import { ModelName } from '../common/enum/modelName.enum';
 import { addVoteError } from './error/addVote.error';
@@ -359,6 +360,15 @@ export class VotingService {
     });
     if (errors) throw errors;
 
+    // Reject votes outright on expired votings
+    if (voting.endedAt) {
+      throw votingExpiredError;
+    }
+    if (voting.endsOn && new Date(voting.endsOn) < new Date()) {
+      throw votingExpiredError;
+    }
+
+    // Check if the player has already voted in this voting
     if (voting.votes.some((v) => v.player_id.toString() === playerId)) {
       throw alreadyVotedError;
     }

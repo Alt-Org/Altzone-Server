@@ -45,9 +45,13 @@ describe('PlayerService.getPlayerById() test suite', () => {
     );
 
     expect(errors).toBeNull();
-    expect(player as any).toEqual(
+    expect(player).toBeDefined();
+
+    const clearedResp = clearDBRespDefaultFields(player);
+    const clearedExpected = clearDBRespDefaultFields(existingPlayer);
+    expect(clearedResp).toEqual(
       expect.objectContaining({
-        ...existingPlayer,
+        ...clearedExpected,
         updatedAt: expect.any(Date),
         createdAt: expect.any(Date),
       }),
@@ -94,8 +98,10 @@ describe('PlayerService.getPlayerById() test suite', () => {
 
     expect(errors).toBeNull();
 
-    const { roles: dbRoles, ...clan } = player.Clan;
-    const { roles: existingClanRoles, ...clanWithoutRoles } = existingClan;
+    const clearedClan = clearDBRespDefaultFields(player.Clan);
+    const { roles: dbRoles, ...clan } = clearedClan;
+    const { roles: existingClanRoles, ...clanWithoutRoles } =
+      clearDBRespDefaultFields(existingClan);
 
     expect(clan).toEqual(expect.objectContaining(clanWithoutRoles));
     expect(dbRoles).toEqual(existingClanRoles);
