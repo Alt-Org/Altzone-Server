@@ -19,6 +19,7 @@ import {
   endTransaction,
   initializeSession,
 } from '../../common/function/Transactions';
+import { Environment } from '../../common/enum/environment.enum';
 
 @Injectable()
 export class TesterAccountService {
@@ -147,6 +148,7 @@ export class TesterAccountService {
     const profile = {
       username: uniqueUsername,
       password: uniqueUsername,
+      environment: Environment.TEACHING_DEMO,
       box_id,
     };
 
@@ -194,6 +196,7 @@ export class TesterAccountService {
       profile_id: profile._id,
       clan_id: null,
       clanRole_id: null,
+      environment: profile.environment,
     };
 
     return this.playerBasicService.createOne<Omit<Player, '_id'>, Player>(
