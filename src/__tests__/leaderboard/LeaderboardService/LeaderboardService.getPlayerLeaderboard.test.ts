@@ -18,16 +18,19 @@ describe('LeaderboardService.getPlayerLeaderboard() test suite', () => {
     .setName('player-1')
     .setUniqueIdentifier('player-1')
     .setBattlePoints(100)
+    .setEnvironment(Environment.TEACHING_DEMO)
     .build();
   const player2 = playerBuilder
     .setName('player-2')
     .setUniqueIdentifier('player-2')
     .setBattlePoints(50)
+    .setEnvironment(Environment.TEACHING_DEMO)
     .build();
   const player3 = playerBuilder
     .setName('player-3')
     .setUniqueIdentifier('player-3')
     .setBattlePoints(10)
+    .setEnvironment(Environment.TEACHING_DEMO)
     .build();
   const playerModel = PlayerModule.getPlayerModel();
 
@@ -56,7 +59,10 @@ describe('LeaderboardService.getPlayerLeaderboard() test suite', () => {
   it('Should return leading players in valid order', async () => {
     const query = queryBuilder.setLimit(10).build();
 
-    const leaders = (await service.getPlayerLeaderboard(query)) as Player[];
+    const leaders = (await service.getPlayerLeaderboard(
+      query,
+      Environment.TEACHING_DEMO,
+    )) as Player[];
 
     const playerNames = leaders.map((leader) => leader.name);
 
@@ -66,21 +72,30 @@ describe('LeaderboardService.getPlayerLeaderboard() test suite', () => {
   it('Should return clanLogo data if player is in a clan', async () => {
     const query = queryBuilder.setLimit(10).build();
 
-    const leaders = (await service.getPlayerLeaderboard(query)) as any[];
+    const leaders = (await service.getPlayerLeaderboard(
+      query,
+      Environment.TEACHING_DEMO,
+    )) as any[];
 
     expect(leaders[0].clanLogo).toEqual(clan.clanLogo);
   });
 
   it('Should return requested amount of leading players', async () => {
     const query = queryBuilder.setLimit(2).setSkip(0).build();
-    const leaders = await service.getPlayerLeaderboard(query);
+    const leaders = await service.getPlayerLeaderboard(
+      query,
+      Environment.TEACHING_DEMO,
+    );
 
     expect(leaders).toHaveLength(2);
   });
 
   it('Should be able to skip leading players', async () => {
     const query = queryBuilder.setLimit(10).setSkip(2).build();
-    const leaders = (await service.getPlayerLeaderboard(query)) as Player[];
+    const leaders = (await service.getPlayerLeaderboard(
+      query,
+      Environment.TEACHING_DEMO,
+    )) as Player[];
 
     expect(leaders).toHaveLength(1);
     expect(leaders[0].name).toBe(player3.name);
