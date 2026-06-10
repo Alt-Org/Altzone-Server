@@ -2,7 +2,6 @@
 
 This is a REST API for the Altzone game. For more detailed API description and additional instructions see the [wiki pages](https://github.com/Alt-Org/Altzone-Server/wiki)
 
-
 ## API versions
 
 Production https://altzone.fi/api (prod branch)
@@ -12,7 +11,6 @@ Latest release https://devapi.altzone.fi/latest-release (main branch)
 Dev https://devapi.altzone.fi (dev branch)
 
 Teacher pages https://devapi.altzone.fi/teacher (dev branch)
-
 
 ## Swagger description
 
@@ -27,7 +25,6 @@ Voting notification topics and payloads are described in
 
 ## Getting started
 
-
 ### Install required software
 
 0. First make sure to pick the required versions of npm and node, currently the project works fully on at least version 25.3.0 but not on version 20.0 or older at all.
@@ -39,39 +36,51 @@ Voting notification topics and payloads are described in
    npm install
    ```
 
+### Prettier (for VSCode users)
+
+If you are using [Visual Studio Code](https://code.visualstudio.com/), install extension [Prettier - Code Formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode).
+
+With Prettier extension installed, in VSCode:
+
+- select File -> Preferences -> Settings
+- navigate to Extensions -> Prettier
+- set Prettier: Config Path value as `prettier.config.mjs` (found at the root of the project).
+
 ### Set up the .env file
 
-For this script and repo to work on your local machine, you need to create an .env file at the root of your project. Any .env file is a custom one, and because of the secrets contained in it, it won't be shown here. Here is the create command, run this at the root of the project in your own terminal to get started: 
+For this script and repo to work on your local machine, you need to create an .env file at the root of your project. Any .env file is a custom one, and because of the secrets contained in it, it won't be shown here. Here is the create command, run this at the root of the project in your own terminal to get started:
 
-   ```shell
-   bash touch .env
-      ```
+````shell
+bash touch .env
+   ```
 
 ### Start required services
 
 1. First, you need to set up the DB. So please run a script for it from the project root folder:
 
-   For Windows (PowerShell):
-   ```shell
-    powershell -ExecutionPolicy Bypass -File .\init-db-on-windows.ps1
-   ```
-   
-   For Linux (Bash):
-   ```shell
-    bash ./init-db-on-linux.sh
-   ```
+For Windows (PowerShell):
+```shell
+ powershell -ExecutionPolicy Bypass -File .\init-db-on-windows.ps1
+````
 
-2. Then start MongoDB, Redis and Mosquitto docker services (it will take couple minutes for the first time) 
-   ```shell 
+For Linux (Bash):
+
+```shell
+ bash ./init-db-on-linux.sh
+```
+
+2. Then start MongoDB, Redis and Mosquitto docker services (it will take couple minutes for the first time)
+   ```shell
    docker compose up
    ```
 
 ### Start the API
 
 Start the API in dev (watch) mode by running the command in terminal
+
 ```shell
 npm run start:dev
-``` 
+```
 
 Above command will compile TS to JS and create a dist folder with compiled code. This folder should not be removed.
 
@@ -85,11 +94,9 @@ The API will be accessible on your machine on http://localhost:8080/
    docker compose down
    ```
 
-
 ## DB Schema
 
 ![ERD](doc/img/ERD.png)
-
 
 ## API architecture schema
 
