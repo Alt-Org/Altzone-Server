@@ -224,7 +224,8 @@ export class ProfileService
         includeRefs: [ModelName.CLAN],
       });
 
-    if (playerReadingErrors) return [null, playerReadingErrors];
+    if (playerReadingErrors)
+      return [null, playerReadingErrors as ServiceError[]];
     profile.Player = player;
 
     return [profile, null];

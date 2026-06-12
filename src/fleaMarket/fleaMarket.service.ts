@@ -188,7 +188,7 @@ export class FleaMarketService {
   ): Promise<IServiceReturn<boolean>> {
     const [player, playerError] =
       await this.playerService.getPlayerById(playerId);
-    if (playerError) return [null, playerError];
+    if (playerError) return [null, playerError as ServiceError[]];
 
     const [clan, clanError] = await this.clanService.readOneById(clanId);
     if (clanError) return [null, clanError];
@@ -232,7 +232,8 @@ export class FleaMarketService {
 
     const [player, playerErrors] =
       await this.playerService.getPlayerById(playerId);
-    if (playerErrors) return await cancelTransaction(session, playerErrors);
+    if (playerErrors)
+      return await cancelTransaction(session, playerErrors as ServiceError[]);
 
     const newItem = await this.helperService.itemToCreateFleaMarketItem(
       item,
@@ -369,7 +370,7 @@ export class FleaMarketService {
   ): Promise<IServiceReturn<boolean>> {
     const [player, playerError] =
       await this.playerService.getPlayerById(playerId);
-    if (playerError) return [false, playerError];
+    if (playerError) return [false, playerError as ServiceError[]];
 
     const [clan, clanError] = await this.clanService.readOneById(clanId);
     if (clanError) return [false, clanError];
@@ -418,7 +419,7 @@ export class FleaMarketService {
 
     const [player, playerErrors] =
       await this.playerService.getPlayerById(playerId);
-    if (playerErrors) return [false, playerErrors];
+    if (playerErrors) return [false, playerErrors as ServiceError[]];
 
     const [voting, err] = await this.handleBooking(clan, item, player);
     if (err) return [false, err];
@@ -804,7 +805,7 @@ export class FleaMarketService {
   ): Promise<IServiceReturn<VotingDto>> {
     const [player, playerErrors] =
       await this.playerService.getPlayerById(player_id);
-    if (playerErrors) return [null, playerErrors];
+    if (playerErrors) return [null, playerErrors as ServiceError[]];
 
     const [item, itemErrors] =
       await this.basicService.readOneById<FleaMarketItemDto>(item_id);
