@@ -7,4 +7,5 @@ export enum Status {
   AVAILABLE = 'available',
   SHIPPING = 'shipping',
   BOOKED = 'booked',
+  IN_STOCK = 'in_stock',
 }

@@ -29,7 +29,7 @@ export class FleaMarketController {
     private readonly service: FleaMarketService,
     private readonly playerService: PlayerService,
     private readonly emitterService: EventEmitterService,
-  ) {}
+  ) { }
 
   /**
    * Fetch all the furniture, that the clan has accepted for selling
@@ -85,6 +85,10 @@ export class FleaMarketController {
    * Get all flea market items
    *
    * @remarks Get all FleaMarketItems of the flea market
+   * @deprecated This endpoint is deprecated because it returns all flea market items from 
+   * every clan globally, leading to data leaks and scaling bottlenecks. To view a clan's 
+   * complete furniture view, use the Stock endpoint (GET /stock/:id) which safely handles
+   * both regular stock and active flea market items for that specific clan.
    */
   @ApiResponseDescription({
     success: {
