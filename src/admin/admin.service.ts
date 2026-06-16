@@ -28,6 +28,11 @@ export class AdminService {
 
   public readonly profileService: BasicService;
 
+  /**
+   * Erases all data in the teaching demo environment.
+   * @param profile_id - the ID of the profile requesting the reset (must be a system admin).
+   * @returns - void if successful, or an array of ServiceErrors if there were issues (e.g. not authorized, unexpected error).
+   */
   public async resetTeachingDemo(
     profile_id: string,
   ): Promise<void | [null, ServiceError[]]> {
@@ -51,26 +56,41 @@ export class AdminService {
       ];
     }
 
-    await this.clanModel.deleteMany({ environment: Environment.TEACHING_DEMO });
+    try {
+      await this.clanModel.deleteMany({
+        environment: Environment.TEACHING_DEMO,
+      });
 
-    await this.profileModel.deleteMany({
-      environment: Environment.TEACHING_DEMO,
-    });
+      await this.profileModel.deleteMany({
+        environment: Environment.TEACHING_DEMO,
+      });
 
-    await this.playerModel.deleteMany({
-      environment: Environment.TEACHING_DEMO,
-    });
+      await this.playerModel.deleteMany({
+        environment: Environment.TEACHING_DEMO,
+      });
 
-    await this.stockModel.deleteMany({
-      environment: Environment.TEACHING_DEMO,
-    });
+      await this.stockModel.deleteMany({
+        environment: Environment.TEACHING_DEMO,
+      });
 
-    await this.gameModel.deleteMany({
-      environment: Environment.TEACHING_DEMO,
-    });
+      await this.gameModel.deleteMany({
+        environment: Environment.TEACHING_DEMO,
+      });
 
-    await this.soulHomeModel.deleteMany({
-      environment: Environment.TEACHING_DEMO,
-    });
+      await this.soulHomeModel.deleteMany({
+        environment: Environment.TEACHING_DEMO,
+      });
+    } catch (error) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.UNEXPECTED,
+            message:
+              'An error occurred while erasing teaching demo data: ' + error,
+          }),
+        ],
+      ];
+    }
   }
 }
