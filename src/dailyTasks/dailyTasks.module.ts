@@ -19,6 +19,7 @@ import { Stock, StockSchema } from '../clanInventory/stock/stock.schema';
 import { Item, ItemSchema } from '../clanInventory/item/item.schema';
 import { DailyTasksScheduler } from './dailyTasksScheduler.service';
 import DailyTasksResetNotifier from './dailyTaskReset.notifier';
+import { DailyTaskProgressService } from './dailyTaskProgress.service';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import DailyTasksResetNotifier from './dailyTaskReset.notifier';
     DailyTaskNotifier,
     DailyTaskQueue,
     DailyTaskProcessor,
+    DailyTaskProgressService,
     PlayerRewarder,
     ClanRewarder,
     ClanProgression,
@@ -50,6 +52,6 @@ import DailyTasksResetNotifier from './dailyTaskReset.notifier';
     DailyTasksResetNotifier,
   ],
   controllers: [DailyTasksController],
-  exports: [DailyTasksService, UiDailyTasksService],
+  exports: [DailyTasksService, UiDailyTasksService, DailyTaskProgressService],
 })
 export class DailyTasksModule {}
