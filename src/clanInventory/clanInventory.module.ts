@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { PlayerSchema } from '../player/schemas/player.schema';
@@ -23,7 +23,8 @@ import { StockSchema } from './stock/stock.schema';
 import { StockService } from './stock/stock.service';
 import { ClanSchema } from '../clan/clan.schema';
 import { StealTokenGuard } from './item/guards/StealToken.guard';
-import { AuthorizationModule } from '../authorization/authorization.module';
+import { AuthorizationModule } from '../authorization/authorization.module'
+import { FleaMarketModule } from '../fleaMarket/fleaMarket.module';
 
 @Module({
   imports: [
@@ -39,6 +40,8 @@ import { AuthorizationModule } from '../authorization/authorization.module';
     RequestHelperModule,
     AuthModule,
     AuthorizationModule,
+    
+    forwardRef(() => FleaMarketModule),
   ],
   controllers: [
     StockController,

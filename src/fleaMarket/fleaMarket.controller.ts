@@ -29,7 +29,7 @@ export class FleaMarketController {
     private readonly service: FleaMarketService,
     private readonly playerService: PlayerService,
     private readonly emitterService: EventEmitterService,
-  ) { }
+  ) {}
 
   /**
    * Fetch all the furniture, that the clan has accepted for selling

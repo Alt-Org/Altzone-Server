@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { FleaMarketItem, publicReferences } from './fleaMarketItem.schema';
@@ -50,6 +50,7 @@ export class FleaMarketService {
     private readonly itemService: ItemService,
     private readonly votingService: VotingService,
     private readonly votingQueue: VotingQueue,
+    @Inject(forwardRef(() => ClanService))
     private readonly clanService: ClanService,
     @InjectConnection() private readonly connection: Connection,
   ) {
