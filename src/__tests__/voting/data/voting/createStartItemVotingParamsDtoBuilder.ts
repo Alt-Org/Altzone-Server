@@ -48,6 +48,7 @@ export default class CreateStartItemVotingParamsDtoBuilder
         SoulHome: null,
         roles: [],
         battlePoints: 0,
+        environment: undefined,
       },
       CustomCharacter: [],
     },
@@ -97,6 +98,7 @@ export default class CreateStartItemVotingParamsDtoBuilder
 
   setEnvironment(environment: Environment) {
     this.base.voterPlayer.environment = environment;
+    this.base.voterPlayer.Clan.environment = environment;
     return this;
   }
 }

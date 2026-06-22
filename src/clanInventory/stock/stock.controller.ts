@@ -65,7 +65,7 @@ export class StockController {
   @UniformResponse(ModelName.STOCK)
   public getAll(
     @GetAllQuery() query: IGetAllQuery,
-    @Query('environment', ParseIntPipe) environment?: Environment,
+    @Query('environment', ParseIntPipe) environment: Environment,
   ) {
     return this.service.readAll(query, environment);
   }

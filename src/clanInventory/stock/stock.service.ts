@@ -96,10 +96,7 @@ export class StockService {
    * @param options - Options for reading CharacterClasses.
    * @returns An array of Stocks if succeed or an array of ServiceErrors if any occurred.
    */
-  async readAll(
-    options?: TIServiceReadManyOptions,
-    environment: Environment = Environment.TEACHING_DEMO,
-  ) {
+  async readAll(options?: TIServiceReadManyOptions, environment?: Environment) {
     const optionsToApply: TIServiceReadManyOptions = { ...(options || {}) };
 
     if (options?.includeRefs) {
@@ -109,8 +106,7 @@ export class StockService {
     }
 
     optionsToApply.filter = {
-      ...(options?.filter || {}),
-      environment,
+      ...(options?.filter || { environment: environment }),
     };
 
     return this.basicService.readMany<StockDto>(optionsToApply);

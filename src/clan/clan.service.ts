@@ -112,7 +112,11 @@ export class ClanService {
     if (playerErrors) return await cancelTransaction(session, playerErrors);
 
     const [stock, stockErrors] =
-      await this.clanHelperService.createDefaultStock(clan._id, session, clan.environment);
+      await this.clanHelperService.createDefaultStock(
+        clan._id,
+        session,
+        clan.environment,
+      );
     if (stockErrors) return await cancelTransaction(session, stockErrors);
 
     const [soulHome, soulHomeErrors] =
@@ -165,7 +169,11 @@ export class ClanService {
     if (clanErrors) return await cancelTransaction(session, clanErrors);
 
     const [stock, stockErrors] =
-      await this.clanHelperService.createDefaultStock(clan._id, session, clan.environment);
+      await this.clanHelperService.createDefaultStock(
+        clan._id,
+        session,
+        clan.environment,
+      );
     if (stockErrors) return await cancelTransaction(session, stockErrors);
 
     const [soulHome, soulHomeErrors] =
