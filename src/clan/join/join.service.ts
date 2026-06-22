@@ -178,7 +178,11 @@ export class JoinService {
 
     const playerResp = await this.playerModel.findOne({ _id: player_id });
 
-    if (playerResp.environment !== clan.environment) {
+    if (
+      playerResp.environment &&
+      clan.environment &&
+      playerResp.environment !== clan.environment
+    ) {
       throw new ServiceError({
         reason: SEReason.ENVIRONMENT_MISMATCH,
         message: 'Player and clan must be in the same environment.',

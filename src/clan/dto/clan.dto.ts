@@ -199,12 +199,5 @@ export class ClanDto {
    * @example Environment.TEACHING_MODE
    */
   @Expose()
-  environment?: Environment;
-
-  /**
-   * Clan expiry date (applicable for teaching demo clans)
-   * @example Environment.TEACHING_MODE
-   */
-  @Expose()
-  expiresAt?: Date;
+  environment: Environment;
 }

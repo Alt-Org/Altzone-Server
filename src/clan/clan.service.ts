@@ -85,7 +85,7 @@ export class ClanService {
     if (clanCreatorErrors)
       return await cancelTransaction(session, clanCreatorErrors);
 
-    if (clanToCreate) {
+    if (clanToCreate && clanCreator.environment) {
       const environment = clanCreator.environment;
       clanToCreate.environment = environment;
     }
@@ -112,7 +112,7 @@ export class ClanService {
     if (playerErrors) return await cancelTransaction(session, playerErrors);
 
     const [stock, stockErrors] =
-      await this.clanHelperService.createDefaultStock(clan._id, session);
+      await this.clanHelperService.createDefaultStock(clan._id, session, clan.environment);
     if (stockErrors) return await cancelTransaction(session, stockErrors);
 
     const [soulHome, soulHomeErrors] =
@@ -121,6 +121,7 @@ export class ClanService {
         clan.name,
         30,
         session,
+        clan.environment,
       );
     if (soulHomeErrors) return await cancelTransaction(session, soulHomeErrors);
 
@@ -164,7 +165,7 @@ export class ClanService {
     if (clanErrors) return await cancelTransaction(session, clanErrors);
 
     const [stock, stockErrors] =
-      await this.clanHelperService.createDefaultStock(clan._id, session);
+      await this.clanHelperService.createDefaultStock(clan._id, session, clan.environment);
     if (stockErrors) return await cancelTransaction(session, stockErrors);
 
     const [soulHome, soulHomeErrors] =
@@ -173,6 +174,7 @@ export class ClanService {
         clan.name,
         30,
         session,
+        clan.environment,
       );
     if (soulHomeErrors) return await cancelTransaction(session, soulHomeErrors);
 
@@ -277,7 +279,11 @@ export class ClanService {
         await this.playerService.readOneById<PlayerDto>(player_id);
       if (playerErrors || !player || !player.clan_id) continue;
 
-      if (player.environment !== environment) {
+      if (
+        player.environment &&
+        environment &&
+        player.environment !== environment
+      ) {
         return [
           null,
           [
