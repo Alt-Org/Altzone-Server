@@ -117,10 +117,11 @@ export class ProfileService
       profile.securityAnswer = hashedAnswer;
     }
 
-    const environment = profile.environment ?? Environment.TEACHING_DEMO;
+    const environment = profile.environment ?? Environment.OPEN_DEMO;
 
     if (environment === Environment.TEACHING_DEMO) {
-      const expiresAt = new Date(Date.now() + 1000 * 60 * 60);
+      const expirationDate = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
+      const expiresAt = expirationDate;
       profile.expiresAt = expiresAt;
     }
 

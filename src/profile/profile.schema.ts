@@ -40,7 +40,7 @@ export class Profile {
 
   @Prop({
     type: Number,
-    default: Environment.TEACHING_DEMO,
+    default: Environment.OPEN_DEMO,
     enum: Environment,
   })
   environment: Environment;

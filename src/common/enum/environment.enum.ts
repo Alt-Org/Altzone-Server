@@ -13,6 +13,6 @@
  * Important: No query should ever mix data between environments.
  */
 export enum Environment {
-  TEACHING_DEMO = 0,
-  OPEN_DEMO = 1,
+  OPEN_DEMO = 0,
+  TEACHING_DEMO = 1,
 }

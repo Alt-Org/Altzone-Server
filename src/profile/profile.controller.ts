@@ -79,7 +79,7 @@ export default class ProfileController {
 
     const createdProfile_id = createdProfile._id;
     const createdProfile_environment =
-      createdProfile.environment ?? Environment.TEACHING_DEMO;
+      createdProfile.environment ?? Environment.OPEN_DEMO;
 
     Player['profile_id'] = createdProfile_id;
     Player['environment'] = createdProfile_environment;
