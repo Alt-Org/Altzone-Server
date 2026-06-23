@@ -54,7 +54,10 @@ export class LeaderboardService {
    * @param environment - The environment of the clan.
    * @returns - A promise that resolves to the player leaderboard data.
    */
-  async getPlayerLeaderboard(reqQuery: IGetAllQuery, environment?: Environment) {
+  async getPlayerLeaderboard(
+    reqQuery: IGetAllQuery,
+    environment?: Environment,
+  ) {
     return this.getLeaderboard(
       CacheKeys.PLAYER_LEADERBOARD,
       this.playerService.model,
