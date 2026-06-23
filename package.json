@@ -23,7 +23,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@casl/ability": "7.0.0",
+    "@casl/ability": "6.8.1",
     "@nestjs/bullmq": "11.0.4",
     "@nestjs/common": "11.1.27",
     "@nestjs/core": "11.1.27",
