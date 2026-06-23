@@ -44,7 +44,7 @@ export class LeaderboardController {
   @OffsetPaginate(ModelName.PLAYER)
   async getPlayerLeaderboard(
     @GetAllQuery() query: IGetAllQuery,
-    @Query('environment', ParseIntPipe) environment: Environment,
+    @Query('environment', new ParseIntPipe({ optional: true })) environment?: Environment,
   ) {
     return this.leaderBoardService.getPlayerLeaderboard(query, environment);
   }
@@ -71,7 +71,7 @@ export class LeaderboardController {
   @OffsetPaginate(ModelName.CLAN)
   async getClanLeaderboard(
     @GetAllQuery() query: IGetAllQuery,
-    @Query('environment', ParseIntPipe) environment: Environment,
+    @Query('environment', new ParseIntPipe({ optional: true })) environment?: Environment,
   ) {
     return this.leaderBoardService.getClanLeaderboard(query, environment);
   }

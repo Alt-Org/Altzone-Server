@@ -36,9 +36,9 @@ export class LeaderboardService {
    * @param environment - The environment of the clan.
    * @returns - A promise that resolves to the clan leaderboard data.
    */
-  async getClanLeaderboard(reqQuery: IGetAllQuery, environment: Environment) {
+  async getClanLeaderboard(reqQuery: IGetAllQuery, environment?: Environment) {
     return this.getLeaderboard(
-      `${CacheKeys.CLAN_LEADERBOARD}:env:${environment}`,
+      CacheKeys.CLAN_LEADERBOARD,
       this.clanService.model,
       environment,
       reqQuery,
@@ -54,9 +54,9 @@ export class LeaderboardService {
    * @param environment - The environment of the clan.
    * @returns - A promise that resolves to the player leaderboard data.
    */
-  async getPlayerLeaderboard(reqQuery: IGetAllQuery, environment: Environment) {
+  async getPlayerLeaderboard(reqQuery: IGetAllQuery, environment?: Environment) {
     return this.getLeaderboard(
-      `${CacheKeys.PLAYER_LEADERBOARD}:env:${environment}`,
+      CacheKeys.PLAYER_LEADERBOARD,
       this.playerService.model,
       environment,
       reqQuery,
@@ -76,17 +76,18 @@ export class LeaderboardService {
   private async getLeaderboard(
     cacheKey: string,
     model: mongoose.Model<any>,
-    environment: Environment,
+    environment?: Environment,
     reqQuery?: IGetAllQuery,
   ): Promise<object[]> {
     const dataRaw = await this.redisService.get(cacheKey);
     let data: object[] = JSON.parse(dataRaw);
 
     if (!data) {
-      const fetchedData = await model
-        .find({ environment: environment })
-        .sort({ battlePoints: -1 })
-        .exec();
+      const fetchedData =
+        environment !== undefined
+          ? await model.find({ environment }).sort({ battlePoints: -1 }).exec()
+          : await model.find().sort({ battlePoints: -1 }).exec();
+
       if (!fetchedData) throw new ServiceError({ reason: SEReason.NOT_FOUND });
 
       data = await this.processCacheData(model, fetchedData);
@@ -129,7 +130,6 @@ export class LeaderboardService {
    * Method to get the position on the clan leaderboard.
    *
    * @param clanId - The ID of the clan.
-   * @param environment - The environment of the clan
    * @returns An object { position: number }
    */
   async getClanPosition(clanId: string) {
@@ -144,7 +144,7 @@ export class LeaderboardService {
 
     const environment = clan.environment;
     const leaderboard = await this.getLeaderboard(
-      `${CacheKeys.CLAN_LEADERBOARD}:env:${environment}`,
+      CacheKeys.CLAN_LEADERBOARD,
       this.clanService.model,
       environment,
     );
