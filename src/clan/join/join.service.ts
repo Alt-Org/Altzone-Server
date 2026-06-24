@@ -66,7 +66,11 @@ export class JoinService {
     if (!playerResp)
       throw new NotFoundException('Player with that _id is not found');
 
-    if (playerResp.environment !== clan.environment) {
+    if (
+      playerResp.environment &&
+      clan.environment &&
+      playerResp.environment !== clan.environment
+    ) {
       throw new ServiceError({
         reason: SEReason.ENVIRONMENT_MISMATCH,
         message: 'Player and clan must be in the same environment.',
