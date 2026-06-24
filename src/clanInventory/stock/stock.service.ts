@@ -94,6 +94,7 @@ export class StockService {
    * Reads Stocks by specified options from DB.
    *
    * @param options - Options for reading CharacterClasses.
+   * @param environment - Environment of the clan that the stocks belong to
    * @returns An array of Stocks if succeed or an array of ServiceErrors if any occurred.
    */
   async readAll(options?: TIServiceReadManyOptions, environment?: Environment) {
