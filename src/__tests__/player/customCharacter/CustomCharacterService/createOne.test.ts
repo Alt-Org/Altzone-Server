@@ -8,6 +8,7 @@ import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
 import CustomCharacterModule from '../../modules/customCharacter.module';
 import PlayerBuilderFactory from '../../data/playerBuilderFactory';
 import { NewCharacterBase } from '../../../../player/customCharacter/const/NewCharacterBase';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 describe('CustomCharacterService.createOne() test suite', () => {
   let characterService: CustomCharacterService;
@@ -42,6 +43,7 @@ describe('CustomCharacterService.createOne() test suite', () => {
       ...characterToCreate,
       ...expectedSpecs,
       player_id: new ObjectId(player._id),
+      environment: player.environment,
       _id: expect.any(ObjectId),
     });
   });

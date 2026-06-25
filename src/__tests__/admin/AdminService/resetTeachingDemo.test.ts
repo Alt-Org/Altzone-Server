@@ -3,6 +3,7 @@ import { Model } from 'mongoose';
 import { AdminProfileDto } from '../../../admin/dto/AdminProfile.dto';
 import { AdminService } from '../../../admin/admin.service';
 import { Clan } from '../../../clan/clan.schema';
+import { CustomCharacter } from '../../../player/customCharacter/customCharacter.schema';
 import { Environment } from '../../../common/enum/environment.enum';
 import { Game } from '../../../gameData/game.schema';
 import { Player } from '../../../player/schemas/player.schema';
@@ -25,6 +26,7 @@ describe('AdminService.resetTeachingDemo() test suite', () => {
   let stockModel: MockModel<Stock>;
   let gameModel: MockModel<Game>;
   let soulHomeModel: MockModel<SoulHome>;
+  let customCharacterModel: MockModel<CustomCharacter>;
 
   const nonAdminProfile: AdminProfileDto = {
     _id: 'randomid01',
@@ -64,6 +66,10 @@ describe('AdminService.resetTeachingDemo() test suite', () => {
       deleteMany: jest.fn(),
     };
 
+    customCharacterModel = {
+      deleteMany: jest.fn(),
+    };
+
     adminService = new AdminService(
       clanModel as unknown as Model<Clan>,
       profileModel as unknown as Model<Profile>,
@@ -71,6 +77,7 @@ describe('AdminService.resetTeachingDemo() test suite', () => {
       stockModel as unknown as Model<Stock>,
       gameModel as unknown as Model<Game>,
       soulHomeModel as unknown as Model<SoulHome>,
+      customCharacterModel as unknown as Model<CustomCharacter>,
     );
   });
 
@@ -126,6 +133,9 @@ describe('AdminService.resetTeachingDemo() test suite', () => {
       environment: Environment.TEACHING_DEMO,
     });
     expect(soulHomeModel.deleteMany).toHaveBeenCalledWith({
+      environment: Environment.TEACHING_DEMO,
+    });
+    expect(customCharacterModel.deleteMany).toHaveBeenCalledWith({
       environment: Environment.TEACHING_DEMO,
     });
   });

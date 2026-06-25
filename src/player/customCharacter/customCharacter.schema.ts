@@ -5,6 +5,7 @@ import { Player } from '../schemas/player.schema';
 import { CharacterId } from './enum/characterId.enum';
 import { ObjectId } from 'mongodb';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
+import { Environment } from '../../common/enum/environment.enum';
 
 export type CustomCharacterDocument = HydratedDocument<CustomCharacter>;
 
@@ -37,6 +38,9 @@ export class CustomCharacter {
     ref: ModelName.PLAYER,
   })
   player_id: Player | ObjectId | string;
+
+  @Prop({ type: Number, enum: Environment, required: true })
+  environment: Environment;
 
   @ExtractField()
   _id?: string;

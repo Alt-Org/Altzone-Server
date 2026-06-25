@@ -1,6 +1,7 @@
 import { CustomCharacter } from '../../../../player/customCharacter/customCharacter.schema';
 import { ObjectId } from 'mongodb';
 import { CharacterId } from '../../../../player/customCharacter/enum/characterId.enum';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class CustomCharacterBuilder {
   private readonly base: CustomCharacter = {
@@ -12,6 +13,7 @@ export default class CustomCharacterBuilder {
     hp: 100,
     level: 1,
     player_id: undefined,
+    environment: Environment.OPEN_DEMO,
   };
 
   build(): CustomCharacter {
@@ -55,6 +57,11 @@ export default class CustomCharacterBuilder {
 
   setPlayerId(playerId: string | ObjectId) {
     this.base.player_id = playerId as any;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }
