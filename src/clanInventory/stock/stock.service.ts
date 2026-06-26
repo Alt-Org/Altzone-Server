@@ -65,7 +65,8 @@ export class StockService {
       await this.basicService.readOneById<ClanDto>(clan_id);
 
     if (!clanErrors && clan) {
-      stock.environment = clan.environment;
+      const environment = clan.environment ?? Environment.OPEN_DEMO;
+      stock.environment = environment;
     }
 
     return this.basicService.createOne<CreateStockDto, StockDto>(

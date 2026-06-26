@@ -53,18 +53,15 @@ export class SoulHomeService {
 
     if (!clan) return [created, null];
 
-    const env =
-      clan.environment === Environment.TEACHING_DEMO
-        ? Environment.TEACHING_DEMO
-        : Environment.OPEN_DEMO;
+    const environment = clan.environment ?? Environment.OPEN_DEMO;
 
-    if (created.environment === env) return [created, null];
+    if (created.environment === environment) return [created, null];
 
     const updateOptions = options?.session ? { session: options.session } : {};
     const [updated, updateErrors] =
       await this.basicService.findByIdAndUpdate<SoulHome>(
         created._id.toString(),
-        { environment: env },
+        { environment: environment },
         updateOptions,
       );
 

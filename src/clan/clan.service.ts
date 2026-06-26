@@ -34,6 +34,7 @@ import {
   endTransaction,
   initializeSession,
 } from '../common/function/Transactions';
+import { Environment } from '../common/enum/environment.enum';
 
 type CreateWithoutDtoType = Clan & {
   soulHome: SoulHome;
@@ -85,10 +86,9 @@ export class ClanService {
     if (clanCreatorErrors)
       return await cancelTransaction(session, clanCreatorErrors);
 
-    if (clanToCreate && clanCreator.environment) {
-      const environment = clanCreator.environment;
-      clanToCreate.environment = environment;
-    }
+    const environment =
+      (clanToCreate && clanCreator.environment) ?? Environment.OPEN_DEMO;
+    clanToCreate.environment = environment;
 
     if (clanToCreate && !clanToCreate.isOpen && !clanToCreate.password) {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
@@ -162,7 +162,7 @@ export class ClanService {
       {
         ...clanToCreate,
         playerCount: 0,
-        environment: clanToCreate.environment,
+        environment: clanToCreate.environment ?? Environment.OPEN_DEMO,
       },
       { session },
     );
@@ -172,7 +172,7 @@ export class ClanService {
       await this.clanHelperService.createDefaultStock(
         clan._id,
         session,
-        clan.environment,
+        clan.environment ?? Environment.OPEN_DEMO,
       );
     if (stockErrors) return await cancelTransaction(session, stockErrors);
 
@@ -182,7 +182,7 @@ export class ClanService {
         clan.name,
         30,
         session,
-        clan.environment,
+        clan.environment ?? Environment.OPEN_DEMO,
       );
     if (soulHomeErrors) return await cancelTransaction(session, soulHomeErrors);
 
