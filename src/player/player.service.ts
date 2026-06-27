@@ -17,7 +17,6 @@ import {
 } from '../common/interface/IHookImplementer';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { PlayerDto, StatDetailDto } from './dto/player.dto';
-import { EmotionCheckDto } from './dto/emotionCheck.dto';
 import BasicService from '../common/service/basicService/BasicService';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
@@ -30,13 +29,13 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
 import { PlayerEmotion } from './enum/playerEmotion.enum';
 import { prizePool } from '../rewarder/const/prizePool';
 import { PlayerObject } from '../common/type/playerObject.type';
+import { EmotionCheckResult } from './dto/emotionCheckResult.dto';
 
 @Injectable()
 @AddBasicService()
 export class PlayerService
   extends BasicServiceDummyAbstract
-  implements IBasicService, IHookImplementer
-{
+  implements IBasicService, IHookImplementer {
   public constructor(
     @InjectModel(Player.name) public readonly model: Model<Player>,
     private readonly customCharacterService: CustomCharacterService,
@@ -311,7 +310,7 @@ export class PlayerService
     if (isLastAdminNonEmptyClan)
       return new Error(
         `Player can not be deleted, because it is the only one admin in a non empty clan with _id '${clan_idLastAdmin}'. ` +
-          `Please add another admin to this clan before deleting this Player or delete this clan first.`,
+        `Please add another admin to this clan before deleting this Player or delete this clan first.`,
       );
 
     for (let i = 0; i < clansWithPlayerAsAdmin.length; i++) {
@@ -351,37 +350,48 @@ export class PlayerService
   }
 
   /**
-   * Checks if the player has already submitted an emotion today.
-   * @param playerId - The unique identifier of the player.
-   * @returns - A classic tuple setup [boolean, ServiceError[]] indicating if an entry for today exists.
-   */
+ * Checks if the player has already submitted an emotion today.
+ * @param playerId - The unique identifier of the player.
+ * @returns - A classic tuple setup [boolean, ServiceError[]] indicating if an entry for today exists.
+ */
   async checkIfEmotionSentToday(
     playerId: string,
-  ): Promise<IServiceReturn<boolean>> {
+  ): Promise<EmotionCheckResult | ServiceError[]> {
     const player = await this.model
       .findById(playerId)
       .select('emotions')
       .exec();
 
     if (!player)
-      return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
+      return [new ServiceError({ reason: SEReason.NOT_FOUND })];
 
-    const lastEntry = player.emotions[player.emotions.length - 1];
+    const lastEntry = player.emotions[player.emotions.length - 1] ?? null;
 
     const today = new Date().setHours(0, 0, 0, 0);
     const entryDate = lastEntry
       ? new Date(lastEntry.date).setHours(0, 0, 0, 0)
       : null;
 
-    if (entryDate !== today) {
-      return [false, null];
+    const isToday = entryDate === today;
+
+    if (!lastEntry) {
+      return {
+        emotioncheck: {
+          last_sent: null,
+          submitted_today: false,
+        }
+      }
     }
 
-    const emotionValue = lastEntry.emotion as PlayerEmotion;
-
-    const isSent = emotionValue !== PlayerEmotion.BLANK;
-
-    return [isSent, null];
+    return {
+      emotioncheck: {
+        last_sent: {
+          date: lastEntry.date,
+          emotion: lastEntry.emotion as PlayerEmotion,
+        },
+        submitted_today: isToday && lastEntry.emotion !== PlayerEmotion.BLANK,
+      },
+    }
   }
 
   /**
@@ -392,23 +402,23 @@ export class PlayerService
    * @returns The updated player data or service errors.
    */
   async addEmotion(
-    playerId: string,
-    emotion: PlayerEmotion,
-  ): Promise<IServiceReturn<PlayerDto>> {
-    const [player, errors] = await this.getPlayerById(playerId);
-    if (errors) return [null, errors as ServiceError[]];
+      playerId: string,
+      emotion: PlayerEmotion,
+    ): Promise < IServiceReturn < PlayerDto >> {
+      const [player, errors] = await this.getPlayerById(playerId);
+      if(errors) return [null, errors as ServiceError[]];
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    const index = (player.emotions || []).findIndex((e) => {
-      const entryDate = new Date(e.date);
-      entryDate.setHours(0, 0, 0, 0);
-      return entryDate.getTime() === today.getTime();
-    });
+      const index = (player.emotions || []).findIndex((e) => {
+        const entryDate = new Date(e.date);
+        entryDate.setHours(0, 0, 0, 0);
+        return entryDate.getTime() === today.getTime();
+      });
 
-    let updateQuery: UpdateQuery<Player>;
-    if (index > -1) {
+      let updateQuery: UpdateQuery<Player>;
+      if(index > -1) {
       updateQuery = {
         $set: {
           [`emotions.${index}.emotion`]: emotion,
