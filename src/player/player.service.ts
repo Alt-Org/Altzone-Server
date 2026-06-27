@@ -356,14 +356,14 @@ export class PlayerService
  */
   async checkIfEmotionSentToday(
     playerId: string,
-  ): Promise<IServiceReturn<EmotionCheckResult>> {
+  ): Promise<EmotionCheckResult | ServiceError[]> {
     const player = await this.model
       .findById(playerId)
       .select('emotions')
       .exec();
 
     if (!player)
-      return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
+      return [new ServiceError({ reason: SEReason.NOT_FOUND })];
 
     const lastEntry = player.emotions[player.emotions.length - 1] ?? null;
 
@@ -375,29 +375,23 @@ export class PlayerService
     const isToday = entryDate === today;
 
     if (!lastEntry) {
-      return [
-        {
-          emotioncheck: {
-            last_sent: null,
-            submitted_today: false,
-          },
-        },
-        null,
-      ];
+      return {
+        emotioncheck: {
+          last_sent: null,
+          submitted_today: false,
+        }
+      }
     }
 
-    return [
-      {
-        emotioncheck: {
-          last_sent: {
-            date: lastEntry.date,
-            emotion: lastEntry.emotion as PlayerEmotion,
-          },
-          submitted_today: isToday && lastEntry.emotion !== PlayerEmotion.BLANK,
+    return {
+      emotioncheck: {
+        last_sent: {
+          date: lastEntry.date,
+          emotion: lastEntry.emotion as PlayerEmotion,
         },
+        submitted_today: isToday && lastEntry.emotion !== PlayerEmotion.BLANK,
       },
-      null,
-    ];
+    }
   }
 
   /**
@@ -408,23 +402,23 @@ export class PlayerService
    * @returns The updated player data or service errors.
    */
   async addEmotion(
-    playerId: string,
-    emotion: PlayerEmotion,
-  ): Promise<IServiceReturn<PlayerDto>> {
-    const [player, errors] = await this.getPlayerById(playerId);
-    if (errors) return [null, errors as ServiceError[]];
+      playerId: string,
+      emotion: PlayerEmotion,
+    ): Promise < IServiceReturn < PlayerDto >> {
+      const [player, errors] = await this.getPlayerById(playerId);
+      if(errors) return [null, errors as ServiceError[]];
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    const index = (player.emotions || []).findIndex((e) => {
-      const entryDate = new Date(e.date);
-      entryDate.setHours(0, 0, 0, 0);
-      return entryDate.getTime() === today.getTime();
-    });
+      const index = (player.emotions || []).findIndex((e) => {
+        const entryDate = new Date(e.date);
+        entryDate.setHours(0, 0, 0, 0);
+        return entryDate.getTime() === today.getTime();
+      });
 
-    let updateQuery: UpdateQuery<Player>;
-    if (index > -1) {
+      let updateQuery: UpdateQuery<Player>;
+      if(index > -1) {
       updateQuery = {
         $set: {
           [`emotions.${index}.emotion`]: emotion,

@@ -76,9 +76,7 @@ export default class PlayerController {
   })
   @Get('/emotioncheck')
   @Authorize({ action: Action.read, subject: PlayerDto })
-  public async checkDailyEmotion(
-    @LoggedUser() user: User,
-  ): Promise<IServiceReturn<EmotionCheckResult>> {
+  public async checkDailyEmotion(@LoggedUser() user: User) {
     return this.service.checkIfEmotionSentToday(user.player_id);
   }
 
