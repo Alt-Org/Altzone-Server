@@ -1,0 +1,125 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+  push:
+    branches:
+      - dev
+      - main
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests (first attempt)
+        id: first_run
+        continue-on-error: true
+        run: npm run test -- --json --outputFile=test-results.json
+
+      - name: Identify failed test suites
+        if: steps.first_run.outcome == 'failure'
+        id: failed_tests
+        run: |
+          if [ ! -f test-results.json ]; then
+            echo "No test results file found, treating as full failure"
+            exit 1
+          fi
+
+          FAILED_SUITES=$(node -e "
+            const results = require('./test-results.json');
+            const failed = results.testResults
+              .filter(suite => suite.status === 'failed')
+              .map(suite => suite.name)
+              .join('\n');
+            console.log(failed);
+          ")
+
+          if [ -z "$FAILED_SUITES" ]; then
+            echo "No failed suites identified despite failure exit code"
+            exit 1
+          fi
+
+          echo "Failed test suites:"
+          echo "$FAILED_SUITES"
+          echo "$FAILED_SUITES" > failed-suites.txt
+
+      - name: Re-run failed test suites individually
+        if: steps.first_run.outcome == 'failure'
+        run: |
+          OVERALL_EXIT=0
+          while IFS= read -r suite; do
+            if [ -n "$suite" ]; then
+              echo ""
+              echo "=== Re-running: $suite ==="
+              if ! npx jest "$suite"; then
+                echo "Still failing: $suite"
+                OVERALL_EXIT=1
+              else
+                echo "Passed on retry: $suite"
+              fi
+            fi
+          done < failed-suites.txt
+          exit $OVERALL_EXIT
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+          if-no-files-found: ignore
