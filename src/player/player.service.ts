@@ -27,8 +27,6 @@ import {
 } from '../common/service/basicService/IService';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { PlayerEmotion } from './enum/playerEmotion.enum';
-import { Clan } from '../clan/clan.schema';
-import { Environment } from '../common/enum/environment.enum';
 
 @Injectable()
 @AddBasicService()
