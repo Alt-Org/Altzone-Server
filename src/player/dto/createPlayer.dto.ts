@@ -106,11 +106,9 @@ export class CreatePlayerDto {
   avatar?: ModifyAvatarDto;
 
   /**
-   * Environment mode linked to the player profile (Teaching Mode or Open Mode)
-   * 0 = teaching mode (default), 1 = open mode
+   * Environment mode linked to the player profile
    *
-   * @example 0
-   * @example 1
+   * @example Environment.OPEN_DEMO
    */
   @Type(() => Number)
   @IsEnum(Environment)
