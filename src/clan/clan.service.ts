@@ -86,9 +86,10 @@ export class ClanService {
     if (clanCreatorErrors)
       return await cancelTransaction(session, clanCreatorErrors);
 
-    const environment =
-      (clanToCreate && clanCreator.environment) ?? Environment.OPEN_DEMO;
-    clanToCreate.environment = environment;
+    if (clanToCreate) {
+      const environment = clanCreator.environment ?? Environment.OPEN_DEMO;
+      clanToCreate.environment = environment;
+    }
 
     if (clanToCreate && !clanToCreate.isOpen && !clanToCreate.password) {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
