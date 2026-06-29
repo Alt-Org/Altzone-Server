@@ -330,7 +330,7 @@ export class GameDataService {
         teamIds.team1Id,
         teamIds.team2Id,
         currentTime,
-        team1Clan.environment,
+        team1Clan.environment ?? team2Clan.environment ?? Environment.OPEN_DEMO,
       );
 
       return await this.createOne(newGame);
