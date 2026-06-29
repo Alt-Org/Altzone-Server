@@ -184,27 +184,6 @@ export class PlayerService
     return player.clan_id?.toString();
   }
 
-  /**
-   * Gets the clan environment value of the player.
-   *
-   * @param playerId - The ID of the player.
-   * @returns The clan environment value of the player.
-   * @throws Will throw if there are errors reading the player or clan document.
-   */
-  async getPlayerClanEnvironment(playerId: string): Promise<Environment> {
-    const [player, playerErrors] = await this.getPlayerById(playerId, {
-      includeRefs: [ModelName.CLAN],
-    });
-    if (playerErrors) throw playerErrors;
-
-    const [clan, clanErrors] = await this.basicService.readOneById<Clan>(
-      player.clan_id,
-    );
-    if (clanErrors) throw clanErrors;
-
-    return clan.environment;
-  }
-
   private clearClanReferences = async (
     _id: string,
   ): Promise<boolean | Error> => {
