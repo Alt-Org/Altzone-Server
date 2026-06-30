@@ -48,6 +48,7 @@ export class FleaMarketService {
     private readonly itemHelperService: ItemHelperService,
     private readonly playerService: PlayerService,
     private readonly itemService: ItemService,
+    @Inject(forwardRef(() => VotingService))
     private readonly votingService: VotingService,
     private readonly votingQueue: VotingQueue,
     @Inject(forwardRef(() => ClanService))
