@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, forwardRef, Inject, Optional } from '@nestjs/common';
 import { Model, ClientSession } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Stock } from './stock.schema';
@@ -8,6 +8,7 @@ import { StockDto } from './dto/stock.dto';
 import { ItemService } from '../item/item.service';
 import { ModelName } from '../../common/enum/modelName.enum';
 import BasicService from '../../common/service/basicService/BasicService';
+import { FleaMarketService } from '../../fleaMarket/fleaMarket.service';
 import {
   TReadByIdOptions,
   TIServiceReadManyOptions,
@@ -21,6 +22,8 @@ export class StockService {
   public constructor(
     @InjectModel(Stock.name) public readonly model: Model<Stock>,
     private readonly itemService: ItemService,
+    @Inject(forwardRef(() => FleaMarketService))
+    @Optional() private readonly fleaMarketService?: FleaMarketService,
   ) {
     this.refsInModel = [ModelName.CLAN, ModelName.ITEM];
     this.modelName = ModelName.STOCK;
@@ -58,7 +61,23 @@ export class StockService {
       optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
         this.refsInModel.includes(ref),
       );
-    return this.basicService.readOneById<StockDto>(_id, optionsToApply);
+
+    const [stock, errors] = await this.basicService.readOneById<StockDto>(
+      _id,
+      optionsToApply,
+    );
+    if (errors) return [null, errors];
+
+    const fleaMarketResult = this.fleaMarketService 
+  ? await this.fleaMarketService.basicService.readMany({ filter: { clan_id: stock.clan_id } })
+  : [[]];
+
+    const [fleaMarketItems] = fleaMarketResult || [[]];
+
+    return [
+      { ...stock, FleaMarketItem: fleaMarketItems ?? [] },
+      null,
+    ];
   }
 
   /**
@@ -90,7 +109,7 @@ export class StockService {
     cellCountChange: number,
   ): Promise<[boolean | null, ServiceError[] | null]> => {
     const [stock, errors] = await this.basicService.readOneById<StockDto>(_id);
-    if (errors || !stock) return [null, errors];
+    if (errors) return [null, errors];
 
     const { cellCount } = stock;
 

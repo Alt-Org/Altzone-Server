@@ -3,6 +3,7 @@ import { ItemDto } from '../../item/dto/item.dto';
 import { ClanDto } from '../../../clan/dto/clan.dto';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 import { ExtractField } from '../../../common/decorator/response/ExtractField';
+import { FleaMarketItemDto } from '../../../fleaMarket/dto/fleaMarketItem.dto';
 
 @AddType('StockDto')
 export class StockDto {
@@ -45,4 +46,11 @@ export class StockDto {
   @Type(() => ItemDto)
   @Expose()
   Item: ItemDto[];
+
+  /**
+   * FleaMarketItems associated with this stock's clan
+   */
+  @Type(() => FleaMarketItemDto)
+  @Expose()
+  FleaMarketItem: FleaMarketItemDto[];
 }

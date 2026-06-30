@@ -52,7 +52,10 @@ export class ClanService {
     @InjectConnection() private readonly connection: Connection,
     @Inject(PasswordGenerator)
     private readonly passwordGenerator: PasswordGenerator,
+    
+    @Inject(forwardRef(() => StockService)) // <-- MAOC FIX APPLIED HERE
     private readonly stockService: StockService,
+    
     private readonly soulhomeService: SoulHomeService,
     private readonly clanHelperService: ClanHelperService,
     private readonly emitter: GameEventEmitter,

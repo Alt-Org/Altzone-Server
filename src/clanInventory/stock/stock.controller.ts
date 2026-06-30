@@ -21,10 +21,10 @@ export class StockController {
 
   /**
    * Get stock by _id
-   *
-   * @remarks Read Stock data by its _id field.
-   *
-   * Notice that everybody is able to read any Stock data.
+   * @remarks Returns the Stock document with the given _id. Includes both the
+   * clan's active stock items (under `Item`) and FleaMarketItems currently in the
+   * sell lifecycle (under `FleaMarketItem`). Consolidates the complete view of
+   * clan furniture into a single decoupled request.
    */
   @ApiResponseDescription({
     success: {

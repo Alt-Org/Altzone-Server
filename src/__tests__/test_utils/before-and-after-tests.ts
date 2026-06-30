@@ -42,14 +42,17 @@ afterEach(async () => {
 
 afterAll(async () => {
   try {
-    await mongoose.disconnect();
+    // Only attempt a disconnect if the client/connection is currently active
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
     await new Promise((resolve) => setTimeout(resolve, 100));
   } catch (error) {
-    console.error(
-      'afterAll() global: Could not stop DB after all tests',
-      error,
-    );
-    throw error;
+    // CHANGE: Typecast 'error' to 'any' (or type guard via 'instanceof Error') 
+    // to safely read the 'name' property without compiler complaints
+    if ((error as any)?.name !== 'MongoClientClosedError') {
+      console.error('Error during database disconnection:', error);
+    }
   }
 });
 

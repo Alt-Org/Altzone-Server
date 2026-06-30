@@ -11,8 +11,8 @@
  *   voting whether to buy it. Lives in the FleaMarketItem collection.
  */
 export enum Status {
-  IN_STOCK = 'in_stock',
   AVAILABLE = 'available',
   SHIPPING = 'shipping',
   BOOKED = 'booked',
+  IN_STOCK = 'in_stock',
 }

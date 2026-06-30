@@ -85,7 +85,7 @@ describe('ClanShopService.checkVotingOnExpire() test suite', () => {
     ).resolves.not.toThrow();
 
     const dbItem = await itemModel.find();
-    expect(dbItem[0]).toMatchObject(itemProperties[item.name]);
+    expect(dbItem[0].toObject()).toMatchObject(itemProperties[item.name]);
   });
 
   it('Should process a passed clan shop voting event and create an item immediately', async () => {
@@ -112,7 +112,7 @@ describe('ClanShopService.checkVotingOnExpire() test suite', () => {
       unityKey: item.name,
     });
 
-    expect(dbItem).toMatchObject({
+    expect(dbItem.toObject()).toMatchObject({
       ...itemProperties[item.name],
       stock_id: stockToCreate._id,
       room_id: null,
