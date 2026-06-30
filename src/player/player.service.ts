@@ -17,7 +17,6 @@ import {
 } from '../common/interface/IHookImplementer';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { PlayerDto, StatDetailDto } from './dto/player.dto';
-import { EmotionCheckDto } from './dto/emotionCheck.dto';
 import BasicService from '../common/service/basicService/BasicService';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
@@ -29,13 +28,14 @@ import {
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { PlayerEmotion } from './enum/playerEmotion.enum';
 import { prizePool } from '../rewarder/const/prizePool';
+import { PlayerObject } from '../common/type/playerObject.type';
+import { EmotionCheckResult } from './dto/emotionCheckResult.dto';
 
 @Injectable()
 @AddBasicService()
 export class PlayerService
   extends BasicServiceDummyAbstract
-  implements IBasicService, IHookImplementer
-{
+  implements IBasicService, IHookImplementer {
   public constructor(
     @InjectModel(Player.name) public readonly model: Model<Player>,
     private readonly customCharacterService: CustomCharacterService,
@@ -62,7 +62,7 @@ export class PlayerService
   async getPlayerById(
     _id: string,
     options?: TReadByIdOptions,
-  ): Promise<[PlayerDto, any]> {
+  ): Promise<[PlayerDto, PlayerObject | ServiceError[]]> {
     const optionsToApply = options;
     if (options?.includeRefs) {
       optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
@@ -79,9 +79,8 @@ export class PlayerService
       return [player, errors];
     }
 
-    const playerObject: any = (player as any).toObject
-      ? (player as any).toObject()
-      : player;
+    const playerObject = player;
+
     playerObject.favouriteClass = this.getFavourite(
       playerObject['classStatistics'],
     );
@@ -93,12 +92,21 @@ export class PlayerService
   }
 
   /**
-   * This method is used in the LeaderboardService and serves as a replacement
-   * for the deprecated readAll method from the BasicServiceDummyAbstract.
-   * It should be renamed to readAll when the service is updated to the new way.
+   * Retrieve players according to the provided options and attach each
+   * player's clan display name as clanName when available.
    *
-   * @param options - Options for reading players.
-   * @returns - An array of players if succeeded or an array of ServiceErrors if error occurred.
+   * - filters includeRefs to allowed public references
+   * - returns plain objects (not DTO instances) to avoid recursive DTO serialization
+   * - performs a batched lookup of clan names to avoid per-player queries and
+   *   circular conversions
+   *
+   * @param options TISericeReadManyOptions Optional
+   * read/pagination/includeRefs settings
+   *
+   * @return Promise <[any[], ServiceError[] | null]> Tuple where the first
+   * element is an array of player objects (each may include 'clanName?: string | null')
+   * and the second element contains service errors if any
+   *
    */
   async getAll(options?: TIServiceReadManyOptions) {
     const optionsToApply = options;
@@ -107,7 +115,44 @@ export class PlayerService
         publicReferences.includes(ref),
       );
 
-    return this.basicService.readMany<PlayerDto>(optionsToApply);
+    const [players, errors] =
+      await this.basicService.readMany<PlayerDto>(optionsToApply);
+
+    if (errors || !players) return [players, errors];
+
+    const playerObjects = players.map((p: PlayerDto | null) => p);
+
+    const clanIds = Array.from(
+      new Set(
+        playerObjects
+          .map((p) => (p.clan_id ? p.clan_id.toString() : null))
+          .filter(Boolean),
+      ),
+    );
+
+    if (clanIds.length > 0) {
+      const clanDocs = await Promise.all(
+        clanIds.map((cid) =>
+          this.requestHelperService.findOneRaw(
+            ModelName.CLAN,
+            { _id: cid },
+            { projection: { name: 1 } },
+          ),
+        ),
+      );
+
+      const clanMap = new Map<string, string | null>();
+      clanDocs.forEach((c: any) => {
+        if (c && c._id) clanMap.set(c._id.toString(), c.name ?? null);
+      });
+
+      playerObjects.forEach((p) => {
+        const key = p.clan_id ? p.clan_id.toString() : null;
+        p.clanName = key ? (clanMap.get(key) ?? null) : null;
+      });
+    }
+
+    return [playerObjects, null];
   }
 
   public clearCollectionReferences = async (
@@ -265,7 +310,7 @@ export class PlayerService
     if (isLastAdminNonEmptyClan)
       return new Error(
         `Player can not be deleted, because it is the only one admin in a non empty clan with _id '${clan_idLastAdmin}'. ` +
-          `Please add another admin to this clan before deleting this Player or delete this clan first.`,
+        `Please add another admin to this clan before deleting this Player or delete this clan first.`,
       );
 
     for (let i = 0; i < clansWithPlayerAsAdmin.length; i++) {
@@ -305,37 +350,48 @@ export class PlayerService
   }
 
   /**
-   * Checks if the player has already submitted an emotion today.
-   * @param playerId - The unique identifier of the player.
-   * @returns - A classic tuple setup [boolean, ServiceError[]] indicating if an entry for today exists.
-   */
+ * Checks if the player has already submitted an emotion today.
+ * @param playerId - The unique identifier of the player.
+ * @returns - A classic tuple setup [boolean, ServiceError[]] indicating if an entry for today exists.
+ */
   async checkIfEmotionSentToday(
     playerId: string,
-  ): Promise<IServiceReturn<boolean>> {
+  ): Promise<EmotionCheckResult | ServiceError[]> {
     const player = await this.model
       .findById(playerId)
       .select('emotions')
       .exec();
 
     if (!player)
-      return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
+      return [new ServiceError({ reason: SEReason.NOT_FOUND })];
 
-    const lastEntry = player.emotions[player.emotions.length - 1];
+    const lastEntry = player.emotions[player.emotions.length - 1] ?? null;
 
     const today = new Date().setHours(0, 0, 0, 0);
     const entryDate = lastEntry
       ? new Date(lastEntry.date).setHours(0, 0, 0, 0)
       : null;
 
-    if (entryDate !== today) {
-      return [false, null];
+    const isToday = entryDate === today;
+
+    if (!lastEntry) {
+      return {
+        emotioncheck: {
+          last_sent: null,
+          submitted_today: false,
+        }
+      }
     }
 
-    const emotionValue = lastEntry.emotion as PlayerEmotion;
-
-    const isSent = emotionValue !== PlayerEmotion.BLANK;
-
-    return [isSent, null];
+    return {
+      emotioncheck: {
+        last_sent: {
+          date: lastEntry.date,
+          emotion: lastEntry.emotion as PlayerEmotion,
+        },
+        submitted_today: isToday && lastEntry.emotion !== PlayerEmotion.BLANK,
+      },
+    }
   }
 
   /**
@@ -346,23 +402,23 @@ export class PlayerService
    * @returns The updated player data or service errors.
    */
   async addEmotion(
-    playerId: string,
-    emotion: PlayerEmotion,
-  ): Promise<IServiceReturn<PlayerDto>> {
-    const [player, errors] = await this.getPlayerById(playerId);
-    if (errors) return [null, errors];
+      playerId: string,
+      emotion: PlayerEmotion,
+    ): Promise < IServiceReturn < PlayerDto >> {
+      const [player, errors] = await this.getPlayerById(playerId);
+      if(errors) return [null, errors as ServiceError[]];
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    const index = (player.emotions || []).findIndex((e) => {
-      const entryDate = new Date(e.date);
-      entryDate.setHours(0, 0, 0, 0);
-      return entryDate.getTime() === today.getTime();
-    });
+      const index = (player.emotions || []).findIndex((e) => {
+        const entryDate = new Date(e.date);
+        entryDate.setHours(0, 0, 0, 0);
+        return entryDate.getTime() === today.getTime();
+      });
 
-    let updateQuery: UpdateQuery<Player>;
-    if (index > -1) {
+      let updateQuery: UpdateQuery<Player>;
+      if(index > -1) {
       updateQuery = {
         $set: {
           [`emotions.${index}.emotion`]: emotion,
@@ -381,22 +437,19 @@ export class PlayerService
     );
     if (updateErrors) return [null, updateErrors];
 
-    return this.getPlayerById(playerId);
+    return this.getPlayerById(playerId) as Promise<IServiceReturn<PlayerDto>>;
   }
 
   /**
    * Claim Player reward. Removes claimable reward from claimableRewards, return chosen reward.
-   * 
+   *
    * Currently, Player rewards are not implemented, so a mock reward is instead returned.
-   * 
+   *
    * @param _id Player Id
    * @param reward_id Reward Id - Currently, there are no rewards, so placeholder rewards are used
    * @returns Placeholder reward, Errors if errors
    */
-  async claimReward(
-    _id: string, 
-    reward_id: number
-  ) {
+  async claimReward(_id: string, reward_id: number) {
     const [player, playerErrors] = await this.getPlayerById(_id);
     if (playerErrors) return [null, playerErrors];
 
@@ -406,12 +459,14 @@ export class PlayerService
         [
           new ServiceError({
             reason: SEReason.NOT_ALLOWED,
-            message: 'Player can\'t claim final reward',
+            message: "Player can't claim final reward",
           }),
         ],
       ];
 
-    const playerReward = prizePool.finalRewards.find(reward => reward.id === reward_id)
+    const playerReward = prizePool.finalRewards.find(
+      (reward) => reward.id === reward_id,
+    );
     if (!playerReward)
       return [
         null,
@@ -424,7 +479,7 @@ export class PlayerService
       ];
 
     const update = {
-      $pull: { claimableRewards: prizePool.maxPoints }
+      $pull: { claimableRewards: prizePool.maxPoints },
     };
 
     const [, updateErrors] = await this.basicService.updateOneById(_id, update);

@@ -88,12 +88,9 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       .build();
     await taskModel.create(dailyTaskToCreate);
 
-    const [[status]] = await uiDailyTasksService.updateTask(
-      loggedPlayer._id,
-      1,
-    );
+    const [result] = await uiDailyTasksService.updateTask(loggedPlayer._id, 1);
 
-    expect(status).toBe('updated');
+    expect(result.status).toBe('advanced');
   });
 
   it('Should return completed status if daily task amountLeft field became 0', async () => {
@@ -107,12 +104,9 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       .build();
     await taskModel.create(dailyTaskToCreate);
 
-    const [[status]] = await uiDailyTasksService.updateTask(
-      loggedPlayer._id,
-      1,
-    );
+    const [result] = await uiDailyTasksService.updateTask(loggedPlayer._id, 1);
 
-    expect(status).toBe('completed');
+    expect(result.status).toBe('completed');
   });
 
   it('Should remove the daily task if the task is completed', async () => {

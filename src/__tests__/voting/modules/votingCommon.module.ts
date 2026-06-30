@@ -19,6 +19,10 @@ import {
   SetClanRoleVoting,
   SetClanRoleVotingSchema,
 } from '../../../voting/schemas/setClanRoleVoting.schema';
+import {
+  BuyClanShopItemVoting,
+  BuyClanShopItemVotingSchema,
+} from '../../../voting/schemas/buyShopItem.schema';
 
 export default class VotingCommonModule {
   private constructor() {}
@@ -47,9 +51,24 @@ export default class VotingCommonModule {
                   value: VotingType.FLEA_MARKET_SELL_ITEM,
                 },
                 {
+                  name: 'ChangeFleaMarketItemPriceVoting',
+                  schema: FleaMarketItemVotingSchema,
+                  value: VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE,
+                },
+                {
                   name: SetClanRoleVoting.name,
                   schema: SetClanRoleVotingSchema,
                   value: VotingType.SET_CLAN_ROLE,
+                },
+                {
+                  name: BuyClanShopItemVoting.name,
+                  schema: BuyClanShopItemVotingSchema,
+                  value: VotingType.SHOP_BUY_ITEM,
+                },
+                {
+                  name: 'ClanGovernanceUpdateVoting',
+                  schema: VotingSchema,
+                  value: VotingType.CLAN_GOVERNANCE_UPDATE,
                 },
               ],
             },

@@ -35,8 +35,8 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { isEqual } from 'lodash';
 import { IServiceReturn } from '../common/service/basicService/IService';
-import { EmotionCheckDto } from './dto/emotionCheck.dto';
 import { MongooseError } from 'mongoose';
+import { EmotionCheckResult } from './dto/emotionCheckResult.dto';
 
 @Controller('player')
 export default class PlayerController {
@@ -76,15 +76,13 @@ export default class PlayerController {
   })
   @Get('/emotioncheck')
   @Authorize({ action: Action.read, subject: PlayerDto })
-  public async checkDailyEmotion(
-    @LoggedUser() user: User,
-  ): Promise<IServiceReturn<boolean>> {
-    return await this.service.checkIfEmotionSentToday(user.player_id);
+  public async checkDailyEmotion(@LoggedUser() user: User) {
+    return this.service.checkIfEmotionSentToday(user.player_id);
   }
 
   /**
    * Registers the player's selected emotion for the current day.
-   * 
+   *
    * @remarks Emotion must be one of these: Sorrow, Anger, Joy, Playful, Love, Blank
    */
   @ApiResponseDescription({
@@ -98,7 +96,10 @@ export default class PlayerController {
     @LoggedUser() user: User,
     @Body() body: UpdateEmotionDto,
   ): Promise<void> {
-    const [, error] = await this.service.addEmotion(user.player_id, body.emotion);
+    const [, error] = await this.service.addEmotion(
+      user.player_id,
+      body.emotion,
+    );
 
     if (error) {
       throw new BadRequestException(error[0].message);

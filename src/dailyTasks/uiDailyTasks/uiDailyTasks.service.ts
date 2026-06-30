@@ -18,6 +18,7 @@ import {
   endTransaction,
   initializeSession,
 } from '../../common/function/Transactions';
+import { DailyTaskProgressResult } from '../type/dailyTaskProgressResult.type';
 
 @Injectable()
 export default class UIDailyTasksService {
@@ -79,14 +80,19 @@ export default class UIDailyTasksService {
   async updateTask(
     player_id: string,
     amount = 1,
-  ): Promise<IServiceReturn<['updated' | 'completed', DailyTask]>> {
+  ): Promise<IServiceReturn<DailyTaskProgressResult<DailyTask>>> {
     const [task, errors] = await this.findUIDailyTask(player_id);
     if (errors) return [null, errors];
 
-    const isTaskCompleted = task.amountLeft - amount <= 0;
+    const previousAmountLeft = task.amountLeft;
+    const completedAmount = Math.min(amount, previousAmountLeft);
+    const currentAmountLeft = Math.max(previousAmountLeft - completedAmount, 0);
+    const isTaskCompleted = currentAmountLeft <= 0;
 
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
+
+    task.amountLeft = currentAmountLeft;
 
     if (isTaskCompleted) {
       const [_isSuccess, errors] = await this.handleTaskCompletion(task, {
@@ -97,21 +103,39 @@ export default class UIDailyTasksService {
       const [_, endErrors] = await endTransaction(session);
       if (endErrors) return [null, endErrors];
 
-      return [['completed', task], null];
+      return [
+        this.buildProgressResult(
+          'completed',
+          task,
+          player_id,
+          completedAmount,
+          previousAmountLeft,
+          currentAmountLeft,
+        ),
+        null,
+      ];
     }
 
-    const [_isSuccess, updateErrors] = await this.handleTaskAmountUpdate(
-      task,
-      amount,
-      { session },
-    );
+    const [_isSuccess, updateErrors] = await this.handleTaskAmountUpdate(task, {
+      session,
+    });
 
     if (updateErrors) return cancelTransaction(session, updateErrors);
 
     const [_, endErrors] = await endTransaction(session);
     if (endErrors) return [null, endErrors];
 
-    return [['updated', task], null];
+    return [
+      this.buildProgressResult(
+        'advanced',
+        task,
+        player_id,
+        completedAmount,
+        previousAmountLeft,
+        currentAmountLeft,
+      ),
+      null,
+    ];
   }
 
   /**
@@ -153,7 +177,6 @@ export default class UIDailyTasksService {
    * Handles daily task update by decreasing amountLeft field of the task.
    *
    * @param task task data to update
-   * @param decreaseAmount amount to decrease
    * @param options update options
    * @private
    *
@@ -161,14 +184,11 @@ export default class UIDailyTasksService {
    */
   private async handleTaskAmountUpdate(
     task: DailyTask,
-    decreaseAmount: number,
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<true>> {
-    const updatedAmount = task.amountLeft - decreaseAmount;
-
     const [_, updateErrors] = await this.basicService.updateOneById(
       task._id.toString(),
-      { amountLeft: updatedAmount },
+      { amountLeft: task.amountLeft },
       options,
     );
 
@@ -198,5 +218,24 @@ export default class UIDailyTasksService {
     if (deletionErrors) return [null, deletionErrors];
 
     return [true, null];
+  }
+
+  private buildProgressResult(
+    status: DailyTaskProgressResult<DailyTask>['status'],
+    task: DailyTask,
+    player_id: string,
+    completedAmount: number,
+    previousAmountLeft: number,
+    currentAmountLeft: number,
+  ): DailyTaskProgressResult<DailyTask> {
+    return {
+      status,
+      task,
+      completedByPlayerId: player_id,
+      clanId: task.clan_id.toString(),
+      completedAmount,
+      previousAmountLeft,
+      currentAmountLeft,
+    };
   }
 }

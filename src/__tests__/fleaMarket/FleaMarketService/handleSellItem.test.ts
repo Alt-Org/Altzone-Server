@@ -46,7 +46,7 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
   const clanId = 'clan';
   const playerId = 'player';
   const playerDto = PlayerDtoBuilder.setClanId(clanId)
-    .setClanId({ toString: () => 'memberRoleId' } as any) // change by hand to match exisiting methods
+    .setClanRoleId({ toString: () => 'memberRoleId' } as any)
     .build();
   const error = [];
 

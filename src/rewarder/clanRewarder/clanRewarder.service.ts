@@ -85,11 +85,11 @@ export class ClanRewarder {
 
     return this.clanService.findByIdAndUpdate<Clan>(
       clan_id,
-      { 
+      {
         $set: {
           points: newPoints,
-          gameCoins: gameCoins + coins
-        }
+          gameCoins: gameCoins + coins,
+        },
       },
       { session },
     );

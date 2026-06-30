@@ -5,9 +5,15 @@ import PlayerModule from '../../../player/modules/player.module';
 import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
 import { NotFoundException } from '@nestjs/common';
+import MQTTConnector from '../../../../common/service/notificator/MQTTConnector';
+
+jest.mock('../../../../common/service/notificator/MQTTConnector', () => ({
+  getInstance: jest.fn(),
+}));
 
 describe('JoinService.leaveClan() test suite', () => {
   let joinService: JoinService;
+  let publishMock: jest.Mock;
 
   const clanModel = ClanModule.getClanModel();
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
@@ -18,6 +24,11 @@ describe('JoinService.leaveClan() test suite', () => {
   const player = playerBuilder.build();
 
   beforeEach(async () => {
+    publishMock = jest.fn();
+    (MQTTConnector.getInstance as jest.Mock).mockReturnValue({
+      publish: publishMock,
+    });
+
     const playerResp = await playerModel.create(player);
     player._id = playerResp._id.toString();
     const clanResp = await clanModel.create(clan);
@@ -96,5 +107,19 @@ describe('JoinService.leaveClan() test suite', () => {
     const clanInDB = await clanModel.findById(clan._id);
 
     expect(clanInDB.playerCount).toBe(1);
+  });
+
+  it('Should publish an MQTT leave notification when player leaves the clan', async () => {
+    await joinService.leaveClan(player._id);
+
+    expect(publishMock).toHaveBeenCalledTimes(1);
+    const [topic, payload] = publishMock.mock.calls[0];
+    expect(topic).toBe(`/clan/${clan._id}/member/leave/update`);
+
+    const parsedPayload = JSON.parse(payload);
+    expect(parsedPayload.topic).toBe(`/clan/${clan._id}/member/leave`);
+    expect(parsedPayload.playerId).toBe(player._id);
+    expect(parsedPayload.event).toBe('leave');
+    expect(parsedPayload.ts).toBeLessThanOrEqual(Date.now());
   });
 });

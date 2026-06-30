@@ -19,10 +19,13 @@ import { SEReason } from '../../common/service/basicService/SEReason';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Logger } from '@nestjs/common';
 import { ClanDocument } from '../clan.schema';
+import ClanNotifier from '../clan.notifier';
 
 @Injectable()
 export class JoinService {
   private readonly logger = new Logger(JoinService.name);
+  private readonly clanNotifier = new ClanNotifier();
+
   public constructor(
     private readonly playerCounterFactory: PlayerCounterFactory,
     private readonly clanService: ClanService,
@@ -120,6 +123,8 @@ export class JoinService {
         clan_id: null,
       },
     );
+
+    this.clanNotifier.memberLeave(clan_id, player_id);
   }
 
   /**
@@ -151,6 +156,8 @@ export class JoinService {
         clan_id: null,
       },
     ); // update clan_id for the requested player;
+
+    this.clanNotifier.memberLeave(clan_id, player_id);
   }
 
   /**
@@ -174,7 +181,10 @@ export class JoinService {
         clanRole_id: memberRole._id,
       },
     );
+
     await this.playerCounter.increaseByIdOnOne(clan_id);
+
+    this.clanNotifier.memberJoin(clan_id, player_id);
   }
 
   /**
