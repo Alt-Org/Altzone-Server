@@ -38,6 +38,7 @@ export default class ClanHelperService {
    * Creates a default Stock for the specified Clan.
    * @param clan_id _id of the Clan
    * @param session optional session for transaction support
+   * @param environment environment of the Clan
    * @returns created _Stock_ and its _items_, or array of ServiceErrors if something went wrong
    */
   async createDefaultStock(
@@ -47,18 +48,17 @@ export default class ClanHelperService {
   ): Promise<
     [{ Stock: StockDto; Item: ItemDto[] } | null, ServiceError[] | null]
   > {
-    let env = environment;
-    if (env === undefined) {
+    if (environment === undefined) {
       const [clan, clanErrors] =
         await this.basicService.readOneById<Clan>(clan_id);
       if (clanErrors || !clan) {
         return [null, clanErrors];
       }
-      env = clan.environment;
+      environment = clan.environment ?? Environment.OPEN_DEMO;
     }
 
     const [stock, stockErrors] = await this.stockService.createOne(
-      { cellCount: 20, clan_id, environment: env },
+      { cellCount: 20, clan_id, environment: environment },
       { session },
     );
     if (stockErrors || !stock) return [null, stockErrors];
@@ -78,6 +78,7 @@ export default class ClanHelperService {
    * @param name name of the SoulHome
    * @param roomsCount default 30
    * @param session optional session for transaction support
+   * @param environment environment of the Clan
    * @returns created _SoulHome_, _Rooms_ and _Items_, or array of ServiceErrors if something went wrong
    */
   async createDefaultSoulHome(
@@ -92,21 +93,20 @@ export default class ClanHelperService {
       ServiceError[] | null,
     ]
   > {
-    let env = environment;
-    if (env === undefined) {
+    if (environment === undefined) {
       const [clan, clanErrors] =
         await this.basicService.readOneById<Clan>(clan_id);
       if (clanErrors || !clan) {
         return [null, clanErrors];
       }
-      env = clan.environment ?? undefined;
+      environment = clan.environment ?? Environment.OPEN_DEMO;
     }
 
     const [soulHome, soulHomeErrors] =
       await this.soulHomeService.basicService.createOne<
         Partial<SoulHome>,
         SoulHomeDto
-      >({ name, clan_id, environment: env }, { session });
+      >({ name, clan_id, environment: environment }, { session });
     if (soulHomeErrors || !soulHome) return [null, soulHomeErrors];
 
     const defaultRooms = this.getDefaultRooms(soulHome._id, roomsCount);
