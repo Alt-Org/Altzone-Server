@@ -44,9 +44,9 @@ export class StockService {
   async createOne(stock: CreateStockDto, options?: TIServiceCreateOneOptions) {
     // allow BasicService to handle null/undefined inputs without throwing errors
     // since the unit test was designed to ensure that createOne handles null/undefined input
-    if (stock == null) {
+    if (!stock) {
       return this.basicService.createOne<CreateStockDto, StockDto>(
-        stock as any,
+        stock,
         options,
       );
     }
