@@ -76,7 +76,7 @@ export class ClanService {
     if (!session) return [null, initErrors];
 
     const [clanCreator, clanCreatorErrors] =
-      await this.playerService.readOneById<PlayerDto>(player_id);
+      await this.playerService.readOneById<Player>(player_id);
 
     if (clanCreatorErrors)
       return await cancelTransaction(session, clanCreatorErrors);
@@ -155,8 +155,8 @@ export class ClanService {
     const [clan, clanErrors] = await this.basicService.createOne<Clan, Clan>(
       {
         ...clanToCreate,
-       playerCount: 0,
-       environment: clanToCreate.environment ?? Environment.OPEN_DEMO
+        playerCount: 0,
+        environment: clanToCreate.environment ?? Environment.OPEN_DEMO,
       } as Clan,
       { session },
     );

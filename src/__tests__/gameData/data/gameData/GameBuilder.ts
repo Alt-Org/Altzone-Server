@@ -13,7 +13,6 @@ export class GameBuilder {
     winner: 1,
     startedAt: new Date(),
     endedAt: new Date(),
-    _id: undefined,
     environment: Environment.TEACHING_DEMO,
     _id: undefined as unknown as string,
     gameType: GameType.CASUAL,
@@ -61,6 +60,7 @@ export class GameBuilder {
 
   setEnvironment(environment: Environment): this {
     this.base.environment = environment;
+    return this;
   }
 
   setStatus(status: BattleStatus): this {
