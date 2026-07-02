@@ -36,7 +36,7 @@ describe('ProfileService.verifySecurityAnswer() test suite', () => {
       .setPassword(password)
       .setSecurityQuestion(question)
       .setSecurityAnswer(answer)
-      .build() as CreateProfileDto;
+      .build() as unknown as CreateProfileDto;
 
     await profileService.createWithHashedPassword(profileToCreate);
 
@@ -55,7 +55,7 @@ describe('ProfileService.verifySecurityAnswer() test suite', () => {
       .setPassword(password)
       .setSecurityQuestion(question)
       .setSecurityAnswer(answer)
-      .build() as CreateProfileDto;
+      .build() as unknown as CreateProfileDto;
 
     await profileService.createWithHashedPassword(profileToCreate);
 
@@ -74,7 +74,7 @@ describe('ProfileService.verifySecurityAnswer() test suite', () => {
     const profileToCreate = profileBuilder
       .setUsername(username)
       .setPassword(password)
-      .build() as CreateProfileDto;
+      .build() as unknown as CreateProfileDto;
 
     await profileService.createWithHashedPassword(profileToCreate);
 
@@ -98,7 +98,7 @@ describe('ProfileService.verifySecurityAnswer() test suite', () => {
       .setSecurityQuestion(question)
       .setSecurityAnswer(answer)
       .setRecoveryLockedUntil(lockoutTime)
-      .build() as CreateProfileDto;
+      .build() as unknown as CreateProfileDto;
 
     await profileService.createWithHashedPassword(profileToCreate);
 
@@ -121,7 +121,7 @@ describe('ProfileService.verifySecurityAnswer() test suite', () => {
       .setPassword(password)
       .setSecurityQuestion(question)
       .setSecurityAnswer(answer)
-      .build() as CreateProfileDto;
+      .build() as unknown as CreateProfileDto;
 
     await profileService.createWithHashedPassword(profileToCreate);
 

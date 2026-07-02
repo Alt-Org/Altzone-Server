@@ -10,4 +10,5 @@ export enum VotingType {
   FLEA_MARKET_CHANGE_ITEM_PRICE = 'change_item_price',
   SHOP_BUY_ITEM = 'shop_buy_item',
   SET_CLAN_ROLE = 'set_clan_role',
+  CLAN_GOVERNANCE_UPDATE = 'clan_governance_update',
 }

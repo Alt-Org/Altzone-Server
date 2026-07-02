@@ -12,6 +12,7 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
     name: 'defaultPlayer',
     points: 0,
     battlePoints: 0,
+    claimableRewards: [],
     backpackCapacity: 10,
     uniqueIdentifier: 'unique-id',
     above13: true,
@@ -39,6 +40,7 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
     },
     profile_id: 'profile-id',
     clan_id: 'clan-id',
+    clanRole_id: null,
     battleCharacter_ids: [],
     Clan: undefined,
     CustomCharacter: [],
@@ -120,6 +122,11 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
 
   setClan(clan: ClanDto) {
     this.base.Clan = clan;
+    return this;
+  }
+
+  setClanRoleId(clanRoleId: string | ObjectId): PlayerDtoBuilder {
+    this.base.clanRole_id = clanRoleId as any;
     return this;
   }
 

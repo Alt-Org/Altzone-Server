@@ -47,15 +47,7 @@ describe('GameDataService.handleResultType() test suite', () => {
   const p3Id = new ObjectId();
   const p4Id = new ObjectId();
 
-  const p1 = playerBuilder.setId(p1Id.toString()).setName('p10').build();
-  const p2 = playerBuilder.setId(p2Id.toString()).setName('p20').build();
-  const p3 = playerBuilder.setId(p3Id.toString()).setName('p30').build();
-  const p4 = playerBuilder.setId(p4Id.toString()).setName('p40').build();
-
-  playerModel.create(p1);
-  playerModel.create(p2);
-  playerModel.create(p3);
-  playerModel.create(p4);
+  let p1, p2, p3, p4;
 
   const playerDto = playerDtoBuilder.setClanId('c1').build();
 
@@ -63,11 +55,38 @@ describe('GameDataService.handleResultType() test suite', () => {
 
   const clan = clanDtoBuilder.setSoulHome(soulHomeDto).setName('clan').build();
 
-  let userDto = userBuilder.setPlayerId(p1Id.toString()).build();
+  let userDto;
 
   beforeEach(async () => {
     jest.resetAllMocks();
-    gameDataModel.deleteMany();
+    await gameDataModel.deleteMany({});
+    await playerModel.deleteMany({});
+
+    p1 = playerBuilder
+      .setId(p1Id.toString())
+      .setName('p1_' + Date.now())
+      .setUniqueIdentifier('uid1_' + Date.now())
+      .build();
+    p2 = playerBuilder
+      .setId(p2Id.toString())
+      .setName('p2_' + Date.now())
+      .setUniqueIdentifier('uid2_' + Date.now())
+      .build();
+    p3 = playerBuilder
+      .setId(p3Id.toString())
+      .setName('p3_' + Date.now())
+      .setUniqueIdentifier('uid3_' + Date.now())
+      .build();
+    p4 = playerBuilder
+      .setId(p4Id.toString())
+      .setName('p4_' + Date.now())
+      .setUniqueIdentifier('uid4_' + Date.now())
+      .build();
+
+    await playerModel.create(p1);
+    await playerModel.create(p2);
+    await playerModel.create(p3);
+    await playerModel.create(p4);
 
     battleResultDto = battleResultDtoBuilder
       .setTeam1([p1Id.toString(), p2Id.toString()])

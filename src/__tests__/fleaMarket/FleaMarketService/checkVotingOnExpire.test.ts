@@ -110,6 +110,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     expect(votingService.checkVotingSuccess).toHaveBeenCalledWith(
       params.voting,
+      true,
     );
     expect(sessionMock.startTransaction).toHaveBeenCalled();
     expect(sessionMock.commitTransaction).toHaveBeenCalled();
@@ -160,6 +161,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     expect(votingService.checkVotingSuccess).toHaveBeenCalledWith(
       params.voting,
+      true,
     );
     expect(clanService.readOneById).toHaveBeenCalledWith(params.clanId);
     expect(basicService.updateOneById).toHaveBeenCalled();
@@ -178,6 +180,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     expect(votingService.checkVotingSuccess).toHaveBeenCalledWith(
       params.voting,
+      true,
     );
     expect(basicService.updateOneById).toHaveBeenCalled();
   });
@@ -191,6 +194,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     expect(votingService.checkVotingSuccess).toHaveBeenCalledWith(
       params.voting,
+      true,
     );
     expect(basicService.readOneById).toHaveBeenCalled();
     expect(sessionMock.startTransaction).toHaveBeenCalled();

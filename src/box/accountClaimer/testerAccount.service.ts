@@ -191,12 +191,18 @@ export class TesterAccountService {
       parentalAuth: true,
       points: 0,
       battlePoints: 0,
+      claimableRewards: [],
       name: uniqueName,
       uniqueIdentifier: uniqueId,
       profile_id: profile._id,
       clan_id: null,
       clanRole_id: null,
       environment: profile.environment,
+      carbonFootprint: 0,
+      clanCoinsAccumulated: 0,
+      playstyle: 'Balanced',
+      classStatistics: new Map(),
+      characterStatistics: new Map(),
     };
 
     return this.playerBasicService.createOne<Omit<Player, '_id'>, Player>(

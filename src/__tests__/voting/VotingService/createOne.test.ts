@@ -6,11 +6,11 @@ import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultF
 describe('VotingService.createOne() test suite', () => {
   let votingService: VotingService;
   const votingBuilder = VotingBuilderFactory.getBuilder('CreateVotingDto');
-
   const votingModel = VotingModule.getVotingModel();
 
   beforeEach(async () => {
     votingService = await VotingModule.getVotingService();
+    await votingModel.deleteMany({});
   });
 
   it('Should create a voting in DB if input is valid', async () => {
@@ -22,9 +22,19 @@ describe('VotingService.createOne() test suite', () => {
     await votingService.createOne(votingToCreate);
 
     const dbData = await votingModel.findOne({ minPercentage: minPercentage });
-    const { _id, ...clearedResp } = clearDBRespDefaultFields(dbData);
-    const { fleaMarketItem_id: _entity_id, ...expectedVoting } = {
+
+    expect(dbData).not.toBeNull();
+    const dbObject = dbData!.toObject();
+    const clearedResp = clearDBRespDefaultFields(dbObject);
+
+    const expectedVoting: any = {
       ...votingToCreate,
+      endsOn: expect.any(Date),
+      organizer: {
+        clan_id: expect.anything(),
+        player_id: expect.anything(),
+      },
+      fleaMarketItem_id: expect.anything(),
     };
 
     expect(clearedResp).toEqual(expect.objectContaining(expectedVoting));

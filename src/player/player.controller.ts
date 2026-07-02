@@ -35,8 +35,8 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { isEqual } from 'lodash';
 import { IServiceReturn } from '../common/service/basicService/IService';
-import { EmotionCheckDto } from './dto/emotionCheck.dto';
 import { MongooseError } from 'mongoose';
+import { EmotionCheckResult } from './dto/emotionCheckResult.dto';
 
 @Controller('player')
 export default class PlayerController {
@@ -76,14 +76,14 @@ export default class PlayerController {
   })
   @Get('/emotioncheck')
   @Authorize({ action: Action.read, subject: PlayerDto })
-  public async checkDailyEmotion(
-    @LoggedUser() user: User,
-  ): Promise<IServiceReturn<boolean>> {
-    return await this.service.checkIfEmotionSentToday(user.player_id);
+  public async checkDailyEmotion(@LoggedUser() user: User) {
+    return this.service.checkIfEmotionSentToday(user.player_id);
   }
 
   /**
    * Registers the player's selected emotion for the current day.
+   *
+   * @remarks Emotion must be one of these: Sorrow, Anger, Joy, Playful, Love, Blank
    */
   @ApiResponseDescription({
     success: { dto: null, modelName: ModelName.PLAYER, status: 204 },
@@ -96,7 +96,10 @@ export default class PlayerController {
     @LoggedUser() user: User,
     @Body() body: UpdateEmotionDto,
   ): Promise<void> {
-    const [error] = await this.service.addEmotion(user.player_id, body.emotion);
+    const [, error] = await this.service.addEmotion(
+      user.player_id,
+      body.emotion,
+    );
 
     if (error) {
       throw new BadRequestException(error[0].message);
@@ -120,6 +123,27 @@ export default class PlayerController {
     @IncludeQuery(publicReferences) includeRefs: ModelName[],
   ) {
     return this.service.getPlayerById(param._id, { includeRefs });
+  }
+
+  /**
+   * Updates the player's carbon footprint.
+   * @param id - The unique identifier of the player.
+   * @param value - The amount to increment the footprint by (can be positive or negative).
+   * @returns The updated player object or service errors.
+   * * @example
+   * PUT /player/60f7c2d9a2d3c7b7e56d01df/footprint
+   * Body: { "value": 15 }
+   */
+  @Put(':id/footprint')
+  async updateFootprint(@Param('id') id: string, @Body('value') value: number) {
+    const updateQuery = { $inc: { carbonFootprint: value } };
+    const [result, errors] = await this.service.updatePlayerById(
+      id,
+      updateQuery,
+    );
+
+    if (errors) throw errors;
+    return result;
   }
 
   /**

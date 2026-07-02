@@ -9,6 +9,7 @@ import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFac
 import { VoteChoice } from '../../../voting/enum/choiceType.enum';
 import { VotingQueueName } from '../../../voting/enum/VotingQueue.enum';
 import { itemProperties } from '../../../clanInventory/item/const/itemProperties';
+import { VotingType } from '../../../voting/enum/VotingType.enum';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(() => ({
@@ -85,6 +86,37 @@ describe('ClanShopService.checkVotingOnExpire() test suite', () => {
 
     const dbItem = await itemModel.find();
     expect(dbItem[0]).toMatchObject(itemProperties[item.name]);
+  });
+
+  it('Should process a passed clan shop voting event and create an item immediately', async () => {
+    const voteToCreate = voteBuilder
+      .setChoice(VoteChoice.YES)
+      .setPlayerId(new ObjectId().toString())
+      .build();
+    const votingToCreate = votingBuilder
+      .setType(VotingType.SHOP_BUY_ITEM)
+      .setOrganizer({
+        player_id: player._id.toString(),
+        clan_id: clanToCreate._id.toString(),
+      })
+      .setShopItemName(item.name)
+      .addVote(voteToCreate)
+      .build();
+
+    await expect(
+      clanShopService.handleVotingPassed({ voting: votingToCreate }),
+    ).resolves.not.toThrow();
+
+    const dbItem = await itemModel.findOne({
+      stock_id: stockToCreate._id,
+      unityKey: item.name,
+    });
+
+    expect(dbItem).toMatchObject({
+      ...itemProperties[item.name],
+      stock_id: stockToCreate._id,
+      room_id: null,
+    });
   });
 
   it('Should process a rejected vote and return funds to the clan', async () => {

@@ -75,6 +75,10 @@ export class CreateProfileDto {
   /**
    * Optional player data to associate with this profile
    */
+  @ApiProperty({
+    type: () => CreatePlayerDto,
+    required: false,
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => CreatePlayerDto)

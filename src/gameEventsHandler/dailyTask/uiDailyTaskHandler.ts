@@ -1,24 +1,21 @@
 import { OnGameEvent } from '../../gameEventsEmitter/onGameEvent';
 import { GameEventPayload } from '../../gameEventsEmitter/gameEvent';
 import { Injectable } from '@nestjs/common';
-import DailyTaskNotifier from './DailyTaskNotifier';
-import { ClanRewarder } from '../../rewarder/clanRewarder/clanRewarder.service';
+import { DailyTaskProgressService } from '../../dailyTasks/dailyTaskProgress.service';
 
 /**
  * Handles all side effects regarding UI daily tasks
  */
 @Injectable()
 export default class UiDailyTaskHandler {
-  constructor(
-    private readonly notifier: DailyTaskNotifier,
-    private readonly clanRewarder: ClanRewarder,
-  ) {}
+  constructor(private readonly progressService: DailyTaskProgressService) {}
 
   /**
    * Handles updates of a basic UI daily task:
    * - Updates amountLeft field of a task
    * - Removes dailyTask if it is completed (amountLeft=0)
    * - Adds points and coins to player's clan if the task is completed
+   * - Adds points to player if task is completed
    * - Sends a MQTT notification about the updated / completed task
    *
    * @param payload required task data to handle the event
@@ -31,21 +28,7 @@ export default class UiDailyTaskHandler {
   ) {
     const { info } = payload;
 
-    const { status, task } = info;
-    const player_id = task.player_id.toString();
-    const clan_id = task.clan_id.toString();
-
-    if (status === 'updated') {
-      this.notifier.taskUpdated(player_id, task);
-      return;
-    }
-
-    this.notifier.taskCompleted(player_id, task);
-
-    await this.clanRewarder.rewardClanForPlayerTask(
-      clan_id,
-      task.points,
-      task.coins,
-    );
+    const { result } = info;
+    return this.progressService.handleProgress(result);
   }
 }

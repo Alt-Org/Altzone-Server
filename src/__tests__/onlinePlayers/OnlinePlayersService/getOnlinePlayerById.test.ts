@@ -37,6 +37,7 @@ describe('OnlinePlayersService.getOnlinePlayerById() test suite', () => {
       _id: player1._id,
       name: player1.name,
       status: OnlinePlayerStatus.UI,
+      client_version: '0.0.0',
     };
     jest
       .spyOn(redisService, 'get')

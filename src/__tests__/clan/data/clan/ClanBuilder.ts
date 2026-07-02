@@ -24,6 +24,7 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
     itemCount: 0,
     stockCount: 0,
     points: 0,
+    unlockedMilestones: [],
     battlePoints: 0,
     gameCoins: 0,
     isOpen: true,
