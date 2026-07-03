@@ -2,6 +2,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsBoolean,
+  IsEnum,
   IsInt,
   IsMongoId,
   IsOptional,
@@ -17,6 +18,7 @@ import { Type } from 'class-transformer';
 import { ModifyAvatarDto } from './modifyAvatar.dto';
 import { IsMongoIdOrNull } from '../../common/decorator/validation/IsMongoIdOrNull.decorator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Environment } from '../../common/enum/environment.enum';
 
 @AddType('CreatePlayerDto')
 export class CreatePlayerDto {
@@ -109,6 +111,15 @@ export class CreatePlayerDto {
   avatar?: ModifyAvatarDto;
 
   /**
+   * Environment mode linked to the player profile
+   *
+   * @example Environment.OPEN_DEMO
+   */
+  @Type(() => Number)
+  @IsEnum(Environment)
+  environment: number;
+  
+ /**
    * Statistics for each defense class
    */
   @IsOptional()

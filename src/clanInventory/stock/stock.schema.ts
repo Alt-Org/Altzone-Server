@@ -3,6 +3,7 @@ import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { Clan } from '../../clan/clan.schema';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { ModelName } from '../../common/enum/modelName.enum';
+import { Environment } from '../../common/enum/environment.enum';
 
 export type StockDocument = HydratedDocument<Stock>;
 
@@ -20,6 +21,12 @@ export class Stock {
 
   @ExtractField()
   _id: string;
+
+  @Prop({
+    type: Number,
+    enum: Environment,
+  })
+  environment: Environment;
 }
 export const StockSchema = SchemaFactory.createForClass(Stock);
 StockSchema.set('collection', ModelName.STOCK);

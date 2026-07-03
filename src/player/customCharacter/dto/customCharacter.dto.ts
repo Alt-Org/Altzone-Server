@@ -3,6 +3,7 @@ import { ExtractField } from '../../../common/decorator/response/ExtractField';
 import { PlayerDto } from '../../dto/player.dto';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 import { CharacterId } from '../enum/characterId.enum';
+import { Environment } from '../../../common/enum/environment.enum';
 
 @AddType('CustomCharacterDto')
 export class CustomCharacterDto {
@@ -79,6 +80,14 @@ export class CustomCharacterDto {
   @ExtractField()
   @Expose()
   player_id: string;
+
+  /**
+   * Environment of the player who owns this custom character
+   *
+   * @example Environment.OPEN_DEMO
+   */
+  @Expose()
+  environment: Environment;
 
   /**
    * Player object who owns this custom character

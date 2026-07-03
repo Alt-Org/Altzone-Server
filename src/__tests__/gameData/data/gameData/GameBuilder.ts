@@ -1,5 +1,6 @@
 import { Game } from '../../../../gameData/game.schema';
 import { ObjectId } from 'mongodb';
+import { Environment } from '../../../../common/enum/environment.enum';
 import { BattleStatus } from '../../../../gameData/enum/battleStatus.enum';
 import { GameType } from '../../../../gameData/enum/gameType.enum';
 
@@ -12,6 +13,7 @@ export class GameBuilder {
     winner: 1,
     startedAt: new Date(),
     endedAt: new Date(),
+    environment: Environment.TEACHING_DEMO,
     _id: undefined as unknown as string,
     gameType: GameType.CASUAL,
     status: BattleStatus.OPEN,
@@ -53,6 +55,11 @@ export class GameBuilder {
   }
   setId(id: string): this {
     this.base._id = id;
+    return this;
+  }
+
+  setEnvironment(environment: Environment): this {
+    this.base.environment = environment;
     return this;
   }
 

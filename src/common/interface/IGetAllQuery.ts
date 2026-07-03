@@ -1,3 +1,5 @@
+import { Environment } from '../enum/environment.enum';
+
 /**
  * Interface represents options of a read many methods.
  *
@@ -24,4 +26,8 @@ export interface IGetAllQuery {
    * how many found objects to skip from the start
    */
   skip: number;
+  /**
+   * filter based on environment (for example on leaderboard)
+   */
+  environment?: Environment;
 }

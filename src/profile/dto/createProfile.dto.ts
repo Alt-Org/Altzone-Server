@@ -1,8 +1,15 @@
-import { IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsDate,
+  IsEnum,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { CreatePlayerDto } from '../../player/dto/createPlayer.dto';
 import { Type } from 'class-transformer';
 import AddType from '../../common/base/decorator/AddType.decorator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Environment } from '../../common/enum/environment.enum';
 
 @AddType('CreateProfileDto')
 export class CreateProfileDto {
@@ -43,6 +50,27 @@ export class CreateProfileDto {
   @IsOptional()
   @IsString()
   securityAnswer?: string;
+
+  /**
+   * Environment mode for the profile (0 = teaching mode, 1 = open mode)
+   * 0 = teaching mode (default), 1 = open mode
+   *
+   * @example 0
+   * @example 1
+   */
+  @ApiProperty()
+  @IsEnum(Environment)
+  environment: number;
+
+  /**
+   * Expiration date (```environment``` works as this field's setter)
+   *
+   * @example ```new Date() + 1000 * 60 * 60 // 1 hour```
+   */
+  @ApiProperty()
+  @IsOptional()
+  @IsDate()
+  expiresAt?: Date;
 
   /**
    * Optional player data to associate with this profile

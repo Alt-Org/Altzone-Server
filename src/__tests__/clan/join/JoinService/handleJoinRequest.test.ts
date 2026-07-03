@@ -30,6 +30,9 @@ describe('JoinService.handleJoinRequest() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const player = playerBuilder.build();
 
+  openClan.environment = player.environment;
+  closedClan.environment = player.environment;
+
   beforeEach(async () => {
     publishMock = jest.fn();
     (MQTTConnector.getInstance as jest.Mock).mockReturnValue({

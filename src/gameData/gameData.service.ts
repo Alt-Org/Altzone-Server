@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Game } from './game.schema';
 import { Model, Types } from 'mongoose';
@@ -23,6 +23,7 @@ import { IServiceReturn } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { Environment } from '../common/enum/environment.enum';
 
 @Injectable()
 export class GameDataService {
@@ -128,6 +129,7 @@ export class GameDataService {
     team1Id: string,
     team2Id: string,
     currentTime: Date,
+    environment: Environment,
   ) {
     const newGame: CreateGameDto = {
       team1: battleResult.team1,
@@ -137,6 +139,7 @@ export class GameDataService {
       winner: battleResult.result,
       startedAt: new Date(currentTime.getTime() - battleResult.duration * 1000),
       endedAt: currentTime,
+      environment: environment,
     };
     return newGame;
   }
@@ -301,13 +304,38 @@ export class GameDataService {
       battleResult.team2,
       currentTime,
     );
+
+    const [team1Clan, t1ReadingErrors] = await this.clanService.readOneById(
+      teamIds.team1Id,
+    );
+    const [team2Clan, t2ReadingErrors] = await this.clanService.readOneById(
+      teamIds.team2Id,
+    );
+
+    if (t1ReadingErrors || t2ReadingErrors) {
+      return new NotFoundException('Clan with given ID does not exist.');
+    }
+
+    if (
+      team1Clan.environment &&
+      team2Clan.environment &&
+      team1Clan.environment !== team2Clan.environment
+    ) {
+      return new ServiceError({
+        reason: SEReason.ENVIRONMENT_MISMATCH,
+        message: 'Cannot create a game with clans from different environments.',
+      });
+    }
+
     if (!existingGame) {
       const newGame = this.createNewGameObject(
         battleResult,
         teamIds.team1Id,
         teamIds.team2Id,
         currentTime,
+        team1Clan.environment ?? team2Clan.environment ?? Environment.OPEN_DEMO,
       );
+
       return await this.createOne(newGame);
     }
   }

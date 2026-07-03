@@ -31,6 +31,7 @@ import {
   endTransaction,
   initializeSession,
 } from '../common/function/Transactions';
+import { Environment } from '../common/enum/environment.enum';
 import ClanRoleService from './role/clanRole.service';
 
 type CreateWithoutDtoType = Clan & {
@@ -74,6 +75,17 @@ export class ClanService {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
+    const [clanCreator, clanCreatorErrors] =
+      await this.playerService.readOneById<Player>(player_id);
+
+    if (clanCreatorErrors)
+      return await cancelTransaction(session, clanCreatorErrors);
+
+    if (clanToCreate) {
+      const environment = clanCreator.environment ?? Environment.OPEN_DEMO;
+      clanToCreate.environment = environment;
+    }
+
     if (clanToCreate?.isOpen === false && !clanToCreate.password) {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
     }
@@ -100,7 +112,11 @@ export class ClanService {
     if (playerErrors) return await cancelTransaction(session, playerErrors);
 
     const [stock, stockErrors] =
-      await this.clanHelperService.createDefaultStock(clan._id, session);
+      await this.clanHelperService.createDefaultStock(
+        clan._id,
+        session,
+        clan.environment,
+      );
     if (stockErrors) return await cancelTransaction(session, stockErrors);
 
     const [soulHome, soulHomeErrors] =
@@ -109,6 +125,7 @@ export class ClanService {
         clan.name,
         30,
         session,
+        clan.environment,
       );
     if (soulHomeErrors) return await cancelTransaction(session, soulHomeErrors);
 
@@ -136,7 +153,11 @@ export class ClanService {
     }
 
     const [clan, clanErrors] = await this.basicService.createOne<Clan, Clan>(
-      { ...clanToCreate, playerCount: 0 } as Clan,
+      {
+        ...clanToCreate,
+        playerCount: 0,
+        environment: clanToCreate.environment ?? Environment.OPEN_DEMO,
+      } as Clan,
       { session },
     );
     if (clanErrors) return await cancelTransaction(session, clanErrors);
@@ -144,7 +165,11 @@ export class ClanService {
     const extendedClan = clan as unknown as CreateWithoutDtoType;
 
     const [stock, stockErrors] =
-      await this.clanHelperService.createDefaultStock(clan._id, session);
+      await this.clanHelperService.createDefaultStock(
+        clan._id,
+        session,
+        clan.environment ?? Environment.OPEN_DEMO,
+      );
     if (stockErrors) return await cancelTransaction(session, stockErrors);
 
     const [soulHome, soulHomeErrors] =
@@ -153,6 +178,7 @@ export class ClanService {
         clan.name,
         30,
         session,
+        clan.environment ?? Environment.OPEN_DEMO,
       );
     if (soulHomeErrors) return await cancelTransaction(session, soulHomeErrors);
 

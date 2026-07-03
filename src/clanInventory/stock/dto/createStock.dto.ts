@@ -1,6 +1,7 @@
-import { IsInt, IsMongoId } from 'class-validator';
+import { IsEnum, IsInt, IsMongoId } from 'class-validator';
 import { IsClanExists } from '../../../clan/decorator/validation/IsClanExists.decorator';
 import AddType from '../../../common/base/decorator/AddType.decorator';
+import { Environment } from '../../../common/enum/environment.enum';
 
 @AddType('CreateStockDto')
 export class CreateStockDto {
@@ -20,4 +21,10 @@ export class CreateStockDto {
   @IsClanExists()
   @IsMongoId()
   clan_id: string;
+
+  /**
+   * Environment of the stock
+   */
+  @IsEnum(Environment)
+  environment: Environment;
 }

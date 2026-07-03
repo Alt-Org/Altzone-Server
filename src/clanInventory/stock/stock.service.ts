@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model, ClientSession } from 'mongoose';
+import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Stock } from './stock.schema';
 import { CreateStockDto } from './dto/createStock.dto';
@@ -15,6 +15,9 @@ import {
   TIServiceDeleteByIdOptions,
 } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
+import { Environment } from '../../common/enum/environment.enum';
+import { SEReason } from '../../common/service/basicService/SEReason';
+import { ClanDto } from '../../clan/dto/clan.dto';
 
 @Injectable()
 export class StockService {
@@ -39,6 +42,33 @@ export class StockService {
    * @returns created Stock or an array of service errors if any occurred.
    */
   async createOne(stock: CreateStockDto, options?: TIServiceCreateOneOptions) {
+    // allow BasicService to handle null/undefined inputs without throwing errors
+    // since the unit test was designed to ensure that createOne handles null/undefined input
+    if (!stock) {
+      return this.basicService.createOne<CreateStockDto, StockDto>(
+        stock,
+        options,
+      );
+    }
+
+    const { clan_id } = stock;
+
+    if (!clan_id) {
+      throw new ServiceError({
+        reason: SEReason.NOT_FOUND,
+        field: 'clan_id',
+        message: 'Clan id is required to create a stock',
+      });
+    }
+
+    const [clan, clanErrors] =
+      await this.basicService.readOneById<ClanDto>(clan_id);
+
+    if (!clanErrors && clan) {
+      const environment = clan.environment ?? Environment.OPEN_DEMO;
+      stock.environment = environment;
+    }
+
     return this.basicService.createOne<CreateStockDto, StockDto>(
       stock,
       options,
@@ -65,14 +95,23 @@ export class StockService {
    * Reads Stocks by specified options from DB.
    *
    * @param options - Options for reading CharacterClasses.
+   * @param environment - Environment of the clan that the stocks belong to
    * @returns An array of Stocks if succeed or an array of ServiceErrors if any occurred.
    */
-  async readAll(options?: TIServiceReadManyOptions) {
+  async readAll(options?: TIServiceReadManyOptions, environment?: Environment) {
     const optionsToApply = options;
-    if (options?.includeRefs)
+
+    if (options?.includeRefs) {
       optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
         this.refsInModel.includes(ref),
       );
+    }
+
+    optionsToApply.filter = environment
+      ? {
+          ...(options?.filter || { environment: environment }),
+        }
+      : {};
 
     return this.basicService.readMany<StockDto>(optionsToApply);
   }
