@@ -9,11 +9,25 @@ import { PlayerService } from '../player/player.service';
 import { CreateMatchmakingInviteDto } from './dto/createMatchmakingInvite.dto';
 import { JoinMatchmakingInviteDto } from './dto/joinMatchmakingInvite.dto';
 import { MatchmakingInviteDto } from './dto/matchmakingInvite.dto';
+import {
+  MatchmakingMatchBotParticipantDto,
+  MatchmakingMatchDto,
+  MatchmakingPlayerParticipantDto,
+  MatchmakingTeamDto,
+} from './dto/matchmakingMatch.dto';
 import { InviteStatus } from './enum/inviteStatus.enum';
+import { MatchStatus } from './enum/matchStatus.enum';
 import { MatchType } from './enum/matchType.enum';
+import { TeamSide } from './enum/teamSide.enum';
 import { MatchmakingNotifier } from './matchmaking.notifier';
+import { ActiveMatch } from './type/activeMatch.type';
 import { MatchmakingInvite } from './type/matchmakingInvite.type';
-import { MatchmakingBotParticipant } from './type/matchmakingParticipant.type';
+import {
+  MatchmakingBotParticipant,
+  MatchmakingParticipant,
+  MatchmakingPlayerParticipant,
+} from './type/matchmakingParticipant.type';
+import { MatchmakingTeam } from './type/matchmakingTeam.type';
 
 @Injectable()
 export class MatchmakingService {
@@ -21,6 +35,9 @@ export class MatchmakingService {
   private readonly CANCELLED_INVITE_TTL_S = 60;
   private readonly INVITE_KEY_PREFIX = 'matchmaking:invite';
   private readonly PLAYER_INVITE_KEY_PREFIX = 'matchmaking:player-invite';
+  private readonly QUEUE_KEY_PREFIX = 'matchmaking:queue';
+  private readonly MATCH_KEY_PREFIX = 'matchmaking:match';
+  private readonly PLAYER_MATCH_KEY_PREFIX = 'matchmaking:match-player';
 
   constructor(
     private readonly redisService: RedisService,
@@ -67,7 +84,9 @@ export class MatchmakingService {
     await this.setPlayerInvite(playerId, invite.id);
     await this.notifyInvitePlayers(invite);
 
-    return [this.toInviteDto(invite), null];
+    const processedInvite = await this.processReadyInvite(invite);
+
+    return [this.toInviteDto(processedInvite), null];
   }
 
   async getInvites(
@@ -154,7 +173,9 @@ export class MatchmakingService {
     await this.setPlayerInvite(playerId, updatedInvite.id);
     await this.notifyInvitePlayers(updatedInvite);
 
-    return [this.toInviteDto(updatedInvite), null];
+    const processedInvite = await this.processReadyInvite(updatedInvite);
+
+    return [this.toInviteDto(processedInvite), null];
   }
 
   async cancelInvite(
@@ -163,6 +184,20 @@ export class MatchmakingService {
   ): Promise<IServiceReturn<void>> {
     const [invite, inviteErrors] = await this.readInvite(inviteId);
     if (inviteErrors) return [null, inviteErrors];
+
+    if (invite.status === InviteStatus.MATCHED) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'status',
+            value: invite.status,
+            message: 'A matched invite can no longer be cancelled.',
+          }),
+        ],
+      ];
+    }
 
     if (invite.ownerPlayerId !== playerId) {
       return [
@@ -184,6 +219,7 @@ export class MatchmakingService {
       updatedAt: new Date().toISOString(),
     };
 
+    await this.removeInviteFromQueue(invite);
     await this.saveInvite(cancelledInvite, this.CANCELLED_INVITE_TTL_S);
     await Promise.all(
       invite.players.map((invitePlayerId) =>
@@ -193,6 +229,169 @@ export class MatchmakingService {
     await this.notifyInvitePlayers(cancelledInvite);
 
     return [null, null];
+  }
+
+  private async processReadyInvite(invite: MatchmakingInvite) {
+    if (invite.status !== InviteStatus.READY) return invite;
+    if (invite.matchType !== MatchType.RANDOM) return invite;
+
+    const queuedInvite = await this.enqueueReadyInvite(invite);
+    const match = await this.tryCreateRandomMatch();
+    if (!match) return queuedInvite;
+
+    const [processedInvite] = await this.readInvite(invite.id);
+
+    return processedInvite ?? queuedInvite;
+  }
+
+  private async enqueueReadyInvite(invite: MatchmakingInvite) {
+    const queueKey = this.queueKey(invite.matchType);
+    const queuedInvite: MatchmakingInvite = {
+      ...invite,
+      status: InviteStatus.QUEUED,
+      updatedAt: new Date().toISOString(),
+    };
+    const queuedInviteIds = await this.redisService.lrange(queueKey, 0, -1);
+
+    if (!queuedInviteIds.includes(invite.id)) {
+      await this.redisService.rpush(queueKey, invite.id);
+    }
+
+    await this.saveInvite(queuedInvite);
+    await this.notifyInvitePlayers(queuedInvite);
+
+    return queuedInvite;
+  }
+
+  private async tryCreateRandomMatch() {
+    const queuedInvites = await this.getValidQueuedInvites(MatchType.RANDOM);
+    if (queuedInvites.length < 2) return null;
+
+    const [firstInvite, secondInvite] = queuedInvites;
+    const match = await this.createActiveMatch(firstInvite, secondInvite);
+
+    await Promise.all([
+      this.markInviteMatched(firstInvite, match.id),
+      this.markInviteMatched(secondInvite, match.id),
+      this.removeInviteFromQueue(firstInvite),
+      this.removeInviteFromQueue(secondInvite),
+    ]);
+
+    await this.notifyMatchPlayers(match);
+
+    return match;
+  }
+
+  private async getValidQueuedInvites(matchType: MatchType) {
+    const queueKey = this.queueKey(matchType);
+    const queuedInviteIds = Array.from(
+      new Set(await this.redisService.lrange(queueKey, 0, -1)),
+    );
+    const validInvites: MatchmakingInvite[] = [];
+
+    for (const inviteId of queuedInviteIds) {
+      const [invite] = await this.readInvite(inviteId);
+      if (!invite) {
+        await this.redisService.lrem(queueKey, 0, inviteId);
+        continue;
+      }
+
+      const isValid =
+        invite.matchType === matchType && invite.status === InviteStatus.QUEUED;
+      if (!isValid) {
+        await this.redisService.lrem(queueKey, 0, inviteId);
+        continue;
+      }
+
+      validInvites.push(invite);
+    }
+
+    return validInvites;
+  }
+
+  private async createActiveMatch(
+    firstInvite: MatchmakingInvite,
+    secondInvite: MatchmakingInvite,
+  ) {
+    const now = new Date().toISOString();
+    const match: ActiveMatch = {
+      id: new Types.ObjectId().toString(),
+      matchType: MatchType.RANDOM,
+      status: MatchStatus.ACTIVE,
+      teamSize: 2,
+      teams: [
+        this.createTeam(firstInvite, TeamSide.A),
+        this.createTeam(secondInvite, TeamSide.B),
+      ],
+      startedAt: now,
+    };
+
+    await this.saveMatch(match);
+    await Promise.all(
+      this.getRealPlayerIds(match).map((playerId) =>
+        this.redisService.set(this.playerMatchKey(playerId), match.id),
+      ),
+    );
+
+    return match;
+  }
+
+  private createTeam(
+    invite: MatchmakingInvite,
+    side: TeamSide,
+  ): MatchmakingTeam {
+    return {
+      side,
+      participants: [
+        ...invite.players.map((playerId) => ({
+          playerId,
+          isBot: false as const,
+        })),
+        ...invite.bots,
+      ],
+    };
+  }
+
+  private async markInviteMatched(invite: MatchmakingInvite, matchId: string) {
+    const matchedInvite: MatchmakingInvite = {
+      ...invite,
+      status: InviteStatus.MATCHED,
+      matchId,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await this.saveInvite(matchedInvite);
+    await Promise.all(
+      invite.players.map((playerId) =>
+        this.redisService.delete(this.playerInviteKey(playerId)),
+      ),
+    );
+    await this.notifyInvitePlayers(matchedInvite);
+  }
+
+  private async removeInviteFromQueue(invite: MatchmakingInvite) {
+    await this.redisService.lrem(this.queueKey(invite.matchType), 0, invite.id);
+  }
+
+  private async saveMatch(match: ActiveMatch) {
+    await this.redisService.set(this.matchKey(match.id), JSON.stringify(match));
+  }
+
+  private async notifyMatchPlayers(match: ActiveMatch) {
+    const matchDto = this.toMatchDto(match);
+    await Promise.all(
+      this.getRealPlayerIds(match).map((playerId) =>
+        this.notifier.matchFound(playerId, matchDto),
+      ),
+    );
+  }
+
+  private getRealPlayerIds(match: ActiveMatch) {
+    return match.teams.flatMap((team) =>
+      team.participants.flatMap((participant) =>
+        this.isBotParticipant(participant) ? [] : [participant.playerId],
+      ),
+    );
   }
 
   private async validateCreateInviteBody(
@@ -458,6 +657,30 @@ export class MatchmakingService {
     return `${this.PLAYER_INVITE_KEY_PREFIX}:${playerId}`;
   }
 
+  private queueKey(matchType: MatchType) {
+    return `${this.QUEUE_KEY_PREFIX}:${matchType}`;
+  }
+
+  private matchKey(matchId: string) {
+    return `${this.MATCH_KEY_PREFIX}:${matchId}`;
+  }
+
+  private playerMatchKey(playerId: string) {
+    return `${this.PLAYER_MATCH_KEY_PREFIX}:${playerId}`;
+  }
+
+  private isBotParticipant(
+    participant: MatchmakingParticipant,
+  ): participant is MatchmakingBotParticipant {
+    return participant.isBot === true;
+  }
+
+  private isPlayerParticipant(
+    participant: MatchmakingParticipant,
+  ): participant is MatchmakingPlayerParticipant {
+    return participant.isBot === false;
+  }
+
   private toInviteDto(invite: MatchmakingInvite): MatchmakingInviteDto {
     return {
       id: invite.id,
@@ -474,6 +697,36 @@ export class MatchmakingService {
       updatedAt: invite.updatedAt,
       readyAt: invite.readyAt,
       matchId: invite.matchId,
+    };
+  }
+
+  private toMatchDto(match: ActiveMatch): MatchmakingMatchDto {
+    return {
+      id: match.id,
+      matchType: match.matchType,
+      status: match.status,
+      teamSize: match.teamSize,
+      teams: match.teams.map((team) => this.toTeamDto(team)),
+      startedAt: match.startedAt,
+      finishedAt: match.finishedAt,
+      result: match.result,
+    };
+  }
+
+  private toTeamDto(team: MatchmakingTeam): MatchmakingTeamDto {
+    const players: MatchmakingPlayerParticipantDto[] = [];
+    const bots: MatchmakingMatchBotParticipantDto[] = [];
+
+    for (const participant of team.participants) {
+      if (this.isBotParticipant(participant)) bots.push(participant);
+      else if (this.isPlayerParticipant(participant)) players.push(participant);
+    }
+
+    return {
+      side: team.side,
+      clanId: team.clanId,
+      players,
+      bots,
     };
   }
 }
