@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { ClanService } from '../clan/clan.service';
 import { RedisService } from '../common/service/redis/redis.service';
@@ -20,6 +20,7 @@ import { MatchStatus } from './enum/matchStatus.enum';
 import { MatchType } from './enum/matchType.enum';
 import { TeamSide } from './enum/teamSide.enum';
 import { MatchmakingNotifier } from './matchmaking.notifier';
+import { MatchmakingQueue } from './matchmaking.queue';
 import { ActiveMatch } from './type/activeMatch.type';
 import { MatchmakingInvite } from './type/matchmakingInvite.type';
 import {
@@ -33,6 +34,7 @@ import { MatchmakingTeam } from './type/matchmakingTeam.type';
 export class MatchmakingService {
   private readonly INVITE_TTL_S = 5 * 60;
   private readonly CANCELLED_INVITE_TTL_S = 60;
+  private readonly CLAN_OPPONENT_TIMEOUT_S = 30;
   private readonly INVITE_KEY_PREFIX = 'matchmaking:invite';
   private readonly PLAYER_INVITE_KEY_PREFIX = 'matchmaking:player-invite';
   private readonly QUEUE_KEY_PREFIX = 'matchmaking:queue';
@@ -44,6 +46,8 @@ export class MatchmakingService {
     private readonly playerService: PlayerService,
     private readonly clanService: ClanService,
     private readonly notifier: MatchmakingNotifier,
+    @Inject(forwardRef(() => MatchmakingQueue))
+    private readonly queue: MatchmakingQueue,
   ) {}
 
   async createInvite(
@@ -233,15 +237,35 @@ export class MatchmakingService {
 
   private async processReadyInvite(invite: MatchmakingInvite) {
     if (invite.status !== InviteStatus.READY) return invite;
-    if (invite.matchType !== MatchType.RANDOM) return invite;
 
-    const queuedInvite = await this.enqueueReadyInvite(invite);
-    const match = await this.tryCreateRandomMatch();
-    if (!match) return queuedInvite;
+    if (invite.matchType === MatchType.RANDOM) {
+      const queuedInvite = await this.enqueueReadyInvite(invite);
+      const match = await this.tryCreateRandomMatch();
+      if (!match) return queuedInvite;
 
-    const [processedInvite] = await this.readInvite(invite.id);
+      const [processedInvite] = await this.readInvite(invite.id);
 
-    return processedInvite ?? queuedInvite;
+      return processedInvite ?? queuedInvite;
+    }
+
+    if (invite.matchType === MatchType.CLAN) {
+      const queuedInvite = await this.enqueueReadyInvite(invite);
+      const match = await this.tryCreateClanMatch(queuedInvite);
+      if (match) {
+        const [processedInvite] = await this.readInvite(invite.id);
+
+        return processedInvite ?? queuedInvite;
+      }
+
+      await this.queue.scheduleClanOpponentTimeout(
+        queuedInvite.id,
+        this.CLAN_OPPONENT_TIMEOUT_S,
+      );
+
+      return queuedInvite;
+    }
+
+    return invite;
   }
 
   private async enqueueReadyInvite(invite: MatchmakingInvite) {
@@ -282,6 +306,53 @@ export class MatchmakingService {
     return match;
   }
 
+  private async tryCreateClanMatch(invite: MatchmakingInvite) {
+    const queuedInvites = await this.getValidQueuedInvites(MatchType.CLAN);
+    const opponent = queuedInvites.find(
+      (candidate) =>
+        candidate.id !== invite.id &&
+        candidate.clanId &&
+        invite.clanId &&
+        candidate.clanId !== invite.clanId,
+    );
+
+    if (!opponent) return null;
+
+    const match = await this.createActiveMatch(
+      invite,
+      opponent,
+      MatchType.CLAN,
+    );
+
+    await Promise.all([
+      this.markInviteMatched(invite, match.id),
+      this.markInviteMatched(opponent, match.id),
+      this.removeInviteFromQueue(invite),
+      this.removeInviteFromQueue(opponent),
+    ]);
+
+    await this.notifyMatchPlayers(match);
+
+    return match;
+  }
+
+  async handleClanOpponentTimeout(inviteId: string) {
+    const [invite] = await this.readInvite(inviteId);
+    if (!invite) return;
+    if (invite.matchType !== MatchType.CLAN) return;
+    if (invite.status !== InviteStatus.QUEUED) return;
+
+    const clanMatch = await this.tryCreateClanMatch(invite);
+    if (clanMatch) return;
+
+    const match = await this.createClanBotMatch(invite);
+
+    await Promise.all([
+      this.markInviteMatched(invite, match.id),
+      this.removeInviteFromQueue(invite),
+    ]);
+    await this.notifyMatchPlayers(match);
+  }
   private async getValidQueuedInvites(matchType: MatchType) {
     const queueKey = this.queueKey(matchType);
     const queuedInviteIds = Array.from(
@@ -312,13 +383,14 @@ export class MatchmakingService {
   private async createActiveMatch(
     firstInvite: MatchmakingInvite,
     secondInvite: MatchmakingInvite,
+    matchType = MatchType.RANDOM,
   ) {
     const now = new Date().toISOString();
     const match: ActiveMatch = {
       id: new Types.ObjectId().toString(),
-      matchType: MatchType.RANDOM,
+      matchType,
       status: MatchStatus.ACTIVE,
-      teamSize: 2,
+      teamSize: firstInvite.teamSize,
       teams: [
         this.createTeam(firstInvite, TeamSide.A),
         this.createTeam(secondInvite, TeamSide.B),
@@ -336,12 +408,36 @@ export class MatchmakingService {
     return match;
   }
 
+  private async createClanBotMatch(invite: MatchmakingInvite) {
+    const now = new Date().toISOString();
+    const match: ActiveMatch = {
+      id: new Types.ObjectId().toString(),
+      matchType: MatchType.CLAN,
+      status: MatchStatus.ACTIVE,
+      teamSize: invite.teamSize,
+      teams: [
+        this.createTeam(invite, TeamSide.A),
+        this.createBotTeam(invite.id, TeamSide.B, invite.teamSize),
+      ],
+      startedAt: now,
+    };
+
+    await this.saveMatch(match);
+    await Promise.all(
+      this.getRealPlayerIds(match).map((playerId) =>
+        this.redisService.set(this.playerMatchKey(playerId), match.id),
+      ),
+    );
+
+    return match;
+  }
   private createTeam(
     invite: MatchmakingInvite,
     side: TeamSide,
   ): MatchmakingTeam {
     return {
       side,
+      clanId: invite.clanId,
       participants: [
         ...invite.players.map((playerId) => ({
           playerId,
@@ -349,6 +445,17 @@ export class MatchmakingService {
         })),
         ...invite.bots,
       ],
+    };
+  }
+
+  private createBotTeam(
+    inviteId: string,
+    side: TeamSide,
+    teamSize: 1 | 2,
+  ): MatchmakingTeam {
+    return {
+      side,
+      participants: this.createBots(`${inviteId}:opponent`, teamSize),
     };
   }
 
