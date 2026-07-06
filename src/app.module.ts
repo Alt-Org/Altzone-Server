@@ -42,6 +42,7 @@ import { RequestLoggerInterceptor } from './common/service/logger/RequestLogger.
 import { JukeboxModule } from './jukebox/jukebox.module';
 import { FriendshipModule } from './friendship/friendship.module';
 import { AdminModule } from './admin/admin.module';
+import { MatchmakingModule } from './matchmaking/matchmaking.module';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -109,6 +110,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
 
     BoxModule,
     OnlinePlayersModule,
+    MatchmakingModule,
     ClanShopModule,
     ShopModule,
 
