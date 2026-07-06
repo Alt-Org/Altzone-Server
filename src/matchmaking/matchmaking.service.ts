@@ -265,6 +265,16 @@ export class MatchmakingService {
       return queuedInvite;
     }
 
+    if (invite.matchType === MatchType.CUSTOM) {
+      const match = await this.createCustomMatch(invite);
+      await this.markInviteMatched(invite, match.id);
+      await this.notifyMatchPlayers(match);
+
+      const [processedInvite] = await this.readInvite(invite.id);
+
+      return processedInvite ?? invite;
+    }
+
     return invite;
   }
 
@@ -431,6 +441,53 @@ export class MatchmakingService {
 
     return match;
   }
+  private async createCustomMatch(invite: MatchmakingInvite) {
+    const now = new Date().toISOString();
+    const teams = this.createCustomTeams(invite);
+    const match: ActiveMatch = {
+      id: new Types.ObjectId().toString(),
+      matchType: MatchType.CUSTOM,
+      status: MatchStatus.ACTIVE,
+      teamSize: invite.teamSize,
+      teams,
+      startedAt: now,
+    };
+
+    await this.saveMatch(match);
+    await Promise.all(
+      this.getRealPlayerIds(match).map((playerId) =>
+        this.redisService.set(this.playerMatchKey(playerId), match.id),
+      ),
+    );
+
+    return match;
+  }
+
+  private createCustomTeams(
+    invite: MatchmakingInvite,
+  ): [MatchmakingTeam, MatchmakingTeam] {
+    const participants = this.getInviteParticipants(invite);
+    const teamA = participants.slice(0, invite.teamSize);
+    const teamB = participants.slice(invite.teamSize, invite.teamSize * 2);
+
+    return [
+      { side: TeamSide.A, participants: teamA },
+      { side: TeamSide.B, participants: teamB },
+    ];
+  }
+
+  private getInviteParticipants(invite: MatchmakingInvite) {
+    return [
+      ...invite.players.map(
+        (playerId): MatchmakingParticipant => ({
+          playerId,
+          isBot: false,
+        }),
+      ),
+      ...invite.bots,
+    ];
+  }
+
   private createTeam(
     invite: MatchmakingInvite,
     side: TeamSide,
@@ -629,10 +686,9 @@ export class MatchmakingService {
   private recalculateInvite(invite: MatchmakingInvite): MatchmakingInvite {
     const capacity = this.getInviteCapacity(invite);
     const playerSlots = Math.max(capacity - invite.players.length, 0);
-    const bots =
-      invite.matchType === MatchType.CUSTOM || !invite.allowBots
-        ? invite.bots.slice(0, playerSlots)
-        : this.createBots(invite.id, playerSlots);
+    const bots = !invite.allowBots
+      ? invite.bots.slice(0, playerSlots)
+      : this.createBots(invite.id, playerSlots);
     const participantCount = invite.players.length + bots.length;
     const status =
       participantCount >= capacity ? InviteStatus.READY : InviteStatus.OPEN;
