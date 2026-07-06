@@ -2,11 +2,13 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { ClanService } from '../clan/clan.service';
 import { RedisService } from '../common/service/redis/redis.service';
+import { CacheKeys } from '../common/service/redis/cacheKeys.enum';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { PlayerService } from '../player/player.service';
 import { CreateMatchmakingInviteDto } from './dto/createMatchmakingInvite.dto';
+import { FinishMatchDto } from './dto/finishMatch.dto';
 import { JoinMatchmakingInviteDto } from './dto/joinMatchmakingInvite.dto';
 import { MatchmakingInviteDto } from './dto/matchmakingInvite.dto';
 import {
@@ -34,12 +36,18 @@ import { MatchmakingTeam } from './type/matchmakingTeam.type';
 export class MatchmakingService {
   private readonly INVITE_TTL_S = 5 * 60;
   private readonly CANCELLED_INVITE_TTL_S = 60;
+  private readonly FINISHED_MATCH_TTL_S = 10 * 60;
+  private readonly WIN_BATTLE_POINTS = 50;
+  private readonly LOSS_BATTLE_POINTS = 10;
+  private readonly DRAW_BATTLE_POINTS = 25;
   private readonly CLAN_OPPONENT_TIMEOUT_S = 30;
   private readonly INVITE_KEY_PREFIX = 'matchmaking:invite';
   private readonly PLAYER_INVITE_KEY_PREFIX = 'matchmaking:player-invite';
   private readonly QUEUE_KEY_PREFIX = 'matchmaking:queue';
   private readonly MATCH_KEY_PREFIX = 'matchmaking:match';
   private readonly PLAYER_MATCH_KEY_PREFIX = 'matchmaking:match-player';
+  private readonly MATCH_LEADERBOARD_LOCK_KEY_PREFIX =
+    'matchmaking:leaderboard-lock';
 
   constructor(
     private readonly redisService: RedisService,
@@ -233,6 +241,76 @@ export class MatchmakingService {
     await this.notifyInvitePlayers(cancelledInvite);
 
     return [null, null];
+  }
+
+  async finishMatch(
+    matchId: string,
+    playerId: string,
+    body: FinishMatchDto,
+  ): Promise<IServiceReturn<MatchmakingMatchDto>> {
+    const [match, matchErrors] = await this.readMatch(matchId);
+    if (matchErrors) return [null, matchErrors];
+
+    if (!this.matchHasPlayer(match, playerId)) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_AUTHORIZED,
+            field: 'playerId',
+            value: playerId,
+            message: 'Only match participants can finish the match.',
+          }),
+        ],
+      ];
+    }
+
+    if (match.status === MatchStatus.FINISHED) {
+      return [this.toMatchDto(match), null];
+    }
+
+    const lockAcquired = await this.redisService.setNx(
+      this.matchLeaderboardLockKey(matchId),
+      '1',
+      this.FINISHED_MATCH_TTL_S,
+    );
+
+    if (!lockAcquired) {
+      const [latestMatch] = await this.readMatch(matchId);
+      if (latestMatch?.status === MatchStatus.FINISHED) {
+        return [this.toMatchDto(latestMatch), null];
+      }
+
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'matchId',
+            value: matchId,
+            message: 'Match finish is already being processed.',
+          }),
+        ],
+      ];
+    }
+
+    const finishedMatch: ActiveMatch = {
+      ...match,
+      status: MatchStatus.FINISHED,
+      finishedAt: new Date().toISOString(),
+      result: { winningSide: body.winningSide },
+    };
+
+    await this.updateLeaderboardsForFinishedMatch(finishedMatch);
+    await this.saveFinishedMatch(finishedMatch);
+    await this.invalidateLeaderboardCaches();
+    await this.notifier.matchEvent(
+      finishedMatch.id,
+      'MATCH_FINISHED',
+      this.toMatchDto(finishedMatch),
+    );
+
+    return [this.toMatchDto(finishedMatch), null];
   }
 
   private async processReadyInvite(invite: MatchmakingInvite) {
@@ -549,6 +627,129 @@ export class MatchmakingService {
     );
   }
 
+  private async updateLeaderboardsForFinishedMatch(match: ActiveMatch) {
+    const playerErrors =
+      await this.updatePlayerLeaderboardForFinishedMatch(match);
+    if (playerErrors) throw playerErrors;
+
+    if (match.matchType !== MatchType.CLAN) return;
+
+    const clanErrors = await this.updateClanLeaderboardForFinishedMatch(match);
+    if (clanErrors) throw clanErrors;
+  }
+
+  private async updatePlayerLeaderboardForFinishedMatch(match: ActiveMatch) {
+    for (const team of match.teams) {
+      const outcome = this.getTeamOutcome(team, match.result.winningSide);
+      const battlePoints = this.getBattlePointsForOutcome(outcome);
+      const playerIds = this.getTeamPlayerIds(team);
+
+      for (const playerId of playerIds) {
+        const increment: Record<string, number> = {
+          battlePoints,
+          'gameStatistics.playedBattles': 1,
+        };
+
+        if (outcome === 'WIN') {
+          increment['gameStatistics.wonBattles'] = 1;
+        }
+
+        const [, updateErrors] = await this.playerService.updatePlayerById(
+          playerId,
+          { $inc: increment },
+        );
+        if (updateErrors) return updateErrors;
+      }
+    }
+
+    return null;
+  }
+
+  private async updateClanLeaderboardForFinishedMatch(match: ActiveMatch) {
+    for (const team of match.teams) {
+      if (!team.clanId) continue;
+
+      const outcome = this.getTeamOutcome(team, match.result.winningSide);
+      const battlePoints = this.getBattlePointsForOutcome(outcome);
+      const [, updateErrors] = await this.clanService.updateOneById(
+        team.clanId,
+        { $inc: { battlePoints } } as any,
+      );
+      if (updateErrors) return updateErrors;
+    }
+
+    return null;
+  }
+
+  private getTeamOutcome(
+    team: MatchmakingTeam,
+    winningSide: TeamSide | 'DRAW',
+  ): 'WIN' | 'LOSS' | 'DRAW' {
+    if (winningSide === 'DRAW') return 'DRAW';
+
+    return team.side === winningSide ? 'WIN' : 'LOSS';
+  }
+
+  private getBattlePointsForOutcome(outcome: 'WIN' | 'LOSS' | 'DRAW') {
+    if (outcome === 'WIN') return this.WIN_BATTLE_POINTS;
+    if (outcome === 'DRAW') return this.DRAW_BATTLE_POINTS;
+
+    return this.LOSS_BATTLE_POINTS;
+  }
+
+  private getTeamPlayerIds(team: MatchmakingTeam) {
+    return team.participants.flatMap((participant) =>
+      this.isBotParticipant(participant) ? [] : [participant.playerId],
+    );
+  }
+
+  private matchHasPlayer(match: ActiveMatch, playerId: string) {
+    return this.getRealPlayerIds(match).includes(playerId);
+  }
+
+  private async readMatch(
+    matchId: string,
+  ): Promise<IServiceReturn<ActiveMatch>> {
+    const matchRaw = await this.redisService.get(this.matchKey(matchId));
+    if (!matchRaw) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'matchId',
+            value: matchId,
+            message: 'Matchmaking match not found.',
+          }),
+        ],
+      ];
+    }
+
+    return [JSON.parse(matchRaw) as ActiveMatch, null];
+  }
+
+  private async saveFinishedMatch(match: ActiveMatch) {
+    await this.redisService.set(
+      this.matchKey(match.id),
+      JSON.stringify(match),
+      this.FINISHED_MATCH_TTL_S,
+    );
+    await Promise.all(
+      this.getRealPlayerIds(match).map((playerId) =>
+        this.redisService.expire(
+          this.playerMatchKey(playerId),
+          this.FINISHED_MATCH_TTL_S,
+        ),
+      ),
+    );
+  }
+
+  private async invalidateLeaderboardCaches() {
+    await Promise.all([
+      this.redisService.delete(CacheKeys.PLAYER_LEADERBOARD),
+      this.redisService.delete(CacheKeys.CLAN_LEADERBOARD),
+    ]);
+  }
   private async validateCreateInviteBody(
     playerId: string,
     body: CreateMatchmakingInviteDto,
@@ -821,6 +1022,10 @@ export class MatchmakingService {
 
   private playerMatchKey(playerId: string) {
     return `${this.PLAYER_MATCH_KEY_PREFIX}:${playerId}`;
+  }
+
+  private matchLeaderboardLockKey(matchId: string) {
+    return `${this.MATCH_LEADERBOARD_LOCK_KEY_PREFIX}:${matchId}`;
   }
 
   private isBotParticipant(

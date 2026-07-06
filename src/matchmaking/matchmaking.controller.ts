@@ -3,8 +3,10 @@ import { User } from '../auth/user';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { CreateMatchmakingInviteDto } from './dto/createMatchmakingInvite.dto';
+import { FinishMatchDto } from './dto/finishMatch.dto';
 import { JoinMatchmakingInviteDto } from './dto/joinMatchmakingInvite.dto';
 import { MatchmakingInviteDto } from './dto/matchmakingInvite.dto';
+import { MatchmakingMatchDto } from './dto/matchmakingMatch.dto';
 import { MatchmakingService } from './matchmaking.service';
 
 @Controller('matchmaking')
@@ -49,5 +51,15 @@ export class MatchmakingController {
     @LoggedUser() user: User,
   ) {
     return this.matchmakingService.cancelInvite(inviteId, user.player_id);
+  }
+
+  @Post('matches/:matchId/finish')
+  @UniformResponse(undefined, MatchmakingMatchDto)
+  async finishMatch(
+    @Param('matchId') matchId: string,
+    @Body() body: FinishMatchDto,
+    @LoggedUser() user: User,
+  ) {
+    return this.matchmakingService.finishMatch(matchId, user.player_id, body);
   }
 }
