@@ -408,12 +408,7 @@ export class MatchmakingService {
       startedAt: now,
     };
 
-    await this.saveMatch(match);
-    await Promise.all(
-      this.getRealPlayerIds(match).map((playerId) =>
-        this.redisService.set(this.playerMatchKey(playerId), match.id),
-      ),
-    );
+    await this.saveActiveMatch(match);
 
     return match;
   }
@@ -432,12 +427,7 @@ export class MatchmakingService {
       startedAt: now,
     };
 
-    await this.saveMatch(match);
-    await Promise.all(
-      this.getRealPlayerIds(match).map((playerId) =>
-        this.redisService.set(this.playerMatchKey(playerId), match.id),
-      ),
-    );
+    await this.saveActiveMatch(match);
 
     return match;
   }
@@ -453,12 +443,7 @@ export class MatchmakingService {
       startedAt: now,
     };
 
-    await this.saveMatch(match);
-    await Promise.all(
-      this.getRealPlayerIds(match).map((playerId) =>
-        this.redisService.set(this.playerMatchKey(playerId), match.id),
-      ),
-    );
+    await this.saveActiveMatch(match);
 
     return match;
   }
@@ -537,17 +522,23 @@ export class MatchmakingService {
     await this.redisService.lrem(this.queueKey(invite.matchType), 0, invite.id);
   }
 
-  private async saveMatch(match: ActiveMatch) {
+  private async saveActiveMatch(match: ActiveMatch) {
     await this.redisService.set(this.matchKey(match.id), JSON.stringify(match));
+    await Promise.all(
+      this.getRealPlayerIds(match).map((playerId) =>
+        this.redisService.set(this.playerMatchKey(playerId), match.id),
+      ),
+    );
   }
 
   private async notifyMatchPlayers(match: ActiveMatch) {
     const matchDto = this.toMatchDto(match);
-    await Promise.all(
-      this.getRealPlayerIds(match).map((playerId) =>
+    await Promise.all([
+      ...this.getRealPlayerIds(match).map((playerId) =>
         this.notifier.matchFound(playerId, matchDto),
       ),
-    );
+      this.notifier.matchEvent(match.id, 'MATCH_STARTED', matchDto),
+    ]);
   }
 
   private getRealPlayerIds(match: ActiveMatch) {
