@@ -8,10 +8,19 @@ type MatchmakingNotificationPayload<TPayload> = {
   payload: TPayload;
 };
 
+/**
+ * Small MQTT adapter for matchmaking events.
+ *
+ * Keeping topic construction here lets the service focus on state changes while
+ * this class owns the public event channels consumed by the frontend.
+ */
 @Injectable()
 export class MatchmakingNotifier {
   private readonly connector = MQTTConnector.getInstance();
 
+  /**
+   * Notifies one player that an invite they can see or participate in changed.
+   */
   async inviteUpdated(playerId: string, invite: MatchmakingInviteDto) {
     await this.publish(`matchmaking/invites/player/${playerId}`, {
       type: 'INVITE_UPDATED',
@@ -19,6 +28,9 @@ export class MatchmakingNotifier {
     });
   }
 
+  /**
+   * Notifies one real player that a match has been created for them.
+   */
   async matchFound(playerId: string, match: MatchmakingMatchDto) {
     await this.publish(`matchmaking/matches/player/${playerId}`, {
       type: 'MATCH_FOUND',
@@ -26,10 +38,16 @@ export class MatchmakingNotifier {
     });
   }
 
+  /**
+   * Publishes match-scoped lifecycle or gameplay events.
+   */
   async matchEvent<TPayload>(matchId: string, type: string, payload: TPayload) {
     await this.publish(`match/${matchId}`, { type, payload });
   }
 
+  /**
+   * Serializes the payload into the existing MQTT connector format.
+   */
   private async publish<TPayload>(
     topic: string,
     payload: MatchmakingNotificationPayload<TPayload>,

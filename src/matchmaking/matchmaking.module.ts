@@ -12,6 +12,13 @@ import {
 } from './matchmaking.queue';
 import { MatchmakingService } from './matchmaking.service';
 
+/**
+ * Wires the matchmaking feature together.
+ *
+ * Matchmaking stores transient invite, queue, and match state in Redis, reads
+ * player and clan data through their modules, and uses BullMQ for delayed CLAN
+ * opponent fallback jobs.
+ */
 @Module({
   imports: [
     RedisModule,

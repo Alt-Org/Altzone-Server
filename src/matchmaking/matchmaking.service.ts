@@ -32,8 +32,16 @@ import {
 } from './type/matchmakingParticipant.type';
 import { MatchmakingTeam } from './type/matchmakingTeam.type';
 
+/**
+ * Orchestrates matchmaking state transitions.
+ *
+ * Redis owns the short-lived invite, queue, and active match state while
+ * Mongo-backed services provide durable player and clan data. This service keeps
+ * those concerns together so controllers, workers, and notifiers stay thin.
+ */
 @Injectable()
 export class MatchmakingService {
+  // Redis lifetimes and scoring constants used across the matchmaking flow.
   private readonly INVITE_TTL_S = 5 * 60;
   private readonly CANCELLED_INVITE_TTL_S = 60;
   private readonly FINISHED_MATCH_TTL_S = 10 * 60;
@@ -58,6 +66,10 @@ export class MatchmakingService {
     private readonly queue: MatchmakingQueue,
   ) {}
 
+  /**
+   * Creates an invite from the authenticated player and immediately advances it
+   * if bots or enough real players make the invite READY.
+   */
   async createInvite(
     playerId: string,
     body: CreateMatchmakingInviteDto,
@@ -101,6 +113,12 @@ export class MatchmakingService {
     return [this.toInviteDto(processedInvite), null];
   }
 
+  /**
+   * Returns invites the player is allowed to see.
+   *
+   * The filter keeps cancelled and already matched invites hidden, while exposing
+   * own invites, joined invites, custom rooms, and same-clan CLAN invites.
+   */
   async getInvites(
     playerId: string,
   ): Promise<IServiceReturn<MatchmakingInviteDto[]>> {
@@ -126,6 +144,9 @@ export class MatchmakingService {
     return [visibleInvites.map((invite) => this.toInviteDto(invite)), null];
   }
 
+  /**
+   * Reads a single invite from Redis and maps it to the public DTO.
+   */
   async getInvite(
     inviteId: string,
   ): Promise<IServiceReturn<MatchmakingInviteDto>> {
@@ -135,6 +156,10 @@ export class MatchmakingService {
     return [this.toInviteDto(invite), null];
   }
 
+  /**
+   * Joins a player into an invite, applying mode-specific validation before the
+   * invite is recalculated and potentially moved into matchmaking.
+   */
   async joinInvite(
     inviteId: string,
     playerId: string,
@@ -190,6 +215,9 @@ export class MatchmakingService {
     return [this.toInviteDto(processedInvite), null];
   }
 
+  /**
+   * Cancels an invite owned by the caller and removes its player/index records.
+   */
   async cancelInvite(
     inviteId: string,
     playerId: string,
@@ -243,6 +271,10 @@ export class MatchmakingService {
     return [null, null];
   }
 
+  /**
+   * Finishes an active match once, updates the correct leaderboards, and keeps
+   * the completed match briefly available in Redis for clients that refresh.
+   */
   async finishMatch(
     matchId: string,
     playerId: string,
@@ -313,6 +345,12 @@ export class MatchmakingService {
     return [this.toMatchDto(finishedMatch), null];
   }
 
+  /**
+   * Routes READY invites into their mode-specific next step.
+   *
+   * RANDOM tries to pair any two ready teams, CLAN searches for another clan and
+   * schedules a timeout fallback, and CUSTOM starts directly from room settings.
+   */
   private async processReadyInvite(invite: MatchmakingInvite) {
     if (invite.status !== InviteStatus.READY) return invite;
 
@@ -356,6 +394,10 @@ export class MatchmakingService {
     return invite;
   }
 
+  /**
+   * Stores a READY invite in the Redis list for its match type if it is not
+   * already queued.
+   */
   private async enqueueReadyInvite(invite: MatchmakingInvite) {
     const queueKey = this.queueKey(invite.matchType);
     const queuedInvite: MatchmakingInvite = {
@@ -375,6 +417,9 @@ export class MatchmakingService {
     return queuedInvite;
   }
 
+  /**
+   * Pairs the first two valid RANDOM invites from the queue into an active match.
+   */
   private async tryCreateRandomMatch() {
     const queuedInvites = await this.getValidQueuedInvites(MatchType.RANDOM);
     if (queuedInvites.length < 2) return null;
@@ -394,6 +439,10 @@ export class MatchmakingService {
     return match;
   }
 
+  /**
+   * Looks for a queued CLAN opponent from a different clan and creates a match
+   * when one is available.
+   */
   private async tryCreateClanMatch(invite: MatchmakingInvite) {
     const queuedInvites = await this.getValidQueuedInvites(MatchType.CLAN);
     const opponent = queuedInvites.find(
@@ -424,6 +473,11 @@ export class MatchmakingService {
     return match;
   }
 
+  /**
+   * Called by the BullMQ worker when the CLAN opponent wait window expires.
+   *
+   * If the invite is still READY, it receives a full bot opponent team.
+   */
   async handleClanOpponentTimeout(inviteId: string) {
     const [invite] = await this.readInvite(inviteId);
     if (!invite) return;
@@ -441,6 +495,10 @@ export class MatchmakingService {
     ]);
     await this.notifyMatchPlayers(match);
   }
+
+  /**
+   * Loads queued invite ids, drops stale entries, and returns still-READY invites.
+   */
   private async getValidQueuedInvites(matchType: MatchType) {
     const queueKey = this.queueKey(matchType);
     const queuedInviteIds = Array.from(
@@ -468,6 +526,9 @@ export class MatchmakingService {
     return validInvites;
   }
 
+  /**
+   * Builds and persists a two-team active match from two ready invites.
+   */
   private async createActiveMatch(
     firstInvite: MatchmakingInvite,
     secondInvite: MatchmakingInvite,
@@ -491,6 +552,9 @@ export class MatchmakingService {
     return match;
   }
 
+  /**
+   * Starts a CLAN match against a generated bot team after opponent timeout.
+   */
   private async createClanBotMatch(invite: MatchmakingInvite) {
     const now = new Date().toISOString();
     const match: ActiveMatch = {
@@ -509,6 +573,11 @@ export class MatchmakingService {
 
     return match;
   }
+
+  /**
+   * Starts a CUSTOM match from one invite using the room-provided team size and
+   * bot policy.
+   */
   private async createCustomMatch(invite: MatchmakingInvite) {
     const now = new Date().toISOString();
     const teams = this.createCustomTeams(invite);
@@ -526,6 +595,9 @@ export class MatchmakingService {
     return match;
   }
 
+  /**
+   * Splits custom room participants into deterministic left and right teams.
+   */
   private createCustomTeams(
     invite: MatchmakingInvite,
   ): [MatchmakingTeam, MatchmakingTeam] {
@@ -539,6 +611,9 @@ export class MatchmakingService {
     ];
   }
 
+  /**
+   * Converts invite players and bots into match participants.
+   */
   private getInviteParticipants(invite: MatchmakingInvite) {
     return [
       ...invite.players.map(
@@ -579,6 +654,9 @@ export class MatchmakingService {
     };
   }
 
+  /**
+   * Marks an invite as consumed by a match and notifies its real players.
+   */
   private async markInviteMatched(invite: MatchmakingInvite, matchId: string) {
     const matchedInvite: MatchmakingInvite = {
       ...invite,
@@ -600,6 +678,9 @@ export class MatchmakingService {
     await this.redisService.lrem(this.queueKey(invite.matchType), 0, invite.id);
   }
 
+  /**
+   * Persists the active match and creates reverse lookup keys for real players.
+   */
   private async saveActiveMatch(match: ActiveMatch) {
     await this.redisService.set(this.matchKey(match.id), JSON.stringify(match));
     await Promise.all(
@@ -609,6 +690,9 @@ export class MatchmakingService {
     );
   }
 
+  /**
+   * Sends per-player match-found events and one match-scoped start event.
+   */
   private async notifyMatchPlayers(match: ActiveMatch) {
     const matchDto = this.toMatchDto(match);
     await Promise.all([
@@ -627,6 +711,10 @@ export class MatchmakingService {
     );
   }
 
+  /**
+   * Updates personal leaderboards for all modes and clan leaderboards for CLAN
+   * matches only.
+   */
   private async updateLeaderboardsForFinishedMatch(match: ActiveMatch) {
     const playerErrors =
       await this.updatePlayerLeaderboardForFinishedMatch(match);
@@ -707,6 +795,9 @@ export class MatchmakingService {
     return this.getRealPlayerIds(match).includes(playerId);
   }
 
+  /**
+   * Reads an active or recently finished match from Redis.
+   */
   private async readMatch(
     matchId: string,
   ): Promise<IServiceReturn<ActiveMatch>> {
@@ -728,6 +819,10 @@ export class MatchmakingService {
     return [JSON.parse(matchRaw) as ActiveMatch, null];
   }
 
+  /**
+   * Re-saves a completed match with the shorter finished-match TTL and removes
+   * per-player active-match pointers.
+   */
   private async saveFinishedMatch(match: ActiveMatch) {
     await this.redisService.set(
       this.matchKey(match.id),
@@ -750,6 +845,11 @@ export class MatchmakingService {
       this.redisService.delete(CacheKeys.CLAN_LEADERBOARD),
     ]);
   }
+
+  /**
+   * Validates mode-specific invite creation constraints before any Redis state is
+   * created.
+   */
   private async validateCreateInviteBody(
     playerId: string,
     body: CreateMatchmakingInviteDto,
@@ -796,6 +896,9 @@ export class MatchmakingService {
     return null;
   }
 
+  /**
+   * Checks whether a player can join an existing invite in its current state.
+   */
   private validateJoinInvite(
     invite: MatchmakingInvite,
     playerId: string,
@@ -845,6 +948,10 @@ export class MatchmakingService {
     return null;
   }
 
+  /**
+   * Prevents a player from being attached to more than one open matchmaking
+   * invite at a time.
+   */
   private async validatePlayerHasNoActiveInvite(playerId: string) {
     const activeInviteId = await this.redisService.get(
       this.playerInviteKey(playerId),
@@ -875,6 +982,9 @@ export class MatchmakingService {
     ];
   }
 
+  /**
+   * Recomputes bot fillers and OPEN/READY status after create or join changes.
+   */
   private recalculateInvite(invite: MatchmakingInvite): MatchmakingInvite {
     const capacity = this.getInviteCapacity(invite);
     const playerSlots = Math.max(capacity - invite.players.length, 0);
@@ -945,6 +1055,9 @@ export class MatchmakingService {
     return body.allowBots ?? true;
   }
 
+  /**
+   * Scans Redis invite keys for the lightweight list endpoint.
+   */
   private async getAllInvites() {
     const values = await this.redisService.getValuesByKeyPattern(
       `${this.INVITE_KEY_PREFIX}:*`,
@@ -955,6 +1068,10 @@ export class MatchmakingService {
       .map((value) => JSON.parse(value) as MatchmakingInvite);
   }
 
+  /**
+   * Reads one invite from Redis and returns the standard service error shape if
+   * it has expired or never existed.
+   */
   private async readInvite(
     inviteId: string,
   ): Promise<IServiceReturn<MatchmakingInvite>> {
@@ -976,6 +1093,9 @@ export class MatchmakingService {
     return [JSON.parse(inviteRaw) as MatchmakingInvite, null];
   }
 
+  /**
+   * Stores an invite using either the normal invite TTL or a caller-provided TTL.
+   */
   private async saveInvite(
     invite: MatchmakingInvite,
     ttlS = this.INVITE_TTL_S,
@@ -995,6 +1115,9 @@ export class MatchmakingService {
     );
   }
 
+  /**
+   * Broadcasts invite state to every real player currently attached to it.
+   */
   private async notifyInvitePlayers(invite: MatchmakingInvite) {
     const inviteDto = this.toInviteDto(invite);
     await Promise.all(
@@ -1040,6 +1163,9 @@ export class MatchmakingService {
     return participant.isBot === false;
   }
 
+  /**
+   * Maps internal Redis invite state to the public API shape.
+   */
   private toInviteDto(invite: MatchmakingInvite): MatchmakingInviteDto {
     return {
       id: invite.id,
@@ -1059,6 +1185,9 @@ export class MatchmakingService {
     };
   }
 
+  /**
+   * Maps internal active match state to the public API and MQTT shape.
+   */
   private toMatchDto(match: ActiveMatch): MatchmakingMatchDto {
     return {
       id: match.id,
