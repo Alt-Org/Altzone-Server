@@ -176,7 +176,8 @@ export class RedisServiceInMemory implements IRedisService, OnModuleDestroy {
     if (length === 0) return null;
 
     const normalizedStart = start < 0 ? Math.max(length + start, 0) : start;
-    const normalizedStop = stop < 0 ? length + stop : Math.min(stop, length - 1);
+    const normalizedStop =
+      stop < 0 ? length + stop : Math.min(stop, length - 1);
 
     if (normalizedStart >= length || normalizedStop < 0) return null;
     if (normalizedStart > normalizedStop) return null;

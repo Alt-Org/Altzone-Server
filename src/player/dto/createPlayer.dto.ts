@@ -118,8 +118,8 @@ export class CreatePlayerDto {
   @Type(() => Number)
   @IsEnum(Environment)
   environment: number;
-  
- /**
+
+  /**
    * Statistics for each defense class
    */
   @IsOptional()

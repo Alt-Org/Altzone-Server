@@ -215,7 +215,7 @@ export class PlayerDto {
   @Type(() => Number)
   @Expose()
   environment: Environment;
-  
+
   @Expose()
   @IsOptional()
   clanName?: string;
