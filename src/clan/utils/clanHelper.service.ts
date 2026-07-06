@@ -56,18 +56,16 @@ export default class ClanHelperService {
    * Creates a default SoulHome for the specified Clan.
    * @param clan_id _id of the Clan
    * @param name name of the SoulHome
-   * @param roomsCount default 30
    * @param session optional session for transaction support
    * @returns created _SoulHome_, _Rooms_ and _Items_, or array of ServiceErrors if something went wrong
    */
   async createDefaultSoulHome(
     clan_id: string,
     name: string,
-    roomsCount = 30,
     session?: ClientSession,
   ): Promise<
     [
-      { SoulHome: SoulHomeDto; Room: RoomDto[]; Item: ItemDto[] } | null,
+      { SoulHome: SoulHomeDto; Room: RoomDto; Item: ItemDto[] } | null,
       ServiceError[] | null,
     ]
   > {
@@ -78,41 +76,24 @@ export default class ClanHelperService {
       >({ name, clan_id }, { session });
     if (soulHomeErrors || !soulHome) return [null, soulHomeErrors];
 
-    const defaultRooms = this.getDefaultRooms(soulHome._id, roomsCount);
-    const [rooms, roomsErrors] = await this.roomService.createMany(
-      defaultRooms,
+    const [defaultRoom, defaultRoomErrors] = await this.roomService.getSoulHomeRoom(
+      clan_id,
+      session
+    );
+    if (defaultRoomErrors) return [null, defaultRoomErrors];
+
+    const [room, roomErrors] = await this.roomService.createOne(
+      defaultRoom,
       { session },
     );
-    if (roomsErrors || !rooms) return [null, roomsErrors];
-
-    const firstRoom = rooms[0];
+    if (roomErrors || !room) return [null, roomErrors];
 
     const [items, itemsErrors] = await this.itemService.createMany(
-      getRoomDefaultItems(firstRoom._id),
+      getRoomDefaultItems(room._id),
       { session },
     );
     if (itemsErrors || !items) return [null, itemsErrors];
 
-    return [{ SoulHome: soulHome, Room: rooms, Item: items }, null];
-  }
-
-  /**
-   * Generate array of default Rooms belonging to the specified SoulHome.
-   *
-   * @param soulHome_id _id of SoulHome to which Rooms will belong to
-   * @param count Amount of Rooms to generate
-   * @returns Array of default CreateRoomDto objects
-   */
-  private getDefaultRooms(soulHome_id: string, count: number): CreateRoomDto[] {
-    const defaultRooms: CreateRoomDto[] = [];
-    const defaultRoom: CreateRoomDto = {
-      floorType: 'default',
-      wallType: 'default',
-      hasLift: false,
-      cellCount: 10,
-      soulHome_id,
-    };
-    for (let i = 0, l = count; i < l; i++) defaultRooms.push(defaultRoom);
-    return defaultRooms;
+    return [{ SoulHome: soulHome, Room: room, Item: items }, null];
   }
 }

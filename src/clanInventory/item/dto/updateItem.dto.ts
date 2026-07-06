@@ -68,7 +68,7 @@ export class UpdateItemDto {
   /**
    * Spot on the item the item is placed on
    * 
-   * @eaxple [1, 1]
+   * @example [1, 1]
    */
   @IsArray()
   @Expose()
@@ -76,4 +76,14 @@ export class UpdateItemDto {
   @ArrayMaxSize(2)
   @ApiProperty()
   placedOnLocation: number[];
+
+  /**
+   * Id of Stock Item belongs to
+   */
+  stock_id: string;
+
+  /**
+   * Id of Room Item belongs to
+   */
+  room_id: string;
 }

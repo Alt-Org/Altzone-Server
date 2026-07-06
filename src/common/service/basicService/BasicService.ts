@@ -13,6 +13,7 @@ import {
   TIServiceDeleteByIdOptions,
   TIServiceDeleteManyOptions,
   TIServiceDeleteOneOptions,
+  TIServiceFindOneAndUpdate,
   TIServiceReadManyOptions,
   TIServiceReadOneOptions,
   TIServiceUpdateByIdOptions,
@@ -101,12 +102,12 @@ export default class BasicService implements IService {
     options: TIServiceReadOneOptions,
   ): Promise<IServiceReturn<TOutput>> {
     try {
-      const { filter, select, includeRefs } = options
+      const { filter, select, includeRefs, ...settings } = options
         ? options
         : { filter: undefined, select: undefined, includeRefs: [] };
 
       const resp = await this.model
-        .findOne(filter, select)
+        .findOne(filter, select, settings)
         .populate(includeRefs);
 
       if (!resp)
@@ -272,6 +273,44 @@ export default class BasicService implements IService {
               message: 'Could not find any objects with specified id',
               field: '_id',
               value: _id,
+            }),
+          ],
+        ];
+
+      return [resp, null];
+    } catch (error) {
+      const errors = convertMongooseToServiceErrors(error);
+      return [null, errors];
+    }
+  }
+
+  async findOneAndUpdate<T extends object>(
+    input: UpdateQuery<T>,
+    options: TIServiceFindOneAndUpdate
+  ): Promise<IServiceReturn<T>> {
+    try {
+      const { filter, session, sort } = options ? options : { filter: undefined };
+      const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
+
+      const mongooseOptions = { 
+        session, 
+        sort,
+        new: true,
+      };
+      
+      const resp = await this.model.findOneAndUpdate(
+        filterToApply,
+        input,
+        mongooseOptions,
+      );
+
+      if (!resp)
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_FOUND,
+              message: 'Could not find any objects with specified id',
             }),
           ],
         ];

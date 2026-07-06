@@ -23,7 +23,11 @@ export class Room {
   @Prop({ type: Date })
   deactivationTime: Date;
 
-  @Prop({ type: RoomStatus, required: true })
+  @Prop({ 
+    type: RoomStatus, 
+    required: true, 
+    default: RoomStatus.ACTIVE 
+  })
   roomStatus: RoomStatus;
 
   @Prop({ type: String, required: true })

@@ -7,7 +7,7 @@ import {
 import AddType from '../../../common/base/decorator/AddType.decorator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { ItemSummaryDto } from 'src/clanInventory/item/dto/itemSummary.dto';
+import { UpdateItemDto } from '../../../clanInventory/item/dto/updateItem.dto';
 
 @AddType('UpdateRoomDto')
 export class UpdateRoomDto {
@@ -46,7 +46,7 @@ export class UpdateRoomDto {
   /**
    * Room items
    */
-  @Type(() => ItemSummaryDto)
-  @ApiProperty({ type: () => [ItemSummaryDto] })
-  furniture: ItemSummaryDto[];
+  @Type(() => UpdateItemDto)
+  @ApiProperty({ type: () => [UpdateItemDto] })
+  furniture: UpdateItemDto[];
 }
