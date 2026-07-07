@@ -73,7 +73,9 @@ type TestDeps = {
   };
   clanService: {
     readOneById: jest.Mock;
-    updateOneById: jest.Mock;
+    basicService: {
+      updateOneById: jest.Mock;
+    };
   };
   notifier: {
     inviteUpdated: jest.Mock;
@@ -104,7 +106,9 @@ const createService = (
   };
   const clanService = {
     readOneById: jest.fn(async (clanId: string) => [{ _id: clanId }, null]),
-    updateOneById: jest.fn(async () => [{}, null]),
+    basicService: {
+      updateOneById: jest.fn(async () => [{}, null]),
+    },
   };
   const notifier = {
     inviteUpdated: jest.fn(async () => undefined),
@@ -288,7 +292,7 @@ describe('MatchmakingService flow', () => {
         'gameStatistics.playedBattles': 1,
       },
     });
-    expect(clanService.updateOneById).not.toHaveBeenCalled();
+    expect(clanService.basicService.updateOneById).not.toHaveBeenCalled();
     expect(redis.expire).toHaveBeenCalledWith(
       'matchmaking:match-player:player-1',
       600,
@@ -353,11 +357,17 @@ describe('MatchmakingService flow', () => {
         'gameStatistics.wonBattles': 1,
       },
     });
-    expect(clanService.updateOneById).toHaveBeenCalledWith('clan-1', {
-      $inc: { battlePoints: 10 },
-    });
-    expect(clanService.updateOneById).toHaveBeenCalledWith('clan-2', {
-      $inc: { battlePoints: 50 },
-    });
+    expect(clanService.basicService.updateOneById).toHaveBeenCalledWith(
+      'clan-1',
+      {
+        $inc: { battlePoints: 10 },
+      },
+    );
+    expect(clanService.basicService.updateOneById).toHaveBeenCalledWith(
+      'clan-2',
+      {
+        $inc: { battlePoints: 50 },
+      },
+    );
   });
 });
