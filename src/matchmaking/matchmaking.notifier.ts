@@ -22,7 +22,7 @@ export class MatchmakingNotifier {
    * Notifies one player that an invite they can see or participate in changed.
    */
   async inviteUpdated(playerId: string, invite: MatchmakingInviteDto) {
-    await this.publish(`matchmaking/invites/player/${playerId}`, {
+    await this.publish(`/matchmaking/invites/player/${playerId}`, {
       type: 'INVITE_UPDATED',
       payload: invite,
     });
@@ -32,7 +32,7 @@ export class MatchmakingNotifier {
    * Notifies one real player that a match has been created for them.
    */
   async matchFound(playerId: string, match: MatchmakingMatchDto) {
-    await this.publish(`matchmaking/matches/player/${playerId}`, {
+    await this.publish(`/matchmaking/matches/player/${playerId}`, {
       type: 'MATCH_FOUND',
       payload: match,
     });
@@ -42,7 +42,7 @@ export class MatchmakingNotifier {
    * Publishes match-scoped lifecycle or gameplay events.
    */
   async matchEvent<TPayload>(matchId: string, type: string, payload: TPayload) {
-    await this.publish(`match/${matchId}`, { type, payload });
+    await this.publish(`/match/${matchId}`, { type, payload });
   }
 
   /**

@@ -67,7 +67,7 @@ describe('MatchmakingNotifier notifications', () => {
     await notifier.inviteUpdated('player-1', invite);
 
     expect(publishMock).toHaveBeenCalledWith(
-      'matchmaking/invites/player/player-1',
+      '/matchmaking/invites/player/player-1',
       JSON.stringify({ type: 'INVITE_UPDATED', payload: invite }),
     );
   });
@@ -76,7 +76,7 @@ describe('MatchmakingNotifier notifications', () => {
     await notifier.matchFound('player-1', match);
 
     expect(publishMock).toHaveBeenCalledWith(
-      'matchmaking/matches/player/player-1',
+      '/matchmaking/matches/player/player-1',
       JSON.stringify({ type: 'MATCH_FOUND', payload: match }),
     );
   });
@@ -85,7 +85,7 @@ describe('MatchmakingNotifier notifications', () => {
     await notifier.matchEvent('match-1', 'MATCH_STARTED', match);
 
     expect(publishMock).toHaveBeenCalledWith(
-      'match/match-1',
+      '/match/match-1',
       JSON.stringify({ type: 'MATCH_STARTED', payload: match }),
     );
   });

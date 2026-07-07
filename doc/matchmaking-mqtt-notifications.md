@@ -14,9 +14,9 @@ A frontend client should subscribe to player-specific channels for the logged-in
 player and to match-specific channels after a match has been created.
 
 ```text
-matchmaking/invites/player/{playerId}
-matchmaking/matches/player/{playerId}
-match/{matchId}
+/matchmaking/invites/player/{playerId}
+/matchmaking/matches/player/{playerId}
+/match/{matchId}
 ```
 
 Where:
@@ -44,7 +44,7 @@ The `type` field identifies the event. The `payload` field contains either a
 ### Topic
 
 ```text
-matchmaking/invites/player/{playerId}
+/matchmaking/invites/player/{playerId}
 ```
 
 ### Event Type
@@ -99,7 +99,7 @@ Bots do not receive MQTT notifications.
 ### Topic
 
 ```text
-matchmaking/matches/player/{playerId}
+/matchmaking/matches/player/{playerId}
 ```
 
 ### Event Type
@@ -167,7 +167,7 @@ included in the match payload but do not receive player-specific notifications.
 ### Topic
 
 ```text
-match/{matchId}
+/match/{matchId}
 ```
 
 ### Event Type
@@ -198,7 +198,7 @@ matchmaking channel to a match-level game channel.
 ### Topic
 
 ```text
-match/{matchId}
+/match/{matchId}
 ```
 
 ### Event Type
@@ -230,12 +230,12 @@ and `result`.
 
 Recommended frontend flow:
 
-1. Subscribe to `matchmaking/invites/player/{playerId}` after login.
-2. Subscribe to `matchmaking/matches/player/{playerId}` while the player is in
+1. Subscribe to `/matchmaking/invites/player/{playerId}` after login.
+2. Subscribe to `/matchmaking/matches/player/{playerId}` while the player is in
    matchmaking.
 3. Use `INVITE_UPDATED` to keep lobby and invite UI synchronized.
 4. When `MATCH_FOUND` is received, read `payload.id` and subscribe to
-   `match/{matchId}`.
+   `/match/{matchId}`.
 5. Use `MATCH_STARTED` to initialize the match scene if the client did not enter
    from the player-specific `MATCH_FOUND` event.
 6. Use `MATCH_FINISHED` to show the result screen and refresh leaderboard views.
