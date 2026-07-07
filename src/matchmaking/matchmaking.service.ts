@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Types } from 'mongoose';
+import { Types, UpdateQuery } from 'mongoose';
 import { ClanService } from '../clan/clan.service';
 import { RedisService } from '../common/service/redis/redis.service';
 import { CacheKeys } from '../common/service/redis/cacheKeys.enum';
@@ -31,6 +31,7 @@ import {
   MatchmakingPlayerParticipant,
 } from './type/matchmakingParticipant.type';
 import { MatchmakingTeam } from './type/matchmakingTeam.type';
+import { Clan } from '../clan/clan.schema';
 
 /**
  * Orchestrates matchmaking state transitions.
@@ -758,9 +759,10 @@ export class MatchmakingService {
 
       const outcome = this.getTeamOutcome(team, match.result.winningSide);
       const battlePoints = this.getBattlePointsForOutcome(outcome);
-      const [, updateErrors] = await this.clanService.updateOneById(
+      const update: UpdateQuery<Clan> = { $inc: { battlePoints } };
+      const [, updateErrors] = await this.clanService.basicService.updateOneById<UpdateQuery<Clan>>(
         team.clanId,
-        { $inc: { battlePoints } } as any,
+        update,
       );
       if (updateErrors) return updateErrors;
     }
