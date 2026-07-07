@@ -760,10 +760,11 @@ export class MatchmakingService {
       const outcome = this.getTeamOutcome(team, match.result.winningSide);
       const battlePoints = this.getBattlePointsForOutcome(outcome);
       const update: UpdateQuery<Clan> = { $inc: { battlePoints } };
-      const [, updateErrors] = await this.clanService.basicService.updateOneById<UpdateQuery<Clan>>(
-        team.clanId,
-        update,
-      );
+      const [, updateErrors] =
+        await this.clanService.basicService.updateOneById<UpdateQuery<Clan>>(
+          team.clanId,
+          update,
+        );
       if (updateErrors) return updateErrors;
     }
 
