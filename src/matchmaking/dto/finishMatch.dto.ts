@@ -1,12 +1,12 @@
-﻿import { IsIn } from 'class-validator';
+import { IsIn } from 'class-validator';
 import { TeamSide } from '../enum/teamSide.enum';
 
 export class FinishMatchDto {
   /**
-   * Winning team side, or DRAW.
+   * Winning team side.
    *
    * @example "A"
    */
-  @IsIn([TeamSide.A, TeamSide.B, 'DRAW'])
-  winningSide: TeamSide | 'DRAW';
+  @IsIn([TeamSide.A, TeamSide.B])
+  winningSide: TeamSide;
 }

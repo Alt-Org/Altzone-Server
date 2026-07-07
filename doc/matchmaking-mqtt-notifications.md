@@ -157,7 +157,7 @@ included in the match payload but do not receive player-specific notifications.
   startedAt: string,
   finishedAt?: string,
   result?: {
-    winningSide: 'A' | 'B' | 'DRAW'
+    winningSide: 'A' | 'B'
   }
 }
 ```

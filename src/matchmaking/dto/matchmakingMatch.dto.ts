@@ -81,12 +81,12 @@ export class MatchmakingTeamDto {
 
 export class MatchResultDto {
   /**
-   * Winning team side, or DRAW.
+   * Winning team side.
    *
    * @example "A"
    */
   @Expose()
-  winningSide: TeamSide | 'DRAW';
+  winningSide: TeamSide;
 }
 
 export class MatchmakingMatchDto {

@@ -47,7 +47,6 @@ export class MatchmakingService {
   private readonly FINISHED_MATCH_TTL_S = 10 * 60;
   private readonly WIN_BATTLE_POINTS = 50;
   private readonly LOSS_BATTLE_POINTS = 10;
-  private readonly DRAW_BATTLE_POINTS = 25;
   private readonly CLAN_OPPONENT_TIMEOUT_S = 30;
   private readonly INVITE_KEY_PREFIX = 'matchmaking:invite';
   private readonly PLAYER_INVITE_KEY_PREFIX = 'matchmaking:player-invite';
@@ -771,16 +770,13 @@ export class MatchmakingService {
 
   private getTeamOutcome(
     team: MatchmakingTeam,
-    winningSide: TeamSide | 'DRAW',
-  ): 'WIN' | 'LOSS' | 'DRAW' {
-    if (winningSide === 'DRAW') return 'DRAW';
-
+    winningSide: TeamSide,
+  ): 'WIN' | 'LOSS' {
     return team.side === winningSide ? 'WIN' : 'LOSS';
   }
 
-  private getBattlePointsForOutcome(outcome: 'WIN' | 'LOSS' | 'DRAW') {
+  private getBattlePointsForOutcome(outcome: 'WIN' | 'LOSS') {
     if (outcome === 'WIN') return this.WIN_BATTLE_POINTS;
-    if (outcome === 'DRAW') return this.DRAW_BATTLE_POINTS;
 
     return this.LOSS_BATTLE_POINTS;
   }

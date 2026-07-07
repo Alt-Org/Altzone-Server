@@ -4,7 +4,7 @@ import { TeamSide } from '../enum/teamSide.enum';
 import { MatchmakingTeam } from './matchmakingTeam.type';
 
 export type MatchResult = {
-  winningSide: TeamSide | 'DRAW';
+  winningSide: TeamSide;
 };
 
 export type ActiveMatch = {
