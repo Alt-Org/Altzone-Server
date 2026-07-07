@@ -335,28 +335,29 @@ describe('MatchmakingService flow', () => {
     const [finishedMatch, errors] = await service.finishMatch(
       'match-2',
       'player-1',
-      { winningSide: 'DRAW' },
+      { winningSide: TeamSide.B },
     );
 
     expect(errors).toBeNull();
-    expect(finishedMatch.result).toEqual({ winningSide: 'DRAW' });
+    expect(finishedMatch.result).toEqual({ winningSide: TeamSide.B });
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
       $inc: {
-        battlePoints: 25,
+        battlePoints: 10,
         'gameStatistics.playedBattles': 1,
       },
     });
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-2', {
       $inc: {
-        battlePoints: 25,
+        battlePoints: 50,
         'gameStatistics.playedBattles': 1,
+        'gameStatistics.wonBattles': 1,
       },
     });
     expect(clanService.updateOneById).toHaveBeenCalledWith('clan-1', {
-      $inc: { battlePoints: 25 },
+      $inc: { battlePoints: 10 },
     });
     expect(clanService.updateOneById).toHaveBeenCalledWith('clan-2', {
-      $inc: { battlePoints: 25 },
+      $inc: { battlePoints: 50 },
     });
   });
 });
