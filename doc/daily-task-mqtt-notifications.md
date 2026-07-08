@@ -27,7 +27,7 @@ To listen to all clan-wide task updates (completion events and milestones):
 ## Topic Parameters
 - `{playerId}`: The unique database ID of the player.
 - `{clanId}`: The unique database ID of the clan.
-- `{taskType}`: The type of task being updated. This is a string enum value from [ServerTaskName](file:///c:/Users/marju/backend-prg/Altzone-Server/src/dailyTasks/enum/serverTaskName.enum.ts) or [UITaskName](file:///c:/Users/marju/backend-prg/Altzone-Server/src/dailyTasks/enum/uiTaskName.enum.ts).
+- `{taskType}`: The type of task being updated. This is a string enum value from [ServerTaskName](https://github.com/Alt-Org/Altzone-Server/blob/main/src/dailyTasks/enum/serverTaskName.enum.ts) or [UITaskName](https://github.com/Alt-Org/Altzone-Server/blob/main/src/dailyTasks/enum/uiTaskName.enum.ts).
 - `{status}`: The lifecycle status: `new`, `update`, `error`, or `end`.
 
 ---

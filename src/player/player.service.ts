@@ -35,7 +35,8 @@ import { EmotionCheckResult } from './dto/emotionCheckResult.dto';
 @AddBasicService()
 export class PlayerService
   extends BasicServiceDummyAbstract
-  implements IBasicService, IHookImplementer {
+  implements IBasicService, IHookImplementer
+{
   public constructor(
     @InjectModel(Player.name) public readonly model: Model<Player>,
     private readonly customCharacterService: CustomCharacterService,
@@ -310,7 +311,7 @@ export class PlayerService
     if (isLastAdminNonEmptyClan)
       return new Error(
         `Player can not be deleted, because it is the only one admin in a non empty clan with _id '${clan_idLastAdmin}'. ` +
-        `Please add another admin to this clan before deleting this Player or delete this clan first.`,
+          `Please add another admin to this clan before deleting this Player or delete this clan first.`,
       );
 
     for (let i = 0; i < clansWithPlayerAsAdmin.length; i++) {
@@ -350,10 +351,10 @@ export class PlayerService
   }
 
   /**
- * Checks if the player has already submitted an emotion today.
- * @param playerId - The unique identifier of the player.
- * @returns - A classic tuple setup [boolean, ServiceError[]] indicating if an entry for today exists.
- */
+   * Checks if the player has already submitted an emotion today.
+   * @param playerId - The unique identifier of the player.
+   * @returns - A classic tuple setup [boolean, ServiceError[]] indicating if an entry for today exists.
+   */
   async checkIfEmotionSentToday(
     playerId: string,
   ): Promise<EmotionCheckResult | ServiceError[]> {
@@ -362,8 +363,7 @@ export class PlayerService
       .select('emotions')
       .exec();
 
-    if (!player)
-      return [new ServiceError({ reason: SEReason.NOT_FOUND })];
+    if (!player) return [new ServiceError({ reason: SEReason.NOT_FOUND })];
 
     const lastEntry = player.emotions[player.emotions.length - 1] ?? null;
 
@@ -379,8 +379,8 @@ export class PlayerService
         emotioncheck: {
           last_sent: null,
           submitted_today: false,
-        }
-      }
+        },
+      };
     }
 
     return {
@@ -391,7 +391,7 @@ export class PlayerService
         },
         submitted_today: isToday && lastEntry.emotion !== PlayerEmotion.BLANK,
       },
-    }
+    };
   }
 
   /**
@@ -402,23 +402,23 @@ export class PlayerService
    * @returns The updated player data or service errors.
    */
   async addEmotion(
-      playerId: string,
-      emotion: PlayerEmotion,
-    ): Promise < IServiceReturn < PlayerDto >> {
-      const [player, errors] = await this.getPlayerById(playerId);
-      if(errors) return [null, errors as ServiceError[]];
+    playerId: string,
+    emotion: PlayerEmotion,
+  ): Promise<IServiceReturn<PlayerDto>> {
+    const [player, errors] = await this.getPlayerById(playerId);
+    if (errors) return [null, errors as ServiceError[]];
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-      const index = (player.emotions || []).findIndex((e) => {
-        const entryDate = new Date(e.date);
-        entryDate.setHours(0, 0, 0, 0);
-        return entryDate.getTime() === today.getTime();
-      });
+    const index = (player.emotions || []).findIndex((e) => {
+      const entryDate = new Date(e.date);
+      entryDate.setHours(0, 0, 0, 0);
+      return entryDate.getTime() === today.getTime();
+    });
 
-      let updateQuery: UpdateQuery<Player>;
-      if(index > -1) {
+    let updateQuery: UpdateQuery<Player>;
+    if (index > -1) {
       updateQuery = {
         $set: {
           [`emotions.${index}.emotion`]: emotion,
