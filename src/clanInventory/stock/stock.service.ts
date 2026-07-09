@@ -23,7 +23,8 @@ export class StockService {
     @InjectModel(Stock.name) public readonly model: Model<Stock>,
     private readonly itemService: ItemService,
     @Inject(forwardRef(() => FleaMarketService))
-    @Optional() private readonly fleaMarketService?: FleaMarketService,
+    @Optional()
+    private readonly fleaMarketService?: FleaMarketService,
   ) {
     this.refsInModel = [ModelName.CLAN, ModelName.ITEM];
     this.modelName = ModelName.STOCK;
@@ -68,16 +69,15 @@ export class StockService {
     );
     if (errors) return [null, errors];
 
-    const fleaMarketResult = this.fleaMarketService 
-  ? await this.fleaMarketService.basicService.readMany({ filter: { clan_id: stock.clan_id } })
-  : [[]];
+    const fleaMarketResult = this.fleaMarketService
+      ? await this.fleaMarketService.basicService.readMany({
+          filter: { clan_id: stock.clan_id },
+        })
+      : [[]];
 
     const [fleaMarketItems] = fleaMarketResult || [[]];
 
-    return [
-      { ...stock, FleaMarketItem: fleaMarketItems ?? [] },
-      null,
-    ];
+    return [{ ...stock, FleaMarketItem: fleaMarketItems ?? [] }, null];
   }
 
   /**

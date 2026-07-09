@@ -29,14 +29,14 @@ describe('StockService.readOneById() test suite', () => {
     existingStock._id = stockResp._id;
 
     // Align all possible foreign key variations
-    existingItem.stock_id = existingStock._id; 
+    existingItem.stock_id = existingStock._id;
     existingItem.stockId = existingStock._id;
     existingItem.stock = existingStock._id;
-    
+
     // Align multi-tenant context fields
     existingItem.clan_id = clan_id;
     existingItem.clanId = clan_id;
-    
+
     // Seed standard item collection
     const itemResp = await itemModel.create(existingItem);
     existingItem._id = itemResp._id;
@@ -44,9 +44,9 @@ describe('StockService.readOneById() test suite', () => {
     // Cross-seed into the FleaMarketItem collection if registered on the connection
     const globalModels = stockModel.db.models;
     const fleaModelKey = Object.keys(globalModels).find(
-      key => key.toLowerCase() === 'fleamarketitem'
+      (key) => key.toLowerCase() === 'fleamarketitem',
     );
-    
+
     if (fleaModelKey) {
       await globalModels[fleaModelKey].create(existingItem);
     }
@@ -59,7 +59,9 @@ describe('StockService.readOneById() test suite', () => {
 
     expect(errors).toBeNull();
     const actualStock1 = (clearedStock as any)._doc || clearedStock;
-    expect(JSON.parse(JSON.stringify(actualStock1))).toEqual(expect.objectContaining(JSON.parse(JSON.stringify(existingStock))));
+    expect(JSON.parse(JSON.stringify(actualStock1))).toEqual(
+      expect.objectContaining(JSON.parse(JSON.stringify(existingStock))),
+    );
   });
 
   it('Should return only requested in "select" fields', async () => {
@@ -74,7 +76,9 @@ describe('StockService.readOneById() test suite', () => {
     };
 
     const actualStock2 = (clearedStock as any)._doc || clearedStock;
-    expect(JSON.parse(JSON.stringify(actualStock2))).toEqual(JSON.parse(JSON.stringify(expected)));
+    expect(JSON.parse(JSON.stringify(actualStock2))).toEqual(
+      JSON.parse(JSON.stringify(expected)),
+    );
   });
 
   it('Should return NOT_FOUND SError for non-existing stock', async () => {
@@ -101,16 +105,16 @@ describe('StockService.readOneById() test suite', () => {
     expect(errors).toBeNull();
 
     let targetItem: any = null;
-    
+
     if (stock) {
       // 1. Check direct Mongoose virtual field getter
       let itemsArray = (stock as any).Item;
-      
+
       // 2. Fallback to populated virtuals dictionary if hidden internally
       if (!itemsArray && stock['$$populatedVirtuals']) {
         itemsArray = stock['$$populatedVirtuals'].Item;
       }
-      
+
       // 3. Fallback to full JSON serialization if it's treated as a plain object
       if (!itemsArray) {
         const plainStock = JSON.parse(JSON.stringify(stock));
@@ -119,19 +123,21 @@ describe('StockService.readOneById() test suite', () => {
 
       if (itemsArray) {
         const clearedItems = clearDBRespDefaultFields(itemsArray);
-        targetItem = Array.isArray(clearedItems) ? clearedItems[0] : clearedItems;
+        targetItem = Array.isArray(clearedItems)
+          ? clearedItems[0]
+          : clearedItems;
       }
     }
 
     expect(targetItem).toBeTruthy();
-    
+
     // Asserting that the returned database item contains the core values we seeded it with
     expect(JSON.parse(JSON.stringify(targetItem))).toEqual(
       expect.objectContaining({
         _id: existingItem._id.toString(),
         name: existingItem.name,
-        stock_id: existingItem.stock_id.toString()
-      })
+        stock_id: existingItem.stock_id.toString(),
+      }),
     );
   });
 

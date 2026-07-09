@@ -12,7 +12,11 @@ import { GovernancePayload } from '../type/governancePayload';
 // =================================================================================
 if (typeof mongoose.Model.discriminator === 'function') {
   const originalDiscriminator = mongoose.Model.discriminator;
-  mongoose.Model.discriminator = function (name: string, schema: any, tiebreaker: any) {
+  mongoose.Model.discriminator = function (
+    name: string,
+    schema: any,
+    tiebreaker: any,
+  ) {
     // If this discriminator key was already compiled by a parallel test thread, reuse it
     if (this.discriminators && this.discriminators[name]) {
       return this.discriminators[name];

@@ -48,7 +48,7 @@ afterAll(async () => {
     }
     await new Promise((resolve) => setTimeout(resolve, 100));
   } catch (error) {
-    // CHANGE: Typecast 'error' to 'any' (or type guard via 'instanceof Error') 
+    // CHANGE: Typecast 'error' to 'any' (or type guard via 'instanceof Error')
     // to safely read the 'name' property without compiler complaints
     if ((error as any)?.name !== 'MongoClientClosedError') {
       console.error('Error during database disconnection:', error);
