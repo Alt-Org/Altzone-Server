@@ -4,6 +4,7 @@ import ClanModule from '../../clan/modules/clan.module';
 import LeaderboardModule from '../modules/leaderboard.module';
 import InterfaceBuilderFactory from '../../common/interface/data/interfaceBuilderFactory';
 import { Clan } from '../../../clan/clan.schema';
+import { Environment } from '../../../common/enum/environment.enum';
 
 describe('LeaderboardService.getClanLeaderboard() test suite', () => {
   let service: LeaderboardService;
@@ -31,7 +32,10 @@ describe('LeaderboardService.getClanLeaderboard() test suite', () => {
   it('Should return leading clans in valid order', async () => {
     const query = queryBuilder.setLimit(10).setSkip(0).build();
 
-    const leaders = (await service.getClanLeaderboard(query)) as Clan[];
+    const leaders = (await service.getClanLeaderboard(
+      query,
+      Environment.TEACHING_DEMO,
+    )) as Clan[];
 
     const clanNames = leaders.map((leader) => leader.name);
 
@@ -41,7 +45,10 @@ describe('LeaderboardService.getClanLeaderboard() test suite', () => {
   it('Should return requested amount of leading clans', async () => {
     const query = queryBuilder.setLimit(2).setSkip(0).build();
 
-    const leaders = await service.getClanLeaderboard(query);
+    const leaders = (await service.getClanLeaderboard(
+      query,
+      Environment.TEACHING_DEMO,
+    )) as Clan[];
 
     expect(leaders).toHaveLength(2);
   });
@@ -49,7 +56,7 @@ describe('LeaderboardService.getClanLeaderboard() test suite', () => {
   it('Should be able to skip leading clans', async () => {
     const query = queryBuilder.setLimit(10).setSkip(2).build();
 
-    const leaders = (await service.getClanLeaderboard(query)) as Clan[];
+    const leaders = (await service.getClanLeaderboard(query, 0)) as Clan[];
 
     expect(leaders).toHaveLength(1);
     expect(leaders[0].name).toBe(clan3.name);

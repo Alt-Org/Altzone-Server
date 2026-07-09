@@ -35,9 +35,8 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { isEqual } from 'lodash';
 import { IServiceReturn } from '../common/service/basicService/IService';
-import { EmotionCheckDto } from './dto/emotionCheck.dto';
 import { MongooseError } from 'mongoose';
-import ServiceError from '../common/service/basicService/ServiceError';
+import { EmotionCheckResult } from './dto/emotionCheckResult.dto';
 
 @Controller('player')
 export default class PlayerController {
@@ -77,10 +76,8 @@ export default class PlayerController {
   })
   @Get('/emotioncheck')
   @Authorize({ action: Action.read, subject: PlayerDto })
-  public async checkDailyEmotion(
-    @LoggedUser() user: User,
-  ): Promise<IServiceReturn<boolean>> {
-    return await this.service.checkIfEmotionSentToday(user.player_id);
+  public async checkDailyEmotion(@LoggedUser() user: User) {
+    return this.service.checkIfEmotionSentToday(user.player_id);
   }
 
   /**

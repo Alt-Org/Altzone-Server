@@ -24,6 +24,7 @@ import { Clan, ClanSchema } from '../../../clan/clan.schema';
 import { ClanProgression } from '../../../rewarder/clanProgression/clanProgression.service';
 import { Stock, StockSchema } from '../../../clanInventory/stock/stock.schema';
 import { Item, ItemSchema } from '../../../clanInventory/item/item.schema';
+import { DailyTaskProgressService } from '../../../dailyTasks/dailyTaskProgress.service';
 
 export default class DailyTasksCommonModule {
   private constructor() {}
@@ -57,6 +58,7 @@ export default class DailyTasksCommonModule {
           DailyTaskNotifier,
           DailyTaskQueue,
           DailyTaskProcessor,
+          DailyTaskProgressService,
           PlayerRewarder,
           ClanRewarder,
           ClanProgression,

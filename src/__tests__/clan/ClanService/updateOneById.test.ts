@@ -31,6 +31,7 @@ describe('ClanService.updateOneById() test suite', () => {
     const updateData = clanUpdateBuilder
       .setId(existingClan._id)
       .setName(updatedName)
+      .setEnvironment(existingClan.environment)
       .build();
 
     const [wasUpdated, errors] = await clanService.updateOneById(updateData);

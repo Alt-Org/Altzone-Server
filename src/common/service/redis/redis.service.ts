@@ -41,6 +41,22 @@ export class RedisService implements OnModuleDestroy, IRedisService {
   }
 
   /**
+   * Sets a value only when the key does not already exist.
+   *
+   * @param key - The key to store the value under.
+   * @param value - The value to store.
+   * @param ttlS - Optional TTL (time to live) in seconds.
+   * @returns True when the key was created, false when it already existed.
+   */
+  async setNx(key: string, value: string, ttlS?: number) {
+    const result = ttlS
+      ? await this.client.set(key, value, 'EX', ttlS, 'NX')
+      : await this.client.set(key, value, 'NX');
+
+    return result === 'OK';
+  }
+
+  /**
    * Retrieves a value from Redis.
    *
    * @param key - The key of the value to retrieve.
@@ -48,6 +64,74 @@ export class RedisService implements OnModuleDestroy, IRedisService {
    */
   async get(key: string) {
     return this.client.get(key);
+  }
+
+  /**
+   * Deletes one Redis key.
+   *
+   * @param key - The key to delete.
+   * @returns Number of deleted keys.
+   */
+  async delete(key: string) {
+    return this.client.del(key);
+  }
+
+  /**
+   * Applies a TTL to an existing key.
+   *
+   * @param key - The key to expire.
+   * @param ttlS - TTL in seconds.
+   * @returns True when the TTL was applied.
+   */
+  async expire(key: string, ttlS: number) {
+    const result = await this.client.expire(key, ttlS);
+    return result === 1;
+  }
+
+  /**
+   * Pushes values to the head of a Redis list.
+   *
+   * @param key - The list key.
+   * @param values - Values to push.
+   * @returns Length of the list after the push.
+   */
+  async lpush(key: string, ...values: string[]) {
+    return this.client.lpush(key, ...values);
+  }
+
+  /**
+   * Pushes values to the tail of a Redis list.
+   *
+   * @param key - The list key.
+   * @param values - Values to push.
+   * @returns Length of the list after the push.
+   */
+  async rpush(key: string, ...values: string[]) {
+    return this.client.rpush(key, ...values);
+  }
+
+  /**
+   * Reads a range of values from a Redis list.
+   *
+   * @param key - The list key.
+   * @param start - Start index.
+   * @param stop - Stop index.
+   * @returns List values in the requested range.
+   */
+  async lrange(key: string, start: number, stop: number) {
+    return this.client.lrange(key, start, stop);
+  }
+
+  /**
+   * Removes values from a Redis list.
+   *
+   * @param key - The list key.
+   * @param count - Redis LREM count argument.
+   * @param value - Value to remove.
+   * @returns Number of removed values.
+   */
+  async lrem(key: string, count: number, value: string) {
+    return this.client.lrem(key, count, value);
   }
 
   /**

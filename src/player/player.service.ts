@@ -17,7 +17,6 @@ import {
 } from '../common/interface/IHookImplementer';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { PlayerDto, StatDetailDto } from './dto/player.dto';
-import { EmotionCheckDto } from './dto/emotionCheck.dto';
 import BasicService from '../common/service/basicService/BasicService';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
@@ -30,6 +29,7 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
 import { PlayerEmotion } from './enum/playerEmotion.enum';
 import { prizePool } from '../rewarder/const/prizePool';
 import { PlayerObject } from '../common/type/playerObject.type';
+import { EmotionCheckResult } from './dto/emotionCheckResult.dto';
 
 @Injectable()
 @AddBasicService()
@@ -357,31 +357,41 @@ export class PlayerService
    */
   async checkIfEmotionSentToday(
     playerId: string,
-  ): Promise<IServiceReturn<boolean>> {
+  ): Promise<EmotionCheckResult | ServiceError[]> {
     const player = await this.model
       .findById(playerId)
       .select('emotions')
       .exec();
 
-    if (!player)
-      return [null, [new ServiceError({ reason: SEReason.NOT_FOUND })]];
+    if (!player) return [new ServiceError({ reason: SEReason.NOT_FOUND })];
 
-    const lastEntry = player.emotions[player.emotions.length - 1];
+    const lastEntry = player.emotions[player.emotions.length - 1] ?? null;
 
     const today = new Date().setHours(0, 0, 0, 0);
     const entryDate = lastEntry
       ? new Date(lastEntry.date).setHours(0, 0, 0, 0)
       : null;
 
-    if (entryDate !== today) {
-      return [false, null];
+    const isToday = entryDate === today;
+
+    if (!lastEntry) {
+      return {
+        emotioncheck: {
+          last_sent: null,
+          submitted_today: false,
+        },
+      };
     }
 
-    const emotionValue = lastEntry.emotion as PlayerEmotion;
-
-    const isSent = emotionValue !== PlayerEmotion.BLANK;
-
-    return [isSent, null];
+    return {
+      emotioncheck: {
+        last_sent: {
+          date: lastEntry.date,
+          emotion: lastEntry.emotion as PlayerEmotion,
+        },
+        submitted_today: isToday && lastEntry.emotion !== PlayerEmotion.BLANK,
+      },
+    };
   }
 
   /**

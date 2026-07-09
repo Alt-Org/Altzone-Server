@@ -14,32 +14,52 @@ import { ItemDto } from '../../clanInventory/item/dto/item.dto';
 import { SoulHomeDto } from '../../clanInventory/soulhome/dto/soulhome.dto';
 import { RoomDto } from '../../clanInventory/room/dto/room.dto';
 import { SoulHome } from '../../clanInventory/soulhome/soulhome.schema';
-import { ClientSession } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
+import { Clan } from '../clan.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import BasicService from '../../common/service/basicService/BasicService';
+import { Environment } from '../../common/enum/environment.enum';
 
 @Injectable()
 export default class ClanHelperService {
   constructor(
     @Inject(forwardRef(() => StockService))
+    @InjectModel(Clan.name) private readonly clanModel: Model<Clan>,
     private readonly stockService: StockService,
     private readonly soulHomeService: SoulHomeService,
     private readonly roomService: RoomService,
     private readonly itemService: ItemService,
-  ) {}
+  ) {
+    this.basicService = new BasicService(clanModel);
+  }
+
+  private readonly basicService: BasicService;
 
   /**
    * Creates a default Stock for the specified Clan.
    * @param clan_id _id of the Clan
    * @param session optional session for transaction support
+   * @param environment environment of the Clan
    * @returns created _Stock_ and its _items_, or array of ServiceErrors if something went wrong
    */
   async createDefaultStock(
     clan_id: string,
     session?: ClientSession,
+    environment?: Environment,
   ): Promise<
     [{ Stock: StockDto; Item: ItemDto[] } | null, ServiceError[] | null]
   > {
+    if (environment === undefined) {
+      const [clan, clanErrors] =
+        await this.basicService.readOneById<Clan>(clan_id);
+      if (clanErrors || !clan) {
+        return [null, clanErrors];
+      }
+      environment = clan.environment ?? Environment.OPEN_DEMO;
+    }
+
     const [stock, stockErrors] = await this.stockService.createOne(
-      { cellCount: 20, clan_id },
+      { cellCount: 20, clan_id, environment: environment },
       { session },
     );
     if (stockErrors || !stock) return [null, stockErrors];
@@ -59,6 +79,7 @@ export default class ClanHelperService {
    * @param name name of the SoulHome
    * @param roomsCount default 30
    * @param session optional session for transaction support
+   * @param environment environment of the Clan
    * @returns created _SoulHome_, _Rooms_ and _Items_, or array of ServiceErrors if something went wrong
    */
   async createDefaultSoulHome(
@@ -66,17 +87,27 @@ export default class ClanHelperService {
     name: string,
     roomsCount = 30,
     session?: ClientSession,
+    environment?: Environment,
   ): Promise<
     [
       { SoulHome: SoulHomeDto; Room: RoomDto[]; Item: ItemDto[] } | null,
       ServiceError[] | null,
     ]
   > {
+    if (environment === undefined) {
+      const [clan, clanErrors] =
+        await this.basicService.readOneById<Clan>(clan_id);
+      if (clanErrors || !clan) {
+        return [null, clanErrors];
+      }
+      environment = clan.environment ?? Environment.OPEN_DEMO;
+    }
+
     const [soulHome, soulHomeErrors] =
       await this.soulHomeService.basicService.createOne<
         Partial<SoulHome>,
         SoulHomeDto
-      >({ name, clan_id }, { session });
+      >({ name, clan_id, environment: environment }, { session });
     if (soulHomeErrors || !soulHome) return [null, soulHomeErrors];
 
     const defaultRooms = this.getDefaultRooms(soulHome._id, roomsCount);

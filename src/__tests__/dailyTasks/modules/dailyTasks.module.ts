@@ -4,6 +4,7 @@ import { ModelName } from '../../../common/enum/modelName.enum';
 import { DailyTaskSchema } from '../../../dailyTasks/dailyTasks.schema';
 import { DailyTaskService } from '../../../box/dailyTask/dailyTask.service';
 import UiDailyTasksService from '../../../dailyTasks/uiDailyTasks/uiDailyTasks.service';
+import { StockSchema } from '../../../clanInventory/stock/stock.schema';
 
 export default class DailyTasksModule {
   private constructor() {}
@@ -20,5 +21,9 @@ export default class DailyTasksModule {
 
   static getDailyTaskModel() {
     return mongoose.model(ModelName.DAILY_TASK, DailyTaskSchema);
+  }
+
+  static getStockModel() {
+    return mongoose.model(ModelName.STOCK, StockSchema);
   }
 }

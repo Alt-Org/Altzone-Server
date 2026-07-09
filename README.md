@@ -17,6 +17,12 @@ Teacher pages https://devapi.altzone.fi/teacher (dev branch)
 1. [Swagger on web](https://devapi.altzone.fi/swagger).
 2. [Download latest swagger file version](https://devapi.altzone.fi/swagger-json).
 
+## MQTT notifications
+
+Voting notification topics and payloads are described in
+[Voting MQTT Notifications](doc/voting-mqtt-notifications.md).
+
+
 ## Getting started
 
 ### Install required software

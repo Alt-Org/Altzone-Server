@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
 import { LeaderboardService } from './leaderboard.service';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { ModelName } from '../common/enum/modelName.enum';
@@ -13,6 +13,7 @@ import { PlayerService } from '../player/player.service';
 import { LeaderboardPlayerDto } from './dto/leaderboardPlayer.dto';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import ClanPositionDto from './dto/clanPosition.dto';
+import { Environment } from '../common/enum/environment.enum';
 
 @Controller('leaderboard')
 export class LeaderboardController {
@@ -41,8 +42,12 @@ export class LeaderboardController {
   @NoAuth()
   @UniformResponse(ModelName.PLAYER, LeaderboardPlayerDto)
   @OffsetPaginate(ModelName.PLAYER)
-  async getPlayerLeaderboard(@GetAllQuery() query: IGetAllQuery) {
-    return this.leaderBoardService.getPlayerLeaderboard(query);
+  async getPlayerLeaderboard(
+    @GetAllQuery() query: IGetAllQuery,
+    @Query('environment', new ParseIntPipe({ optional: true }))
+    environment?: Environment,
+  ) {
+    return this.leaderBoardService.getPlayerLeaderboard(query, environment);
   }
 
   /**
@@ -65,8 +70,12 @@ export class LeaderboardController {
   @NoAuth()
   @UniformResponse(ModelName.CLAN, ClanDto)
   @OffsetPaginate(ModelName.CLAN)
-  async getClanLeaderboard(@GetAllQuery() query: IGetAllQuery) {
-    return this.leaderBoardService.getClanLeaderboard(query);
+  async getClanLeaderboard(
+    @GetAllQuery() query: IGetAllQuery,
+    @Query('environment', new ParseIntPipe({ optional: true }))
+    environment?: Environment,
+  ) {
+    return this.leaderBoardService.getClanLeaderboard(query, environment);
   }
 
   /**
@@ -86,6 +95,7 @@ export class LeaderboardController {
   @UniformResponse()
   async getClanPosition(@LoggedUser() user: User) {
     const clanId = await this.playerService.getPlayerClanId(user.player_id);
+
     return this.leaderBoardService.getClanPosition(clanId);
   }
 }

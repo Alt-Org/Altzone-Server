@@ -17,15 +17,14 @@ import {
 import { SEReason } from '../common/service/basicService/SEReason';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ServerTaskName } from './enum/serverTaskName.enum';
-import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
-import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
 import {
   cancelTransaction,
   endTransaction,
   initializeSession,
 } from '../common/function/Transactions';
-import { ClanProgression } from '../rewarder/clanProgression/clanProgression.service';
 import { prizePool } from '../rewarder/const/prizePool';
+import { DailyTaskProgressResult } from './type/dailyTaskProgressResult.type';
+import { DailyTaskProgressService } from './dailyTaskProgress.service';
 
 @Injectable()
 export class DailyTasksService {
@@ -35,9 +34,7 @@ export class DailyTasksService {
     private readonly notifier: DailyTaskNotifier,
     private readonly taskQueue: DailyTaskQueue,
     private readonly taskGenerator: TaskGeneratorService,
-    private readonly playerRewarder: PlayerRewarder,
-    private readonly clanRewarder: ClanRewarder,
-    private readonly clanProgression: ClanProgression,
+    private readonly progressService: DailyTaskProgressService,
   ) {
     this.basicService = new BasicService(model);
     this.modelName = ModelName.DAILY_TASK;
@@ -181,7 +178,7 @@ export class DailyTasksService {
     playerId: string,
     serverTaskName?: ServerTaskName,
     session?: ClientSession,
-  ): Promise<IServiceReturn<DailyTaskDto>> {
+  ): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
     const filter: any = { player_id: playerId };
     if (serverTaskName) {
       filter.type = serverTaskName;
@@ -192,26 +189,39 @@ export class DailyTasksService {
     });
     if (error) return [null, error];
 
-    task.amountLeft--;
+    const previousAmountLeft = task.amountLeft;
+    const completedAmount = Math.min(1, previousAmountLeft);
+    const currentAmountLeft = Math.max(previousAmountLeft - completedAmount, 0);
+    task.amountLeft = currentAmountLeft;
 
-    if (task.amountLeft <= 0) {
-      await this.deleteTask(
+    if (currentAmountLeft <= 0) {
+      const [, deleteErrors] = await this.deleteTask(
         task._id.toString(),
         task.clan_id,
         playerId,
         session,
       );
-      this.notifier.taskCompleted(playerId, task);
+      if (deleteErrors) return [null, deleteErrors];
     } else {
       const [_, updateError] = await this.basicService.updateOne(task, {
         filter,
         session,
       });
       if (updateError) return [null, updateError];
-      this.notifier.taskUpdated(playerId, task);
     }
 
-    return [task, null];
+    return [
+      {
+        status: currentAmountLeft <= 0 ? 'completed' : 'advanced',
+        task,
+        completedByPlayerId: playerId,
+        clanId: task.clan_id.toString(),
+        completedAmount,
+        previousAmountLeft,
+        currentAmountLeft,
+      },
+      null,
+    ];
   }
 
   /**
@@ -283,11 +293,11 @@ export class DailyTasksService {
     playerId: string;
     serverTaskName: ServerTaskName;
     needsClanReward?: boolean;
-  }): Promise<IServiceReturn<DailyTaskDto>> {
+  }): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
-    const [task, updateErrors] = await this.updateTask(
+    const [progressResult, updateErrors] = await this.updateTask(
       payload.playerId,
       payload.serverTaskName,
       session,
@@ -295,32 +305,13 @@ export class DailyTasksService {
 
     if (updateErrors) return cancelTransaction(session, updateErrors);
 
-    if (task.amountLeft <= 0) {
-      const [, playerRewardErrors] =
-        await this.playerRewarder.rewardForPlayerTask(
-          payload.playerId,
-          task.points,
-          session,
-        );
+    const [, progressErrors] = await this.progressService.handleProgress(
+      progressResult,
+      session,
+    );
+    if (progressErrors) return cancelTransaction(session, progressErrors);
 
-      if (playerRewardErrors)
-        return cancelTransaction(session, playerRewardErrors);
-
-      const [updatedClan, clanRewardErrors] =
-        await this.clanRewarder.rewardClanForPlayerTask(
-          task.clan_id,
-          task.points,
-          task.coins,
-          session,
-        );
-      if (clanRewardErrors) return cancelTransaction(session, clanRewardErrors);
-
-      const [, clanProgressionErrors] =
-        await this.clanProgression.handleClanProgression(updatedClan, session);
-      if (clanProgressionErrors)
-        return cancelTransaction(session, clanProgressionErrors);
-    }
-    return endTransaction(session, task);
+    return endTransaction(session, progressResult);
   }
 
   async getRewards() {

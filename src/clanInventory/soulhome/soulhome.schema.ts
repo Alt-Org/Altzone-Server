@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { ModelName } from '../../common/enum/modelName.enum';
+import { Environment } from '../../common/enum/environment.enum';
 
 export type SoulhomeDocument = HydratedDocument<SoulHome>;
 
@@ -12,6 +13,9 @@ export class SoulHome {
 
   @Prop({ type: String, required: true, unique: true })
   clan_id: string;
+
+  @Prop({ type: Number, enum: Environment, required: true })
+  environment: Environment;
 
   @ExtractField()
   _id: string;

@@ -24,6 +24,9 @@ import { TIServiceCreateOneOptions } from '../common/service/basicService/IServi
 import { VotingType } from './enum/VotingType.enum';
 import ClanHelperService from '../clan/utils/clanHelper.service';
 
+type VotingWithNotificationRefs = VotingDto & { FleaMarketItem?: unknown };
+type VotingNotificationSource = StartVotingParams | VotingWithNotificationRefs;
+
 /**
  * Service responsible for managing the voting lifecycle, including item purchases,
  * price changes, and clan governance updates.
@@ -80,10 +83,10 @@ export class VotingService {
 
     if (errors) return [null, errors];
 
-    const { shopItem, fleaMarketItem, setClanRole, voterPlayer } = params;
+    const { voterPlayer } = params;
     this.notifier.newVoting(
       voting,
-      shopItem ?? fleaMarketItem ?? setClanRole,
+      this.buildVotingNotificationEntity(params),
       voterPlayer,
     );
 
@@ -104,12 +107,13 @@ export class VotingService {
     },
     session?: ClientSession,
   ): Promise<[VotingDto, ServiceError[]]> {
-    const votingData = this.buildVotingData({
+    const votingParams = {
       voterPlayer: params.voterPlayer,
       type: VotingType.CLAN_GOVERNANCE_UPDATE,
       clanId: params.clanId,
       governancePayload: params.governancePayload,
-    } as StartVotingParams);
+    } as StartVotingParams;
+    const votingData = this.buildVotingData(votingParams);
 
     const [voting, errors] = await this.basicService.createOne<
       CreateVotingDto,
@@ -121,9 +125,61 @@ export class VotingService {
       return [null, errors];
     }
 
-    this.notifier.newVoting(voting, null, params.voterPlayer);
+    this.notifier.newVoting(
+      voting,
+      this.buildVotingNotificationEntity(votingParams),
+      params.voterPlayer,
+    );
 
     return [voting, null];
+  }
+
+  /**
+   * Builds the entity part of the voting notification payload.
+   * Supports both start params and persisted voting DTOs so new/update/end
+   * notifications describe each voting type consistently.
+   */
+  private buildVotingNotificationEntity(
+    source: VotingNotificationSource,
+  ): unknown {
+    const isStartParams = this.isStartVotingParams(source);
+
+    switch (source.type) {
+      case VotingType.FLEA_MARKET_BUY_ITEM:
+      case VotingType.FLEA_MARKET_SELL_ITEM:
+        return this.buildFleaMarketVotingEntity(source);
+      case VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE:
+        return {
+          fleaMarketItem: this.buildFleaMarketVotingEntity(source),
+          price: isStartParams ? source.newItemPrice : source.price,
+        };
+      case VotingType.SHOP_BUY_ITEM:
+        return {
+          shopItemName: isStartParams ? source.shopItem : source.shopItemName,
+        };
+      case VotingType.SET_CLAN_ROLE:
+        return source.setClanRole;
+      case VotingType.CLAN_GOVERNANCE_UPDATE:
+        return source.governancePayload;
+    }
+  }
+
+  private buildFleaMarketVotingEntity(
+    source: VotingNotificationSource,
+  ): unknown {
+    if (this.isStartVotingParams(source)) return source.fleaMarketItem;
+
+    return (
+      source.FleaMarketItem ?? {
+        fleaMarketItem_id: source.fleaMarketItem_id?.toString(),
+      }
+    );
+  }
+
+  private isStartVotingParams(
+    source: VotingNotificationSource,
+  ): source is StartVotingParams {
+    return 'voterPlayer' in source;
   }
 
   /**
@@ -151,9 +207,32 @@ export class VotingService {
    * @param votingId - The ID of the voting to finalize.
    */
   async finalizeVoting(votingId: string): Promise<void> {
-    await this.basicService.updateOneById(votingId, {
-      endedAt: new Date(),
-    });
+    const endedAt = new Date();
+    const updateResult = await this.votingModel.updateOne(
+      {
+        _id: votingId,
+        $or: [{ endedAt: { $exists: false } }, { endedAt: null }],
+      },
+      {
+        $set: { endedAt },
+      },
+    );
+
+    if (updateResult.modifiedCount === 0) return;
+
+    const [endedVoting, errors] =
+      await this.basicService.readOneById<VotingWithNotificationRefs>(
+        votingId,
+        {
+          includeRefs: [ModelName.FLEA_MARKET_ITEM],
+        },
+      );
+    if (errors || !endedVoting) return;
+
+    this.notifier.votingCompleted(
+      endedVoting,
+      this.buildVotingNotificationEntity(endedVoting),
+    );
   }
 
   /**
@@ -277,7 +356,7 @@ export class VotingService {
    */
   async addVote(votingId: string, choice: Choice, playerId: string) {
     const [voting, errors] = await this.basicService.readOneById(votingId, {
-      includeRefs: [ModelName.PLAYER, ModelName.FLEA_MARKET_ITEM],
+      includeRefs: [ModelName.FLEA_MARKET_ITEM],
     });
     if (errors) throw errors;
 
@@ -294,6 +373,10 @@ export class VotingService {
       throw alreadyVotedError;
     }
 
+    const [voter, voterErrors] =
+      await this.playerService.getPlayerById(playerId);
+    if (voterErrors) throw voterErrors;
+
     const newVote: Vote = { player_id: playerId, choice };
 
     const success = await this.basicService.updateOneById(votingId, {
@@ -305,7 +388,12 @@ export class VotingService {
     // Read the voting again after updating votes.
     // The original `voting` variable does not contain the newly added vote.
     const [updatedVoting] =
-      await this.basicService.readOneById<VotingDto>(votingId);
+      await this.basicService.readOneById<VotingWithNotificationRefs>(
+        votingId,
+        {
+          includeRefs: [ModelName.FLEA_MARKET_ITEM],
+        },
+      );
 
     // IMPORTANT:
     // If the voting has already passed after this vote, finalize it now.
@@ -331,8 +419,8 @@ export class VotingService {
 
     this.notifier.votingUpdated(
       updatedVoting,
-      voting.FleaMarketItem,
-      voting.Player,
+      this.buildVotingNotificationEntity(updatedVoting),
+      voter,
     );
   }
 

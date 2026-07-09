@@ -1,5 +1,6 @@
 import { Player } from '../../../player/schemas/player.schema';
 import { Profile } from '../../../profile/profile.schema';
+import { Environment } from '../../../common/enum/environment.enum';
 
 /**
  * username of the pre-created profile in DB
@@ -28,6 +29,7 @@ export default class LoggedUser {
     password: defaultPassword,
     isSystemAdmin: false,
     isGuest: false,
+    environment: Environment.TEACHING_DEMO,
   };
   private static player: Player & { _id: string } = {
     _id: '',
@@ -41,6 +43,7 @@ export default class LoggedUser {
     parentalAuth: true,
     above13: true,
     clanRole_id: null,
+    environment: LoggedUser.profile.environment,
     carbonFootprint: 0,
     clanCoinsAccumulated: 0,
     playstyle: 'Balanced',
