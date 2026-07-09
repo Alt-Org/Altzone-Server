@@ -107,15 +107,14 @@ describe('StockService.readOneById() test suite', () => {
     let targetItem: any = null;
 
     if (stock) {
-      // 1. Check direct Mongoose virtual field getter
+
       let itemsArray = (stock as any).Item;
 
-      // 2. Fallback to populated virtuals dictionary if hidden internally
       if (!itemsArray && stock['$$populatedVirtuals']) {
         itemsArray = stock['$$populatedVirtuals'].Item;
       }
 
-      // 3. Fallback to full JSON serialization if it's treated as a plain object
+      // 3. Fallback to full JSON serialization here
       if (!itemsArray) {
         const plainStock = JSON.parse(JSON.stringify(stock));
         itemsArray = plainStock.Item || plainStock.item;
@@ -131,7 +130,6 @@ describe('StockService.readOneById() test suite', () => {
 
     expect(targetItem).toBeTruthy();
 
-    // Asserting that the returned database item contains the core values we seeded it with
     expect(JSON.parse(JSON.stringify(targetItem))).toEqual(
       expect.objectContaining({
         _id: existingItem._id.toString(),
