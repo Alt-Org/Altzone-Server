@@ -54,8 +54,9 @@ export class StockDto {
   @Type(() => FleaMarketItemDto)
   @Expose()
   FleaMarketItem: FleaMarketItemDto[];
-   * Environment of the stock
-   */
+   
+  /* Environment of the stock
+  */
   @Expose()
   environment: Environment;
 }

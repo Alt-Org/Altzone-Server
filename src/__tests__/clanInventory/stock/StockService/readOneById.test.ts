@@ -107,7 +107,6 @@ describe('StockService.readOneById() test suite', () => {
     let targetItem: any = null;
 
     if (stock) {
-
       let itemsArray = (stock as any).Item;
 
       if (!itemsArray && stock['$$populatedVirtuals']) {
