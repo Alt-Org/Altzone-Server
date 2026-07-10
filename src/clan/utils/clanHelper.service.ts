@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import {
   getStockDefaultItems,
   getRoomDefaultItems,
@@ -23,7 +23,9 @@ import { Environment } from '../../common/enum/environment.enum';
 @Injectable()
 export default class ClanHelperService {
   constructor(
-    @InjectModel(Clan.name) private readonly clanModel: Model<Clan>,
+    @InjectModel(Clan.name)
+    private readonly clanModel: Model<Clan>, 
+    @Inject(forwardRef(() => StockService))
     private readonly stockService: StockService,
     private readonly soulHomeService: SoulHomeService,
     private readonly roomService: RoomService,
