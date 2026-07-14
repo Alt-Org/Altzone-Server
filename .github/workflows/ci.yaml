@@ -16,28 +16,57 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '25'
+          node-version: '24'
           cache: 'npm'
 
-      - name: Install npm dependencies
-        run: npm install
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Run automation tests (with retry)
+      - name: Run tests (first attempt)
+        id: first_run
+        continue-on-error: true
+        run: npm run test -- --json --outputFile=test-results.json
+
+      - name: Identify failed test suites
+        if: steps.first_run.outcome == 'failure'
+        id: failed_tests
         run: |
-          set +e
-          npm run test:ci
-          FIRST_RESULT=$?
-
-          if [ $FIRST_RESULT -ne 0 ]; then
-            echo "First test run failed, retrying failed tests..."
-            npm run test:ci-retry-failed
-            RETRY_RESULT=$?
-
-            if [ $RETRY_RESULT -ne 0 ]; then
-              echo "Tests failed after retry"
-              exit 1
-            fi
+          if [ ! -f test-results.json ]; then
+            echo "No test results file found, treating as full failure"
+            exit 1
           fi
+          FAILED_SUITES=$(node -e "
+            const results = require('./test-results.json');
+            const failed = results.testResults
+              .filter(suite => suite.status === 'failed')
+              .map(suite => suite.name)
+              .join('\n');
+            console.log(failed);
+          ")
+          if [ -z "$FAILED_SUITES" ]; then
+            echo "No failed suites identified despite failure exit code"
+            exit 1
+          fi
+          echo "Failed test suites:"
+          echo "$FAILED_SUITES"
+          echo "$FAILED_SUITES" > failed-suites.txt
+      - name: Re-run failed test suites individually
+        if: steps.first_run.outcome == 'failure'
+        run: |
+          OVERALL_EXIT=0
+          while IFS= read -r suite; do
+            if [ -n "$suite" ]; then
+              echo ""
+              echo "=== Re-running: $suite ==="
+              if ! npx jest "$suite"; then
+                echo "Still failing: $suite"
+                OVERALL_EXIT=1
+              else
+                echo "Passed on retry: $suite"
+              fi
+            fi
+          done < failed-suites.txt
+          exit $OVERALL_EXIT
 
       # Jenkins had recordCoverage + junit publishing built in.
       # GitHub Actions has no native equivalent — this uploads raw results as
