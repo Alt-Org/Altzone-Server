@@ -52,8 +52,8 @@ export class CreateProfileDto {
   securityAnswer?: string;
 
   /**
-   * Environment mode for the profile (0 = teaching mode, 1 = open mode)
-   * 0 = teaching mode (default), 1 = open mode
+   * Environment mode for the profile (0 = open mode, 1 = teaching mode)
+   * 0 = open mode (default), 1 = teaching mode
    *
    * @example 0
    * @example 1
