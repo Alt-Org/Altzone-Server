@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  test:
+    name: Install & Run Tests
+    runs-on: [self-hosted, api-site]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '25'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Run automation tests (with retry)
+        run: |
+          set +e
+          npm run test:ci
+          FIRST_RESULT=$?
+
+          if [ $FIRST_RESULT -ne 0 ]; then
+            echo "First test run failed, retrying failed tests..."
+            npm run test:ci-retry-failed
+            RETRY_RESULT=$?
+
+            if [ $RETRY_RESULT -ne 0 ]; then
+              echo "Tests failed after retry"
+              exit 1
+            fi
+          fi
+
+      # Jenkins had recordCoverage + junit publishing built in.
+      # GitHub Actions has no native equivalent — this uploads raw results as
+      # artifacts for now. Swap in something like dorny/test-reporter if you
+      # want them rendered in the Actions UI / PR checks.
+#      - name: Upload test results
+#        if: always()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: test-results
+#          path: |
+#            junit.xml
+#            **/cobertura-coverage.xml
+#          if-no-files-found: ignore
+
+#  build-and-push:
+#    name: Build and Push Docker Image
+#    needs: test
+#    if: contains(fromJSON('["main","dev","prod"]'), github.ref_name)
+#    runs-on: [self-hosted, api-site]   # adjust label(s) to match your runner registration
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#
+#      - name: Log in to Docker Hub
+#        uses: docker/login-action@v3
+#        with:
+#          username: ${{ secrets.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+#
+#      - name: Build and push image
+#        uses: docker/build-push-action@v6
+#        with:
+#          context: .
+#          push: true
+#          tags: |
+#            ${{ secrets.IMAGE_NAME_PREFIX }}-api:${{ env.DOCKER_IMAGE_TAG }}
+#            ${{ secrets.IMAGE_NAME_PREFIX }}-api:${{ env.DOCKER_IMAGE_TAG_LATEST }}
+
+#  notify:
+#    name: Notify hosting server
+#    needs: build-and-push
+#    if: contains(fromJSON('["main","dev","prod"]'), github.ref_name)
+#    runs-on: [self-hosted, api-site]   # needs network access to your hosting webhook
+#    steps:
+#      - name: Notify server
+#        env:
+#          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+#          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+#          PAYLOAD: '{"name": "api", "tag": "${{ github.ref_name }}"}'
+#        run: |
+#          SIGNATURE=$(echo "$PAYLOAD" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | sed 's/^.* //')
+#
+#          curl -s -o /dev/null -X POST "$WEBHOOK_URL" \
+#            -H "Content-Type: application/json" \
+#            -H "X-Hub-Signature: sha256=$SIGNATURE" \
+#            -d "$PAYLOAD" \
+#            --insecure
