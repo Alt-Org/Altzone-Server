@@ -76,7 +76,7 @@ export class Game {
   @Prop({ type: Date })
   endedAt?: Date;
 
-  @Prop({ type: String, enum: Environment })
+  @Prop({ type: Number, enum: Environment })
   environment: Environment;
 
   @ExtractField()

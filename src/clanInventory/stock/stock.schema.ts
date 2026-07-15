@@ -23,7 +23,7 @@ export class Stock {
   _id: string;
 
   @Prop({
-    type: String,
+    type: Number,
     enum: Environment,
   })
   environment: Environment;
