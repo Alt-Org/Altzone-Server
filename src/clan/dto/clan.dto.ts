@@ -202,8 +202,8 @@ export class ClanDto {
 
   /**
    * Clan environment
-   * @example Environment.TEACHING_MODE
+   * @example Environment.TEACHING_DEMO
    */
   @Expose()
-  environment: Environment;
+  environment?: Environment;
 }

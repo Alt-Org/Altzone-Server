@@ -52,15 +52,14 @@ export class CreateProfileDto {
   securityAnswer?: string;
 
   /**
-   * Environment mode for the profile (0 = teaching mode, 1 = open mode)
-   * 0 = teaching mode (default), 1 = open mode
+   * Environment mode for the profile
    *
-   * @example 0
-   * @example 1
+   * @example Environment.OPEN_DEMO
    */
   @ApiProperty()
+  @IsOptional()
   @IsEnum(Environment)
-  environment: number;
+  environment?: Environment;
 
   /**
    * Expiration date (```environment``` works as this field's setter)

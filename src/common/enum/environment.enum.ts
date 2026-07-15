@@ -1,6 +1,6 @@
 /**
  * Enum used for identifying the game's environment mode.
- * Game Art Teaching Demo (default) or Open Game Demo for All.
+ * Open Game Demo for testers (default) or Game Art Teaching Demo.
  *
  * This environment flag must be respected across all relevant data:
  * - users / accounts

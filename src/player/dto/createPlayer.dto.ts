@@ -112,12 +112,13 @@ export class CreatePlayerDto {
 
   /**
    * Environment mode linked to the player profile
+   * Note: marked as optional becacuse environment is set in profile controller
    *
    * @example Environment.OPEN_DEMO
    */
-  @Type(() => Number)
+  @IsOptional()
   @IsEnum(Environment)
-  environment: number;
+  environment?: Environment;
 
   /**
    * Statistics for each defense class

@@ -87,7 +87,7 @@ export class CustomCharacterDto {
    * @example Environment.OPEN_DEMO
    */
   @Expose()
-  environment: Environment;
+  environment?: Environment;
 
   /**
    * Player object who owns this custom character
