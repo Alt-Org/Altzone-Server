@@ -56,7 +56,10 @@ describe('LeaderboardService.getClanLeaderboard() test suite', () => {
   it('Should be able to skip leading clans', async () => {
     const query = queryBuilder.setLimit(10).setSkip(2).build();
 
-    const leaders = (await service.getClanLeaderboard(query, 0)) as Clan[];
+    const leaders = (await service.getClanLeaderboard(
+      query,
+      Environment.OPEN_DEMO,
+    )) as Clan[];
 
     expect(leaders).toHaveLength(1);
     expect(leaders[0].name).toBe(clan3.name);
