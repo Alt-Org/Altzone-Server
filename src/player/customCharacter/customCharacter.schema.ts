@@ -39,7 +39,7 @@ export class CustomCharacter {
   })
   player_id: Player | ObjectId | string;
 
-  @Prop({ type: String, enum: Environment, required: true })
+  @Prop({ type: String, enum: Environment })
   environment: Environment;
 
   @ExtractField()
