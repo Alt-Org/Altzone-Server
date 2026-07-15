@@ -91,7 +91,7 @@ export class Clan {
   stall: Stall;
 
   @Prop({
-    type: Number,
+    type: String,
     enum: Environment,
   })
   environment: Environment;

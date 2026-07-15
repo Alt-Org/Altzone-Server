@@ -106,7 +106,7 @@ export class Player {
   emotions?: EmotionDto[];
 
   @Prop({
-    type: Number,
+    type: String,
     enum: Environment,
     ref: ModelName.PROFILE,
   })

@@ -14,7 +14,7 @@ export class SoulHome {
   @Prop({ type: String, required: true, unique: true })
   clan_id: string;
 
-  @Prop({ type: Number, enum: Environment, required: true })
+  @Prop({ type: String, enum: Environment, required: true })
   environment: Environment;
 
   @ExtractField()

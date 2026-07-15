@@ -39,7 +39,7 @@ export class Profile {
   tokenVersion?: number;
 
   @Prop({
-    type: Number,
+    type: String,
     default: Environment.OPEN_DEMO,
     enum: Environment,
   })
