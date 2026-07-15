@@ -2,6 +2,7 @@ import { Expose, Type } from 'class-transformer';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { PlayerDto } from '../../player/dto/player.dto';
 import AddType from '../../common/base/decorator/AddType.decorator';
+import { Environment } from '../../common/enum/environment.enum';
 
 @AddType('ProfileDto')
 export class ProfileDto {
@@ -17,7 +18,7 @@ export class ProfileDto {
   Player: PlayerDto;
 
   @Expose()
-  environment: number;
+  environment?: Environment;
 
   @Expose()
   expiresAt?: Date;

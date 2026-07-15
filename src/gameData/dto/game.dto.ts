@@ -4,6 +4,7 @@ import {
   IsEnum,
   IsMongoId,
   IsNotEmpty,
+  IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Environment } from '../../common/enum/environment.enum';
@@ -90,7 +91,7 @@ export class GameDto {
    *
    * @example Environment.TEACHING_DEMO
    */
-  @Type(() => Number)
+  @IsOptional()
   @IsEnum(Environment)
-  environment: Environment;
+  environment?: Environment;
 }

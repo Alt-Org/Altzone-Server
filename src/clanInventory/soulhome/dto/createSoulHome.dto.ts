@@ -1,4 +1,4 @@
-import { IsEnum, IsMongoId, IsString } from 'class-validator';
+import { IsEnum, IsMongoId, IsOptional, IsString } from 'class-validator';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Environment } from '../../../common/enum/environment.enum';
@@ -27,6 +27,7 @@ export class CreateSoulHomeDto {
    *
    * @example Environment.OPEN_DEMO
    */
+  @IsOptional()
   @IsEnum(Environment)
-  environment: Environment;
+  environment?: Environment;
 }

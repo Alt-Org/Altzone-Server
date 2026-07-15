@@ -5,6 +5,7 @@ import {
   IsEnum,
   IsDate,
   IsNotEmpty,
+  IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Environment } from '../../common/enum/environment.enum';
@@ -43,7 +44,7 @@ export class CreateGameDto {
   @IsNotEmpty()
   endedAt: Date;
 
-  @Type(() => Number)
+  @IsOptional()
   @IsEnum(Environment)
-  environment: Environment;
+  environment?: Environment;
 }

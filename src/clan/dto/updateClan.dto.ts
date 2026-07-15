@@ -191,10 +191,8 @@ export class UpdateClanDto {
 
   /**
    * Environment mode that the clan uses (Teaching Mode or Open Mode)
-   * 0 = teaching mode (default), 1 = open mode
    *
-   * @example 0
-   * @example 1
+   * @example Environment.OPEN_DEMO
    */
   @IsEnum(Environment)
   @IsOptional()

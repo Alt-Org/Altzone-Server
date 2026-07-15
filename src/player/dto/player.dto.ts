@@ -212,9 +212,8 @@ export class PlayerDto {
   /**
    * Environment value linked to player profile
    */
-  @Type(() => Number)
   @Expose()
-  environment: Environment;
+  environment?: Environment;
 
   @Expose()
   @IsOptional()
