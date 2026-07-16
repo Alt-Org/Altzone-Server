@@ -8,7 +8,7 @@ on:
 jobs:
   test:
     name: Install & Run Tests
-    runs-on: [self-hosted, api]
+    runs-on: [self-hosted, gh-runner-common]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -86,7 +86,7 @@ jobs:
 #    name: Build and Push Docker Image
 #    needs: test
 #    if: contains(fromJSON('["main","dev","prod"]'), github.ref_name)
-#    runs-on: [self-hosted, api-site]   # adjust label(s) to match your runner registration
+#    runs-on: [self-hosted, gh-runner-common]   # adjust label(s) to match your runner registration
 #    steps:
 #      - name: Checkout
 #        uses: actions/checkout@v4
@@ -110,7 +110,7 @@ jobs:
 #    name: Notify hosting server
 #    needs: build-and-push
 #    if: contains(fromJSON('["main","dev","prod"]'), github.ref_name)
-#    runs-on: [self-hosted, api-site]   # needs network access to your hosting webhook
+#    runs-on: [self-hosted, gh-runner-common]   # needs network access to your hosting webhook
 #    steps:
 #      - name: Notify server
 #        env:
