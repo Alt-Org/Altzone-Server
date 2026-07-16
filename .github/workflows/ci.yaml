@@ -70,6 +70,7 @@ jobs:
       - name: Test coverage
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
+          skip-step: all
           coverage-file: ./test-results.json
           base-coverage-file: ./test-results.json
 
