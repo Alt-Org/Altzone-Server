@@ -25,18 +25,18 @@ jobs:
       - name: Run tests (first attempt)
         id: first_run
         continue-on-error: true
-        run:  npm test -- --coverage --coverageReporters=json --json --outputFile=report.json
+        run: npm test -- --coverage --coverageReporters=json --json --outputFile=report.json
 
       - name: Identify failed test suites
         if: steps.first_run.outcome == 'failure'
         id: failed_tests
         run: |
-          if [ ! -f report.json ]; then
+          if [ ! -f test-results.json ]; then
             echo "No test results file found, treating as full failure"
             exit 1
           fi
           FAILED_SUITES=$(node -e "
-            const results = require('./report.json');
+            const results = require('./test-results.json');
             const failed = results.testResults
               .filter(suite => suite.status === 'failed')
               .map(suite => suite.name)
@@ -68,35 +68,29 @@ jobs:
           done < failed-suites.txt
           exit $OVERALL_EXIT
 
-      - name: Debug coverage files
+      - name: Publish coverage summary
+        if: always()
         run: |
-          pwd
-          find . -maxdepth 3 -type f | sort 
+          node <<'EOF'
+          const fs = require('fs');
 
-      - name: Inspect coverage
-        run: |
-          echo "Coverage file size:"
-          wc -c coverage/coverage-final.json
-      
-          echo "Number of files:"
-          node -e "
-            const c = require('./coverage/coverage-final.json');
-            console.log(Object.keys(c).length);
-          "
-      
-          echo "First few keys:"
-          node -e "
-            const c = require('./coverage/coverage-final.json');
-            console.log(Object.keys(c).slice(0,5));
-          "
-          cat ./coverage/coverage-final.json
+          const summary = JSON.parse(
+            fs.readFileSync('./coverage/coverage-summary.json', 'utf8')
+          ).total;
 
-      - name: Test coverage
-        uses: ArtiomTr/jest-coverage-report-action@v2
-        with:
-          skip-step: all
-          coverage-file: ./coverage/coverage-final.json
-          base-coverage-file: ./coverage/coverage-final.json
+          const md = `
+          ## Test Coverage
+
+          | Metric | Coverage |
+          | ------ | -------: |
+          | Statements | ${summary.statements.pct}% |
+          | Branches | ${summary.branches.pct}% |
+          | Functions | ${summary.functions.pct}% |
+          | Lines | ${summary.lines.pct}% |
+          `;
+
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+          EOF
 
       # Jenkins had recordCoverage + junit publishing built in.
       # GitHub Actions has no native equivalent — this uploads raw results as
