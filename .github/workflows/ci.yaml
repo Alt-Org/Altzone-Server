@@ -73,6 +73,24 @@ jobs:
           pwd
           find . -maxdepth 3 -type f | sort 
 
+      - name: Inspect coverage
+        run: |
+          echo "Coverage file size:"
+          wc -c coverage/coverage-final.json
+      
+          echo "Number of files:"
+          node -e "
+            const c = require('./coverage/coverage-final.json');
+            console.log(Object.keys(c).length);
+          "
+      
+          echo "First few keys:"
+          node -e "
+            const c = require('./coverage/coverage-final.json');
+            console.log(Object.keys(c).slice(0,5));
+          "
+          cat ./coverage/coverage-final.json
+
       - name: Test coverage
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
