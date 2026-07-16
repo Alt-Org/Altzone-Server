@@ -71,8 +71,8 @@ jobs:
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
           skip-step: all
-          coverage-file: ./coverage/report.json
-          base-coverage-file: ./coverage/report.json
+          coverage-file: ./coverage/coverage-final.json
+          base-coverage-file: ./coverage/coverage-final.json
 
       # Jenkins had recordCoverage + junit publishing built in.
       # GitHub Actions has no native equivalent — this uploads raw results as
