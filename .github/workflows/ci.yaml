@@ -67,6 +67,12 @@ jobs:
             fi
           done < failed-suites.txt
           exit $OVERALL_EXIT
+
+      - name: Debug coverage files
+        run: |
+          pwd
+          find . -maxdepth 3 -type f | sort 
+
       - name: Test coverage
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
