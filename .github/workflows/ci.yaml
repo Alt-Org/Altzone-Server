@@ -31,12 +31,12 @@ jobs:
         if: steps.first_run.outcome == 'failure'
         id: failed_tests
         run: |
-          if [ ! -f test-results.json ]; then
+          if [ ! -f report.json ]; then
             echo "No test results file found, treating as full failure"
             exit 1
           fi
           FAILED_SUITES=$(node -e "
-            const results = require('./test-results.json');
+            const results = require('./report.json');
             const failed = results.testResults
               .filter(suite => suite.status === 'failed')
               .map(suite => suite.name)
@@ -71,8 +71,8 @@ jobs:
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
           skip-step: all
-          coverage-file: ./test-results.json
-          base-coverage-file: ./test-results.json
+          coverage-file: ./report.json
+          base-coverage-file: ./report.json
 
       # Jenkins had recordCoverage + junit publishing built in.
       # GitHub Actions has no native equivalent — this uploads raw results as
