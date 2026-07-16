@@ -67,6 +67,8 @@ jobs:
             fi
           done < failed-suites.txt
           exit $OVERALL_EXIT
+      - name: Test coverage
+        uses: ArtiomTr/jest-coverage-report-action@v2
 
       # Jenkins had recordCoverage + junit publishing built in.
       # GitHub Actions has no native equivalent — this uploads raw results as
