@@ -71,6 +71,7 @@ jobs:
         uses: ArtiomTr/jest-coverage-report-action@v2
         with:
           coverage-file: ./test-results.json
+          base-coverage-file: ./test-results.json
 
       # Jenkins had recordCoverage + junit publishing built in.
       # GitHub Actions has no native equivalent — this uploads raw results as
