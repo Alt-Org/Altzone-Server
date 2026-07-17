@@ -108,8 +108,12 @@ export class StockService {
       : [[]];
 
     const [fleaMarketItems] = fleaMarketResult || [[]];
+    const stockObject =
+      typeof stock['toObject'] === 'function' ? stock['toObject']() : stock;
 
-    return [{ ...stock, FleaMarketItem: fleaMarketItems ?? [] }, null];
+    if (options?.select) return [stockObject, null];
+
+    return [{ ...stockObject, FleaMarketItem: fleaMarketItems ?? [] }, null];
   }
 
   /**
