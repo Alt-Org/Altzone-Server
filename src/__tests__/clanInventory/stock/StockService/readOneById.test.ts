@@ -58,8 +58,7 @@ describe('StockService.readOneById() test suite', () => {
     const clearedStock = clearDBRespDefaultFields(stock);
 
     expect(errors).toBeNull();
-    const actualStock1 = (clearedStock as any)._doc || clearedStock;
-    expect(JSON.parse(JSON.stringify(actualStock1))).toEqual(
+    expect(JSON.parse(JSON.stringify(clearedStock))).toEqual(
       expect.objectContaining(JSON.parse(JSON.stringify(existingStock))),
     );
   });
@@ -75,10 +74,19 @@ describe('StockService.readOneById() test suite', () => {
       cellCount: existingStock.cellCount,
     };
 
-    const actualStock2 = (clearedStock as any)._doc || clearedStock;
-    expect(JSON.parse(JSON.stringify(actualStock2))).toEqual(
+    expect(errors).toBeNull();
+    expect(JSON.parse(JSON.stringify(clearedStock))).toEqual(
       JSON.parse(JSON.stringify(expected)),
     );
+  });
+
+  it('Should not expose Mongoose document internals', async () => {
+    const [stock, errors] = await stockService.readOneById(existingStock._id);
+
+    expect(errors).toBeNull();
+    expect(stock).not.toHaveProperty('$__');
+    expect(stock).not.toHaveProperty('$isNew');
+    expect(stock).not.toHaveProperty('_doc');
   });
 
   it('Should return NOT_FOUND SError for non-existing stock', async () => {
