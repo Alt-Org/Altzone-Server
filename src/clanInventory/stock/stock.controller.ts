@@ -1,12 +1,11 @@
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { StockService } from './stock.service';
 import { StockDto } from './dto/stock.dto';
-import { publicReferences } from './stock.schema';
+import { ItemDto } from '../item/dto/item.dto';
 import { User } from '../../auth/user';
 import { Authorize } from '../../authorization/decorator/Authorize';
 import { Action } from '../../authorization/enum/action.enum';
 import { GetAllQuery } from '../../common/decorator/param/GetAllQuery';
-import { IncludeQuery } from '../../common/decorator/param/IncludeQuery.decorator';
 import { LoggedUser } from '../../common/decorator/param/LoggedUser.decorator';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
 import { _idDto } from '../../common/dto/_id.dto';
@@ -23,27 +22,23 @@ export class StockController {
   public constructor(private readonly service: StockService) {}
 
   /**
-   * Get stock by _id
-   * @remarks Returns the Stock document with the given _id. Includes both the
-   * clan's active stock items (under `Item`) and FleaMarketItems currently in the
-   * sell lifecycle (under `FleaMarketItem`). Consolidates the complete view of
-   * clan furniture into a single decoupled request.
+   * Get stock items by Stock _id
+   *
+   * @remarks Returns the list of Items currently stored in the Stock with the given _id.
    */
   @ApiResponseDescription({
     success: {
-      dto: StockDto,
-      modelName: ModelName.STOCK,
+      dto: ItemDto,
+      modelName: ModelName.ITEM,
+      returnsArray: true,
     },
     errors: [400, 401, 404],
   })
   @Get('/:_id')
   @Authorize({ action: Action.read, subject: StockDto })
-  @UniformResponse(ModelName.STOCK)
-  public get(
-    @Param() param: _idDto,
-    @IncludeQuery(publicReferences) includeRefs: ModelName[],
-  ) {
-    return this.service.readOneById(param._id, { includeRefs });
+  @UniformResponse(ModelName.ITEM)
+  public get(@Param() param: _idDto) {
+    return this.service.readItemsByStockId(param._id);
   }
 
   /**
