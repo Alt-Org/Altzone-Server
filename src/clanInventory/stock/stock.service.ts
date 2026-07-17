@@ -5,6 +5,7 @@ import { Stock } from './stock.schema';
 import { CreateStockDto } from './dto/createStock.dto';
 import { UpdateStockDto } from './dto/updateStock.dto';
 import { StockDto } from './dto/stock.dto';
+import { Player } from '../../player/schemas/player.schema';
 import { ItemService } from '../item/item.service';
 import { ModelName } from '../../common/enum/modelName.enum';
 import BasicService from '../../common/service/basicService/BasicService';
@@ -24,6 +25,7 @@ import { ClanDto } from '../../clan/dto/clan.dto';
 export class StockService {
   public constructor(
     @InjectModel(Stock.name) public readonly model: Model<Stock>,
+    @InjectModel(ModelName.PLAYER) private readonly playerModel: Model<Player>,
     private readonly itemService: ItemService,
     @Inject(forwardRef(() => FleaMarketService))
     @Optional()
@@ -106,10 +108,41 @@ export class StockService {
       : [[]];
 
     const [fleaMarketItems] = fleaMarketResult || [[]];
+    const stockObject =
+      typeof stock['toObject'] === 'function' ? stock['toObject']() : stock;
 
-    return [{ ...stock, FleaMarketItem: fleaMarketItems ?? [] }, null];
+    if (options?.select) return [stockObject, null];
+
+    return [{ ...stockObject, FleaMarketItem: fleaMarketItems ?? [] }, null];
   }
 
+  /**
+   * Reads all Items stored in the specified Stock.
+   *
+   * @param _id Stock _id.
+   * @returns Item array if Stock exists, empty array if Stock has no Items, or ServiceErrors if Stock was not found.
+   */
+  async readItemsByStockId(_id: string) {
+    const [, stockErrors] = await this.basicService.readOneById<StockDto>(_id, {
+      select: ['_id'],
+    });
+    if (stockErrors) return [null, stockErrors];
+
+    const [items, itemErrors] = await this.itemService.readMany({
+      filter: { stock_id: _id },
+    });
+
+    if (itemErrors) {
+      const onlyNotFound = itemErrors.every(
+        (error) => error.reason === SEReason.NOT_FOUND,
+      );
+      if (onlyNotFound) return [[], null];
+
+      return [null, itemErrors];
+    }
+
+    return [items, null];
+  }
   /**
    * Reads Stocks by specified options from DB.
    *
@@ -118,7 +151,7 @@ export class StockService {
    * @returns An array of Stocks if succeed or an array of ServiceErrors if any occurred.
    */
   async readAll(options?: TIServiceReadManyOptions, environment?: Environment) {
-    const optionsToApply = options;
+    const optionsToApply = { ...(options ?? {}) };
 
     if (options?.includeRefs) {
       optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
@@ -126,13 +159,65 @@ export class StockService {
       );
     }
 
-    optionsToApply.filter = environment
-      ? {
-          ...(options?.filter || { environment: environment }),
-        }
-      : {};
+    optionsToApply.filter = {
+      ...(options?.filter ?? {}),
+      ...(environment !== undefined ? { environment } : {}),
+    };
 
     return this.basicService.readMany<StockDto>(optionsToApply);
+  }
+
+  /**
+   * Reads all Stocks of the Clan the Player belongs to.
+   *
+   * @param player_id Mongo _id of the Player.
+   * @param options Options for reading Stocks.
+   * @param environment Environment of the stocks.
+   * @returns An array of Clan Stocks if succeeded or an array of ServiceErrors if error occurred.
+   */
+  async readPlayerClanStocks(
+    player_id: string,
+    options?: TIServiceReadManyOptions,
+    environment?: Environment,
+  ) {
+    const player = await this.playerModel.findById(player_id);
+
+    if (!player) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'player_id',
+            value: player_id,
+            message: 'Could not find any Player with this _id',
+          }),
+        ],
+      ];
+    }
+
+    const { clan_id } = player;
+    if (!clan_id) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'clan_id',
+            value: clan_id,
+            message: 'The Player is not in any Clan',
+          }),
+        ],
+      ];
+    }
+
+    return this.readAll(
+      {
+        ...(options ?? {}),
+        filter: { ...(options?.filter ?? {}), clan_id },
+      },
+      environment,
+    );
   }
 
   /**

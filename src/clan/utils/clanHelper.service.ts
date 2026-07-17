@@ -24,7 +24,7 @@ import { Environment } from '../../common/enum/environment.enum';
 export default class ClanHelperService {
   constructor(
     @InjectModel(Clan.name)
-    private readonly clanModel: Model<Clan>, 
+    private readonly clanModel: Model<Clan>,
     @Inject(forwardRef(() => StockService))
     private readonly stockService: StockService,
     private readonly soulHomeService: SoulHomeService,
