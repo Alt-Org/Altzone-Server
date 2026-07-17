@@ -89,6 +89,43 @@ describe('StockService.readOneById() test suite', () => {
     expect(stock).not.toHaveProperty('_doc');
   });
 
+  it('Should return Items stored in Stock', async () => {
+    const [items, errors] = await stockService.readItemsByStockId(
+      existingStock._id,
+    );
+
+    const clearedItems = clearDBRespDefaultFields(items);
+
+    expect(errors).toBeNull();
+    expect(clearedItems).toHaveLength(1);
+    expect(JSON.parse(JSON.stringify(clearedItems[0]))).toEqual(
+      expect.objectContaining({
+        _id: existingItem._id.toString(),
+        name: existingItem.name,
+        stock_id: existingItem.stock_id.toString(),
+      }),
+    );
+  });
+
+  it('Should return an empty Item list if Stock has no Items', async () => {
+    const emptyStock = stockBuilder.setClanId(clan_id).build();
+    const emptyStockResp = await stockModel.create(emptyStock);
+
+    const [items, errors] = await stockService.readItemsByStockId(
+      emptyStockResp._id.toString(),
+    );
+
+    expect(errors).toBeNull();
+    expect(items).toEqual([]);
+  });
+
+  it('Should return NOT_FOUND SError when reading Items for non-existing Stock', async () => {
+    const [items, errors] =
+      await stockService.readItemsByStockId(getNonExisting_id());
+
+    expect(items).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
+  });
   it('Should return NOT_FOUND SError for non-existing stock', async () => {
     const [stock, errors] = await stockService.readOneById(getNonExisting_id());
 
