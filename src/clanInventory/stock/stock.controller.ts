@@ -2,10 +2,12 @@ import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { StockService } from './stock.service';
 import { StockDto } from './dto/stock.dto';
 import { publicReferences } from './stock.schema';
+import { User } from '../../auth/user';
 import { Authorize } from '../../authorization/decorator/Authorize';
 import { Action } from '../../authorization/enum/action.enum';
 import { GetAllQuery } from '../../common/decorator/param/GetAllQuery';
 import { IncludeQuery } from '../../common/decorator/param/IncludeQuery.decorator';
+import { LoggedUser } from '../../common/decorator/param/LoggedUser.decorator';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
 import { _idDto } from '../../common/dto/_id.dto';
 import { ModelName } from '../../common/enum/modelName.enum';
@@ -45,9 +47,9 @@ export class StockController {
   }
 
   /**
-   * Get all stocks
+   * Get logged-in player's Clan stocks
    *
-   * @remarks Read all created Stocks of all Clans. Remember about the pagination
+   * @remarks Read all created Stocks of the Clan the logged-in Player belongs to.
    */
   @ApiResponseDescription({
     success: {
@@ -65,9 +67,14 @@ export class StockController {
   @UniformResponse(ModelName.STOCK)
   public getAll(
     @GetAllQuery() query: IGetAllQuery,
+    @LoggedUser() user: User,
     @Query('environment', new ParseIntPipe({ optional: true }))
     environment?: Environment,
   ) {
-    return this.service.readAll(query, environment);
+    return this.service.readPlayerClanStocks(
+      user.player_id,
+      query,
+      environment,
+    );
   }
 }
