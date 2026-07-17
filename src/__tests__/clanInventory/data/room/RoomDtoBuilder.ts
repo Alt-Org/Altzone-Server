@@ -4,10 +4,8 @@ import { RoomDto } from '../../../../clanInventory/room/dto/room.dto';
 export default class RoomDtoBuilder {
   private readonly base: Partial<RoomDto> = {
     _id: new ObjectId().toString(),
-    floorType: undefined,
-    wallType: undefined,
-    hasLift: undefined,
-    cellCount: undefined,
+    floor: undefined,
+    wallpaper: undefined,
   };
 
   build(): RoomDto {
@@ -19,23 +17,13 @@ export default class RoomDtoBuilder {
     return this;
   }
 
-  setFloorType(floorType: string) {
-    this.base.floorType = floorType;
+  setFloor(floor: string) {
+    this.base.floor = floor;
     return this;
   }
 
-  setWallType(wallType: string) {
-    this.base.wallType = wallType;
-    return this;
-  }
-
-  setHasLift(hasLift: boolean) {
-    this.base.hasLift = hasLift;
-    return this;
-  }
-
-  setCellCount(cellCount: number) {
-    this.base.cellCount = cellCount;
+  setWallpaper(wallpaper: string) {
+    this.base.wallpaper = wallpaper;
     return this;
   }
 }

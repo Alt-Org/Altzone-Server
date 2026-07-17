@@ -18,11 +18,10 @@ export function getStockDefaultItems(stock_id: string): CreateItemDto[] {
       room_id: null,
       unityKey: ItemName.CARPET_RAKKAUS,
       location: [-1, -1],
-      furnitureSize: null,
-      rotation: null,
-      position: null,
+      rotation: ItemRotation.FRONT,
+      position: ItemPosition.FLOOR,
       placedOn_id: null,
-      placedOnLocation: null
+      placedOnLocation: [-1, -1]
     },
     {
       ...itemProperties.Mirror_Rakkaus,
@@ -30,11 +29,10 @@ export function getStockDefaultItems(stock_id: string): CreateItemDto[] {
       room_id: null,
       unityKey: ItemName.MIRROR_RAKKAUS,
       location: [-1, -1],
-      furnitureSize: null,
-      rotation: null,
-      position: null,
+      rotation: ItemRotation.FRONT,
+      position: ItemPosition.FLOOR,
       placedOn_id: null,
-      placedOnLocation: null
+      placedOnLocation: [-1, -1]
     },
     {
       ...itemProperties.Closet_Rakkaus,
@@ -42,11 +40,10 @@ export function getStockDefaultItems(stock_id: string): CreateItemDto[] {
       room_id: null,
       unityKey: ItemName.CLOSET_RAKKAUS,
       location: [-1, -1],
-      furnitureSize: null,
-      rotation: null,
-      position: null,
+      rotation: ItemRotation.FRONT,
+      position: ItemPosition.FLOOR,
       placedOn_id: null,
-      placedOnLocation: null
+      placedOnLocation: [-1, -1]
     },
   ];
 }
@@ -65,11 +62,10 @@ export function getRoomDefaultItems(room_id: string): CreateItemDto[] {
       room_id,
       unityKey: ItemName.SOFA_RAKKAUS,
       location: [1, 1],
-      furnitureSize: null,
       rotation: ItemRotation.FRONT,
       position: ItemPosition.FLOOR,
       placedOn_id: null,
-      placedOnLocation: null
+      placedOnLocation: [-1, -1]
     },
     {
       ...itemProperties.ArmChair_Rakkaus,
@@ -77,11 +73,10 @@ export function getRoomDefaultItems(room_id: string): CreateItemDto[] {
       room_id,
       unityKey: ItemName.ARMCHAIR_RAKKAUS,
       location: [1, 2],
-      furnitureSize: null,
       rotation: ItemRotation.FRONT,
       position: ItemPosition.FLOOR,
       placedOn_id: null,
-      placedOnLocation: null
+      placedOnLocation: [-1, -1]
     },
     {
       ...itemProperties.Lamp_Rakkaus,
@@ -89,11 +84,10 @@ export function getRoomDefaultItems(room_id: string): CreateItemDto[] {
       room_id,
       unityKey: ItemName.LAMP_RAKKAUS,
       location: [1, 3],
-      furnitureSize: null,
       rotation: ItemRotation.FRONT,
       position: ItemPosition.FLOOR,
       placedOn_id: null,
-      placedOnLocation: null
+      placedOnLocation: [-1, -1]
     },
     {
       ...itemProperties.Diningtable_Rakkaus,
@@ -101,11 +95,10 @@ export function getRoomDefaultItems(room_id: string): CreateItemDto[] {
       room_id,
       unityKey: ItemName.DININGTABLE_RAKKAUS,
       location: [1, 4],
-      furnitureSize: null,
       rotation: ItemRotation.FRONT,
       position: ItemPosition.FLOOR,
       placedOn_id: null,
-      placedOnLocation: null
+      placedOnLocation: [-1, -1]
     },
     {
       ...itemProperties.SofaTable_Rakkaus,
@@ -113,11 +106,10 @@ export function getRoomDefaultItems(room_id: string): CreateItemDto[] {
       room_id,
       unityKey: ItemName.SOFATABLE_RAKKAUS,
       location: [1, 5],
-      furnitureSize: null,
       rotation: ItemRotation.FRONT,
       position: ItemPosition.FLOOR,
       placedOn_id: null,
-      placedOnLocation: null
+      placedOnLocation: [-1, -1]
     },
     {
       ...itemProperties.Bed_Rakkaus,
@@ -125,11 +117,10 @@ export function getRoomDefaultItems(room_id: string): CreateItemDto[] {
       room_id,
       unityKey: ItemName.BED_RAKKAUS,
       location: [1, 6],
-      furnitureSize: null,
       rotation: ItemRotation.FRONT,
       position: ItemPosition.FLOOR,
       placedOn_id: null,
-      placedOnLocation: null
+      placedOnLocation: [-1, -1]
     },
   ];
 }

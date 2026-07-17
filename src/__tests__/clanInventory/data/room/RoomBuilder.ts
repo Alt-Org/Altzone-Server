@@ -1,14 +1,13 @@
+import { RoomStatus } from '../../../../clanInventory/room/enum/roomStatus.enum';
 import { Room } from '../../../../clanInventory/room/room.schema';
 
 export default class RoomBuilder {
   private readonly base: Partial<Room> = {
-    floorType: 'defaultFloor',
-    wallType: 'defaultWall',
-    deactivationTimestamp: null,
-    cellCount: 10,
-    hasLift: false,
+    floor: 'defaultFloor',
+    wallpaper: 'defaultWall',
+    deactivationTime: null,
     soulHome_id: undefined,
-    isActive: false,
+    roomStatus: RoomStatus.ACTIVE,
     _id: undefined,
   };
 
@@ -16,28 +15,18 @@ export default class RoomBuilder {
     return { ...this.base } as Room;
   }
 
-  setFloorType(floorType: string) {
-    this.base.floorType = floorType;
+  setFloor(floor: string) {
+    this.base.floor = floor;
     return this;
   }
 
-  setWallType(wallType: string) {
-    this.base.wallType = wallType;
+  setWallpaper(wallpaper: string) {
+    this.base.wallpaper = wallpaper;
     return this;
   }
 
-  setDeactivationTimestamp(timestamp: number) {
-    this.base.deactivationTimestamp = timestamp;
-    return this;
-  }
-
-  setCellCount(cellCount: number) {
-    this.base.cellCount = cellCount;
-    return this;
-  }
-
-  setHasLift(hasLift: boolean) {
-    this.base.hasLift = hasLift;
+  setDeactivationTime(time: Date) {
+    this.base.deactivationTime = time;
     return this;
   }
 
@@ -46,8 +35,8 @@ export default class RoomBuilder {
     return this;
   }
 
-  setIsActive(isActive: boolean) {
-    this.base.isActive = isActive;
+  setRoomStatus(status: RoomStatus) {
+    this.base.roomStatus = status;
     return this;
   }
 

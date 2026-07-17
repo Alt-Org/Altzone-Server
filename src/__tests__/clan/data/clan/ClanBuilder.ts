@@ -42,6 +42,7 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
       },
       maxSlots: 7,
     },
+    furnitureTotalValue: 0
   };
 
   // Returns a new Clan object with the current base properties

@@ -2,10 +2,8 @@ import { CreateRoomDto } from '../../../../clanInventory/room/dto/createRoom.dto
 
 export default class CreateRoomDtoBuilder {
   private readonly base: Partial<CreateRoomDto> = {
-    floorType: 'defaultFloor',
-    wallType: 'defaultWall',
-    hasLift: false,
-    cellCount: 10,
+    floor: 'defaultFloor',
+    wallpaper: 'defaultWall',
     soulHome_id: undefined,
   };
 
@@ -13,23 +11,13 @@ export default class CreateRoomDtoBuilder {
     return { ...this.base } as CreateRoomDto;
   }
 
-  setFloorType(floorType: string) {
-    this.base.floorType = floorType;
+  setFloor(floor: string) {
+    this.base.floor = floor;
     return this;
   }
 
-  setWallType(wallType: string) {
-    this.base.wallType = wallType;
-    return this;
-  }
-
-  setHasLift(hasLift: boolean) {
-    this.base.hasLift = hasLift;
-    return this;
-  }
-
-  setCellCount(cellCount: number) {
-    this.base.cellCount = cellCount;
+  setWallpaper(wallpaper: string) {
+    this.base.wallpaper = wallpaper;
     return this;
   }
 

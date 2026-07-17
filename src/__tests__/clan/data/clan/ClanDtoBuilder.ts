@@ -33,6 +33,7 @@ export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
     language: Language.NONE,
     roles: [],
     stall: new Stall(),
+    furnitureTotalValue: 0
   };
 
   // Returns a new Clan object with the current base properties

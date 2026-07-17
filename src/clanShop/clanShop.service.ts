@@ -25,6 +25,8 @@ import {
 } from '../common/function/Transactions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { IServiceReturn } from '../common/service/basicService/IService';
+import { ItemRotation } from '../clanInventory/item/enum/itemRotation.enum';
+import { ItemPosition } from '../clanInventory/item/enum/itemPosition.enum';
 
 @Injectable()
 export class ClanShopService {
@@ -229,6 +231,11 @@ export class ClanShopService {
       unityKey: item.name,
       stock_id: stockId,
       room_id: null,
+      furnitureSize: null,
+      rotation: ItemRotation.FRONT,
+      position: ItemPosition.FLOOR,
+      placedOn_id: null,
+      placedOnLocation: null
     };
   }
 }

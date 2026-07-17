@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ClanSchema } from './clan.schema';
 import { ClanController } from './clan.controller';
@@ -27,7 +27,7 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
       { name: ModelName.CLAN, schema: ClanSchema },
       { name: ModelName.PLAYER, schema: PlayerSchema },
     ]),
-    ClanInventoryModule,
+    forwardRef(() => ClanInventoryModule),
     RequestHelperModule,
     PlayerModule,
     GameEventsEmitterModule,

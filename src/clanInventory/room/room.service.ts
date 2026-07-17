@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Model, ClientSession, Connection } from 'mongoose';
 import { Room } from './room.schema';
@@ -20,7 +20,7 @@ import {
   IServiceReturn,
 } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
-import { cancelTransaction, initializeSession } from '../../common/function/Transactions';
+import { cancelTransaction, endTransaction, initializeSession } from '../../common/function/Transactions';
 import { DefaultRoom } from './const/roomConst';
 import { SoulHomeService } from '../soulhome/soulhome.service';
 import { RoomStatus } from './enum/roomStatus.enum';
@@ -34,7 +34,9 @@ export class RoomService {
     @InjectModel(Room.name) public readonly model: Model<Room>,
     private readonly roomHelper: RoomHelperService,
     private readonly itemService: ItemService,
+    @Inject(forwardRef(() => SoulHomeService))
     private readonly soulHomeService: SoulHomeService,
+    @Inject(forwardRef(() => ClanService))
     private readonly clanService: ClanService,
     private readonly stockService: StockService,
     @InjectConnection() private readonly connection: Connection,
@@ -254,7 +256,7 @@ export class RoomService {
     const roomBulk = [];
     const itemBulk = [];
     const roomIds = rooms.map(room => room._id);
-    const itemIds = rooms.flatMap(room => room.furniture.map(l => l._id))
+    const itemIds = rooms.flatMap(room => room.furniture.map(item => item._id));
 
     try {
       for (const room of rooms) {
@@ -269,11 +271,12 @@ export class RoomService {
 
         for (const item of furniture) {
           const { _id, ...itemFields } = item;
+          const itemFieldsFull = {  room_id: room._id, stock_id: null, ...itemFields }
 
           itemBulk.push({
             updateOne: {
               filter: { _id },
-              update: { $set:  itemFields }
+              update: { $set:  itemFieldsFull }
             }
           });
         }
@@ -292,7 +295,7 @@ export class RoomService {
       if (soulHomeErrors) return cancelTransaction(session, soulHomeErrors);
 
       const [stock, stockErrors] = await this.stockService.basicService.readOne({
-        filter: { _id: soulHome.clan_id },
+        filter: { clan_id: soulHome.clan_id },
         session
       });
       if (stockErrors) return cancelTransaction(session, stockErrors);
@@ -306,10 +309,10 @@ export class RoomService {
         session
       });
 
-      if (currentItems.length) {
+      if (currentItems) {
         const updatedSet = new Set(itemIds);
-        const removedItemIds = currentItems.filter(id => !updatedSet.has(id));
-        
+        const removedItemIds = 
+          currentItems.filter(item => !updatedSet.has(item._id.toString())).map(item => item._id);
         if (removedItemIds.length)
           itemBulk.push({
             updateMany: {
@@ -320,6 +323,9 @@ export class RoomService {
               },
               update: {
                 $set: {
+                  location: [-1, -1],
+                  placedOn_id: null,
+                  placedOnLocation: [-1, -1],
                   room_id: null,
                   stock_id: stock._id
                 }
@@ -352,17 +358,14 @@ export class RoomService {
 
       const allRoomIds = shRooms.map(room => room._id);
 
-      const [items, itemsErrors] = await this.itemService.basicService.readMany({
+      const [items,] = await this.itemService.basicService.readMany({
         filter: { 
-          room_id: { 
-            $in: { allRoomIds } 
-          } 
+          room_id: { $in: allRoomIds } 
         },
         session
       });
-      if (itemsErrors) return cancelTransaction(session, itemsErrors);
 
-      const value = items.reduce((sum, current) => sum + current.price, 0);
+      const value = items ? items.reduce((sum, current) => sum + current.price, 0) : 0;
 
       const [, clanUpdateErrors] = await this.clanService.basicService.updateOneById(
         soulHome.clan_id,
@@ -373,11 +376,11 @@ export class RoomService {
       );
       if (clanUpdateErrors) return cancelTransaction(session, clanUpdateErrors);
 
+      await endTransaction(session);
+
       return [true, null];
     } catch (error) {
       console.error('Room update failed', error);
-    } finally {
-      session.endSession();
     }
   }
 
@@ -398,16 +401,14 @@ export class RoomService {
     }); 
     if (soulHomeErrors) return [null, soulHomeErrors];
 
-    const [room, roomErrors] = await this.basicService.readOne({ 
-      filter: { soulHome_id: soulHome._id }, 
-      sort: { roomPosition: -1 },
+    const position = await this.getRoomPosition(
+      soulHome._id, 
       session
-    });
-    if (roomErrors) return [null, roomErrors];
+    );
 
-    const position = room ? room.roomPosition + 1 : 1; 
+    const roomPosition = position ? position + 1 : 1; 
     const defaultRoom: CreateRoomDto = { 
-      roomPosition: position, 
+      roomPosition: roomPosition, 
       ...DefaultRoom, 
       soulHome_id: soulHome._id 
     };
@@ -416,11 +417,32 @@ export class RoomService {
   }
 
   /**
+   * Get roomPosition of new Room
+   * 
+   * @param soulHome_id - Id of the SoulHome
+   * @param session - ClientSession
+   * @returns Room or null
+   */
+  async getRoomPosition(
+    soulHome_id: string, 
+    session: ClientSession
+  ): Promise<number> {
+    const [room,] = await this.basicService.readOne({ 
+      filter: { soulHome_id: soulHome_id }, 
+      sort: { roomPosition: -1 },
+      session
+    });
+    return room?.roomPosition;
+  }
+
+  /**
    * Deactivate the last Room in Clan SoulHome
+   * 
+   * If no Room with roomStatus, looks for old Room to convert to new Room
    * 
    * @param clan_id - Id of the Clan the Room belongs to
    * @param session - ClientSession
-   * @returns If errors, Errors
+   * @returns True, if errors, Errors
    */
   async deactivateRoom(
     clan_id: string,
@@ -434,7 +456,7 @@ export class RoomService {
 
     const now = new Date();
 
-    const [, roomErrors] = await this.basicService.findOneAndUpdate(
+    const [updatedRoom,] = await this.basicService.findOneAndUpdate(
       { 
         $set: { 
           deactivationTime: now,
@@ -450,7 +472,32 @@ export class RoomService {
         session
       }
     );
-    if (roomErrors) return [null, roomErrors];
+
+    if (!updatedRoom) {
+      const [oldRoom, oldRoomErrors] = await this.basicService.readOne({ 
+        filter: { soulHome_id: soulHome._id, roomPosition: null },
+        session
+      });
+      if (oldRoomErrors) return [null, oldRoomErrors];
+
+      const position = await this.getRoomPosition(soulHome._id, session) + 1 || 1;
+      const [, updatedRoomErrors] = await this.basicService.updateOneById(
+        oldRoom._id,
+        {
+          $set: {
+            roomPosition: position,
+            roomColour: 'default',
+            wallpaper: 'default',
+            floor: 'default',
+            deactivationTime: now,
+            roomStatus: RoomStatus.INACTIVE
+          },
+        },
+        { session }
+      );
+      if (updatedRoomErrors) return [null, updatedRoomErrors];
+    }
+
     return [true, null];
   }
 }

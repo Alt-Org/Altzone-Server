@@ -76,14 +76,4 @@ export class UpdateItemDto {
   @ArrayMaxSize(2)
   @ApiProperty()
   placedOnLocation: number[];
-
-  /**
-   * Id of Stock Item belongs to
-   */
-  stock_id: string;
-
-  /**
-   * Id of Room Item belongs to
-   */
-  room_id: string;
 }

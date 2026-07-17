@@ -24,7 +24,7 @@ export class Room {
   deactivationTime: Date;
 
   @Prop({ 
-    type: RoomStatus, 
+    type: String, 
     required: true, 
     default: RoomStatus.ACTIVE 
   })

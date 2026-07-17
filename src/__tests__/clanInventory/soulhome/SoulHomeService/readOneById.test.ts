@@ -112,9 +112,6 @@ describe('SoulHomeService.readOneById() test suite', () => {
 
     const clearedRooms = clearDBRespDefaultFields(soulHome.Room);
     expect(clearedRooms).toMatchObject(clearedRooms);
-
-    const clearedClan = clearDBRespDefaultFields(soulHome.Clan);
-    expect(clearedClan).toMatchObject(clearedClan);
   });
 
   it('Should ignore non-existing schema references requested', async () => {

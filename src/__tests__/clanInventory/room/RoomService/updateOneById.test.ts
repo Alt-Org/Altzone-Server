@@ -21,7 +21,6 @@ describe('RoomService.updateOneById() test suite', () => {
     const updatedCellCount = 20;
     const updateData = roomUpdateBuilder
       .setId(existingRoom._id)
-      .setCellCount(updatedCellCount)
       .build();
 
     const [wasUpdated, errors] = await roomService.updateOneById(updateData);
@@ -30,14 +29,12 @@ describe('RoomService.updateOneById() test suite', () => {
     expect(wasUpdated).toBeTruthy();
 
     const updatedSoulHome = await roomModel.findById(existingRoom._id);
-    expect(updatedSoulHome.cellCount).toBe(updatedCellCount);
   });
 
   it('Should return ServiceError NOT_FOUND if the room with provided _id does not exist', async () => {
     const updatedCellCount = 20;
     const updateData = roomUpdateBuilder
       .setId(getNonExisting_id())
-      .setCellCount(updatedCellCount)
       .build();
 
     const [wasUpdated, errors] = await roomService.updateOneById(updateData);

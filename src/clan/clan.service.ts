@@ -312,14 +312,15 @@ export class ClanService {
    * Also all Players, which were members of the Clan will be excluded.
    *
    * @param _id - The Mongo _id of the Clan to delete.
+   * @param extSession - Optional external ClientSession.
    * @returns _true_ if Clan was removed successfully,
    * or a ServiceError array if the Clan was not found or something else went wrong
    */
   async deleteOneById(
     _id: string,
-    options?: { session?: ClientSession }
+    extSession?: ClientSession 
   ): Promise<[true | null, ServiceError[] | null]> {
-    const externalSession = options?.session;
+    const externalSession = extSession;
     const [session, initErrors] = 
       externalSession ? [ externalSession, null] : await initializeSession(this.connection);
     if (!session) return [null, initErrors];
@@ -406,10 +407,6 @@ export class ClanService {
         ]);
       }
       throw error;
-    } finally {
-      if (ownsTransaction) {
-        await session.endSession();
-      }
     }
   }
 }

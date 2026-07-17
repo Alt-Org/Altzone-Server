@@ -70,7 +70,6 @@ describe('Room.readOneByIdAndPlayerId() test suite', () => {
     const clearedRoom = clearDBRespDefaultFields(room);
     const expected = {
       _id: existingRoom._id,
-      cellCount: existingRoom.cellCount,
       isActive: false,
     };
 
