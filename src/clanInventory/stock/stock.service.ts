@@ -117,6 +117,33 @@ export class StockService {
   }
 
   /**
+   * Reads all Items stored in the specified Stock.
+   *
+   * @param _id Stock _id.
+   * @returns Item array if Stock exists, empty array if Stock has no Items, or ServiceErrors if Stock was not found.
+   */
+  async readItemsByStockId(_id: string) {
+    const [, stockErrors] = await this.basicService.readOneById<StockDto>(_id, {
+      select: ['_id'],
+    });
+    if (stockErrors) return [null, stockErrors];
+
+    const [items, itemErrors] = await this.itemService.readMany({
+      filter: { stock_id: _id },
+    });
+
+    if (itemErrors) {
+      const onlyNotFound = itemErrors.every(
+        (error) => error.reason === SEReason.NOT_FOUND,
+      );
+      if (onlyNotFound) return [[], null];
+
+      return [null, itemErrors];
+    }
+
+    return [items, null];
+  }
+  /**
    * Reads Stocks by specified options from DB.
    *
    * @param options - Options for reading CharacterClasses.
