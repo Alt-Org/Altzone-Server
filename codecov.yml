@@ -1,0 +1,7 @@
+coverage:
+  round: down
+  precision: 5
+
+codecov:
+  branch: feature/migrate-ci-gh-actions-pr-871
+  max_report_age: '14d'
