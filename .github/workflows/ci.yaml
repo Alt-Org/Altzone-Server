@@ -3,7 +3,17 @@ name: CI
 on:
   push:
     branches:
-      - '**'
+      - prod
+      - main
+      - dev
+      - feature/migrate-ci-gh-actions-871
+
+  pull_request:
+    branches:
+      - prod
+      - main
+      - develop
+      - feature/migrate-ci-gh-actions-pr-871
 
 jobs:
   test:
