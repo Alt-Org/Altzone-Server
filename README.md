@@ -6,9 +6,9 @@ This is a REST API for the Altzone game. For more detailed API description and a
 
 ## API versions
 
-Production https://altzone.fi/api (prod branch).
+Production https://altzone.fi/api (prod branch)
 
-Latest release https://devapi.altzone.fi/latest-release (main branch)
+Latest release https://devapi.altzone.fi/latest-release (main branch).
 
 Dev https://devapi.altzone.fi (dev branch)
 
