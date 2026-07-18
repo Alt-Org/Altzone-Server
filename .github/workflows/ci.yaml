@@ -68,6 +68,11 @@ jobs:
           done < failed-suites.txt
           exit $OVERALL_EXIT
 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Publish coverage summary
         if: always()
         run: |
