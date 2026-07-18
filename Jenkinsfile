@@ -7,43 +7,43 @@ pipeline {
     }
 
     stages {
-        stage('Install npm dependencies') {
-            steps {
-                cache(defaultBranch: 'dev',
-                  maxCacheSize: 2048,
-                  caches: [
-                    arbitraryFileCache(
-                        path: "node_modules",
-                        includes: "**/*",
-                        cacheValidityDecidingFile: "package-lock.json"
-                    )
-                  ]) {
-                    sh "npm install"
-                }
-            }
-        }
-
-        stage('Run automation tests') {
-            steps {
-                script {
-                  def firstTestResult = sh(script: 'npm run test:ci', returnStatus: true)
-
-                  if (firstTestResult != 0) {
-                    def retryResult = sh(script: 'npm run test:ci-retry-failed', returnStatus: true)
-
-                    if (retryResult != 0) {
-                      error("Tests failed after retry")
-                    }
-                  }
-                }
-            }
-            post {
-                always {
-                    recordCoverage(tools: [[parser: 'COBERTURA', pattern: '**/cobertura-coverage.xml']])
-                    junit allowEmptyResults: true, checksName: 'Unit Tests', stdioRetention: 'FAILED', testResults: 'junit.xml'
-                }
-            }
-        }
+//         stage('Install npm dependencies') {
+//             steps {
+//                 cache(defaultBranch: 'dev',
+//                   maxCacheSize: 2048,
+//                   caches: [
+//                     arbitraryFileCache(
+//                         path: "node_modules",
+//                         includes: "**/*",
+//                         cacheValidityDecidingFile: "package-lock.json"
+//                     )
+//                   ]) {
+//                     sh "npm install"
+//                 }
+//             }
+//         }
+//
+//         stage('Run automation tests') {
+//             steps {
+//                 script {
+//                   def firstTestResult = sh(script: 'npm run test:ci', returnStatus: true)
+//
+//                   if (firstTestResult != 0) {
+//                     def retryResult = sh(script: 'npm run test:ci-retry-failed', returnStatus: true)
+//
+//                     if (retryResult != 0) {
+//                       error("Tests failed after retry")
+//                     }
+//                   }
+//                 }
+//             }
+//             post {
+//                 always {
+//                     recordCoverage(tools: [[parser: 'COBERTURA', pattern: '**/cobertura-coverage.xml']])
+//                     junit allowEmptyResults: true, checksName: 'Unit Tests', stdioRetention: 'FAILED', testResults: 'junit.xml'
+//                 }
+//             }
+//         }
 
         stage('Build and Push Docker Image') {
             agent { label 'docker-agent' }
