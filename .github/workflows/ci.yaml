@@ -7,6 +7,7 @@ on:
       - main
       - dev
       - feature/migrate-ci-gh-actions-871
+      - feature/migrate-ci-gh-actions-pr-871
 
   pull_request:
     branches:
@@ -14,6 +15,7 @@ on:
       - main
       - develop
       - feature/migrate-ci-gh-actions-pr-871
+      - feature/migrate-ci-gh-actions-871
 
 jobs:
   test:
