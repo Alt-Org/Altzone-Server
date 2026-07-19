@@ -82,6 +82,8 @@ jobs:
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
+        env:
+          CODECOV_URL: ${{ secrets.CODECOV_URL }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: Alt-Org/Altzone-Server
