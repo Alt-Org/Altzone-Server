@@ -84,7 +84,7 @@ jobs:
         uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          url: ${{ vars.CODECOV_URL }}
+          url: ${{ secrets.CODECOV_URL }}
           slug: Alt-Org/Altzone-Server
           files: ./coverage/coverage-final.json
           fail_ci_if_error: true
