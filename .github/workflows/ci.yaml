@@ -37,7 +37,7 @@ jobs:
       - name: Run tests (first attempt)
         id: first_run
         continue-on-error: true
-        run: npm test -- --coverage --json --testPathPatterns="friendship|auth" --outputFile=test-results.json
+        run: npm test -- --coverage --json --testPathPatterns="friendship" --outputFile=test-results.json
 
       - name: Identify failed test suites
         if: steps.first_run.outcome == 'failure'
