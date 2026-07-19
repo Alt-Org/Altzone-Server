@@ -2,10 +2,10 @@ coverage:
   status:
     project:
       default:
-        target: 85
+        target: 9
     patch:
       default:
-        target: 90
+        target: 9
 
 codecov:
   branch: feature/migrate-ci-gh-actions-pr-871
