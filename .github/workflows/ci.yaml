@@ -88,7 +88,6 @@ jobs:
           slug: Alt-Org/Altzone-Server
           files: ./coverage/coverage-final.json
           fail_ci_if_error: true
-          verbose: true
 
       # Jenkins had recordCoverage + junit publishing built in.
       # GitHub Actions has no native equivalent — this uploads raw results as
