@@ -37,7 +37,7 @@ jobs:
       - name: Run tests (first attempt)
         id: first_run
         continue-on-error: true
-        run: npm test -- --coverage --json --testPathPatterns=friendship --outputFile=test-results.json
+        run: npm test -- --coverage --json --testPathPatterns="friendship|auth" --outputFile=test-results.json
 
       - name: Identify failed test suites
         if: steps.first_run.outcome == 'failure'
@@ -84,11 +84,10 @@ jobs:
         uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          url: ${{ vars.CODECOV_URL }}
+          url: ${{ secrets.CODECOV_URL }}
           slug: Alt-Org/Altzone-Server
           files: ./coverage/coverage-final.json
           fail_ci_if_error: true
-          verbose: true
 
       # Jenkins had recordCoverage + junit publishing built in.
       # GitHub Actions has no native equivalent — this uploads raw results as

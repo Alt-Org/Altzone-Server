@@ -1,6 +1,11 @@
 coverage:
-  round: down
-  precision: 5
+  status:
+    project:
+      default:
+        target: 85
+    patch:
+      default:
+        target: 90
 
 codecov:
   branch: feature/migrate-ci-gh-actions-pr-871
