@@ -86,7 +86,7 @@ jobs:
           CODECOV_URL: ${{ vars.CODECOV_URL }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          enterprise_url: ${{ vars.CODECOV_URL }}
+          url: ${{ vars.CODECOV_URL }}
           slug: Alt-Org/Altzone-Server
           files: ./coverage/coverage-final.json
           fail_ci_if_error: true
