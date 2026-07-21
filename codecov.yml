@@ -2,11 +2,10 @@ coverage:
   status:
     project:
       default:
-        target: 9
+        target: 74
     patch:
       default:
-        target: 9
+        target: 83
 
 codecov:
   branch: feature/migrate-ci-gh-actions-pr-871
-  max_report_age: '14d'
