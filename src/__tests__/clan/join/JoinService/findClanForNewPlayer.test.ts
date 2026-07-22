@@ -3,6 +3,8 @@ import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import PlayerModule from '../../../player/modules/player.module';
 import ClanBuilderFactory from '../../data/clanBuilderFactory';
 import ClanModule from '../../modules/clan.module';
+import ClanInventoryBuilderFactory from '../../../../__tests__/clanInventory/data/clanInventoryBuilderFactory';
+import SoulhomeModule from '../../../../__tests__/clanInventory/modules/soulhome.module';
 
 describe('JoinService.findClanForNewPlayer() test suite', () => {
   let joinService: JoinService;
@@ -15,6 +17,10 @@ describe('JoinService.findClanForNewPlayer() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const player = playerBuilder.build();
 
+  const soulHomeCreateBuilder = ClanInventoryBuilderFactory.getBuilder('CreateSoulHomeDto');
+  const soulHomeModel = SoulhomeModule.getSoulhomeModel();
+  const soulHome = soulHomeCreateBuilder.build();
+
   beforeEach(async () => {
     joinService = await ClanModule.getJoinService();
   });
@@ -24,6 +30,8 @@ describe('JoinService.findClanForNewPlayer() test suite', () => {
     player._id = playerResp._id.toString();
     const clanResp = await clanModel.create(clan);
     clan._id = clanResp._id.toString();
+    soulHome.clan_id = clan._id;
+    await soulHomeModel.create(soulHome);
 
     await joinService.findClanForNewPlayer(player._id);
 

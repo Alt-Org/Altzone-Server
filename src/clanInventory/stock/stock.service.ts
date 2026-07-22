@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model, ClientSession } from 'mongoose';
+import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Stock } from './stock.schema';
 import { CreateStockDto } from './dto/createStock.dto';

@@ -3,6 +3,8 @@ import { Room } from '../../../../clanInventory/room/room.schema';
 
 export default class RoomBuilder {
   private readonly base: Partial<Room> = {
+    roomPosition: 1,
+    roomColour: "defaultColor",
     floor: 'defaultFloor',
     wallpaper: 'defaultWall',
     deactivationTime: null,
@@ -13,6 +15,16 @@ export default class RoomBuilder {
 
   build() {
     return { ...this.base } as Room;
+  }
+
+  setRoomPosition(position: number) {
+    this.base.roomPosition = position;
+    return this;
+  }
+
+  setRoomColour(colour: string) {
+    this.base.roomColour = colour;
+    return this;
   }
 
   setFloor(floor: string) {

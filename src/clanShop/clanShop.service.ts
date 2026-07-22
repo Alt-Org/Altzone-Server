@@ -17,7 +17,6 @@ import { VotingQueueParams } from '../fleaMarket/types/votingQueueParams.type';
 import { ItemName } from '../clanInventory/item/enum/itemName.enum';
 import { VotingQueueName } from '../voting/enum/VotingQueue.enum';
 import { ClientSession, Connection } from 'mongoose';
-import { Clan } from '../clan/clan.schema';
 import {
   initializeSession,
   cancelTransaction,

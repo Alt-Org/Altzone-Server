@@ -35,7 +35,6 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { isEqual } from 'lodash';
 import { IServiceReturn } from '../common/service/basicService/IService';
-import { EmotionCheckDto } from './dto/emotionCheck.dto';
 import { MongooseError } from 'mongoose';
 
 @Controller('player')

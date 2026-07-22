@@ -46,6 +46,6 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
     ClanRoleVotingProcessor,
     PasswordGenerator,
   ],
-  exports: [ClanService, PlayerCounterFactory, ClanRoleService],
+  exports: [ClanService, ClanHelperService, PlayerCounterFactory, ClanRoleService],
 })
 export class ClanModule {}

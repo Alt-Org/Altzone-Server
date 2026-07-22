@@ -3,7 +3,7 @@ import AddType from '../../../common/base/decorator/AddType.decorator';
 import { ExtractField } from '../../../common/decorator/response/ExtractField';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsHexadecimal } from 'class-validator';
-import { ItemSummaryDto } from 'src/clanInventory/item/dto/itemSummary.dto';
+import { ItemSummaryDto } from '../../../clanInventory/item/dto/itemSummary.dto';
 import { RoomStatus } from '../enum/roomStatus.enum';
 
 @AddType('RoomDto')

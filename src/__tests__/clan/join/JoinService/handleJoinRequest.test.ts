@@ -6,6 +6,8 @@ import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { MemberClanRole } from '../../../../clan/role/initializationClanRoles';
+import ClanInventoryBuilderFactory from '../../../../__tests__/clanInventory/data/clanInventoryBuilderFactory';
+import SoulhomeModule from '../../../../__tests__/clanInventory/modules/soulhome.module';
 
 describe('JoinService.handleJoinRequest() test suite', () => {
   let joinService: JoinService;
@@ -24,11 +26,17 @@ describe('JoinService.handleJoinRequest() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const player = playerBuilder.build();
 
+  const soulHomeModel = SoulhomeModule.getSoulhomeModel();
+  const soulHomeCreateBuilder = ClanInventoryBuilderFactory.getBuilder('CreateSoulHomeDto');
+  const soulHome = soulHomeCreateBuilder.build();
+
   beforeEach(async () => {
     const playerResp = await playerModel.create(player);
     player._id = playerResp._id.toString();
     const clanResp1 = await clanModel.create(openClan);
     openClan._id = clanResp1._id.toString();
+    soulHome.clan_id = clanResp1._id.toString();
+    await soulHomeModel.create(soulHome);
 
     const clanResp2 = await clanModel.create(closedClan);
     closedClan._id = clanResp2._id.toString();

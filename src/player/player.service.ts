@@ -17,7 +17,6 @@ import {
 } from '../common/interface/IHookImplementer';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { PlayerDto, StatDetailDto } from './dto/player.dto';
-import { EmotionCheckDto } from './dto/emotionCheck.dto';
 import BasicService from '../common/service/basicService/BasicService';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';

@@ -1,8 +1,8 @@
-import { ItemRotation } from 'src/clanInventory/item/enum/itemRotation.enum';
+import { ItemRotation } from '../../../clanInventory/item/enum/itemRotation.enum';
 import { itemProperties } from '../../../clanInventory/item/const/itemProperties';
 import { CreateItemDto } from '../../../clanInventory/item/dto/createItem.dto';
 import { ItemName } from '../../../clanInventory/item/enum/itemName.enum';
-import { ItemPosition } from 'src/clanInventory/item/enum/itemPosition.enum';
+import { ItemPosition } from '../../../clanInventory/item/enum/itemPosition.enum';
 
 /**
  * Returns default Item objects for a Stock

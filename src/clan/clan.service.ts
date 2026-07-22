@@ -3,7 +3,7 @@ import { UpdateClanDto } from './dto/updateClan.dto';
 import { deleteNotUniqueArrayElements } from '../common/function/deleteNotUniqueArrayElements';
 import { deleteArrayElements } from '../common/function/deleteArrayElements';
 import { PlayerDto } from '../player/dto/player.dto';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Clan, publicReferences } from './clan.schema';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
@@ -53,6 +53,7 @@ export class ClanService {
     @InjectConnection() private readonly connection: Connection,
     private readonly passwordGenerator: PasswordGenerator,
     private readonly stockService: StockService,
+    @Inject(forwardRef(() => SoulHomeService))
     private readonly soulhomeService: SoulHomeService,
     private readonly clanHelperService: ClanHelperService,
     private readonly emitter: GameEventEmitter,

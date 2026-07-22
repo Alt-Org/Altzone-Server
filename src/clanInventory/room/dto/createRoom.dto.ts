@@ -1,10 +1,7 @@
 import {
-  IsBoolean,
-  IsEnum,
   IsHexadecimal,
   IsMongoId,
   IsNumber,
-  IsOptional,
   IsString,
 } from 'class-validator';
 import AddType from '../../../common/base/decorator/AddType.decorator';

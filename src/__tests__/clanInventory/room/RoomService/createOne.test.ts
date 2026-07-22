@@ -41,23 +41,6 @@ describe('RoomService.createOne() test suite', () => {
     );
   });
 
-  it('Should not save any data in DB, if the provided cellCount is null', async () => {
-    const invalidRoom = { ...roomToCreate, cellCount: null } as any;
-    await roomService.createOne(invalidRoom);
-
-    const dbResp = await roomModel.findOne({ soulHome_id: soulHome_id });
-
-    expect(dbResp).toBeNull();
-  });
-
-  it('Should return ServiceError with reason REQUIRED, if the provided cellCount is null', async () => {
-    const invalidRoom = { ...roomToCreate, cellCount: null } as any;
-    const [result, errors] = await roomService.createOne(invalidRoom);
-
-    expect(result).toBeNull();
-    expect(errors).toContainSE_REQUIRED();
-  });
-
   it('Should not throw any error if provided input is null or undefined', async () => {
     const nullInput = async () => await roomService.createOne(null);
     const undefinedInput = async () => await roomService.createOne(undefined);

@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { publicReferences, SoulHome } from './soulhome.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ClientSession } from 'mongoose';
+import { Model } from 'mongoose';
 import { RoomService } from '../room/room.service';
 import { SoulHomeDto } from './dto/soulhome.dto';
 import { CreateSoulHomeDto } from './dto/createSoulHome.dto';
@@ -19,6 +19,7 @@ import {
 export class SoulHomeService {
   public constructor(
     @InjectModel(SoulHome.name) public readonly model: Model<SoulHome>,
+    @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
   ) {
     this.basicService = new BasicService(model);

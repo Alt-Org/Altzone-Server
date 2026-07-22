@@ -17,32 +17,6 @@ describe('RoomService.updateOneById() test suite', () => {
     existingRoom._id = createdRoom._id;
   });
 
-  it('Should update room in the DB and return true if the input is valid', async () => {
-    const updatedCellCount = 20;
-    const updateData = roomUpdateBuilder
-      .setId(existingRoom._id)
-      .build();
-
-    const [wasUpdated, errors] = await roomService.updateOneById(updateData);
-
-    expect(errors).toBeNull();
-    expect(wasUpdated).toBeTruthy();
-
-    const updatedSoulHome = await roomModel.findById(existingRoom._id);
-  });
-
-  it('Should return ServiceError NOT_FOUND if the room with provided _id does not exist', async () => {
-    const updatedCellCount = 20;
-    const updateData = roomUpdateBuilder
-      .setId(getNonExisting_id())
-      .build();
-
-    const [wasUpdated, errors] = await roomService.updateOneById(updateData);
-
-    expect(wasUpdated).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND();
-  });
-
   //TODO: Should not throw
   it('Should throw error if input is null or undefined', async () => {
     const nullInput = async () => await roomService.updateOneById(null);

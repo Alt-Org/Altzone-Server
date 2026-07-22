@@ -48,7 +48,7 @@ export class Item {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.ITEM })
   placedOn_id: string;
 
-  @Prop({ type: [Number], required: true })
+  @Prop({ type: [Number] })
   placedOnLocation: number[];
 
   @Prop({ type: Number, required: true })

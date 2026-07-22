@@ -3,6 +3,7 @@ import { UpdateRoomDto } from '../../../../clanInventory/room/dto/updateRoom.dto
 export default class UpdateRoomDtoBuilder {
   private readonly base: Partial<UpdateRoomDto> = {
     _id: undefined,
+    roomColour: undefined,
     floor: undefined,
     wallpaper: undefined,
   };
@@ -13,6 +14,11 @@ export default class UpdateRoomDtoBuilder {
 
   setId(id: string) {
     this.base._id = id;
+    return this;
+  }
+
+  setRoomColour(colour: string) {
+    this.base.roomColour = colour;
     return this;
   }
 

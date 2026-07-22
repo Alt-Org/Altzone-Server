@@ -2,6 +2,8 @@ import { CreateRoomDto } from '../../../../clanInventory/room/dto/createRoom.dto
 
 export default class CreateRoomDtoBuilder {
   private readonly base: Partial<CreateRoomDto> = {
+    roomPosition: 1,
+    roomColour: "defaultColor",
     floor: 'defaultFloor',
     wallpaper: 'defaultWall',
     soulHome_id: undefined,
@@ -9,6 +11,16 @@ export default class CreateRoomDtoBuilder {
 
   build(): CreateRoomDto {
     return { ...this.base } as CreateRoomDto;
+  }
+
+  setRoomPosition(position: number) {
+    this.base.roomPosition = position;
+    return this;
+  }
+
+  setRoomColour(colour: string) {
+    this.base.roomColour = colour;
+    return this;
   }
 
   setFloor(floor: string) {

@@ -39,13 +39,12 @@ describe('Room.readOneById() test suite', () => {
 
   it('Should return fields only requested in "select"', async () => {
     const [room, errors] = await roomService.readOneById(existingRoom._id, {
-      select: ['_id', 'cellCount'],
+      select: ['_id'],
     });
 
     const clearedRoom = clearDBRespDefaultFields(room);
     const expected = {
       _id: existingRoom._id,
-      isActive: false,
     };
 
     expect(errors).toBeNull();

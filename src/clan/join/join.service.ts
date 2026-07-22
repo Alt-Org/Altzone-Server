@@ -163,7 +163,6 @@ export class JoinService {
           })
         ]
       );
-      console.log('Removing Player from Clan failed', error);
       throw error;
     }
   }
@@ -229,7 +228,6 @@ export class JoinService {
           })
         ]
       );
-      console.log('Removing Player from Clan failed', error);
       throw error;
     }
   }
@@ -350,7 +348,6 @@ export class JoinService {
           })
         ]
       );
-      console.log('Adding Player to Clan failed', error);
       throw error;
     }
   }

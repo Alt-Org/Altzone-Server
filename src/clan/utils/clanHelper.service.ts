@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import {
   getStockDefaultItems,
   getRoomDefaultItems,
@@ -19,7 +19,9 @@ import { ClientSession } from 'mongoose';
 export default class ClanHelperService {
   constructor(
     private readonly stockService: StockService,
+    @Inject(forwardRef(() => SoulHomeService))
     private readonly soulHomeService: SoulHomeService,
+    @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
     private readonly itemService: ItemService,
   ) {}

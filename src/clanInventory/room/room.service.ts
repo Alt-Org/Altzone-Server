@@ -16,7 +16,6 @@ import {
   TIServiceCreateManyOptions,
   TIServiceDeleteByIdOptions,
   TIServiceCreateOneOptions,
-  TIServiceDeleteManyOptions,
   IServiceReturn,
 } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
@@ -478,7 +477,14 @@ export class RoomService {
         filter: { soulHome_id: soulHome._id, roomPosition: null },
         session
       });
-      if (oldRoomErrors) return [null, oldRoomErrors];
+      if (oldRoomErrors) {
+        const notFoundError = oldRoomErrors.every(error => 
+          error instanceof ServiceError && error.reason == SEReason.NOT_FOUND
+        );
+        if (!notFoundError) return [null, oldRoomErrors];
+
+        return [true, null];
+      }
 
       const position = await this.getRoomPosition(soulHome._id, session) + 1 || 1;
       const [, updatedRoomErrors] = await this.basicService.updateOneById(
