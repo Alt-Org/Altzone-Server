@@ -1,3 +1,5 @@
+[![codecov](https://yrfbcpxonsco.mikhail.com.de/gh/Alt-Org/Altzone-Server/graph/badge.svg?token=DF96AVM86K)](https://yrfbcpxonsco.mikhail.com.de/gh/Alt-Org/Altzone-Server)
+
 # Altzone-Server
 
 This is a REST API for the Altzone game. For more detailed API description and additional instructions see the [wiki pages](https://github.com/Alt-Org/Altzone-Server/wiki)
