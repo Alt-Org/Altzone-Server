@@ -110,7 +110,7 @@ export class JoinService {
 
     try {
       // get the player leaving
-      const playerResp = await this.playerModel.findOne({ _id: player_id }).session(session);
+      const playerResp = await this.playerModel.findOne({ _id: player_id });
       if (!playerResp)
         throw new NotFoundException('Player with that _id is not found');
 
@@ -150,7 +150,7 @@ export class JoinService {
           clan_id: null,
         },
         { session }
-      ).session(session);
+      );
 
       await endTransaction(session);
     } catch (error) {
@@ -184,7 +184,7 @@ export class JoinService {
 
     try {
       // get the player to remove
-      const playerResp = await this.playerModel.findOne({ _id: player_id }).session(session);
+      const playerResp = await this.playerModel.findOne({ _id: player_id });
       if (!playerResp)
         throw new NotFoundException('Player with that _id is not found');
 
@@ -215,7 +215,7 @@ export class JoinService {
           clan_id: null,
         },
         { session }
-      ).session(session); // update clan_id for the requested player;
+      ); // update clan_id for the requested player;
 
       await endTransaction(session);
     } catch (error) {
@@ -266,7 +266,7 @@ export class JoinService {
           clanRole_id: memberRole._id,
         },
         { session }
-      ).session(session);
+      );
 
       const [, clanUpdateErrors] = await this.clanService.basicService.updateOne(
         { $inc: { playerCount: 1 } },
