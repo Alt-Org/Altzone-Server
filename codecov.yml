@@ -1,3 +1,11 @@
+ignore:
+  - "src/__tests__"
+  - "**/*.dto.ts"
+  - "**/*.controller.ts"
+  - "**/*.schema.ts"
+  - "**/*.enum.ts"
+  - "**/*.module.ts"
+
 coverage:
   status:
     project:
