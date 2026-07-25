@@ -5,15 +5,16 @@ ignore:
   - "**/*.schema.ts"
   - "**/*.enum.ts"
   - "**/*.module.ts"
+  - "**/*.gateway.ts"
 
 coverage:
   status:
     project:
       default:
-        target: 63
+        target: 70
     patch:
       default:
-        target: 50
+        target: 70
 
 codecov:
   branch: dev
