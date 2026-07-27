@@ -63,7 +63,7 @@ export class TaskGeneratorService {
       Math.floor(
         Math.random() * (TASK_CONSTS.AMOUNT.MAX - TASK_CONSTS.AMOUNT.MIN + 1),
       ) + TASK_CONSTS.AMOUNT.MIN;
-    const points = 100
+    const points = 100;
     const coins = Math.floor(points * TASK_CONSTS.COINS.FACTOR);
     const taskType = this.getRandomTaskType();
     const titleString = this.getTaskTitle(taskType, amount);

@@ -27,6 +27,8 @@ import { IServiceReturn } from '../common/service/basicService/IService';
 import { ItemRotation } from '../clanInventory/item/enum/itemRotation.enum';
 import { ItemPosition } from '../clanInventory/item/enum/itemPosition.enum';
 
+import { OnEvent } from '@nestjs/event-emitter';
+import ServiceError from '../common/service/basicService/ServiceError';
 @Injectable()
 export class ClanShopService {
   constructor(
@@ -39,17 +41,96 @@ export class ClanShopService {
   ) {}
 
   /**
-   * Handles the process of purchasing an item from shop.
-   * This method performs several operations including validating the clan's funds,
-   * reserving the required amount, initiating a voting process, and scheduling a voting check job.
-   * All operations are executed within a transaction to ensure consistency.
+   * Handles the process of purchasing an item from the clan shop.
+   * Determines the purchase path based on the buying player's clan rights:
+   * - If the player has the SHOP right, the item is bought directly and added to the clan's stock.
+   * - If the player does not have the SHOP right, a voting process is started and the item
+   *   will only be delivered if the vote passes.
    *
    * @param playerId - The unique identifier of the player attempting to buy the item.
    * @param clanId - The unique identifier of the clan associated with the purchase.
    * @param item - The item being purchased, including its properties such as price.
-   * @returns A promise that resolves when the transaction is successfully committed.
+   * @returns A promise that resolves to a boolean indicating success, or an error if the operation fails.
    */
   async buyItem(
+    playerId: string,
+    clanId: string,
+    item: ItemProperty,
+  ): Promise<IServiceReturn<boolean>> {
+    const [player, playerError] =
+      await this.playerService.getPlayerById(playerId);
+    if (playerError) return [null, playerError as ServiceError[]];
+
+    const [clan, clanError] = await this.clanService.readOneById(clanId);
+    if (clanError) return [null, clanError];
+
+    const role = clan.roles?.find(
+      (r) => r._id.toString() === player.clanRole_id?.toString(),
+    );
+    const hasShopRight = role?.rights?.shop === true;
+
+    if (hasShopRight) {
+      return await this.buyDirectly(clanId, item);
+    } else {
+      return await this.buyViaVote(playerId, clanId, item);
+    }
+  }
+
+  /**
+   * Handles the direct purchase of an item from the clan shop, bypassing the voting process.
+   * This path is taken when the buying player has SHOP clan right.
+   * The method validates the clan's funds, deducts the item's price, and adds the item
+   * to the clan's stock. All operations are executed within a transaction to ensure consistency and atomicity.
+   *
+   * @param clanId - The unique identifier of the clan associated with the purchase.
+   * @param item - The item being purchased, including its properties such as price.
+   * @returns A promise that resolves to a boolean indicating success, or an error if the operation fails.
+   */
+  private async buyDirectly(
+    clanId: string,
+    item: ItemProperty,
+  ): Promise<IServiceReturn<boolean>> {
+    const [session, sessionError] = await initializeSession(this.connection);
+    if (sessionError) return [null, sessionError];
+
+    const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
+      includeRefs: [ModelName.STOCK],
+    });
+    if (clanErrors) return await cancelTransaction(session, clanErrors);
+
+    if (clan.gameCoins < item.price) {
+      return await cancelTransaction(session, [notEnoughCoinsError]);
+    }
+
+    const [, deductError] = await this.reserveFunds(
+      clan._id,
+      item.price,
+      session,
+    );
+    if (deductError) return cancelTransaction(session, deductError);
+
+    const newItem = this.getCreateItemDto(item.name, clan.Stock._id);
+    const [, createError] = await this.itemService.createOne(newItem, {
+      session,
+    });
+    if (createError) return await cancelTransaction(session, createError);
+
+    return await endTransaction(session, true);
+  }
+
+  /**
+   * Handles the purchase of an item from the clan shop through a voting process.
+   * This path is taken when the buying player does not have SHOP clan right.
+   * The method performs several operations including validating the clan's funds,
+   * reserving the required amount, initiating a voting process, and scheduling a voting check job.
+   * All operations are executed within a transaction to ensure consistency and atomicity.
+   *
+   * @param playerId - The unique identifier of the player attempting to buy the item.
+   * @param clanId - The unique identifier of the clan associated with the purchase.
+   * @param item - The item being purchased, including its properties such as price.
+   * @returns A promise that resolves to a boolean indicating success, or an error if the operation fails.
+   */
+  private async buyViaVote(
     playerId: string,
     clanId: string,
     item: ItemProperty,
@@ -61,10 +142,10 @@ export class ClanShopService {
       includeRefs: [ModelName.STOCK],
     });
 
-    if (clanErrors) return cancelTransaction(session, clanErrors);
+    if (clanErrors) return await cancelTransaction(session, clanErrors);
 
     if (clan.gameCoins < item.price) {
-      return cancelTransaction(session, [notEnoughCoinsError]);
+      return await cancelTransaction(session, [notEnoughCoinsError]);
     }
 
     const [, reserveError] = await this.reserveFunds(
@@ -76,7 +157,8 @@ export class ClanShopService {
 
     const [player, playerError] =
       await this.playerService.getPlayerById(playerId);
-    if (playerError) return cancelTransaction(session, playerError);
+    if (playerError)
+      return cancelTransaction(session, playerError as ServiceError[]);
 
     const [voting, votingErrors] = await this.votingService.startVoting(
       {
@@ -88,7 +170,8 @@ export class ClanShopService {
       },
       session,
     );
-    if (votingErrors) return cancelTransaction(session, votingErrors);
+
+    if (votingErrors) return await cancelTransaction(session, votingErrors);
 
     const result = await endTransaction(session, true);
 
@@ -131,8 +214,7 @@ export class ClanShopService {
    * 2. Checks if the voting process was successful.
    *    - If successful, processes the passed vote and handles any errors.
    *    - If rejected, processes the rejected vote and handles any errors.
-   * 3. Deletes the voting record from the database and handles any errors.
-   * 4. Commits the transaction and ends the session.
+   * 3. Commits the transaction and ends the session.
    *
    * If any error occurs during the process, the transaction is canceled, and the session is ended.
    *
@@ -145,7 +227,10 @@ export class ClanShopService {
     const [session, sessionError] = await initializeSession(this.connection);
     if (sessionError) return [null, sessionError];
 
-    const votePassed = await this.votingService.checkVotingSuccess(voting);
+    const votePassed = await this.votingService.checkVotingSuccess(
+      voting,
+      true,
+    );
 
     if (votePassed) {
       const [, passedError] = await this.handleVotePassed(
@@ -160,18 +245,35 @@ export class ClanShopService {
         price,
         session,
       );
-      if (rejectError) return cancelTransaction(session, rejectError);
+      if (rejectError) return await cancelTransaction(session, rejectError);
     }
 
-    const [, deleteError] = await this.votingService.basicService.deleteOneById(
-      voting._id,
-    );
-    if (deleteError) await cancelTransaction(session, deleteError);
+    if (!voting.endedAt) {
+      await this.votingService.finalizeVoting(voting._id);
+    }
 
-    await session.commitTransaction();
-    await session.endSession();
+    return await endTransaction(session, true);
+  }
 
-    return endTransaction(session, true);
+  @OnEvent('voting.passed')
+  async handleVotingPassed(payload: { voting: VotingDto }) {
+    if (payload.voting.type !== VotingType.SHOP_BUY_ITEM) return;
+
+    const clanId = payload.voting.organizer.clan_id;
+    const item = itemProperties[payload.voting.shopItemName];
+
+    const [clan, clanErrors] = await this.clanService.readOneById(clanId, {
+      includeRefs: [ModelName.STOCK],
+    });
+    if (clanErrors) return;
+
+    await this.checkVotingOnExpire({
+      voting: payload.voting,
+      price: item.price,
+      clanId,
+      stockId: clan.Stock._id,
+      queue: VotingQueueName.CLAN_SHOP,
+    });
   }
 
   /**

@@ -7,6 +7,7 @@ import { ObjectId } from 'mongodb';
 import { Avatar, AvatarSchema } from './avatar.schema';
 import { PlayerEmotion } from '../enum/playerEmotion.enum';
 import { EmotionDto } from '../dto/emotion.dto';
+import { Environment } from '../../common/enum/environment.enum';
 
 export type PlayerDocument = HydratedDocument<Player>;
 
@@ -103,6 +104,13 @@ export class Player {
     default: [],
   })
   emotions?: EmotionDto[];
+
+  @Prop({
+    type: Number,
+    enum: Environment,
+    ref: ModelName.PROFILE,
+  })
+  environment: Environment;
 
   @ExtractField()
   _id: string;

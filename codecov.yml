@@ -1,0 +1,20 @@
+ignore:
+  - "src/__tests__"
+  - "**/*.dto.ts"
+  - "**/*.controller.ts"
+  - "**/*.schema.ts"
+  - "**/*.enum.ts"
+  - "**/*.module.ts"
+  - "**/*.gateway.ts"
+
+coverage:
+  status:
+    project:
+      default:
+        target: 70
+    patch:
+      default:
+        target: 70
+
+codecov:
+  branch: dev

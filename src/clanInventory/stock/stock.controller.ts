@@ -1,11 +1,12 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { StockService } from './stock.service';
 import { StockDto } from './dto/stock.dto';
-import { publicReferences } from './stock.schema';
+import { ItemDto } from '../item/dto/item.dto';
+import { User } from '../../auth/user';
 import { Authorize } from '../../authorization/decorator/Authorize';
 import { Action } from '../../authorization/enum/action.enum';
 import { GetAllQuery } from '../../common/decorator/param/GetAllQuery';
-import { IncludeQuery } from '../../common/decorator/param/IncludeQuery.decorator';
+import { LoggedUser } from '../../common/decorator/param/LoggedUser.decorator';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
 import { _idDto } from '../../common/dto/_id.dto';
 import { ModelName } from '../../common/enum/modelName.enum';
@@ -14,39 +15,36 @@ import { AddSortQuery } from '../../common/interceptor/request/addSortQuery.inte
 import { OffsetPaginate } from '../../common/interceptor/request/offsetPagination.interceptor';
 import { IGetAllQuery } from '../../common/interface/IGetAllQuery';
 import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
+import { Environment } from '../../common/enum/environment.enum';
 
 @Controller('stock')
 export class StockController {
   public constructor(private readonly service: StockService) {}
 
   /**
-   * Get stock by _id
+   * Get stock items by Stock _id
    *
-   * @remarks Read Stock data by its _id field.
-   *
-   * Notice that everybody is able to read any Stock data.
+   * @remarks Returns the list of Items currently stored in the Stock with the given _id.
    */
   @ApiResponseDescription({
     success: {
-      dto: StockDto,
-      modelName: ModelName.STOCK,
+      dto: ItemDto,
+      modelName: ModelName.ITEM,
+      returnsArray: true,
     },
     errors: [400, 401, 404],
   })
   @Get('/:_id')
   @Authorize({ action: Action.read, subject: StockDto })
-  @UniformResponse(ModelName.STOCK)
-  public get(
-    @Param() param: _idDto,
-    @IncludeQuery(publicReferences) includeRefs: ModelName[],
-  ) {
-    return this.service.readOneById(param._id, { includeRefs });
+  @UniformResponse(ModelName.ITEM)
+  public get(@Param() param: _idDto) {
+    return this.service.readItemsByStockId(param._id);
   }
 
   /**
-   * Get all stocks
+   * Get logged-in player's Clan stocks
    *
-   * @remarks Read all created Stocks of all Clans. Remember about the pagination
+   * @remarks Read all created Stocks of the Clan the logged-in Player belongs to.
    */
   @ApiResponseDescription({
     success: {
@@ -62,7 +60,16 @@ export class StockController {
   @AddSearchQuery(StockDto)
   @AddSortQuery(StockDto)
   @UniformResponse(ModelName.STOCK)
-  public getAll(@GetAllQuery() query: IGetAllQuery) {
-    return this.service.readAll(query);
+  public getAll(
+    @GetAllQuery() query: IGetAllQuery,
+    @LoggedUser() user: User,
+    @Query('environment', new ParseIntPipe({ optional: true }))
+    environment?: Environment,
+  ) {
+    return this.service.readPlayerClanStocks(
+      user.player_id,
+      query,
+      environment,
+    );
   }
 }

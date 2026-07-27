@@ -11,6 +11,7 @@ import {
   MemberClanRole,
 } from '../../../../clan/role/initializationClanRoles';
 import { Stall } from '../../../../clan/stall/stall.schema';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class ClanBuilder implements IDataBuilder<Clan> {
   private readonly base: Clan = {
@@ -32,6 +33,7 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
     goal: Goal.GRINDAUS,
     phrase: 'We are the best',
     language: Language.ENGLISH,
+    environment: Environment.TEACHING_DEMO,
     clanLogo: { logoType: LogoType.HEART, pieceColors: ['#FFFFFF', '#000000'] },
     roles: [MemberClanRole, LeaderClanRole] as any,
     stall: {
@@ -147,6 +149,11 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
 
   setStallMaxSlots(amount: number) {
     this.base.stall.maxSlots = amount;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }

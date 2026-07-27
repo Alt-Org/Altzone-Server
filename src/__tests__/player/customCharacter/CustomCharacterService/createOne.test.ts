@@ -42,6 +42,7 @@ describe('CustomCharacterService.createOne() test suite', () => {
       ...characterToCreate,
       ...expectedSpecs,
       player_id: new ObjectId(player._id),
+      environment: player.environment,
       _id: expect.any(ObjectId),
     });
   });

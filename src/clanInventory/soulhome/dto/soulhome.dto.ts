@@ -3,6 +3,7 @@ import { RoomDto } from '../../room/dto/room.dto';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 import { ExtractField } from '../../../common/decorator/response/ExtractField';
 import { ApiProperty } from '@nestjs/swagger';
+import { Environment } from '../../../common/enum/environment.enum';
 
 @AddType('SoulHomeDto')
 export class SoulHomeDto {
@@ -41,4 +42,17 @@ export class SoulHomeDto {
   @ApiProperty({ type: () => [RoomDto] })
   @Expose()
   Room: RoomDto[];
+
+  /**
+   * Clan that owns this Soul Home
+   */
+  @Type(() => ClanDto)
+  @Expose()
+  Clan: ClanDto;
+
+  /**
+   * Environment for the Soul Home
+   */
+  @Expose()
+  environment?: Environment;
 }
