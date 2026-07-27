@@ -51,6 +51,8 @@ import { SessionStage } from '../../../box/enum/SessionStage.enum';
 import DailyTaskBuilderFactory from '../../dailyTasks/data/dailyTaskBuilderFactory';
 import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 import { VotingBuilder } from '../../voting/data/voting/VotingBuilder';
+import ServiceError from '../../../common/service/basicService/ServiceError';
+import { SEReason } from '../../../common/service/basicService/SEReason';
 
 describe('BoxService.reset() test suite', () => {
   process.env.ENVIRONMENT = Environment.TESTING_SESSION;
@@ -363,6 +365,22 @@ describe('BoxService.reset() test suite', () => {
     expect(boxInDB.testersAmount).toBe(10);
     expect(boxInDB.testerAccountsClaimed).toBe(0);
     expect(boxInDB.accountClaimersIds).toHaveLength(0);
+  });
+
+  it('Should return ServiceError if resetting box metadata fails', async () => {
+    const updateError = new ServiceError({
+      reason: SEReason.UNEXPECTED,
+      message: 'Failed to update box metadata',
+    });
+    const updateOneByIdSpy = jest
+      .spyOn((boxService as any).basicService, 'updateOneById')
+      .mockResolvedValueOnce([null, [updateError]]);
+
+    const [isReset, errors] = await boxService.reset(box._id);
+
+    updateOneByIdSpy.mockRestore();
+    expect(isReset).toBeNull();
+    expect(errors).toEqual([updateError]);
   });
 
   it('Should return ServiceError NOT_FOUND if there are no box with this _id', async () => {
