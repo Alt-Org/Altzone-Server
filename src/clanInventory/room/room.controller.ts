@@ -92,7 +92,7 @@ export class RoomController {
   }
 
   /**
-   * Update room by _id
+   * Update room or rooms by _id
    *
    * @remarks Update Room by its _id specified in the body.
    *
@@ -109,7 +109,7 @@ export class RoomController {
     errors: [400, 401, 404],
   })
   @Put()
-  //@Authorize({ action: Action.update, subject: UpdateRoomDto })
+  @Authorize({ action: Action.update, subject: UpdateRoomDto })
   @UniformResponse()
   public async update(@Body() body: UpdateRoomDto | UpdateRoomDto[]) {
     const [, errors] = await this.service.updateSoulHomeRooms(body);

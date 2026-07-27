@@ -409,6 +409,7 @@ export class RoomService {
     const defaultRoom: CreateRoomDto = { 
       roomPosition: roomPosition, 
       ...DefaultRoom, 
+      roomStatus: RoomStatus.ACTIVE,
       soulHome_id: soulHome._id 
     };
 

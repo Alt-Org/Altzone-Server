@@ -5,6 +5,7 @@ import {
   IsString,
 } from 'class-validator';
 import AddType from '../../../common/base/decorator/AddType.decorator';
+import { RoomStatus } from '../enum/roomStatus.enum';
 
 @AddType('CreateRoomDto')
 export class CreateRoomDto {
@@ -35,6 +36,14 @@ export class CreateRoomDto {
    */
   @IsString()
   wallpaper: string;
+
+  /**
+   * Room status
+   *
+   * @example "Active"
+   */
+  @IsString()
+  roomStatus: RoomStatus;
 
   /**
    * ID of the Soul Home this room belongs to

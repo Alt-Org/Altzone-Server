@@ -132,7 +132,6 @@ export class RoomScheduler {
           })
         ]
       );
-      console.error('Scheduled Room deletion failed', error);
       throw error;
     }
   }
