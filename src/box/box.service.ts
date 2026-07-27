@@ -202,6 +202,11 @@ export class BoxService {
 
     await this.basicService.updateOneById<Partial<Box>>(parsed_id, {
       sessionStage: SessionStage.PREPARING,
+      // Clear session-specific claiming state so a reset box can accept new testers.
+      testersSharedPassword: null,
+      createdClan_ids: [],
+      testerAccountsClaimed: 0,
+      accountClaimersIds: [],
     });
 
     const occurredErrors = [
