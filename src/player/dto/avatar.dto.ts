@@ -29,7 +29,9 @@ export class AvatarDto {
    * @example {AvatarPieceDto}
    */
   @Expose()
-  @Transform(({ value }) => (typeof value === 'number' ? { id: value, color: '#ffffff' } : value))
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
   @ValidateNested()
   @Type(() => AvatarPieceDto)
   head: AvatarPieceDto;
@@ -39,7 +41,9 @@ export class AvatarDto {
    * @type {AvatarPieceDto}
    */
   @Expose()
-  @Transform(({ value }) => (typeof value === 'number' ? { id: value, color: '#ffffff' } : value))
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
   @ValidateNested()
   @Type(() => AvatarPieceDto)
   hair: AvatarPieceDto;
@@ -49,7 +53,9 @@ export class AvatarDto {
    * @type {AvatarPieceDto}
    */
   @Expose()
-  @Transform(({ value }) => (typeof value === 'number' ? { id: value, color: '#ffffff' } : value))
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
   @ValidateNested()
   @Type(() => AvatarPieceDto)
   eyes: AvatarPieceDto;
@@ -59,7 +65,9 @@ export class AvatarDto {
    * @type {AvatarPieceDto}
    */
   @Expose()
-  @Transform(({ value }) => (typeof value === 'number' ? { id: value, color: '#ffffff' } : value))
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
   @ValidateNested()
   @Type(() => AvatarPieceDto)
   nose: AvatarPieceDto;
@@ -69,7 +77,9 @@ export class AvatarDto {
    * @type {AvatarPieceDto}
    */
   @Expose()
-  @Transform(({ value }) => (typeof value === 'number' ? { id: value, color: '#ffffff' } : value))
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
   @ValidateNested()
   @Type(() => AvatarPieceDto)
   mouth: AvatarPieceDto;
@@ -79,7 +89,9 @@ export class AvatarDto {
    * @type {AvatarPieceDto}
    */
   @Expose()
-  @Transform(({ value }) => (typeof value === 'number' ? { id: value, color: '#ffffff' } : value))
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
   @ValidateNested()
   @Type(() => AvatarPieceDto)
   eyebrows: AvatarPieceDto;
@@ -89,7 +101,9 @@ export class AvatarDto {
    * @type {AvatarPieceDto}
    */
   @Expose()
-  @Transform(({ value }) => (typeof value === 'number' ? { id: value, color: '#ffffff' } : value))
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
   @ValidateNested()
   @Type(() => AvatarPieceDto)
   clothes: AvatarPieceDto;
@@ -99,7 +113,9 @@ export class AvatarDto {
    * @type {AvatarPieceDto}
    */
   @Expose()
-  @Transform(({ value }) => (typeof value === 'number' ? { id: value, color: '#ffffff' } : value))
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
   @ValidateNested()
   @Type(() => AvatarPieceDto)
   feet: AvatarPieceDto;
@@ -109,7 +125,9 @@ export class AvatarDto {
    * @type {AvatarPieceDto}
    */
   @Expose()
-  @Transform(({ value }) => (typeof value === 'number' ? { id: value, color: '#ffffff' } : value))
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
   @ValidateNested()
   @Type(() => AvatarPieceDto)
   hands: AvatarPieceDto;
