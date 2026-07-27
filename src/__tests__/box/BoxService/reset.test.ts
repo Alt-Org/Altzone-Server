@@ -346,6 +346,25 @@ describe('BoxService.reset() test suite', () => {
     expect(boxInDB.sessionStage).toBe(SessionStage.PREPARING);
   });
 
+  it('Should reset tester account claiming state in DB', async () => {
+    await boxModel.findByIdAndUpdate(box._id, {
+      testersSharedPassword: 'old-shared-password',
+      createdClan_ids: [new ObjectId(), new ObjectId()],
+      testersAmount: 10,
+      testerAccountsClaimed: 10,
+      accountClaimersIds: ['device-1', 'device-2'],
+    });
+
+    await boxService.reset(box._id);
+
+    const boxInDB = await boxModel.findById(box._id);
+    expect(boxInDB.testersSharedPassword).toBeNull();
+    expect(boxInDB.createdClan_ids).toHaveLength(0);
+    expect(boxInDB.testersAmount).toBe(10);
+    expect(boxInDB.testerAccountsClaimed).toBe(0);
+    expect(boxInDB.accountClaimersIds).toHaveLength(0);
+  });
+
   it('Should return ServiceError NOT_FOUND if there are no box with this _id', async () => {
     const [isReset, errors] = await boxService.reset(getNonExisting_id());
 
