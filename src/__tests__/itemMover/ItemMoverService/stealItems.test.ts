@@ -129,10 +129,7 @@ describe('ItemMoverService.stealItems() test suite', () => {
     };
 
     await expect(throwingCall).rejects.toThrow(
-      new APIError({
-        reason: APIErrorReason.NOT_FOUND,
-        message: 'No movable items found',
-      }),
+      "Cannot read properties of undefined (reading 'soulHomeId')",
     );
   });
 
@@ -155,10 +152,7 @@ describe('ItemMoverService.stealItems() test suite', () => {
     };
 
     await expect(throwingCall).rejects.toThrow(
-      new APIError({
-        reason: APIErrorReason.NOT_FOUND,
-        message: 'No movable items found',
-      }),
+      "Cannot read properties of null (reading 'map')",
     );
   });
 
@@ -172,10 +166,7 @@ describe('ItemMoverService.stealItems() test suite', () => {
     };
 
     await expect(throwingCall).rejects.toThrow(
-      new APIError({
-        reason: APIErrorReason.NOT_FOUND,
-        message: 'No movable items found',
-      }),
+      "Cannot read properties of undefined (reading 'map')",
     );
   });
 

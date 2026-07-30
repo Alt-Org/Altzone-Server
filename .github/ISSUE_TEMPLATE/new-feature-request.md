@@ -3,7 +3,7 @@ name: New feature request
 about: Tell us what do you want to be imlemented
 title: 'Feature request: '
 labels: feature
-assignees: MikhailDeriabin
+assignees: PlayJeri
 
 ---
 
