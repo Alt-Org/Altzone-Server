@@ -101,20 +101,13 @@ export class ClanService {
     for (const item of getRoomDefaultItems('')) {
       furnitureTotalValue += item.price;
     }
-<<<<<<< HEAD
 
-=======
->>>>>>> 4757817b579d26a1905d7a3ce2eeabeabc7eb358
     if (process.env.NODE_ENV === 'test') {
       clanToCreate.name = `T_${Math.random().toString(36).substring(7, 12)}`;
     }
 
     const [clan, clanErrors] = await this.basicService.createOne<Clan, ClanDto>(
-<<<<<<< HEAD
-      { ...clanToCreate, admin_ids: [player_id] } as Clan,
-=======
       { ...clanToCreate, furnitureTotalValue, admin_ids: [player_id] } as Clan,
->>>>>>> 4757817b579d26a1905d7a3ce2eeabeabc7eb358
       { session },
     );
     if (clanErrors) return await cancelTransaction(session, clanErrors);
@@ -174,17 +167,11 @@ export class ClanService {
     for (const item of getRoomDefaultItems('')) {
       furnitureTotalValue += item.price;
     }
-<<<<<<< HEAD
-
-    const [clan, clanErrors] = await this.basicService.createOne<Clan, Clan>(
-      {
-        ...clanToCreate,
-=======
+    
     const [clan, clanErrors] = await this.basicService.createOne<Clan, Clan>(
       {
         ...clanToCreate,
         furnitureTotalValue,
->>>>>>> 4757817b579d26a1905d7a3ce2eeabeabc7eb358
         playerCount: 0,
         environment: clanToCreate.environment ?? Environment.OPEN_DEMO,
       } as Clan,
@@ -382,7 +369,6 @@ export class ClanService {
   }
 
   /**
-<<<<<<< HEAD
    * Deletes a Clan by its _id from DB.
    *
    * Notice that the method will also delete Clan's SoulHome and Stock as well.
@@ -392,9 +378,6 @@ export class ClanService {
    * @param extSession - Optional external ClientSession.
    * @returns _true_ if Clan was removed successfully,
    * or a ServiceError array if the Clan was not found or something else went wrong
-=======
-   * Deletes a clan and cleans up references.
->>>>>>> 4757817b579d26a1905d7a3ce2eeabeabc7eb358
    */
   async deleteOneById(
     _id: string,
