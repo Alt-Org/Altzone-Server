@@ -1,12 +1,14 @@
 import { ProfileDto } from '../../../../profile/dto/profile.dto';
 import { PlayerDto } from '../../../../player/dto/player.dto';
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class ProfileDtoBuilder implements IDataBuilder<ProfileDto> {
   private readonly base: ProfileDto = {
     _id: undefined,
     username: 'defaultUser',
     Player: undefined,
+    environment: Environment.TEACHING_DEMO,
   };
 
   build(): ProfileDto {
@@ -25,6 +27,11 @@ export default class ProfileDtoBuilder implements IDataBuilder<ProfileDto> {
 
   setPlayer(player: PlayerDto) {
     this.base.Player = player;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }

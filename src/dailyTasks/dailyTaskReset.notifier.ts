@@ -15,6 +15,6 @@ export default class DailyTasksResetNotifier {
     NotificationSender.buildNotification()
       .addGroup(this.group, 'global')
       .addResource(this.resource, 'daily')
-      .send(NotificationStatus.UPDATE, { topic, });
+      .send(NotificationStatus.UPDATE, { topic });
   }
 }

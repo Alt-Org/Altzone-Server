@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { BattleQueueService } from './battleQueue.service';
 import OnlinePlayerDto from '../dto/onlinePlayer.dto';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
@@ -29,9 +29,12 @@ export class BattleQueueController {
   })
   @Get()
   @UniformResponse(null, OnlinePlayerDto)
-  async getBattleQueue() {
+  async getBattleQueue(@Query('version') clientVersion: string) {
     const queuePlayers = await this.onlinePlayersService.getOnlinePlayers({
-      filter: { status: [OnlinePlayerStatus.BATTLE_WAIT] },
+      filter: {
+        status: [OnlinePlayerStatus.BATTLE_WAIT],
+        client_version: clientVersion,
+      },
     });
     return this.service.sortPlayersByQueueNumber(queuePlayers);
   }

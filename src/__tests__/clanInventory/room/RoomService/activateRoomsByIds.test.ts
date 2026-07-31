@@ -22,26 +22,6 @@ describe('Room.activateRoomsByIds() test suite', () => {
     existingRoom2._id = createdRoom2._id;
   });
 
-  it('Should set deactivationTimestamp to provided value in DB', async () => {
-    const deactivationAfter = 10;
-    await roomService.activateRoomsByIds(
-      [existingRoom1._id, existingRoom2._id],
-      deactivationAfter,
-    );
-
-    const roomsInDB = await roomModel.find({ soulHome_id: soulHome_id });
-
-    const timestamp = Date.now() + deactivationAfter * 1000;
-
-    const maxDiff = 5000;
-    /* expect(
-      Math.abs(timestamp - roomsInDB[0].deactivationTime),
-    ).toBeLessThan(maxDiff);
-    expect(
-      Math.abs(timestamp - roomsInDB[1].deactivationTime),
-    ).toBeLessThan(maxDiff); */
-  });
-
   it('Should not throw if some of the rooms does not exists', async () => {
     const activateCall = async () =>
       await roomService.activateRoomsByIds(

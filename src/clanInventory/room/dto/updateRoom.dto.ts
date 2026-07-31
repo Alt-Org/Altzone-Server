@@ -23,7 +23,8 @@ export class UpdateRoomDto {
    * Room colour in hexadecimal
    */
   @IsHexadecimal()
-  roomColour: string;
+  @IsOptional()
+  roomColour?: string;
 
   /**
    * Updated floor type
@@ -32,7 +33,7 @@ export class UpdateRoomDto {
    */
   @IsString()
   @IsOptional()
-  floor: string;
+  floor?: string;
 
   /**
    * Updated wallpaper
@@ -41,12 +42,12 @@ export class UpdateRoomDto {
    */
   @IsString()
   @IsOptional()
-  wallpaper: string;
+  wallpaper?: string;
 
   /**
    * Room items
    */
   @Type(() => UpdateItemDto)
   @ApiProperty({ type: () => [UpdateItemDto] })
-  furniture: UpdateItemDto[];
+  furniture?: UpdateItemDto[];
 }

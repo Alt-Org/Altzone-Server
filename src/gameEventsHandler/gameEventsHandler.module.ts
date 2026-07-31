@@ -7,7 +7,6 @@ import { GameEventsHandler } from './gameEventsHandler';
 import { PlayerModule } from '../player/player.module';
 import { ClanEventHandler } from './clanEventHandler';
 import UiDailyTaskHandler from './dailyTask/uiDailyTaskHandler';
-import DailyTaskNotifier from './dailyTask/DailyTaskNotifier';
 import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
 
 @Module({
@@ -23,7 +22,6 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
     ClanEventHandler,
     GameEventsHandler,
     UiDailyTaskHandler,
-    DailyTaskNotifier,
   ],
   controllers: [],
   exports: [GameEventsHandler],

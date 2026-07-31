@@ -90,6 +90,9 @@ export class JukeboxService {
       jukebox.songQueue.push(newSong);
     }
     this.clanJukeboxMap.set(clanId, jukebox);
+
+    // Publish the playlist update after adding the song
+    await this.publishPlaylistUpdate(clanId, jukebox);
   }
 
   /**
@@ -108,6 +111,12 @@ export class JukeboxService {
     const nextSong = jukebox.songQueue.shift();
 
     if (!nextSong) {
+      const emptyJukebox: Jukebox = {
+        clanId,
+        songQueue: [],
+        currentSong: null,
+      };
+      await this.notifier.playlistUpdate(emptyJukebox, clanId);
       this.clanJukeboxMap.delete(clanId);
       return;
     }
@@ -117,6 +126,8 @@ export class JukeboxService {
       { songId: nextSong.songId, startedAt: jukebox.currentSong.startedAt },
       clanId,
     );
+
+    await this.publishPlaylistUpdate(clanId, jukebox);
 
     setTimeout(async () => {
       await this.startNextSong(clanId);
@@ -142,6 +153,11 @@ export class JukeboxService {
 
     if (jukebox.songQueue.length === initialLength)
       throw new ServiceError({ reason: SEReason.NOT_FOUND });
+
+    this.clanJukeboxMap.set(clanId, jukebox);
+
+    // Publish the playlist update after removing the song
+    this.publishPlaylistUpdate(clanId, jukebox);
   }
 
   /**
@@ -158,5 +174,17 @@ export class JukeboxService {
       maxSongAmount = parseInt(envVars.JUKEBOX_MAX_SONG_AMOUNT_BIG);
 
     return maxSongAmount;
+  }
+
+  /**
+   * Helper method to publish the playlist update after any change in the jukebox state (song change, song addition, song removal).
+   *
+   * @param clanId Id of the clan whose jukebox to update
+   * @param jukebox the updated jukebox to be sent in the notification
+   *
+   */
+  private async publishPlaylistUpdate(clanId: string, jukebox: Jukebox) {
+    this.clanJukeboxMap.set(clanId, jukebox);
+    await this.notifier.playlistUpdate(jukebox, clanId);
   }
 }

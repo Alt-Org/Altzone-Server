@@ -1,7 +1,8 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { publicReferences, SoulHome } from './soulhome.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Connection } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
 import { RoomService } from '../room/room.service';
 import { SoulHomeDto } from './dto/soulhome.dto';
 import { CreateSoulHomeDto } from './dto/createSoulHome.dto';
@@ -14,6 +15,7 @@ import {
   TIServiceDeleteByIdOptions,
   TReadByIdOptions,
 } from '../../common/service/basicService/IService';
+import { Environment } from '../../common/enum/environment.enum';
 
 @Injectable()
 export class SoulHomeService {
@@ -21,6 +23,7 @@ export class SoulHomeService {
     @InjectModel(SoulHome.name) public readonly model: Model<SoulHome>,
     @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     this.basicService = new BasicService(model);
   }
@@ -39,10 +42,34 @@ export class SoulHomeService {
     soulHome: CreateSoulHomeDto,
     options?: TIServiceCreateOneOptions,
   ) {
-    return this.basicService.createOne<CreateSoulHomeDto, SoulHomeDto>(
-      soulHome,
-      options,
-    );
+    const [created, createErrors] = await this.basicService.createOne<
+      CreateSoulHomeDto,
+      SoulHomeDto
+    >(soulHome, options);
+
+    if (createErrors) return [null, createErrors];
+
+    const clan = await this.connection
+      .model(ModelName.CLAN)
+      .findById(soulHome.clan_id);
+
+    if (!clan) return [created, null];
+
+    const environment = clan.environment ?? Environment.OPEN_DEMO;
+
+    if (created.environment === environment) return [created, null];
+
+    const updateOptions = options?.session ? { session: options.session } : {};
+    const [updated, updateErrors] =
+      await this.basicService.findByIdAndUpdate<SoulHome>(
+        created._id.toString(),
+        { environment: environment },
+        updateOptions,
+      );
+
+    if (updateErrors) return [created, null];
+
+    return [updated, null];
   }
 
   /**

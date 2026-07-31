@@ -20,6 +20,8 @@ export class RoomDto {
 
   /**
    * Order of rooms
+   * 
+   * @example 1
    */
   @Expose()
   @ApiProperty()
@@ -54,7 +56,7 @@ export class RoomDto {
   /**
    * Room items
    */
-  @Expose()
+  @Expose({ name: 'Item' })
   @Type(() => ItemSummaryDto)
   @ApiProperty({ type: () => [ItemSummaryDto] })
   furniture: ItemSummaryDto[];

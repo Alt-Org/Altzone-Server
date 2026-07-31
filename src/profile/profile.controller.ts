@@ -37,6 +37,7 @@ import { AuthService } from '../auth/auth.service';
 import { GuestProfileDto } from './dto/guestProfile.dto';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
 import { SecurityAnswerDto } from './dto/securityAnswer.dto';
+import { Environment } from '../common/enum/environment.enum';
 
 @Controller('profile')
 export default class ProfileController {
@@ -53,6 +54,12 @@ export default class ProfileController {
    *
    * Notice, that it is also possible in some edge cases to create a Profile without Player object associated with it,
    * however it is not recommended and API expects that for every Profile there is a Player object created.
+   *
+   * BE CAREFUL! Don't post this Example Value as-is!
+   * Check Player object values before sending. name, backpackCapacity and uniqueIdentifier are safe to send. Don't send profile_id.
+   *
+   * OLE VAROVAINEN! Älä postaa tätä esimerkki arvoa sellaisenaan!
+   * Tarkasta mitä Player-objektin arvoja lähetät. name, backpackCapacity ja uniqueIdentifier ovat turvallisia lähettää. Älä lähetä profile_id.
    */
   @ApiResponseDescription({
     success: {
@@ -77,7 +84,12 @@ export default class ProfileController {
     if (errors) return [null, errors];
 
     const createdProfile_id = createdProfile._id;
+    const createdProfile_environment =
+      createdProfile.environment ?? Environment.OPEN_DEMO;
+
     Player['profile_id'] = createdProfile_id;
+    Player['environment'] = createdProfile_environment;
+
     try {
       const playerResp = await this.playerService.createOne(Player);
       if (playerResp && !(playerResp instanceof MongooseError))

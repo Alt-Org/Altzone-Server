@@ -1,3 +1,4 @@
+import { RoomStatus } from '../../../../clanInventory/room/enum/roomStatus.enum';
 import { CreateRoomDto } from '../../../../clanInventory/room/dto/createRoom.dto';
 
 export default class CreateRoomDtoBuilder {
@@ -6,6 +7,7 @@ export default class CreateRoomDtoBuilder {
     roomColour: "defaultColor",
     floor: 'defaultFloor',
     wallpaper: 'defaultWall',
+    roomStatus: RoomStatus.ACTIVE,
     soulHome_id: undefined,
   };
 
@@ -30,6 +32,11 @@ export default class CreateRoomDtoBuilder {
 
   setWallpaper(wallpaper: string) {
     this.base.wallpaper = wallpaper;
+    return this;
+  }
+
+  setRoomStatus(status: RoomStatus) {
+    this.base.roomStatus = status;
     return this;
   }
 

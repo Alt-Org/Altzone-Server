@@ -39,10 +39,10 @@ export class Item {
   @Prop({ type: [Number], required: true })
   furnitureSize: number[];
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   rotation: ItemRotation;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   position: ItemPosition;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.ITEM })
