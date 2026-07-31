@@ -26,6 +26,7 @@ import {
   endTransaction,
   initializeSession,
 } from '../../common/function/Transactions';
+import { Environment } from '../../common/enum/environment.enum';
 
 /**
  * Class responsible for starting the testing session process.
@@ -174,6 +175,7 @@ export default class SessionStarterService {
       tag: '',
       labels: [ClanLabel.GAMERIT],
       phrase: 'Not-set',
+      environment: Environment.OPEN_DEMO,
     };
 
     const [createdClan, clanCreationErrors] =

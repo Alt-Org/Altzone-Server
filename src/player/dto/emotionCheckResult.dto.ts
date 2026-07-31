@@ -1,4 +1,4 @@
-import { PlayerEmotion } from "../enum/playerEmotion.enum";
+import { PlayerEmotion } from '../enum/playerEmotion.enum';
 
 export interface EmotionCheckResult {
   emotioncheck: {

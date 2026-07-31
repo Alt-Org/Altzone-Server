@@ -16,6 +16,7 @@ import { Type } from 'class-transformer';
 import { ClanLogoDto } from './clanLogo.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { StallDto } from './stall.dto';
+import { Environment } from '../../common/enum/environment.enum';
 
 /**
  * DTO for creating a clan.
@@ -136,4 +137,13 @@ export class CreateClanDto {
   @Type(() => StallDto)
   @IsOptional()
   stall?: StallDto;
+
+  /**
+   * Environment mode that the clan uses (Teaching Mode or Open Mode)
+   *
+   * @example Environment.OPEN_DEMO
+   */
+  @IsOptional()
+  @IsEnum(Environment)
+  environment?: Environment;
 }

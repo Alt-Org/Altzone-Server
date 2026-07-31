@@ -22,6 +22,7 @@ import { Language } from '../../common/enum/language.enum';
 import { ClanLogoDto } from './clanLogo.dto';
 import { Type } from 'class-transformer';
 import { StallDto } from './stall.dto';
+import { Environment } from '../../common/enum/environment.enum';
 import { CreateClanRoleDto } from '../role/dto/createClanRole.dto';
 import { ClanGovernanceUpdateDto } from './clanGovernanceUpdate.dto';
 import { ApiProperty } from '@nestjs/swagger';
@@ -187,4 +188,13 @@ export class UpdateClanDto {
   @Type(() => StallDto)
   @IsOptional()
   stall?: StallDto;
+
+  /**
+   * Environment mode that the clan uses (Teaching Mode or Open Mode)
+   *
+   * @example Environment.OPEN_DEMO
+   */
+  @IsEnum(Environment)
+  @IsOptional()
+  environment?: Environment;
 }

@@ -24,7 +24,7 @@ import { VotingQueueName } from '../../../voting/enum/VotingQueue.enum';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
 import { SetClanRoleVotingSchema } from '../../../voting/schemas/setClanRoleVoting.schema';
 import { getModelToken } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Voting } from '../../../voting/schemas/voting.schema';
 import { Player } from '../../../player/schemas/player.schema';
 import { BullModule } from '@nestjs/bullmq';
@@ -151,5 +151,24 @@ export default class ClanCommonModule {
       }).compile();
 
     return ClanCommonModule.module;
+  }
+
+  static async close() {
+    if (ClanCommonModule.module) {
+      try {
+        await ClanCommonModule.module.close();
+
+        if (mongoose.connection && mongoose.connection.readyState !== 0) {
+          await mongoose.disconnect();
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      } catch (error) {
+        if ((error as any)?.name !== 'MongoClientClosedError') {
+          console.error('Error during database disconnection:', error);
+        }
+      } finally {
+        ClanCommonModule.module = null;
+      }
+    }
   }
 }

@@ -8,6 +8,7 @@ import { TaskDto } from './task.dto';
 import { AvatarDto } from './avatar.dto';
 import { IsOptional, Min } from 'class-validator';
 import { EmotionDto } from './emotion.dto';
+import { Environment } from '../../common/enum/environment.enum';
 
 export class StatDetailDto {
   @Expose()
@@ -207,6 +208,12 @@ export class PlayerDto {
   @Type(() => EmotionDto)
   @Expose()
   emotions?: EmotionDto[];
+
+  /**
+   * Environment value linked to player profile
+   */
+  @Expose()
+  environment?: Environment;
 
   @Expose()
   @IsOptional()

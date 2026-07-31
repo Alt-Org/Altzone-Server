@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { FleaMarketItemSchema } from './fleaMarketItem.schema';
@@ -26,10 +26,10 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
       { name: ModelName.PLAYER, schema: PlayerSchema },
       { name: ModelName.CLAN, schema: ClanSchema },
     ]),
-    ClanInventoryModule,
+    forwardRef(() => ClanInventoryModule),
     PlayerModule,
     VotingModule,
-    ClanModule,
+    forwardRef(() => ClanModule),
     RequestHelperModule,
     EventEmitterCommonModule,
   ],
@@ -40,6 +40,6 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
     FleaMarketVotingProcessor,
     StallService,
   ],
-  exports: [],
+  exports: [FleaMarketService],
 })
 export class FleaMarketModule {}

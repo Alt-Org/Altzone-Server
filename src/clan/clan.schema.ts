@@ -11,6 +11,7 @@ import { ClanRole, ClanRoleSchema } from './role/ClanRole.schema';
 import { initializationClanRoles } from './role/initializationClanRoles';
 import { Stall } from './stall/stall.schema';
 import { getDefaultStall } from './defaultValues/stall';
+import { Environment } from '../common/enum/environment.enum';
 
 export type ClanDocument = HydratedDocument<Clan>;
 
@@ -83,6 +84,12 @@ export class Clan {
     default: getDefaultStall(),
   })
   stall: Stall;
+
+  @Prop({
+    type: Number,
+    enum: Environment,
+  })
+  environment: Environment;
 
   @ExtractField()
   _id: string;

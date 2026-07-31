@@ -1,5 +1,6 @@
-import { IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 import AddType from '../../common/base/decorator/AddType.decorator';
+import { Environment } from '../../common/enum/environment.enum';
 
 @AddType('GuestProfileDto')
 export class GuestProfileDto {
@@ -18,4 +19,13 @@ export class GuestProfileDto {
    */
   @IsString()
   password: string;
+
+  /**
+   * Environment for the guest profile
+   *
+   * @example Environment.OPEN_DEMO
+   */
+  @IsOptional()
+  @IsEnum(Environment)
+  environment?: Environment;
 }
