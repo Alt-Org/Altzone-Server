@@ -166,7 +166,7 @@ export class JoinService {
       );
 
       await endTransaction(session);
-
+      
       this.clanNotifier.memberLeave(clan_id, player_id);
     } catch (error) {
       await cancelTransaction(
@@ -233,7 +233,7 @@ export class JoinService {
       ); // update clan_id for the requested player;
 
       await endTransaction(session);
-
+      
       this.clanNotifier.memberLeave(clan_id, player_id);
     } catch (error) {
       await cancelTransaction(
@@ -270,7 +270,7 @@ export class JoinService {
       const [clan, clanReadingErrors] =
         await this.clanService.readOneById(clan_id, { session });
       if (clanReadingErrors) throw new NotFoundException('Clan with _id not found');
-
+      
       const playerResp = await this.playerModel.findOne({ _id: player_id });
 
       if (
@@ -368,7 +368,7 @@ export class JoinService {
       }
       
       await endTransaction(session);
-
+      
       this.clanNotifier.memberJoin(clan_id, player_id);
     } catch (error) {
       await cancelTransaction(
