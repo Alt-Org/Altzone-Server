@@ -15,13 +15,13 @@ import { SEReason } from '../../common/service/basicService/SEReason';
 
 @Injectable()
 export class RoomScheduler {
-  private readonly roomService: RoomService;
-  private readonly stockService: StockService;
-  private readonly soulHomeService: SoulHomeService;
-  private readonly itemService: ItemService;
-  private readonly roomRemovalNotifier: RoomRemovalNotifier;
   constructor(
     @InjectConnection() private readonly connection: Connection,
+    private readonly roomService: RoomService,
+    private readonly stockService: StockService,
+    private readonly soulHomeService: SoulHomeService,
+    private readonly itemService: ItemService,
+    private readonly roomRemovalNotifier: RoomRemovalNotifier,
   ) {}
   
   /**
@@ -80,26 +80,34 @@ export class RoomScheduler {
         }
 
         for (const stock of stocks) {
-          const home = clanHomesMap.get(stock.clan_id);
-          const roomIds = home ? homeRoomsMap.get(home._id) || [] : [];
+          const home = clanHomesMap.get(stock.clan_id.toString());
+          const roomIds = home ? homeRoomsMap.get(home._id.toString()) || [] : [];
 
           stockRoomsMap.set(stock._id, roomIds);
         }
 
         for (const [stockId, roomIds] of stockRoomsMap) {
-          itemBulk.push({
-            updateMany: {
-              filter: {
-                room_id: { $in: roomIds }
-              },
-              update: { 
-                $set: {
-                  stock_id: stockId,
-                  room_id: null
+          const [items,] = await this.itemService.basicService.readMany({
+            filter: {
+              room_id: { $in: roomIds },
+            },
+            session,
+          });
+
+          if (items)
+            itemBulk.push({
+              updateMany: {
+                filter: {
+                  room_id: { $in: roomIds }
+                },
+                update: { 
+                  $set: {
+                    stock_id: stockId,
+                    room_id: null
+                  }
                 }
               }
-            }
-          })
+            });
         }
 
         if (itemBulk.length > 0) {

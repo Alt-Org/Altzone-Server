@@ -25,6 +25,8 @@ import { ClanService } from '../../../clan/clan.service';
 import { PasswordGenerator } from '../../../common/function/passwordGenerator';
 import ClanHelperService from '../../../clan/utils/clanHelper.service';
 import GameEventEmitter from '../../../gameEventsEmitter/gameEventEmitter';
+import { RoomScheduler } from '../../../clanInventory/room/room.scheduler';
+import RoomRemovalNotifier from '../../../clanInventory/room/roomRemoval.notifier';
 
 export default class ClanInventoryCommonModule {
   private constructor() {}
@@ -58,6 +60,8 @@ export default class ClanInventoryCommonModule {
           StealTokenGuard,
           RoomService,
           RoomHelperService,
+          RoomScheduler,
+          RoomRemovalNotifier,
           SoulHomeService,
           SoulHomeHelperService,
           PasswordGenerator,
