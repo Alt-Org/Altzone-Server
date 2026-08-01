@@ -200,9 +200,19 @@ export class BoxService {
       return await cancelTransaction(session, adminPlayerErrors);
     }
 
-    await this.basicService.updateOneById<Partial<Box>>(parsed_id, {
+    const [, boxUpdateErrors] = await this.basicService.updateOneById<
+      Partial<Box>
+    >(parsed_id, {
       sessionStage: SessionStage.PREPARING,
+      // Clear session-specific claiming state so a reset box can accept new testers.
+      testersSharedPassword: null,
+      createdClan_ids: [],
+      testerAccountsClaimed: 0,
+      accountClaimersIds: [],
     });
+    if (boxUpdateErrors) {
+      return await cancelTransaction(session, boxUpdateErrors);
+    }
 
     const occurredErrors = [
       ...(clearingErrors ?? []),
