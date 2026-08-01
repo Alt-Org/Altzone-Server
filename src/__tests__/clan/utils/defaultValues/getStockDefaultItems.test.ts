@@ -1,6 +1,8 @@
 import { itemProperties } from '../../../../clanInventory/item/const/itemProperties';
 import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
 import { getStockDefaultItems } from '../../../../clan/utils/defaultValues/items';
+import { ItemRotation } from '../../../../clanInventory/item/enum/itemRotation.enum';
+import { ItemPosition } from '../../../../clanInventory/item/enum/itemPosition.enum';
 
 describe('getStockDefaultItems() test suite', () => {
   it('Should return valid stock default items', () => {
@@ -12,6 +14,10 @@ describe('getStockDefaultItems() test suite', () => {
         room_id: null,
         unityKey: ItemName.CARPET_RAKKAUS,
         location: [-1, -1],
+        rotation: ItemRotation.FRONT,
+        position: ItemPosition.FLOOR,
+        placedOn_id: null,
+        placedOnLocation: [-1, -1]
       },
       {
         ...itemProperties.Mirror_Rakkaus,
@@ -19,6 +25,10 @@ describe('getStockDefaultItems() test suite', () => {
         room_id: null,
         unityKey: ItemName.MIRROR_RAKKAUS,
         location: [-1, -1],
+        rotation: ItemRotation.FRONT,
+        position: ItemPosition.FLOOR,
+        placedOn_id: null,
+        placedOnLocation: [-1, -1]
       },
       {
         ...itemProperties.Closet_Rakkaus,
@@ -26,6 +36,10 @@ describe('getStockDefaultItems() test suite', () => {
         room_id: null,
         unityKey: ItemName.CLOSET_RAKKAUS,
         location: [-1, -1],
+        rotation: ItemRotation.FRONT,
+        position: ItemPosition.FLOOR,
+        placedOn_id: null,
+        placedOnLocation: [-1, -1]
       },
     ];
 

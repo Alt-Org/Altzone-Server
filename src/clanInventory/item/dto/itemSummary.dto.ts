@@ -1,84 +1,100 @@
-import {
-  IsBoolean,
-  IsInt,
-  IsMongoId,
-  IsOptional,
-  IsString,
-  IsArray,
-  IsEnum,
-  ArrayMinSize,
-  ArrayMaxSize,
-} from 'class-validator';
-import { IsStockExists } from '../../stock/decorator/validation/IsStockExists.decorator';
+import { Expose } from 'class-transformer';
 import { Rarity } from '../enum/rarity.enum';
 import { Recycling } from '../enum/recycling.enum';
 import { ItemName } from '../enum/itemName.enum';
 import AddType from '../../../common/base/decorator/AddType.decorator';
+import { ExtractField } from '../../../common/decorator/response/ExtractField';
 import { Material } from '../enum/material.enum';
-import { Expose } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
 import { ItemRotation } from '../enum/itemRotation.enum';
 import { ItemPosition } from '../enum/itemPosition.enum';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsArray, IsEnum } from 'class-validator';
 
-@AddType('CreateItemDto')
-export class CreateItemDto {
+@AddType('ItemSummaryDto')
+export class ItemSummaryDto {
   /**
-   * Display name of the item
+   * Unique identifier of the item
+   *
+   * @example "665a1f29c3f4fa0012e7a900"
+   */
+  @ExtractField()
+  @Expose()
+  @ApiProperty()
+  _id: string;
+
+  /**
+   * Name of the item
    *
    * @example "Sofa_Taakka"
    */
-  @IsString()
+  @Expose()
+  @ApiProperty()
+  @IsEnum(ItemName)
   name: ItemName;
 
   /**
-   * Weight of the item used for backpack or stock limitations
+   * Weight of the item
    *
-   * @example 2
+   * @example 1
    */
-  @IsInt()
+  @Expose()
+  @ApiProperty()
   weight: number;
 
   /**
-   * Recycling category for converting the item into resources
+   * Recycling type category
    *
    * @example "Wood"
    */
-  @IsEnum(Recycling)
+  @Expose()
+  @ApiProperty()
   recycling: Recycling;
 
   /**
-   * Rarity level of the item, influences value and drop rate
+   * Item rarity
    *
    * @example "common"
    */
-  @IsEnum(Rarity)
+  @Expose()
+  @ApiProperty()
   rarity: Rarity;
 
   /**
-   * Unity asset key used for rendering the item in-game
-   *
-   * @example "items/crystal_shard"
-   */
-  @IsString()
-  unityKey: string;
-
-  /**
-   * List of materials the item is composed of
+   * Materials that compose the item
    *
    * @example ["puu", "nahka"]
    */
+  @Expose()
+  @ApiProperty()
   @IsArray()
-  @IsEnum(Material, { each: true })
   material: Material[];
 
   /**
-   * Item's position in a 2D grid [x, y]
+   * Unity engine key for rendering
    *
-   * @example [3, 5]
+   * @example "items/mystic_orb"
    */
+  @Expose()
+  @ApiProperty()
+  unityKey: string;
+
+  /**
+   * Price of the item in in-game currency
+   *
+   * @example 500
+   */
+  @Expose()
+  @ApiProperty()
+  price: number;
+
+  /**
+   * Grid location of the item
+   *
+   * @example [1, 4]
+   */
+  @Expose()
+  @ApiProperty()
   @IsArray()
-  @ArrayMinSize(2)
-  @ArrayMaxSize(2)
   location: number[];
 
   /**
@@ -131,38 +147,31 @@ export class CreateItemDto {
   placedOnLocation: number[];
 
   /**
-   * In-game price or market value of the item
+   * Whether the item is a piece of furniture
    *
-   * @example 150
+   * @example false
    */
-  @IsInt()
-  price: number;
-
-  /**
-   * Marks the item as a piece of furniture (for Soul Home)
-   *
-   * @example true
-   */
-  @IsBoolean()
-  @IsOptional()
+  @Expose()
+  @ApiProperty()
   isFurniture: boolean;
 
   /**
-   * ID of the stock where the item is stored
+   * ID of the stock storing this item
    *
    * @example "666d99d3e3a12a001234abcd"
    */
-  @IsStockExists()
-  @IsMongoId()
-  @IsOptional()
+  @ExtractField()
+  @ApiProperty()
+  @Expose()
   stock_id: string;
 
   /**
-   * ID of the room where the item is placed
+   * ID of the room containing the item
    *
    * @example "666c88a7f2a98e001298cdef"
    */
-  @IsMongoId()
-  @IsOptional()
+  @ExtractField()
+  @ApiProperty()
+  @Expose()
   room_id: string;
 }

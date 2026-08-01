@@ -45,6 +45,7 @@ export class FleaMarketService {
     @InjectModel(FleaMarketItem.name)
     public readonly model: Model<FleaMarketItem>,
     private readonly helperService: FleaMarketHelperService,
+    @Inject(forwardRef(() => ItemHelperService))
     private readonly itemHelperService: ItemHelperService,
     private readonly playerService: PlayerService,
     private readonly itemService: ItemService,

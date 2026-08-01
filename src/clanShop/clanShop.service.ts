@@ -24,6 +24,8 @@ import {
 } from '../common/function/Transactions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { IServiceReturn } from '../common/service/basicService/IService';
+import { ItemRotation } from '../clanInventory/item/enum/itemRotation.enum';
+import { ItemPosition } from '../clanInventory/item/enum/itemPosition.enum';
 import { OnEvent } from '@nestjs/event-emitter';
 import ServiceError from '../common/service/basicService/ServiceError';
 @Injectable()
@@ -329,6 +331,11 @@ export class ClanShopService {
       unityKey: item.name,
       stock_id: stockId,
       room_id: null,
+      furnitureSize: item.furnitureSize,
+      rotation: ItemRotation.FRONT,
+      position: ItemPosition.FLOOR,
+      placedOn_id: null,
+      placedOnLocation: null
     };
   }
 }

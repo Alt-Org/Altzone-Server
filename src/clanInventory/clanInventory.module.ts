@@ -24,6 +24,7 @@ import { StockService } from './stock/stock.service';
 import { ClanSchema } from '../clan/clan.schema';
 import { StealTokenGuard } from './item/guards/StealToken.guard';
 import { AuthorizationModule } from '../authorization/authorization.module';
+import { ClanModule } from '../clan/clan.module';
 import { FleaMarketModule } from '../fleaMarket/fleaMarket.module';
 
 @Module({
@@ -40,7 +41,7 @@ import { FleaMarketModule } from '../fleaMarket/fleaMarket.module';
     RequestHelperModule,
     AuthModule,
     AuthorizationModule,
-
+    forwardRef(() => ClanModule),
     forwardRef(() => FleaMarketModule),
   ],
   controllers: [

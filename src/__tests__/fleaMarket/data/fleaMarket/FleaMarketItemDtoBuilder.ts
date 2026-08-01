@@ -12,6 +12,7 @@ export default class FleaMarketItemDtoBuilder {
     weight: 1,
     recycling: Recycling.GLASS,
     rarity: Rarity.common,
+    furnitureSize: [1, 1],
     unityKey: 'defaultUnityKey',
     status: Status.AVAILABLE,
     isFurniture: false,

@@ -48,6 +48,7 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
   ],
   exports: [
     ClanService,
+    ClanHelperService,
     PlayerCounterFactory,
     ClanRoleService,
     PasswordGenerator,

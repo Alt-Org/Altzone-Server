@@ -5,7 +5,6 @@ import CustomCharacterModule from '../../modules/customCharacter.module';
 import PlayerBuilderFactory from '../../data/playerBuilderFactory';
 import PlayerModule from '../../modules/player.module';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
-import { CharacterBaseStats } from '../../../../player/customCharacter/const/CharacterBaseStats';
 
 describe('CustomCharacterService.readPlayerBattleCharacters() test suite', () => {
   let characterService: CustomCharacterService;

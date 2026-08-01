@@ -40,17 +40,6 @@ describe('FleaMarketController.getOwnClanStall() test suite', () => {
   });
 
   it("Should return clan furniture items whether they're in the stall or not", async () => {
-    const item1 = fleaMarketItemBuilder
-      .setId('item-1')
-      .setClanId(clanId)
-      .setIsFurniture(true)
-      .build();
-    const item2 = fleaMarketItemBuilder
-      .setId('item-2')
-      .setClanId(clanId)
-      .setIsFurniture(true)
-      .build();
-
     playerService.getPlayerClanId.mockResolvedValue(clanId);
 
     const serviceReturn: IServiceReturn<StallResponse> = [

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { publicReferences, SoulHome } from './soulhome.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Connection } from 'mongoose';
@@ -10,6 +10,7 @@ import { UpdateSoulHomeDto } from './dto/updateSoulHome.dto';
 import { ModelName } from '../../common/enum/modelName.enum';
 import BasicService from '../../common/service/basicService/BasicService';
 import {
+  IServiceReturn,
   TIServiceCreateOneOptions,
   TIServiceDeleteByIdOptions,
   TReadByIdOptions,
@@ -20,6 +21,7 @@ import { Environment } from '../../common/enum/environment.enum';
 export class SoulHomeService {
   public constructor(
     @InjectModel(SoulHome.name) public readonly model: Model<SoulHome>,
+    @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
     @InjectConnection() private readonly connection: Connection,
   ) {
@@ -111,5 +113,42 @@ export class SoulHomeService {
   async deleteOneById(_id: string, options?: TIServiceDeleteByIdOptions) {
     await this.roomService.deleteAllSoulHomeRooms(_id, options);
     return this.basicService.deleteOneById(_id, options);
+  }
+
+  /**
+   * Read SoulHome of Clan Player belongs to. If Room is given as a parameter, get Rooms with Items.
+   * 
+   * @param _id - The Mongo _id of the SoulHome to read.
+   * @param options - Options for reading the SoulHome.
+   * @returns SoulHome with the given _id on succeed or an array of ServiceErrors if any occurred.
+   */
+  async readSoulHomeWithRooms(
+    _id: string, 
+    options?: TReadByIdOptions
+  ): Promise<IServiceReturn<SoulHomeDto>> {
+    const optionsToApply = options;
+    if (options?.includeRefs)
+      optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
+        publicReferences.includes(ref),
+      );
+
+    const [soulHome, soulHomeErrors] = await this.basicService.readOneById<SoulHomeDto>(_id);
+    if (soulHomeErrors) return [null, soulHomeErrors];
+
+    if (optionsToApply.includeRefs.includes(ModelName.ROOM)) {
+      const roomOptions = {
+        filter: {
+          soulHome_id: soulHome._id
+        },
+        includeRefs: [ModelName.ITEM]
+      }
+
+      const [rooms, roomsErrors] = await this.roomService.basicService.readMany(roomOptions);
+      if (roomsErrors) return [null, roomsErrors];
+
+      soulHome.Room = rooms;
+    }
+
+    return [soulHome, null];
   }
 }

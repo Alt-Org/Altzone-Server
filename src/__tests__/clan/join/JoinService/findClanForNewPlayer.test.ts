@@ -3,6 +3,8 @@ import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import PlayerModule from '../../../player/modules/player.module';
 import ClanBuilderFactory from '../../data/clanBuilderFactory';
 import ClanModule from '../../modules/clan.module';
+import ClanInventoryBuilderFactory from '../../../../__tests__/clanInventory/data/clanInventoryBuilderFactory';
+import SoulhomeModule from '../../../../__tests__/clanInventory/modules/soulhome.module';
 import MQTTConnector from '../../../../common/service/notificator/MQTTConnector';
 
 jest.mock('../../../../common/service/notificator/MQTTConnector', () => ({
@@ -21,6 +23,9 @@ describe('JoinService.findClanForNewPlayer() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const player = playerBuilder.build();
 
+  const soulHomeCreateBuilder = ClanInventoryBuilderFactory.getBuilder('CreateSoulHomeDto');
+  const soulHomeModel = SoulhomeModule.getSoulhomeModel();
+  const soulHome = soulHomeCreateBuilder.build();
   clan.environment = player.environment;
 
   beforeEach(async () => {
@@ -37,6 +42,8 @@ describe('JoinService.findClanForNewPlayer() test suite', () => {
 
     const clanResp = await clanModel.create(clan);
     clan._id = clanResp._id.toString();
+    soulHome.clan_id = clan._id;
+    await soulHomeModel.create(soulHome);
 
     await joinService.findClanForNewPlayer(player._id);
 

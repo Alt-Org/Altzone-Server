@@ -34,6 +34,7 @@ export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
     language: Language.NONE,
     roles: [],
     stall: new Stall(),
+    furnitureTotalValue: 0,
     environment: Environment.TEACHING_DEMO,
   };
 

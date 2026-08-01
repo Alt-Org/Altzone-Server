@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ItemService } from './item.service';
 import { NotFoundError } from './errors/item.errors';
 import { RoomService } from '../room/room.service';
@@ -14,6 +14,7 @@ export class ItemHelperService {
   public constructor(
     @InjectModel(Clan.name) public readonly model: Model<Clan>,
     private readonly itemService: ItemService,
+    @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
   ) {
     this.basicService = new BasicService(model);

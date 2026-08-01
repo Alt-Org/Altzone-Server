@@ -59,6 +59,14 @@ export class FleaMarketItemDto {
   material: Material[];
 
   /**
+   * Furniture size
+   *
+   * @example [1, 1]
+   */
+  @Expose()
+  furnitureSize: number[];
+
+  /**
    * Unity engine key for referencing the item
    *
    * @example "Some key"

@@ -109,6 +109,15 @@ export type TIServiceReadOneOptions<TObject = any> = {
    * Optional Mongoose session for transaction support.
    */
   session?: ClientSession;
+
+  /**
+   * Sorting order based on field(s). Value -1 for descending (from 10-1 or Z-A) and value 1 for ascending (1-10 or A-Z).
+   * @example ```
+   * {username: 1} //Sort by usernames from A to Z
+   * {username: 1, age: -1} //Sort by usernames from A to Z AND age from 100 to 1
+   * ```
+   */
+  sort?: Record<string, 1 | -1>;
 };
 
 export type TIServiceReadManyOptions<TObject = any> = {
@@ -261,6 +270,45 @@ export type TIServiceUpdateManyOptions<TObject = any> = {
    */
   session?: ClientSession;
 };
+
+export type TIServiceFindOneAndUpdate<TObject = any> = {
+  /**
+   * Search condition to apply. Update only objects that satisfy the condition.
+   *
+   * @example ```
+   *  //Equals
+   *  {username: 'john'} //update all objects where the username field is equal to 'john'
+   * ```
+   * @example ```
+   * //AND
+   *  {username: 'john', name: 'John Doe'} //update all objects where the username field is equal to 'john' AND the name is equal to 'John Doe'
+   * ```
+   * @example ```
+   * //OR
+   *  [{username: 'john'}, {name: 'John Doe'}] //update all objects where the username field is equal to 'john' OR the name is equal to 'John Doe'
+   * ```
+   * @example ```
+   * //Operators, all MongoDB operators, most common ones: $gte, $gt, $lte, $lt, $in, $regex
+   *  {age: {$gte: 23}} //update all objects where the age field is greater than or equal to 23
+   * ```
+   * @see [MongoDB queries](https://www.mongodb.com/docs/manual/reference/operator/query/)
+   */
+  filter: FilterQuery<TObject> | FilterQuery<TObject>[];
+
+  /**
+   * Optional Mongoose session for transaction support.
+   */
+  session?: ClientSession;
+
+  /**
+   * Sorting order based on field(s). Value -1 for descending (from 10-1 or Z-A) and value 1 for ascending (1-10 or A-Z).
+   * @example ```
+   * {username: 1} //Sort by usernames from A to Z
+   * {username: 1, age: -1} //Sort by usernames from A to Z AND age from 100 to 1
+   * ```
+   */
+  sort?: Record<string, 1 | -1>;
+}
 
 export type TIServiceDeleteByIdOptions = {
   /**
