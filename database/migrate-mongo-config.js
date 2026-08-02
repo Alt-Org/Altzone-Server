@@ -17,7 +17,7 @@ const config = {
     options: {
     }
   },
-  migrationsDir: "src/database/migrations",
+  migrationsDir: "database/migrations",
   changelogCollectionName: "migrations_changelog",
   migrationFileExtension: ".js", 
   useFileHash: false,
