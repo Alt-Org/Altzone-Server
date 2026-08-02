@@ -21,4 +21,12 @@ export enum NotificationResource {
    * Notification about friendships
    */
   FRIENDSHIP = 'friendship',
+  /**
+   * Notification about inactive rooms
+   */
+  INACTIVE_ROOM = 'inactive_room',
+  /**
+  * Notification about clan member join/leave events
+  */
+  MEMBER = 'member',
 }

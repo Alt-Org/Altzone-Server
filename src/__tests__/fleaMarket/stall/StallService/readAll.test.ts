@@ -191,10 +191,11 @@ describe('StallService.ReadAll() test suite', () => {
 
     const [result, error] = await stallService.readAll();
 
+    expect(error).toBeTruthy();
     expect(result).toBeNull();
 
     const expectedError = {
-      reason: expect.any(String),
+      reason: SEReason.NOT_FOUND,
       message: expect.stringContaining(
         'Could not find any objects with specified condition',
       ),

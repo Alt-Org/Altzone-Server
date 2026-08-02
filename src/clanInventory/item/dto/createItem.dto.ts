@@ -15,6 +15,10 @@ import { Recycling } from '../enum/recycling.enum';
 import { ItemName } from '../enum/itemName.enum';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 import { Material } from '../enum/material.enum';
+import { Expose } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+import { ItemRotation } from '../enum/itemRotation.enum';
+import { ItemPosition } from '../enum/itemPosition.enum';
 
 @AddType('CreateItemDto')
 export class CreateItemDto {
@@ -75,7 +79,56 @@ export class CreateItemDto {
   @IsArray()
   @ArrayMinSize(2)
   @ArrayMaxSize(2)
-  location: Array<number>;
+  location: number[];
+
+  /**
+   * Item size
+   * 
+   * @example [2, 2]
+   */
+  @Expose()
+  @ApiProperty()
+  @IsArray()
+  furnitureSize: number[];
+
+  /**
+   * Item rotation
+   * 
+   * @example left
+   */
+  @Expose()
+  @ApiProperty()
+  @IsEnum(ItemRotation)
+  rotation: ItemRotation;
+
+  /**
+   * Item postion
+   * 
+   * @eaxmple floor
+   */
+  @Expose()
+  @ApiProperty()
+  @IsEnum(ItemPosition)
+  position: ItemPosition;
+
+  /**
+   * Id of item the item is placed on
+   * 
+   * @example "665a1f29c3f4fa0012e7a900"
+   */
+  @Expose()
+  @ApiProperty()
+  placedOn_id: string;
+
+  /**
+   * spot on the item the item is placed on
+   * 
+   * @eaxple [1, 1]
+   */
+  @Expose()
+  @ApiProperty()
+  @IsArray()
+  placedOnLocation: number[];
 
   /**
    * In-game price or market value of the item

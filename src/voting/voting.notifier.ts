@@ -5,9 +5,13 @@ import { NotificationStatus } from '../common/service/notificator/enum/Notificat
 import NotificationSender from '../common/service/notificator/NotificationSender';
 import { VotingType } from './enum/VotingType.enum';
 import { VotingPayload } from './type/notifierPayload.type';
-import { FleaMarketItemDto } from '../fleaMarket/dto/fleaMarketItem.dto';
 import { PlayerDto } from '../player/dto/player.dto';
 import { VotingDto } from './dto/voting.dto';
+
+type VotingNotificationStatus =
+  | NotificationStatus.NEW
+  | NotificationStatus.UPDATE
+  | NotificationStatus.END;
 
 /**
  * Class for sending voting notifications
@@ -16,13 +20,13 @@ export default class VotingNotifier {
   private readonly group = NotificationGroup.CLAN;
   private readonly resource = NotificationResource.VOTING;
 
-  private async buildPayload(
+  private async buildPayload<TEntity>(
     voting: VotingDto,
-    entity: any,
-    status: NotificationStatus,
+    entity: TEntity,
+    status: VotingNotificationStatus,
     player?: PlayerDto,
-  ): Promise<VotingPayload> {
-    const payload: VotingPayload = {
+  ): Promise<VotingPayload<TEntity>> {
+    const payload: VotingPayload<TEntity> = {
       topic: `/clan/${
         voting.organizer.clan_id
       }/voting/${voting._id.toString()}`,
@@ -42,14 +46,18 @@ export default class VotingNotifier {
    * Sends a notification for a new voting
    * @param voting - The voting details
    */
-  async newVoting(voting: VotingDto, entity: any, player: PlayerDto) {
+  async newVoting<TEntity>(
+    voting: VotingDto,
+    entity: TEntity,
+    player: PlayerDto,
+  ) {
     const payload = await this.buildPayload(
       voting,
       entity,
       NotificationStatus.NEW,
       player,
     );
-    NotificationSender.buildNotification<VotingPayload>()
+    NotificationSender.buildNotification<VotingPayload<TEntity>>()
       .addGroup(this.group, voting.organizer.clan_id)
       .addResource(this.resource, voting.type)
       .send(NotificationStatus.NEW, payload);
@@ -59,18 +67,18 @@ export default class VotingNotifier {
    * Sends a notification for an updated voting
    * @param voting - The updated voting details
    */
-  async votingUpdated(
+  async votingUpdated<TEntity>(
     voting: VotingDto,
-    item: FleaMarketItemDto,
+    entity: TEntity,
     player: PlayerDto,
   ) {
     const payload = await this.buildPayload(
       voting,
-      item,
+      entity,
       NotificationStatus.UPDATE,
       player,
     );
-    NotificationSender.buildNotification<VotingPayload>()
+    NotificationSender.buildNotification<VotingPayload<TEntity>>()
       .addGroup(this.group, voting.organizer.clan_id)
       .addResource(this.resource, voting.type)
       .send(NotificationStatus.UPDATE, payload);
@@ -93,13 +101,13 @@ export default class VotingNotifier {
    * Sends a notification for a completed voting
    * @param voting - The completed voting details
    */
-  async votingCompleted(voting: VotingDto, item: FleaMarketItemDto) {
+  async votingCompleted<TEntity>(voting: VotingDto, entity: TEntity) {
     const payload = await this.buildPayload(
       voting,
-      item,
+      entity,
       NotificationStatus.END,
     );
-    NotificationSender.buildNotification<VotingPayload>()
+    NotificationSender.buildNotification<VotingPayload<TEntity>>()
       .addGroup(this.group, voting.organizer.clan_id)
       .addResource(this.resource, voting.type)
       .send(NotificationStatus.END, payload);

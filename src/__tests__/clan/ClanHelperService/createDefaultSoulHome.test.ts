@@ -35,7 +35,7 @@ describe('ClanHelperService.createDefaultSoulHome() test suite', () => {
     expect(createdSoulHome).not.toBeNull();
   });
 
-  it('Should create 30 Rooms for the SoulHome', async () => {
+  it('Should create 1 Room for the SoulHome', async () => {
     await clanHelperService.createDefaultSoulHome(
       existingClan._id,
       'soulhome1',
@@ -49,7 +49,7 @@ describe('ClanHelperService.createDefaultSoulHome() test suite', () => {
     });
 
     expect(createdRooms).not.toBeNull();
-    expect(createdRooms).toHaveLength(30);
+    expect(createdRooms).toHaveLength(1);
   });
 
   it('Should add default items to the first SoulHome room', async () => {

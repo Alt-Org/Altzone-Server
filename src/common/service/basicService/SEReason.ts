@@ -69,6 +69,11 @@ export enum SEReason {
   VALIDATION = 'VALIDATION',
 
   /**
+   * Provided game versions are incompatible with each other
+   */
+  VERSION_MISMATCH = 'VERSION_MISMATCH',
+
+  /**
    * The error is unexpected
    */
   UNEXPECTED = 'UNEXPECTED',
@@ -78,4 +83,9 @@ export enum SEReason {
    * For example created class instance is missing a required field to perform some action.
    */
   MISCONFIGURED = 'MISCONFIGURED',
+
+  /**
+   * Mismatch of the "environment" field between entities.
+   */
+  ENVIRONMENT_MISMATCH = 'ENVIRONMENT_MISMATCH',
 }

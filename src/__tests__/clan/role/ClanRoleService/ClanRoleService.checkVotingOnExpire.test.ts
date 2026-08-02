@@ -18,6 +18,20 @@ describe('ClanRoleService.checkVotingOnExpire', () => {
 
   beforeEach(async () => {
     roleService = await ClanModule.getClanRoleService();
+    // Mock votingService to prevent "Cannot read properties of undefined (reading 'finalizeVoting')"
+    (roleService as any).votingService = {
+      checkVotingSuccess: jest.fn().mockImplementation(async (voting) => {
+        return (
+          voting.votes?.length > 0 &&
+          (voting.votes.filter((vote: any) => vote.choice === VoteChoice.YES)
+            .length /
+            voting.votes.length) *
+            100 >=
+            (voting.minPercentage || 51)
+        );
+      }),
+      finalizeVoting: jest.fn().mockResolvedValue(undefined),
+    };
     await votingModel.deleteMany({});
     await playerModel.deleteMany({});
   });

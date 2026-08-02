@@ -21,6 +21,7 @@ import { CharacterBaseStats } from './const/CharacterBaseStats';
 import { UpdateCustomCharacterDto } from './dto/updateCustomCharacter.dto';
 import { ObjectId } from 'mongodb';
 import { NewCharacterBase } from './const/NewCharacterBase';
+import { Environment } from '../../common/enum/environment.enum';
 
 @Injectable()
 export class CustomCharacterService {
@@ -59,10 +60,16 @@ export class CustomCharacterService {
       return [null, characterValidationErrors];
     }
 
+    const player = await this.playerModel.findById(owner_id);
+    const environment = player.environment
+      ? player.environment
+      : Environment.OPEN_DEMO;
+
     const newCharacter: CustomCharacter = {
       ...NewCharacterBase,
       ...customCharacterToCreate,
       player_id: owner_id,
+      environment: environment,
     };
 
     const [doc, errors] =

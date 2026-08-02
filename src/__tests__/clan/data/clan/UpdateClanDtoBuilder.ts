@@ -3,6 +3,7 @@ import { ClanLabel } from '../../../../clan/enum/clanLabel.enum';
 import { AgeRange } from '../../../../clan/enum/ageRange.enum';
 import { Goal } from '../../../../clan/enum/goal.enum';
 import { Language } from '../../../../common/enum/language.enum';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class UpdateClanDtoBuilder {
   private readonly base: UpdateClanDto = {
@@ -18,6 +19,7 @@ export default class UpdateClanDtoBuilder {
     phrase: undefined,
     language: undefined,
     clanLogo: undefined,
+    environment: undefined,
   };
 
   build() {
@@ -76,6 +78,11 @@ export default class UpdateClanDtoBuilder {
 
   setLanguage(language: Language) {
     this.base.language = language;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }

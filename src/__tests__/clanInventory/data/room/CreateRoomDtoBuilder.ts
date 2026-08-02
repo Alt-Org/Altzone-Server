@@ -1,11 +1,13 @@
+import { RoomStatus } from '../../../../clanInventory/room/enum/roomStatus.enum';
 import { CreateRoomDto } from '../../../../clanInventory/room/dto/createRoom.dto';
 
 export default class CreateRoomDtoBuilder {
   private readonly base: Partial<CreateRoomDto> = {
-    floorType: 'defaultFloor',
-    wallType: 'defaultWall',
-    hasLift: false,
-    cellCount: 10,
+    roomPosition: 1,
+    roomColour: "defaultColor",
+    floor: 'defaultFloor',
+    wallpaper: 'defaultWall',
+    roomStatus: RoomStatus.ACTIVE,
     soulHome_id: undefined,
   };
 
@@ -13,23 +15,28 @@ export default class CreateRoomDtoBuilder {
     return { ...this.base } as CreateRoomDto;
   }
 
-  setFloorType(floorType: string) {
-    this.base.floorType = floorType;
+  setRoomPosition(position: number) {
+    this.base.roomPosition = position;
     return this;
   }
 
-  setWallType(wallType: string) {
-    this.base.wallType = wallType;
+  setRoomColour(colour: string) {
+    this.base.roomColour = colour;
     return this;
   }
 
-  setHasLift(hasLift: boolean) {
-    this.base.hasLift = hasLift;
+  setFloor(floor: string) {
+    this.base.floor = floor;
     return this;
   }
 
-  setCellCount(cellCount: number) {
-    this.base.cellCount = cellCount;
+  setWallpaper(wallpaper: string) {
+    this.base.wallpaper = wallpaper;
+    return this;
+  }
+
+  setRoomStatus(status: RoomStatus) {
+    this.base.roomStatus = status;
     return this;
   }
 

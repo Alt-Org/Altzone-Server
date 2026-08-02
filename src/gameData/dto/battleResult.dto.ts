@@ -2,8 +2,10 @@ import {
   IsArray,
   IsEnum,
   IsInt,
+  IsString,
   IsMongoId,
   IsPositive,
+  IsNotEmpty,
   Max,
   Min,
 } from 'class-validator';
@@ -17,6 +19,15 @@ export class BattleResultDto {
    */
   @IsEnum(RequestType)
   type: RequestType.RESULT;
+
+  /**
+   * The unique identifier for the battle match.
+   * This is used to look up the existing game record in the database.
+   * * @example "665af23e5e982f0013aa9999"
+   */
+  @IsString()
+  @IsNotEmpty()
+  matchId: string;
 
   /**
    * IDs of players in team 1
@@ -53,5 +64,5 @@ export class BattleResultDto {
   @IsInt()
   @Min(1)
   @Max(2)
-  winnerTeam: number;
+  result: number;
 }

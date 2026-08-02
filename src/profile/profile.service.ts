@@ -27,6 +27,8 @@ import { createHash } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { RecoveryConstants } from './const/recoveryConst';
+import { Environment } from '../common/enum/environment.enum';
+import { CreatePlayerDto } from '../player/dto/createPlayer.dto';
 
 const ARGON2_CONFIG = {
   type: argon2.argon2id,
@@ -100,7 +102,7 @@ export class ProfileService
           new ServiceError({
             reason: SEReason.REQUIRED,
             message:
-              'securityQuestion and securityAsnwer are required together',
+              'securityQuestion and securityAnswer are required together',
           }),
         ],
       ];
@@ -114,6 +116,16 @@ export class ProfileService
 
       profile.securityAnswer = hashedAnswer;
     }
+
+    const environment = profile.environment ?? Environment.OPEN_DEMO;
+
+    if (environment === Environment.TEACHING_DEMO) {
+      const expirationDate = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
+      const expiresAt = expirationDate;
+      profile.expiresAt = expiresAt;
+    }
+
+    profile.environment = environment;
 
     return this.basicService.createOne<any, ProfileDto>(
       {
@@ -138,11 +150,13 @@ export class ProfileService
       .slice(0, 8);
     const username = prefix + '-' + uniqueIdentifier;
     const isGuest = true;
+    const environment = Environment.OPEN_DEMO;
 
     const [createdProfile, errors] = await this.createWithHashedPassword({
       username,
       password,
-      isGuest,
+      isGuest: isGuest,
+      environment: environment,
     } as CreateProfileDto);
 
     if (errors) return [null, errors];
@@ -153,7 +167,8 @@ export class ProfileService
         name: username,
         uniqueIdentifier: username,
         backpackCapacity: 0,
-      });
+        environment: createdProfile.environment,
+      } as CreatePlayerDto);
     } catch (e) {
       await this.deleteOneById(createdProfile._id);
       throw e;
@@ -163,6 +178,7 @@ export class ProfileService
       {
         username: username,
         password: password,
+        environment: environment,
       } as GuestProfileDto,
       null,
     ];
@@ -224,7 +240,8 @@ export class ProfileService
         includeRefs: [ModelName.CLAN],
       });
 
-    if (playerReadingErrors) return [null, playerReadingErrors];
+    if (playerReadingErrors)
+      return [null, playerReadingErrors as ServiceError[]];
     profile.Player = player;
 
     return [profile, null];

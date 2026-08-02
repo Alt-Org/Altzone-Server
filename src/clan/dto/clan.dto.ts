@@ -10,6 +10,7 @@ import { ClanLogoDto } from './clanLogo.dto';
 import ClanRoleDto from '../role/dto/clanRole.dto';
 import { ClanLabel } from '../enum/clanLabel.enum';
 import { StallDto } from './stall.dto';
+import { Environment } from '../../common/enum/environment.enum';
 
 /**
  * DTO for reading clan data.
@@ -61,6 +62,14 @@ export class ClanDto {
    */
   @Expose()
   gameCoins: number;
+  
+  /**
+   * Value of items in Clan SoulHome
+   *
+   * @example 1500
+   */
+  @Expose()
+  furnitureTotalValue: number;
 
   /**
    * Total points accumulated by the clan
@@ -198,4 +207,11 @@ export class ClanDto {
   @Type(() => StallDto)
   @Expose()
   stall?: StallDto;
+
+  /**
+   * Clan environment
+   * @example Environment.TEACHING_DEMO
+   */
+  @Expose()
+  environment?: Environment;
 }

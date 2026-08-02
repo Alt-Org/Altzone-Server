@@ -1,7 +1,8 @@
+import { ItemProperty } from '../../clanInventory/item/const/itemProperties';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Clan } from '../../clan/clan.schema';
-import { ClientSession, Model} from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { Player } from '../../player/schemas/player.schema';
 import BasicService from '../../common/service/basicService/BasicService';
 import { prizePool } from '../const/prizePool';
@@ -9,7 +10,18 @@ import { Stock } from '../../clanInventory/stock/stock.schema';
 import { Item } from '../../clanInventory/item/item.schema';
 import { ItemName } from '../../clanInventory/item/enum/itemName.enum';
 import { itemProperties } from '../../clanInventory/item/const/itemProperties';
-import { ItemDto } from '../../clanInventory/item/dto/item.dto';
+import { IServiceReturn } from '../../common/service/basicService/IService';
+
+export type ClanProgressionResult = {
+  reachedMilestones: number[];
+};
+
+type ClanProgressionItem = ItemProperty & {
+  unityKey: string;
+  location: number[];
+  stock_id: string;
+  room_id: string | null;
+};
 
 @Injectable()
 export class ClanProgression {
@@ -31,28 +43,28 @@ export class ClanProgression {
   }
 
   /**
-  * Handles prize pool progression
-  * 
-  * @param clan Clan to be updated
-  * @param session Session for transactions
-  */
+   * Handles prize pool progression
+   *
+   * @param clan Clan to be updated
+   * @param session Session for transactions
+   */
   async handleClanProgression(
     clan: Clan,
     session?: ClientSession,
-  ) {
-
+  ): Promise<IServiceReturn<ClanProgressionResult>> {
     const pool = prizePool;
     const existingUnlocked = [...(clan.unlockedMilestones ?? [])];
-    const newUnlockedPoints = [];
-    const newItemRewards = [];
+    const newUnlockedPoints: number[] = [];
+    const newItemRewards: ItemProperty[] = [];
     let coins = clan.gameCoins;
 
-    const newMilestones = pool.milestones.filter(milestone =>
-      clan.points >= milestone.points &&
-      !existingUnlocked.includes(milestone.points)
+    const newMilestones = pool.milestones.filter(
+      (milestone) =>
+        clan.points >= milestone.points &&
+        !existingUnlocked.includes(milestone.points),
     );
 
-    if (newMilestones.length === 0) return [null, null];
+    if (newMilestones.length === 0) return [{ reachedMilestones: [] }, null];
 
     for (const milestone of newMilestones) {
       existingUnlocked.push(milestone.points);
@@ -62,28 +74,28 @@ export class ClanProgression {
     }
 
     const clanUpdateErrors = await this.handleClanUpdate(
-      clan._id, 
-      existingUnlocked, 
-      coins, 
-      session
+      clan._id,
+      existingUnlocked,
+      coins,
+      session,
     );
     if (clanUpdateErrors) return [null, clanUpdateErrors];
 
     const itemUpdateErrors = await this.handleItemUpdate(
-      clan._id, 
-      newItemRewards, 
-      session
+      clan._id,
+      newItemRewards,
+      session,
     );
     if (itemUpdateErrors) return [null, itemUpdateErrors];
 
     const playerUpdateErrors = await this.handlePlayerUpdate(
-      clan._id, 
-      newUnlockedPoints, 
-      session
+      clan._id,
+      newUnlockedPoints,
+      session,
     );
     if (playerUpdateErrors) return [null, playerUpdateErrors];
 
-    return [null, null];
+    return [{ reachedMilestones: newUnlockedPoints }, null];
   }
 
   /**
@@ -95,20 +107,20 @@ export class ClanProgression {
    * @returns If errors, Errors
    */
   private async handleClanUpdate(
-    clan_id: string, 
-    existingUnlocked: number[], 
+    clan_id: string,
+    existingUnlocked: number[],
     coins: number,
-    session: ClientSession
+    session: ClientSession,
   ) {
     const [, clanUpdateErrors] = await this.clanService.updateOneById(
-      clan_id, 
-      { 
-        $set: { 
+      clan_id,
+      {
+        $set: {
           unlockedMilestones: existingUnlocked,
-          gameCoins: coins 
-        }
+          gameCoins: coins,
+        },
       },
-      { session }
+      { session },
     );
     if (clanUpdateErrors) return clanUpdateErrors;
   }
@@ -121,13 +133,13 @@ export class ClanProgression {
    * @returns If errors, Errors
    */
   private async handlePlayerUpdate(
-    clan_id: string, 
+    clan_id: string,
     newUnlockedPoints: number[],
-    session: ClientSession
+    session: ClientSession,
   ) {
     const [players, playerErrors] = await this.playerService.readMany({
       filter: { clan_id },
-      session
+      session,
     });
     if (playerErrors) return playerErrors;
 
@@ -135,13 +147,18 @@ export class ClanProgression {
 
     const [, playersUpdateErrors] = await this.playerService.updateMany(
       [
-        { 
-          $set: { claimableRewards: { 
-            $concatArrays: [{ $ifNull: ['$claimableRewards', []] }, newUnlockedPoints] 
-          } } 
-        }
+        {
+          $set: {
+            claimableRewards: {
+              $concatArrays: [
+                { $ifNull: ['$claimableRewards', []] },
+                newUnlockedPoints,
+              ],
+            },
+          },
+        },
       ],
-      { filter, session }
+      { filter, session },
     );
     if (playersUpdateErrors) return playersUpdateErrors;
   }
@@ -154,22 +171,23 @@ export class ClanProgression {
    * @returns If errors, Errors
    */
   private async handleItemUpdate(
-    clan_id: string, 
-    newItemRewards: ItemDto[],
-    session: ClientSession
+    clan_id: string,
+    newItemRewards: ItemProperty[],
+    session: ClientSession,
   ) {
-    const [stock, stockErrors] = await this.stockService.readOne({ 
+    const [stock, stockErrors] = await this.stockService.readOne({
       filter: { clan_id: clan_id },
-      session
+      session,
     });
     if (stockErrors) return stockErrors;
 
-    const items = newItemRewards.map(reward => this.createItem(reward.name, stock._id))
-
-    const [, itemErrors] = await this.itemService.createMany(
-      items, 
-      { session }
+    const items = newItemRewards.map((reward) =>
+      this.createItem(reward.name, stock._id),
     );
+
+    const [, itemErrors] = await this.itemService.createMany(items, {
+      session,
+    });
     if (itemErrors) return itemErrors;
   }
 
@@ -179,10 +197,7 @@ export class ClanProgression {
    * @param stockId Stock Id used to track ownership
    * @returns Created item
    */
-  private createItem(
-    itemName: ItemName, 
-    stockId: string
-  ) {
+  private createItem(itemName: ItemName, stockId: string): ClanProgressionItem {
     const item = itemProperties[itemName];
     return {
       ...item,

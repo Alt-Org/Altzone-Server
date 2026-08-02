@@ -9,6 +9,7 @@ import { CacheKeys } from '../common/service/redis/cacheKeys.enum';
 import { RedisService } from '../common/service/redis/redis.service';
 import { PlayerDocument } from '../player/schemas/player.schema';
 import { envVars } from '../common/service/envHandler/envVars';
+import { Environment } from '../common/enum/environment.enum';
 
 @Injectable()
 export class LeaderboardService {
@@ -32,12 +33,14 @@ export class LeaderboardService {
    * This method fetches and caches the clan leaderboard data based on the provided query parameters.
    *
    * @param reqQuery - The query parameters containing pagination info.
+   * @param environment - The environment of the clan.
    * @returns - A promise that resolves to the clan leaderboard data.
    */
-  async getClanLeaderboard(reqQuery: IGetAllQuery) {
+  async getClanLeaderboard(reqQuery: IGetAllQuery, environment?: Environment) {
     return this.getLeaderboard(
       CacheKeys.CLAN_LEADERBOARD,
       this.clanService.model,
+      environment,
       reqQuery,
     );
   }
@@ -48,12 +51,17 @@ export class LeaderboardService {
    * This method fetches and caches the player leaderboard data based on the provided query parameters.
    *
    * @param reqQuery - The query parameters containing pagination info.
+   * @param environment - The environment of the clan.
    * @returns - A promise that resolves to the player leaderboard data.
    */
-  async getPlayerLeaderboard(reqQuery: IGetAllQuery) {
+  async getPlayerLeaderboard(
+    reqQuery: IGetAllQuery,
+    environment?: Environment,
+  ) {
     return this.getLeaderboard(
       CacheKeys.PLAYER_LEADERBOARD,
       this.playerService.model,
+      environment,
       reqQuery,
     );
   }
@@ -64,19 +72,25 @@ export class LeaderboardService {
    * @param cacheKey - The key to use for caching.
    * @param model - The Mongoose model to fetch data from. (Player | Clan)
    * @param reqQuery - The query parameters containing pagination info.
+   * @param environment - The environment value (Player | Clan).
    * @returns - A subset of the data array based on the limit and skip values.
    * @throws - If no data is found.
    */
   private async getLeaderboard(
     cacheKey: string,
     model: mongoose.Model<any>,
+    environment?: Environment,
     reqQuery?: IGetAllQuery,
   ): Promise<object[]> {
     const dataRaw = await this.redisService.get(cacheKey);
     let data: object[] = JSON.parse(dataRaw);
 
     if (!data) {
-      const fetchedData = await model.find().sort({ battlePoints: -1 }).exec();
+      const fetchedData =
+        environment !== undefined
+          ? await model.find({ environment }).sort({ battlePoints: -1 }).exec()
+          : await model.find().sort({ battlePoints: -1 }).exec();
+
       if (!fetchedData) throw new ServiceError({ reason: SEReason.NOT_FOUND });
 
       data = await this.processCacheData(model, fetchedData);
@@ -122,13 +136,26 @@ export class LeaderboardService {
    * @returns An object { position: number }
    */
   async getClanPosition(clanId: string) {
+    const [clan, clanErrors] = await this.clanService.readOneById(clanId);
+
+    if (!clan || clanErrors) {
+      throw new ServiceError({
+        reason: SEReason.NOT_FOUND,
+        message: 'Clan not found',
+      });
+    }
+
+    const environment = clan.environment;
     const leaderboard = await this.getLeaderboard(
       CacheKeys.CLAN_LEADERBOARD,
       this.clanService.model,
+      environment,
     );
 
     const position = leaderboard.findIndex((clan) => clan['id'] == clanId) + 1;
+
     if (position === 0) throw new ServiceError({ reason: SEReason.NOT_FOUND });
+
     return { position };
   }
 

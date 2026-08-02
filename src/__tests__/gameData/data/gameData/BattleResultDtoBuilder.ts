@@ -3,15 +3,17 @@ import { RequestType } from '../../../../gameData/enum/requestType.enum';
 
 export class BattleResultDtoBuilder {
   private readonly base: BattleResultDto = {
+    matchId: 'default-match',
     type: RequestType.RESULT,
     team1: [],
     team2: [],
     duration: 0,
-    winnerTeam: 0,
+    result: 0,
   };
 
-  build(): BattleResultDto {
-    return { ...this.base } as BattleResultDto;
+  setMatchId(id: string): this {
+    this.base.matchId = id;
+    return this;
   }
 
   setType(type: RequestType): this {
@@ -29,13 +31,17 @@ export class BattleResultDtoBuilder {
     return this;
   }
 
-  setDuration(duration: number): this {
-    this.base.duration = duration;
+  setDuration(d: number): this {
+    this.base.duration = d;
     return this;
   }
 
-  setWinnerTeam(winnerTeam: number): this {
-    this.base.winnerTeam = winnerTeam;
+  setWinnerTeam(team: number): this {
+    this.base.result = team;
     return this;
+  }
+
+  build(): BattleResultDto {
+    return { ...this.base } as BattleResultDto;
   }
 }

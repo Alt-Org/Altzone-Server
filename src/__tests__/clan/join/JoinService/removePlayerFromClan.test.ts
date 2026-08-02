@@ -5,9 +5,17 @@ import PlayerModule from '../../../player/modules/player.module';
 import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
 import { NotFoundException } from '@nestjs/common';
+import ClanInventoryBuilderFactory from '../../../../__tests__/clanInventory/data/clanInventoryBuilderFactory';
+import SoulhomeModule from '../../../../__tests__/clanInventory/modules/soulhome.module';
+import MQTTConnector from '../../../../common/service/notificator/MQTTConnector';
+
+jest.mock('../../../../common/service/notificator/MQTTConnector', () => ({
+  getInstance: jest.fn(),
+}));
 
 describe('JoinService.removePlayerFromClan() test suite', () => {
   let joinService: JoinService;
+  let publishMock: jest.Mock;
 
   const clanModel = ClanModule.getClanModel();
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
@@ -17,11 +25,22 @@ describe('JoinService.removePlayerFromClan() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const player = playerBuilder.build();
 
+  const soulHomeModel = SoulhomeModule.getSoulhomeModel();
+  const soulHomeCreateBuilder = ClanInventoryBuilderFactory.getBuilder('CreateSoulHomeDto');
+  const soulHome = soulHomeCreateBuilder.build();
+
   beforeEach(async () => {
+    publishMock = jest.fn();
+    (MQTTConnector.getInstance as jest.Mock).mockReturnValue({
+      publish: publishMock,
+    });
+
     const playerResp = await playerModel.create(player);
     player._id = playerResp._id.toString();
     const clanResp = await clanModel.create(clan);
     clan._id = clanResp._id.toString();
+    soulHome.clan_id = clanResp._id.toString();
+    await soulHomeModel.create(soulHome);
 
     await playerModel.updateOne({ _id: player._id }, { clan_id: clan._id });
 
@@ -88,5 +107,19 @@ describe('JoinService.removePlayerFromClan() test suite', () => {
     const clanInDB = await clanModel.findById(clan._id);
 
     expect(clanInDB.playerCount).toBe(1);
+  });
+
+  it('Should publish an MQTT leave notification when player is removed from the clan', async () => {
+    await joinService.removePlayerFromClan(player._id, clan._id);
+
+    expect(publishMock).toHaveBeenCalledTimes(1);
+    const [topic, payload] = publishMock.mock.calls[0];
+    expect(topic).toBe(`/clan/${clan._id}/member/leave/update`);
+
+    const parsedPayload = JSON.parse(payload);
+    expect(parsedPayload.topic).toBe(`/clan/${clan._id}/member/leave`);
+    expect(parsedPayload.playerId).toBe(player._id);
+    expect(parsedPayload.event).toBe('leave');
+    expect(parsedPayload.ts).toBeLessThanOrEqual(Date.now());
   });
 });
