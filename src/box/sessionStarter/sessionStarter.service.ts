@@ -69,8 +69,8 @@ export default class SessionStarterService {
       this.passwordGenerator.generatePassword('fi') + `-${randNumber}`;
 
     const now = new Date().getTime();
-    const timeAfterWeek = now + 60 * 60 * 24 * 7;
-    const timeAfterMonth = now + 60 * 60 * 24 * 30;
+    const timeAfterWeek = now + 60 * 60 * 24 * 7 * 1000;
+    const timeAfterMonth = now + 60 * 60 * 24 * 30 * 1000;
 
     const [boxInDB, error] = await this.getAndValidateBox(box_id);
     if (error) return [null, error];
