@@ -17,7 +17,8 @@ export class StealTokenGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 
-    const stealToken = request.query.steal_token ?? request.body.steal_token;
+    const stealToken =
+      request.query?.steal_token ?? request.body?.steal_token ?? undefined;
 
     if (!stealToken) {
       throw new APIError({
