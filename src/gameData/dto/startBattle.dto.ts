@@ -32,10 +32,11 @@ export class StartBattleDto {
   team2: string[];
 
   /**
-   * Optional custom match ID. If these are not provided, the server generates one.
-   * @example "match_12345"
+   * Optional custom Mongo ObjectId-compatible match ID.
+   * If not provided, the server generates one.
+   * @example "665af23e5e982f0013aa9999"
    */
   @IsOptional()
-  @IsString()
+  @IsMongoId()
   matchId?: string;
 }
