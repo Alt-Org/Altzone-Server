@@ -3,7 +3,6 @@ import {
   IsArray,
   IsMongoId,
   IsOptional,
-  IsString,
 } from 'class-validator';
 import { GameType } from '../enum/gameType.enum';
 
