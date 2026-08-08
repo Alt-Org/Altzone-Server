@@ -1,4 +1,6 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { AvatarDto } from '../../player/dto/avatar.dto';
 
 /**
  * DTO representing a single chat message.
@@ -24,4 +26,12 @@ export class ReactionDto {
    */
   @Expose()
   sender_id: string;
+
+  /**
+   * Avatar data of the user who reacted
+   */
+  @Expose()
+  @Type(() => AvatarDto)
+  @ApiPropertyOptional({ type: () => AvatarDto })
+  avatarData?: AvatarDto;
 }
