@@ -333,7 +333,10 @@ export class MatchmakingService {
       result: { winningSide: body.winningSide },
     };
 
-    await this.updateLeaderboardsForFinishedMatch(finishedMatch);
+    const leaderboardErrors =
+      await this.updateLeaderboardsForFinishedMatch(finishedMatch);
+    if (leaderboardErrors) return [null, leaderboardErrors];
+
     await this.saveFinishedMatch(finishedMatch);
     await this.invalidateLeaderboardCaches();
     await this.notifier.matchEvent(
@@ -718,12 +721,14 @@ export class MatchmakingService {
   private async updateLeaderboardsForFinishedMatch(match: ActiveMatch) {
     const playerErrors =
       await this.updatePlayerLeaderboardForFinishedMatch(match);
-    if (playerErrors) throw playerErrors;
+    if (playerErrors) return playerErrors;
 
-    if (match.matchType !== MatchType.CLAN) return;
+    if (match.matchType !== MatchType.CLAN) return null;
 
     const clanErrors = await this.updateClanLeaderboardForFinishedMatch(match);
-    if (clanErrors) throw clanErrors;
+    if (clanErrors) return clanErrors;
+
+    return null;
   }
 
   private async updatePlayerLeaderboardForFinishedMatch(match: ActiveMatch) {
