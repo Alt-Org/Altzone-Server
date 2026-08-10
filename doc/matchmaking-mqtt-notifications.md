@@ -5,8 +5,8 @@ The implementation lives in `src/matchmaking/matchmaking.notifier.ts`, and the
 state changes that trigger the events are handled by
 `src/matchmaking/matchmaking.service.ts`.
 
-Matchmaking topics currently do not start with `/`. Frontend subscriptions must
-use the exact topic strings shown below.
+Matchmaking topics currently start with `/`. Frontend subscriptions must use
+the exact topic strings shown below.
 
 ## Subscribe Topics
 
