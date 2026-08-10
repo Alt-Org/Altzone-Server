@@ -1,10 +1,10 @@
 import {
-  IsString,
   IsInt,
   IsNotEmpty,
   Min,
   Max,
   IsPositive,
+  IsMongoId,
 } from 'class-validator';
 
 export class SubmitResultDto {
@@ -12,7 +12,7 @@ export class SubmitResultDto {
    * The unique identifier for the battle match.
    * @example "665af23e5e982f0013aa9999"
    */
-  @IsString()
+  @IsMongoId()
   @IsNotEmpty()
   matchId: string;
 

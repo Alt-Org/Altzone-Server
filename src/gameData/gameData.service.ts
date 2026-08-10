@@ -426,12 +426,12 @@ export class GameDataService {
   /**
    * Forcibly resolves a battle conflict after the "Final Call" period.
    * Uses a majority vote based on received results and defaults to Team 1 if tied.
-   * * @param matchId - The unique identifier of the battle to resolve.
+   * @param _id - The unique identifier of the battle to resolve (matchId).
    * @returns A promise that resolves once the conflict is settled and rewards are issued.
    * @private
    */
-  private async resolveConflict(matchId: string) {
-    const battle = await this.model.findOne({ matchId });
+  private async resolveConflict(_id: string) {
+    const battle = await this.model.findOne({ _id });
     if (!battle || battle.status === BattleStatus.COMPLETED) return;
 
     const results = battle.receivedResults;
