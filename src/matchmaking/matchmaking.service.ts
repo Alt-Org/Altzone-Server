@@ -918,6 +918,17 @@ export class MatchmakingService {
       ];
     }
 
+    if (invite.matchType === MatchType.CUSTOM && !body.roomId) {
+      return [
+        new ServiceError({
+          reason: SEReason.REQUIRED,
+          field: 'roomId',
+          value: body.roomId,
+          message: 'CUSTOM invite joins require roomId.',
+        }),
+      ];
+    }
+
     if (invite.matchType === MatchType.CUSTOM && body.roomId) {
       if (body.roomId !== invite.roomId) {
         return [
