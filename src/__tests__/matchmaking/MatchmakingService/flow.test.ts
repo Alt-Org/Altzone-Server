@@ -4,6 +4,8 @@ import { MatchType } from '../../../matchmaking/enum/matchType.enum';
 import { TeamSide } from '../../../matchmaking/enum/teamSide.enum';
 import { MatchmakingService } from '../../../matchmaking/matchmaking.service';
 import { ActiveMatch } from '../../../matchmaking/type/activeMatch.type';
+import { SEReason } from '../../../common/service/basicService/SEReason';
+import ServiceError from '../../../common/service/basicService/ServiceError';
 
 class InMemoryRedisService {
   readonly values = new Map<string, string>();
@@ -243,6 +245,31 @@ describe('MatchmakingService flow', () => {
     );
   });
 
+  it('returns REQUIRED error when joining a CUSTOM invite without roomId', async () => {
+    const { service } = createService();
+    const roomId = '665af23e5e982f0013aa334b';
+
+    const [invite, createErrors] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId,
+    });
+
+    const [joinResult, joinErrors] = await service.joinInvite(
+      invite.id,
+      'player-2',
+      {} as any,
+    );
+
+    expect(createErrors).toBeNull();
+    expect(joinResult).toBeNull();
+    expect(joinErrors).toHaveLength(1);
+    expect(joinErrors[0]).toMatchObject({
+      reason: SEReason.REQUIRED,
+      field: 'roomId',
+      message: 'CUSTOM invite joins require roomId.',
+    });
+  });
+
   it('finishes a RANDOM match with personal leaderboard updates only', async () => {
     const { redis, playerService, clanService, notifier, service } =
       createService();
@@ -368,6 +395,122 @@ describe('MatchmakingService flow', () => {
       {
         $inc: { battlePoints: 50 },
       },
+    );
+  });
+
+  it('returns service errors when player leaderboard update fails while finishing a match', async () => {
+    const { redis, playerService, clanService, notifier, service } =
+      createService();
+    const updateError = new ServiceError({
+      reason: SEReason.NOT_FOUND,
+      field: 'playerId',
+      value: 'player-1',
+      message: 'Player not found.',
+    });
+    const match: ActiveMatch = {
+      id: 'match-player-error',
+      matchType: MatchType.RANDOM,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    playerService.updatePlayerById.mockResolvedValueOnce([
+      null,
+      [updateError],
+    ]);
+    await redis.set(
+      'matchmaking:match:match-player-error',
+      JSON.stringify(match),
+    );
+
+    const [finishedMatch, errors] = await service.finishMatch(
+      'match-player-error',
+      'player-1',
+      { winningSide: TeamSide.A },
+    );
+
+    const storedMatch = JSON.parse(
+      await redis.get('matchmaking:match:match-player-error'),
+    ) as ActiveMatch;
+
+    expect(finishedMatch).toBeNull();
+    expect(errors).toEqual([updateError]);
+    expect(storedMatch.status).toBe(MatchStatus.ACTIVE);
+    expect(clanService.basicService.updateOneById).not.toHaveBeenCalled();
+    expect(redis.delete).not.toHaveBeenCalledWith(CacheKeys.PLAYER_LEADERBOARD);
+    expect(redis.delete).not.toHaveBeenCalledWith(CacheKeys.CLAN_LEADERBOARD);
+    expect(notifier.matchEvent).not.toHaveBeenCalledWith(
+      'match-player-error',
+      'MATCH_FINISHED',
+      expect.anything(),
+    );
+  });
+
+  it('returns service errors when clan leaderboard update fails while finishing a CLAN match', async () => {
+    const { redis, clanService, notifier, service } = createService();
+    const updateError = new ServiceError({
+      reason: SEReason.NOT_FOUND,
+      field: 'clanId',
+      value: 'clan-1',
+      message: 'Clan not found.',
+    });
+    const match: ActiveMatch = {
+      id: 'match-clan-error',
+      matchType: MatchType.CLAN,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          clanId: 'clan-1',
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          clanId: 'clan-2',
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    clanService.basicService.updateOneById.mockResolvedValueOnce([
+      null,
+      [updateError],
+    ]);
+    await redis.set(
+      'matchmaking:match:match-clan-error',
+      JSON.stringify(match),
+    );
+
+    const [finishedMatch, errors] = await service.finishMatch(
+      'match-clan-error',
+      'player-1',
+      { winningSide: TeamSide.A },
+    );
+
+    const storedMatch = JSON.parse(
+      await redis.get('matchmaking:match:match-clan-error'),
+    ) as ActiveMatch;
+
+    expect(finishedMatch).toBeNull();
+    expect(errors).toEqual([updateError]);
+    expect(storedMatch.status).toBe(MatchStatus.ACTIVE);
+    expect(redis.delete).not.toHaveBeenCalledWith(CacheKeys.PLAYER_LEADERBOARD);
+    expect(redis.delete).not.toHaveBeenCalledWith(CacheKeys.CLAN_LEADERBOARD);
+    expect(notifier.matchEvent).not.toHaveBeenCalledWith(
+      'match-clan-error',
+      'MATCH_FINISHED',
+      expect.anything(),
     );
   });
 });
