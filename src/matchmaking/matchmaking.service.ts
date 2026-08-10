@@ -824,8 +824,8 @@ export class MatchmakingService {
   }
 
   /**
-   * Re-saves a completed match with the shorter finished-match TTL and removes
-   * per-player active-match pointers.
+   * Re-saves a completed match and keeps per-player match lookups available
+   * for the shorter finished-match TTL.
    */
   private async saveFinishedMatch(match: ActiveMatch) {
     await this.redisService.set(
