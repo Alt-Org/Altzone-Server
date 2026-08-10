@@ -4,6 +4,7 @@ import { MatchType } from '../../../matchmaking/enum/matchType.enum';
 import { TeamSide } from '../../../matchmaking/enum/teamSide.enum';
 import { MatchmakingService } from '../../../matchmaking/matchmaking.service';
 import { ActiveMatch } from '../../../matchmaking/type/activeMatch.type';
+import { SEReason } from '../../../common/service/basicService/SEReason';
 
 class InMemoryRedisService {
   readonly values = new Map<string, string>();
@@ -241,6 +242,31 @@ describe('MatchmakingService flow', () => {
       'MATCH_STARTED',
       expect.objectContaining({ id: matchedInvite.matchId }),
     );
+  });
+
+  it('returns REQUIRED error when joining a CUSTOM invite without roomId', async () => {
+    const { service } = createService();
+    const roomId = '665af23e5e982f0013aa334b';
+
+    const [invite, createErrors] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId,
+    });
+
+    const [joinResult, joinErrors] = await service.joinInvite(
+      invite.id,
+      'player-2',
+      {} as any,
+    );
+
+    expect(createErrors).toBeNull();
+    expect(joinResult).toBeNull();
+    expect(joinErrors).toHaveLength(1);
+    expect(joinErrors[0]).toMatchObject({
+      reason: SEReason.REQUIRED,
+      field: 'roomId',
+      message: 'CUSTOM invite joins require roomId.',
+    });
   });
 
   it('finishes a RANDOM match with personal leaderboard updates only', async () => {
