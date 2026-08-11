@@ -201,6 +201,34 @@ describe('GameDataService battle lifecycle test suite', () => {
     expect(result).not.toBeInstanceOf(ServiceError);
     const battle = result as Exclude<typeof result, ServiceError>;
     expect(Types.ObjectId.isValid(battle._id.toString())).toBe(true);
+    expect(battle.gameType).toBe(GameType.CASUAL);
     expect(await gameDataModel.findById(battle._id)).not.toBeNull();
+  });
+
+  it('Should only persist battle start fields explicitly supported by the schema', async () => {
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+
+    const result = await gameDataService.registerBattle(
+      {
+        gameType: GameType.CUSTOM,
+        team1: [team1PlayerId],
+        team2: [team2PlayerId],
+        unexpectedField: 'should-not-be-persisted',
+      } as any,
+      team1PlayerId,
+    );
+
+    expect(result).not.toBeInstanceOf(ServiceError);
+    const battle = result as Exclude<typeof result, ServiceError>;
+    const battleInDb = await gameDataModel.findById(battle._id).lean();
+
+    expect(battleInDb).toMatchObject({
+      gameType: GameType.CUSTOM,
+      status: BattleStatus.OPEN,
+      receivedResults: [],
+    });
+    expect(battleInDb).not.toHaveProperty('unexpectedField');
+    expect(battleInDb).not.toHaveProperty('matchId');
   });
 });
