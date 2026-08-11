@@ -120,7 +120,7 @@ export class GameDataController {
       });
     }
 
-    return this.service.registerBattle(startBattleDto);
+    return this.service.registerBattle(startBattleDto, playerId);
   }
 
   /**
