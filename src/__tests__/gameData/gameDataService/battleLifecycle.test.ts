@@ -5,6 +5,7 @@ import { Game } from '../../../gameData/game.schema';
 import { GameType } from '../../../gameData/enum/gameType.enum';
 import { BattleStatus } from '../../../gameData/enum/battleStatus.enum';
 import ServiceError from '../../../common/service/basicService/ServiceError';
+import { SEReason } from '../../../common/service/basicService/SEReason';
 
 describe('GameDataService battle lifecycle test suite', () => {
   const gameDataModel = GameDataModule.getGameModel();
@@ -34,7 +35,7 @@ describe('GameDataService battle lifecycle test suite', () => {
       team1: [team1PlayerId, team1SecondPlayerId],
       team2: [team2PlayerId, team2SecondPlayerId],
       matchId,
-    });
+    }, team1PlayerId);
 
     const battleInDb = await gameDataModel.findById(matchId);
 
@@ -57,7 +58,7 @@ describe('GameDataService battle lifecycle test suite', () => {
       team1: [team1PlayerId],
       team2: [team2PlayerId],
       matchId,
-    });
+    }, team1PlayerId);
 
     const battle = await gameDataService.handleBattleResult(
       {
@@ -109,5 +110,46 @@ describe('GameDataService battle lifecycle test suite', () => {
 
     expect(battleInDb?.status).toBe(BattleStatus.COMPLETED);
     expect(battleInDb?.finalWinner).toBe(1);
+  });
+
+  it('Should return REQUIRED error when matchmaking battle is registered without matchId', async () => {
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+
+    const result = await gameDataService.registerBattle(
+      {
+        gameType: GameType.MATCHMAKING,
+        team1: [team1PlayerId],
+        team2: [team2PlayerId],
+      },
+      team1PlayerId,
+    );
+
+    expect(result).toBeInstanceOf(ServiceError);
+    expect(result).toMatchObject({
+      reason: SEReason.REQUIRED,
+      field: 'matchId',
+      message: 'Matchmaking battles require matchId.',
+    });
+    expect(await gameDataModel.countDocuments()).toBe(0);
+  });
+
+  it('Should generate a matchId for a casual battle registered without matchId', async () => {
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+
+    const result = await gameDataService.registerBattle(
+      {
+        gameType: GameType.CASUAL,
+        team1: [team1PlayerId],
+        team2: [team2PlayerId],
+      },
+      team1PlayerId,
+    );
+
+    expect(result).not.toBeInstanceOf(ServiceError);
+    const battle = result as Exclude<typeof result, ServiceError>;
+    expect(Types.ObjectId.isValid(battle._id.toString())).toBe(true);
+    expect(await gameDataModel.findById(battle._id)).not.toBeNull();
   });
 });
