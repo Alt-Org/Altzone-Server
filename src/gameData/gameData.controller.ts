@@ -85,8 +85,8 @@ export class GameDataController {
   @Post('battle/start')
   async startBattle(
     @LoggedUser() user: User, // require logged-in user
-    @Body() startBattleDto: StartBattleDto) {
-    
+    @Body() startBattleDto: StartBattleDto,
+  ) {
     // is the user is logged-in
     if (!user) {
       return new APIError({
@@ -94,26 +94,32 @@ export class GameDataController {
         message: 'User must be logged in to start a battle',
       });
     }
-    
+
     // get the player_id of the user
     const playerId = user.player_id;
-    
+
     // Check if the user is in both teams
-    if (startBattleDto.team1.includes(playerId) && startBattleDto.team2.includes(playerId)) {
+    if (
+      startBattleDto.team1.includes(playerId) &&
+      startBattleDto.team2.includes(playerId)
+    ) {
       return new APIError({
         reason: APIErrorReason.NOT_ALLOWED,
         message: 'User cannot be in both teams',
       });
     }
-    
+
     // are either of the teams empty?
-    if (startBattleDto.team1.length === 0 || startBattleDto.team2.length === 0) {
+    if (
+      startBattleDto.team1.length === 0 ||
+      startBattleDto.team2.length === 0
+    ) {
       return new APIError({
         reason: APIErrorReason.BAD_REQUEST,
         message: 'Both teams must have at least one player',
       });
     }
-    
+
     return this.service.registerBattle(startBattleDto);
   }
 

@@ -404,7 +404,7 @@ export class GameDataService {
 
     // create a new battle record in the database
     const matchId = dto.matchId || new Types.ObjectId().toHexString();
-    
+
     // gameType is passed in the dto
     // gameType is one of these matchmaking | casual | custom
     const newBattle = new this.model({
