@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Optional } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Game } from './game.schema';
 import { Model, Types } from 'mongoose';
@@ -37,8 +37,7 @@ export class GameDataService {
     private readonly gameEventsBroker: GameEventsHandler,
     private readonly jwtService: JwtService,
     private readonly emitterService: EventEmitterService,
-    @Optional()
-    private readonly matchmakingService?: MatchmakingService,
+    private readonly matchmakingService: MatchmakingService,
   ) {
     this.basicService = new BasicService(model);
     this.refsInModel = [ModelName.STOCK];
@@ -427,13 +426,6 @@ export class GameDataService {
     }
 
     if (dto.gameType === GameType.MATCHMAKING) {
-      if (!this.matchmakingService) {
-        return new ServiceError({
-          reason: SEReason.MISCONFIGURED,
-          message: 'Matchmaking service is not available.',
-        });
-      }
-
       const matchmakingErrors =
         await this.matchmakingService.validateBattleStart(
           dto.matchId,
@@ -447,11 +439,11 @@ export class GameDataService {
     // create a new battle record in the database
     const matchId = dto.matchId || new Types.ObjectId().toHexString();
 
-    // gameType is passed in the dto
-    // gameType is one of these matchmaking | casual | custom
     const newBattle = new this.model({
       _id: matchId,
-      ...dto,
+      gameType: dto.gameType,
+      team1: dto.team1,
+      team2: dto.team2,
       status: BattleStatus.OPEN,
       receivedResults: [],
     });
