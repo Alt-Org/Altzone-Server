@@ -4,6 +4,7 @@ import { GameDataService } from '../../../gameData/gameData.service';
 import { Game } from '../../../gameData/game.schema';
 import { GameType } from '../../../gameData/enum/gameType.enum';
 import { BattleStatus } from '../../../gameData/enum/battleStatus.enum';
+import ServiceError from '../../../common/service/basicService/ServiceError';
 
 describe('GameDataService battle lifecycle test suite', () => {
   const gameDataModel = GameDataModule.getGameModel();
@@ -13,23 +14,33 @@ describe('GameDataService battle lifecycle test suite', () => {
   beforeEach(async () => {
     await gameDataModel.deleteMany({});
     gameDataService = await GameDataModule.getGameDataService();
+    jest
+      .spyOn(gameDataService.playerService, 'getPlayerById')
+      .mockImplementation(async (playerId: string) => [
+        { _id: playerId } as any,
+        null,
+      ]);
   });
 
   it('Should register a battle using the provided matchId as document _id', async () => {
     const matchId = new Types.ObjectId().toHexString();
     const team1PlayerId = new Types.ObjectId().toHexString();
+    const team1SecondPlayerId = new Types.ObjectId().toHexString();
     const team2PlayerId = new Types.ObjectId().toHexString();
+    const team2SecondPlayerId = new Types.ObjectId().toHexString();
 
     const battle = await gameDataService.registerBattle({
       gameType: GameType.MATCHMAKING,
-      team1: [team1PlayerId],
-      team2: [team2PlayerId],
+      team1: [team1PlayerId, team1SecondPlayerId],
+      team2: [team2PlayerId, team2SecondPlayerId],
       matchId,
     });
 
     const battleInDb = await gameDataModel.findById(matchId);
 
-    expect(battle._id.toString()).toBe(matchId);
+    expect(battle).not.toBeInstanceOf(ServiceError);
+    const battleDocument = battle as Exclude<typeof battle, ServiceError>;
+    expect(battleDocument._id.toString()).toBe(matchId);
     expect(battleInDb?._id.toString()).toBe(matchId);
     expect(battleInDb?.status).toBe(BattleStatus.OPEN);
   });
