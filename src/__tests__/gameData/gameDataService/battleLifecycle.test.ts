@@ -296,6 +296,138 @@ describe('GameDataService battle lifecycle test suite', () => {
     expect(await gameDataModel.findById(matchId)).toBeNull();
   });
 
+  it('Should not register a battle when requester is not in either team', async () => {
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+    const requesterPlayerId = new Types.ObjectId().toHexString();
+
+    const result = await gameDataService.registerBattle(
+      {
+        gameType: GameType.CASUAL,
+        team1: [team1PlayerId],
+        team2: [team2PlayerId],
+      },
+      requesterPlayerId,
+    );
+
+    expect(result).toBeInstanceOf(ServiceError);
+    expect(result).toMatchObject({
+      reason: SEReason.NOT_AUTHORIZED,
+      message: 'Requester player must be in one of the teams',
+    });
+    expect(await gameDataModel.countDocuments()).toBe(0);
+    expect(gameDataService.playerService.getPlayerById).not.toHaveBeenCalled();
+  });
+
+  it('Should not register a battle when either team is empty', async () => {
+    const team1PlayerId = new Types.ObjectId().toHexString();
+
+    const result = await gameDataService.registerBattle(
+      {
+        gameType: GameType.CASUAL,
+        team1: [team1PlayerId],
+        team2: [],
+      },
+      team1PlayerId,
+    );
+
+    expect(result).toBeInstanceOf(ServiceError);
+    expect(result).toMatchObject({
+      reason: SEReason.MISCONFIGURED,
+      message: 'Both teams must have at least one player',
+    });
+    expect(await gameDataModel.countDocuments()).toBe(0);
+    expect(gameDataService.playerService.getPlayerById).not.toHaveBeenCalled();
+  });
+
+  it('Should not register a battle when a player is in both teams', async () => {
+    const sharedPlayerId = new Types.ObjectId().toHexString();
+
+    const result = await gameDataService.registerBattle(
+      {
+        gameType: GameType.CASUAL,
+        team1: [sharedPlayerId],
+        team2: [sharedPlayerId],
+      },
+      sharedPlayerId,
+    );
+
+    expect(result).toBeInstanceOf(ServiceError);
+    expect(result).toMatchObject({
+      reason: SEReason.MISCONFIGURED,
+      message: 'A player cannot be in both teams',
+    });
+    expect(await gameDataModel.countDocuments()).toBe(0);
+  });
+
+  it('Should not register a battle when a team1 player does not exist', async () => {
+    const missingPlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+    const missingPlayerError = new ServiceError({
+      reason: SEReason.NOT_FOUND,
+      field: 'playerId',
+      value: missingPlayerId,
+      message: 'Player not found.',
+    });
+    (
+      gameDataService.playerService.getPlayerById as jest.Mock
+    ).mockImplementation(async (playerId: string) => {
+      if (playerId === missingPlayerId) return [null, [missingPlayerError]];
+
+      return [{ _id: playerId } as any, null];
+    });
+
+    const result = await gameDataService.registerBattle(
+      {
+        gameType: GameType.CASUAL,
+        team1: [missingPlayerId],
+        team2: [team2PlayerId],
+      },
+      missingPlayerId,
+    );
+
+    expect(result).toBeInstanceOf(ServiceError);
+    expect(result).toMatchObject({
+      reason: SEReason.NOT_FOUND,
+      message: 'One or more players in team 1 do not exist',
+    });
+    expect(await gameDataModel.countDocuments()).toBe(0);
+  });
+
+  it('Should not register a battle when a team2 player does not exist', async () => {
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const missingPlayerId = new Types.ObjectId().toHexString();
+    const missingPlayerError = new ServiceError({
+      reason: SEReason.NOT_FOUND,
+      field: 'playerId',
+      value: missingPlayerId,
+      message: 'Player not found.',
+    });
+    (
+      gameDataService.playerService.getPlayerById as jest.Mock
+    ).mockImplementation(async (playerId: string) => {
+      if (playerId === missingPlayerId) return [null, [missingPlayerError]];
+
+      return [{ _id: playerId } as any, null];
+    });
+
+    const result = await gameDataService.registerBattle(
+      {
+        gameType: GameType.CASUAL,
+        team1: [team1PlayerId],
+        team2: [missingPlayerId],
+      },
+      team1PlayerId,
+    );
+
+    expect(result).toBeInstanceOf(ServiceError);
+    expect(result).toMatchObject({
+      reason: SEReason.NOT_FOUND,
+      message: 'One or more players in team 2 do not exist',
+    });
+    expect(await gameDataModel.countDocuments()).toBe(0);
+  });
+
   it('Should generate a matchId for a casual battle registered without matchId', async () => {
     const team1PlayerId = new Types.ObjectId().toHexString();
     const team2PlayerId = new Types.ObjectId().toHexString();
