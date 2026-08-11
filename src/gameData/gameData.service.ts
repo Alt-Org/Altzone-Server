@@ -343,10 +343,66 @@ export class GameDataService {
   /**
    * Initializes a new battle record in the database.
    * Sets the initial status to OPEN.
-   * * @param dto - The data required to start a battle, including the matchId and teams.
-   * @returns A promise resolving to the created Battle document.
+   * @param dto - The data required to start a battle, including the matchId and teams.
+   * @returns A promise resolving to the created Battle document or service error
    */
-  async registerBattle(dto: StartBattleDto): Promise<GameDocument> {
+  async registerBattle(
+    dto: StartBattleDto,
+  ): Promise<GameDocument | ServiceError> {
+    // are either of the teams empty?
+    if (dto.team1.length === 0 || dto.team2.length === 0) {
+      return new ServiceError({
+        reason: SEReason.MISCONFIGURED,
+        message: 'Both teams must have at least one player',
+      });
+    }
+
+    // check, that the players in team1 exist in the database
+    const team1Results = await Promise.all(
+      dto.team1.map((playerId) => this.playerService.getPlayerById(playerId)),
+    );
+
+    const team1Errors = team1Results
+      .map(([, errors]) => errors)
+      .filter((errors): errors is ServiceError[] => Array.isArray(errors))
+      .flat();
+
+    if (team1Errors.length > 0) {
+      return new ServiceError({
+        reason: SEReason.NOT_FOUND,
+        message: 'One or more players in team 1 do not exist',
+      });
+    }
+
+    // check, that the players in team2 exist in the database
+    const team2Results = await Promise.all(
+      dto.team2.map((playerId) => this.playerService.getPlayerById(playerId)),
+    );
+
+    const team2Errors = team2Results
+      .map(([, errors]) => errors)
+      .filter((errors): errors is ServiceError[] => Array.isArray(errors))
+      .flat();
+
+    if (team2Errors.length > 0) {
+      return new ServiceError({
+        reason: SEReason.NOT_FOUND,
+        message: 'One or more players in team 2 do not exist',
+      });
+    }
+
+    // check is any player in both teams
+    const team1Set = new Set(dto.team1);
+    const team2Set = new Set(dto.team2);
+    const intersection = new Set([...team1Set].filter((x) => team2Set.has(x)));
+    if (intersection.size > 0) {
+      return new ServiceError({
+        reason: SEReason.MISCONFIGURED,
+        message: 'A player cannot be in both teams',
+      });
+    }
+
+    // create a new battle record in the database
     const matchId = dto.matchId || new Types.ObjectId().toHexString();
     const newBattle = new this.model({
       _id: matchId,
