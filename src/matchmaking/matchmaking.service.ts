@@ -349,6 +349,60 @@ export class MatchmakingService {
   }
 
   /**
+   * Validates that a battle/start request belongs to an active matchmaking match.
+   */
+  async validateBattleStart(
+    matchId: string,
+    requesterPlayerId: string,
+    team1: string[],
+    team2: string[],
+  ) {
+    const [match, matchErrors] = await this.readMatch(matchId);
+    if (matchErrors) return matchErrors;
+
+    if (match.status !== MatchStatus.ACTIVE) {
+      return [
+        new ServiceError({
+          reason: SEReason.NOT_ALLOWED,
+          field: 'matchId',
+          value: matchId,
+          message: 'Only active matchmaking matches can start battles.',
+        }),
+      ];
+    }
+
+    if (!this.matchHasPlayer(match, requesterPlayerId)) {
+      return [
+        new ServiceError({
+          reason: SEReason.NOT_AUTHORIZED,
+          field: 'playerId',
+          value: requesterPlayerId,
+          message: 'Only match participants can start a battle for the match.',
+        }),
+      ];
+    }
+
+    const [matchTeam1, matchTeam2] = match.teams.map((team) =>
+      this.getTeamPlayerIds(team),
+    );
+    if (
+      !this.haveSameMembers(matchTeam1, team1) ||
+      !this.haveSameMembers(matchTeam2, team2)
+    ) {
+      return [
+        new ServiceError({
+          reason: SEReason.VALIDATION,
+          field: 'teams',
+          message:
+            'Battle teams must match the active matchmaking match teams.',
+        }),
+      ];
+    }
+
+    return null;
+  }
+
+  /**
    * Routes READY invites into their mode-specific next step.
    *
    * RANDOM tries to pair any two ready teams, CLAN searches for another clan and
@@ -793,6 +847,13 @@ export class MatchmakingService {
     return team.participants.flatMap((participant) =>
       this.isBotParticipant(participant) ? [] : [participant.playerId],
     );
+  }
+
+  private haveSameMembers(first: string[], second: string[]) {
+    if (first.length !== second.length) return false;
+
+    const secondMembers = new Set(second);
+    return first.every((value) => secondMembers.has(value));
   }
 
   private matchHasPlayer(match: ActiveMatch, playerId: string) {
