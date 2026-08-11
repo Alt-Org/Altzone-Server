@@ -346,16 +346,21 @@ export class GameDataService {
    * @param dto - The data required to start a battle, including the matchId and teams.
    * @returns A promise resolving to the created Battle document or service error
    */
-  async registerBattle(dto: StartBattleDto, requesterPlayerId: string): Promise<GameDocument | ServiceError> {
-    
+  async registerBattle(
+    dto: StartBattleDto,
+    requesterPlayerId: string,
+  ): Promise<GameDocument | ServiceError> {
     // is requester PlayerId in team1 or in team2?
-    if (!dto.team1.includes(requesterPlayerId) && !dto.team2.includes(requesterPlayerId)) {
+    if (
+      !dto.team1.includes(requesterPlayerId) &&
+      !dto.team2.includes(requesterPlayerId)
+    ) {
       return new ServiceError({
         reason: SEReason.NOT_AUTHORIZED,
         message: 'Requester player must be in one of the teams',
       });
     }
-    
+
     // are either of the teams empty?
     if (dto.team1.length === 0 || dto.team2.length === 0) {
       return new ServiceError({
