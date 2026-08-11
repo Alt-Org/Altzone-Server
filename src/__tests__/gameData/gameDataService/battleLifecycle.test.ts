@@ -92,10 +92,121 @@ describe('GameDataService battle lifecycle test suite', () => {
       team1PlayerId,
     );
 
-    expect(battle._id.toString()).toBe(matchId);
-    expect(battle.receivedResults).toHaveLength(1);
-    expect(battle.receivedResults[0].playerId.toString()).toBe(team1PlayerId);
-    expect(battle.status).toBe(BattleStatus.OPEN);
+    expect(battle).not.toBeInstanceOf(ServiceError);
+    const battleDocument = battle as Exclude<typeof battle, ServiceError>;
+    expect(battleDocument._id.toString()).toBe(matchId);
+    expect(battleDocument.receivedResults).toHaveLength(1);
+    expect(battleDocument.receivedResults[0].playerId.toString()).toBe(
+      team1PlayerId,
+    );
+    expect(battleDocument.status).toBe(BattleStatus.OPEN);
+  });
+
+  it('Should reject battle result from a player outside the battle teams', async () => {
+    const matchId = new Types.ObjectId().toHexString();
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+    const outsiderPlayerId = new Types.ObjectId().toHexString();
+    await gameDataModel.create({
+      _id: matchId,
+      gameType: GameType.CASUAL,
+      team1: [team1PlayerId],
+      team2: [team2PlayerId],
+      status: BattleStatus.OPEN,
+      receivedResults: [],
+    });
+
+    const result = await gameDataService.handleBattleResult(
+      {
+        matchId,
+        duration: 120,
+        result: 1,
+      } as any,
+      outsiderPlayerId,
+    );
+    const battleInDb = await gameDataModel.findById(matchId);
+
+    expect(result).toBeInstanceOf(ServiceError);
+    expect(result).toMatchObject({
+      reason: SEReason.NOT_AUTHORIZED,
+      field: 'playerId',
+      value: outsiderPlayerId,
+      message: 'Only battle participants can submit battle results.',
+    });
+    expect(battleInDb?.receivedResults).toHaveLength(0);
+  });
+
+  it('Should reject duplicate battle result from the same player', async () => {
+    const matchId = new Types.ObjectId().toHexString();
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+    await gameDataModel.create({
+      _id: matchId,
+      gameType: GameType.CASUAL,
+      team1: [team1PlayerId],
+      team2: [team2PlayerId],
+      status: BattleStatus.OPEN,
+      receivedResults: [
+        {
+          playerId: team1PlayerId,
+          winnerTeam: 1,
+          duration: 120,
+        },
+      ],
+    });
+
+    const result = await gameDataService.handleBattleResult(
+      {
+        matchId,
+        duration: 110,
+        result: 2,
+      } as any,
+      team1PlayerId,
+    );
+    const battleInDb = await gameDataModel.findById(matchId);
+
+    expect(result).toBeInstanceOf(ServiceError);
+    expect(result).toMatchObject({
+      reason: SEReason.NOT_ALLOWED,
+      field: 'playerId',
+      value: team1PlayerId,
+      message: 'Player has already submitted a result for this battle.',
+    });
+    expect(battleInDb?.receivedResults).toHaveLength(1);
+  });
+
+  it('Should reject battle result for a completed battle', async () => {
+    const matchId = new Types.ObjectId().toHexString();
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+    await gameDataModel.create({
+      _id: matchId,
+      gameType: GameType.CASUAL,
+      team1: [team1PlayerId],
+      team2: [team2PlayerId],
+      status: BattleStatus.COMPLETED,
+      finalWinner: 1,
+      receivedResults: [],
+    });
+
+    const result = await gameDataService.handleBattleResult(
+      {
+        matchId,
+        duration: 120,
+        result: 1,
+      } as any,
+      team1PlayerId,
+    );
+    const battleInDb = await gameDataModel.findById(matchId);
+
+    expect(result).toBeInstanceOf(ServiceError);
+    expect(result).toMatchObject({
+      reason: SEReason.NOT_ALLOWED,
+      field: 'status',
+      value: BattleStatus.COMPLETED,
+      message: 'Completed battle cannot receive new results.',
+    });
+    expect(battleInDb?.receivedResults).toHaveLength(0);
   });
 
   it('Should resolve a conflicting battle by document _id', async () => {
