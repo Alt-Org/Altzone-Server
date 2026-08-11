@@ -463,6 +463,39 @@ export class GameDataService {
     const battle = await this.model.findById(dto.matchId);
     if (!battle) throw new Error('Match not found');
 
+    const isBattleParticipant =
+      battle.team1.some((id) => id.toString() === playerId) ||
+      battle.team2.some((id) => id.toString() === playerId);
+    if (!isBattleParticipant) {
+      return new ServiceError({
+        reason: SEReason.NOT_AUTHORIZED,
+        field: 'playerId',
+        value: playerId,
+        message: 'Only battle participants can submit battle results.',
+      });
+    }
+
+    if (battle.status === BattleStatus.COMPLETED) {
+      return new ServiceError({
+        reason: SEReason.NOT_ALLOWED,
+        field: 'status',
+        value: battle.status,
+        message: 'Completed battle cannot receive new results.',
+      });
+    }
+
+    const hasSubmittedResult = battle.receivedResults.some(
+      (result) => result.playerId.toString() === playerId,
+    );
+    if (hasSubmittedResult) {
+      return new ServiceError({
+        reason: SEReason.NOT_ALLOWED,
+        field: 'playerId',
+        value: playerId,
+        message: 'Player has already submitted a result for this battle.',
+      });
+    }
+
     battle.receivedResults.push({
       playerId,
       winnerTeam: dto.result,
