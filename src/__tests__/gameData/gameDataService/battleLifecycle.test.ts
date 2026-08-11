@@ -30,12 +30,15 @@ describe('GameDataService battle lifecycle test suite', () => {
     const team2PlayerId = new Types.ObjectId().toHexString();
     const team2SecondPlayerId = new Types.ObjectId().toHexString();
 
-    const battle = await gameDataService.registerBattle({
-      gameType: GameType.MATCHMAKING,
-      team1: [team1PlayerId, team1SecondPlayerId],
-      team2: [team2PlayerId, team2SecondPlayerId],
-      matchId,
-    }, team1PlayerId);
+    const battle = await gameDataService.registerBattle(
+      {
+        gameType: GameType.MATCHMAKING,
+        team1: [team1PlayerId, team1SecondPlayerId],
+        team2: [team2PlayerId, team2SecondPlayerId],
+        matchId,
+      },
+      team1PlayerId,
+    );
 
     const battleInDb = await gameDataModel.findById(matchId);
 
@@ -53,12 +56,15 @@ describe('GameDataService battle lifecycle test suite', () => {
     const team1PlayerId = new Types.ObjectId().toHexString();
     const team2PlayerId = new Types.ObjectId().toHexString();
 
-    await gameDataService.registerBattle({
-      gameType: GameType.MATCHMAKING,
-      team1: [team1PlayerId],
-      team2: [team2PlayerId],
-      matchId,
-    }, team1PlayerId);
+    await gameDataService.registerBattle(
+      {
+        gameType: GameType.MATCHMAKING,
+        team1: [team1PlayerId],
+        team2: [team2PlayerId],
+        matchId,
+      },
+      team1PlayerId,
+    );
 
     const battle = await gameDataService.handleBattleResult(
       {
