@@ -41,7 +41,9 @@ describe('GameDataService battle lifecycle test suite', () => {
     expect(battle).not.toBeInstanceOf(ServiceError);
     const battleDocument = battle as Exclude<typeof battle, ServiceError>;
     expect(battleDocument._id.toString()).toBe(matchId);
+    expect(battleDocument.gameType).toBe(GameType.MATCHMAKING);
     expect(battleInDb?._id.toString()).toBe(matchId);
+    expect(battleInDb?.gameType).toBe(GameType.MATCHMAKING);
     expect(battleInDb?.status).toBe(BattleStatus.OPEN);
   });
 
