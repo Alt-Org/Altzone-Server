@@ -24,6 +24,7 @@ import { SEReason } from '../common/service/basicService/SEReason';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { Environment } from '../common/enum/environment.enum';
+import { GameType } from './enum/gameType.enum';
 
 @Injectable()
 export class GameDataService {
@@ -411,6 +412,14 @@ export class GameDataService {
       return new ServiceError({
         reason: SEReason.MISCONFIGURED,
         message: 'A player cannot be in both teams',
+      });
+    }
+
+    if (dto.gameType === GameType.MATCHMAKING && !dto.matchId) {
+      return new ServiceError({
+        reason: SEReason.REQUIRED,
+        field: 'matchId',
+        message: 'Matchmaking battles require matchId.',
       });
     }
 
