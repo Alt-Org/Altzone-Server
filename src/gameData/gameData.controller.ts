@@ -83,6 +83,7 @@ export class GameDataController {
     errors: [400, 401, 403],
   })
   @Post('battle/start')
+  @UniformResponse()
   async startBattle(
     @LoggedUser() user: User, // require logged-in user
     @Body() startBattleDto: StartBattleDto,
