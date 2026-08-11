@@ -143,6 +143,27 @@ const getStoredMatches = (redis: InMemoryRedisService) =>
     .filter(([key]) => key.startsWith('matchmaking:match:'))
     .map(([, value]) => JSON.parse(value) as ActiveMatch);
 
+const createActiveBattleStartMatch = (
+  overrides: Partial<ActiveMatch> = {},
+): ActiveMatch => ({
+  id: 'match-battle-start',
+  matchType: MatchType.RANDOM,
+  status: MatchStatus.ACTIVE,
+  teamSize: 1,
+  teams: [
+    {
+      side: TeamSide.A,
+      participants: [{ playerId: 'player-1', isBot: false }],
+    },
+    {
+      side: TeamSide.B,
+      participants: [{ playerId: 'player-2', isBot: false }],
+    },
+  ],
+  startedAt: '2026-07-06T08:00:00.000Z',
+  ...overrides,
+});
+
 describe('MatchmakingService flow', () => {
   it('creates an active RANDOM match from two ready invites and notifies real players', async () => {
     const { redis, notifier, service } = createService();
@@ -267,6 +288,109 @@ describe('MatchmakingService flow', () => {
       reason: SEReason.REQUIRED,
       field: 'roomId',
       message: 'CUSTOM invite joins require roomId.',
+    });
+  });
+
+  it('allows battle start validation for an active match with matching teams', async () => {
+    const { redis, service } = createService();
+    const match = createActiveBattleStartMatch();
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const errors = await service.validateBattleStart(
+      match.id,
+      'player-1',
+      ['player-1'],
+      ['player-2'],
+    );
+
+    expect(errors).toBeNull();
+  });
+
+  it('returns NOT_FOUND error when validating battle start for a missing match', async () => {
+    const { service } = createService();
+
+    const errors = await service.validateBattleStart(
+      'missing-match',
+      'player-1',
+      ['player-1'],
+      ['player-2'],
+    );
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({
+      reason: SEReason.NOT_FOUND,
+      field: 'matchId',
+      value: 'missing-match',
+      message: 'Matchmaking match not found.',
+    });
+  });
+
+  it('rejects battle start validation for a finished match', async () => {
+    const { redis, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'finished-match',
+      status: MatchStatus.FINISHED,
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const errors = await service.validateBattleStart(
+      match.id,
+      'player-1',
+      ['player-1'],
+      ['player-2'],
+    );
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({
+      reason: SEReason.NOT_ALLOWED,
+      field: 'matchId',
+      value: match.id,
+      message: 'Only active matchmaking matches can start battles.',
+    });
+  });
+
+  it('rejects battle start validation from a non-participant requester', async () => {
+    const { redis, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'outsider-match',
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const errors = await service.validateBattleStart(
+      match.id,
+      'player-3',
+      ['player-1'],
+      ['player-2'],
+    );
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({
+      reason: SEReason.NOT_AUTHORIZED,
+      field: 'playerId',
+      value: 'player-3',
+      message: 'Only match participants can start a battle for the match.',
+    });
+  });
+
+  it('rejects battle start validation when request teams differ from match teams', async () => {
+    const { redis, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'team-mismatch-match',
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const errors = await service.validateBattleStart(
+      match.id,
+      'player-1',
+      ['player-2'],
+      ['player-1'],
+    );
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({
+      reason: SEReason.VALIDATION,
+      field: 'teams',
+      message: 'Battle teams must match the active matchmaking match teams.',
     });
   });
 
