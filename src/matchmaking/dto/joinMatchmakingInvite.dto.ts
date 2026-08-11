@@ -7,8 +7,7 @@ export class JoinMatchmakingInviteDto {
    * @example "665af23e5e982f0013aa334b"
    */
   @IsMongoId()
-  @IsOptional()
-  roomId?: string;
+  roomId: string;
 
   /**
    * Optional client version for isolating incompatible matchmaking pools.

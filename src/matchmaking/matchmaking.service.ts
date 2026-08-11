@@ -333,7 +333,10 @@ export class MatchmakingService {
       result: { winningSide: body.winningSide },
     };
 
-    await this.updateLeaderboardsForFinishedMatch(finishedMatch);
+    const leaderboardErrors =
+      await this.updateLeaderboardsForFinishedMatch(finishedMatch);
+    if (leaderboardErrors) return [null, leaderboardErrors];
+
     await this.saveFinishedMatch(finishedMatch);
     await this.invalidateLeaderboardCaches();
     await this.notifier.matchEvent(
@@ -343,6 +346,60 @@ export class MatchmakingService {
     );
 
     return [this.toMatchDto(finishedMatch), null];
+  }
+
+  /**
+   * Validates that a battle/start request belongs to an active matchmaking match.
+   */
+  async validateBattleStart(
+    matchId: string,
+    requesterPlayerId: string,
+    team1: string[],
+    team2: string[],
+  ) {
+    const [match, matchErrors] = await this.readMatch(matchId);
+    if (matchErrors) return matchErrors;
+
+    if (match.status !== MatchStatus.ACTIVE) {
+      return [
+        new ServiceError({
+          reason: SEReason.NOT_ALLOWED,
+          field: 'matchId',
+          value: matchId,
+          message: 'Only active matchmaking matches can start battles.',
+        }),
+      ];
+    }
+
+    if (!this.matchHasPlayer(match, requesterPlayerId)) {
+      return [
+        new ServiceError({
+          reason: SEReason.NOT_AUTHORIZED,
+          field: 'playerId',
+          value: requesterPlayerId,
+          message: 'Only match participants can start a battle for the match.',
+        }),
+      ];
+    }
+
+    const [matchTeam1, matchTeam2] = match.teams.map((team) =>
+      this.getTeamPlayerIds(team),
+    );
+    if (
+      !this.haveSameMembers(matchTeam1, team1) ||
+      !this.haveSameMembers(matchTeam2, team2)
+    ) {
+      return [
+        new ServiceError({
+          reason: SEReason.VALIDATION,
+          field: 'teams',
+          message:
+            'Battle teams must match the active matchmaking match teams.',
+        }),
+      ];
+    }
+
+    return null;
   }
 
   /**
@@ -718,12 +775,14 @@ export class MatchmakingService {
   private async updateLeaderboardsForFinishedMatch(match: ActiveMatch) {
     const playerErrors =
       await this.updatePlayerLeaderboardForFinishedMatch(match);
-    if (playerErrors) throw playerErrors;
+    if (playerErrors) return playerErrors;
 
-    if (match.matchType !== MatchType.CLAN) return;
+    if (match.matchType !== MatchType.CLAN) return null;
 
     const clanErrors = await this.updateClanLeaderboardForFinishedMatch(match);
-    if (clanErrors) throw clanErrors;
+    if (clanErrors) return clanErrors;
+
+    return null;
   }
 
   private async updatePlayerLeaderboardForFinishedMatch(match: ActiveMatch) {
@@ -790,6 +849,13 @@ export class MatchmakingService {
     );
   }
 
+  private haveSameMembers(first: string[], second: string[]) {
+    if (first.length !== second.length) return false;
+
+    const secondMembers = new Set(second);
+    return first.every((value) => secondMembers.has(value));
+  }
+
   private matchHasPlayer(match: ActiveMatch, playerId: string) {
     return this.getRealPlayerIds(match).includes(playerId);
   }
@@ -819,8 +885,8 @@ export class MatchmakingService {
   }
 
   /**
-   * Re-saves a completed match with the shorter finished-match TTL and removes
-   * per-player active-match pointers.
+   * Re-saves a completed match and keeps per-player match lookups available
+   * for the shorter finished-match TTL.
    */
   private async saveFinishedMatch(match: ActiveMatch) {
     await this.redisService.set(
@@ -914,6 +980,17 @@ export class MatchmakingService {
           field: 'status',
           value: invite.status,
           message: 'Invite can no longer be joined.',
+        }),
+      ];
+    }
+
+    if (invite.matchType === MatchType.CUSTOM && !body.roomId) {
+      return [
+        new ServiceError({
+          reason: SEReason.REQUIRED,
+          field: 'roomId',
+          value: body.roomId,
+          message: 'CUSTOM invite joins require roomId.',
         }),
       ];
     }

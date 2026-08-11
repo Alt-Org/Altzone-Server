@@ -24,6 +24,8 @@ import { SEReason } from '../common/service/basicService/SEReason';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { Environment } from '../common/enum/environment.enum';
+import { GameType } from './enum/gameType.enum';
+import { MatchmakingService } from '../matchmaking/matchmaking.service';
 
 @Injectable()
 export class GameDataService {
@@ -35,6 +37,7 @@ export class GameDataService {
     private readonly gameEventsBroker: GameEventsHandler,
     private readonly jwtService: JwtService,
     private readonly emitterService: EventEmitterService,
+    private readonly matchmakingService: MatchmakingService,
   ) {
     this.basicService = new BasicService(model);
     this.refsInModel = [ModelName.STOCK];
@@ -343,15 +346,104 @@ export class GameDataService {
   /**
    * Initializes a new battle record in the database.
    * Sets the initial status to OPEN.
-   * * @param dto - The data required to start a battle, including the matchId and teams.
-   * @returns A promise resolving to the created Battle document.
+   * @param dto - The data required to start a battle, including the matchId and teams.
+   * @returns A promise resolving to the created Battle document or service error
    */
-  async registerBattle(dto: StartBattleDto): Promise<GameDocument> {
+  async registerBattle(
+    dto: StartBattleDto,
+    requesterPlayerId: string,
+  ): Promise<GameDocument | ServiceError> {
+    // is requester PlayerId in team1 or in team2?
+    if (
+      !dto.team1.includes(requesterPlayerId) &&
+      !dto.team2.includes(requesterPlayerId)
+    ) {
+      return new ServiceError({
+        reason: SEReason.NOT_AUTHORIZED,
+        message: 'Requester player must be in one of the teams',
+      });
+    }
+
+    // are either of the teams empty?
+    if (dto.team1.length === 0 || dto.team2.length === 0) {
+      return new ServiceError({
+        reason: SEReason.MISCONFIGURED,
+        message: 'Both teams must have at least one player',
+      });
+    }
+
+    // check, that the players in team1 exist in the database
+    const team1Results = await Promise.all(
+      dto.team1.map((playerId) => this.playerService.getPlayerById(playerId)),
+    );
+
+    const team1Errors = team1Results
+      .map(([, errors]) => errors)
+      .filter((errors): errors is ServiceError[] => Array.isArray(errors))
+      .flat();
+
+    if (team1Errors.length > 0) {
+      return new ServiceError({
+        reason: SEReason.NOT_FOUND,
+        message: 'One or more players in team 1 do not exist',
+      });
+    }
+
+    // check, that the players in team2 exist in the database
+    const team2Results = await Promise.all(
+      dto.team2.map((playerId) => this.playerService.getPlayerById(playerId)),
+    );
+
+    const team2Errors = team2Results
+      .map(([, errors]) => errors)
+      .filter((errors): errors is ServiceError[] => Array.isArray(errors))
+      .flat();
+
+    if (team2Errors.length > 0) {
+      return new ServiceError({
+        reason: SEReason.NOT_FOUND,
+        message: 'One or more players in team 2 do not exist',
+      });
+    }
+
+    // check is any player in both teams
+    const team1Set = new Set(dto.team1);
+    const team2Set = new Set(dto.team2);
+    const intersection = new Set([...team1Set].filter((x) => team2Set.has(x)));
+    if (intersection.size > 0) {
+      return new ServiceError({
+        reason: SEReason.MISCONFIGURED,
+        message: 'A player cannot be in both teams',
+      });
+    }
+
+    if (dto.gameType === GameType.MATCHMAKING && !dto.matchId) {
+      return new ServiceError({
+        reason: SEReason.REQUIRED,
+        field: 'matchId',
+        message: 'Matchmaking battles require matchId.',
+      });
+    }
+
+    if (dto.gameType === GameType.MATCHMAKING) {
+      const matchmakingErrors =
+        await this.matchmakingService.validateBattleStart(
+          dto.matchId,
+          requesterPlayerId,
+          dto.team1,
+          dto.team2,
+        );
+      if (matchmakingErrors) return matchmakingErrors[0];
+    }
+
+    // create a new battle record in the database
     const matchId = dto.matchId || new Types.ObjectId().toHexString();
+
     const newBattle = new this.model({
       _id: matchId,
-      gameType: 'BATTLE',
-      ...dto,
+      gameType: dto.gameType,
+      team1: dto.team1,
+      team2: dto.team2,
       status: BattleStatus.OPEN,
       receivedResults: [],
     });
@@ -370,6 +462,39 @@ export class GameDataService {
   async handleBattleResult(dto: BattleResultDto, playerId: string) {
     const battle = await this.model.findById(dto.matchId);
     if (!battle) throw new Error('Match not found');
+
+    const isBattleParticipant =
+      battle.team1.some((id) => id.toString() === playerId) ||
+      battle.team2.some((id) => id.toString() === playerId);
+    if (!isBattleParticipant) {
+      return new ServiceError({
+        reason: SEReason.NOT_AUTHORIZED,
+        field: 'playerId',
+        value: playerId,
+        message: 'Only battle participants can submit battle results.',
+      });
+    }
+
+    if (battle.status === BattleStatus.COMPLETED) {
+      return new ServiceError({
+        reason: SEReason.NOT_ALLOWED,
+        field: 'status',
+        value: battle.status,
+        message: 'Completed battle cannot receive new results.',
+      });
+    }
+
+    const hasSubmittedResult = battle.receivedResults.some(
+      (result) => result.playerId.toString() === playerId,
+    );
+    if (hasSubmittedResult) {
+      return new ServiceError({
+        reason: SEReason.NOT_ALLOWED,
+        field: 'playerId',
+        value: playerId,
+        message: 'Player has already submitted a result for this battle.',
+      });
+    }
 
     battle.receivedResults.push({
       playerId,
@@ -426,12 +551,12 @@ export class GameDataService {
   /**
    * Forcibly resolves a battle conflict after the "Final Call" period.
    * Uses a majority vote based on received results and defaults to Team 1 if tied.
-   * * @param matchId - The unique identifier of the battle to resolve.
+   * @param _id - The unique identifier of the battle to resolve (matchId).
    * @returns A promise that resolves once the conflict is settled and rewards are issued.
    * @private
    */
-  private async resolveConflict(matchId: string) {
-    const battle = await this.model.findOne({ matchId });
+  private async resolveConflict(_id: string) {
+    const battle = await this.model.findOne({ _id });
     if (!battle || battle.status === BattleStatus.COMPLETED) return;
 
     const results = battle.receivedResults;
