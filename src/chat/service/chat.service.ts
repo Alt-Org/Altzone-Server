@@ -59,7 +59,7 @@ export class ChatService {
     playerName: string,
     emoji: string,
     sender_id: string,
-    avatarData?: Avatar,    
+    avatarData?: Avatar,
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
     const [message, error] =

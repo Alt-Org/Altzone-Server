@@ -1,4 +1,9 @@
-import { IsMongoId, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsMongoId,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { AvatarDto } from '../../player/dto/avatar.dto';
 
@@ -24,7 +29,7 @@ export class AddReactionDto {
   /**
    * Optional avatar data of the reacting player.
    */
-  @IsOptional()     
+  @IsOptional()
   @ValidateNested()
   @Type(() => AvatarDto)
   avatarData?: AvatarDto;

@@ -308,7 +308,7 @@ export type TIServiceFindOneAndUpdate<TObject = any> = {
    * ```
    */
   sort?: Record<string, 1 | -1>;
-}
+};
 
 export type TIServiceDeleteByIdOptions = {
   /**

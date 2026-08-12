@@ -20,7 +20,7 @@ export class RoomDto {
 
   /**
    * Order of rooms
-   * 
+   *
    * @example 1
    */
   @Expose()

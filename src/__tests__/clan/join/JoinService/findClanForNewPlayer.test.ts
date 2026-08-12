@@ -23,7 +23,8 @@ describe('JoinService.findClanForNewPlayer() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const player = playerBuilder.build();
 
-  const soulHomeCreateBuilder = ClanInventoryBuilderFactory.getBuilder('CreateSoulHomeDto');
+  const soulHomeCreateBuilder =
+    ClanInventoryBuilderFactory.getBuilder('CreateSoulHomeDto');
   const soulHomeModel = SoulhomeModule.getSoulhomeModel();
   const soulHome = soulHomeCreateBuilder.build();
   clan.environment = player.environment;

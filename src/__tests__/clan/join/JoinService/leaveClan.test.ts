@@ -26,7 +26,8 @@ describe('JoinService.leaveClan() test suite', () => {
   const player = playerBuilder.build();
 
   const soulHomeModel = SoulhomeModule.getSoulhomeModel();
-  const soulHomeCreateBuilder = ClanInventoryBuilderFactory.getBuilder('CreateSoulHomeDto');
+  const soulHomeCreateBuilder =
+    ClanInventoryBuilderFactory.getBuilder('CreateSoulHomeDto');
   const soulHome = soulHomeCreateBuilder.build();
 
   beforeEach(async () => {

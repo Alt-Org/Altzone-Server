@@ -335,7 +335,7 @@ export class ClanShopService {
       rotation: ItemRotation.FRONT,
       position: ItemPosition.FLOOR,
       placedOn_id: null,
-      placedOnLocation: null
+      placedOnLocation: null,
     };
   }
 }

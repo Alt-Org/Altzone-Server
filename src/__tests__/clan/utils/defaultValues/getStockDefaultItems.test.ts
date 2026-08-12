@@ -17,7 +17,7 @@ describe('getStockDefaultItems() test suite', () => {
         rotation: ItemRotation.FRONT,
         position: ItemPosition.FLOOR,
         placedOn_id: null,
-        placedOnLocation: [-1, -1]
+        placedOnLocation: [-1, -1],
       },
       {
         ...itemProperties.Mirror_Rakkaus,
@@ -28,7 +28,7 @@ describe('getStockDefaultItems() test suite', () => {
         rotation: ItemRotation.FRONT,
         position: ItemPosition.FLOOR,
         placedOn_id: null,
-        placedOnLocation: [-1, -1]
+        placedOnLocation: [-1, -1],
       },
       {
         ...itemProperties.Closet_Rakkaus,
@@ -39,7 +39,7 @@ describe('getStockDefaultItems() test suite', () => {
         rotation: ItemRotation.FRONT,
         position: ItemPosition.FLOOR,
         placedOn_id: null,
-        placedOnLocation: [-1, -1]
+        placedOnLocation: [-1, -1],
       },
     ];
 

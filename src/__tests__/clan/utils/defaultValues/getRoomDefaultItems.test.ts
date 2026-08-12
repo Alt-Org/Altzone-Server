@@ -17,7 +17,7 @@ describe('getRoomDefaultItems() test suite', () => {
         rotation: ItemRotation.FRONT,
         position: ItemPosition.FLOOR,
         placedOn_id: null,
-        placedOnLocation: [-1, -1]
+        placedOnLocation: [-1, -1],
       },
       {
         ...itemProperties.ArmChair_Rakkaus,
@@ -28,7 +28,7 @@ describe('getRoomDefaultItems() test suite', () => {
         rotation: ItemRotation.FRONT,
         position: ItemPosition.FLOOR,
         placedOn_id: null,
-        placedOnLocation: [-1, -1]
+        placedOnLocation: [-1, -1],
       },
       {
         ...itemProperties.Lamp_Rakkaus,
@@ -39,7 +39,7 @@ describe('getRoomDefaultItems() test suite', () => {
         rotation: ItemRotation.FRONT,
         position: ItemPosition.FLOOR,
         placedOn_id: null,
-        placedOnLocation: [-1, -1]
+        placedOnLocation: [-1, -1],
       },
       {
         ...itemProperties.Diningtable_Rakkaus,
@@ -50,7 +50,7 @@ describe('getRoomDefaultItems() test suite', () => {
         rotation: ItemRotation.FRONT,
         position: ItemPosition.FLOOR,
         placedOn_id: null,
-        placedOnLocation: [-1, -1]
+        placedOnLocation: [-1, -1],
       },
       {
         ...itemProperties.SofaTable_Rakkaus,
@@ -61,7 +61,7 @@ describe('getRoomDefaultItems() test suite', () => {
         rotation: ItemRotation.FRONT,
         position: ItemPosition.FLOOR,
         placedOn_id: null,
-        placedOnLocation: [-1, -1]
+        placedOnLocation: [-1, -1],
       },
       {
         ...itemProperties.Bed_Rakkaus,
@@ -72,7 +72,7 @@ describe('getRoomDefaultItems() test suite', () => {
         rotation: ItemRotation.FRONT,
         position: ItemPosition.FLOOR,
         placedOn_id: null,
-        placedOnLocation: [-1, -1]
+        placedOnLocation: [-1, -1],
       },
     ];
 

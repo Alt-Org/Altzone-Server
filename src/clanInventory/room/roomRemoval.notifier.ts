@@ -15,6 +15,6 @@ export default class RoomRemovalNotifier {
     NotificationSender.buildNotification()
       .addGroup(this.group, 'global')
       .addResource(this.resource, 'room_removal')
-      .send(NotificationStatus.UPDATE, { topic, });
+      .send(NotificationStatus.UPDATE, { topic });
   }
 }
