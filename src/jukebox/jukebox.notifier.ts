@@ -1,7 +1,9 @@
 import { NotificationGroup } from '../common/service/notificator/enum/NotificationGroup.enum';
+import { MqttNotificationType } from '../common/service/notificator/enum/MqttNotificationType.enum';
 import { NotificationResource } from '../common/service/notificator/enum/NotificationResource.enum';
 import { NotificationStatus } from '../common/service/notificator/enum/NotificationStatus.enum';
 import NotificationSender from '../common/service/notificator/NotificationSender';
+import { buildMqttNotification } from '../common/service/notificator/type/MqttNotification.type';
 import { SongChangeNotificationDto } from './dto/SongChangeNotification.dto';
 import { Jukebox } from './type/playlist';
 
@@ -29,11 +31,16 @@ export default class JukeboxNotifier {
    * @returns A promise that resolves when the notification is built and dispatched.
    */
   async songChange(newSong: SongChangeNotificationDto, clanId: string) {
-    const topic = `/clan/${clanId}/jukebox/song/update`;
+    const payload = buildMqttNotification(
+      'jukebox',
+      MqttNotificationType.SONG_UPDATED,
+      { song: newSong },
+    );
+
     NotificationSender.buildNotification()
       .addGroup(this.group, clanId)
       .addResource(this.resource, 'song')
-      .send(NotificationStatus.UPDATE, { topic, song: newSong });
+      .send(NotificationStatus.UPDATE, payload);
   }
 
   /**
@@ -44,10 +51,15 @@ export default class JukeboxNotifier {
    * @returns A promise that resolves when the notification is built and dispatched.
    */
   async playlistUpdate(jukebox: Jukebox, clanId: string) {
-    const topic = `/clan/${clanId}/jukebox/playlist/update`;
+    const payload = buildMqttNotification(
+      'jukebox',
+      MqttNotificationType.PLAYLIST_UPDATED,
+      { playlist: jukebox },
+    );
+
     NotificationSender.buildNotification()
       .addGroup(this.group, clanId)
       .addResource(this.resource, 'playlist')
-      .send(NotificationStatus.UPDATE, { topic, playlist: jukebox });
+      .send(NotificationStatus.UPDATE, payload);
   }
 }
