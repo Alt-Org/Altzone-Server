@@ -62,7 +62,7 @@ export class ClanDto {
    */
   @Expose()
   gameCoins: number;
-  
+
   /**
    * Value of items in Clan SoulHome
    *

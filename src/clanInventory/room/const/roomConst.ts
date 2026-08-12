@@ -13,5 +13,5 @@ type DefaultRoom = {
 export const DefaultRoom: DefaultRoom = {
   roomColour: 'default',
   floor: 'default',
-  wallpaper: 'default'
+  wallpaper: 'default',
 };

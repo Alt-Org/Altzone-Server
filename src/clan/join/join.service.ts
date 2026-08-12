@@ -22,7 +22,11 @@ import { ClanDocument } from '../clan.schema';
 import { RoomService } from '../../clanInventory/room/room.service';
 import { SoulHomeService } from '../../clanInventory/soulhome/soulhome.service';
 import { RoomStatus } from '../../clanInventory/room/enum/roomStatus.enum';
-import { endTransaction, initializeSession, cancelTransaction } from '../../common/function/Transactions';
+import {
+  endTransaction,
+  initializeSession,
+  cancelTransaction,
+} from '../../common/function/Transactions';
 import ClanNotifier from '../clan.notifier';
 
 @Injectable()
@@ -113,7 +117,7 @@ export class JoinService {
 
   /**
    * Remove Player from Clan by the specified player_id
-   * 
+   *
    * Deactivates Room
    * @param player_id to remove
    */
@@ -137,24 +141,37 @@ export class JoinService {
       if (!clan_id)
         throw new NotFoundException('Player is not joined to any clan');
 
-      const [clan, clanErrors] = await this.clanService.readOneById(clan_id, { session });
-      if (clanErrors) throw new NotFoundException('Clan with that _id not found');
+      const [clan, clanErrors] = await this.clanService.readOneById(clan_id, {
+        session,
+      });
+      if (clanErrors)
+        throw new NotFoundException('Clan with that _id not found');
 
-      const [, deactivationErrors] = await this.roomService.deactivateRoom(clan._id, session);
-      if (deactivationErrors) throw new NotFoundException('Room deactivation failed');
+      const [, deactivationErrors] = await this.roomService.deactivateRoom(
+        clan._id,
+        session,
+      );
+      if (deactivationErrors)
+        throw new NotFoundException('Room deactivation failed');
 
       if (clan.playerCount <= 1) {
-        const [, clanDeleteErrors] = await this.clanService.deleteOneById(clan._id, session);
-        if (clanDeleteErrors) throw new NotFoundException('Clan deletion failed');
-      } else {
-        const [, clanUpdateErrors] = await this.clanService.basicService.updateOne(
-          { $inc: { playerCount: -1 } },
-          {
-            filter: { _id: clan._id },
-            session
-          }
+        const [, clanDeleteErrors] = await this.clanService.deleteOneById(
+          clan._id,
+          session,
         );
-        if (clanUpdateErrors) throw new NotFoundException('Player count reduction failed');
+        if (clanDeleteErrors)
+          throw new NotFoundException('Clan deletion failed');
+      } else {
+        const [, clanUpdateErrors] =
+          await this.clanService.basicService.updateOne(
+            { $inc: { playerCount: -1 } },
+            {
+              filter: { _id: clan._id },
+              session,
+            },
+          );
+        if (clanUpdateErrors)
+          throw new NotFoundException('Player count reduction failed');
       }
 
       await this.playerModel.updateOne(
@@ -162,38 +179,32 @@ export class JoinService {
         {
           clan_id: null,
         },
-        { session }
+        { session },
       );
 
       await endTransaction(session);
-      
+
       this.clanNotifier.memberLeave(clan_id, player_id);
     } catch (error) {
-      await cancelTransaction(
-        session, 
-        [
-          new ServiceError({
-            reason: SEReason.UNEXPECTED,
-            value: error,
-          })
-        ]
-      );
+      await cancelTransaction(session, [
+        new ServiceError({
+          reason: SEReason.UNEXPECTED,
+          value: error,
+        }),
+      ]);
       throw error;
     }
   }
 
   /**
    * Removes the specified Player from the Clan
-   * 
+   *
    * Deactivates Room
    *
    * @param player_id
    * @param clan_id
    */
-  public async removePlayerFromClan(
-    player_id: string, 
-    clan_id: string
-  ) {
+  public async removePlayerFromClan(player_id: string, clan_id: string) {
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
@@ -203,25 +214,38 @@ export class JoinService {
       if (!playerResp)
         throw new NotFoundException('Player with that _id is not found');
 
-      const [clan, clanErrors] = await this.clanService.readOneById(clan_id, { session });
-      if (clanErrors) throw new NotFoundException('Clan with that _id not found');
+      const [clan, clanErrors] = await this.clanService.readOneById(clan_id, {
+        session,
+      });
+      if (clanErrors)
+        throw new NotFoundException('Clan with that _id not found');
 
-      const [, deactivationErrors] = await this.roomService.deactivateRoom(clan._id, session);
-      if (deactivationErrors) throw new NotFoundException('Room deactivation failed');
+      const [, deactivationErrors] = await this.roomService.deactivateRoom(
+        clan._id,
+        session,
+      );
+      if (deactivationErrors)
+        throw new NotFoundException('Room deactivation failed');
 
       //If the last player
       if (clan.playerCount <= 1) {
-        const [, clanDeleteErrors] = await this.clanService.deleteOneById(clan._id, session);
-        if (clanDeleteErrors) throw new NotFoundException('Clan deletion failed');
-      } else {
-        const [, clanUpdateErrors] = await this.clanService.basicService.updateOne(
-          { $inc: { playerCount: -1 } },
-          {
-            filter: { _id: clan._id },
-            session
-          }
+        const [, clanDeleteErrors] = await this.clanService.deleteOneById(
+          clan._id,
+          session,
         );
-        if (clanUpdateErrors) throw new NotFoundException('Player count reduction failed');
+        if (clanDeleteErrors)
+          throw new NotFoundException('Clan deletion failed');
+      } else {
+        const [, clanUpdateErrors] =
+          await this.clanService.basicService.updateOne(
+            { $inc: { playerCount: -1 } },
+            {
+              filter: { _id: clan._id },
+              session,
+            },
+          );
+        if (clanUpdateErrors)
+          throw new NotFoundException('Player count reduction failed');
       }
 
       await this.playerModel.updateOne(
@@ -229,22 +253,19 @@ export class JoinService {
         {
           clan_id: null,
         },
-        { session }
+        { session },
       ); // update clan_id for the requested player;
 
       await endTransaction(session);
-      
+
       this.clanNotifier.memberLeave(clan_id, player_id);
     } catch (error) {
-      await cancelTransaction(
-        session, 
-        [
-          new ServiceError({
-            reason: SEReason.UNEXPECTED,
-            value: error,
-          })
-        ]
-      );
+      await cancelTransaction(session, [
+        new ServiceError({
+          reason: SEReason.UNEXPECTED,
+          value: error,
+        }),
+      ]);
       throw error;
     }
   }
@@ -253,24 +274,24 @@ export class JoinService {
    * Adds specified player to a clan.
    *
    * Notice that the player will be assigned a member role in the clan when he / she first joins the clan
-   * 
+   *
    * Looks for a Room with roomStatus: "Inactive", then for Room with no status to convert to new Room,
    * lastly creates new Room
    * @param player_id _id of the player to be added
    * @param clan_id _id of the clan where the player should be added
    */
-  private async joinClan(
-    player_id: string, 
-    clan_id: string
-  ) {
+  private async joinClan(player_id: string, clan_id: string) {
     const [session, initErrors] = await initializeSession(this.connection);
     if (initErrors) throw new NotFoundException('Session errors');
 
     try {
-      const [clan, clanReadingErrors] =
-        await this.clanService.readOneById(clan_id, { session });
-      if (clanReadingErrors) throw new NotFoundException('Clan with _id not found');
-      
+      const [clan, clanReadingErrors] = await this.clanService.readOneById(
+        clan_id,
+        { session },
+      );
+      if (clanReadingErrors)
+        throw new NotFoundException('Clan with _id not found');
+
       const playerResp = await this.playerModel.findOne({ _id: player_id });
 
       if (
@@ -295,91 +316,95 @@ export class JoinService {
           clan_id,
           clanRole_id: memberRole._id,
         },
-        { session }
+        { session },
       );
 
-      const [, clanUpdateErrors] = await this.clanService.basicService.updateOne(
-        { $inc: { playerCount: 1 } },
-        {
-          filter: { _id: clan._id },
-          session
-        }
-      );
-      if (clanUpdateErrors) throw new NotFoundException('Player count reduction failed');
-
-      const [soulHome, soulHomeErrors] = await this.soulHomeService.basicService.readOne({
-        filter: { clan_id: clan._id },
-        session
-      });
-      if (soulHomeErrors) throw new NotFoundException('SoulHome with that _id not found');
-
-      const [updatedRoom,] = await this.roomService.basicService.findOneAndUpdate(
-        { 
-          $set: { 
-            deactivationTime: null,
-            roomStatus: RoomStatus.ACTIVE 
+      const [, clanUpdateErrors] =
+        await this.clanService.basicService.updateOne(
+          { $inc: { playerCount: 1 } },
+          {
+            filter: { _id: clan._id },
+            session,
           },
-        },
-        {
-          filter: { 
-            soulHome_id: soulHome._id, 
-            roomStatus: RoomStatus.INACTIVE 
+        );
+      if (clanUpdateErrors)
+        throw new NotFoundException('Player count reduction failed');
+
+      const [soulHome, soulHomeErrors] =
+        await this.soulHomeService.basicService.readOne({
+          filter: { clan_id: clan._id },
+          session,
+        });
+      if (soulHomeErrors)
+        throw new NotFoundException('SoulHome with that _id not found');
+
+      const [updatedRoom] =
+        await this.roomService.basicService.findOneAndUpdate(
+          {
+            $set: {
+              deactivationTime: null,
+              roomStatus: RoomStatus.ACTIVE,
+            },
           },
-          sort: { roomPosition: 1 },
-          session
-        },
-      );
-      
+          {
+            filter: {
+              soulHome_id: soulHome._id,
+              roomStatus: RoomStatus.INACTIVE,
+            },
+            sort: { roomPosition: 1 },
+            session,
+          },
+        );
+
       if (!updatedRoom) {
-        const [room,] = await this.roomService.basicService.readOne({ 
+        const [room] = await this.roomService.basicService.readOne({
           filter: { soulHome_id: soulHome._id, roomPosition: null },
-          session
+          session,
         });
 
         if (room) {
-          const position = await this.roomService.getRoomPosition(soulHome._id, session) + 1 || 1;
-          const [, updatedRoomErrors] = await this.roomService.basicService.updateOneById(
-            room._id,
-            {
-              $set: {
-                roomPosition: position,
-                roomColour: 'default',
-                wallpaper: 'default',
-                floor: 'default',
-                roomStatus: RoomStatus.ACTIVE
+          const position =
+            (await this.roomService.getRoomPosition(soulHome._id, session)) +
+              1 || 1;
+          const [, updatedRoomErrors] =
+            await this.roomService.basicService.updateOneById(
+              room._id,
+              {
+                $set: {
+                  roomPosition: position,
+                  roomColour: 'default',
+                  wallpaper: 'default',
+                  floor: 'default',
+                  roomStatus: RoomStatus.ACTIVE,
+                },
               },
-            },
-            { session }
-          );
+              { session },
+            );
           if (updatedRoomErrors) throw new Error('Failed to update old Room');
         } else {
-          const [defaultRoom, defaultRoomErrors] = await this.roomService.getSoulHomeRoom(
-            clan_id,
-            session
-          );
-          if (defaultRoomErrors) throw new Error('Failed to get new Room for Player');
+          const [defaultRoom, defaultRoomErrors] =
+            await this.roomService.getSoulHomeRoom(clan_id, session);
+          if (defaultRoomErrors)
+            throw new Error('Failed to get new Room for Player');
 
-          const [, createdRoomErrors] = await this.roomService.basicService.createOne(
-            defaultRoom, 
-            { session }
-          );
+          const [, createdRoomErrors] =
+            await this.roomService.basicService.createOne(defaultRoom, {
+              session,
+            });
           if (createdRoomErrors) throw new Error('Failed to create new Room');
         }
       }
-      
+
       await endTransaction(session);
-      
+
       this.clanNotifier.memberJoin(clan_id, player_id);
     } catch (error) {
-      await cancelTransaction(
-        session, 
-        [
-          new ServiceError({
-            reason: SEReason.UNEXPECTED,
-            value: error,
-          })
-        ]
-      );
+      await cancelTransaction(session, [
+        new ServiceError({
+          reason: SEReason.UNEXPECTED,
+          value: error,
+        }),
+      ]);
       throw error;
     }
   }

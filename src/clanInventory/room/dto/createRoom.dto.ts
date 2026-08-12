@@ -1,9 +1,4 @@
-import {
-  IsHexadecimal,
-  IsMongoId,
-  IsNumber,
-  IsString,
-} from 'class-validator';
+import { IsHexadecimal, IsMongoId, IsNumber, IsString } from 'class-validator';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 import { RoomStatus } from '../enum/roomStatus.enum';
 
@@ -14,7 +9,7 @@ export class CreateRoomDto {
    */
   @IsNumber()
   roomPosition: number;
-  
+
   /**
    * Room colour in hexadecimal
    */

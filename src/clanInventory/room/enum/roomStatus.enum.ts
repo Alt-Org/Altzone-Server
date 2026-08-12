@@ -3,5 +3,5 @@
  */
 export enum RoomStatus {
   ACTIVE = 'Active',
-  INACTIVE = 'Inactive'
+  INACTIVE = 'Inactive',
 }
