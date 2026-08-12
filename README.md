@@ -21,9 +21,15 @@ Teacher pages https://devapi.altzone.fi/teacher (dev branch)
 
 ## MQTT notifications
 
-Voting notification topics and payloads are described in
-[Voting MQTT Notifications](doc/voting-mqtt-notifications.md).
+All MQTT payloads use the common envelope described in
+[MQTT Notification Contract](doc/mqtt-notification-contract.md).
 
+Feature-specific MQTT topics and payloads are described in:
+
+- [Voting MQTT Notifications](doc/voting-mqtt-notifications.md)
+- [Matchmaking MQTT Notifications](doc/matchmaking-mqtt-notifications.md)
+- [Jukebox MQTT Notifications](doc/jukebox-mqtt-notifications.md)
+- [Daily Task MQTT Notifications](doc/daily-task-mqtt-notifications.md)
 
 ## Getting started
 
