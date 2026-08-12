@@ -12,7 +12,7 @@ MongoDB is schemaless, but the AltZone backend relies on Mongoose schemas and in
 
 1. **Modify the Mongoose Model/Schema:** Update your backend Mongoose model in `src/` to reflect the new feature requirements.
 2. **Generate a Migration File:** Run `npm run migrate:create <brief-description>` to generate a timestamped file in `database/migrations/`.
-3. **Write Migration Logic:** Implement the `up` (apply) and `down` (rollback) functions using the native MongoDB driver API.
+3. **Write Migration Logic:** Implement the `up` (apply) and `down` (rollback) functions using the native MongoDB driver API. The `up` function should include any data transformations, index creations, or schema adjustments needed for the new feature. The `down` function should reverse these changes to allow for safe rollbacks. The file migration-template.js provides a starting point for your migration script with a boilerplate setup.
 4. **Apply Changes Locally:** Run `npm run migrate:up` on your local database.
 5. **Verify Data:** Inspect your local MongoDB instance to confirm documents and indexes match expectations.
 6. **Commit Migration Files:** Commit both the schema updates and the new file in `database/migrations/`.
