@@ -110,16 +110,13 @@ export default class ClanHelperService {
       >({ name, clan_id, environment: environment }, { session });
     if (soulHomeErrors || !soulHome) return [null, soulHomeErrors];
 
-    const [defaultRoom, defaultRoomErrors] = await this.roomService.getSoulHomeRoom(
-      clan_id,
-      session
-    );
+    const [defaultRoom, defaultRoomErrors] =
+      await this.roomService.getSoulHomeRoom(clan_id, session);
     if (defaultRoomErrors) return [null, defaultRoomErrors];
 
-    const [room, roomErrors] = await this.roomService.createOne(
-      defaultRoom,
-      { session },
-    );
+    const [room, roomErrors] = await this.roomService.createOne(defaultRoom, {
+      session,
+    });
     if (roomErrors || !room) return [null, roomErrors];
 
     const [items, itemsErrors] = await this.itemService.createMany(

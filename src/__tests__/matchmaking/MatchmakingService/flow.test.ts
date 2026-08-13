@@ -548,10 +548,7 @@ describe('MatchmakingService flow', () => {
       ],
       startedAt: '2026-07-06T08:00:00.000Z',
     };
-    playerService.updatePlayerById.mockResolvedValueOnce([
-      null,
-      [updateError],
-    ]);
+    playerService.updatePlayerById.mockResolvedValueOnce([null, [updateError]]);
     await redis.set(
       'matchmaking:match:match-player-error',
       JSON.stringify(match),

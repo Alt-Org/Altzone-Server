@@ -4,7 +4,7 @@ import { CreateRoomDto } from '../../../../clanInventory/room/dto/createRoom.dto
 export default class CreateRoomDtoBuilder {
   private readonly base: Partial<CreateRoomDto> = {
     roomPosition: 1,
-    roomColour: "defaultColor",
+    roomColour: 'defaultColor',
     floor: 'defaultFloor',
     wallpaper: 'defaultWall',
     roomStatus: RoomStatus.ACTIVE,

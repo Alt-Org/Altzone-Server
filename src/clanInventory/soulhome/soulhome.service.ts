@@ -117,14 +117,14 @@ export class SoulHomeService {
 
   /**
    * Read SoulHome of Clan Player belongs to. If Room is given as a parameter, get Rooms with Items.
-   * 
+   *
    * @param _id - The Mongo _id of the SoulHome to read.
    * @param options - Options for reading the SoulHome.
    * @returns SoulHome with the given _id on succeed or an array of ServiceErrors if any occurred.
    */
   async readSoulHomeWithRooms(
-    _id: string, 
-    options?: TReadByIdOptions
+    _id: string,
+    options?: TReadByIdOptions,
   ): Promise<IServiceReturn<SoulHomeDto>> {
     const optionsToApply = options;
     if (options?.includeRefs)
@@ -132,18 +132,20 @@ export class SoulHomeService {
         publicReferences.includes(ref),
       );
 
-    const [soulHome, soulHomeErrors] = await this.basicService.readOneById<SoulHomeDto>(_id);
+    const [soulHome, soulHomeErrors] =
+      await this.basicService.readOneById<SoulHomeDto>(_id);
     if (soulHomeErrors) return [null, soulHomeErrors];
 
     if (optionsToApply.includeRefs.includes(ModelName.ROOM)) {
       const roomOptions = {
         filter: {
-          soulHome_id: soulHome._id
+          soulHome_id: soulHome._id,
         },
-        includeRefs: [ModelName.ITEM]
-      }
+        includeRefs: [ModelName.ITEM],
+      };
 
-      const [rooms, roomsErrors] = await this.roomService.basicService.readMany(roomOptions);
+      const [rooms, roomsErrors] =
+        await this.roomService.basicService.readMany(roomOptions);
       if (roomsErrors) return [null, roomsErrors];
 
       soulHome.Room = rooms;

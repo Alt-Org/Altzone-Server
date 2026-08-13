@@ -33,7 +33,8 @@ describe('JoinService.handleJoinRequest() test suite', () => {
   const player = playerBuilder.build();
 
   const soulHomeModel = SoulhomeModule.getSoulhomeModel();
-  const soulHomeCreateBuilder = ClanInventoryBuilderFactory.getBuilder('CreateSoulHomeDto');
+  const soulHomeCreateBuilder =
+    ClanInventoryBuilderFactory.getBuilder('CreateSoulHomeDto');
   const soulHome = soulHomeCreateBuilder.build();
   openClan.environment = player.environment;
   closedClan.environment = player.environment;
@@ -196,9 +197,13 @@ describe('JoinService.handleJoinRequest() test suite', () => {
     expect(topic).toBe(`/clan/${openClan._id}/member/join/new`);
 
     const parsedPayload = JSON.parse(payload);
-    expect(parsedPayload.topic).toBe(`/clan/${openClan._id}/member/join`);
-    expect(parsedPayload.playerId).toBe(player._id);
-    expect(parsedPayload.event).toBe('join');
-    expect(parsedPayload.ts).toBeLessThanOrEqual(Date.now());
+    expect(parsedPayload.topic).toBe('clan');
+    expect(parsedPayload.type).toBe('MEMBER_JOINED');
+    expect(parsedPayload.payload.topic).toBe(
+      `/clan/${openClan._id}/member/join`,
+    );
+    expect(parsedPayload.payload.playerId).toBe(player._id);
+    expect(parsedPayload.payload.event).toBe('join');
+    expect(parsedPayload.payload.ts).toBeLessThanOrEqual(Date.now());
   });
 });

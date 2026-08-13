@@ -23,7 +23,8 @@ describe('JoinService.findClanForNewPlayer() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const player = playerBuilder.build();
 
-  const soulHomeCreateBuilder = ClanInventoryBuilderFactory.getBuilder('CreateSoulHomeDto');
+  const soulHomeCreateBuilder =
+    ClanInventoryBuilderFactory.getBuilder('CreateSoulHomeDto');
   const soulHomeModel = SoulhomeModule.getSoulhomeModel();
   const soulHome = soulHomeCreateBuilder.build();
   clan.environment = player.environment;
@@ -54,9 +55,11 @@ describe('JoinService.findClanForNewPlayer() test suite', () => {
     const [topic, payload] = publishMock.mock.calls[0];
     expect(topic).toBe(`/clan/${clan._id}/member/join/new`);
     const parsedPayload = JSON.parse(payload);
-    expect(parsedPayload.topic).toBe(`/clan/${clan._id}/member/join`);
-    expect(parsedPayload.playerId).toBe(player._id);
-    expect(parsedPayload.event).toBe('join');
+    expect(parsedPayload.topic).toBe('clan');
+    expect(parsedPayload.type).toBe('MEMBER_JOINED');
+    expect(parsedPayload.payload.topic).toBe(`/clan/${clan._id}/member/join`);
+    expect(parsedPayload.payload.playerId).toBe(player._id);
+    expect(parsedPayload.payload.event).toBe('join');
   });
 
   it('should create an AUTO clan and join the player if no open clan with room is found', async () => {
@@ -74,8 +77,10 @@ describe('JoinService.findClanForNewPlayer() test suite', () => {
     const [topic, payload] = publishMock.mock.calls[0];
     expect(topic).toBe(`/clan/${clan._id}/member/join/new`);
     const parsedPayload = JSON.parse(payload);
-    expect(parsedPayload.topic).toBe(`/clan/${clan._id}/member/join`);
-    expect(parsedPayload.playerId).toBe(player._id);
-    expect(parsedPayload.event).toBe('join');
+    expect(parsedPayload.topic).toBe('clan');
+    expect(parsedPayload.type).toBe('MEMBER_JOINED');
+    expect(parsedPayload.payload.topic).toBe(`/clan/${clan._id}/member/join`);
+    expect(parsedPayload.payload.playerId).toBe(player._id);
+    expect(parsedPayload.payload.event).toBe('join');
   });
 });
