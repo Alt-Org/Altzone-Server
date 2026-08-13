@@ -52,3 +52,5 @@ ChatMessageSchema.virtual('sender', {
   foreignField: '_id',
   justOne: true,
 });
+
+ChatMessageSchema.index({ createdAt: 1 }, { expireAfterSeconds: 259200 });
