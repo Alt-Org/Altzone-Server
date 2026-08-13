@@ -1,4 +1,5 @@
 import MQTTConnector from '../../../common/service/notificator/MQTTConnector';
+import { MqttNotificationType } from '../../../common/service/notificator/enum/MqttNotificationType.enum';
 import { MatchmakingNotifier } from '../../../matchmaking/matchmaking.notifier';
 import { InviteStatus } from '../../../matchmaking/enum/inviteStatus.enum';
 import { MatchStatus } from '../../../matchmaking/enum/matchStatus.enum';
@@ -68,7 +69,11 @@ describe('MatchmakingNotifier notifications', () => {
 
     expect(publishMock).toHaveBeenCalledWith(
       '/matchmaking/invites/player/player-1',
-      JSON.stringify({ type: 'INVITE_UPDATED', payload: invite }),
+      JSON.stringify({
+        topic: 'matchmaking',
+        type: MqttNotificationType.INVITE_UPDATED,
+        payload: invite,
+      }),
     );
   });
 
@@ -77,7 +82,11 @@ describe('MatchmakingNotifier notifications', () => {
 
     expect(publishMock).toHaveBeenCalledWith(
       '/matchmaking/matches/player/player-1',
-      JSON.stringify({ type: 'MATCH_FOUND', payload: match }),
+      JSON.stringify({
+        topic: 'matchmaking',
+        type: MqttNotificationType.MATCH_FOUND,
+        payload: match,
+      }),
     );
   });
 
@@ -86,7 +95,11 @@ describe('MatchmakingNotifier notifications', () => {
 
     expect(publishMock).toHaveBeenCalledWith(
       '/match/match-1',
-      JSON.stringify({ type: 'MATCH_STARTED', payload: match }),
+      JSON.stringify({
+        topic: 'matchmaking',
+        type: 'MATCH_STARTED',
+        payload: match,
+      }),
     );
   });
 });

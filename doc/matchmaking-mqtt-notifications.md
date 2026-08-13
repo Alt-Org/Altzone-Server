@@ -31,12 +31,14 @@ All matchmaking MQTT messages use the same wrapper shape:
 
 ```ts
 {
+  topic: 'matchmaking',
   type: string,
   payload: unknown
 }
 ```
 
-The `type` field identifies the event. The `payload` field contains either a
+The `topic` field identifies the logical notification area. The `type` field
+identifies the event. The `payload` field contains either a
 `MatchmakingInviteDto` or a `MatchmakingMatchDto`, depending on the event.
 
 ## 1. Invite Update Notification
@@ -68,6 +70,7 @@ Bots do not receive MQTT notifications.
 
 ```ts
 {
+  topic: 'matchmaking',
   type: 'INVITE_UPDATED',
   payload: {
     id: string,
@@ -122,6 +125,7 @@ included in the match payload but do not receive player-specific notifications.
 
 ```ts
 {
+  topic: 'matchmaking',
   type: 'MATCH_FOUND',
   payload: MatchmakingMatchDto
 }
@@ -188,6 +192,7 @@ matchmaking channel to a match-level game channel.
 
 ```ts
 {
+  topic: 'matchmaking',
   type: 'MATCH_STARTED',
   payload: MatchmakingMatchDto
 }
@@ -221,6 +226,7 @@ and `result`.
 
 ```ts
 {
+  topic: 'matchmaking',
   type: 'MATCH_FINISHED',
   payload: MatchmakingMatchDto
 }
@@ -234,7 +240,7 @@ Recommended frontend flow:
 2. Subscribe to `/matchmaking/matches/player/{playerId}` while the player is in
    matchmaking.
 3. Use `INVITE_UPDATED` to keep lobby and invite UI synchronized.
-4. When `MATCH_FOUND` is received, read `payload.id` and subscribe to
+4. When `MATCH_FOUND` is received, read `message.payload.id` and subscribe to
    `/match/{matchId}`.
 5. Use `MATCH_STARTED` to initialize the match scene if the client did not enter
    from the player-specific `MATCH_FOUND` event.

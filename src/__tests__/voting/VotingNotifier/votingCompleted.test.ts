@@ -5,6 +5,7 @@ import mqtt from 'mqtt';
 import { NotificationStatus } from '../../../common/service/notificator/enum/NotificationStatus.enum';
 import { NotificationResource } from '../../../common/service/notificator/enum/NotificationResource.enum';
 import { NotificationGroup } from '../../../common/service/notificator/enum/NotificationGroup.enum';
+import { MqttNotificationType } from '../../../common/service/notificator/enum/MqttNotificationType.enum';
 import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
 import createMockMqttClient from '../../common/service/notificator/mocks/createMockMqttClient';
 
@@ -28,11 +29,15 @@ describe('VotingNotifier.votingCompleted() test suite', () => {
     const fleaMarketItem = fleaMarketBuilder.build();
     const expectedTopic = `/${NotificationGroup.CLAN}/${votingDto.organizer.clan_id}/${NotificationResource.VOTING}/${votingDto.type}/${NotificationStatus.END}`;
     const expectedPayload = JSON.stringify({
-      topic: `/clan/${votingDto.organizer.clan_id}/voting/${votingDto._id.toString()}`,
-      status: NotificationStatus.END,
-      voting_id: votingDto._id.toString(),
-      type: votingDto.type,
-      entity: fleaMarketItem,
+      topic: 'voting',
+      type: MqttNotificationType.VOTING_ENDED,
+      payload: {
+        topic: `/clan/${votingDto.organizer.clan_id}/voting/${votingDto._id.toString()}`,
+        status: NotificationStatus.END,
+        voting_id: votingDto._id.toString(),
+        type: votingDto.type,
+        entity: fleaMarketItem,
+      },
     });
 
     const { publishAsyncMock } = createMockMqttClient();

@@ -126,9 +126,11 @@ describe('JoinService.leaveClan() test suite', () => {
     expect(topic).toBe(`/clan/${clan._id}/member/leave/update`);
 
     const parsedPayload = JSON.parse(payload);
-    expect(parsedPayload.topic).toBe(`/clan/${clan._id}/member/leave`);
-    expect(parsedPayload.playerId).toBe(player._id);
-    expect(parsedPayload.event).toBe('leave');
-    expect(parsedPayload.ts).toBeLessThanOrEqual(Date.now());
+    expect(parsedPayload.topic).toBe('clan');
+    expect(parsedPayload.type).toBe('MEMBER_LEFT');
+    expect(parsedPayload.payload.topic).toBe(`/clan/${clan._id}/member/leave`);
+    expect(parsedPayload.payload.playerId).toBe(player._id);
+    expect(parsedPayload.payload.event).toBe('leave');
+    expect(parsedPayload.payload.ts).toBeLessThanOrEqual(Date.now());
   });
 });
