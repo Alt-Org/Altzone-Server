@@ -165,7 +165,7 @@ const createActiveBattleStartMatch = (
 });
 
 describe('MatchmakingService flow', () => {
-  it('creates an active RANDOM match from two ready invites and notifies real players', async () => {
+  it('creates an active RANDOM match after ready room owners start matchmaking', async () => {
     const { redis, notifier, service } = createService();
 
     const [firstInvite, firstErrors] = await service.createInvite('player-1', {
@@ -180,16 +180,32 @@ describe('MatchmakingService flow', () => {
 
     expect(firstErrors).toBeNull();
     expect(secondErrors).toBeNull();
-    expect(secondInvite.status).toBe('MATCHED');
+    expect(firstInvite.status).toBe('READY');
+    expect(secondInvite.status).toBe('READY');
+    expect(getStoredMatches(redis)).toHaveLength(0);
+
+    const [queuedInvite, firstStartErrors] = await service.startRoom(
+      firstInvite.id,
+      'player-1',
+    );
+    const [startedInvite, secondStartErrors] = await service.startRoom(
+      secondInvite.id,
+      'player-2',
+    );
+
+    expect(firstStartErrors).toBeNull();
+    expect(secondStartErrors).toBeNull();
+    expect(queuedInvite.status).toBe('QUEUED');
+    expect(startedInvite.status).toBe('MATCHED');
 
     const [storedFirstInvite] = await service.getInvite(firstInvite.id);
     expect(storedFirstInvite.status).toBe('MATCHED');
-    expect(storedFirstInvite.matchId).toBe(secondInvite.matchId);
+    expect(storedFirstInvite.matchId).toBe(startedInvite.matchId);
 
     const matches = getStoredMatches(redis);
     expect(matches).toHaveLength(1);
     expect(matches[0]).toMatchObject({
-      id: secondInvite.matchId,
+      id: startedInvite.matchId,
       matchType: MatchType.RANDOM,
       status: MatchStatus.ACTIVE,
       teamSize: 2,
@@ -207,16 +223,16 @@ describe('MatchmakingService flow', () => {
     expect(redis.values.has('matchmaking:player-invite:player-2')).toBe(false);
     expect(notifier.matchFound).toHaveBeenCalledWith(
       'player-1',
-      expect.objectContaining({ id: secondInvite.matchId }),
+      expect.objectContaining({ id: startedInvite.matchId }),
     );
     expect(notifier.matchFound).toHaveBeenCalledWith(
       'player-2',
-      expect.objectContaining({ id: secondInvite.matchId }),
+      expect.objectContaining({ id: startedInvite.matchId }),
     );
     expect(notifier.matchEvent).toHaveBeenCalledWith(
-      secondInvite.matchId,
+      startedInvite.matchId,
       'MATCH_STARTED',
-      expect.objectContaining({ id: secondInvite.matchId }),
+      expect.objectContaining({ id: startedInvite.matchId }),
     );
   });
 
@@ -230,7 +246,16 @@ describe('MatchmakingService flow', () => {
     });
 
     expect(errors).toBeNull();
-    expect(invite.status).toBe('QUEUED');
+    expect(invite.status).toBe('READY');
+    expect(queue.scheduleClanOpponentTimeout).not.toHaveBeenCalled();
+
+    const [startedInvite, startErrors] = await service.startRoom(
+      invite.id,
+      'player-1',
+    );
+
+    expect(startErrors).toBeNull();
+    expect(startedInvite.status).toBe('QUEUED');
     expect(queue.scheduleClanOpponentTimeout).toHaveBeenCalledWith(
       invite.id,
       30,
@@ -264,6 +289,56 @@ describe('MatchmakingService flow', () => {
       'MATCH_STARTED',
       expect.objectContaining({ id: matchedInvite.matchId }),
     );
+  });
+
+  it('rejects room start from a player who does not own the room', async () => {
+    const { service } = createService();
+
+    const [invite, createErrors] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+    });
+
+    const [startedInvite, startErrors] = await service.startRoom(
+      invite.id,
+      'player-2',
+    );
+
+    expect(createErrors).toBeNull();
+    expect(startedInvite).toBeNull();
+    expect(startErrors).toHaveLength(1);
+    expect(startErrors[0]).toMatchObject({
+      reason: SEReason.NOT_AUTHORIZED,
+      field: 'playerId',
+      value: 'player-2',
+      message: 'Only the room owner can start matchmaking.',
+    });
+  });
+
+  it('rejects room start before the room is ready', async () => {
+    const { service } = createService();
+    const roomId = '665af23e5e982f0013aa334b';
+
+    const [invite, createErrors] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId,
+      allowBots: false,
+    });
+
+    const [startedInvite, startErrors] = await service.startRoom(
+      invite.id,
+      'player-1',
+    );
+
+    expect(createErrors).toBeNull();
+    expect(invite.status).toBe('OPEN');
+    expect(startedInvite).toBeNull();
+    expect(startErrors).toHaveLength(1);
+    expect(startErrors[0]).toMatchObject({
+      reason: SEReason.NOT_ALLOWED,
+      field: 'status',
+      value: 'OPEN',
+      message: 'Room is not ready to start matchmaking.',
+    });
   });
 
   it('returns REQUIRED error when joining a CUSTOM invite without roomId', async () => {
