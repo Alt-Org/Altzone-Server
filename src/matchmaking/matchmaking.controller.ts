@@ -39,10 +39,7 @@ export class MatchmakingController {
     @Param('playerId') playerId: string,
     @LoggedUser() user: User,
   ) {
-    return this.matchmakingService.sendPlayerInvite(
-      playerId,
-      user.player_id,
-    );
+    return this.matchmakingService.sendPlayerInvite(playerId, user.player_id);
   }
 
   /**
