@@ -465,7 +465,9 @@ describe('MatchmakingService flow', () => {
       }),
     );
 
-    const roomUpdate = (notifier.inviteUpdated.mock.calls[0] as unknown[])[1] as any;
+    const roomUpdate = (
+      notifier.inviteUpdated.mock.calls[0] as unknown[]
+    )[1] as any;
     expect(roomUpdate).not.toHaveProperty('roomId');
     expect(roomUpdate).not.toHaveProperty('matchId');
     expect(roomUpdate).toHaveProperty('players', [
