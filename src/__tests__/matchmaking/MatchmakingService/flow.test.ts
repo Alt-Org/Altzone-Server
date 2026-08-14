@@ -111,12 +111,14 @@ const createService = (
     getPlayerClanId: jest.fn(async (playerId: string) => playerClans[playerId]),
     updatePlayerById: jest.fn(async () => [{}, null]),
     basicService: {
-      readMany: jest.fn(async ({ filter }: { filter?: { clan_id?: string } }) => [
-        Object.entries(playerClans)
-          .filter(([, clanId]) => clanId === filter?.clan_id)
-          .map(([playerId]) => ({ _id: playerId })),
-        null,
-      ]),
+      readMany: jest.fn(
+        async ({ filter }: { filter?: { clan_id?: string } }) => [
+          Object.entries(playerClans)
+            .filter(([, clanId]) => clanId === filter?.clan_id)
+            .map(([playerId]) => ({ _id: playerId })),
+          null,
+        ],
+      ),
     },
   };
   const clanService = {
@@ -243,11 +245,7 @@ describe('MatchmakingService flow', () => {
       'player-2',
       expect.objectContaining({ id: startedInvite.matchId }),
     );
-    expect(notifier.matchEvent).toHaveBeenCalledWith(
-      startedInvite.matchId,
-      'MATCH_STARTED',
-      expect.objectContaining({ id: startedInvite.matchId }),
-    );
+    expect(notifier.matchEvent).not.toHaveBeenCalled();
   });
 
   it('creates a CLAN bot opponent when the opponent timeout expires', async () => {
@@ -298,11 +296,7 @@ describe('MatchmakingService flow', () => {
       'player-1',
       expect.objectContaining({ id: matchedInvite.matchId }),
     );
-    expect(notifier.matchEvent).toHaveBeenCalledWith(
-      matchedInvite.matchId,
-      'MATCH_STARTED',
-      expect.objectContaining({ id: matchedInvite.matchId }),
-    );
+    expect(notifier.matchEvent).not.toHaveBeenCalled();
   });
 
   it('rejects room start from a player who does not own the room', async () => {
@@ -630,7 +624,7 @@ describe('MatchmakingService flow', () => {
     expect(storedMatch.readyPlayerIds).toEqual(['player-1']);
     expect(notifier.matchEvent).not.toHaveBeenCalledWith(
       match.id,
-      'BATTLE_STARTED',
+      MqttNotificationType.MATCH_STARTED,
       expect.anything(),
     );
   });
@@ -669,7 +663,7 @@ describe('MatchmakingService flow', () => {
     expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
     expect(notifier.matchEvent).toHaveBeenCalledWith(
       match.id,
-      'BATTLE_STARTED',
+      MqttNotificationType.MATCH_STARTED,
       expect.objectContaining({
         id: match.id,
         readyPlayerIds: ['player-1'],
@@ -741,7 +735,7 @@ describe('MatchmakingService flow', () => {
     });
   });
 
-  it('publishes BATTLE_STARTED only after all real players are ready', async () => {
+  it('publishes MATCH_STARTED only after all real players are ready', async () => {
     const { redis, notifier, service } = createService();
     const match = createActiveBattleStartMatch({
       id: 'match-start-two-players',
@@ -765,7 +759,7 @@ describe('MatchmakingService flow', () => {
     expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
     expect(notifier.matchEvent).toHaveBeenCalledWith(
       match.id,
-      'BATTLE_STARTED',
+      MqttNotificationType.MATCH_STARTED,
       expect.objectContaining({
         id: match.id,
         readyPlayerIds: ['player-1', 'player-2'],
@@ -818,7 +812,7 @@ describe('MatchmakingService flow', () => {
     expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
     expect(notifier.matchEvent).toHaveBeenCalledWith(
       match.id,
-      'BATTLE_STARTED',
+      MqttNotificationType.MATCH_STARTED,
       expect.objectContaining({
         id: match.id,
         readyPlayerIds: ['player-1', 'player-2', 'player-3', 'player-4'],
@@ -860,7 +854,7 @@ describe('MatchmakingService flow', () => {
     expect(startedMatch.battleStartedAt).toEqual(expect.any(String));
     expect(notifier.matchEvent).toHaveBeenCalledWith(
       match.id,
-      'BATTLE_STARTED',
+      MqttNotificationType.MATCH_STARTED,
       expect.objectContaining({
         id: match.id,
         readyPlayerIds: ['player-1'],
