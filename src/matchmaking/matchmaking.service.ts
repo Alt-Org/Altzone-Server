@@ -447,10 +447,7 @@ export class MatchmakingService {
         (allPlayersReady ? new Date().toISOString() : undefined),
     };
 
-    await this.redisService.set(
-      this.matchKey(startedMatch.id),
-      JSON.stringify(startedMatch),
-    );
+    await this.saveMatch(startedMatch);
 
     if (allPlayersReady && !match.battleStartedAt) {
       await this.notifier.matchEvent(
@@ -860,6 +857,14 @@ export class MatchmakingService {
         this.redisService.set(this.playerMatchKey(playerId), match.id),
       ),
     );
+  }
+
+  /**
+   * Persists updates to an existing active match without recreating reverse
+   * player lookup keys.
+   */
+  private async saveMatch(match: ActiveMatch) {
+    await this.redisService.set(this.matchKey(match.id), JSON.stringify(match));
   }
 
   /**
