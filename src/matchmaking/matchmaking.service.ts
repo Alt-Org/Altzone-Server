@@ -389,6 +389,81 @@ export class MatchmakingService {
   }
 
   /**
+   * Confirms that a real match participant has joined the Photon Room. Once all
+   * real players have confirmed, the clientside battle can start.
+   */
+  async startMatch(
+    matchId: string,
+    playerId: string,
+  ): Promise<IServiceReturn<MatchmakingMatchDto>> {
+    const [match, matchErrors] = await this.readMatch(matchId);
+    if (matchErrors) return [null, matchErrors];
+
+    if (match.status !== MatchStatus.ACTIVE) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'matchId',
+            value: matchId,
+            message: 'Only active matchmaking matches can be started.',
+          }),
+        ],
+      ];
+    }
+
+    if (!this.matchHasPlayer(match, playerId)) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_AUTHORIZED,
+            field: 'playerId',
+            value: playerId,
+            message: 'Only match participants can start the match.',
+          }),
+        ],
+      ];
+    }
+
+    const requiredPlayerIds = Array.from(new Set(this.getRealPlayerIds(match)));
+    const readyPlayerIds = Array.from(
+      new Set([
+        ...(match.readyPlayerIds ?? []).filter((readyPlayerId) =>
+          requiredPlayerIds.includes(readyPlayerId),
+        ),
+        playerId,
+      ]),
+    );
+    const allPlayersReady = requiredPlayerIds.every((requiredPlayerId) =>
+      readyPlayerIds.includes(requiredPlayerId),
+    );
+    const startedMatch: ActiveMatch = {
+      ...match,
+      readyPlayerIds,
+      battleStartedAt:
+        match.battleStartedAt ??
+        (allPlayersReady ? new Date().toISOString() : undefined),
+    };
+
+    await this.redisService.set(
+      this.matchKey(startedMatch.id),
+      JSON.stringify(startedMatch),
+    );
+
+    if (allPlayersReady && !match.battleStartedAt) {
+      await this.notifier.matchEvent(
+        startedMatch.id,
+        'BATTLE_STARTED',
+        this.toMatchDto(startedMatch),
+      );
+    }
+
+    return [this.toMatchDto(startedMatch), null];
+  }
+
+  /**
    * Validates that a battle/start request belongs to an active matchmaking match.
    */
   async validateBattleStart(
