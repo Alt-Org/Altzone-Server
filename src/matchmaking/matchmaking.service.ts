@@ -67,8 +67,8 @@ export class MatchmakingService {
   ) {}
 
   /**
-   * Creates an invite from the authenticated player and immediately advances it
-   * if bots or enough real players make the invite READY.
+   * Creates an invite from the authenticated player. Ready invites wait for the
+   * room owner to explicitly start matchmaking.
    */
   async createInvite(
     playerId: string,
@@ -108,9 +108,7 @@ export class MatchmakingService {
     await this.setPlayerInvite(playerId, invite.id);
     await this.notifyInvitePlayers(invite);
 
-    const processedInvite = await this.processReadyInvite(invite);
-
-    return [this.toInviteDto(processedInvite), null];
+    return [this.toInviteDto(invite), null];
   }
 
   /**
@@ -210,7 +208,49 @@ export class MatchmakingService {
     await this.setPlayerInvite(playerId, updatedInvite.id);
     await this.notifyInvitePlayers(updatedInvite);
 
-    const processedInvite = await this.processReadyInvite(updatedInvite);
+    return [this.toInviteDto(updatedInvite), null];
+  }
+
+  /**
+   * Starts matchmaking for a ready room. Only the room owner may move a room
+   * from READY into matchmaking.
+   */
+  async startRoom(
+    roomId: string,
+    playerId: string,
+  ): Promise<IServiceReturn<MatchmakingInviteDto>> {
+    const [invite, inviteErrors] = await this.readInvite(roomId);
+    if (inviteErrors) return [null, inviteErrors];
+
+    if (invite.ownerPlayerId !== playerId) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_AUTHORIZED,
+            field: 'playerId',
+            value: playerId,
+            message: 'Only the room owner can start matchmaking.',
+          }),
+        ],
+      ];
+    }
+
+    if (invite.status !== InviteStatus.READY) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'status',
+            value: invite.status,
+            message: 'Room is not ready to start matchmaking.',
+          }),
+        ],
+      ];
+    }
+
+    const processedInvite = await this.processReadyInvite(invite);
 
     return [this.toInviteDto(processedInvite), null];
   }
