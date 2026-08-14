@@ -1392,6 +1392,8 @@ export class MatchmakingService {
       teamSize: match.teamSize,
       teams: match.teams.map((team) => this.toTeamDto(team)),
       startedAt: match.startedAt,
+      readyPlayerIds: match.readyPlayerIds,
+      battleStartedAt: match.battleStartedAt,
       finishedAt: match.finishedAt,
       result: match.result,
     };
