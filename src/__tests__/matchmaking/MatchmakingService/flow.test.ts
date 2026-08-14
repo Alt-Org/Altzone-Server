@@ -465,9 +465,17 @@ describe('MatchmakingService flow', () => {
       }),
     );
 
-    const roomUpdate = (notifier.inviteUpdated.mock.calls[0] as unknown[])[1];
+    const roomUpdate = (notifier.inviteUpdated.mock.calls[0] as unknown[])[1] as any;
     expect(roomUpdate).not.toHaveProperty('roomId');
     expect(roomUpdate).not.toHaveProperty('matchId');
+    expect(roomUpdate).toHaveProperty('players', [
+      { playerId: 'player-1', name: 'Player 1', avatar: null },
+    ]);
+    expect(Object.keys(roomUpdate.players[0])).toEqual([
+      'playerId',
+      'name',
+      'avatar',
+    ]);
   });
 
   it('sends a player invite notification for the owner active room', async () => {
@@ -498,6 +506,20 @@ describe('MatchmakingService flow', () => {
         sentAt: expect.any(String),
       }),
     );
+
+    const invitePayload = (
+      notifier.inviteReceived.mock.calls[0] as unknown[]
+    )[2] as any;
+    expect(Object.keys(invitePayload.ownerPlayer)).toEqual([
+      'playerId',
+      'name',
+      'avatar',
+    ]);
+    expect(Object.keys(invitePayload.senderPlayer)).toEqual([
+      'playerId',
+      'name',
+      'avatar',
+    ]);
   });
 
   it('sends clan invite notifications to available clan members', async () => {
@@ -956,6 +978,26 @@ describe('MatchmakingService flow', () => {
         readyPlayerIds: ['player-1'],
       }),
     );
+
+    const matchStartedPayload = (
+      notifier.matchEvent.mock.calls[0] as unknown[]
+    )[2] as any;
+    expect(matchStartedPayload.teams[0].players).toEqual([
+      { playerId: 'player-1', name: 'Player 1', avatar: null },
+    ]);
+    expect(Object.keys(matchStartedPayload.teams[0].players[0])).toEqual([
+      'playerId',
+      'name',
+      'avatar',
+    ]);
+    expect(matchStartedPayload.teams[0].bots).toEqual([
+      { botId: 'bot-a', displayName: 'Bot A', isBot: true },
+    ]);
+    expect(matchStartedPayload.teams[1].players).toEqual([]);
+    expect(matchStartedPayload.teams[1].bots).toEqual([
+      { botId: 'bot-b', displayName: 'Bot B', isBot: true },
+      { botId: 'bot-c', displayName: 'Bot C', isBot: true },
+    ]);
   });
 
   it('finishes a RANDOM match with personal leaderboard updates only', async () => {
