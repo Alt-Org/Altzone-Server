@@ -256,6 +256,109 @@ export class MatchmakingService {
   }
 
   /**
+   * Validates that the sender can invite one specific player to their active
+   * matchmaking room.
+   */
+  async sendPlayerInvite(
+    targetPlayerId: string,
+    senderPlayerId: string,
+  ): Promise<IServiceReturn<MatchmakingInviteDto>> {
+    const [invite, inviteErrors] =
+      await this.getOwnedActiveInvite(senderPlayerId);
+    if (inviteErrors) return [null, inviteErrors];
+
+    const [targetPlayer, targetPlayerErrors] =
+      await this.playerService.getPlayerById(targetPlayerId);
+    if (targetPlayerErrors) {
+      return [null, targetPlayerErrors as ServiceError[]];
+    }
+
+    if (!targetPlayer) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'playerId',
+            value: targetPlayerId,
+            message: 'Invited player not found.',
+          }),
+        ],
+      ];
+    }
+
+    const targetErrors = this.validateInviteTarget(invite, targetPlayerId);
+    if (targetErrors) return [null, targetErrors];
+
+    return [this.toInviteDto(invite), null];
+  }
+
+  /**
+   * Validates that the sender can invite their clan members to their active
+   * matchmaking room.
+   */
+  async sendClanInvite(
+    senderPlayerId: string,
+  ): Promise<IServiceReturn<MatchmakingInviteDto>> {
+    const [invite, inviteErrors] =
+      await this.getOwnedActiveInvite(senderPlayerId);
+    if (inviteErrors) return [null, inviteErrors];
+
+    const [senderPlayer, senderPlayerErrors] =
+      await this.playerService.getPlayerById(senderPlayerId);
+    if (senderPlayerErrors) {
+      return [null, senderPlayerErrors as ServiceError[]];
+    }
+
+    const clanId = senderPlayer.clan_id?.toString();
+    if (!clanId) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'clan_id',
+            value: senderPlayer.clan_id,
+            message: 'Clan invite requires the sender to belong to a clan.',
+          }),
+        ],
+      ];
+    }
+
+    const [clanPlayers, clanPlayerErrors] =
+      await this.playerService.basicService.readMany({
+        filter: { clan_id: clanId },
+        select: ['_id'],
+      });
+    if (clanPlayerErrors) return [null, clanPlayerErrors];
+
+    const targetPlayerIds = (clanPlayers ?? [])
+      .map((player) => player._id?.toString())
+      .filter(
+        (playerId): playerId is string =>
+          Boolean(playerId) &&
+          playerId !== senderPlayerId &&
+          !invite.players.includes(playerId),
+      );
+
+    if (targetPlayerIds.length === 0) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'clan_id',
+            value: clanId,
+            message: 'No clan members available to invite.',
+          }),
+        ],
+      ];
+    }
+
+    return [this.toInviteDto(invite), null];
+  }
+
+  /**
    * Cancels an invite owned by the caller and removes its player/index records.
    */
   async cancelInvite(
@@ -1076,6 +1179,98 @@ export class MatchmakingService {
 
       const [, clanErrors] = await this.clanService.readOneById(clanId);
       if (clanErrors) return clanErrors;
+    }
+
+    return null;
+  }
+
+  /**
+   * Loads the sender's active matchmaking room and verifies invite-sending
+   * permissions.
+   */
+  private async getOwnedActiveInvite(
+    senderPlayerId: string,
+  ): Promise<IServiceReturn<MatchmakingInvite>> {
+    const activeInviteId = await this.redisService.get(
+      this.playerInviteKey(senderPlayerId),
+    );
+
+    if (!activeInviteId) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'playerId',
+            value: senderPlayerId,
+            message: 'Player does not have an active matchmaking room.',
+          }),
+        ],
+      ];
+    }
+
+    const [invite, inviteErrors] = await this.readInvite(activeInviteId);
+    if (inviteErrors) return [null, inviteErrors];
+
+    if (invite.ownerPlayerId !== senderPlayerId) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_AUTHORIZED,
+            field: 'playerId',
+            value: senderPlayerId,
+            message: 'Only the room owner can send matchmaking invites.',
+          }),
+        ],
+      ];
+    }
+
+    if (
+      invite.status === InviteStatus.CANCELLED ||
+      invite.status === InviteStatus.MATCHED ||
+      invite.status === InviteStatus.QUEUED
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'status',
+            value: invite.status,
+            message: 'Room can no longer be used for matchmaking invites.',
+          }),
+        ],
+      ];
+    }
+
+    return [invite, null];
+  }
+
+  private validateInviteTarget(
+    invite: MatchmakingInvite,
+    targetPlayerId: string,
+  ) {
+    if (invite.ownerPlayerId === targetPlayerId) {
+      return [
+        new ServiceError({
+          reason: SEReason.NOT_ALLOWED,
+          field: 'playerId',
+          value: targetPlayerId,
+          message: 'Room owner cannot invite themselves.',
+        }),
+      ];
+    }
+
+    if (invite.players.includes(targetPlayerId)) {
+      return [
+        new ServiceError({
+          reason: SEReason.NOT_ALLOWED,
+          field: 'playerId',
+          value: targetPlayerId,
+          message: 'Player is already in the matchmaking room.',
+        }),
+      ];
     }
 
     return null;

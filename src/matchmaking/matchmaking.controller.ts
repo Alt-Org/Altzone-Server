@@ -20,6 +20,32 @@ export class MatchmakingController {
   constructor(private readonly matchmakingService: MatchmakingService) {}
 
   /**
+   * Sends an invite to the sender's clan for the sender's active matchmaking
+   * room.
+   */
+  @Post('invites/clan')
+  @UniformResponse(undefined, MatchmakingInviteDto)
+  async sendClanInvite(@LoggedUser() user: User) {
+    return this.matchmakingService.sendClanInvite(user.player_id);
+  }
+
+  /**
+   * Sends an invite to a specific player for the sender's active matchmaking
+   * room.
+   */
+  @Post('invites/:playerId')
+  @UniformResponse(undefined, MatchmakingInviteDto)
+  async sendPlayerInvite(
+    @Param('playerId') playerId: string,
+    @LoggedUser() user: User,
+  ) {
+    return this.matchmakingService.sendPlayerInvite(
+      playerId,
+      user.player_id,
+    );
+  }
+
+  /**
    * Creates a new matchmaking room for the authenticated player.
    *
    * The room may become READY immediately, but matchmaking only starts when the
