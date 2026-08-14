@@ -167,7 +167,7 @@ export class ClanService {
     for (const item of getRoomDefaultItems('')) {
       furnitureTotalValue += item.price;
     }
-    
+
     const [clan, clanErrors] = await this.basicService.createOne<Clan, Clan>(
       {
         ...clanToCreate,
@@ -381,11 +381,12 @@ export class ClanService {
    */
   async deleteOneById(
     _id: string,
-    extSession?: ClientSession 
+    extSession?: ClientSession,
   ): Promise<[true | null, ServiceError[] | null]> {
     const externalSession = extSession;
-    const [session, initErrors] = 
-      externalSession ? [ externalSession, null] : await initializeSession(this.connection);
+    const [session, initErrors] = externalSession
+      ? [externalSession, null]
+      : await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
     const ownsTransaction = !externalSession;
@@ -393,9 +394,9 @@ export class ClanService {
     try {
       const [clan, clanErrors] = await this.basicService.readOneById<ClanDto>(
         _id,
-        { 
-          includeRefs: [ModelName.SOULHOME, ModelName.STOCK, ModelName.PLAYER], 
-          session 
+        {
+          includeRefs: [ModelName.SOULHOME, ModelName.STOCK, ModelName.PLAYER],
+          session,
         },
       );
       if (clanErrors || !clan) {
@@ -465,9 +466,7 @@ export class ClanService {
       return [true, null];
     } catch (error) {
       if (ownsTransaction) {
-        return await cancelTransaction(session, [
-          new ServiceError(error)
-        ]);
+        return await cancelTransaction(session, [new ServiceError(error)]);
       }
       throw error;
     }

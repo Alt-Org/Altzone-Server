@@ -101,7 +101,7 @@ export class ItemDto {
 
   /**
    * Item size
-   * 
+   *
    * @example [2, 2]
    */
   @Expose()
@@ -111,7 +111,7 @@ export class ItemDto {
 
   /**
    * Item rotation
-   * 
+   *
    * @example left
    */
   @Expose()
@@ -121,7 +121,7 @@ export class ItemDto {
 
   /**
    * Item postion
-   * 
+   *
    * @eaxmple floor
    */
   @Expose()
@@ -131,7 +131,7 @@ export class ItemDto {
 
   /**
    * Id of item the item is placed on
-   * 
+   *
    * @example "665a1f29c3f4fa0012e7a900"
    */
   @Expose()
@@ -140,7 +140,7 @@ export class ItemDto {
 
   /**
    * spot on the item the item is placed on
-   * 
+   *
    * @eaxple [1, 1]
    */
   @Expose()

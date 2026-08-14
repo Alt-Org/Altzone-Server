@@ -38,7 +38,7 @@ export class UpdateItemDto {
 
   /**
    * Item rotation
-   * 
+   *
    * @example left
    */
   @IsEnum(ItemRotation)
@@ -48,7 +48,7 @@ export class UpdateItemDto {
 
   /**
    * Item postion
-   * 
+   *
    * @eaxmple wall
    */
   @IsEnum(ItemPosition)
@@ -58,7 +58,7 @@ export class UpdateItemDto {
 
   /**
    * Id of item the item is placed on
-   * 
+   *
    * @example "665a1f29c3f4fa0012e7a900"
    */
   @Expose()
@@ -67,7 +67,7 @@ export class UpdateItemDto {
 
   /**
    * Spot on the item the item is placed on
-   * 
+   *
    * @example [1, 1]
    */
   @IsArray()

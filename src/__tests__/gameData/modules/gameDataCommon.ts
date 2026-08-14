@@ -8,6 +8,7 @@ import { GameEventsHandlerModule } from '../../../gameEventsHandler/gameEventsHa
 import { Game, GameSchema } from '../../../gameData/game.schema';
 import { GameDataService } from '../../../gameData/gameData.service';
 import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
+import { MatchmakingService } from '../../../matchmaking/matchmaking.service';
 
 export default class GameDataCommonModule {
   private constructor() {}
@@ -27,7 +28,15 @@ export default class GameDataCommonModule {
           GameEventsHandlerModule,
           EventEmitterCommonModule,
         ],
-        providers: [GameDataService],
+        providers: [
+          GameDataService,
+          {
+            provide: MatchmakingService,
+            useValue: {
+              validateBattleStart: jest.fn(async () => null),
+            },
+          },
+        ],
       }).compile();
 
     return GameDataCommonModule.module;

@@ -83,11 +83,15 @@ describe('JukeboxService', () => {
   let mqtt: any;
   let broker: ReturnType<typeof createMockMqttBroker>;
   let clanServiceMock: any;
+  let setTimeoutSpy: jest.SpyInstance;
 
   const clanId = 'clan-123';
 
   beforeEach(async () => {
     jest.resetModules();
+    setTimeoutSpy = jest
+      .spyOn(global, 'setTimeout')
+      .mockImplementation(() => undefined as any);
 
     mqtt = jest.requireMock('mqtt');
     broker = createMockMqttBroker();
@@ -105,6 +109,10 @@ describe('JukeboxService', () => {
 
     notifier = new JukeboxNotifier();
     service = new JukeboxService(notifier, clanServiceMock);
+  });
+
+  afterEach(() => {
+    setTimeoutSpy.mockRestore();
   });
 
   it('addSongToClanJukebox publishes songChange to the expected MQTT topic', async () => {
@@ -129,7 +137,11 @@ describe('JukeboxService', () => {
     const payload = JSON.parse(
       backendClient.publishAsync.mock.calls[0][1].toString(),
     );
-    expect(payload.song).toEqual(expect.objectContaining({ songId: 'song-1' }));
+    expect(payload.topic).toBe('jukebox');
+    expect(payload.type).toBe('SONG_UPDATED');
+    expect(payload.payload.song).toEqual(
+      expect.objectContaining({ songId: 'song-1' }),
+    );
 
     const jukebox: Jukebox = service.getClanJukebox(clanId);
     expect(jukebox.currentSong).toEqual(
@@ -195,7 +207,9 @@ describe('JukeboxService', () => {
 
     const lastSongCall = songUpdateCalls[songUpdateCalls.length - 1];
     const secondPayload = JSON.parse(lastSongCall[1].toString());
-    expect(secondPayload.song).toEqual(
+    expect(secondPayload.topic).toBe('jukebox');
+    expect(secondPayload.type).toBe('SONG_UPDATED');
+    expect(secondPayload.payload.song).toEqual(
       expect.objectContaining({ songId: 'song-2' }),
     );
     expect(service.getClanJukebox(clanId).currentSong.songId).toBe('song-2');
@@ -234,7 +248,7 @@ describe('JukeboxService', () => {
 
     expect(received).toHaveLength(2);
     expect(received[0].topic).toBe(`/clan/${clanId}/jukebox/song/update`);
-    expect(JSON.parse(received[0].payload).song.songId).toBe('song-1');
-    expect(JSON.parse(received[1].payload).song.songId).toBe('song-3');
+    expect(JSON.parse(received[0].payload).payload.song.songId).toBe('song-1');
+    expect(JSON.parse(received[1].payload).payload.song.songId).toBe('song-3');
   });
 });

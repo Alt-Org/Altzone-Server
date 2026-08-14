@@ -34,7 +34,17 @@ Current voting types:
 
 ## Payload
 
-All voting notifications use this payload shape:
+All voting notifications use the common MQTT envelope:
+
+```ts
+{
+  topic: 'voting',
+  type: 'VOTING_CREATED' | 'VOTING_UPDATED' | 'VOTING_ENDED' | 'VOTING_ERROR',
+  payload: VotingPayload | APIError
+}
+```
+
+For lifecycle notifications, `payload` has this shape:
 
 ```ts
 {
@@ -50,15 +60,22 @@ All voting notifications use this payload shape:
 }
 ```
 
-`payload.topic` is a voting-instance identifier for the frontend. It is not the
-MQTT broker topic. The MQTT broker topic remains
+The inner `payload.topic` is a voting-instance identifier for the frontend. It is
+not the MQTT broker topic. The MQTT broker topic remains
 `/clan/{clanId}/voting/{votingType}/{status}`.
+
+The inner `payload.type` is the voting type. The top-level `type` is the MQTT
+event type.
 
 ## Status Semantics
 
-- `new`: a voting was created. Payload includes `organizer`.
-- `update`: a new vote was added. Payload includes `voter`.
-- `end`: a voting was finalized. It is sent once per voting.
+- `VOTING_CREATED`: a voting was created. Inner payload includes `organizer` and
+  `status: 'new'`.
+- `VOTING_UPDATED`: a new vote was added. Inner payload includes `voter` and
+  `status: 'update'`.
+- `VOTING_ENDED`: a voting was finalized. It is sent once per voting and has
+  `status: 'end'`.
+- `VOTING_ERROR`: voting error notification. Payload is an `APIError`.
 
 ## Entity Shapes
 
@@ -98,8 +115,10 @@ FleaMarketItemDto | { fleaMarketItem_id: string }
 Recommended frontend flow:
 
 1. Subscribe to `/clan/{clanId}/voting/+/+`.
-2. Use `payload.status` to route lifecycle behavior.
-3. Use `payload.voting_id` as the stable voting id.
-4. Use `payload.type` to narrow `payload.entity`.
-5. Treat `payload.topic` as the voting-instance channel/id:
+2. Use top-level `type` to route lifecycle behavior.
+3. Use `message.payload.status` if old status-specific UI behavior is still
+   needed.
+4. Use `message.payload.voting_id` as the stable voting id.
+5. Use inner `message.payload.type` to narrow `message.payload.entity`.
+6. Treat inner `message.payload.topic` as the voting-instance channel/id:
    `/clan/{clanId}/voting/{votingId}`.

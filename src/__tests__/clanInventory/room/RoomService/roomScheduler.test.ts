@@ -1,22 +1,22 @@
-import { RoomService } from "../../../../clanInventory/room/room.service";
-import ClanInventoryBuilderFactory from "../../data/clanInventoryBuilderFactory";
-import RoomModule from "../../modules/room.module";
-import { getNonExisting_id } from "../../../../__tests__/test_utils/util/getNonExisting_id";
-import ClanBuilderFactory from "../../../../__tests__/clan/data/clanBuilderFactory";
-import ClanModule from "../../../../__tests__/clan/modules/clan.module";
-import SoulhomeModule from "../../modules/soulhome.module";
-import StockModule from "../../modules/stock.module";
-import ItemModule from "../../modules/item.module";
-import { ItemService } from "../../../../clanInventory/item/item.service";
-import { ClanService } from "../../../../clan/clan.service";
-import { RoomScheduler } from "../../../../clanInventory/room/room.scheduler";
-import { RoomStatus } from "../../../../clanInventory/room/enum/roomStatus.enum";
+import { RoomService } from '../../../../clanInventory/room/room.service';
+import ClanInventoryBuilderFactory from '../../data/clanInventoryBuilderFactory';
+import RoomModule from '../../modules/room.module';
+import { getNonExisting_id } from '../../../../__tests__/test_utils/util/getNonExisting_id';
+import ClanBuilderFactory from '../../../../__tests__/clan/data/clanBuilderFactory';
+import ClanModule from '../../../../__tests__/clan/modules/clan.module';
+import SoulhomeModule from '../../modules/soulhome.module';
+import StockModule from '../../modules/stock.module';
+import ItemModule from '../../modules/item.module';
+import { ItemService } from '../../../../clanInventory/item/item.service';
+import { ClanService } from '../../../../clan/clan.service';
+import { RoomScheduler } from '../../../../clanInventory/room/room.scheduler';
+import { RoomStatus } from '../../../../clanInventory/room/enum/roomStatus.enum';
 
 describe('Room.roomScheduler() test suite', () => {
   let roomService: RoomService;
   let itemService: ItemService;
-  let clanService: ClanService
-  let roomScheduler: RoomScheduler
+  let clanService: ClanService;
+  let roomScheduler: RoomScheduler;
 
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
   const clanModel = ClanModule.getClanModel();
@@ -24,15 +24,24 @@ describe('Room.roomScheduler() test suite', () => {
 
   const soulHomeBuilder = ClanInventoryBuilderFactory.getBuilder('SoulHome');
   const soulHomeModel = SoulhomeModule.getSoulhomeModel();
-  const existingSoulHome = soulHomeBuilder.setId(getNonExisting_id()).setClanId(existingClan._id).build();
+  const existingSoulHome = soulHomeBuilder
+    .setId(getNonExisting_id())
+    .setClanId(existingClan._id)
+    .build();
 
   const roomBuilder = ClanInventoryBuilderFactory.getBuilder('Room');
   const roomModel = RoomModule.getRoomModel();
-  const existingRoom = roomBuilder.setId(getNonExisting_id()).setSoulHomeId(existingSoulHome._id).build();
+  const existingRoom = roomBuilder
+    .setId(getNonExisting_id())
+    .setSoulHomeId(existingSoulHome._id)
+    .build();
 
   const stockBuilder = ClanInventoryBuilderFactory.getBuilder('Stock');
   const stockModel = StockModule.getStockModel();
-  const existingStock = stockBuilder.setId(getNonExisting_id()).setClanId(existingClan._id).build();
+  const existingStock = stockBuilder
+    .setId(getNonExisting_id())
+    .setClanId(existingClan._id)
+    .build();
 
   const itemBuilder = ClanInventoryBuilderFactory.getBuilder('CreateItemDto');
   const itemModel = ItemModule.getItemModel();
@@ -97,7 +106,7 @@ describe('Room.roomScheduler() test suite', () => {
 
     await roomScheduler.removeInactiveRooms();
 
-    const [items,] = await itemService.readMany()
+    const [items] = await itemService.readMany();
     expect(items[0].room_id).toBeNull();
     expect(items[1].room_id).toBeNull();
     expect(items[0].stock_id.toString()).toBe(existingStock._id.toString());

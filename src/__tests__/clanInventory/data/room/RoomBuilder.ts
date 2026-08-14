@@ -4,7 +4,7 @@ import { Room } from '../../../../clanInventory/room/room.schema';
 export default class RoomBuilder {
   private readonly base: Partial<Room> = {
     roomPosition: 1,
-    roomColour: "defaultColor",
+    roomColour: 'defaultColor',
     floor: 'defaultFloor',
     wallpaper: 'defaultWall',
     deactivationTime: null,
