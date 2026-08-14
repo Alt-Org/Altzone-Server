@@ -5,8 +5,8 @@ import {
   buildMqttNotification,
   MqttNotification,
 } from '../common/service/notificator/type/MqttNotification.type';
-import { MatchmakingInviteDto } from './dto/matchmakingInvite.dto';
 import { MatchmakingMatchDto } from './dto/matchmakingMatch.dto';
+import { MatchmakingRoomDto } from './dto/matchmakingRoom.dto';
 import { MatchmakingRoomInviteDto } from './dto/matchmakingRoomInvite.dto';
 
 /**
@@ -23,13 +23,13 @@ export class MatchmakingNotifier {
    * Notifies one player that a matchmaking room they can see or participate in
    * changed.
    */
-  async inviteUpdated(playerId: string, invite: MatchmakingInviteDto) {
+  async inviteUpdated(playerId: string, room: MatchmakingRoomDto) {
     await this.publish(
       `/matchmaking/rooms/player/${playerId}`,
       buildMqttNotification(
         'matchmaking',
         MqttNotificationType.ROOM_UPDATED,
-        invite,
+        room,
       ),
     );
   }

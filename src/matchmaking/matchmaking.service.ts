@@ -8,10 +8,14 @@ import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { PlayerService } from '../player/player.service';
-import { CreateMatchmakingInviteDto } from './dto/createMatchmakingInvite.dto';
+import {
+  CreateMatchmakingInviteDto,
+  MatchmakingAutoInviteType,
+} from './dto/createMatchmakingInvite.dto';
 import { FinishMatchDto } from './dto/finishMatch.dto';
 import { JoinMatchmakingInviteDto } from './dto/joinMatchmakingInvite.dto';
 import { MatchmakingInviteDto } from './dto/matchmakingInvite.dto';
+import { MatchmakingRoomDto } from './dto/matchmakingRoom.dto';
 import { MatchmakingRoomInviteDto } from './dto/matchmakingRoomInvite.dto';
 import {
   MatchmakingMatchBotParticipantDto,
@@ -87,6 +91,13 @@ export class MatchmakingService {
     const configErrors = await this.validateCreateInviteBody(playerId, body);
     if (configErrors) return [null, configErrors];
 
+    const autoInviteErrors = await this.validateAutomaticInviteBody(
+      playerId,
+      player,
+      body,
+    );
+    if (autoInviteErrors) return [null, autoInviteErrors];
+
     const now = new Date().toISOString();
     const invite: MatchmakingInvite = this.recalculateInvite({
       id: new Types.ObjectId().toString(),
@@ -109,6 +120,7 @@ export class MatchmakingService {
     await this.saveInvite(invite);
     await this.setPlayerInvite(playerId, invite.id);
     await this.notifyInvitePlayers(invite);
+    await this.sendAutomaticInvite(invite, playerId, player, body);
 
     return [this.toInviteDto(invite), null];
   }
@@ -333,23 +345,16 @@ export class MatchmakingService {
       ];
     }
 
-    const [clanPlayers, clanPlayerErrors] =
-      await this.playerService.basicService.readMany({
-        filter: { clan_id: clanId },
-        select: ['_id'],
-      });
-    if (clanPlayerErrors) return [null, clanPlayerErrors];
-
-    const targetPlayerIds = (clanPlayers ?? [])
-      .map((player) => player._id?.toString())
-      .filter(
-        (playerId): playerId is string =>
-          Boolean(playerId) &&
-          playerId !== senderPlayerId &&
-          !invite.players.includes(playerId),
+    const [targetPlayerIds, targetPlayerErrors] =
+      await this.getClanInviteTargetPlayerIds(
+        clanId,
+        senderPlayerId,
+        invite.players,
       );
+    if (targetPlayerErrors) return [null, targetPlayerErrors];
+    const targetIds = targetPlayerIds ?? [];
 
-    if (targetPlayerIds.length === 0) {
+    if (targetIds.length === 0) {
       return [
         null,
         [
@@ -365,7 +370,7 @@ export class MatchmakingService {
 
     const roomInvite = this.toRoomInviteDto(invite, senderPlayerId);
     await Promise.all(
-      targetPlayerIds.map((targetPlayerId) =>
+      targetIds.map((targetPlayerId) =>
         this.notifier.inviteReceived(
           targetPlayerId,
           MqttNotificationType.CLAN_INVITE_RECEIVED,
@@ -1202,6 +1207,154 @@ export class MatchmakingService {
     return null;
   }
 
+  private async validateAutomaticInviteBody(
+    senderPlayerId: string,
+    senderPlayer: { clan_id?: unknown },
+    body: CreateMatchmakingInviteDto,
+  ) {
+    if (!body.automaticInvite) return null;
+
+    if (body.automaticInvite.type === MatchmakingAutoInviteType.PLAYER) {
+      const targetPlayerId = body.automaticInvite.playerId;
+      if (!targetPlayerId) {
+        return [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'automaticInvite.playerId',
+            value: targetPlayerId,
+            message: 'Automatic PLAYER invite requires playerId.',
+          }),
+        ];
+      }
+
+      const [targetPlayer, targetPlayerErrors] =
+        await this.playerService.getPlayerById(targetPlayerId);
+      if (targetPlayerErrors) return targetPlayerErrors as ServiceError[];
+
+      if (!targetPlayer) {
+        return [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'automaticInvite.playerId',
+            value: targetPlayerId,
+            message: 'Invited player not found.',
+          }),
+        ];
+      }
+
+      if (targetPlayerId === senderPlayerId) {
+        return [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'automaticInvite.playerId',
+            value: targetPlayerId,
+            message: 'Room owner cannot invite themselves.',
+          }),
+        ];
+      }
+
+      return null;
+    }
+
+    if (body.automaticInvite.type === MatchmakingAutoInviteType.CLAN) {
+      const clanId = senderPlayer.clan_id?.toString();
+      if (!clanId) {
+        return [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'clan_id',
+            value: senderPlayer.clan_id,
+            message: 'Clan invite requires the sender to belong to a clan.',
+          }),
+        ];
+      }
+
+      const [targetPlayerIds, targetPlayerErrors] =
+        await this.getClanInviteTargetPlayerIds(clanId, senderPlayerId, [
+          senderPlayerId,
+        ]);
+      if (targetPlayerErrors) return targetPlayerErrors;
+      const targetIds = targetPlayerIds ?? [];
+
+      if (targetIds.length === 0) {
+        return [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'clan_id',
+            value: clanId,
+            message: 'No clan members available to invite.',
+          }),
+        ];
+      }
+    }
+
+    return null;
+  }
+
+  private async sendAutomaticInvite(
+    invite: MatchmakingInvite,
+    senderPlayerId: string,
+    senderPlayer: { clan_id?: unknown },
+    body: CreateMatchmakingInviteDto,
+  ) {
+    if (!body.automaticInvite) return;
+
+    const roomInvite = this.toRoomInviteDto(invite, senderPlayerId);
+
+    if (body.automaticInvite.type === MatchmakingAutoInviteType.PLAYER) {
+      if (!body.automaticInvite.playerId) return;
+
+      await this.notifier.inviteReceived(
+        body.automaticInvite.playerId,
+        MqttNotificationType.INVITE_RECEIVED,
+        roomInvite,
+      );
+      return;
+    }
+
+    const clanId = senderPlayer.clan_id?.toString();
+    if (!clanId) return;
+
+    const [targetPlayerIds] = await this.getClanInviteTargetPlayerIds(
+      clanId,
+      senderPlayerId,
+      invite.players,
+    );
+    await Promise.all(
+      (targetPlayerIds ?? []).map((targetPlayerId) =>
+        this.notifier.inviteReceived(
+          targetPlayerId,
+          MqttNotificationType.CLAN_INVITE_RECEIVED,
+          roomInvite,
+        ),
+      ),
+    );
+  }
+
+  private async getClanInviteTargetPlayerIds(
+    clanId: string,
+    senderPlayerId: string,
+    currentRoomPlayerIds: string[],
+  ): Promise<IServiceReturn<string[]>> {
+    const [clanPlayers, clanPlayerErrors] =
+      await this.playerService.basicService.readMany<{ _id?: string }>({
+        filter: { clan_id: clanId },
+        select: ['_id'],
+      });
+    if (clanPlayerErrors) return [null, clanPlayerErrors];
+
+    const targetPlayerIds = (clanPlayers ?? [])
+      .map((player) => player._id?.toString())
+      .filter(
+        (playerId): playerId is string =>
+          Boolean(playerId) &&
+          playerId !== senderPlayerId &&
+          !currentRoomPlayerIds.includes(playerId),
+      );
+
+    return [targetPlayerIds, null];
+  }
+
   /**
    * Loads the sender's active matchmaking room and verifies invite-sending
    * permissions.
@@ -1528,10 +1681,10 @@ export class MatchmakingService {
    * Broadcasts invite state to every real player currently attached to it.
    */
   private async notifyInvitePlayers(invite: MatchmakingInvite) {
-    const inviteDto = this.toInviteDto(invite);
+    const roomDto = this.toRoomDto(invite);
     await Promise.all(
       invite.players.map((playerId) =>
-        this.notifier.inviteUpdated(playerId, inviteDto),
+        this.notifier.inviteUpdated(playerId, roomDto),
       ),
     );
   }
@@ -1591,6 +1744,26 @@ export class MatchmakingService {
       updatedAt: invite.updatedAt,
       readyAt: invite.readyAt,
       matchId: invite.matchId,
+    };
+  }
+
+  /**
+   * Maps internal Redis room state to the compact MQTT room update shape.
+   */
+  private toRoomDto(invite: MatchmakingInvite): MatchmakingRoomDto {
+    return {
+      id: invite.id,
+      matchType: invite.matchType,
+      status: invite.status,
+      ownerPlayerId: invite.ownerPlayerId,
+      clanId: invite.clanId,
+      players: invite.players,
+      bots: invite.bots,
+      teamSize: invite.teamSize,
+      allowBots: invite.allowBots,
+      createdAt: invite.createdAt,
+      updatedAt: invite.updatedAt,
+      readyAt: invite.readyAt,
     };
   }
 
