@@ -7,6 +7,8 @@ import { Reaction } from './reaction.schema';
 import { Feeling } from '../enum/feeling.enum';
 import { ObjectId } from 'mongodb';
 
+const CHATMESSAGE_TTL = 60 * 60 * 24 * 3;
+
 export type ChatMessageDocument = HydratedDocument<ChatMessage>;
 
 @Schema({
@@ -53,4 +55,7 @@ ChatMessageSchema.virtual('sender', {
   justOne: true,
 });
 
-ChatMessageSchema.index({ createdAt: 1 }, { expireAfterSeconds: 259200 });
+ChatMessageSchema.index(
+  { createdAt: 1 },
+  { expireAfterSeconds: CHATMESSAGE_TTL },
+);
