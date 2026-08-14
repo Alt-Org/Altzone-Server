@@ -98,7 +98,26 @@ describe('MQTT notification contract', () => {
     await notifier.inviteUpdated('player-1', invite);
     expectLastPayloadToMatchEnvelope(
       'matchmaking',
-      MqttNotificationType.INVITE_UPDATED,
+      MqttNotificationType.ROOM_UPDATED,
+    );
+
+    await notifier.inviteReceived(
+      'player-2',
+      MqttNotificationType.INVITE_RECEIVED,
+      {
+        id: invite.id,
+        matchType: invite.matchType,
+        status: invite.status,
+        ownerPlayerId: invite.ownerPlayerId,
+        senderPlayerId: invite.ownerPlayerId,
+        teamSize: invite.teamSize,
+        allowBots: invite.allowBots,
+        sentAt: '2026-07-06T08:00:03.000Z',
+      },
+    );
+    expectLastPayloadToMatchEnvelope(
+      'matchmaking',
+      MqttNotificationType.INVITE_RECEIVED,
     );
 
     await notifier.matchFound('player-1', match);
