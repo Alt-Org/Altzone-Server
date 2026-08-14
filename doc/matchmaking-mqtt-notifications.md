@@ -37,6 +37,23 @@ All matchmaking MQTT messages use the common notification envelope:
 The `topic` field identifies the logical notification area. The MQTT broker
 topic used for publish/subscribe is separate from this field.
 
+## Compact Player Shape
+
+All real players in matchmaking MQTT payloads use the same compact player shape:
+
+```ts
+{
+  playerId: string,
+  name: string,
+  avatar: AvatarDto | null
+}
+```
+
+This applies to room players, invite owner/sender fields, and match team
+players. Full player documents are not sent through matchmaking MQTT messages.
+Bots are kept separate from real players and use the bot shape shown in the
+payload examples.
+
 ## 1. Room Updated
 
 ### Topic
@@ -75,7 +92,13 @@ Room updates use a compact room payload with one room identifier: `id`.
     status: 'OPEN' | 'READY' | 'QUEUED' | 'MATCHED' | 'CANCELLED',
     ownerPlayerId: string,
     clanId?: string,
-    players: string[],
+    players: [
+      {
+        playerId: string,
+        name: string,
+        avatar: AvatarDto | null
+      }
+    ],
     bots: [
       {
         botId: string,
@@ -128,8 +151,16 @@ This topic is only for explicit invitations into a specific existing room.
     id: string,
     matchType: 'RANDOM' | 'CLAN' | 'CUSTOM',
     status: 'OPEN' | 'READY' | 'QUEUED' | 'MATCHED' | 'CANCELLED',
-    ownerPlayerId: string,
-    senderPlayerId: string,
+    ownerPlayer: {
+      playerId: string,
+      name: string,
+      avatar: AvatarDto | null
+    },
+    senderPlayer: {
+      playerId: string,
+      name: string,
+      avatar: AvatarDto | null
+    },
     teamSize: 1 | 2,
     allowBots: boolean,
     sentAt: string
@@ -167,11 +198,11 @@ included in the match payload but do not receive player-specific notifications.
 {
   topic: 'matchmaking',
   type: 'MATCH_FOUND',
-  payload: MatchmakingMatchDto
+  payload: MatchmakingMqttMatchDto
 }
 ```
 
-`MatchmakingMatchDto` has this shape:
+`MatchmakingMqttMatchDto` has this shape:
 
 ```ts
 {
@@ -186,7 +217,8 @@ included in the match payload but do not receive player-specific notifications.
       players: [
         {
           playerId: string,
-          isBot: false
+          name: string,
+          avatar: AvatarDto | null
         }
       ],
       bots: [
@@ -237,7 +269,7 @@ calls from clients.
 {
   topic: 'matchmaking',
   type: 'MATCH_STARTED',
-  payload: MatchmakingMatchDto
+  payload: MatchmakingMqttMatchDto
 }
 ```
 
@@ -274,7 +306,7 @@ and `result`.
 {
   topic: 'matchmaking',
   type: 'MATCH_FINISHED',
-  payload: MatchmakingMatchDto
+  payload: MatchmakingMqttMatchDto
 }
 ```
 
