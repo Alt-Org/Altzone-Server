@@ -35,6 +35,7 @@ import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { NoBoxIdFilter } from './auth/decorator/NoBoxIdFilter.decorator';
+import { AdminSignInDto } from './dto/adminSignIn.dto';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
@@ -82,6 +83,36 @@ export class BoxController {
     });
 
     return [{ ...createdBox, accessToken: groupAdminAccessToken }, null];
+  }
+
+  /**
+   * Admin sign in
+   * 
+   * @remarks Checks that admin Profile and Player exist, returns accessToken
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 201,
+      dto: AdminSignInDto,
+      modelName: ModelName.BOX,
+    },
+    errors: [400, 404],
+    hasAuth: false,
+  })
+  @NoAuth()
+  @UniformResponse(ModelName.BOX, AdminSignInDto)
+  @Post('admin/signIn')
+  async signIn(@Body() body: CreateBoxDto) {
+    const [box, errors] = await this.service.readAdminBox(body);
+    if (errors) return [null, errors];
+
+    const groupAdminAccessToken = await this.authHandler.getGroupAdminToken({
+      box_id: box._id.toString(),
+      player_id: box.adminPlayer_id.toString(),
+      profile_id: box.adminProfile_id.toString(),
+    });
+
+    return { accessToken: groupAdminAccessToken };
   }
 
   /**
