@@ -684,12 +684,7 @@ describe('MatchmakingService flow', () => {
       'BATTLE_STARTED',
       expect.objectContaining({
         id: match.id,
-        readyPlayerIds: [
-          'player-1',
-          'player-2',
-          'player-3',
-          'player-4',
-        ],
+        readyPlayerIds: ['player-1', 'player-2', 'player-3', 'player-4'],
       }),
     );
   });
