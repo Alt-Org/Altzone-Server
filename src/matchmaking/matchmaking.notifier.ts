@@ -7,6 +7,7 @@ import {
 } from '../common/service/notificator/type/MqttNotification.type';
 import { MatchmakingInviteDto } from './dto/matchmakingInvite.dto';
 import { MatchmakingMatchDto } from './dto/matchmakingMatch.dto';
+import { MatchmakingRoomInviteDto } from './dto/matchmakingRoomInvite.dto';
 
 /**
  * Small MQTT adapter for matchmaking events.
@@ -19,16 +20,34 @@ export class MatchmakingNotifier {
   private readonly connector = MQTTConnector.getInstance();
 
   /**
-   * Notifies one player that an invite they can see or participate in changed.
+   * Notifies one player that a matchmaking room they can see or participate in
+   * changed.
    */
   async inviteUpdated(playerId: string, invite: MatchmakingInviteDto) {
     await this.publish(
-      `/matchmaking/invites/player/${playerId}`,
+      `/matchmaking/rooms/player/${playerId}`,
       buildMqttNotification(
         'matchmaking',
-        MqttNotificationType.INVITE_UPDATED,
+        MqttNotificationType.ROOM_UPDATED,
         invite,
       ),
+    );
+  }
+
+  /**
+   * Notifies one player that they have been invited to a specific matchmaking
+   * room.
+   */
+  async inviteReceived(
+    playerId: string,
+    type:
+      | MqttNotificationType.INVITE_RECEIVED
+      | MqttNotificationType.CLAN_INVITE_RECEIVED,
+    invite: MatchmakingRoomInviteDto,
+  ) {
+    await this.publish(
+      `/matchmaking/invites/player/${playerId}`,
+      buildMqttNotification('matchmaking', type, invite),
     );
   }
 
