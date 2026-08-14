@@ -574,7 +574,7 @@ export class MatchmakingService {
     if (allPlayersReady && !match.battleStartedAt) {
       await this.notifier.matchEvent(
         startedMatch.id,
-        'BATTLE_STARTED',
+        MqttNotificationType.MATCH_STARTED,
         this.toMatchDto(startedMatch),
       );
     }
@@ -990,16 +990,15 @@ export class MatchmakingService {
   }
 
   /**
-   * Sends per-player match-found events and one match-scoped start event.
+   * Sends per-player match-found events after a match is created.
    */
   private async notifyMatchPlayers(match: ActiveMatch) {
     const matchDto = this.toMatchDto(match);
-    await Promise.all([
-      ...this.getRealPlayerIds(match).map((playerId) =>
+    await Promise.all(
+      this.getRealPlayerIds(match).map((playerId) =>
         this.notifier.matchFound(playerId, matchDto),
       ),
-      this.notifier.matchEvent(match.id, 'MATCH_STARTED', matchDto),
-    ]);
+    );
   }
 
   private getRealPlayerIds(match: ActiveMatch) {
