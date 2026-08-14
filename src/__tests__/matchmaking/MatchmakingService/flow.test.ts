@@ -1,5 +1,6 @@
 import { CacheKeys } from '../../../common/service/redis/cacheKeys.enum';
 import { MqttNotificationType } from '../../../common/service/notificator/enum/MqttNotificationType.enum';
+import { MatchmakingAutoInviteType } from '../../../matchmaking/dto/createMatchmakingInvite.dto';
 import { MatchStatus } from '../../../matchmaking/enum/matchStatus.enum';
 import { MatchType } from '../../../matchmaking/enum/matchType.enum';
 import { TeamSide } from '../../../matchmaking/enum/teamSide.enum';
@@ -372,6 +373,99 @@ describe('MatchmakingService flow', () => {
       field: 'roomId',
       message: 'CUSTOM invite joins require roomId.',
     });
+  });
+
+  it('sends an automatic player invite when creating a room', async () => {
+    const { notifier, service } = createService();
+
+    const [invite, errors] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      automaticInvite: {
+        type: MatchmakingAutoInviteType.PLAYER,
+        playerId: 'player-2',
+      },
+    });
+
+    expect(errors).toBeNull();
+    expect(notifier.inviteReceived).toHaveBeenCalledWith(
+      'player-2',
+      MqttNotificationType.INVITE_RECEIVED,
+      expect.objectContaining({
+        id: invite.id,
+        matchType: MatchType.RANDOM,
+        status: invite.status,
+        ownerPlayerId: 'player-1',
+        senderPlayerId: 'player-1',
+        sentAt: expect.any(String),
+      }),
+    );
+  });
+
+  it('sends automatic clan invites when creating a room', async () => {
+    const { notifier, service } = createService({
+      'player-1': 'clan-1',
+      'player-2': 'clan-1',
+      'player-3': 'clan-1',
+      'player-4': 'clan-2',
+    });
+
+    const [invite, errors] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      automaticInvite: {
+        type: MatchmakingAutoInviteType.CLAN,
+      },
+    });
+
+    expect(errors).toBeNull();
+    expect(notifier.inviteReceived).toHaveBeenCalledTimes(2);
+    expect(notifier.inviteReceived).toHaveBeenCalledWith(
+      'player-2',
+      MqttNotificationType.CLAN_INVITE_RECEIVED,
+      expect.objectContaining({
+        id: invite.id,
+        matchType: MatchType.RANDOM,
+        ownerPlayerId: 'player-1',
+        senderPlayerId: 'player-1',
+      }),
+    );
+    expect(notifier.inviteReceived).toHaveBeenCalledWith(
+      'player-3',
+      MqttNotificationType.CLAN_INVITE_RECEIVED,
+      expect.objectContaining({
+        id: invite.id,
+        matchType: MatchType.RANDOM,
+        ownerPlayerId: 'player-1',
+        senderPlayerId: 'player-1',
+      }),
+    );
+    expect(notifier.inviteReceived).not.toHaveBeenCalledWith(
+      'player-4',
+      expect.anything(),
+      expect.anything(),
+    );
+  });
+
+  it('sends compact room update payloads without match or custom room ids', async () => {
+    const { notifier, service } = createService();
+
+    const [invite, errors] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId: '665af23e5e982f0013aa334b',
+    });
+
+    expect(errors).toBeNull();
+    expect(notifier.inviteUpdated).toHaveBeenCalledWith(
+      'player-1',
+      expect.objectContaining({
+        id: invite.id,
+        matchType: MatchType.CUSTOM,
+        ownerPlayerId: 'player-1',
+      }),
+    );
+
+    const roomUpdate = (notifier.inviteUpdated.mock.calls[0] as unknown[])[1];
+    expect(roomUpdate).not.toHaveProperty('roomId');
+    expect(roomUpdate).not.toHaveProperty('matchId');
   });
 
   it('sends a player invite notification for the owner active room', async () => {
