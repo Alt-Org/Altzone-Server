@@ -90,6 +90,19 @@ export class MatchmakingController {
   }
 
   /**
+   * Confirms that the authenticated player has joined the Photon Room and is
+   * ready to start the clientside battle.
+   */
+  @Post('matches/:matchId/start')
+  @UniformResponse(undefined, MatchmakingMatchDto)
+  async startMatch(
+    @Param('matchId') matchId: string,
+    @LoggedUser() user: User,
+  ) {
+    return this.matchmakingService.startMatch(matchId, user.player_id);
+  }
+
+  /**
    * Finishes an active match, updates leaderboards, and keeps the finished match
    * in Redis for a short read-after-finish window.
    */
