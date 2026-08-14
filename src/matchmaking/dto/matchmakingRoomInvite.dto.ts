@@ -1,6 +1,7 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { InviteStatus } from '../enum/inviteStatus.enum';
 import { MatchType } from '../enum/matchType.enum';
+import { MatchmakingMqttPlayerDto } from './matchmakingMqttPlayer.dto';
 
 export class MatchmakingRoomInviteDto {
   /**
@@ -28,20 +29,18 @@ export class MatchmakingRoomInviteDto {
   status: InviteStatus;
 
   /**
-   * Player ID of the room owner.
-   *
-   * @example "665af23e5e982f0013aa4455"
+   * Room owner with compact UI data.
    */
   @Expose()
-  ownerPlayerId: string;
+  @Type(() => MatchmakingMqttPlayerDto)
+  ownerPlayer: MatchmakingMqttPlayerDto;
 
   /**
-   * Player ID of the invite sender.
-   *
-   * @example "665af23e5e982f0013aa4455"
+   * Invite sender with compact UI data.
    */
   @Expose()
-  senderPlayerId: string;
+  @Type(() => MatchmakingMqttPlayerDto)
+  senderPlayer: MatchmakingMqttPlayerDto;
 
   /**
    * Number of participants per team.

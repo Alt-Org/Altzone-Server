@@ -2,6 +2,7 @@ import { Expose, Type } from 'class-transformer';
 import { InviteStatus } from '../enum/inviteStatus.enum';
 import { MatchType } from '../enum/matchType.enum';
 import { MatchmakingBotParticipantDto } from './matchmakingInvite.dto';
+import { MatchmakingMqttPlayerDto } from './matchmakingMqttPlayer.dto';
 
 export class MatchmakingRoomDto {
   /**
@@ -45,12 +46,11 @@ export class MatchmakingRoomDto {
   clanId?: string;
 
   /**
-   * Real player IDs currently attached to the room.
-   *
-   * @example ["665af23e5e982f0013aa4455"]
+   * Real players currently attached to the room with compact UI data.
    */
   @Expose()
-  players: string[];
+  @Type(() => MatchmakingMqttPlayerDto)
+  players: MatchmakingMqttPlayerDto[];
 
   /**
    * Bot participants currently attached to the room.
