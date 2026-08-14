@@ -138,6 +138,23 @@ export class MatchmakingMatchDto {
   startedAt: string;
 
   /**
+   * Real player IDs that have confirmed joining the Photon Room.
+   *
+   * @example ["665af23e5e982f0013aa4455"]
+   */
+  @Expose()
+  readyPlayerIds?: string[];
+
+  /**
+   * Timestamp when all real players had joined the Photon Room and the
+   * clientside battle could start.
+   *
+   * @example "2026-07-06T08:01:00.000Z"
+   */
+  @Expose()
+  battleStartedAt?: string;
+
+  /**
    * Match finish timestamp.
    *
    * @example "2026-07-06T08:05:00.000Z"
