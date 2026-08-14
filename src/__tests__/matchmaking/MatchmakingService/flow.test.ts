@@ -469,6 +469,273 @@ describe('MatchmakingService flow', () => {
     });
   });
 
+  it('marks a match participant ready for clientside battle start', async () => {
+    const { redis, notifier, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'match-start-ready',
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [startedMatch, errors] = await service.startMatch(
+      match.id,
+      'player-1',
+    );
+    const storedMatch = JSON.parse(
+      await redis.get(`matchmaking:match:${match.id}`),
+    ) as ActiveMatch;
+
+    expect(errors).toBeNull();
+    expect(startedMatch).toMatchObject({
+      id: match.id,
+      readyPlayerIds: ['player-1'],
+    });
+    expect(startedMatch.battleStartedAt).toBeUndefined();
+    expect(storedMatch.readyPlayerIds).toEqual(['player-1']);
+    expect(notifier.matchEvent).not.toHaveBeenCalledWith(
+      match.id,
+      'BATTLE_STARTED',
+      expect.anything(),
+    );
+  });
+
+  it('handles repeated match start calls from the same participant idempotently', async () => {
+    const { redis, notifier, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'match-start-idempotent',
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ botId: 'bot-1', displayName: 'Bot 1', isBot: true }],
+        },
+      ],
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [firstStart, firstErrors] = await service.startMatch(
+      match.id,
+      'player-1',
+    );
+    const [secondStart, secondErrors] = await service.startMatch(
+      match.id,
+      'player-1',
+    );
+
+    expect(firstErrors).toBeNull();
+    expect(secondErrors).toBeNull();
+    expect(firstStart.readyPlayerIds).toEqual(['player-1']);
+    expect(secondStart.readyPlayerIds).toEqual(['player-1']);
+    expect(secondStart.battleStartedAt).toBe(firstStart.battleStartedAt);
+    expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
+    expect(notifier.matchEvent).toHaveBeenCalledWith(
+      match.id,
+      'BATTLE_STARTED',
+      expect.objectContaining({
+        id: match.id,
+        readyPlayerIds: ['player-1'],
+        battleStartedAt: firstStart.battleStartedAt,
+      }),
+    );
+  });
+
+  it('rejects match start from a non-participant requester', async () => {
+    const { redis, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'match-start-outsider',
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [startedMatch, errors] = await service.startMatch(
+      match.id,
+      'player-3',
+    );
+
+    expect(startedMatch).toBeNull();
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({
+      reason: SEReason.NOT_AUTHORIZED,
+      field: 'playerId',
+      value: 'player-3',
+      message: 'Only match participants can start the match.',
+    });
+  });
+
+  it('returns NOT_FOUND error when starting a missing match', async () => {
+    const { service } = createService();
+
+    const [startedMatch, errors] = await service.startMatch(
+      'missing-match',
+      'player-1',
+    );
+
+    expect(startedMatch).toBeNull();
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({
+      reason: SEReason.NOT_FOUND,
+      field: 'matchId',
+      value: 'missing-match',
+      message: 'Matchmaking match not found.',
+    });
+  });
+
+  it('rejects match start for a finished match', async () => {
+    const { redis, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'match-start-finished',
+      status: MatchStatus.FINISHED,
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [startedMatch, errors] = await service.startMatch(
+      match.id,
+      'player-1',
+    );
+
+    expect(startedMatch).toBeNull();
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({
+      reason: SEReason.NOT_ALLOWED,
+      field: 'matchId',
+      value: match.id,
+      message: 'Only active matchmaking matches can be started.',
+    });
+  });
+
+  it('publishes BATTLE_STARTED only after all real players are ready', async () => {
+    const { redis, notifier, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'match-start-two-players',
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [firstStart, firstErrors] = await service.startMatch(
+      match.id,
+      'player-1',
+    );
+    const [secondStart, secondErrors] = await service.startMatch(
+      match.id,
+      'player-2',
+    );
+
+    expect(firstErrors).toBeNull();
+    expect(secondErrors).toBeNull();
+    expect(firstStart.battleStartedAt).toBeUndefined();
+    expect(secondStart.readyPlayerIds).toEqual(['player-1', 'player-2']);
+    expect(secondStart.battleStartedAt).toEqual(expect.any(String));
+    expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
+    expect(notifier.matchEvent).toHaveBeenCalledWith(
+      match.id,
+      'BATTLE_STARTED',
+      expect.objectContaining({
+        id: match.id,
+        readyPlayerIds: ['player-1', 'player-2'],
+        battleStartedAt: secondStart.battleStartedAt,
+      }),
+    );
+  });
+
+  it('waits for all four real players before starting a 2v2 clientside battle', async () => {
+    const { redis, notifier, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'match-start-2v2',
+      teamSize: 2,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [
+            { playerId: 'player-1', isBot: false },
+            { playerId: 'player-2', isBot: false },
+          ],
+        },
+        {
+          side: TeamSide.B,
+          participants: [
+            { playerId: 'player-3', isBot: false },
+            { playerId: 'player-4', isBot: false },
+          ],
+        },
+      ],
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    await service.startMatch(match.id, 'player-1');
+    await service.startMatch(match.id, 'player-2');
+    const [thirdStart] = await service.startMatch(match.id, 'player-3');
+    const [fourthStart, fourthErrors] = await service.startMatch(
+      match.id,
+      'player-4',
+    );
+
+    expect(fourthErrors).toBeNull();
+    expect(thirdStart.battleStartedAt).toBeUndefined();
+    expect(fourthStart.readyPlayerIds).toEqual([
+      'player-1',
+      'player-2',
+      'player-3',
+      'player-4',
+    ]);
+    expect(fourthStart.battleStartedAt).toEqual(expect.any(String));
+    expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
+    expect(notifier.matchEvent).toHaveBeenCalledWith(
+      match.id,
+      'BATTLE_STARTED',
+      expect.objectContaining({
+        id: match.id,
+        readyPlayerIds: [
+          'player-1',
+          'player-2',
+          'player-3',
+          'player-4',
+        ],
+      }),
+    );
+  });
+
+  it('does not require bots to confirm clientside battle start', async () => {
+    const { redis, notifier, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'match-start-with-bots',
+      teamSize: 2,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [
+            { playerId: 'player-1', isBot: false },
+            { botId: 'bot-a', displayName: 'Bot A', isBot: true },
+          ],
+        },
+        {
+          side: TeamSide.B,
+          participants: [
+            { botId: 'bot-b', displayName: 'Bot B', isBot: true },
+            { botId: 'bot-c', displayName: 'Bot C', isBot: true },
+          ],
+        },
+      ],
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [startedMatch, errors] = await service.startMatch(
+      match.id,
+      'player-1',
+    );
+
+    expect(errors).toBeNull();
+    expect(startedMatch.readyPlayerIds).toEqual(['player-1']);
+    expect(startedMatch.battleStartedAt).toEqual(expect.any(String));
+    expect(notifier.matchEvent).toHaveBeenCalledWith(
+      match.id,
+      'BATTLE_STARTED',
+      expect.objectContaining({
+        id: match.id,
+        readyPlayerIds: ['player-1'],
+      }),
+    );
+  });
+
   it('finishes a RANDOM match with personal leaderboard updates only', async () => {
     const { redis, playerService, clanService, notifier, service } =
       createService();
