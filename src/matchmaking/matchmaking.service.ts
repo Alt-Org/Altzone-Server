@@ -3,6 +3,7 @@ import { Types, UpdateQuery } from 'mongoose';
 import { ClanService } from '../clan/clan.service';
 import { RedisService } from '../common/service/redis/redis.service';
 import { CacheKeys } from '../common/service/redis/cacheKeys.enum';
+import { MqttNotificationType } from '../common/service/notificator/enum/MqttNotificationType.enum';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { IServiceReturn } from '../common/service/basicService/IService';
@@ -11,6 +12,7 @@ import { CreateMatchmakingInviteDto } from './dto/createMatchmakingInvite.dto';
 import { FinishMatchDto } from './dto/finishMatch.dto';
 import { JoinMatchmakingInviteDto } from './dto/joinMatchmakingInvite.dto';
 import { MatchmakingInviteDto } from './dto/matchmakingInvite.dto';
+import { MatchmakingRoomInviteDto } from './dto/matchmakingRoomInvite.dto';
 import {
   MatchmakingMatchBotParticipantDto,
   MatchmakingMatchDto,
@@ -290,6 +292,12 @@ export class MatchmakingService {
     const targetErrors = this.validateInviteTarget(invite, targetPlayerId);
     if (targetErrors) return [null, targetErrors];
 
+    await this.notifier.inviteReceived(
+      targetPlayerId,
+      MqttNotificationType.INVITE_RECEIVED,
+      this.toRoomInviteDto(invite, senderPlayerId),
+    );
+
     return [this.toInviteDto(invite), null];
   }
 
@@ -354,6 +362,17 @@ export class MatchmakingService {
         ],
       ];
     }
+
+    const roomInvite = this.toRoomInviteDto(invite, senderPlayerId);
+    await Promise.all(
+      targetPlayerIds.map((targetPlayerId) =>
+        this.notifier.inviteReceived(
+          targetPlayerId,
+          MqttNotificationType.CLAN_INVITE_RECEIVED,
+          roomInvite,
+        ),
+      ),
+    );
 
     return [this.toInviteDto(invite), null];
   }
@@ -1573,6 +1592,26 @@ export class MatchmakingService {
       updatedAt: invite.updatedAt,
       readyAt: invite.readyAt,
       matchId: invite.matchId,
+    };
+  }
+
+  /**
+   * Maps room state to the compact payload used when inviting players into that
+   * room.
+   */
+  private toRoomInviteDto(
+    invite: MatchmakingInvite,
+    senderPlayerId: string,
+  ): MatchmakingRoomInviteDto {
+    return {
+      id: invite.id,
+      matchType: invite.matchType,
+      status: invite.status,
+      ownerPlayerId: invite.ownerPlayerId,
+      senderPlayerId,
+      teamSize: invite.teamSize,
+      allowBots: invite.allowBots,
+      sentAt: new Date().toISOString(),
     };
   }
 
