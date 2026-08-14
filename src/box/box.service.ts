@@ -31,6 +31,7 @@ import {
   endTransaction,
   initializeSession,
 } from '../common/function/Transactions';
+import { CreateBoxDto } from './dto/createBox.dto';
 
 @Injectable()
 export class BoxService {
@@ -91,6 +92,49 @@ export class BoxService {
       );
 
     return this.basicService.readOneById<BoxDocument>(_id, optionsToApply);
+  }
+
+  /**
+   * Checks Admin Profile and Player exist. Reads a Box by its adminPassword in DB.
+   * 
+   * @param credentials Admin credentials.
+   * @returns Box with the given adminPassword on succeed or an array of ServiceErrors if any occurred.
+   */
+  async readAdminBox(credentials: CreateBoxDto): Promise<IServiceReturn<BoxDocument>> {
+    const adminPlayer = await this.playerModel.findOne({ name: credentials.playerName });
+    if (!adminPlayer)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'name',
+            value: credentials.playerName,
+            message: 'Admin player name is not found',
+          }),
+        ],
+      ];
+    
+    const adminProfile = await this.profileModel.findById(adminPlayer.profile_id);
+    if (!adminProfile)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'adminProfile_id',
+            value: adminPlayer.profile_id,
+            message: 'Admin profile _id is not found',
+          }),
+        ],
+      ];
+
+    const [box, errors] = await this.basicService.readOne(
+      { filter : { adminPassword: credentials.adminPassword } }
+    );
+    if(errors) return [null, errors];
+
+    return [box, null];
   }
 
   /**
