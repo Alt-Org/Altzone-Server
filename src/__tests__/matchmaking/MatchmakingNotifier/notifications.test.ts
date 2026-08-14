@@ -5,8 +5,8 @@ import { InviteStatus } from '../../../matchmaking/enum/inviteStatus.enum';
 import { MatchStatus } from '../../../matchmaking/enum/matchStatus.enum';
 import { MatchType } from '../../../matchmaking/enum/matchType.enum';
 import { TeamSide } from '../../../matchmaking/enum/teamSide.enum';
-import { MatchmakingInviteDto } from '../../../matchmaking/dto/matchmakingInvite.dto';
 import { MatchmakingMatchDto } from '../../../matchmaking/dto/matchmakingMatch.dto';
+import { MatchmakingRoomDto } from '../../../matchmaking/dto/matchmakingRoom.dto';
 import { MatchmakingRoomInviteDto } from '../../../matchmaking/dto/matchmakingRoomInvite.dto';
 
 jest.mock('../../../common/service/notificator/MQTTConnector', () => ({
@@ -17,7 +17,7 @@ describe('MatchmakingNotifier notifications', () => {
   let publishMock: jest.Mock;
   let notifier: MatchmakingNotifier;
 
-  const invite: MatchmakingInviteDto = {
+  const room: MatchmakingRoomDto = {
     id: 'invite-1',
     matchType: MatchType.RANDOM,
     status: InviteStatus.QUEUED,
@@ -77,14 +77,14 @@ describe('MatchmakingNotifier notifications', () => {
   });
 
   it('publishes room updates to the player room topic', async () => {
-    await notifier.inviteUpdated('player-1', invite);
+    await notifier.inviteUpdated('player-1', room);
 
     expect(publishMock).toHaveBeenCalledWith(
       '/matchmaking/rooms/player/player-1',
       JSON.stringify({
         topic: 'matchmaking',
         type: MqttNotificationType.ROOM_UPDATED,
-        payload: invite,
+        payload: room,
       }),
     );
   });
