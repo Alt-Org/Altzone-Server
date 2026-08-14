@@ -105,6 +105,8 @@ const createService = (
       {
         _id: playerId,
         id: playerId,
+        name: `Player ${playerId.replace('player-', '')}`,
+        avatar: null,
         clan_id: playerClans[playerId],
       },
       null,
@@ -394,8 +396,8 @@ describe('MatchmakingService flow', () => {
         id: invite.id,
         matchType: MatchType.RANDOM,
         status: invite.status,
-        ownerPlayerId: 'player-1',
-        senderPlayerId: 'player-1',
+        ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
         sentAt: expect.any(String),
       }),
     );
@@ -424,8 +426,8 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({
         id: invite.id,
         matchType: MatchType.RANDOM,
-        ownerPlayerId: 'player-1',
-        senderPlayerId: 'player-1',
+        ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
       }),
     );
     expect(notifier.inviteReceived).toHaveBeenCalledWith(
@@ -434,8 +436,8 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({
         id: invite.id,
         matchType: MatchType.RANDOM,
-        ownerPlayerId: 'player-1',
-        senderPlayerId: 'player-1',
+        ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
       }),
     );
     expect(notifier.inviteReceived).not.toHaveBeenCalledWith(
@@ -489,8 +491,8 @@ describe('MatchmakingService flow', () => {
         id: invite.id,
         matchType: MatchType.RANDOM,
         status: invite.status,
-        ownerPlayerId: 'player-1',
-        senderPlayerId: 'player-1',
+        ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
         teamSize: 2,
         allowBots: true,
         sentAt: expect.any(String),
@@ -522,8 +524,8 @@ describe('MatchmakingService flow', () => {
         id: invite.id,
         matchType: MatchType.CLAN,
         status: invite.status,
-        ownerPlayerId: 'player-1',
-        senderPlayerId: 'player-1',
+        ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
         sentAt: expect.any(String),
       }),
     );
@@ -534,8 +536,8 @@ describe('MatchmakingService flow', () => {
         id: invite.id,
         matchType: MatchType.CLAN,
         status: invite.status,
-        ownerPlayerId: 'player-1',
-        senderPlayerId: 'player-1',
+        ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
         sentAt: expect.any(String),
       }),
     );
@@ -581,7 +583,7 @@ describe('MatchmakingService flow', () => {
       MqttNotificationType.CLAN_INVITE_RECEIVED,
       expect.objectContaining({
         id: invite.id,
-        senderPlayerId: 'player-1',
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
       }),
     );
     expect(notifier.inviteReceived).not.toHaveBeenCalledWith(

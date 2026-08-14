@@ -5,7 +5,7 @@ import { InviteStatus } from '../../../matchmaking/enum/inviteStatus.enum';
 import { MatchStatus } from '../../../matchmaking/enum/matchStatus.enum';
 import { MatchType } from '../../../matchmaking/enum/matchType.enum';
 import { TeamSide } from '../../../matchmaking/enum/teamSide.enum';
-import { MatchmakingMatchDto } from '../../../matchmaking/dto/matchmakingMatch.dto';
+import { MatchmakingMqttMatchDto } from '../../../matchmaking/dto/matchmakingMqttMatch.dto';
 import { MatchmakingRoomDto } from '../../../matchmaking/dto/matchmakingRoom.dto';
 import { MatchmakingRoomInviteDto } from '../../../matchmaking/dto/matchmakingRoomInvite.dto';
 
@@ -22,7 +22,7 @@ describe('MatchmakingNotifier notifications', () => {
     matchType: MatchType.RANDOM,
     status: InviteStatus.QUEUED,
     ownerPlayerId: 'player-1',
-    players: ['player-1'],
+    players: [{ playerId: 'player-1', name: 'Player 1', avatar: null }],
     bots: [
       {
         botId: 'invite-1:bot:1',
@@ -37,7 +37,7 @@ describe('MatchmakingNotifier notifications', () => {
     readyAt: '2026-07-06T08:00:01.000Z',
   };
 
-  const match: MatchmakingMatchDto = {
+  const match: MatchmakingMqttMatchDto = {
     id: 'match-1',
     matchType: MatchType.RANDOM,
     status: MatchStatus.ACTIVE,
@@ -45,12 +45,12 @@ describe('MatchmakingNotifier notifications', () => {
     teams: [
       {
         side: TeamSide.A,
-        players: [{ playerId: 'player-1', isBot: false }],
+        players: [{ playerId: 'player-1', name: 'Player 1', avatar: null }],
         bots: [],
       },
       {
         side: TeamSide.B,
-        players: [{ playerId: 'player-2', isBot: false }],
+        players: [{ playerId: 'player-2', name: 'Player 2', avatar: null }],
         bots: [],
       },
     ],
@@ -61,8 +61,8 @@ describe('MatchmakingNotifier notifications', () => {
     id: 'invite-1',
     matchType: MatchType.RANDOM,
     status: InviteStatus.OPEN,
-    ownerPlayerId: 'player-1',
-    senderPlayerId: 'player-1',
+    ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+    senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
     teamSize: 2,
     allowBots: true,
     sentAt: '2026-07-06T08:00:03.000Z',
