@@ -5,7 +5,7 @@ import {
   buildMqttNotification,
   MqttNotification,
 } from '../common/service/notificator/type/MqttNotification.type';
-import { MatchmakingMatchDto } from './dto/matchmakingMatch.dto';
+import { MatchmakingMqttMatchDto } from './dto/matchmakingMqttMatch.dto';
 import { MatchmakingRoomDto } from './dto/matchmakingRoom.dto';
 import { MatchmakingRoomInviteDto } from './dto/matchmakingRoomInvite.dto';
 
@@ -54,7 +54,7 @@ export class MatchmakingNotifier {
   /**
    * Notifies one real player that a match has been created for them.
    */
-  async matchFound(playerId: string, match: MatchmakingMatchDto) {
+  async matchFound(playerId: string, match: MatchmakingMqttMatchDto) {
     await this.publish(
       `/matchmaking/matches/player/${playerId}`,
       buildMqttNotification(

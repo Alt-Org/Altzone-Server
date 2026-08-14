@@ -8,6 +8,7 @@ import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { PlayerService } from '../player/player.service';
+import { AvatarDto } from '../player/dto/avatar.dto';
 import {
   CreateMatchmakingInviteDto,
   MatchmakingAutoInviteType,
@@ -23,6 +24,11 @@ import {
   MatchmakingPlayerParticipantDto,
   MatchmakingTeamDto,
 } from './dto/matchmakingMatch.dto';
+import {
+  MatchmakingMqttMatchDto,
+  MatchmakingMqttTeamDto,
+} from './dto/matchmakingMqttMatch.dto';
+import { MatchmakingMqttPlayerDto } from './dto/matchmakingMqttPlayer.dto';
 import { InviteStatus } from './enum/inviteStatus.enum';
 import { MatchStatus } from './enum/matchStatus.enum';
 import { MatchType } from './enum/matchType.enum';
@@ -307,7 +313,7 @@ export class MatchmakingService {
     await this.notifier.inviteReceived(
       targetPlayerId,
       MqttNotificationType.INVITE_RECEIVED,
-      this.toRoomInviteDto(invite, senderPlayerId),
+      await this.toRoomInviteDto(invite, senderPlayerId),
     );
 
     return [this.toInviteDto(invite), null];
@@ -368,7 +374,7 @@ export class MatchmakingService {
       ];
     }
 
-    const roomInvite = this.toRoomInviteDto(invite, senderPlayerId);
+    const roomInvite = await this.toRoomInviteDto(invite, senderPlayerId);
     await Promise.all(
       targetIds.map((targetPlayerId) =>
         this.notifier.inviteReceived(
@@ -509,7 +515,7 @@ export class MatchmakingService {
     await this.notifier.matchEvent(
       finishedMatch.id,
       'MATCH_FINISHED',
-      this.toMatchDto(finishedMatch),
+      await this.toMqttMatchDto(finishedMatch),
     );
 
     return [this.toMatchDto(finishedMatch), null];
@@ -580,7 +586,7 @@ export class MatchmakingService {
       await this.notifier.matchEvent(
         startedMatch.id,
         MqttNotificationType.MATCH_STARTED,
-        this.toMatchDto(startedMatch),
+        await this.toMqttMatchDto(startedMatch),
       );
     }
 
@@ -998,7 +1004,7 @@ export class MatchmakingService {
    * Sends per-player match-found events after a match is created.
    */
   private async notifyMatchPlayers(match: ActiveMatch) {
-    const matchDto = this.toMatchDto(match);
+    const matchDto = await this.toMqttMatchDto(match);
     await Promise.all(
       this.getRealPlayerIds(match).map((playerId) =>
         this.notifier.matchFound(playerId, matchDto),
@@ -1299,7 +1305,7 @@ export class MatchmakingService {
   ) {
     if (!body.automaticInvite) return;
 
-    const roomInvite = this.toRoomInviteDto(invite, senderPlayerId);
+    const roomInvite = await this.toRoomInviteDto(invite, senderPlayerId);
 
     if (body.automaticInvite.type === MatchmakingAutoInviteType.PLAYER) {
       if (!body.automaticInvite.playerId) return;
@@ -1681,7 +1687,7 @@ export class MatchmakingService {
    * Broadcasts invite state to every real player currently attached to it.
    */
   private async notifyInvitePlayers(invite: MatchmakingInvite) {
-    const roomDto = this.toRoomDto(invite);
+    const roomDto = await this.toRoomDto(invite);
     await Promise.all(
       invite.players.map((playerId) =>
         this.notifier.inviteUpdated(playerId, roomDto),
@@ -1750,14 +1756,20 @@ export class MatchmakingService {
   /**
    * Maps internal Redis room state to the compact MQTT room update shape.
    */
-  private toRoomDto(invite: MatchmakingInvite): MatchmakingRoomDto {
+  private async toRoomDto(
+    invite: MatchmakingInvite,
+  ): Promise<MatchmakingRoomDto> {
+    const playerMap = await this.getMqttPlayerMap(invite.players);
+
     return {
       id: invite.id,
       matchType: invite.matchType,
       status: invite.status,
       ownerPlayerId: invite.ownerPlayerId,
       clanId: invite.clanId,
-      players: invite.players,
+      players: invite.players.map((playerId) =>
+        this.getMappedMqttPlayer(playerMap, playerId),
+      ),
       bots: invite.bots,
       teamSize: invite.teamSize,
       allowBots: invite.allowBots,
@@ -1771,16 +1783,21 @@ export class MatchmakingService {
    * Maps room state to the compact payload used when inviting players into that
    * room.
    */
-  private toRoomInviteDto(
+  private async toRoomInviteDto(
     invite: MatchmakingInvite,
     senderPlayerId: string,
-  ): MatchmakingRoomInviteDto {
+  ): Promise<MatchmakingRoomInviteDto> {
+    const playerMap = await this.getMqttPlayerMap([
+      invite.ownerPlayerId,
+      senderPlayerId,
+    ]);
+
     return {
       id: invite.id,
       matchType: invite.matchType,
       status: invite.status,
-      ownerPlayerId: invite.ownerPlayerId,
-      senderPlayerId,
+      ownerPlayer: this.getMappedMqttPlayer(playerMap, invite.ownerPlayerId),
+      senderPlayer: this.getMappedMqttPlayer(playerMap, senderPlayerId),
       teamSize: invite.teamSize,
       allowBots: invite.allowBots,
       sentAt: new Date().toISOString(),
@@ -1788,7 +1805,7 @@ export class MatchmakingService {
   }
 
   /**
-   * Maps internal active match state to the public API and MQTT shape.
+   * Maps internal active match state to the public API shape.
    */
   private toMatchDto(match: ActiveMatch): MatchmakingMatchDto {
     return {
@@ -1797,6 +1814,28 @@ export class MatchmakingService {
       status: match.status,
       teamSize: match.teamSize,
       teams: match.teams.map((team) => this.toTeamDto(team)),
+      startedAt: match.startedAt,
+      readyPlayerIds: match.readyPlayerIds,
+      battleStartedAt: match.battleStartedAt,
+      finishedAt: match.finishedAt,
+      result: match.result,
+    };
+  }
+
+  /**
+   * Maps internal active match state to the compact MQTT shape.
+   */
+  private async toMqttMatchDto(
+    match: ActiveMatch,
+  ): Promise<MatchmakingMqttMatchDto> {
+    const playerMap = await this.getMqttPlayerMap(this.getRealPlayerIds(match));
+
+    return {
+      id: match.id,
+      matchType: match.matchType,
+      status: match.status,
+      teamSize: match.teamSize,
+      teams: match.teams.map((team) => this.toMqttTeamDto(team, playerMap)),
       startedAt: match.startedAt,
       readyPlayerIds: match.readyPlayerIds,
       battleStartedAt: match.battleStartedAt,
@@ -1820,5 +1859,60 @@ export class MatchmakingService {
       players,
       bots,
     };
+  }
+
+  private toMqttTeamDto(
+    team: MatchmakingTeam,
+    playerMap: Map<string, MatchmakingMqttPlayerDto>,
+  ): MatchmakingMqttTeamDto {
+    const players: MatchmakingMqttPlayerDto[] = [];
+    const bots: MatchmakingMatchBotParticipantDto[] = [];
+
+    for (const participant of team.participants) {
+      if (this.isBotParticipant(participant)) {
+        bots.push(participant);
+      } else if (this.isPlayerParticipant(participant)) {
+        players.push(this.getMappedMqttPlayer(playerMap, participant.playerId));
+      }
+    }
+
+    return {
+      side: team.side,
+      clanId: team.clanId,
+      players,
+      bots,
+    };
+  }
+
+  private async getMqttPlayerMap(
+    playerIds: string[],
+  ): Promise<Map<string, MatchmakingMqttPlayerDto>> {
+    const uniquePlayerIds = Array.from(new Set(playerIds));
+    const players = await Promise.all(
+      uniquePlayerIds.map(async (playerId) => {
+        const [player] = await this.playerService.getPlayerById(playerId);
+        return this.toMqttPlayerDto(playerId, player);
+      }),
+    );
+
+    return new Map(players.map((player) => [player.playerId, player]));
+  }
+
+  private toMqttPlayerDto(
+    playerId: string,
+    player: { name?: string; avatar?: unknown } | null,
+  ): MatchmakingMqttPlayerDto {
+    return {
+      playerId,
+      name: player?.name ?? '',
+      avatar: (player?.avatar as AvatarDto | undefined) ?? null,
+    };
+  }
+
+  private getMappedMqttPlayer(
+    playerMap: Map<string, MatchmakingMqttPlayerDto>,
+    playerId: string,
+  ): MatchmakingMqttPlayerDto {
+    return playerMap.get(playerId) ?? this.toMqttPlayerDto(playerId, null);
   }
 }
