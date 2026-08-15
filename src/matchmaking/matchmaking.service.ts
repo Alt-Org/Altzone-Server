@@ -1900,14 +1900,14 @@ export class MatchmakingService {
 
   private toMqttPlayerDto(
     playerId: string,
-    player: { name?: string; avatar?: unknown } | null,
+    player: { name?: string; avatar?: AvatarDto | null } | null,
   ): MatchmakingMqttPlayerDto {
     return {
-      playerId,
-      name: player?.name ?? '',
-      avatar: (player?.avatar as AvatarDto | undefined) ?? null,
-    };
-  }
+    playerId,
+    name: player?.name ?? '',
+    avatar: player?.avatar ?? null,
+  };
+}
 
   private getMappedMqttPlayer(
     playerMap: Map<string, MatchmakingMqttPlayerDto>,
