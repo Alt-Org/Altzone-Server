@@ -2,52 +2,13 @@ import { Expose, Type } from 'class-transformer';
 import { MatchStatus } from '../enum/matchStatus.enum';
 import { MatchType } from '../enum/matchType.enum';
 import { TeamSide } from '../enum/teamSide.enum';
+import {
+  MatchResultDto,
+  MatchmakingMatchBotParticipantDto,
+} from './matchmakingMatch.dto';
+import { MatchmakingMqttPlayerDto } from './matchmakingMqttPlayer.dto';
 
-export class MatchmakingPlayerParticipantDto {
-  /**
-   * Player ID.
-   *
-   * @example "665af23e5e982f0013aa4455"
-   */
-  @Expose()
-  playerId: string;
-
-  /**
-   * Whether this participant is controlled by the server.
-   *
-   * @example false
-   */
-  @Expose()
-  isBot: false;
-}
-
-export class MatchmakingMatchBotParticipantDto {
-  /**
-   * Server-generated bot ID.
-   *
-   * @example "bot-1"
-   */
-  @Expose()
-  botId: string;
-
-  /**
-   * Display name shown for the bot.
-   *
-   * @example "Bot 1"
-   */
-  @Expose()
-  displayName: string;
-
-  /**
-   * Whether this participant is controlled by the server.
-   *
-   * @example true
-   */
-  @Expose()
-  isBot: true;
-}
-
-export class MatchmakingTeamDto {
+export class MatchmakingMqttTeamDto {
   /**
    * Team side in the match.
    *
@@ -65,11 +26,11 @@ export class MatchmakingTeamDto {
   clanId?: string;
 
   /**
-   * Real player participants.
+   * Real player participants with compact UI data.
    */
   @Expose()
-  @Type(() => MatchmakingPlayerParticipantDto)
-  players: MatchmakingPlayerParticipantDto[];
+  @Type(() => MatchmakingMqttPlayerDto)
+  players: MatchmakingMqttPlayerDto[];
 
   /**
    * Bot participants.
@@ -79,17 +40,7 @@ export class MatchmakingTeamDto {
   bots: MatchmakingMatchBotParticipantDto[];
 }
 
-export class MatchResultDto {
-  /**
-   * Winning team side.
-   *
-   * @example "A"
-   */
-  @Expose()
-  winningSide: TeamSide;
-}
-
-export class MatchmakingMatchDto {
+export class MatchmakingMqttMatchDto {
   /**
    * Unique match ID.
    *
@@ -126,8 +77,8 @@ export class MatchmakingMatchDto {
    * Match teams.
    */
   @Expose()
-  @Type(() => MatchmakingTeamDto)
-  teams: MatchmakingTeamDto[];
+  @Type(() => MatchmakingMqttTeamDto)
+  teams: MatchmakingMqttTeamDto[];
 
   /**
    * Match start timestamp.

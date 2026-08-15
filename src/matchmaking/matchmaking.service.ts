@@ -3,20 +3,32 @@ import { Types, UpdateQuery } from 'mongoose';
 import { ClanService } from '../clan/clan.service';
 import { RedisService } from '../common/service/redis/redis.service';
 import { CacheKeys } from '../common/service/redis/cacheKeys.enum';
+import { MqttNotificationType } from '../common/service/notificator/enum/MqttNotificationType.enum';
 import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { PlayerService } from '../player/player.service';
-import { CreateMatchmakingInviteDto } from './dto/createMatchmakingInvite.dto';
+import { AvatarDto } from '../player/dto/avatar.dto';
+import {
+  CreateMatchmakingInviteDto,
+  MatchmakingAutoInviteType,
+} from './dto/createMatchmakingInvite.dto';
 import { FinishMatchDto } from './dto/finishMatch.dto';
 import { JoinMatchmakingInviteDto } from './dto/joinMatchmakingInvite.dto';
 import { MatchmakingInviteDto } from './dto/matchmakingInvite.dto';
+import { MatchmakingRoomDto } from './dto/matchmakingRoom.dto';
+import { MatchmakingRoomInviteDto } from './dto/matchmakingRoomInvite.dto';
 import {
   MatchmakingMatchBotParticipantDto,
   MatchmakingMatchDto,
   MatchmakingPlayerParticipantDto,
   MatchmakingTeamDto,
 } from './dto/matchmakingMatch.dto';
+import {
+  MatchmakingMqttMatchDto,
+  MatchmakingMqttTeamDto,
+} from './dto/matchmakingMqttMatch.dto';
+import { MatchmakingMqttPlayerDto } from './dto/matchmakingMqttPlayer.dto';
 import { InviteStatus } from './enum/inviteStatus.enum';
 import { MatchStatus } from './enum/matchStatus.enum';
 import { MatchType } from './enum/matchType.enum';
@@ -67,8 +79,8 @@ export class MatchmakingService {
   ) {}
 
   /**
-   * Creates an invite from the authenticated player and immediately advances it
-   * if bots or enough real players make the invite READY.
+   * Creates an invite from the authenticated player. Ready invites wait for the
+   * room owner to explicitly start matchmaking.
    */
   async createInvite(
     playerId: string,
@@ -84,6 +96,13 @@ export class MatchmakingService {
 
     const configErrors = await this.validateCreateInviteBody(playerId, body);
     if (configErrors) return [null, configErrors];
+
+    const autoInviteErrors = await this.validateAutomaticInviteBody(
+      playerId,
+      player,
+      body,
+    );
+    if (autoInviteErrors) return [null, autoInviteErrors];
 
     const now = new Date().toISOString();
     const invite: MatchmakingInvite = this.recalculateInvite({
@@ -107,10 +126,9 @@ export class MatchmakingService {
     await this.saveInvite(invite);
     await this.setPlayerInvite(playerId, invite.id);
     await this.notifyInvitePlayers(invite);
+    await this.sendAutomaticInvite(invite, playerId, player, body);
 
-    const processedInvite = await this.processReadyInvite(invite);
-
-    return [this.toInviteDto(processedInvite), null];
+    return [this.toInviteDto(invite), null];
   }
 
   /**
@@ -210,9 +228,164 @@ export class MatchmakingService {
     await this.setPlayerInvite(playerId, updatedInvite.id);
     await this.notifyInvitePlayers(updatedInvite);
 
-    const processedInvite = await this.processReadyInvite(updatedInvite);
+    return [this.toInviteDto(updatedInvite), null];
+  }
+
+  /**
+   * Starts matchmaking for a ready room. Only the room owner may move a room
+   * from READY into matchmaking.
+   */
+  async startRoom(
+    roomId: string,
+    playerId: string,
+  ): Promise<IServiceReturn<MatchmakingInviteDto>> {
+    const [invite, inviteErrors] = await this.readInvite(roomId);
+    if (inviteErrors) return [null, inviteErrors];
+
+    if (invite.ownerPlayerId !== playerId) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_AUTHORIZED,
+            field: 'playerId',
+            value: playerId,
+            message: 'Only the room owner can start matchmaking.',
+          }),
+        ],
+      ];
+    }
+
+    if (invite.status !== InviteStatus.READY) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'status',
+            value: invite.status,
+            message: 'Room is not ready to start matchmaking.',
+          }),
+        ],
+      ];
+    }
+
+    const processedInvite = await this.processReadyInvite(invite);
 
     return [this.toInviteDto(processedInvite), null];
+  }
+
+  /**
+   * Validates that the sender can invite one specific player to their active
+   * matchmaking room.
+   */
+  async sendPlayerInvite(
+    targetPlayerId: string,
+    senderPlayerId: string,
+  ): Promise<IServiceReturn<MatchmakingInviteDto>> {
+    const [invite, inviteErrors] =
+      await this.getOwnedActiveInvite(senderPlayerId);
+    if (inviteErrors) return [null, inviteErrors];
+
+    const [targetPlayer, targetPlayerErrors] =
+      await this.playerService.getPlayerById(targetPlayerId);
+    if (targetPlayerErrors) {
+      return [null, targetPlayerErrors as ServiceError[]];
+    }
+
+    if (!targetPlayer) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'playerId',
+            value: targetPlayerId,
+            message: 'Invited player not found.',
+          }),
+        ],
+      ];
+    }
+
+    const targetErrors = this.validateInviteTarget(invite, targetPlayerId);
+    if (targetErrors) return [null, targetErrors];
+
+    await this.notifier.inviteReceived(
+      targetPlayerId,
+      MqttNotificationType.INVITE_RECEIVED,
+      await this.toRoomInviteDto(invite, senderPlayerId),
+    );
+
+    return [this.toInviteDto(invite), null];
+  }
+
+  /**
+   * Validates that the sender can invite their clan members to their active
+   * matchmaking room.
+   */
+  async sendClanInvite(
+    senderPlayerId: string,
+  ): Promise<IServiceReturn<MatchmakingInviteDto>> {
+    const [invite, inviteErrors] =
+      await this.getOwnedActiveInvite(senderPlayerId);
+    if (inviteErrors) return [null, inviteErrors];
+
+    const [senderPlayer, senderPlayerErrors] =
+      await this.playerService.getPlayerById(senderPlayerId);
+    if (senderPlayerErrors) {
+      return [null, senderPlayerErrors as ServiceError[]];
+    }
+
+    const clanId = senderPlayer.clan_id?.toString();
+    if (!clanId) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'clan_id',
+            value: senderPlayer.clan_id,
+            message: 'Clan invite requires the sender to belong to a clan.',
+          }),
+        ],
+      ];
+    }
+
+    const [targetPlayerIds, targetPlayerErrors] =
+      await this.getClanInviteTargetPlayerIds(
+        clanId,
+        senderPlayerId,
+        invite.players,
+      );
+    if (targetPlayerErrors) return [null, targetPlayerErrors];
+    const targetIds = targetPlayerIds ?? [];
+
+    if (targetIds.length === 0) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'clan_id',
+            value: clanId,
+            message: 'No clan members available to invite.',
+          }),
+        ],
+      ];
+    }
+
+    const roomInvite = await this.toRoomInviteDto(invite, senderPlayerId);
+    await Promise.all(
+      targetIds.map((targetPlayerId) =>
+        this.notifier.inviteReceived(
+          targetPlayerId,
+          MqttNotificationType.CLAN_INVITE_RECEIVED,
+          roomInvite,
+        ),
+      ),
+    );
+
+    return [this.toInviteDto(invite), null];
   }
 
   /**
@@ -342,10 +515,82 @@ export class MatchmakingService {
     await this.notifier.matchEvent(
       finishedMatch.id,
       'MATCH_FINISHED',
-      this.toMatchDto(finishedMatch),
+      await this.toMqttMatchDto(finishedMatch),
     );
 
     return [this.toMatchDto(finishedMatch), null];
+  }
+
+  /**
+   * Confirms that a real match participant has joined the Photon Room. Once all
+   * real players have confirmed, the clientside battle can start.
+   */
+  async startMatch(
+    matchId: string,
+    playerId: string,
+  ): Promise<IServiceReturn<MatchmakingMatchDto>> {
+    const [match, matchErrors] = await this.readMatch(matchId);
+    if (matchErrors) return [null, matchErrors];
+
+    if (match.status !== MatchStatus.ACTIVE) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'matchId',
+            value: matchId,
+            message: 'Only active matchmaking matches can be started.',
+          }),
+        ],
+      ];
+    }
+
+    if (!this.matchHasPlayer(match, playerId)) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_AUTHORIZED,
+            field: 'playerId',
+            value: playerId,
+            message: 'Only match participants can start the match.',
+          }),
+        ],
+      ];
+    }
+
+    const requiredPlayerIds = Array.from(new Set(this.getRealPlayerIds(match)));
+    const readyPlayerIds = Array.from(
+      new Set([
+        ...(match.readyPlayerIds ?? []).filter((readyPlayerId) =>
+          requiredPlayerIds.includes(readyPlayerId),
+        ),
+        playerId,
+      ]),
+    );
+    const allPlayersReady = requiredPlayerIds.every((requiredPlayerId) =>
+      readyPlayerIds.includes(requiredPlayerId),
+    );
+    const startedMatch: ActiveMatch = {
+      ...match,
+      readyPlayerIds,
+      battleStartedAt:
+        match.battleStartedAt ??
+        (allPlayersReady ? new Date().toISOString() : undefined),
+    };
+
+    await this.saveMatch(startedMatch);
+
+    if (allPlayersReady && !match.battleStartedAt) {
+      await this.notifier.matchEvent(
+        startedMatch.id,
+        MqttNotificationType.MATCH_STARTED,
+        await this.toMqttMatchDto(startedMatch),
+      );
+    }
+
+    return [this.toMatchDto(startedMatch), null];
   }
 
   /**
@@ -748,16 +993,23 @@ export class MatchmakingService {
   }
 
   /**
-   * Sends per-player match-found events and one match-scoped start event.
+   * Persists updates to an existing active match without recreating reverse
+   * player lookup keys.
+   */
+  private async saveMatch(match: ActiveMatch) {
+    await this.redisService.set(this.matchKey(match.id), JSON.stringify(match));
+  }
+
+  /**
+   * Sends per-player match-found events after a match is created.
    */
   private async notifyMatchPlayers(match: ActiveMatch) {
-    const matchDto = this.toMatchDto(match);
-    await Promise.all([
-      ...this.getRealPlayerIds(match).map((playerId) =>
+    const matchDto = await this.toMqttMatchDto(match);
+    await Promise.all(
+      this.getRealPlayerIds(match).map((playerId) =>
         this.notifier.matchFound(playerId, matchDto),
       ),
-      this.notifier.matchEvent(match.id, 'MATCH_STARTED', matchDto),
-    ]);
+    );
   }
 
   private getRealPlayerIds(match: ActiveMatch) {
@@ -956,6 +1208,246 @@ export class MatchmakingService {
 
       const [, clanErrors] = await this.clanService.readOneById(clanId);
       if (clanErrors) return clanErrors;
+    }
+
+    return null;
+  }
+
+  private async validateAutomaticInviteBody(
+    senderPlayerId: string,
+    senderPlayer: { clan_id?: unknown },
+    body: CreateMatchmakingInviteDto,
+  ) {
+    if (!body.automaticInvite) return null;
+
+    if (body.automaticInvite.type === MatchmakingAutoInviteType.PLAYER) {
+      const targetPlayerId = body.automaticInvite.playerId;
+      if (!targetPlayerId) {
+        return [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'automaticInvite.playerId',
+            value: targetPlayerId,
+            message: 'Automatic PLAYER invite requires playerId.',
+          }),
+        ];
+      }
+
+      const [targetPlayer, targetPlayerErrors] =
+        await this.playerService.getPlayerById(targetPlayerId);
+      if (targetPlayerErrors) return targetPlayerErrors as ServiceError[];
+
+      if (!targetPlayer) {
+        return [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'automaticInvite.playerId',
+            value: targetPlayerId,
+            message: 'Invited player not found.',
+          }),
+        ];
+      }
+
+      if (targetPlayerId === senderPlayerId) {
+        return [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'automaticInvite.playerId',
+            value: targetPlayerId,
+            message: 'Room owner cannot invite themselves.',
+          }),
+        ];
+      }
+
+      return null;
+    }
+
+    if (body.automaticInvite.type === MatchmakingAutoInviteType.CLAN) {
+      const clanId = senderPlayer.clan_id?.toString();
+      if (!clanId) {
+        return [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            field: 'clan_id',
+            value: senderPlayer.clan_id,
+            message: 'Clan invite requires the sender to belong to a clan.',
+          }),
+        ];
+      }
+
+      const [targetPlayerIds, targetPlayerErrors] =
+        await this.getClanInviteTargetPlayerIds(clanId, senderPlayerId, [
+          senderPlayerId,
+        ]);
+      if (targetPlayerErrors) return targetPlayerErrors;
+      const targetIds = targetPlayerIds ?? [];
+
+      if (targetIds.length === 0) {
+        return [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'clan_id',
+            value: clanId,
+            message: 'No clan members available to invite.',
+          }),
+        ];
+      }
+    }
+
+    return null;
+  }
+
+  private async sendAutomaticInvite(
+    invite: MatchmakingInvite,
+    senderPlayerId: string,
+    senderPlayer: { clan_id?: unknown },
+    body: CreateMatchmakingInviteDto,
+  ) {
+    if (!body.automaticInvite) return;
+
+    const roomInvite = await this.toRoomInviteDto(invite, senderPlayerId);
+
+    if (body.automaticInvite.type === MatchmakingAutoInviteType.PLAYER) {
+      if (!body.automaticInvite.playerId) return;
+
+      await this.notifier.inviteReceived(
+        body.automaticInvite.playerId,
+        MqttNotificationType.INVITE_RECEIVED,
+        roomInvite,
+      );
+      return;
+    }
+
+    const clanId = senderPlayer.clan_id?.toString();
+    if (!clanId) return;
+
+    const [targetPlayerIds] = await this.getClanInviteTargetPlayerIds(
+      clanId,
+      senderPlayerId,
+      invite.players,
+    );
+    await Promise.all(
+      (targetPlayerIds ?? []).map((targetPlayerId) =>
+        this.notifier.inviteReceived(
+          targetPlayerId,
+          MqttNotificationType.CLAN_INVITE_RECEIVED,
+          roomInvite,
+        ),
+      ),
+    );
+  }
+
+  private async getClanInviteTargetPlayerIds(
+    clanId: string,
+    senderPlayerId: string,
+    currentRoomPlayerIds: string[],
+  ): Promise<IServiceReturn<string[]>> {
+    const [clanPlayers, clanPlayerErrors] =
+      await this.playerService.basicService.readMany<{ _id?: string }>({
+        filter: { clan_id: clanId },
+        select: ['_id'],
+      });
+    if (clanPlayerErrors) return [null, clanPlayerErrors];
+
+    const targetPlayerIds = (clanPlayers ?? [])
+      .map((player) => player._id?.toString())
+      .filter(
+        (playerId): playerId is string =>
+          Boolean(playerId) &&
+          playerId !== senderPlayerId &&
+          !currentRoomPlayerIds.includes(playerId),
+      );
+
+    return [targetPlayerIds, null];
+  }
+
+  /**
+   * Loads the sender's active matchmaking room and verifies invite-sending
+   * permissions.
+   */
+  private async getOwnedActiveInvite(
+    senderPlayerId: string,
+  ): Promise<IServiceReturn<MatchmakingInvite>> {
+    const activeInviteId = await this.redisService.get(
+      this.playerInviteKey(senderPlayerId),
+    );
+
+    if (!activeInviteId) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'playerId',
+            value: senderPlayerId,
+            message: 'Player does not have an active matchmaking room.',
+          }),
+        ],
+      ];
+    }
+
+    const [invite, inviteErrors] = await this.readInvite(activeInviteId);
+    if (inviteErrors) return [null, inviteErrors];
+
+    if (invite.ownerPlayerId !== senderPlayerId) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_AUTHORIZED,
+            field: 'playerId',
+            value: senderPlayerId,
+            message: 'Only the room owner can send matchmaking invites.',
+          }),
+        ],
+      ];
+    }
+
+    if (
+      invite.status === InviteStatus.CANCELLED ||
+      invite.status === InviteStatus.MATCHED ||
+      invite.status === InviteStatus.QUEUED
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'status',
+            value: invite.status,
+            message: 'Room can no longer be used for matchmaking invites.',
+          }),
+        ],
+      ];
+    }
+
+    return [invite, null];
+  }
+
+  private validateInviteTarget(
+    invite: MatchmakingInvite,
+    targetPlayerId: string,
+  ) {
+    if (invite.ownerPlayerId === targetPlayerId) {
+      return [
+        new ServiceError({
+          reason: SEReason.NOT_ALLOWED,
+          field: 'playerId',
+          value: targetPlayerId,
+          message: 'Room owner cannot invite themselves.',
+        }),
+      ];
+    }
+
+    if (invite.players.includes(targetPlayerId)) {
+      return [
+        new ServiceError({
+          reason: SEReason.NOT_ALLOWED,
+          field: 'playerId',
+          value: targetPlayerId,
+          message: 'Player is already in the matchmaking room.',
+        }),
+      ];
     }
 
     return null;
@@ -1195,10 +1687,10 @@ export class MatchmakingService {
    * Broadcasts invite state to every real player currently attached to it.
    */
   private async notifyInvitePlayers(invite: MatchmakingInvite) {
-    const inviteDto = this.toInviteDto(invite);
+    const roomDto = await this.toRoomDto(invite);
     await Promise.all(
       invite.players.map((playerId) =>
-        this.notifier.inviteUpdated(playerId, inviteDto),
+        this.notifier.inviteUpdated(playerId, roomDto),
       ),
     );
   }
@@ -1262,7 +1754,58 @@ export class MatchmakingService {
   }
 
   /**
-   * Maps internal active match state to the public API and MQTT shape.
+   * Maps internal Redis room state to the compact MQTT room update shape.
+   */
+  private async toRoomDto(
+    invite: MatchmakingInvite,
+  ): Promise<MatchmakingRoomDto> {
+    const playerMap = await this.getMqttPlayerMap(invite.players);
+
+    return {
+      id: invite.id,
+      matchType: invite.matchType,
+      status: invite.status,
+      ownerPlayerId: invite.ownerPlayerId,
+      clanId: invite.clanId,
+      players: invite.players.map((playerId) =>
+        this.getMappedMqttPlayer(playerMap, playerId),
+      ),
+      bots: invite.bots,
+      teamSize: invite.teamSize,
+      allowBots: invite.allowBots,
+      createdAt: invite.createdAt,
+      updatedAt: invite.updatedAt,
+      readyAt: invite.readyAt,
+    };
+  }
+
+  /**
+   * Maps room state to the compact payload used when inviting players into that
+   * room.
+   */
+  private async toRoomInviteDto(
+    invite: MatchmakingInvite,
+    senderPlayerId: string,
+  ): Promise<MatchmakingRoomInviteDto> {
+    const playerMap = await this.getMqttPlayerMap([
+      invite.ownerPlayerId,
+      senderPlayerId,
+    ]);
+
+    return {
+      id: invite.id,
+      matchType: invite.matchType,
+      status: invite.status,
+      ownerPlayer: this.getMappedMqttPlayer(playerMap, invite.ownerPlayerId),
+      senderPlayer: this.getMappedMqttPlayer(playerMap, senderPlayerId),
+      teamSize: invite.teamSize,
+      allowBots: invite.allowBots,
+      sentAt: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Maps internal active match state to the public API shape.
    */
   private toMatchDto(match: ActiveMatch): MatchmakingMatchDto {
     return {
@@ -1272,6 +1815,30 @@ export class MatchmakingService {
       teamSize: match.teamSize,
       teams: match.teams.map((team) => this.toTeamDto(team)),
       startedAt: match.startedAt,
+      readyPlayerIds: match.readyPlayerIds,
+      battleStartedAt: match.battleStartedAt,
+      finishedAt: match.finishedAt,
+      result: match.result,
+    };
+  }
+
+  /**
+   * Maps internal active match state to the compact MQTT shape.
+   */
+  private async toMqttMatchDto(
+    match: ActiveMatch,
+  ): Promise<MatchmakingMqttMatchDto> {
+    const playerMap = await this.getMqttPlayerMap(this.getRealPlayerIds(match));
+
+    return {
+      id: match.id,
+      matchType: match.matchType,
+      status: match.status,
+      teamSize: match.teamSize,
+      teams: match.teams.map((team) => this.toMqttTeamDto(team, playerMap)),
+      startedAt: match.startedAt,
+      readyPlayerIds: match.readyPlayerIds,
+      battleStartedAt: match.battleStartedAt,
       finishedAt: match.finishedAt,
       result: match.result,
     };
@@ -1292,5 +1859,60 @@ export class MatchmakingService {
       players,
       bots,
     };
+  }
+
+  private toMqttTeamDto(
+    team: MatchmakingTeam,
+    playerMap: Map<string, MatchmakingMqttPlayerDto>,
+  ): MatchmakingMqttTeamDto {
+    const players: MatchmakingMqttPlayerDto[] = [];
+    const bots: MatchmakingMatchBotParticipantDto[] = [];
+
+    for (const participant of team.participants) {
+      if (this.isBotParticipant(participant)) {
+        bots.push(participant);
+      } else if (this.isPlayerParticipant(participant)) {
+        players.push(this.getMappedMqttPlayer(playerMap, participant.playerId));
+      }
+    }
+
+    return {
+      side: team.side,
+      clanId: team.clanId,
+      players,
+      bots,
+    };
+  }
+
+  private async getMqttPlayerMap(
+    playerIds: string[],
+  ): Promise<Map<string, MatchmakingMqttPlayerDto>> {
+    const uniquePlayerIds = Array.from(new Set(playerIds));
+    const players = await Promise.all(
+      uniquePlayerIds.map(async (playerId) => {
+        const [player] = await this.playerService.getPlayerById(playerId);
+        return this.toMqttPlayerDto(playerId, player);
+      }),
+    );
+
+    return new Map(players.map((player) => [player.playerId, player]));
+  }
+
+  private toMqttPlayerDto(
+    playerId: string,
+    player: { name?: string; avatar?: AvatarDto | null } | null,
+  ): MatchmakingMqttPlayerDto {
+    return {
+      playerId,
+      name: player?.name ?? '',
+      avatar: player?.avatar ?? null,
+    };
+  }
+
+  private getMappedMqttPlayer(
+    playerMap: Map<string, MatchmakingMqttPlayerDto>,
+    playerId: string,
+  ): MatchmakingMqttPlayerDto {
+    return playerMap.get(playerId) ?? this.toMqttPlayerDto(playerId, null);
   }
 }

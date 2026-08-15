@@ -5,8 +5,9 @@ import { InviteStatus } from '../../../matchmaking/enum/inviteStatus.enum';
 import { MatchStatus } from '../../../matchmaking/enum/matchStatus.enum';
 import { MatchType } from '../../../matchmaking/enum/matchType.enum';
 import { TeamSide } from '../../../matchmaking/enum/teamSide.enum';
-import { MatchmakingInviteDto } from '../../../matchmaking/dto/matchmakingInvite.dto';
-import { MatchmakingMatchDto } from '../../../matchmaking/dto/matchmakingMatch.dto';
+import { MatchmakingMqttMatchDto } from '../../../matchmaking/dto/matchmakingMqttMatch.dto';
+import { MatchmakingRoomDto } from '../../../matchmaking/dto/matchmakingRoom.dto';
+import { MatchmakingRoomInviteDto } from '../../../matchmaking/dto/matchmakingRoomInvite.dto';
 
 jest.mock('../../../common/service/notificator/MQTTConnector', () => ({
   getInstance: jest.fn(),
@@ -16,12 +17,12 @@ describe('MatchmakingNotifier notifications', () => {
   let publishMock: jest.Mock;
   let notifier: MatchmakingNotifier;
 
-  const invite: MatchmakingInviteDto = {
+  const room: MatchmakingRoomDto = {
     id: 'invite-1',
     matchType: MatchType.RANDOM,
     status: InviteStatus.QUEUED,
     ownerPlayerId: 'player-1',
-    players: ['player-1'],
+    players: [{ playerId: 'player-1', name: 'Player 1', avatar: null }],
     bots: [
       {
         botId: 'invite-1:bot:1',
@@ -36,7 +37,7 @@ describe('MatchmakingNotifier notifications', () => {
     readyAt: '2026-07-06T08:00:01.000Z',
   };
 
-  const match: MatchmakingMatchDto = {
+  const match: MatchmakingMqttMatchDto = {
     id: 'match-1',
     matchType: MatchType.RANDOM,
     status: MatchStatus.ACTIVE,
@@ -44,16 +45,27 @@ describe('MatchmakingNotifier notifications', () => {
     teams: [
       {
         side: TeamSide.A,
-        players: [{ playerId: 'player-1', isBot: false }],
+        players: [{ playerId: 'player-1', name: 'Player 1', avatar: null }],
         bots: [],
       },
       {
         side: TeamSide.B,
-        players: [{ playerId: 'player-2', isBot: false }],
+        players: [{ playerId: 'player-2', name: 'Player 2', avatar: null }],
         bots: [],
       },
     ],
     startedAt: '2026-07-06T08:00:02.000Z',
+  };
+
+  const roomInvite: MatchmakingRoomInviteDto = {
+    id: 'invite-1',
+    matchType: MatchType.RANDOM,
+    status: InviteStatus.OPEN,
+    ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+    senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+    teamSize: 2,
+    allowBots: true,
+    sentAt: '2026-07-06T08:00:03.000Z',
   };
 
   beforeEach(() => {
@@ -64,15 +76,49 @@ describe('MatchmakingNotifier notifications', () => {
     notifier = new MatchmakingNotifier();
   });
 
-  it('publishes invite updates to the player invite topic', async () => {
-    await notifier.inviteUpdated('player-1', invite);
+  it('publishes room updates to the player room topic', async () => {
+    await notifier.inviteUpdated('player-1', room);
 
     expect(publishMock).toHaveBeenCalledWith(
-      '/matchmaking/invites/player/player-1',
+      '/matchmaking/rooms/player/player-1',
       JSON.stringify({
         topic: 'matchmaking',
-        type: MqttNotificationType.INVITE_UPDATED,
-        payload: invite,
+        type: MqttNotificationType.ROOM_UPDATED,
+        payload: room,
+      }),
+    );
+  });
+
+  it('publishes player invite notifications to the player invite topic', async () => {
+    await notifier.inviteReceived(
+      'player-2',
+      MqttNotificationType.INVITE_RECEIVED,
+      roomInvite,
+    );
+
+    expect(publishMock).toHaveBeenCalledWith(
+      '/matchmaking/invites/player/player-2',
+      JSON.stringify({
+        topic: 'matchmaking',
+        type: MqttNotificationType.INVITE_RECEIVED,
+        payload: roomInvite,
+      }),
+    );
+  });
+
+  it('publishes clan invite notifications to the player invite topic', async () => {
+    await notifier.inviteReceived(
+      'player-2',
+      MqttNotificationType.CLAN_INVITE_RECEIVED,
+      roomInvite,
+    );
+
+    expect(publishMock).toHaveBeenCalledWith(
+      '/matchmaking/invites/player/player-2',
+      JSON.stringify({
+        topic: 'matchmaking',
+        type: MqttNotificationType.CLAN_INVITE_RECEIVED,
+        payload: roomInvite,
       }),
     );
   });

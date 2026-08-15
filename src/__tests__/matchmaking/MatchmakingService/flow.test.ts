@@ -1,4 +1,6 @@
 import { CacheKeys } from '../../../common/service/redis/cacheKeys.enum';
+import { MqttNotificationType } from '../../../common/service/notificator/enum/MqttNotificationType.enum';
+import { MatchmakingAutoInviteType } from '../../../matchmaking/dto/createMatchmakingInvite.dto';
 import { MatchStatus } from '../../../matchmaking/enum/matchStatus.enum';
 import { MatchType } from '../../../matchmaking/enum/matchType.enum';
 import { TeamSide } from '../../../matchmaking/enum/teamSide.enum';
@@ -72,6 +74,9 @@ type TestDeps = {
     getPlayerById: jest.Mock;
     getPlayerClanId: jest.Mock;
     updatePlayerById: jest.Mock;
+    basicService: {
+      readMany: jest.Mock;
+    };
   };
   clanService: {
     readOneById: jest.Mock;
@@ -81,6 +86,7 @@ type TestDeps = {
   };
   notifier: {
     inviteUpdated: jest.Mock;
+    inviteReceived: jest.Mock;
     matchFound: jest.Mock;
     matchEvent: jest.Mock;
   };
@@ -99,12 +105,24 @@ const createService = (
       {
         _id: playerId,
         id: playerId,
+        name: `Player ${playerId.replace('player-', '')}`,
+        avatar: null,
         clan_id: playerClans[playerId],
       },
       null,
     ]),
     getPlayerClanId: jest.fn(async (playerId: string) => playerClans[playerId]),
     updatePlayerById: jest.fn(async () => [{}, null]),
+    basicService: {
+      readMany: jest.fn(
+        async ({ filter }: { filter?: { clan_id?: string } }) => [
+          Object.entries(playerClans)
+            .filter(([, clanId]) => clanId === filter?.clan_id)
+            .map(([playerId]) => ({ _id: playerId })),
+          null,
+        ],
+      ),
+    },
   };
   const clanService = {
     readOneById: jest.fn(async (clanId: string) => [{ _id: clanId }, null]),
@@ -114,6 +132,7 @@ const createService = (
   };
   const notifier = {
     inviteUpdated: jest.fn(async () => undefined),
+    inviteReceived: jest.fn(async () => undefined),
     matchFound: jest.fn(async () => undefined),
     matchEvent: jest.fn(async () => undefined),
   };
@@ -165,7 +184,7 @@ const createActiveBattleStartMatch = (
 });
 
 describe('MatchmakingService flow', () => {
-  it('creates an active RANDOM match from two ready invites and notifies real players', async () => {
+  it('creates an active RANDOM match after ready room owners start matchmaking', async () => {
     const { redis, notifier, service } = createService();
 
     const [firstInvite, firstErrors] = await service.createInvite('player-1', {
@@ -180,16 +199,32 @@ describe('MatchmakingService flow', () => {
 
     expect(firstErrors).toBeNull();
     expect(secondErrors).toBeNull();
-    expect(secondInvite.status).toBe('MATCHED');
+    expect(firstInvite.status).toBe('READY');
+    expect(secondInvite.status).toBe('READY');
+    expect(getStoredMatches(redis)).toHaveLength(0);
+
+    const [queuedInvite, firstStartErrors] = await service.startRoom(
+      firstInvite.id,
+      'player-1',
+    );
+    const [startedInvite, secondStartErrors] = await service.startRoom(
+      secondInvite.id,
+      'player-2',
+    );
+
+    expect(firstStartErrors).toBeNull();
+    expect(secondStartErrors).toBeNull();
+    expect(queuedInvite.status).toBe('QUEUED');
+    expect(startedInvite.status).toBe('MATCHED');
 
     const [storedFirstInvite] = await service.getInvite(firstInvite.id);
     expect(storedFirstInvite.status).toBe('MATCHED');
-    expect(storedFirstInvite.matchId).toBe(secondInvite.matchId);
+    expect(storedFirstInvite.matchId).toBe(startedInvite.matchId);
 
     const matches = getStoredMatches(redis);
     expect(matches).toHaveLength(1);
     expect(matches[0]).toMatchObject({
-      id: secondInvite.matchId,
+      id: startedInvite.matchId,
       matchType: MatchType.RANDOM,
       status: MatchStatus.ACTIVE,
       teamSize: 2,
@@ -207,17 +242,13 @@ describe('MatchmakingService flow', () => {
     expect(redis.values.has('matchmaking:player-invite:player-2')).toBe(false);
     expect(notifier.matchFound).toHaveBeenCalledWith(
       'player-1',
-      expect.objectContaining({ id: secondInvite.matchId }),
+      expect.objectContaining({ id: startedInvite.matchId }),
     );
     expect(notifier.matchFound).toHaveBeenCalledWith(
       'player-2',
-      expect.objectContaining({ id: secondInvite.matchId }),
+      expect.objectContaining({ id: startedInvite.matchId }),
     );
-    expect(notifier.matchEvent).toHaveBeenCalledWith(
-      secondInvite.matchId,
-      'MATCH_STARTED',
-      expect.objectContaining({ id: secondInvite.matchId }),
-    );
+    expect(notifier.matchEvent).not.toHaveBeenCalled();
   });
 
   it('creates a CLAN bot opponent when the opponent timeout expires', async () => {
@@ -230,7 +261,16 @@ describe('MatchmakingService flow', () => {
     });
 
     expect(errors).toBeNull();
-    expect(invite.status).toBe('QUEUED');
+    expect(invite.status).toBe('READY');
+    expect(queue.scheduleClanOpponentTimeout).not.toHaveBeenCalled();
+
+    const [startedInvite, startErrors] = await service.startRoom(
+      invite.id,
+      'player-1',
+    );
+
+    expect(startErrors).toBeNull();
+    expect(startedInvite.status).toBe('QUEUED');
     expect(queue.scheduleClanOpponentTimeout).toHaveBeenCalledWith(
       invite.id,
       30,
@@ -259,11 +299,57 @@ describe('MatchmakingService flow', () => {
       'player-1',
       expect.objectContaining({ id: matchedInvite.matchId }),
     );
-    expect(notifier.matchEvent).toHaveBeenCalledWith(
-      matchedInvite.matchId,
-      'MATCH_STARTED',
-      expect.objectContaining({ id: matchedInvite.matchId }),
+    expect(notifier.matchEvent).not.toHaveBeenCalled();
+  });
+
+  it('rejects room start from a player who does not own the room', async () => {
+    const { service } = createService();
+
+    const [invite, createErrors] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+    });
+
+    const [startedInvite, startErrors] = await service.startRoom(
+      invite.id,
+      'player-2',
     );
+
+    expect(createErrors).toBeNull();
+    expect(startedInvite).toBeNull();
+    expect(startErrors).toHaveLength(1);
+    expect(startErrors[0]).toMatchObject({
+      reason: SEReason.NOT_AUTHORIZED,
+      field: 'playerId',
+      value: 'player-2',
+      message: 'Only the room owner can start matchmaking.',
+    });
+  });
+
+  it('rejects room start before the room is ready', async () => {
+    const { service } = createService();
+    const roomId = '665af23e5e982f0013aa334b';
+
+    const [invite, createErrors] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId,
+      allowBots: false,
+    });
+
+    const [startedInvite, startErrors] = await service.startRoom(
+      invite.id,
+      'player-1',
+    );
+
+    expect(createErrors).toBeNull();
+    expect(invite.status).toBe('OPEN');
+    expect(startedInvite).toBeNull();
+    expect(startErrors).toHaveLength(1);
+    expect(startErrors[0]).toMatchObject({
+      reason: SEReason.NOT_ALLOWED,
+      field: 'status',
+      value: 'OPEN',
+      message: 'Room is not ready to start matchmaking.',
+    });
   });
 
   it('returns REQUIRED error when joining a CUSTOM invite without roomId', async () => {
@@ -289,6 +375,246 @@ describe('MatchmakingService flow', () => {
       field: 'roomId',
       message: 'CUSTOM invite joins require roomId.',
     });
+  });
+
+  it('sends an automatic player invite when creating a room', async () => {
+    const { notifier, service } = createService();
+
+    const [invite, errors] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      automaticInvite: {
+        type: MatchmakingAutoInviteType.PLAYER,
+        playerId: 'player-2',
+      },
+    });
+
+    expect(errors).toBeNull();
+    expect(notifier.inviteReceived).toHaveBeenCalledWith(
+      'player-2',
+      MqttNotificationType.INVITE_RECEIVED,
+      expect.objectContaining({
+        id: invite.id,
+        matchType: MatchType.RANDOM,
+        status: invite.status,
+        ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        sentAt: expect.any(String),
+      }),
+    );
+  });
+
+  it('sends automatic clan invites when creating a room', async () => {
+    const { notifier, service } = createService({
+      'player-1': 'clan-1',
+      'player-2': 'clan-1',
+      'player-3': 'clan-1',
+      'player-4': 'clan-2',
+    });
+
+    const [invite, errors] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      automaticInvite: {
+        type: MatchmakingAutoInviteType.CLAN,
+      },
+    });
+
+    expect(errors).toBeNull();
+    expect(notifier.inviteReceived).toHaveBeenCalledTimes(2);
+    expect(notifier.inviteReceived).toHaveBeenCalledWith(
+      'player-2',
+      MqttNotificationType.CLAN_INVITE_RECEIVED,
+      expect.objectContaining({
+        id: invite.id,
+        matchType: MatchType.RANDOM,
+        ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+      }),
+    );
+    expect(notifier.inviteReceived).toHaveBeenCalledWith(
+      'player-3',
+      MqttNotificationType.CLAN_INVITE_RECEIVED,
+      expect.objectContaining({
+        id: invite.id,
+        matchType: MatchType.RANDOM,
+        ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+      }),
+    );
+    expect(notifier.inviteReceived).not.toHaveBeenCalledWith(
+      'player-4',
+      expect.anything(),
+      expect.anything(),
+    );
+  });
+
+  it('sends compact room update payloads without match or custom room ids', async () => {
+    const { notifier, service } = createService();
+
+    const [invite, errors] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId: '665af23e5e982f0013aa334b',
+    });
+
+    expect(errors).toBeNull();
+    expect(notifier.inviteUpdated).toHaveBeenCalledWith(
+      'player-1',
+      expect.objectContaining({
+        id: invite.id,
+        matchType: MatchType.CUSTOM,
+        ownerPlayerId: 'player-1',
+      }),
+    );
+
+    const roomUpdate = (
+      notifier.inviteUpdated.mock.calls[0] as unknown[]
+    )[1] as any;
+    expect(roomUpdate).not.toHaveProperty('roomId');
+    expect(roomUpdate).not.toHaveProperty('matchId');
+    expect(roomUpdate).toHaveProperty('players', [
+      { playerId: 'player-1', name: 'Player 1', avatar: null },
+    ]);
+    expect(Object.keys(roomUpdate.players[0])).toEqual([
+      'playerId',
+      'name',
+      'avatar',
+    ]);
+  });
+
+  it('sends a player invite notification for the owner active room', async () => {
+    const { notifier, service } = createService();
+
+    const [invite, createErrors] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+    });
+    const [sentInvite, inviteErrors] = await service.sendPlayerInvite(
+      'player-2',
+      'player-1',
+    );
+
+    expect(createErrors).toBeNull();
+    expect(inviteErrors).toBeNull();
+    expect(sentInvite.id).toBe(invite.id);
+    expect(notifier.inviteReceived).toHaveBeenCalledWith(
+      'player-2',
+      MqttNotificationType.INVITE_RECEIVED,
+      expect.objectContaining({
+        id: invite.id,
+        matchType: MatchType.RANDOM,
+        status: invite.status,
+        ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        teamSize: 2,
+        allowBots: true,
+        sentAt: expect.any(String),
+      }),
+    );
+
+    const invitePayload = (
+      notifier.inviteReceived.mock.calls[0] as unknown[]
+    )[2] as any;
+    expect(Object.keys(invitePayload.ownerPlayer)).toEqual([
+      'playerId',
+      'name',
+      'avatar',
+    ]);
+    expect(Object.keys(invitePayload.senderPlayer)).toEqual([
+      'playerId',
+      'name',
+      'avatar',
+    ]);
+  });
+
+  it('sends clan invite notifications to available clan members', async () => {
+    const { notifier, service } = createService({
+      'player-1': 'clan-1',
+      'player-2': 'clan-1',
+      'player-3': 'clan-1',
+      'player-4': 'clan-2',
+    });
+
+    const [invite, createErrors] = await service.createInvite('player-1', {
+      matchType: MatchType.CLAN,
+    });
+    const [sentInvite, inviteErrors] = await service.sendClanInvite('player-1');
+
+    expect(createErrors).toBeNull();
+    expect(inviteErrors).toBeNull();
+    expect(sentInvite.id).toBe(invite.id);
+    expect(notifier.inviteReceived).toHaveBeenCalledTimes(2);
+    expect(notifier.inviteReceived).toHaveBeenCalledWith(
+      'player-2',
+      MqttNotificationType.CLAN_INVITE_RECEIVED,
+      expect.objectContaining({
+        id: invite.id,
+        matchType: MatchType.CLAN,
+        status: invite.status,
+        ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        sentAt: expect.any(String),
+      }),
+    );
+    expect(notifier.inviteReceived).toHaveBeenCalledWith(
+      'player-3',
+      MqttNotificationType.CLAN_INVITE_RECEIVED,
+      expect.objectContaining({
+        id: invite.id,
+        matchType: MatchType.CLAN,
+        status: invite.status,
+        ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        sentAt: expect.any(String),
+      }),
+    );
+    expect(notifier.inviteReceived).not.toHaveBeenCalledWith(
+      'player-1',
+      expect.anything(),
+      expect.anything(),
+    );
+    expect(notifier.inviteReceived).not.toHaveBeenCalledWith(
+      'player-4',
+      expect.anything(),
+      expect.anything(),
+    );
+  });
+
+  it('does not send clan invite notifications to players already in the room', async () => {
+    const { notifier, service } = createService({
+      'player-1': 'clan-1',
+      'player-2': 'clan-1',
+      'player-3': 'clan-1',
+    });
+
+    const [invite, createErrors] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId: '665af23e5e982f0013aa334b',
+      allowBots: false,
+    });
+    const [joinedInvite, joinErrors] = await service.joinInvite(
+      invite.id,
+      'player-2',
+      { roomId: '665af23e5e982f0013aa334b' },
+    );
+    const [sentInvite, inviteErrors] = await service.sendClanInvite('player-1');
+
+    expect(createErrors).toBeNull();
+    expect(joinErrors).toBeNull();
+    expect(inviteErrors).toBeNull();
+    expect(joinedInvite.players).toContain('player-2');
+    expect(sentInvite.id).toBe(invite.id);
+    expect(notifier.inviteReceived).toHaveBeenCalledTimes(1);
+    expect(notifier.inviteReceived).toHaveBeenCalledWith(
+      'player-3',
+      MqttNotificationType.CLAN_INVITE_RECEIVED,
+      expect.objectContaining({
+        id: invite.id,
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+      }),
+    );
+    expect(notifier.inviteReceived).not.toHaveBeenCalledWith(
+      'player-2',
+      expect.anything(),
+      expect.anything(),
+    );
   });
 
   it('allows battle start validation for an active match with matching teams', async () => {
@@ -392,6 +718,288 @@ describe('MatchmakingService flow', () => {
       field: 'teams',
       message: 'Battle teams must match the active matchmaking match teams.',
     });
+  });
+
+  it('marks a match participant ready for clientside battle start', async () => {
+    const { redis, notifier, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'match-start-ready',
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [startedMatch, errors] = await service.startMatch(
+      match.id,
+      'player-1',
+    );
+    const storedMatch = JSON.parse(
+      await redis.get(`matchmaking:match:${match.id}`),
+    ) as ActiveMatch;
+
+    expect(errors).toBeNull();
+    expect(startedMatch).toMatchObject({
+      id: match.id,
+      readyPlayerIds: ['player-1'],
+    });
+    expect(startedMatch.battleStartedAt).toBeUndefined();
+    expect(storedMatch.readyPlayerIds).toEqual(['player-1']);
+    expect(notifier.matchEvent).not.toHaveBeenCalledWith(
+      match.id,
+      MqttNotificationType.MATCH_STARTED,
+      expect.anything(),
+    );
+  });
+
+  it('handles repeated match start calls from the same participant idempotently', async () => {
+    const { redis, notifier, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'match-start-idempotent',
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ botId: 'bot-1', displayName: 'Bot 1', isBot: true }],
+        },
+      ],
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [firstStart, firstErrors] = await service.startMatch(
+      match.id,
+      'player-1',
+    );
+    const [secondStart, secondErrors] = await service.startMatch(
+      match.id,
+      'player-1',
+    );
+
+    expect(firstErrors).toBeNull();
+    expect(secondErrors).toBeNull();
+    expect(firstStart.readyPlayerIds).toEqual(['player-1']);
+    expect(secondStart.readyPlayerIds).toEqual(['player-1']);
+    expect(secondStart.battleStartedAt).toBe(firstStart.battleStartedAt);
+    expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
+    expect(notifier.matchEvent).toHaveBeenCalledWith(
+      match.id,
+      MqttNotificationType.MATCH_STARTED,
+      expect.objectContaining({
+        id: match.id,
+        readyPlayerIds: ['player-1'],
+        battleStartedAt: firstStart.battleStartedAt,
+      }),
+    );
+  });
+
+  it('rejects match start from a non-participant requester', async () => {
+    const { redis, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'match-start-outsider',
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [startedMatch, errors] = await service.startMatch(
+      match.id,
+      'player-3',
+    );
+
+    expect(startedMatch).toBeNull();
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({
+      reason: SEReason.NOT_AUTHORIZED,
+      field: 'playerId',
+      value: 'player-3',
+      message: 'Only match participants can start the match.',
+    });
+  });
+
+  it('returns NOT_FOUND error when starting a missing match', async () => {
+    const { service } = createService();
+
+    const [startedMatch, errors] = await service.startMatch(
+      'missing-match',
+      'player-1',
+    );
+
+    expect(startedMatch).toBeNull();
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({
+      reason: SEReason.NOT_FOUND,
+      field: 'matchId',
+      value: 'missing-match',
+      message: 'Matchmaking match not found.',
+    });
+  });
+
+  it('rejects match start for a finished match', async () => {
+    const { redis, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'match-start-finished',
+      status: MatchStatus.FINISHED,
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [startedMatch, errors] = await service.startMatch(
+      match.id,
+      'player-1',
+    );
+
+    expect(startedMatch).toBeNull();
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({
+      reason: SEReason.NOT_ALLOWED,
+      field: 'matchId',
+      value: match.id,
+      message: 'Only active matchmaking matches can be started.',
+    });
+  });
+
+  it('publishes MATCH_STARTED only after all real players are ready', async () => {
+    const { redis, notifier, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'match-start-two-players',
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [firstStart, firstErrors] = await service.startMatch(
+      match.id,
+      'player-1',
+    );
+    const [secondStart, secondErrors] = await service.startMatch(
+      match.id,
+      'player-2',
+    );
+
+    expect(firstErrors).toBeNull();
+    expect(secondErrors).toBeNull();
+    expect(firstStart.battleStartedAt).toBeUndefined();
+    expect(secondStart.readyPlayerIds).toEqual(['player-1', 'player-2']);
+    expect(secondStart.battleStartedAt).toEqual(expect.any(String));
+    expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
+    expect(notifier.matchEvent).toHaveBeenCalledWith(
+      match.id,
+      MqttNotificationType.MATCH_STARTED,
+      expect.objectContaining({
+        id: match.id,
+        readyPlayerIds: ['player-1', 'player-2'],
+        battleStartedAt: secondStart.battleStartedAt,
+      }),
+    );
+  });
+
+  it('waits for all four real players before starting a 2v2 clientside battle', async () => {
+    const { redis, notifier, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'match-start-2v2',
+      teamSize: 2,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [
+            { playerId: 'player-1', isBot: false },
+            { playerId: 'player-2', isBot: false },
+          ],
+        },
+        {
+          side: TeamSide.B,
+          participants: [
+            { playerId: 'player-3', isBot: false },
+            { playerId: 'player-4', isBot: false },
+          ],
+        },
+      ],
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    await service.startMatch(match.id, 'player-1');
+    await service.startMatch(match.id, 'player-2');
+    const [thirdStart] = await service.startMatch(match.id, 'player-3');
+    const [fourthStart, fourthErrors] = await service.startMatch(
+      match.id,
+      'player-4',
+    );
+
+    expect(fourthErrors).toBeNull();
+    expect(thirdStart.battleStartedAt).toBeUndefined();
+    expect(fourthStart.readyPlayerIds).toEqual([
+      'player-1',
+      'player-2',
+      'player-3',
+      'player-4',
+    ]);
+    expect(fourthStart.battleStartedAt).toEqual(expect.any(String));
+    expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
+    expect(notifier.matchEvent).toHaveBeenCalledWith(
+      match.id,
+      MqttNotificationType.MATCH_STARTED,
+      expect.objectContaining({
+        id: match.id,
+        readyPlayerIds: ['player-1', 'player-2', 'player-3', 'player-4'],
+      }),
+    );
+  });
+
+  it('does not require bots to confirm clientside battle start', async () => {
+    const { redis, notifier, service } = createService();
+    const match = createActiveBattleStartMatch({
+      id: 'match-start-with-bots',
+      teamSize: 2,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [
+            { playerId: 'player-1', isBot: false },
+            { botId: 'bot-a', displayName: 'Bot A', isBot: true },
+          ],
+        },
+        {
+          side: TeamSide.B,
+          participants: [
+            { botId: 'bot-b', displayName: 'Bot B', isBot: true },
+            { botId: 'bot-c', displayName: 'Bot C', isBot: true },
+          ],
+        },
+      ],
+    });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [startedMatch, errors] = await service.startMatch(
+      match.id,
+      'player-1',
+    );
+
+    expect(errors).toBeNull();
+    expect(startedMatch.readyPlayerIds).toEqual(['player-1']);
+    expect(startedMatch.battleStartedAt).toEqual(expect.any(String));
+    expect(notifier.matchEvent).toHaveBeenCalledWith(
+      match.id,
+      MqttNotificationType.MATCH_STARTED,
+      expect.objectContaining({
+        id: match.id,
+        readyPlayerIds: ['player-1'],
+      }),
+    );
+
+    const matchStartedPayload = (
+      notifier.matchEvent.mock.calls[0] as unknown[]
+    )[2] as any;
+    expect(matchStartedPayload.teams[0].players).toEqual([
+      { playerId: 'player-1', name: 'Player 1', avatar: null },
+    ]);
+    expect(Object.keys(matchStartedPayload.teams[0].players[0])).toEqual([
+      'playerId',
+      'name',
+      'avatar',
+    ]);
+    expect(matchStartedPayload.teams[0].bots).toEqual([
+      { botId: 'bot-a', displayName: 'Bot A', isBot: true },
+    ]);
+    expect(matchStartedPayload.teams[1].players).toEqual([]);
+    expect(matchStartedPayload.teams[1].bots).toEqual([
+      { botId: 'bot-b', displayName: 'Bot B', isBot: true },
+      { botId: 'bot-c', displayName: 'Bot C', isBot: true },
+    ]);
   });
 
   it('finishes a RANDOM match with personal leaderboard updates only', async () => {

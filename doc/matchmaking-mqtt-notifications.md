@@ -1,19 +1,17 @@
 # Matchmaking MQTT Notifications
 
-The backend publishes matchmaking invite and match lifecycle events through MQTT.
-The implementation lives in `src/matchmaking/matchmaking.notifier.ts`, and the
-state changes that trigger the events are handled by
-`src/matchmaking/matchmaking.service.ts`.
+The backend publishes matchmaking room, invite, and match lifecycle events
+through MQTT. The implementation lives in
+`src/matchmaking/matchmaking.notifier.ts`, and the state changes that trigger the
+events are handled by `src/matchmaking/matchmaking.service.ts`.
 
-Matchmaking topics currently start with `/`. Frontend subscriptions must use
-the exact topic strings shown below.
+Matchmaking broker topics currently start with `/`. Frontend subscriptions must
+use the exact topic strings shown below.
 
 ## Subscribe Topics
 
-A frontend client should subscribe to player-specific channels for the logged-in
-player and to match-specific channels after a match has been created.
-
 ```text
+/matchmaking/rooms/player/{playerId}
 /matchmaking/invites/player/{playerId}
 /matchmaking/matches/player/{playerId}
 /match/{matchId}
@@ -22,12 +20,11 @@ player and to match-specific channels after a match has been created.
 Where:
 
 - `{playerId}` is the authenticated player's player id.
-- `{matchId}` is the match id returned in a `MATCH_FOUND` or `MATCH_STARTED`
-  payload.
+- `{matchId}` is the match id returned in a `MATCH_FOUND` payload.
 
 ## Common Payload Shape
 
-All matchmaking MQTT messages use the same wrapper shape:
+All matchmaking MQTT messages use the common notification envelope:
 
 ```ts
 {
@@ -37,49 +34,71 @@ All matchmaking MQTT messages use the same wrapper shape:
 }
 ```
 
-The `topic` field identifies the logical notification area. The `type` field
-identifies the event. The `payload` field contains either a
-`MatchmakingInviteDto` or a `MatchmakingMatchDto`, depending on the event.
+The `topic` field identifies the logical notification area. The MQTT broker
+topic used for publish/subscribe is separate from this field.
 
-## 1. Invite Update Notification
+## Compact Player Shape
+
+All real players in matchmaking MQTT payloads use the same compact player shape:
+
+```ts
+{
+  playerId: string,
+  name: string,
+  avatar: AvatarDto | null
+}
+```
+
+This applies to room players, invite owner/sender fields, and match team
+players. Full player documents are not sent through matchmaking MQTT messages.
+Bots are kept separate from real players and use the bot shape shown in the
+payload examples.
+
+## 1. Room Updated
 
 ### Topic
 
 ```text
-/matchmaking/invites/player/{playerId}
+/matchmaking/rooms/player/{playerId}
 ```
 
 ### Event Type
 
 ```text
-INVITE_UPDATED
+ROOM_UPDATED
 ```
 
 ### Publish Triggers
 
-- A player creates a matchmaking invite.
-- A player joins an invite.
-- An invite is moved forward by matchmaking and its status changes.
-- An invite is matched into an active match.
-- An invite is cancelled by its owner.
+- A player creates a matchmaking room.
+- A player joins a room.
+- A room status changes.
+- A room is queued, matched, or cancelled.
 
-The notification is sent to every real player currently attached to the invite.
+The notification is sent to every real player currently attached to the room.
 Bots do not receive MQTT notifications.
 
 ### Payload Shape
 
+Room updates use a compact room payload with one room identifier: `id`.
+
 ```ts
 {
   topic: 'matchmaking',
-  type: 'INVITE_UPDATED',
+  type: 'ROOM_UPDATED',
   payload: {
     id: string,
     matchType: 'RANDOM' | 'CLAN' | 'CUSTOM',
     status: 'OPEN' | 'READY' | 'QUEUED' | 'MATCHED' | 'CANCELLED',
     ownerPlayerId: string,
     clanId?: string,
-    roomId?: string,
-    players: string[],
+    players: [
+      {
+        playerId: string,
+        name: string,
+        avatar: AvatarDto | null
+      }
+    ],
     bots: [
       {
         botId: string,
@@ -91,13 +110,65 @@ Bots do not receive MQTT notifications.
     allowBots: boolean,
     createdAt: string,
     updatedAt: string,
-    readyAt?: string,
-    matchId?: string
+    readyAt?: string
   }
 }
 ```
 
-## 2. Player Match Found Notification
+## 2. Invite Received
+
+### Topic
+
+```text
+/matchmaking/invites/player/{playerId}
+```
+
+### Event Types
+
+```text
+INVITE_RECEIVED
+CLAN_INVITE_RECEIVED
+```
+
+### Publish Triggers
+
+- `POST /matchmaking/invites/{playerId}` sends `INVITE_RECEIVED`.
+- `POST /matchmaking/invites/clan` sends `CLAN_INVITE_RECEIVED`.
+- `POST /matchmaking/rooms` with `automaticInvite.type: 'PLAYER'` sends
+  `INVITE_RECEIVED`.
+- `POST /matchmaking/rooms` with `automaticInvite.type: 'CLAN'` sends
+  `CLAN_INVITE_RECEIVED`.
+
+This topic is only for explicit invitations into a specific existing room.
+
+### Payload Shape
+
+```ts
+{
+  topic: 'matchmaking',
+  type: 'INVITE_RECEIVED' | 'CLAN_INVITE_RECEIVED',
+  payload: {
+    id: string,
+    matchType: 'RANDOM' | 'CLAN' | 'CUSTOM',
+    status: 'OPEN' | 'READY' | 'QUEUED' | 'MATCHED' | 'CANCELLED',
+    ownerPlayer: {
+      playerId: string,
+      name: string,
+      avatar: AvatarDto | null
+    },
+    senderPlayer: {
+      playerId: string,
+      name: string,
+      avatar: AvatarDto | null
+    },
+    teamSize: 1 | 2,
+    allowBots: boolean,
+    sentAt: string
+  }
+}
+```
+
+## 3. Match Found
 
 ### Topic
 
@@ -113,10 +184,10 @@ MATCH_FOUND
 
 ### Publish Triggers
 
-- Two READY `RANDOM` invites are paired.
-- Two READY `CLAN` invites from different clans are paired.
-- A `CLAN` invite reaches the opponent timeout and receives a bot opponent team.
-- A `CUSTOM` invite starts a match from its room settings.
+- Ready `RANDOM` rooms are paired.
+- Ready `CLAN` rooms from different clans are paired.
+- A `CLAN` room reaches the opponent timeout and receives a bot opponent team.
+- A `CUSTOM` room starts a match from its room settings.
 
 This notification is sent once to each real player in the created match. Bots are
 included in the match payload but do not receive player-specific notifications.
@@ -127,11 +198,11 @@ included in the match payload but do not receive player-specific notifications.
 {
   topic: 'matchmaking',
   type: 'MATCH_FOUND',
-  payload: MatchmakingMatchDto
+  payload: MatchmakingMqttMatchDto
 }
 ```
 
-`MatchmakingMatchDto` has this shape:
+`MatchmakingMqttMatchDto` has this shape:
 
 ```ts
 {
@@ -146,7 +217,8 @@ included in the match payload but do not receive player-specific notifications.
       players: [
         {
           playerId: string,
-          isBot: false
+          name: string,
+          avatar: AvatarDto | null
         }
       ],
       bots: [
@@ -159,6 +231,8 @@ included in the match payload but do not receive player-specific notifications.
     }
   ],
   startedAt: string,
+  readyPlayerIds?: string[],
+  battleStartedAt?: string,
   finishedAt?: string,
   result?: {
     winningSide: 'A' | 'B'
@@ -166,7 +240,7 @@ included in the match payload but do not receive player-specific notifications.
 }
 ```
 
-## 3. Match Started Event
+## 4. Match Started
 
 ### Topic
 
@@ -182,11 +256,12 @@ MATCH_STARTED
 
 ### Publish Triggers
 
-- Any active match is created and persisted in Redis.
+- Every real participant in an active match has called
+  `POST /matchmaking/matches/{matchId}/start`.
 
-The payload is the same `MatchmakingMatchDto` that is sent with `MATCH_FOUND`.
-This topic is useful for clients that have already switched from the player-level
-matchmaking channel to a match-level game channel.
+Bots do not need to confirm Photon Room readiness. `MATCH_STARTED` is not sent
+when the match is initially created; it is sent as a response to the readiness
+calls from clients.
 
 ### Payload Shape
 
@@ -194,11 +269,14 @@ matchmaking channel to a match-level game channel.
 {
   topic: 'matchmaking',
   type: 'MATCH_STARTED',
-  payload: MatchmakingMatchDto
+  payload: MatchmakingMqttMatchDto
 }
 ```
 
-## 4. Match Finished Event
+The payload includes `readyPlayerIds` and `battleStartedAt` after all real
+players are ready.
+
+## 5. Match Finished
 
 ### Topic
 
@@ -228,7 +306,7 @@ and `result`.
 {
   topic: 'matchmaking',
   type: 'MATCH_FINISHED',
-  payload: MatchmakingMatchDto
+  payload: MatchmakingMqttMatchDto
 }
 ```
 
@@ -236,20 +314,25 @@ and `result`.
 
 Recommended frontend flow:
 
-1. Subscribe to `/matchmaking/invites/player/{playerId}` after login.
-2. Subscribe to `/matchmaking/matches/player/{playerId}` while the player is in
+1. Subscribe to `/matchmaking/rooms/player/{playerId}` after login.
+2. Subscribe to `/matchmaking/invites/player/{playerId}` to receive explicit
+   room invitations.
+3. Subscribe to `/matchmaking/matches/player/{playerId}` while the player is in
    matchmaking.
-3. Use `INVITE_UPDATED` to keep lobby and invite UI synchronized.
-4. When `MATCH_FOUND` is received, read `message.payload.id` and subscribe to
+4. Use `ROOM_UPDATED` to keep room and lobby UI synchronized.
+5. Use `INVITE_RECEIVED` and `CLAN_INVITE_RECEIVED` to show incoming room
+   invitations.
+6. When `MATCH_FOUND` is received, read `message.payload.id`, join the Photon
+   Room, call `POST /matchmaking/matches/{matchId}/start`, and subscribe to
    `/match/{matchId}`.
-5. Use `MATCH_STARTED` to initialize the match scene if the client did not enter
-   from the player-specific `MATCH_FOUND` event.
-6. Use `MATCH_FINISHED` to show the result screen and refresh leaderboard views.
+7. Use `MATCH_STARTED` to start the clientside battle once every real player is
+   ready.
+8. Use `MATCH_FINISHED` to show the result screen and refresh leaderboard views.
 
 ## Notes
 
 - MQTT payloads are JSON strings produced with `JSON.stringify`.
-- Invite and match data are stored in Redis, so clients should treat these events
+- Room and match data are stored in Redis, so clients should treat these events
   as real-time state notifications rather than durable history.
 - `CLAN` match finishes update both clan leaderboards and personal leaderboards
   for participating clan players. `RANDOM` and `CUSTOM` finishes update only

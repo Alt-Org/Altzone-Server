@@ -68,7 +68,7 @@ describe('MQTT notification contract', () => {
       matchType: MatchType.RANDOM,
       status: InviteStatus.QUEUED,
       ownerPlayerId: 'player-1',
-      players: ['player-1'],
+      players: [{ playerId: 'player-1', name: 'Player 1', avatar: null }],
       bots: [],
       teamSize: 2 as const,
       allowBots: true,
@@ -83,12 +83,12 @@ describe('MQTT notification contract', () => {
       teams: [
         {
           side: TeamSide.A,
-          players: [{ playerId: 'player-1', isBot: false as const }],
+          players: [{ playerId: 'player-1', name: 'Player 1', avatar: null }],
           bots: [],
         },
         {
           side: TeamSide.B,
-          players: [{ playerId: 'player-2', isBot: false as const }],
+          players: [{ playerId: 'player-2', name: 'Player 2', avatar: null }],
           bots: [],
         },
       ],
@@ -98,7 +98,26 @@ describe('MQTT notification contract', () => {
     await notifier.inviteUpdated('player-1', invite);
     expectLastPayloadToMatchEnvelope(
       'matchmaking',
-      MqttNotificationType.INVITE_UPDATED,
+      MqttNotificationType.ROOM_UPDATED,
+    );
+
+    await notifier.inviteReceived(
+      'player-2',
+      MqttNotificationType.INVITE_RECEIVED,
+      {
+        id: invite.id,
+        matchType: invite.matchType,
+        status: invite.status,
+        ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
+        teamSize: invite.teamSize,
+        allowBots: invite.allowBots,
+        sentAt: '2026-07-06T08:00:03.000Z',
+      },
+    );
+    expectLastPayloadToMatchEnvelope(
+      'matchmaking',
+      MqttNotificationType.INVITE_RECEIVED,
     );
 
     await notifier.matchFound('player-1', match);
