@@ -12,6 +12,8 @@ import { NotFoundException } from '@nestjs/common';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { MongooseError } from 'mongoose';
 import { RoomDto } from '../../clanInventory/room/dto/room.dto';
+import { SoulHomeDto } from '../../clanInventory/soulhome/dto/soulhome.dto';
+import { getClan_id } from '../util/getClan_id';
 
 type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
@@ -41,8 +43,25 @@ export const roomRules: RulesSetterAsync<Ability, Subjects> = async (
       throw new NotFoundException(
         'Can not check ownership, room with that id not found',
       );
-    // if(room.player_id !== user.player_id)
-    //     throw new NotFoundException("PlayerID does not match owner")
+
+    const soulHome = await requestHelperService.getModelInstanceById(
+      ModelName.SOULHOME,
+      room.soulHome_id,
+      SoulHomeDto,
+    );
+
+    const clan_id = await getClan_id(user, requestHelperService);
+
+    if (
+      !soulHome ||
+      soulHome instanceof MongooseError ||
+      !clan_id ||
+      soulHome.clan_id !== clan_id
+    )
+      // alternatively could return ServiceError with 403 status code
+      throw new NotFoundException(
+        'Room does not belong to the logged-in user Clan',
+      );
 
     can(Action.update_request, subject);
     can(Action.delete_request, subject);
