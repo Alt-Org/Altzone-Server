@@ -14,6 +14,8 @@ import { MongooseError } from 'mongoose';
 import { RoomDto } from '../../clanInventory/room/dto/room.dto';
 import { SoulHomeDto } from '../../clanInventory/soulhome/dto/soulhome.dto';
 import { getClan_id } from '../util/getClan_id';
+import ServiceError from '../../common/service/basicService/ServiceError';
+import { SEReason } from '../../common/service/basicService/SEReason';
 
 type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
@@ -58,10 +60,10 @@ export const roomRules: RulesSetterAsync<Ability, Subjects> = async (
       !clan_id ||
       soulHome.clan_id !== clan_id
     )
-      // alternatively could return ServiceError with 403 status code
-      throw new NotFoundException(
-        'Room does not belong to the logged-in user Clan',
-      );
+      throw new ServiceError({
+        reason: SEReason.NOT_AUTHORIZED,
+        message: "Room does not belong to logged-in player's Clan",
+      });
 
     can(Action.update_request, subject);
     can(Action.delete_request, subject);
