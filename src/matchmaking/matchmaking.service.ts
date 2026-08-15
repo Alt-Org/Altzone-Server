@@ -1903,11 +1903,11 @@ export class MatchmakingService {
     player: { name?: string; avatar?: AvatarDto | null } | null,
   ): MatchmakingMqttPlayerDto {
     return {
-    playerId,
-    name: player?.name ?? '',
-    avatar: player?.avatar ?? null,
-  };
-}
+      playerId,
+      name: player?.name ?? '',
+      avatar: player?.avatar ?? null,
+    };
+  }
 
   private getMappedMqttPlayer(
     playerMap: Map<string, MatchmakingMqttPlayerDto>,
