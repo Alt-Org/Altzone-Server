@@ -261,11 +261,13 @@ export class RoomService {
     const itemBulk = [];
     const roomIds = rooms.map((room) => room._id);
     const itemIds = rooms.flatMap((room) =>
-      room.furniture.map((item) => item._id),
+      (room.furniture ?? []).map((item) => item._id),
     );
 
     for (const room of rooms) {
-      const { _id, furniture, ...roomFields } = room;
+      const { _id, ...roomFields } = room;
+
+      const furniture = room.furniture ?? [];
 
       roomBulk.push({
         updateOne: {
