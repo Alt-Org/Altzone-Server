@@ -8,7 +8,7 @@ import {
 } from '@casl/ability';
 import { Action } from '../enum/action.enum';
 import { RulesSetterAsync } from '../type/RulesSetter.type';
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { MongooseError } from 'mongoose';
 import { RoomDto } from '../../clanInventory/room/dto/room.dto';
@@ -58,8 +58,7 @@ export const roomRules: RulesSetterAsync<Ability, Subjects> = async (
       !clan_id ||
       soulHome.clan_id !== clan_id
     )
-      // alternatively could return ServiceError with 403 status code
-      throw new NotFoundException(
+      throw new ForbiddenException(
         'Room does not belong to the logged-in user Clan',
       );
 
