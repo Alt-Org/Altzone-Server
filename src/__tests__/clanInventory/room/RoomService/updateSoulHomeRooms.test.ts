@@ -81,6 +81,28 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
     expect(room.floor).toEqual(update.floor);
   });
 
+  it('Should update Room values successfully when furniture is omitted from the payload', async () => {
+    const updateWithoutFurniture: UpdateRoomDto = {
+      _id: existingRoom._id,
+      roomColour: 'red',
+      floor: 'stone',
+      wallpaper: 'painted',
+    };
+
+    const [result, error] = await roomService.updateSoulHomeRooms(
+      updateWithoutFurniture,
+    );
+
+    expect(result).toBeTruthy();
+    expect(error).toBeNull();
+
+    const [room, roomErrors] = await roomService.readOneById(existingRoom._id);
+
+    expect(roomErrors).toBeNull();
+    expect(room.roomColour).toEqual(updateWithoutFurniture.roomColour);
+    expect(room.floor).toEqual(updateWithoutFurniture.floor);
+  });
+
   it('Should update Room furniture successfully and update value in Clan', async () => {
     const [item] = await itemService.createOne(existingItem);
 
