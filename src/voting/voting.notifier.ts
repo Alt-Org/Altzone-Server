@@ -46,9 +46,11 @@ export default class VotingNotifier {
     if (status === NotificationStatus.UPDATE) {
       payload.voter = player;
       const votes = voting.votes;
-      
+
       // find vote of the voter
-      const voterVote = votes.find((vote) => vote.player_id?.toString() === player?._id?.toString());
+      const voterVote = votes.find(
+        (vote) => vote.player_id?.toString() === player?._id?.toString(),
+      );
       if (voterVote) {
         payload.choice = voterVote.choice;
       }
