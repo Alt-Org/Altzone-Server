@@ -40,13 +40,13 @@ export default class VotingNotifier {
     };
 
     if (status === NotificationStatus.NEW) {
-        payload.organizer = player;
-        payload.endedAt = voting.endsOn;
+      payload.organizer = player;
+      payload.endedAt = voting.endsOn;
     }
     if (status === NotificationStatus.UPDATE) payload.voter = player;
 
     if (status === NotificationStatus.END) payload.endedAt = voting.endedAt;
-    
+
     return payload;
   }
 
