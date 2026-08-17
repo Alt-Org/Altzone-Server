@@ -60,7 +60,7 @@ export default class VotingNotifier {
       payload.endedAt = voting.endedAt;
       payload.votes = voting.votes;
     }
-    
+
     return payload;
   }
 
