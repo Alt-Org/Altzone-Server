@@ -40,6 +40,7 @@ describe('VotingNotifier.votingUpdated() test suite', () => {
         voting_id: votingDto._id.toString(),
         type: votingDto.type,
         entity: fleaMarketItem,
+        startedAt: votingDto.startedAt,
         voter: playerDto as PlayerDto,
       },
     });
