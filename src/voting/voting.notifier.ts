@@ -43,9 +43,21 @@ export default class VotingNotifier {
       payload.organizer = player;
       payload.endedAt = voting.endsOn;
     }
-    if (status === NotificationStatus.UPDATE) payload.voter = player;
+    if (status === NotificationStatus.UPDATE) {
+      payload.voter = player;
+      const votes = voting.votes;
+      
+      // find vote of the voter
+      const voterVote = votes.find((vote) => vote.player_id?.toString() === player?._id?.toString());
+      if (voterVote) {
+        payload.choice = voterVote.choice;
+      }
+    }
 
-    if (status === NotificationStatus.END) payload.endedAt = voting.endedAt;
+    if (status === NotificationStatus.END) {
+      payload.endedAt = voting.endedAt;
+      payload.votes = voting.votes;
+    }
 
     return payload;
   }
