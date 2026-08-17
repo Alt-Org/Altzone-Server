@@ -23,7 +23,7 @@ documented per feature.
 | Logical topic   | Event types                                                                                                                      |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `jukebox`       | `SONG_UPDATED`, `PLAYLIST_UPDATED`                                                                                               |
-| `matchmaking`   | `INVITE_UPDATED`, `MATCH_FOUND`, `MATCH_STARTED`, `MATCH_FINISHED`                                                               |
+| `matchmaking`   | `ROOM_UPDATED`, `INVITE_RECEIVED`, `CLAN_INVITE_RECEIVED`, `MATCH_FOUND`, `MATCH_STARTED`, `MATCH_FINISHED`                     |
 | `voting`        | `VOTING_CREATED`, `VOTING_UPDATED`, `VOTING_ENDED`, `VOTING_ERROR`                                                               |
 | `daily_task`    | `TASK_RECEIVED`, `TASK_UPDATED`, `TASK_COMPLETED`, `TASK_ERROR`, `CLAN_TASK_COMPLETED`, `MILESTONE_REACHED`, `DAILY_TASKS_RESET` |
 | `clan`          | `MEMBER_JOINED`, `MEMBER_LEFT`                                                                                                   |

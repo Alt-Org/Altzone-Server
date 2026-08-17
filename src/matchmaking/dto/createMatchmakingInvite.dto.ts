@@ -6,8 +6,34 @@ import {
   IsMongoId,
   IsOptional,
   IsString,
+  ValidateIf,
+  ValidateNested,
 } from 'class-validator';
 import { MatchType } from '../enum/matchType.enum';
+
+export enum MatchmakingAutoInviteType {
+  CLAN = 'CLAN',
+  PLAYER = 'PLAYER',
+}
+
+export class CreateMatchmakingAutoInviteDto {
+  /**
+   * Automatic invite target type after the room has been created.
+   *
+   * @example "PLAYER"
+   */
+  @IsEnum(MatchmakingAutoInviteType)
+  type: MatchmakingAutoInviteType;
+
+  /**
+   * Player ID to invite. Required when type is PLAYER.
+   *
+   * @example "665af23e5e982f0013aa4455"
+   */
+  @IsMongoId()
+  @ValidateIf((invite) => invite.type === MatchmakingAutoInviteType.PLAYER)
+  playerId?: string;
+}
 
 export class CreateMatchmakingInviteDto {
   /**
@@ -45,6 +71,15 @@ export class CreateMatchmakingInviteDto {
   @IsBoolean()
   @IsOptional()
   allowBots?: boolean;
+
+  /**
+   * Optional automatic invite settings. CLAN invites available clan members,
+   * PLAYER invites the specified player.
+   */
+  @ValidateNested()
+  @Type(() => CreateMatchmakingAutoInviteDto)
+  @IsOptional()
+  automaticInvite?: CreateMatchmakingAutoInviteDto;
 
   /**
    * Optional client version for isolating incompatible matchmaking pools.

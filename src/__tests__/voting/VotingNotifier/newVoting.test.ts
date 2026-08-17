@@ -39,7 +39,9 @@ describe('VotingNotifier.newVoting() test suite', () => {
         voting_id: votingDto._id.toString(),
         type: votingDto.type,
         entity: fleaMarketItem,
+        startedAt: votingDto.startedAt,
         organizer: playerDto,
+        endedAt: votingDto.endsOn,
       },
     });
 
