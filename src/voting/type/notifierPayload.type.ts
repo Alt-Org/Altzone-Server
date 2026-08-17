@@ -15,5 +15,6 @@ export type VotingPayload<TEntity = unknown> = {
   voter?: PlayerDto;
   organizer?: PlayerDto;
   votes?: Vote[];
+  startedAt?: Date;
   endedAt?: Date;
 };
