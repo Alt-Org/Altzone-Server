@@ -19,7 +19,7 @@ export default class VotingDtoBuilder implements IDataBuilder<VotingDto> {
     endsOn: new Date(Date.now() + 1200000),
     type: VotingType.FLEA_MARKET_BUY_ITEM,
     player_ids: [new ObjectId().toString()],
-    minPercentage: 50,
+    minPercentage: 51,
     votes: [],
     fleaMarketItem_id: new ObjectId().toString(),
     shopItemName: undefined,
