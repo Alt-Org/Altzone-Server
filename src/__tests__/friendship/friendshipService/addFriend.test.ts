@@ -9,7 +9,7 @@ import {
 } from '../data/mockData/createData.mock';
 import { Friendship } from 'src/friendship/friendship.schema';
 
-describe('FriendshipService.sendNewFriendRequestNotification()', () => {
+describe('FriendshipService.addFriend()', () => {
   let friendshipService: FriendshipService;
 
   const player1_id = new ObjectId().toString();
@@ -59,11 +59,17 @@ describe('FriendshipService.sendNewFriendRequestNotification()', () => {
     await createMockFriendships(friendshipConfigs);
   });
 
-  it('Should return undefined if addFriend is successful', async () => {
-    // void function if success
-    await expect(
-      friendshipService.addFriend(player2_id, player3_id),
-    ).resolves.toBeUndefined();
+  it('Should return created friendship if addFriend is successful', async () => {
+    const [friendship, err] = await friendshipService.addFriend(
+      player2_id,
+      player3_id,
+    );
+
+    expect(err).toBeNull();
+    expect(friendship.playerA.toString()).toBe(player2_id);
+    expect(friendship.playerB.toString()).toBe(player3_id);
+    expect(friendship.requester.toString()).toBe(player2_id);
+    expect(friendship.status).toBe(FriendshipStatus.PENDING);
   });
 
   it('Should return NOT_UNIQUE from pairkey if 2 players have friendship with status PENDING', async () => {

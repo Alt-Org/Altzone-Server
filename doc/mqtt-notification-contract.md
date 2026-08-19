@@ -27,7 +27,7 @@ documented per feature.
 | `voting`        | `VOTING_CREATED`, `VOTING_UPDATED`, `VOTING_ENDED`, `VOTING_ERROR`                                                               |
 | `daily_task`    | `TASK_RECEIVED`, `TASK_UPDATED`, `TASK_COMPLETED`, `TASK_ERROR`, `CLAN_TASK_COMPLETED`, `MILESTONE_REACHED`, `DAILY_TASKS_RESET` |
 | `clan`          | `MEMBER_JOINED`, `MEMBER_LEFT`                                                                                                   |
-| `friendship`    | `FRIEND_REQUEST_CREATED`                                                                                                         |
+| `friendship`    | `FRIEND_REQUEST_CREATED`, `FRIEND_REQUEST_ACCEPTED`, `FRIEND_REQUEST_REJECTED`                                                   |
 | `inactive_room` | `INACTIVE_ROOMS_REMOVED`                                                                                                         |
 
 ## Frontend Routing
@@ -111,6 +111,13 @@ New friend requests are published to:
 /player/{recipientId}/friendship/friend_request/new
 ```
 
+Friend request status updates are published to:
+
+```text
+/player/{requesterId}/friendship/friend_request/accepted/update
+/player/{requesterId}/friendship/friend_request/rejected/update
+```
+
 Payload:
 
 ```ts
@@ -123,6 +130,22 @@ Payload:
   }
 }
 ```
+
+```ts
+{
+  topic: 'friendship',
+  type: 'FRIEND_REQUEST_ACCEPTED' | 'FRIEND_REQUEST_REJECTED',
+  payload: {
+    topic: `/player/${requesterId}/friendship/friend_request/${status}/update`,
+    friendship_id: string,
+    status: 'accepted' | 'rejected',
+    friend: object
+  }
+}
+```
+
+See [Friendship MQTT Notifications](friendship-mqtt-notifications.md) for the
+full friendship-specific topic and payload contract.
 
 ## Inactive Room Notifications
 
