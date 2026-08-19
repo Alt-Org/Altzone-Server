@@ -231,7 +231,7 @@ describe('MQTT notification contract', () => {
     new ClanNotifier().memberLeave('clan-1', 'player-1');
     expectLastPayloadToMatchEnvelope('clan', MqttNotificationType.MEMBER_LEFT);
 
-    await new FriendshipNotifier({
+    const friendshipNotifier = new FriendshipNotifier({
       findOne: jest.fn().mockReturnValue({
         select: jest.fn().mockReturnValue({
           populate: jest.fn().mockReturnValue({
@@ -245,14 +245,29 @@ describe('MQTT notification contract', () => {
           }),
         }),
       }),
-    } as any).newFriendRequest({
+    } as any);
+    const friendship = {
       _id: { toString: () => 'friendship-1' },
       requester: 'player-1',
       playerB: { toString: () => 'player-2' },
-    } as any);
+    } as any;
+
+    await friendshipNotifier.newFriendRequest(friendship);
     expectLastPayloadToMatchEnvelope(
       'friendship',
       MqttNotificationType.FRIEND_REQUEST_CREATED,
+    );
+
+    await friendshipNotifier.friendRequestAccepted(friendship, 'player-2');
+    expectLastPayloadToMatchEnvelope(
+      'friendship',
+      MqttNotificationType.FRIEND_REQUEST_ACCEPTED,
+    );
+
+    await friendshipNotifier.friendRequestRejected(friendship, 'player-2');
+    expectLastPayloadToMatchEnvelope(
+      'friendship',
+      MqttNotificationType.FRIEND_REQUEST_REJECTED,
     );
 
     await new DailyTasksResetNotifier().dailyTasksReset();
