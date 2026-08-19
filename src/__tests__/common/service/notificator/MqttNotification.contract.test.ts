@@ -231,10 +231,25 @@ describe('MQTT notification contract', () => {
     new ClanNotifier().memberLeave('clan-1', 'player-1');
     expectLastPayloadToMatchEnvelope('clan', MqttNotificationType.MEMBER_LEFT);
 
-    new FriendshipNotifier().newFriendRequest(
-      { playerId: 'player-1' },
-      'player-2',
-    );
+    await new FriendshipNotifier({
+      findOne: jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          populate: jest.fn().mockReturnValue({
+            lean: jest.fn().mockResolvedValue({
+              _id: { toString: () => 'player-1' },
+              name: 'Player 1',
+              avatar: null,
+              clan_id: { toString: () => 'clan-1' },
+              Clan: { name: 'Clan 1' },
+            }),
+          }),
+        }),
+      }),
+    } as any).newFriendRequest({
+      _id: { toString: () => 'friendship-1' },
+      requester: 'player-1',
+      playerB: { toString: () => 'player-2' },
+    } as any);
     expectLastPayloadToMatchEnvelope(
       'friendship',
       MqttNotificationType.FRIEND_REQUEST_CREATED,
