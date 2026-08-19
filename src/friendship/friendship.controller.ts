@@ -12,11 +12,15 @@ import ApiResponseDescription from '../common/swagger/response/ApiResponseDescri
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { FriendRequestDto } from './dto/FriendRequest.dto';
 import { PlayerIdDto } from '../common/dto/player_id.dto';
+import FriendshipNotifier from './friendship.notifier';
 
 @SwaggerTags('Friendship')
 @Controller('friendship')
 export class FriendshipController {
-  constructor(private readonly service: FriendshipService) {}
+  constructor(
+    private readonly service: FriendshipService,
+    private readonly notifier: FriendshipNotifier,
+  ) {}
 
   @ApiResponseDescription({
     success: {
@@ -61,7 +65,12 @@ export class FriendshipController {
   @Post('add/:_id')
   @UniformResponse(ModelName.FRIENDSHIP)
   async addFriend(@Param() param: PlayerIdDto, @LoggedUser() user: User) {
-    return await this.service.addFriend(user.player_id, param._id);
+    const result = await this.service.addFriend(user.player_id, param._id);
+    const [friendship, error] = result;
+
+    if (!error) await this.notifier.newFriendRequest(friendship);
+
+    return result;
   }
 
   @ApiResponseDescription({
