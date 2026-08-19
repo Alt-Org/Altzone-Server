@@ -72,6 +72,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
         return {
           uri: mongoString,
           dbName,
+          autoIndex: true,
         };
       },
     }),
