@@ -602,14 +602,17 @@ export class FleaMarketService {
       stockId,
     );
 
-    const [createdItem, itemCreateErrors] =
-      await this.itemService.createOne(newItem);
+    const [createdItem, itemCreateErrors] = await this.itemService.createOne(
+      newItem,
+      { session },
+    );
     if (itemCreateErrors) {
       return await cancelTransaction(session, itemCreateErrors);
     }
 
     const [__, itemDeleteErrors] = await this.basicService.deleteOneById(
       voting.fleaMarketItem_id,
+      { session },
     );
     if (itemDeleteErrors)
       return await cancelTransaction(session, itemDeleteErrors);
