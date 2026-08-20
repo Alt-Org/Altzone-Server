@@ -29,6 +29,7 @@ documented per feature.
 | `clan`          | `MEMBER_JOINED`, `MEMBER_LEFT`                                                                                                   |
 | `friendship`    | `FRIEND_REQUEST_CREATED`, `FRIEND_REQUEST_ACCEPTED`, `FRIEND_REQUEST_REJECTED`                                                   |
 | `inactive_room` | `INACTIVE_ROOMS_REMOVED`                                                                                                         |
+| `stock`         | `STOCK_ITEM_ADDED`, `STOCK_ITEM_REMOVED`                                                                                         |
 
 ## Frontend Routing
 
@@ -56,6 +57,9 @@ switch (message.topic) {
     break;
   case 'inactive_room':
     handleInactiveRoom(message.type, message.payload);
+    break;
+  case 'stock':
+    handleStock(message.type, message.payload);
     break;
 }
 ```
