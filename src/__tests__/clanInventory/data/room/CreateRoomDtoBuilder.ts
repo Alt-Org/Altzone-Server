@@ -5,7 +5,7 @@ export default class CreateRoomDtoBuilder {
   private readonly base: Partial<CreateRoomDto> = {
     roomPosition: 1,
     roomColour: 'defaultColor',
-    floor: 'defaultFloor',
+    floorType: 'defaultFloor',
     wallpaper: 'defaultWall',
     roomStatus: RoomStatus.ACTIVE,
     soulHome_id: undefined,
@@ -25,8 +25,8 @@ export default class CreateRoomDtoBuilder {
     return this;
   }
 
-  setFloor(floor: string) {
-    this.base.floor = floor;
+  setFloorType(floorType: string) {
+    this.base.floorType = floorType;
     return this;
   }
 

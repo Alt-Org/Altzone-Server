@@ -18,7 +18,7 @@ export class Room {
   wallpaper: string;
 
   @Prop({ type: String, required: true })
-  floor: string;
+  floorType: string;
 
   @Prop({ type: Date })
   deactivationTime: Date;

@@ -51,7 +51,7 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
   const update: UpdateRoomDto = {
     _id: existingRoom._id,
     roomColour: 'blue',
-    floor: 'wood',
+    floorType: 'wood',
     wallpaper: 'default',
     furniture: [],
   };
@@ -78,14 +78,14 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
 
     expect(roomErrors).toBeNull();
     expect(room.roomColour).toEqual(update.roomColour);
-    expect(room.floor).toEqual(update.floor);
+    expect(room.floorType).toEqual(update.floorType);
   });
 
   it('Should update Room values successfully when furniture is omitted from the payload', async () => {
     const updateWithoutFurniture: UpdateRoomDto = {
       _id: existingRoom._id,
       roomColour: 'red',
-      floor: 'stone',
+      floorType: 'stone',
       wallpaper: 'painted',
     };
 
@@ -100,7 +100,7 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
 
     expect(roomErrors).toBeNull();
     expect(room.roomColour).toEqual(updateWithoutFurniture.roomColour);
-    expect(room.floor).toEqual(updateWithoutFurniture.floor);
+    expect(room.floorType).toEqual(updateWithoutFurniture.floorType);
   });
 
   it('Should update Room furniture successfully and update value in Clan', async () => {

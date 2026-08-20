@@ -5,7 +5,7 @@ export default class RoomDtoBuilder {
   private readonly base: Partial<RoomDto> = {
     _id: new ObjectId().toString(),
     roomColour: undefined,
-    floor: undefined,
+    floorType: undefined,
     wallpaper: undefined,
   };
 
@@ -23,8 +23,8 @@ export default class RoomDtoBuilder {
     return this;
   }
 
-  setFloor(floor: string) {
-    this.base.floor = floor;
+  setFloorType(floorType: string) {
+    this.base.floorType = floorType;
     return this;
   }
 
