@@ -170,3 +170,53 @@ Payload:
   }
 }
 ```
+
+## Stock Notifications
+
+Clan stock furniture change notifications are published to:
+
+```text
+/clan/{clanId}/stock/item/new
+/clan/{clanId}/stock/item/update
+```
+
+Use `/clan/{clanId}/stock/item/+` to subscribe to all stock item changes for a
+clan.
+
+- `/clan/{clanId}/stock/item/new` is used when a furniture item is added to the
+  clan stock.
+- `/clan/{clanId}/stock/item/update` is used when a furniture item no longer
+  belongs to the clan stock or clan stall.
+
+Payload:
+
+```ts
+{
+  topic: 'stock',
+  type: 'STOCK_ITEM_ADDED' | 'STOCK_ITEM_REMOVED',
+  payload: {
+    topic: `/clan/${clanId}/stock/item/${event}`,
+    clan_id: string,
+    stock_id?: string,
+    item: {
+      _id: string,
+      name: string,
+      unityKey: string,
+      isFurniture: boolean,
+      furnitureSize: number[],
+      price?: number
+    },
+    source:
+      | 'clan_shop_direct'
+      | 'clan_shop_vote'
+      | 'flea_market_direct'
+      | 'flea_market_vote'
+      | 'flea_market_move'
+      | 'flea_market_sell_rejected',
+    sellerClan_id?: string,
+    buyerClan_id?: string,
+    fleaMarketItem_id?: string,
+    ts: number
+  }
+}
+```
