@@ -10,7 +10,10 @@ import {
 } from '../../common/service/notificator/type/MqttNotification.type';
 import { StockNotificationPayload } from './type/stockNotificationPayload.type';
 
-type StockNotificationInput = Omit<StockNotificationPayload, 'topic' | 'ts'>;
+export type StockNotificationInput = Omit<
+  StockNotificationPayload,
+  'topic' | 'ts'
+>;
 
 @Injectable()
 export default class StockNotifier {
