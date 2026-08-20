@@ -64,6 +64,9 @@ switch (message.topic) {
 }
 ```
 
+See [Stock MQTT Notifications](stock-mqtt-notifications.md) for the full
+stock-specific topic and payload contract.
+
 ## Clan Member Notifications
 
 Subscribe to clan member changes with:
