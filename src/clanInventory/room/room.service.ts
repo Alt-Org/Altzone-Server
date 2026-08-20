@@ -233,23 +233,41 @@ export class RoomService {
   }
 
   /**
-   * Update Rooms and Room Items
+   * Update a Room and its Items
    *
-   * @param roomUpdate - Room or array of Rooms with Items
-   * @returns _true_ if updates succesful, else Errors
+   * @param room - Room with Items to update
+   * @returns _true_ if update succesful, else Errors
    */
   async updateSoulHomeRooms(
-    roomUpdate: UpdateRoomDto | UpdateRoomDto[],
+    room: UpdateRoomDto,
   ): Promise<IServiceReturn<boolean>> {
-    const rooms = Array.isArray(roomUpdate) ? roomUpdate : [roomUpdate];
-
-    if (!rooms.length)
+    if (!room)
       return [
         null,
         [
           new ServiceError({
-            message: 'No rooms in update',
+            message: 'No room in update',
             reason: SEReason.REQUIRED,
+          }),
+        ],
+      ];
+
+    const { _id, furniture: furnitureField, ...roomFields } = room;
+    const furniture = furnitureField ?? [];
+    const hasFurnitureUpdate = Object.prototype.hasOwnProperty.call(
+      room,
+      'furniture',
+    );
+
+    if (Object.keys(roomFields).length === 0 && !hasFurnitureUpdate)
+      return [
+        null,
+        [
+          new ServiceError({
+            message: `No fields to update for room "${_id}"`,
+            reason: SEReason.REQUIRED,
+            field: '_id',
+            value: _id,
           }),
         ],
       ];
@@ -259,16 +277,9 @@ export class RoomService {
 
     const roomBulk = [];
     const itemBulk = [];
-    const roomIds = rooms.map((room) => room._id);
-    const itemIds = rooms.flatMap((room) =>
-      (room.furniture ?? []).map((item) => item._id),
-    );
+    const itemIds = furniture.map((item) => item._id);
 
-    for (const room of rooms) {
-      const { _id, ...roomFields } = room;
-
-      const furniture = room.furniture ?? [];
-
+    if (Object.keys(roomFields).length)
       roomBulk.push({
         updateOne: {
           filter: { _id },
@@ -276,25 +287,24 @@ export class RoomService {
         },
       });
 
-      for (const item of furniture) {
-        const { _id, ...itemFields } = item;
-        const itemFieldsFull = {
-          room_id: room._id,
-          stock_id: null,
-          ...itemFields,
-        };
+    for (const item of furniture) {
+      const { _id: itemId, ...itemFields } = item;
+      const itemFieldsFull = {
+        room_id: _id,
+        stock_id: null,
+        ...itemFields,
+      };
 
-        itemBulk.push({
-          updateOne: {
-            filter: { _id },
-            update: { $set: itemFieldsFull },
-          },
-        });
-      }
+      itemBulk.push({
+        updateOne: {
+          filter: { _id: itemId },
+          update: { $set: itemFieldsFull },
+        },
+      });
     }
 
     const [fullRoom, fullRoomErrors] = await this.basicService.readOneById(
-      rooms[0]._id,
+      _id,
       { session },
     );
     if (fullRoomErrors) return cancelTransaction(session, fullRoomErrors);
@@ -313,11 +323,7 @@ export class RoomService {
     if (stockErrors) return cancelTransaction(session, stockErrors);
 
     const [currentItems] = await this.itemService.basicService.readMany({
-      filter: {
-        room_id: {
-          $in: roomIds,
-        },
-      },
+      filter: { room_id: _id },
       session,
     });
 
@@ -509,7 +515,7 @@ export class RoomService {
             roomPosition: position,
             roomColour: 'default',
             wallpaper: 'default',
-            floor: 'default',
+            floorType: 'default',
             deactivationTime: now,
             roomStatus: RoomStatus.INACTIVE,
           },
