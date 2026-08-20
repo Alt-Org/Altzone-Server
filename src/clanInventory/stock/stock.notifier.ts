@@ -22,6 +22,8 @@ export default class StockNotifier {
   private readonly resourceId = 'item';
 
   itemAdded(payload: StockNotificationInput) {
+    if (!payload.item.isFurniture) return;
+
     this.sendStockNotification(
       payload,
       MqttNotificationType.STOCK_ITEM_ADDED,
@@ -30,6 +32,15 @@ export default class StockNotifier {
   }
 
   itemRemoved(payload: StockNotificationInput) {
+    if (!payload.item.isFurniture) return;
+    if (
+      payload.sellerClan_id &&
+      payload.buyerClan_id &&
+      payload.sellerClan_id === payload.buyerClan_id
+    ) {
+      return;
+    }
+
     this.sendStockNotification(
       payload,
       MqttNotificationType.STOCK_ITEM_REMOVED,
