@@ -26,6 +26,10 @@ export enum NotificationResource {
    */
   INACTIVE_ROOM = 'inactive_room',
   /**
+   * Notification about clan stock changes
+   */
+  STOCK = 'stock',
+  /**
    * Notification about clan member join/leave events
    */
   MEMBER = 'member',

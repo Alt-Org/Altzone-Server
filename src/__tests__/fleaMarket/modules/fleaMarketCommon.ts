@@ -34,6 +34,7 @@ import { EventEmitterCommonModule } from '../../../common/service/EventEmitterSe
 import ServiceError from '../../../common/service/basicService/ServiceError';
 import { SEReason } from '../../../common/service/basicService/SEReason';
 import { ObjectId } from 'mongodb';
+import StockNotifier from '../../../clanInventory/stock/stock.notifier';
 
 export default class FleaMarketCommonModule {
   private constructor() {}
@@ -270,6 +271,13 @@ export default class FleaMarketCommonModule {
           {
             provide: VotingNotifier,
             useValue: { newVoting: jest.fn().mockResolvedValue(null) },
+          },
+          {
+            provide: StockNotifier,
+            useValue: {
+              itemAdded: jest.fn(),
+              itemRemoved: jest.fn(),
+            },
           },
         ],
       }).compile();
