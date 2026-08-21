@@ -7,8 +7,8 @@ import { AUTH_SERVICE } from './constant';
 import BoxAuthService from './box/BoxAuthService';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { ModelName } from '../common/enum/modelName.enum';
-import { ProfileDto } from '../profile/dto/profile.dto';
 import { NoBoxIdFilter } from '../box/auth/decorator/NoBoxIdFilter.decorator';
+import { SignInResponseDto } from './dto/signInResponse.dto';
 
 @NoAuth()
 @Controller('auth')
@@ -28,10 +28,11 @@ export class AuthController {
   @ApiResponseDescription({
     success: {
       status: 201,
-      modelName: ModelName.PLAYER,
-      type: SignInDto,
+      modelName: ModelName.PROFILE,
+      dto: SignInResponseDto,
     },
     errors: [400, 401],
+    hasAuth: false,
   })
   @NoBoxIdFilter()
   @Post('/signIn')

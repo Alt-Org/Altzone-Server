@@ -18,6 +18,9 @@ export class ProfileDto {
   Player: PlayerDto;
 
   @Expose()
+  hasSecurityQuestion: boolean;
+
+  @Expose()
   environment?: Environment;
 
   @Expose()
