@@ -254,12 +254,10 @@ export class RoomService {
 
     const { _id, furniture: furnitureField, ...roomFields } = room;
     const furniture = furnitureField ?? [];
-    const hasFurnitureUpdate = Object.prototype.hasOwnProperty.call(
-      room,
-      'furniture',
-    );
+    const hasFurnitureUpdate = 'furniture' in room;
+    const hasRoomFields = Object.keys(roomFields).length > 0;
 
-    if (Object.keys(roomFields).length === 0 && !hasFurnitureUpdate)
+    if (!hasRoomFields && !hasFurnitureUpdate)
       return [
         null,
         [
@@ -279,7 +277,7 @@ export class RoomService {
     const itemBulk = [];
     const itemIds = furniture.map((item) => item._id);
 
-    if (Object.keys(roomFields).length)
+    if (hasRoomFields)
       roomBulk.push({
         updateOne: {
           filter: { _id },
@@ -322,35 +320,38 @@ export class RoomService {
     });
     if (stockErrors) return cancelTransaction(session, stockErrors);
 
-    const [currentItems] = await this.itemService.basicService.readMany({
-      filter: { room_id: _id },
-      session,
-    });
+    if (hasFurnitureUpdate) {
+      const [currentItems] = await this.itemService.basicService.readMany({
+        filter: { room_id: _id },
+        session,
+      });
 
-    if (currentItems) {
-      const updatedSet = new Set(itemIds);
-      const removedItemIds = currentItems
-        .filter((item) => !updatedSet.has(item._id.toString()))
-        .map((item) => item._id);
-      if (removedItemIds.length)
-        itemBulk.push({
-          updateMany: {
-            filter: {
-              _id: {
-                $in: removedItemIds,
+      if (currentItems) {
+        const updatedSet = new Set(itemIds);
+        const removedItemIds = currentItems
+          .filter((item) => !updatedSet.has(item._id.toString()))
+          .map((item) => item._id);
+
+        if (removedItemIds.length > 0)
+          itemBulk.push({
+            updateMany: {
+              filter: {
+                _id: {
+                  $in: removedItemIds,
+                },
+              },
+              update: {
+                $set: {
+                  location: [-1, -1],
+                  placedOn_id: null,
+                  placedOnLocation: [-1, -1],
+                  room_id: null,
+                  stock_id: stock._id,
+                },
               },
             },
-            update: {
-              $set: {
-                location: [-1, -1],
-                placedOn_id: null,
-                placedOnLocation: [-1, -1],
-                room_id: null,
-                stock_id: stock._id,
-              },
-            },
-          },
-        });
+          });
+      }
     }
 
     if (roomBulk.length) {
