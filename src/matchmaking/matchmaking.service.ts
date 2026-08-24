@@ -45,6 +45,8 @@ import {
 import { MatchmakingTeam } from './type/matchmakingTeam.type';
 import { Clan } from '../clan/clan.schema';
 import { Score } from '../common/values/scoring.values';
+import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 
 /**
  * Orchestrates matchmaking state transitions.
@@ -73,6 +75,7 @@ export class MatchmakingService {
     private readonly playerService: PlayerService,
     private readonly clanService: ClanService,
     private readonly notifier: MatchmakingNotifier,
+    private readonly emitterService: EventEmitterService,
     @Inject(forwardRef(() => MatchmakingQueue))
     private readonly queue: MatchmakingQueue,
   ) {}
@@ -508,6 +511,8 @@ export class MatchmakingService {
     const leaderboardErrors =
       await this.updateLeaderboardsForFinishedMatch(finishedMatch);
     if (leaderboardErrors) return [null, leaderboardErrors];
+
+    await this.emitDailyTaskEventsForFinishedMatch(finishedMatch);
 
     await this.saveFinishedMatch(finishedMatch);
     await this.invalidateLeaderboardCaches();
@@ -1079,6 +1084,28 @@ export class MatchmakingService {
     }
 
     return null;
+  }
+
+  private async emitDailyTaskEventsForFinishedMatch(match: ActiveMatch) {
+    for (const team of match.teams) {
+      const outcome = this.getTeamOutcome(team, match.result.winningSide);
+      const playerIds = this.getTeamPlayerIds(team);
+
+      for (const playerId of playerIds) {
+        await this.emitterService.EmitNewDailyTaskEvent(
+          playerId,
+          ServerTaskName.PLAY_BATTLE,
+        );
+
+        if (outcome === 'WIN') {
+          await this.emitterService.EmitNewDailyTaskEvent(
+            playerId,
+            ServerTaskName.WIN_BATTLE,
+            true,
+          );
+        }
+      }
+    }
   }
 
   private getTeamOutcome(
