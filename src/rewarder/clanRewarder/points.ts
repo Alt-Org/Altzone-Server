@@ -1,6 +1,7 @@
 import { ClanEvent } from './enum/ClanEvent.enum';
+import { Score } from '../../common/values/scoring.values';
 
 export const points: Record<ClanEvent, number> = {
-  [ClanEvent.BATTLE_WON]: 100,
-  [ClanEvent.BATTLE_LOSE]: -20,
+  [ClanEvent.BATTLE_WON]: Score.BATTLE.WIN,
+  [ClanEvent.BATTLE_LOSE]: Score.BATTLE.LOSS,
 };

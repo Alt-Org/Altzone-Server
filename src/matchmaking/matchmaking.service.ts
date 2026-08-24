@@ -44,6 +44,9 @@ import {
 } from './type/matchmakingParticipant.type';
 import { MatchmakingTeam } from './type/matchmakingTeam.type';
 import { Clan } from '../clan/clan.schema';
+import { Score } from '../common/values/scoring.values';
+import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 
 /**
  * Orchestrates matchmaking state transitions.
@@ -58,8 +61,6 @@ export class MatchmakingService {
   private readonly INVITE_TTL_S = 5 * 60;
   private readonly CANCELLED_INVITE_TTL_S = 60;
   private readonly FINISHED_MATCH_TTL_S = 10 * 60;
-  private readonly WIN_BATTLE_POINTS = 50;
-  private readonly LOSS_BATTLE_POINTS = 10;
   private readonly CLAN_OPPONENT_TIMEOUT_S = 30;
   private readonly INVITE_KEY_PREFIX = 'matchmaking:invite';
   private readonly PLAYER_INVITE_KEY_PREFIX = 'matchmaking:player-invite';
@@ -74,6 +75,7 @@ export class MatchmakingService {
     private readonly playerService: PlayerService,
     private readonly clanService: ClanService,
     private readonly notifier: MatchmakingNotifier,
+    private readonly emitterService: EventEmitterService,
     @Inject(forwardRef(() => MatchmakingQueue))
     private readonly queue: MatchmakingQueue,
   ) {}
@@ -445,8 +447,9 @@ export class MatchmakingService {
   }
 
   /**
-   * Finishes an active match once, updates the correct leaderboards, and keeps
-   * the completed match briefly available in Redis for clients that refresh.
+   * Finishes an active match once, updates the correct battlePoints
+   * leaderboards, and keeps the completed match briefly available in Redis for
+   * clients that refresh.
    */
   async finishMatch(
     matchId: string,
@@ -509,6 +512,8 @@ export class MatchmakingService {
     const leaderboardErrors =
       await this.updateLeaderboardsForFinishedMatch(finishedMatch);
     if (leaderboardErrors) return [null, leaderboardErrors];
+
+    await this.emitDailyTaskEventsForFinishedMatch(finishedMatch);
 
     await this.saveFinishedMatch(finishedMatch);
     await this.invalidateLeaderboardCaches();
@@ -1021,8 +1026,8 @@ export class MatchmakingService {
   }
 
   /**
-   * Updates personal leaderboards for all modes and clan leaderboards for CLAN
-   * matches only.
+   * Updates personal battlePoints leaderboards for all modes and clan
+   * battlePoints leaderboards for CLAN matches only.
    */
   private async updateLeaderboardsForFinishedMatch(match: ActiveMatch) {
     const playerErrors =
@@ -1082,6 +1087,46 @@ export class MatchmakingService {
     return null;
   }
 
+  private async emitDailyTaskEventsForFinishedMatch(match: ActiveMatch) {
+    for (const team of match.teams) {
+      const outcome = this.getTeamOutcome(team, match.result.winningSide);
+      const playerIds = this.getTeamPlayerIds(team);
+
+      for (const playerId of playerIds) {
+        await this.tryEmitDailyTaskEvent(playerId, ServerTaskName.PLAY_BATTLE);
+
+        if (outcome === 'WIN') {
+          await this.tryEmitDailyTaskEvent(
+            playerId,
+            ServerTaskName.WIN_BATTLE,
+            true,
+          );
+        }
+      }
+    }
+  }
+
+  private async tryEmitDailyTaskEvent(
+    playerId: string,
+    taskName: ServerTaskName,
+    needsClanReward = false,
+  ) {
+    try {
+      if (needsClanReward) {
+        await this.emitterService.EmitNewDailyTaskEvent(
+          playerId,
+          taskName,
+          true,
+        );
+        return;
+      }
+
+      await this.emitterService.EmitNewDailyTaskEvent(playerId, taskName);
+    } catch {
+      return;
+    }
+  }
+
   private getTeamOutcome(
     team: MatchmakingTeam,
     winningSide: TeamSide,
@@ -1090,9 +1135,9 @@ export class MatchmakingService {
   }
 
   private getBattlePointsForOutcome(outcome: 'WIN' | 'LOSS') {
-    if (outcome === 'WIN') return this.WIN_BATTLE_POINTS;
+    if (outcome === 'WIN') return Score.BATTLE.WIN;
 
-    return this.LOSS_BATTLE_POINTS;
+    return Score.BATTLE.LOSS;
   }
 
   private getTeamPlayerIds(team: MatchmakingTeam) {

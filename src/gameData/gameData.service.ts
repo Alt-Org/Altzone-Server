@@ -21,8 +21,6 @@ import { GameEventsHandler } from '../gameEventsHandler/gameEventsHandler';
 import { GameEventType } from '../gameEventsHandler/enum/GameEventType.enum';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
-import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
-import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { Environment } from '../common/enum/environment.enum';
 import { GameType } from './enum/gameType.enum';
 import { MatchmakingService } from '../matchmaking/matchmaking.service';
@@ -36,7 +34,6 @@ export class GameDataService {
     public readonly roomService: RoomService,
     private readonly gameEventsBroker: GameEventsHandler,
     private readonly jwtService: JwtService,
-    private readonly emitterService: EventEmitterService,
     private readonly matchmakingService: MatchmakingService,
   ) {
     this.basicService = new BasicService(model);
@@ -94,11 +91,6 @@ export class GameDataService {
     if (teamIdsErrors) return [null, teamIdsErrors];
 
     this.createGameIfNotExists(battleResult, teamIds, currentTime);
-
-    this.emitterService.EmitNewDailyTaskEvent(
-      user.player_id,
-      ServerTaskName.PLAY_BATTLE,
-    );
 
     return this.generateResponse(
       battleResult,
