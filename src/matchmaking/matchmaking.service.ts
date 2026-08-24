@@ -447,8 +447,9 @@ export class MatchmakingService {
   }
 
   /**
-   * Finishes an active match once, updates the correct leaderboards, and keeps
-   * the completed match briefly available in Redis for clients that refresh.
+   * Finishes an active match once, updates the correct battlePoints
+   * leaderboards, and keeps the completed match briefly available in Redis for
+   * clients that refresh.
    */
   async finishMatch(
     matchId: string,
@@ -1025,8 +1026,8 @@ export class MatchmakingService {
   }
 
   /**
-   * Updates personal leaderboards for all modes and clan leaderboards for CLAN
-   * matches only.
+   * Updates personal battlePoints leaderboards for all modes and clan
+   * battlePoints leaderboards for CLAN matches only.
    */
   private async updateLeaderboardsForFinishedMatch(match: ActiveMatch) {
     const playerErrors =
