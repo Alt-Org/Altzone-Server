@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ServerTaskName } from './enum/serverTaskName.enum';
 import { TASK_CONSTS } from './consts/taskConstants';
 import { TaskTitle } from './type/taskTitle.type';
+import { Score } from '../common/values/scoring.values';
 
 type TaskInfo = {
   title: TaskTitle;
@@ -63,7 +64,7 @@ export class TaskGeneratorService {
       Math.floor(
         Math.random() * (TASK_CONSTS.AMOUNT.MAX - TASK_CONSTS.AMOUNT.MIN + 1),
       ) + TASK_CONSTS.AMOUNT.MIN;
-    const points = 100;
+    const points = Score.DAILY_TASK.COMPLETED;
     const coins = Math.floor(points * TASK_CONSTS.COINS.FACTOR);
     const taskType = this.getRandomTaskType();
     const titleString = this.getTaskTitle(taskType, amount);
