@@ -1181,6 +1181,59 @@ describe('MatchmakingService flow', () => {
     );
   });
 
+  it('finishes a match even when daily task event emission fails', async () => {
+    const { redis, emitterService, notifier, service } = createService();
+    const match: ActiveMatch = {
+      id: 'match-daily-task-error',
+      matchType: MatchType.RANDOM,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    emitterService.EmitNewDailyTaskEvent.mockRejectedValueOnce(
+      new Error('daily task emit failed'),
+    );
+    await redis.set(
+      'matchmaking:match:match-daily-task-error',
+      JSON.stringify(match),
+    );
+
+    const [finishedMatch, errors] = await service.finishMatch(
+      'match-daily-task-error',
+      'player-1',
+      { winningSide: TeamSide.A },
+    );
+
+    const storedMatch = JSON.parse(
+      await redis.get('matchmaking:match:match-daily-task-error'),
+    ) as ActiveMatch;
+
+    expect(errors).toBeNull();
+    expect(finishedMatch).toMatchObject({
+      id: 'match-daily-task-error',
+      status: MatchStatus.FINISHED,
+    });
+    expect(storedMatch.status).toBe(MatchStatus.FINISHED);
+    expect(notifier.matchEvent).toHaveBeenCalledWith(
+      'match-daily-task-error',
+      'MATCH_FINISHED',
+      expect.objectContaining({
+        id: 'match-daily-task-error',
+        status: MatchStatus.FINISHED,
+      }),
+    );
+  });
+
   it('returns service errors when player leaderboard update fails while finishing a match', async () => {
     const { redis, playerService, clanService, notifier, service } =
       createService();
