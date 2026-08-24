@@ -44,6 +44,7 @@ import {
 } from './type/matchmakingParticipant.type';
 import { MatchmakingTeam } from './type/matchmakingTeam.type';
 import { Clan } from '../clan/clan.schema';
+import { Score } from '../common/values/scoring.values';
 
 /**
  * Orchestrates matchmaking state transitions.
@@ -58,8 +59,6 @@ export class MatchmakingService {
   private readonly INVITE_TTL_S = 5 * 60;
   private readonly CANCELLED_INVITE_TTL_S = 60;
   private readonly FINISHED_MATCH_TTL_S = 10 * 60;
-  private readonly WIN_BATTLE_POINTS = 50;
-  private readonly LOSS_BATTLE_POINTS = 10;
   private readonly CLAN_OPPONENT_TIMEOUT_S = 30;
   private readonly INVITE_KEY_PREFIX = 'matchmaking:invite';
   private readonly PLAYER_INVITE_KEY_PREFIX = 'matchmaking:player-invite';
@@ -1090,9 +1089,9 @@ export class MatchmakingService {
   }
 
   private getBattlePointsForOutcome(outcome: 'WIN' | 'LOSS') {
-    if (outcome === 'WIN') return this.WIN_BATTLE_POINTS;
+    if (outcome === 'WIN') return Score.BATTLE.WIN;
 
-    return this.LOSS_BATTLE_POINTS;
+    return Score.BATTLE.LOSS;
   }
 
   private getTeamPlayerIds(team: MatchmakingTeam) {
