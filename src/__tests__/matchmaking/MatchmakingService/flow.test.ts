@@ -9,6 +9,7 @@ import { ActiveMatch } from '../../../matchmaking/type/activeMatch.type';
 import { SEReason } from '../../../common/service/basicService/SEReason';
 import ServiceError from '../../../common/service/basicService/ServiceError';
 import { Score } from '../../../common/values/scoring.values';
+import { ServerTaskName } from '../../../dailyTasks/enum/serverTaskName.enum';
 
 class InMemoryRedisService {
   readonly values = new Map<string, string>();
@@ -91,6 +92,9 @@ type TestDeps = {
     matchFound: jest.Mock;
     matchEvent: jest.Mock;
   };
+  emitterService: {
+    EmitNewDailyTaskEvent: jest.Mock;
+  };
   queue: {
     scheduleClanOpponentTimeout: jest.Mock;
   };
@@ -137,6 +141,9 @@ const createService = (
     matchFound: jest.fn(async () => undefined),
     matchEvent: jest.fn(async () => undefined),
   };
+  const emitterService = {
+    EmitNewDailyTaskEvent: jest.fn(async () => undefined),
+  };
   const queue = {
     scheduleClanOpponentTimeout: jest.fn(async () => undefined),
   };
@@ -145,6 +152,7 @@ const createService = (
     playerService as any,
     clanService as any,
     notifier as any,
+    emitterService as any,
     queue as any,
   );
 
@@ -153,6 +161,7 @@ const createService = (
     playerService,
     clanService,
     notifier,
+    emitterService,
     queue,
     service,
   } satisfies TestDeps;
@@ -1004,8 +1013,14 @@ describe('MatchmakingService flow', () => {
   });
 
   it('finishes a RANDOM match with personal leaderboard updates only', async () => {
-    const { redis, playerService, clanService, notifier, service } =
-      createService();
+    const {
+      redis,
+      playerService,
+      clanService,
+      notifier,
+      emitterService,
+      service,
+    } = createService();
     const match: ActiveMatch = {
       id: 'match-1',
       matchType: MatchType.RANDOM,
@@ -1053,6 +1068,23 @@ describe('MatchmakingService flow', () => {
       },
     });
     expect(clanService.basicService.updateOneById).not.toHaveBeenCalled();
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
+      'player-1',
+      ServerTaskName.PLAY_BATTLE,
+    );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
+      'player-1',
+      ServerTaskName.WIN_BATTLE,
+      true,
+    );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
+      'player-2',
+      ServerTaskName.PLAY_BATTLE,
+    );
+    expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalledWith(
+      'player-2',
+      ServerTaskName.WIN_BATTLE,
+    );
     expect(redis.expire).toHaveBeenCalledWith(
       'matchmaking:match-player:player-1',
       600,
@@ -1074,7 +1106,8 @@ describe('MatchmakingService flow', () => {
   });
 
   it('finishes a CLAN match with personal and clan leaderboard updates', async () => {
-    const { redis, playerService, clanService, service } = createService();
+    const { redis, playerService, clanService, emitterService, service } =
+      createService();
     const match: ActiveMatch = {
       id: 'match-2',
       matchType: MatchType.CLAN,
@@ -1128,6 +1161,23 @@ describe('MatchmakingService flow', () => {
       {
         $inc: { battlePoints: Score.BATTLE.WIN },
       },
+    );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
+      'player-1',
+      ServerTaskName.PLAY_BATTLE,
+    );
+    expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalledWith(
+      'player-1',
+      ServerTaskName.WIN_BATTLE,
+    );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
+      'player-2',
+      ServerTaskName.PLAY_BATTLE,
+    );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
+      'player-2',
+      ServerTaskName.WIN_BATTLE,
+      true,
     );
   });
 
