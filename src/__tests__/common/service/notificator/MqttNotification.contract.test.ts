@@ -2,6 +2,7 @@ import { MqttNotificationType } from '../../../../common/service/notificator/enu
 import MQTTConnector from '../../../../common/service/notificator/MQTTConnector';
 import ClanNotifier from '../../../../clan/clan.notifier';
 import RoomRemovalNotifier from '../../../../clanInventory/room/roomRemoval.notifier';
+import StockNotifier from '../../../../clanInventory/stock/stock.notifier';
 import DailyTaskNotifier from '../../../../dailyTasks/dailyTask.notifier';
 import DailyTasksResetNotifier from '../../../../dailyTasks/dailyTaskReset.notifier';
 import { UITaskName } from '../../../../dailyTasks/enum/uiTaskName.enum';
@@ -15,6 +16,7 @@ import { TeamSide } from '../../../../matchmaking/enum/teamSide.enum';
 import VotingNotifier from '../../../../voting/voting.notifier';
 import { VotingType } from '../../../../voting/enum/VotingType.enum';
 import { NotificationStatus } from '../../../../common/service/notificator/enum/NotificationStatus.enum';
+import { NotificationResource } from '../../../../common/service/notificator/enum/NotificationResource.enum';
 
 jest.mock('../../../../common/service/notificator/MQTTConnector', () => ({
   getInstance: jest.fn(),
@@ -231,13 +233,43 @@ describe('MQTT notification contract', () => {
     new ClanNotifier().memberLeave('clan-1', 'player-1');
     expectLastPayloadToMatchEnvelope('clan', MqttNotificationType.MEMBER_LEFT);
 
-    new FriendshipNotifier().newFriendRequest(
-      { playerId: 'player-1' },
-      'player-2',
-    );
+    const friendshipNotifier = new FriendshipNotifier({
+      findOne: jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          populate: jest.fn().mockReturnValue({
+            lean: jest.fn().mockResolvedValue({
+              _id: { toString: () => 'player-1' },
+              name: 'Player 1',
+              avatar: null,
+              clan_id: { toString: () => 'clan-1' },
+              Clan: { name: 'Clan 1' },
+            }),
+          }),
+        }),
+      }),
+    } as any);
+    const friendship = {
+      _id: { toString: () => 'friendship-1' },
+      requester: 'player-1',
+      playerB: { toString: () => 'player-2' },
+    } as any;
+
+    await friendshipNotifier.newFriendRequest(friendship);
     expectLastPayloadToMatchEnvelope(
       'friendship',
       MqttNotificationType.FRIEND_REQUEST_CREATED,
+    );
+
+    await friendshipNotifier.friendRequestAccepted(friendship, 'player-2');
+    expectLastPayloadToMatchEnvelope(
+      'friendship',
+      MqttNotificationType.FRIEND_REQUEST_ACCEPTED,
+    );
+
+    await friendshipNotifier.friendRequestRejected(friendship, 'player-2');
+    expectLastPayloadToMatchEnvelope(
+      'friendship',
+      MqttNotificationType.FRIEND_REQUEST_REJECTED,
     );
 
     await new DailyTasksResetNotifier().dailyTasksReset();
@@ -251,5 +283,83 @@ describe('MQTT notification contract', () => {
       'inactive_room',
       MqttNotificationType.INACTIVE_ROOMS_REMOVED,
     );
+  });
+
+  it('wraps stock notifications and publishes them to clan stock topics', () => {
+    const notifier = new StockNotifier();
+    const item = {
+      _id: 'item-1',
+      name: 'Sofa_Taakka' as any,
+      unityKey: 'Sofa_Taakka',
+      isFurniture: true,
+      furnitureSize: [2, 2],
+      price: 100,
+    };
+
+    notifier.itemAdded({
+      clan_id: 'buyer-clan',
+      stock_id: 'stock-1',
+      item,
+      source: 'flea_market_direct',
+      sellerClan_id: 'seller-clan',
+      buyerClan_id: 'buyer-clan',
+      fleaMarketItem_id: 'fm-item-1',
+    });
+
+    expect(publishMock).toHaveBeenLastCalledWith(
+      `/clan/buyer-clan/${NotificationResource.STOCK}/item/new`,
+      expect.any(String),
+    );
+    expectLastPayloadToMatchEnvelope(
+      'stock',
+      MqttNotificationType.STOCK_ITEM_ADDED,
+    );
+
+    notifier.itemRemoved({
+      clan_id: 'seller-clan',
+      item,
+      source: 'flea_market_direct',
+      sellerClan_id: 'seller-clan',
+      buyerClan_id: 'buyer-clan',
+      fleaMarketItem_id: 'fm-item-1',
+    });
+
+    expect(publishMock).toHaveBeenLastCalledWith(
+      `/clan/seller-clan/${NotificationResource.STOCK}/item/update`,
+      expect.any(String),
+    );
+    expectLastPayloadToMatchEnvelope(
+      'stock',
+      MqttNotificationType.STOCK_ITEM_REMOVED,
+    );
+  });
+
+  it('does not publish stock notifications for non-furniture items or same-clan removals', () => {
+    const notifier = new StockNotifier();
+    const initialCallCount = publishMock.mock.calls.length;
+    const item = {
+      _id: 'item-1',
+      name: 'Sofa_Taakka' as any,
+      unityKey: 'Sofa_Taakka',
+      isFurniture: false,
+      furnitureSize: [2, 2],
+      price: 100,
+    };
+
+    notifier.itemAdded({
+      clan_id: 'clan-1',
+      stock_id: 'stock-1',
+      item,
+      source: 'clan_shop_direct',
+    });
+    notifier.itemRemoved({
+      clan_id: 'clan-1',
+      item: { ...item, isFurniture: true },
+      source: 'flea_market_direct',
+      sellerClan_id: 'clan-1',
+      buyerClan_id: 'clan-1',
+    });
+
+    expect(publishMock).toHaveBeenCalledTimes(initialCallCount);
   });
 });

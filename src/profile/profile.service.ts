@@ -244,6 +244,9 @@ export class ProfileService
       return [null, playerReadingErrors as ServiceError[]];
     profile.Player = player;
 
+    const hasSecurityQuestion: boolean = !!profile.securityQuestion;
+    profile.hasSecurityQuestion = hasSecurityQuestion;
+
     return [profile, null];
   }
 

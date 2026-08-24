@@ -30,6 +30,7 @@ Feature-specific MQTT topics and payloads are described in:
 - [Matchmaking MQTT Notifications](doc/matchmaking-mqtt-notifications.md)
 - [Jukebox MQTT Notifications](doc/jukebox-mqtt-notifications.md)
 - [Daily Task MQTT Notifications](doc/daily-task-mqtt-notifications.md)
+- [Friendship MQTT Notifications](doc/friendship-mqtt-notifications.md)
 
 ## Getting started
 
