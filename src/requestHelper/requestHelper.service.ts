@@ -24,7 +24,7 @@ export class RequestHelperService {
     if (!isValid_id) {
       return null;
     }
-    const resp = await this.connection.model(modelName).findById(_id);
+    const resp = await this.connection.model(modelName).findById(_id).lean();
     return this.convertRespToInstance(resp, classConstructor);
   };
 
@@ -158,8 +158,8 @@ export class RequestHelperService {
     resp: any,
     classConstructor: ClassConstructor<any>,
   ) => {
-    if (resp && resp._doc) {
-      const instance = plainToInstance(classConstructor, resp._doc);
+    if (resp) {
+      const instance = plainToInstance(classConstructor, resp);
 
       for (const key in instance) {
         if (instance[key] && instance[key] instanceof Types.ObjectId)

@@ -126,8 +126,8 @@ export class MatchmakingController {
   }
 
   /**
-   * Finishes an active match, updates leaderboards, and keeps the finished match
-   * in Redis for a short read-after-finish window.
+   * Finishes an active match, updates battlePoints leaderboards, and keeps the
+   * finished match in Redis for a short read-after-finish window.
    */
   @Post('matches/:matchId/finish')
   @UniformResponse(undefined, MatchmakingMatchDto)

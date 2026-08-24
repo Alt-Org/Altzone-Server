@@ -13,7 +13,6 @@ import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 import GameDataBuilderFactory from '../data/gameDataBuilderFactory';
 import AuthBuilderFactory from '../../auth/data/authBuilderFactory';
 import { ObjectId } from 'mongodb';
-import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
 import { JwtService } from '@nestjs/jwt';
 import { Game } from '../../../gameData/game.schema';
 import { BattleResultDto } from '../../../gameData/dto/battleResult.dto';
@@ -38,7 +37,6 @@ describe('GameDataService.handleResultType() test suite', () => {
   let roomService: RoomService;
   let gameEventsHandler: GameEventsHandler;
   let gameDataService: GameDataService;
-  let eventEmitterService: EventEmitterService;
   let battleResultDto: BattleResultDto;
   let game: Game;
 
@@ -114,8 +112,6 @@ describe('GameDataService.handleResultType() test suite', () => {
     roomService = await GameDataModule.getRoomService();
     gameEventsHandler = await GameDataModule.getGameEventHandler();
 
-    eventEmitterService = await GameDataModule.getEventEmitterService();
-
     jest.spyOn(JwtService.prototype, 'signAsync').mockResolvedValue('token');
 
     jest
@@ -123,9 +119,6 @@ describe('GameDataService.handleResultType() test suite', () => {
       .mockResolvedValue([[roomDto1, roomDto2], null]);
 
     jest.spyOn(gameEventsHandler, 'handleEvent').mockImplementation();
-    jest
-      .spyOn(eventEmitterService, 'EmitNewDailyTaskEvent')
-      .mockImplementation();
 
     jest
       .spyOn(playerService, 'getPlayerById')
