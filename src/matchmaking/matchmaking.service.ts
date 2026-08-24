@@ -1092,19 +1092,37 @@ export class MatchmakingService {
       const playerIds = this.getTeamPlayerIds(team);
 
       for (const playerId of playerIds) {
-        await this.emitterService.EmitNewDailyTaskEvent(
-          playerId,
-          ServerTaskName.PLAY_BATTLE,
-        );
+        await this.tryEmitDailyTaskEvent(playerId, ServerTaskName.PLAY_BATTLE);
 
         if (outcome === 'WIN') {
-          await this.emitterService.EmitNewDailyTaskEvent(
+          await this.tryEmitDailyTaskEvent(
             playerId,
             ServerTaskName.WIN_BATTLE,
             true,
           );
         }
       }
+    }
+  }
+
+  private async tryEmitDailyTaskEvent(
+    playerId: string,
+    taskName: ServerTaskName,
+    needsClanReward = false,
+  ) {
+    try {
+      if (needsClanReward) {
+        await this.emitterService.EmitNewDailyTaskEvent(
+          playerId,
+          taskName,
+          true,
+        );
+        return;
+      }
+
+      await this.emitterService.EmitNewDailyTaskEvent(playerId, taskName);
+    } catch {
+      return;
     }
   }
 
