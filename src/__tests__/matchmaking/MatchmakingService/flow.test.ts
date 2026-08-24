@@ -8,6 +8,7 @@ import { MatchmakingService } from '../../../matchmaking/matchmaking.service';
 import { ActiveMatch } from '../../../matchmaking/type/activeMatch.type';
 import { SEReason } from '../../../common/service/basicService/SEReason';
 import ServiceError from '../../../common/service/basicService/ServiceError';
+import { Score } from '../../../common/values/scoring.values';
 
 class InMemoryRedisService {
   readonly values = new Map<string, string>();
@@ -1040,14 +1041,14 @@ describe('MatchmakingService flow', () => {
     });
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
       $inc: {
-        battlePoints: 50,
+        battlePoints: Score.BATTLE.WIN,
         'gameStatistics.playedBattles': 1,
         'gameStatistics.wonBattles': 1,
       },
     });
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-2', {
       $inc: {
-        battlePoints: 10,
+        battlePoints: Score.BATTLE.LOSS,
         'gameStatistics.playedBattles': 1,
       },
     });
@@ -1105,13 +1106,13 @@ describe('MatchmakingService flow', () => {
     expect(finishedMatch.result).toEqual({ winningSide: TeamSide.B });
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
       $inc: {
-        battlePoints: 10,
+        battlePoints: Score.BATTLE.LOSS,
         'gameStatistics.playedBattles': 1,
       },
     });
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-2', {
       $inc: {
-        battlePoints: 50,
+        battlePoints: Score.BATTLE.WIN,
         'gameStatistics.playedBattles': 1,
         'gameStatistics.wonBattles': 1,
       },
@@ -1119,13 +1120,13 @@ describe('MatchmakingService flow', () => {
     expect(clanService.basicService.updateOneById).toHaveBeenCalledWith(
       'clan-1',
       {
-        $inc: { battlePoints: 10 },
+        $inc: { battlePoints: Score.BATTLE.LOSS },
       },
     );
     expect(clanService.basicService.updateOneById).toHaveBeenCalledWith(
       'clan-2',
       {
-        $inc: { battlePoints: 50 },
+        $inc: { battlePoints: Score.BATTLE.WIN },
       },
     );
   });
