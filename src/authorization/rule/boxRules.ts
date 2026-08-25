@@ -23,7 +23,7 @@ export const boxRules: RulesSetterAsync<Ability, Subjects> = async (
 ) => {
   const { can, build } = new AbilityBuilder<Ability>(createMongoAbility);
 
-  if(action === Action.read){
+  if (action === Action.read) {
     const box = await requestHelperService.getModelInstanceById(
       ModelName.BOX,
       subjectObj._id,

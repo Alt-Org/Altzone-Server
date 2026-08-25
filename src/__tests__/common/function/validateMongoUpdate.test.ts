@@ -7,14 +7,20 @@ describe('validateMongoUpdate', () => {
   });
 
   it('should block __proto__ keys', () => {
-    expect(hasUnsafeMongoUpdateKey({ $set: { '__proto__.polluted': true } })).toBe(true);
+    expect(
+      hasUnsafeMongoUpdateKey({ $set: { '__proto__.polluted': true } }),
+    ).toBe(true);
 
     const jsonPayload = JSON.parse('{"__proto__": {"polluted": true}}');
     expect(hasUnsafeMongoUpdateKey(jsonPayload)).toBe(true);
   });
 
   it('should block constructor.prototype keys', () => {
-    expect(hasUnsafeMongoUpdateKey({ $set: { 'constructor.prototype.polluted': true } })).toBe(true);
+    expect(
+      hasUnsafeMongoUpdateKey({
+        $set: { 'constructor.prototype.polluted': true },
+      }),
+    ).toBe(true);
   });
 
   it('should catch deeply nested unsafe keys', () => {

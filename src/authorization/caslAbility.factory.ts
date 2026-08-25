@@ -223,7 +223,7 @@ export class CASLAbilityFactory {
         subjectObj,
         this.requestHelperService,
       );
-    
+
     if (isType(obj, 'BoxDto'))
       return boxRules(
         user,
