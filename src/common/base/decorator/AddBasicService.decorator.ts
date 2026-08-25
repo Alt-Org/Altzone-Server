@@ -129,7 +129,8 @@ export const AddBasicService = () => {
             [
               new ServiceError({
                 reason: SEReason.VALIDATION,
-                message: 'Dangerous or invalid key path detected in update object',
+                message:
+                  'Dangerous or invalid key path detected in update object',
               }),
             ],
           ];

@@ -97,12 +97,16 @@ export class BoxService {
 
   /**
    * Checks Admin Profile and Player exist. Reads a Box by its adminPassword in DB.
-   * 
+   *
    * @param credentials Admin credentials.
    * @returns Box with the given adminPassword on succeed or an array of ServiceErrors if any occurred.
    */
-  async readAdminBox(credentials: CreateBoxDto): Promise<IServiceReturn<BoxDocument>> {
-    const adminPlayer = await this.playerModel.findOne({ name: credentials.playerName });
+  async readAdminBox(
+    credentials: CreateBoxDto,
+  ): Promise<IServiceReturn<BoxDocument>> {
+    const adminPlayer = await this.playerModel.findOne({
+      name: credentials.playerName,
+    });
     if (!adminPlayer)
       return [
         null,
@@ -115,8 +119,10 @@ export class BoxService {
           }),
         ],
       ];
-    
-    const adminProfile = await this.profileModel.findById(adminPlayer.profile_id);
+
+    const adminProfile = await this.profileModel.findById(
+      adminPlayer.profile_id,
+    );
     if (!adminProfile)
       return [
         null,
@@ -130,10 +136,10 @@ export class BoxService {
         ],
       ];
 
-    const [box, errors] = await this.basicService.readOne(
-      { filter : { adminPassword: credentials.adminPassword } }
-    );
-    if(errors) return [null, errors];
+    const [box, errors] = await this.basicService.readOne({
+      filter: { adminPassword: credentials.adminPassword },
+    });
+    if (errors) return [null, errors];
 
     return [box, null];
   }

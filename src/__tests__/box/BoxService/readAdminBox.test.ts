@@ -15,7 +15,10 @@ describe('BoxService.readAdminBox() test suite', () => {
 
   const profileBuilder = ProfileBuilderFactory.getBuilder('Profile');
   const profileModel = ProfileModule.getProfileModel();
-  const adminProfile = profileBuilder.set_id((new ObjectId()).toString()).setUsername(boxAdmin).build();
+  const adminProfile = profileBuilder
+    .set_id(new ObjectId().toString())
+    .setUsername(boxAdmin)
+    .build();
 
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const playerModel = PlayerModule.getPlayerModel();
@@ -28,7 +31,7 @@ describe('BoxService.readAdminBox() test suite', () => {
   const credentials = {
     adminPassword: null,
     playerName: null,
-  }
+  };
 
   beforeEach(async () => {
     credentials.adminPassword = existingBox.adminPassword;
@@ -36,7 +39,7 @@ describe('BoxService.readAdminBox() test suite', () => {
 
     adminPlayer.profile_id = adminProfile._id;
     const adminPlayerResp = await playerModel.create(adminPlayer);
-    
+
     boxService = await BoxModule.getBoxService();
     existingBox.adminPlayer_id = new ObjectId(adminPlayerResp._id);
     existingBox.adminProfile_id = new ObjectId(adminProfile._id);
@@ -52,7 +55,7 @@ describe('BoxService.readAdminBox() test suite', () => {
 
     expect(result._id.toString()).toMatch(existingBox._id.toString());
     expect(errors).toBeNull();
-  })
+  });
 
   it('Should return ServiceError NOT_FOUND if Player not found', async () => {
     await profileModel.create(adminProfile);
@@ -60,13 +63,13 @@ describe('BoxService.readAdminBox() test suite', () => {
     const createdBox = await boxModel.create(existingBox);
     existingBox._id = createdBox._id;
 
-    credentials.playerName = "NonExisting";
+    credentials.playerName = 'NonExisting';
 
     const [result, errors] = await boxService.readAdminBox(credentials);
 
     expect(result).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND()
-  })
+    expect(errors).toContainSE_NOT_FOUND();
+  });
 
   it('Should return ServiceError NOT_FOUND if Profile not found', async () => {
     const createdBox = await boxModel.create(existingBox);
@@ -75,8 +78,8 @@ describe('BoxService.readAdminBox() test suite', () => {
     const [result, errors] = await boxService.readAdminBox(credentials);
 
     expect(result).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND()
-  })
+    expect(errors).toContainSE_NOT_FOUND();
+  });
 
   it('Should return ServiceError NOT_FOUND if Box not found', async () => {
     await profileModel.create(adminProfile);
@@ -84,6 +87,6 @@ describe('BoxService.readAdminBox() test suite', () => {
     const [result, errors] = await boxService.readAdminBox(credentials);
 
     expect(result).toBeNull();
-    expect(errors).toContainSE_NOT_FOUND()
-  })
+    expect(errors).toContainSE_NOT_FOUND();
+  });
 });

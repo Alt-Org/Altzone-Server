@@ -14,7 +14,7 @@ describe('boxRules() test suite', () => {
   const boxUserBuilder = BoxBuilderFactory.getBuilder('BoxUser');
   const boxAdminUser = boxUserBuilder.setGroupAdmin(true).build();
 
-  beforeEach( async () => {
+  beforeEach(async () => {
     getModelInstanceById = jest.fn();
     requestHelperService = {
       getModelInstanceById,
@@ -32,7 +32,7 @@ describe('boxRules() test suite', () => {
       BoxDto,
       Action.read,
       { _id: boxId } as any,
-      requestHelperService
+      requestHelperService,
     );
 
     expect(ability.can(Action.read_request, BoxDto)).toBe(true);
@@ -41,14 +41,14 @@ describe('boxRules() test suite', () => {
 
   it('Should throw NotFoundException if the room does not exist', async () => {
     getModelInstanceById.mockResolvedValueOnce(null);
-    
+
     await expect(
       boxRules(
         boxAdminUser,
-      BoxDto,
-      Action.read,
-      { _id: boxId } as any,
-      requestHelperService
+        BoxDto,
+        Action.read,
+        { _id: boxId } as any,
+        requestHelperService,
       ),
     ).rejects.toThrow(NotFoundException);
   });
@@ -65,7 +65,7 @@ describe('boxRules() test suite', () => {
         BoxDto,
         Action.read,
         { _id: boxId } as any,
-        requestHelperService
+        requestHelperService,
       ),
     ).rejects.toThrow(ForbiddenException);
   });
