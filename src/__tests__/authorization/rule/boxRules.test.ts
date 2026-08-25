@@ -6,7 +6,7 @@ import { boxRules } from '../../../authorization/rule/boxRules';
 import { BoxDto } from '../../../box/dto/box.dto';
 
 describe('boxRules() test suite', () => {
-  const boxId = 'boxid';
+  const boxId = 'boxid'; 
 
   let requestHelperService: RequestHelperService;
   let getModelInstanceById: jest.Mock;
