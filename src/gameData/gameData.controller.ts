@@ -82,7 +82,7 @@ export class GameDataController {
     },
     errors: [400, 401, 403],
   })
-  @Post('battle/start')
+  @Post('battle/start') // matchmaking is handled via MQTT only, not from this endpoint
   @UniformResponse()
   async startBattle(
     @LoggedUser() user: User, // require logged-in user
