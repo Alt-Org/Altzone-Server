@@ -89,7 +89,7 @@ export class BoxController {
 
   /**
    * Admin sign in
-   * 
+   *
    * @remarks Checks that admin Profile and Player exist, returns accessToken
    */
   @ApiResponseDescription({
@@ -251,10 +251,10 @@ export class BoxController {
   @Get('/')
   @IsGroupAdmin()
   @UniformResponse(ModelName.BOX)
-  public getAll(@LoggedUser() user: BoxUser,) {
-    return this.service.readAll(
-      { filter: { adminProfile_id: new ObjectId(user.profile_id) } }
-    );
+  public getAll(@LoggedUser() user: BoxUser) {
+    return this.service.readAll({
+      filter: { adminProfile_id: new ObjectId(user.profile_id) },
+    });
   }
 
   /**

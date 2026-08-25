@@ -15,7 +15,10 @@ describe('BoxService.readOneById() test suite', () => {
 
   const profileBuilder = ProfileBuilderFactory.getBuilder('Profile');
   const profileModel = ProfileModule.getProfileModel();
-  const adminProfile = profileBuilder.set_id((new ObjectId()).toString()).setUsername(boxAdmin).build();
+  const adminProfile = profileBuilder
+    .set_id(new ObjectId().toString())
+    .setUsername(boxAdmin)
+    .build();
 
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const playerModel = PlayerModule.getPlayerModel();
@@ -29,7 +32,7 @@ describe('BoxService.readOneById() test suite', () => {
     await profileModel.create(adminProfile);
     adminPlayer.profile_id = adminProfile._id;
     const adminPlayerResp = await playerModel.create(adminPlayer);
-    
+
     boxService = await BoxModule.getBoxService();
     existingBox.adminPlayer_id = new ObjectId(adminPlayerResp._id);
     existingBox.adminProfile_id = new ObjectId(adminProfile._id);
@@ -38,7 +41,9 @@ describe('BoxService.readOneById() test suite', () => {
   it('Should return Box if valid credentials', async () => {
     const createdBox = await boxModel.create(existingBox);
 
-    const [result, errors] = await boxService.readOneById(createdBox._id.toString());
+    const [result, errors] = await boxService.readOneById(
+      createdBox._id.toString(),
+    );
 
     expect(errors).toBeNull();
     expect(result._id.toString()).toBe(createdBox._id.toString());
@@ -46,7 +51,7 @@ describe('BoxService.readOneById() test suite', () => {
 
   it('Should return ServiceError NOT_FOUND if Box not found', async () => {
     const [result, errors] = await boxService.readOneById(adminProfile._id);
-    
+
     expect(result).toBeNull();
     expect(errors).toContainSE_NOT_FOUND();
   });

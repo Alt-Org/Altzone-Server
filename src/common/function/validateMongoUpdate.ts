@@ -12,15 +12,11 @@ export function hasUnsafeMongoUpdateKey(value: unknown): boolean {
 
   const proto = Object.getPrototypeOf(value);
   const isPlainObjectOrArray =
-    Array.isArray(value) ||
-    proto === null ||
-    proto === Object.prototype;
+    Array.isArray(value) || proto === null || proto === Object.prototype;
 
   if (!isPlainObjectOrArray) return false;
 
-  const keys = Array.isArray(value)
-    ? []
-    : Object.getOwnPropertyNames(value);
+  const keys = Array.isArray(value) ? [] : Object.getOwnPropertyNames(value);
 
   for (const key of keys) {
     if (
