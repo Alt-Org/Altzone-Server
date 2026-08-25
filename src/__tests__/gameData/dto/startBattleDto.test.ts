@@ -10,7 +10,7 @@ describe('StartBattleDto test suite', () => {
 
   function createDto(overrides: Partial<StartBattleDto> = {}) {
     const dto = new StartBattleDto();
-    dto.gameType = GameType.MATCHMAKING;
+    dto.gameType = GameType.CASUAL;
     dto.team1 = [player1Id];
     dto.team2 = [player2Id];
 
@@ -26,11 +26,20 @@ describe('StartBattleDto test suite', () => {
   });
 
   it('Should pass validation with a MongoId matchId', async () => {
-    const dto = createDto({ matchId });
+    const dto = createDto({ gameType: GameType.CUSTOM, matchId });
 
     const errors = await validate(dto);
 
     expect(errors).toHaveLength(0);
+  });
+
+  it('Should fail validation when gameType is matchmaking', async () => {
+    const dto = createDto({ gameType: GameType.MATCHMAKING as any });
+
+    const errors = await validate(dto);
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0].property).toBe('gameType');
   });
 
   it('Should fail validation with a non-MongoId matchId', async () => {
