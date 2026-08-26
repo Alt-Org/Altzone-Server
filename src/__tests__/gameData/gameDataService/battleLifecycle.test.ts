@@ -12,21 +12,10 @@ describe('GameDataService battle lifecycle test suite', () => {
   const gameDataModel = GameDataModule.getGameModel();
 
   let gameDataService: GameDataService;
-  let matchmakingService: {
-    validateBattleStart: jest.Mock;
-  };
 
   beforeEach(async () => {
     await gameDataModel.deleteMany({});
     gameDataService = await GameDataModule.getGameDataService();
-    matchmakingService = {
-      validateBattleStart: jest.fn(async () => null),
-    };
-    (
-      gameDataService as unknown as {
-        matchmakingService: typeof matchmakingService;
-      }
-    ).matchmakingService = matchmakingService;
     jest
       .spyOn(gameDataService.playerService, 'getPlayerById')
       .mockImplementation(async (playerId: string) => [
@@ -59,7 +48,7 @@ describe('GameDataService battle lifecycle test suite', () => {
 
     const battle = await gameDataService.registerBattle(
       {
-        gameType: GameType.MATCHMAKING,
+        gameType: GameType.CUSTOM,
         team1: [team1PlayerId, team1SecondPlayerId],
         team2: [team2PlayerId, team2SecondPlayerId],
         matchId,
@@ -72,16 +61,10 @@ describe('GameDataService battle lifecycle test suite', () => {
     expect(battle).not.toBeInstanceOf(ServiceError);
     const battleDocument = battle as any;
     expect(battleDocument._id.toString()).toBe(matchId);
-    expect(battleDocument.gameType).toBe(GameType.MATCHMAKING);
+    expect(battleDocument.gameType).toBe(GameType.CUSTOM);
     expect(battleInDb?._id.toString()).toBe(matchId);
-    expect(battleInDb?.gameType).toBe(GameType.MATCHMAKING);
+    expect(battleInDb?.gameType).toBe(GameType.CUSTOM);
     expect(battleInDb?.status).toBe(BattleStatus.OPEN);
-    expect(matchmakingService.validateBattleStart).toHaveBeenCalledWith(
-      matchId,
-      team1PlayerId,
-      [team1PlayerId, team1SecondPlayerId],
-      [team2PlayerId, team2SecondPlayerId],
-    );
   });
 
   it('Should submit a battle result by finding the battle with matchId as _id', async () => {
@@ -91,7 +74,7 @@ describe('GameDataService battle lifecycle test suite', () => {
 
     await gameDataService.registerBattle(
       {
-        gameType: GameType.MATCHMAKING,
+        gameType: GameType.CASUAL,
         team1: [team1PlayerId],
         team2: [team2PlayerId],
         matchId,
@@ -410,7 +393,7 @@ describe('GameDataService battle lifecycle test suite', () => {
     const team2PlayerId = new Types.ObjectId().toHexString();
     const battle: Partial<Game> = {
       _id: matchId,
-      gameType: GameType.MATCHMAKING,
+      gameType: GameType.CASUAL,
       team1: [team1PlayerId],
       team2: [team2PlayerId],
       status: BattleStatus.PROCESSING,
@@ -441,45 +424,14 @@ describe('GameDataService battle lifecycle test suite', () => {
     expect(battleInDb?.finalWinner).toBe(1);
   });
 
-  it('Should return REQUIRED error when matchmaking battle is registered without matchId', async () => {
+  it('Should not register a matchmaking battle through battle start', async () => {
     const team1PlayerId = new Types.ObjectId().toHexString();
     const team2PlayerId = new Types.ObjectId().toHexString();
-
-    const result = await gameDataService.registerBattle(
-      {
-        gameType: GameType.MATCHMAKING,
-        team1: [team1PlayerId],
-        team2: [team2PlayerId],
-      },
-      team1PlayerId,
-    );
-
-    expect(result).toBeInstanceOf(ServiceError);
-    expect(result).toMatchObject({
-      reason: SEReason.REQUIRED,
-      field: 'matchId',
-      message: 'Matchmaking battles require matchId.',
-    });
-    expect(matchmakingService.validateBattleStart).not.toHaveBeenCalled();
-    expect(await gameDataModel.countDocuments()).toBe(0);
-  });
-
-  it('Should not register a matchmaking battle when matchmaking validation fails', async () => {
     const matchId = new Types.ObjectId().toHexString();
-    const team1PlayerId = new Types.ObjectId().toHexString();
-    const team2PlayerId = new Types.ObjectId().toHexString();
-    const validationError = new ServiceError({
-      reason: SEReason.VALIDATION,
-      field: 'teams',
-      message: 'Battle teams must match the active matchmaking match teams.',
-    });
-    matchmakingService.validateBattleStart.mockResolvedValueOnce([
-      validationError,
-    ]);
 
     const result = await gameDataService.registerBattle(
       {
-        gameType: GameType.MATCHMAKING,
+        gameType: GameType.MATCHMAKING as any,
         team1: [team1PlayerId],
         team2: [team2PlayerId],
         matchId,
@@ -487,8 +439,13 @@ describe('GameDataService battle lifecycle test suite', () => {
       team1PlayerId,
     );
 
-    expect(result).toBe(validationError);
-    expect(await gameDataModel.findById(matchId)).toBeNull();
+    expect(result).toBeInstanceOf(ServiceError);
+    expect(result).toMatchObject({
+      reason: SEReason.WRONG_ENUM,
+      field: 'gameType',
+      value: GameType.MATCHMAKING,
+    });
+    expect(await gameDataModel.countDocuments()).toBe(0);
   });
 
   it('Should not register a battle when requester is not in either team', async () => {

@@ -23,7 +23,6 @@ import { IServiceReturn } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { Environment } from '../common/enum/environment.enum';
 import { GameType } from './enum/gameType.enum';
-import { MatchmakingService } from '../matchmaking/matchmaking.service';
 
 @Injectable()
 export class GameDataService {
@@ -34,7 +33,6 @@ export class GameDataService {
     public readonly roomService: RoomService,
     private readonly gameEventsBroker: GameEventsHandler,
     private readonly jwtService: JwtService,
-    private readonly matchmakingService: MatchmakingService,
   ) {
     this.basicService = new BasicService(model);
     this.refsInModel = [ModelName.STOCK];
@@ -348,6 +346,15 @@ export class GameDataService {
     dto: StartBattleDto,
     requesterPlayerId: string,
   ): Promise<GameDocument | ServiceError> {
+    if (![GameType.CASUAL, GameType.CUSTOM].includes(dto.gameType)) {
+      return new ServiceError({
+        reason: SEReason.WRONG_ENUM,
+        field: 'gameType',
+        value: dto.gameType,
+        message: 'Battle start supports only casual and custom game types.',
+      });
+    }
+
     // is requester PlayerId in team1 or in team2?
     if (
       !dto.team1.includes(requesterPlayerId) &&
@@ -410,25 +417,6 @@ export class GameDataService {
         reason: SEReason.MISCONFIGURED,
         message: 'A player cannot be in both teams',
       });
-    }
-
-    if (dto.gameType === GameType.MATCHMAKING && !dto.matchId) {
-      return new ServiceError({
-        reason: SEReason.REQUIRED,
-        field: 'matchId',
-        message: 'Matchmaking battles require matchId.',
-      });
-    }
-
-    if (dto.gameType === GameType.MATCHMAKING) {
-      const matchmakingErrors =
-        await this.matchmakingService.validateBattleStart(
-          dto.matchId,
-          requesterPlayerId,
-          dto.team1,
-          dto.team2,
-        );
-      if (matchmakingErrors) return matchmakingErrors[0];
     }
 
     // create a new battle record in the database
