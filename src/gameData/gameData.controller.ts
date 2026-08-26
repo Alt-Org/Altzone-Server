@@ -152,7 +152,7 @@ export class GameDataController {
 
     return this.service.handleBattleResult(
       legacyDto as BattleResultDto,
-      user.player_id,
+      user,
     );
   }
 }
