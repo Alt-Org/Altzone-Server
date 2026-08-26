@@ -446,18 +446,46 @@ export class GameDataService {
   }
 
   /**
-   * Processes a result claim from a player.
-   * If results from both teams match, the battle is marked COMPLETED.
-   * If results don't match, the battle enters PROCESSING and triggers a timeout-based resolution.
-   * * @param dto - The result containing matchId, winning team, and duration.
-   * @param playerId - The ID of the player submitting the result.
-   * @returns A promise to the updated Battle document.
+   * Processes a result claim for an existing battle.
+   *
+   * A valid result from a player in the claimed winning team returns the steal
+   * token and target SoulHome data immediately. The first valid result keeps
+   * the battle OPEN. When at least two submitted results agree on the winning
+   * team, the battle is marked COMPLETED. If a losing player completes the
+   * battle, the token is generated for a winning player who has already
+   * submitted a matching result.
+   *
+   * If submitted results disagree, the battle enters PROCESSING and a
+   * timeout-based final call resolves the winner later.
+   *
+   * @param dto - The result containing matchId, winning team, and duration.
+   * @param userOrPlayerId - The authenticated user or submitting player ID.
+   * @returns The saved battle document, or a completed battle response with steal data for a winning player.
    * @throws Error if the matchId is not found in the database.
    */
-  async handleBattleResult(dto: BattleResultDto, playerId: string) {
+  async handleBattleResult(
+    dto: BattleResultDto,
+    userOrPlayerId: User | string,
+  ): Promise<GameDocument | object | ServiceError> {
     const battle = await this.model.findById(dto.matchId);
     if (!battle) throw new Error('Match not found');
 
+    // Accept the old playerId call shape used by tests while supporting the controller's User object.
+    const user =
+      typeof userOrPlayerId === 'string'
+        ? ({ player_id: userOrPlayerId } as User)
+        : userOrPlayerId;
+    const playerId = user.player_id;
+    if (!playerId) {
+      return new ServiceError({
+        reason: SEReason.NOT_AUTHORIZED,
+        field: 'playerId',
+        value: playerId,
+        message: 'Player ID is required to submit battle results.',
+      });
+    }
+
+    // Only battle participants may affect the result tally.
     const isBattleParticipant =
       battle.team1.some((id) => id.toString() === playerId) ||
       battle.team2.some((id) => id.toString() === playerId);
@@ -470,18 +498,19 @@ export class GameDataService {
       });
     }
 
-    if (battle.status === BattleStatus.COMPLETED) {
-      return new ServiceError({
-        reason: SEReason.NOT_ALLOWED,
-        field: 'status',
-        value: battle.status,
-        message: 'Completed battle cannot receive new results.',
-      });
-    }
-
+    // A player may submit only once, so later consensus is built from separate players' claims.
     const hasSubmittedResult = battle.receivedResults.some(
       (result) => result.playerId.toString() === playerId,
     );
+
+    if (battle.status === BattleStatus.COMPLETED) {
+      return await this.generateCompletedBattleResponse(
+        battle,
+        user,
+        hasSubmittedResult,
+      );
+    }
+
     if (hasSubmittedResult) {
       return new ServiceError({
         reason: SEReason.NOT_ALLOWED,
@@ -497,6 +526,7 @@ export class GameDataService {
       duration: dto.duration,
     });
 
+    // Two matching submissions are enough to finalize the battle immediately.
     if (battle.receivedResults.length >= 2) {
       const results = battle.receivedResults.map((r) => r.winnerTeam);
       const allMatch = results.every((val) => val === results[0]);
@@ -504,17 +534,153 @@ export class GameDataService {
       if (allMatch) {
         battle.status = BattleStatus.COMPLETED;
         battle.finalWinner = results[0];
-        await battle.save();
-        return await this.generateRaidTokens(battle);
+        const battleDocument = await battle.save();
+
+        // Return steal data in the same PUT response that completes the battle.
+        return await this.generateCompletedBattleResponse(
+          battleDocument,
+          user,
+          true,
+          true,
+        );
       } else {
         battle.status = BattleStatus.PROCESSING;
         this.startFinalCallTimer(battle._id.toString());
       }
     } else {
+      // Keep the battle open until another participant submits a matching or conflicting result.
       battle.status = BattleStatus.OPEN;
     }
 
-    return await battle.save();
+    const battleDocument = await battle.save();
+
+    const claimedWinningTeam = dto.result === 1 ? battle.team1 : battle.team2;
+    const playerInClaimedWinningTeam = claimedWinningTeam.some(
+      (id) => id.toString() === playerId,
+    );
+
+    if (playerInClaimedWinningTeam) {
+      return await this.generateBattleStealResponse(
+        battleDocument,
+        dto.result,
+        user,
+        playerId,
+      );
+    }
+
+    return battleDocument;
+  }
+
+  private async generateCompletedBattleResponse(
+    battle: GameDocument,
+    user: User,
+    hasSubmittedResult: boolean,
+    allowSubmittedWinnerFallback = false,
+  ): Promise<object | ServiceError> {
+    const battleDocument = battle;
+    const playerId = user.player_id;
+
+    // Losing players can complete the battle, but they must not receive a steal token.
+    const winningTeam = battle.finalWinner === 1 ? battle.team1 : battle.team2;
+    const playerInWinningTeam = winningTeam.some(
+      (id) => id.toString() === playerId,
+    );
+
+    const tokenPlayerId = playerInWinningTeam
+      ? playerId
+      : this.getSubmittedWinningPlayerId(battle);
+
+    if (!playerInWinningTeam && !allowSubmittedWinnerFallback) {
+      return {
+        battleDocument,
+      };
+    }
+
+    if (!tokenPlayerId) {
+      return {
+        battleDocument,
+      };
+    }
+
+    if (playerInWinningTeam && !hasSubmittedResult) {
+      return new ServiceError({
+        reason: SEReason.NOT_ALLOWED,
+        field: 'playerId',
+        value: playerId,
+        message: 'Player must submit a result before receiving steal data.',
+      });
+    }
+
+    return await this.generateBattleStealResponse(
+      battleDocument,
+      battle.finalWinner,
+      user,
+      tokenPlayerId,
+    );
+  }
+
+  private async generateBattleStealResponse(
+    battle: GameDocument,
+    winnerTeam: number,
+    user: User,
+    tokenPlayerId: string,
+  ): Promise<object | ServiceError> {
+    // Use the legacy response builder so PUT returns the same steal payload as POST.
+    const [teamIds, teamIdsErrors] = await this.getClanIdForTeams([
+      battle.team1[0].toString(),
+      battle.team2[0].toString(),
+    ]);
+
+    if (teamIdsErrors) {
+      return new ServiceError({
+        reason: SEReason.NOT_FOUND,
+        field: 'teamIds',
+        value: [battle.team1[0].toString(), battle.team2[0].toString()],
+        message: 'One or both teams do not exist.',
+        additional: teamIdsErrors,
+      });
+    }
+
+    const [battleResponse, battleResponseErrors] = await this.generateResponse(
+      {
+        matchId: battle._id.toString(),
+        team1: battle.team1.map((id) => id.toString()),
+        team2: battle.team2.map((id) => id.toString()),
+        result: winnerTeam,
+        duration: 0,
+      } as BattleResultDto,
+      teamIds.team1Id,
+      teamIds.team2Id,
+      { ...user, player_id: tokenPlayerId },
+    );
+
+    // Surface token/room lookup failures as service errors after the battle has been finalized.
+    if (battleResponseErrors) {
+      return new ServiceError({
+        reason: SEReason.UNEXPECTED,
+        field: 'battleResponse',
+        value: battleResponse,
+        message: 'Unexpected error while generating battle response.',
+        additional: battleResponseErrors,
+      });
+    }
+
+    return {
+      battleDocument: battle,
+      ...battleResponse,
+    };
+  }
+
+  private getSubmittedWinningPlayerId(battle: GameDocument): string | null {
+    const winningTeam = battle.finalWinner === 1 ? battle.team1 : battle.team2;
+
+    const winningPlayerResult = battle.receivedResults.find((result) =>
+      winningTeam.some(
+        (playerId) => playerId.toString() === result.playerId.toString(),
+      ),
+    );
+
+    return winningPlayerResult?.playerId.toString() ?? null;
   }
 
   /**
