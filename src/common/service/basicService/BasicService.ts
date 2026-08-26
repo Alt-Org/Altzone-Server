@@ -23,6 +23,7 @@ import {
 } from './IService';
 import ServiceError from './ServiceError';
 import { SEReason } from './SEReason';
+import { hasUnsafeMongoUpdateKey } from '../../function/validateMongoUpdate';
 
 /**
  * Provides all basic operations with DB.
@@ -164,6 +165,18 @@ export default class BasicService implements IService {
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<boolean>> {
     try {
+      if (hasUnsafeMongoUpdateKey(input)) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.VALIDATION,
+              message:
+                'Dangerous or invalid key path detected in update object',
+            }),
+          ],
+        ];
+      }
       const resp = await this.model.updateOne({ _id }, input, options);
       if (resp.matchedCount === 0)
         return [
@@ -191,6 +204,18 @@ export default class BasicService implements IService {
     options: TIServiceUpdateOneOptions,
   ): Promise<IServiceReturn<boolean>> {
     try {
+      if (hasUnsafeMongoUpdateKey(input)) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.VALIDATION,
+              message:
+                'Dangerous or invalid key path detected in update object',
+            }),
+          ],
+        ];
+      }
       const { filter, session } = options ? options : { filter: undefined };
       const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
 
@@ -225,6 +250,18 @@ export default class BasicService implements IService {
     options: TIServiceUpdateManyOptions,
   ): Promise<IServiceReturn<boolean>> {
     try {
+      if (hasUnsafeMongoUpdateKey(input)) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.VALIDATION,
+              message:
+                'Dangerous or invalid key path detected in update object',
+            }),
+          ],
+        ];
+      }
       const { filter, session } = options ? options : { filter: undefined };
       const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
 
@@ -259,6 +296,18 @@ export default class BasicService implements IService {
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<T>> {
     try {
+      if (hasUnsafeMongoUpdateKey(input)) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.VALIDATION,
+              message:
+                'Dangerous or invalid key path detected in update object',
+            }),
+          ],
+        ];
+      }
       const resp = await this.model.findByIdAndUpdate(_id, input, {
         returnDocument: 'after',
         ...options,
@@ -289,6 +338,18 @@ export default class BasicService implements IService {
     options: TIServiceFindOneAndUpdate,
   ): Promise<IServiceReturn<T>> {
     try {
+      if (hasUnsafeMongoUpdateKey(input)) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.VALIDATION,
+              message:
+                'Dangerous or invalid key path detected in update object',
+            }),
+          ],
+        ];
+      }
       const { filter, session, sort } = options
         ? options
         : { filter: undefined };

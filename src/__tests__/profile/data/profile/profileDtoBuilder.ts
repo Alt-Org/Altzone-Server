@@ -8,6 +8,7 @@ export default class ProfileDtoBuilder implements IDataBuilder<ProfileDto> {
     _id: undefined,
     username: 'defaultUser',
     Player: undefined,
+    hasSecurityQuestion: undefined,
     environment: Environment.TEACHING_DEMO,
   };
 

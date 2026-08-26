@@ -19,6 +19,7 @@ import { SoulHomeService } from './soulhome/soulhome.service';
 import SoulHomeHelperService from './soulhome/utils/soulHomeHelper.service';
 import { isStockExists } from './stock/decorator/validation/IsStockExists.decorator';
 import { StockController } from './stock/stock.controller';
+import StockNotifier from './stock/stock.notifier';
 import { StockSchema } from './stock/stock.schema';
 import { StockService } from './stock/stock.service';
 import { ClanSchema } from '../clan/clan.schema';
@@ -52,6 +53,7 @@ import { FleaMarketModule } from '../fleaMarket/fleaMarket.module';
   ],
   providers: [
     StockService,
+    StockNotifier,
     isStockExists,
     ItemService,
     isItemExists,
@@ -64,6 +66,7 @@ import { FleaMarketModule } from '../fleaMarket/fleaMarket.module';
   ],
   exports: [
     StockService,
+    StockNotifier,
     ItemService,
     ItemHelperService,
     StealTokenGuard,

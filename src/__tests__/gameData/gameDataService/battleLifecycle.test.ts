@@ -6,32 +6,37 @@ import { GameType } from '../../../gameData/enum/gameType.enum';
 import { BattleStatus } from '../../../gameData/enum/battleStatus.enum';
 import ServiceError from '../../../common/service/basicService/ServiceError';
 import { SEReason } from '../../../common/service/basicService/SEReason';
+import { JwtService } from '@nestjs/jwt';
 
 describe('GameDataService battle lifecycle test suite', () => {
   const gameDataModel = GameDataModule.getGameModel();
 
   let gameDataService: GameDataService;
-  let matchmakingService: {
-    validateBattleStart: jest.Mock;
-  };
 
   beforeEach(async () => {
     await gameDataModel.deleteMany({});
     gameDataService = await GameDataModule.getGameDataService();
-    matchmakingService = {
-      validateBattleStart: jest.fn(async () => null),
-    };
-    (
-      gameDataService as unknown as {
-        matchmakingService: typeof matchmakingService;
-      }
-    ).matchmakingService = matchmakingService;
     jest
       .spyOn(gameDataService.playerService, 'getPlayerById')
       .mockImplementation(async (playerId: string) => [
-        { _id: playerId } as any,
+        {
+          _id: playerId,
+          clan_id: new Types.ObjectId().toHexString(),
+        } as any,
         null,
       ]);
+    jest.spyOn(gameDataService.clanService, 'readOneById').mockResolvedValue([
+      {
+        SoulHome: {
+          _id: new Types.ObjectId().toHexString(),
+        },
+      } as any,
+      null,
+    ]);
+    jest
+      .spyOn(gameDataService.roomService, 'readAllSoulHomeRooms')
+      .mockResolvedValue([[] as any, null]);
+    jest.spyOn(JwtService.prototype, 'signAsync').mockResolvedValue('token');
   });
 
   it('Should register a battle using the provided matchId as document _id', async () => {
@@ -43,7 +48,7 @@ describe('GameDataService battle lifecycle test suite', () => {
 
     const battle = await gameDataService.registerBattle(
       {
-        gameType: GameType.MATCHMAKING,
+        gameType: GameType.CUSTOM,
         team1: [team1PlayerId, team1SecondPlayerId],
         team2: [team2PlayerId, team2SecondPlayerId],
         matchId,
@@ -54,18 +59,12 @@ describe('GameDataService battle lifecycle test suite', () => {
     const battleInDb = await gameDataModel.findById(matchId);
 
     expect(battle).not.toBeInstanceOf(ServiceError);
-    const battleDocument = battle as Exclude<typeof battle, ServiceError>;
+    const battleDocument = battle as any;
     expect(battleDocument._id.toString()).toBe(matchId);
-    expect(battleDocument.gameType).toBe(GameType.MATCHMAKING);
+    expect(battleDocument.gameType).toBe(GameType.CUSTOM);
     expect(battleInDb?._id.toString()).toBe(matchId);
-    expect(battleInDb?.gameType).toBe(GameType.MATCHMAKING);
+    expect(battleInDb?.gameType).toBe(GameType.CUSTOM);
     expect(battleInDb?.status).toBe(BattleStatus.OPEN);
-    expect(matchmakingService.validateBattleStart).toHaveBeenCalledWith(
-      matchId,
-      team1PlayerId,
-      [team1PlayerId, team1SecondPlayerId],
-      [team2PlayerId, team2SecondPlayerId],
-    );
   });
 
   it('Should submit a battle result by finding the battle with matchId as _id', async () => {
@@ -75,7 +74,7 @@ describe('GameDataService battle lifecycle test suite', () => {
 
     await gameDataService.registerBattle(
       {
-        gameType: GameType.MATCHMAKING,
+        gameType: GameType.CASUAL,
         team1: [team1PlayerId],
         team2: [team2PlayerId],
         matchId,
@@ -93,13 +92,188 @@ describe('GameDataService battle lifecycle test suite', () => {
     );
 
     expect(battle).not.toBeInstanceOf(ServiceError);
-    const battleDocument = battle as Exclude<typeof battle, ServiceError>;
+    expect(battle).toMatchObject({
+      stealToken: 'token',
+      roomIds: [],
+    });
+    const battleDocument = (battle as any).battleDocument;
     expect(battleDocument._id.toString()).toBe(matchId);
     expect(battleDocument.receivedResults).toHaveLength(1);
     expect(battleDocument.receivedResults[0].playerId.toString()).toBe(
       team1PlayerId,
     );
     expect(battleDocument.status).toBe(BattleStatus.OPEN);
+  });
+
+  it('Should return steal data when matching results complete the battle for a winning player', async () => {
+    const matchId = new Types.ObjectId().toHexString();
+    const team1ClanId = new Types.ObjectId().toHexString();
+    const team2ClanId = new Types.ObjectId().toHexString();
+    const loserSoulHomeId = new Types.ObjectId().toHexString();
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team1SecondPlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+
+    jest
+      .spyOn(gameDataService.playerService, 'getPlayerById')
+      .mockImplementation(async (playerId: string) => [
+        {
+          _id: playerId,
+          clan_id: playerId === team2PlayerId ? team2ClanId : team1ClanId,
+        } as any,
+        null,
+      ]);
+    jest.spyOn(gameDataService.clanService, 'readOneById').mockResolvedValue([
+      {
+        _id: team2ClanId,
+        SoulHome: {
+          _id: loserSoulHomeId,
+        },
+      } as any,
+      null,
+    ]);
+    jest
+      .spyOn(gameDataService.roomService, 'readAllSoulHomeRooms')
+      .mockResolvedValue([[{ _id: 'room-1' }, { _id: 'room-2' }] as any, null]);
+    const signAsyncSpy = jest
+      .spyOn(JwtService.prototype, 'signAsync')
+      .mockResolvedValue('steal-token');
+
+    await gameDataService.registerBattle(
+      {
+        gameType: GameType.CASUAL,
+        team1: [team1PlayerId, team1SecondPlayerId],
+        team2: [team2PlayerId],
+        matchId,
+      },
+      team1PlayerId,
+    );
+
+    const firstResult = await gameDataService.handleBattleResult(
+      {
+        matchId,
+        duration: 120,
+        result: 1,
+      } as any,
+      team1PlayerId,
+    );
+    const completedResult = await gameDataService.handleBattleResult(
+      {
+        matchId,
+        duration: 115,
+        result: 1,
+      } as any,
+      team1SecondPlayerId,
+    );
+
+    expect(firstResult).not.toBeInstanceOf(ServiceError);
+    expect(firstResult).toMatchObject({
+      stealToken: 'steal-token',
+      soulHome_id: loserSoulHomeId,
+      roomIds: ['room-1', 'room-2'],
+    });
+    expect(completedResult).not.toBeInstanceOf(ServiceError);
+    expect(completedResult).toMatchObject({
+      stealToken: 'steal-token',
+      soulHome_id: loserSoulHomeId,
+      roomIds: ['room-1', 'room-2'],
+    });
+    expect((completedResult as any).battleDocument.status).toBe(
+      BattleStatus.COMPLETED,
+    );
+    expect((completedResult as any).battleDocument.finalWinner).toBe(1);
+    expect(signAsyncSpy).toHaveBeenNthCalledWith(
+      1,
+      {
+        playerId: team1PlayerId,
+        soulHomeId: loserSoulHomeId,
+      },
+      { expiresIn: '15m' },
+    );
+    expect(signAsyncSpy).toHaveBeenNthCalledWith(
+      2,
+      {
+        playerId: team1SecondPlayerId,
+        soulHomeId: loserSoulHomeId,
+      },
+      { expiresIn: '15m' },
+    );
+  });
+
+  it('Should return steal data when a losing player completes the battle', async () => {
+    const matchId = new Types.ObjectId().toHexString();
+    const team1ClanId = new Types.ObjectId().toHexString();
+    const team2ClanId = new Types.ObjectId().toHexString();
+    const loserSoulHomeId = new Types.ObjectId().toHexString();
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+
+    jest
+      .spyOn(gameDataService.playerService, 'getPlayerById')
+      .mockImplementation(async (playerId: string) => [
+        {
+          _id: playerId,
+          clan_id: playerId === team2PlayerId ? team2ClanId : team1ClanId,
+        } as any,
+        null,
+      ]);
+    jest.spyOn(gameDataService.clanService, 'readOneById').mockResolvedValue([
+      {
+        _id: team2ClanId,
+        SoulHome: {
+          _id: loserSoulHomeId,
+        },
+      } as any,
+      null,
+    ]);
+    jest
+      .spyOn(gameDataService.roomService, 'readAllSoulHomeRooms')
+      .mockResolvedValue([[{ _id: 'room-1' }] as any, null]);
+    const signAsyncSpy = jest
+      .spyOn(JwtService.prototype, 'signAsync')
+      .mockResolvedValue('token');
+
+    await gameDataService.registerBattle(
+      {
+        gameType: GameType.CASUAL,
+        team1: [team1PlayerId],
+        team2: [team2PlayerId],
+        matchId,
+      },
+      team1PlayerId,
+    );
+
+    await gameDataService.handleBattleResult(
+      {
+        matchId,
+        duration: 120,
+        result: 1,
+      } as any,
+      team1PlayerId,
+    );
+    const losingPlayerResult = await gameDataService.handleBattleResult(
+      {
+        matchId,
+        duration: 120,
+        result: 1,
+      } as any,
+      team2PlayerId,
+    );
+    expect(losingPlayerResult).toMatchObject({
+      stealToken: 'token',
+      soulHome_id: loserSoulHomeId,
+      roomIds: ['room-1'],
+    });
+    expect((losingPlayerResult as any).battleDocument.status).toBe(
+      BattleStatus.COMPLETED,
+    );
+    expect(signAsyncSpy).toHaveBeenCalledWith(
+      {
+        playerId: team1PlayerId,
+        soulHomeId: loserSoulHomeId,
+      },
+      { expiresIn: '15m' },
+    );
   });
 
   it('Should reject battle result from a player outside the battle teams', async () => {
@@ -124,6 +298,7 @@ describe('GameDataService battle lifecycle test suite', () => {
       } as any,
       outsiderPlayerId,
     );
+
     const battleInDb = await gameDataModel.findById(matchId);
 
     expect(result).toBeInstanceOf(ServiceError);
@@ -133,6 +308,7 @@ describe('GameDataService battle lifecycle test suite', () => {
       value: outsiderPlayerId,
       message: 'Only battle participants can submit battle results.',
     });
+
     expect(battleInDb?.receivedResults).toHaveLength(0);
   });
 
@@ -163,6 +339,7 @@ describe('GameDataService battle lifecycle test suite', () => {
       } as any,
       team1PlayerId,
     );
+
     const battleInDb = await gameDataModel.findById(matchId);
 
     expect(result).toBeInstanceOf(ServiceError);
@@ -175,7 +352,7 @@ describe('GameDataService battle lifecycle test suite', () => {
     expect(battleInDb?.receivedResults).toHaveLength(1);
   });
 
-  it('Should reject battle result for a completed battle', async () => {
+  it('Should reject steal data request for a completed battle when the player has not submitted a result', async () => {
     const matchId = new Types.ObjectId().toHexString();
     const team1PlayerId = new Types.ObjectId().toHexString();
     const team2PlayerId = new Types.ObjectId().toHexString();
@@ -197,14 +374,15 @@ describe('GameDataService battle lifecycle test suite', () => {
       } as any,
       team1PlayerId,
     );
+
     const battleInDb = await gameDataModel.findById(matchId);
 
     expect(result).toBeInstanceOf(ServiceError);
     expect(result).toMatchObject({
       reason: SEReason.NOT_ALLOWED,
-      field: 'status',
-      value: BattleStatus.COMPLETED,
-      message: 'Completed battle cannot receive new results.',
+      field: 'playerId',
+      value: team1PlayerId,
+      message: 'Player must submit a result before receiving steal data.',
     });
     expect(battleInDb?.receivedResults).toHaveLength(0);
   });
@@ -215,7 +393,7 @@ describe('GameDataService battle lifecycle test suite', () => {
     const team2PlayerId = new Types.ObjectId().toHexString();
     const battle: Partial<Game> = {
       _id: matchId,
-      gameType: GameType.MATCHMAKING,
+      gameType: GameType.CASUAL,
       team1: [team1PlayerId],
       team2: [team2PlayerId],
       status: BattleStatus.PROCESSING,
@@ -246,45 +424,14 @@ describe('GameDataService battle lifecycle test suite', () => {
     expect(battleInDb?.finalWinner).toBe(1);
   });
 
-  it('Should return REQUIRED error when matchmaking battle is registered without matchId', async () => {
+  it('Should not register a matchmaking battle through battle start', async () => {
     const team1PlayerId = new Types.ObjectId().toHexString();
     const team2PlayerId = new Types.ObjectId().toHexString();
-
-    const result = await gameDataService.registerBattle(
-      {
-        gameType: GameType.MATCHMAKING,
-        team1: [team1PlayerId],
-        team2: [team2PlayerId],
-      },
-      team1PlayerId,
-    );
-
-    expect(result).toBeInstanceOf(ServiceError);
-    expect(result).toMatchObject({
-      reason: SEReason.REQUIRED,
-      field: 'matchId',
-      message: 'Matchmaking battles require matchId.',
-    });
-    expect(matchmakingService.validateBattleStart).not.toHaveBeenCalled();
-    expect(await gameDataModel.countDocuments()).toBe(0);
-  });
-
-  it('Should not register a matchmaking battle when matchmaking validation fails', async () => {
     const matchId = new Types.ObjectId().toHexString();
-    const team1PlayerId = new Types.ObjectId().toHexString();
-    const team2PlayerId = new Types.ObjectId().toHexString();
-    const validationError = new ServiceError({
-      reason: SEReason.VALIDATION,
-      field: 'teams',
-      message: 'Battle teams must match the active matchmaking match teams.',
-    });
-    matchmakingService.validateBattleStart.mockResolvedValueOnce([
-      validationError,
-    ]);
 
     const result = await gameDataService.registerBattle(
       {
-        gameType: GameType.MATCHMAKING,
+        gameType: GameType.MATCHMAKING as any,
         team1: [team1PlayerId],
         team2: [team2PlayerId],
         matchId,
@@ -292,8 +439,13 @@ describe('GameDataService battle lifecycle test suite', () => {
       team1PlayerId,
     );
 
-    expect(result).toBe(validationError);
-    expect(await gameDataModel.findById(matchId)).toBeNull();
+    expect(result).toBeInstanceOf(ServiceError);
+    expect(result).toMatchObject({
+      reason: SEReason.WRONG_ENUM,
+      field: 'gameType',
+      value: GameType.MATCHMAKING,
+    });
+    expect(await gameDataModel.countDocuments()).toBe(0);
   });
 
   it('Should not register a battle when requester is not in either team', async () => {

@@ -37,6 +37,9 @@ import { SEReason } from '../common/service/basicService/SEReason';
 import { maxSlotsReachedError } from './errors/maxSlotsReached.error';
 import { ItemBookedError } from './errors/itemBooked.error';
 import { CreateItemDto } from '../clanInventory/item/dto/createItem.dto';
+import { ItemDto } from '../clanInventory/item/dto/item.dto';
+import StockNotifier from '../clanInventory/stock/stock.notifier';
+import { StockNotificationSource } from '../clanInventory/stock/type/stockNotificationPayload.type';
 import { StallResponse } from './stall/dto/stallResponse.dto';
 
 @Injectable()
@@ -49,6 +52,7 @@ export class FleaMarketService {
     private readonly itemHelperService: ItemHelperService,
     private readonly playerService: PlayerService,
     private readonly itemService: ItemService,
+    private readonly stockNotifier: StockNotifier,
     @Inject(forwardRef(() => VotingService))
     private readonly votingService: VotingService,
     private readonly votingQueue: VotingQueue,
@@ -475,9 +479,12 @@ export class FleaMarketService {
       item,
       clan.Stock._id,
     );
-    const [, createError] = await this.itemService.createOne(newItem, {
-      session,
-    });
+    const [createdItem, createError] = await this.itemService.createOne(
+      newItem,
+      {
+        session,
+      },
+    );
     if (createError) return await cancelTransaction(session, createError);
 
     const [, deleteError] = await this.basicService.deleteOneById(itemId, {
@@ -487,6 +494,15 @@ export class FleaMarketService {
 
     await session.commitTransaction();
     await session.endSession();
+
+    this.notifyStockItemAdded(
+      clanId,
+      clan.Stock._id.toString(),
+      createdItem,
+      'flea_market_direct',
+      { sellerClan_id: item.clan_id.toString(), fleaMarketItem_id: itemId },
+    );
+    this.notifyStockItemRemovedFromSeller(item, clanId, 'flea_market_direct');
 
     return [true, null];
   }
@@ -586,19 +602,40 @@ export class FleaMarketService {
       stockId,
     );
 
-    const [_, itemCreateErrors] = await this.itemService.createOne(newItem);
+    const [createdItem, itemCreateErrors] = await this.itemService.createOne(
+      newItem,
+      { session },
+    );
     if (itemCreateErrors) {
       return await cancelTransaction(session, itemCreateErrors);
     }
 
     const [__, itemDeleteErrors] = await this.basicService.deleteOneById(
       voting.fleaMarketItem_id,
+      { session },
     );
     if (itemDeleteErrors)
       return await cancelTransaction(session, itemDeleteErrors);
 
     await session.commitTransaction();
     await session.endSession();
+
+    const buyerClanId = voting.organizer.clan_id.toString();
+    this.notifyStockItemAdded(
+      buyerClanId,
+      stockId.toString(),
+      createdItem,
+      'flea_market_vote',
+      {
+        sellerClan_id: item.clan_id.toString(),
+        fleaMarketItem_id: voting.fleaMarketItem_id.toString(),
+      },
+    );
+    this.notifyStockItemRemovedFromSeller(
+      item,
+      buyerClanId,
+      'flea_market_vote',
+    );
 
     return [true, null];
   }
@@ -688,13 +725,21 @@ export class FleaMarketService {
       fmItem,
       stockId,
     );
-    const [__, createErrors] = await this.itemService.createOne(item, {
+    const [createdItem, createErrors] = await this.itemService.createOne(item, {
       session,
     });
     if (createErrors) return cancelTransaction(session, createErrors);
 
     await session.commitTransaction();
     await session.endSession();
+
+    this.notifyStockItemAdded(
+      fmItem.clan_id.toString(),
+      stockId.toString(),
+      createdItem,
+      'flea_market_sell_rejected',
+      { fleaMarketItem_id: fmItemId },
+    );
 
     return [true, null];
   }
@@ -949,6 +994,7 @@ export class FleaMarketService {
     return await this.moveFleaMarketItemToStockTransaction(
       createItemDto,
       itemId,
+      clanId,
     );
   }
 
@@ -968,13 +1014,17 @@ export class FleaMarketService {
   private async moveFleaMarketItemToStockTransaction(
     itemDto: CreateItemDto,
     fleaMarketItemId: string,
+    clanId: string,
   ) {
     const session = await this.connection.startSession();
     session.startTransaction();
 
-    const [, createErrors] = await this.itemService.createOne(itemDto, {
-      session,
-    });
+    const [createdItem, createErrors] = await this.itemService.createOne(
+      itemDto,
+      {
+        session,
+      },
+    );
     if (createErrors) return await cancelTransaction(session, createErrors);
 
     const [, deleteErrors] = await this.basicService.deleteOneById(
@@ -987,6 +1037,68 @@ export class FleaMarketService {
     await session.commitTransaction();
     await session.endSession();
 
+    this.notifyStockItemAdded(
+      clanId,
+      itemDto.stock_id.toString(),
+      createdItem,
+      'flea_market_move',
+      { fleaMarketItem_id: fleaMarketItemId },
+    );
+
     return [true, null];
+  }
+
+  private notifyStockItemAdded(
+    clanId: string,
+    stockId: string,
+    item: ItemDto,
+    source: StockNotificationSource,
+    context?: {
+      sellerClan_id?: string;
+      fleaMarketItem_id?: string;
+    },
+  ) {
+    if (!item.isFurniture) return;
+
+    this.stockNotifier.itemAdded({
+      clan_id: clanId,
+      stock_id: stockId,
+      item: {
+        _id: item._id.toString(),
+        name: item.name,
+        unityKey: item.unityKey,
+        isFurniture: item.isFurniture,
+        furnitureSize: item.furnitureSize,
+        price: item.price,
+      },
+      source,
+      buyerClan_id: clanId,
+      ...context,
+    });
+  }
+
+  private notifyStockItemRemovedFromSeller(
+    item: FleaMarketItemDto,
+    buyerClanId: string,
+    source: StockNotificationSource,
+  ) {
+    const sellerClanId = item.clan_id.toString();
+    if (!item.isFurniture || sellerClanId === buyerClanId) return;
+
+    this.stockNotifier.itemRemoved({
+      clan_id: sellerClanId,
+      item: {
+        _id: item._id.toString(),
+        name: item.name,
+        unityKey: item.unityKey,
+        isFurniture: item.isFurniture,
+        furnitureSize: item.furnitureSize,
+        price: item.price,
+      },
+      source,
+      sellerClan_id: sellerClanId,
+      buyerClan_id: buyerClanId,
+      fleaMarketItem_id: item._id.toString(),
+    });
   }
 }

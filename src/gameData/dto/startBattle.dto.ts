@@ -1,13 +1,17 @@
-import { IsEnum, IsArray, IsMongoId, IsOptional } from 'class-validator';
+import { IsArray, IsIn, IsMongoId, IsOptional } from 'class-validator';
 import { GameType } from '../enum/gameType.enum';
 
 export class StartBattleDto {
   /**
    * Type of the game session
-   * @example "matchmaking"
+   * Allowed GameTypes: "custom" and "casual"
+   *
+   * Matchmaking is handled via MQTT events
+   *
+   * @example "casual"
    */
-  @IsEnum(GameType)
-  gameType: GameType;
+  @IsIn([GameType.CUSTOM, GameType.CASUAL])
+  gameType: GameType.CUSTOM | GameType.CASUAL;
 
   /**
    * List of player IDs for Team 1

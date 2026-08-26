@@ -21,6 +21,7 @@ import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { BoxHelper } from './util/boxHelper';
 import {
   IServiceReturn,
+  TIServiceReadManyOptions,
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
 import { ObjectId } from 'mongodb';
@@ -96,12 +97,16 @@ export class BoxService {
 
   /**
    * Checks Admin Profile and Player exist. Reads a Box by its adminPassword in DB.
-   * 
+   *
    * @param credentials Admin credentials.
    * @returns Box with the given adminPassword on succeed or an array of ServiceErrors if any occurred.
    */
-  async readAdminBox(credentials: CreateBoxDto): Promise<IServiceReturn<BoxDocument>> {
-    const adminPlayer = await this.playerModel.findOne({ name: credentials.playerName });
+  async readAdminBox(
+    credentials: CreateBoxDto,
+  ): Promise<IServiceReturn<BoxDocument>> {
+    const adminPlayer = await this.playerModel.findOne({
+      name: credentials.playerName,
+    });
     if (!adminPlayer)
       return [
         null,
@@ -114,8 +119,10 @@ export class BoxService {
           }),
         ],
       ];
-    
-    const adminProfile = await this.profileModel.findById(adminPlayer.profile_id);
+
+    const adminProfile = await this.profileModel.findById(
+      adminPlayer.profile_id,
+    );
     if (!adminProfile)
       return [
         null,
@@ -129,21 +136,22 @@ export class BoxService {
         ],
       ];
 
-    const [box, errors] = await this.basicService.readOne(
-      { filter : { adminPassword: credentials.adminPassword } }
-    );
-    if(errors) return [null, errors];
+    const [box, errors] = await this.basicService.readOne({
+      filter: { adminPassword: credentials.adminPassword },
+    });
+    if (errors) return [null, errors];
 
     return [box, null];
   }
 
   /**
-   * Reads all Boxes in DB.
+   * Reads multiple items from the database based on the provided options.
    *
-   * @returns found Boxes
+   * @param options - Settings for the read operation.
+   * @returns A promise that resolves to a tuple where the first element is an array of BoxDto objects, and the second element is either null or an array of ServiceError objects if something went wrong.
    */
-  async readAll() {
-    return this.basicService.readMany<Box>();
+  async readAll(options: TIServiceReadManyOptions) {
+    return this.basicService.readMany<Box>(options);
   }
 
   /**

@@ -2,7 +2,9 @@ import { Expose, Type } from 'class-transformer';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { SessionStage } from '../enum/SessionStage.enum';
 import { DailyTask } from '../../dailyTasks/dailyTasks.schema';
+import AddType from '../../common/base/decorator/AddType.decorator';
 
+@AddType('BoxDto')
 export class BoxDto {
   /**
    * Unique identifier of the game box session
