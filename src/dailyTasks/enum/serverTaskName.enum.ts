@@ -19,7 +19,7 @@
 export enum ServerTaskName {
   WRITE_CHAT_MESSAGE = 'write_chat_message',
 
-  //Why?
+  //Why? 
   /**
    * lataa peli (tää tehtävä on jo valmis ja pitää vaan klikata valmiiksi klaanissa)
    */
