@@ -12,6 +12,9 @@ import {
   PostReadAllHookFunction,
   PostReadOneHookFunction,
 } from '../../interface/IHookImplementer';
+import { hasUnsafeMongoUpdateKey } from '../../function/validateMongoUpdate';
+import ServiceError from '../../../common/service/basicService/ServiceError';
+import { SEReason } from '../../../common/service/basicService/SEReason';
 
 export type ClearCollectionReferences = (
   _id: any,
@@ -120,6 +123,18 @@ export const AddBasicService = () => {
       public updateOneById = async (
         input: any,
       ): Promise<object | boolean | MongooseError> => {
+        if (hasUnsafeMongoUpdateKey(input)) {
+          return [
+            null,
+            [
+              new ServiceError({
+                reason: SEReason.VALIDATION,
+                message:
+                  'Dangerous or invalid key path detected in update object',
+              }),
+            ],
+          ];
+        }
         if (!this.updateOnePostHook)
           return this.model.updateOne({ _id: input._id }, input, {
             raw: true,

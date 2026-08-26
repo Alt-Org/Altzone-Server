@@ -21,6 +21,7 @@ import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { BoxHelper } from './util/boxHelper';
 import {
   IServiceReturn,
+  TIServiceReadManyOptions,
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
 import { ObjectId } from 'mongodb';
@@ -144,12 +145,13 @@ export class BoxService {
   }
 
   /**
-   * Reads all Boxes in DB.
+   * Reads multiple items from the database based on the provided options.
    *
-   * @returns found Boxes
+   * @param options - Settings for the read operation.
+   * @returns A promise that resolves to a tuple where the first element is an array of BoxDto objects, and the second element is either null or an array of ServiceError objects if something went wrong.
    */
-  async readAll() {
-    return this.basicService.readMany<Box>();
+  async readAll(options: TIServiceReadManyOptions) {
+    return this.basicService.readMany<Box>(options);
   }
 
   /**

@@ -31,12 +31,12 @@ export class ClanRewarder {
   clanMaxPoints = 2000;
 
   /**
-   * Increases specified clan points and coins amounts.
+   * Increases specified clan's regular points and coins amounts.
    *
-   * Notice that clan can have 2000 points at max
+   * Notice that clan can have 2000 regular points at max.
    *
    * @param clan_id clan _id for which to increase
-   * @param points amount of points to add, default 0
+   * @param points amount of regular points to add
    * @param coins amount of coins to add, default 0
    * @param session optional client session for transaction
    * @throws ServiceError if clan can not be found during the clan data fetching
@@ -96,9 +96,9 @@ export class ClanRewarder {
   }
 
   /**
-   * Rewards specified clan for an event happen
-   * @param player_id player _id that belongs to the clan to reward
-   * @param clanEvent clan event that happened
+   * Updates a player's clan battlePoints for a battle-related event.
+   * @param player_id player _id that belongs to the clan to update
+   * @param clanEvent battle event that happened
    * @throws MongooseError if any occurred
    * @returns true if clan was rewarded successfully
    */
@@ -106,8 +106,8 @@ export class ClanRewarder {
     player_id: string,
     clanEvent: ClanEvent,
   ): Promise<IServiceReturn<boolean>> {
-    const pointAmount = points[clanEvent];
-    if (pointAmount === undefined)
+    const battlePointAmount = points[clanEvent];
+    if (battlePointAmount === undefined)
       return [
         null,
         [
@@ -137,13 +137,13 @@ export class ClanRewarder {
       ];
     }
 
-    return this.updateClanBattlePoints(player.clan_id, pointAmount);
+    return this.updateClanBattlePoints(player.clan_id, battlePointAmount);
   }
 
   /**
-   * Update specified clan battle points amount
+   * Updates specified clan's battlePoints amount.
    * @param clan_id clan _id
-   * @param battlePoints amount of battle points to increase
+   * @param battlePoints battlePoints delta to apply
    * @throws MongooseError if any occurred
    * @returns true if clan was rewarded successfully
    */

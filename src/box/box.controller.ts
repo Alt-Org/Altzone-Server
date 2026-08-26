@@ -36,6 +36,8 @@ import { Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { NoBoxIdFilter } from './auth/decorator/NoBoxIdFilter.decorator';
 import { AdminSignInDto } from './dto/adminSignIn.dto';
+import { Authorize } from '../authorization/decorator/Authorize';
+import { Action } from '../authorization/enum/action.enum';
 
 @Controller('box')
 @UseGuards(BoxAuthGuard)
@@ -234,7 +236,7 @@ export class BoxController {
   }
 
   /**
-   * Get all boxes. The endpoint for time of development only
+   * Get all Admins boxes.
    *
    * @remarks Endpoint for getting all boxes data
    */
@@ -244,19 +246,19 @@ export class BoxController {
       modelName: ModelName.BOX,
       returnsArray: true,
     },
-    errors: [404],
-    hasAuth: false,
+    errors: [401, 403, 404],
   })
   @Get('/')
-  @NoAuth()
-  @NoBoxIdFilter()
+  @IsGroupAdmin()
   @UniformResponse(ModelName.BOX)
-  public getAll() {
-    return this.service.readAll();
+  public getAll(@LoggedUser() user: BoxUser) {
+    return this.service.readAll({
+      filter: { adminProfile_id: new ObjectId(user.profile_id) },
+    });
   }
 
   /**
-   * Get box by _id. The endpoint for time of development only
+   * Get box by _id.
    *
    * @remarks Endpoint for getting box data by its _id
    */
@@ -265,12 +267,11 @@ export class BoxController {
       dto: BoxDto,
       modelName: ModelName.BOX,
     },
-    errors: [404],
-    hasAuth: false,
+    errors: [401, 403, 404],
   })
   @Get('/:_id')
-  @NoBoxIdFilter()
-  @NoAuth()
+  @IsGroupAdmin()
+  @Authorize({ action: Action.read, subject: BoxDto })
   @UniformResponse(ModelName.BOX)
   public getOne(
     @Param() param: _idDto,
