@@ -87,7 +87,7 @@ export class BoxController {
 
   /**
    * Admin sign in
-   * 
+   *
    * @remarks Checks that admin Profile and Player exist, returns accessToken
    */
   @ApiResponseDescription({
