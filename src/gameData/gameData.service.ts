@@ -210,7 +210,7 @@ export class GameDataService {
 
     // return false, if endedAt doesn't exist to avoid run time crash
     if (!game.endedAt) return false;
-    
+
     if (game.endedAt.getTime() < currentTime.getTime() - 30 * 1000)
       return false;
 
