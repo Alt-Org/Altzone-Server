@@ -509,6 +509,20 @@ export function convertMongooseToServiceErrors(error?: any): ServiceError[] {
   //Not unique field(s)
   if (error?.code === 11000) return convertUniqueErrorToServiceErrors(error);
 
+  //MongoDB is not deployed as a replica set / mongos, so transactions can not be used
+  if (
+    error?.code === 20 &&
+    /replica set member or mongos/i.test(error?.message ?? error?.errmsg ?? '')
+  )
+    return [
+      new ServiceError({
+        reason: SEReason.MISCONFIGURED,
+        message:
+          'MongoDB transactions are not available: the database must be running as a replica set or through mongos. This is a server configuration issue, not a problem with the request.',
+        additional: error,
+      }),
+    ];
+
   //Trying to populate collection, which is not related to the requested
   if (error?.name === 'StrictPopulateError' && error?.path)
     return [

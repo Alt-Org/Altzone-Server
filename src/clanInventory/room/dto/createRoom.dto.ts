@@ -22,7 +22,7 @@ export class CreateRoomDto {
    * @example "Wooden"
    */
   @IsString()
-  floor: string;
+  floorType: string;
 
   /**
    * Type of wall design used in the room

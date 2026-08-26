@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { RoomService } from './room.service';
 import { RoomDto } from './dto/room.dto';
 import { UpdateRoomDto } from './dto/updateRoom.dto';
@@ -21,6 +30,7 @@ import { AddSortQuery } from '../../common/interceptor/request/addSortQuery.inte
 import { OffsetPaginate } from '../../common/interceptor/request/offsetPagination.interceptor';
 import { IGetAllQuery } from '../../common/interface/IGetAllQuery';
 import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
+import { apiValidationExceptionFactory } from '../../common/exceptionFilter/ValidationExceptionFilter';
 
 @Controller('room')
 export class RoomController {
@@ -92,7 +102,7 @@ export class RoomController {
   }
 
   /**
-   * Update room or rooms by _id
+   * Update a Room by _id
    *
    * @remarks Update Room by its _id specified in the body.
    *
@@ -110,8 +120,16 @@ export class RoomController {
   })
   @Put()
   @Authorize({ action: Action.update, subject: UpdateRoomDto })
+  @UsePipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+      exceptionFactory: apiValidationExceptionFactory,
+    }),
+  )
   @UniformResponse()
-  public async update(@Body() body: UpdateRoomDto | UpdateRoomDto[]) {
+  public async update(@Body() body: UpdateRoomDto) {
     const [, errors] = await this.service.updateSoulHomeRooms(body);
     if (errors) return [null, errors];
   }

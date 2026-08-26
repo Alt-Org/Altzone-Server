@@ -10,6 +10,28 @@ import { APIError } from '../controller/APIError';
 import { APIErrorReason } from '../controller/APIErrorReason';
 
 /**
+ * Converts class-validator ValidationErrors thrown by a ValidationPipe into a
+ * Nest BadRequestException with a body of converted APIErrors.
+ *
+ * Meant to be passed as `exceptionFactory` to a NestJS `ValidationPipe` (@nestjs/common).
+ */
+export function apiValidationExceptionFactory(
+  validationErrors: ValidationError[],
+) {
+  const apiErrors: APIError[] = [];
+  for (let i = 0; i < validationErrors.length; i++) {
+    const errors = validationToAPIErrors(validationErrors[i]);
+    apiErrors.push(...errors);
+  }
+
+  return new BadRequestException({
+    statusCode: 400,
+    error: 'Bad Request',
+    errors: apiErrors,
+  });
+}
+
+/**
  * Error filter to handle ValidationErrors thrown by class-validator module.
  *
  * Filter will convert ValidationError(s) to appropriate APIError(s)
