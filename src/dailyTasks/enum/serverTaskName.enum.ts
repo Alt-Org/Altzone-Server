@@ -17,47 +17,45 @@
  * ```
  */
 export enum ServerTaskName {
-// Server tasks 2026
+  // Server tasks 2026
 
   BANISH_THE_EARWORM = 'banish_the_earworm',
-  
+
   // "Pelaa ja voita egon taisto"
   GO_TO_BATTLE = 'go_to_battle',
-  
+
   STRONGER_SOLDIER = 'stronger_soldier',
-  
+
   FORM_AN_INNER_CONNECTION = 'form_an_inner_connection',
-  
+
   PLAY_WITH_EMOTIONS = 'play_with_emotions',
-  
+
   YOUR_VOICE = 'your_voice',
-  
+
   LETTING_GO_OF_THE_OLD = 'letting_go_of_the_old',
-  
+
   RECYCLING_EXPERIENCES = 'recycling_expericnes',
-  
+
   INNER_VOICE = 'inner_voice',
-  
+
   INNER_DISCUSSION = 'inner_discussion',
-  
 
-
-/* Some of the older tasks are commented out,
+  /* Some of the older tasks are commented out,
    some have been kept to keep the server code running at the moment */
-  
+
   WRITE_CHAT_MESSAGE = 'write_chat_message',
 
   //Why?
   /**
    * lataa peli (tää tehtävä on jo valmis ja pitää vaan klikata valmiiksi klaanissa)
    */
-//  DOWNLOAD_GAME = 'download_game',
+  //  DOWNLOAD_GAME = 'download_game',
 
   //Server, what is the song, name of the soundtrack?
   /**
    * vaihda biisi sielunkodissa
    */
-//  CHANGE_SONG_SOULHOME = 'change_song_soulhome',
+  //  CHANGE_SONG_SOULHOME = 'change_song_soulhome',
 
   //Server, what is it, list of soundtrack names?
   /**
@@ -69,7 +67,7 @@ export enum ServerTaskName {
   /**
    * laita esine toisen sisään sielunkodissa
    */
-//  PUT_ITEM_INSIDE_ANOTHER_ITEM_SOULHOME = 'put_item_inside_another_item_soulhome',
+  //  PUT_ITEM_INSIDE_ANOTHER_ITEM_SOULHOME = 'put_item_inside_another_item_soulhome',
 
   //Server, to any?
   /**
@@ -207,13 +205,13 @@ export enum ServerTaskName {
   /**
    * kirjoita esittelytekstisi pelaajaprofiiliin
    */
-//  WRITE_PLAYER_INTRO_TEXT = 'write_player_intro_text',
+  //  WRITE_PLAYER_INTRO_TEXT = 'write_player_intro_text',
 
   //Server, what is that?
   /**
    * määrittele pelaajatyylisi pelaajaprofiiliin
    */
-//  DEFINE_PLAYER_STYLE = 'define_player_style',
+  //  DEFINE_PLAYER_STYLE = 'define_player_style',
 
   //Server, any change of data?
   /**
@@ -225,19 +223,19 @@ export enum ServerTaskName {
   /**
    * määrittele "iskulauseesi"
    */
-//  DEFINE_PLAYER_SLOGAN = 'define_player_slogan',
+  //  DEFINE_PLAYER_SLOGAN = 'define_player_slogan',
 
   //Server, is it feeling or emoji?
   /**
    * reagoi emojilla toisen viestiin
    */
-//  REACT_EMOJI_CHAT = 'react_emoji_chat',
+  //  REACT_EMOJI_CHAT = 'react_emoji_chat',
 
   //Server, what is a clan friend + how he/she is called?
   /**
    * kutsu klaanikaveri battleen
    */
-//  CALL_CLAN_TO_FRIEND_BATTLE = 'call_clan_friend_to_battle',
+  //  CALL_CLAN_TO_FRIEND_BATTLE = 'call_clan_friend_to_battle',
 
   //Server, what is a friend, add where?
   /**
@@ -249,48 +247,48 @@ export enum ServerTaskName {
   /**
    * jaa battle-replay klaani chattiin
    */
-//  SHARE_BATTLE_REPLAY_CLAN_CHAT = 'share_battle_replay_clan_chat',
+  //  SHARE_BATTLE_REPLAY_CLAN_CHAT = 'share_battle_replay_clan_chat',
 
   //How to implement? One such implementation is to ask a question that can be answered only after joining a server.
   // like if the discord server is closed and the question is "what is the name of main channel?"
   /**
    * liity pelin discordiin
    */
-//  JOIN_GAME_DISCORD = 'join_game_discord',
+  //  JOIN_GAME_DISCORD = 'join_game_discord',
 
   //Where? Same questions as with SHARE_BATTLE_REPLAY_CLAN_CHAT
   /**
    * katso klaanilaisen replay-video
    */
-//  WATCH_REPLAY_VIDEO = 'watch_reply_video',
+  //  WATCH_REPLAY_VIDEO = 'watch_reply_video',
 
   //Where? Same as with SHARE_BATTLE_REPLAY_CLAN_CHAT
   /**
    * jaa matsin replay-video
    */
-//  SHARE_REPLAY_VIDEO = 'share_reply_video',
+  //  SHARE_REPLAY_VIDEO = 'share_reply_video',
 
   //Server, how to measure?
   /**
    * valitse pelihahmo, joka heijastaa parhaiten pelaajatyyliäsi
    */
-//  CHOOSE_CHARACTER_OF_YOUR_STYLE = 'choose_character_of_your_style',
+  //  CHOOSE_CHARACTER_OF_YOUR_STYLE = 'choose_character_of_your_style',
 
   //Server, how to measure + where is the interior?
   /**
    * tee yhtenäinen sisustus
    */
-//  CREATE_UNIFIED_INTERIOR = 'create_unified_interior',
+  //  CREATE_UNIFIED_INTERIOR = 'create_unified_interior',
 
   //What is that?
   /**
    * katso replay ja klikkaa sopivaa tunnereaktiota eri kohdissa
    */
-//  WATCH_REPLAY_REACT_FEELING = 'watch_reply_react_feeling',
+  //  WATCH_REPLAY_REACT_FEELING = 'watch_reply_react_feeling',
 
   //What is player type, where is it defined. How is it different from player style
   /**
    * määrittele pelaajaprofiiliin pelaajatyyppisi
    */
-//  DEFINE_PLAYER_TYPE = 'define_player_type',
+  //  DEFINE_PLAYER_TYPE = 'define_player_type',
 }
