@@ -18,6 +18,177 @@ export type UIDailyTaskData = {
  * Record with basic information about each UI managed daily task
  */
 export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
+  [UITaskName.FIND_THE_ERROR]: {
+    title: {
+      fi: 'etsi sisäinen toimintahäiriö',
+    },
+    type: UITaskName.FIND_THE_ERROR,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.PLAY_MELODY]: {
+    title: {
+      fi: 'soita_sävelmä',
+    },
+    type: UITaskName.PLAY_MELODY,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.CHOOSE_YOUR_TRUTH]: {
+    title: {
+      fi: 'valitse prologin näkymä, joka herättää eniten tunnistettavan tunteen',
+    },
+    type: UITaskName.CHOOSE_YOUR_TRUTH,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.HOLD_THE_CHARACTER]: {
+    title: {
+      fi: 'pysähdy defenssisoturin äärelle ja kuuntele sen taustaa',
+    },
+    type: UITaskName.HOLD_THE_CHARACTER,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.WHERE_ARE_YOU]: {
+    title: {
+      fi: 'tunnista tila jossa sisäinen tapahtuma tapahtuu',
+    },
+    type: UITaskName.WHERE_ARE_YOU,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.FOLLOW_THE_VOICE]: {
+    title: {
+      fi: 'etsi ohjeet jotka oikeasti ohjaavat toimintaasi',
+    },
+    type: UITaskName.FOLLOW_THE_VOICE,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.BUILD_YOUR_WORLD]: {
+    title: { fi: 'muodosta turvapaikkaan yhtenäinen kokemus yhdestä teemasta' },
+    type: UITaskName.BUILD_YOUR_WORLD,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.READ_THE_SIGNS]: {
+    title: { fi: 'etsi symboli joka ei selitä itseään vaan ehdottaa' },
+    type: UITaskName.READ_THE_SIGNS,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.FIND_THE_ROOTS]: {
+    title: { fi: 'löydä osa, jossa toisen vaikutus on muokannut sinua' },
+    type: UITaskName.FIND_THE_ROOTS,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.LOOK_INSIDE]: {
+    title: { fi: 'tunnista millainen rakenne sinua ohjaa' },
+    type: UITaskName.LOOK_INSIDE,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.SET_BOUNDARIES]: {
+    title: { fi: 'valitse sisäiset periaatteesi' },
+    type: UITaskName.LOOK_INSIDE,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.USE_OF_POWER]: {
+    title: {
+      fi: 'missä käyt sisäisen valtataistelusi tai punnitset eri vaihtoehtoja?',
+    },
+    type: UITaskName.USE_OF_POWER,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.COMMON_FACTOR]: {
+    title: {
+      fi: 'mitä olet oppinut joltain toiselta? etsi teitä yhdistävä asia',
+    },
+    type: UITaskName.COMMON_FACTOR,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.SPIRITUAL_CURRENCY]: {
+    title: { fi: 'etsi pelistä henkisenvaluutan symboli' },
+    type: UITaskName.SPIRITUAL_CURRENCY,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.REWARD_TRAPS]: {
+    title: { fi: 'tunnista, missä syntyy dopamiinia ja onnistumisen tunnetta' },
+    type: UITaskName.REWARD_TRAPS,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.MORAL_DILEMMAS]: {
+    title: {
+      fi: 'etsi kohta, jossa jouduit pohtimaan oikean ja väärän merkitystä',
+    },
+    type: UITaskName.MORAL_DILEMMAS,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.ECO_FRIENDLY]: {
+    title: { fi: 'huomaa miten toimintasi jättää jäljen tähän maailmaan' },
+    type: UITaskName.ECO_FRIENDLY,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.HUNTING_FOR_VALUES]: {
+    title: { fi: 'miten ohjenuorasi rakentuu. minkälaisia arvoja edustat?' },
+    type: UITaskName.HUNTING_FOR_VALUES,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  [UITaskName.ETHICS_METRICS]: {
+    title: { fi: 'kumpi soturisi kulkee parempaa polkua?' },
+    type: UITaskName.ETHICS_METRICS,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
+  // here begin the old UI daily tasks
   [UITaskName.FIND_3_IMPORTANT_BUTTONS]: {
     title: {
       fi: 'etsi käyttöliittymän kannalta mielestäsi 3 tärkeintä painiketta',
