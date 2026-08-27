@@ -117,6 +117,23 @@ export class StockService {
   }
 
   /**
+   * Retrieves the clan ID that owns the Stock.
+   *
+   * @param _id - The Mongo _id of the Clan Stock.
+   * @returns A promise that resolves to a tuple where the first element is the clan ID (string) or null and the second element is either null or an array of ServiceErrors.
+   */
+  async getStockClanId(
+    _id: string,
+  ): Promise<[string | null, ServiceError[] | null]> {
+    const [stock, errors] = await this.basicService.readOneById<StockDto>(_id, {
+      select: ['clan_id'],
+    });
+    if (errors) return [null, errors];
+
+    return [stock.clan_id.toString(), null];
+  }
+
+  /**
    * Reads all Items stored in the specified Stock.
    *
    * @param _id Stock _id.
