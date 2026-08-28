@@ -130,6 +130,21 @@ export class RoomController {
   )
   @UniformResponse()
   public async update(@Body() body: UpdateRoomDto) {
+    const hasSoulHome_id = 'soulHome_id' in body;
+
+    if (hasSoulHome_id) {
+      return [
+        null,
+        [
+          new APIError({
+            reason: APIErrorReason.BAD_REQUEST,
+            field: 'soulHome_id',
+            message: 'soulHome_id cannot be included',
+          }),
+        ],
+      ];
+    }
+
     const [, errors] = await this.service.updateSoulHomeRooms(body);
     if (errors) return [null, errors];
   }
