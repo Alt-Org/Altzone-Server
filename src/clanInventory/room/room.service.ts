@@ -233,201 +233,200 @@ export class RoomService {
   }
 
   /**
- * Update one or multiple Rooms and their Items
- *
- * @param payload - Single Room or Array of Rooms with Items to update
- * @returns _true_ if update successful, else Errors
- */
-async updateSoulHomeRooms(
-  payload: UpdateRoomDto | UpdateRoomDto[],
-): Promise<IServiceReturn<boolean>> {
-  if (!payload) {
-    return [
-      null,
-      [
-        new ServiceError({
-          message: 'No room in the update',
-          reason: SEReason.REQUIRED,
-        }),
-      ],
-    ];
-  }
-
-  const rooms = Array.isArray(payload) ? payload : [payload];
-
-  if (!rooms.length)
-    return [
-      null,
-      [
-        new ServiceError({
-          message: 'No room in the update',
-          reason: SEReason.REQUIRED,
-        }),
-      ],
-    ];
-
-  const [session, initErrors] = await initializeSession(this.connection);
-  if (initErrors) return [null, initErrors];
-
-  const roomBulk: any[] = [];
-  const itemBulk: any[] = [];
-  let soulHomeId: string | null = null;
-  let clanId: string | null = null;
-
-  for (const room of rooms) {
-    const { _id, furniture: furnitureField, ...roomFields } = room;
-    const furniture = furnitureField ?? [];
-    const hasFurnitureUpdate = 'furniture' in room;
-    const hasRoomFields = Object.keys(roomFields).length > 0;
-
-    if (!hasRoomFields && !hasFurnitureUpdate) {
-      return cancelTransaction(session, [
-        new ServiceError({
-          message: `No fields to update for room "${_id}"`,
-          reason: SEReason.REQUIRED,
-          field: '_id',
-          value: _id,
-        }),
-      ]);
+   * Update one or multiple Rooms and their Items
+   *
+   * @param payload - Single Room or Array of Rooms with Items to update
+   * @returns _true_ if update successful, else Errors
+   */
+  async updateSoulHomeRooms(
+    payload: UpdateRoomDto | UpdateRoomDto[],
+  ): Promise<IServiceReturn<boolean>> {
+    if (!payload) {
+      return [
+        null,
+        [
+          new ServiceError({
+            message: 'No room in the update',
+            reason: SEReason.REQUIRED,
+          }),
+        ],
+      ];
     }
 
-    const [fullRoom, fullRoomErrors] = await this.basicService.readOneById(
-      _id,
-      { session },
-    );
-    if (fullRoomErrors) return cancelTransaction(session, fullRoomErrors);
+    const rooms = Array.isArray(payload) ? payload : [payload];
 
-    if (!soulHomeId) {
-      soulHomeId = fullRoom.soulHome_id.toString();
-      const [soulHome, soulHomeErrors] =
-        await this.soulHomeService.basicService.readOneById(
-          soulHomeId,
-          { session },
-        );
-      if (soulHomeErrors) return cancelTransaction(session, soulHomeErrors);
+    if (!rooms.length)
+      return [
+        null,
+        [
+          new ServiceError({
+            message: 'No room in the update',
+            reason: SEReason.REQUIRED,
+          }),
+        ],
+      ];
 
-      const [stock, stockErrors] =
-        await this.stockService.basicService.readOne({
-          filter: { clan_id: soulHome.clan_id },
-          session,
-        });
-      if (stockErrors) return cancelTransaction(session, stockErrors);
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (initErrors) return [null, initErrors];
 
-      clanId = soulHome.clan_id.toString();
-    }
+    const roomBulk: any[] = [];
+    const itemBulk: any[] = [];
+    let soulHomeId: string | null = null;
+    let clanId: string | null = null;
 
-    if (hasRoomFields) {
-      roomBulk.push({
-        updateOne: {
-          filter: { _id },
-          update: { $set: roomFields },
-        },
-      });
-    }
+    for (const room of rooms) {
+      const { _id, furniture: furnitureField, ...roomFields } = room;
+      const furniture = furnitureField ?? [];
+      const hasFurnitureUpdate = 'furniture' in room;
+      const hasRoomFields = Object.keys(roomFields).length > 0;
 
-    if (hasFurnitureUpdate) {
-      const itemIds = furniture.map((item) => item._id);
+      if (!hasRoomFields && !hasFurnitureUpdate) {
+        return cancelTransaction(session, [
+          new ServiceError({
+            message: `No fields to update for room "${_id}"`,
+            reason: SEReason.REQUIRED,
+            field: '_id',
+            value: _id,
+          }),
+        ]);
+      }
 
-      for (const item of furniture) {
-        const { _id: itemId, ...itemFields } = item;
-        itemBulk.push({
+      const [fullRoom, fullRoomErrors] = await this.basicService.readOneById(
+        _id,
+        { session },
+      );
+      if (fullRoomErrors) return cancelTransaction(session, fullRoomErrors);
+
+      if (!soulHomeId) {
+        soulHomeId = fullRoom.soulHome_id.toString();
+        const [soulHome, soulHomeErrors] =
+          await this.soulHomeService.basicService.readOneById(soulHomeId, {
+            session,
+          });
+        if (soulHomeErrors) return cancelTransaction(session, soulHomeErrors);
+
+        const [stock, stockErrors] =
+          await this.stockService.basicService.readOne({
+            filter: { clan_id: soulHome.clan_id },
+            session,
+          });
+        if (stockErrors) return cancelTransaction(session, stockErrors);
+
+        clanId = soulHome.clan_id.toString();
+      }
+
+      if (hasRoomFields) {
+        roomBulk.push({
           updateOne: {
-            filter: { _id: itemId },
-            update: {
-              $set: {
-                room_id: _id,
-                stock_id: null,
-                ...itemFields,
-              },
-            },
+            filter: { _id },
+            update: { $set: roomFields },
           },
         });
       }
 
-      const [currentItems] = await this.itemService.basicService.readMany({
-        filter: { room_id: _id },
-        session,
-      });
+      if (hasFurnitureUpdate) {
+        const itemIds = furniture.map((item) => item._id);
 
-      if (currentItems) {
-        const updatedSet = new Set(itemIds);
-        const removedItemIds = currentItems
-          .filter((item) => !updatedSet.has(item._id.toString()))
-          .map((item) => item._id);
-
-        if (removedItemIds.length > 0) {
-          const [stock] = await this.stockService.basicService.readOne({
-            filter: { clan_id: clanId },
-            session,
-          });
-
+        for (const item of furniture) {
+          const { _id: itemId, ...itemFields } = item;
           itemBulk.push({
-            updateMany: {
-              filter: {
-                _id: { $in: removedItemIds },
-              },
+            updateOne: {
+              filter: { _id: itemId },
               update: {
                 $set: {
-                  location: [-1, -1],
-                  placedOn_id: null,
-                  placedOnLocation: [-1, -1],
-                  room_id: null,
-                  stock_id: stock._id,
+                  room_id: _id,
+                  stock_id: null,
+                  ...itemFields,
                 },
               },
             },
           });
         }
+
+        const [currentItems] = await this.itemService.basicService.readMany({
+          filter: { room_id: _id },
+          session,
+        });
+
+        if (currentItems) {
+          const updatedSet = new Set(itemIds);
+          const removedItemIds = currentItems
+            .filter((item) => !updatedSet.has(item._id.toString()))
+            .map((item) => item._id);
+
+          if (removedItemIds.length > 0) {
+            const [stock] = await this.stockService.basicService.readOne({
+              filter: { clan_id: clanId },
+              session,
+            });
+
+            itemBulk.push({
+              updateMany: {
+                filter: {
+                  _id: { $in: removedItemIds },
+                },
+                update: {
+                  $set: {
+                    location: [-1, -1],
+                    placedOn_id: null,
+                    placedOnLocation: [-1, -1],
+                    room_id: null,
+                    stock_id: stock._id,
+                  },
+                },
+              },
+            });
+          }
+        }
       }
     }
-  }
 
-  if (roomBulk.length) {
-    const [, roomErrors] = await this.basicService.bulkWrite(roomBulk, {
-      session,
-    });
-    if (roomErrors) return cancelTransaction(session, roomErrors);
-  }
+    if (roomBulk.length) {
+      const [, roomErrors] = await this.basicService.bulkWrite(roomBulk, {
+        session,
+      });
+      if (roomErrors) return cancelTransaction(session, roomErrors);
+    }
 
-  if (itemBulk.length) {
-    const [, itemErrors] = await this.itemService.basicService.bulkWrite(
-      itemBulk,
-      { session },
-    );
-    if (itemErrors) return cancelTransaction(session, itemErrors);
-  }
-
-  if (soulHomeId && clanId) {
-    const [shRooms, shRoomsErrors] = await this.basicService.readMany({
-      filter: { soulHome_id: soulHomeId },
-      session,
-    });
-    if (shRoomsErrors) return cancelTransaction(session, shRoomsErrors);
-
-    const allRoomIds = shRooms.map((r) => r._id);
-
-    const [items] = await this.itemService.basicService.readMany({
-      filter: { room_id: { $in: allRoomIds } },
-      session,
-    });
-
-    const value = items
-      ? items.reduce((sum, current) => sum + current.price, 0)
-      : 0;
-
-    const [, clanUpdateErrors] =
-      await this.clanService.basicService.updateOneById(
-        clanId,
-        { $set: { furnitureTotalValue: value } },
+    if (itemBulk.length) {
+      const [, itemErrors] = await this.itemService.basicService.bulkWrite(
+        itemBulk,
         { session },
       );
-    if (clanUpdateErrors) return cancelTransaction(session, clanUpdateErrors);
+      if (itemErrors) return cancelTransaction(session, itemErrors);
+    }
+
+    if (soulHomeId && clanId) {
+      const [shRooms, shRoomsErrors] = await this.basicService.readMany({
+        filter: { soulHome_id: soulHomeId },
+        session,
+      });
+      if (shRoomsErrors) return cancelTransaction(session, shRoomsErrors);
+
+      const allRoomIds = shRooms.map((r) => r._id);
+
+      const [items] = await this.itemService.basicService.readMany({
+        filter: { room_id: { $in: allRoomIds } },
+        session,
+      });
+
+      const value = items
+        ? items.reduce((sum, current) => sum + current.price, 0)
+        : 0;
+
+      const [, clanUpdateErrors] =
+        await this.clanService.basicService.updateOneById(
+          clanId,
+          { $set: { furnitureTotalValue: value } },
+          { session },
+        );
+      if (clanUpdateErrors) return cancelTransaction(session, clanUpdateErrors);
+    }
+
+    await endTransaction(session);
+
+    return [true, null];
   }
-
-  await endTransaction(session);
-
-  return [true, null];
-}
 
   /**
    * Create data for a new Room in SoulHome

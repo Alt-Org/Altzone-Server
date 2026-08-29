@@ -8,7 +8,11 @@ import {
 } from '@casl/ability';
 import { Action } from '../enum/action.enum';
 import { RulesSetterAsync } from '../type/RulesSetter.type';
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { MongooseError } from 'mongoose';
 import { RoomDto } from '../../clanInventory/room/dto/room.dto';
@@ -38,7 +42,9 @@ export const roomRules: RulesSetterAsync<Ability, Subjects> = async (
       throw new BadRequestException('No room update objects provided');
     }
 
-    const roomItems: any[] = Array.isArray(subjectObj) ? subjectObj : [subjectObj];
+    const roomItems: any[] = Array.isArray(subjectObj)
+      ? subjectObj
+      : [subjectObj];
 
     if (roomItems.length === 0) {
       throw new BadRequestException('No room update objects provided');
@@ -73,10 +79,7 @@ export const roomRules: RulesSetterAsync<Ability, Subjects> = async (
 
       const clan_id = await getClan_id(user, requestHelperService);
 
-      if (
-        !clan_id ||
-        soulHome.clan_id?.toString() !== clan_id?.toString()
-      ) {
+      if (!clan_id || soulHome.clan_id?.toString() !== clan_id?.toString()) {
         throw new ForbiddenException(
           'Room does not belong to the logged-in user Clan',
         );
