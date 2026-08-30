@@ -95,49 +95,49 @@ export enum ServerTaskName {
   /**
    * onnistu ryöstössä
    */
-  SUCCEED_STEAL = 'succeed_steal',
+  // SUCCEED_STEAL = 'succeed_steal',
 
   //Server, how much is too much?
   /**
    * ryöstä liikaa tavaraa
    */
-  STEAL_TOO_MUCH = 'steal_too_much',
+  // STEAL_TOO_MUCH = 'steal_too_much',
 
   //Server + what does each mean?
   /**
    * muokkaa pelihahmosta nopea
    */
-  CHANGE_CHARACTER_BE_FAST = 'change_character_be_fast',
+  // CHANGE_CHARACTER_BE_FAST = 'change_character_be_fast',
   /**
    * muokkaa pelihahmosta kestävä (HP)
    */
-  CHANGE_CHARACTER_BE_RESISTANT = 'change_character_be_resistant',
+  // CHANGE_CHARACTER_BE_RESISTANT = 'change_character_be_resistant',
   /**
    * muokkaa pelihahmosta voimakas
    */
-  CHANGE_CHARACTER_BE_STRONG = 'change_character_be_strong',
+  // CHANGE_CHARACTER_BE_STRONG = 'change_character_be_strong',
   /**
    * muokkaa pelihahmosta isokokoinen
    */
-  CHANGE_CHARACTER_BE_LARGE = 'change_character_be_large',
+  // CHANGE_CHARACTER_BE_LARGE = 'change_character_be_large',
 
   //Server or client, depends on what does it mean? mb not implement if too complicated
   /**
    * käytä kaikki sielunkotisi esineet
    */
-  USE_ALL_ITEMS_SOULHOME = 'use_all_items_soulhome',
+  // USE_ALL_ITEMS_SOULHOME = 'use_all_items_soulhome',
 
   //Server + is "asento" = place / coordinates? and what does items mean, is it 2 or more or all of them?
   /**
    * vaihda sielunkodin esineiden asentoja
    */
-  CHANGE_ITEMS_POSITION = 'change_items_position',
+  // CHANGE_ITEMS_POSITION = 'change_items_position',
 
   //What is that?
   /**
    * luo pelistrategia
    */
-  CREATE_GAME_STRATEGY = 'create_game_strategy',
+  // CREATE_GAME_STRATEGY = 'create_game_strategy',
 
   //Server
   /**
@@ -154,31 +154,31 @@ export enum ServerTaskName {
   /**
    * laita privaviesti toiselle pelaajalle
    */
-  WRITE_CHAT_MESSAGE_PRIVATE = 'write_chat_message_private',
+  // WRITE_CHAT_MESSAGE_PRIVATE = 'write_chat_message_private',
 
   //How?
   /**
    * löydä kaikki chat-vaihtoehdot
    */
-  FIND_ALL_CHAT_OPTIONS = 'find_all_chat_options',
+  // FIND_ALL_CHAT_OPTIONS = 'find_all_chat_options',
 
   //Server
   /**
    * käytä kaikkia eri tunne-emojeita
    */
-  USE_ALL_CHAT_FEELINGS = 'use_all_chat_feelings',
+  //  USE_ALL_CHAT_FEELINGS = 'use_all_chat_feelings',
 
   //How, in chat and is it emoji or feeling?
   /**
    * reagoi emojilla matsissa
    */
-  REACT_EMOJI_BATTLE = 'react_emoji_battle',
+  // REACT_EMOJI_BATTLE = 'react_emoji_battle',
 
   //Server, is it = put item to sell to flea market?
   /**
    * laita tavaraa klaanissa myyntiin
    */
-  SELL_CLAN_ITEM = 'sell_clan_item',
+  // SELL_CLAN_ITEM = 'sell_clan_item',
 
   //Server
   /**
@@ -188,7 +188,7 @@ export enum ServerTaskName {
   /**
    * luo uusi äänestys klaaniin
    */
-  CREATE_CLAN_VOTING = 'create_clan_voting',
+  // CREATE_CLAN_VOTING = 'create_clan_voting',
 
   //Server, what is the difference from SELL_CLAN_ITEM?
   /**
@@ -217,7 +217,7 @@ export enum ServerTaskName {
   /**
    * muokkaa avatarisi ulkonäköä
    */
-  CHANGE_AVATAR_OUTLOOK = 'change_avatar_outlook',
+  CHANGE_AVATAR_OUTLOOK = 'change_avatar_outlook', // is related server code
 
   //Server, what is the slogan and how is it different from intro text
   /**
@@ -241,7 +241,7 @@ export enum ServerTaskName {
   /**
    * lisää kaveri
    */
-  ADD_FRIEND = 'add_friend',
+  // ADD_FRIEND = 'add_friend',
 
   //Server, what and why, requires a lot of work, is it worth it?
   /**
