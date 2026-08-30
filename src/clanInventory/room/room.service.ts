@@ -1,12 +1,13 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Model, ClientSession, Connection } from 'mongoose';
+import { Model, ClientSession, Connection, AnyBulkWriteOperation } from 'mongoose';
 import { Room } from './room.schema';
 import { UpdateRoomDto } from './dto/updateRoom.dto';
 import { CreateRoomDto } from './dto/createRoom.dto';
 import { RoomDto } from './dto/room.dto';
 import RoomHelperService from './utils/room.helper.service';
 import { ItemService } from '../item/item.service';
+import { Item } from '../item/item.schema';
 import { ModelName } from '../../common/enum/modelName.enum';
 import BasicService from '../../common/service/basicService/BasicService';
 import {
@@ -269,8 +270,8 @@ export class RoomService {
     const [session, initErrors] = await initializeSession(this.connection);
     if (initErrors) return [null, initErrors];
 
-    const roomBulk: any[] = [];
-    const itemBulk: any[] = [];
+    const roomBulk: AnyBulkWriteOperation<Room>[] = [];
+    const itemBulk: AnyBulkWriteOperation<Item>[] = [];
     let soulHomeId: string | null = null;
     let clanId: string | null = null;
 
