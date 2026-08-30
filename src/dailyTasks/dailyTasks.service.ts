@@ -58,7 +58,7 @@ export class DailyTasksService {
     clanId: string,
   ): IServiceReturn<Omit<DailyTask, '_id'>[]> {
     const tasks: Omit<DailyTask, '_id'>[] = [];
-    
+
     // There will be 10 server tasks only, at the moment there are
     // some of the old ones, too. In total 20.
     // so this number (11) will change!
