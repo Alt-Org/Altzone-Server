@@ -25,8 +25,7 @@ export class TaskGeneratorService {
     //TODO: Differentiate the task, that can be auto generated and the tasks that need to be predefined, when the daily tasks logic will be defined properly
     // const taskTypes = Object.values(ServerTaskName);
     const taskTypes = [
-      ServerTaskName.PLAY_BATTLE,
-      ServerTaskName.WIN_BATTLE,
+      ServerTaskName.GO_TO_BATTLE,
       ServerTaskName.WRITE_CHAT_MESSAGE,
     ];
     const randomIndex = Math.floor(Math.random() * taskTypes.length);
@@ -43,10 +42,8 @@ export class TaskGeneratorService {
    */
   getTaskTitle(type: ServerTaskName, amount: number): TaskTitle {
     switch (type) {
-      case ServerTaskName.PLAY_BATTLE:
+      case ServerTaskName.GO_TO_BATTLE:
         return { fi: `Pelaa ${amount} taistelua` };
-      case ServerTaskName.WIN_BATTLE:
-        return { fi: `Voita ${amount} taistelua` };
       case ServerTaskName.WRITE_CHAT_MESSAGE:
         return { fi: `Lähetä ${amount} viestiä chattiin` };
       default:

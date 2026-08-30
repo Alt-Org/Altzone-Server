@@ -7,19 +7,11 @@ import { Score } from '../../common/values/scoring.values';
  */
 export const defaultPredefinedDailyTasks: CreatePredefinedDailyTaskDto[] = [
   {
-    type: ServerTaskName.PLAY_BATTLE,
+    type: ServerTaskName.GO_TO_BATTLE,
     title: 'Pelaa otteluita',
     amount: 5,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
-    timeLimitMinutes: 60,
-  },
-  {
-    type: ServerTaskName.WIN_BATTLE,
-    title: 'Voita otteluita',
-    amount: 3,
-    points: Score.DAILY_TASK.COMPLETED,
-    coins: 15,
     timeLimitMinutes: 60,
   },
 ];
