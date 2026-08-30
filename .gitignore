@@ -119,3 +119,6 @@ testAPI/**/*spec.js.map
 .idea/
 .vscode/
 .run/
+
+# development scripts for temporal use
+devscripts/
