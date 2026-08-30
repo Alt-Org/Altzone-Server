@@ -189,7 +189,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     timeLimitMinutes: 60,
   },
   // here begin the old UI daily tasks
-  [UITaskName.FIND_3_IMPORTANT_BUTTONS]: {
+  /*  [UITaskName.FIND_3_IMPORTANT_BUTTONS]: {
     title: {
       fi: 'etsi käyttöliittymän kannalta mielestäsi 3 tärkeintä painiketta',
     },
@@ -198,72 +198,72 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.EXPLODE_CHARACTER_BATTLE]: {
+  },*/
+  /* [UITaskName.EXPLODE_CHARACTER_BATTLE]: {
     title: { fi: 'räjäytä hahmosi ryöstössä' },
     type: UITaskName.EXPLODE_CHARACTER_BATTLE,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.WHAT_IS_MISSING]: {
+  },*/
+  /*[UITaskName.WHAT_IS_MISSING]: {
     title: { fi: 'Mitä puuttuu?' },
     type: UITaskName.WHAT_IS_MISSING,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.FIND_BUG]: {
+  },*/
+  /* [UITaskName.FIND_BUG]: {
     title: { fi: 'Etsi bugi!' },
     type: UITaskName.FIND_BUG,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.FIND_ALL_INSTRUCTION_WINDOWS]: {
+  },*/
+  /*[UITaskName.FIND_ALL_INSTRUCTION_WINDOWS]: {
     title: { fi: 'löydä kaikki pelin ohjeistusikkunat ja paina niitä' },
     type: UITaskName.FIND_ALL_INSTRUCTION_WINDOWS,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.FIND_VARIABLE_VALUE_IN_GAME]: {
+  },*/
+  /* [UITaskName.FIND_VARIABLE_VALUE_IN_GAME]: {
     title: { fi: 'Löydä muuttuja toiminnassa!' },
     type: UITaskName.FIND_VARIABLE_VALUE_IN_GAME,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.MAKE_MUSIC_WITH_BUTTONS]: {
+  },*/
+  /*[UITaskName.MAKE_MUSIC_WITH_BUTTONS]: {
     title: { fi: 'tee näppäimillä musiikkia' },
     type: UITaskName.MAKE_MUSIC_WITH_BUTTONS,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.INFLUENCE_OPPONENT_GAME_CHAT_EMOJI]: {
+  },*/
+  /*[UITaskName.INFLUENCE_OPPONENT_GAME_CHAT_EMOJI]: {
     title: { fi: 'vaikuta vastustajan peliin viestimällä emojeita' },
     type: UITaskName.INFLUENCE_OPPONENT_GAME_CHAT_EMOJI,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.PRESS_3_SYMBOL_FURNITURE]: {
+  },*/
+  /*[UITaskName.PRESS_3_SYMBOL_FURNITURE]: {
     title: { fi: 'paina kolmea symboliikkaa sisältävää huonekalua' },
     type: UITaskName.PRESS_3_SYMBOL_FURNITURE,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.PRESS_STORY_MOST_IMPRESSIVE_PANELS]: {
+  },*/
+  /* [UITaskName.PRESS_STORY_MOST_IMPRESSIVE_PANELS]: {
     title: {
       fi: 'TUNNETEHTÄVÄ > klikkaa alkutarinasta sinusta vaikuttavinta ruutua',
     },
@@ -272,24 +272,24 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.WHERE_GAME_HAPPENS]: {
+  },*/
+  /* [UITaskName.WHERE_GAME_HAPPENS]: {
     title: { fi: 'missä peli tarinan mukaan tapahtuu?' },
     type: UITaskName.WHERE_GAME_HAPPENS,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.PRESS_STORY_TELLING_INSTRUCTIONS]: {
+  },*/
+  /* [UITaskName.PRESS_STORY_TELLING_INSTRUCTIONS]: {
     title: { fi: 'klikkaa tarinaa kertovia ohjeistuksia' },
     type: UITaskName.PRESS_STORY_TELLING_INSTRUCTIONS,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-
+  },*/
+  /*
   [UITaskName.PRESS_CHARACTER_DESCRIPTION]: {
     title: { fi: 'lue ja paina pelihahmon kuvausta' },
     type: UITaskName.PRESS_CHARACTER_DESCRIPTION,
@@ -297,72 +297,72 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.RECOGNIZE_CHARACTER_MECHANIC]: {
+  },*/
+  /* [UITaskName.RECOGNIZE_CHARACTER_MECHANIC]: {
     title: { fi: 'tunnista pelihahmon tarinallinen mekaniikka' },
     type: UITaskName.RECOGNIZE_CHARACTER_MECHANIC,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.CONTINUE_CLAN_STORY]: {
+  },*/
+  /*[UITaskName.CONTINUE_CLAN_STORY]: {
     title: { fi: 'jatka klaanin tarinaa' },
     type: UITaskName.CONTINUE_CLAN_STORY,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.RECOGNIZE_GRAPHIC_HINTS]: {
+  },*/
+  /* [UITaskName.RECOGNIZE_GRAPHIC_HINTS]: {
     title: { fi: 'tunnista graafiset vihjeet' },
     type: UITaskName.RECOGNIZE_GRAPHIC_HINTS,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.RECOGNIZE_AUDIO_HINTS]: {
+  },*/
+  /*[UITaskName.RECOGNIZE_AUDIO_HINTS]: {
     title: { fi: 'tunnista äänimaailman vihjeet' },
     type: UITaskName.RECOGNIZE_AUDIO_HINTS,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.WRITE_BATTLE_DIALOG]: {
+  },*/
+  /* [UITaskName.WRITE_BATTLE_DIALOG]: {
     title: { fi: 'kirjoita battlen dialogi' },
     type: UITaskName.WRITE_BATTLE_DIALOG,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.FIND_UI_SYMBOLIC_GRAPHICS]: {
+  },*/
+  /*[UITaskName.FIND_UI_SYMBOLIC_GRAPHICS]: {
     title: { fi: 'löydä käyttöliittymästä symbolista grafiikkaa' },
     type: UITaskName.FIND_UI_SYMBOLIC_GRAPHICS,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.CHOOSE_FAVORITE_INTERIOR_SERIES]: {
+  },*/
+  /*[UITaskName.CHOOSE_FAVORITE_INTERIOR_SERIES]: {
     title: { fi: 'valitse lemppari sisustus-sarjasi' },
     type: UITaskName.CHOOSE_FAVORITE_INTERIOR_SERIES,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.PRESS_YOURSELF_IDENTIFYING_STORIES]: {
+  },*/
+  /*[UITaskName.PRESS_YOURSELF_IDENTIFYING_STORIES]: {
     title: { fi: 'klikkaa tarinoita joihin pystyt samastumaan' },
     type: UITaskName.PRESS_YOURSELF_IDENTIFYING_STORIES,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-
+  },*/
+  /*
   [UITaskName.WHAT_IS_GAME_STORY]: {
     title: { fi: 'mikä on pelin viesti? mistä peli kertoo?' },
     type: UITaskName.WHAT_IS_GAME_STORY,
@@ -370,7 +370,8 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
+  },*/
+  /*
   [UITaskName.PRESS_STORY_EXPANDING_OBJECTS]: {
     title: {
       fi: 'etsi ja klikkaa pelin tarinaa laajentavia asioita nettisivuilta',
@@ -380,7 +381,8 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
+  },*/
+  /*
   [UITaskName.PRESS_FAMOUS_THINGS_REFERRING_OBJECTS]: {
     title: {
       fi: 'klikkaa tunnettuihin teoksiin, ideoihin tai ihmisiin viittaavia asioita',
@@ -390,7 +392,8 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
+  },*/
+  /*
   [UITaskName.PRESS_OTHER_GRAPHIC_STYLE_ELEMENTS]: {
     title: {
       fi: 'etsi ja klikkaa graafisia elementtejä, jotka viittaavat muihin taiteenlajeihin',
@@ -400,7 +403,8 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
+  },*/
+  /*
   [UITaskName.WHAT_STYLE_TYPES_GAME_HAS]: {
     title: { fi: 'mitä lajityyppiä (tai useampaa) peli sinulle edustaa?' },
     type: UITaskName.WHAT_STYLE_TYPES_GAME_HAS,
@@ -408,7 +412,8 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
+  },*/
+  /*
   [UITaskName.PRESS_FAMOUS_CHARACTER]: {
     title: { fi: 'klikkaa pelihahmoa josta tulee mieleen joku tunnettu hahmo' },
     type: UITaskName.PRESS_FAMOUS_CHARACTER,
@@ -416,15 +421,16 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.WHAT_FAMOUS_GAME_REMINDING]: {
+  },*/
+  /* [UITaskName.WHAT_FAMOUS_GAME_REMINDING]: {
     title: { fi: 'mitä tunnettua peliä tämä peli muistuttaa?' },
     type: UITaskName.WHAT_FAMOUS_GAME_REMINDING,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
+  },*/
+  /*
   [UITaskName.CHOOSE_CULTURAL_GUIDELINE_CLAN_DESCRIPTION]: {
     title: { fi: 'valitse klaanin kuvaukseen toimintakulttuurinen ohje' },
     type: UITaskName.CHOOSE_CULTURAL_GUIDELINE_CLAN_DESCRIPTION,
@@ -432,7 +438,8 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
+  },*/
+  /*
   [UITaskName.CHANGE_LANGUAGE]: {
     title: {
       fi: 'katso kieliasetukset ja klikkaa kohtia jotka muuttuvat eri kielien välillä',
@@ -442,8 +449,8 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.PRESS_MONEY_STUFF]: {
+  },*/
+  /* [UITaskName.PRESS_MONEY_STUFF]: {
     title: { fi: 'klikkaa asioita, joissa voi käyttää rahaa' },
     type: UITaskName.PRESS_MONEY_STUFF,
     points: Score.DAILY_TASK.COMPLETED,
@@ -451,7 +458,8 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     amount: 1,
     timeLimitMinutes: 60,
   },
-
+  */
+  /*
   [UITaskName.USE_ONLY_POSITIVE_GESTURES_IN_BATTLE]: {
     title: {
       fi: 'käytä matsin aikana vain positiivisia ja kannustavia eleitä',
@@ -461,16 +469,16 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.USE_ONLY_NEGATIVE_GESTURES_IN_BATTLE]: {
+  },*/
+  /* [UITaskName.USE_ONLY_NEGATIVE_GESTURES_IN_BATTLE]: {
     title: { fi: 'käytä matsin aikana vain negatiivisia eleitä' },
     type: UITaskName.USE_ONLY_NEGATIVE_GESTURES_IN_BATTLE,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.PRESS_PRIZE_GIVING_ITEMS]: {
+  },*/
+  /*[UITaskName.PRESS_PRIZE_GIVING_ITEMS]: {
     title: {
       fi: 'tunnista ja paina kohtia, joissa peli palkitsee sinua jotenkin',
     },
@@ -479,45 +487,45 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.PRESS_ACCESSIBILITY_SETTINGS]: {
+  },*/
+  /*[UITaskName.PRESS_ACCESSIBILITY_SETTINGS]: {
     title: { fi: 'etsi ja klikkaa kaikkia saavutettavuus-asetuksia' },
     type: UITaskName.PRESS_ACCESSIBILITY_SETTINGS,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.PRESS_ETHIC_QUESTIONABLE_OBJECTS]: {
+  },*/
+  /* [UITaskName.PRESS_ETHIC_QUESTIONABLE_OBJECTS]: {
     title: { fi: 'etsi ja klikkaa eettisesti arveluttavia asioita' },
     type: UITaskName.PRESS_ETHIC_QUESTIONABLE_OBJECTS,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.PRESS_RESPONSIBILITY_OBJECTS]: {
+  },*/
+  /* [UITaskName.PRESS_RESPONSIBILITY_OBJECTS]: {
     title: { fi: 'etsi ja klikkaa vastuullisuuteen liittyviä asioita' },
     type: UITaskName.PRESS_RESPONSIBILITY_OBJECTS,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.PRESS_SUSTAINABLE_CONSUMPTION_OBJECTS]: {
+  },*/
+  /* [UITaskName.PRESS_SUSTAINABLE_CONSUMPTION_OBJECTS]: {
     title: { fi: 'etsi ja klikkaa kestävään kuluttamiseen liittyviä asioita' },
     type: UITaskName.PRESS_SUSTAINABLE_CONSUMPTION_OBJECTS,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
-  [UITaskName.PRESS_VALUES_OBJECTS]: {
+  },*/
+  /*[UITaskName.PRESS_VALUES_OBJECTS]: {
     title: { fi: 'etsi ja klikkaa arvoihin liittyviä asioita' },
     type: UITaskName.PRESS_VALUES_OBJECTS,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  },
+  },*/
 };
