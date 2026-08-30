@@ -21,7 +21,7 @@ export enum ServerTaskName {
 
   BANISH_THE_EARWORM = 'banish_the_earworm',
 
-  // "Pelaa ja voita egon taisto"
+  // Server task: finish / participate in a battle
   GO_TO_BATTLE = 'go_to_battle',
 
   STRONGER_SOLDIER = 'stronger_soldier',
@@ -84,12 +84,12 @@ export enum ServerTaskName {
   /**
    * pelaa battle
    */
-  PLAY_BATTLE = 'play_battle', // old task (not in the list), but left here so, that the game works
+  // PLAY_BATTLE = 'play_battle', // old task (not in the list), but left here so, that the game works
   //Server
   /**
    * voita battle
    */
-  WIN_BATTLE = 'win_battle', // old task (not in the list), but left here so, that the game works
+  // WIN_BATTLE = 'win_battle', // old task (not in the list), but left here so, that the game works
 
   //Server
   /**
