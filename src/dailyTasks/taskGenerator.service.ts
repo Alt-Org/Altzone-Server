@@ -23,11 +23,11 @@ export class TaskGeneratorService {
    */
   getRandomTaskType(): ServerTaskName {
     //TODO: Differentiate the task, that can be auto generated and the tasks that need to be predefined, when the daily tasks logic will be defined properly
-    // const taskTypes = Object.values(ServerTaskName);
-    const taskTypes = [
+    const taskTypes = Object.values(ServerTaskName);
+    /* const taskTypes = [
       ServerTaskName.GO_TO_BATTLE,
       ServerTaskName.WRITE_CHAT_MESSAGE,
-    ];
+    ];*/
     const randomIndex = Math.floor(Math.random() * taskTypes.length);
     return taskTypes[randomIndex];
   }
