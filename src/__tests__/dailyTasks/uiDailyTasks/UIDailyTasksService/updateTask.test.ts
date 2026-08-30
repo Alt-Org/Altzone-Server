@@ -154,7 +154,7 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
     const dailyTaskToCreate = taskBuilder
       .setClanId(existingClan._id)
       .setPlayerId(loggedPlayer._id)
-      .setType(ServerTaskName.ADD_FRIEND)
+      .setType(ServerTaskName.GO_TO_BATTLE)
       .setAmount(5)
       .setAmountLeft(5)
       .setPlayerId(loggedPlayer._id)
