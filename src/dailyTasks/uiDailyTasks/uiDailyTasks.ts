@@ -112,7 +112,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
   },
   [UITaskName.SET_BOUNDARIES]: {
     title: { fi: 'valitse sisäiset periaatteesi' },
-    type: UITaskName.LOOK_INSIDE,
+    type: UITaskName.SET_BOUNDARIES,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
