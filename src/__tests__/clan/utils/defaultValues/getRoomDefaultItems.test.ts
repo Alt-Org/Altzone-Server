@@ -1,6 +1,8 @@
 import { itemProperties } from '../../../../clanInventory/item/const/itemProperties';
 import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
 import { getRoomDefaultItems } from '../../../../clan/utils/defaultValues/items';
+import { ItemRotation } from '../../../../clanInventory/item/enum/itemRotation.enum';
+import { ItemPosition } from '../../../../clanInventory/item/enum/itemPosition.enum';
 
 describe('getRoomDefaultItems() test suite', () => {
   it('Should return valid room default items', () => {
@@ -12,6 +14,10 @@ describe('getRoomDefaultItems() test suite', () => {
         room_id,
         unityKey: ItemName.SOFA_RAKKAUS,
         location: [1, 1],
+        rotation: ItemRotation.FRONT,
+        position: ItemPosition.FLOOR,
+        placedOn_id: null,
+        placedOnLocation: [-1, -1],
       },
       {
         ...itemProperties.ArmChair_Rakkaus,
@@ -19,6 +25,10 @@ describe('getRoomDefaultItems() test suite', () => {
         room_id,
         unityKey: ItemName.ARMCHAIR_RAKKAUS,
         location: [1, 2],
+        rotation: ItemRotation.FRONT,
+        position: ItemPosition.FLOOR,
+        placedOn_id: null,
+        placedOnLocation: [-1, -1],
       },
       {
         ...itemProperties.Lamp_Rakkaus,
@@ -26,6 +36,10 @@ describe('getRoomDefaultItems() test suite', () => {
         room_id,
         unityKey: ItemName.LAMP_RAKKAUS,
         location: [1, 3],
+        rotation: ItemRotation.FRONT,
+        position: ItemPosition.FLOOR,
+        placedOn_id: null,
+        placedOnLocation: [-1, -1],
       },
       {
         ...itemProperties.Diningtable_Rakkaus,
@@ -33,6 +47,10 @@ describe('getRoomDefaultItems() test suite', () => {
         room_id,
         unityKey: ItemName.DININGTABLE_RAKKAUS,
         location: [1, 4],
+        rotation: ItemRotation.FRONT,
+        position: ItemPosition.FLOOR,
+        placedOn_id: null,
+        placedOnLocation: [-1, -1],
       },
       {
         ...itemProperties.SofaTable_Rakkaus,
@@ -40,6 +58,10 @@ describe('getRoomDefaultItems() test suite', () => {
         room_id,
         unityKey: ItemName.SOFATABLE_RAKKAUS,
         location: [1, 5],
+        rotation: ItemRotation.FRONT,
+        position: ItemPosition.FLOOR,
+        placedOn_id: null,
+        placedOnLocation: [-1, -1],
       },
       {
         ...itemProperties.Bed_Rakkaus,
@@ -47,6 +69,10 @@ describe('getRoomDefaultItems() test suite', () => {
         room_id,
         unityKey: ItemName.BED_RAKKAUS,
         location: [1, 6],
+        rotation: ItemRotation.FRONT,
+        position: ItemPosition.FLOOR,
+        placedOn_id: null,
+        placedOnLocation: [-1, -1],
       },
     ];
 

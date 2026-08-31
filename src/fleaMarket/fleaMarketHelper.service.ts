@@ -4,6 +4,8 @@ import { CreateItemDto } from '../clanInventory/item/dto/createItem.dto';
 import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { CreateFleaMarketItemDto } from './dto/createFleaMarketItem.dto';
 import { Status } from './enum/status.enum';
+import { ItemRotation } from '../clanInventory/item/enum/itemRotation.enum';
+import { ItemPosition } from '../clanInventory/item/enum/itemPosition.enum';
 
 @Injectable()
 export class FleaMarketHelperService {
@@ -30,6 +32,11 @@ export class FleaMarketHelperService {
       stock_id: stockId,
       price: item.price,
       room_id: null,
+      furnitureSize: item.furnitureSize,
+      rotation: ItemRotation.FRONT,
+      position: ItemPosition.FLOOR,
+      placedOn_id: null,
+      placedOnLocation: null,
     };
 
     return newItem;

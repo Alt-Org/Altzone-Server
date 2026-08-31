@@ -12,6 +12,8 @@ import { VotingType } from '../voting/enum/VotingType.enum';
 import { VotingDto } from '../voting/dto/voting.dto';
 import { ItemService } from '../clanInventory/item/item.service';
 import { CreateItemDto } from '../clanInventory/item/dto/createItem.dto';
+import { ItemDto } from '../clanInventory/item/dto/item.dto';
+import StockNotifier from '../clanInventory/stock/stock.notifier';
 import { VotingQueue } from '../voting/voting.queue';
 import { VotingQueueParams } from '../fleaMarket/types/votingQueueParams.type';
 import { ItemName } from '../clanInventory/item/enum/itemName.enum';
@@ -24,6 +26,8 @@ import {
 } from '../common/function/Transactions';
 import { InjectConnection } from '@nestjs/mongoose';
 import { IServiceReturn } from '../common/service/basicService/IService';
+import { ItemRotation } from '../clanInventory/item/enum/itemRotation.enum';
+import { ItemPosition } from '../clanInventory/item/enum/itemPosition.enum';
 import { OnEvent } from '@nestjs/event-emitter';
 import ServiceError from '../common/service/basicService/ServiceError';
 @Injectable()
@@ -33,6 +37,7 @@ export class ClanShopService {
     private readonly votingService: VotingService,
     private readonly playerService: PlayerService,
     private readonly itemService: ItemService,
+    private readonly stockNotifier: StockNotifier,
     private readonly votingQueue: VotingQueue,
     @InjectConnection() private readonly connection: Connection,
   ) {}
@@ -107,12 +112,25 @@ export class ClanShopService {
     if (deductError) return cancelTransaction(session, deductError);
 
     const newItem = this.getCreateItemDto(item.name, clan.Stock._id);
-    const [, createError] = await this.itemService.createOne(newItem, {
-      session,
-    });
+    const [createdItem, createError] = await this.itemService.createOne(
+      newItem,
+      {
+        session,
+      },
+    );
     if (createError) return await cancelTransaction(session, createError);
 
-    return await endTransaction(session, true);
+    const [result, transactionErrors] = await endTransaction(session, true);
+    if (transactionErrors) return [null, transactionErrors];
+
+    this.notifyStockItemAdded(
+      clanId,
+      clan.Stock._id.toString(),
+      createdItem,
+      'clan_shop_direct',
+    );
+
+    return [result, null];
   }
 
   /**
@@ -228,14 +246,16 @@ export class ClanShopService {
       voting,
       true,
     );
+    let createdItem: ItemDto | null = null;
 
     if (votePassed) {
-      const [, passedError] = await this.handleVotePassed(
+      const [item, passedError] = await this.handleVotePassed(
         voting,
         stockId,
         session,
       );
       if (passedError) return cancelTransaction(session, passedError);
+      createdItem = item;
     } else {
       const [, rejectError] = await this.handleVoteRejected(
         clanId,
@@ -249,7 +269,19 @@ export class ClanShopService {
       await this.votingService.finalizeVoting(voting._id);
     }
 
-    return await endTransaction(session, true);
+    const [result, transactionErrors] = await endTransaction(session, true);
+    if (transactionErrors) return [null, transactionErrors];
+
+    if (votePassed && createdItem) {
+      this.notifyStockItemAdded(
+        clanId,
+        stockId.toString(),
+        createdItem,
+        'clan_shop_vote',
+      );
+    }
+
+    return [result, null];
   }
 
   @OnEvent('voting.passed')
@@ -329,6 +361,34 @@ export class ClanShopService {
       unityKey: item.name,
       stock_id: stockId,
       room_id: null,
+      furnitureSize: item.furnitureSize,
+      rotation: ItemRotation.FRONT,
+      position: ItemPosition.FLOOR,
+      placedOn_id: null,
+      placedOnLocation: null,
     };
+  }
+
+  private notifyStockItemAdded(
+    clanId: string,
+    stockId: string,
+    item: ItemDto,
+    source: 'clan_shop_direct' | 'clan_shop_vote',
+  ) {
+    if (!item.isFurniture) return;
+
+    this.stockNotifier.itemAdded({
+      clan_id: clanId,
+      stock_id: stockId,
+      item: {
+        _id: item._id.toString(),
+        name: item.name,
+        unityKey: item.unityKey,
+        isFurniture: item.isFurniture,
+        furnitureSize: item.furnitureSize,
+        price: item.price,
+      },
+      source,
+    });
   }
 }

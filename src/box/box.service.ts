@@ -21,6 +21,7 @@ import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { BoxHelper } from './util/boxHelper';
 import {
   IServiceReturn,
+  TIServiceReadManyOptions,
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
 import { ObjectId } from 'mongodb';
@@ -31,6 +32,7 @@ import {
   endTransaction,
   initializeSession,
 } from '../common/function/Transactions';
+import { CreateBoxDto } from './dto/createBox.dto';
 
 @Injectable()
 export class BoxService {
@@ -94,12 +96,62 @@ export class BoxService {
   }
 
   /**
-   * Reads all Boxes in DB.
+   * Checks Admin Profile and Player exist. Reads a Box by its adminPassword in DB.
    *
-   * @returns found Boxes
+   * @param credentials Admin credentials.
+   * @returns Box with the given adminPassword on succeed or an array of ServiceErrors if any occurred.
    */
-  async readAll() {
-    return this.basicService.readMany<Box>();
+  async readAdminBox(
+    credentials: CreateBoxDto,
+  ): Promise<IServiceReturn<BoxDocument>> {
+    const adminPlayer = await this.playerModel.findOne({
+      name: credentials.playerName,
+    });
+    if (!adminPlayer)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'name',
+            value: credentials.playerName,
+            message: 'Admin player name is not found',
+          }),
+        ],
+      ];
+
+    const adminProfile = await this.profileModel.findById(
+      adminPlayer.profile_id,
+    );
+    if (!adminProfile)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'adminProfile_id',
+            value: adminPlayer.profile_id,
+            message: 'Admin profile _id is not found',
+          }),
+        ],
+      ];
+
+    const [box, errors] = await this.basicService.readOne({
+      filter: { adminPassword: credentials.adminPassword },
+    });
+    if (errors) return [null, errors];
+
+    return [box, null];
+  }
+
+  /**
+   * Reads multiple items from the database based on the provided options.
+   *
+   * @param options - Settings for the read operation.
+   * @returns A promise that resolves to a tuple where the first element is an array of BoxDto objects, and the second element is either null or an array of ServiceError objects if something went wrong.
+   */
+  async readAll(options: TIServiceReadManyOptions) {
+    return this.basicService.readMany<Box>(options);
   }
 
   /**

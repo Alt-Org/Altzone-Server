@@ -41,6 +41,8 @@ import { StockDto } from '../clanInventory/stock/dto/stock.dto';
 import { UpdateStockDto } from '../clanInventory/stock/dto/updateStock.dto';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { BoxDto } from '../box/dto/box.dto';
+import { boxRules } from './rule/boxRules';
 
 export type AllowedAction =
   | Action.create_request
@@ -71,7 +73,8 @@ export type AllowedSubject =
   | typeof SoulHomeDto
   | typeof UpdateSoulHomeDto
   | typeof RoomDto
-  | typeof UpdateRoomDto;
+  | typeof UpdateRoomDto
+  | typeof BoxDto;
 
 type Subjects = InferSubjects<AllowedSubject>;
 
@@ -214,6 +217,15 @@ export class CASLAbilityFactory {
       isType(obj, 'MessageDto')
     )
       return chatRules(
+        user,
+        subject,
+        action,
+        subjectObj,
+        this.requestHelperService,
+      );
+
+    if (isType(obj, 'BoxDto'))
+      return boxRules(
         user,
         subject,
         action,

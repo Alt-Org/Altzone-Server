@@ -1,10 +1,10 @@
 import { Expose, Type } from 'class-transformer';
 import { RoomDto } from '../../room/dto/room.dto';
-import { ClanDto } from '../../../clan/dto/clan.dto';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 import { ExtractField } from '../../../common/decorator/response/ExtractField';
 import { ApiProperty } from '@nestjs/swagger';
 import { Environment } from '../../../common/enum/environment.enum';
+import { ClanDto } from '../../../clan/dto/clan.dto';
 
 @AddType('SoulHomeDto')
 export class SoulHomeDto {
@@ -15,6 +15,7 @@ export class SoulHomeDto {
    */
   @ExtractField()
   @Expose()
+  @ApiProperty()
   _id: string;
 
   /**
@@ -23,6 +24,7 @@ export class SoulHomeDto {
    * @example "Fortress of Dawn"
    */
   @Expose()
+  @ApiProperty()
   name: string;
 
   /**
@@ -38,6 +40,7 @@ export class SoulHomeDto {
    * List of rooms contained in the Soul Home
    */
   @Type(() => RoomDto)
+  @ApiProperty({ type: () => [RoomDto] })
   @Expose()
   Room: RoomDto[];
 

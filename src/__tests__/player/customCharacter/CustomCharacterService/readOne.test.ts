@@ -6,7 +6,6 @@ import { ModelName } from '../../../../common/enum/modelName.enum';
 import LoggedUser from '../../../test_utils/const/loggedUser';
 import CustomCharacterModule from '../../modules/customCharacter.module';
 import PlayerBuilderFactory from '../../data/playerBuilderFactory';
-import { CharacterBaseStats } from '../../../../player/customCharacter/const/CharacterBaseStats';
 
 describe('CustomCharacterService.readOne() test suite', () => {
   let characterService: CustomCharacterService;

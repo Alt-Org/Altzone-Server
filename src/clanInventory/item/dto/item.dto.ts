@@ -7,6 +7,10 @@ import { ItemName } from '../enum/itemName.enum';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 import { ExtractField } from '../../../common/decorator/response/ExtractField';
 import { Material } from '../enum/material.enum';
+import { ItemRotation } from '../enum/itemRotation.enum';
+import { ItemPosition } from '../enum/itemPosition.enum';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsArray, IsEnum } from 'class-validator';
 
 @AddType('ItemDto')
 export class ItemDto {
@@ -17,6 +21,7 @@ export class ItemDto {
    */
   @ExtractField()
   @Expose()
+  @ApiProperty()
   _id: string;
 
   /**
@@ -25,6 +30,8 @@ export class ItemDto {
    * @example "Sofa_Taakka"
    */
   @Expose()
+  @ApiProperty()
+  @IsEnum(ItemName)
   name: ItemName;
 
   /**
@@ -33,6 +40,7 @@ export class ItemDto {
    * @example 1
    */
   @Expose()
+  @ApiProperty()
   weight: number;
 
   /**
@@ -41,6 +49,7 @@ export class ItemDto {
    * @example "Wood"
    */
   @Expose()
+  @ApiProperty()
   recycling: Recycling;
 
   /**
@@ -49,6 +58,7 @@ export class ItemDto {
    * @example "common"
    */
   @Expose()
+  @ApiProperty()
   rarity: Rarity;
 
   /**
@@ -57,6 +67,8 @@ export class ItemDto {
    * @example ["puu", "nahka"]
    */
   @Expose()
+  @ApiProperty()
+  @IsArray()
   material: Material[];
 
   /**
@@ -65,6 +77,7 @@ export class ItemDto {
    * @example "items/mystic_orb"
    */
   @Expose()
+  @ApiProperty()
   unityKey: string;
 
   /**
@@ -73,6 +86,7 @@ export class ItemDto {
    * @example 500
    */
   @Expose()
+  @ApiProperty()
   price: number;
 
   /**
@@ -81,7 +95,58 @@ export class ItemDto {
    * @example [1, 4]
    */
   @Expose()
-  location: Array<number>;
+  @ApiProperty()
+  @IsArray()
+  location: number[];
+
+  /**
+   * Item size
+   *
+   * @example [2, 2]
+   */
+  @Expose()
+  @ApiProperty()
+  @IsArray()
+  furnitureSize: number[];
+
+  /**
+   * Item rotation
+   *
+   * @example left
+   */
+  @Expose()
+  @ApiProperty()
+  @IsEnum(ItemRotation)
+  rotation: ItemRotation;
+
+  /**
+   * Item postion
+   *
+   * @eaxmple floor
+   */
+  @Expose()
+  @ApiProperty()
+  @IsEnum(ItemPosition)
+  position: ItemPosition;
+
+  /**
+   * Id of item the item is placed on
+   *
+   * @example "665a1f29c3f4fa0012e7a900"
+   */
+  @Expose()
+  @ApiProperty()
+  placedOn_id: string;
+
+  /**
+   * spot on the item the item is placed on
+   *
+   * @eaxple [1, 1]
+   */
+  @Expose()
+  @ApiProperty()
+  @IsArray()
+  placedOnLocation: number[];
 
   /**
    * Whether the item is a piece of furniture
@@ -89,6 +154,7 @@ export class ItemDto {
    * @example false
    */
   @Expose()
+  @ApiProperty()
   isFurniture: boolean;
 
   /**
@@ -97,6 +163,7 @@ export class ItemDto {
    * @example "666d99d3e3a12a001234abcd"
    */
   @ExtractField()
+  @ApiProperty()
   @Expose()
   stock_id: string;
 
@@ -104,6 +171,7 @@ export class ItemDto {
    * Full stock object containing this item
    */
   @Type(() => StockDto)
+  @ApiProperty({ type: () => StockDto })
   @Expose()
   Stock: StockDto;
 
@@ -113,6 +181,7 @@ export class ItemDto {
    * @example "666c88a7f2a98e001298cdef"
    */
   @ExtractField()
+  @ApiProperty()
   @Expose()
   room_id: string;
 
@@ -120,6 +189,7 @@ export class ItemDto {
    * Full room object containing this item
    */
   @Type(() => RoomDto)
+  @ApiProperty({ type: () => RoomDto })
   @Expose()
   Room: RoomDto;
 }

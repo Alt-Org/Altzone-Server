@@ -1,5 +1,5 @@
 import { Prop } from '@nestjs/mongoose';
-
+import { Avatar, AvatarSchema } from '../../player/schemas/avatar.schema';
 export class Reaction {
   @Prop({ type: String, required: true })
   playerName: string;
@@ -13,4 +13,7 @@ export class Reaction {
     default: 'legacy_system',
   })
   sender_id: string;
+
+  @Prop({ type: AvatarSchema, required: false })
+  avatarData?: Avatar;
 }

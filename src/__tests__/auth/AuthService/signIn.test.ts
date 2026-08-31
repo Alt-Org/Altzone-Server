@@ -81,6 +81,7 @@ describe('AuthService.signIn() test suite', () => {
       tokenExpires,
       _id: existingProfile._id.toString(),
       username: existingProfile.username,
+      hasSecurityQuestion: false,
     };
 
     expect(clearedResult).toMatchObject({
@@ -90,6 +91,28 @@ describe('AuthService.signIn() test suite', () => {
     });
     expect(clearedPlayerResult).toEqual(playerDBFinal);
     expect(clearedClanResult).toEqual(clanDBFinal);
+  });
+
+  it('Should return hasSecurityQuestion true if profile has securityQuestion', async () => {
+    await profileModel.updateOne(
+      { _id: existingProfile._id },
+      { securityQuestion: 'What is your favorite color?' },
+    );
+    const player = playerBuilder.setProfileId(existingProfile._id).build();
+    await playerModel.create(player);
+
+    const result = await authService.signIn(validUsername, validPassword);
+
+    expect(result['hasSecurityQuestion']).toBe(true);
+  });
+
+  it('Should return hasSecurityQuestion false if profile does not have securityQuestion', async () => {
+    const player = playerBuilder.setProfileId(existingProfile._id).build();
+    await playerModel.create(player);
+
+    const result = await authService.signIn(validUsername, validPassword);
+
+    expect(result['hasSecurityQuestion']).toBe(false);
   });
 
   it('Should not return clan data if player is not in any clan', async () => {

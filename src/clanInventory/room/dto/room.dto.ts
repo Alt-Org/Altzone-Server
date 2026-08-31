@@ -1,6 +1,10 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import AddType from '../../../common/base/decorator/AddType.decorator';
 import { ExtractField } from '../../../common/decorator/response/ExtractField';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum, IsHexadecimal } from 'class-validator';
+import { ItemSummaryDto } from '../../../clanInventory/item/dto/itemSummary.dto';
+import { RoomStatus } from '../enum/roomStatus.enum';
 
 @AddType('RoomDto')
 export class RoomDto {
@@ -11,15 +15,25 @@ export class RoomDto {
    */
   @ExtractField()
   @Expose()
+  @ApiProperty()
   _id: string;
 
   /**
-   * Type of flooring used
+   * Order of rooms
    *
-   * @example "Marble"
+   * @example 1
    */
   @Expose()
-  floorType: string;
+  @ApiProperty()
+  roomPosition: number;
+
+  /**
+   * Room colour in hexadecimal
+   */
+  @Expose()
+  @ApiProperty()
+  @IsHexadecimal()
+  roomColour: string;
 
   /**
    * Type of wall styling
@@ -27,39 +41,42 @@ export class RoomDto {
    * @example "Stone"
    */
   @Expose()
-  wallType: string;
+  @ApiProperty()
+  wallpaper: string;
 
   /**
-   * Whether the room is currently active
+   * Type of flooring used
    *
-   * @example true
+   * @example "Marble"
    */
   @Expose()
-  isActive: boolean;
+  @ApiProperty()
+  floorType: string;
 
   /**
-   * Whether the room has a lift feature
-   *
-   * @example false
+   * Room items
    */
-  @Expose()
-  hasLift: boolean;
+  @Expose({ name: 'Item' })
+  @Type(() => ItemSummaryDto)
+  @ApiProperty({ type: () => [ItemSummaryDto] })
+  furniture: ItemSummaryDto[];
 
   /**
-   * Unix timestamp of when the room will be deactivated
+   * Room status
    *
-   * @example 1715950000
+   * @example Active
    */
   @Expose()
-  deactivationTimestamp: number;
+  @IsEnum(RoomStatus)
+  @ApiProperty()
+  roomStatus: RoomStatus;
 
   /**
-   * Number of interactive cells in the room
-   *
-   * @example 12
+   * Room deactivation time
    */
   @Expose()
-  cellCount: number;
+  @ApiProperty()
+  deactivationTime: Date;
 
   /**
    * ID of the parent Soul Home
@@ -67,5 +84,6 @@ export class RoomDto {
    * @example "666abc12d1e2f30012bbccdd"
    */
   @Expose()
+  @ApiProperty()
   soulHome_id: string;
 }

@@ -21,9 +21,9 @@ export class PlayerRewarder {
   }
 
   /**
-   * Rewards specified player for an event happen
-   * @param player_id player _id to reward
-   * @param playerEvent happen event
+   * Updates a player's battlePoints for a battle-related event.
+   * @param player_id player _id to update
+   * @param playerEvent battle event that happened
    * @throws MongooseError if any occurred
    * @returns true if player was rewarded successfully
    */
@@ -31,8 +31,8 @@ export class PlayerRewarder {
     player_id: string,
     playerEvent: PlayerEvent,
   ): Promise<IServiceReturn<boolean>> {
-    const pointAmount = points[playerEvent];
-    if (pointAmount === undefined)
+    const battlePointAmount = points[playerEvent];
+    if (battlePointAmount === undefined)
       return [
         null,
         [
@@ -45,13 +45,13 @@ export class PlayerRewarder {
         ],
       ];
 
-    return this.updatePlayerBattlePoints(player_id, pointAmount);
+    return this.updatePlayerBattlePoints(player_id, battlePointAmount);
   }
 
   /**
-   * Rewards specified player for a completed player task
+   * Rewards specified player with regular points for a completed player task.
    * @param player_id player _id to reward
-   * @param points amount of points to reward
+   * @param points amount of regular points to reward
    * @clientSession session to use for transaction
    * @throws MongooseError if any occurred
    * @returns true if player was rewarded successfully
@@ -78,9 +78,9 @@ export class PlayerRewarder {
   }
 
   /**
-   * Increases specified player points amount
+   * Increases specified player's regular points amount.
    * @param player_id player _id
-   * @param points amount of points to increase
+   * @param points amount of regular points to increase
    * @param session optional client session for transaction
    * @throws MongooseError if any occurred
    * @returns true if player was rewarded successfully
@@ -102,9 +102,9 @@ export class PlayerRewarder {
   }
 
   /**
-   * Update specified player battle points amount
+   * Updates specified player's battlePoints amount.
    * @param player_id player _id
-   * @param battlePoints amount of battle points to increase
+   * @param battlePoints battlePoints delta to apply
    * @throws MongooseError if any occurred
    * @returns true if player was rewarded successfully
    */

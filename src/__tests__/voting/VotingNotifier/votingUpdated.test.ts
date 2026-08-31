@@ -6,9 +6,11 @@ import mqtt from 'mqtt';
 import { NotificationStatus } from '../../../common/service/notificator/enum/NotificationStatus.enum';
 import { NotificationResource } from '../../../common/service/notificator/enum/NotificationResource.enum';
 import { NotificationGroup } from '../../../common/service/notificator/enum/NotificationGroup.enum';
+import { MqttNotificationType } from '../../../common/service/notificator/enum/MqttNotificationType.enum';
 import FleaMarketBuilderFactory from '../../fleaMarket/data/fleaMarketBuilderFactory';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import createMockMqttClient from '../../common/service/notificator/mocks/createMockMqttClient';
+import { VoteChoice } from '../../../voting/enum/choiceType.enum';
 
 jest.mock('mqtt', () => ({
   connect: jest.fn(),
@@ -26,17 +28,25 @@ describe('VotingNotifier.votingUpdated() test suite', () => {
   });
 
   it('Should send a notification for a voting update if input is valid', async () => {
-    const votingDto = votingBuilder.build();
+    const playerId = '6630aa9994cd5ef001a1b1c2';
+    const vote = { player_id: playerId, choice: VoteChoice.YES };
+    const votingDto = votingBuilder.setVotes([vote]).build();
     const fleaMarketItem = fleaMarketBuilder.build();
-    const playerDto = playerBuilder.build();
+    const playerDto = playerBuilder.setId(playerId).build();
     const expectedTopic = `/${NotificationGroup.CLAN}/${votingDto.organizer.clan_id}/${NotificationResource.VOTING}/${votingDto.type}/${NotificationStatus.UPDATE}`;
     const expectedPayload = JSON.stringify({
-      topic: `/clan/${votingDto.organizer.clan_id}/voting/${votingDto._id.toString()}`,
-      status: NotificationStatus.UPDATE,
-      voting_id: votingDto._id.toString(),
-      type: votingDto.type,
-      entity: fleaMarketItem,
-      voter: playerDto as PlayerDto,
+      topic: 'voting',
+      type: MqttNotificationType.VOTING_UPDATED,
+      payload: {
+        topic: `/clan/${votingDto.organizer.clan_id}/voting/${votingDto._id.toString()}`,
+        status: NotificationStatus.UPDATE,
+        voting_id: votingDto._id.toString(),
+        type: votingDto.type,
+        entity: fleaMarketItem,
+        startedAt: votingDto.startedAt,
+        voter: playerDto as PlayerDto,
+        choice: VoteChoice.YES,
+      },
     });
 
     const { publishAsyncMock } = createMockMqttClient();

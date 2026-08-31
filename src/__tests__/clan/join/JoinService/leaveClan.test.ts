@@ -5,6 +5,8 @@ import PlayerModule from '../../../player/modules/player.module';
 import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
 import { NotFoundException } from '@nestjs/common';
+import ClanInventoryBuilderFactory from '../../../../__tests__/clanInventory/data/clanInventoryBuilderFactory';
+import SoulhomeModule from '../../../../__tests__/clanInventory/modules/soulhome.module';
 import MQTTConnector from '../../../../common/service/notificator/MQTTConnector';
 
 jest.mock('../../../../common/service/notificator/MQTTConnector', () => ({
@@ -23,6 +25,11 @@ describe('JoinService.leaveClan() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const player = playerBuilder.build();
 
+  const soulHomeModel = SoulhomeModule.getSoulhomeModel();
+  const soulHomeCreateBuilder =
+    ClanInventoryBuilderFactory.getBuilder('CreateSoulHomeDto');
+  const soulHome = soulHomeCreateBuilder.build();
+
   beforeEach(async () => {
     publishMock = jest.fn();
     (MQTTConnector.getInstance as jest.Mock).mockReturnValue({
@@ -33,6 +40,8 @@ describe('JoinService.leaveClan() test suite', () => {
     player._id = playerResp._id.toString();
     const clanResp = await clanModel.create(clan);
     clan._id = clanResp._id.toString();
+    soulHome.clan_id = clanResp._id.toString();
+    await soulHomeModel.create(soulHome);
 
     await playerModel.updateOne({ _id: player._id }, { clan_id: clan._id });
 
@@ -117,9 +126,11 @@ describe('JoinService.leaveClan() test suite', () => {
     expect(topic).toBe(`/clan/${clan._id}/member/leave/update`);
 
     const parsedPayload = JSON.parse(payload);
-    expect(parsedPayload.topic).toBe(`/clan/${clan._id}/member/leave`);
-    expect(parsedPayload.playerId).toBe(player._id);
-    expect(parsedPayload.event).toBe('leave');
-    expect(parsedPayload.ts).toBeLessThanOrEqual(Date.now());
+    expect(parsedPayload.topic).toBe('clan');
+    expect(parsedPayload.type).toBe('MEMBER_LEFT');
+    expect(parsedPayload.payload.topic).toBe(`/clan/${clan._id}/member/leave`);
+    expect(parsedPayload.payload.playerId).toBe(player._id);
+    expect(parsedPayload.payload.event).toBe('leave');
+    expect(parsedPayload.payload.ts).toBeLessThanOrEqual(Date.now());
   });
 });

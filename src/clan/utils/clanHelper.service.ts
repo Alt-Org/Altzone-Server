@@ -8,7 +8,6 @@ import { StockService } from '../../clanInventory/stock/stock.service';
 import { SoulHomeService } from '../../clanInventory/soulhome/soulhome.service';
 import { RoomService } from '../../clanInventory/room/room.service';
 import { ItemService } from '../../clanInventory/item/item.service';
-import { CreateRoomDto } from '../../clanInventory/room/dto/createRoom.dto';
 import { StockDto } from '../../clanInventory/stock/dto/stock.dto';
 import { ItemDto } from '../../clanInventory/item/dto/item.dto';
 import { SoulHomeDto } from '../../clanInventory/soulhome/dto/soulhome.dto';
@@ -27,7 +26,9 @@ export default class ClanHelperService {
     private readonly clanModel: Model<Clan>,
     @Inject(forwardRef(() => StockService))
     private readonly stockService: StockService,
+    @Inject(forwardRef(() => SoulHomeService))
     private readonly soulHomeService: SoulHomeService,
+    @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
     private readonly itemService: ItemService,
   ) {
@@ -78,7 +79,6 @@ export default class ClanHelperService {
    * Creates a default SoulHome for the specified Clan.
    * @param clan_id _id of the Clan
    * @param name name of the SoulHome
-   * @param roomsCount default 30
    * @param session optional session for transaction support
    * @param environment environment of the Clan
    * @returns created _SoulHome_, _Rooms_ and _Items_, or array of ServiceErrors if something went wrong
@@ -86,12 +86,11 @@ export default class ClanHelperService {
   async createDefaultSoulHome(
     clan_id: string,
     name: string,
-    roomsCount = 30,
     session?: ClientSession,
     environment?: Environment,
   ): Promise<
     [
-      { SoulHome: SoulHomeDto; Room: RoomDto[]; Item: ItemDto[] } | null,
+      { SoulHome: SoulHomeDto; Room: RoomDto; Item: ItemDto[] } | null,
       ServiceError[] | null,
     ]
   > {
@@ -111,41 +110,21 @@ export default class ClanHelperService {
       >({ name, clan_id, environment: environment }, { session });
     if (soulHomeErrors || !soulHome) return [null, soulHomeErrors];
 
-    const defaultRooms = this.getDefaultRooms(soulHome._id, roomsCount);
-    const [rooms, roomsErrors] = await this.roomService.createMany(
-      defaultRooms,
-      { session },
-    );
-    if (roomsErrors || !rooms) return [null, roomsErrors];
+    const [defaultRoom, defaultRoomErrors] =
+      await this.roomService.getSoulHomeRoom(clan_id, session);
+    if (defaultRoomErrors) return [null, defaultRoomErrors];
 
-    const firstRoom = rooms[0];
+    const [room, roomErrors] = await this.roomService.createOne(defaultRoom, {
+      session,
+    });
+    if (roomErrors || !room) return [null, roomErrors];
 
     const [items, itemsErrors] = await this.itemService.createMany(
-      getRoomDefaultItems(firstRoom._id),
+      getRoomDefaultItems(room._id),
       { session },
     );
     if (itemsErrors || !items) return [null, itemsErrors];
 
-    return [{ SoulHome: soulHome, Room: rooms, Item: items }, null];
-  }
-
-  /**
-   * Generate array of default Rooms belonging to the specified SoulHome.
-   *
-   * @param soulHome_id _id of SoulHome to which Rooms will belong to
-   * @param count Amount of Rooms to generate
-   * @returns Array of default CreateRoomDto objects
-   */
-  private getDefaultRooms(soulHome_id: string, count: number): CreateRoomDto[] {
-    const defaultRooms: CreateRoomDto[] = [];
-    const defaultRoom: CreateRoomDto = {
-      floorType: 'default',
-      wallType: 'default',
-      hasLift: false,
-      cellCount: 10,
-      soulHome_id,
-    };
-    for (let i = 0, l = count; i < l; i++) defaultRooms.push(defaultRoom);
-    return defaultRooms;
+    return [{ SoulHome: soulHome, Room: room, Item: items }, null];
   }
 }

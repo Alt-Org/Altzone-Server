@@ -64,6 +64,14 @@ export class ClanDto {
   gameCoins: number;
 
   /**
+   * Value of items in Clan SoulHome
+   *
+   * @example 1500
+   */
+  @Expose()
+  furnitureTotalValue: number;
+
+  /**
    * Total points accumulated by the clan
    *
    * @example 320

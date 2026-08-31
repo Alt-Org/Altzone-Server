@@ -1,8 +1,10 @@
 import { APIError } from '../common/controller/APIError';
 import { NotificationGroup } from '../common/service/notificator/enum/NotificationGroup.enum';
+import { MqttNotificationType } from '../common/service/notificator/enum/MqttNotificationType.enum';
 import { NotificationResource } from '../common/service/notificator/enum/NotificationResource.enum';
 import { NotificationStatus } from '../common/service/notificator/enum/NotificationStatus.enum';
 import NotificationSender from '../common/service/notificator/NotificationSender';
+import { buildMqttNotification } from '../common/service/notificator/type/MqttNotification.type';
 import { VotingType } from './enum/VotingType.enum';
 import { VotingPayload } from './type/notifierPayload.type';
 import { PlayerDto } from '../player/dto/player.dto';
@@ -34,10 +36,30 @@ export default class VotingNotifier {
       voting_id: voting._id.toString(),
       type: voting.type,
       entity,
+      startedAt: voting.startedAt,
     };
 
-    if (status === NotificationStatus.NEW) payload.organizer = player;
-    if (status === NotificationStatus.UPDATE) payload.voter = player;
+    if (status === NotificationStatus.NEW) {
+      payload.organizer = player;
+      payload.endedAt = voting.endsOn;
+    }
+    if (status === NotificationStatus.UPDATE) {
+      payload.voter = player;
+      const votes = voting.votes ?? [];
+
+      // find vote of the voter
+      const voterVote = votes.find(
+        (vote) => vote.player_id?.toString() === player?._id?.toString(),
+      );
+      if (voterVote) {
+        payload.choice = voterVote.choice;
+      }
+    }
+
+    if (status === NotificationStatus.END) {
+      payload.endedAt = voting.endedAt;
+      payload.votes = voting.votes;
+    }
 
     return payload;
   }
@@ -57,10 +79,16 @@ export default class VotingNotifier {
       NotificationStatus.NEW,
       player,
     );
-    NotificationSender.buildNotification<VotingPayload<TEntity>>()
+    const notification = buildMqttNotification(
+      'voting',
+      MqttNotificationType.VOTING_CREATED,
+      payload,
+    );
+
+    NotificationSender.buildNotification()
       .addGroup(this.group, voting.organizer.clan_id)
       .addResource(this.resource, voting.type)
-      .send(NotificationStatus.NEW, payload);
+      .send(NotificationStatus.NEW, notification);
   }
 
   /**
@@ -78,10 +106,16 @@ export default class VotingNotifier {
       NotificationStatus.UPDATE,
       player,
     );
-    NotificationSender.buildNotification<VotingPayload<TEntity>>()
+    const notification = buildMqttNotification(
+      'voting',
+      MqttNotificationType.VOTING_UPDATED,
+      payload,
+    );
+
+    NotificationSender.buildNotification()
       .addGroup(this.group, voting.organizer.clan_id)
       .addResource(this.resource, voting.type)
-      .send(NotificationStatus.UPDATE, payload);
+      .send(NotificationStatus.UPDATE, notification);
   }
 
   /**
@@ -91,10 +125,16 @@ export default class VotingNotifier {
    * @param error - The error details
    */
   votingError(clan_id: string, votingType: VotingType, error: APIError) {
-    NotificationSender.buildNotification<APIError>()
+    const notification = buildMqttNotification(
+      'voting',
+      MqttNotificationType.VOTING_ERROR,
+      error,
+    );
+
+    NotificationSender.buildNotification()
       .addGroup(this.group, clan_id)
       .addResource(this.resource, votingType)
-      .send(NotificationStatus.ERROR, error);
+      .send(NotificationStatus.ERROR, notification);
   }
 
   /**
@@ -107,9 +147,15 @@ export default class VotingNotifier {
       entity,
       NotificationStatus.END,
     );
-    NotificationSender.buildNotification<VotingPayload<TEntity>>()
+    const notification = buildMqttNotification(
+      'voting',
+      MqttNotificationType.VOTING_ENDED,
+      payload,
+    );
+
+    NotificationSender.buildNotification()
       .addGroup(this.group, voting.organizer.clan_id)
       .addResource(this.resource, voting.type)
-      .send(NotificationStatus.END, payload);
+      .send(NotificationStatus.END, notification);
   }
 }

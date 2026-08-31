@@ -32,6 +32,7 @@ import { Voting } from '../../../voting/schemas/voting.schema';
 import ServiceError from '../../../common/service/basicService/ServiceError';
 import { SEReason } from '../../../common/service/basicService/SEReason';
 import { ObjectId } from 'mongodb';
+import StockNotifier from '../../../clanInventory/stock/stock.notifier';
 
 export default class ClanShopCommonModule {
   private static module: TestingModule;
@@ -265,6 +266,13 @@ export default class ClanShopCommonModule {
           {
             provide: VotingQueue,
             useValue: { addVotingCheckJob: jest.fn().mockResolvedValue(null) },
+          },
+          {
+            provide: StockNotifier,
+            useValue: {
+              itemAdded: jest.fn(),
+              itemRemoved: jest.fn(),
+            },
           },
         ],
       }).compile();

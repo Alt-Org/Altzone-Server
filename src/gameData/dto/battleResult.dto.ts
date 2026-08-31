@@ -2,7 +2,6 @@ import {
   IsArray,
   IsEnum,
   IsInt,
-  IsString,
   IsMongoId,
   IsPositive,
   IsNotEmpty,
@@ -25,7 +24,7 @@ export class BattleResultDto {
    * This is used to look up the existing game record in the database.
    * * @example "665af23e5e982f0013aa9999"
    */
-  @IsString()
+  @IsMongoId()
   @IsNotEmpty()
   matchId: string;
 

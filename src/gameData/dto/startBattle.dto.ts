@@ -1,19 +1,17 @@
-import {
-  IsEnum,
-  IsArray,
-  IsMongoId,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsArray, IsIn, IsMongoId, IsOptional } from 'class-validator';
 import { GameType } from '../enum/gameType.enum';
 
 export class StartBattleDto {
   /**
    * Type of the game session
-   * @example "matchmaking"
+   * Allowed GameTypes: "custom" and "casual"
+   *
+   * Matchmaking is handled via MQTT events
+   *
+   * @example "casual"
    */
-  @IsEnum(GameType)
-  gameType: GameType;
+  @IsIn([GameType.CUSTOM, GameType.CASUAL])
+  gameType: GameType.CUSTOM | GameType.CASUAL;
 
   /**
    * List of player IDs for Team 1
@@ -32,10 +30,11 @@ export class StartBattleDto {
   team2: string[];
 
   /**
-   * Optional custom match ID. If these are not provided, the server generates one.
-   * @example "match_12345"
+   * Optional custom Mongo ObjectId-compatible match ID.
+   * If not provided, the server generates one.
+   * @example "665af23e5e982f0013aa9999"
    */
   @IsOptional()
-  @IsString()
+  @IsMongoId()
   matchId?: string;
 }

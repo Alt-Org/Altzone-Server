@@ -72,6 +72,9 @@ export class AuthService {
       player_id: player?._id,
     };
 
+    // has the player set the security question?
+    const hasSecurityQuestion = !!profile.securityQuestion;
+    // generate the access token and get its expiration time
     const accessToken = await this.jwtService.signAsync(payload);
     const decodedAccessToken: any = this.jwtService.decode(accessToken);
     // Extract the expiration time in Unix timestamp format
@@ -97,6 +100,7 @@ export class AuthService {
 
     return {
       ...serializedProfile,
+      hasSecurityQuestion,
       accessToken,
       tokenExpires,
     };

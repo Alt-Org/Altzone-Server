@@ -14,6 +14,7 @@ import {
 import { UpdateChatMessageDto } from '../dto/updateChatMessage.dto';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
+import { Avatar } from '../../player/schemas/avatar.schema';
 
 @Injectable()
 export class ChatService {
@@ -49,6 +50,7 @@ export class ChatService {
    * @param playerName - Name of the player who reacted.
    * @param emoji - String representation of the emoji.
    * @param sender_id - Unique ID of the player reacting.
+   * @param avatarData - Optional avatar data of the player.
    * @param options - Optional mongoose ClientSession for transaction support.
    * @returns Message with added reaction.
    */
@@ -57,6 +59,7 @@ export class ChatService {
     playerName: string,
     emoji: string,
     sender_id: string,
+    avatarData?: Avatar,
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<ChatMessageDto>> {
     const [message, error] =
@@ -68,7 +71,9 @@ export class ChatService {
       (r) => r.playerName !== playerName,
     );
 
-    if (emoji) message.reactions.push({ playerName, emoji, sender_id });
+    if (emoji) {
+      message.reactions.push({ playerName, emoji, sender_id, avatarData });
+    }
 
     const [, updateError] = await this.basicService.updateOneById(
       message._id,

@@ -14,6 +14,8 @@ export type ActiveMatch = {
   teamSize: 1 | 2;
   teams: [MatchmakingTeam, MatchmakingTeam];
   startedAt: string;
+  readyPlayerIds?: string[];
+  battleStartedAt?: string;
   finishedAt?: string;
   result?: MatchResult;
 };

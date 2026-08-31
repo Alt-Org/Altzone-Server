@@ -1,8 +1,10 @@
 import { APIError } from '../common/controller/APIError';
 import { NotificationGroup } from '../common/service/notificator/enum/NotificationGroup.enum';
+import { MqttNotificationType } from '../common/service/notificator/enum/MqttNotificationType.enum';
 import { NotificationResource } from '../common/service/notificator/enum/NotificationResource.enum';
 import { NotificationStatus } from '../common/service/notificator/enum/NotificationStatus.enum';
 import NotificationSender from '../common/service/notificator/NotificationSender';
+import { buildMqttNotification } from '../common/service/notificator/type/MqttNotification.type';
 import { ServerTaskName } from './enum/serverTaskName.enum';
 import { UITaskName } from './enum/uiTaskName.enum';
 
@@ -38,10 +40,16 @@ export default class DailyTaskNotifier {
     player_id: string,
     task: TTask,
   ) {
-    NotificationSender.buildNotification<TTask>()
+    const payload = buildMqttNotification(
+      'daily_task',
+      MqttNotificationType.TASK_RECEIVED,
+      task,
+    );
+
+    NotificationSender.buildNotification()
       .addGroup(this.group, player_id)
       .addResource(this.resource, task.type)
-      .send(NotificationStatus.NEW, task);
+      .send(NotificationStatus.NEW, payload);
   }
 
   /**
@@ -53,10 +61,16 @@ export default class DailyTaskNotifier {
     player_id: string,
     task: TTask,
   ) {
-    NotificationSender.buildNotification<TTask>()
+    const payload = buildMqttNotification(
+      'daily_task',
+      MqttNotificationType.TASK_UPDATED,
+      task,
+    );
+
+    NotificationSender.buildNotification()
       .addGroup(this.group, player_id)
       .addResource(this.resource, task.type)
-      .send(NotificationStatus.UPDATE, task);
+      .send(NotificationStatus.UPDATE, payload);
   }
 
   /**
@@ -65,10 +79,16 @@ export default class DailyTaskNotifier {
    * @param error error happen
    */
   taskError(player_id: string, taskType: ServerTaskName, error: APIError) {
-    NotificationSender.buildNotification<APIError>()
+    const payload = buildMqttNotification(
+      'daily_task',
+      MqttNotificationType.TASK_ERROR,
+      error,
+    );
+
+    NotificationSender.buildNotification()
       .addGroup(this.group, player_id)
       .addResource(this.resource, taskType)
-      .send(NotificationStatus.ERROR, error);
+      .send(NotificationStatus.ERROR, payload);
   }
 
   /**
@@ -80,10 +100,16 @@ export default class DailyTaskNotifier {
     player_id: string,
     task: TTask,
   ) {
-    NotificationSender.buildNotification<TTask>()
+    const payload = buildMqttNotification(
+      'daily_task',
+      MqttNotificationType.TASK_COMPLETED,
+      task,
+    );
+
+    NotificationSender.buildNotification()
       .addGroup(this.group, player_id)
       .addResource(this.resource, task.type)
-      .send(NotificationStatus.END, task);
+      .send(NotificationStatus.END, payload);
   }
 
   /**
@@ -102,12 +128,16 @@ export default class DailyTaskNotifier {
       completedByPlayerId,
     };
 
-    NotificationSender.buildNotification<
-      DailyTaskClanCompletionPayload<TTask>
-    >()
+    const notification = buildMqttNotification(
+      'daily_task',
+      MqttNotificationType.CLAN_TASK_COMPLETED,
+      payload,
+    );
+
+    NotificationSender.buildNotification()
       .addGroup(this.clanGroup, clan_id)
       .addResource(this.resource, task.type)
-      .send(NotificationStatus.END, payload);
+      .send(NotificationStatus.END, notification);
   }
 
   /**
@@ -129,9 +159,15 @@ export default class DailyTaskNotifier {
       reachedMilestones,
     };
 
-    NotificationSender.buildNotification<DailyTaskMilestonePayload<TTask>>()
+    const notification = buildMqttNotification(
+      'daily_task',
+      MqttNotificationType.MILESTONE_REACHED,
+      payload,
+    );
+
+    NotificationSender.buildNotification()
       .addGroup(this.clanGroup, clan_id)
       .addResource(this.resource, 'milestone')
-      .send(NotificationStatus.UPDATE, payload);
+      .send(NotificationStatus.UPDATE, notification);
   }
 }

@@ -1,4 +1,10 @@
-import { Error, Model, UpdateQuery } from 'mongoose';
+import {
+  AnyBulkWriteOperation,
+  Error,
+  Model,
+  MongooseBulkWriteOptions,
+  UpdateQuery,
+} from 'mongoose';
 import {
   IService,
   IServiceReturn,
@@ -7,6 +13,7 @@ import {
   TIServiceDeleteByIdOptions,
   TIServiceDeleteManyOptions,
   TIServiceDeleteOneOptions,
+  TIServiceFindOneAndUpdate,
   TIServiceReadManyOptions,
   TIServiceReadOneOptions,
   TIServiceUpdateByIdOptions,
@@ -16,6 +23,7 @@ import {
 } from './IService';
 import ServiceError from './ServiceError';
 import { SEReason } from './SEReason';
+import { hasUnsafeMongoUpdateKey } from '../../function/validateMongoUpdate';
 
 /**
  * Provides all basic operations with DB.
@@ -95,12 +103,12 @@ export default class BasicService implements IService {
     options: TIServiceReadOneOptions,
   ): Promise<IServiceReturn<TOutput>> {
     try {
-      const { filter, select, includeRefs } = options
+      const { filter, select, includeRefs, ...settings } = options
         ? options
         : { filter: undefined, select: undefined, includeRefs: [] };
 
       const resp = await this.model
-        .findOne(filter, select)
+        .findOne(filter, select, settings)
         .populate(includeRefs);
 
       if (!resp)
@@ -157,6 +165,18 @@ export default class BasicService implements IService {
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<boolean>> {
     try {
+      if (hasUnsafeMongoUpdateKey(input)) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.VALIDATION,
+              message:
+                'Dangerous or invalid key path detected in update object',
+            }),
+          ],
+        ];
+      }
       const resp = await this.model.updateOne({ _id }, input, options);
       if (resp.matchedCount === 0)
         return [
@@ -184,6 +204,18 @@ export default class BasicService implements IService {
     options: TIServiceUpdateOneOptions,
   ): Promise<IServiceReturn<boolean>> {
     try {
+      if (hasUnsafeMongoUpdateKey(input)) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.VALIDATION,
+              message:
+                'Dangerous or invalid key path detected in update object',
+            }),
+          ],
+        ];
+      }
       const { filter, session } = options ? options : { filter: undefined };
       const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
 
@@ -218,6 +250,18 @@ export default class BasicService implements IService {
     options: TIServiceUpdateManyOptions,
   ): Promise<IServiceReturn<boolean>> {
     try {
+      if (hasUnsafeMongoUpdateKey(input)) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.VALIDATION,
+              message:
+                'Dangerous or invalid key path detected in update object',
+            }),
+          ],
+        ];
+      }
       const { filter, session } = options ? options : { filter: undefined };
       const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
 
@@ -252,6 +296,18 @@ export default class BasicService implements IService {
     options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<T>> {
     try {
+      if (hasUnsafeMongoUpdateKey(input)) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.VALIDATION,
+              message:
+                'Dangerous or invalid key path detected in update object',
+            }),
+          ],
+        ];
+      }
       const resp = await this.model.findByIdAndUpdate(_id, input, {
         returnDocument: 'after',
         ...options,
@@ -266,6 +322,58 @@ export default class BasicService implements IService {
               message: 'Could not find any objects with specified id',
               field: '_id',
               value: _id,
+            }),
+          ],
+        ];
+
+      return [resp, null];
+    } catch (error) {
+      const errors = convertMongooseToServiceErrors(error);
+      return [null, errors];
+    }
+  }
+
+  async findOneAndUpdate<T extends object>(
+    input: UpdateQuery<T>,
+    options: TIServiceFindOneAndUpdate,
+  ): Promise<IServiceReturn<T>> {
+    try {
+      if (hasUnsafeMongoUpdateKey(input)) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.VALIDATION,
+              message:
+                'Dangerous or invalid key path detected in update object',
+            }),
+          ],
+        ];
+      }
+      const { filter, session, sort } = options
+        ? options
+        : { filter: undefined };
+      const filterToApply = Array.isArray(filter) ? { $or: filter } : filter;
+
+      const mongooseOptions = {
+        session,
+        sort,
+        new: true,
+      };
+
+      const resp = await this.model.findOneAndUpdate(
+        filterToApply,
+        input,
+        mongooseOptions,
+      );
+
+      if (!resp)
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_FOUND,
+              message: 'Could not find any objects with specified id',
             }),
           ],
         ];
@@ -352,6 +460,36 @@ export default class BasicService implements IService {
       return [null, errors];
     }
   }
+
+  async bulkWrite<T extends object>(
+    operations: AnyBulkWriteOperation<T>[],
+    options?: MongooseBulkWriteOptions,
+  ): Promise<IServiceReturn<boolean>> {
+    try {
+      const resp = await this.model.bulkWrite(operations, options);
+      if (resp.matchedCount === 0)
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_FOUND,
+              message: 'Could not find any objects with specified condition',
+            }),
+          ],
+        ];
+
+      const wasUpdated =
+        resp.modifiedCount > 0 ||
+        resp.insertedCount > 0 ||
+        resp.deletedCount > 0 ||
+        resp.upsertedCount > 0;
+
+      return [wasUpdated, null];
+    } catch (error) {
+      const errors = convertMongooseToServiceErrors(error);
+      return [null, errors];
+    }
+  }
 }
 
 /**
@@ -370,6 +508,20 @@ export function convertMongooseToServiceErrors(error?: any): ServiceError[] {
 
   //Not unique field(s)
   if (error?.code === 11000) return convertUniqueErrorToServiceErrors(error);
+
+  //MongoDB is not deployed as a replica set / mongos, so transactions can not be used
+  if (
+    error?.code === 20 &&
+    /replica set member or mongos/i.test(error?.message ?? error?.errmsg ?? '')
+  )
+    return [
+      new ServiceError({
+        reason: SEReason.MISCONFIGURED,
+        message:
+          'MongoDB transactions are not available: the database must be running as a replica set or through mongos. This is a server configuration issue, not a problem with the request.',
+        additional: error,
+      }),
+    ];
 
   //Trying to populate collection, which is not related to the requested
   if (error?.name === 'StrictPopulateError' && error?.path)

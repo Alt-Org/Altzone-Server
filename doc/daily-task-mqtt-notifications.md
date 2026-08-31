@@ -7,17 +7,23 @@ The backend publishes Daily Task progress and completion notifications through M
 Frontend clients can subscribe to player-specific task updates and/or clan-wide task updates.
 
 ### 1. Player-Specific Task Updates
+
 To listen to all task events for a specific player:
+
 ```text
 /player/{playerId}/daily_task/+/+
 ```
+
 Or for a specific task type:
+
 ```text
 /player/{playerId}/daily_task/{taskType}/+
 ```
 
 ### 2. Clan-Wide Task Updates
+
 To listen to all clan-wide task updates (completion events and milestones):
+
 ```text
 /clan/{clanId}/daily_task/+/+
 ```
@@ -25,163 +31,218 @@ To listen to all clan-wide task updates (completion events and milestones):
 ---
 
 ## Topic Parameters
+
 - `{playerId}`: The unique database ID of the player.
 - `{clanId}`: The unique database ID of the clan.
 - `{taskType}`: The type of task being updated. This is a string enum value from [ServerTaskName](https://github.com/Alt-Org/Altzone-Server/blob/main/src/dailyTasks/enum/serverTaskName.enum.ts) or [UITaskName](https://github.com/Alt-Org/Altzone-Server/blob/main/src/dailyTasks/enum/uiTaskName.enum.ts).
 - `{status}`: The lifecycle status: `new`, `update`, `error`, or `end`.
 
+## Common Payload Shape
+
+All Daily Task MQTT payloads use the common envelope:
+
+```ts
+{
+  topic: 'daily_task',
+  type: string,
+  payload: object
+}
+```
+
 ---
 
 ## 1. Task Received / Reserved Notification
+
 Sent when a player successfully reserves a new daily task from the clan's available tasks.
 
 ### Topic:
+
 ```text
 /player/{playerId}/daily_task/{taskType}/new
 ```
 
 ### Publish Triggers
+
 - When a player calls `reserveTask` (assigning a task to themselves).
 
 ### Payload Shape
+
 ```json
 {
-  "_id": "665af23e5e982f0013aa334b",
-  "clan_id": "665af23e5e982f0013aa1122",
-  "player_id": "665af23e5e982f0013aa4455",
-  "title": { "fi": "Kirjoita klaanichattiin viesti" },
-  "type": "write_chat_message_clan",
-  "points": 50,
-  "coins": 100,
-  "startedAt": "2026-06-08T07:44:24.000Z",
-  "amount": 1,
-  "amountLeft": 1,
-  "timeLimitMinutes": 2
+  "topic": "daily_task",
+  "type": "TASK_RECEIVED",
+  "payload": {
+    "_id": "665af23e5e982f0013aa334b",
+    "clan_id": "665af23e5e982f0013aa1122",
+    "player_id": "665af23e5e982f0013aa4455",
+    "title": { "fi": "Kirjoita klaanichattiin viesti" },
+    "type": "write_chat_message_clan",
+    "points": 50,
+    "coins": 100,
+    "startedAt": "2026-06-08T07:44:24.000Z",
+    "amount": 1,
+    "amountLeft": 1,
+    "timeLimitMinutes": 2
+  }
 }
 ```
 
 ---
 
 ## 2. Task Updated Notification
+
 Sent when a player progresses in their reserved task (e.g. increments progress but does not finish it yet).
 
 ### Topic:
+
 ```text
 /player/{playerId}/daily_task/{taskType}/update
 ```
 
 ### Publish Triggers
+
 - When an action triggers progress on the player's active task, reducing `amountLeft` but keeping it greater than `0`.
 
 ### Payload Shape
-Same as the `new` status payload, with the updated `amountLeft` value.
+
+Same as the `new` status payload, with `type: "TASK_UPDATED"` and the updated
+`payload.amountLeft` value.
 
 ---
 
 ## 3. Task Error Notification
+
 Sent when an error occurs during task execution or validation.
 
 ### Topic:
+
 ```text
 /player/{playerId}/daily_task/{taskType}/error
 ```
 
 ### Publish Triggers
+
 - If a task error or exception occurs (e.g., during task processing).
 
 ### Payload Shape
+
 ```json
 {
-  "name": "APIError",
-  "reason": "Unexpected error",
-  "statusCode": 500,
-  "message": "Error description",
-  "field": null,
-  "value": null,
-  "additional": null
+  "topic": "daily_task",
+  "type": "TASK_ERROR",
+  "payload": {
+    "name": "APIError",
+    "reason": "Unexpected error",
+    "statusCode": 500,
+    "message": "Error description",
+    "field": null,
+    "value": null,
+    "additional": null
+  }
 }
 ```
 
 ---
 
 ## 4. Task Completed Notification (Player)
+
 Sent to the player when their task is fully completed (`amountLeft` reaches `0`).
 
 ### Topic:
+
 ```text
 /player/{playerId}/daily_task/{taskType}/end
 ```
 
 ### Publish Triggers
+
 - When `amountLeft` reaches `0`.
 
 ### Payload Shape
-Same as the task payload, with `amountLeft: 0`.
+
+Same as the task payload, with `type: "TASK_COMPLETED"` and
+`payload.amountLeft: 0`.
 
 ---
 
 ## 5. Task Completed Notification (Clan)
+
 Sent to the clan to broadcast that a member has completed a daily task.
 
 ### Topic:
+
 ```text
 /clan/{clanId}/daily_task/{taskType}/end
 ```
 
 ### Publish Triggers
+
 - When any clan member successfully completes an active task.
 
 ### Payload Shape
+
 ```ts
 {
-  "task": {
-    "_id": "665af23e5e982f0013aa334b",
-    "clan_id": "665af23e5e982f0013aa1122",
-    "player_id": "665af23e5e982f0013aa4455",
-    "title": { "fi": "Kirjoita klaanichattiin viesti" },
-    "type": "write_chat_message_clan",
-    "points": 50,
-    "coins": 100,
-    "startedAt": "2026-06-08T07:44:24.000Z",
-    "amount": 1,
-    "amountLeft": 0,
-    "timeLimitMinutes": 2
-  },
-  "completedByPlayerId": "665af23e5e982f0013aa4455"
+  topic: 'daily_task',
+  type: 'CLAN_TASK_COMPLETED',
+  payload: {
+    task: {
+      _id: '665af23e5e982f0013aa334b',
+      clan_id: '665af23e5e982f0013aa1122',
+      player_id: '665af23e5e982f0013aa4455',
+      title: { fi: 'Kirjoita klaanichattiin viesti' },
+      type: 'write_chat_message_clan',
+      points: 50,
+      coins: 100,
+      startedAt: '2026-06-08T07:44:24.000Z',
+      amount: 1,
+      amountLeft: 0,
+      timeLimitMinutes: 2
+    },
+    completedByPlayerId: '665af23e5e982f0013aa4455'
+  }
 }
 ```
 
 ---
 
 ## 6. Clan Milestone Reached Notification
+
 Sent to the clan when progression milestones are unlocked as a result of completing a daily task.
 
 ### Topic:
+
 ```text
 /clan/{clanId}/daily_task/milestone/update
 ```
 
 ### Publish Triggers
+
 - When a completed task rewards enough clan points/coins to trigger new milestones in clan progression.
 
 ### Payload Shape
+
 ```ts
 {
-  "task": {
-    "_id": "665af23e5e982f0013aa334b",
-    "clan_id": "665af23e5e982f0013aa1122",
-    "player_id": "665af23e5e982f0013aa4455",
-    "title": { "fi": "Kirjoita klaanichattiin viesti" },
-    "type": "write_chat_message_clan",
-    "points": 50,
-    "coins": 100,
-    "startedAt": "2026-06-08T07:44:24.000Z",
-    "amount": 1,
-    "amountLeft": 0,
-    "timeLimitMinutes": 2
-  },
-  "completedByPlayerId": "665af23e5e982f0013aa4455",
-  "reachedMilestones": [1, 2] // List of milestones reached
+  topic: 'daily_task',
+  type: 'MILESTONE_REACHED',
+  payload: {
+    task: {
+      _id: '665af23e5e982f0013aa334b',
+      clan_id: '665af23e5e982f0013aa1122',
+      player_id: '665af23e5e982f0013aa4455',
+      title: { fi: 'Kirjoita klaanichattiin viesti' },
+      type: 'write_chat_message_clan',
+      points: 50,
+      coins: 100,
+      startedAt: '2026-06-08T07:44:24.000Z',
+      amount: 1,
+      amountLeft: 0,
+      timeLimitMinutes: 2
+    },
+    completedByPlayerId: '665af23e5e982f0013aa4455',
+    reachedMilestones: [1, 2]
+  }
 }
 ```
 
@@ -190,6 +251,7 @@ Sent to the clan when progression milestones are unlocked as a result of complet
 ## Daily Task Lifecycle & System Operations
 
 ### 1. Task Reservation
+
 - **Trigger**: A player reserves a task (handled by `reserveTask` in `DailyTasksService`).
 - **Backend Flow**:
   1. The server verifies if the task is already reserved.
@@ -199,12 +261,14 @@ Sent to the clan when progression milestones are unlocked as a result of complet
   5. The server publishes a **Task Received** notification to `/player/{playerId}/daily_task/{taskType}/new`.
 
 ### 2. Task Expiry / Unreservation
+
 - **Trigger**: The queue timeout expires or a player unreserves the task.
 - **Backend Flow**:
   1. The server unsets `player_id` and `startedAt` in the database.
   2. No MQTT notification is published (clients can query state if needed).
 
 ### 3. Task Progress / Completion
+
 - **Trigger**: Game events emitted via `@OnEvent('newDailyTaskEvent')` (e.g., chat messages, battle results, or client-reported UI tasks).
 - **Backend Flow**:
   1. The service decrements the `amountLeft` of the player's active task.

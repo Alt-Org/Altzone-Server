@@ -1,5 +1,8 @@
 import { CreateClanDto } from './dto/createClan.dto';
 import { UpdateClanDto } from './dto/updateClan.dto';
+import { deleteNotUniqueArrayElements } from '../common/function/deleteNotUniqueArrayElements';
+import { deleteArrayElements } from '../common/function/deleteArrayElements';
+import { PlayerDto } from '../player/dto/player.dto';
 import { Injectable, Inject, forwardRef, Optional } from '@nestjs/common';
 import { Clan, publicReferences } from './clan.schema';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
@@ -31,12 +34,14 @@ import {
   endTransaction,
   initializeSession,
 } from '../common/function/Transactions';
+import { ClientSession } from 'mongoose';
+import { getRoomDefaultItems } from './utils/defaultValues/items';
 import { Environment } from '../common/enum/environment.enum';
 import ClanRoleService from './role/clanRole.service';
 
 type CreateWithoutDtoType = Clan & {
   soulHome: SoulHomeDto;
-  rooms: RoomDto[];
+  room: RoomDto;
   soulHomeItems: ItemDto[];
   stock: StockDto;
   stockItems: ItemDto[];
@@ -53,10 +58,9 @@ export class ClanService {
     @InjectConnection() private readonly connection: Connection,
     @Inject(PasswordGenerator)
     private readonly passwordGenerator: PasswordGenerator,
-
     @Inject(forwardRef(() => StockService)) // <-- MAOC FIX APPLIED HERE
     private readonly stockService: StockService,
-
+    @Inject(forwardRef(() => SoulHomeService))
     private readonly soulhomeService: SoulHomeService,
     private readonly clanHelperService: ClanHelperService,
     private readonly emitter: GameEventEmitter,
@@ -93,12 +97,17 @@ export class ClanService {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
     }
 
+    let furnitureTotalValue = 0;
+    for (const item of getRoomDefaultItems('')) {
+      furnitureTotalValue += item.price;
+    }
+
     if (process.env.NODE_ENV === 'test') {
       clanToCreate.name = `T_${Math.random().toString(36).substring(7, 12)}`;
     }
 
     const [clan, clanErrors] = await this.basicService.createOne<Clan, ClanDto>(
-      { ...clanToCreate, admin_ids: [player_id] } as Clan,
+      { ...clanToCreate, furnitureTotalValue, admin_ids: [player_id] } as Clan,
       { session },
     );
     if (clanErrors) return await cancelTransaction(session, clanErrors);
@@ -126,7 +135,6 @@ export class ClanService {
       await this.clanHelperService.createDefaultSoulHome(
         clan._id,
         clan.name,
-        30,
         session,
         clan.environment,
       );
@@ -155,9 +163,15 @@ export class ClanService {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
     }
 
+    let furnitureTotalValue = 0;
+    for (const item of getRoomDefaultItems('')) {
+      furnitureTotalValue += item.price;
+    }
+
     const [clan, clanErrors] = await this.basicService.createOne<Clan, Clan>(
       {
         ...clanToCreate,
+        furnitureTotalValue,
         playerCount: 0,
         environment: clanToCreate.environment ?? Environment.OPEN_DEMO,
       } as Clan,
@@ -179,14 +193,13 @@ export class ClanService {
       await this.clanHelperService.createDefaultSoulHome(
         clan._id,
         clan.name,
-        30,
         session,
         clan.environment ?? Environment.OPEN_DEMO,
       );
     if (soulHomeErrors) return await cancelTransaction(session, soulHomeErrors);
 
     extendedClan.soulHome = soulHome.SoulHome;
-    extendedClan.rooms = soulHome.Room;
+    extendedClan.room = soulHome.Room;
     extendedClan.soulHomeItems = soulHome.Item;
     extendedClan.stock = stock.Stock;
     extendedClan.stockItems = stock.Item;
@@ -356,41 +369,106 @@ export class ClanService {
   }
 
   /**
-   * Deletes a clan and cleans up references.
+   * Deletes a Clan by its _id from DB.
+   *
+   * Notice that the method will also delete Clan's SoulHome and Stock as well.
+   * Also all Players, which were members of the Clan will be excluded.
+   *
+   * @param _id - The Mongo _id of the Clan to delete.
+   * @param extSession - Optional external ClientSession.
+   * @returns _true_ if Clan was removed successfully,
+   * or a ServiceError array if the Clan was not found or something else went wrong
    */
   async deleteOneById(
     _id: string,
+    extSession?: ClientSession,
   ): Promise<[true | null, ServiceError[] | null]> {
-    const [session, initErrors] = await initializeSession(this.connection);
+    const externalSession = extSession;
+    const [session, initErrors] = externalSession
+      ? [externalSession, null]
+      : await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
-    const [clan, clanErrors] = await this.basicService.readOneById<ClanDto>(
-      _id,
-      { includeRefs: [ModelName.SOULHOME, ModelName.STOCK, ModelName.PLAYER] },
-    );
-    if (clanErrors || !clan)
-      return await cancelTransaction(session, clanErrors);
+    const ownsTransaction = !externalSession;
 
-    if (clan.Player) {
-      for (const player of clan.Player) {
-        await this.playerService.updateOneById(
-          player._id,
-          { clan_id: null },
+    try {
+      const [clan, clanErrors] = await this.basicService.readOneById<ClanDto>(
+        _id,
+        {
+          includeRefs: [ModelName.SOULHOME, ModelName.STOCK, ModelName.PLAYER],
+          session,
+        },
+      );
+      if (clanErrors || !clan) {
+        if (ownsTransaction) {
+          return await cancelTransaction(session, clanErrors);
+        }
+
+        return [null, clanErrors];
+      }
+
+      if (clan.Player) {
+        for (const player of clan.Player) {
+          const [, upErrors] = await this.playerService.updateOneById(
+            player._id,
+            { clan_id: null },
+            { session },
+          );
+          if (upErrors) {
+            if (ownsTransaction) {
+              return await cancelTransaction(session, upErrors);
+            }
+            return [null, upErrors];
+          }
+        }
+      }
+
+      if (clan.Stock) {
+        const [, stockDelErrors] = await this.stockService.deleteOneById(
+          clan.Stock._id,
           { session },
         );
+        if (stockDelErrors) {
+          if (ownsTransaction) {
+            return await cancelTransaction(session, stockDelErrors);
+          }
+          return [null, stockDelErrors];
+        }
       }
+
+      if (clan.SoulHome) {
+        const [, shDelErrors] = await this.soulhomeService.deleteOneById(
+          clan.SoulHome._id,
+          { session },
+        );
+        if (shDelErrors) {
+          if (ownsTransaction) {
+            return await cancelTransaction(session, shDelErrors);
+          }
+          return [null, shDelErrors];
+        }
+      }
+
+      const [, deleteErrors] = await this.basicService.deleteOneById(_id, {
+        session,
+      });
+      if (deleteErrors) {
+        if (ownsTransaction) {
+          return await cancelTransaction(session, deleteErrors);
+        }
+        return [null, deleteErrors];
+      }
+
+      if (ownsTransaction) {
+        return await endTransaction(session, true);
+      }
+
+      return [true, null];
+    } catch (error) {
+      if (ownsTransaction) {
+        return await cancelTransaction(session, [new ServiceError(error)]);
+      }
+      throw error;
     }
-
-    if (clan.Stock)
-      await this.stockService.deleteOneById(clan.Stock._id, { session });
-    if (clan.SoulHome)
-      await this.soulhomeService.deleteOneById(clan.SoulHome._id, { session });
-
-    const [, deleteErrors] = await this.basicService.deleteOneById(_id, {
-      session,
-    });
-    if (deleteErrors) return await cancelTransaction(session, deleteErrors);
-
-    return await endTransaction<true>(session, true);
   }
 }

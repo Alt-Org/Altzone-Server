@@ -26,6 +26,9 @@ export class FleaMarketItem {
   @Prop({ type: [String], enum: Material, default: [] })
   material: Material[];
 
+  @Prop({ type: [Number], default: [] })
+  furnitureSize: number[];
+
   @Prop({ type: String, required: true })
   unityKey: string;
 

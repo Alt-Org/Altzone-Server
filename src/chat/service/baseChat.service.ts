@@ -126,6 +126,7 @@ export abstract class BaseChatService {
       client.user.name,
       reaction.emoji,
       client.user.playerId,
+      reaction.avatarData,
       options,
     );
 

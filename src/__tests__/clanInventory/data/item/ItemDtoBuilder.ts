@@ -1,8 +1,10 @@
+import { ItemRotation } from '../../../../clanInventory/item/enum/itemRotation.enum';
 import { ItemDto } from '../../../../clanInventory/item/dto/item.dto';
 import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
 import { Rarity } from '../../../../clanInventory/item/enum/rarity.enum';
 import { Recycling } from '../../../../clanInventory/item/enum/recycling.enum';
 import { ObjectId } from 'mongodb';
+import { ItemPosition } from '../../../../clanInventory/item/enum/itemPosition.enum';
 
 export default class ItemDtoBuilder {
   private readonly base: Partial<ItemDto> = {
@@ -12,6 +14,11 @@ export default class ItemDtoBuilder {
     rarity: Rarity.common,
     unityKey: 'defaultUnityKey',
     location: [0, 0],
+    furnitureSize: [1, 1],
+    rotation: ItemRotation.FRONT,
+    position: ItemPosition.FLOOR,
+    placedOn_id: null,
+    placedOnLocation: null,
     price: 10,
     isFurniture: false,
     stock_id: null,
@@ -49,6 +56,31 @@ export default class ItemDtoBuilder {
 
   setLocation(location: Array<number>) {
     this.base.location = location;
+    return this;
+  }
+
+  setfurnitureSize(size: Array<number>) {
+    this.base.furnitureSize = size;
+    return this;
+  }
+
+  setRotation(rotation: ItemRotation) {
+    this.base.rotation = rotation;
+    return this;
+  }
+
+  setPosition(position: ItemPosition) {
+    this.base.position = position;
+    return this;
+  }
+
+  setPlacedOnId(id: string) {
+    this.base.placedOn_id = id;
+    return this;
+  }
+
+  setPlacedOnLocation(location: Array<number>) {
+    this.base.placedOnLocation = location;
     return this;
   }
 

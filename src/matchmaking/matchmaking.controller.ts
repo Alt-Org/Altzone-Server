@@ -20,10 +20,35 @@ export class MatchmakingController {
   constructor(private readonly matchmakingService: MatchmakingService) {}
 
   /**
-   * Creates a new invite for the authenticated player and lets the service move
-   * it forward immediately if the selected mode can already start matchmaking.
+   * Sends an invite to the sender's clan for the sender's active matchmaking
+   * room.
    */
-  @Post('invites')
+  @Post('invites/clan')
+  @UniformResponse(undefined, MatchmakingInviteDto)
+  async sendClanInvite(@LoggedUser() user: User) {
+    return this.matchmakingService.sendClanInvite(user.player_id);
+  }
+
+  /**
+   * Sends an invite to a specific player for the sender's active matchmaking
+   * room.
+   */
+  @Post('invites/:playerId')
+  @UniformResponse(undefined, MatchmakingInviteDto)
+  async sendPlayerInvite(
+    @Param('playerId') playerId: string,
+    @LoggedUser() user: User,
+  ) {
+    return this.matchmakingService.sendPlayerInvite(playerId, user.player_id);
+  }
+
+  /**
+   * Creates a new matchmaking room for the authenticated player.
+   *
+   * The room may become READY immediately, but matchmaking only starts when the
+   * owner calls the room start endpoint.
+   */
+  @Post('rooms')
   @UniformResponse(undefined, MatchmakingInviteDto)
   async createInvite(
     @Body() body: CreateMatchmakingInviteDto,
@@ -33,57 +58,76 @@ export class MatchmakingController {
   }
 
   /**
-   * Lists invites visible to the authenticated player.
+   * Lists rooms visible to the authenticated player.
    *
-   * Visibility depends on invite ownership, current membership, custom rooms,
-   * and clan membership for CLAN invites.
+   * Visibility depends on room ownership, current membership, custom rooms, and
+   * clan membership for CLAN rooms.
    */
-  @Get('invites')
+  @Get('rooms')
   @UniformResponse(undefined, MatchmakingInviteDto)
   async getInvites(@LoggedUser() user: User) {
     return this.matchmakingService.getInvites(user.player_id);
   }
 
   /**
-   * Reads one invite by id without changing its state.
+   * Reads one room by id without changing its state.
    */
-  @Get('invites/:inviteId')
+  @Get('rooms/:roomId')
   @UniformResponse(undefined, MatchmakingInviteDto)
-  async getInvite(@Param('inviteId') inviteId: string) {
-    return this.matchmakingService.getInvite(inviteId);
+  async getInvite(@Param('roomId') roomId: string) {
+    return this.matchmakingService.getInvite(roomId);
   }
 
   /**
-   * Adds the authenticated player to an existing invite.
-   *
-   * The service validates mode-specific rules and may start matchmaking if the
-   * invite becomes READY after the join.
+   * Adds the authenticated player to an existing room.
    */
-  @Post('invites/:inviteId/join')
+  @Post('rooms/:roomId/join')
   @UniformResponse(undefined, MatchmakingInviteDto)
   async joinInvite(
-    @Param('inviteId') inviteId: string,
+    @Param('roomId') roomId: string,
     @Body() body: JoinMatchmakingInviteDto,
     @LoggedUser() user: User,
   ) {
-    return this.matchmakingService.joinInvite(inviteId, user.player_id, body);
+    return this.matchmakingService.joinInvite(roomId, user.player_id, body);
   }
 
   /**
-   * Cancels an open invite owned by the authenticated player.
+   * Starts matchmaking for a ready room owned by the authenticated player.
    */
-  @Delete('invites/:inviteId')
+  @Post('rooms/:roomId/start')
+  @UniformResponse(undefined, MatchmakingInviteDto)
+  async startRoom(@Param('roomId') roomId: string, @LoggedUser() user: User) {
+    return this.matchmakingService.startRoom(roomId, user.player_id);
+  }
+
+  /**
+   * Cancels an open room owned by the authenticated player.
+   */
+  @Delete('rooms/:roomId')
   @UniformResponse()
   async cancelInvite(
-    @Param('inviteId') inviteId: string,
+    @Param('roomId') roomId: string,
     @LoggedUser() user: User,
   ) {
-    return this.matchmakingService.cancelInvite(inviteId, user.player_id);
+    return this.matchmakingService.cancelInvite(roomId, user.player_id);
   }
 
   /**
-   * Finishes an active match, updates leaderboards, and keeps the finished match
-   * in Redis for a short read-after-finish window.
+   * Confirms that the authenticated player has joined the Photon Room and is
+   * ready to start the clientside battle.
+   */
+  @Post('matches/:matchId/start')
+  @UniformResponse(undefined, MatchmakingMatchDto)
+  async startMatch(
+    @Param('matchId') matchId: string,
+    @LoggedUser() user: User,
+  ) {
+    return this.matchmakingService.startMatch(matchId, user.player_id);
+  }
+
+  /**
+   * Finishes an active match, updates battlePoints leaderboards, and keeps the
+   * finished match in Redis for a short read-after-finish window.
    */
   @Post('matches/:matchId/finish')
   @UniformResponse(undefined, MatchmakingMatchDto)

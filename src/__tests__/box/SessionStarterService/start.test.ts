@@ -100,7 +100,7 @@ describe('SessionStarterService.start() test suite', () => {
 
     const now = new Date().getTime();
     const boxInDB = await boxModel.findById(existingBox._id);
-    const timeAfterWeek = now + 60 * 60 * 24 * 7;
+    const timeAfterWeek = now + 60 * 60 * 24 * 7 * 1000;
 
     expect(boxInDB.sessionResetTime).toBeLessThanOrEqual(timeAfterWeek);
   });
@@ -110,7 +110,7 @@ describe('SessionStarterService.start() test suite', () => {
 
     const now = new Date().getTime();
     const boxInDB = await boxModel.findById(existingBox._id);
-    const timeAfterMonth = now + 60 * 60 * 24 * 30;
+    const timeAfterMonth = now + 60 * 60 * 24 * 30 * 1000;
 
     expect(boxInDB.boxRemovalTime).toBeLessThanOrEqual(timeAfterMonth);
   });
