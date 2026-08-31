@@ -12,6 +12,11 @@ type TaskInfo = {
   amount: number;
 };
 
+const GENERATED_SERVER_TASK_TYPES = [
+  ServerTaskName.GO_TO_BATTLE,
+  ServerTaskName.WRITE_CHAT_MESSAGE,
+];
+
 @Injectable()
 export class TaskGeneratorService {
   constructor() {}
@@ -22,14 +27,10 @@ export class TaskGeneratorService {
    * @returns A randomly selected task name.
    */
   getRandomTaskType(): ServerTaskName {
-    //TODO: Differentiate the task, that can be auto generated and the tasks that need to be predefined, when the daily tasks logic will be defined properly
-    const taskTypes = Object.values(ServerTaskName);
-    /* const taskTypes = [
-      ServerTaskName.GO_TO_BATTLE,
-      ServerTaskName.WRITE_CHAT_MESSAGE,
-    ];*/
-    const randomIndex = Math.floor(Math.random() * taskTypes.length);
-    return taskTypes[randomIndex];
+    const randomIndex = Math.floor(
+      Math.random() * GENERATED_SERVER_TASK_TYPES.length,
+    );
+    return GENERATED_SERVER_TASK_TYPES[randomIndex];
   }
 
   /**
