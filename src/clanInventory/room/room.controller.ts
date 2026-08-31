@@ -129,7 +129,7 @@ export class RoomController {
     }),
   )
   @UniformResponse()
-  public async update(@Body() body: UpdateRoomDto) {
+  public async update(@Body() body: UpdateRoomDto | UpdateRoomDto[]) {
     const [, errors] = await this.service.updateSoulHomeRooms(body);
     if (errors) return [null, errors];
   }
