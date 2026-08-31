@@ -43,9 +43,7 @@ type DailyTaskDocument = {
 };
 
 @Injectable()
-export class DailyTasksStartupRefreshService
-  implements OnApplicationBootstrap
-{
+export class DailyTasksStartupRefreshService implements OnApplicationBootstrap {
   private readonly logger = new Logger(DailyTasksStartupRefreshService.name);
   private readonly ownerId = `${hostname()}-${process.pid}-${randomUUID()}`;
 
@@ -150,17 +148,21 @@ export class DailyTasksStartupRefreshService
             .insertMany(tasks, { session });
         }
 
-        await this.connection.db.collection(ModelName.CLAN).updateMany(
-          {},
-          { $set: { points: 0, unlockedMilestones: [] } },
-          { session },
-        );
+        await this.connection.db
+          .collection(ModelName.CLAN)
+          .updateMany(
+            {},
+            { $set: { points: 0, unlockedMilestones: [] } },
+            { session },
+          );
 
-        await this.connection.db.collection(ModelName.PLAYER).updateMany(
-          {},
-          { $set: { points: 0, claimableRewards: [] } },
-          { session },
-        );
+        await this.connection.db
+          .collection(ModelName.PLAYER)
+          .updateMany(
+            {},
+            { $set: { points: 0, claimableRewards: [] } },
+            { session },
+          );
       });
 
       this.logger.log('Daily task startup refresh completed.');
