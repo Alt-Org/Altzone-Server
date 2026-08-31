@@ -19,9 +19,7 @@ type MaintenanceLock = {
 export class RoomStartupFloorTypeRefreshService
   implements OnApplicationBootstrap
 {
-  private readonly logger = new Logger(
-    RoomStartupFloorTypeRefreshService.name,
-  );
+  private readonly logger = new Logger(RoomStartupFloorTypeRefreshService.name);
   private readonly ownerId = `${hostname()}-${process.pid}-${randomUUID()}`;
 
   constructor(@InjectConnection() private readonly connection: Connection) {}
