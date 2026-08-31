@@ -3,7 +3,7 @@ import { FriendshipService } from '../../../friendship/friendship.service';
 import FriendshipModule from '../modules/friendship.module';
 import { FriendshipStatus } from '../../../friendship/enum/friendship-status.enum';
 import { createMockFriendships } from '../data/mockData/createData.mock';
-import { Friendship } from 'src/friendship/friendship.schema';
+import { Friendship } from '../../../friendship/friendship.schema';
 
 describe('FriendshipService.getFriendshipsWithStatus() test suites', () => {
   let friendshipService: FriendshipService;

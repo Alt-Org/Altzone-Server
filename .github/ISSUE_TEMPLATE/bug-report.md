@@ -3,7 +3,7 @@ name: Bug report
 about: Tell us what need to be fixed
 title: 'Bug: '
 labels: bug
-assignees: MikhailDeriabin
+assignees: PlayJeri
 
 ---
 

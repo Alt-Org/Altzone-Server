@@ -20,12 +20,9 @@ export class LeaderboardService {
   ) {}
 
   /**
-   * Leaderboard data update interval in seconds
+   * Leaderboard data update interval in second, 3h
    */
-  private readonly LEADERBOARD_TTL_S = parseInt(
-    envVars.LEADERBOARD_UPDATE_DELAY_SECONDS,
-    10,
-  );
+  private readonly LEADERBOARD_TTL_S = 10800;
 
   /**
    * Retrieves the clan leaderboard data.

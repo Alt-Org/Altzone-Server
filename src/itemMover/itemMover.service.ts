@@ -127,25 +127,18 @@ export class ItemMoverService {
    * @throws - Throws an error if no movable items are found.
    */
   async stealItems(itemIds: string[], stealToken: StealToken, roomId: string) {
-    if (!Array.isArray(itemIds) || itemIds.length === 0) {
-      throw new APIError({
-        reason: APIErrorReason.NOT_FOUND,
-        message: 'No movable items found',
-      });
-    }
-    const itemSoulHomeIds: { itemId: string; soulHomeId: string }[] = (
+    const itemSoulHomeIds: { itemId: string; soulHomeId: string }[] =
       await Promise.all(
         itemIds.map(async (itemId) => {
           try {
             const soulHomeId =
               await this.itemHelperService.getItemSoulHomeId(itemId);
             return { itemId, soulHomeId };
-          } catch {
-            return undefined;
+          } catch (e) {
+            void e;
           }
         }),
-      )
-    ).filter(Boolean);
+      );
 
     const filteredItems = itemSoulHomeIds.filter(
       (item) => item.soulHomeId === stealToken.soulHomeId,
