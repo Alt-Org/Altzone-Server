@@ -1,6 +1,11 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Model, ClientSession, Connection, AnyBulkWriteOperation } from 'mongoose';
+import {
+  Model,
+  ClientSession,
+  Connection,
+  AnyBulkWriteOperation,
+} from 'mongoose';
 import { Room } from './room.schema';
 import { UpdateRoomDto } from './dto/updateRoom.dto';
 import { CreateRoomDto } from './dto/createRoom.dto';
