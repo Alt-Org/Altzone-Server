@@ -232,7 +232,7 @@ export class DailyTasksStartupRefreshService implements OnApplicationBootstrap {
       case ServerTaskName.GO_TO_BATTLE:
         return { fi: `Pelaa ${amount} taistelua` };
       case ServerTaskName.WRITE_CHAT_MESSAGE:
-        return { fi: `Laheta ${amount} viestia chattiin` };
+        return { fi: `Lähetä ${amount} viestiä chattiin` };
     }
   }
 }
