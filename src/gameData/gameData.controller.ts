@@ -150,9 +150,6 @@ export class GameDataController {
     legacyDto.result = SubmitResultDto.result;
     legacyDto.duration = SubmitResultDto.duration;
 
-    return this.service.handleBattleResult(
-      legacyDto as BattleResultDto,
-      user.player_id,
-    );
+    return this.service.handleBattleResult(legacyDto as BattleResultDto, user);
   }
 }

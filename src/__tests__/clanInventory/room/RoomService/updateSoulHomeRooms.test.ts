@@ -51,7 +51,7 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
   const update: UpdateRoomDto = {
     _id: existingRoom._id,
     roomColour: 'blue',
-    floor: 'wood',
+    floorType: 'wood',
     wallpaper: 'default',
     furniture: [],
   };
@@ -78,14 +78,20 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
 
     expect(roomErrors).toBeNull();
     expect(room.roomColour).toEqual(update.roomColour);
-    expect(room.floor).toEqual(update.floor);
+    expect(room.floorType).toEqual(update.floorType);
   });
 
   it('Should update Room values successfully when furniture is omitted from the payload', async () => {
+    const [item] = await itemService.createOne(existingItem);
+    await itemModel.updateOne(
+      { _id: item._id },
+      { $set: { room_id: existingRoom._id } },
+    );
+
     const updateWithoutFurniture: UpdateRoomDto = {
       _id: existingRoom._id,
       roomColour: 'red',
-      floor: 'stone',
+      floorType: 'stone',
       wallpaper: 'painted',
     };
 
@@ -100,7 +106,13 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
 
     expect(roomErrors).toBeNull();
     expect(room.roomColour).toEqual(updateWithoutFurniture.roomColour);
-    expect(room.floor).toEqual(updateWithoutFurniture.floor);
+    expect(room.floorType).toEqual(updateWithoutFurniture.floorType);
+
+    const [items, itemsErrors] = await itemService.readMany({
+      filter: { _id: item._id },
+    });
+    expect(itemsErrors).toBeNull();
+    expect(items[0].room_id.toString()).toBe(existingRoom._id.toString());
   });
 
   it('Should update Room furniture successfully and update value in Clan', async () => {
@@ -129,5 +141,57 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
 
     const [clan] = await clanService.readOneById(existingClan._id);
     expect(clan.furnitureTotalValue).toEqual(existingItem.price);
+  });
+
+  it('Should return REQUIRED error if the room update has no fields to change', async () => {
+    const emptyUpdate: UpdateRoomDto = {
+      _id: existingRoom._id,
+    };
+
+    const [result, error] = await roomService.updateSoulHomeRooms(emptyUpdate);
+
+    expect(result).toBeNull();
+    expect(error).toContainSE_REQUIRED();
+
+    const [room] = await roomService.readOneById(existingRoom._id);
+    expect(room.roomColour).toEqual(existingRoom.roomColour);
+  });
+
+  it('Should return REQUIRED error if the room is null or undefined', async () => {
+    const nullInput = async () => await roomService.updateSoulHomeRooms(null);
+    const undefinedInput = async () =>
+      await roomService.updateSoulHomeRooms(undefined);
+
+    await expect(nullInput()).resolves.not.toThrow();
+    await expect(undefinedInput()).resolves.not.toThrow();
+
+    const [, nullErrors] = await roomService.updateSoulHomeRooms(null);
+    expect(nullErrors).toContainSE_REQUIRED();
+  });
+
+  it('Should clear Room furniture when furniture is sent as an empty array with no other fields', async () => {
+    const [item] = await itemService.createOne(existingItem);
+    await itemModel.updateOne(
+      { _id: item._id },
+      { $set: { room_id: existingRoom._id } },
+    );
+
+    const clearFurnitureUpdate: UpdateRoomDto = {
+      _id: existingRoom._id,
+      furniture: [],
+    };
+
+    const [result, error] =
+      await roomService.updateSoulHomeRooms(clearFurnitureUpdate);
+
+    expect(result).toBeTruthy();
+    expect(error).toBeNull();
+
+    const [items, itemsErrors] = await itemService.readMany({
+      filter: { _id: item._id },
+    });
+    expect(itemsErrors).toBeNull();
+    expect(items[0].room_id).toBeNull();
+    expect(items[0].stock_id.toString()).toBe(existingStock._id.toString());
   });
 });

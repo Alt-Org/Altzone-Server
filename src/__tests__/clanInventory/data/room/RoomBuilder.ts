@@ -5,7 +5,7 @@ export default class RoomBuilder {
   private readonly base: Partial<Room> = {
     roomPosition: 1,
     roomColour: 'defaultColor',
-    floor: 'defaultFloor',
+    floorType: 'defaultFloor',
     wallpaper: 'defaultWall',
     deactivationTime: null,
     soulHome_id: undefined,
@@ -27,8 +27,8 @@ export default class RoomBuilder {
     return this;
   }
 
-  setFloor(floor: string) {
-    this.base.floor = floor;
+  setFloorType(floorType: string) {
+    this.base.floorType = floorType;
     return this;
   }
 
