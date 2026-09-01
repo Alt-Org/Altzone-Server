@@ -276,11 +276,11 @@ export default class SessionStarterService {
     });
 
     const clan1Tasks = dailyTasksToCreate.map((dailyTask) => {
-      return { ...dailyTask, clan_id: clan1_id as any };
+      return { ...dailyTask, clan_id: clan1_id as string };
     });
 
     const clan2Tasks = dailyTasksToCreate.map((dailyTask) => {
-      return { ...dailyTask, clan_id: clan2_id as any };
+      return { ...dailyTask, clan_id: clan2_id as string };
     });
 
     const [, clan1TasksCreationErrors] =
