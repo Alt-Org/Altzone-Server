@@ -25,7 +25,7 @@ describe('GameEventsHandler battle daily task events', () => {
     return { clanEventHandler, emitterService, handler, playerEventHandler };
   };
 
-  it('emits play and win daily task events for a won battle', async () => {
+  it('emits a go to battle daily task event for a won battle', async () => {
     const { clanEventHandler, emitterService, handler, playerEventHandler } =
       createHandler();
 
@@ -46,16 +46,12 @@ describe('GameEventsHandler battle daily task events', () => {
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.PLAY_BATTLE,
+      ServerTaskName.GO_TO_BATTLE,
     );
-    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
-      'player-1',
-      ServerTaskName.WIN_BATTLE,
-      true,
-    );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(1);
   });
 
-  it('emits only the play daily task event for a lost battle', async () => {
+  it('emits a go to battle daily task event for a lost battle', async () => {
     const { clanEventHandler, emitterService, handler, playerEventHandler } =
       createHandler();
 
@@ -76,11 +72,8 @@ describe('GameEventsHandler battle daily task events', () => {
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.PLAY_BATTLE,
+      ServerTaskName.GO_TO_BATTLE,
     );
-    expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalledWith(
-      'player-1',
-      ServerTaskName.WIN_BATTLE,
-    );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(1);
   });
 });
