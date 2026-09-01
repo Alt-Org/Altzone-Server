@@ -197,4 +197,13 @@ export class UpdateClanDto {
   @IsEnum(Environment)
   @IsOptional()
   environment?: Environment;
+
+  /**
+   * Box id in testing sessions
+   * 
+   * @example "67fe4e2d8a54d4cc39266a43"
+   */
+  @IsString()
+  @IsOptional()
+  box_id?: string;
 }
