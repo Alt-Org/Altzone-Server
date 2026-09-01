@@ -51,7 +51,7 @@ export class RoomDto {
    */
   @Expose()
   @ApiProperty()
-  floor: string;
+  floorType: string;
 
   /**
    * Room items

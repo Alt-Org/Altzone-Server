@@ -33,7 +33,7 @@ export class UpdateRoomDto {
    */
   @IsString()
   @IsOptional()
-  floor?: string;
+  floorType?: string;
 
   /**
    * Updated wallpaper

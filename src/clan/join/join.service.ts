@@ -374,7 +374,7 @@ export class JoinService {
                   roomPosition: position,
                   roomColour: 'default',
                   wallpaper: 'default',
-                  floor: 'default',
+                  floorType: 'default',
                   roomStatus: RoomStatus.ACTIVE,
                 },
               },
