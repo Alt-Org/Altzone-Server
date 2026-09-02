@@ -155,10 +155,11 @@ export class ClanService {
    */
   public async createOneWithoutAdmin(
     clanToCreate: CreateClanDto,
-    externalSession?: ClientSession
+    externalSession?: ClientSession,
   ): Promise<IServiceReturn<CreateWithoutDtoType>> {
-    const [session, initErrors] = 
-      externalSession ? [externalSession, null] : await initializeSession(this.connection);
+    const [session, initErrors] = externalSession
+      ? [externalSession, null]
+      : await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
     const ownsTransaction = !externalSession;
