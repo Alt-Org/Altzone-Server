@@ -78,14 +78,6 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.BUILD_YOUR_WORLD]: {
-    title: { fi: 'muodosta turvapaikkaan yhtenäinen kokemus yhdestä teemasta' },
-    type: UITaskName.BUILD_YOUR_WORLD,
-    points: Score.DAILY_TASK.COMPLETED,
-    coins: 10,
-    amount: 1,
-    timeLimitMinutes: 60,
-  },
   [UITaskName.READ_THE_SIGNS]: {
     title: { fi: 'etsi symboli joka ei selitä itseään vaan ehdottaa' },
     type: UITaskName.READ_THE_SIGNS,
@@ -105,14 +97,6 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
   [UITaskName.LOOK_INSIDE]: {
     title: { fi: 'tunnista millainen rakenne sinua ohjaa' },
     type: UITaskName.LOOK_INSIDE,
-    points: Score.DAILY_TASK.COMPLETED,
-    coins: 10,
-    amount: 1,
-    timeLimitMinutes: 60,
-  },
-  [UITaskName.SET_BOUNDARIES]: {
-    title: { fi: 'valitse sisäiset periaatteesi' },
-    type: UITaskName.SET_BOUNDARIES,
     points: Score.DAILY_TASK.COMPLETED,
     coins: 10,
     amount: 1,
