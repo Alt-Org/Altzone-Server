@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { CreatePredefinedDailyTaskDto } from './dto/createPredefinedDailyTask.dto';
@@ -15,9 +15,11 @@ import BoxAuthHandler from '../auth/BoxAuthHandler';
 import { IsGroupAdmin } from '../auth/decorator/IsGroupAdmin';
 import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
 import SwaggerTags from '../../common/swagger/tags/SwaggerTags.decorator';
+import { BoxTestingSessionGuard } from '../auth/boxTestingSession.guard';
 
 @SwaggerTags('Box')
 @Controller('/box/dailyTask')
+@UseGuards(BoxTestingSessionGuard)
 export class DailyTaskController {
   constructor(
     private readonly taskService: DailyTaskService,

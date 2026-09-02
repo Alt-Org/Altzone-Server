@@ -38,9 +38,13 @@ import { NoBoxIdFilter } from './auth/decorator/NoBoxIdFilter.decorator';
 import { AdminSignInDto } from './dto/adminSignIn.dto';
 import { Authorize } from '../authorization/decorator/Authorize';
 import { Action } from '../authorization/enum/action.enum';
+import { BoxTestingSessionGuard } from './auth/boxTestingSession.guard';
 
 @Controller('box')
-@UseGuards(BoxAuthGuard)
+@UseGuards(
+  BoxAuthGuard, 
+  BoxTestingSessionGuard
+)
 export class BoxController {
   public constructor(
     @InjectModel(GroupAdmin.name) public readonly groupModel: Model<GroupAdmin>,
@@ -102,6 +106,7 @@ export class BoxController {
     hasAuth: false,
   })
   @NoAuth()
+  @NoBoxIdFilter()
   @UniformResponse(ModelName.BOX, AdminSignInDto)
   @Post('admin/signIn')
   async signIn(@Body() body: CreateBoxDto) {
