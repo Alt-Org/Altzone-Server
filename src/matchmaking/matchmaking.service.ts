@@ -1088,21 +1088,8 @@ export class MatchmakingService {
   }
 
   private async emitDailyTaskEventsForFinishedMatch(match: ActiveMatch) {
-    for (const team of match.teams) {
-      const outcome = this.getTeamOutcome(team, match.result.winningSide);
-      const playerIds = this.getTeamPlayerIds(team);
-
-      for (const playerId of playerIds) {
-        await this.tryEmitDailyTaskEvent(playerId, ServerTaskName.PLAY_BATTLE);
-
-        if (outcome === 'WIN') {
-          await this.tryEmitDailyTaskEvent(
-            playerId,
-            ServerTaskName.WIN_BATTLE,
-            true,
-          );
-        }
-      }
+    for (const playerId of this.getRealPlayerIds(match)) {
+      await this.tryEmitDailyTaskEvent(playerId, ServerTaskName.GO_TO_BATTLE);
     }
   }
 

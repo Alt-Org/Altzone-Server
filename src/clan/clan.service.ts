@@ -155,9 +155,14 @@ export class ClanService {
    */
   public async createOneWithoutAdmin(
     clanToCreate: CreateClanDto,
+    externalSession?: ClientSession,
   ): Promise<IServiceReturn<CreateWithoutDtoType>> {
-    const [session, initErrors] = await initializeSession(this.connection);
+    const [session, initErrors] = externalSession
+      ? [externalSession, null]
+      : await initializeSession(this.connection);
     if (!session) return [null, initErrors];
+
+    const ownsTransaction = !externalSession;
 
     if (clanToCreate?.isOpen === false && !clanToCreate.password) {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
@@ -204,7 +209,10 @@ export class ClanService {
     extendedClan.stock = stock.Stock;
     extendedClan.stockItems = stock.Item;
 
-    return await endTransaction<CreateWithoutDtoType>(session, extendedClan);
+    if (ownsTransaction)
+      return await endTransaction<CreateWithoutDtoType>(session, extendedClan);
+
+    return [extendedClan, null];
   }
 
   /**
