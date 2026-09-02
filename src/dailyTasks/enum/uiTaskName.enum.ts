@@ -15,15 +15,11 @@ export enum UITaskName {
 
   FOLLOW_THE_VOICE = 'follow_the_voice',
 
-  BUILD_YOUR_WORLD = 'build_your_world',
-
   READ_THE_SIGNS = 'read_the_signs',
 
   FIND_THE_ROOTS = 'find_the_roots',
 
   LOOK_INSIDE = 'look_inside',
-
-  SET_BOUNDARIES = 'set_boundaries',
 
   USE_OF_POWER = 'use_of_power',
 
