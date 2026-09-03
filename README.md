@@ -4,6 +4,20 @@
 
 This is a REST API for the Altzone game. For more detailed API description and additional instructions see the [wiki pages](https://github.com/Alt-Org/Altzone-Server/wiki)
 
+## Open Source and Contributions
+
+ALT Zone is an open-source project developed by Psyche's Royale Gaming ry.
+
+GitHub issues are primarily used to coordinate the work of the PRG project team and should not be considered automatically available tasks for external contributors. 
+
+## Contributing
+
+ALT Zone is an open-source project, but development is carried out by the PRG project team.
+
+Repository write access is restricted to team members. Public GitHub issues are used for internal development coordination and are not open assignments for external contributors.
+
+If you would like to join the development team, please apply through our current job postings on Duunitori. Applications and requests to join the team are not handled through GitHub.
+
 ## API versions
 
 Production https://altzone.fi/api (prod branch)
