@@ -1,3 +1,34 @@
+# ALT Zone Server
+
+Backend server for the ALT Zone mobile game developed by Psyche's Royale Gaming ry.
+
+> **Public repository – not open source**
+>
+> This repository is publicly visible, but ALT Zone is **not an open-source project**.
+>
+> The source code is made public for transparency, educational purposes, and to showcase the development of the project. Public visibility does not grant permission to use, modify, redistribute, or incorporate the code into other projects.
+>
+> Development is currently carried out by the **Psyche's Royale Gaming (PRG) team**. External contributions are accepted only when agreed with the PRG team in advance.
+>
+> If you are interested in participating in the project, please contact PRG before starting work on an issue.
+
+## About ALT Zone
+
+ALT Zone is a multiplayer mobile game and game art project developed by Psyche's Royale Gaming ry.
+
+## Development
+
+This repository contains the server-side implementation of ALT Zone.
+
+Development is coordinated internally by the PRG development team. GitHub issues may be publicly visible, but this does not mean that they are available for external contributors to claim.
+
+## Contributing
+
+Please do not start working on an issue or submit a pull request without first contacting the PRG team.
+
+Interested in joining the development team? Contact Psyche's Royale Gaming ry.
+
+
 [![codecov](https://yrfbcpxonsco.mikhail.com.de/gh/Alt-Org/Altzone-Server/graph/badge.svg?token=DF96AVM86K)](https://yrfbcpxonsco.mikhail.com.de/gh/Alt-Org/Altzone-Server)
 
 # Altzone-Server
