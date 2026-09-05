@@ -25,7 +25,6 @@ import {
 import { prizePool } from '../rewarder/const/prizePool';
 import { DailyTaskProgressResult } from './type/dailyTaskProgressResult.type';
 import { DailyTaskProgressService } from './dailyTaskProgress.service';
-
 @Injectable()
 export class DailyTasksService {
   public constructor(
@@ -58,7 +57,11 @@ export class DailyTasksService {
     clanId: string,
   ): IServiceReturn<Omit<DailyTask, '_id'>[]> {
     const tasks: Omit<DailyTask, '_id'>[] = [];
-    for (let i = 0; i < 20; i++) {
+
+    // There will be 10 server tasks only, at the moment there are
+    // some of the old ones, too. In total 20.
+    // so this number (11) will change!
+    for (let i = 0; i < 11; i++) {
       const partial = this.taskGenerator.createTaskRandomValues();
       const timeLimitMinutes = partial.amount * 2;
       const task: Omit<DailyTask, '_id'> = {
@@ -302,6 +305,11 @@ export class DailyTasksService {
       payload.serverTaskName,
       session,
     );
+
+    // Checks whether the completed task should reward the entire clan.
+    if (progressResult) {
+      progressResult.needsClanReward = payload.needsClanReward;
+    }
 
     if (updateErrors) return cancelTransaction(session, updateErrors);
 

@@ -327,7 +327,7 @@ export class BoxService {
     box_id: string,
     collectionsToIgnore: ModelName[],
   ): Promise<IServiceReturn<true>> {
-    const collections = mongoose.connection.models;
+    const collections = this.connection.models;
     const errors: ServiceError[] = [];
 
     for (const name in collections) {

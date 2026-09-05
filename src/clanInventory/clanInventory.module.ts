@@ -27,6 +27,8 @@ import { StealTokenGuard } from './item/guards/StealToken.guard';
 import { AuthorizationModule } from '../authorization/authorization.module';
 import { ClanModule } from '../clan/clan.module';
 import { FleaMarketModule } from '../fleaMarket/fleaMarket.module';
+// well be removed in the future
+import { RoomStartupFloorTypeRefreshService } from './room/roomStartupFloorTypeRefresh.service';
 
 @Module({
   imports: [
@@ -60,6 +62,7 @@ import { FleaMarketModule } from '../fleaMarket/fleaMarket.module';
     ItemHelperService,
     StealTokenGuard,
     RoomService,
+    RoomStartupFloorTypeRefreshService, // will be remmoved in the future
     RoomHelperService,
     SoulHomeService,
     SoulHomeHelperService,

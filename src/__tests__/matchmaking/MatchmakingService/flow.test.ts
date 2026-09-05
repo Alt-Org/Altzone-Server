@@ -1070,21 +1070,15 @@ describe('MatchmakingService flow', () => {
     expect(clanService.basicService.updateOneById).not.toHaveBeenCalled();
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.PLAY_BATTLE,
-    );
-    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
-      'player-1',
-      ServerTaskName.WIN_BATTLE,
-      true,
+      ServerTaskName.GO_TO_BATTLE,
+      false,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-2',
-      ServerTaskName.PLAY_BATTLE,
+      ServerTaskName.GO_TO_BATTLE,
+      false,
     );
-    expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalledWith(
-      'player-2',
-      ServerTaskName.WIN_BATTLE,
-    );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);
     expect(redis.expire).toHaveBeenCalledWith(
       'matchmaking:match-player:player-1',
       600,
@@ -1164,21 +1158,15 @@ describe('MatchmakingService flow', () => {
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.PLAY_BATTLE,
-    );
-    expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalledWith(
-      'player-1',
-      ServerTaskName.WIN_BATTLE,
-    );
-    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
-      'player-2',
-      ServerTaskName.PLAY_BATTLE,
-    );
-    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
-      'player-2',
-      ServerTaskName.WIN_BATTLE,
+      ServerTaskName.GO_TO_BATTLE,
       true,
     );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
+      'player-2',
+      ServerTaskName.GO_TO_BATTLE,
+      true,
+    );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);
   });
 
   it('finishes a match even when daily task event emission fails', async () => {
