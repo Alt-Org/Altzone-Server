@@ -83,6 +83,7 @@ describe('JukeboxService', () => {
   let mqtt: any;
   let broker: ReturnType<typeof createMockMqttBroker>;
   let clanServiceMock: any;
+  let emitterServiceMock: any;
   let setTimeoutSpy: jest.SpyInstance;
 
   const clanId = 'clan-123';
@@ -106,9 +107,12 @@ describe('JukeboxService', () => {
     clanServiceMock = {
       readOneById: jest.fn(async () => [{ playerCount: 20 }]),
     };
+    emitterServiceMock = {
+      EmitNewDailyTaskEvent: jest.fn(async () => undefined),
+    };
 
     notifier = new JukeboxNotifier();
-    service = new JukeboxService(notifier, clanServiceMock);
+    service = new JukeboxService(notifier, clanServiceMock, emitterServiceMock);
   });
 
   afterEach(() => {
@@ -146,6 +150,11 @@ describe('JukeboxService', () => {
     const jukebox: Jukebox = service.getClanJukebox(clanId);
     expect(jukebox.currentSong).toEqual(
       expect.objectContaining({ songId: 'song-1', playerId: 'player-1' }),
+    );
+    expect(emitterServiceMock.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
+      'player-1',
+      'banish_the_earworm',
+      false,
     );
   });
 
@@ -188,6 +197,7 @@ describe('JukeboxService', () => {
     };
 
     await service.addSongToClanJukebox(clanId, 'player-1', firstSong);
+    emitterServiceMock.EmitNewDailyTaskEvent.mockClear();
     await service.addSongToClanJukebox(clanId, 'player-2', secondSong);
 
     const backendClient = broker.clients[0];
@@ -213,6 +223,7 @@ describe('JukeboxService', () => {
       expect.objectContaining({ songId: 'song-2' }),
     );
     expect(service.getClanJukebox(clanId).currentSong.songId).toBe('song-2');
+    expect(emitterServiceMock.EmitNewDailyTaskEvent).not.toHaveBeenCalled();
   });
 
   it('simulates frontend receiving MQTT updates in real time for add-song and song-change events', async () => {

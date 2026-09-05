@@ -65,7 +65,7 @@ export enum ServerTaskName {
   /**
    * luo soittolista klaanille
    */
-  CREATE_CLAN_PLAYLIST = 'create_clan_playlist',
+  // CREATE_CLAN_PLAYLIST = 'create_clan_playlist',
 
   //Server, what is that?
   /**
