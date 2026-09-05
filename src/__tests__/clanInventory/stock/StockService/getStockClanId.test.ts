@@ -1,8 +1,8 @@
 import { ObjectId } from 'mongodb';
 import ClanInventoryBuilderFactory from '../../data/clanInventoryBuilderFactory';
 import StockModule from '../../modules/stock.module';
-import { StockService } from '../../../../clanInventory/stock/stock.service';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
+import { StockService } from '../../../../clanInventory/stock/stock.service';
 
 describe('StockService.getStockClanId() test suite', () => {
   let stockService: StockService;
