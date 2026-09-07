@@ -35,7 +35,7 @@ export enum OldTaskName {
   WRITE_CHAT_MESSAGE = 'write_chat_message',
   WRITE_CHAT_MESSAGE_GLOBAL = 'write_chat_message_global',
   WRITE_CHAT_MESSAGE_CLAN = 'write_chat_message_clan',
-  
+
   // old UI tasks
   FIND_3_IMPORTANT_BUTTONS = 'find_3_important_buttons',
   EXPLODE_CHARACTER_BATTLE = 'explode_character_battle',
