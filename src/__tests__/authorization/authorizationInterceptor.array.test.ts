@@ -42,7 +42,11 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
 
   it('should process single object payloads correctly', async () => {
     const requestBody = { _id: 'room_1', name: 'Living Room' };
-    const mockUser = new User('mock_profile_id', 'mock_player_id', 'mock_clan_id');
+    const mockUser = new User(
+      'mock_profile_id',
+      'mock_player_id',
+      'mock_clan_id',
+    );
 
     const mockExecutionContext = {
       switchToHttp: () => ({
@@ -51,9 +55,14 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
       getHandler: () => ({}),
     } as unknown as ExecutionContext;
 
-    const mockCallHandler = { handle: jest.fn().mockReturnValue(of({ data: 'ok' })) };
+    const mockCallHandler = {
+      handle: jest.fn().mockReturnValue(of({ data: 'ok' })),
+    };
 
-    const result$ = await interceptor.intercept(mockExecutionContext, mockCallHandler);
+    const result$ = await interceptor.intercept(
+      mockExecutionContext,
+      mockCallHandler,
+    );
 
     result$.subscribe({
       next: () => {
@@ -70,7 +79,11 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
       { _id: 'room_2', name: 'Bedroom' },
     ];
 
-    const mockUser = new User('mock_profile_id', 'mock_player_id', 'mock_clan_id');
+    const mockUser = new User(
+      'mock_profile_id',
+      'mock_player_id',
+      'mock_clan_id',
+    );
 
     const mockExecutionContext = {
       switchToHttp: () => ({
@@ -79,7 +92,9 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
       getHandler: () => ({}),
     } as unknown as ExecutionContext;
 
-    const mockCallHandler = { handle: jest.fn().mockReturnValue(of({ data: 'ok' })) };
+    const mockCallHandler = {
+      handle: jest.fn().mockReturnValue(of({ data: 'ok' })),
+    };
 
     const result$ = await interceptor.intercept(
       mockExecutionContext,
@@ -90,7 +105,7 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
       next: () => {
         const request = mockExecutionContext.switchToHttp().getRequest();
         expect(Array.isArray(request.body)).toBe(true);
-        expect(request.body.length).toBe(2);
+        expect(request.body).toHaveLength(2);
         expect(request.body[0]._id).toBe('room_1');
         expect(request.body[1]._id).toBe('room_2');
       },
@@ -104,7 +119,11 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
     mockCaslFactory.createForUser.mockResolvedValueOnce(restrictAbility);
 
     const requestBody = [{ _id: 'room_1', name: 'Living Room' }];
-    const mockUser = new User('mock_profile_id', 'mock_player_id', 'mock_clan_id');
+    const mockUser = new User(
+      'mock_profile_id',
+      'mock_player_id',
+      'mock_clan_id',
+    );
 
     const mockExecutionContext = {
       switchToHttp: () => ({
@@ -127,7 +146,11 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
     mockCaslFactory.createForUser.mockResolvedValueOnce(restrictAbility);
 
     const requestBody = { _id: 'room_1', name: 'Living Room' };
-    const mockUser = new User('mock_profile_id', 'mock_player_id', 'mock_clan_id');
+    const mockUser = new User(
+      'mock_profile_id',
+      'mock_player_id',
+      'mock_clan_id',
+    );
 
     const mockExecutionContext = {
       switchToHttp: () => ({
@@ -149,7 +172,11 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
       subject: TestDto,
     });
 
-    const mockUser = new User('mock_profile_id', 'mock_player_id', 'mock_clan_id');
+    const mockUser = new User(
+      'mock_profile_id',
+      'mock_player_id',
+      'mock_clan_id',
+    );
 
     const mockExecutionContext = {
       switchToHttp: () => ({
@@ -158,9 +185,14 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
       getHandler: () => ({}),
     } as unknown as ExecutionContext;
 
-    const mockCallHandler = { handle: jest.fn().mockReturnValue(of({ _id: 'room_1', name: 'Test' })) };
+    const mockCallHandler = {
+      handle: jest.fn().mockReturnValue(of({ _id: 'room_1', name: 'Test' })),
+    };
 
-    const result$ = await interceptor.intercept(mockExecutionContext, mockCallHandler);
+    const result$ = await interceptor.intercept(
+      mockExecutionContext,
+      mockCallHandler,
+    );
 
     result$.subscribe({
       next: (res) => {
@@ -170,7 +202,11 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
   });
 
   it('should process response mapping logic for array responses', async () => {
-    const mockUser = new User('mock_profile_id', 'mock_player_id', 'mock_clan_id');
+    const mockUser = new User(
+      'mock_profile_id',
+      'mock_player_id',
+      'mock_clan_id',
+    );
 
     const mockExecutionContext = {
       switchToHttp: () => ({
@@ -184,9 +220,14 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
       { _id: 'room_2', name: 'Bedroom' },
     ];
 
-    const mockCallHandler = { handle: jest.fn().mockReturnValue(of(responseData)) };
+    const mockCallHandler = {
+      handle: jest.fn().mockReturnValue(of(responseData)),
+    };
 
-    const result$ = await interceptor.intercept(mockExecutionContext, mockCallHandler);
+    const result$ = await interceptor.intercept(
+      mockExecutionContext,
+      mockCallHandler,
+    );
 
     result$.subscribe({
       next: (data) => {
@@ -198,7 +239,11 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
   it('should throw InternalServerErrorException if no permission metadata is defined on route', async () => {
     mockReflector.get.mockReturnValueOnce(undefined);
 
-    const mockUser = new User('mock_profile_id', 'mock_player_id', 'mock_clan_id');
+    const mockUser = new User(
+      'mock_profile_id',
+      'mock_player_id',
+      'mock_clan_id',
+    );
 
     const mockExecutionContext = {
       switchToHttp: () => ({
