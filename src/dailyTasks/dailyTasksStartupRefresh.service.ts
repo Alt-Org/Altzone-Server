@@ -14,8 +14,9 @@ const LOCK_ID = 'daily-tasks-startup-refresh';
 const LOCK_TTL_MS = 30 * 60 * 1000;
 const SERVER_TASKS_PER_CLAN = 11;
 const TEMP_SERVER_TASK_TYPES = [
+  ServerTaskName.BANISH_THE_EARWORM,
   ServerTaskName.GO_TO_BATTLE,
-  ServerTaskName.WRITE_CHAT_MESSAGE,
+  ServerTaskName.FORM_AN_INNER_CONNECTION,
 ];
 
 type MaintenanceLock = {
@@ -229,10 +230,12 @@ export class DailyTasksStartupRefreshService implements OnApplicationBootstrap {
 
   private getServerTaskTitle(type: ServerTaskName, amount: number) {
     switch (type) {
+      case ServerTaskName.BANISH_THE_EARWORM:
+        return { fi: `Karkoita korvamato ${amount} kertaa` };
       case ServerTaskName.GO_TO_BATTLE:
         return { fi: `Pelaa ${amount} taistelua` };
-      case ServerTaskName.WRITE_CHAT_MESSAGE:
-        return { fi: `Lähetä ${amount} viestiä chattiin` };
+      case ServerTaskName.FORM_AN_INNER_CONNECTION:
+        return { fi: `Lähetä ${amount} viesti klaanichattiin` };
     }
   }
 }
