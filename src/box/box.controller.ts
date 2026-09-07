@@ -41,10 +41,7 @@ import { Action } from '../authorization/enum/action.enum';
 import { BoxTestingSessionGuard } from './auth/boxTestingSession.guard';
 
 @Controller('box')
-@UseGuards(
-  BoxAuthGuard, 
-  BoxTestingSessionGuard
-)
+@UseGuards(BoxAuthGuard, BoxTestingSessionGuard)
 export class BoxController {
   public constructor(
     @InjectModel(GroupAdmin.name) public readonly groupModel: Model<GroupAdmin>,
