@@ -32,7 +32,10 @@ export enum OldTaskName {
   WATCH_REPLAY_REACT_FEELING = 'watch_reply_react_feeling',
   DEFINE_PLAYER_TYPE = 'define_player_type',
   CREATE_CLAN_PLAYLIST = 'create_clan_playlist',
-
+  WRITE_CHAT_MESSAGE = 'write_chat_message',
+  WRITE_CHAT_MESSAGE_GLOBAL = 'write_chat_message_global',
+  WRITE_CHAT_MESSAGE_CLAN = 'write_chat_message_clan',
+  
   // old UI tasks
   FIND_3_IMPORTANT_BUTTONS = 'find_3_important_buttons',
   EXPLODE_CHARACTER_BATTLE = 'explode_character_battle',
