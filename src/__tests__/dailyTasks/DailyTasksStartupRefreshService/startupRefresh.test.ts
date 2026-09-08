@@ -165,8 +165,9 @@ describe('DailyTasksStartupRefreshService', () => {
       insertedTasks.every((task) =>
         [
           ...Object.keys(uiDailyTasks),
+          ServerTaskName.BANISH_THE_EARWORM,
           ServerTaskName.GO_TO_BATTLE,
-          ServerTaskName.WRITE_CHAT_MESSAGE,
+          ServerTaskName.FORM_AN_INNER_CONNECTION,
         ].includes(task.type),
       ),
     ).toBe(true);

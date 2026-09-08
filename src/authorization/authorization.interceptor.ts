@@ -159,53 +159,53 @@ export class AuthorizationInterceptor implements NestInterceptor {
     //Filter out all fields that logged user can not update
     //Basically create a new request body
     if (action === Action.update) {
-    if (Array.isArray(request.body)) {
-    // 1. Process Array Payloads
-      const items = request.body.map((item) => {
-      const dataClass = plainToInstance(subject, item);
-      
-      if (!userAbility.can(requestAction, dataClass)) {
-        throw requestForbiddenError;
+      if (Array.isArray(request.body)) {
+        // 1. Process Array Payloads
+        const items = request.body.map((item) => {
+          const dataClass = plainToInstance(subject, item);
+
+          if (!userAbility.can(requestAction, dataClass)) {
+            throw requestForbiddenError;
+          }
+
+          const allowedFields = this.getAllowedFields(
+            userAbility,
+            requestAction,
+            dataClass,
+            subject,
+          );
+          allowedFields.push('_id');
+
+          if (!allowedFields || allowedFields.length === 0) {
+            throw requestForbiddenError;
+          }
+
+          return pick(dataClass, allowedFields);
+        });
+
+        request.body = items;
+      } else {
+        // 2. Process Single Object Payloads (Original Logic)
+        const dataClass = plainToInstance(subject, request.body);
+        if (!userAbility.can(requestAction, dataClass)) {
+          throw requestForbiddenError;
+        }
+
+        const allowedFields = this.getAllowedFields(
+          userAbility,
+          requestAction,
+          dataClass,
+          subject,
+        );
+        allowedFields.push('_id');
+
+        if (!allowedFields || allowedFields.length === 0) {
+          throw requestForbiddenError;
+        }
+
+        request.body = pick(dataClass, allowedFields);
       }
-
-      const allowedFields = this.getAllowedFields(
-        userAbility,
-        requestAction,
-        dataClass,
-        subject,
-      );
-      allowedFields.push('_id');
-
-      if (!allowedFields || allowedFields.length === 0) {
-        throw requestForbiddenError;
-      }
-
-      return pick(dataClass, allowedFields);
-    });
-
-    request.body = items;
-  } else {
-    // 2. Process Single Object Payloads (Original Logic)
-    const dataClass = plainToInstance(subject, request.body);
-    if (!userAbility.can(requestAction, dataClass)) {
-      throw requestForbiddenError;
     }
-
-    const allowedFields = this.getAllowedFields(
-      userAbility,
-      requestAction,
-      dataClass,
-      subject,
-    );
-    allowedFields.push('_id');
-
-    if (!allowedFields || allowedFields.length === 0) {
-      throw requestForbiddenError;
-    }
-
-    request.body = pick(dataClass, allowedFields);
-  }
-  }
 
     return next.handle().pipe(
       map(async (data: any) => {

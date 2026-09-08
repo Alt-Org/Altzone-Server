@@ -13,8 +13,9 @@ type TaskInfo = {
 };
 
 const GENERATED_SERVER_TASK_TYPES = [
+  ServerTaskName.BANISH_THE_EARWORM,
   ServerTaskName.GO_TO_BATTLE,
-  ServerTaskName.WRITE_CHAT_MESSAGE,
+  ServerTaskName.FORM_AN_INNER_CONNECTION,
 ];
 
 @Injectable()
@@ -43,10 +44,12 @@ export class TaskGeneratorService {
    */
   getTaskTitle(type: ServerTaskName, amount: number): TaskTitle {
     switch (type) {
+      case ServerTaskName.BANISH_THE_EARWORM:
+        return { fi: `Karkoita korvamato ${amount} kertaa` };
       case ServerTaskName.GO_TO_BATTLE:
         return { fi: `Pelaa ${amount} taistelua` };
-      case ServerTaskName.WRITE_CHAT_MESSAGE:
-        return { fi: `Lähetä ${amount} viestiä chattiin` };
+      case ServerTaskName.FORM_AN_INNER_CONNECTION:
+        return { fi: `Lähetä ${amount} viesti klaanichattiin` };
       default:
         throw new Error('Unknown task type');
     }
