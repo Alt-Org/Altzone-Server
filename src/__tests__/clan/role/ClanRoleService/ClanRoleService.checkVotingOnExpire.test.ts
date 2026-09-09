@@ -59,6 +59,9 @@ describe('ClanRoleService.checkVotingOnExpire', () => {
     // Player should have updated clanRole_id
     const updatedPlayer = await playerModel.findById(player._id);
     expect(updatedPlayer.clanRole_id.toString()).toBe(role_id.toString());
+    expect((roleService as any).votingService.finalizeVoting).toHaveBeenCalledWith(
+      votingDto._id,
+    );
 
     expect(result).toBe(true);
     expect(errors).toBeNull();
@@ -90,6 +93,9 @@ describe('ClanRoleService.checkVotingOnExpire', () => {
     // Player should NOT have updated clanRole_id
     const updatedPlayer = await playerModel.findById(player._id);
     expect(updatedPlayer.clanRole_id).toEqual(clanRoleId);
+    expect((roleService as any).votingService.finalizeVoting).toHaveBeenCalledWith(
+      votingDto._id,
+    );
 
     expect(result).toBe(true);
     expect(errors).toBeNull();
