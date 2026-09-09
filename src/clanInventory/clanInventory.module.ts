@@ -10,6 +10,7 @@ import { ItemSchema } from './item/item.schema';
 import { ItemService } from './item/item.service';
 import { ItemHelperService } from './item/itemHelper.service';
 import { RoomController } from './room/room.controller';
+import RoomNotifier from './room/room.notifier';
 import { RoomSchema } from './room/room.schema';
 import { RoomService } from './room/room.service';
 import RoomHelperService from './room/utils/room.helper.service';
@@ -62,7 +63,8 @@ import { RoomStartupFloorTypeRefreshService } from './room/roomStartupFloorTypeR
     ItemHelperService,
     StealTokenGuard,
     RoomService,
-    RoomStartupFloorTypeRefreshService, // will be remmoved in the future
+    RoomNotifier,
+    RoomStartupFloorTypeRefreshService, // will be removed in the future
     RoomHelperService,
     SoulHomeService,
     SoulHomeHelperService,
@@ -74,6 +76,7 @@ import { RoomStartupFloorTypeRefreshService } from './room/roomStartupFloorTypeR
     ItemHelperService,
     StealTokenGuard,
     RoomService,
+    RoomNotifier,
     SoulHomeService,
   ],
 })

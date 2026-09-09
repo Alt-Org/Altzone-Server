@@ -33,4 +33,8 @@ export enum NotificationResource {
    * Notification about clan member join/leave events
    */
   MEMBER = 'member',
+  /**
+   * Notification about soulhome activation & deactivation and layout changes
+   */
+  SOULHOME = 'soulhome',
 }

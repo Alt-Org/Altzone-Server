@@ -30,6 +30,7 @@ documented per feature.
 | `friendship`    | `FRIEND_REQUEST_CREATED`, `FRIEND_REQUEST_ACCEPTED`, `FRIEND_REQUEST_REJECTED`                                                   |
 | `inactive_room` | `INACTIVE_ROOMS_REMOVED`                                                                                                         |
 | `stock`         | `STOCK_ITEM_ADDED`, `STOCK_ITEM_REMOVED`                                                                                         |
+| `soulhome`      | `SOULHOME_ROOM_ACTIVATED`, `SOULHOME_ROOM_DEACTIVATED`, `SOULHOME_ROOM_LAYOUT_UPDATED`                                           |
 
 ## Frontend Routing
 
@@ -61,11 +62,17 @@ switch (message.topic) {
   case 'stock':
     handleStock(message.type, message.payload);
     break;
+  case 'soulhome':
+    handleSoulhome(message.type, message.payload);
+    break;
 }
 ```
 
 See [Stock MQTT Notifications](stock-mqtt-notifications.md) for the full
 stock-specific topic and payload contract.
+
+See [Soulhome MQTT Notifications](soulhome-mqtt-notifications.md) for the full
+Soul Home room notification topic and payload contract.
 
 ## Clan Member Notifications
 
@@ -219,6 +226,37 @@ Payload:
     sellerClan_id?: string,
     buyerClan_id?: string,
     fleaMarketItem_id?: string,
+    ts: number
+  }
+}
+```
+
+## Soulhome Notifications
+
+Soul Home room changes are published to:
+
+```text
+/clan/{clanId}/soulhome/{soulHomeId}/update
+```
+
+Use `/clan/{clanId}/soulhome/+/update` to subscribe to all Soul Home room
+changes for a clan.
+
+Payload:
+
+```ts
+{
+  topic: 'soulhome',
+  type:
+    | 'SOULHOME_ROOM_ACTIVATED'
+    | 'SOULHOME_ROOM_DEACTIVATED'
+    | 'SOULHOME_ROOM_LAYOUT_UPDATED',
+  payload: {
+    topic: `/clan/${clanId}/soulhome/${soulHomeId}/update`,
+    clan_id: string,
+    soulHome_id: string,
+    mode?: 'single' | 'batch',
+    rooms: object[],
     ts: number
   }
 }
