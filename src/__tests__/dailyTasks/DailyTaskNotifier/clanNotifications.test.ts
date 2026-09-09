@@ -17,7 +17,7 @@ describe('DailyTaskNotifier clan notifications', () => {
   const clanId = 'clan-1';
   const playerId = 'player-1';
   const task = {
-    type: UITaskName.CHANGE_LANGUAGE,
+    type: UITaskName.FIND_THE_ROOTS,
     points: 10,
     coins: 5,
   };

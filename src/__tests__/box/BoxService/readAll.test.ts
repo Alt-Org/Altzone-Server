@@ -68,7 +68,7 @@ describe('BoxService.readAll() test suite', () => {
     });
 
     expect(errors).toBeNull();
-    expect(result.length).toEqual(1);
+    expect(result).toHaveLength(1);
     expect(result[0].adminProfile_id.toString()).toBe(profile._id.toString());
   });
 

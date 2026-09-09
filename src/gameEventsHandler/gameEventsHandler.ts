@@ -50,13 +50,7 @@ export class GameEventsHandler {
 
     await this.emitterService.EmitNewDailyTaskEvent(
       player_id,
-      ServerTaskName.PLAY_BATTLE,
-    );
-
-    await this.emitterService.EmitNewDailyTaskEvent(
-      player_id,
-      ServerTaskName.WIN_BATTLE,
-      true,
+      ServerTaskName.GO_TO_BATTLE,
     );
 
     const [, clanEventErrors] = await this.clanEventHandler.handleClanEvent(
@@ -81,7 +75,7 @@ export class GameEventsHandler {
 
     await this.emitterService.EmitNewDailyTaskEvent(
       player_id,
-      ServerTaskName.PLAY_BATTLE,
+      ServerTaskName.GO_TO_BATTLE,
     );
 
     const [, clanEventErrors] = await this.clanEventHandler.handleClanEvent(

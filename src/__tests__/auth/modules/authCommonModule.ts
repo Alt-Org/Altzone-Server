@@ -14,6 +14,7 @@ import BoxAuthService from '../../../auth/box/BoxAuthService';
 import { ProfileSchema } from '../../../profile/profile.schema';
 import { PlayerSchema } from '../../../player/schemas/player.schema';
 import { ClanSchema } from '../../../clan/clan.schema';
+import { BoxTestingSessionGuard } from '../../../box/auth/boxTestingSession.guard';
 
 export default class AuthCommonModule {
   private constructor() {}
@@ -44,6 +45,7 @@ export default class AuthCommonModule {
           AuthGuard,
           BoxAuthService,
           AuthServiceProvider,
+          BoxTestingSessionGuard,
         ],
       }).compile();
 

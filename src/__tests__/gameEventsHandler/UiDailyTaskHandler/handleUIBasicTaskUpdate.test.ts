@@ -44,7 +44,7 @@ describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
   });
 
   it("Should add right amount of points to player's clan if the task is completed", async () => {
-    const taskType = UITaskName.PRESS_FAMOUS_CHARACTER;
+    const taskType = UITaskName.ETHICS_METRICS;
     const dailyTaskToCreate = taskBuilder
       .setClanId(existingClan._id)
       .setPlayerId(loggedPlayer._id)
@@ -83,7 +83,7 @@ describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
   });
 
   it("Should add right amount of coins to player's clan if the task is completed", async () => {
-    const taskType = UITaskName.PRESS_FAMOUS_CHARACTER;
+    const taskType = UITaskName.ETHICS_METRICS;
     const dailyTaskToCreate = taskBuilder
       .setClanId(existingClan._id)
       .setPlayerId(loggedPlayer._id)
@@ -122,7 +122,7 @@ describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
   });
 
   it('Should notify reached milestones if task completion advances clan progression', async () => {
-    const taskType = UITaskName.PRESS_FAMOUS_CHARACTER;
+    const taskType = UITaskName.ETHICS_METRICS;
     const milestonePoints = 300;
     const dailyTaskToCreate = taskBuilder
       .setClanId(existingClan._id)

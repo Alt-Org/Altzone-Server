@@ -2,6 +2,7 @@ import { AuthService } from '../../../auth/auth.service';
 import AuthCommonModule from './authCommonModule';
 import { AuthGuard } from '../../../auth/auth.guard';
 import BoxAuthService from '../../../auth/box/BoxAuthService';
+import { BoxTestingSessionGuard } from '../../../box/auth/boxTestingSession.guard';
 
 export default class AuthModule {
   private constructor() {}
@@ -19,5 +20,10 @@ export default class AuthModule {
   static async getBoxAuthService() {
     const module = await AuthCommonModule.getModule();
     return module.resolve(BoxAuthService);
+  }
+
+  static async getBoxTestingGuard() {
+    const module = await AuthCommonModule.getModule();
+    return module.resolve(BoxTestingSessionGuard);
   }
 }

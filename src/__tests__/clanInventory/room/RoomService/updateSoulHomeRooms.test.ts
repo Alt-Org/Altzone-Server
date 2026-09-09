@@ -13,6 +13,7 @@ import { UpdateItemDto } from '../../../../clanInventory/item/dto/updateItem.dto
 import { ItemRotation } from '../../../../clanInventory/item/enum/itemRotation.enum';
 import { ItemPosition } from '../../../../clanInventory/item/enum/itemPosition.enum';
 import { ClanService } from '../../../../clan/clan.service';
+import { ObjectId } from 'mongodb';
 
 describe('Room.updateSoulHomeRooms() test suite', () => {
   let roomService: RoomService;
@@ -193,5 +194,102 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
     expect(itemsErrors).toBeNull();
     expect(items[0].room_id).toBeNull();
     expect(items[0].stock_id.toString()).toBe(existingStock._id.toString());
+  });
+
+  it('Should notify a single layout update when one room is updated', async () => {
+    const layoutUpdatedSpy = jest
+      .spyOn(roomService['roomNotifier'], 'layoutUpdated')
+      .mockImplementation();
+    const singleUpdate: UpdateRoomDto = {
+      _id: existingRoom._id,
+      roomColour: 'green',
+      floorType: 'tile',
+      wallpaper: 'paper',
+    };
+
+    const [result, error] = await roomService.updateSoulHomeRooms(singleUpdate);
+
+    expect(result).toBeTruthy();
+    expect(error).toBeNull();
+    expect(layoutUpdatedSpy).toHaveBeenCalledWith({
+      clan_id: existingClan._id.toString(),
+      soulHome_id: existingSoulHome._id.toString(),
+      mode: 'single',
+      rooms: [
+        {
+          _id: existingRoom._id.toString(),
+          roomColour: singleUpdate.roomColour,
+          wallpaper: singleUpdate.wallpaper,
+          floorType: singleUpdate.floorType,
+          furnitureChanged: false,
+        },
+      ],
+    });
+  });
+
+  it('Should notify one batch layout update when multiple rooms are updated', async () => {
+    const layoutUpdatedSpy = jest
+      .spyOn(roomService['roomNotifier'], 'layoutUpdated')
+      .mockImplementation();
+    const secondRoom = {
+      ...existingRoom,
+      _id: new ObjectId().toString(),
+      roomPosition: 2,
+    };
+    await roomModel.create(secondRoom);
+
+    const batchUpdate: UpdateRoomDto[] = [
+      {
+        _id: existingRoom._id,
+        roomColour: 'yellow',
+      },
+      {
+        _id: secondRoom._id,
+        floorType: 'stone',
+        furniture: [],
+      },
+    ];
+
+    const [result, error] = await roomService.updateSoulHomeRooms(batchUpdate);
+
+    expect(result).toBeTruthy();
+    expect(error).toBeNull();
+    expect(layoutUpdatedSpy).toHaveBeenCalledTimes(1);
+    expect(layoutUpdatedSpy).toHaveBeenCalledWith({
+      clan_id: existingClan._id.toString(),
+      soulHome_id: existingSoulHome._id.toString(),
+      mode: 'batch',
+      rooms: [
+        {
+          _id: existingRoom._id.toString(),
+          roomColour: 'yellow',
+          wallpaper: undefined,
+          floorType: undefined,
+          furnitureChanged: false,
+        },
+        {
+          _id: secondRoom._id.toString(),
+          roomColour: undefined,
+          wallpaper: undefined,
+          floorType: 'stone',
+          furnitureChanged: true,
+        },
+      ],
+    });
+  });
+
+  it('Should not notify a layout update when room update fails', async () => {
+    const layoutUpdatedSpy = jest
+      .spyOn(roomService['roomNotifier'], 'layoutUpdated')
+      .mockImplementation();
+    const emptyUpdate: UpdateRoomDto = {
+      _id: existingRoom._id,
+    };
+
+    const [result, error] = await roomService.updateSoulHomeRooms(emptyUpdate);
+
+    expect(result).toBeNull();
+    expect(error).toContainSE_REQUIRED();
+    expect(layoutUpdatedSpy).not.toHaveBeenCalled();
   });
 });
