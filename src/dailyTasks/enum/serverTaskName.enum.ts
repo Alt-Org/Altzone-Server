@@ -40,8 +40,6 @@ export enum ServerTaskName {
 
   INNER_DISCUSSION = 'inner_discussion',
 
-  BUILD_YOUR_WORLD = 'build_your_world',
-
   SET_BOUNDARIES = 'set_boundaries',
 
   /* Some of the older tasks are commented out,

@@ -37,6 +37,7 @@ export enum UITaskName {
 
   ETHICS_METRICS = 'ethics_metrics',
 
+  BUILD_YOUR_WORLD = 'build_your_world',
   // Old UI tasks
 
   //Client, what are these buttons? Is find = click?

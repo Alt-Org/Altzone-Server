@@ -94,6 +94,14 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     amount: 1,
     timeLimitMinutes: 60,
   },
+  [UITaskName.BUILD_YOUR_WORLD]: {
+    title: { fi: 'Avaa klaanin yhteinen Turvapaikka ja valitse yksi huone. Sisusta se käyttämällä vain yhden malliston huonekaluja. Tarkastele, mitä tämä mallisto alkaa kertoa, kun kaikki tilassa viittaa samaan kokemukseen.' },
+    type: UITaskName.BUILD_YOUR_WORLD,
+    points: Score.DAILY_TASK.COMPLETED,
+    coins: 10,
+    amount: 1,
+    timeLimitMinutes: 60,
+  },
   [UITaskName.LOOK_INSIDE]: {
     title: { fi: 'tunnista millainen rakenne sinua ohjaa' },
     type: UITaskName.LOOK_INSIDE,
