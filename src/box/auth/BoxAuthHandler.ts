@@ -8,6 +8,9 @@ import { Model } from 'mongoose';
 import { GroupAdmin } from '../groupAdmin/groupAdmin.schema';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
+import { ProfileService } from '../../profile/profile.service';
+import BoxAuthService from '../../auth/box/BoxAuthService';
+import { TokensDto } from '../../auth/dto/tokens.dto';
 
 type AuthTokenPayload = {
   profile_id: string;
@@ -22,22 +25,33 @@ export default class BoxAuthHandler {
     @InjectModel(Box.name) public readonly boxModel: Model<Box>,
     @InjectModel(GroupAdmin.name)
     public readonly groupAdminModel: Model<GroupAdmin>,
+    private readonly profileService: ProfileService,
+    private readonly boxAuthService: BoxAuthService,
   ) {}
 
   /**
-   * Generates am auth token for a group admin
+   * Generates auth tokens for a group admin
    * @param authPayload
-   * @returns auth token for the group admin
+   * @returns auth tokens for the group admin
    */
-  async getGroupAdminToken(authPayload: AuthTokenPayload) {
+  async getGroupAdminToken(authPayload: AuthTokenPayload)
+    :Promise<IServiceReturn<TokensDto>> 
+  {
+    const [profile, profileErrors] = 
+      await this.profileService.basicService.readOneById(
+        authPayload.profile_id
+      );
+    if (profileErrors) return [null, profileErrors];
+
     const payload = {
       profile_id: authPayload.profile_id,
       player_id: authPayload.player_id,
       box_id: authPayload.box_id,
       groupAdmin: true,
+      tokenVersion: profile.tokenVersion ?? 0,
     };
 
-    return this.jwt.signAsync(payload);
+    return [await this.boxAuthService.createTestingSessionTokens(payload), null];
   }
 
   /**

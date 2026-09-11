@@ -1,7 +1,8 @@
+import { TokensDto } from '../../../auth/dto/tokens.dto';
 import { ClanDto } from '../../../clan/dto/clan.dto';
 import { ObjectId } from 'mongodb';
 
-export default class ClaimedAccount {
+export default class ClaimedAccount extends TokensDto{
   /**
    * Unique ID of the claimed account
    *
@@ -69,13 +70,6 @@ export default class ClaimedAccount {
    * Information about the player's clan
    */
   Clan: ClanDto;
-
-  /**
-   * Access token to authenticate future API requests
-   *
-   * @example "eyJhbGciOiJIUzI1NiIsInR..."
-   */
-  accessToken: string;
 
   /**
    * Player's account password
