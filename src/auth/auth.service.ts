@@ -10,6 +10,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Player } from '../player/schemas/player.schema';
 import { Profile } from '../profile/profile.schema';
 import { Clan } from '../clan/clan.schema';
+import { envVars } from '../common/service/envHandler/envVars';
+import { StringValue } from 'ms';
+import { TokensDto } from './dto/tokens.dto';
+import { TokenPayload } from './dto/tokenPayload.dto';
 
 @Injectable()
 export class AuthService {
@@ -173,5 +177,42 @@ export class AuthService {
         ],
       ];
     }
+  }
+
+  /**
+   * Create Access and Refresh tokens
+   * 
+   * Extracts the expiration time in Unix timestamp format
+   * 
+   * @param payload User info used to create tokens
+   * @returns Access and Refresh tokens + expiration dates if successful
+   */
+  public async createTestingSessionTokens(
+    payload: TokenPayload,
+  ):Promise<TokensDto> {
+    const expiresIn = (envVars.JWT_EXPIRES  ?? '30d') as StringValue;
+
+    const refreshToken = await this.jwtService.signAsync(
+      {...payload, type: 'refresh'}, 
+      { expiresIn },
+    );
+    const decodedRefreshToken = this.jwtService.decode(refreshToken);
+    const refreshTokenExpires = decodedRefreshToken?.exp;
+
+    const { tokenVersion, ...accessPayload } = payload;
+
+    const accessToken = await this.jwtService.signAsync(
+      accessPayload, 
+      { expiresIn },
+    );
+    const decodedAccessToken = this.jwtService.decode(accessToken);
+    const tokenExpires = decodedAccessToken?.exp;
+
+    return {
+      accessToken, 
+      tokenExpires, 
+      refreshToken, 
+      refreshTokenExpires,
+    };
   }
 }

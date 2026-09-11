@@ -89,12 +89,10 @@ export default class BoxAuthService extends AuthService {
       player_id: player?._id,
       box_id,
       groupAdmin,
+      tokenVersion: profile.tokenVersion ?? 0,
     };
 
-    const accessToken = await this.jwt.signAsync(payload);
-    const decodedAccessToken: any = this.jwt.decode(accessToken);
-    // Extract the expiration time in Unix timestamp format
-    const tokenExpires = decodedAccessToken?.exp;
+    const tokens = await this.createTestingSessionTokens(payload);
 
     profile['Player'] = player;
 
@@ -108,8 +106,7 @@ export default class BoxAuthService extends AuthService {
 
     return {
       ...serializedProfile,
-      accessToken,
-      tokenExpires,
+      ...tokens,
     };
   };
 }

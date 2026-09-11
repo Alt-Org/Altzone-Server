@@ -1,37 +1,42 @@
+import ProfileBuilderFactory from '../../../../__tests__/profile/data/profileBuilderFactory';
 import BoxAuthHandler from '../../../../box/auth/BoxAuthHandler';
 import BoxBuilderFactory from '../../data/boxBuilderFactory';
 import BoxModule from '../../modules/box.module';
-import { JwtService } from '@nestjs/jwt';
+import ProfileModule from '../../../../__tests__/profile/modules/profile.module';
 
 describe('BoxAuthHandler.getGroupAdminToken() test suite', () => {
   let boxAuthHandler: BoxAuthHandler;
   const boxUserBuilder = BoxBuilderFactory.getBuilder('BoxUser');
   const boxAdminUser = boxUserBuilder.setGroupAdmin(true).build();
 
+  const profileModel = ProfileModule.getProfileModel();
+  const profileBuilder = ProfileBuilderFactory.getBuilder('Profile');
+  const profile = profileBuilder.set_id(boxAdminUser.profile_id).build();
+
   beforeEach(async () => {
     boxAuthHandler = await BoxModule.getBoxAuthHandler();
   });
 
-  it('Should call the JWTService.signAsync() with correct params', async () => {
-    const jwtMethod = jest
-      .spyOn(JwtService.prototype, 'signAsync')
-      .mockResolvedValueOnce('token');
+  it('Should return access and refresh tokens and expiration times', async () => {
+    await profileModel.create(profile);
 
-    await boxAuthHandler.getGroupAdminToken(boxAdminUser);
+    const [result, errors] = await boxAuthHandler.getGroupAdminToken(boxAdminUser);
 
-    const { clan_id: _clan_id, ...clanIdOmittedUser } = boxAdminUser;
-
-    expect(jwtMethod).toHaveBeenCalledTimes(1);
-    expect(jwtMethod).toHaveBeenCalledWith(clanIdOmittedUser);
+    expect(errors).toBeNull();
+    expect(result).toEqual(
+      expect.objectContaining({
+        accessToken: expect.any(String),
+        tokenExpires: expect.any(Number),
+        refreshToken: expect.any(String),
+        refreshTokenExpires: expect.any(Number),
+      }),
+    );
   });
 
-  it('Should return token from the JWTService.signAsync() response', async () => {
-    const jwtToken = 'returned-token';
-    jest
-      .spyOn(JwtService.prototype, 'signAsync')
-      .mockResolvedValueOnce(jwtToken);
+  it('Should return NOT_FOUND error when profile does not exist', async () => {
+    const [result, errors] = await boxAuthHandler.getGroupAdminToken(boxAdminUser);
 
-    const returnedToken = await boxAuthHandler.getGroupAdminToken(boxAdminUser);
-    expect(returnedToken).toBe(jwtToken);
+    expect(result).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
   });
 });
