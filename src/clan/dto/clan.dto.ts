@@ -11,6 +11,7 @@ import ClanRoleDto from '../role/dto/clanRole.dto';
 import { ClanLabel } from '../enum/clanLabel.enum';
 import { StallDto } from './stall.dto';
 import { Environment } from '../../common/enum/environment.enum';
+import { ClanRule } from '../enum/clanRule.enum';
 
 /**
  * DTO for reading clan data.
@@ -214,4 +215,11 @@ export class ClanDto {
    */
   @Expose()
   environment?: Environment;
+
+  /**
+   * List of Clan rules
+   * @example [ClanRule.ACTIVITY_DAILY, ClanRule.NO_SPAM]
+   */
+  @Expose()
+  rules?: ClanRule[];
 }

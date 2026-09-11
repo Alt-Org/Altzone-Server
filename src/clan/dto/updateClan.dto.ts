@@ -26,6 +26,7 @@ import { Environment } from '../../common/enum/environment.enum';
 import { CreateClanRoleDto } from '../role/dto/createClanRole.dto';
 import { ClanGovernanceUpdateDto } from './clanGovernanceUpdate.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { ClanRule } from '../enum/clanRule.enum';
 
 @AddType('UpdateClanDto')
 export class UpdateClanDto {
@@ -206,4 +207,19 @@ export class UpdateClanDto {
   @IsString()
   @IsOptional()
   box_id?: string;
+
+  /**
+   * List of Clan rules
+   * @example [ClanRule.ACTIVITY_DAILY, ClanRule.POSITIVITY]
+   */
+  @ApiProperty({
+    enum: ClanRule,
+    isArray: true,
+    example: [ClanRule.ACTIVITY_DAILY, ClanRule.POSITIVITY],
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsEnum(ClanRule, { each: true })
+  rules?: ClanRule[];
 }
