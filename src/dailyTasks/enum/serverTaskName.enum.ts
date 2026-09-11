@@ -34,7 +34,7 @@ export enum ServerTaskName {
 
   LETTING_GO_OF_THE_OLD = 'letting_go_of_the_old',
 
-  RECYCLING_EXPERIENCES = 'recycling_expericnes',
+  RECYCLING_EXPERIENCES = 'recycling_experiences',
 
   INNER_VOICE = 'inner_voice',
 
@@ -47,7 +47,7 @@ export enum ServerTaskName {
   /* Some of the older tasks are commented out,
    some have been kept to keep the server code running at the moment */
 
-  WRITE_CHAT_MESSAGE = 'write_chat_message',
+  // WRITE_CHAT_MESSAGE = 'write_chat_message',
 
   //Why?
   /**
@@ -65,7 +65,7 @@ export enum ServerTaskName {
   /**
    * luo soittolista klaanille
    */
-  CREATE_CLAN_PLAYLIST = 'create_clan_playlist',
+  // CREATE_CLAN_PLAYLIST = 'create_clan_playlist',
 
   //Server, what is that?
   /**
@@ -147,13 +147,13 @@ export enum ServerTaskName {
   /**
    * laita viesti klaanissa
    */
-  WRITE_CHAT_MESSAGE_CLAN = 'write_chat_message_clan',
+  // WRITE_CHAT_MESSAGE_CLAN = 'write_chat_message_clan',
 
   //Server
   /**
    * laita viesti globalissa
    */
-  WRITE_CHAT_MESSAGE_GLOBAL = 'write_chat_message_global',
+  // WRITE_CHAT_MESSAGE_GLOBAL = 'write_chat_message_global',
 
   /**
    * laita privaviesti toiselle pelaajalle

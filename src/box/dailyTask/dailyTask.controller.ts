@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Param, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { CreatePredefinedDailyTaskDto } from './dto/createPredefinedDailyTask.dto';

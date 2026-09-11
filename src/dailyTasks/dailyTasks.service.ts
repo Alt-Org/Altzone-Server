@@ -25,7 +25,6 @@ import {
 import { prizePool } from '../rewarder/const/prizePool';
 import { DailyTaskProgressResult } from './type/dailyTaskProgressResult.type';
 import { DailyTaskProgressService } from './dailyTaskProgress.service';
-
 @Injectable()
 export class DailyTasksService {
   public constructor(
@@ -306,6 +305,11 @@ export class DailyTasksService {
       payload.serverTaskName,
       session,
     );
+
+    // Checks whether the completed task should reward the entire clan.
+    if (progressResult) {
+      progressResult.needsClanReward = payload.needsClanReward;
+    }
 
     if (updateErrors) return cancelTransaction(session, updateErrors);
 

@@ -66,6 +66,12 @@ export class DailyTaskProgressService {
       );
     if (playerRewardErrors) return [null, playerRewardErrors];
 
+    this.notifier.taskCompleted(result.completedByPlayerId, task);
+
+    if (result.needsClanReward === false) {
+      return [result, null];
+    }
+
     const [updatedClan, clanRewardErrors] =
       await this.clanRewarder.rewardClanForPlayerTask(
         result.clanId,
@@ -81,7 +87,6 @@ export class DailyTaskProgressService {
 
     result.reachedMilestones = progressionResult.reachedMilestones;
 
-    this.notifier.taskCompleted(result.completedByPlayerId, task);
     this.notifier.taskCompletedForClan(
       result.clanId,
       task,

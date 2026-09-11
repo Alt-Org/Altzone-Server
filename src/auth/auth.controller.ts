@@ -9,6 +9,7 @@ import ApiResponseDescription from '../common/swagger/response/ApiResponseDescri
 import { ModelName } from '../common/enum/modelName.enum';
 import { NoBoxIdFilter } from '../box/auth/decorator/NoBoxIdFilter.decorator';
 import { SignInResponseDto } from './dto/signInResponse.dto';
+import { ApiBody } from '@nestjs/swagger';
 
 @NoAuth()
 @Controller('auth')
@@ -25,6 +26,7 @@ export class AuthController {
    *
    * If the user provides the correct credentials, the access token will be returned, which should be used as a Bearer token in the Authorization header.
    */
+  @ApiBody({ type: SignInDto })
   @ApiResponseDescription({
     success: {
       status: 201,

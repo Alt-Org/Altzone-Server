@@ -1088,8 +1088,14 @@ export class MatchmakingService {
   }
 
   private async emitDailyTaskEventsForFinishedMatch(match: ActiveMatch) {
+    const needsClanReward = match.matchType === MatchType.CLAN;
+
     for (const playerId of this.getRealPlayerIds(match)) {
-      await this.tryEmitDailyTaskEvent(playerId, ServerTaskName.GO_TO_BATTLE);
+      await this.tryEmitDailyTaskEvent(
+        playerId,
+        ServerTaskName.GO_TO_BATTLE,
+        needsClanReward,
+      );
     }
   }
 
@@ -1099,16 +1105,12 @@ export class MatchmakingService {
     needsClanReward = false,
   ) {
     try {
-      if (needsClanReward) {
-        await this.emitterService.EmitNewDailyTaskEvent(
-          playerId,
-          taskName,
-          true,
-        );
-        return;
-      }
-
-      await this.emitterService.EmitNewDailyTaskEvent(playerId, taskName);
+      // Pass the flag explicitly so CUSTOM/RANDOM matches still progress the player task without clan rewards.
+      await this.emitterService.EmitNewDailyTaskEvent(
+        playerId,
+        taskName,
+        needsClanReward,
+      );
     } catch {
       return;
     }

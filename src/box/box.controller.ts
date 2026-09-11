@@ -41,10 +41,7 @@ import { BoxTestingSessionGuard } from './auth/boxTestingSession.guard';
 import { TokensDto } from '../auth/dto/tokens.dto';
 
 @Controller('box')
-@UseGuards(
-  BoxAuthGuard, 
-  BoxTestingSessionGuard
-)
+@UseGuards(BoxAuthGuard, BoxTestingSessionGuard)
 export class BoxController {
   public constructor(
     @InjectModel(GroupAdmin.name) public readonly groupModel: Model<GroupAdmin>,

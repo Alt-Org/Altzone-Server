@@ -1071,10 +1071,12 @@ describe('MatchmakingService flow', () => {
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
       ServerTaskName.GO_TO_BATTLE,
+      false,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-2',
       ServerTaskName.GO_TO_BATTLE,
+      false,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);
     expect(redis.expire).toHaveBeenCalledWith(
@@ -1157,10 +1159,12 @@ describe('MatchmakingService flow', () => {
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
       ServerTaskName.GO_TO_BATTLE,
+      true,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-2',
       ServerTaskName.GO_TO_BATTLE,
+      true,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);
   });

@@ -177,6 +177,6 @@ export class RoomController {
         ],
       ];
 
-    this.service.activateRoomsByIds(allowedRooms, durationS ?? 21600); //6h is default
+    await this.service.activateRoomsByIds(allowedRooms, durationS ?? 21600); //6h is default
   }
 }

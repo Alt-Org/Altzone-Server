@@ -92,7 +92,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
-      ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
+      ServerTaskName.FORM_AN_INNER_CONNECTION,
     );
   }
 
@@ -128,11 +128,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
 
     if (error) return [null, error];
-
-    this.emitterService.EmitNewDailyTaskEvent(
-      client.user.playerId,
-      ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
-    );
   }
 
   @SubscribeMessage('globalMessageReaction')
