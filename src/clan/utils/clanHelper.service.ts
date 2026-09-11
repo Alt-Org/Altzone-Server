@@ -18,6 +18,7 @@ import { Clan } from '../clan.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import BasicService from '../../common/service/basicService/BasicService';
 import { Environment } from '../../common/enum/environment.enum';
+import { ClanRule } from '../enum/clanRule.enum';
 
 @Injectable()
 export default class ClanHelperService {
@@ -126,5 +127,16 @@ export default class ClanHelperService {
     if (itemsErrors || !items) return [null, itemsErrors];
 
     return [{ SoulHome: soulHome, Room: room, Item: items }, null];
+  }
+
+  /**
+   * Ensures the mandatory default Clan roles:
+   * FairGame, NoToxicity and NoSpam
+   * @param rules - List of Clan rules
+   */
+  async ensureMandatoryRules(rules: ClanRule[]): Promise<void> {
+    if (!rules.includes(ClanRule.FAIR_GAME)) rules.push(ClanRule.FAIR_GAME);
+    if (!rules.includes(ClanRule.NO_TOXICITY)) rules.push(ClanRule.NO_TOXICITY);
+    if (!rules.includes(ClanRule.NO_SPAM)) rules.push(ClanRule.NO_SPAM);
   }
 }
