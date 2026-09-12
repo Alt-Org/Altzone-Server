@@ -3,8 +3,9 @@ import { ClanDto } from '../../../clan/dto/clan.dto';
 import { ExtractField } from '../../../common/decorator/response/ExtractField';
 import { GameStatisticsDto } from '../../../player/dto/gameStatistics.dto';
 import { CustomCharacterDto } from '../../../player/customCharacter/dto/customCharacter.dto';
+import { TokensDto } from '../../../auth/dto/tokens.dto';
 
-export default class ClaimedAccountDto {
+export default class ClaimedAccountDto extends TokensDto{
   /**
    * Unique ID of the claimed account
    *
@@ -100,14 +101,6 @@ export default class ClaimedAccountDto {
   @Type(() => CustomCharacterDto)
   @Expose()
   CustomCharacter: CustomCharacterDto[];
-
-  /**
-   * Access token to authenticate future API requests
-   *
-   * @example "eyJhbGciOiJIUzI1NiIsInR..."
-   */
-  @Expose()
-  accessToken: string;
 
   /**
    * Player's account password

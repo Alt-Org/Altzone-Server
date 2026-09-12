@@ -35,12 +35,13 @@ import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { NoBoxIdFilter } from './auth/decorator/NoBoxIdFilter.decorator';
-import { AdminSignInDto } from './dto/adminSignIn.dto';
 import { Authorize } from '../authorization/decorator/Authorize';
 import { Action } from '../authorization/enum/action.enum';
+import { BoxTestingSessionGuard } from './auth/boxTestingSession.guard';
+import { TokensDto } from '../auth/dto/tokens.dto';
 
 @Controller('box')
-@UseGuards(BoxAuthGuard)
+@UseGuards(BoxAuthGuard, BoxTestingSessionGuard)
 export class BoxController {
   public constructor(
     @InjectModel(GroupAdmin.name) public readonly groupModel: Model<GroupAdmin>,
@@ -78,13 +79,17 @@ export class BoxController {
     const [createdBox, errors] = await this.boxCreator.createBox(body);
     if (errors) return [null, errors];
 
-    const groupAdminAccessToken = await this.authHandler.getGroupAdminToken({
+    const [tokenData, tokenErrors] = await this.authHandler.getGroupAdminToken({
       box_id: createdBox._id.toString(),
       player_id: createdBox.adminPlayer_id.toString(),
       profile_id: createdBox.adminProfile_id.toString(),
     });
+    if (tokenErrors) return [null, tokenErrors];
 
-    return [{ ...createdBox, accessToken: groupAdminAccessToken }, null];
+    return [{ 
+      ...createdBox, 
+      ...tokenData,
+    }, null];
   }
 
   /**
@@ -95,26 +100,28 @@ export class BoxController {
   @ApiResponseDescription({
     success: {
       status: 201,
-      dto: AdminSignInDto,
+      dto: TokensDto,
       modelName: ModelName.BOX,
     },
     errors: [400, 404],
     hasAuth: false,
   })
   @NoAuth()
-  @UniformResponse(ModelName.BOX, AdminSignInDto)
+  @NoBoxIdFilter()
+  @UniformResponse(ModelName.BOX, TokensDto)
   @Post('admin/signIn')
   async signIn(@Body() body: CreateBoxDto) {
     const [box, errors] = await this.service.readAdminBox(body);
     if (errors) return [null, errors];
 
-    const groupAdminAccessToken = await this.authHandler.getGroupAdminToken({
+    const [tokenData, tokenErrors] = await this.authHandler.getGroupAdminToken({
       box_id: box._id.toString(),
       player_id: box.adminPlayer_id.toString(),
       profile_id: box.adminProfile_id.toString(),
     });
+    if (tokenErrors) return [null, tokenErrors];
 
-    return { accessToken: groupAdminAccessToken };
+    return tokenData;
   }
 
   /**

@@ -1,11 +1,13 @@
 import { ClanService } from '../../../clan/clan.service';
 import JukeboxNotifier from '../../../jukebox/jukebox.notifier';
 import { JukeboxService } from '../../../jukebox/jukebox.service';
+import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
 
 describe('jukeboxService.startNextSong() test suite', () => {
   let jukeboxService: JukeboxService;
   let jukeboxNotifier: JukeboxNotifier;
   let clanService: ClanService;
+  let emitterService: EventEmitterService;
 
   beforeEach(async () => {
     jukeboxNotifier = {
@@ -16,8 +18,15 @@ describe('jukeboxService.startNextSong() test suite', () => {
     clanService = {
       readOneById: jest.fn().mockResolvedValue([{ playerCount: 3 }]),
     } as any;
+    emitterService = {
+      EmitNewDailyTaskEvent: jest.fn().mockResolvedValue(undefined),
+    } as any;
 
-    jukeboxService = new JukeboxService(jukeboxNotifier, clanService);
+    jukeboxService = new JukeboxService(
+      jukeboxNotifier,
+      clanService,
+      emitterService,
+    );
   });
 
   it('should start next song', async () => {
@@ -48,6 +57,7 @@ describe('jukeboxService.startNextSong() test suite', () => {
     expect(updatedJukebox).not.toEqual(oldCurrentSong);
     expect(updatedJukebox.songQueue).toHaveLength(2);
     expect(jukeboxNotifier.songChange).toHaveBeenCalledTimes(1);
+    expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalled();
   });
 
   it('delete the jukebox if the queue is empty', async () => {

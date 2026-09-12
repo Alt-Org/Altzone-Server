@@ -1,6 +1,11 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Model, ClientSession, Connection, AnyBulkWriteOperation } from 'mongoose';
+import {
+  Model,
+  ClientSession,
+  Connection,
+  AnyBulkWriteOperation,
+} from 'mongoose';
 import { Room } from './room.schema';
 import { UpdateRoomDto } from './dto/updateRoom.dto';
 import { CreateRoomDto } from './dto/createRoom.dto';
@@ -31,6 +36,7 @@ import { RoomStatus } from './enum/roomStatus.enum';
 import { ClanService } from '../../clan/clan.service';
 import { StockService } from '../stock/stock.service';
 import { SEReason } from '../../common/service/basicService/SEReason';
+import RoomNotifier from './room.notifier';
 
 @Injectable()
 export class RoomService {
@@ -44,6 +50,7 @@ export class RoomService {
     private readonly clanService: ClanService,
     @Inject(forwardRef(() => StockService))
     private readonly stockService: StockService,
+    private readonly roomNotifier: RoomNotifier,
     @InjectConnection() private readonly connection: Connection,
   ) {
     this.refsInModel = [ModelName.ITEM, ModelName.SOULHOME];
@@ -209,16 +216,49 @@ export class RoomService {
   /**
    * Activates specified rooms.
    *
-   * The method sets `deactivationTimestamp` field to current + specified duration.
+   * The method sets room status to active and `deactivationTime` to current + specified duration.
    * @param room_ids rooms to update
    * @param durationS how long in seconds room should remain active
    */
   async activateRoomsByIds(room_ids: string[], durationS: number) {
-    const deactivationTimestamp = Date.now() + durationS * 1000;
-    const updateObject = { deactivationTimestamp };
+    const deactivationTime = new Date(Date.now() + durationS * 1000);
+    const updateObject = {
+      deactivationTime,
+      roomStatus: RoomStatus.ACTIVE,
+    };
+    const [roomsToActivate] = await this.basicService.readMany<RoomDto>({
+      filter: { _id: { $in: room_ids } },
+    });
 
     for (let i = 0, l = room_ids.length; i < l; i++)
       await this.basicService.updateOneById(room_ids[i], updateObject);
+
+    if (!roomsToActivate) return;
+
+    const roomsBySoulHomeId = roomsToActivate.reduce((groups, room) => {
+      const soulHomeId = room.soulHome_id.toString();
+      const rooms = groups.get(soulHomeId) ?? [];
+      rooms.push(room);
+      groups.set(soulHomeId, rooms);
+      return groups;
+    }, new Map<string, RoomDto[]>());
+
+    for (const [soulHomeId, rooms] of roomsBySoulHomeId.entries()) {
+      const [soulHome, soulHomeErrors] =
+        await this.soulHomeService.basicService.readOneById(soulHomeId);
+      if (soulHomeErrors || !soulHome) continue;
+
+      this.roomNotifier.roomActivated({
+        clan_id: soulHome.clan_id.toString(),
+        soulHome_id: soulHomeId,
+        rooms: rooms.map((room) => ({
+          _id: room._id.toString(),
+          roomPosition: room.roomPosition,
+          roomStatus: RoomStatus.ACTIVE,
+          deactivationTime,
+        })),
+      });
+    }
   }
 
   /**
@@ -254,7 +294,8 @@ export class RoomService {
       ];
     }
 
-    const rooms = Array.isArray(payload) ? payload : [payload];
+    const isBatch = Array.isArray(payload);
+    const rooms = isBatch ? payload : [payload];
 
     if (!rooms.length)
       return [
@@ -425,6 +466,21 @@ export class RoomService {
     }
 
     await endTransaction(session);
+
+    if (soulHomeId && clanId) {
+      this.roomNotifier.layoutUpdated({
+        clan_id: clanId,
+        soulHome_id: soulHomeId,
+        mode: isBatch ? 'batch' : 'single',
+        rooms: rooms.map((room) => ({
+          _id: room._id,
+          roomColour: room.roomColour,
+          wallpaper: room.wallpaper,
+          floorType: room.floorType,
+          furnitureChanged: 'furniture' in room,
+        })),
+      });
+    }
 
     return [true, null];
   }

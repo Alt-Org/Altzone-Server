@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import BasicService from '../../common/service/basicService/BasicService';
@@ -15,13 +14,14 @@ import {
   endTransaction,
   initializeSession,
 } from '../../common/function/Transactions';
+import BoxAuthService from '../../auth/box/BoxAuthService';
 
 @Injectable()
 export default class AccountClaimerService {
   constructor(
     @InjectModel(Box.name) private readonly boxModel: Model<Box>,
     private readonly testerService: TesterAccountService,
-    private readonly jwtService: JwtService,
+    private readonly boxAuthService: BoxAuthService,
     @InjectConnection() private readonly connection: Connection,
   ) {
     this.basicService = new BasicService(boxModel);
@@ -86,19 +86,22 @@ export default class AccountClaimerService {
     if (clanAssigningErrors)
       return await cancelTransaction(session, clanAssigningErrors);
 
-    const accessToken = await this.jwtService.signAsync({
+    const payload = {
       player_id: account.Player._id.toString(),
       profile_id: account.Profile._id.toString(),
       clan_id: accountClan._id.toString(),
       box_id: box._id.toString(),
       groupAdmin: false,
-    });
+      tokenVersion: account.Profile.tokenVersion ?? 0,
+    };
+
+    const tokens = await this.boxAuthService.createTestingSessionTokens(payload);
 
     return await endTransaction(session, {
       ...account.Player,
       password: account.Profile.username,
       profile_id: account.Profile._id.toString(),
-      accessToken,
+      ...tokens,
       clan_id: accountClan._id.toString(),
       Clan: accountClan as ClanDto,
     });

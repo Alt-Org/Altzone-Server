@@ -12,6 +12,12 @@ type TaskInfo = {
   amount: number;
 };
 
+const GENERATED_SERVER_TASK_TYPES = [
+  ServerTaskName.BANISH_THE_EARWORM,
+  ServerTaskName.GO_TO_BATTLE,
+  ServerTaskName.FORM_AN_INNER_CONNECTION,
+];
+
 @Injectable()
 export class TaskGeneratorService {
   constructor() {}
@@ -22,15 +28,10 @@ export class TaskGeneratorService {
    * @returns A randomly selected task name.
    */
   getRandomTaskType(): ServerTaskName {
-    //TODO: Differentiate the task, that can be auto generated and the tasks that need to be predefined, when the daily tasks logic will be defined properly
-    // const taskTypes = Object.values(ServerTaskName);
-    const taskTypes = [
-      ServerTaskName.PLAY_BATTLE,
-      ServerTaskName.WIN_BATTLE,
-      ServerTaskName.WRITE_CHAT_MESSAGE,
-    ];
-    const randomIndex = Math.floor(Math.random() * taskTypes.length);
-    return taskTypes[randomIndex];
+    const randomIndex = Math.floor(
+      Math.random() * GENERATED_SERVER_TASK_TYPES.length,
+    );
+    return GENERATED_SERVER_TASK_TYPES[randomIndex];
   }
 
   /**
@@ -43,12 +44,12 @@ export class TaskGeneratorService {
    */
   getTaskTitle(type: ServerTaskName, amount: number): TaskTitle {
     switch (type) {
-      case ServerTaskName.PLAY_BATTLE:
+      case ServerTaskName.BANISH_THE_EARWORM:
+        return { fi: `Karkoita korvamato ${amount} kertaa` };
+      case ServerTaskName.GO_TO_BATTLE:
         return { fi: `Pelaa ${amount} taistelua` };
-      case ServerTaskName.WIN_BATTLE:
-        return { fi: `Voita ${amount} taistelua` };
-      case ServerTaskName.WRITE_CHAT_MESSAGE:
-        return { fi: `Lähetä ${amount} viestiä chattiin` };
+      case ServerTaskName.FORM_AN_INNER_CONNECTION:
+        return { fi: `Lähetä ${amount} viesti klaanichattiin` };
       default:
         throw new Error('Unknown task type');
     }

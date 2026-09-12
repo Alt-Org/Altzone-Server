@@ -5,8 +5,9 @@ import { SessionStage } from '../enum/SessionStage.enum';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { PlayerDto } from '../../player/dto/player.dto';
 import { ClanDto } from '../../clan/dto/clan.dto';
+import { TokensDto } from '../../auth/dto/tokens.dto';
 
-export class CreatedBoxDto {
+export class CreatedBoxDto extends TokensDto{
   /**
    * Unique ID of the newly created box
    *
@@ -15,14 +16,6 @@ export class CreatedBoxDto {
   @ExtractField()
   @Expose()
   _id: string;
-
-  /**
-   * Token used by the admin to manage the box session
-   *
-   * @example "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-   */
-  @Expose()
-  accessToken: string;
 
   /**
    * Current stage of the game session

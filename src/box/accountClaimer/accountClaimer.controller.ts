@@ -1,5 +1,5 @@
 import SwaggerTags from '../../common/swagger/tags/SwaggerTags.decorator';
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
 import { NoAuth } from '../../auth/decorator/NoAuth.decorator';
 import { UniformResponse } from '../../common/decorator/response/UniformResponse';
@@ -8,9 +8,11 @@ import ClaimedAccountDto from './dto/claimedAccount.dto';
 import ClaimAccountDto from './dto/claimAccount.dto';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { NoBoxIdFilter } from '../auth/decorator/NoBoxIdFilter.decorator';
+import { BoxTestingSessionGuard } from '../auth/boxTestingSession.guard';
 
 @SwaggerTags('Box')
 @Controller('/box/claim-account')
+@UseGuards(BoxTestingSessionGuard)
 export class AccountClaimerController {
   constructor(private readonly accountService: AccountClaimerService) {}
 

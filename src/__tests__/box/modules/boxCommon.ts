@@ -31,6 +31,8 @@ import AccountClaimerService from '../../../box/accountClaimer/accountClaimer.se
 import { envVars } from '../../../common/service/envHandler/envVars';
 import UniqueFieldGenerator from '../../../box/util/UniqueFieldGenerator';
 import { ItemSchema } from '../../../clanInventory/item/item.schema';
+import { GameSchema } from '../../../gameData/game.schema';
+import { AuthModule } from '../../../auth/auth.module';
 
 export default class BoxCommonModule {
   private constructor() {}
@@ -52,6 +54,7 @@ export default class BoxCommonModule {
             { name: ModelName.ROOM, schema: RoomSchema },
             { name: ModelName.STOCK, schema: StockSchema },
             { name: ModelName.ITEM, schema: ItemSchema },
+            { name: ModelName.GAME, schema: GameSchema },
           ]),
           JwtModule.register({
             global: true,
@@ -65,6 +68,7 @@ export default class BoxCommonModule {
           JwtModule,
           DailyTasksModule,
           ChatModule,
+          AuthModule,
         ],
         providers: [
           BoxService,
