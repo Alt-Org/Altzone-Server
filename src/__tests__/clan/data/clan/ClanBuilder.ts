@@ -12,6 +12,7 @@ import {
 } from '../../../../clan/role/initializationClanRoles';
 import { Stall } from '../../../../clan/stall/stall.schema';
 import { Environment } from '../../../../common/enum/environment.enum';
+import { ClanRule } from '../../../../clan/enum/clanRule.enum';
 
 export default class ClanBuilder implements IDataBuilder<Clan> {
   private readonly base: Clan = {
@@ -45,6 +46,7 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
       maxSlots: 7,
     },
     furnitureTotalValue: 0,
+    rules: [ClanRule.FAIR_GAME, ClanRule.NO_TOXICITY, ClanRule.NO_SPAM],
   };
 
   // Returns a new Clan object with the current base properties
