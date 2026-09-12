@@ -3,6 +3,11 @@ import { ServerTaskName } from '../../../dailyTasks/enum/serverTaskName.enum';
 import { OldTaskName } from '../../../dailyTasks/enum/oldTaskNames.enum';
 import { uiDailyTasks } from '../../../dailyTasks/uiDailyTasks/uiDailyTasks';
 import { DailyTasksStartupRefreshService } from '../../../dailyTasks/dailyTasksStartupRefresh.service';
+import {
+  ACTIVE_SERVER_TASK_DEFINITIONS,
+  MIN_OCCURRENCES_PER_TASK_TYPE,
+  TaskGeneratorService,
+} from '../../../dailyTasks/taskGenerator.service';
 
 describe('DailyTasksStartupRefreshService', () => {
   const createService = ({
@@ -53,7 +58,10 @@ describe('DailyTasksStartupRefreshService', () => {
       },
       startSession: jest.fn(async () => session),
     };
-    const service = new DailyTasksStartupRefreshService(connection as any);
+    const service = new DailyTasksStartupRefreshService(
+      connection as any,
+      new TaskGeneratorService(),
+    );
     const ownerId = (service as any).ownerId;
 
     if (!lockOwnerId) {
@@ -168,6 +176,7 @@ describe('DailyTasksStartupRefreshService', () => {
           ServerTaskName.BANISH_THE_EARWORM,
           ServerTaskName.GO_TO_BATTLE,
           ServerTaskName.FORM_AN_INNER_CONNECTION,
+          ServerTaskName.INNER_VOICE,
         ].includes(task.type),
       ),
     ).toBe(true);
@@ -185,5 +194,22 @@ describe('DailyTasksStartupRefreshService', () => {
       _id: 'daily-tasks-startup-refresh',
       ownerId,
     });
+  });
+
+  it('creates a balanced server-task pool including INNER_VOICE', () => {
+    const { service } = createService({ oldTaskFindResults: [] });
+    const tasks = (service as any).createServerTasksForClan({
+      _id: 'clan-1',
+    });
+
+    expect(tasks).toHaveLength(11);
+    expect(
+      tasks.filter((task) => task.type === ServerTaskName.INNER_VOICE).length,
+    ).toBeGreaterThanOrEqual(MIN_OCCURRENCES_PER_TASK_TYPE);
+    for (const { type } of ACTIVE_SERVER_TASK_DEFINITIONS) {
+      expect(
+        tasks.filter((task) => task.type === type).length,
+      ).toBeGreaterThanOrEqual(MIN_OCCURRENCES_PER_TASK_TYPE);
+    }
   });
 });

@@ -20,6 +20,7 @@ import { ClanRoleVotingProcessor } from './role/clanRole.processor';
 import { ChatModule } from '../chat/chat.module';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
 import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
+import { DailyTasksModule } from '../dailyTasks/dailyTasks.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
     forwardRef(() => VotingModule),
     ChatModule,
     EventEmitterCommonModule,
+    DailyTasksModule,
   ],
   controllers: [ClanController, ClanRoleController],
   providers: [

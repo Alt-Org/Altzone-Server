@@ -200,7 +200,6 @@ export default class SessionStarterService {
       },
       undefined,
       {
-        filter: {},
         session,
       },
     );

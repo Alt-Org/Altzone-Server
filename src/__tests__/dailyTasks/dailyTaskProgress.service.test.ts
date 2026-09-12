@@ -128,6 +128,36 @@ describe('DailyTaskProgressService', () => {
     );
   });
 
+  it('should complete a clan task without rewarding or notifying a player', async () => {
+    const result = makeResult('completed', 'inner_voice');
+    clanProgression.handleClanProgression.mockResolvedValue([
+      { reachedMilestones: [100] },
+      null,
+    ]);
+
+    const [handled, error] = await service.handleClanTaskCompletion(
+      result,
+      session,
+    );
+
+    expect(error).toBeNull();
+    expect(handled.reachedMilestones).toEqual([100]);
+    expect(playerRewarder.rewardForPlayerTask).not.toHaveBeenCalled();
+    expect(notifier.taskUpdated).not.toHaveBeenCalled();
+    expect(notifier.taskCompleted).not.toHaveBeenCalled();
+    expect(clanRewarder.rewardClanForPlayerTask).toHaveBeenCalledWith(
+      'clan-1',
+      result.task.points,
+      result.task.coins,
+      session,
+    );
+    expect(notifier.taskCompletedForClan).toHaveBeenCalledWith(
+      'clan-1',
+      result.task,
+      'player-1',
+    );
+  });
+
   it('should complete player-only task without rewarding or notifying clan', async () => {
     const result = {
       ...makeResult('completed', 'banish_the_earworm'),

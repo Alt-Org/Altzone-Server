@@ -233,6 +233,16 @@ describe('MQTT notification contract', () => {
     new ClanNotifier().memberLeave('clan-1', 'player-1');
     expectLastPayloadToMatchEnvelope('clan', MqttNotificationType.MEMBER_LEFT);
 
+    new ClanNotifier().phraseUpdated('clan-1', 'Together we rise');
+    expect(publishMock).toHaveBeenLastCalledWith(
+      `/clan/clan-1/${NotificationResource.CLAN}/phrase/${NotificationStatus.UPDATE}`,
+      JSON.stringify({
+        topic: 'clan',
+        type: MqttNotificationType.CLAN_UPDATED,
+        payload: { clan_id: 'clan-1', phrase: 'Together we rise' },
+      }),
+    );
+
     const friendshipNotifier = new FriendshipNotifier({
       findOne: jest.fn().mockReturnValue({
         select: jest.fn().mockReturnValue({
