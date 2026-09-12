@@ -130,11 +130,11 @@ export default class ClanHelperService {
   }
 
   /**
-   * Ensures the mandatory default Clan roles:
+   * Ensures the mandatory default Clan rules:
    * FairGame, NoToxicity and NoSpam
    * @param rules - List of Clan rules
    */
-  async ensureMandatoryRules(rules: ClanRule[]): Promise<void> {
+  ensureMandatoryRules(rules: ClanRule[]): void {
     if (!rules.includes(ClanRule.FAIR_GAME)) rules.push(ClanRule.FAIR_GAME);
     if (!rules.includes(ClanRule.NO_TOXICITY)) rules.push(ClanRule.NO_TOXICITY);
     if (!rules.includes(ClanRule.NO_SPAM)) rules.push(ClanRule.NO_SPAM);
