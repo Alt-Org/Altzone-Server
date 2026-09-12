@@ -168,6 +168,7 @@ describe('DailyTasksStartupRefreshService', () => {
           ServerTaskName.BANISH_THE_EARWORM,
           ServerTaskName.GO_TO_BATTLE,
           ServerTaskName.FORM_AN_INNER_CONNECTION,
+          ServerTaskName.SET_BOUNDARIES,
         ].includes(task.type),
       ),
     ).toBe(true);
