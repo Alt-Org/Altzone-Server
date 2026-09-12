@@ -11,6 +11,7 @@ import {
   ValidateNested,
   MaxLength,
   IsNotEmpty,
+  ArrayUnique,
 } from 'class-validator';
 import { IsClanExists } from '../decorator/validation/IsClanExists.decorator';
 import { IsPlayerExists } from '../../player/decorator/validation/IsPlayerExists.decorator';
@@ -220,6 +221,7 @@ export class UpdateClanDto {
   @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
+  @ArrayUnique()
   @IsEnum(ClanRule, { each: true })
   rules?: ClanRule[];
 }

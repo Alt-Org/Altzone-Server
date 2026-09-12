@@ -8,6 +8,7 @@ import {
   ValidateNested,
   MaxLength,
   ArrayNotEmpty,
+  ArrayUnique,
 } from 'class-validator';
 import { ClanLabel } from '../enum/clanLabel.enum';
 import { AgeRange } from '../enum/ageRange.enum';
@@ -161,6 +162,7 @@ export class CreateClanDto {
   @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
+  @ArrayUnique()
   @IsEnum(ClanRule, { each: true })
   rules?: ClanRule[];
 }
