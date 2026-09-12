@@ -47,6 +47,9 @@ import { ApiExtraModels } from '@nestjs/swagger';
 import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { ClanChatService } from '../chat/service/clanChat.service';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
+import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
+import ClanNotifier from './clan.notifier';
 
 @Controller('clan')
 export class ClanController {
@@ -58,7 +61,10 @@ export class ClanController {
     private readonly playerService: PlayerService,
     private readonly clanChatService: ClanChatService,
     private readonly passwordGenerator: PasswordGenerator,
+    private readonly emitterService: EventEmitterService,
   ) {}
+
+  private readonly clanNotifier = new ClanNotifier();
 
   /**
    * Create a new Clan
@@ -220,6 +226,17 @@ export class ClanController {
     }
     const [, errors] = await this.service.updateOneById(body._id, body);
     if (errors) return [null, errors];
+
+    const rulesSaved =
+      body.rules && !body.admin_idsToAdd && !body.admin_idsToDelete;
+
+    if (rulesSaved) {
+      this.clanNotifier.rulesUpdated(body._id, body.rules);
+      this.emitterService.EmitNewDailyTaskEvent(
+        user.player_id,
+        ServerTaskName.SET_BOUNDARIES,
+      );
+    }
   }
 
   /**
