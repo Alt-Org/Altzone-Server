@@ -8,7 +8,10 @@ import { DailyTask } from './dailyTasks.schema';
 import { DailyTaskDto } from './dto/dailyTask.dto';
 import { DailyTaskQueue } from './dailyTask.queue';
 import { taskReservedError } from './errors/taskReserved.error';
-import { TaskGeneratorService } from './taskGenerator.service';
+import {
+  getServerTaskTimeLimitMinutes,
+  TaskGeneratorService,
+} from './taskGenerator.service';
 import {
   IServiceReturn,
   TIServiceReadManyOptions,
@@ -63,7 +66,10 @@ export class DailyTasksService {
     // so this number (11) will change!
     for (let i = 0; i < 11; i++) {
       const partial = this.taskGenerator.createTaskRandomValues();
-      const timeLimitMinutes = partial.amount * 2;
+      const timeLimitMinutes = getServerTaskTimeLimitMinutes(
+        partial.type,
+        partial.amount,
+      );
       const task: Omit<DailyTask, '_id'> = {
         ...partial,
         amountLeft: partial.amount,

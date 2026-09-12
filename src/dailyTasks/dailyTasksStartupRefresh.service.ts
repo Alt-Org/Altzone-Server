@@ -9,6 +9,7 @@ import { TASK_CONSTS } from './consts/taskConstants';
 import { OldTaskName } from './enum/oldTaskNames.enum';
 import { ServerTaskName } from './enum/serverTaskName.enum';
 import { uiDailyTasks } from './uiDailyTasks/uiDailyTasks';
+import { getServerTaskTimeLimitMinutes } from './taskGenerator.service';
 
 const LOCK_ID = 'daily-tasks-startup-refresh';
 const LOCK_TTL_MS = 30 * 60 * 1000;
@@ -17,6 +18,7 @@ const TEMP_SERVER_TASK_TYPES = [
   ServerTaskName.BANISH_THE_EARWORM,
   ServerTaskName.GO_TO_BATTLE,
   ServerTaskName.FORM_AN_INNER_CONNECTION,
+  ServerTaskName.SET_BOUNDARIES,
 ];
 
 type MaintenanceLock = {
@@ -201,7 +203,10 @@ export class DailyTasksStartupRefreshService implements OnApplicationBootstrap {
         player_id: null,
         amountLeft: generated.amount,
         startedAt: null,
-        timeLimitMinutes: generated.amount * 2,
+        timeLimitMinutes: getServerTaskTimeLimitMinutes(
+          generated.type,
+          generated.amount,
+        ),
       });
     }
 
@@ -213,11 +218,15 @@ export class DailyTasksStartupRefreshService implements OnApplicationBootstrap {
       TEMP_SERVER_TASK_TYPES[
         Math.floor(Math.random() * TEMP_SERVER_TASK_TYPES.length)
       ];
-    const amount =
+    let amount =
       Math.floor(
         Math.random() * (TASK_CONSTS.AMOUNT.MAX - TASK_CONSTS.AMOUNT.MIN + 1),
       ) + TASK_CONSTS.AMOUNT.MIN;
     const points = Score.DAILY_TASK.COMPLETED;
+
+    if (type === ServerTaskName.SET_BOUNDARIES) {
+      amount = 1;
+    }
 
     return {
       title: this.getServerTaskTitle(type, amount),
@@ -236,6 +245,12 @@ export class DailyTasksStartupRefreshService implements OnApplicationBootstrap {
         return { fi: `Pelaa ${amount} taistelua` };
       case ServerTaskName.FORM_AN_INNER_CONNECTION:
         return { fi: `Lähetä ${amount} viesti klaanichattiin` };
+      case ServerTaskName.SET_BOUNDARIES:
+        return {
+          fi: 'Avaa klaanin säännöt ja muokkaa niitä. Säännöt muovaavat sitä, millainen yhteisö te olette. Mieti, mitä toimintaa haluatte vahvistaa.',
+        };
+      default:
+        throw new Error('Unknown task type');
     }
   }
 }
