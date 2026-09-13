@@ -4,20 +4,15 @@ import { Connection } from 'mongoose';
 import { randomUUID } from 'node:crypto';
 import { hostname } from 'node:os';
 import { ModelName } from '../common/enum/modelName.enum';
-import { Score } from '../common/values/scoring.values';
-import { TASK_CONSTS } from './consts/taskConstants';
 import { OldTaskName } from './enum/oldTaskNames.enum';
-import { ServerTaskName } from './enum/serverTaskName.enum';
+import {
+  SERVER_TASKS_PER_CLAN,
+  TaskGeneratorService,
+} from './taskGenerator.service';
 import { uiDailyTasks } from './uiDailyTasks/uiDailyTasks';
 
 const LOCK_ID = 'daily-tasks-startup-refresh';
 const LOCK_TTL_MS = 30 * 60 * 1000;
-const SERVER_TASKS_PER_CLAN = 11;
-const TEMP_SERVER_TASK_TYPES = [
-  ServerTaskName.BANISH_THE_EARWORM,
-  ServerTaskName.GO_TO_BATTLE,
-  ServerTaskName.FORM_AN_INNER_CONNECTION,
-];
 
 type MaintenanceLock = {
   _id: string;
@@ -48,7 +43,10 @@ export class DailyTasksStartupRefreshService implements OnApplicationBootstrap {
   private readonly logger = new Logger(DailyTasksStartupRefreshService.name);
   private readonly ownerId = `${hostname()}-${process.pid}-${randomUUID()}`;
 
-  constructor(@InjectConnection() private readonly connection: Connection) {}
+  constructor(
+    @InjectConnection() private readonly connection: Connection,
+    private readonly taskGenerator: TaskGeneratorService,
+  ) {}
 
   async onApplicationBootstrap() {
     try {
@@ -190,52 +188,14 @@ export class DailyTasksStartupRefreshService implements OnApplicationBootstrap {
   }
 
   private createServerTasksForClan(clan: ClanDocument): DailyTaskDocument[] {
-    const tasks: DailyTaskDocument[] = [];
-
-    for (let i = 0; i < SERVER_TASKS_PER_CLAN; i++) {
-      const generated = this.createServerTask();
-
-      tasks.push({
+    return this.taskGenerator
+      .createBalancedTaskValues(SERVER_TASKS_PER_CLAN)
+      .map((generated) => ({
         ...generated,
         clan_id: clan._id,
         player_id: null,
         amountLeft: generated.amount,
         startedAt: null,
-        timeLimitMinutes: generated.amount * 2,
-      });
-    }
-
-    return tasks;
-  }
-
-  private createServerTask() {
-    const type =
-      TEMP_SERVER_TASK_TYPES[
-        Math.floor(Math.random() * TEMP_SERVER_TASK_TYPES.length)
-      ];
-    const amount =
-      Math.floor(
-        Math.random() * (TASK_CONSTS.AMOUNT.MAX - TASK_CONSTS.AMOUNT.MIN + 1),
-      ) + TASK_CONSTS.AMOUNT.MIN;
-    const points = Score.DAILY_TASK.COMPLETED;
-
-    return {
-      title: this.getServerTaskTitle(type, amount),
-      type,
-      points,
-      coins: Math.floor(points * TASK_CONSTS.COINS.FACTOR),
-      amount,
-    };
-  }
-
-  private getServerTaskTitle(type: ServerTaskName, amount: number) {
-    switch (type) {
-      case ServerTaskName.BANISH_THE_EARWORM:
-        return { fi: `Karkoita korvamato ${amount} kertaa` };
-      case ServerTaskName.GO_TO_BATTLE:
-        return { fi: `Pelaa ${amount} taistelua` };
-      case ServerTaskName.FORM_AN_INNER_CONNECTION:
-        return { fi: `Lähetä ${amount} viesti klaanichattiin` };
-    }
+      }));
   }
 }

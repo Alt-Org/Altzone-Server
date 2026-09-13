@@ -28,6 +28,22 @@ export default class EventEmitterService {
   }
 
   /**
+   * Emit a clan-level daily task event. Clan tasks are progressed without
+   * requiring a player reservation and do not grant an individual reward.
+   */
+  public async EmitNewClanDailyTaskEvent(
+    clanId: string,
+    completedByPlayerId: string,
+    serverTaskName: ServerTaskName,
+  ) {
+    await this.eventEmitter.emitAsync('newClanDailyTaskEvent', {
+      clanId,
+      completedByPlayerId,
+      serverTaskName,
+    });
+  }
+
+  /**
    * Emit a player created event
    *  @param playerId of the created player
    */

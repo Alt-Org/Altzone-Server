@@ -8,7 +8,10 @@ import { DailyTask } from './dailyTasks.schema';
 import { DailyTaskDto } from './dto/dailyTask.dto';
 import { DailyTaskQueue } from './dailyTask.queue';
 import { taskReservedError } from './errors/taskReserved.error';
-import { TaskGeneratorService } from './taskGenerator.service';
+import {
+  SERVER_TASKS_PER_CLAN,
+  TaskGeneratorService,
+} from './taskGenerator.service';
 import {
   IServiceReturn,
   TIServiceReadManyOptions,
@@ -47,8 +50,8 @@ export class DailyTasksService {
   /**
    * Generates a set of tasks for a new clan.
    *
-   * This method creates 20 tasks with random values and assigns them to the specified clan.
-   * Each task is created by calling `createTaskRandomValues` and then adding the `clanId`.
+   * Each active server task type occurs at least twice, with the remaining
+   * slots selected randomly and the final list shuffled.
    *
    * @param clanId - The ID of the clan for which tasks are being generated.
    * @returns generated random tasks.
@@ -56,24 +59,17 @@ export class DailyTasksService {
   generateServerTasksForNewClan(
     clanId: string,
   ): IServiceReturn<Omit<DailyTask, '_id'>[]> {
-    const tasks: Omit<DailyTask, '_id'>[] = [];
-
-    // There will be 10 server tasks only, at the moment there are
-    // some of the old ones, too. In total 20.
-    // so this number (11) will change!
-    for (let i = 0; i < 11; i++) {
-      const partial = this.taskGenerator.createTaskRandomValues();
-      const timeLimitMinutes = partial.amount * 2;
-      const task: Omit<DailyTask, '_id'> = {
-        ...partial,
-        amountLeft: partial.amount,
-        timeLimitMinutes,
-        clan_id: clanId,
-        player_id: null,
-        startedAt: null,
-      };
-      tasks.push(task);
-    }
+    const tasks = this.taskGenerator
+      .createBalancedTaskValues(SERVER_TASKS_PER_CLAN)
+      .map(
+        (task): Omit<DailyTask, '_id'> => ({
+          ...task,
+          amountLeft: task.amount,
+          clan_id: clanId,
+          player_id: null,
+          startedAt: null,
+        }),
+      );
 
     return [tasks, null];
   }
@@ -228,6 +224,70 @@ export class DailyTasksService {
   }
 
   /**
+   * Progresses a shared clan task. Unlike updateTask, this never requires a
+   * player reservation and does not make the task an individual player task.
+   */
+  async updateClanTask(
+    clanId: string,
+    completedByPlayerId: string,
+    serverTaskName: ServerTaskName,
+    session?: ClientSession,
+  ): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
+    const filter = {
+      clan_id: clanId,
+      type: serverTaskName,
+      amountLeft: { $gt: 0 },
+    };
+    const [task, error] = await this.basicService.readOne<DailyTaskDto>({
+      filter,
+      session,
+    });
+    if (error) return [null, error];
+
+    const previousAmountLeft = task.amountLeft;
+    const completedAmount = Math.min(1, previousAmountLeft);
+    const currentAmountLeft = Math.max(previousAmountLeft - completedAmount, 0);
+    task.amountLeft = currentAmountLeft;
+
+    if (currentAmountLeft <= 0) {
+      const newValues = this.taskGenerator.createTaskRandomValues();
+      const [, replacementErrors] = await this.basicService.updateOne(
+        {
+          $set: {
+            ...newValues,
+            amountLeft: newValues.amount,
+          },
+          $unset: {
+            player_id: '',
+            startedAt: '',
+          },
+        },
+        { filter: { _id: task._id, clan_id: clanId }, session },
+      );
+      if (replacementErrors) return [null, replacementErrors];
+    } else {
+      const [, updateError] = await this.basicService.updateOne(
+        { $set: { amountLeft: currentAmountLeft } },
+        { filter: { _id: task._id, clan_id: clanId }, session },
+      );
+      if (updateError) return [null, updateError];
+    }
+
+    return [
+      {
+        status: currentAmountLeft <= 0 ? 'completed' : 'advanced',
+        task,
+        completedByPlayerId,
+        clanId: task.clan_id.toString(),
+        completedAmount,
+        previousAmountLeft,
+        currentAmountLeft,
+      },
+      null,
+    ];
+  }
+
+  /**
    * Reads a DailyTask by its _id in DB.
    *
    * @param _id - The Mongo _id of the DailyTask to read.
@@ -317,6 +377,36 @@ export class DailyTasksService {
       progressResult,
       session,
     );
+    if (progressErrors) return cancelTransaction(session, progressErrors);
+
+    return endTransaction(session, progressResult);
+  }
+
+  /**
+   * Handles a shared clan task event without granting player-task rewards.
+   */
+  @OnEvent('newClanDailyTaskEvent')
+  async handleClanDailyTaskEvent(payload: {
+    clanId: string;
+    completedByPlayerId: string;
+    serverTaskName: ServerTaskName;
+  }): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
+    const [progressResult, updateErrors] = await this.updateClanTask(
+      payload.clanId,
+      payload.completedByPlayerId,
+      payload.serverTaskName,
+      session,
+    );
+    if (updateErrors) return cancelTransaction(session, updateErrors);
+
+    const [, progressErrors] =
+      await this.progressService.handleClanTaskCompletion(
+        progressResult,
+        session,
+      );
     if (progressErrors) return cancelTransaction(session, progressErrors);
 
     return endTransaction(session, progressResult);

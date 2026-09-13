@@ -73,11 +73,14 @@ export default class BasicService implements IService {
     options?: TReadByIdOptions,
   ): Promise<IServiceReturn<TOutput>> {
     try {
-      const { select, includeRefs } = options
+      const { select, includeRefs, session } = options
         ? options
-        : { select: undefined, includeRefs: [] };
+        : { select: undefined, includeRefs: [], session: undefined };
 
-      const resp = await this.model.findById(_id, select).populate(includeRefs);
+      const query = session
+        ? this.model.findById(_id, select, { session })
+        : this.model.findById(_id, select);
+      const resp = await query.populate(includeRefs);
 
       if (!resp)
         return [

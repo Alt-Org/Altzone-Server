@@ -76,7 +76,9 @@ export class ClanRewarder {
         ],
       ];
 
-    const [clanToUpdate, errors] = await this.clanService.readOneById(clan_id);
+    const [clanToUpdate, errors] = await this.clanService.readOneById(clan_id, {
+      session,
+    });
 
     if (errors) return [null, errors];
 
