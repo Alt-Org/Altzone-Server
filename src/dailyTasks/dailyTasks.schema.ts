@@ -51,7 +51,7 @@ export class DailyTask {
 
 export const DailyTaskSchema = SchemaFactory.createForClass(DailyTask);
 DailyTaskSchema.set('collection', ModelName.DAILY_TASK);
-DailyTaskSchema.index({ playerId: 1 }, { unique: true, sparse: true });
+DailyTaskSchema.index({ player_id: 1 }, { unique: true, sparse: true });
 DailyTaskSchema.virtual(ModelName.PLAYER, {
   ref: ModelName.PLAYER,
   localField: 'player_id',
