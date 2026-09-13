@@ -52,6 +52,11 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
       fi: 'Avaa klaanin asetukset. Muokkaa klaanin mottoa ja tallenna muutos. Mieti, mitä haluatte viestiä toisillenne ja muille.',
     }),
   },
+  {
+    type: ServerTaskName.YOUR_VOICE,
+    createAmount: () => 1,
+    createTitle: () => ({ fi: 'Äänestä klaanin äänestyksessä.' }),
+  },
 ];
 
 @Injectable()
