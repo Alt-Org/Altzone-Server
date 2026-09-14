@@ -1,5 +1,5 @@
-import { JwtPayload } from "jsonwebtoken";
-import { AuthService } from "../../../auth/auth.service";
+import { JwtPayload } from 'jsonwebtoken';
+import { AuthService } from '../../../auth/auth.service';
 import AuthModule from '../modules/auth.module';
 
 describe('AuthService.createTestingSessionTokens() test suite', () => {

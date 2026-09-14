@@ -211,10 +211,7 @@ export class ClanController {
   @DetermineClanId()
   @HasClanRights([ClanBasicRight.EDIT_CLAN_DATA])
   @UniformResponse()
-  public async update(
-    @Body() body: UpdateClanDto,
-    @LoggedUser() user: User,
-  ) {
+  public async update(@Body() body: UpdateClanDto, @LoggedUser() user: User) {
     if (user.clan_id.toString() !== body._id.toString())
       return [
         null,

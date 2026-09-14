@@ -36,9 +36,9 @@ describe('VotingController.addVote()', () => {
       user.player_id,
       ServerTaskName.YOUR_VOICE,
     );
-    expect(
-      votingService.addVote.mock.invocationCallOrder[0],
-    ).toBeLessThan(emitterService.EmitNewDailyTaskEvent.mock.invocationCallOrder[0]);
+    expect(votingService.addVote.mock.invocationCallOrder[0]).toBeLessThan(
+      emitterService.EmitNewDailyTaskEvent.mock.invocationCallOrder[0],
+    );
   });
 
   it('does not save or progress a task when the voting is outside the player clan', async () => {

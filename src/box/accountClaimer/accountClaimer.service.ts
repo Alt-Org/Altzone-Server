@@ -95,7 +95,8 @@ export default class AccountClaimerService {
       tokenVersion: account.Profile.tokenVersion ?? 0,
     };
 
-    const tokens = await this.boxAuthService.createTestingSessionTokens(payload);
+    const tokens =
+      await this.boxAuthService.createTestingSessionTokens(payload);
 
     return await endTransaction(session, {
       ...account.Player,

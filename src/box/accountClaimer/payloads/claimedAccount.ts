@@ -2,7 +2,7 @@ import { TokensDto } from '../../../auth/dto/tokens.dto';
 import { ClanDto } from '../../../clan/dto/clan.dto';
 import { ObjectId } from 'mongodb';
 
-export default class ClaimedAccount extends TokensDto{
+export default class ClaimedAccount extends TokensDto {
   /**
    * Unique ID of the claimed account
    *
