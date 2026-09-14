@@ -17,6 +17,7 @@ import {
   IServiceReturn,
   TIServiceReadManyOptions,
   TReadByIdOptions,
+  TIServiceUpdateByIdOptions,
   TIServiceUpdateOneOptions,
 } from '../common/service/basicService/IService';
 import { ModelName } from '../common/enum/modelName.enum';
@@ -266,7 +267,7 @@ export class ClanService {
   public async updateOneById(
     idOrBody: string | UpdateClanDto,
     body?: UpdateClanDto,
-    options?: TIServiceUpdateOneOptions,
+    options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<boolean>> {
     const id = typeof idOrBody === 'string' ? idOrBody : idOrBody._id;
     const updateData =

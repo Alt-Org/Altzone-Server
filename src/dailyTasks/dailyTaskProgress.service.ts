@@ -52,6 +52,29 @@ export class DailyTaskProgressService {
     return endTransaction(newSession, handledResult);
   }
 
+  /**
+   * Completes a clan-level task without rewarding the acting player.
+   */
+  async handleClanTaskCompletion<TTask extends ProgressTask>(
+    result: DailyTaskProgressResult<TTask>,
+    session?: ClientSession,
+    notify = true,
+  ): Promise<IServiceReturn<DailyTaskProgressResult<TTask>>> {
+    if (session) return this.handleClanCompletion(result, session, notify);
+
+    const [newSession, initErrors] = await initializeSession(this.connection);
+    if (!newSession) return [null, initErrors];
+
+    const [handledResult, errors] = await this.handleClanCompletion(
+      result,
+      newSession,
+      notify,
+    );
+    if (errors) return cancelTransaction(newSession, errors);
+
+    return endTransaction(newSession, handledResult);
+  }
+
   private async handleCompletion<TTask extends ProgressTask>(
     result: DailyTaskProgressResult<TTask>,
     session: ClientSession,
@@ -103,5 +126,55 @@ export class DailyTaskProgressService {
     }
 
     return [result, null];
+  }
+
+  private async handleClanCompletion<TTask extends ProgressTask>(
+    result: DailyTaskProgressResult<TTask>,
+    session: ClientSession,
+    notify: boolean,
+  ): Promise<IServiceReturn<DailyTaskProgressResult<TTask>>> {
+    const { task } = result;
+
+    const [updatedClan, clanRewardErrors] =
+      await this.clanRewarder.rewardClanForPlayerTask(
+        result.clanId,
+        task.points,
+        task.coins,
+        session,
+      );
+    if (clanRewardErrors) return [null, clanRewardErrors];
+
+    const [progressionResult, clanProgressionErrors] =
+      await this.clanProgression.handleClanProgression(updatedClan, session);
+    if (clanProgressionErrors) return [null, clanProgressionErrors];
+
+    result.reachedMilestones = progressionResult.reachedMilestones;
+
+    if (notify) this.notifyClanTaskCompletion(result);
+
+    return [result, null];
+  }
+
+  /**
+   * Publishes clan-task notifications after the transaction containing the
+   * task and reward changes has committed.
+   */
+  notifyClanTaskCompletion<TTask extends ProgressTask>(
+    result: DailyTaskProgressResult<TTask>,
+  ) {
+    this.notifier.taskCompletedForClan(
+      result.clanId,
+      result.task,
+      result.completedByPlayerId,
+    );
+
+    if (result.reachedMilestones?.length) {
+      this.notifier.milestoneReached(
+        result.clanId,
+        result.task,
+        result.completedByPlayerId,
+        result.reachedMilestones,
+      );
+    }
   }
 }

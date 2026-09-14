@@ -53,7 +53,7 @@ export class DailyTaskProcessor extends WorkerHost {
           amountLeft: task.amount,
         },
         $unset: {
-          playerId: '',
+          player_id: '',
           startedAt: '',
         },
       },
