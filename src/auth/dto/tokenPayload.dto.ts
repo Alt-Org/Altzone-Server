@@ -5,7 +5,7 @@ import AddType from '../../common/base/decorator/AddType.decorator';
 export class TokenPayload {
   /**
    * Profile Id
-   * 
+   *
    * @example "67fe4e2d8a54d4cc39266a43"
    */
   @Expose()
@@ -13,7 +13,7 @@ export class TokenPayload {
 
   /**
    * Player Id
-   * 
+   *
    * @example "67fe4e2d8a54d4cc39266a43"
    */
   @Expose()
@@ -27,7 +27,7 @@ export class TokenPayload {
 
   /**
    * Whether user is GroupAdmin or not
-   * 
+   *
    * @example false
    */
   @Expose()
@@ -35,7 +35,7 @@ export class TokenPayload {
 
   /**
    * Token version
-   * 
+   *
    * @example 0
    */
   @Expose()
@@ -43,7 +43,7 @@ export class TokenPayload {
 
   /**
    * Clan Id
-   * 
+   *
    * @example "67fe4e2d8a54d4cc39266a43"
    */
   @Expose()

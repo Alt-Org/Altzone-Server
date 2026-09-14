@@ -177,6 +177,7 @@ describe('DailyTasksStartupRefreshService', () => {
           ServerTaskName.GO_TO_BATTLE,
           ServerTaskName.FORM_AN_INNER_CONNECTION,
           ServerTaskName.INNER_VOICE,
+          ServerTaskName.YOUR_VOICE,
         ].includes(task.type),
       ),
     ).toBe(true);
