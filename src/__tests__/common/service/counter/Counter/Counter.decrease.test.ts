@@ -12,11 +12,16 @@ describe('Counter.decrease() test suite', () => {
   const clanCreateBuilder = ClanBuilderFactory.getBuilder('Clan');
 
   const startingValue = 10;
-  const existingClan = clanCreateBuilder.setPlayerCount(startingValue).build();
+  let clanNameCounter = 0;
   let existingClan_id: string;
   let filter: any;
 
   beforeEach(async () => {
+    const existingClan = clanCreateBuilder
+      .setName(`cd-${Date.now().toString(36).slice(-6)}-${clanNameCounter++}`)
+      .setPlayerCount(startingValue)
+      .build();
+
     const dbResp = await clanModel.create(existingClan);
     existingClan_id = dbResp._id.toString();
     filter = { _id: existingClan_id };

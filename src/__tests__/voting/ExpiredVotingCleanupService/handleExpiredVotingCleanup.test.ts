@@ -42,13 +42,26 @@ describe('ExpiredVotingCleanupService.handleExpiredVotingCleanup() test suite', 
     votings[5].endsOn = expiredDate;
     votings[8].endsOn = expiredDate;
 
-    await Promise.all(votings.map((v) => votingModel.create(v)));
+    const createdVotings = await Promise.all(
+      votings.map((v) => votingModel.create(v)),
+    );
+
+    return {
+      createdVotingIds: createdVotings.map((voting) => voting._id),
+      expiredVotingIds: [
+        createdVotings[5]._id.toString(),
+        createdVotings[8]._id.toString(),
+      ],
+    };
   };
   it('Should delete over week old votings', async () => {
-    await createTestVotings();
+    const { createdVotingIds, expiredVotingIds } = await createTestVotings();
     await expiredVotingCleanupService['handleExpiredVotingCleanup']();
 
-    const votings = await votingModel.find();
+    const votings = await votingModel.find({ _id: { $in: createdVotingIds } });
     expect(votings).toHaveLength(8);
+    expect(votings.map((voting) => voting._id.toString())).not.toEqual(
+      expect.arrayContaining(expiredVotingIds),
+    );
   });
 });
