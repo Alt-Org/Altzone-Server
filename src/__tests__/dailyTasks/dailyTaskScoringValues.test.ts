@@ -32,6 +32,19 @@ describe('daily task scoring values', () => {
     });
   });
 
+  it('configures YOUR_VOICE as a one-step clan-voting task', () => {
+    const generator = new TaskGeneratorService();
+    jest
+      .spyOn(generator, 'getRandomTaskType')
+      .mockReturnValue(ServerTaskName.YOUR_VOICE);
+
+    expect(generator.createTaskRandomValues()).toMatchObject({
+      type: ServerTaskName.YOUR_VOICE,
+      amount: 1,
+      title: { fi: 'Äänestä klaanin äänestyksessä.' },
+    });
+  });
+
   it('creates a balanced, shuffled server-task bag', () => {
     const generator = new TaskGeneratorService();
     const taskTypes = generator.createBalancedTaskTypes();

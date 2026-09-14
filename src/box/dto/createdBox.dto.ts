@@ -7,7 +7,7 @@ import { PlayerDto } from '../../player/dto/player.dto';
 import { ClanDto } from '../../clan/dto/clan.dto';
 import { TokensDto } from '../../auth/dto/tokens.dto';
 
-export class CreatedBoxDto extends TokensDto{
+export class CreatedBoxDto extends TokensDto {
   /**
    * Unique ID of the newly created box
    *

@@ -5,7 +5,7 @@ import { GameStatisticsDto } from '../../../player/dto/gameStatistics.dto';
 import { CustomCharacterDto } from '../../../player/customCharacter/dto/customCharacter.dto';
 import { TokensDto } from '../../../auth/dto/tokens.dto';
 
-export default class ClaimedAccountDto extends TokensDto{
+export default class ClaimedAccountDto extends TokensDto {
   /**
    * Unique ID of the claimed account
    *

@@ -181,19 +181,19 @@ export class AuthService {
 
   /**
    * Create Access and Refresh tokens
-   * 
+   *
    * Extracts the expiration time in Unix timestamp format
-   * 
+   *
    * @param payload User info used to create tokens
    * @returns Access and Refresh tokens + expiration dates if successful
    */
   public async createTestingSessionTokens(
     payload: TokenPayload,
-  ):Promise<TokensDto> {
-    const expiresIn = (envVars.JWT_EXPIRES  ?? '30d') as StringValue;
+  ): Promise<TokensDto> {
+    const expiresIn = (envVars.JWT_EXPIRES ?? '30d') as StringValue;
 
     const refreshToken = await this.jwtService.signAsync(
-      {...payload, type: 'refresh'}, 
+      { ...payload, type: 'refresh' },
       { expiresIn },
     );
     const decodedRefreshToken = this.jwtService.decode(refreshToken);
@@ -201,17 +201,16 @@ export class AuthService {
 
     const { tokenVersion, ...accessPayload } = payload;
 
-    const accessToken = await this.jwtService.signAsync(
-      accessPayload, 
-      { expiresIn },
-    );
+    const accessToken = await this.jwtService.signAsync(accessPayload, {
+      expiresIn,
+    });
     const decodedAccessToken = this.jwtService.decode(accessToken);
     const tokenExpires = decodedAccessToken?.exp;
 
     return {
-      accessToken, 
-      tokenExpires, 
-      refreshToken, 
+      accessToken,
+      tokenExpires,
+      refreshToken,
       refreshTokenExpires,
     };
   }

@@ -111,13 +111,11 @@ describe('ClanController phrase daily task', () => {
     );
     expect(
       dailyTaskProgressService.handleClanTaskCompletion,
-    ).toHaveBeenCalledWith(
-      expect.any(Object),
-      session,
-      false,
-    );
+    ).toHaveBeenCalledWith(expect.any(Object), session, false);
     expect(session.commitTransaction).toHaveBeenCalled();
-    expect(dailyTaskProgressService.notifyClanTaskCompletion).toHaveBeenCalled();
+    expect(
+      dailyTaskProgressService.notifyClanTaskCompletion,
+    ).toHaveBeenCalled();
     expect(notifier).toHaveBeenCalledWith(clanId, 'Victory or nothing!');
   });
 

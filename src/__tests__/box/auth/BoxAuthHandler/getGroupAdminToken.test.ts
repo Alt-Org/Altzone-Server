@@ -20,7 +20,8 @@ describe('BoxAuthHandler.getGroupAdminToken() test suite', () => {
   it('Should return access and refresh tokens and expiration times', async () => {
     await profileModel.create(profile);
 
-    const [result, errors] = await boxAuthHandler.getGroupAdminToken(boxAdminUser);
+    const [result, errors] =
+      await boxAuthHandler.getGroupAdminToken(boxAdminUser);
 
     expect(errors).toBeNull();
     expect(result).toEqual(
@@ -34,7 +35,8 @@ describe('BoxAuthHandler.getGroupAdminToken() test suite', () => {
   });
 
   it('Should return NOT_FOUND error when profile does not exist', async () => {
-    const [result, errors] = await boxAuthHandler.getGroupAdminToken(boxAdminUser);
+    const [result, errors] =
+      await boxAuthHandler.getGroupAdminToken(boxAdminUser);
 
     expect(result).toBeNull();
     expect(errors).toContainSE_NOT_FOUND();
