@@ -94,7 +94,7 @@ describe('StallService.ReadAll() test suite', () => {
     );
     const furniture2 = await fleaMarketItemModel.create(
       fleaMarketItemBuilder
-        .setName(ItemName.WORK_TABLE)
+        .setName(ItemName.WORKTABLE_NYKTOPHOBIA)
         .setUnityKey('stall-readall-clan2-furniture')
         .setClanId(createdClan2._id.toString())
         .setIsFurniture(true)
@@ -118,7 +118,7 @@ describe('StallService.ReadAll() test suite', () => {
     expect(result[0].furnitureItems).toEqual([ItemName.CLOSET_RAKKAUS]);
 
     expect(result[1].furnitureItemIds).toEqual([furniture2._id.toString()]);
-    expect(result[1].furnitureItems).toEqual([ItemName.WORK_TABLE]);
+    expect(result[1].furnitureItems).toEqual([ItemName.WORKTABLE_NYKTOPHOBIA]);
   });
 
   it('Should return only available furniture items belonging to each clan stall', async () => {
@@ -137,7 +137,7 @@ describe('StallService.ReadAll() test suite', () => {
 
     const clan2StallFurniture = await fleaMarketItemModel.create(
       fleaMarketItemBuilder
-        .setName(ItemName.WORK_TABLE)
+        .setName(ItemName.WORKTABLE_NYKTOPHOBIA)
         .setUnityKey('stall-readall-clan2-available-furniture')
         .setClanId(createdClan2._id.toString())
         .setIsFurniture(true)
@@ -178,7 +178,7 @@ describe('StallService.ReadAll() test suite', () => {
     expect(result[1].furnitureItemIds).toEqual([
       clan2StallFurniture._id.toString(),
     ]);
-    expect(result[1].furnitureItems).toEqual([ItemName.WORK_TABLE]);
+    expect(result[1].furnitureItems).toEqual([ItemName.WORKTABLE_NYKTOPHOBIA]);
   });
 
   it('Should return NOT_FOUND error when no clans with stalls', async () => {
