@@ -24,7 +24,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.SOFA_TAAKKA]: {
     name: ItemName.SOFA_TAAKKA,
     weight: 30,
-    furnitureSize: [7, 3, 4],
+    furnitureSize: [7, 4, 3],
     price: 150,
     rarity: Rarity.rare,
     recycling: Recycling.WOOD,
@@ -34,7 +34,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.ARMCHAIR_TAAKKA]: {
     name: ItemName.ARMCHAIR_TAAKKA,
     weight: 16,
-    furnitureSize: [3, 3, 4],
+    furnitureSize: [3, 4, 3],
     price: 120,
     rarity: Rarity.rare,
     recycling: Recycling.WOOD,
@@ -44,7 +44,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.MIRROR_TAAKKA]: {
     name: ItemName.MIRROR_TAAKKA,
     weight: 8,
-    furnitureSize: [2, 2, 4],
+    furnitureSize: [2, 4, 2],
     price: 100,
     rarity: Rarity.common,
     recycling: Recycling.WOOD,
@@ -54,7 +54,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.FLOORLAMP_TAAKKA]: {
     name: ItemName.FLOORLAMP_TAAKKA,
     weight: 3,
-    furnitureSize: [2, 2, 5],
+    furnitureSize: [2, 5, 2],
     price: 240,
     rarity: Rarity.epic,
     recycling: Recycling.ELECTRICAL_EQUIPMENT,
@@ -64,7 +64,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.COFFEETABLE_Taakka]: {
     name: ItemName.COFFEETABLE_Taakka,
     weight: 26,
-    furnitureSize: [3, 2, 1],
+    furnitureSize: [3, 1, 2],
     price: 80,
     rarity: Rarity.common,
     recycling: Recycling.WOOD,
@@ -84,7 +84,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CLOSET_TAAKKA]: {
     name: ItemName.CLOSET_TAAKKA,
     weight: 48,
-    furnitureSize: [4, 2, 7],
+    furnitureSize: [4, 7, 2],
     price: 120,
     rarity: Rarity.rare,
     recycling: Recycling.WOOD,
@@ -94,7 +94,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.SINK_SCHRODINGER]: {
     name: ItemName.SINK_SCHRODINGER,
     weight: 13,
-    furnitureSize: [3, 1, 3],
+    furnitureSize: [3, 3, 1],
     price: 150,
     rarity: Rarity.rare,
     recycling: Recycling.LANDFILL,
@@ -104,7 +104,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.TOILET_SCHRODINGER]: {
     name: ItemName.TOILET_SCHRODINGER,
     weight: 31,
-    furnitureSize: [3, 1, 3],
+    furnitureSize: [3, 3, 1],
     price: 150,
     rarity: Rarity.rare,
     recycling: Recycling.LANDFILL,
@@ -114,7 +114,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.MIRROR_SCHRODINGER]: {
     name: ItemName.MIRROR_SCHRODINGER,
     weight: 7,
-    furnitureSize: [2, 0, 4],
+    furnitureSize: [2, 4, 0],
     price: 150,
     rarity: Rarity.rare,
     recycling: Recycling.GLASS,
@@ -124,7 +124,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CARPET_SCHRODINGER]: {
     name: ItemName.CARPET_SCHRODINGER,
     weight: 6,
-    furnitureSize: [8, 4, 0],
+    furnitureSize: [8, 0, 4],
     price: 150,
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
@@ -144,7 +144,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.SOFA_RAKKAUS]: {
     name: ItemName.SOFA_RAKKAUS,
     weight: 27,
-    furnitureSize: [7, 3, 2],
+    furnitureSize: [7, 2, 3],
     price: 130,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -154,7 +154,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.ARMCHAIR_RAKKAUS]: {
     name: ItemName.ARMCHAIR_RAKKAUS,
     weight: 13,
-    furnitureSize: [3, 2, 3],
+    furnitureSize: [3, 3, 2],
     price: 100,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -164,7 +164,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CLOSET_RAKKAUS]: {
     name: ItemName.CLOSET_RAKKAUS,
     weight: 45,
-    furnitureSize: [2, 1, 4],
+    furnitureSize: [2, 4, 1],
     price: 130,
     rarity: Rarity.common,
     recycling: Recycling.WOOD,
@@ -174,7 +174,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CARPET_RAKKAUS]: {
     name: ItemName.CARPET_RAKKAUS,
     weight: 6,
-    furnitureSize: [4, 2, 0],
+    furnitureSize: [4, 0, 2],
     price: 100,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -204,7 +204,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.BED_RAKKAUS]: {
     name: ItemName.BED_RAKKAUS,
     weight: 20,
-    furnitureSize: [6, 6, 3],
+    furnitureSize: [6, 3, 6],
     price: 200,
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
@@ -214,7 +214,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.MIRROR_RAKKAUS]: {
     name: ItemName.MIRROR_RAKKAUS,
     weight: 10,
-    furnitureSize: [3, 0, 5],
+    furnitureSize: [3, 5, 0],
     price: 170,
     rarity: Rarity.common,
     recycling: Recycling.GLASS,
@@ -224,7 +224,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CEILINGLAMP_RAKKAUS]: {
     name: ItemName.CEILINGLAMP_RAKKAUS,
     weight: 2,
-    furnitureSize: [2, 2, 4],
+    furnitureSize: [2, 4, 2],
     price: 200,
     rarity: Rarity.epic,
     recycling: Recycling.GLASS,
@@ -234,7 +234,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CHAIR_NEURO]: {
     name: ItemName.CHAIR_NEURO,
     weight: 10,
-    furnitureSize: [3, 3, 4],
+    furnitureSize: [3, 4, 3],
     price: 170,
     rarity: Rarity.epic,
     recycling: Recycling.ELECTRICAL_EQUIPMENT,
@@ -244,7 +244,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.DRESSER_NEURO]: {
     name: ItemName.DRESSER_NEURO,
     weight: 24,
-    furnitureSize: [4, 2, 3],
+    furnitureSize: [4, 3, 2],
     price: 100,
     rarity: Rarity.rare,
     recycling: Recycling.ELECTRICAL_EQUIPMENT,
@@ -264,7 +264,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CLOCK_NEURO]: {
     name: ItemName.CLOCK_NEURO,
     weight: 1,
-    furnitureSize: [2, 0, 4],
+    furnitureSize: [2, 4, 0],
     price: 40,
     rarity: Rarity.common,
     recycling: Recycling.ELECTRICAL_EQUIPMENT,
@@ -274,7 +274,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CHAIR_POLARITY]: {
     name: ItemName.CHAIR_POLARITY,
     weight: 5,
-    furnitureSize: [2, 3, 4],
+    furnitureSize: [2, 4, 3],
     price: 60,
     rarity: Rarity.common,
     recycling: Recycling.METAL,
@@ -284,7 +284,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.BOOKSHELF_POLARITY]: {
     name: ItemName.BOOKSHELF_POLARITY,
     weight: 40,
-    furnitureSize: [3, 1, 6],
+    furnitureSize: [3, 6, 1],
     price: 120,
     rarity: Rarity.rare,
     recycling: Recycling.METAL,
@@ -294,7 +294,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.TABLE_POLARITY]: {
     name: ItemName.TABLE_POLARITY,
     weight: 10,
-    furnitureSize: [4, 4, 2],
+    furnitureSize: [4, 2, 4],
     price: 80,
     rarity: Rarity.common,
     recycling: Recycling.METAL,
@@ -304,7 +304,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.COMMODE_MUISTOJA]: {
     name: ItemName.COMMODE_MUISTOJA,
     weight: 17,
-    furnitureSize: [3, 2, 3],
+    furnitureSize: [3, 3, 2],
     price: 100,
     rarity: Rarity.rare,
     recycling: Recycling.WOOD,
@@ -314,7 +314,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.PICTURES_MUISTOJA]: {
     name: ItemName.PICTURES_MUISTOJA,
     weight: 2,
-    furnitureSize: [4, 0, 3],
+    furnitureSize: [4, 3, 0],
     price: 60,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -324,7 +324,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.SOFA_MUISTOJA]: {
     name: ItemName.SOFA_MUISTOJA,
     weight: 20,
-    furnitureSize: [6, 2, 3],
+    furnitureSize: [6, 3, 2],
     price: 100,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -334,7 +334,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.ARMCHAIR_MUISTOJA]: {
     name: ItemName.ARMCHAIR_MUISTOJA,
     weight: 5,
-    furnitureSize: [3, 2, 4],
+    furnitureSize: [3, 4, 2],
     price: 60,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -344,7 +344,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.COFFEETABLE_MUISTOJA]: {
     name: ItemName.COFFEETABLE_MUISTOJA,
     weight: 20,
-    furnitureSize: [4, 2, 3],
+    furnitureSize: [4, 3, 2],
     price: 60,
     rarity: Rarity.common,
     recycling: Recycling.WOOD,
@@ -354,7 +354,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.DRAWINGS_MUISTOJA]: {
     name: ItemName.DRAWINGS_MUISTOJA,
     weight: 1,
-    furnitureSize: [3, 0, 2],
+    furnitureSize: [3, 2, 0],
     price: 60,
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
@@ -364,7 +364,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.FICUS_MUISTOJA]: {
     name: ItemName.FICUS_MUISTOJA,
     weight: 3,
-    furnitureSize: [4, 2, 7],
+    furnitureSize: [4, 7, 2],
     price: 120,
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
@@ -374,7 +374,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.FLOWERS_MUISTOJA]: {
     name: ItemName.FLOWERS_MUISTOJA,
     weight: 1,
-    furnitureSize: [2, 2, 3],
+    furnitureSize: [2, 3, 2],
     price: 50,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -384,7 +384,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CARPET_MUISTOJA]: {
     name: ItemName.CARPET_MUISTOJA,
     weight: 7,
-    furnitureSize: [8, 5, 0],
+    furnitureSize: [8, 0, 5],
     price: 150,
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
@@ -394,7 +394,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.WINDOW_MUISTOJA]: {
     name: ItemName.WINDOW_MUISTOJA,
     weight: 1,
-    furnitureSize: [3, 0, 4],
+    furnitureSize: [3, 4, 0],
     price: 50,
     rarity: Rarity.common,
     recycling: Recycling.GLASS,
@@ -404,7 +404,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.PAINTING_MUISTOJA]: {
     name: ItemName.PAINTING_MUISTOJA,
     weight: 2,
-    furnitureSize: [3, 0, 4],
+    furnitureSize: [3, 4, 0],
     price: 40,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -424,7 +424,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.SOFA_UNI]: {
     name: ItemName.SOFA_UNI,
     weight: 15,
-    furnitureSize: [6, 3, 5],
+    furnitureSize: [6, 5, 3],
     price: 130,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -434,7 +434,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.BED_UNI]: {
     name: ItemName.BED_UNI,
     weight: 30,
-    furnitureSize: [6, 7, 5],
+    furnitureSize: [6, 5, 7],
     price: 200,
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
@@ -449,7 +449,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CLOSET_UNI]: {
     name: ItemName.CLOSET_UNI,
     weight: 40,
-    furnitureSize: [5, 3, 7],
+    furnitureSize: [5, 7, 3],
     price: 240,
     rarity: Rarity.epic,
     recycling: Recycling.MIXED_WASTE,
@@ -464,7 +464,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.HOLOGRAM_KYLMATULEVAISUUS]: {
     name: ItemName.HOLOGRAM_KYLMATULEVAISUUS,
     weight: 0,
-    furnitureSize: [4, 1, 2],
+    furnitureSize: [4, 2, 1],
     price: 200,
     rarity: Rarity.epic,
     recycling: undefined,
@@ -474,7 +474,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.SOFA_KYLMATULEVAISUUS]: {
     name: ItemName.SOFA_KYLMATULEVAISUUS,
     weight: 35,
-    furnitureSize: [6, 2, 3],
+    furnitureSize: [6, 3, 2],
     price: 150,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -494,7 +494,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CLOSET_KIPU]: {
     name: ItemName.CLOSET_KIPU,
     weight: 50,
-    furnitureSize: [4, 3, 6],
+    furnitureSize: [4, 6, 3],
     price: 150,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -514,7 +514,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CHAIR_KIPU]: {
     name: ItemName.CHAIR_KIPU,
     weight: 15,
-    furnitureSize: [2, 3, 4],
+    furnitureSize: [2, 4, 3],
     price: 65,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -534,7 +534,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.PLANT_KIPU]: {
     name: ItemName.PLANT_KIPU,
     weight: 1.5,
-    furnitureSize: [1, 1, 2],
+    furnitureSize: [1, 2, 1],
     price: 25,
     rarity: Rarity.common,
     recycling: undefined, // "biojäte" in the sheet
@@ -554,7 +554,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.WINDOW_KIUSAAMINEN]: {
     name: ItemName.WINDOW_KIUSAAMINEN,
     weight: 50,
-    furnitureSize: [3, 0, 4],
+    furnitureSize: [3, 4, 0],
     price: 288,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -591,7 +591,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.BED_STRESS]: {
     name: ItemName.BED_STRESS,
     weight: 80,
-    furnitureSize: [4, 2, 5],
+    furnitureSize: [4, 5, 2],
     price: 120,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -608,7 +608,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.FLOORLAMP_STRESS]: {
     name: ItemName.FLOORLAMP_STRESS,
     weight: 10,
-    furnitureSize: [3, 3, 5],
+    furnitureSize: [3, 5, 3],
     price: 100,
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
@@ -623,7 +623,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.FLOORSHELF_STRESS]: {
     name: ItemName.FLOORSHELF_STRESS,
     weight: 35,
-    furnitureSize: [2, 3, 2],
+    furnitureSize: [2, 2, 3],
     price: 90,
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
@@ -643,7 +643,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.TABLE_STRESS]: {
     name: ItemName.TABLE_STRESS,
     weight: 50,
-    furnitureSize: [4, 2, 3],
+    furnitureSize: [4, 3, 2],
     price: 80,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -658,7 +658,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.COFFEETABLE_OCD]: {
     name: ItemName.COFFEETABLE_OCD,
     weight: 30,
-    furnitureSize: [4, 3, 4],
+    furnitureSize: [4, 4, 3],
     price: 80,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -668,7 +668,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.OVEN_OCD]: {
     name: ItemName.OVEN_OCD,
     weight: 60,
-    furnitureSize: undefined,
+    furnitureSize: [3, 2, 2],
     price: 80,
     rarity: Rarity.common,
     recycling: Recycling.ELECTRICAL_EQUIPMENT,
@@ -678,7 +678,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.SINK_OCD]: {
     name: ItemName.SINK_OCD,
     weight: 30,
-    furnitureSize: [2, 2, 3],
+    furnitureSize: [2, 3, 2],
     price: 100,
     rarity: Rarity.common,
     recycling: undefined,
@@ -688,7 +688,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.SOFA_OCD]: {
     name: ItemName.SOFA_OCD,
     weight: 120,
-    furnitureSize: [8, 3, 4],
+    furnitureSize: [8, 4, 3],
     price: 150,
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
@@ -698,7 +698,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.DESK_OCD]: {
     name: ItemName.DESK_OCD,
     weight: 80,
-    furnitureSize: [4, 2, 5],
+    furnitureSize: [4, 5, 2],
     price: 120,
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
@@ -708,7 +708,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.FLOORLAMP_OCD]: {
     name: ItemName.FLOORLAMP_OCD,
     weight: 10,
-    furnitureSize: [4, undefined, 5], // "Syvyys ruuduissa" undefined in the sheet
+    furnitureSize: [4, 1, 5], // "Syvyys ruuduissa" undefined in the sheet
     price: 50,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -718,7 +718,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.TOILET_OCD]: {
     name: ItemName.TOILET_OCD,
     weight: 30,
-    furnitureSize: [3, 2, 3],
+    furnitureSize: [3, 3, 2],
     price: 100,
     rarity: Rarity.common,
     recycling: undefined,
@@ -728,7 +728,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.FLOWER_GUILTYPLEASURE]: {
     name: ItemName.FLOWER_GUILTYPLEASURE,
     weight: 3,
-    furnitureSize: [2, 2, 3],
+    furnitureSize: [2, 3, 2],
     price: 100,
     rarity: Rarity.common,
     recycling: Recycling.METAL,
@@ -738,7 +738,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CARPET_GUILTYPLEASURE]: {
     name: ItemName.CARPET_GUILTYPLEASURE,
     weight: 11,
-    furnitureSize: [4, 2, 0],
+    furnitureSize: [4, 0, 2],
     price: 500,
     rarity: Rarity.rare,
     recycling: Recycling.MIXED_WASTE,
@@ -748,7 +748,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.LAMP_GUILTYPLEASURE]: {
     name: ItemName.LAMP_GUILTYPLEASURE,
     weight: 3,
-    furnitureSize: [2, 1, 3],
+    furnitureSize: [2, 3, 1],
     price: 150,
     rarity: Rarity.rare,
     recycling: Recycling.ELECTRICAL_EQUIPMENT,
@@ -758,7 +758,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.BED_DELIRIUM]: {
     name: ItemName.BED_DELIRIUM,
     weight: 40,
-    furnitureSize: [5, 7, 5],
+    furnitureSize: [5, 5, 7],
     price: 170,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -768,7 +768,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CARPET_DELIRIUM]: {
     name: ItemName.CARPET_DELIRIUM,
     weight: 6,
-    furnitureSize: [9, 7, 3],
+    furnitureSize: [9, 3, 7],
     price: 90,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -778,7 +778,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.ROCKINGCHAIR]: {
     name: ItemName.ROCKINGCHAIR,
     weight: 15,
-    furnitureSize: [3, 4, 3],
+    furnitureSize: [3, 3, 4],
     price: 75,
     rarity: Rarity.common,
     recycling: Recycling.WOOD,
@@ -798,7 +798,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.WINDOW_DELIRIUM]: {
     name: ItemName.WINDOW_DELIRIUM,
     weight: 10,
-    furnitureSize: [4, 4, 3],
+    furnitureSize: [4, 3, 4],
     price: 40,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -808,7 +808,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.SOFA_DELIRIUM]: {
     name: ItemName.SOFA_DELIRIUM,
     weight: 120,
-    furnitureSize: [7, 4, 5],
+    furnitureSize: [7, 5, 4],
     price: 120,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -818,7 +818,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.WARDROBE_DELIRIUM]: {
     name: ItemName.WARDROBE_DELIRIUM,
     weight: 50,
-    furnitureSize: [4, 3, 7],
+    furnitureSize: [4, 7, 3],
     price: 80,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -828,7 +828,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.ROCKINGCHAIR_FEAROFDEATH]: {
     name: ItemName.ROCKINGCHAIR_FEAROFDEATH,
     weight: 15,
-    furnitureSize: [3, 3, 4],
+    furnitureSize: [3, 4, 3],
     price: 80,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -838,7 +838,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.BED_FEAROFDEATH]: {
     name: ItemName.BED_FEAROFDEATH,
     weight: 60,
-    furnitureSize: [5, 7, 4],
+    furnitureSize: [5, 4, 7],
     price: 100,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -848,7 +848,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CANDELABRA_FEAROFDEATH]: {
     name: ItemName.CANDELABRA_FEAROFDEATH,
     weight: 10,
-    furnitureSize: [2, 2, 4],
+    furnitureSize: [2, 4, 2],
     price: 40,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -858,7 +858,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.WALLCLOCK_FEAROFDEATH]: {
     name: ItemName.WALLCLOCK_FEAROFDEATH,
     weight: 2,
-    furnitureSize: [1, 2, 1],
+    furnitureSize: [1, 1, 2],
     price: 40,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -884,7 +884,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.DRAWER_FEAROFDEATH]: {
     name: ItemName.DRAWER_FEAROFDEATH,
     weight: 60,
-    furnitureSize: [3, 3, 4],
+    furnitureSize: [3, 4, 3],
     price: 70,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -894,7 +894,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.WARDROBE_FEAROFDEATH]: {
     name: ItemName.WARDROBE_FEAROFDEATH,
     weight: 90,
-    furnitureSize: [5, 3, 7],
+    furnitureSize: [5, 7, 3],
     price: 50,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -904,7 +904,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.BED_NOSTALGIA]: {
     name: ItemName.BED_NOSTALGIA,
     weight: 70,
-    furnitureSize: [4, 6, 7],
+    furnitureSize: [4, 7, 6],
     price: 100,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -920,7 +920,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.SHELVING_NOSTALGIA]: {
     name: ItemName.SHELVING_NOSTALGIA,
     weight: 30,
-    furnitureSize: [5, 4, 6],
+    furnitureSize: [5, 6, 4],
     price: 70,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -930,7 +930,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.TOYCARS_NOSTALGIA]: {
     name: ItemName.TOYCARS_NOSTALGIA,
     weight: 1,
-    furnitureSize: [3, 3, 2],
+    furnitureSize: [3, 2, 3],
     price: 20,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -960,7 +960,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.DRAWINGS_NOSTALGIA]: {
     name: ItemName.DRAWINGS_NOSTALGIA,
     weight: 0.1,
-    furnitureSize: [3, 2, 3],
+    furnitureSize: [3, 3, 2],
     price: 10,
     rarity: Rarity.common,
     recycling: undefined, // undefined in the sheet
@@ -970,7 +970,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.STICKERS_NOSTALGIA]: {
     name: ItemName.STICKERS_NOSTALGIA,
     weight: 0.1,
-    furnitureSize: [3, 2, 3],
+    furnitureSize: [3, 3, 2],
     price: 20,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -980,7 +980,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.TABLE_NOSTALGIA]: {
     name: ItemName.TABLE_NOSTALGIA,
     weight: 60,
-    furnitureSize: [4, 4, 3],
+    furnitureSize: [4, 3, 4],
     price: 70,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -990,7 +990,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.WINDOW_NOSTALGIA]: {
     name: ItemName.WINDOW_NOSTALGIA,
     weight: 10,
-    furnitureSize: [5, 3, 5],
+    furnitureSize: [5, 5, 3],
     price: 30,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -1000,7 +1000,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.BED_NYKTOPHOBIA]: {
     name: ItemName.BED_NYKTOPHOBIA,
     weight: 50,
-    furnitureSize: [5, 7, 4],
+    furnitureSize: [5, 4, 7],
     price: 70,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -1010,7 +1010,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.CLOTHESRACK_NYKTOPHOBIA]: {
     name: ItemName.CLOTHESRACK_NYKTOPHOBIA,
     weight: 7,
-    furnitureSize: [5, 3, 6],
+    furnitureSize: [5, 6, 3],
     price: 20,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -1042,7 +1042,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.DOOR_NYKTOPHOBIA]: {
     name: ItemName.DOOR_NYKTOPHOBIA,
     weight: 3,
-    furnitureSize: [3, 2, 4],
+    furnitureSize: [3, 4, 2],
     price: 5,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
@@ -1052,7 +1052,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.LAMP_NYKTOPHOBIA]: {
     name: ItemName.LAMP_NYKTOPHOBIA,
     weight: 6,
-    furnitureSize: undefined,
+    furnitureSize: [2, 2, 5],
     price: 30,
     rarity: Rarity.common,
     recycling: Recycling.METAL,
@@ -1062,7 +1062,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
   [ItemName.WINDOW_NYKTOPHOBIA]: {
     name: ItemName.WINDOW_NYKTOPHOBIA,
     weight: 5,
-    furnitureSize: [3, 2, 6],
+    furnitureSize: [3, 6, 2],
     price: 5,
     rarity: Rarity.common,
     recycling: Recycling.MIXED_WASTE,
