@@ -68,7 +68,7 @@ describe('ClanHelperService.createDefaultSoulHome() test suite', () => {
       expect.arrayContaining([
         expect.objectContaining({
           room_id: itemsRoom_id,
-          unityKey: ItemName.SOFA_RAKKAUS,
+          unityKey: ItemName.COFFEETABLE_RAKKAUS,
         }),
         expect.objectContaining({
           room_id: itemsRoom_id,
@@ -76,7 +76,7 @@ describe('ClanHelperService.createDefaultSoulHome() test suite', () => {
         }),
         expect.objectContaining({
           room_id: itemsRoom_id,
-          unityKey: ItemName.LAMP_RAKKAUS,
+          unityKey: ItemName.CEILINGLAMP_RAKKAUS,
         }),
         expect.objectContaining({
           room_id: itemsRoom_id,
@@ -84,7 +84,7 @@ describe('ClanHelperService.createDefaultSoulHome() test suite', () => {
         }),
         expect.objectContaining({
           room_id: itemsRoom_id,
-          unityKey: ItemName.SOFATABLE_RAKKAUS,
+          unityKey: ItemName.SOFA_RAKKAUS,
         }),
         expect.objectContaining({
           room_id: itemsRoom_id,

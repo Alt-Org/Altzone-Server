@@ -17,6 +17,7 @@ import PlayerModule from '../../player/modules/player.module';
 
 describe('ItemMoverService.moveItem() test suite', () => {
   let itemMoverService: ItemMoverService;
+  let clanNameCounter = 0;
 
   const itemModel = ItemModule.getItemModel();
   const itemBuilder = ClanInventoryBuilderFactory.getBuilder('Item');
@@ -41,7 +42,6 @@ describe('ItemMoverService.moveItem() test suite', () => {
 
   const clanModel = ClanModule.getClanModel();
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
-  const existingClan = clanBuilder.build();
 
   const player = LoggedUser.getPlayer();
   const playerModel = PlayerModule.getPlayerModel();
@@ -49,6 +49,9 @@ describe('ItemMoverService.moveItem() test suite', () => {
   beforeEach(async () => {
     itemMoverService = await ItemMoverModule.getItemMoverService();
 
+    const existingClan = clanBuilder
+      .setName(`im-${Date.now().toString(36).slice(-8)}-${clanNameCounter++}`)
+      .build();
     const createdClan = await clanModel.create(existingClan);
     existingClan._id = createdClan._id;
 

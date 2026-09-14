@@ -14,6 +14,8 @@ import { Stall } from '../../../../clan/stall/stall.schema';
 import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class ClanBuilder implements IDataBuilder<Clan> {
+  private static uniqueNameCounter = 0;
+
   private readonly base: Clan = {
     _id: undefined,
     name: 'clan',
@@ -49,7 +51,13 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
 
   // Returns a new Clan object with the current base properties
   build() {
-    return { ...this.base };
+    const clan = { ...this.base };
+
+    if (clan.name === 'clan') {
+      clan.name = `cl-${Date.now().toString(36).slice(-6)}-${ClanBuilder.uniqueNameCounter++}`;
+    }
+
+    return clan;
   }
 
   setId(id: string) {
