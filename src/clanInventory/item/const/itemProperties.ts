@@ -527,7 +527,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     furnitureSize: [3, 2, 2],
     price: 50,
     rarity: Rarity.common,
-    recycling: undefined,   // undefined in the sheet
+    recycling: undefined, // undefined in the sheet
     isFurniture: true,
     material: [Material.PUU, Material.NAHKA],
   },
@@ -963,7 +963,7 @@ export const itemProperties: Record<ItemName, ItemProperty> = {
     furnitureSize: [3, 2, 3],
     price: 10,
     rarity: Rarity.common,
-    recycling: undefined,   // undefined in the sheet
+    recycling: undefined, // undefined in the sheet
     isFurniture: false,
     material: [Material.PAPERI],
   },
