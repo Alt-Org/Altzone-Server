@@ -6,6 +6,7 @@ import { ObjectId } from 'mongodb';
 import GameEventBuilder from '../../gameEventsEmitter/data/gameEventsEmitter/GameEventBuilder';
 import { GameEventPayload } from '../../../gameEventsEmitter/gameEvent';
 import { uiDailyTasks } from '../../../dailyTasks/uiDailyTasks/uiDailyTasks';
+import { SERVER_TASKS_PER_CLAN } from '../../../dailyTasks/taskGenerator.service';
 
 describe('ClanEventHandler.handleClanCreation() test suite', () => {
   let clanEventHandler: ClanEventHandler;
@@ -38,7 +39,7 @@ describe('ClanEventHandler.handleClanCreation() test suite', () => {
     expect(uiTasks).toHaveLength(Object.keys(uiDailyTasks).length);
   });
 
-  it('Should create 11 server daily tasks for the clan', async () => {
+  it('Should create configured server daily tasks for the clan', async () => {
     const eventPayload = eventPayloadBuilder
       .setEventName('clan.create')
       .setInfo({ clan_id: new ObjectId() })
@@ -53,7 +54,7 @@ describe('ClanEventHandler.handleClanCreation() test suite', () => {
       (task) => uiDailyTasks[task.type] == null,
     );
 
-    expect(serverTasks).toHaveLength(11);
+    expect(serverTasks).toHaveLength(SERVER_TASKS_PER_CLAN);
   });
 
   it('Should throw if clan_id is not provided', async () => {

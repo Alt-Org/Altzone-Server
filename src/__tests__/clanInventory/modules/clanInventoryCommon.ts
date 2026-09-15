@@ -28,6 +28,7 @@ import GameEventEmitter from '../../../gameEventsEmitter/gameEventEmitter';
 import { RoomScheduler } from '../../../clanInventory/room/room.scheduler';
 import RoomRemovalNotifier from '../../../clanInventory/room/roomRemoval.notifier';
 import RoomNotifier from '../../../clanInventory/room/room.notifier';
+import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
 
 export default class ClanInventoryCommonModule {
   private constructor() {}
@@ -74,6 +75,12 @@ export default class ClanInventoryCommonModule {
             useValue: {
               emit: jest.fn(),
               emitAsync: jest.fn(),
+            },
+          },
+          {
+            provide: EventEmitterService,
+            useValue: {
+              EmitNewDailyTaskEvent: jest.fn(async () => undefined),
             },
           },
         ],

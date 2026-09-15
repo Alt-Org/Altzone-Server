@@ -20,7 +20,7 @@ export enum ItemName {
   MIRROR_SCHRODINGER = 'Mirror_Schrodinger',
   CARPET_SCHRODINGER = 'Carpet_Schrodinger',
   BATHTUB_SCHRODINGER = 'Bathtub_Schrodinger',
-  
+
   // Category: Rakkaus
   SOFA_RAKKAUS = 'Sofa_Rakkaus',
   ARMCHAIR_RAKKAUS = 'Armchair_Rakkaus',
@@ -37,12 +37,12 @@ export enum ItemName {
   DRESSER_NEURO = 'Dresser_Neuro',
   STOOL_NEURO = 'Stool_Neuro',
   CLOCK_NEURO = 'Clock_Neuro',
-  
+
   // Category: Polarity
   CHAIR_POLARITY = 'Chair_Polarity',
   BOOKSHELF_POLARITY = 'Bookshelf_Polarity',
   TABLE_POLARITY = 'Table_Polarity',
-  
+
   // Category: Muistoja
   COMMODE_MUISTOJA = 'Commode_Muistoja',
   PICTURES_MUISTOJA = 'Pictures_Muistoja',
@@ -61,12 +61,12 @@ export enum ItemName {
   SOFA_UNI = 'Sofa_Uni',
   BED_UNI = 'Bed_Uni',
   CLOSET_UNI = 'Closet_Uni',
-  
+
   // Category: Kylmä tulevaisuus
   HOLOGRAM_KYLMATULEVAISUUS = 'Hologram_KylmaTulevaisuus',
   SOFA_KYLMATULEVAISUUS = 'Sofa_KylmaTulevaisuus',
   TABLE_KYLMATULEVAISUUS = 'Table_KylmaTulevaisuus',
-  
+
   // Category: Kipu
   CLOSET_KIPU = 'Closet_Kipu',
   SOFA_KIPU = 'Sofa_Kipu',
@@ -77,7 +77,7 @@ export enum ItemName {
   // Category: Kiusaaminen
   SOFA_KIUSAAMINEN = 'Sofa_Kiusaaminen',
   WINDOW_KIUSAAMINEN = 'Window_Kiusaaminen',
-  
+
   // Category: Stress
   SOFA_STRESS = 'Sofa_Stress',
   CHAIR_STRESS = 'Chair_Stress',
@@ -86,7 +86,7 @@ export enum ItemName {
   FLOORSHELF_STRESS = 'Floorshelf_Stress',
   GARBAGEBIN_STRESS = 'Garbagebin_Stress',
   TABLE_STRESS = 'Table_Stress',
-  
+
   // Category: Ocd
   COFFEETABLE_OCD = 'Coffeetable_Ocd',
   OVEN_OCD = 'Oven_Ocd',
@@ -109,7 +109,7 @@ export enum ItemName {
   WINDOW_DELIRIUM = 'Window_Delirium',
   SOFA_DELIRIUM = 'Sofa_Delirium',
   WARDROBE_DELIRIUM = 'Wardrobe_Delirium',
-  
+
   // Category: Fear Of Death
   ROCKINGCHAIR_FEAROFDEATH = 'Rockingchair_FearOfDeath',
   BED_FEAROFDEATH = 'Bed_FearOfDeath',
@@ -118,7 +118,7 @@ export enum ItemName {
   MAKEUPTABLE_FEAROFDEATH = 'Makeup-table_FearOfDeath',
   DRAWER_FEAROFDEATH = 'Drawer_FearOfDeath',
   WARDROBE_FEAROFDEATH = 'Wardrope_FearOfDeath',
-  
+
   // Category: Nostalgia
   BED_NOSTALGIA = 'Bed_Nostalgia',
   SHELVING_NOSTALGIA = 'Shelving_Nostalgia',
@@ -129,7 +129,7 @@ export enum ItemName {
   STICKERS_NOSTALGIA = 'Stickers_Nostalgia',
   TABLE_NOSTALGIA = 'Table_Nostalgia',
   WINDOW_NOSTALGIA = 'Window_Nostalgia',
-  
+
   // Category: Nyktophobia
   BED_NYKTOPHOBIA = 'Bed_Nyktophobia',
   CLOTHESRACK_NYKTOPHOBIA = 'Clothesrack_Nyktophobia',
