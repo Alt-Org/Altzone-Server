@@ -4,7 +4,7 @@ import { TASK_CONSTS } from './consts/taskConstants';
 import { ServerTaskName } from './enum/serverTaskName.enum';
 import { TaskTitle } from './type/taskTitle.type';
 
-export const SERVER_TASKS_PER_CLAN = 11;
+export const SERVER_TASKS_PER_CLAN = 12;
 export const MIN_OCCURRENCES_PER_TASK_TYPE = 2;
 
 type ServerTaskDefinition = {
@@ -56,6 +56,13 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     type: ServerTaskName.YOUR_VOICE,
     createAmount: () => 1,
     createTitle: () => ({ fi: 'Äänestä klaanin äänestyksessä.' }),
+  },
+  {
+    type: ServerTaskName.BUILD_YOUR_WORLD,
+    createAmount: () => 1,
+    createTitle: () => ({
+      fi: 'Sisusta yksi klaanin Turvapaikan huone vähintään kolmella saman malliston huonekalulla.',
+    }),
   },
 ];
 
