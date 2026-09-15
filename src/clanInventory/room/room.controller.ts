@@ -129,8 +129,14 @@ export class RoomController {
     }),
   )
   @UniformResponse()
-  public async update(@Body() body: UpdateRoomDto | UpdateRoomDto[]) {
-    const [, errors] = await this.service.updateSoulHomeRooms(body);
+  public async update(
+    @Body() body: UpdateRoomDto | UpdateRoomDto[],
+    @LoggedUser() user: User,
+  ) {
+    const [, errors] = await this.service.updateSoulHomeRooms(
+      body,
+      user.player_id,
+    );
     if (errors) return [null, errors];
   }
 
