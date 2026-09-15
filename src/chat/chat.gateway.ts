@@ -5,6 +5,7 @@ import {
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
+  WsException,
 } from '@nestjs/websockets';
 import { Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -55,6 +56,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.close?.();
       return;
     }
+
     const clanId = player.clan_id?.toString();
     client.user = {
       playerId,
@@ -65,6 +67,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.clanChatService.handleJoinChat(client);
     this.globalChatService.handleJoinChat(client);
+
+    client.send?.(JSON.stringify({ event: 'ready', data: true }));
   }
 
   /**
@@ -77,12 +81,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.globalChatService.handleDisconnect(client);
   }
 
+  private assertUserInitialized(client: WebSocketUser): void {
+    if (!client.user) {
+      throw new WsException('WebSocket user is not initialized yet');
+    }
+  }
+
   @SubscribeMessage('clanMessage')
   @WsLog()
   async handleClanMessage(
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
+    this.assertUserInitialized(client);
+
     const [_, error] = await this.clanChatService.handleNewClanMessage(
       client,
       message,
@@ -102,6 +114,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
+    this.assertUserInitialized(client);
+
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
@@ -122,6 +136,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
+    this.assertUserInitialized(client);
+
     const [_, error] = await this.globalChatService.handleNewGlobalMessage(
       message,
       client,
@@ -136,6 +152,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
+    this.assertUserInitialized(client);
+
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
