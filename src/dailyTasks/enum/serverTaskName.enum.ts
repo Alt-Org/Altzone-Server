@@ -198,12 +198,12 @@ export enum ServerTaskName {
   /**
    * lisää tavara kirpputorille
    */
-  ADD_ITEM_TO_FLEA_MARKET = 'add_item_to_flea_market',
+  // ADD_ITEM_TO_FLEA_MARKET = 'add_item_to_flea_market',
 
   /**
    * ehdottaa tavara kirpputorille
    */
-  SUGGEST_ITEM_TO_FLEA_MARKET = 'suggest_item_to_flea_market',
+  // SUGGEST_ITEM_TO_FLEA_MARKET = 'suggest_item_to_flea_market',
 
   //Server, to own player + what is that?
   /**

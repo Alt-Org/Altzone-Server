@@ -4,7 +4,7 @@ import { TASK_CONSTS } from './consts/taskConstants';
 import { ServerTaskName } from './enum/serverTaskName.enum';
 import { TaskTitle } from './type/taskTitle.type';
 
-export const SERVER_TASKS_PER_CLAN = 12;
+export const SERVER_TASKS_PER_CLAN = 14;
 export const MIN_OCCURRENCES_PER_TASK_TYPE = 2;
 
 type ServerTaskDefinition = {
@@ -62,6 +62,13 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     createAmount: () => 1,
     createTitle: () => ({
       fi: 'Sisusta yksi klaanin Turvapaikan huone vähintään kolmella saman malliston huonekalulla.',
+    }),
+  },
+  {
+    type: ServerTaskName.RECYCLING_EXPERIENCES,
+    createAmount: () => 1,
+    createTitle: () => ({
+      fi: 'Avaa klaanin kirpputori. Valitse äänestyksessä myytäväksi hyväksytty tavara ja lisää se myytäväksi. Katso, miten muut reagoivat ja miltä tuntuu kun tavara alkaa liikkua pelaajien välillä.',
     }),
   },
 ];
