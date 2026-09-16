@@ -92,7 +92,7 @@ export default class BoxAuthService extends AuthService {
       tokenVersion: profile.tokenVersion ?? 0,
     };
 
-    const tokens = await this.createTestingSessionTokens(payload);
+    const tokens = await this.createTokens(payload);
 
     profile['Player'] = player;
 
