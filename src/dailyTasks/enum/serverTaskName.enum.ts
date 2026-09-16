@@ -188,7 +188,7 @@ export enum ServerTaskName {
   /**
    * osallistu klaanin äänestykseen
    */
-  PARTICIPATE_CLAN_VOTING = 'participate_clan_voting',
+  // PARTICIPATE_CLAN_VOTING = 'participate_clan_voting',
   /**
    * luo uusi äänestys klaaniin
    */
