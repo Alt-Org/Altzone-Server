@@ -214,7 +214,7 @@ export class FleaMarketService {
   /**
    * Handles the sale of an item to the flea market through a voting process.
    * This path is taken when the selling player does not have the SHOP clan right.
-   * The method moves the item to the flea market (with SHIPPING status), starts
+   * The method moves the item to the flea market, starts
    * a voting process, attaches the selling price to the voting record, and
    * schedules a voting check job.
    *
@@ -312,9 +312,9 @@ export class FleaMarketService {
    * voting process. This path is taken when the selling player has the SHOP
    * clan right. The method creates a FleaMarketItem with the agreed selling
    * price and removes the original item from stock. The FleaMarketItem is
-   * created with SHIPPING status to match the state produced by a passed
-   * sell vote and the item can later be made available via the change-item-status
-   * endpoint. All operations are executed within a transaction.
+   * created with SHIPPING status. This path bypasses clan voting, so it does
+   * not count as listing a vote-approved item. All operations are executed
+   * within a transaction.
    *
    * @param sellFleaMarketItemDto - The DTO containing the item ID and selling price.
    * @param clanId - The ID of the selling clan.
@@ -687,8 +687,9 @@ export class FleaMarketService {
    */
   private async handlePassedSellVoting(itemId: string, sellingPrice: number) {
     const [_, errors] = await this.basicService.updateOneById(itemId, {
-      status: Status.SHIPPING,
+      status: Status.AVAILABLE,
       price: sellingPrice,
+      saleApprovedByVoting: true,
     });
     if (errors) throw errors;
   }
