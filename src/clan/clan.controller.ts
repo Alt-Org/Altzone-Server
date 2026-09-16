@@ -63,8 +63,6 @@ import ClanNotifier from './clan.notifier';
 
 @Controller('clan')
 export class ClanController {
-  private readonly clanNotifier = new ClanNotifier();
-
   public constructor(
     private readonly service: ClanService,
     private readonly joinService: JoinService,
@@ -248,7 +246,7 @@ export class ClanController {
         ServerTaskName.SET_BOUNDARIES,
       );
     }
-    
+
     if (typeof body.phrase !== 'string') {
       const [, errors] = await this.service.updateOneById(body._id, body);
       if (errors) return [null, errors];
