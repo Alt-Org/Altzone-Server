@@ -74,15 +74,12 @@ export class AuthService {
     const payload = {
       profile_id: profile._id,
       player_id: player?._id,
+      tokenVersion: profile.tokenVersion ?? 0,
     };
 
     // has the player set the security question?
     const hasSecurityQuestion = !!profile.securityQuestion;
-    // generate the access token and get its expiration time
-    const accessToken = await this.jwtService.signAsync(payload);
-    const decodedAccessToken: any = this.jwtService.decode(accessToken);
-    // Extract the expiration time in Unix timestamp format
-    const tokenExpires = decodedAccessToken?.exp;
+    const tokens = await this.createTokens(payload);
 
     profile['Player'] = player;
     let clan = null;
@@ -105,8 +102,7 @@ export class AuthService {
     return {
       ...serializedProfile,
       hasSecurityQuestion,
-      accessToken,
-      tokenExpires,
+      ...tokens,
     };
   };
 
@@ -180,6 +176,82 @@ export class AuthService {
   }
 
   /**
+   * Get new access and refresh tokens using client refresh token
+   * 
+   * Validates token data. Increments tokenVersion in Profile to invalidate old token
+   * 
+   * @param refreshToken - refresh token from client
+   * @returns access and refresh tokens + token expiration dates if successul, else errors
+   */
+  public async refresh(refreshToken: string) {
+    const decoded = await this.verifyToken(refreshToken);
+
+    if (decoded.type !== 'refresh')
+      throw new UnauthorizedException({
+        statusCode: 401,
+        errors: [
+          new APIError({
+            reason: APIErrorReason.INVALID_AUTH_TOKEN,
+            message: 'Invalid token',
+          }),
+        ],
+      });
+
+    const profileResp = await this.profileModel.findById({ _id: decoded.profile_id });
+    if (!profileResp || profileResp instanceof MongooseError) return null;
+
+    const currentTokenVersion = profileResp.tokenVersion ?? 0;
+    
+    if (decoded.tokenVersion !== currentTokenVersion)
+      throw new UnauthorizedException({
+        statusCode: 401,
+        errors: [
+          new APIError({
+            reason: APIErrorReason.INVALID_AUTH_TOKEN,
+            message: 'Invalid token',
+          }),
+        ],
+      });
+
+    const playerResp = await this.playerModel.findOne({ profile_id: profileResp._id });
+    if (!playerResp || playerResp instanceof MongooseError) return null;
+
+    const newTokenVersion = currentTokenVersion + 1;
+
+    const profileUpdate = await this.profileModel.updateOne(
+      { _id: profileResp._id },
+      { $inc: { tokenVersion: 1 } }
+    );
+    if (profileUpdate.modifiedCount !== 1)
+      throw new UnauthorizedException({
+        statusCode: 401,
+        errors: [
+          new APIError({
+            reason: APIErrorReason.NOT_FOUND,
+            message: 'Token version increment failed',
+          }),
+        ],
+      });
+
+    const payload = {
+      profile_id: profileResp._id,
+      player_id: playerResp._id,
+      tokenVersion: newTokenVersion,
+    };
+
+    if (decoded.box_id)
+      payload['box_id'] = decoded.box_id;
+
+    if (decoded.clan_id)
+      payload['clan_id'] = playerResp.clan_id;
+
+    if (decoded.box_admin)
+      payload['box_admin'] = decoded.box_admin;
+
+    return this.createTokens(payload);
+  }
+
+  /**
    * Create Access and Refresh tokens
    *
    * Extracts the expiration time in Unix timestamp format
@@ -187,7 +259,7 @@ export class AuthService {
    * @param payload User info used to create tokens
    * @returns Access and Refresh tokens + expiration dates if successful
    */
-  public async createTestingSessionTokens(
+  public async createTokens(
     payload: TokenPayload,
   ): Promise<TokensDto> {
     const expiresIn = (envVars.JWT_EXPIRES ?? '30d') as StringValue;

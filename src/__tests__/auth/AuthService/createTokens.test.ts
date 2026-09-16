@@ -2,7 +2,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import { AuthService } from '../../../auth/auth.service';
 import AuthModule from '../modules/auth.module';
 
-describe('AuthService.createTestingSessionTokens() test suite', () => {
+describe('AuthService.createTokens() test suite', () => {
   let authService: AuthService;
 
   beforeEach(async () => {
@@ -16,7 +16,7 @@ describe('AuthService.createTestingSessionTokens() test suite', () => {
       tokenVersion: 0,
     };
 
-    const result = await authService.createTestingSessionTokens(payload);
+    const result = await authService.createTokens(payload);
 
     const accessToken = authService['jwtService'].decode(
       result.accessToken,
