@@ -9,6 +9,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 import { CreateClanDto } from './dto/createClan.dto';
 import { UpdateClanDto } from './dto/updateClan.dto';
 import { ClanDto } from './dto/clan.dto';
@@ -48,11 +50,21 @@ import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { ClanChatService } from '../chat/service/clanChat.service';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import {
+  cancelTransaction,
+  endTransaction,
+  initializeSession,
+} from '../common/function/Transactions';
+import { SEReason } from '../common/service/basicService/SEReason';
+import { DailyTaskProgressService } from '../dailyTasks/dailyTaskProgress.service';
+import { DailyTasksService } from '../dailyTasks/dailyTasks.service';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import ClanNotifier from './clan.notifier';
 
 @Controller('clan')
 export class ClanController {
+  private readonly clanNotifier = new ClanNotifier();
+
   public constructor(
     private readonly service: ClanService,
     private readonly joinService: JoinService,
@@ -62,6 +74,9 @@ export class ClanController {
     private readonly clanChatService: ClanChatService,
     private readonly passwordGenerator: PasswordGenerator,
     private readonly emitterService: EventEmitterService,
+    private readonly dailyTasksService: DailyTasksService,
+    private readonly dailyTaskProgressService: DailyTaskProgressService,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   private readonly clanNotifier = new ClanNotifier();
@@ -200,11 +215,7 @@ export class ClanController {
   @DetermineClanId()
   @HasClanRights([ClanBasicRight.EDIT_CLAN_DATA])
   @UniformResponse()
-  public async update(
-    @Param('_id') _id: string,
-    @Body() body: UpdateClanDto,
-    @LoggedUser() user: User,
-  ) {
+  public async update(@Body() body: UpdateClanDto, @LoggedUser() user: User) {
     if (user.clan_id.toString() !== body._id.toString())
       return [
         null,
@@ -227,16 +238,77 @@ export class ClanController {
     const [, errors] = await this.service.updateOneById(body._id, body);
     if (errors) return [null, errors];
 
-    const rulesSaved =
+    const rulesUpdated =
       body.rules && !body.admin_idsToAdd && !body.admin_idsToDelete;
 
-    if (rulesSaved) {
+    if (rulesUpdated) {
       this.clanNotifier.rulesUpdated(body._id, body.rules);
       this.emitterService.EmitNewDailyTaskEvent(
         user.player_id,
         ServerTaskName.SET_BOUNDARIES,
       );
     }
+    
+    if (typeof body.phrase !== 'string') {
+      const [, errors] = await this.service.updateOneById(body._id, body);
+      if (errors) return [null, errors];
+      return;
+    }
+
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
+    const [clan, clanErrors] = await this.service.readOneById(body._id, {
+      session,
+    });
+    if (clanErrors) return cancelTransaction(session, clanErrors);
+
+    const phraseChanged = clan.phrase !== body.phrase;
+    const [wasUpdated, updateErrors] = await this.service.updateOneById(
+      body._id,
+      body,
+      { session },
+    );
+    if (updateErrors) return cancelTransaction(session, updateErrors);
+
+    let completedClanTask = null;
+    if (phraseChanged && wasUpdated) {
+      const [progressResult, taskErrors] =
+        await this.dailyTasksService.updateClanTask(
+          body._id,
+          user.player_id,
+          ServerTaskName.INNER_VOICE,
+          session,
+        );
+
+      // A clan can have no active INNER_VOICE task after its daily instances
+      // have been completed and replaced. Saving its phrase must still work.
+      const hasNoActiveInnerVoiceTask =
+        taskErrors?.every((error) => error.reason === SEReason.NOT_FOUND) ??
+        false;
+      if (taskErrors && !hasNoActiveInnerVoiceTask)
+        return cancelTransaction(session, taskErrors);
+
+      if (progressResult) {
+        const [, progressErrors] =
+          await this.dailyTaskProgressService.handleClanTaskCompletion(
+            progressResult,
+            session,
+            false,
+          );
+        if (progressErrors) return cancelTransaction(session, progressErrors);
+
+        completedClanTask = progressResult;
+      }
+    }
+
+    const [, commitErrors] = await endTransaction(session);
+    if (commitErrors) return [null, commitErrors];
+
+    if (completedClanTask)
+      this.dailyTaskProgressService.notifyClanTaskCompletion(completedClanTask);
+    if (phraseChanged && wasUpdated)
+      this.clanNotifier.phraseUpdated(body._id, body.phrase);
   }
 
   /**

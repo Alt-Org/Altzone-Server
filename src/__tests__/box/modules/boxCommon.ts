@@ -32,6 +32,7 @@ import { envVars } from '../../../common/service/envHandler/envVars';
 import UniqueFieldGenerator from '../../../box/util/UniqueFieldGenerator';
 import { ItemSchema } from '../../../clanInventory/item/item.schema';
 import { GameSchema } from '../../../gameData/game.schema';
+import { AuthModule } from '../../../auth/auth.module';
 
 export default class BoxCommonModule {
   private constructor() {}
@@ -67,6 +68,7 @@ export default class BoxCommonModule {
           JwtModule,
           DailyTasksModule,
           ChatModule,
+          AuthModule,
         ],
         providers: [
           BoxService,

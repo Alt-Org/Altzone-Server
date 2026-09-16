@@ -23,7 +23,8 @@ export type ClanRulesUpdatedPayload = {
 
 export default class ClanNotifier {
   private readonly group = NotificationGroup.CLAN;
-  private readonly resource = NotificationResource.MEMBER;
+  private readonly memberResource = NotificationResource.MEMBER;
+  private readonly clanResource = NotificationResource.CLAN;
 
   memberJoin(clanId: string, playerId: string) {
     const topic = `/clan/${clanId}/member/join`;
@@ -40,7 +41,7 @@ export default class ClanNotifier {
 
     NotificationSender.buildNotification()
       .addGroup(this.group, clanId)
-      .addResource(this.resource, 'join')
+      .addResource(this.memberResource, 'join')
       .send(NotificationStatus.NEW, payload);
   }
 
@@ -59,7 +60,20 @@ export default class ClanNotifier {
 
     NotificationSender.buildNotification()
       .addGroup(this.group, clanId)
-      .addResource(this.resource, 'leave')
+      .addResource(this.memberResource, 'leave')
+      .send(NotificationStatus.UPDATE, payload);
+  }
+
+  phraseUpdated(clanId: string, phrase: string) {
+    const payload = buildMqttNotification(
+      'clan',
+      MqttNotificationType.CLAN_UPDATED,
+      { clan_id: clanId, phrase },
+    );
+
+    NotificationSender.buildNotification()
+      .addGroup(this.group, clanId)
+      .addResource(this.clanResource, 'phrase')
       .send(NotificationStatus.UPDATE, payload);
   }
 

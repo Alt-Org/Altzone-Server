@@ -51,7 +51,15 @@ export class DailyTask {
 
 export const DailyTaskSchema = SchemaFactory.createForClass(DailyTask);
 DailyTaskSchema.set('collection', ModelName.DAILY_TASK);
-DailyTaskSchema.index({ playerId: 1 }, { unique: true, sparse: true });
+// Clan and unreserved tasks intentionally use player_id: null. Restrict the
+// uniqueness constraint to tasks that are actually reserved by a player.
+DailyTaskSchema.index(
+  { player_id: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { player_id: { $type: 'objectId' } },
+  },
+);
 DailyTaskSchema.virtual(ModelName.PLAYER, {
   ref: ModelName.PLAYER,
   localField: 'player_id',

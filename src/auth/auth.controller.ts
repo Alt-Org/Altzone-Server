@@ -10,6 +10,8 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { NoBoxIdFilter } from '../box/auth/decorator/NoBoxIdFilter.decorator';
 import { SignInResponseDto } from './dto/signInResponse.dto';
 import { ApiBody } from '@nestjs/swagger';
+import { RefreshTokenDto } from './dto/refreshToken.dto';
+import { TokensDto } from './dto/tokens.dto';
 
 @NoAuth()
 @Controller('auth')
@@ -41,5 +43,28 @@ export class AuthController {
   @ThrowAuthErrorIfFound()
   public async signIn(@Body() body: SignInDto) {
     return this.authService.signIn(body.username, body.password);
+  }
+
+  /**
+   * Get new access and refresh tokens using refresh token from client
+   * 
+   * @param body - refresh token from client
+   * @returns new access and refresh tokens
+   */
+  @ApiBody({ type: RefreshTokenDto })
+  @ApiResponseDescription({
+    success: {
+      status: 201,
+      modelName: ModelName.PROFILE,
+      dto: TokensDto,
+    },
+    errors: [400, 401],
+    hasAuth: false,
+  })
+  @NoBoxIdFilter()
+  @Post('/refresh')
+  @ThrowAuthErrorIfFound()
+  public async refresh(@Body() body: RefreshTokenDto) {
+    return this.authService.refresh(body.refreshToken);
   }
 }

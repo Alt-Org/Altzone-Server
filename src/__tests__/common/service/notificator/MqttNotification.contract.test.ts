@@ -256,6 +256,16 @@ describe('MQTT notification contract', () => {
         rules: [ClanRule.FAIR_GAME, ClanRule.NO_TOXICITY],
       }),
     );
+    
+    new ClanNotifier().phraseUpdated('clan-1', 'Together we rise');
+    expect(publishMock).toHaveBeenLastCalledWith(
+      `/clan/clan-1/${NotificationResource.CLAN}/phrase/${NotificationStatus.UPDATE}`,
+      JSON.stringify({
+        topic: 'clan',
+        type: MqttNotificationType.CLAN_UPDATED,
+        payload: { clan_id: 'clan-1', phrase: 'Together we rise' },
+      }),
+    );
 
     const friendshipNotifier = new FriendshipNotifier({
       findOne: jest.fn().mockReturnValue({

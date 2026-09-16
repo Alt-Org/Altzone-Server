@@ -128,14 +128,17 @@ describe('BoxAuthService.signIn() test suite', () => {
 
     await boxAuthService.signIn(validUsername, validPassword);
 
-    const expectedPayload = {
-      profile_id: existingAdminProfile._id.toString(),
-      player_id: createdPlayer._id.toString(),
-      box_id: existingBox._id.toString(),
-      groupAdmin: true,
-    };
-
-    expect(signAsyncSpy).toHaveBeenCalledWith(expectedPayload);
+    expect(signAsyncSpy).toHaveBeenCalledWith(
+      {
+        profile_id: existingAdminProfile._id.toString(),
+        player_id: createdPlayer._id.toString(),
+        box_id: existingBox._id.toString(),
+        groupAdmin: true,
+        tokenVersion: 0,
+        type: 'refresh',
+      },
+      { expiresIn: '2d' },
+    );
   });
 
   it('Should call signAsync() with payload containing groupAdmin set to true if the profile is group admin', async () => {
@@ -144,14 +147,17 @@ describe('BoxAuthService.signIn() test suite', () => {
 
     await boxAuthService.signIn(validUsername, validPassword);
 
-    const expectedPayload = {
-      profile_id: existingAdminProfile._id.toString(),
-      player_id: createdPlayer._id.toString(),
-      box_id: existingBox._id.toString(),
-      groupAdmin: true,
-    };
-
-    expect(signAsyncSpy).toHaveBeenCalledWith(expectedPayload);
+    expect(signAsyncSpy).toHaveBeenCalledWith(
+      {
+        profile_id: existingAdminProfile._id.toString(),
+        player_id: createdPlayer._id.toString(),
+        box_id: existingBox._id.toString(),
+        groupAdmin: true,
+        tokenVersion: 0,
+        type: 'refresh',
+      },
+      { expiresIn: '2d' },
+    );
   });
 
   it('Should not return clan data if player is not in any clan', async () => {

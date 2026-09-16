@@ -17,6 +17,7 @@ export default class FleaMarketItemDtoBuilder {
     status: Status.AVAILABLE,
     isFurniture: false,
     price: 10,
+    saleApprovedByVoting: false,
     clan_id: new ObjectId().toString(),
   };
 
@@ -66,6 +67,11 @@ export default class FleaMarketItemDtoBuilder {
 
   setPrice(price: number) {
     this.base.price = price;
+    return this;
+  }
+
+  setSaleApprovedByVoting(saleApprovedByVoting: boolean) {
+    this.base.saleApprovedByVoting = saleApprovedByVoting;
     return this;
   }
 
