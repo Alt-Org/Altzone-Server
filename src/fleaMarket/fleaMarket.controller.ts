@@ -108,7 +108,6 @@ export class FleaMarketController {
 
   /**
    * Sell a clan item on the flea market
-   * Emit a server event for daily task "SUGGEST_ITEM_TO_FLEA_MARKET, ADD_ITEM_TO_FLEA_MARKET"
    *
    * @remarks Sell an item from the clan's stock on the flea market.
    *
@@ -149,13 +148,6 @@ export class FleaMarketController {
       user.player_id,
     );
     if (sellItemErrors) return sellItemErrors;
-
-    [
-      ServerTaskName.SUGGEST_ITEM_TO_FLEA_MARKET,
-      ServerTaskName.ADD_ITEM_TO_FLEA_MARKET,
-    ].forEach((task) => {
-      this.emitterService.EmitNewDailyTaskEvent(user.player_id, task);
-    });
   }
 
   /**
@@ -273,6 +265,17 @@ export class FleaMarketController {
     );
 
     if (updateError) throw updateError;
+
+    if (
+      item.status === Status.AVAILABLE &&
+      body.status === Status.SHIPPING &&
+      item.saleApprovedByVoting
+    ) {
+      await this.emitterService.EmitNewDailyTaskEvent(
+        user.player_id,
+        ServerTaskName.RECYCLING_EXPERIENCES,
+      );
+    }
   }
 
   /**
