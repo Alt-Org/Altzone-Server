@@ -61,6 +61,21 @@ describe('daily task scoring values', () => {
     });
   });
 
+  it('configures RECYCLING_EXPERIENCES as a one-step flea-market listing task', () => {
+    const generator = new TaskGeneratorService();
+    jest
+      .spyOn(generator, 'getRandomTaskType')
+      .mockReturnValue(ServerTaskName.RECYCLING_EXPERIENCES);
+
+    expect(generator.createTaskRandomValues()).toMatchObject({
+      type: ServerTaskName.RECYCLING_EXPERIENCES,
+      amount: 1,
+      title: {
+        fi: 'Avaa klaanin kirpputori. Valitse äänestyksessä myytäväksi hyväksytty tavara ja lisää se myytäväksi. Katso, miten muut reagoivat ja miltä tuntuu kun tavara alkaa liikkua pelaajien välillä.',
+      },
+    });
+  });
+
   it('creates a balanced, shuffled server-task bag', () => {
     const generator = new TaskGeneratorService();
     const taskTypes = generator.createBalancedTaskTypes();

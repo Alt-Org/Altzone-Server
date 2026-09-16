@@ -83,6 +83,15 @@ export class CreateFleaMarketItemDto {
   price: number;
 
   /**
+   * Whether the item has passed the clan sell-item voting flow
+   *
+   * @example false
+   */
+  @IsBoolean()
+  @IsOptional()
+  saleApprovedByVoting: boolean = false;
+
+  /**
    * Whether the item can be placed as furniture
    *
    * @example true
