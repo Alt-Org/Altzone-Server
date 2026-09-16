@@ -35,7 +35,11 @@ export enum OldTaskName {
   WRITE_CHAT_MESSAGE = 'write_chat_message',
   WRITE_CHAT_MESSAGE_GLOBAL = 'write_chat_message_global',
   WRITE_CHAT_MESSAGE_CLAN = 'write_chat_message_clan',
-
+  ADD_ITEM_TO_FLEA_MARKET = 'add_item_to_flea_market',
+  SUGGEST_ITEM_TO_FLEA_MARKET = 'suggest_item_to_flea_market',
+  PARTICIPATE_CLAN_VOTING = 'participate_clan_voting',
+  
+  
   // old UI tasks
   FIND_3_IMPORTANT_BUTTONS = 'find_3_important_buttons',
   EXPLODE_CHARACTER_BATTLE = 'explode_character_battle',
