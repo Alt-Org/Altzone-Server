@@ -14,6 +14,8 @@ import { ItemRotation } from '../../../../clanInventory/item/enum/itemRotation.e
 import { ItemPosition } from '../../../../clanInventory/item/enum/itemPosition.enum';
 import { ClanService } from '../../../../clan/clan.service';
 import { ObjectId } from 'mongodb';
+import { ItemName } from '../../../../clanInventory/item/enum/itemName.enum';
+import { ServerTaskName } from '../../../../dailyTasks/enum/serverTaskName.enum';
 
 describe('Room.updateSoulHomeRooms() test suite', () => {
   let roomService: RoomService;
@@ -58,6 +60,8 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
   };
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     roomService = await RoomModule.getRoomService();
     itemService = await ItemModule.getItemService();
     clanService = await ClanModule.getClanService();
@@ -142,6 +146,323 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
 
     const [clan] = await clanService.readOneById(existingClan._id);
     expect(clan.furnitureTotalValue).toEqual(existingItem.price);
+  });
+
+  it('Should read final saved room items after a player saves furniture layout', async () => {
+    const readManySpy = jest.spyOn(itemService, 'readMany');
+    const [item] = await itemService.createOne(existingItem);
+
+    const itemUpdate: UpdateItemDto = {
+      _id: item._id,
+      location: [1, 1],
+      rotation: ItemRotation.FRONT,
+      position: ItemPosition.FLOOR,
+      placedOn_id: null,
+      placedOnLocation: null,
+    };
+
+    update.furniture = [itemUpdate];
+    const [result, error] = await roomService.updateSoulHomeRooms(
+      update,
+      'player-id',
+    );
+
+    expect(result).toBeTruthy();
+    expect(error).toBeNull();
+    expect(readManySpy).toHaveBeenCalledWith({
+      filter: { room_id: { $in: [existingRoom._id.toString()] } },
+    });
+  });
+
+  it('Should use only furniture items from the final saved room state', () => {
+    const furniture = {
+      ...existingItem,
+      _id: 'furniture-item',
+      name: ItemName.SOFA_RAKKAUS,
+      isFurniture: true,
+    };
+    const decoration = {
+      ...existingItem,
+      _id: 'decoration-item',
+      name: ItemName.MIRROR_RAKKAUS,
+      isFurniture: false,
+    };
+
+    const result = roomService['filterFurnitureItems']([
+      furniture,
+      decoration,
+    ] as any);
+
+    expect(result).toEqual([furniture]);
+  });
+
+  it('Should detect furniture set from item name using underscore separator', () => {
+    expect(roomService['getFurnitureSetFromItemName']('Sofa_Taakka')).toBe(
+      'Taakka',
+    );
+    expect(roomService['getFurnitureSetFromItemName']('Chair_Neuro')).toBe(
+      'Neuro',
+    );
+    expect(roomService['getFurnitureSetFromItemName']('Bed_FearOfDeath')).toBe(
+      'FearOfDeath',
+    );
+    expect(
+      roomService['getFurnitureSetFromItemName']('Hologram_KylmaTulevaisuus'),
+    ).toBe('KylmaTulevaisuus');
+    expect(
+      roomService['getFurnitureSetFromItemName']('InvalidName'),
+    ).toBeNull();
+  });
+
+  it('Should emit BUILD_YOUR_WORLD when final saved room has at least three furniture items from the same set', async () => {
+    const items = await Promise.all(
+      [
+        ItemName.SOFA_RAKKAUS,
+        ItemName.ARMCHAIR_RAKKAUS,
+        ItemName.CLOSET_RAKKAUS,
+      ].map((name) =>
+        itemService.createOne(
+          ClanInventoryBuilderFactory.getBuilder('CreateItemDto')
+            .setStockId(existingStock._id)
+            .setName(name)
+            .setIsFurniture(true)
+            .build(),
+        ),
+      ),
+    );
+
+    const furniture = items.map(([item], index) => ({
+      _id: item._id,
+      location: [index, index],
+      rotation: ItemRotation.FRONT,
+      position: ItemPosition.FLOOR,
+      placedOn_id: null,
+      placedOnLocation: null,
+    }));
+
+    const [result, error] = await roomService.updateSoulHomeRooms(
+      {
+        _id: existingRoom._id,
+        furniture,
+      },
+      'player-id',
+    );
+
+    expect(result).toBeTruthy();
+    expect(error).toBeNull();
+    expect(
+      roomService['eventEmitterService'].EmitNewDailyTaskEvent,
+    ).toHaveBeenCalledWith('player-id', ServerTaskName.BUILD_YOUR_WORLD);
+  });
+
+  it('Should not emit BUILD_YOUR_WORLD when final saved room has fewer than three furniture items', async () => {
+    const items = await Promise.all(
+      [ItemName.SOFA_RAKKAUS, ItemName.ARMCHAIR_RAKKAUS].map((name) =>
+        itemService.createOne(
+          ClanInventoryBuilderFactory.getBuilder('CreateItemDto')
+            .setStockId(existingStock._id)
+            .setName(name)
+            .setIsFurniture(true)
+            .build(),
+        ),
+      ),
+    );
+
+    const furniture = items.map(([item], index) => ({
+      _id: item._id,
+      location: [index, index],
+      rotation: ItemRotation.FRONT,
+      position: ItemPosition.FLOOR,
+      placedOn_id: null,
+      placedOnLocation: null,
+    }));
+
+    const [result, error] = await roomService.updateSoulHomeRooms(
+      {
+        _id: existingRoom._id,
+        furniture,
+      },
+      'player-id',
+    );
+
+    expect(result).toBeTruthy();
+    expect(error).toBeNull();
+    expect(
+      roomService['eventEmitterService'].EmitNewDailyTaskEvent,
+    ).not.toHaveBeenCalled();
+  });
+
+  it('Should not emit BUILD_YOUR_WORLD when final saved room has mixed furniture sets', async () => {
+    const items = await Promise.all(
+      [
+        ItemName.SOFA_RAKKAUS,
+        ItemName.ARMCHAIR_RAKKAUS,
+        ItemName.CLOSET_KIPU,
+      ].map((name) =>
+        itemService.createOne(
+          ClanInventoryBuilderFactory.getBuilder('CreateItemDto')
+            .setStockId(existingStock._id)
+            .setName(name)
+            .setIsFurniture(true)
+            .build(),
+        ),
+      ),
+    );
+
+    const furniture = items.map(([item], index) => ({
+      _id: item._id,
+      location: [index, index],
+      rotation: ItemRotation.FRONT,
+      position: ItemPosition.FLOOR,
+      placedOn_id: null,
+      placedOnLocation: null,
+    }));
+
+    const [result, error] = await roomService.updateSoulHomeRooms(
+      {
+        _id: existingRoom._id,
+        furniture,
+      },
+      'player-id',
+    );
+
+    expect(result).toBeTruthy();
+    expect(error).toBeNull();
+    expect(
+      roomService['eventEmitterService'].EmitNewDailyTaskEvent,
+    ).not.toHaveBeenCalled();
+  });
+
+  it('Should not emit BUILD_YOUR_WORLD when furniture is omitted from the payload', async () => {
+    const readFinalFurnitureSpy = jest.spyOn(
+      roomService as any,
+      'readFinalSavedRoomFurniture',
+    );
+
+    const [result, error] = await roomService.updateSoulHomeRooms(
+      {
+        _id: existingRoom._id,
+        roomColour: 'purple',
+      },
+      'player-id',
+    );
+
+    expect(result).toBeTruthy();
+    expect(error).toBeNull();
+    expect(readFinalFurnitureSpy).not.toHaveBeenCalled();
+    expect(
+      roomService['eventEmitterService'].EmitNewDailyTaskEvent,
+    ).not.toHaveBeenCalled();
+  });
+
+  it('Should not emit BUILD_YOUR_WORLD when only non-furniture items match the same set', async () => {
+    const items = await Promise.all(
+      [
+        ItemName.MIRROR_RAKKAUS,
+        ItemName.CARPET_RAKKAUS,
+        ItemName.CEILINGLAMP_RAKKAUS,
+      ].map((name) =>
+        itemService.createOne(
+          ClanInventoryBuilderFactory.getBuilder('CreateItemDto')
+            .setStockId(existingStock._id)
+            .setName(name)
+            .setIsFurniture(false)
+            .build(),
+        ),
+      ),
+    );
+
+    const furniture = items.map(([item], index) => ({
+      _id: item._id,
+      location: [index, index],
+      rotation: ItemRotation.FRONT,
+      position: ItemPosition.FLOOR,
+      placedOn_id: null,
+      placedOnLocation: null,
+    }));
+
+    const [result, error] = await roomService.updateSoulHomeRooms(
+      {
+        _id: existingRoom._id,
+        furniture,
+      },
+      'player-id',
+    );
+
+    expect(result).toBeTruthy();
+    expect(error).toBeNull();
+    expect(
+      roomService['eventEmitterService'].EmitNewDailyTaskEvent,
+    ).not.toHaveBeenCalled();
+  });
+
+  it('Should validate BUILD_YOUR_WORLD against final room state instead of payload alone', async () => {
+    const readFinalFurnitureSpy = jest
+      .spyOn(roomService as any, 'readFinalSavedRoomFurniture')
+      .mockResolvedValue([
+        new Map([
+          [
+            existingRoom._id.toString(),
+            [
+              {
+                ...existingItem,
+                name: ItemName.SOFA_RAKKAUS,
+                isFurniture: true,
+              },
+              {
+                ...existingItem,
+                name: ItemName.ARMCHAIR_RAKKAUS,
+                isFurniture: true,
+              },
+              {
+                ...existingItem,
+                name: ItemName.CLOSET_KIPU,
+                isFurniture: true,
+              },
+            ],
+          ],
+        ]),
+        null,
+      ]);
+    const items = await Promise.all(
+      [
+        ItemName.SOFA_RAKKAUS,
+        ItemName.ARMCHAIR_RAKKAUS,
+        ItemName.CLOSET_RAKKAUS,
+      ].map((name) =>
+        itemService.createOne(
+          ClanInventoryBuilderFactory.getBuilder('CreateItemDto')
+            .setStockId(existingStock._id)
+            .setName(name)
+            .setIsFurniture(true)
+            .build(),
+        ),
+      ),
+    );
+
+    const furniture = items.map(([item], index) => ({
+      _id: item._id,
+      location: [index, index],
+      rotation: ItemRotation.FRONT,
+      position: ItemPosition.FLOOR,
+      placedOn_id: null,
+      placedOnLocation: null,
+    }));
+
+    const [result, error] = await roomService.updateSoulHomeRooms(
+      {
+        _id: existingRoom._id,
+        furniture,
+      },
+      'player-id',
+    );
+
+    expect(result).toBeTruthy();
+    expect(error).toBeNull();
+    expect(readFinalFurnitureSpy).toHaveBeenCalled();
+    expect(
+      roomService['eventEmitterService'].EmitNewDailyTaskEvent,
+    ).not.toHaveBeenCalled();
   });
 
   it('Should return REQUIRED error if the room update has no fields to change', async () => {

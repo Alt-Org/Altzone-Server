@@ -6,6 +6,7 @@ import { DailyTasksStartupRefreshService } from '../../../dailyTasks/dailyTasksS
 import {
   ACTIVE_SERVER_TASK_DEFINITIONS,
   MIN_OCCURRENCES_PER_TASK_TYPE,
+  SERVER_TASKS_PER_CLAN,
   TaskGeneratorService,
 } from '../../../dailyTasks/taskGenerator.service';
 
@@ -167,16 +168,13 @@ describe('DailyTasksStartupRefreshService', () => {
     const insertedTasks = (dailyTaskCollection.insertMany as jest.Mock).mock
       .calls[0][0];
     expect(insertedTasks).toHaveLength(
-      Object.values(uiDailyTasks).length * 2 + 11 * 2,
+      Object.values(uiDailyTasks).length * 2 + SERVER_TASKS_PER_CLAN * 2,
     );
     expect(
       insertedTasks.every((task) =>
         [
           ...Object.keys(uiDailyTasks),
-          ServerTaskName.BANISH_THE_EARWORM,
-          ServerTaskName.GO_TO_BATTLE,
-          ServerTaskName.FORM_AN_INNER_CONNECTION,
-          ServerTaskName.INNER_VOICE,
+          ...ACTIVE_SERVER_TASK_DEFINITIONS.map(({ type }) => type),
         ].includes(task.type),
       ),
     ).toBe(true);
@@ -202,7 +200,7 @@ describe('DailyTasksStartupRefreshService', () => {
       _id: 'clan-1',
     });
 
-    expect(tasks).toHaveLength(11);
+    expect(tasks).toHaveLength(SERVER_TASKS_PER_CLAN);
     expect(
       tasks.filter((task) => task.type === ServerTaskName.INNER_VOICE).length,
     ).toBeGreaterThanOrEqual(MIN_OCCURRENCES_PER_TASK_TYPE);

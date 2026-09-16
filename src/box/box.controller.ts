@@ -86,10 +86,13 @@ export class BoxController {
     });
     if (tokenErrors) return [null, tokenErrors];
 
-    return [{ 
-      ...createdBox, 
-      ...tokenData,
-    }, null];
+    return [
+      {
+        ...createdBox,
+        ...tokenData,
+      },
+      null,
+    ];
   }
 
   /**

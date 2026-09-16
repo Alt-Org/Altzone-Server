@@ -5,7 +5,7 @@ import AddType from '../../common/base/decorator/AddType.decorator';
 export class TokensDto {
   /**
    * Access token
-   * 
+   *
    * @example "eyJhbGciOiJIUzI1NiIsInR..."
    */
   @Expose()
@@ -13,7 +13,7 @@ export class TokensDto {
 
   /**
    * Access token expiration time
-   * 
+   *
    * @example 1735689600
    */
   @Expose()
@@ -21,7 +21,7 @@ export class TokensDto {
 
   /**
    * Refresh token
-   * 
+   *
    * @example "eyJhbGciOiJIUzI1NiIsInR..."
    */
   @Expose()
@@ -29,7 +29,7 @@ export class TokensDto {
 
   /**
    * Refresh token expiration time
-   * 
+   *
    * @example 1735689600
    */
   @Expose()

@@ -3,6 +3,7 @@ import { Score } from '../../common/values/scoring.values';
 import {
   ACTIVE_SERVER_TASK_DEFINITIONS,
   MIN_OCCURRENCES_PER_TASK_TYPE,
+  SERVER_TASKS_PER_CLAN,
   TaskGeneratorService,
 } from '../../dailyTasks/taskGenerator.service';
 import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
@@ -32,11 +33,54 @@ describe('daily task scoring values', () => {
     });
   });
 
+  it('configures YOUR_VOICE as a one-step clan-voting task', () => {
+    const generator = new TaskGeneratorService();
+    jest
+      .spyOn(generator, 'getRandomTaskType')
+      .mockReturnValue(ServerTaskName.YOUR_VOICE);
+
+    expect(generator.createTaskRandomValues()).toMatchObject({
+      type: ServerTaskName.YOUR_VOICE,
+      amount: 1,
+      title: { fi: 'Äänestä klaanin äänestyksessä.' },
+    });
+  });
+
+  it('configures BUILD_YOUR_WORLD as a one-step room-layout task', () => {
+    const generator = new TaskGeneratorService();
+    jest
+      .spyOn(generator, 'getRandomTaskType')
+      .mockReturnValue(ServerTaskName.BUILD_YOUR_WORLD);
+
+    expect(generator.createTaskRandomValues()).toMatchObject({
+      type: ServerTaskName.BUILD_YOUR_WORLD,
+      amount: 1,
+      title: {
+        fi: 'Sisusta yksi klaanin Turvapaikan huone vähintään kolmella saman malliston huonekalulla.',
+      },
+    });
+  });
+
+  it('configures RECYCLING_EXPERIENCES as a one-step flea-market listing task', () => {
+    const generator = new TaskGeneratorService();
+    jest
+      .spyOn(generator, 'getRandomTaskType')
+      .mockReturnValue(ServerTaskName.RECYCLING_EXPERIENCES);
+
+    expect(generator.createTaskRandomValues()).toMatchObject({
+      type: ServerTaskName.RECYCLING_EXPERIENCES,
+      amount: 1,
+      title: {
+        fi: 'Avaa klaanin kirpputori. Valitse äänestyksessä myytäväksi hyväksytty tavara ja lisää se myytäväksi. Katso, miten muut reagoivat ja miltä tuntuu kun tavara alkaa liikkua pelaajien välillä.',
+      },
+    });
+  });
+
   it('creates a balanced, shuffled server-task bag', () => {
     const generator = new TaskGeneratorService();
     const taskTypes = generator.createBalancedTaskTypes();
 
-    expect(taskTypes).toHaveLength(11);
+    expect(taskTypes).toHaveLength(SERVER_TASKS_PER_CLAN);
     for (const { type } of ACTIVE_SERVER_TASK_DEFINITIONS) {
       expect(
         taskTypes.filter((taskType) => taskType === type).length,

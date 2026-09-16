@@ -34,12 +34,12 @@ export default class BoxAuthHandler {
    * @param authPayload
    * @returns auth tokens for the group admin
    */
-  async getGroupAdminToken(authPayload: AuthTokenPayload)
-    :Promise<IServiceReturn<TokensDto>> 
-  {
-    const [profile, profileErrors] = 
+  async getGroupAdminToken(
+    authPayload: AuthTokenPayload,
+  ): Promise<IServiceReturn<TokensDto>> {
+    const [profile, profileErrors] =
       await this.profileService.basicService.readOneById(
-        authPayload.profile_id
+        authPayload.profile_id,
       );
     if (profileErrors) return [null, profileErrors];
 
