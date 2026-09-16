@@ -67,6 +67,7 @@ describe('ClanController phrase daily task', () => {
       undefined as any,
       undefined as any,
       undefined as any,
+      undefined as any,
       dailyTasksService as any,
       dailyTaskProgressService as any,
       connection as any,

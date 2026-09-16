@@ -49,6 +49,7 @@ import { ApiExtraModels } from '@nestjs/swagger';
 import { ItemDto } from '../clanInventory/item/dto/item.dto';
 import { ClanChatService } from '../chat/service/clanChat.service';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
+import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import {
   cancelTransaction,
   endTransaction,
@@ -62,8 +63,6 @@ import ClanNotifier from './clan.notifier';
 
 @Controller('clan')
 export class ClanController {
-  private readonly clanNotifier = new ClanNotifier();
-
   public constructor(
     private readonly service: ClanService,
     private readonly joinService: JoinService,
@@ -72,10 +71,13 @@ export class ClanController {
     private readonly playerService: PlayerService,
     private readonly clanChatService: ClanChatService,
     private readonly passwordGenerator: PasswordGenerator,
+    private readonly emitterService: EventEmitterService,
     private readonly dailyTasksService: DailyTasksService,
     private readonly dailyTaskProgressService: DailyTaskProgressService,
     @InjectConnection() private readonly connection: Connection,
   ) {}
+
+  private readonly clanNotifier = new ClanNotifier();
 
   /**
    * Create a new Clan
@@ -231,6 +233,20 @@ export class ClanController {
     ) {
       body.password = this.passwordGenerator.generatePassword('fi');
     }
+    const [, errors] = await this.service.updateOneById(body._id, body);
+    if (errors) return [null, errors];
+
+    const rulesUpdated =
+      body.rules && !body.admin_idsToAdd && !body.admin_idsToDelete;
+
+    if (rulesUpdated) {
+      this.clanNotifier.rulesUpdated(body._id, body.rules);
+      this.emitterService.EmitNewDailyTaskEvent(
+        user.player_id,
+        ServerTaskName.SET_BOUNDARIES,
+      );
+    }
+
     if (typeof body.phrase !== 'string') {
       const [, errors] = await this.service.updateOneById(body._id, body);
       if (errors) return [null, errors];

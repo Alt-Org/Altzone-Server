@@ -4,13 +4,16 @@ import { TASK_CONSTS } from './consts/taskConstants';
 import { ServerTaskName } from './enum/serverTaskName.enum';
 import { TaskTitle } from './type/taskTitle.type';
 
-export const SERVER_TASKS_PER_CLAN = 14;
+export const SERVER_TASKS_PER_CLAN = 16;
 export const MIN_OCCURRENCES_PER_TASK_TYPE = 2;
+
+const SET_BOUNDARIES_TIME_LIMIT_MINUTES = 60;
 
 type ServerTaskDefinition = {
   type: ServerTaskName;
   createAmount: () => number;
   createTitle: (amount: number) => TaskTitle;
+  timeLimitMinutes?: number;
 };
 
 type TaskInfo = {
@@ -70,6 +73,14 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     createTitle: () => ({
       fi: 'Avaa klaanin kirpputori. Valitse äänestyksessä myytäväksi hyväksytty tavara ja lisää se myytäväksi. Katso, miten muut reagoivat ja miltä tuntuu kun tavara alkaa liikkua pelaajien välillä.',
     }),
+  },
+  {
+    type: ServerTaskName.SET_BOUNDARIES,
+    createAmount: () => 1,
+    createTitle: () => ({
+      fi: 'Avaa klaanin säännöt ja muokkaa niitä. Säännöt muovaavat sitä, millainen yhteisö te olette. Mieti, mitä toimintaa haluatte vahvistaa.',
+    }),
+    timeLimitMinutes: SET_BOUNDARIES_TIME_LIMIT_MINUTES,
   },
 ];
 
@@ -138,7 +149,7 @@ export class TaskGeneratorService {
       amount,
       points,
       coins: Math.floor(points * TASK_CONSTS.COINS.FACTOR),
-      timeLimitMinutes: amount * 2,
+      timeLimitMinutes: definition.timeLimitMinutes ?? amount * 2,
       type,
       title: definition.createTitle(amount),
     };
