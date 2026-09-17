@@ -1,12 +1,12 @@
-import ProfileModule from "../../../__tests__/profile/modules/profile.module";
-import { AuthService } from "../../../auth/auth.service";
+import ProfileModule from '../../../__tests__/profile/modules/profile.module';
+import { AuthService } from '../../../auth/auth.service';
 import AuthModule from '../modules/auth.module';
-import { JwtService } from "@nestjs/jwt";
-import ProfileBuilderFactory from "../../../__tests__/profile/data/profileBuilderFactory";
-import PlayerModule from "../../../__tests__/player/modules/player.module";
-import PlayerBuilderFactory from "../../../__tests__/player/data/playerBuilderFactory";
+import { JwtService } from '@nestjs/jwt';
+import ProfileBuilderFactory from '../../../__tests__/profile/data/profileBuilderFactory';
+import PlayerModule from '../../../__tests__/player/modules/player.module';
+import PlayerBuilderFactory from '../../../__tests__/player/data/playerBuilderFactory';
 import { ObjectId } from 'mongodb';
-import { UnauthorizedException } from "@nestjs/common";
+import { UnauthorizedException } from '@nestjs/common';
 
 describe('AuthService.refresh() test suite', () => {
   let authService: AuthService;
@@ -58,13 +58,13 @@ describe('AuthService.refresh() test suite', () => {
     tokenData.type = 'reset';
     refreshToken = await jwtService.signAsync(tokenData);
 
-    await expect(
-      authService.refresh(refreshToken),
-    ).rejects.toThrow(UnauthorizedException);
+    await expect(authService.refresh(refreshToken)).rejects.toThrow(
+      UnauthorizedException,
+    );
   });
 
   it('Should return null if profile not found', async () => {
-    tokenData.profile_id = (new ObjectId().toString());
+    tokenData.profile_id = new ObjectId().toString();
     refreshToken = await jwtService.signAsync(tokenData);
 
     const result = await authService.refresh(refreshToken);
@@ -75,9 +75,9 @@ describe('AuthService.refresh() test suite', () => {
     tokenData.tokenVersion = existingProfile.tokenVersion + 1;
     refreshToken = await jwtService.signAsync(tokenData);
 
-    await expect(
-      authService.refresh(refreshToken),
-    ).rejects.toThrow(UnauthorizedException);
+    await expect(authService.refresh(refreshToken)).rejects.toThrow(
+      UnauthorizedException,
+    );
   });
 
   it('Should return null if player not found', async () => {

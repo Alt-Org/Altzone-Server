@@ -177,9 +177,9 @@ export class AuthService {
 
   /**
    * Get new access and refresh tokens using client refresh token
-   * 
+   *
    * Validates token data. Increments tokenVersion in Profile to invalidate old token
-   * 
+   *
    * @param refreshToken - refresh token from client
    * @returns access and refresh tokens + token expiration dates if successul, else errors
    */
@@ -197,11 +197,13 @@ export class AuthService {
         ],
       });
 
-    const profileResp = await this.profileModel.findById({ _id: decoded.profile_id });
+    const profileResp = await this.profileModel.findById({
+      _id: decoded.profile_id,
+    });
     if (!profileResp || profileResp instanceof MongooseError) return null;
 
     const currentTokenVersion = profileResp.tokenVersion ?? 0;
-    
+
     if (decoded.tokenVersion !== currentTokenVersion)
       throw new UnauthorizedException({
         statusCode: 401,
@@ -213,14 +215,16 @@ export class AuthService {
         ],
       });
 
-    const playerResp = await this.playerModel.findOne({ profile_id: profileResp._id });
+    const playerResp = await this.playerModel.findOne({
+      profile_id: profileResp._id,
+    });
     if (!playerResp || playerResp instanceof MongooseError) return null;
 
     const newTokenVersion = currentTokenVersion + 1;
 
     const profileUpdate = await this.profileModel.updateOne(
       { _id: profileResp._id },
-      { $inc: { tokenVersion: 1 } }
+      { $inc: { tokenVersion: 1 } },
     );
     if (profileUpdate.modifiedCount !== 1)
       throw new UnauthorizedException({
@@ -239,14 +243,11 @@ export class AuthService {
       tokenVersion: newTokenVersion,
     };
 
-    if (decoded.box_id)
-      payload['box_id'] = decoded.box_id;
+    if (decoded.box_id) payload['box_id'] = decoded.box_id;
 
-    if (decoded.clan_id)
-      payload['clan_id'] = playerResp.clan_id;
+    if (decoded.clan_id) payload['clan_id'] = playerResp.clan_id;
 
-    if (decoded.box_admin)
-      payload['box_admin'] = decoded.box_admin;
+    if (decoded.box_admin) payload['box_admin'] = decoded.box_admin;
 
     return this.createTokens(payload);
   }
@@ -259,9 +260,7 @@ export class AuthService {
    * @param payload User info used to create tokens
    * @returns Access and Refresh tokens + expiration dates if successful
    */
-  public async createTokens(
-    payload: TokenPayload,
-  ): Promise<TokensDto> {
+  public async createTokens(payload: TokenPayload): Promise<TokensDto> {
     const expiresIn = (envVars.JWT_EXPIRES ?? '30d') as StringValue;
 
     const refreshToken = await this.jwtService.signAsync(

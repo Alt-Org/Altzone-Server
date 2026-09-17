@@ -70,23 +70,34 @@ describe('ChatGateway user initialization', () => {
   });
 
   it.each([
-    ['clanMessage', (client: WebSocketUser) => gateway.handleClanMessage({} as any, client)],
+    [
+      'clanMessage',
+      (client: WebSocketUser) => gateway.handleClanMessage({} as any, client),
+    ],
     [
       'clanMessageReaction',
-      (client: WebSocketUser) => gateway.handleClanMessageReaction({} as any, client),
+      (client: WebSocketUser) =>
+        gateway.handleClanMessageReaction({} as any, client),
     ],
-    ['globalMessage', (client: WebSocketUser) => gateway.handleGlobalMessage({} as any, client)],
+    [
+      'globalMessage',
+      (client: WebSocketUser) => gateway.handleGlobalMessage({} as any, client),
+    ],
     [
       'globalMessageReaction',
-      (client: WebSocketUser) => gateway.handleGlobalReaction({} as any, client),
+      (client: WebSocketUser) =>
+        gateway.handleGlobalReaction({} as any, client),
     ],
-  ])('%s rejects an uninitialized client before processing the event', async (_, event) => {
-    const client = createClient();
+  ])(
+    '%s rejects an uninitialized client before processing the event',
+    async (_, event) => {
+      const client = createClient();
 
-    await expect(event(client)).rejects.toBeInstanceOf(WsException);
-    expect(clanChatService.handleNewClanMessage).not.toHaveBeenCalled();
-    expect(clanChatService.handleNewClanReaction).not.toHaveBeenCalled();
-    expect(globalChatService.handleNewGlobalMessage).not.toHaveBeenCalled();
-    expect(globalChatService.handleNewGlobalReaction).not.toHaveBeenCalled();
-  });
+      await expect(event(client)).rejects.toBeInstanceOf(WsException);
+      expect(clanChatService.handleNewClanMessage).not.toHaveBeenCalled();
+      expect(clanChatService.handleNewClanReaction).not.toHaveBeenCalled();
+      expect(globalChatService.handleNewGlobalMessage).not.toHaveBeenCalled();
+      expect(globalChatService.handleNewGlobalReaction).not.toHaveBeenCalled();
+    },
+  );
 });

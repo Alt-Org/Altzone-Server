@@ -256,7 +256,7 @@ describe('MQTT notification contract', () => {
         rules: [ClanRule.FAIR_GAME, ClanRule.NO_TOXICITY],
       }),
     );
-    
+
     new ClanNotifier().phraseUpdated('clan-1', 'Together we rise');
     expect(publishMock).toHaveBeenLastCalledWith(
       `/clan/clan-1/${NotificationResource.CLAN}/phrase/${NotificationStatus.UPDATE}`,
