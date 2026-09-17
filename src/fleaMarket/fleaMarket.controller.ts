@@ -22,6 +22,7 @@ import { ChangeItemStatusDto } from './dto/changeItemStatus.dto';
 import { Status } from './enum/status.enum';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
+import { SellItemResult } from './enum/sellItemResult.enum';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
@@ -142,12 +143,19 @@ export class FleaMarketController {
         message: 'The item does not belong to the clan of logged in player',
       });
 
-    const [, sellItemErrors] = await this.service.handleSellItem(
+    const [sellItemResult, sellItemErrors] = await this.service.handleSellItem(
       sellFleaMarketItemDto,
       clanId,
       user.player_id,
     );
     if (sellItemErrors) return sellItemErrors;
+
+    if (sellItemResult === SellItemResult.VOTING_STARTED) {
+      await this.emitterService.EmitNewDailyTaskEvent(
+        user.player_id,
+        ServerTaskName.LETTING_GO_OF_THE_OLD,
+      );
+    }
   }
 
   /**

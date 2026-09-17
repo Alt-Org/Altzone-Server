@@ -47,7 +47,7 @@ export class AuthController {
 
   /**
    * Get new access and refresh tokens using refresh token from client
-   * 
+   *
    * @param body - refresh token from client
    * @returns new access and refresh tokens
    */
