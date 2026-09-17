@@ -76,6 +76,21 @@ describe('daily task scoring values', () => {
     });
   });
 
+  it('configures LETTING_GO_OF_THE_OLD as a one-step sell-voting task', () => {
+    const generator = new TaskGeneratorService();
+    jest
+      .spyOn(generator, 'getRandomTaskType')
+      .mockReturnValue(ServerTaskName.LETTING_GO_OF_THE_OLD);
+
+    expect(generator.createTaskRandomValues()).toMatchObject({
+      type: ServerTaskName.LETTING_GO_OF_THE_OLD,
+      amount: 1,
+      title: {
+        fi: 'Avaa klaanin äänestys. Valitse vaihtoehto ja anna äänesi. Huomaa, miten oma valintasi vaikuttaa yhteiseen päätökseen.',
+      },
+    });
+  });
+
   it('creates a balanced, shuffled server-task bag', () => {
     const generator = new TaskGeneratorService();
     const taskTypes = generator.createBalancedTaskTypes();
