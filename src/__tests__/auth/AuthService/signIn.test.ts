@@ -24,7 +24,8 @@ describe('AuthService.signIn() test suite', () => {
   const refreshToken = 'refresh-token';
   const refreshTokenExpires = new Date().getTime();
 
-  jest.spyOn(JwtService.prototype, 'signAsync')
+  jest
+    .spyOn(JwtService.prototype, 'signAsync')
     .mockResolvedValueOnce(refreshToken)
     .mockResolvedValueOnce(accessToken);
   jest

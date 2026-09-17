@@ -5,7 +5,7 @@ import { IsString } from 'class-validator';
 export class RefreshTokenDto {
   /**
    * refresh token
-   * 
+   *
    * @example "eyJhbGciOiJIUzI1N..."
    */
   @IsString()
