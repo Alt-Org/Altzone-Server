@@ -1,7 +1,5 @@
 import { Connection } from 'mongoose';
-import {
-  DailyTasksService,
-} from '../../dailyTasks/dailyTasks.service';
+import { DailyTasksService } from '../../dailyTasks/dailyTasks.service';
 import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
 import { ChatEmotion } from '../../chat/enum/chatEmotion.enum';
 import { ChatResponseType } from '../../chat/enum/chatResponseType.enum';
@@ -31,7 +29,9 @@ describe('PLAY_WITH_EMOTIONS daily task', () => {
       } as any,
       progressService as any,
     );
-    const basicService = { updateOne: jest.fn().mockResolvedValue([true, null]) };
+    const basicService = {
+      updateOne: jest.fn().mockResolvedValue([true, null]),
+    };
     (service as any).basicService = basicService;
 
     return { basicService, model, progressService, service };
@@ -88,7 +88,9 @@ describe('PLAY_WITH_EMOTIONS daily task', () => {
     [ChatResponseType.YES, undefined],
     ['InvalidResponse', ChatEmotion.JOY],
     [ChatResponseType.YES, 99],
-  ])('does not progress for invalid response or emotion values', async (responseType, emotion) => {
+  ])(
+    'does not progress for invalid response or emotion values',
+    async (responseType, emotion) => {
       const { model, service } = createService();
 
       const [result, errors] = await service.updatePlayWithEmotionsTask(
@@ -101,7 +103,8 @@ describe('PLAY_WITH_EMOTIONS daily task', () => {
       expect(result).toBeNull();
       expect(errors).toBeNull();
       expect(model.findOneAndUpdate).not.toHaveBeenCalled();
-    });
+    },
+  );
 
   it('does not progress or notify when the emotion is already recorded', async () => {
     const session = {

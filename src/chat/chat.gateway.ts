@@ -95,10 +95,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.assertUserInitialized(client);
 
-    const [createdMessage, error] = await this.clanChatService.handleNewClanMessage(
-      client,
-      message,
-    );
+    const [createdMessage, error] =
+      await this.clanChatService.handleNewClanMessage(client, message);
 
     if (error) return [null, error];
 
