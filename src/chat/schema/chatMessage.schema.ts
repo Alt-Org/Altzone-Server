@@ -6,6 +6,8 @@ import { ModelName } from '../../common/enum/modelName.enum';
 import { Reaction } from './reaction.schema';
 import { Feeling } from '../enum/feeling.enum';
 import { ObjectId } from 'mongodb';
+import { ChatEmotion } from '../enum/chatEmotion.enum';
+import { ChatResponseType } from '../enum/chatResponseType.enum';
 
 const CHATMESSAGE_TTL = 60 * 60 * 24 * 3;
 
@@ -29,6 +31,12 @@ export class ChatMessage {
 
   @Prop({ type: String, enum: Feeling })
   feeling?: Feeling;
+
+  @Prop({ type: String, enum: ChatResponseType })
+  responseType?: ChatResponseType;
+
+  @Prop({ type: Number, enum: ChatEmotion })
+  emotion?: ChatEmotion;
 
   @Prop({ type: String, required: true })
   content: string;

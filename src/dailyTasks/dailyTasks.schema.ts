@@ -42,6 +42,12 @@ export class DailyTask {
   @Prop({ type: Number, required: true })
   amountLeft: number; // Amount of atomic tasks to complete. When 0 set completedAt.
 
+  @Prop({ type: Object, default: () => ({}) })
+  progress?: {
+    key?: string;
+    steps?: number[];
+  };
+
   @Prop({ type: Number, required: true })
   timeLimitMinutes: number;
 

@@ -48,6 +48,13 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     }),
   },
   {
+    type: ServerTaskName.PLAY_WITH_EMOTIONS,
+    createAmount: () => 6,
+    createTitle: () => ({
+      fi: 'Avaa klaanin chat. Lähetä viestejä käyttämällä kaikkia eri tunnevaihtoehtoja. Huomaa, miten sama viesti muuttuu eri tunteilla.',
+    }),
+  },
+  {
     type: ServerTaskName.INNER_VOICE,
     createAmount: () => 1,
     createTitle: () => ({

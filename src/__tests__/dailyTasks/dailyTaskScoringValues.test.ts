@@ -46,6 +46,18 @@ describe('daily task scoring values', () => {
     });
   });
 
+  it('configures PLAY_WITH_EMOTIONS with one step for each chat emotion', () => {
+    const generator = new TaskGeneratorService();
+    jest
+      .spyOn(generator, 'getRandomTaskType')
+      .mockReturnValue(ServerTaskName.PLAY_WITH_EMOTIONS);
+
+    expect(generator.createTaskRandomValues()).toMatchObject({
+      type: ServerTaskName.PLAY_WITH_EMOTIONS,
+      amount: 6,
+    });
+  });
+
   it('configures BUILD_YOUR_WORLD as a one-step room-layout task', () => {
     const generator = new TaskGeneratorService();
     jest
