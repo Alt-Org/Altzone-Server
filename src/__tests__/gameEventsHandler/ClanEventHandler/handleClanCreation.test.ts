@@ -39,7 +39,7 @@ describe('ClanEventHandler.handleClanCreation() test suite', () => {
     expect(uiTasks).toHaveLength(Object.keys(uiDailyTasks).length);
   });
 
-  it('Should create the configured number of server daily tasks for the clan', async () => {
+  it('Should create configured server daily tasks for the clan', async () => {
     const eventPayload = eventPayloadBuilder
       .setEventName('clan.create')
       .setInfo({ clan_id: new ObjectId() })

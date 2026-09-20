@@ -6,10 +6,13 @@ import { TaskTitle } from './type/taskTitle.type';
 
 export const MIN_OCCURRENCES_PER_TASK_TYPE = 2;
 
+const SET_BOUNDARIES_TIME_LIMIT_MINUTES = 60;
+
 type ServerTaskDefinition = {
   type: ServerTaskName;
   createAmount: () => number;
   createTitle: (amount: number) => TaskTitle;
+  timeLimitMinutes?: number;
 };
 
 type TaskInfo = {
@@ -63,11 +66,40 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     createAmount: () => 1,
     createTitle: () => ({ fi: 'Äänestä klaanin äänestyksessä.' }),
   },
+  {
+    type: ServerTaskName.BUILD_YOUR_WORLD,
+    createAmount: () => 1,
+    createTitle: () => ({
+      fi: 'Sisusta yksi klaanin Turvapaikan huone vähintään kolmella saman malliston huonekalulla.',
+    }),
+  },
+  {
+    type: ServerTaskName.RECYCLING_EXPERIENCES,
+    createAmount: () => 1,
+    createTitle: () => ({
+      fi: 'Avaa klaanin kirpputori. Valitse äänestyksessä myytäväksi hyväksytty tavara ja lisää se myytäväksi. Katso, miten muut reagoivat ja miltä tuntuu kun tavara alkaa liikkua pelaajien välillä.',
+    }),
+  },
+  {
+    type: ServerTaskName.LETTING_GO_OF_THE_OLD,
+    createAmount: () => 1,
+    createTitle: () => ({
+      fi: 'Avaa klaanin äänestys. Valitse vaihtoehto ja anna äänesi. Huomaa, miten oma valintasi vaikuttaa yhteiseen päätökseen.',
+    }),
+  },
+  {
+    type: ServerTaskName.SET_BOUNDARIES,
+    createAmount: () => 1,
+    createTitle: () => ({
+      fi: 'Avaa klaanin säännöt ja muokkaa niitä. Säännöt muovaavat sitä, millainen yhteisö te olette. Mieti, mitä toimintaa haluatte vahvistaa.',
+    }),
+    timeLimitMinutes: SET_BOUNDARIES_TIME_LIMIT_MINUTES,
+  },
 ];
 
-// Keep one extra random task after guaranteeing two of every active type.
+// each server task randomly appears at least twice
 export const SERVER_TASKS_PER_CLAN =
-  ACTIVE_SERVER_TASK_DEFINITIONS.length * MIN_OCCURRENCES_PER_TASK_TYPE + 1;
+  ACTIVE_SERVER_TASK_DEFINITIONS.length * MIN_OCCURRENCES_PER_TASK_TYPE;
 
 @Injectable()
 export class TaskGeneratorService {
@@ -134,7 +166,7 @@ export class TaskGeneratorService {
       amount,
       points,
       coins: Math.floor(points * TASK_CONSTS.COINS.FACTOR),
-      timeLimitMinutes: amount * 2,
+      timeLimitMinutes: definition.timeLimitMinutes ?? amount * 2,
       type,
       title: definition.createTitle(amount),
     };

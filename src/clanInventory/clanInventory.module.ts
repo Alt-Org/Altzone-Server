@@ -28,6 +28,7 @@ import { StealTokenGuard } from './item/guards/StealToken.guard';
 import { AuthorizationModule } from '../authorization/authorization.module';
 import { ClanModule } from '../clan/clan.module';
 import { FleaMarketModule } from '../fleaMarket/fleaMarket.module';
+import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
 // well be removed in the future
 import { RoomStartupFloorTypeRefreshService } from './room/roomStartupFloorTypeRefresh.service';
 
@@ -45,6 +46,7 @@ import { RoomStartupFloorTypeRefreshService } from './room/roomStartupFloorTypeR
     RequestHelperModule,
     AuthModule,
     AuthorizationModule,
+    EventEmitterCommonModule,
     forwardRef(() => ClanModule),
     forwardRef(() => FleaMarketModule),
   ],

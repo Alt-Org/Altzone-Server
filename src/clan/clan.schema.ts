@@ -12,6 +12,7 @@ import { initializationClanRoles } from './role/initializationClanRoles';
 import { Stall } from './stall/stall.schema';
 import { getDefaultStall } from './defaultValues/stall';
 import { Environment } from '../common/enum/environment.enum';
+import { ClanRule } from './enum/clanRule.enum';
 
 export type ClanDocument = HydratedDocument<Clan>;
 
@@ -98,6 +99,13 @@ export class Clan {
     enum: Environment,
   })
   environment: Environment;
+
+  @Prop({
+    type: [String],
+    enum: ClanRule,
+    default: [ClanRule.FAIR_GAME, ClanRule.NO_TOXICITY, ClanRule.NO_SPAM],
+  })
+  rules: ClanRule[];
 
   @ExtractField()
   _id: string;

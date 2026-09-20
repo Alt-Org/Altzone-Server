@@ -94,6 +94,10 @@ export class ClanService {
       clanToCreate.environment = environment;
     }
 
+    if (clanToCreate?.rules) {
+      this.clanHelperService.ensureMandatoryRules(clanToCreate.rules);
+    }
+
     if (clanToCreate?.isOpen === false && !clanToCreate.password) {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
     }
@@ -167,6 +171,10 @@ export class ClanService {
 
     if (clanToCreate?.isOpen === false && !clanToCreate.password) {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
+    }
+
+    if (clanToCreate?.rules) {
+      this.clanHelperService.ensureMandatoryRules(clanToCreate.rules);
     }
 
     let furnitureTotalValue = 0;
@@ -364,6 +372,10 @@ export class ClanService {
       if (updateErrors) return [null, updateErrors];
 
       return [wasUpdated, null];
+    }
+
+    if (updateData.rules) {
+      this.clanHelperService.ensureMandatoryRules(updateData.rules);
     }
 
     const [wasUpdated, updateErrors] = await this.basicService.updateOneById(

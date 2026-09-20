@@ -51,10 +51,7 @@ export default class BoxAuthHandler {
       tokenVersion: profile.tokenVersion ?? 0,
     };
 
-    return [
-      await this.boxAuthService.createTestingSessionTokens(payload),
-      null,
-    ];
+    return [await this.boxAuthService.createTokens(payload), null];
   }
 
   /**

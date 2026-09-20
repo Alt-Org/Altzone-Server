@@ -58,6 +58,51 @@ describe('daily task scoring values', () => {
     });
   });
 
+  it('configures BUILD_YOUR_WORLD as a one-step room-layout task', () => {
+    const generator = new TaskGeneratorService();
+    jest
+      .spyOn(generator, 'getRandomTaskType')
+      .mockReturnValue(ServerTaskName.BUILD_YOUR_WORLD);
+
+    expect(generator.createTaskRandomValues()).toMatchObject({
+      type: ServerTaskName.BUILD_YOUR_WORLD,
+      amount: 1,
+      title: {
+        fi: 'Sisusta yksi klaanin Turvapaikan huone vähintään kolmella saman malliston huonekalulla.',
+      },
+    });
+  });
+
+  it('configures RECYCLING_EXPERIENCES as a one-step flea-market listing task', () => {
+    const generator = new TaskGeneratorService();
+    jest
+      .spyOn(generator, 'getRandomTaskType')
+      .mockReturnValue(ServerTaskName.RECYCLING_EXPERIENCES);
+
+    expect(generator.createTaskRandomValues()).toMatchObject({
+      type: ServerTaskName.RECYCLING_EXPERIENCES,
+      amount: 1,
+      title: {
+        fi: 'Avaa klaanin kirpputori. Valitse äänestyksessä myytäväksi hyväksytty tavara ja lisää se myytäväksi. Katso, miten muut reagoivat ja miltä tuntuu kun tavara alkaa liikkua pelaajien välillä.',
+      },
+    });
+  });
+
+  it('configures LETTING_GO_OF_THE_OLD as a one-step sell-voting task', () => {
+    const generator = new TaskGeneratorService();
+    jest
+      .spyOn(generator, 'getRandomTaskType')
+      .mockReturnValue(ServerTaskName.LETTING_GO_OF_THE_OLD);
+
+    expect(generator.createTaskRandomValues()).toMatchObject({
+      type: ServerTaskName.LETTING_GO_OF_THE_OLD,
+      amount: 1,
+      title: {
+        fi: 'Avaa klaanin äänestys. Valitse vaihtoehto ja anna äänesi. Huomaa, miten oma valintasi vaikuttaa yhteiseen päätökseen.',
+      },
+    });
+  });
+
   it('creates a balanced, shuffled server-task bag', () => {
     const generator = new TaskGeneratorService();
     const taskTypes = generator.createBalancedTaskTypes();

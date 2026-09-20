@@ -17,6 +17,7 @@ import VotingNotifier from '../../../../voting/voting.notifier';
 import { VotingType } from '../../../../voting/enum/VotingType.enum';
 import { NotificationStatus } from '../../../../common/service/notificator/enum/NotificationStatus.enum';
 import { NotificationResource } from '../../../../common/service/notificator/enum/NotificationResource.enum';
+import { ClanRule } from '../../../../clan/enum/clanRule.enum';
 
 jest.mock('../../../../common/service/notificator/MQTTConnector', () => ({
   getInstance: jest.fn(),
@@ -232,6 +233,29 @@ describe('MQTT notification contract', () => {
 
     new ClanNotifier().memberLeave('clan-1', 'player-1');
     expectLastPayloadToMatchEnvelope('clan', MqttNotificationType.MEMBER_LEFT);
+
+    new ClanNotifier().rulesUpdated('clan-1', [
+      ClanRule.FAIR_GAME,
+      ClanRule.NO_TOXICITY,
+    ]);
+    expect(publishMock).toHaveBeenLastCalledWith(
+      `/clan/clan-1/${NotificationResource.RULES}/update/update`,
+      expect.any(String),
+    );
+    expectLastPayloadToMatchEnvelope(
+      'clan',
+      MqttNotificationType.CLAN_RULES_UPDATED,
+    );
+    const rulesPayload = JSON.parse(
+      publishMock.mock.calls[publishMock.mock.calls.length - 1][1],
+    );
+    expect(rulesPayload.payload).toEqual(
+      expect.objectContaining({
+        topic: '/clan/clan-1/rules/update',
+        clan_id: 'clan-1',
+        rules: [ClanRule.FAIR_GAME, ClanRule.NO_TOXICITY],
+      }),
+    );
 
     new ClanNotifier().phraseUpdated('clan-1', 'Together we rise');
     expect(publishMock).toHaveBeenLastCalledWith(
