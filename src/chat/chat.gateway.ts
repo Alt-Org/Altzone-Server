@@ -95,7 +95,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.assertUserInitialized(client);
 
-    const [_, error] = await this.clanChatService.handleNewClanMessage(
+    const [createdMessage, error] = await this.clanChatService.handleNewClanMessage(
       client,
       message,
     );
@@ -105,6 +105,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
       ServerTaskName.FORM_AN_INNER_CONNECTION,
+    );
+    this.emitterService.EmitNewDailyTaskEvent(
+      client.user.playerId,
+      ServerTaskName.PLAY_WITH_EMOTIONS,
+      true,
+      {
+        clanId: createdMessage.clan_id,
+        responseType: message.responseType,
+        emotion: message.emotion,
+      },
     );
   }
 

@@ -3,6 +3,7 @@ import { Score } from '../../common/values/scoring.values';
 import {
   ACTIVE_SERVER_TASK_DEFINITIONS,
   MIN_OCCURRENCES_PER_TASK_TYPE,
+  SERVER_TASKS_PER_CLAN,
   TaskGeneratorService,
 } from '../../dailyTasks/taskGenerator.service';
 import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
@@ -45,11 +46,23 @@ describe('daily task scoring values', () => {
     });
   });
 
+  it('configures PLAY_WITH_EMOTIONS with one step for each chat emotion', () => {
+    const generator = new TaskGeneratorService();
+    jest
+      .spyOn(generator, 'getRandomTaskType')
+      .mockReturnValue(ServerTaskName.PLAY_WITH_EMOTIONS);
+
+    expect(generator.createTaskRandomValues()).toMatchObject({
+      type: ServerTaskName.PLAY_WITH_EMOTIONS,
+      amount: 6,
+    });
+  });
+
   it('creates a balanced, shuffled server-task bag', () => {
     const generator = new TaskGeneratorService();
     const taskTypes = generator.createBalancedTaskTypes();
 
-    expect(taskTypes).toHaveLength(11);
+    expect(taskTypes).toHaveLength(SERVER_TASKS_PER_CLAN);
     for (const { type } of ACTIVE_SERVER_TASK_DEFINITIONS) {
       expect(
         taskTypes.filter((taskType) => taskType === type).length,

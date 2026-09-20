@@ -3,6 +3,8 @@ import { WebSocketUser } from '../../../chat/types/WsUser.type';
 import ChatModule from '../modules/chat.module';
 import { WsMessageBodyDto } from '../../../chat/dto/wsMessageBody.dto';
 import { ChatType } from '../../../chat/enum/chatMessageType.enum';
+import { ChatEmotion } from '../../../chat/enum/chatEmotion.enum';
+import { ChatResponseType } from '../../../chat/enum/chatResponseType.enum';
 
 describe('ClanChatService.handleNewClanMessage() test suite', () => {
   let clanChatService: ClanChatService;
@@ -30,6 +32,8 @@ describe('ClanChatService.handleNewClanMessage() test suite', () => {
     const message: WsMessageBodyDto = {
       content: 'Hello clan!',
       feeling: 'happy',
+      responseType: ChatResponseType.YES,
+      emotion: ChatEmotion.JOY,
     } as any;
     clanChatService.handleJoinChat(client);
 
@@ -43,6 +47,8 @@ describe('ClanChatService.handleNewClanMessage() test suite', () => {
     expect(chatMessage.sender_id).toBe('player123');
     expect(chatMessage.content).toBe('Hello clan!');
     expect(chatMessage.feeling).toBe('happy');
+    expect(chatMessage.responseType).toBe(ChatResponseType.YES);
+    expect(chatMessage.emotion).toBe(ChatEmotion.JOY);
     expect(calledClient).toBe(client);
     expect(chatType).toBe(ChatType.CLAN);
     expect(recipients.has(client)).toBe(true);

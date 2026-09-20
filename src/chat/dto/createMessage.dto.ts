@@ -9,6 +9,8 @@ import {
 } from 'class-validator';
 import { ChatType } from '../enum/chatMessageType.enum';
 import { Feeling } from '../enum/feeling.enum';
+import { ChatEmotion } from '../enum/chatEmotion.enum';
+import { ChatResponseType } from '../enum/chatResponseType.enum';
 import { ObjectId } from 'mongodb';
 
 export class CreateChatMessageDto {
@@ -73,4 +75,12 @@ export class CreateChatMessageDto {
   @IsEnum(Feeling)
   @IsOptional()
   feeling?: Feeling;
+
+  @IsEnum(ChatResponseType)
+  @IsOptional()
+  responseType?: ChatResponseType;
+
+  @IsEnum(ChatEmotion)
+  @IsOptional()
+  emotion?: ChatEmotion;
 }

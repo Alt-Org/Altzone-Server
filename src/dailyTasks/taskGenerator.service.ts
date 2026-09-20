@@ -4,7 +4,6 @@ import { TASK_CONSTS } from './consts/taskConstants';
 import { ServerTaskName } from './enum/serverTaskName.enum';
 import { TaskTitle } from './type/taskTitle.type';
 
-export const SERVER_TASKS_PER_CLAN = 11;
 export const MIN_OCCURRENCES_PER_TASK_TYPE = 2;
 
 type ServerTaskDefinition = {
@@ -46,6 +45,13 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     }),
   },
   {
+    type: ServerTaskName.PLAY_WITH_EMOTIONS,
+    createAmount: () => 6,
+    createTitle: () => ({
+      fi: 'Avaa klaanin chat. Lähetä viestejä käyttämällä kaikkia eri tunnevaihtoehtoja. Huomaa, miten sama viesti muuttuu eri tunteilla.',
+    }),
+  },
+  {
     type: ServerTaskName.INNER_VOICE,
     createAmount: () => 1,
     createTitle: () => ({
@@ -58,6 +64,10 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     createTitle: () => ({ fi: 'Äänestä klaanin äänestyksessä.' }),
   },
 ];
+
+// Keep one extra random task after guaranteeing two of every active type.
+export const SERVER_TASKS_PER_CLAN =
+  ACTIVE_SERVER_TASK_DEFINITIONS.length * MIN_OCCURRENCES_PER_TASK_TYPE + 1;
 
 @Injectable()
 export class TaskGeneratorService {
