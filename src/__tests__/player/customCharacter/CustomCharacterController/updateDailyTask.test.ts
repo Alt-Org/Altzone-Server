@@ -64,7 +64,7 @@ describe('CustomCharacterController stronger soldier progress', () => {
     expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalled();
   });
 
-  it('does not update or emit when the owned character cannot be read', async () => {
+  it("does not update or emit for another player's character", async () => {
     const { controller, emitterService, service } = createController();
     const readErrors = [{ message: 'not found' }];
     service.readOne.mockResolvedValueOnce([null, readErrors]);
@@ -75,6 +75,9 @@ describe('CustomCharacterController stronger soldier progress', () => {
     );
 
     expect(result).toEqual([null, readErrors]);
+    expect(service.readOne).toHaveBeenCalledWith({
+      filter: { player_id: 'player-1', _id: 'character-1' },
+    });
     expect(service.updateOneByCondition).not.toHaveBeenCalled();
     expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalled();
   });

@@ -99,8 +99,19 @@ describe('STRONGER_SOLDIER daily task', () => {
     );
   });
 
-  it('treats repeated or out-of-order events as no-ops', async () => {
-    const { progressService, service } = createService();
+  it.each([
+    [
+      'a repeated attack increase after step one',
+      StrongerSoldierStep.ATTACK_INCREASED,
+      2,
+    ],
+    [
+      'a battle before the attack increase',
+      StrongerSoldierStep.BATTLE_PLAYED,
+      1,
+    ],
+  ])('treats %s as a no-op', async (_caseName, step, expectedAmountLeft) => {
+    const { model, progressService, service } = createService();
     const session = {
       startTransaction: jest.fn(),
       inTransaction: jest.fn().mockReturnValue(true),
@@ -114,11 +125,16 @@ describe('STRONGER_SOLDIER daily task', () => {
     const [result, errors] = await service.handleDailyTaskEvent({
       playerId: 'player-1',
       serverTaskName: ServerTaskName.STRONGER_SOLDIER,
-      strongerSoldierStep: StrongerSoldierStep.BATTLE_PLAYED,
+      strongerSoldierStep: step,
     });
 
     expect(result).toBeNull();
     expect(errors).toBeNull();
+    expect(model.findOneAndUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ amountLeft: expectedAmountLeft }),
+      { $inc: { amountLeft: -1 } },
+      expect.objectContaining({ new: true, session }),
+    );
     expect(progressService.handleProgress).not.toHaveBeenCalled();
   });
 
