@@ -41,6 +41,13 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     createTitle: (amount) => ({ fi: `Pelaa ${amount} taistelua` }),
   },
   {
+    type: ServerTaskName.STRONGER_SOLDIER,
+    createAmount: () => 2,
+    createTitle: () => ({
+      fi: 'Kasvata puolustussotilaan hyökkäysarvoa ja pelaa sen jälkeen taistelu.',
+    }),
+  },
+  {
     type: ServerTaskName.FORM_AN_INNER_CONNECTION,
     createAmount: createRandomAmount,
     createTitle: (amount) => ({
