@@ -3,6 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ServerTaskName } from '../../../dailyTasks/enum/serverTaskName.enum';
 import { ChatEmotion } from '../../../chat/enum/chatEmotion.enum';
 import { ChatResponseType } from '../../../chat/enum/chatResponseType.enum';
+import { StrongerSoldierStep } from '../../../dailyTasks/enum/strongerSoldierStep.enum';
 
 /**
  Service for emitt Server Events
@@ -26,6 +27,7 @@ export default class EventEmitterService {
       clanId?: string;
       responseType?: ChatResponseType;
       emotion?: ChatEmotion;
+      strongerSoldierStep?: StrongerSoldierStep;
     },
   ) {
     await this.eventEmitter.emitAsync('newDailyTaskEvent', {
