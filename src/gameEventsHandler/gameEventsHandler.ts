@@ -7,6 +7,7 @@ import { PlayerEvent } from '../rewarder/playerRewarder/enum/PlayerEvent.enum';
 import { ClanEvent } from '../rewarder/clanRewarder/enum/ClanEvent.enum';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import { StrongerSoldierStep } from '../dailyTasks/enum/strongerSoldierStep.enum';
 
 @Injectable()
 export class GameEventsHandler {
@@ -48,10 +49,7 @@ export class GameEventsHandler {
       PlayerEvent.BATTLE_WON,
     );
 
-    await this.emitterService.EmitNewDailyTaskEvent(
-      player_id,
-      ServerTaskName.GO_TO_BATTLE,
-    );
+    await this.emitBattleDailyTaskEvents(player_id);
 
     const [, clanEventErrors] = await this.clanEventHandler.handleClanEvent(
       player_id,
@@ -73,10 +71,7 @@ export class GameEventsHandler {
 
     if (playerErrors) return [null, playerErrors];
 
-    await this.emitterService.EmitNewDailyTaskEvent(
-      player_id,
-      ServerTaskName.GO_TO_BATTLE,
-    );
+    await this.emitBattleDailyTaskEvents(player_id);
 
     const [, clanEventErrors] = await this.clanEventHandler.handleClanEvent(
       player_id,
@@ -113,6 +108,19 @@ export class GameEventsHandler {
     if (clanErrors) return [null, clanErrors];
 
     return [true, null];
+  }
+
+  private async emitBattleDailyTaskEvents(playerId: string) {
+    await this.emitterService.EmitNewDailyTaskEvent(
+      playerId,
+      ServerTaskName.GO_TO_BATTLE,
+    );
+    await this.emitterService.EmitNewDailyTaskEvent(
+      playerId,
+      ServerTaskName.STRONGER_SOLDIER,
+      true,
+      { strongerSoldierStep: StrongerSoldierStep.BATTLE_PLAYED },
+    );
   }
 
   private concatArrays(arr1?: any[], arr2?: any[]) {
