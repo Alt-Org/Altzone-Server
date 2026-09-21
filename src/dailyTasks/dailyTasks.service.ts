@@ -30,6 +30,8 @@ import { DailyTaskProgressResult } from './type/dailyTaskProgressResult.type';
 import { DailyTaskProgressService } from './dailyTaskProgress.service';
 import { ChatEmotion } from '../chat/enum/chatEmotion.enum';
 import { ChatResponseType } from '../chat/enum/chatResponseType.enum';
+import { StrongerSoldierStep } from './enum/strongerSoldierStep.enum';
+import ServiceError from '../common/service/basicService/ServiceError';
 
 const isChatEmotion = (emotion: unknown): emotion is ChatEmotion =>
   typeof emotion === 'number' && Object.values(ChatEmotion).includes(emotion);
@@ -39,6 +41,10 @@ const isChatResponseType = (
 ): responseType is ChatResponseType =>
   typeof responseType === 'string' &&
   Object.values(ChatResponseType).includes(responseType as ChatResponseType);
+
+const isStrongerSoldierStep = (step: unknown): step is StrongerSoldierStep =>
+  typeof step === 'string' &&
+  Object.values(StrongerSoldierStep).includes(step as StrongerSoldierStep);
 @Injectable()
 export class DailyTasksService {
   public constructor(
@@ -370,6 +376,59 @@ export class DailyTasksService {
   }
 
   /**
+   * Advances STRONGER_SOLDIER only when its two events occur in order.
+   * The conditional update makes repeated and out-of-order events no-ops.
+   */
+  async updateStrongerSoldierTask(
+    playerId: string,
+    step: StrongerSoldierStep,
+    session?: ClientSession,
+  ): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
+    const expectedAmountLeft =
+      step === StrongerSoldierStep.ATTACK_INCREASED ? 2 : 1;
+
+    const task = await this.model
+      .findOneAndUpdate(
+        {
+          player_id: playerId,
+          type: ServerTaskName.STRONGER_SOLDIER,
+          amountLeft: expectedAmountLeft,
+        },
+        { $inc: { amountLeft: -1 } },
+        { new: true, session },
+      )
+      .exec();
+
+    if (!task) return [null, null];
+
+    const currentAmountLeft = task.amountLeft;
+    const previousAmountLeft = currentAmountLeft + 1;
+
+    if (currentAmountLeft <= 0) {
+      const [, deleteErrors] = await this.deleteTask(
+        task._id.toString(),
+        task.clan_id.toString(),
+        playerId,
+        session,
+      );
+      if (deleteErrors) return [null, deleteErrors];
+    }
+
+    return [
+      {
+        status: currentAmountLeft <= 0 ? 'completed' : 'advanced',
+        task: task as DailyTaskDto,
+        completedByPlayerId: playerId,
+        clanId: task.clan_id.toString(),
+        completedAmount: 1,
+        previousAmountLeft,
+        currentAmountLeft,
+      },
+      null,
+    ];
+  }
+
+  /**
    * Reads a DailyTask by its _id in DB.
    *
    * @param _id - The Mongo _id of the DailyTask to read.
@@ -441,6 +500,7 @@ export class DailyTasksService {
     clanId?: string;
     responseType?: ChatResponseType;
     emotion?: ChatEmotion;
+    strongerSoldierStep?: StrongerSoldierStep;
   }): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
     if (
       payload.serverTaskName === ServerTaskName.PLAY_WITH_EMOTIONS &&
@@ -451,23 +511,40 @@ export class DailyTasksService {
       return [null, null];
     }
 
+    if (
+      payload.serverTaskName === ServerTaskName.STRONGER_SOLDIER &&
+      !isStrongerSoldierStep(payload.strongerSoldierStep)
+    ) {
+      return [null, null];
+    }
+
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
 
-    const [progressResult, updateErrors] =
-      payload.serverTaskName === ServerTaskName.PLAY_WITH_EMOTIONS
-        ? await this.updatePlayWithEmotionsTask(
-            payload.playerId,
-            payload.clanId!,
-            payload.responseType,
-            payload.emotion,
-            session,
-          )
-        : await this.updateTask(
-            payload.playerId,
-            payload.serverTaskName,
-            session,
-          );
+    let progressResult: DailyTaskProgressResult<DailyTaskDto> | null;
+    let updateErrors: ServiceError[] | null;
+
+    if (payload.serverTaskName === ServerTaskName.PLAY_WITH_EMOTIONS) {
+      [progressResult, updateErrors] = await this.updatePlayWithEmotionsTask(
+        payload.playerId,
+        payload.clanId!,
+        payload.responseType,
+        payload.emotion,
+        session,
+      );
+    } else if (payload.serverTaskName === ServerTaskName.STRONGER_SOLDIER) {
+      [progressResult, updateErrors] = await this.updateStrongerSoldierTask(
+        payload.playerId,
+        payload.strongerSoldierStep!,
+        session,
+      );
+    } else {
+      [progressResult, updateErrors] = await this.updateTask(
+        payload.playerId,
+        payload.serverTaskName,
+        session,
+      );
+    }
 
     // Checks whether the completed task should reward the entire clan.
     if (progressResult) {
