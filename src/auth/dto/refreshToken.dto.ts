@@ -1,5 +1,5 @@
 import AddType from '../../common/base/decorator/AddType.decorator';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 @AddType('RefreshTokenDto')
 export class RefreshTokenDto {
@@ -8,6 +8,7 @@ export class RefreshTokenDto {
    *
    * @example "eyJhbGciOiJIUzI1N..."
    */
+  @IsOptional()
   @IsString()
-  refreshToken: string;
+  refreshToken?: string;
 }

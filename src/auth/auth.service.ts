@@ -14,6 +14,8 @@ import { envVars } from '../common/service/envHandler/envVars';
 import { StringValue } from 'ms';
 import { TokensDto } from './dto/tokens.dto';
 import { TokenPayload } from './dto/tokenPayload.dto';
+import { Response } from 'express';
+import { TokenName } from './enum/tokenName.enum';
 
 @Injectable()
 export class AuthService {
@@ -36,7 +38,7 @@ export class AuthService {
   public signIn = async (
     username: string,
     pass: string,
-  ): Promise<object> | null => {
+  ) => {
     const profileResp = await this.profileModel.findOne({ username });
 
     if (!profileResp || profileResp instanceof MongooseError) return null;
@@ -184,6 +186,17 @@ export class AuthService {
    * @returns access and refresh tokens + token expiration dates if successul, else errors
    */
   public async refresh(refreshToken: string) {
+    if (!refreshToken)
+      throw new UnauthorizedException({
+        statusCode: 401,
+        errors: [
+          new APIError({
+            reason: APIErrorReason.INVALID_AUTH_TOKEN,
+            message: 'Invalid token',
+          }),
+        ],
+      });
+    
     const decoded = await this.verifyToken(refreshToken);
 
     if (decoded.type !== 'refresh')
@@ -284,5 +297,53 @@ export class AuthService {
       refreshToken,
       refreshTokenExpires,
     };
+  }
+
+  /**
+   * Set browser Response cookies
+   * 
+   * @param response - Response
+   * @param accessToken - Access token
+   * @param refreshToken - Refresh token
+   * @param accessExpires - Access token expiration
+   * @param refreshExpires - Refresh token expiration
+   */
+  public setCookies(
+    response: Response, 
+    accessToken: string, 
+    refreshToken: string, 
+    accessExpires: number, 
+    refreshExpires: number,
+  ) {
+    response
+      .cookie(TokenName.ACCESS_TOKEN, accessToken, { 
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: accessExpires,
+      })
+      .cookie(TokenName.REFRESH_TOKEN, refreshToken, { 
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        path: '/auth/refresh',
+        maxAge: refreshExpires,
+      });
+  }
+
+  /**
+   * Clear browser cookies
+   * 
+   * @param response - Response
+   */
+  public clearCookies(response: Response) {
+    response
+      .clearCookie(TokenName.ACCESS_TOKEN, {
+        path: '/',
+      })
+      .clearCookie(TokenName.REFRESH_TOKEN, {
+        path: '/auth/refresh',
+      });
   }
 }

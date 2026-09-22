@@ -12,6 +12,7 @@ import { User } from './user';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { envVars } from '../common/service/envHandler/envVars';
+import { TokenName } from './enum/tokenName.enum';
 
 //TODO: remove or change error messages to less specific for production
 
@@ -90,8 +91,19 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
+  /**
+   * Extract Token from Request
+   * 
+   * If no token in authorization, try to get token from cookies
+   * 
+   * @param request - Request
+   * @returns string or null
+   */
   private extractTokenFromHeader(request: Request): string | null {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : null;
+    const cookieToken = request.cookies[TokenName.ACCESS_TOKEN];
+    return type === 'Bearer' ? token :
+      cookieToken ? cookieToken :
+      null;
   }
 }
