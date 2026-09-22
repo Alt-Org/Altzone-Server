@@ -88,33 +88,41 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('clanMessage')
-  @WsLog()
-  async handleClanMessage(
-    @MessageBody() message: WsMessageBodyDto,
-    @ConnectedSocket() client: WebSocketUser,
-  ) {
-    this.assertUserInitialized(client);
+@WsLog()
+async handleClanMessage(
+  @MessageBody() message: WsMessageBodyDto,
+  @ConnectedSocket() client: WebSocketUser,
+) {
+  this.assertUserInitialized(client);
 
-    const [createdMessage, error] =
-      await this.clanChatService.handleNewClanMessage(client, message);
+  const [createdMessage, error] =
+    await this.clanChatService.handleNewClanMessage(client, message);
 
-    if (error) return [null, error];
+  if (error) return [null, error];
 
-    this.emitterService.EmitNewDailyTaskEvent(
-      client.user.playerId,
-      ServerTaskName.FORM_AN_INNER_CONNECTION,
-    );
-    this.emitterService.EmitNewDailyTaskEvent(
-      client.user.playerId,
-      ServerTaskName.PLAY_WITH_EMOTIONS,
-      true,
-      {
-        clanId: createdMessage.clan_id,
-        responseType: message.responseType,
-        emotion: message.emotion,
-      },
-    );
-  }
+  // Update FORM_AN_INNER_CONNECTION to include payload context:
+  this.emitterService.EmitNewDailyTaskEvent(
+    client.user.playerId,
+    ServerTaskName.FORM_AN_INNER_CONNECTION,
+    true,
+    {
+      clanId: createdMessage.clan_id,
+      responseType: message.responseType,
+      emotion: message.emotion,
+    },
+  );
+
+  this.emitterService.EmitNewDailyTaskEvent(
+    client.user.playerId,
+    ServerTaskName.PLAY_WITH_EMOTIONS,
+    true,
+    {
+      clanId: createdMessage.clan_id,
+      responseType: message.responseType,
+      emotion: message.emotion,
+    },
+  );
+}
 
   @SubscribeMessage('clanMessageReaction')
   @WsLog()

@@ -48,11 +48,11 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     }),
   },
   {
-    type: ServerTaskName.FORM_AN_INNER_CONNECTION,
-    createAmount: createRandomAmount,
-    createTitle: (amount) => ({
-      fi: `Lähetä ${amount} viesti klaanichattiin`,
-    }),
+  type: ServerTaskName.FORM_AN_INNER_CONNECTION,
+  createAmount: () => 1,
+  createTitle: () => ({
+    fi: 'Avaa klaanin chat ja lähetä viesti. Huomaa, miltä tuntuu aloittaa vuorovaikutus. Opit, että viestintä pelissä rakentaa suhteita ja merkityksiä, ei vain siirrä tietoa.',
+  }),
   },
   {
     type: ServerTaskName.PLAY_WITH_EMOTIONS,
