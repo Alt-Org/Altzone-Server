@@ -82,6 +82,8 @@ export class ClanChatService extends BaseChatService {
       sender_id: client.user.playerId,
       content: message.content,
       feeling: message.feeling,
+      responseType: message.responseType,
+      emotion: message.emotion,
     });
 
     const recipients = this.clanRooms.get(client.user?.clanId);

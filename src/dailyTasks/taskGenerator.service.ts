@@ -41,10 +41,24 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     createTitle: (amount) => ({ fi: `Pelaa ${amount} taistelua` }),
   },
   {
+    type: ServerTaskName.STRONGER_SOLDIER,
+    createAmount: () => 2,
+    createTitle: () => ({
+      fi: 'Kasvata puolustussotilaan hyökkäysarvoa ja pelaa sen jälkeen taistelu.',
+    }),
+  },
+  {
     type: ServerTaskName.FORM_AN_INNER_CONNECTION,
     createAmount: createRandomAmount,
     createTitle: (amount) => ({
       fi: `Lähetä ${amount} viesti klaanichattiin`,
+    }),
+  },
+  {
+    type: ServerTaskName.PLAY_WITH_EMOTIONS,
+    createAmount: () => 6,
+    createTitle: () => ({
+      fi: 'Avaa klaanin chat. Lähetä viestejä käyttämällä kaikkia eri tunnevaihtoehtoja. Huomaa, miten sama viesti muuttuu eri tunteilla.',
     }),
   },
   {

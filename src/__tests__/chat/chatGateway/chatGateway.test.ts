@@ -2,6 +2,9 @@ import { WsException } from '@nestjs/websockets';
 import { Connection } from 'mongoose';
 import { ChatGateway } from '../../../chat/chat.gateway';
 import { WebSocketUser } from '../../../chat/types/WsUser.type';
+import { ChatEmotion } from '../../../chat/enum/chatEmotion.enum';
+import { ChatResponseType } from '../../../chat/enum/chatResponseType.enum';
+import { ServerTaskName } from '../../../dailyTasks/enum/serverTaskName.enum';
 
 describe('ChatGateway user initialization', () => {
   const playerService = {
@@ -66,6 +69,41 @@ describe('ChatGateway user initialization', () => {
     expect(globalChatService.handleJoinChat).toHaveBeenCalledWith(client);
     expect(client.send).toHaveBeenLastCalledWith(
       JSON.stringify({ event: 'ready', data: true }),
+    );
+  });
+
+  it('checks both clan-chat daily tasks after a message is handled successfully', async () => {
+    const client = createClient();
+    client.user = { playerId: 'player-id', clanId: 'clan-id' } as any;
+    clanChatService.handleNewClanMessage.mockResolvedValue([
+      { clan_id: 'clan-id' },
+      null,
+    ]);
+
+    await gateway.handleClanMessage(
+      {
+        content: 'Hello!',
+        responseType: ChatResponseType.YES,
+        emotion: ChatEmotion.JOY,
+      },
+      client,
+    );
+
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenNthCalledWith(
+      1,
+      'player-id',
+      ServerTaskName.FORM_AN_INNER_CONNECTION,
+    );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenNthCalledWith(
+      2,
+      'player-id',
+      ServerTaskName.PLAY_WITH_EMOTIONS,
+      true,
+      {
+        clanId: 'clan-id',
+        responseType: ChatResponseType.YES,
+        emotion: ChatEmotion.JOY,
+      },
     );
   });
 

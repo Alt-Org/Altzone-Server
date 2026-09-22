@@ -35,6 +35,7 @@ type DailyTaskDocument = {
   coins: number;
   amount: number;
   amountLeft: number;
+  progress: { key?: string; steps?: number[] };
   timeLimitMinutes: number;
 };
 
@@ -184,6 +185,7 @@ export class DailyTasksStartupRefreshService implements OnApplicationBootstrap {
       player_id: null,
       amountLeft: task.amount,
       startedAt: null,
+      progress: {},
     }));
   }
 
@@ -196,6 +198,7 @@ export class DailyTasksStartupRefreshService implements OnApplicationBootstrap {
         player_id: null,
         amountLeft: generated.amount,
         startedAt: null,
+        progress: {},
       }));
   }
 }
