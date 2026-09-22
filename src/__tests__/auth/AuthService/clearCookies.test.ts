@@ -1,7 +1,7 @@
-import { TokenName } from "../../../auth/enum/tokenName.enum";
-import { AuthService } from "../../../auth/auth.service";
+import { TokenName } from '../../../auth/enum/tokenName.enum';
+import { AuthService } from '../../../auth/auth.service';
 import { Response } from 'express';
-import AuthModule from "../modules/auth.module";
+import AuthModule from '../modules/auth.module';
 
 describe('clearCookies', () => {
   let authService: AuthService;

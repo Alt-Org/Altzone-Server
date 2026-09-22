@@ -35,10 +35,7 @@ export class AuthService {
    * @returns - access token and its expiration time, profile, player and clan data if password is valid.
    * null if profile is not found, or it was not possible to verify password, or if the password is not valid
    */
-  public signIn = async (
-    username: string,
-    pass: string,
-  ) => {
+  public signIn = async (username: string, pass: string) => {
     const profileResp = await this.profileModel.findOne({ username });
 
     if (!profileResp || profileResp instanceof MongooseError) return null;
@@ -196,7 +193,7 @@ export class AuthService {
           }),
         ],
       });
-    
+
     const decoded = await this.verifyToken(refreshToken);
 
     if (decoded.type !== 'refresh')
@@ -301,7 +298,7 @@ export class AuthService {
 
   /**
    * Set browser Response cookies
-   * 
+   *
    * @param response - Response
    * @param accessToken - Access token
    * @param refreshToken - Refresh token
@@ -309,21 +306,21 @@ export class AuthService {
    * @param refreshExpires - Refresh token expiration
    */
   public setCookies(
-    response: Response, 
-    accessToken: string, 
-    refreshToken: string, 
-    accessExpires: number, 
+    response: Response,
+    accessToken: string,
+    refreshToken: string,
+    accessExpires: number,
     refreshExpires: number,
   ) {
     response
-      .cookie(TokenName.ACCESS_TOKEN, accessToken, { 
+      .cookie(TokenName.ACCESS_TOKEN, accessToken, {
         httpOnly: true,
         secure: true,
         sameSite: 'lax',
         path: '/',
         maxAge: accessExpires,
       })
-      .cookie(TokenName.REFRESH_TOKEN, refreshToken, { 
+      .cookie(TokenName.REFRESH_TOKEN, refreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: 'lax',
@@ -334,7 +331,7 @@ export class AuthService {
 
   /**
    * Clear browser cookies
-   * 
+   *
    * @param response - Response
    */
   public clearCookies(response: Response) {

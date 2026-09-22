@@ -93,17 +93,15 @@ export class AuthGuard implements CanActivate {
 
   /**
    * Extract Token from Request
-   * 
+   *
    * If no token in authorization, try to get token from cookies
-   * 
+   *
    * @param request - Request
    * @returns string or null
    */
   private extractTokenFromHeader(request: Request): string | null {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     const cookieToken = request.cookies[TokenName.ACCESS_TOKEN];
-    return type === 'Bearer' ? token :
-      cookieToken ? cookieToken :
-      null;
+    return type === 'Bearer' ? token : cookieToken ? cookieToken : null;
   }
 }

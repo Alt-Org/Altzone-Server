@@ -26,9 +26,9 @@ export class AuthController {
 
   /**
    * Log in to the system.
-   * 
+   *
    * If clientType is "web", tokens are sent as cookies, else as JSON.
-   * 
+   *
    * @param body - login credentials and optional clientType to determine call origin
    * @remarks After the profile with player was created, the user can log in to the system and get a JWT token to access resources.
    *
@@ -48,17 +48,13 @@ export class AuthController {
   @Post('/signIn')
   @ThrowAuthErrorIfFound()
   public async signIn(
-    @Body() body: SignInDto, 
+    @Body() body: SignInDto,
     @Res({ passthrough: true }) response: Response,
   ) {
     const result = await this.authService.signIn(body.username, body.password);
 
     if (body.clientType === ClientType.WEB) {
-      const { 
-        accessToken,
-        refreshToken,
-        ...data 
-      } = result;
+      const { accessToken, refreshToken, ...data } = result;
 
       this.authService.setCookies(
         response,
@@ -78,7 +74,7 @@ export class AuthController {
    * Get new access and refresh tokens using refresh token from client.
    *
    * Browser sends refreshToken in Request, others in body.
-   * 
+   *
    * @param body - refresh token from client
    * @returns new access and refresh tokens
    */
@@ -100,16 +96,12 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
     @Body() body?: RefreshTokenDto,
   ) {
-    const refreshToken = body?.refreshToken 
-      ?? request.cookies[TokenName.REFRESH_TOKEN];
+    const refreshToken =
+      body?.refreshToken ?? request.cookies[TokenName.REFRESH_TOKEN];
     const result = await this.authService.refresh(refreshToken);
 
     if (!body.refreshToken) {
-      const { 
-        accessToken,
-        refreshToken, 
-        ...data 
-      } = result;
+      const { accessToken, refreshToken, ...data } = result;
 
       this.authService.setCookies(
         response,
@@ -118,7 +110,7 @@ export class AuthController {
         data.tokenExpires,
         data.refreshTokenExpires,
       );
-      
+
       return data;
     }
 
@@ -127,7 +119,7 @@ export class AuthController {
 
   /**
    * Log out of system. Currently browser only.
-   * 
+   *
    * clearCookies "deletes" browser cookies by replacing them with expired cookies.
    *
    * @param response - Response sent by browser
