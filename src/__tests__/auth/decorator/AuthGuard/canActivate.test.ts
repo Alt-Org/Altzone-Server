@@ -7,6 +7,7 @@ import { User } from '../../../../auth/user';
 import { JwtService } from '@nestjs/jwt';
 import { APIError } from '../../../../common/controller/APIError';
 import { APIErrorReason } from '../../../../common/controller/APIErrorReason';
+import { TokenName } from '../../../../auth/enum/tokenName.enum';
 
 describe('AuthGuard with ExecutionContextBuilder and RequestBuilder', () => {
   let guard: AuthGuard;
@@ -45,8 +46,24 @@ describe('AuthGuard with ExecutionContextBuilder and RequestBuilder', () => {
     expect(request['user']).toEqual(new User('123', '456'));
   });
 
+  it('Should allow access and set user on request when cookie token is valid', async () => {
+    const request = requestBuilder
+      .setCookies({ [TokenName.ACCESS_TOKEN]: 'valid-token' })
+      .build();
+
+    const context = contextBuilder.setHttpRequest(request).build();
+
+    const payload = { profile_id: '123', player_id: '456' };
+    jest.spyOn(JwtService.prototype, 'verifyAsync').mockResolvedValue(payload);
+
+    const canActivate = await guard.canActivate(context);
+
+    expect(canActivate).toBe(true);
+    expect(request['user']).toEqual(new User('123', '456'));
+  });
+
   it('Should throw UnauthorizedException if no authorization header is provided', async () => {
-    const request = requestBuilder.setHeaders({}).build();
+    const request = requestBuilder.setHeaders({}).setCookies({}).build();
     const context = contextBuilder.setHttpRequest(request).build();
 
     await expect(guard.canActivate(context)).rejects.toThrow(
