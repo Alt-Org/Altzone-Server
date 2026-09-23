@@ -3,6 +3,9 @@ import { getModelToken, getConnectionToken } from '@nestjs/mongoose';
 import { DailyTasksService } from '../../dailyTasks/dailyTasks.service';
 import { DailyTask } from '../../dailyTasks/dailyTasks.schema';
 import DailyTaskNotifier from '../../dailyTasks/dailyTask.notifier';
+import { DailyTaskQueue } from '../../dailyTasks/dailyTask.queue';
+import { TaskGeneratorService } from '../../dailyTasks/taskGenerator.service';
+import { DailyTaskProgressService } from '../../dailyTasks/dailyTaskProgress.service';
 import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
 import { ChatEmotion } from '../../chat/enum/chatEmotion.enum';
 import { ChatResponseType } from '../../chat/enum/chatResponseType.enum';
@@ -33,6 +36,7 @@ describe('FORM_AN_INNER_CONNECTION Daily Task', () => {
               commitTransaction: jest.fn(),
               abortTransaction: jest.fn(),
               endSession: jest.fn(),
+              inTransaction: jest.fn().mockReturnValue(true),
             }),
           },
         },
@@ -41,15 +45,17 @@ describe('FORM_AN_INNER_CONNECTION Daily Task', () => {
           useValue: { taskReceived: jest.fn(), taskCompleted: jest.fn() },
         },
         {
-          provide: 'DailyTaskQueue',
+          provide: DailyTaskQueue,
           useValue: { addDailyTask: jest.fn() },
         },
         {
-          provide: 'TaskGeneratorService',
-          useValue: { createTaskRandomValues: jest.fn() },
+          provide: TaskGeneratorService,
+          useValue: {
+            createTaskRandomValues: jest.fn().mockReturnValue({ amount: 5 }),
+          },
         },
         {
-          provide: 'DailyTaskProgressService',
+          provide: DailyTaskProgressService,
           useValue: { handleProgress: jest.fn().mockResolvedValue([true, null]) },
         },
       ],
@@ -184,7 +190,7 @@ describe('FORM_AN_INNER_CONNECTION Daily Task', () => {
         _id: 'task-1',
         clan_id: 'clan-1',
         player_id: 'player-1',
-        amountLeft: 1,
+        amountLeft: 2,
         type: ServerTaskName.FORM_AN_INNER_CONNECTION,
       };
 
