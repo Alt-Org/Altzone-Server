@@ -56,8 +56,11 @@ export class GlobalChatService extends BaseChatService {
     const chatMessage = new CreateChatMessageDto({
       type: ChatType.GLOBAL,
       sender_id: client.user.playerId,
-      content: message.content,
-      feeling: message.feeling,
+      // Content is retained as a stable, non-localized fallback for legacy
+      // consumers. The client must never supply the stored message text.
+      content: message.responseType,
+      responseType: message.responseType,
+      emotion: message.emotion,
     });
 
     return this.handleNewMessage(

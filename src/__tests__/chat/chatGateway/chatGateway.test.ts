@@ -76,13 +76,16 @@ describe('ChatGateway user initialization', () => {
     const client = createClient();
     client.user = { playerId: 'player-id', clanId: 'clan-id' } as any;
     clanChatService.handleNewClanMessage.mockResolvedValue([
-      { clan_id: 'clan-id' },
+      {
+        clan_id: 'clan-id',
+        responseType: ChatResponseType.YES,
+        emotion: ChatEmotion.JOY,
+      },
       null,
     ]);
 
     await gateway.handleClanMessage(
       {
-        content: 'Hello!',
         responseType: ChatResponseType.YES,
         emotion: ChatEmotion.JOY,
       },
@@ -106,6 +109,37 @@ describe('ChatGateway user initialization', () => {
       },
     );
   });
+
+  it.each([
+    [
+      'clan messages',
+      (client: WebSocketUser) =>
+        gateway.handleClanMessage(
+          { responseType: ChatResponseType.YES, emotion: ChatEmotion.JOY },
+          client,
+        ),
+      clanChatService.handleNewClanMessage,
+    ],
+    [
+      'global messages',
+      (client: WebSocketUser) =>
+        gateway.handleGlobalMessage(
+          { responseType: ChatResponseType.YES, emotion: ChatEmotion.JOY },
+          client,
+        ),
+      globalChatService.handleNewGlobalMessage,
+    ],
+  ])(
+    'does not emit a second error when %s are rejected by their service',
+    async (_, handler, serviceMethod) => {
+      const client = createClient();
+      client.user = { playerId: 'player-id', clanId: 'clan-id' } as any;
+      serviceMethod.mockResolvedValue(undefined);
+
+      await expect(handler(client)).resolves.toBeUndefined();
+      expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalled();
+    },
+  );
 
   it.each([
     [

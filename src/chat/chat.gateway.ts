@@ -95,8 +95,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.assertUserInitialized(client);
 
-    const [createdMessage, error] =
-      await this.clanChatService.handleNewClanMessage(client, message);
+    const result = await this.clanChatService.handleNewClanMessage(
+      client,
+      message,
+    );
+    if (!result) return;
+
+    const [createdMessage, error] = result;
 
     if (error) return [null, error];
 
@@ -110,8 +115,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       true,
       {
         clanId: createdMessage.clan_id,
-        responseType: message.responseType,
-        emotion: message.emotion,
+        responseType: createdMessage.responseType,
+        emotion: createdMessage.emotion,
       },
     );
   }
@@ -146,10 +151,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     this.assertUserInitialized(client);
 
-    const [_, error] = await this.globalChatService.handleNewGlobalMessage(
+    const result = await this.globalChatService.handleNewGlobalMessage(
       message,
       client,
     );
+    if (!result) return;
+
+    const [_, error] = result;
 
     if (error) return [null, error];
   }
