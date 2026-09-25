@@ -21,6 +21,7 @@ import { ChatModule } from '../chat/chat.module';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
 import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
 import { DailyTasksModule } from '../dailyTasks/dailyTasks.module';
+import { ClanTimestampsStartupRefreshService } from './clanTimestampsStartupRefresh.service';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { DailyTasksModule } from '../dailyTasks/dailyTasks.module';
     ClanRoleService,
     ClanRoleVotingProcessor,
     PasswordGenerator,
+    ClanTimestampsStartupRefreshService,
   ],
   exports: [
     ClanService,
