@@ -88,41 +88,42 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('clanMessage')
-@WsLog()
-async handleClanMessage(
-  @MessageBody() message: WsMessageBodyDto,
-  @ConnectedSocket() client: WebSocketUser,
-) {
-  this.assertUserInitialized(client);
+  @WsLog()
+  async handleClanMessage(
+    @MessageBody() message: WsMessageBodyDto,
+    @ConnectedSocket() client: WebSocketUser,
+  ) {
+    this.assertUserInitialized(client);
 
-  const [createdMessage, error] =
-    await this.clanChatService.handleNewClanMessage(client, message);
+    const result = await this.clanChatService.handleNewClanMessage(
+      client,
+      message,
+    );
+    if (!result) return;
 
-  if (error) return [null, error];
+    const [createdMessage, error] = result;
 
-  // Update FORM_AN_INNER_CONNECTION to include payload context:
-  this.emitterService.EmitNewDailyTaskEvent(
-    client.user.playerId,
-    ServerTaskName.FORM_AN_INNER_CONNECTION,
-    true,
-    {
+    if (error) return [null, error];
+
+    const payload = {
       clanId: createdMessage.clan_id,
-      responseType: message.responseType,
-      emotion: message.emotion,
-    },
-  );
+      responseType: createdMessage.responseType,
+      emotion: createdMessage.emotion,
+    };
 
-  this.emitterService.EmitNewDailyTaskEvent(
-    client.user.playerId,
-    ServerTaskName.PLAY_WITH_EMOTIONS,
-    true,
-    {
-      clanId: createdMessage.clan_id,
-      responseType: message.responseType,
-      emotion: message.emotion,
-    },
-  );
-}
+    this.emitterService.EmitNewDailyTaskEvent(
+      client.user.playerId,
+      ServerTaskName.FORM_AN_INNER_CONNECTION,
+      true,
+      payload,
+    );
+    this.emitterService.EmitNewDailyTaskEvent(
+      client.user.playerId,
+      ServerTaskName.PLAY_WITH_EMOTIONS,
+      true,
+      payload,
+    );
+  }
 
   @SubscribeMessage('clanMessageReaction')
   @WsLog()
@@ -154,10 +155,13 @@ async handleClanMessage(
   ) {
     this.assertUserInitialized(client);
 
-    const [_, error] = await this.globalChatService.handleNewGlobalMessage(
+    const result = await this.globalChatService.handleNewGlobalMessage(
       message,
       client,
     );
+    if (!result) return;
+
+    const [_, error] = result;
 
     if (error) return [null, error];
   }
