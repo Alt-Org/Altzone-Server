@@ -105,19 +105,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     if (error) return [null, error];
 
+    const payload = {
+      clanId: createdMessage.clan_id,
+      responseType: createdMessage.responseType,
+      emotion: createdMessage.emotion,
+    };
+
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
       ServerTaskName.FORM_AN_INNER_CONNECTION,
+      true,
+      payload,
     );
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
       ServerTaskName.PLAY_WITH_EMOTIONS,
       true,
-      {
-        clanId: createdMessage.clan_id,
-        responseType: createdMessage.responseType,
-        emotion: createdMessage.emotion,
-      },
+      payload,
     );
   }
 

@@ -58,6 +58,21 @@ describe('daily task scoring values', () => {
     });
   });
 
+  it('configures STRONGER_SOLDIER as a two-step server task', () => {
+    const generator = new TaskGeneratorService();
+    jest
+      .spyOn(generator, 'getRandomTaskType')
+      .mockReturnValue(ServerTaskName.STRONGER_SOLDIER);
+
+    expect(generator.createTaskRandomValues()).toMatchObject({
+      type: ServerTaskName.STRONGER_SOLDIER,
+      amount: 2,
+      title: {
+        fi: 'Kasvata puolustussotilaan hyökkäysarvoa ja pelaa sen jälkeen taistelu.',
+      },
+    });
+  });
+
   it('configures BUILD_YOUR_WORLD as a one-step room-layout task', () => {
     const generator = new TaskGeneratorService();
     jest
