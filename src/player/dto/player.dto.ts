@@ -126,6 +126,13 @@ export class PlayerDto {
   clan_id: string;
 
   /**
+   * Date when the player joined their current clan.
+   * @example "2026-09-01T12:00:00.000Z"
+   */
+  @Expose()
+  clan_joindate?: Date;
+
+  /**
    * Player's clan object
    */
   @Type(() => ClanDto)
