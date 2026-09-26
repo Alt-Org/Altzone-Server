@@ -123,7 +123,11 @@ export class ClanService {
 
     const [, playerErrors] = await this.playerService.updateOneById(
       player_id,
-      { clan_id: clan._id, clanRole_id: leaderRole?._id },
+      {
+        clan_id: clan._id,
+        clanRole_id: leaderRole?._id,
+        clan_joindate: new Date(),
+      },
       { session },
     );
     if (playerErrors) return await cancelTransaction(session, playerErrors);
@@ -432,7 +436,7 @@ export class ClanService {
         for (const player of clan.Player) {
           const [, upErrors] = await this.playerService.updateOneById(
             player._id,
-            { clan_id: null },
+            { clan_id: null, clan_joindate: null },
             { session },
           );
           if (upErrors) {
