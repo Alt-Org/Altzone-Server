@@ -44,7 +44,7 @@ import {
 } from './type/matchmakingParticipant.type';
 import { MatchmakingTeam } from './type/matchmakingTeam.type';
 import { Clan } from '../clan/clan.schema';
-import { Score } from '../common/values/scoring.values';
+import { TASK_CONSTS } from '../dailyTasks/consts/taskConstants';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 
@@ -1045,7 +1045,10 @@ export class MatchmakingService {
   private async updatePlayerLeaderboardForFinishedMatch(match: ActiveMatch) {
     for (const team of match.teams) {
       const outcome = this.getTeamOutcome(team, match.result.winningSide);
-      const battlePoints = this.getBattlePointsForOutcome(outcome);
+      const battlePoints = this.getBattlePointsForOutcome(
+        outcome,
+        match.matchType,
+      );
       const playerIds = this.getTeamPlayerIds(team);
 
       for (const playerId of playerIds) {
@@ -1074,7 +1077,10 @@ export class MatchmakingService {
       if (!team.clanId) continue;
 
       const outcome = this.getTeamOutcome(team, match.result.winningSide);
-      const battlePoints = this.getBattlePointsForOutcome(outcome);
+      const battlePoints = this.getBattlePointsForOutcome(
+        outcome,
+        match.matchType,
+      );
       const update: UpdateQuery<Clan> = { $inc: { battlePoints } };
       const [, updateErrors] =
         await this.clanService.basicService.updateOneById<UpdateQuery<Clan>>(
@@ -1123,10 +1129,16 @@ export class MatchmakingService {
     return team.side === winningSide ? 'WIN' : 'LOSS';
   }
 
-  private getBattlePointsForOutcome(outcome: 'WIN' | 'LOSS') {
-    if (outcome === 'WIN') return Score.BATTLE.WIN;
+  private getBattlePointsForOutcome(
+    outcome: 'WIN' | 'LOSS',
+    matchType: MatchType,
+  ) {
+    const isClanPair = matchType === MatchType.CLAN;
+    const battleConfig = isClanPair
+      ? TASK_CONSTS.POINTS.BATTLE.CLAN_PAIR
+      : TASK_CONSTS.POINTS.BATTLE.RANDOM_PAIR;
 
-    return Score.BATTLE.LOSS;
+    return outcome === 'WIN' ? battleConfig.WIN : battleConfig.LOSS;
   }
 
   private getTeamPlayerIds(team: MatchmakingTeam) {

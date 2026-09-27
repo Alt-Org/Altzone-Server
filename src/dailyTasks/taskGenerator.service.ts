@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Score } from '../common/values/scoring.values';
 import { TASK_CONSTS } from './consts/taskConstants';
 import { ServerTaskName } from './enum/serverTaskName.enum';
 import { TaskTitle } from './type/taskTitle.type';
@@ -167,7 +166,7 @@ export class TaskGeneratorService {
   private createTaskValues(type: ServerTaskName): TaskInfo {
     const definition = this.getDefinition(type);
     const amount = definition.createAmount();
-    const points = Score.DAILY_TASK.COMPLETED;
+    const points = TASK_CONSTS.POINTS.DAILY_TASK.SMALL;
 
     return {
       amount,
