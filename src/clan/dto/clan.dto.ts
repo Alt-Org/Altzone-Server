@@ -222,4 +222,11 @@ export class ClanDto {
    */
   @Expose()
   rules?: ClanRule[];
+
+  /**
+   * Date when the clan was created
+   * @example "2024-01-20T12:00:00Z"
+   */
+  @Expose()
+  createdAt?: Date;
 }
