@@ -19,7 +19,7 @@
  * @property COINS.FACTOR - The factor used to calculate coins (points * FACTOR).
  *
  * @property TIME - The time to complete the task in milliseconds.
- * 
+ *
  * @property DAILY_TASK - Points configuration for daily tasks.
  * @property DAILY_TASK.SMALL - Points awarded for small daily tasks.
  * @property DAILY_TASK.MEDIUM - Points awarded for medium daily tasks (reserved for future use).

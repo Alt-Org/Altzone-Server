@@ -141,7 +141,9 @@ describe('daily task scoring values', () => {
   it('uses the shared completed daily task score for default predefined tasks', () => {
     expect(defaultPredefinedDailyTasks).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL }),
+        expect.objectContaining({
+          points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
+        }),
       ]),
     );
     expect(

@@ -48,9 +48,7 @@ describe('ClanRewarder.rewardForClanEvent() test suite', () => {
 
     const clanAfter = await clanModel.findById(createdClan._id);
     expect(clanAfter.points).toBe(clanBefore.points);
-    expect(clanAfter.battlePoints).toBe(
-      clanBefore.battlePoints + 30,
-    );
+    expect(clanAfter.battlePoints).toBe(clanBefore.battlePoints + 30);
     expect(isSuccess).toBe(true);
     expect(errors).toBeNull();
   });
@@ -68,9 +66,7 @@ describe('ClanRewarder.rewardForClanEvent() test suite', () => {
 
     const clanAfter = await clanModel.findById(createdClan._id);
     expect(clanAfter.points).toBe(clanBefore.points);
-    expect(clanAfter.battlePoints).toBe(
-      clanBefore.battlePoints - 20,
-    );
+    expect(clanAfter.battlePoints).toBe(clanBefore.battlePoints - 20);
     expect(isSuccess).toBe(true);
     expect(errors).toBeNull();
   });
