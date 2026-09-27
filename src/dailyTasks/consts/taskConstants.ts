@@ -59,7 +59,7 @@ export const TASK_CONSTS = {
     },
   },
   COINS: {
-    FACTOR: 0.5,
+    FACTOR: 0.5, // Coins are calculated as points * FACTOR.
   },
-  TIME: 1000 * 60,
+  TIME: 1000 * 60, // Time to complete the task in milliseconds.
 };
