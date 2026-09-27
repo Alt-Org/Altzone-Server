@@ -3,7 +3,6 @@ import { PlayerRewarder } from '../../../rewarder/playerRewarder/playerRewarder.
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import PlayerModule from '../../player/modules/player.module';
 import { Player } from '../../../player/schemas/player.schema';
-import { Score } from '../../../common/values/scoring.values';
 
 describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
   let rewarder: PlayerRewarder;
@@ -33,7 +32,7 @@ describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
     const playerAfter = await playerModel.findById(existingPlayer._id);
     expect(playerAfter.points).toBe(playerBefore.points);
     expect(playerAfter.battlePoints).toBe(
-      playerBefore.battlePoints + Score.BATTLE.WIN,
+      playerBefore.battlePoints + 30,
     );
     expect(isSuccess).toBe(true);
     expect(errors).toBeNull();
@@ -53,7 +52,7 @@ describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
     const playerAfter = await playerModel.findById(existingPlayer._id);
     expect(playerAfter.points).toBe(playerBefore.points);
     expect(playerAfter.battlePoints).toBe(
-      playerBefore.battlePoints + Score.BATTLE.LOSS,
+      playerBefore.battlePoints - 20,
     );
     expect(isSuccess).toBe(true);
     expect(errors).toBeNull();

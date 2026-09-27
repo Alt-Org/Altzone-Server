@@ -6,7 +6,6 @@ import { Player } from '../../../player/schemas/player.schema';
 import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 import { Clan } from '../../../clan/clan.schema';
 import ClanModule from '../../clan/modules/clan.module';
-import { Score } from '../../../common/values/scoring.values';
 
 describe('ClanRewarder.rewardForClanEvent() test suite', () => {
   let rewarder: ClanRewarder;
@@ -50,7 +49,7 @@ describe('ClanRewarder.rewardForClanEvent() test suite', () => {
     const clanAfter = await clanModel.findById(createdClan._id);
     expect(clanAfter.points).toBe(clanBefore.points);
     expect(clanAfter.battlePoints).toBe(
-      clanBefore.battlePoints + Score.BATTLE.WIN,
+      clanBefore.battlePoints + 30,
     );
     expect(isSuccess).toBe(true);
     expect(errors).toBeNull();
@@ -70,7 +69,7 @@ describe('ClanRewarder.rewardForClanEvent() test suite', () => {
     const clanAfter = await clanModel.findById(createdClan._id);
     expect(clanAfter.points).toBe(clanBefore.points);
     expect(clanAfter.battlePoints).toBe(
-      clanBefore.battlePoints + Score.BATTLE.LOSS,
+      clanBefore.battlePoints - 20,
     );
     expect(isSuccess).toBe(true);
     expect(errors).toBeNull();
@@ -143,7 +142,7 @@ describe('ClanRewarder.rewardForClanEvent() test suite', () => {
       event,
     );
 
-    const clanAfter = await clanModel.findById(existingClan._id);
+    const clanAfter = await clanModel.findById(createdClan._id);
     expect(clanAfter.points).toBe(clanBefore.points);
     expect(clanAfter.battlePoints).toBe(0);
     expect(isSuccess).toBe(false);
