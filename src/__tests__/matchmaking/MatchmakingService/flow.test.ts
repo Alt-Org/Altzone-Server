@@ -193,21 +193,26 @@ const createActiveBattleStartMatch = (
 });
 
 describe('MatchmakingService flow', () => {
+  const gameType = 1;
+
   it('creates an active RANDOM match after ready room owners start matchmaking', async () => {
     const { redis, notifier, service } = createService();
 
     const [firstInvite, firstErrors] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
+      gameType,
     });
     const [secondInvite, secondErrors] = await service.createInvite(
       'player-2',
       {
         matchType: MatchType.RANDOM,
+        gameType,
       },
     );
 
     expect(firstErrors).toBeNull();
     expect(secondErrors).toBeNull();
+    expect(firstInvite.gameType).toBe(gameType);
     expect(firstInvite.status).toBe('READY');
     expect(secondInvite.status).toBe('READY');
     expect(getStoredMatches(redis)).toHaveLength(0);
@@ -267,6 +272,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, errors] = await service.createInvite('player-1', {
       matchType: MatchType.CLAN,
+      gameType,
     });
 
     expect(errors).toBeNull();
@@ -316,6 +322,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, createErrors] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
+      gameType,
     });
 
     const [startedInvite, startErrors] = await service.startRoom(
@@ -340,6 +347,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, createErrors] = await service.createInvite('player-1', {
       matchType: MatchType.CUSTOM,
+      gameType,
       roomId,
       allowBots: false,
     });
@@ -367,6 +375,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, createErrors] = await service.createInvite('player-1', {
       matchType: MatchType.CUSTOM,
+      gameType,
       roomId,
     });
 
@@ -391,6 +400,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, errors] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
+      gameType,
       automaticInvite: {
         type: MatchmakingAutoInviteType.PLAYER,
         playerId: 'player-2',
@@ -422,6 +432,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, errors] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
+      gameType,
       automaticInvite: {
         type: MatchmakingAutoInviteType.CLAN,
       },
@@ -461,6 +472,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, errors] = await service.createInvite('player-1', {
       matchType: MatchType.CUSTOM,
+      gameType,
       roomId: '665af23e5e982f0013aa334b',
     });
 
@@ -470,6 +482,7 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({
         id: invite.id,
         matchType: MatchType.CUSTOM,
+        gameType,
         ownerPlayerId: 'player-1',
       }),
     );
@@ -494,6 +507,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, createErrors] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
+      gameType,
     });
     const [sentInvite, inviteErrors] = await service.sendPlayerInvite(
       'player-2',
@@ -543,6 +557,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, createErrors] = await service.createInvite('player-1', {
       matchType: MatchType.CLAN,
+      gameType,
     });
     const [sentInvite, inviteErrors] = await service.sendClanInvite('player-1');
 
@@ -595,6 +610,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, createErrors] = await service.createInvite('player-1', {
       matchType: MatchType.CUSTOM,
+      gameType,
       roomId: '665af23e5e982f0013aa334b',
       allowBots: false,
     });

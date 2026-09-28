@@ -20,6 +20,7 @@ describe('MatchmakingNotifier notifications', () => {
   const room: MatchmakingRoomDto = {
     id: 'invite-1',
     matchType: MatchType.RANDOM,
+    gameType: 1,
     status: InviteStatus.QUEUED,
     ownerPlayerId: 'player-1',
     players: [{ playerId: 'player-1', name: 'Player 1', avatar: null }],
