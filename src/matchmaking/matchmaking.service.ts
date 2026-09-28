@@ -110,6 +110,7 @@ export class MatchmakingService {
     const invite: MatchmakingInvite = this.recalculateInvite({
       id: new Types.ObjectId().toString(),
       matchType: body.matchType,
+      gameType: body.gameType,
       status: InviteStatus.OPEN,
       ownerPlayerId: playerId,
       clanId:
@@ -1784,6 +1785,7 @@ export class MatchmakingService {
     return {
       id: invite.id,
       matchType: invite.matchType,
+      gameType: invite.gameType,
       status: invite.status,
       ownerPlayerId: invite.ownerPlayerId,
       clanId: invite.clanId,
@@ -1810,6 +1812,7 @@ export class MatchmakingService {
     return {
       id: invite.id,
       matchType: invite.matchType,
+      gameType: invite.gameType,
       status: invite.status,
       ownerPlayerId: invite.ownerPlayerId,
       clanId: invite.clanId,
