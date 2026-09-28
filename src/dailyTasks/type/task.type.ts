@@ -23,6 +23,10 @@ export type Task = {
   title: TaskTitle;
   amount: number;
   amountLeft: number;
+  progress?: {
+    key?: string;
+    steps?: number[];
+  };
   points: number;
   coins: number;
   startedAt: Date;

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Score } from '../common/values/scoring.values';
 import { TASK_CONSTS } from './consts/taskConstants';
 import { ServerTaskName } from './enum/serverTaskName.enum';
 import { TaskTitle } from './type/taskTitle.type';
@@ -41,10 +40,24 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     createTitle: (amount) => ({ fi: `Pelaa ${amount} taistelua` }),
   },
   {
-    type: ServerTaskName.FORM_AN_INNER_CONNECTION,
-    createAmount: createRandomAmount,
-    createTitle: (amount) => ({
-      fi: `Lähetä ${amount} viesti klaanichattiin`,
+    type: ServerTaskName.STRONGER_SOLDIER,
+    createAmount: () => 2,
+    createTitle: () => ({
+      fi: 'Kasvata puolustussotilaan hyökkäysarvoa ja pelaa sen jälkeen taistelu.',
+    }),
+  },
+  {
+  type: ServerTaskName.FORM_AN_INNER_CONNECTION,
+  createAmount: () => 1,
+  createTitle: () => ({
+    fi: 'Avaa klaanin chat ja lähetä viesti. Huomaa, miltä tuntuu aloittaa vuorovaikutus. Opit, että viestintä pelissä rakentaa suhteita ja merkityksiä, ei vain siirrä tietoa.',
+  }),
+  },
+  {
+    type: ServerTaskName.PLAY_WITH_EMOTIONS,
+    createAmount: () => 6,
+    createTitle: () => ({
+      fi: 'Avaa klaanin chat. Lähetä viestejä käyttämällä kaikkia eri tunnevaihtoehtoja. Huomaa, miten sama viesti muuttuu eri tunteilla.',
     }),
   },
   {
@@ -153,7 +166,7 @@ export class TaskGeneratorService {
   private createTaskValues(type: ServerTaskName): TaskInfo {
     const definition = this.getDefinition(type);
     const amount = definition.createAmount();
-    const points = Score.DAILY_TASK.COMPLETED;
+    const points = TASK_CONSTS.POINTS.DAILY_TASK.SMALL;
 
     return {
       amount,

@@ -38,6 +38,9 @@ export enum OldTaskName {
   ADD_ITEM_TO_FLEA_MARKET = 'add_item_to_flea_market',
   SUGGEST_ITEM_TO_FLEA_MARKET = 'suggest_item_to_flea_market',
   PARTICIPATE_CLAN_VOTING = 'participate_clan_voting',
+  CHANGE_AVATAR_CLOTHES = 'change_avatar_clothes',
+  CHANGE_CHARACTER_STATS = 'change_character_stats',
+  CHANGE_AVATAR_OUTLOOK = 'change_avatar_outlook',
 
   // old UI tasks
   FIND_3_IMPORTANT_BUTTONS = 'find_3_important_buttons',

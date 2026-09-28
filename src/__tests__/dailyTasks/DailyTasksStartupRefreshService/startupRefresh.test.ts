@@ -84,6 +84,16 @@ describe('DailyTasksStartupRefreshService', () => {
     };
   };
 
+  it('recognizes retired character and avatar task names as old tasks', () => {
+    expect(Object.values(OldTaskName)).toEqual(
+      expect.arrayContaining([
+        'change_avatar_clothes',
+        'change_character_stats',
+        'change_avatar_outlook',
+      ]),
+    );
+  });
+
   it('does not acquire a lock when old daily tasks are not found', async () => {
     const { connection, dailyTaskCollection, lockCollection, service } =
       createService({

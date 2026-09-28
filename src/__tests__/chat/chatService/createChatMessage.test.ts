@@ -2,6 +2,10 @@ import { ChatService } from '../../../chat/service/chat.service';
 import ChatModule from '../modules/chat.module';
 import ChatBuilderFactory from '../data/chatBuilderFactory';
 import { ObjectId } from 'mongodb';
+import { CreateChatMessageDto } from '../../../chat/dto/createMessage.dto';
+import { ChatType } from '../../../chat/enum/chatMessageType.enum';
+import { ChatResponseType } from '../../../chat/enum/chatResponseType.enum';
+import { ChatEmotion } from '../../../chat/enum/chatEmotion.enum';
 
 describe('ChatService.createChatMessage() test suite', () => {
   let chatService: ChatService;
@@ -15,7 +19,13 @@ describe('ChatService.createChatMessage() test suite', () => {
 
   it('Should save chat message to DB if input is valid', async () => {
     const senderId = new ObjectId();
-    const chatToCreate = chatMessageBuilder.setSenderId(senderId).build();
+    const chatToCreate = new CreateChatMessageDto({
+      type: ChatType.GLOBAL,
+      sender_id: senderId,
+      content: ChatResponseType.ONLINE,
+      responseType: ChatResponseType.ONLINE,
+      emotion: ChatEmotion.JOY,
+    });
     await chatService.createChatMessage(chatToCreate);
 
     const dbResp = await chatModel.find({ content: chatToCreate.content });
@@ -27,7 +37,13 @@ describe('ChatService.createChatMessage() test suite', () => {
 
   it('Should return saved chat message data if input is valid', async () => {
     const senderId = new ObjectId();
-    const chatToCreate = chatMessageBuilder.setSenderId(senderId).build();
+    const chatToCreate = new CreateChatMessageDto({
+      type: ChatType.GLOBAL,
+      sender_id: senderId,
+      content: ChatResponseType.YES,
+      responseType: ChatResponseType.YES,
+      emotion: ChatEmotion.BLANK,
+    });
     const [result, errors] = await chatService.createChatMessage(chatToCreate);
 
     expect(errors).toBeNull();

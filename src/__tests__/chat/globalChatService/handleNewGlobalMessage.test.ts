@@ -3,6 +3,8 @@ import { WebSocketUser } from '../../../chat/types/WsUser.type';
 import ChatModule from '../modules/chat.module';
 import { WsMessageBodyDto } from '../../../chat/dto/wsMessageBody.dto';
 import { ChatType } from '../../../chat/enum/chatMessageType.enum';
+import { ChatEmotion } from '../../../chat/enum/chatEmotion.enum';
+import { ChatResponseType } from '../../../chat/enum/chatResponseType.enum';
 
 describe('GlobalChatService.handleNewGlobalMessage() test suite', () => {
   let globalChatService: GlobalChatService;
@@ -26,9 +28,12 @@ describe('GlobalChatService.handleNewGlobalMessage() test suite', () => {
 
   it('should call handleNewMessage with correct parameters and broadcast to all connected users', async () => {
     const client = createClient('player123');
+    const clientProvidedContent =
+      'Client-provided free text must not be stored';
     const message: WsMessageBodyDto = {
-      content: 'Hello world!',
-      feeling: 'excited',
+      content: clientProvidedContent,
+      responseType: ChatResponseType.ONLINE,
+      emotion: ChatEmotion.JOY,
     } as any;
     globalChatService.handleJoinChat(client);
 
@@ -39,8 +44,10 @@ describe('GlobalChatService.handleNewGlobalMessage() test suite', () => {
       mockHandleNewMessage.mock.calls[0];
     expect(chatMessage.type).toBe(ChatType.GLOBAL);
     expect(chatMessage.sender_id).toBe('player123');
-    expect(chatMessage.content).toBe('Hello world!');
-    expect(chatMessage.feeling).toBe('excited');
+    expect(chatMessage.content).toBe(ChatResponseType.ONLINE);
+    expect(chatMessage.content).not.toBe(clientProvidedContent);
+    expect(chatMessage.responseType).toBe(ChatResponseType.ONLINE);
+    expect(chatMessage.emotion).toBe(ChatEmotion.JOY);
     expect(calledClient).toBe(client);
     expect(chatType).toBe(ChatType.GLOBAL);
     expect(recipients.has(client)).toBe(true);
@@ -49,9 +56,9 @@ describe('GlobalChatService.handleNewGlobalMessage() test suite', () => {
   it('should not throw if there are no connected users', async () => {
     const client = createClient('playerX');
     const message: WsMessageBodyDto = {
-      content: 'Anyone here?',
-      feeling: 'lonely',
-    } as any;
+      responseType: ChatResponseType.LONELY,
+      emotion: ChatEmotion.SORROW,
+    };
 
     await expect(
       globalChatService.handleNewGlobalMessage(message, client),

@@ -16,7 +16,11 @@ import { ClanRule } from './enum/clanRule.enum';
 
 export type ClanDocument = HydratedDocument<Clan>;
 
-@Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
+@Schema({
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+  timestamps: { createdAt: true, updatedAt: false },
+})
 export class Clan {
   @Prop({ type: String, required: true, unique: true, maxlength: 20 })
   name: string;
@@ -106,6 +110,8 @@ export class Clan {
     default: [ClanRule.FAIR_GAME, ClanRule.NO_TOXICITY, ClanRule.NO_SPAM],
   })
   rules: ClanRule[];
+
+  createdAt?: Date;
 
   @ExtractField()
   _id: string;

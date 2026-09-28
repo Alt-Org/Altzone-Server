@@ -3,6 +3,8 @@ import { WebSocketUser } from '../../../chat/types/WsUser.type';
 import ChatModule from '../modules/chat.module';
 import { WsMessageBodyDto } from '../../../chat/dto/wsMessageBody.dto';
 import { ChatType } from '../../../chat/enum/chatMessageType.enum';
+import { ChatEmotion } from '../../../chat/enum/chatEmotion.enum';
+import { ChatResponseType } from '../../../chat/enum/chatResponseType.enum';
 
 describe('ClanChatService.handleNewClanMessage() test suite', () => {
   let clanChatService: ClanChatService;
@@ -27,9 +29,12 @@ describe('ClanChatService.handleNewClanMessage() test suite', () => {
 
   it('should call handleNewMessage with correct parameters and broadcast to clan room', async () => {
     const client = createClient('clanA', 'player123');
+    const clientProvidedContent =
+      'Client-provided free text must not be stored';
     const message: WsMessageBodyDto = {
-      content: 'Hello clan!',
-      feeling: 'happy',
+      content: clientProvidedContent,
+      responseType: ChatResponseType.YES,
+      emotion: ChatEmotion.JOY,
     } as any;
     clanChatService.handleJoinChat(client);
 
@@ -41,8 +46,10 @@ describe('ClanChatService.handleNewClanMessage() test suite', () => {
     expect(chatMessage.type).toBe(ChatType.CLAN);
     expect(chatMessage.clan_id).toBe('clanA');
     expect(chatMessage.sender_id).toBe('player123');
-    expect(chatMessage.content).toBe('Hello clan!');
-    expect(chatMessage.feeling).toBe('happy');
+    expect(chatMessage.content).toBe(ChatResponseType.YES);
+    expect(chatMessage.content).not.toBe(clientProvidedContent);
+    expect(chatMessage.responseType).toBe(ChatResponseType.YES);
+    expect(chatMessage.emotion).toBe(ChatEmotion.JOY);
     expect(calledClient).toBe(client);
     expect(chatType).toBe(ChatType.CLAN);
     expect(recipients.has(client)).toBe(true);
@@ -51,9 +58,9 @@ describe('ClanChatService.handleNewClanMessage() test suite', () => {
   it('should not throw if clan room does not exist', async () => {
     const client = createClient('clanB', 'playerX');
     const message: WsMessageBodyDto = {
-      content: 'No one here',
-      feeling: 'sad',
-    } as any;
+      responseType: ChatResponseType.NEED_COMPANY,
+      emotion: ChatEmotion.SORROW,
+    };
 
     await expect(
       clanChatService.handleNewClanMessage(client, message),

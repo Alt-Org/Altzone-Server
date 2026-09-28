@@ -3,6 +3,7 @@ import { GameEventType } from '../../../gameEventsHandler/enum/GameEventType.enu
 import { GameEventsHandler } from '../../../gameEventsHandler/gameEventsHandler';
 import { ClanEvent } from '../../../rewarder/clanRewarder/enum/ClanEvent.enum';
 import { PlayerEvent } from '../../../rewarder/playerRewarder/enum/PlayerEvent.enum';
+import { StrongerSoldierStep } from '../../../dailyTasks/enum/strongerSoldierStep.enum';
 
 describe('GameEventsHandler battle daily task events', () => {
   const createHandler = () => {
@@ -48,7 +49,13 @@ describe('GameEventsHandler battle daily task events', () => {
       'player-1',
       ServerTaskName.GO_TO_BATTLE,
     );
-    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(1);
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
+      'player-1',
+      ServerTaskName.STRONGER_SOLDIER,
+      true,
+      { strongerSoldierStep: StrongerSoldierStep.BATTLE_PLAYED },
+    );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);
   });
 
   it('emits a go to battle daily task event for a lost battle', async () => {
@@ -74,6 +81,12 @@ describe('GameEventsHandler battle daily task events', () => {
       'player-1',
       ServerTaskName.GO_TO_BATTLE,
     );
-    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(1);
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
+      'player-1',
+      ServerTaskName.STRONGER_SOLDIER,
+      true,
+      { strongerSoldierStep: StrongerSoldierStep.BATTLE_PLAYED },
+    );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);
   });
 });

@@ -77,12 +77,12 @@ export enum ServerTaskName {
   /**
    * vaihda avatarisi vaatteita
    */
-  CHANGE_AVATAR_CLOTHES = 'change_avatar_clothes',
+  // CHANGE_AVATAR_CLOTHES = 'change_avatar_clothes',
   //Server, to any?
   /**
    * muokkaa hahmosi statseja
    */
-  CHANGE_CHARACTER_STATS = 'change_character_stats',
+  // CHANGE_CHARACTER_STATS = 'change_character_stats',
 
   //Server
   /**
@@ -221,7 +221,7 @@ export enum ServerTaskName {
   /**
    * muokkaa avatarisi ulkonäköä
    */
-  CHANGE_AVATAR_OUTLOOK = 'change_avatar_outlook', // is related server code
+  // CHANGE_AVATAR_OUTLOOK = 'change_avatar_outlook',
 
   //Server, what is the slogan and how is it different from intro text
   /**

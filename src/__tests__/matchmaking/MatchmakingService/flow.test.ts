@@ -8,7 +8,6 @@ import { MatchmakingService } from '../../../matchmaking/matchmaking.service';
 import { ActiveMatch } from '../../../matchmaking/type/activeMatch.type';
 import { SEReason } from '../../../common/service/basicService/SEReason';
 import ServiceError from '../../../common/service/basicService/ServiceError';
-import { Score } from '../../../common/values/scoring.values';
 import { ServerTaskName } from '../../../dailyTasks/enum/serverTaskName.enum';
 
 class InMemoryRedisService {
@@ -1056,14 +1055,14 @@ describe('MatchmakingService flow', () => {
     });
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
       $inc: {
-        battlePoints: Score.BATTLE.WIN,
+        battlePoints: 30,
         'gameStatistics.playedBattles': 1,
         'gameStatistics.wonBattles': 1,
       },
     });
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-2', {
       $inc: {
-        battlePoints: Score.BATTLE.LOSS,
+        battlePoints: -20,
         'gameStatistics.playedBattles': 1,
       },
     });
@@ -1133,13 +1132,13 @@ describe('MatchmakingService flow', () => {
     expect(finishedMatch.result).toEqual({ winningSide: TeamSide.B });
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
       $inc: {
-        battlePoints: Score.BATTLE.LOSS,
+        battlePoints: -25,
         'gameStatistics.playedBattles': 1,
       },
     });
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-2', {
       $inc: {
-        battlePoints: Score.BATTLE.WIN,
+        battlePoints: 40,
         'gameStatistics.playedBattles': 1,
         'gameStatistics.wonBattles': 1,
       },
@@ -1147,13 +1146,13 @@ describe('MatchmakingService flow', () => {
     expect(clanService.basicService.updateOneById).toHaveBeenCalledWith(
       'clan-1',
       {
-        $inc: { battlePoints: Score.BATTLE.LOSS },
+        $inc: { battlePoints: -25 },
       },
     );
     expect(clanService.basicService.updateOneById).toHaveBeenCalledWith(
       'clan-2',
       {
-        $inc: { battlePoints: Score.BATTLE.WIN },
+        $inc: { battlePoints: 40 },
       },
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
