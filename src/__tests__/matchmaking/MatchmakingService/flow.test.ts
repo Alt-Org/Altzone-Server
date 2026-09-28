@@ -176,6 +176,7 @@ const createActiveBattleStartMatch = (
 ): ActiveMatch => ({
   id: 'match-battle-start',
   matchType: MatchType.RANDOM,
+  gameType: 1,
   status: MatchStatus.ACTIVE,
   teamSize: 1,
   teams: [
@@ -240,6 +241,7 @@ describe('MatchmakingService flow', () => {
     expect(matches[0]).toMatchObject({
       id: startedInvite.matchId,
       matchType: MatchType.RANDOM,
+      gameType,
       status: MatchStatus.ACTIVE,
       teamSize: 2,
     });
@@ -256,7 +258,7 @@ describe('MatchmakingService flow', () => {
     expect(redis.values.has('matchmaking:player-invite:player-2')).toBe(false);
     expect(notifier.matchFound).toHaveBeenCalledWith(
       'player-1',
-      expect.objectContaining({ id: startedInvite.matchId }),
+      expect.objectContaining({ id: startedInvite.matchId, gameType }),
     );
     expect(notifier.matchFound).toHaveBeenCalledWith(
       'player-2',
@@ -414,6 +416,7 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({
         id: invite.id,
         matchType: MatchType.RANDOM,
+        gameType,
         status: invite.status,
         ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
         senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
@@ -523,6 +526,7 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({
         id: invite.id,
         matchType: MatchType.RANDOM,
+        gameType,
         status: invite.status,
         ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
         senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
@@ -1039,6 +1043,7 @@ describe('MatchmakingService flow', () => {
     const match: ActiveMatch = {
       id: 'match-1',
       matchType: MatchType.RANDOM,
+      gameType,
       status: MatchStatus.ACTIVE,
       teamSize: 1,
       teams: [
@@ -1120,6 +1125,7 @@ describe('MatchmakingService flow', () => {
     const match: ActiveMatch = {
       id: 'match-2',
       matchType: MatchType.CLAN,
+      gameType,
       status: MatchStatus.ACTIVE,
       teamSize: 1,
       teams: [
@@ -1189,6 +1195,7 @@ describe('MatchmakingService flow', () => {
     const match: ActiveMatch = {
       id: 'match-daily-task-error',
       matchType: MatchType.RANDOM,
+      gameType,
       status: MatchStatus.ACTIVE,
       teamSize: 1,
       teams: [
@@ -1249,6 +1256,7 @@ describe('MatchmakingService flow', () => {
     const match: ActiveMatch = {
       id: 'match-player-error',
       matchType: MatchType.RANDOM,
+      gameType,
       status: MatchStatus.ACTIVE,
       teamSize: 1,
       teams: [
@@ -1303,6 +1311,7 @@ describe('MatchmakingService flow', () => {
     const match: ActiveMatch = {
       id: 'match-clan-error',
       matchType: MatchType.CLAN,
+      gameType,
       status: MatchStatus.ACTIVE,
       teamSize: 1,
       teams: [
