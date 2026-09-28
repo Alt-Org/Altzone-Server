@@ -846,6 +846,7 @@ export class MatchmakingService {
     const match: ActiveMatch = {
       id: new Types.ObjectId().toString(),
       matchType,
+      gameType: firstInvite.gameType,
       status: MatchStatus.ACTIVE,
       teamSize: firstInvite.teamSize,
       teams: [
@@ -868,6 +869,7 @@ export class MatchmakingService {
     const match: ActiveMatch = {
       id: new Types.ObjectId().toString(),
       matchType: MatchType.CLAN,
+      gameType: invite.gameType,
       status: MatchStatus.ACTIVE,
       teamSize: invite.teamSize,
       teams: [
@@ -892,6 +894,7 @@ export class MatchmakingService {
     const match: ActiveMatch = {
       id: new Types.ObjectId().toString(),
       matchType: MatchType.CUSTOM,
+      gameType: invite.gameType,
       status: MatchStatus.ACTIVE,
       teamSize: invite.teamSize,
       teams,
@@ -1844,6 +1847,7 @@ export class MatchmakingService {
     return {
       id: invite.id,
       matchType: invite.matchType,
+      gameType: invite.gameType,
       status: invite.status,
       ownerPlayer: this.getMappedMqttPlayer(playerMap, invite.ownerPlayerId),
       senderPlayer: this.getMappedMqttPlayer(playerMap, senderPlayerId),
@@ -1860,6 +1864,7 @@ export class MatchmakingService {
     return {
       id: match.id,
       matchType: match.matchType,
+      gameType: match.gameType,
       status: match.status,
       teamSize: match.teamSize,
       teams: match.teams.map((team) => this.toTeamDto(team)),
@@ -1882,6 +1887,7 @@ export class MatchmakingService {
     return {
       id: match.id,
       matchType: match.matchType,
+      gameType: match.gameType,
       status: match.status,
       teamSize: match.teamSize,
       teams: match.teams.map((team) => this.toMqttTeamDto(team, playerMap)),
