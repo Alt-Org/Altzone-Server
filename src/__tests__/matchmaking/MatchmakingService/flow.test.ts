@@ -342,6 +342,7 @@ describe('MatchmakingService flow', () => {
     expect(matches[0]).toMatchObject({
       id: matchedInvite.matchId,
       matchType: MatchType.CLAN,
+      gameType,
       status: MatchStatus.ACTIVE,
       teamSize: 2,
     });
@@ -389,6 +390,39 @@ describe('MatchmakingService flow', () => {
       await redis.lrange(`matchmaking:queue:CLAN:${otherGameType}`, 0, -1),
     ).toEqual([secondInvite.id]);
     expect(notifier.matchFound).not.toHaveBeenCalled();
+  });
+
+  it('copies the room game type to a CUSTOM match', async () => {
+    const { redis, notifier, service } = createService();
+
+    const [invite, createErrors] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      gameType,
+      roomId: '665af23e5e982f0013aa334b',
+      allowBots: true,
+    });
+    const [matchedInvite, startErrors] = await service.startRoom(
+      invite.id,
+      'player-1',
+    );
+
+    expect(createErrors).toBeNull();
+    expect(startErrors).toBeNull();
+    expect(matchedInvite.status).toBe(InviteStatus.MATCHED);
+    expect(getStoredMatches(redis)).toEqual([
+      expect.objectContaining({
+        id: matchedInvite.matchId,
+        matchType: MatchType.CUSTOM,
+        gameType,
+      }),
+    ]);
+    expect(notifier.matchFound).toHaveBeenCalledWith(
+      'player-1',
+      expect.objectContaining({
+        id: matchedInvite.matchId,
+        gameType,
+      }),
+    );
   });
 
   it('rejects room start from a player who does not own the room', async () => {
