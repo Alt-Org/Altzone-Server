@@ -1,6 +1,7 @@
 import { CacheKeys } from '../../../common/service/redis/cacheKeys.enum';
 import { MqttNotificationType } from '../../../common/service/notificator/enum/MqttNotificationType.enum';
 import { MatchmakingAutoInviteType } from '../../../matchmaking/dto/createMatchmakingInvite.dto';
+import { InviteStatus } from '../../../matchmaking/enum/inviteStatus.enum';
 import { MatchStatus } from '../../../matchmaking/enum/matchStatus.enum';
 import { MatchType } from '../../../matchmaking/enum/matchType.enum';
 import { TeamSide } from '../../../matchmaking/enum/teamSide.enum';
@@ -253,7 +254,9 @@ describe('MatchmakingService flow', () => {
       { playerId: 'player-2', isBot: false },
       expect.objectContaining({ isBot: true }),
     ]);
-    expect(await redis.lrange('matchmaking:queue:RANDOM', 0, -1)).toEqual([]);
+    expect(
+      await redis.lrange(`matchmaking:queue:RANDOM:${gameType}`, 0, -1),
+    ).toEqual([]);
     expect(redis.values.has('matchmaking:player-invite:player-1')).toBe(false);
     expect(redis.values.has('matchmaking:player-invite:player-2')).toBe(false);
     expect(notifier.matchFound).toHaveBeenCalledWith(
@@ -265,6 +268,42 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({ id: startedInvite.matchId }),
     );
     expect(notifier.matchEvent).not.toHaveBeenCalled();
+  });
+
+  it('keeps RANDOM rooms with different game types in separate queues', async () => {
+    const { redis, notifier, service } = createService();
+    const otherGameType = 2;
+
+    const [firstInvite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    const [secondInvite] = await service.createInvite('player-2', {
+      matchType: MatchType.RANDOM,
+      gameType: otherGameType,
+    });
+
+    const [firstQueued, firstErrors] = await service.startRoom(
+      firstInvite.id,
+      'player-1',
+    );
+    const [secondQueued, secondErrors] = await service.startRoom(
+      secondInvite.id,
+      'player-2',
+    );
+
+    expect(firstErrors).toBeNull();
+    expect(secondErrors).toBeNull();
+    expect(firstQueued.status).toBe(InviteStatus.QUEUED);
+    expect(secondQueued.status).toBe(InviteStatus.QUEUED);
+    expect(getStoredMatches(redis)).toHaveLength(0);
+    expect(
+      await redis.lrange(`matchmaking:queue:RANDOM:${gameType}`, 0, -1),
+    ).toEqual([firstInvite.id]);
+    expect(
+      await redis.lrange(`matchmaking:queue:RANDOM:${otherGameType}`, 0, -1),
+    ).toEqual([secondInvite.id]);
+    expect(notifier.matchFound).not.toHaveBeenCalled();
   });
 
   it('creates a CLAN bot opponent when the opponent timeout expires', async () => {
@@ -311,12 +350,45 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({ isBot: true }),
       expect.objectContaining({ isBot: true }),
     ]);
-    expect(await redis.lrange('matchmaking:queue:CLAN', 0, -1)).toEqual([]);
+    expect(
+      await redis.lrange(`matchmaking:queue:CLAN:${gameType}`, 0, -1),
+    ).toEqual([]);
     expect(notifier.matchFound).toHaveBeenCalledWith(
       'player-1',
       expect.objectContaining({ id: matchedInvite.matchId }),
     );
     expect(notifier.matchEvent).not.toHaveBeenCalled();
+  });
+
+  it('keeps CLAN rooms with different game types in separate queues', async () => {
+    const { redis, notifier, service } = createService({
+      'player-1': 'clan-1',
+      'player-2': 'clan-2',
+    });
+    const otherGameType = 2;
+
+    const [firstInvite] = await service.createInvite('player-1', {
+      matchType: MatchType.CLAN,
+      gameType,
+    });
+    const [secondInvite] = await service.createInvite('player-2', {
+      matchType: MatchType.CLAN,
+      gameType: otherGameType,
+    });
+
+    const [firstQueued] = await service.startRoom(firstInvite.id, 'player-1');
+    const [secondQueued] = await service.startRoom(secondInvite.id, 'player-2');
+
+    expect(firstQueued.status).toBe(InviteStatus.QUEUED);
+    expect(secondQueued.status).toBe(InviteStatus.QUEUED);
+    expect(getStoredMatches(redis)).toHaveLength(0);
+    expect(
+      await redis.lrange(`matchmaking:queue:CLAN:${gameType}`, 0, -1),
+    ).toEqual([firstInvite.id]);
+    expect(
+      await redis.lrange(`matchmaking:queue:CLAN:${otherGameType}`, 0, -1),
+    ).toEqual([secondInvite.id]);
+    expect(notifier.matchFound).not.toHaveBeenCalled();
   });
 
   it('rejects room start from a player who does not own the room', async () => {
