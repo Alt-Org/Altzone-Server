@@ -76,13 +76,16 @@ describe('ChatGateway user initialization', () => {
     const client = createClient();
     client.user = { playerId: 'player-id', clanId: 'clan-id' } as any;
     clanChatService.handleNewClanMessage.mockResolvedValue([
-      { clan_id: 'clan-id' },
+      {
+        clan_id: 'clan-id',
+        responseType: ChatResponseType.YES,
+        emotion: ChatEmotion.JOY,
+      },
       null,
     ]);
 
     await gateway.handleClanMessage(
       {
-        content: 'Hello!',
         responseType: ChatResponseType.YES,
         emotion: ChatEmotion.JOY,
       },
@@ -93,6 +96,12 @@ describe('ChatGateway user initialization', () => {
       1,
       'player-id',
       ServerTaskName.FORM_AN_INNER_CONNECTION,
+      true,
+      {
+        clanId: 'clan-id',
+        responseType: ChatResponseType.YES,
+        emotion: ChatEmotion.JOY,
+      },
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenNthCalledWith(
       2,
@@ -106,6 +115,56 @@ describe('ChatGateway user initialization', () => {
       },
     );
   });
+
+  it('does not emit daily task events for global messages', async () => {
+    const client = createClient();
+    client.user = { playerId: 'player-id', clanId: 'clan-id' } as any;
+    globalChatService.handleNewGlobalMessage.mockResolvedValue([
+      { _id: 'msg-1' },
+      null,
+    ]);
+
+    await gateway.handleGlobalMessage(
+      {
+        responseType: ChatResponseType.ONLINE,
+        emotion: ChatEmotion.JOY,
+      },
+      client,
+    );
+
+    expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [
+      'clan messages',
+      (client: WebSocketUser) =>
+        gateway.handleClanMessage(
+          { responseType: ChatResponseType.YES, emotion: ChatEmotion.JOY },
+          client,
+        ),
+      clanChatService.handleNewClanMessage,
+    ],
+    [
+      'global messages',
+      (client: WebSocketUser) =>
+        gateway.handleGlobalMessage(
+          { responseType: ChatResponseType.YES, emotion: ChatEmotion.JOY },
+          client,
+        ),
+      globalChatService.handleNewGlobalMessage,
+    ],
+  ])(
+    'does not emit a second error when %s are rejected by their service',
+    async (_, handler, serviceMethod) => {
+      const client = createClient();
+      client.user = { playerId: 'player-id', clanId: 'clan-id' } as any;
+      serviceMethod.mockResolvedValue(undefined);
+
+      await expect(handler(client)).resolves.toBeUndefined();
+      expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalled();
+    },
+  );
 
   it.each([
     [

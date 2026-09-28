@@ -1,6 +1,7 @@
 import { CacheKeys } from '../../../common/service/redis/cacheKeys.enum';
 import { MqttNotificationType } from '../../../common/service/notificator/enum/MqttNotificationType.enum';
 import { MatchmakingAutoInviteType } from '../../../matchmaking/dto/createMatchmakingInvite.dto';
+import { InviteStatus } from '../../../matchmaking/enum/inviteStatus.enum';
 import { MatchStatus } from '../../../matchmaking/enum/matchStatus.enum';
 import { MatchType } from '../../../matchmaking/enum/matchType.enum';
 import { TeamSide } from '../../../matchmaking/enum/teamSide.enum';
@@ -8,7 +9,6 @@ import { MatchmakingService } from '../../../matchmaking/matchmaking.service';
 import { ActiveMatch } from '../../../matchmaking/type/activeMatch.type';
 import { SEReason } from '../../../common/service/basicService/SEReason';
 import ServiceError from '../../../common/service/basicService/ServiceError';
-import { Score } from '../../../common/values/scoring.values';
 import { ServerTaskName } from '../../../dailyTasks/enum/serverTaskName.enum';
 
 class InMemoryRedisService {
@@ -177,6 +177,7 @@ const createActiveBattleStartMatch = (
 ): ActiveMatch => ({
   id: 'match-battle-start',
   matchType: MatchType.RANDOM,
+  gameType: 1,
   status: MatchStatus.ACTIVE,
   teamSize: 1,
   teams: [
@@ -194,21 +195,26 @@ const createActiveBattleStartMatch = (
 });
 
 describe('MatchmakingService flow', () => {
+  const gameType = 1;
+
   it('creates an active RANDOM match after ready room owners start matchmaking', async () => {
     const { redis, notifier, service } = createService();
 
     const [firstInvite, firstErrors] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
+      gameType,
     });
     const [secondInvite, secondErrors] = await service.createInvite(
       'player-2',
       {
         matchType: MatchType.RANDOM,
+        gameType,
       },
     );
 
     expect(firstErrors).toBeNull();
     expect(secondErrors).toBeNull();
+    expect(firstInvite.gameType).toBe(gameType);
     expect(firstInvite.status).toBe('READY');
     expect(secondInvite.status).toBe('READY');
     expect(getStoredMatches(redis)).toHaveLength(0);
@@ -236,6 +242,7 @@ describe('MatchmakingService flow', () => {
     expect(matches[0]).toMatchObject({
       id: startedInvite.matchId,
       matchType: MatchType.RANDOM,
+      gameType,
       status: MatchStatus.ACTIVE,
       teamSize: 2,
     });
@@ -247,18 +254,56 @@ describe('MatchmakingService flow', () => {
       { playerId: 'player-2', isBot: false },
       expect.objectContaining({ isBot: true }),
     ]);
-    expect(await redis.lrange('matchmaking:queue:RANDOM', 0, -1)).toEqual([]);
+    expect(
+      await redis.lrange(`matchmaking:queue:RANDOM:${gameType}`, 0, -1),
+    ).toEqual([]);
     expect(redis.values.has('matchmaking:player-invite:player-1')).toBe(false);
     expect(redis.values.has('matchmaking:player-invite:player-2')).toBe(false);
     expect(notifier.matchFound).toHaveBeenCalledWith(
       'player-1',
-      expect.objectContaining({ id: startedInvite.matchId }),
+      expect.objectContaining({ id: startedInvite.matchId, gameType }),
     );
     expect(notifier.matchFound).toHaveBeenCalledWith(
       'player-2',
       expect.objectContaining({ id: startedInvite.matchId }),
     );
     expect(notifier.matchEvent).not.toHaveBeenCalled();
+  });
+
+  it('keeps RANDOM rooms with different game types in separate queues', async () => {
+    const { redis, notifier, service } = createService();
+    const otherGameType = 2;
+
+    const [firstInvite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    const [secondInvite] = await service.createInvite('player-2', {
+      matchType: MatchType.RANDOM,
+      gameType: otherGameType,
+    });
+
+    const [firstQueued, firstErrors] = await service.startRoom(
+      firstInvite.id,
+      'player-1',
+    );
+    const [secondQueued, secondErrors] = await service.startRoom(
+      secondInvite.id,
+      'player-2',
+    );
+
+    expect(firstErrors).toBeNull();
+    expect(secondErrors).toBeNull();
+    expect(firstQueued.status).toBe(InviteStatus.QUEUED);
+    expect(secondQueued.status).toBe(InviteStatus.QUEUED);
+    expect(getStoredMatches(redis)).toHaveLength(0);
+    expect(
+      await redis.lrange(`matchmaking:queue:RANDOM:${gameType}`, 0, -1),
+    ).toEqual([firstInvite.id]);
+    expect(
+      await redis.lrange(`matchmaking:queue:RANDOM:${otherGameType}`, 0, -1),
+    ).toEqual([secondInvite.id]);
+    expect(notifier.matchFound).not.toHaveBeenCalled();
   });
 
   it('creates a CLAN bot opponent when the opponent timeout expires', async () => {
@@ -268,6 +313,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, errors] = await service.createInvite('player-1', {
       matchType: MatchType.CLAN,
+      gameType,
     });
 
     expect(errors).toBeNull();
@@ -296,6 +342,7 @@ describe('MatchmakingService flow', () => {
     expect(matches[0]).toMatchObject({
       id: matchedInvite.matchId,
       matchType: MatchType.CLAN,
+      gameType,
       status: MatchStatus.ACTIVE,
       teamSize: 2,
     });
@@ -304,7 +351,9 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({ isBot: true }),
       expect.objectContaining({ isBot: true }),
     ]);
-    expect(await redis.lrange('matchmaking:queue:CLAN', 0, -1)).toEqual([]);
+    expect(
+      await redis.lrange(`matchmaking:queue:CLAN:${gameType}`, 0, -1),
+    ).toEqual([]);
     expect(notifier.matchFound).toHaveBeenCalledWith(
       'player-1',
       expect.objectContaining({ id: matchedInvite.matchId }),
@@ -312,11 +361,76 @@ describe('MatchmakingService flow', () => {
     expect(notifier.matchEvent).not.toHaveBeenCalled();
   });
 
+  it('keeps CLAN rooms with different game types in separate queues', async () => {
+    const { redis, notifier, service } = createService({
+      'player-1': 'clan-1',
+      'player-2': 'clan-2',
+    });
+    const otherGameType = 2;
+
+    const [firstInvite] = await service.createInvite('player-1', {
+      matchType: MatchType.CLAN,
+      gameType,
+    });
+    const [secondInvite] = await service.createInvite('player-2', {
+      matchType: MatchType.CLAN,
+      gameType: otherGameType,
+    });
+
+    const [firstQueued] = await service.startRoom(firstInvite.id, 'player-1');
+    const [secondQueued] = await service.startRoom(secondInvite.id, 'player-2');
+
+    expect(firstQueued.status).toBe(InviteStatus.QUEUED);
+    expect(secondQueued.status).toBe(InviteStatus.QUEUED);
+    expect(getStoredMatches(redis)).toHaveLength(0);
+    expect(
+      await redis.lrange(`matchmaking:queue:CLAN:${gameType}`, 0, -1),
+    ).toEqual([firstInvite.id]);
+    expect(
+      await redis.lrange(`matchmaking:queue:CLAN:${otherGameType}`, 0, -1),
+    ).toEqual([secondInvite.id]);
+    expect(notifier.matchFound).not.toHaveBeenCalled();
+  });
+
+  it('copies the room game type to a CUSTOM match', async () => {
+    const { redis, notifier, service } = createService();
+
+    const [invite, createErrors] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      gameType,
+      roomId: '665af23e5e982f0013aa334b',
+      allowBots: true,
+    });
+    const [matchedInvite, startErrors] = await service.startRoom(
+      invite.id,
+      'player-1',
+    );
+
+    expect(createErrors).toBeNull();
+    expect(startErrors).toBeNull();
+    expect(matchedInvite.status).toBe(InviteStatus.MATCHED);
+    expect(getStoredMatches(redis)).toEqual([
+      expect.objectContaining({
+        id: matchedInvite.matchId,
+        matchType: MatchType.CUSTOM,
+        gameType,
+      }),
+    ]);
+    expect(notifier.matchFound).toHaveBeenCalledWith(
+      'player-1',
+      expect.objectContaining({
+        id: matchedInvite.matchId,
+        gameType,
+      }),
+    );
+  });
+
   it('rejects room start from a player who does not own the room', async () => {
     const { service } = createService();
 
     const [invite, createErrors] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
+      gameType,
     });
 
     const [startedInvite, startErrors] = await service.startRoom(
@@ -341,6 +455,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, createErrors] = await service.createInvite('player-1', {
       matchType: MatchType.CUSTOM,
+      gameType,
       roomId,
       allowBots: false,
     });
@@ -368,6 +483,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, createErrors] = await service.createInvite('player-1', {
       matchType: MatchType.CUSTOM,
+      gameType,
       roomId,
     });
 
@@ -392,6 +508,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, errors] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
+      gameType,
       automaticInvite: {
         type: MatchmakingAutoInviteType.PLAYER,
         playerId: 'player-2',
@@ -405,6 +522,7 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({
         id: invite.id,
         matchType: MatchType.RANDOM,
+        gameType,
         status: invite.status,
         ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
         senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
@@ -423,6 +541,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, errors] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
+      gameType,
       automaticInvite: {
         type: MatchmakingAutoInviteType.CLAN,
       },
@@ -462,6 +581,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, errors] = await service.createInvite('player-1', {
       matchType: MatchType.CUSTOM,
+      gameType,
       roomId: '665af23e5e982f0013aa334b',
     });
 
@@ -471,6 +591,7 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({
         id: invite.id,
         matchType: MatchType.CUSTOM,
+        gameType,
         ownerPlayerId: 'player-1',
       }),
     );
@@ -495,6 +616,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, createErrors] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
+      gameType,
     });
     const [sentInvite, inviteErrors] = await service.sendPlayerInvite(
       'player-2',
@@ -510,6 +632,7 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({
         id: invite.id,
         matchType: MatchType.RANDOM,
+        gameType,
         status: invite.status,
         ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
         senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
@@ -544,6 +667,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, createErrors] = await service.createInvite('player-1', {
       matchType: MatchType.CLAN,
+      gameType,
     });
     const [sentInvite, inviteErrors] = await service.sendClanInvite('player-1');
 
@@ -596,6 +720,7 @@ describe('MatchmakingService flow', () => {
 
     const [invite, createErrors] = await service.createInvite('player-1', {
       matchType: MatchType.CUSTOM,
+      gameType,
       roomId: '665af23e5e982f0013aa334b',
       allowBots: false,
     });
@@ -1024,6 +1149,7 @@ describe('MatchmakingService flow', () => {
     const match: ActiveMatch = {
       id: 'match-1',
       matchType: MatchType.RANDOM,
+      gameType,
       status: MatchStatus.ACTIVE,
       teamSize: 1,
       teams: [
@@ -1056,14 +1182,14 @@ describe('MatchmakingService flow', () => {
     });
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
       $inc: {
-        battlePoints: Score.BATTLE.WIN,
+        battlePoints: 30,
         'gameStatistics.playedBattles': 1,
         'gameStatistics.wonBattles': 1,
       },
     });
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-2', {
       $inc: {
-        battlePoints: Score.BATTLE.LOSS,
+        battlePoints: -20,
         'gameStatistics.playedBattles': 1,
       },
     });
@@ -1105,6 +1231,7 @@ describe('MatchmakingService flow', () => {
     const match: ActiveMatch = {
       id: 'match-2',
       matchType: MatchType.CLAN,
+      gameType,
       status: MatchStatus.ACTIVE,
       teamSize: 1,
       teams: [
@@ -1133,13 +1260,13 @@ describe('MatchmakingService flow', () => {
     expect(finishedMatch.result).toEqual({ winningSide: TeamSide.B });
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
       $inc: {
-        battlePoints: Score.BATTLE.LOSS,
+        battlePoints: -25,
         'gameStatistics.playedBattles': 1,
       },
     });
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-2', {
       $inc: {
-        battlePoints: Score.BATTLE.WIN,
+        battlePoints: 40,
         'gameStatistics.playedBattles': 1,
         'gameStatistics.wonBattles': 1,
       },
@@ -1147,13 +1274,13 @@ describe('MatchmakingService flow', () => {
     expect(clanService.basicService.updateOneById).toHaveBeenCalledWith(
       'clan-1',
       {
-        $inc: { battlePoints: Score.BATTLE.LOSS },
+        $inc: { battlePoints: -25 },
       },
     );
     expect(clanService.basicService.updateOneById).toHaveBeenCalledWith(
       'clan-2',
       {
-        $inc: { battlePoints: Score.BATTLE.WIN },
+        $inc: { battlePoints: 40 },
       },
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
@@ -1174,6 +1301,7 @@ describe('MatchmakingService flow', () => {
     const match: ActiveMatch = {
       id: 'match-daily-task-error',
       matchType: MatchType.RANDOM,
+      gameType,
       status: MatchStatus.ACTIVE,
       teamSize: 1,
       teams: [
@@ -1234,6 +1362,7 @@ describe('MatchmakingService flow', () => {
     const match: ActiveMatch = {
       id: 'match-player-error',
       matchType: MatchType.RANDOM,
+      gameType,
       status: MatchStatus.ACTIVE,
       teamSize: 1,
       teams: [
@@ -1288,6 +1417,7 @@ describe('MatchmakingService flow', () => {
     const match: ActiveMatch = {
       id: 'match-clan-error',
       matchType: MatchType.CLAN,
+      gameType,
       status: MatchStatus.ACTIVE,
       teamSize: 1,
       teams: [

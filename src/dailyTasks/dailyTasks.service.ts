@@ -45,6 +45,7 @@ const isChatResponseType = (
 const isStrongerSoldierStep = (step: unknown): step is StrongerSoldierStep =>
   typeof step === 'string' &&
   Object.values(StrongerSoldierStep).includes(step as StrongerSoldierStep);
+
 @Injectable()
 export class DailyTasksService {
   public constructor(
@@ -502,6 +503,16 @@ export class DailyTasksService {
     emotion?: ChatEmotion;
     strongerSoldierStep?: StrongerSoldierStep;
   }): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
+    // Validates payload for FORM_AN_INNER_CONNECTION task to ensure clanId, responseType, and emotion are provided and valid
+    if (
+      payload.serverTaskName === ServerTaskName.FORM_AN_INNER_CONNECTION &&
+      (!payload.clanId ||
+        !isChatResponseType(payload.responseType) ||
+        !isChatEmotion(payload.emotion))
+    ) {
+      return [null, null];
+    }
+
     if (
       payload.serverTaskName === ServerTaskName.PLAY_WITH_EMOTIONS &&
       (!payload.clanId ||
@@ -539,6 +550,7 @@ export class DailyTasksService {
         session,
       );
     } else {
+      // Handles standard tasks including FORM_AN_INNER_CONNECTION via updateTask
       [progressResult, updateErrors] = await this.updateTask(
         payload.playerId,
         payload.serverTaskName,

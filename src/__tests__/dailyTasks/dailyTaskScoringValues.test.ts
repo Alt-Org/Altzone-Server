@@ -1,5 +1,4 @@
 import { defaultPredefinedDailyTasks } from '../../box/dailyTask/defaultPredefinedDailyTasks';
-import { Score } from '../../common/values/scoring.values';
 import {
   ACTIVE_SERVER_TASK_DEFINITIONS,
   MIN_OCCURRENCES_PER_TASK_TYPE,
@@ -8,6 +7,7 @@ import {
 } from '../../dailyTasks/taskGenerator.service';
 import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
 import { uiDailyTasks } from '../../dailyTasks/uiDailyTasks/uiDailyTasks';
+import { TASK_CONSTS } from '../../dailyTasks/consts/taskConstants';
 
 describe('daily task scoring values', () => {
   it('uses the shared completed daily task score for generated server tasks', () => {
@@ -15,7 +15,7 @@ describe('daily task scoring values', () => {
 
     const task = generator.createTaskRandomValues();
 
-    expect(task.points).toBe(Score.DAILY_TASK.COMPLETED);
+    expect(task.points).toBe(TASK_CONSTS.POINTS.DAILY_TASK.SMALL);
   });
 
   it('configures INNER_VOICE as a one-step clan motto task', () => {
@@ -141,12 +141,14 @@ describe('daily task scoring values', () => {
   it('uses the shared completed daily task score for default predefined tasks', () => {
     expect(defaultPredefinedDailyTasks).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ points: Score.DAILY_TASK.COMPLETED }),
+        expect.objectContaining({
+          points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
+        }),
       ]),
     );
     expect(
       defaultPredefinedDailyTasks.every(
-        (task) => task.points === Score.DAILY_TASK.COMPLETED,
+        (task) => task.points === TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
       ),
     ).toBe(true);
   });
@@ -154,7 +156,7 @@ describe('daily task scoring values', () => {
   it('uses the shared completed daily task score for UI daily tasks', () => {
     expect(
       Object.values(uiDailyTasks).every(
-        (task) => task.points === Score.DAILY_TASK.COMPLETED,
+        (task) => task.points === TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
       ),
     ).toBe(true);
   });

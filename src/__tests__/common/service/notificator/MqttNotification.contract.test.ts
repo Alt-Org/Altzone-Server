@@ -69,6 +69,7 @@ describe('MQTT notification contract', () => {
     const invite = {
       id: 'invite-1',
       matchType: MatchType.RANDOM,
+      gameType: 1,
       status: InviteStatus.QUEUED,
       ownerPlayerId: 'player-1',
       players: [{ playerId: 'player-1', name: 'Player 1', avatar: null }],
@@ -81,6 +82,7 @@ describe('MQTT notification contract', () => {
     const match = {
       id: 'match-1',
       matchType: MatchType.RANDOM,
+      gameType: 1,
       status: MatchStatus.ACTIVE,
       teamSize: 2 as const,
       teams: [
@@ -110,6 +112,7 @@ describe('MQTT notification contract', () => {
       {
         id: invite.id,
         matchType: invite.matchType,
+        gameType: invite.gameType,
         status: invite.status,
         ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
         senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
