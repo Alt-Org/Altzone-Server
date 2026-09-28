@@ -656,15 +656,16 @@ export class MatchmakingService {
   /**
    * Routes READY invites into their mode-specific next step.
    *
-   * RANDOM tries to pair any two ready teams, CLAN searches for another clan and
-   * schedules a timeout fallback, and CUSTOM starts directly from room settings.
+   * RANDOM tries to pair ready teams playing the same game type, CLAN searches
+   * for another clan playing the same game type and schedules a timeout
+   * fallback, and CUSTOM starts directly from room settings.
    */
   private async processReadyInvite(invite: MatchmakingInvite) {
     if (invite.status !== InviteStatus.READY) return invite;
 
     if (invite.matchType === MatchType.RANDOM) {
       const queuedInvite = await this.enqueueReadyInvite(invite);
-      const match = await this.tryCreateRandomMatch();
+      const match = await this.tryCreateRandomMatch(invite.gameType);
       if (!match) return queuedInvite;
 
       const [processedInvite] = await this.readInvite(invite.id);
@@ -703,11 +704,11 @@ export class MatchmakingService {
   }
 
   /**
-   * Stores a READY invite in the Redis list for its match type if it is not
-   * already queued.
+   * Stores a READY invite in the Redis list for its matchmaking mode and game
+   * type if it is not already queued.
    */
   private async enqueueReadyInvite(invite: MatchmakingInvite) {
-    const queueKey = this.queueKey(invite.matchType);
+    const queueKey = this.queueKey(invite.matchType, invite.gameType);
     const queuedInvite: MatchmakingInvite = {
       ...invite,
       status: InviteStatus.QUEUED,
@@ -726,10 +727,14 @@ export class MatchmakingService {
   }
 
   /**
-   * Pairs the first two valid RANDOM invites from the queue into an active match.
+   * Pairs the first two valid RANDOM invites for one game type into an active
+   * match.
    */
-  private async tryCreateRandomMatch() {
-    const queuedInvites = await this.getValidQueuedInvites(MatchType.RANDOM);
+  private async tryCreateRandomMatch(gameType: number) {
+    const queuedInvites = await this.getValidQueuedInvites(
+      MatchType.RANDOM,
+      gameType,
+    );
     if (queuedInvites.length < 2) return null;
 
     const [firstInvite, secondInvite] = queuedInvites;
@@ -752,7 +757,10 @@ export class MatchmakingService {
    * when one is available.
    */
   private async tryCreateClanMatch(invite: MatchmakingInvite) {
-    const queuedInvites = await this.getValidQueuedInvites(MatchType.CLAN);
+    const queuedInvites = await this.getValidQueuedInvites(
+      MatchType.CLAN,
+      invite.gameType,
+    );
     const opponent = queuedInvites.find(
       (candidate) =>
         candidate.id !== invite.id &&
@@ -807,8 +815,8 @@ export class MatchmakingService {
   /**
    * Loads queued invite ids, drops stale entries, and returns still-READY invites.
    */
-  private async getValidQueuedInvites(matchType: MatchType) {
-    const queueKey = this.queueKey(matchType);
+  private async getValidQueuedInvites(matchType: MatchType, gameType: number) {
+    const queueKey = this.queueKey(matchType, gameType);
     const queuedInviteIds = Array.from(
       new Set(await this.redisService.lrange(queueKey, 0, -1)),
     );
@@ -822,7 +830,9 @@ export class MatchmakingService {
       }
 
       const isValid =
-        invite.matchType === matchType && invite.status === InviteStatus.QUEUED;
+        invite.matchType === matchType &&
+        invite.gameType === gameType &&
+        invite.status === InviteStatus.QUEUED;
       if (!isValid) {
         await this.redisService.lrem(queueKey, 0, inviteId);
         continue;
@@ -986,7 +996,11 @@ export class MatchmakingService {
   }
 
   private async removeInviteFromQueue(invite: MatchmakingInvite) {
-    await this.redisService.lrem(this.queueKey(invite.matchType), 0, invite.id);
+    await this.redisService.lrem(
+      this.queueKey(invite.matchType, invite.gameType),
+      0,
+      invite.id,
+    );
   }
 
   /**
@@ -1753,8 +1767,8 @@ export class MatchmakingService {
     return `${this.PLAYER_INVITE_KEY_PREFIX}:${playerId}`;
   }
 
-  private queueKey(matchType: MatchType) {
-    return `${this.QUEUE_KEY_PREFIX}:${matchType}`;
+  private queueKey(matchType: MatchType, gameType: number) {
+    return `${this.QUEUE_KEY_PREFIX}:${matchType}:${gameType}`;
   }
 
   private matchKey(matchId: string) {
