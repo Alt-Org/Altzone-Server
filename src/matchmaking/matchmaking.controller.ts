@@ -92,6 +92,15 @@ export class MatchmakingController {
   }
 
   /**
+   * Removes the authenticated player from their active matchmaking room.
+   */
+  @Post('rooms/leave')
+  @UniformResponse()
+  async leaveRoom(@LoggedUser() user: User) {
+    return this.matchmakingService.leaveRoom(user.player_id);
+  }
+
+  /**
    * Starts matchmaking for a ready room owned by the authenticated player.
    */
   @Post('rooms/:roomId/start')
