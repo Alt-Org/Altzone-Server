@@ -425,6 +425,224 @@ describe('MatchmakingService flow', () => {
     );
   });
 
+  it('removes a player from a room and notifies only the remaining players', async () => {
+    const { redis, notifier, service } = createService();
+
+    const [invite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+      allowBots: false,
+    });
+    await service.joinInvite(invite.id, 'player-2', {} as any);
+    notifier.inviteUpdated.mockClear();
+
+    const [result, leaveErrors] = await service.leaveRoom('player-2');
+    const [updatedInvite, readErrors] = await service.getInvite(invite.id);
+
+    expect(result).toBeNull();
+    expect(leaveErrors).toBeNull();
+    expect(readErrors).toBeNull();
+    expect(updatedInvite).toMatchObject({
+      ownerPlayerId: 'player-1',
+      players: ['player-1'],
+      bots: [],
+      status: InviteStatus.OPEN,
+    });
+    expect(redis.values.has('matchmaking:player-invite:player-2')).toBe(false);
+    expect(redis.values.has('matchmaking:player-invite:player-1')).toBe(true);
+    expect(notifier.inviteUpdated).toHaveBeenCalledTimes(1);
+    expect(notifier.inviteUpdated).toHaveBeenCalledWith(
+      'player-1',
+      expect.objectContaining({
+        id: invite.id,
+        ownerPlayerId: 'player-1',
+        status: InviteStatus.OPEN,
+      }),
+    );
+    expect(notifier.inviteUpdated).not.toHaveBeenCalledWith(
+      'player-2',
+      expect.anything(),
+    );
+  });
+
+  it('transfers room ownership when the owner leaves', async () => {
+    const { notifier, service } = createService();
+    const roomId = '665af23e5e982f0013aa334b';
+
+    const [invite] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      gameType,
+      roomId,
+      allowBots: false,
+    });
+    await service.joinInvite(invite.id, 'player-2', { roomId });
+    notifier.inviteUpdated.mockClear();
+
+    const [, leaveErrors] = await service.leaveRoom('player-1');
+    const [updatedInvite] = await service.getInvite(invite.id);
+
+    expect(leaveErrors).toBeNull();
+    expect(updatedInvite).toMatchObject({
+      ownerPlayerId: 'player-2',
+      players: ['player-2'],
+    });
+    expect(notifier.inviteUpdated).toHaveBeenCalledTimes(1);
+    expect(notifier.inviteUpdated).toHaveBeenCalledWith(
+      'player-2',
+      expect.objectContaining({ ownerPlayerId: 'player-2' }),
+    );
+  });
+
+  it('deletes the room when its last player leaves', async () => {
+    const { redis, notifier, service } = createService();
+
+    const [invite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    notifier.inviteUpdated.mockClear();
+
+    const [, leaveErrors] = await service.leaveRoom('player-1');
+    const [deletedInvite, readErrors] = await service.getInvite(invite.id);
+
+    expect(leaveErrors).toBeNull();
+    expect(deletedInvite).toBeNull();
+    expect(readErrors).toHaveLength(1);
+    expect(readErrors[0].reason).toBe(SEReason.NOT_FOUND);
+    expect(redis.values.has(`matchmaking:invite:${invite.id}`)).toBe(false);
+    expect(redis.values.has('matchmaking:player-invite:player-1')).toBe(false);
+    expect(notifier.inviteUpdated).not.toHaveBeenCalled();
+  });
+
+  it('removes a queued room from its queue and recalculates its status', async () => {
+    const { redis, service } = createService();
+
+    const [invite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+      allowBots: false,
+    });
+    await service.joinInvite(invite.id, 'player-2', {} as any);
+    const [queuedInvite] = await service.startRoom(invite.id, 'player-1');
+
+    expect(queuedInvite.status).toBe(InviteStatus.QUEUED);
+
+    const [, leaveErrors] = await service.leaveRoom('player-2');
+    const [updatedInvite] = await service.getInvite(invite.id);
+
+    expect(leaveErrors).toBeNull();
+    expect(updatedInvite.status).toBe(InviteStatus.OPEN);
+    expect(updatedInvite.players).toEqual(['player-1']);
+    expect(
+      await redis.lrange(`matchmaking:queue:RANDOM:${gameType}`, 0, -1),
+    ).toEqual([]);
+  });
+
+  it('recalculates bot fillers after a player leaves', async () => {
+    const { service } = createService();
+
+    const [invite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+      allowBots: true,
+    });
+    const [joinedInvite] = await service.joinInvite(
+      invite.id,
+      'player-2',
+      {} as any,
+    );
+
+    expect(joinedInvite.bots).toHaveLength(0);
+
+    await service.leaveRoom('player-2');
+    const [updatedInvite] = await service.getInvite(invite.id);
+
+    expect(updatedInvite.players).toEqual(['player-1']);
+    expect(updatedInvite.bots).toHaveLength(1);
+    expect(updatedInvite.status).toBe(InviteStatus.READY);
+  });
+
+  it('returns NOT_FOUND when the player has no active room or leaves twice', async () => {
+    const { service } = createService();
+
+    const [, initialErrors] = await service.leaveRoom('player-1');
+
+    expect(initialErrors).toHaveLength(1);
+    expect(initialErrors[0]).toMatchObject({
+      reason: SEReason.NOT_FOUND,
+      field: 'playerId',
+      value: 'player-1',
+    });
+
+    await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    await service.leaveRoom('player-1');
+    const [, repeatedErrors] = await service.leaveRoom('player-1');
+
+    expect(repeatedErrors).toHaveLength(1);
+    expect(repeatedErrors[0].reason).toBe(SEReason.NOT_FOUND);
+  });
+
+  it('cleans up a dangling player room index', async () => {
+    const { redis, service } = createService();
+    const playerInviteKey = 'matchmaking:player-invite:player-1';
+    await redis.set(playerInviteKey, 'missing-invite');
+
+    const [, leaveErrors] = await service.leaveRoom('player-1');
+
+    expect(leaveErrors).toHaveLength(1);
+    expect(leaveErrors[0].reason).toBe(SEReason.NOT_FOUND);
+    expect(redis.values.has(playerInviteKey)).toBe(false);
+  });
+
+  it('rejects an inconsistent player room index and removes it', async () => {
+    const { redis, service } = createService();
+
+    const [invite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    const playerInviteKey = 'matchmaking:player-invite:player-2';
+    await redis.set(playerInviteKey, invite.id);
+
+    const [, leaveErrors] = await service.leaveRoom('player-2');
+    const [unchangedInvite] = await service.getInvite(invite.id);
+
+    expect(leaveErrors).toHaveLength(1);
+    expect(leaveErrors[0].reason).toBe(SEReason.NOT_FOUND);
+    expect(redis.values.has(playerInviteKey)).toBe(false);
+    expect(unchangedInvite.players).toEqual(['player-1']);
+  });
+
+  it('rejects leaving a room after it has been matched', async () => {
+    const { redis, service } = createService();
+    const roomId = '665af23e5e982f0013aa334b';
+
+    const [invite] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      gameType,
+      roomId,
+      allowBots: true,
+    });
+    const [matchedInvite] = await service.startRoom(invite.id, 'player-1');
+    await redis.set('matchmaking:player-invite:player-1', invite.id);
+
+    const [, leaveErrors] = await service.leaveRoom('player-1');
+    const [unchangedInvite] = await service.getInvite(invite.id);
+
+    expect(matchedInvite.status).toBe(InviteStatus.MATCHED);
+    expect(leaveErrors).toHaveLength(1);
+    expect(leaveErrors[0]).toMatchObject({
+      reason: SEReason.NOT_ALLOWED,
+      field: 'status',
+      value: InviteStatus.MATCHED,
+    });
+    expect(unchangedInvite.players).toEqual(['player-1']);
+    expect(unchangedInvite.status).toBe(InviteStatus.MATCHED);
+  });
+
   it('rejects room start from a player who does not own the room', async () => {
     const { service } = createService();
 
