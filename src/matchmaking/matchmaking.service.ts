@@ -266,7 +266,18 @@ export class MatchmakingService {
     const remainingPlayerIds = invite.players.filter(
       (invitePlayerId) => invitePlayerId !== playerId,
     );
-    if (remainingPlayerIds.length === 0) return [null, null];
+    if (remainingPlayerIds.length === 0) {
+      if (invite.status === InviteStatus.QUEUED) {
+        await this.removeInviteFromQueue(invite);
+      }
+
+      await Promise.all([
+        this.redisService.delete(this.playerInviteKey(playerId)),
+        this.redisService.delete(this.inviteKey(invite.id)),
+      ]);
+
+      return [null, null];
+    }
 
     if (invite.status === InviteStatus.QUEUED) {
       await this.removeInviteFromQueue(invite);
