@@ -1499,25 +1499,8 @@ export class MatchmakingService {
   private async getOwnedActiveInvite(
     senderPlayerId: string,
   ): Promise<IServiceReturn<MatchmakingInvite>> {
-    const activeInviteId = await this.redisService.get(
-      this.playerInviteKey(senderPlayerId),
-    );
-
-    if (!activeInviteId) {
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            field: 'playerId',
-            value: senderPlayerId,
-            message: 'Player does not have an active matchmaking room.',
-          }),
-        ],
-      ];
-    }
-
-    const [invite, inviteErrors] = await this.readInvite(activeInviteId);
+    const [invite, inviteErrors] =
+      await this.getActiveInviteForPlayer(senderPlayerId);
     if (inviteErrors) return [null, inviteErrors];
 
     if (invite.ownerPlayerId !== senderPlayerId) {
