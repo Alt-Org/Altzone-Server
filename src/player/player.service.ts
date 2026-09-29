@@ -30,6 +30,7 @@ import { PlayerEmotion } from './enum/playerEmotion.enum';
 import { prizePool } from '../rewarder/const/prizePool';
 import { PlayerObject } from '../common/type/playerObject.type';
 import { EmotionCheckResult } from './dto/emotionCheckResult.dto';
+
 @Injectable()
 @AddBasicService()
 export class PlayerService
@@ -184,12 +185,6 @@ export class PlayerService
     _output: Partial<Player>,
   ): Promise<boolean> => {
     if (!input?.clan_id) return true;
-
-    if (oldDoc.clan_id?.toString() !== input.clan_id.toString())
-      await this.model.updateOne(
-        { _id: oldDoc._id },
-        { clan_joindate: new Date() },
-      );
 
     const changeCounterValue = this.requestHelperService.changeCounterValue;
 
