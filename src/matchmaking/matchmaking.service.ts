@@ -235,9 +235,8 @@ export class MatchmakingService {
   }
 
   /**
-   * Resolves and validates the authenticated player's active matchmaking room.
-   * The room state is updated by the leave-room transition implemented
-   * separately from this lookup and validation step.
+   * Removes the authenticated player from their active matchmaking room and
+   * updates the room for the remaining players.
    */
   async leaveRoom(playerId: string): Promise<IServiceReturn<void>> {
     const [invite, inviteErrors] =
@@ -263,6 +262,30 @@ export class MatchmakingService {
         ],
       ];
     }
+
+    const remainingPlayerIds = invite.players.filter(
+      (invitePlayerId) => invitePlayerId !== playerId,
+    );
+    if (remainingPlayerIds.length === 0) return [null, null];
+
+    if (invite.status === InviteStatus.QUEUED) {
+      await this.removeInviteFromQueue(invite);
+    }
+
+    const updatedAt = new Date().toISOString();
+    const updatedInvite = this.recalculateInvite({
+      ...invite,
+      ownerPlayerId:
+        invite.ownerPlayerId === playerId
+          ? remainingPlayerIds[0]
+          : invite.ownerPlayerId,
+      players: remainingPlayerIds,
+      updatedAt,
+    });
+
+    await this.redisService.delete(this.playerInviteKey(playerId));
+    await this.saveInvite(updatedInvite);
+    await this.notifyInvitePlayers(updatedInvite);
 
     return [null, null];
   }
