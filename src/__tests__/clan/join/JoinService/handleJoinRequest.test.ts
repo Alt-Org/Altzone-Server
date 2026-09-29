@@ -79,6 +79,20 @@ describe('JoinService.handleJoinRequest() test suite', () => {
     expect(clanDto.name).toBe(openClan.name);
   });
 
+  it('Should set clan_joindate of the joined player to the current date', async () => {
+    const joinToCreate = joinBuilder.setClanId(openClan._id).build();
+
+    const before = Date.now();
+    await joinService.handleJoinRequest(joinToCreate.clan_id, player._id);
+    const after = Date.now();
+
+    const playerInDB = await playerModel.findById(player._id);
+    const joinTime = playerInDB.clan_joindate.getTime();
+
+    expect(joinTime).toBeGreaterThanOrEqual(before);
+    expect(joinTime).toBeLessThanOrEqual(after);
+  });
+
   it('Should throw NotFoundException if clan with that _id does not exists', async () => {
     const nonExisting_id = getNonExisting_id();
     const joinToCreate = joinBuilder.setClanId(nonExisting_id).build();

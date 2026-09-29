@@ -28,7 +28,6 @@ import {
   cancelTransaction,
 } from '../../common/function/Transactions';
 import ClanNotifier from '../clan.notifier';
-
 @Injectable()
 export class JoinService {
   private readonly logger = new Logger(JoinService.name);
@@ -178,6 +177,7 @@ export class JoinService {
         { _id: player_id },
         {
           clan_id: null,
+          clan_joindate: null,
         },
         { session },
       );
@@ -252,6 +252,7 @@ export class JoinService {
         { _id: player_id },
         {
           clan_id: null,
+          clan_joindate: null,
         },
         { session },
       ); // update clan_id for the requested player;
@@ -315,6 +316,7 @@ export class JoinService {
         {
           clan_id,
           clanRole_id: memberRole._id,
+          clan_joindate: new Date(),
         },
         { session },
       );

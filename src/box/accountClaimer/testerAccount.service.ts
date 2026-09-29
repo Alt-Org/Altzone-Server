@@ -119,6 +119,7 @@ export class TesterAccountService {
       {
         clan_id: clanWithLeastPlayers._id,
         clanRole_id: leaderRole._id,
+        clan_joindate: new Date(),
       },
     );
 
