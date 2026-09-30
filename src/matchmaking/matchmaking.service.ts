@@ -235,6 +235,73 @@ export class MatchmakingService {
   }
 
   /**
+   * Removes the authenticated player from their active matchmaking room and
+   * updates the room for the remaining players.
+   */
+  async leaveRoom(playerId: string): Promise<IServiceReturn<void>> {
+    const [invite, inviteErrors] =
+      await this.getActiveInviteForPlayer(playerId);
+    if (inviteErrors) return [null, inviteErrors];
+
+    if (!invite.players.includes(playerId)) {
+      await this.redisService.delete(this.playerInviteKey(playerId));
+
+      return [null, this.playerHasNoActiveInviteError(playerId)];
+    }
+
+    if (invite.status === InviteStatus.MATCHED) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'status',
+            value: invite.status,
+            message: 'A matched room can no longer be left.',
+          }),
+        ],
+      ];
+    }
+
+    const remainingPlayerIds = invite.players.filter(
+      (invitePlayerId) => invitePlayerId !== playerId,
+    );
+    if (remainingPlayerIds.length === 0) {
+      if (invite.status === InviteStatus.QUEUED) {
+        await this.removeInviteFromQueue(invite);
+      }
+
+      await Promise.all([
+        this.redisService.delete(this.playerInviteKey(playerId)),
+        this.redisService.delete(this.inviteKey(invite.id)),
+      ]);
+
+      return [null, null];
+    }
+
+    if (invite.status === InviteStatus.QUEUED) {
+      await this.removeInviteFromQueue(invite);
+    }
+
+    const updatedAt = new Date().toISOString();
+    const updatedInvite = this.recalculateInvite({
+      ...invite,
+      ownerPlayerId:
+        invite.ownerPlayerId === playerId
+          ? remainingPlayerIds[0]
+          : invite.ownerPlayerId,
+      players: remainingPlayerIds,
+      updatedAt,
+    });
+
+    await this.redisService.delete(this.playerInviteKey(playerId));
+    await this.saveInvite(updatedInvite);
+    await this.notifyInvitePlayers(updatedInvite);
+
+    return [null, null];
+  }
+
+  /**
    * Starts matchmaking for a ready room. Only the room owner may move a room
    * from READY into matchmaking.
    */
@@ -1432,25 +1499,8 @@ export class MatchmakingService {
   private async getOwnedActiveInvite(
     senderPlayerId: string,
   ): Promise<IServiceReturn<MatchmakingInvite>> {
-    const activeInviteId = await this.redisService.get(
-      this.playerInviteKey(senderPlayerId),
-    );
-
-    if (!activeInviteId) {
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            field: 'playerId',
-            value: senderPlayerId,
-            message: 'Player does not have an active matchmaking room.',
-          }),
-        ],
-      ];
-    }
-
-    const [invite, inviteErrors] = await this.readInvite(activeInviteId);
+    const [invite, inviteErrors] =
+      await this.getActiveInviteForPlayer(senderPlayerId);
     if (inviteErrors) return [null, inviteErrors];
 
     if (invite.ownerPlayerId !== senderPlayerId) {
@@ -1610,6 +1660,43 @@ export class MatchmakingService {
         field: 'playerId',
         value: playerId,
         message: 'Player already has an active matchmaking invite.',
+      }),
+    ];
+  }
+
+  /**
+   * Loads a player's active room through the reverse Redis index. A dangling
+   * index is removed before returning the same not-found error as a missing
+   * index.
+   */
+  private async getActiveInviteForPlayer(
+    playerId: string,
+  ): Promise<IServiceReturn<MatchmakingInvite>> {
+    const activeInviteId = await this.redisService.get(
+      this.playerInviteKey(playerId),
+    );
+
+    if (!activeInviteId) {
+      return [null, this.playerHasNoActiveInviteError(playerId)];
+    }
+
+    const [invite, inviteErrors] = await this.readInvite(activeInviteId);
+    if (inviteErrors) {
+      await this.redisService.delete(this.playerInviteKey(playerId));
+
+      return [null, this.playerHasNoActiveInviteError(playerId)];
+    }
+
+    return [invite, null];
+  }
+
+  private playerHasNoActiveInviteError(playerId: string) {
+    return [
+      new ServiceError({
+        reason: SEReason.NOT_FOUND,
+        field: 'playerId',
+        value: playerId,
+        message: 'Player does not have an active matchmaking room.',
       }),
     ];
   }
