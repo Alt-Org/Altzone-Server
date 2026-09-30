@@ -23,13 +23,14 @@ documented per feature.
 | Logical topic   | Event types                                                                                                                      |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `jukebox`       | `SONG_UPDATED`, `PLAYLIST_UPDATED`                                                                                               |
-| `matchmaking`   | `ROOM_UPDATED`, `INVITE_RECEIVED`, `CLAN_INVITE_RECEIVED`, `MATCH_FOUND`, `MATCH_STARTED`, `MATCH_FINISHED`                     |
+| `matchmaking`   | `ROOM_UPDATED`, `INVITE_RECEIVED`, `CLAN_INVITE_RECEIVED`, `MATCH_FOUND`, `MATCH_STARTED`, `MATCH_FINISHED`                      |
 | `voting`        | `VOTING_CREATED`, `VOTING_UPDATED`, `VOTING_ENDED`, `VOTING_ERROR`                                                               |
 | `daily_task`    | `TASK_RECEIVED`, `TASK_UPDATED`, `TASK_COMPLETED`, `TASK_ERROR`, `CLAN_TASK_COMPLETED`, `MILESTONE_REACHED`, `DAILY_TASKS_RESET` |
-| `clan`          | `MEMBER_JOINED`, `MEMBER_LEFT`                                                                                                   |
+| `clan`          | `MEMBER_JOINED`, `MEMBER_LEFT`, `CLAN_RULES_UPDATED`                                                                             |
 | `friendship`    | `FRIEND_REQUEST_CREATED`, `FRIEND_REQUEST_ACCEPTED`, `FRIEND_REQUEST_REJECTED`                                                   |
 | `inactive_room` | `INACTIVE_ROOMS_REMOVED`                                                                                                         |
 | `stock`         | `STOCK_ITEM_ADDED`, `STOCK_ITEM_REMOVED`                                                                                         |
+| `soulhome`      | `SOULHOME_ROOM_ACTIVATED`, `SOULHOME_ROOM_DEACTIVATED`, `SOULHOME_ROOM_LAYOUT_UPDATED`                                           |
 
 ## Frontend Routing
 
@@ -61,11 +62,17 @@ switch (message.topic) {
   case 'stock':
     handleStock(message.type, message.payload);
     break;
+  case 'soulhome':
+    handleSoulhome(message.type, message.payload);
+    break;
 }
 ```
 
 See [Stock MQTT Notifications](stock-mqtt-notifications.md) for the full
 stock-specific topic and payload contract.
+
+See [Soulhome MQTT Notifications](soulhome-mqtt-notifications.md) for the full
+Soul Home room notification topic and payload contract.
 
 ## Clan Member Notifications
 
@@ -109,6 +116,59 @@ Payload examples:
   }
 }
 ```
+
+## Clan Rules Notifications
+
+Subscribe to clan rules changes with:
+
+```text
+/clan/{clanId}/rules/+/+
+```
+
+Published broker topic:
+
+```text
+/clan/{clanId}/rules/update/update
+```
+
+The notification is published whenever the clan rules are successfully saved
+through `PUT /clan` with a `rules` field.
+
+### Payload examples
+
+The Type/Interface:
+
+```ts
+{
+  topic: 'clan',
+  type: 'CLAN_RULES_UPDATED',
+  payload: {
+    topic: `/clan/${clanId}/rules/update`,
+    clan_id: string,
+    rules: ClanRule[],
+    ts: number
+  }
+}
+```
+
+JSON:
+
+```json
+{
+  "topic": "clan",
+  "type": "CLAN_RULES_UPDATED",
+  "payload": {
+    "topic": "/clan/67fe4e2d8a54d4cc39266a43/rules/update",
+    "clan_id": "67fe4e2d8a54d4cc39266a43",
+    "rules": ["FairGame", "NoToxicity", "Teamwork"],
+    "ts": 1757548800000
+  }
+}
+```
+
+`rules` are the stable `ClanRule` enum values
+(see `src/clan/enum/clanRule.enum.ts`), never localized labels. The frontend is
+responsible for localizing them.
 
 ## Friendship Notifications
 
@@ -219,6 +279,37 @@ Payload:
     sellerClan_id?: string,
     buyerClan_id?: string,
     fleaMarketItem_id?: string,
+    ts: number
+  }
+}
+```
+
+## Soulhome Notifications
+
+Soul Home room changes are published to:
+
+```text
+/clan/{clanId}/soulhome/{soulHomeId}/update
+```
+
+Use `/clan/{clanId}/soulhome/+/update` to subscribe to all Soul Home room
+changes for a clan.
+
+Payload:
+
+```ts
+{
+  topic: 'soulhome',
+  type:
+    | 'SOULHOME_ROOM_ACTIVATED'
+    | 'SOULHOME_ROOM_DEACTIVATED'
+    | 'SOULHOME_ROOM_LAYOUT_UPDATED',
+  payload: {
+    topic: `/clan/${clanId}/soulhome/${soulHomeId}/update`,
+    clan_id: string,
+    soulHome_id: string,
+    mode?: 'single' | 'batch',
+    rooms: object[],
     ts: number
   }
 }

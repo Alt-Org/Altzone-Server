@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { RequestHelperModule } from '../requestHelper/requestHelper.module';
@@ -13,6 +13,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PlayerSchema } from '../player/schemas/player.schema';
 import { ProfileSchema } from '../profile/profile.schema';
 import { ClanSchema } from '../clan/clan.schema';
+import { ProfileModule } from '../profile/profile.module';
 
 @Module({
   imports: [
@@ -29,9 +30,10 @@ import { ClanSchema } from '../clan/clan.schema';
       { name: ModelName.BOX, schema: BoxSchema },
       { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
     ]),
+    forwardRef(() => ProfileModule),
   ],
   providers: [AuthService, BoxAuthService, AuthServiceProvider],
   controllers: [AuthController],
-  exports: [AuthService],
+  exports: [AuthService, BoxAuthService],
 })
 export class AuthModule {}

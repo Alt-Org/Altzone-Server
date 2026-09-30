@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import {
   Model,
@@ -13,6 +13,7 @@ import { RoomDto } from './dto/room.dto';
 import RoomHelperService from './utils/room.helper.service';
 import { ItemService } from '../item/item.service';
 import { Item } from '../item/item.schema';
+import { ItemDto } from '../item/dto/item.dto';
 import { ModelName } from '../../common/enum/modelName.enum';
 import BasicService from '../../common/service/basicService/BasicService';
 import {
@@ -36,9 +37,14 @@ import { RoomStatus } from './enum/roomStatus.enum';
 import { ClanService } from '../../clan/clan.service';
 import { StockService } from '../stock/stock.service';
 import { SEReason } from '../../common/service/basicService/SEReason';
+import RoomNotifier from './room.notifier';
+import EventEmitterService from '../../common/service/EventEmitterService/EventEmitter.service';
+import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
 
 @Injectable()
 export class RoomService {
+  private readonly logger = new Logger(RoomService.name);
+
   public constructor(
     @InjectModel(Room.name) public readonly model: Model<Room>,
     private readonly roomHelper: RoomHelperService,
@@ -49,6 +55,8 @@ export class RoomService {
     private readonly clanService: ClanService,
     @Inject(forwardRef(() => StockService))
     private readonly stockService: StockService,
+    private readonly roomNotifier: RoomNotifier,
+    private readonly eventEmitterService: EventEmitterService,
     @InjectConnection() private readonly connection: Connection,
   ) {
     this.refsInModel = [ModelName.ITEM, ModelName.SOULHOME];
@@ -214,16 +222,49 @@ export class RoomService {
   /**
    * Activates specified rooms.
    *
-   * The method sets `deactivationTimestamp` field to current + specified duration.
+   * The method sets room status to active and `deactivationTime` to current + specified duration.
    * @param room_ids rooms to update
    * @param durationS how long in seconds room should remain active
    */
   async activateRoomsByIds(room_ids: string[], durationS: number) {
-    const deactivationTimestamp = Date.now() + durationS * 1000;
-    const updateObject = { deactivationTimestamp };
+    const deactivationTime = new Date(Date.now() + durationS * 1000);
+    const updateObject = {
+      deactivationTime,
+      roomStatus: RoomStatus.ACTIVE,
+    };
+    const [roomsToActivate] = await this.basicService.readMany<RoomDto>({
+      filter: { _id: { $in: room_ids } },
+    });
 
     for (let i = 0, l = room_ids.length; i < l; i++)
       await this.basicService.updateOneById(room_ids[i], updateObject);
+
+    if (!roomsToActivate) return;
+
+    const roomsBySoulHomeId = roomsToActivate.reduce((groups, room) => {
+      const soulHomeId = room.soulHome_id.toString();
+      const rooms = groups.get(soulHomeId) ?? [];
+      rooms.push(room);
+      groups.set(soulHomeId, rooms);
+      return groups;
+    }, new Map<string, RoomDto[]>());
+
+    for (const [soulHomeId, rooms] of roomsBySoulHomeId.entries()) {
+      const [soulHome, soulHomeErrors] =
+        await this.soulHomeService.basicService.readOneById(soulHomeId);
+      if (soulHomeErrors || !soulHome) continue;
+
+      this.roomNotifier.roomActivated({
+        clan_id: soulHome.clan_id.toString(),
+        soulHome_id: soulHomeId,
+        rooms: rooms.map((room) => ({
+          _id: room._id.toString(),
+          roomPosition: room.roomPosition,
+          roomStatus: RoomStatus.ACTIVE,
+          deactivationTime,
+        })),
+      });
+    }
   }
 
   /**
@@ -242,10 +283,12 @@ export class RoomService {
    * Update one or multiple Rooms and their Items
    *
    * @param payload - Single Room or Array of Rooms with Items to update
+   * @param player_id - The Player who saves the room layout.
    * @returns _true_ if update successful, else Errors
    */
   async updateSoulHomeRooms(
     payload: UpdateRoomDto | UpdateRoomDto[],
+    _player_id?: string,
   ): Promise<IServiceReturn<boolean>> {
     if (!payload) {
       return [
@@ -259,7 +302,8 @@ export class RoomService {
       ];
     }
 
-    const rooms = Array.isArray(payload) ? payload : [payload];
+    const isBatch = Array.isArray(payload);
+    const rooms = isBatch ? payload : [payload];
 
     if (!rooms.length)
       return [
@@ -277,6 +321,7 @@ export class RoomService {
 
     const roomBulk: AnyBulkWriteOperation<Room>[] = [];
     const itemBulk: AnyBulkWriteOperation<Item>[] = [];
+    const roomIdsWithFurnitureUpdate = new Set<string>();
     let soulHomeId: string | null = null;
     let clanId: string | null = null;
 
@@ -331,6 +376,7 @@ export class RoomService {
       }
 
       if (hasFurnitureUpdate) {
+        roomIdsWithFurnitureUpdate.add(_id.toString());
         const itemIds = furniture.map((item) => item._id);
 
         for (const item of furniture) {
@@ -431,7 +477,121 @@ export class RoomService {
 
     await endTransaction(session);
 
+    if (_player_id && roomIdsWithFurnitureUpdate.size) {
+      const [furnitureByRoomId] = await this.readFinalSavedRoomFurniture(
+        Array.from(roomIdsWithFurnitureUpdate),
+      );
+      if (
+        furnitureByRoomId &&
+        this.hasBuildYourWorldQualifyingRoom(furnitureByRoomId)
+      ) {
+        await this.emitBuildYourWorldDailyTaskEvent(_player_id);
+      }
+    }
+
+    if (soulHomeId && clanId) {
+      this.roomNotifier.layoutUpdated({
+        clan_id: clanId,
+        soulHome_id: soulHomeId,
+        mode: isBatch ? 'batch' : 'single',
+        rooms: rooms.map((room) => ({
+          _id: room._id,
+          roomColour: room.roomColour,
+          wallpaper: room.wallpaper,
+          floorType: room.floorType,
+          furnitureChanged: 'furniture' in room,
+        })),
+      });
+    }
+
     return [true, null];
+  }
+
+  private async readFinalSavedRoomItems(
+    roomIds: string[],
+  ): Promise<IServiceReturn<Map<string, ItemDto[]>>> {
+    const [items, errors] = await this.itemService.readMany({
+      filter: { room_id: { $in: roomIds } },
+    });
+    if (errors) return [null, errors];
+
+    const itemsByRoomId = new Map<string, ItemDto[]>(
+      roomIds.map((roomId) => [roomId, []]),
+    );
+
+    for (const item of items ?? []) {
+      const roomId = item.room_id?.toString();
+      if (!roomId || !itemsByRoomId.has(roomId)) continue;
+
+      itemsByRoomId.get(roomId).push(item);
+    }
+
+    return [itemsByRoomId, null];
+  }
+
+  private async readFinalSavedRoomFurniture(
+    roomIds: string[],
+  ): Promise<IServiceReturn<Map<string, ItemDto[]>>> {
+    const [itemsByRoomId, errors] = await this.readFinalSavedRoomItems(roomIds);
+    if (errors) return [null, errors];
+
+    return [
+      new Map(
+        Array.from(itemsByRoomId.entries()).map(([roomId, items]) => [
+          roomId,
+          this.filterFurnitureItems(items),
+        ]),
+      ),
+      null,
+    ];
+  }
+
+  private filterFurnitureItems(items: ItemDto[]): ItemDto[] {
+    return items.filter((item) => item.isFurniture === true);
+  }
+
+  private hasBuildYourWorldQualifyingRoom(
+    furnitureByRoomId: Map<string, ItemDto[]>,
+  ): boolean {
+    return Array.from(furnitureByRoomId.values()).some((furniture) =>
+      this.isBuildYourWorldQualifyingFurniture(furniture),
+    );
+  }
+
+  private isBuildYourWorldQualifyingFurniture(furniture: ItemDto[]): boolean {
+    if (furniture.length < 3) return false;
+
+    const furnitureSets = furniture.map((item) =>
+      this.getFurnitureSetFromItemName(item.name),
+    );
+
+    if (furnitureSets.some((set) => set == null)) return false;
+
+    return new Set(furnitureSets).size === 1;
+  }
+
+  private getFurnitureSetFromItemName(itemName: string): string | null {
+    const separatorIndex = itemName.lastIndexOf('_');
+
+    if (separatorIndex < 0 || separatorIndex === itemName.length - 1) {
+      return null;
+    }
+
+    return itemName.slice(separatorIndex + 1);
+  }
+
+  private async emitBuildYourWorldDailyTaskEvent(player_id: string) {
+    try {
+      await this.eventEmitterService.EmitNewDailyTaskEvent(
+        player_id,
+        ServerTaskName.BUILD_YOUR_WORLD,
+      );
+    } catch (error) {
+      this.logger.error(
+        'Failed to emit BUILD_YOUR_WORLD daily task event after room layout save',
+        error,
+      );
+    }
   }
 
   /**

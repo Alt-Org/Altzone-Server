@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { User } from '../auth/user';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
@@ -89,6 +98,16 @@ export class MatchmakingController {
     @LoggedUser() user: User,
   ) {
     return this.matchmakingService.joinInvite(roomId, user.player_id, body);
+  }
+
+  /**
+   * Removes the authenticated player from their active matchmaking room.
+   */
+  @Post('rooms/leave')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UniformResponse()
+  async leaveRoom(@LoggedUser() user: User) {
+    return this.matchmakingService.leaveRoom(user.player_id);
   }
 
   /**

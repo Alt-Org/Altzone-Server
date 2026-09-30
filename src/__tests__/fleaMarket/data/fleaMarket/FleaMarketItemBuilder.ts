@@ -13,6 +13,7 @@ export default class FleaMarketItemBuilder {
     unityKey: 'defaultUnityKey',
     status: Status.AVAILABLE,
     price: 10,
+    saleApprovedByVoting: false,
     isFurniture: false,
     clan_id: undefined,
   };
@@ -53,6 +54,11 @@ export default class FleaMarketItemBuilder {
 
   setPrice(price: number) {
     this.base.price = price;
+    return this;
+  }
+
+  setSaleApprovedByVoting(saleApprovedByVoting: boolean) {
+    this.base.saleApprovedByVoting = saleApprovedByVoting;
     return this;
   }
 

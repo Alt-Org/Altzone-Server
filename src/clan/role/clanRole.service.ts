@@ -474,30 +474,28 @@ export default class ClanRoleService {
       true,
     );
 
-    if (!votePassed) {
-      return [true, null];
-    }
+    if (votePassed) {
+      if (!voting.setClanRole?.player_id || !voting.setClanRole?.role_id) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.REQUIRED,
+              field: 'setClanRole',
+              value: voting.setClanRole,
+              message:
+                'Voting is missing player_id or role_id for clan role update',
+            }),
+          ],
+        ];
+      }
 
-    if (!voting.setClanRole?.player_id || !voting.setClanRole?.role_id) {
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.REQUIRED,
-            field: 'setClanRole',
-            value: voting.setClanRole,
-            message:
-              'Voting is missing player_id or role_id for clan role update',
-          }),
-        ],
-      ];
+      const [, updateErrors] = await this.playerBasicService.updateOneById(
+        voting.setClanRole.player_id.toString(),
+        { clanRole_id: new ObjectId(voting.setClanRole.role_id.toString()) },
+      );
+      if (updateErrors) return [null, updateErrors];
     }
-
-    const [, updateErrors] = await this.playerBasicService.updateOneById(
-      voting.setClanRole.player_id.toString(),
-      { clanRole_id: new ObjectId(voting.setClanRole.role_id.toString()) },
-    );
-    if (updateErrors) return [null, updateErrors];
 
     await this.votingService.finalizeVoting(voting._id);
 

@@ -20,6 +20,7 @@ import {
 } from './schemas/buyShopItem.schema';
 import { FleaMarketItemVotingSchema } from './schemas/fleamarketItemVoting.schema';
 import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
+import { ExpiredVotingCleanupService } from './expired-voting-cleanup.service';
 
 @Module({
   imports: [
@@ -70,7 +71,12 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
     ),
     EventEmitterCommonModule,
   ],
-  providers: [VotingService, VotingNotifier, VotingQueue],
+  providers: [
+    VotingService,
+    VotingNotifier,
+    VotingQueue,
+    ExpiredVotingCleanupService,
+  ],
   controllers: [VotingController],
   exports: [VotingService, VotingQueue],
 })

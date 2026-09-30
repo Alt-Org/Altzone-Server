@@ -111,7 +111,7 @@ export class VotingController {
   @Put()
   @UniformResponse()
   async addVote(@Body() body: AddVoteDto, @LoggedUser() user: User) {
-    const permission = await this.service.validatePermission(
+    const permission = await this.service.validateClanVotingPermission(
       body.voting_id,
       user.player_id,
     );
@@ -119,9 +119,9 @@ export class VotingController {
 
     await this.service.addVote(body.voting_id, body.choice, user.player_id);
 
-    this.emitterService.EmitNewDailyTaskEvent(
+    await this.emitterService.EmitNewDailyTaskEvent(
       user.player_id,
-      ServerTaskName.PARTICIPATE_CLAN_VOTING,
+      ServerTaskName.YOUR_VOICE,
     );
   }
 }

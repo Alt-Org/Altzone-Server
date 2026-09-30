@@ -22,6 +22,22 @@ export class SignInResponseDto extends ProfileDto {
   tokenExpires: number;
 
   /**
+   * Refresh token to create new access token
+   *
+   * @example "eyJhbGciOiJIUzI1NiIsInR..."
+   */
+  @Expose()
+  refreshToken: string;
+
+  /**
+   * Refresh token expiration date
+   *
+   * @example 1735689600
+   */
+  @Expose()
+  refreshTokenExpires: number;
+
+  /**
    * Whether the profile has configured a security question.
    *
    * @example true

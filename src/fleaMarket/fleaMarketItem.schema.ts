@@ -44,6 +44,9 @@ export class FleaMarketItem {
   price: number;
 
   @Prop({ type: Boolean, required: true, default: false })
+  saleApprovedByVoting: boolean;
+
+  @Prop({ type: Boolean, required: true, default: false })
   isFurniture: boolean;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CLAN })

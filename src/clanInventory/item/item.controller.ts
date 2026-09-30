@@ -87,12 +87,32 @@ export class ItemController {
       dto: ItemDto,
       modelName: ModelName.ITEM,
     },
-    errors: [400, 404],
+    errors: [400, 403, 404],
   })
   @Get('/:_id')
   @Authorize({ action: Action.read, subject: ItemDto })
   @UniformResponse(ModelName.ITEM)
-  public get(@Param() param: _idDto) {
+  public async get(@Param() param: _idDto, @LoggedUser() user: User) {
+    const [itemClan_id, errors] = await this.itemHelper.getItemClanId(
+      param._id,
+    );
+    if (errors || !itemClan_id) return [null, errors];
+
+    const playerClan = await this.playerModel.findById(user.player_id);
+
+    if (playerClan.clan_id.toString() !== itemClan_id)
+      return [
+        null,
+        [
+          new APIError({
+            reason: APIErrorReason.NOT_AUTHORIZED,
+            field: '_id',
+            value: param._id,
+            message: "Cannot view another Clan's Items",
+          }),
+        ],
+      ];
+
     return this.itemService.readOneById(param._id);
   }
 

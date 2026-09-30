@@ -17,6 +17,7 @@ import VotingNotifier from '../../../../voting/voting.notifier';
 import { VotingType } from '../../../../voting/enum/VotingType.enum';
 import { NotificationStatus } from '../../../../common/service/notificator/enum/NotificationStatus.enum';
 import { NotificationResource } from '../../../../common/service/notificator/enum/NotificationResource.enum';
+import { ClanRule } from '../../../../clan/enum/clanRule.enum';
 
 jest.mock('../../../../common/service/notificator/MQTTConnector', () => ({
   getInstance: jest.fn(),
@@ -68,6 +69,7 @@ describe('MQTT notification contract', () => {
     const invite = {
       id: 'invite-1',
       matchType: MatchType.RANDOM,
+      gameType: 1,
       status: InviteStatus.QUEUED,
       ownerPlayerId: 'player-1',
       players: [{ playerId: 'player-1', name: 'Player 1', avatar: null }],
@@ -80,6 +82,7 @@ describe('MQTT notification contract', () => {
     const match = {
       id: 'match-1',
       matchType: MatchType.RANDOM,
+      gameType: 1,
       status: MatchStatus.ACTIVE,
       teamSize: 2 as const,
       teams: [
@@ -109,6 +112,7 @@ describe('MQTT notification contract', () => {
       {
         id: invite.id,
         matchType: invite.matchType,
+        gameType: invite.gameType,
         status: invite.status,
         ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
         senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
@@ -190,7 +194,7 @@ describe('MQTT notification contract', () => {
 
   it('wraps daily task notifications', () => {
     const notifier = new DailyTaskNotifier();
-    const task = { type: UITaskName.CHANGE_LANGUAGE };
+    const task = { type: UITaskName.FIND_THE_ROOTS };
 
     notifier.taskReceived('player-1', task);
     expectLastPayloadToMatchEnvelope(
@@ -232,6 +236,39 @@ describe('MQTT notification contract', () => {
 
     new ClanNotifier().memberLeave('clan-1', 'player-1');
     expectLastPayloadToMatchEnvelope('clan', MqttNotificationType.MEMBER_LEFT);
+
+    new ClanNotifier().rulesUpdated('clan-1', [
+      ClanRule.FAIR_GAME,
+      ClanRule.NO_TOXICITY,
+    ]);
+    expect(publishMock).toHaveBeenLastCalledWith(
+      `/clan/clan-1/${NotificationResource.RULES}/update/update`,
+      expect.any(String),
+    );
+    expectLastPayloadToMatchEnvelope(
+      'clan',
+      MqttNotificationType.CLAN_RULES_UPDATED,
+    );
+    const rulesPayload = JSON.parse(
+      publishMock.mock.calls[publishMock.mock.calls.length - 1][1],
+    );
+    expect(rulesPayload.payload).toEqual(
+      expect.objectContaining({
+        topic: '/clan/clan-1/rules/update',
+        clan_id: 'clan-1',
+        rules: [ClanRule.FAIR_GAME, ClanRule.NO_TOXICITY],
+      }),
+    );
+
+    new ClanNotifier().phraseUpdated('clan-1', 'Together we rise');
+    expect(publishMock).toHaveBeenLastCalledWith(
+      `/clan/clan-1/${NotificationResource.CLAN}/phrase/${NotificationStatus.UPDATE}`,
+      JSON.stringify({
+        topic: 'clan',
+        type: MqttNotificationType.CLAN_UPDATED,
+        payload: { clan_id: 'clan-1', phrase: 'Together we rise' },
+      }),
+    );
 
     const friendshipNotifier = new FriendshipNotifier({
       findOne: jest.fn().mockReturnValue({

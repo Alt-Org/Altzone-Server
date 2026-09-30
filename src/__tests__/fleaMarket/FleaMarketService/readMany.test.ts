@@ -27,7 +27,7 @@ describe('FleaMarketService.readMany() test suite', () => {
     .setRarity(Rarity.common)
     .build();
   const item3 = fleaMarketItemBuilder
-    .setName(ItemName.SOFATABLE_RAKKAUS)
+    .setName(ItemName.COFFEETABLE_RAKKAUS)
     .setRarity(Rarity.common)
     .build();
 

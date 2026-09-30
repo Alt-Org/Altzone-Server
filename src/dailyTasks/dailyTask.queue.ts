@@ -51,9 +51,10 @@ export class DailyTaskProcessor extends WorkerHost {
       {
         $set: {
           amountLeft: task.amount,
+          progress: {},
         },
         $unset: {
-          playerId: '',
+          player_id: '',
           startedAt: '',
         },
       },
@@ -63,6 +64,7 @@ export class DailyTaskProcessor extends WorkerHost {
 
     const playerId = task.player_id;
     task.amountLeft = task.amount;
+    task.progress = {};
     task.player_id = undefined;
     task.startedAt = null;
 

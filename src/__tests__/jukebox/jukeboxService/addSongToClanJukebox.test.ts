@@ -1,11 +1,13 @@
 import { ClanService } from '../../../clan/clan.service';
 import JukeboxNotifier from '../../../jukebox/jukebox.notifier';
 import { JukeboxService } from '../../../jukebox/jukebox.service';
+import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
 
 describe('jukeboxService.addSongToclanJukebox() test suite', () => {
   let jukeboxService: JukeboxService;
   let jukeboxNotifier: JukeboxNotifier;
   let clanService: ClanService;
+  let emitterService: EventEmitterService;
 
   beforeEach(async () => {
     jukeboxNotifier = {
@@ -16,8 +18,15 @@ describe('jukeboxService.addSongToclanJukebox() test suite', () => {
     clanService = {
       readOneById: jest.fn().mockResolvedValue([{ playerCount: 3 }]),
     } as any;
+    emitterService = {
+      EmitNewDailyTaskEvent: jest.fn().mockResolvedValue(undefined),
+    } as any;
 
-    jukeboxService = new JukeboxService(jukeboxNotifier, clanService);
+    jukeboxService = new JukeboxService(
+      jukeboxNotifier,
+      clanService,
+      emitterService,
+    );
   });
 
   it('should call scheduler and notifier for first song', async () => {
@@ -35,6 +44,11 @@ describe('jukeboxService.addSongToclanJukebox() test suite', () => {
     expect(notifiedArg.songId).toBe(song.songId);
     expect(notifiedArg.startedAt).toBe(startTime);
     expect(typeof notifiedArg.startedAt).toBe('number');
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
+      playerId,
+      'banish_the_earworm',
+      false,
+    );
   });
 
   it('should throw MORE_THAN_MAX error when player has too many songs', async () => {
@@ -80,5 +94,6 @@ describe('jukeboxService.addSongToclanJukebox() test suite', () => {
 
     const jukebox = jukeboxService['clanJukeboxMap'].get(clanId);
     expect(jukebox.songQueue).toHaveLength(11);
+    expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalled();
   });
 });

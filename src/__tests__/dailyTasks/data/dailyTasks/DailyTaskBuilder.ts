@@ -10,7 +10,7 @@ export default class DailyTaskBuilder {
     clan_id: null,
     player_id: null,
     title: { fi: 'Default task title' },
-    type: ServerTaskName.PLAY_BATTLE,
+    type: ServerTaskName.GO_TO_BATTLE,
     startedAt: null,
     points: 10,
     coins: 5,

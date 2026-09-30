@@ -39,7 +39,8 @@ describe('HasClanRightsGuard.canActivate() test suite', () => {
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
   const clanRoleBuilder = ClanBuilderFactory.getBuilder('ClanRole');
 
-  const existingClan = clanBuilder.build();
+  let existingClan = clanBuilder.build();
+  let clanNameCounter = 0;
 
   let reflector: Reflector;
 
@@ -56,6 +57,10 @@ describe('HasClanRightsGuard.canActivate() test suite', () => {
       ],
       providers: [HasClanRightsGuard, Reflector],
     }).compile();
+
+    existingClan = clanBuilder
+      .setName(`gc-${Date.now().toString(36).slice(-6)}-${clanNameCounter++}`)
+      .build();
 
     const clanResp = await clanModel.create(existingClan);
     existingClan._id = clanResp._id.toString();

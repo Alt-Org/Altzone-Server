@@ -15,6 +15,7 @@ import { publicReferences } from './customCharacter.schema';
 import ApiResponseDescription from '../../common/swagger/response/ApiResponseDescription';
 import EventEmitterService from '../../common/service/EventEmitterService/EventEmitter.service';
 import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
+import { StrongerSoldierStep } from '../../dailyTasks/enum/strongerSoldierStep.enum';
 
 @Controller('customCharacter')
 export class CustomCharacterController {
@@ -141,14 +142,31 @@ export class CustomCharacterController {
     @Body() body: UpdateCustomCharacterDto,
     @LoggedUser() user: User,
   ) {
-    const [, errors] = await this.service.updateOneByCondition(body, {
-      filter: { player_id: user.player_id, _id: body._id },
+    const filter = { player_id: user.player_id, _id: body._id };
+    const [previousCharacter, readErrors] = await this.service.readOne({
+      filter,
+    });
+    if (readErrors) return [null, readErrors];
+
+    const [wasUpdated, errors] = await this.service.updateOneByCondition(body, {
+      filter,
     });
     if (errors) return [null, errors];
 
-    this.emitterService.EmitNewDailyTaskEvent(
-      user.player_id,
-      ServerTaskName.CHANGE_CHARACTER_STATS,
-    );
+    // CustomCharacter is the server representation of a defence soldier.
+    // readOne() returns total stats (base value + stored delta), matching the
+    // total attack value accepted by UpdateCustomCharacterDto.
+    if (
+      wasUpdated &&
+      body.attack !== undefined &&
+      body.attack > previousCharacter.attack
+    ) {
+      await this.emitterService.EmitNewDailyTaskEvent(
+        user.player_id,
+        ServerTaskName.STRONGER_SOLDIER,
+        true,
+        { strongerSoldierStep: StrongerSoldierStep.ATTACK_INCREASED },
+      );
+    }
   }
 }

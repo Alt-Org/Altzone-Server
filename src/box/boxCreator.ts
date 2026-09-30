@@ -74,6 +74,7 @@ export default class BoxCreator {
     const boxToCreate: Partial<Box> = {};
     boxToCreate.adminPassword = boxToInit.adminPassword;
     boxToCreate._id = boxToCreate_id;
+    boxToCreate['box_id'] = boxToCreate_id;
 
     const [adminProfile, adminProfileErrors] = await this.createAdminProfile(
       boxToInit.adminPassword,

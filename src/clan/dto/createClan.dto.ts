@@ -7,6 +7,8 @@ import {
   IsString,
   ValidateNested,
   MaxLength,
+  ArrayNotEmpty,
+  ArrayUnique,
 } from 'class-validator';
 import { ClanLabel } from '../enum/clanLabel.enum';
 import { AgeRange } from '../enum/ageRange.enum';
@@ -17,6 +19,7 @@ import { ClanLogoDto } from './clanLogo.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { StallDto } from './stall.dto';
 import { Environment } from '../../common/enum/environment.enum';
+import { ClanRule } from '../enum/clanRule.enum';
 
 /**
  * DTO for creating a clan.
@@ -146,4 +149,20 @@ export class CreateClanDto {
   @IsOptional()
   @IsEnum(Environment)
   environment?: Environment;
+
+  /**
+   * List of Clan rules
+   * @example [ClanRule.ACTIVITY_DAILY, ClanRule.POSITIVITY]
+   */
+  @ApiProperty({
+    enum: ClanRule,
+    isArray: true,
+    example: [ClanRule.ACTIVITY_DAILY, ClanRule.POSITIVITY],
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayUnique()
+  @IsEnum(ClanRule, { each: true })
+  rules?: ClanRule[];
 }

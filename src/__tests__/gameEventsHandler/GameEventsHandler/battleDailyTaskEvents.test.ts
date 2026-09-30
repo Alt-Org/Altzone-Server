@@ -3,6 +3,7 @@ import { GameEventType } from '../../../gameEventsHandler/enum/GameEventType.enu
 import { GameEventsHandler } from '../../../gameEventsHandler/gameEventsHandler';
 import { ClanEvent } from '../../../rewarder/clanRewarder/enum/ClanEvent.enum';
 import { PlayerEvent } from '../../../rewarder/playerRewarder/enum/PlayerEvent.enum';
+import { StrongerSoldierStep } from '../../../dailyTasks/enum/strongerSoldierStep.enum';
 
 describe('GameEventsHandler battle daily task events', () => {
   const createHandler = () => {
@@ -25,7 +26,7 @@ describe('GameEventsHandler battle daily task events', () => {
     return { clanEventHandler, emitterService, handler, playerEventHandler };
   };
 
-  it('emits play and win daily task events for a won battle', async () => {
+  it('emits a go to battle daily task event for a won battle', async () => {
     const { clanEventHandler, emitterService, handler, playerEventHandler } =
       createHandler();
 
@@ -46,16 +47,18 @@ describe('GameEventsHandler battle daily task events', () => {
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.PLAY_BATTLE,
+      ServerTaskName.GO_TO_BATTLE,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.WIN_BATTLE,
+      ServerTaskName.STRONGER_SOLDIER,
       true,
+      { strongerSoldierStep: StrongerSoldierStep.BATTLE_PLAYED },
     );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);
   });
 
-  it('emits only the play daily task event for a lost battle', async () => {
+  it('emits a go to battle daily task event for a lost battle', async () => {
     const { clanEventHandler, emitterService, handler, playerEventHandler } =
       createHandler();
 
@@ -76,11 +79,14 @@ describe('GameEventsHandler battle daily task events', () => {
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.PLAY_BATTLE,
+      ServerTaskName.GO_TO_BATTLE,
     );
-    expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalledWith(
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.WIN_BATTLE,
+      ServerTaskName.STRONGER_SOLDIER,
+      true,
+      { strongerSoldierStep: StrongerSoldierStep.BATTLE_PLAYED },
     );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);
   });
 });

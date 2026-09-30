@@ -1,0 +1,15 @@
+export enum ClanRule {
+  FAIR_GAME = 'FairGame',
+  ACTIVITY_WEEKLY = 'ActivityWeekly',
+  ACTIVITY_DAILY = 'ActivityDaily',
+  NO_TOXICITY = 'NoToxicity',
+  TEAMWORK = 'Teamwork',
+  KICK_UNDERPERFORMERS = 'KickUnderperformers',
+  ABSENCES_NOTED = 'AbsencesNoted',
+  NO_SPAM = 'NoSpam',
+  WORK_ROLES = 'WorkRoles',
+  FAIR_TRADE = 'FairTrade',
+  JOIN_JOINT_PROJECTS = 'JoinJointProjects',
+  DIPLOMACY_WITH_OTHERS = 'DiplomacyWithOthers',
+  POSITIVITY = 'Positivity',
+}

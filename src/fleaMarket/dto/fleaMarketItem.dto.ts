@@ -99,6 +99,14 @@ export class FleaMarketItemDto {
   price: number;
 
   /**
+   * Whether the item was approved for sale through clan voting
+   *
+   * @example true
+   */
+  @Expose()
+  saleApprovedByVoting: boolean;
+
+  /**
    * ID of the clan that owns the item
    *
    * @example "665af23e5e982f0013aa8899"

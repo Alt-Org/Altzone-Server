@@ -14,6 +14,7 @@ import createMockSession from '../../common/MongooseSession/CreateMockSession';
 import { Model } from 'mongoose';
 import { FleaMarketItem } from '../../../fleaMarket/fleaMarketItem.schema';
 import { FleaMarketHelperService } from '../../../fleaMarket/fleaMarketHelper.service';
+import { SellItemResult } from '../../../fleaMarket/enum/sellItemResult.enum';
 
 describe('FleaMarketService.handleSellItem() test suit', () => {
   let fleaMarketService: FleaMarketService;
@@ -116,11 +117,14 @@ describe('FleaMarketService.handleSellItem() test suit', () => {
       .spyOn(votingQueue, 'addVotingCheckJob')
       .mockImplementation();
 
-    await fleaMarketService.handleSellItem(
+    const [result, errors] = await fleaMarketService.handleSellItem(
       sellFleaMarketItemDto,
       clanId,
       playerId,
     );
+
+    expect(result).toBe(SellItemResult.VOTING_STARTED);
+    expect(errors).toBeNull();
 
     expect(itemService.readOneById).toHaveBeenCalledWith(
       sellFleaMarketItemDto.item_id,

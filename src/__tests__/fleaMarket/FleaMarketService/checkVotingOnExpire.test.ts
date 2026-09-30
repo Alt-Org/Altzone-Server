@@ -182,7 +182,14 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
       params.voting,
       true,
     );
-    expect(basicService.updateOneById).toHaveBeenCalled();
+    expect(basicService.updateOneById).toHaveBeenCalledWith(
+      params.fleaMarketItemId,
+      {
+        status: Status.AVAILABLE,
+        price: params.price,
+        saleApprovedByVoting: true,
+      },
+    );
   });
 
   it('Should process voting expiration and update item/clan (voting REJECTED, SELL)', async () => {

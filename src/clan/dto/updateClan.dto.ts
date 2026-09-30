@@ -11,6 +11,7 @@ import {
   ValidateNested,
   MaxLength,
   IsNotEmpty,
+  ArrayUnique,
 } from 'class-validator';
 import { IsClanExists } from '../decorator/validation/IsClanExists.decorator';
 import { IsPlayerExists } from '../../player/decorator/validation/IsPlayerExists.decorator';
@@ -26,6 +27,7 @@ import { Environment } from '../../common/enum/environment.enum';
 import { CreateClanRoleDto } from '../role/dto/createClanRole.dto';
 import { ClanGovernanceUpdateDto } from './clanGovernanceUpdate.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { ClanRule } from '../enum/clanRule.enum';
 
 @AddType('UpdateClanDto')
 export class UpdateClanDto {
@@ -197,4 +199,29 @@ export class UpdateClanDto {
   @IsEnum(Environment)
   @IsOptional()
   environment?: Environment;
+
+  /**
+   * Box id in testing sessions
+   *
+   * @example "67fe4e2d8a54d4cc39266a43"
+   */
+  @IsString()
+  @IsOptional()
+  box_id?: string;
+
+  /**
+   * List of Clan rules
+   * @example [ClanRule.ACTIVITY_DAILY, ClanRule.POSITIVITY]
+   */
+  @ApiProperty({
+    enum: ClanRule,
+    isArray: true,
+    example: [ClanRule.ACTIVITY_DAILY, ClanRule.POSITIVITY],
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayUnique()
+  @IsEnum(ClanRule, { each: true })
+  rules?: ClanRule[];
 }

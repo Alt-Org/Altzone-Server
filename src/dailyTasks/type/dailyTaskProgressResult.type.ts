@@ -11,4 +11,5 @@ export type DailyTaskProgressResult<TTask = DailyTaskDto> = {
   previousAmountLeft: number;
   currentAmountLeft: number;
   reachedMilestones?: number[];
+  needsClanReward?: boolean;
 };

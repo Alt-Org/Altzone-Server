@@ -25,4 +25,7 @@ export class ProfileDto {
 
   @Expose()
   expiresAt?: Date;
+
+  @Expose()
+  tokenVersion?: number;
 }

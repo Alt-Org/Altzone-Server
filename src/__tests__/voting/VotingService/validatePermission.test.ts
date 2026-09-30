@@ -108,4 +108,63 @@ describe('VotingService.validatePermission() test suite', () => {
       ),
     ).rejects.toContainSE_NOT_FOUND();
   });
+
+  describe('validateClanVotingPermission', () => {
+    it('validates when player and voting have the same clan_id', async () => {
+      const clan_id = new ObjectId().toString();
+      const player = await createTestPlayer(clan_id);
+      const voting = await createTestVoting({
+        player_id: player._id.toString(),
+        clan_id,
+      });
+
+      await expect(
+        votingService.validateClanVotingPermission(
+          voting._id.toString(),
+          player._id.toString(),
+        ),
+      ).resolves.toBe(true);
+    });
+
+    it('rejects a voting that does not belong to a clan', async () => {
+      const player = await createTestPlayer();
+      const voting = await createTestVoting({
+        player_id: player._id.toString(),
+        clan_id: null,
+      });
+
+      await expect(
+        votingService.validateClanVotingPermission(
+          voting._id.toString(),
+          player._id.toString(),
+        ),
+      ).resolves.toBe(false);
+    });
+
+    it('rejects a voting from a different clan', async () => {
+      const player = await createTestPlayer(new ObjectId().toString());
+      const voting = await createTestVoting({
+        player_id: player._id.toString(),
+        clan_id: new ObjectId().toString(),
+      });
+
+      await expect(
+        votingService.validateClanVotingPermission(
+          voting._id.toString(),
+          player._id.toString(),
+        ),
+      ).resolves.toBe(false);
+    });
+
+    it('throws when the voting does not exist', async () => {
+      const player = await createTestPlayer(new ObjectId().toString());
+
+      await expect(
+        votingService.validateClanVotingPermission(
+          new ObjectId().toString(),
+          player._id.toString(),
+        ),
+      ).rejects.toContainSE_NOT_FOUND();
+    });
+  });
 });

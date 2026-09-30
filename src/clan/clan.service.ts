@@ -17,6 +17,7 @@ import {
   IServiceReturn,
   TIServiceReadManyOptions,
   TReadByIdOptions,
+  TIServiceUpdateByIdOptions,
   TIServiceUpdateOneOptions,
 } from '../common/service/basicService/IService';
 import { ModelName } from '../common/enum/modelName.enum';
@@ -93,6 +94,10 @@ export class ClanService {
       clanToCreate.environment = environment;
     }
 
+    if (clanToCreate?.rules) {
+      this.clanHelperService.ensureMandatoryRules(clanToCreate.rules);
+    }
+
     if (clanToCreate?.isOpen === false && !clanToCreate.password) {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
     }
@@ -118,7 +123,11 @@ export class ClanService {
 
     const [, playerErrors] = await this.playerService.updateOneById(
       player_id,
-      { clan_id: clan._id, clanRole_id: leaderRole?._id },
+      {
+        clan_id: clan._id,
+        clanRole_id: leaderRole?._id,
+        clan_joindate: new Date(),
+      },
       { session },
     );
     if (playerErrors) return await cancelTransaction(session, playerErrors);
@@ -155,12 +164,21 @@ export class ClanService {
    */
   public async createOneWithoutAdmin(
     clanToCreate: CreateClanDto,
+    externalSession?: ClientSession,
   ): Promise<IServiceReturn<CreateWithoutDtoType>> {
-    const [session, initErrors] = await initializeSession(this.connection);
+    const [session, initErrors] = externalSession
+      ? [externalSession, null]
+      : await initializeSession(this.connection);
     if (!session) return [null, initErrors];
+
+    const ownsTransaction = !externalSession;
 
     if (clanToCreate?.isOpen === false && !clanToCreate.password) {
       clanToCreate.password = this.passwordGenerator.generatePassword('fi');
+    }
+
+    if (clanToCreate?.rules) {
+      this.clanHelperService.ensureMandatoryRules(clanToCreate.rules);
     }
 
     let furnitureTotalValue = 0;
@@ -204,7 +222,10 @@ export class ClanService {
     extendedClan.stock = stock.Stock;
     extendedClan.stockItems = stock.Item;
 
-    return await endTransaction<CreateWithoutDtoType>(session, extendedClan);
+    if (ownsTransaction)
+      return await endTransaction<CreateWithoutDtoType>(session, extendedClan);
+
+    return [extendedClan, null];
   }
 
   /**
@@ -258,7 +279,7 @@ export class ClanService {
   public async updateOneById(
     idOrBody: string | UpdateClanDto,
     body?: UpdateClanDto,
-    options?: TIServiceUpdateOneOptions,
+    options?: TIServiceUpdateByIdOptions,
   ): Promise<IServiceReturn<boolean>> {
     const id = typeof idOrBody === 'string' ? idOrBody : idOrBody._id;
     const updateData =
@@ -357,6 +378,10 @@ export class ClanService {
       return [wasUpdated, null];
     }
 
+    if (updateData.rules) {
+      this.clanHelperService.ensureMandatoryRules(updateData.rules);
+    }
+
     const [wasUpdated, updateErrors] = await this.basicService.updateOneById(
       id,
       updateData,
@@ -411,7 +436,7 @@ export class ClanService {
         for (const player of clan.Player) {
           const [, upErrors] = await this.playerService.updateOneById(
             player._id,
-            { clan_id: null },
+            { clan_id: null, clan_joindate: null },
             { session },
           );
           if (upErrors) {

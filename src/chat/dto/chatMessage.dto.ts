@@ -4,6 +4,8 @@ import { Sender } from './messageSender.dto';
 import { Feeling } from '../enum/feeling.enum';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { ChatType } from '../enum/chatMessageType.enum';
+import { ChatEmotion } from '../enum/chatEmotion.enum';
+import { ChatResponseType } from '../enum/chatResponseType.enum';
 
 export class ChatMessageDto {
   /**
@@ -57,6 +59,12 @@ export class ChatMessageDto {
    */
   @Expose()
   feeling?: Feeling;
+
+  @Expose()
+  responseType?: ChatResponseType;
+
+  @Expose()
+  emotion?: ChatEmotion;
 
   /**
    * List of reactions to this message

@@ -10,6 +10,7 @@ export type MatchResult = {
 export type ActiveMatch = {
   id: string;
   matchType: MatchType;
+  gameType: number;
   status: MatchStatus;
   teamSize: 1 | 2;
   teams: [MatchmakingTeam, MatchmakingTeam];

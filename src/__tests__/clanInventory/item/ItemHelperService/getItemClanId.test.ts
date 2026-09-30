@@ -24,10 +24,15 @@ describe('ItemHelperService.getItemClanId() test suite', () => {
 
   const clanModel = ClanModule.getClanModel();
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
-  const existingClan = clanBuilder.build();
+  let existingClan = clanBuilder.build();
+  let clanNameCounter = 0;
 
   beforeEach(async () => {
     itemHelperService = await ItemModule.getItemHelperService();
+
+    existingClan = clanBuilder
+      .setName(`ih-${Date.now().toString(36).slice(-6)}-${clanNameCounter++}`)
+      .build();
 
     const createdClan = await clanModel.create(existingClan);
     existingClan._id = createdClan._id;

@@ -1,6 +1,6 @@
-import { IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 import AddType from '../../common/base/decorator/AddType.decorator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ClientType } from '../enum/clientType.enum';
 
 @AddType('SignInDto')
 export class SignInDto {
@@ -19,4 +19,13 @@ export class SignInDto {
    */
   @IsString()
   password: string;
+
+  /**
+   * Optional client type to determine origin
+   *
+   * @example "web"
+   */
+  @IsOptional()
+  @IsEnum(ClientType)
+  clientType?: ClientType;
 }

@@ -128,6 +128,61 @@ describe('DailyTaskProgressService', () => {
     );
   });
 
+  it('should complete a clan task without rewarding or notifying a player', async () => {
+    const result = makeResult('completed', 'inner_voice');
+    clanProgression.handleClanProgression.mockResolvedValue([
+      { reachedMilestones: [100] },
+      null,
+    ]);
+
+    const [handled, error] = await service.handleClanTaskCompletion(
+      result,
+      session,
+    );
+
+    expect(error).toBeNull();
+    expect(handled.reachedMilestones).toEqual([100]);
+    expect(playerRewarder.rewardForPlayerTask).not.toHaveBeenCalled();
+    expect(notifier.taskUpdated).not.toHaveBeenCalled();
+    expect(notifier.taskCompleted).not.toHaveBeenCalled();
+    expect(clanRewarder.rewardClanForPlayerTask).toHaveBeenCalledWith(
+      'clan-1',
+      result.task.points,
+      result.task.coins,
+      session,
+    );
+    expect(notifier.taskCompletedForClan).toHaveBeenCalledWith(
+      'clan-1',
+      result.task,
+      'player-1',
+    );
+  });
+
+  it('should complete player-only task without rewarding or notifying clan', async () => {
+    const result = {
+      ...makeResult('completed', 'banish_the_earworm'),
+      needsClanReward: false,
+    };
+
+    const [handled, error] = await service.handleProgress(result, session);
+
+    expect(error).toBeNull();
+    expect(handled).toBe(result);
+    expect(playerRewarder.rewardForPlayerTask).toHaveBeenCalledWith(
+      'player-1',
+      result.task.points,
+      session,
+    );
+    expect(notifier.taskCompleted).toHaveBeenCalledWith(
+      'player-1',
+      result.task,
+    );
+    expect(clanRewarder.rewardClanForPlayerTask).not.toHaveBeenCalled();
+    expect(clanProgression.handleClanProgression).not.toHaveBeenCalled();
+    expect(notifier.taskCompletedForClan).not.toHaveBeenCalled();
+    expect(notifier.milestoneReached).not.toHaveBeenCalled();
+  });
+
   it('should complete UI task and notify player and clan', async () => {
     const result = makeResult('completed', 'uiTask');
     clanProgression.handleClanProgression.mockResolvedValue([

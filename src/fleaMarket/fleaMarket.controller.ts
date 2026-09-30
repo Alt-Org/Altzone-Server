@@ -22,6 +22,7 @@ import { ChangeItemStatusDto } from './dto/changeItemStatus.dto';
 import { Status } from './enum/status.enum';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
+import { SellItemResult } from './enum/sellItemResult.enum';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
@@ -108,7 +109,6 @@ export class FleaMarketController {
 
   /**
    * Sell a clan item on the flea market
-   * Emit a server event for daily task "SUGGEST_ITEM_TO_FLEA_MARKET, ADD_ITEM_TO_FLEA_MARKET"
    *
    * @remarks Sell an item from the clan's stock on the flea market.
    *
@@ -143,19 +143,19 @@ export class FleaMarketController {
         message: 'The item does not belong to the clan of logged in player',
       });
 
-    const [, sellItemErrors] = await this.service.handleSellItem(
+    const [sellItemResult, sellItemErrors] = await this.service.handleSellItem(
       sellFleaMarketItemDto,
       clanId,
       user.player_id,
     );
     if (sellItemErrors) return sellItemErrors;
 
-    [
-      ServerTaskName.SUGGEST_ITEM_TO_FLEA_MARKET,
-      ServerTaskName.ADD_ITEM_TO_FLEA_MARKET,
-    ].forEach((task) => {
-      this.emitterService.EmitNewDailyTaskEvent(user.player_id, task);
-    });
+    if (sellItemResult === SellItemResult.VOTING_STARTED) {
+      await this.emitterService.EmitNewDailyTaskEvent(
+        user.player_id,
+        ServerTaskName.LETTING_GO_OF_THE_OLD,
+      );
+    }
   }
 
   /**
@@ -273,6 +273,17 @@ export class FleaMarketController {
     );
 
     if (updateError) throw updateError;
+
+    if (
+      item.status === Status.AVAILABLE &&
+      body.status === Status.SHIPPING &&
+      item.saleApprovedByVoting
+    ) {
+      await this.emitterService.EmitNewDailyTaskEvent(
+        user.player_id,
+        ServerTaskName.RECYCLING_EXPERIENCES,
+      );
+    }
   }
 
   /**

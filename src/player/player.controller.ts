@@ -31,19 +31,10 @@ import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { publicReferences } from './schemas/player.schema';
 import { IncludeQuery } from '../common/decorator/param/IncludeQuery.decorator';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
-import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
-import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
-import { isEqual } from 'lodash';
-import { IServiceReturn } from '../common/service/basicService/IService';
-import { MongooseError } from 'mongoose';
-import { EmotionCheckResult } from './dto/emotionCheckResult.dto';
 
 @Controller('player')
 export default class PlayerController {
-  public constructor(
-    private readonly service: PlayerService,
-    private readonly emitterService: EventEmitterService,
-  ) {}
+  public constructor(private readonly service: PlayerService) {}
 
   /**
    * Create a player
@@ -166,7 +157,6 @@ export default class PlayerController {
 
   /**
    * Update player
-   * * Emit a server event if avatar clothes changed
    * @remarks Update the Player, which _id is specified in the body.
    * Only Player, which belong to the logged-in Profile can be changed.
    */
@@ -179,13 +169,7 @@ export default class PlayerController {
   @Authorize({ action: Action.update, subject: UpdatePlayerDto })
   @UniformResponse()
   public async update(@Body() body: UpdatePlayerDto) {
-    const [player, _] = await this.service.getPlayerById(body._id);
-    const playerUpdateResults = await this.service.updateOneById(body);
-    await this.emitEventIfAvatarChange(player, body);
-    return playerUpdateResults;
-
-    if (playerUpdateResults instanceof MongooseError)
-      return playerUpdateResults;
+    return this.service.updateOneById(body);
   }
 
   /**
@@ -210,32 +194,5 @@ export default class PlayerController {
   @BasicDELETE(ModelName.PLAYER)
   public async delete(@Param() param: _idDto) {
     return this.service.deleteOneById(param._id);
-  }
-
-  /**
-   * Check if avatar changed and emit event
-   * @param player Current player data
-   * @param body UpdatePlayerDto with new data
-   */
-  private async emitEventIfAvatarChange(
-    player: PlayerDto,
-    body: UpdatePlayerDto,
-  ) {
-    if (player?.avatar?.clothes?.id !== body?.avatar?.clothes?.id) {
-      this.emitterService.EmitNewDailyTaskEvent(
-        body._id,
-        ServerTaskName.CHANGE_AVATAR_CLOTHES,
-      );
-    }
-
-    const oldAvatar = JSON.parse(JSON.stringify(player?.avatar ?? {}));
-    const newAvatar = JSON.parse(JSON.stringify(body?.avatar ?? {}));
-
-    if (!isEqual(oldAvatar, newAvatar)) {
-      this.emitterService.EmitNewDailyTaskEvent(
-        body._id,
-        ServerTaskName.CHANGE_AVATAR_OUTLOOK,
-      );
-    }
   }
 }

@@ -61,6 +61,7 @@ export class FleaMarketHelperService {
       isFurniture: item.isFurniture,
       clan_id: clanId,
       status: Status.SHIPPING,
+      saleApprovedByVoting: false,
     };
 
     return newFleaMarketItem;
