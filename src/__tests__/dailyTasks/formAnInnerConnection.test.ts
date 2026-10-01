@@ -9,6 +9,7 @@ import { DailyTaskProgressService } from '../../dailyTasks/dailyTaskProgress.ser
 import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
 import { ChatEmotion } from '../../chat/enum/chatEmotion.enum';
 import { ChatResponseType } from '../../chat/enum/chatResponseType.enum';
+import { PlayerRewarder } from '../../rewarder/playerRewarder/playerRewarder.service';
 
 describe('FORM_AN_INNER_CONNECTION Daily Task', () => {
   let service: DailyTasksService;
@@ -56,7 +57,13 @@ describe('FORM_AN_INNER_CONNECTION Daily Task', () => {
         },
         {
           provide: DailyTaskProgressService,
-          useValue: { handleProgress: jest.fn().mockResolvedValue([true, null]) },
+          useValue: {
+            handleProgress: jest.fn().mockResolvedValue([true, null]),
+          },
+        },
+        {
+          provide: PlayerRewarder,
+          useValue: { deductPlayerPoints: jest.fn() },
         },
       ],
     }).compile();
@@ -114,8 +121,12 @@ describe('FORM_AN_INNER_CONNECTION Daily Task', () => {
         type: ServerTaskName.FORM_AN_INNER_CONNECTION,
       };
 
-      jest.spyOn(service['basicService'], 'readOne').mockResolvedValue([mockTask as any, null]);
-      jest.spyOn(service['basicService'], 'updateOne').mockResolvedValue([true, null]);
+      jest
+        .spyOn(service['basicService'], 'readOne')
+        .mockResolvedValue([mockTask as any, null]);
+      jest
+        .spyOn(service['basicService'], 'updateOne')
+        .mockResolvedValue([true, null]);
 
       const [res, err] = await service.handleDailyTaskEvent({
         playerId: 'player-1',
@@ -141,7 +152,9 @@ describe('FORM_AN_INNER_CONNECTION Daily Task', () => {
         type: ServerTaskName.FORM_AN_INNER_CONNECTION,
       };
 
-      jest.spyOn(service['basicService'], 'readOne').mockResolvedValue([mockTask as any, null]);
+      jest
+        .spyOn(service['basicService'], 'readOne')
+        .mockResolvedValue([mockTask as any, null]);
       jest.spyOn(service, 'deleteTask').mockResolvedValue([true as any, null]);
 
       const [res, err] = await service.handleDailyTaskEvent({
@@ -166,10 +179,12 @@ describe('FORM_AN_INNER_CONNECTION Daily Task', () => {
     });
 
     it('returns error when task is not found or owned by another clan', async () => {
-      jest.spyOn(service['basicService'], 'readOne').mockResolvedValue([
-        null,
-        [{ reason: 'NOT_FOUND', message: 'Task not found' }] as any,
-      ]);
+      jest
+        .spyOn(service['basicService'], 'readOne')
+        .mockResolvedValue([
+          null,
+          [{ reason: 'NOT_FOUND', message: 'Task not found' }] as any,
+        ]);
 
       const [res, err] = await service.handleDailyTaskEvent({
         playerId: 'player-1',
@@ -194,11 +209,15 @@ describe('FORM_AN_INNER_CONNECTION Daily Task', () => {
         type: ServerTaskName.FORM_AN_INNER_CONNECTION,
       };
 
-      jest.spyOn(service['basicService'], 'readOne').mockResolvedValue([mockTask as any, null]);
-      jest.spyOn(service['basicService'], 'updateOne').mockResolvedValue([
-        null,
-        [{ reason: 'DATABASE_ERROR', message: 'Write failed' }] as any,
-      ]);
+      jest
+        .spyOn(service['basicService'], 'readOne')
+        .mockResolvedValue([mockTask as any, null]);
+      jest
+        .spyOn(service['basicService'], 'updateOne')
+        .mockResolvedValue([
+          null,
+          [{ reason: 'DATABASE_ERROR', message: 'Write failed' }] as any,
+        ]);
 
       const [res, err] = await service.handleDailyTaskEvent({
         playerId: 'player-1',

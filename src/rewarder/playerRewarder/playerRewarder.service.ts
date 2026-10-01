@@ -78,6 +78,51 @@ export class PlayerRewarder {
   }
 
   /**
+   * Deducts regular player points without allowing the stored value to fall
+   * below zero.
+   *
+   * @param player_id player _id to update
+   * @param points positive amount of regular points to deduct
+   * @param session optional client session for transaction
+   */
+  async deductPlayerPoints(
+    player_id: string,
+    points: number,
+    session?: ClientSession,
+  ): Promise<IServiceReturn<true>> {
+    if (points < 0)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.LESS_THAN_MIN,
+            field: 'points',
+            value: points,
+            message: 'Points amount can not be less than 0',
+          }),
+        ],
+      ];
+
+    const [, errors] = await this.playerService.updateOneById(
+      player_id,
+      [
+        {
+          $set: {
+            points: {
+              $max: [0, { $subtract: ['$points', points] }],
+            },
+          },
+        },
+      ],
+      { session },
+    );
+
+    if (errors) return [null, errors];
+
+    return [true, null];
+  }
+
+  /**
    * Increases specified player's regular points amount.
    * @param player_id player _id
    * @param points amount of regular points to increase
