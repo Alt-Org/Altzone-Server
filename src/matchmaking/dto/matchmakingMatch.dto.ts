@@ -107,6 +107,14 @@ export class MatchmakingMatchDto {
   matchType: MatchType;
 
   /**
+   * Client-defined game mode played in the match.
+   *
+   * @example 1
+   */
+  @Expose()
+  gameType: number;
+
+  /**
    * Current match status.
    *
    * @example "ACTIVE"

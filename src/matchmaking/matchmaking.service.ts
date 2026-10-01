@@ -110,6 +110,7 @@ export class MatchmakingService {
     const invite: MatchmakingInvite = this.recalculateInvite({
       id: new Types.ObjectId().toString(),
       matchType: body.matchType,
+      gameType: body.gameType,
       status: InviteStatus.OPEN,
       ownerPlayerId: playerId,
       clanId:
@@ -231,6 +232,73 @@ export class MatchmakingService {
     await this.notifyInvitePlayers(updatedInvite);
 
     return [this.toInviteDto(updatedInvite), null];
+  }
+
+  /**
+   * Removes the authenticated player from their active matchmaking room and
+   * updates the room for the remaining players.
+   */
+  async leaveRoom(playerId: string): Promise<IServiceReturn<void>> {
+    const [invite, inviteErrors] =
+      await this.getActiveInviteForPlayer(playerId);
+    if (inviteErrors) return [null, inviteErrors];
+
+    if (!invite.players.includes(playerId)) {
+      await this.redisService.delete(this.playerInviteKey(playerId));
+
+      return [null, this.playerHasNoActiveInviteError(playerId)];
+    }
+
+    if (invite.status === InviteStatus.MATCHED) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'status',
+            value: invite.status,
+            message: 'A matched room can no longer be left.',
+          }),
+        ],
+      ];
+    }
+
+    const remainingPlayerIds = invite.players.filter(
+      (invitePlayerId) => invitePlayerId !== playerId,
+    );
+    if (remainingPlayerIds.length === 0) {
+      if (invite.status === InviteStatus.QUEUED) {
+        await this.removeInviteFromQueue(invite);
+      }
+
+      await Promise.all([
+        this.redisService.delete(this.playerInviteKey(playerId)),
+        this.redisService.delete(this.inviteKey(invite.id)),
+      ]);
+
+      return [null, null];
+    }
+
+    if (invite.status === InviteStatus.QUEUED) {
+      await this.removeInviteFromQueue(invite);
+    }
+
+    const updatedAt = new Date().toISOString();
+    const updatedInvite = this.recalculateInvite({
+      ...invite,
+      ownerPlayerId:
+        invite.ownerPlayerId === playerId
+          ? remainingPlayerIds[0]
+          : invite.ownerPlayerId,
+      players: remainingPlayerIds,
+      updatedAt,
+    });
+
+    await this.redisService.delete(this.playerInviteKey(playerId));
+    await this.saveInvite(updatedInvite);
+    await this.notifyInvitePlayers(updatedInvite);
+
+    return [null, null];
   }
 
   /**
@@ -655,15 +723,16 @@ export class MatchmakingService {
   /**
    * Routes READY invites into their mode-specific next step.
    *
-   * RANDOM tries to pair any two ready teams, CLAN searches for another clan and
-   * schedules a timeout fallback, and CUSTOM starts directly from room settings.
+   * RANDOM tries to pair ready teams playing the same game type, CLAN searches
+   * for another clan playing the same game type and schedules a timeout
+   * fallback, and CUSTOM starts directly from room settings.
    */
   private async processReadyInvite(invite: MatchmakingInvite) {
     if (invite.status !== InviteStatus.READY) return invite;
 
     if (invite.matchType === MatchType.RANDOM) {
       const queuedInvite = await this.enqueueReadyInvite(invite);
-      const match = await this.tryCreateRandomMatch();
+      const match = await this.tryCreateRandomMatch(invite.gameType);
       if (!match) return queuedInvite;
 
       const [processedInvite] = await this.readInvite(invite.id);
@@ -702,11 +771,11 @@ export class MatchmakingService {
   }
 
   /**
-   * Stores a READY invite in the Redis list for its match type if it is not
-   * already queued.
+   * Stores a READY invite in the Redis list for its matchmaking mode and game
+   * type if it is not already queued.
    */
   private async enqueueReadyInvite(invite: MatchmakingInvite) {
-    const queueKey = this.queueKey(invite.matchType);
+    const queueKey = this.queueKey(invite.matchType, invite.gameType);
     const queuedInvite: MatchmakingInvite = {
       ...invite,
       status: InviteStatus.QUEUED,
@@ -725,10 +794,14 @@ export class MatchmakingService {
   }
 
   /**
-   * Pairs the first two valid RANDOM invites from the queue into an active match.
+   * Pairs the first two valid RANDOM invites for one game type into an active
+   * match.
    */
-  private async tryCreateRandomMatch() {
-    const queuedInvites = await this.getValidQueuedInvites(MatchType.RANDOM);
+  private async tryCreateRandomMatch(gameType: number) {
+    const queuedInvites = await this.getValidQueuedInvites(
+      MatchType.RANDOM,
+      gameType,
+    );
     if (queuedInvites.length < 2) return null;
 
     const [firstInvite, secondInvite] = queuedInvites;
@@ -751,7 +824,10 @@ export class MatchmakingService {
    * when one is available.
    */
   private async tryCreateClanMatch(invite: MatchmakingInvite) {
-    const queuedInvites = await this.getValidQueuedInvites(MatchType.CLAN);
+    const queuedInvites = await this.getValidQueuedInvites(
+      MatchType.CLAN,
+      invite.gameType,
+    );
     const opponent = queuedInvites.find(
       (candidate) =>
         candidate.id !== invite.id &&
@@ -806,8 +882,8 @@ export class MatchmakingService {
   /**
    * Loads queued invite ids, drops stale entries, and returns still-READY invites.
    */
-  private async getValidQueuedInvites(matchType: MatchType) {
-    const queueKey = this.queueKey(matchType);
+  private async getValidQueuedInvites(matchType: MatchType, gameType: number) {
+    const queueKey = this.queueKey(matchType, gameType);
     const queuedInviteIds = Array.from(
       new Set(await this.redisService.lrange(queueKey, 0, -1)),
     );
@@ -821,7 +897,9 @@ export class MatchmakingService {
       }
 
       const isValid =
-        invite.matchType === matchType && invite.status === InviteStatus.QUEUED;
+        invite.matchType === matchType &&
+        invite.gameType === gameType &&
+        invite.status === InviteStatus.QUEUED;
       if (!isValid) {
         await this.redisService.lrem(queueKey, 0, inviteId);
         continue;
@@ -845,6 +923,7 @@ export class MatchmakingService {
     const match: ActiveMatch = {
       id: new Types.ObjectId().toString(),
       matchType,
+      gameType: firstInvite.gameType,
       status: MatchStatus.ACTIVE,
       teamSize: firstInvite.teamSize,
       teams: [
@@ -867,6 +946,7 @@ export class MatchmakingService {
     const match: ActiveMatch = {
       id: new Types.ObjectId().toString(),
       matchType: MatchType.CLAN,
+      gameType: invite.gameType,
       status: MatchStatus.ACTIVE,
       teamSize: invite.teamSize,
       teams: [
@@ -891,6 +971,7 @@ export class MatchmakingService {
     const match: ActiveMatch = {
       id: new Types.ObjectId().toString(),
       matchType: MatchType.CUSTOM,
+      gameType: invite.gameType,
       status: MatchStatus.ACTIVE,
       teamSize: invite.teamSize,
       teams,
@@ -982,7 +1063,11 @@ export class MatchmakingService {
   }
 
   private async removeInviteFromQueue(invite: MatchmakingInvite) {
-    await this.redisService.lrem(this.queueKey(invite.matchType), 0, invite.id);
+    await this.redisService.lrem(
+      this.queueKey(invite.matchType, invite.gameType),
+      0,
+      invite.id,
+    );
   }
 
   /**
@@ -1414,25 +1499,8 @@ export class MatchmakingService {
   private async getOwnedActiveInvite(
     senderPlayerId: string,
   ): Promise<IServiceReturn<MatchmakingInvite>> {
-    const activeInviteId = await this.redisService.get(
-      this.playerInviteKey(senderPlayerId),
-    );
-
-    if (!activeInviteId) {
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_FOUND,
-            field: 'playerId',
-            value: senderPlayerId,
-            message: 'Player does not have an active matchmaking room.',
-          }),
-        ],
-      ];
-    }
-
-    const [invite, inviteErrors] = await this.readInvite(activeInviteId);
+    const [invite, inviteErrors] =
+      await this.getActiveInviteForPlayer(senderPlayerId);
     if (inviteErrors) return [null, inviteErrors];
 
     if (invite.ownerPlayerId !== senderPlayerId) {
@@ -1597,6 +1665,43 @@ export class MatchmakingService {
   }
 
   /**
+   * Loads a player's active room through the reverse Redis index. A dangling
+   * index is removed before returning the same not-found error as a missing
+   * index.
+   */
+  private async getActiveInviteForPlayer(
+    playerId: string,
+  ): Promise<IServiceReturn<MatchmakingInvite>> {
+    const activeInviteId = await this.redisService.get(
+      this.playerInviteKey(playerId),
+    );
+
+    if (!activeInviteId) {
+      return [null, this.playerHasNoActiveInviteError(playerId)];
+    }
+
+    const [invite, inviteErrors] = await this.readInvite(activeInviteId);
+    if (inviteErrors) {
+      await this.redisService.delete(this.playerInviteKey(playerId));
+
+      return [null, this.playerHasNoActiveInviteError(playerId)];
+    }
+
+    return [invite, null];
+  }
+
+  private playerHasNoActiveInviteError(playerId: string) {
+    return [
+      new ServiceError({
+        reason: SEReason.NOT_FOUND,
+        field: 'playerId',
+        value: playerId,
+        message: 'Player does not have an active matchmaking room.',
+      }),
+    ];
+  }
+
+  /**
    * Recomputes bot fillers and OPEN/READY status after create or join changes.
    */
   private recalculateInvite(invite: MatchmakingInvite): MatchmakingInvite {
@@ -1749,8 +1854,8 @@ export class MatchmakingService {
     return `${this.PLAYER_INVITE_KEY_PREFIX}:${playerId}`;
   }
 
-  private queueKey(matchType: MatchType) {
-    return `${this.QUEUE_KEY_PREFIX}:${matchType}`;
+  private queueKey(matchType: MatchType, gameType: number) {
+    return `${this.QUEUE_KEY_PREFIX}:${matchType}:${gameType}`;
   }
 
   private matchKey(matchId: string) {
@@ -1784,6 +1889,7 @@ export class MatchmakingService {
     return {
       id: invite.id,
       matchType: invite.matchType,
+      gameType: invite.gameType,
       status: invite.status,
       ownerPlayerId: invite.ownerPlayerId,
       clanId: invite.clanId,
@@ -1810,6 +1916,7 @@ export class MatchmakingService {
     return {
       id: invite.id,
       matchType: invite.matchType,
+      gameType: invite.gameType,
       status: invite.status,
       ownerPlayerId: invite.ownerPlayerId,
       clanId: invite.clanId,
@@ -1841,6 +1948,7 @@ export class MatchmakingService {
     return {
       id: invite.id,
       matchType: invite.matchType,
+      gameType: invite.gameType,
       status: invite.status,
       ownerPlayer: this.getMappedMqttPlayer(playerMap, invite.ownerPlayerId),
       senderPlayer: this.getMappedMqttPlayer(playerMap, senderPlayerId),
@@ -1857,6 +1965,7 @@ export class MatchmakingService {
     return {
       id: match.id,
       matchType: match.matchType,
+      gameType: match.gameType,
       status: match.status,
       teamSize: match.teamSize,
       teams: match.teams.map((team) => this.toTeamDto(team)),
@@ -1879,6 +1988,7 @@ export class MatchmakingService {
     return {
       id: match.id,
       matchType: match.matchType,
+      gameType: match.gameType,
       status: match.status,
       teamSize: match.teamSize,
       teams: match.teams.map((team) => this.toMqttTeamDto(team, playerMap)),
