@@ -114,7 +114,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
   },
   [UITaskName.COMMON_FACTOR]: {
     title: {
-      fi: 'Mitä olet oppinut joltain toiselta? etsi teitä yhdistävä asia',
+      fi: 'Mitä olet oppinut joltain toiselta? Etsi teitä yhdistävä asia',
     },
     type: UITaskName.COMMON_FACTOR,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
