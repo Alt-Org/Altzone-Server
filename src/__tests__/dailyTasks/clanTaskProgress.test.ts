@@ -18,6 +18,7 @@ describe('DailyTasksService.updateClanTask', () => {
         }),
       } as any,
       {} as any,
+      {} as any,
     );
     const basicService = {
       readOne: jest.fn().mockResolvedValue([

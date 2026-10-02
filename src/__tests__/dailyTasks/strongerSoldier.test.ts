@@ -27,6 +27,7 @@ describe('STRONGER_SOLDIER daily task', () => {
         }),
       } as any,
       progressService as any,
+      {} as any,
     );
     const basicService = {
       updateOne: jest.fn().mockResolvedValue([true, null]),

@@ -9,6 +9,7 @@ import { DailyTaskProgressService } from '../../dailyTasks/dailyTaskProgress.ser
 import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
 import { ChatEmotion } from '../../chat/enum/chatEmotion.enum';
 import { ChatResponseType } from '../../chat/enum/chatResponseType.enum';
+import { PlayerRewarder } from '../../rewarder/playerRewarder/playerRewarder.service';
 
 describe('FORM_AN_INNER_CONNECTION Daily Task', () => {
   let service: DailyTasksService;
@@ -59,6 +60,10 @@ describe('FORM_AN_INNER_CONNECTION Daily Task', () => {
           useValue: {
             handleProgress: jest.fn().mockResolvedValue([true, null]),
           },
+        },
+        {
+          provide: PlayerRewarder,
+          useValue: { deductPlayerPoints: jest.fn() },
         },
       ],
     }).compile();

@@ -28,6 +28,7 @@ describe('PLAY_WITH_EMOTIONS daily task', () => {
         }),
       } as any,
       progressService as any,
+      {} as any,
     );
     const basicService = {
       updateOne: jest.fn().mockResolvedValue([true, null]),
