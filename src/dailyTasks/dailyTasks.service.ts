@@ -119,7 +119,7 @@ export class DailyTasksService {
 
     const [, unreserveError] = await this.unreserveTask(playerId, session);
     if (unreserveError && unreserveError[0].reason !== SEReason.NOT_FOUND)
-      return cancelTransaction(session, unreserveError);
+      return await cancelTransaction(session, unreserveError);
 
     const startedAt = new Date();
     task.player_id = playerId;
@@ -130,7 +130,7 @@ export class DailyTasksService {
       task,
       { session },
     );
-    if (updateError) return cancelTransaction(session, updateError);
+    if (updateError) return await cancelTransaction(session, updateError);
 
     const [reservedTask, endErrors] = await endTransaction(session, task);
     if (endErrors) return [null, endErrors];
@@ -158,9 +158,10 @@ export class DailyTasksService {
       playerId,
       newSession,
     );
-    if (unreserveErrors) return cancelTransaction(newSession, unreserveErrors);
+    if (unreserveErrors)
+      return await cancelTransaction(newSession, unreserveErrors);
 
-    return endTransaction(newSession, wasUnreserved);
+    return await endTransaction(newSession, wasUnreserved);
   }
 
   /**
@@ -218,16 +219,18 @@ export class DailyTasksService {
         session,
       },
     );
-    if (replacementErrors) return cancelTransaction(session, replacementErrors);
+    if (replacementErrors)
+      return await cancelTransaction(session, replacementErrors);
 
     const [, deductionErrors] = await this.playerRewarder.deductPlayerPoints(
       playerId,
       TASK_CONSTS.POINTS.DAILY_TASK.CANCEL_PENALTY,
       session,
     );
-    if (deductionErrors) return cancelTransaction(session, deductionErrors);
+    if (deductionErrors)
+      return await cancelTransaction(session, deductionErrors);
 
-    return endTransaction(session, true);
+    return await endTransaction(session, true);
   }
 
   /**
