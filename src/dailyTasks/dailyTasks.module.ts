@@ -20,8 +20,6 @@ import { Item, ItemSchema } from '../clanInventory/item/item.schema';
 import { DailyTasksScheduler } from './dailyTasksScheduler.service';
 import DailyTasksResetNotifier from './dailyTaskReset.notifier';
 import { DailyTaskProgressService } from './dailyTaskProgress.service';
-// will be removed in the future
-import { DailyTasksStartupRefreshService } from './dailyTasksStartupRefresh.service';
 
 @Module({
   imports: [
@@ -52,7 +50,6 @@ import { DailyTasksStartupRefreshService } from './dailyTasksStartupRefresh.serv
     ClanProgression,
     DailyTasksScheduler,
     DailyTasksResetNotifier,
-    DailyTasksStartupRefreshService, // will be removed in the future
   ],
   controllers: [DailyTasksController],
   exports: [DailyTasksService, UiDailyTasksService, DailyTaskProgressService],
