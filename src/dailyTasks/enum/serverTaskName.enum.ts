@@ -43,5 +43,4 @@ export enum ServerTaskName {
   BUILD_YOUR_WORLD = 'build_your_world',
 
   SET_BOUNDARIES = 'set_boundaries',
-  
 }

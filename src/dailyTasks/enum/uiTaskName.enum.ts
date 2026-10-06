@@ -36,5 +36,4 @@ export enum UITaskName {
   HUNTING_FOR_VALUES = 'hunting for values',
 
   ETHICS_METRICS = 'ethics_metrics',
-
 }

@@ -20,7 +20,7 @@ export type UIDailyTaskData = {
 export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
   [UITaskName.FIND_THE_ERROR]: {
     title: {
-      fi: 'Etsi sisäinen toimintahäiriö',
+      fi: 'Etsi sisäinen toimintahäiriö.',
     },
     type: UITaskName.FIND_THE_ERROR,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
@@ -30,7 +30,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
   },
   [UITaskName.PLAY_MELODY]: {
     title: {
-      fi: 'Soita sävelmä',
+      fi: 'Soita sävelmä.',
     },
     type: UITaskName.PLAY_MELODY,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
@@ -40,7 +40,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
   },
   [UITaskName.CHOOSE_YOUR_TRUTH]: {
     title: {
-      fi: 'Valitse prologin näkymä, joka herättää eniten tunnistettavan tunteen',
+      fi: 'Valitse prologin näkymä, joka herättää eniten tunnistettavan tunteen.',
     },
     type: UITaskName.CHOOSE_YOUR_TRUTH,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
@@ -50,7 +50,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
   },
   [UITaskName.HOLD_THE_CHARACTER]: {
     title: {
-      fi: 'Pysähdy defenssisoturin äärelle ja kuuntele sen taustaa',
+      fi: 'Pysähdy defenssisoturin äärelle ja kuuntele sen taustaa.',
     },
     type: UITaskName.HOLD_THE_CHARACTER,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
@@ -60,7 +60,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
   },
   [UITaskName.WHERE_ARE_YOU]: {
     title: {
-      fi: 'Tunnista tila jossa sisäinen tapahtuma tapahtuu',
+      fi: 'Tunnista tila, jossa sisäinen tapahtuma tapahtuu.',
     },
     type: UITaskName.WHERE_ARE_YOU,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
@@ -70,7 +70,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
   },
   [UITaskName.FOLLOW_THE_VOICE]: {
     title: {
-      fi: 'Etsi ohjeet jotka oikeasti ohjaavat toimintaasi',
+      fi: 'Etsi ohjeet jotka oikeasti ohjaavat toimintaasi.',
     },
     type: UITaskName.FOLLOW_THE_VOICE,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
@@ -79,7 +79,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     timeLimitMinutes: 60,
   },
   [UITaskName.READ_THE_SIGNS]: {
-    title: { fi: 'Etsi symboli joka ei selitä itseään vaan ehdottaa' },
+    title: { fi: 'Etsi symboli, joka ei selitä itseään vaan ehdottaa.' },
     type: UITaskName.READ_THE_SIGNS,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
@@ -87,7 +87,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     timeLimitMinutes: 60,
   },
   [UITaskName.FIND_THE_ROOTS]: {
-    title: { fi: 'Löydä osa, jossa toisen vaikutus on muokannut sinua' },
+    title: { fi: 'Löydä osa, jossa toisen vaikutus on muokannut sinua.' },
     type: UITaskName.FIND_THE_ROOTS,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
@@ -95,7 +95,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     timeLimitMinutes: 60,
   },
   [UITaskName.LOOK_INSIDE]: {
-    title: { fi: 'Tunnista millainen rakenne sinua ohjaa' },
+    title: { fi: 'Tunnista, millainen rakenne sinua ohjaa.' },
     type: UITaskName.LOOK_INSIDE,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
@@ -114,7 +114,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
   },
   [UITaskName.COMMON_FACTOR]: {
     title: {
-      fi: 'Mitä olet oppinut joltain toiselta? Etsi teitä yhdistävä asia',
+      fi: 'Mitä olet oppinut joltain toiselta? Etsi teitä yhdistävä asia.',
     },
     type: UITaskName.COMMON_FACTOR,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
@@ -123,7 +123,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     timeLimitMinutes: 60,
   },
   [UITaskName.SPIRITUAL_CURRENCY]: {
-    title: { fi: 'Etsi pelistä henkisenvaluutan symboli' },
+    title: { fi: 'Etsi pelistä henkisen valuutan symboli.' },
     type: UITaskName.SPIRITUAL_CURRENCY,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
@@ -131,7 +131,9 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     timeLimitMinutes: 60,
   },
   [UITaskName.REWARD_TRAPS]: {
-    title: { fi: 'Tunnista, missä syntyy dopamiinia ja onnistumisen tunnetta' },
+    title: {
+      fi: 'Tunnista, missä syntyy dopamiinia ja onnistumisen tunnetta.',
+    },
     type: UITaskName.REWARD_TRAPS,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
@@ -140,7 +142,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
   },
   [UITaskName.MORAL_DILEMMAS]: {
     title: {
-      fi: 'Etsi kohta, jossa jouduit pohtimaan oikean ja väärän merkitystä',
+      fi: 'Etsi kohta, jossa jouduit pohtimaan oikean ja väärän merkitystä.',
     },
     type: UITaskName.MORAL_DILEMMAS,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
@@ -149,7 +151,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     timeLimitMinutes: 60,
   },
   [UITaskName.ECO_FRIENDLY]: {
-    title: { fi: 'Huomaa miten toimintasi jättää jäljen tähän maailmaan' },
+    title: { fi: 'Huomaa, miten toimintasi jättää jäljen tähän maailmaan.' },
     type: UITaskName.ECO_FRIENDLY,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
@@ -157,7 +159,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     timeLimitMinutes: 60,
   },
   [UITaskName.HUNTING_FOR_VALUES]: {
-    title: { fi: 'Miten ohjenuorasi rakentuu. minkälaisia arvoja edustat?' },
+    title: { fi: 'Miten ohjenuorasi rakentuu? Minkälaisia arvoja edustat?' },
     type: UITaskName.HUNTING_FOR_VALUES,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
@@ -171,5 +173,5 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  }
+  },
 };
