@@ -131,7 +131,9 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     timeLimitMinutes: 60,
   },
   [UITaskName.REWARD_TRAPS]: {
-    title: { fi: 'Tunnista, missä syntyy dopamiinia ja onnistumisen tunnetta.' },
+    title: {
+      fi: 'Tunnista, missä syntyy dopamiinia ja onnistumisen tunnetta.',
+    },
     type: UITaskName.REWARD_TRAPS,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
@@ -171,5 +173,5 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  }
+  },
 };
