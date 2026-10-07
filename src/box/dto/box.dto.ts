@@ -112,7 +112,10 @@ export class BoxDto {
   accountClaimersIds: string[];
 
   /**
-   * Daily tasks generated for this box session
+   * Legacy predefined daily tasks stored in the Box configuration.
+   *
+   * @deprecated Testing sessions always use the complete server and UI task
+   * catalogs.
    */
   @Expose()
   @Type(() => DailyTask)

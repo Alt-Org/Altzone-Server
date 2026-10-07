@@ -52,6 +52,11 @@ import { DailyTaskProgressService } from './dailyTaskProgress.service';
     DailyTasksResetNotifier,
   ],
   controllers: [DailyTasksController],
-  exports: [DailyTasksService, UiDailyTasksService, DailyTaskProgressService],
+  exports: [
+    DailyTasksService,
+    UiDailyTasksService,
+    DailyTaskProgressService,
+    TaskGeneratorService,
+  ],
 })
 export class DailyTasksModule {}

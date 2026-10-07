@@ -123,6 +123,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       true,
       payload,
     );
+    this.emitterService.EmitNewDailyTaskEvent(
+      client.user.playerId,
+      ServerTaskName.INNER_DISCUSSION,
+      true,
+      payload,
+    );
   }
 
   @SubscribeMessage('clanMessageReaction')

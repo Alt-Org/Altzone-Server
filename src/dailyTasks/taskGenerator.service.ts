@@ -14,7 +14,7 @@ type ServerTaskDefinition = {
   timeLimitMinutes?: number;
 };
 
-type TaskInfo = {
+export type TaskInfo = {
   title: TaskTitle;
   type: ServerTaskName;
   points: number;
@@ -32,12 +32,12 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
   {
     type: ServerTaskName.BANISH_THE_EARWORM,
     createAmount: createRandomAmount,
-    createTitle: (amount) => ({ fi: `Karkoita korvamato ${amount} kertaa` }),
+    createTitle: (amount) => ({ fi: `Karkoita korvamato ${amount} kertaa.` }),
   },
   {
     type: ServerTaskName.GO_TO_BATTLE,
     createAmount: createRandomAmount,
-    createTitle: (amount) => ({ fi: `Pelaa ${amount} taistelua` }),
+    createTitle: (amount) => ({ fi: `Pelaa ${amount} taistelua.` }),
   },
   {
     type: ServerTaskName.STRONGER_SOLDIER,
@@ -65,6 +65,13 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     createAmount: () => 1,
     createTitle: () => ({
       fi: 'Avaa klaanin asetukset. Muokkaa klaanin mottoa ja tallenna muutos. Mieti, mitä haluatte viestiä toisillenne ja muille.',
+    }),
+  },
+  {
+    type: ServerTaskName.INNER_DISCUSSION,
+    createAmount: () => 1,
+    createTitle: () => ({
+      fi: 'Osallistu klaanin sisäiseen keskusteluun.',
     }),
   },
   {
@@ -148,6 +155,15 @@ export class TaskGeneratorService {
    */
   createBalancedTaskValues(taskCount = SERVER_TASKS_PER_CLAN): TaskInfo[] {
     return this.createBalancedTaskTypes(taskCount).map((type) =>
+      this.createTaskValues(type),
+    );
+  }
+
+  /**
+   * Creates one task for every server task type.
+   */
+  createAllServerTaskValues(): TaskInfo[] {
+    return Object.values(ServerTaskName).map((type) =>
       this.createTaskValues(type),
     );
   }
