@@ -28,7 +28,7 @@ describe('daily task scoring values', () => {
       type: ServerTaskName.INNER_VOICE,
       amount: 1,
       title: {
-        fi: 'Avaa klaanin asetukset. Muokkaa klaanin mottoa ja tallenna muutos. Mieti, mitä haluatte viestiä toisillenne ja muille.',
+        fi: 'Avaa klaanin asetukset. Muokkaa klaanin mottoa, ja tallenna muutos. Mieti, mitä haluatte viestiä toisillenne ja muille.',
       },
     });
   });
@@ -137,7 +137,7 @@ describe('daily task scoring values', () => {
       type: ServerTaskName.LETTING_GO_OF_THE_OLD,
       amount: 1,
       title: {
-        fi: 'Avaa klaanin äänestys. Valitse vaihtoehto ja anna äänesi. Huomaa, miten oma valintasi vaikuttaa yhteiseen päätökseen.',
+        fi: 'Avaa klaanin äänestys. Valitse vaihtoehto, ja anna äänesi. Huomaa, miten oma valintasi vaikuttaa yhteiseen päätökseen.',
       },
     });
   });
