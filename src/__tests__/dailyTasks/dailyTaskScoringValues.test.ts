@@ -46,6 +46,30 @@ describe('daily task scoring values', () => {
     });
   });
 
+  it('configures INNER_DISCUSSION as a one-step server task', () => {
+    const generator = new TaskGeneratorService();
+    const task = generator
+      .createAllServerTaskValues()
+      .find(({ type }) => type === ServerTaskName.INNER_DISCUSSION);
+
+    expect(task).toMatchObject({
+      type: ServerTaskName.INNER_DISCUSSION,
+      amount: 1,
+    });
+  });
+
+  it('creates exactly one task for every server task type', () => {
+    const generator = new TaskGeneratorService();
+    const tasks = generator.createAllServerTaskValues();
+    const taskTypes = tasks.map(({ type }) => type);
+
+    expect(tasks).toHaveLength(Object.values(ServerTaskName).length);
+    expect(new Set(taskTypes).size).toBe(Object.values(ServerTaskName).length);
+    expect(taskTypes).toEqual(
+      expect.arrayContaining(Object.values(ServerTaskName)),
+    );
+  });
+
   it('configures PLAY_WITH_EMOTIONS with one step for each chat emotion', () => {
     const generator = new TaskGeneratorService();
     jest
