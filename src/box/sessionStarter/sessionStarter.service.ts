@@ -27,6 +27,7 @@ import {
   initializeSession,
 } from '../../common/function/Transactions';
 import { Environment } from '../../common/enum/environment.enum';
+import { BoxClanPlan, createBoxClanPlans } from '../util/createBoxClanPlans';
 
 /**
  * Class responsible for starting the testing session process.
@@ -78,10 +79,25 @@ export default class SessionStarterService {
     const [boxInDB, error] = await this.getAndValidateBox(box_id, session);
     if (error) return [null, error];
 
+    let clanPlans: [BoxClanPlan, BoxClanPlan];
+    try {
+      clanPlans = createBoxClanPlans(boxInDB.testersAmount);
+    } catch (error) {
+      return cancelTransaction(session, [
+        new ServiceError({
+          reason: SEReason.MISCONFIGURED,
+          field: 'testersAmount',
+          value: boxInDB.testersAmount,
+          message: (error as Error).message,
+        }),
+      ]);
+    }
+
     const [clans, err] = await this.createBoxClans(
       boxInDB.clansToCreate[0].name,
       boxInDB.clansToCreate[1].name,
       box_id.toString(),
+      clanPlans,
       session,
     );
     if (err) return [null, err];
@@ -141,11 +157,13 @@ export default class SessionStarterService {
     clanName1: string,
     clanName2: string,
     box_id: string,
+    clanPlans: [BoxClanPlan, BoxClanPlan],
     session: ClientSession,
   ): Promise<IServiceReturn<Clan[]>> {
     const [clan1Resp, clan1Errors] = await this.createBoxClan(
       clanName1,
       box_id,
+      clanPlans[0],
       session,
     );
     if (clan1Errors) return [null, clan1Errors];
@@ -153,6 +171,7 @@ export default class SessionStarterService {
     const [clan2Resp, clan2Errors] = await this.createBoxClan(
       clanName2,
       box_id,
+      clanPlans[1],
       session,
     );
     if (clan2Errors) return [null, clan2Errors];
@@ -173,6 +192,7 @@ export default class SessionStarterService {
   private async createBoxClan(
     clanName: string,
     box_id: string,
+    clanPlan: BoxClanPlan,
     session: ClientSession,
   ): Promise<IServiceReturn<Clan>> {
     const defaultClanData = {
@@ -186,6 +206,8 @@ export default class SessionStarterService {
       await this.clanService.createOneWithoutAdmin(
         {
           name: clanName,
+          boxMemberLimit: clanPlan.memberLimit,
+          targetPoints: clanPlan.targetPoints,
           ...defaultClanData,
         },
         session,
