@@ -64,7 +64,7 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     type: ServerTaskName.INNER_VOICE,
     createAmount: () => 1,
     createTitle: () => ({
-      fi: 'Avaa klaanin asetukset. Muokkaa klaanin mottoa ja tallenna muutos. Mieti, mitä haluatte viestiä toisillenne ja muille.',
+      fi: 'Avaa klaanin asetukset. Muokkaa klaanin mottoa, ja tallenna muutos. Mieti, mitä haluatte viestiä toisillenne ja muille.',
     }),
   },
   {
@@ -97,7 +97,7 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     type: ServerTaskName.LETTING_GO_OF_THE_OLD,
     createAmount: () => 1,
     createTitle: () => ({
-      fi: 'Avaa klaanin äänestys. Valitse vaihtoehto ja anna äänesi. Huomaa, miten oma valintasi vaikuttaa yhteiseen päätökseen.',
+      fi: 'Avaa klaanin äänestys. Valitse vaihtoehto, ja anna äänesi. Huomaa, miten oma valintasi vaikuttaa yhteiseen päätökseen.',
     }),
   },
   {

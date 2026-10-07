@@ -70,7 +70,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
   },
   [UITaskName.FOLLOW_THE_VOICE]: {
     title: {
-      fi: 'Etsi ohjeet jotka oikeasti ohjaavat toimintaasi.',
+      fi: 'Etsi ohjeet, jotka oikeasti ohjaavat toimintaasi.',
     },
     type: UITaskName.FOLLOW_THE_VOICE,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
