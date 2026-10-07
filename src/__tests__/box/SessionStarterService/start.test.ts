@@ -10,6 +10,10 @@ import { Box } from '../../../box/schemas/box.schema';
 import DailyTasksModule from '../../dailyTasks/modules/dailyTasks.module';
 import { SessionStage } from '../../../box/enum/SessionStage.enum';
 import ClanModule from '../../clan/modules/clan.module';
+import { BOX_SESSION_TASK_COUNT } from '../../../box/consts/boxSessionConstants';
+import { ServerTaskName } from '../../../dailyTasks/enum/serverTaskName.enum';
+import { UITaskName } from '../../../dailyTasks/enum/uiTaskName.enum';
+import SoulhomeModule from '../../clanInventory/modules/soulhome.module';
 
 describe('SessionStarterService.start() test suite', () => {
   let starter: SessionStarterService;
@@ -21,10 +25,16 @@ describe('SessionStarterService.start() test suite', () => {
   const playerModel = PlayerModule.getPlayerModel();
   const dailyTaskModel = DailyTasksModule.getDailyTaskModel();
   const clanModel = ClanModule.getClanModel();
+  const soulHomeModel = SoulhomeModule.getSoulhomeModel();
 
   const profileBuilder = ProfileBuilderFactory.getBuilder('Profile');
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const dailyTaskBuilder = BoxBuilderFactory.getBuilder('PredefinedDailyTask');
+
+  beforeAll(async () => {
+    // Ensure the collection exists before SessionStarter opens a transaction.
+    await soulHomeModel.init();
+  });
 
   beforeEach(async () => {
     starter = await BoxModule.getSessionStarterService();
@@ -43,6 +53,7 @@ describe('SessionStarterService.start() test suite', () => {
       .setAdminPlayerId(new ObjectId(adminInDb._id))
       .setAdminProfileId(new ObjectId(adminProfInDb._id))
       .setClansToCreate([{ name: 'sessionClan1' }, { name: 'sessionClan2' }])
+      .setTestersAmount(20)
       .setDailyTasks([task1, task2])
       .build();
 
@@ -67,16 +78,23 @@ describe('SessionStarterService.start() test suite', () => {
     expect(isStarted).toBe(true);
   });
 
-  it('Should create predefined daily tasks for each clan', async () => {
+  it('Should create every server and UI daily task for each clan', async () => {
     await starter.start(existingBox._id);
 
     const box = await boxModel.findById(existingBox._id);
-    const clanDailyTask = existingBox.dailyTasks;
-    const boxDailyTasksInDB = await dailyTaskModel.find({
-      clan_id: { $in: box.createdClan_ids },
-    });
+    const expectedTypes = [
+      ...Object.values(ServerTaskName),
+      ...Object.values(UITaskName),
+    ];
 
-    expect(boxDailyTasksInDB).toHaveLength(clanDailyTask.length * 2);
+    for (const clanId of box.createdClan_ids) {
+      const clanTasks = await dailyTaskModel.find({ clan_id: clanId });
+      const taskTypes = clanTasks.map((task) => task.type);
+
+      expect(clanTasks).toHaveLength(BOX_SESSION_TASK_COUNT);
+      expect(new Set(taskTypes)).toHaveProperty('size', BOX_SESSION_TASK_COUNT);
+      expect(taskTypes).toEqual(expect.arrayContaining(expectedTypes));
+    }
   });
 
   it('Should set testers shared password for a box', async () => {
@@ -166,5 +184,31 @@ describe('SessionStarterService.start() test suite', () => {
     expectedNames.forEach((name) => {
       expect(clanNames).toContain(name);
     });
+  });
+
+  it('Should persist equal member limits and target points for an even participant count', async () => {
+    await starter.start(existingBox._id);
+
+    const boxInDB = await boxModel.findById(existingBox._id);
+    const clans = await Promise.all(
+      boxInDB.createdClan_ids.map((clanId) => clanModel.findById(clanId)),
+    );
+
+    expect(clans.map((clan) => clan.boxMemberLimit)).toEqual([10, 10]);
+    expect(clans.map((clan) => clan.targetPoints)).toEqual([4200, 4200]);
+  });
+
+  it('Should give the first clan the extra member for an odd participant count', async () => {
+    await boxModel.findByIdAndUpdate(existingBox._id, { testersAmount: 29 });
+
+    await starter.start(existingBox._id);
+
+    const boxInDB = await boxModel.findById(existingBox._id);
+    const clans = await Promise.all(
+      boxInDB.createdClan_ids.map((clanId) => clanModel.findById(clanId)),
+    );
+
+    expect(clans.map((clan) => clan.boxMemberLimit)).toEqual([15, 14]);
+    expect(clans.map((clan) => clan.targetPoints)).toEqual([6300, 5880]);
   });
 });

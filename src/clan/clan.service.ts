@@ -163,7 +163,8 @@ export class ClanService {
    * Creates a clan without assigning an initial administrator.
    */
   public async createOneWithoutAdmin(
-    clanToCreate: CreateClanDto,
+    clanToCreate: CreateClanDto &
+      Partial<Pick<Clan, 'boxMemberLimit' | 'targetPoints'>>,
     externalSession?: ClientSession,
   ): Promise<IServiceReturn<CreateWithoutDtoType>> {
     const [session, initErrors] = externalSession
