@@ -186,6 +186,37 @@ describe('TesterAccountService.addTesterToClan() test suite', () => {
     expect(clanAfter.playerCount).toBe(5);
   });
 
+  it('Should follow Box clan member limits for an odd participant count', async () => {
+    const tester_ids = await createPlayers(29);
+    const clan_ids = await createBoxClans([15, 14]);
+
+    await runAddTesterToClanAsync(tester_ids, clan_ids);
+
+    const clansAfter = await Promise.all(
+      clan_ids.map((clanId) => clanModel.findById(clanId)),
+    );
+    expect(clansAfter.map((clan) => clan.playerCount)).toEqual([15, 14]);
+    expect(clansAfter.map((clan) => clan.targetPoints)).toEqual([6300, 5880]);
+  });
+
+  it('Should not add a tester when all Box clans are full', async () => {
+    const [tester_id] = await createPlayers(1);
+    const clan_ids = await createBoxClans([1, 1]);
+    await clanModel.updateMany({ _id: { $in: clan_ids } }, { playerCount: 1 });
+
+    const [testerClan, errors] = await service.addTesterToClan(
+      tester_id,
+      clan_ids,
+    );
+
+    expect(testerClan).toBeNull();
+    expect(errors).toContainSE_MORE_THAN_MAX();
+    expect(errors[0].field).toBe('boxMemberLimit');
+
+    const playerAfter = await playerModel.findById(tester_id);
+    expect(playerAfter.clan_id ?? null).toBeNull();
+  });
+
   it('Should return REQUIRED ServiceError if player_id is null', async () => {
     const clan_ids = await createClans(1);
     const [testerClan, errors] = await service.addTesterToClan(null, clan_ids);
@@ -345,6 +376,23 @@ describe('TesterAccountService.addTesterToClan() test suite', () => {
       const clanToCreate = clanBuilder
         .setName(`clan-${i}`)
         .setPlayerCount(0)
+        .build();
+      const clanResp = await clanModel.create(clanToCreate);
+
+      createdClan_ids.push(clanResp._id.toString());
+    }
+
+    return createdClan_ids;
+  }
+
+  async function createBoxClans(memberLimits: number[]) {
+    const createdClan_ids: string[] = [];
+    for (let i = 0; i < memberLimits.length; i++) {
+      const clanToCreate = clanBuilder
+        .setName(`box-clan-${i}`)
+        .setPlayerCount(0)
+        .setBoxMemberLimit(memberLimits[i])
+        .setTargetPoints(memberLimits[i] * 420)
         .build();
       const clanResp = await clanModel.create(clanToCreate);
 

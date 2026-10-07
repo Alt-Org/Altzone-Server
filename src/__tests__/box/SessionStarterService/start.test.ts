@@ -43,6 +43,7 @@ describe('SessionStarterService.start() test suite', () => {
       .setAdminPlayerId(new ObjectId(adminInDb._id))
       .setAdminProfileId(new ObjectId(adminProfInDb._id))
       .setClansToCreate([{ name: 'sessionClan1' }, { name: 'sessionClan2' }])
+      .setTestersAmount(20)
       .setDailyTasks([task1, task2])
       .build();
 
@@ -166,5 +167,31 @@ describe('SessionStarterService.start() test suite', () => {
     expectedNames.forEach((name) => {
       expect(clanNames).toContain(name);
     });
+  });
+
+  it('Should persist equal member limits and target points for an even participant count', async () => {
+    await starter.start(existingBox._id);
+
+    const boxInDB = await boxModel.findById(existingBox._id);
+    const clans = await Promise.all(
+      boxInDB.createdClan_ids.map((clanId) => clanModel.findById(clanId)),
+    );
+
+    expect(clans.map((clan) => clan.boxMemberLimit)).toEqual([10, 10]);
+    expect(clans.map((clan) => clan.targetPoints)).toEqual([4200, 4200]);
+  });
+
+  it('Should give the first clan the extra member for an odd participant count', async () => {
+    await boxModel.findByIdAndUpdate(existingBox._id, { testersAmount: 29 });
+
+    await starter.start(existingBox._id);
+
+    const boxInDB = await boxModel.findById(existingBox._id);
+    const clans = await Promise.all(
+      boxInDB.createdClan_ids.map((clanId) => clanModel.findById(clanId)),
+    );
+
+    expect(clans.map((clan) => clan.boxMemberLimit)).toEqual([15, 14]);
+    expect(clans.map((clan) => clan.targetPoints)).toEqual([6300, 5880]);
   });
 });
