@@ -3,6 +3,10 @@ import { BoxService } from '../../../box/box.service';
 import BoxBuilderFactory from '../data/boxBuilderFactory';
 import { ObjectId } from 'mongodb';
 import BoxModule from '../modules/box.module';
+import {
+  BOX_SESSION_MAX_PARTICIPANTS,
+  BOX_SESSION_MIN_PARTICIPANTS,
+} from '../../../box/consts/boxSessionConstants';
 
 describe('BoxService.updateOneById() test suite', () => {
   let boxService: BoxService;
@@ -12,6 +16,7 @@ describe('BoxService.updateOneById() test suite', () => {
     .setAdminPassword('password')
     .setAdminPlayerId(new ObjectId())
     .setAdminProfileId(new ObjectId())
+    .setTestersAmount(BOX_SESSION_MIN_PARTICIPANTS)
     .build();
 
   beforeEach(async () => {
@@ -56,6 +61,39 @@ describe('BoxService.updateOneById() test suite', () => {
     expect(wasUpdated).toBeNull();
     expect(errors).toContainSE_REQUIRED();
     expect(errors[0].field).toBe('_id');
+  });
+
+  it('Should return ServiceError LESS_THAN_MIN if testersAmount is below the session minimum', async () => {
+    const [wasUpdated, errors] = await boxService.updateOneById({
+      _id: existingBox._id,
+      testersAmount: BOX_SESSION_MIN_PARTICIPANTS - 1,
+    });
+
+    expect(wasUpdated).toBeNull();
+    expect(errors).toContainSE_LESS_THAN_MIN();
+    expect(errors[0].field).toBe('testersAmount');
+  });
+
+  it('Should return ServiceError MORE_THAN_MAX if testersAmount exceeds the session maximum', async () => {
+    const [wasUpdated, errors] = await boxService.updateOneById({
+      _id: existingBox._id,
+      testersAmount: BOX_SESSION_MAX_PARTICIPANTS + 1,
+    });
+
+    expect(wasUpdated).toBeNull();
+    expect(errors).toContainSE_MORE_THAN_MAX();
+    expect(errors[0].field).toBe('testersAmount');
+  });
+
+  it('Should return ServiceError NOT_NUMBER if testersAmount is not an integer', async () => {
+    const [wasUpdated, errors] = await boxService.updateOneById({
+      _id: existingBox._id,
+      testersAmount: 1.5,
+    });
+
+    expect(wasUpdated).toBeNull();
+    expect(errors).toContainSE_NOT_NUMBER();
+    expect(errors[0].field).toBe('testersAmount');
   });
 
   it('Should return ServiceError NOT_UNIQUE if the box with provided _id adminPassword already exists', async () => {

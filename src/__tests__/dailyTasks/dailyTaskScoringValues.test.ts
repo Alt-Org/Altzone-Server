@@ -28,7 +28,7 @@ describe('daily task scoring values', () => {
       type: ServerTaskName.INNER_VOICE,
       amount: 1,
       title: {
-        fi: 'Avaa klaanin asetukset. Muokkaa klaanin mottoa ja tallenna muutos. Mieti, mitä haluatte viestiä toisillenne ja muille.',
+        fi: 'Avaa klaanin asetukset. Muokkaa klaanin mottoa, ja tallenna muutos. Mieti, mitä haluatte viestiä toisillenne ja muille.',
       },
     });
   });
@@ -44,6 +44,30 @@ describe('daily task scoring values', () => {
       amount: 1,
       title: { fi: 'Äänestä klaanin äänestyksessä.' },
     });
+  });
+
+  it('configures INNER_DISCUSSION as a one-step server task', () => {
+    const generator = new TaskGeneratorService();
+    const task = generator
+      .createAllServerTaskValues()
+      .find(({ type }) => type === ServerTaskName.INNER_DISCUSSION);
+
+    expect(task).toMatchObject({
+      type: ServerTaskName.INNER_DISCUSSION,
+      amount: 1,
+    });
+  });
+
+  it('creates exactly one task for every server task type', () => {
+    const generator = new TaskGeneratorService();
+    const tasks = generator.createAllServerTaskValues();
+    const taskTypes = tasks.map(({ type }) => type);
+
+    expect(tasks).toHaveLength(Object.values(ServerTaskName).length);
+    expect(new Set(taskTypes).size).toBe(Object.values(ServerTaskName).length);
+    expect(taskTypes).toEqual(
+      expect.arrayContaining(Object.values(ServerTaskName)),
+    );
   });
 
   it('configures PLAY_WITH_EMOTIONS with one step for each chat emotion', () => {
@@ -113,7 +137,7 @@ describe('daily task scoring values', () => {
       type: ServerTaskName.LETTING_GO_OF_THE_OLD,
       amount: 1,
       title: {
-        fi: 'Avaa klaanin äänestys. Valitse vaihtoehto ja anna äänesi. Huomaa, miten oma valintasi vaikuttaa yhteiseen päätökseen.',
+        fi: 'Avaa klaanin äänestys. Valitse vaihtoehto, ja anna äänesi. Huomaa, miten oma valintasi vaikuttaa yhteiseen päätökseen.',
       },
     });
   });

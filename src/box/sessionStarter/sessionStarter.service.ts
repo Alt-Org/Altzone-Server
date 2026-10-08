@@ -14,7 +14,6 @@ import { Player } from '../../player/schemas/player.schema';
 import { Clan } from '../../clan/clan.schema';
 import { PasswordGenerator } from '../../common/function/passwordGenerator';
 import { SessionStage } from '../enum/SessionStage.enum';
-import { PredefinedDailyTask } from '../dailyTask/predefinedDailyTask.schema';
 import { SoulHome } from '../../clanInventory/soulhome/soulhome.schema';
 import { Room } from '../../clanInventory/room/room.schema';
 import { Stock } from '../../clanInventory/stock/stock.schema';
@@ -27,6 +26,16 @@ import {
   initializeSession,
 } from '../../common/function/Transactions';
 import { Environment } from '../../common/enum/environment.enum';
+import { BoxClanPlan, createBoxClanPlans } from '../util/createBoxClanPlans';
+import {
+  TaskGeneratorService,
+  TaskInfo,
+} from '../../dailyTasks/taskGenerator.service';
+import {
+  UIDailyTaskData,
+  uiDailyTasks,
+} from '../../dailyTasks/uiDailyTasks/uiDailyTasks';
+import { BOX_SESSION_TASK_COUNT } from '../consts/boxSessionConstants';
 
 /**
  * Class responsible for starting the testing session process.
@@ -43,6 +52,7 @@ export default class SessionStarterService {
     @InjectConnection() private readonly connection: Connection,
     private readonly clanService: ClanService,
     private readonly dailyTasksService: DailyTasksService,
+    private readonly taskGeneratorService: TaskGeneratorService,
     private readonly passwordGenerator: PasswordGenerator,
   ) {
     this.basicService = new BasicService(taskModel);
@@ -78,10 +88,25 @@ export default class SessionStarterService {
     const [boxInDB, error] = await this.getAndValidateBox(box_id, session);
     if (error) return [null, error];
 
+    let clanPlans: [BoxClanPlan, BoxClanPlan];
+    try {
+      clanPlans = createBoxClanPlans(boxInDB.testersAmount);
+    } catch (error) {
+      return cancelTransaction(session, [
+        new ServiceError({
+          reason: SEReason.MISCONFIGURED,
+          field: 'testersAmount',
+          value: boxInDB.testersAmount,
+          message: (error as Error).message,
+        }),
+      ]);
+    }
+
     const [clans, err] = await this.createBoxClans(
       boxInDB.clansToCreate[0].name,
       boxInDB.clansToCreate[1].name,
       box_id.toString(),
+      clanPlans,
       session,
     );
     if (err) return [null, err];
@@ -99,7 +124,18 @@ export default class SessionStarterService {
     );
     if (updateErr) return await cancelTransaction(session, updateErr);
 
-    const dailyTasksToCreate = boxInDB.dailyTasks.map((task) => task['_doc']);
+    let dailyTasksToCreate: (TaskInfo | UIDailyTaskData)[];
+    try {
+      dailyTasksToCreate = this.createBoxSessionTaskPool();
+    } catch (error) {
+      return cancelTransaction(session, [
+        new ServiceError({
+          reason: SEReason.MISCONFIGURED,
+          field: 'dailyTasks',
+          message: (error as Error).message,
+        }),
+      ]);
+    }
     const [, tasksCreationErrors] = await this.createDailyTasks(
       dailyTasksToCreate,
       clans[0]._id,
@@ -141,11 +177,13 @@ export default class SessionStarterService {
     clanName1: string,
     clanName2: string,
     box_id: string,
+    clanPlans: [BoxClanPlan, BoxClanPlan],
     session: ClientSession,
   ): Promise<IServiceReturn<Clan[]>> {
     const [clan1Resp, clan1Errors] = await this.createBoxClan(
       clanName1,
       box_id,
+      clanPlans[0],
       session,
     );
     if (clan1Errors) return [null, clan1Errors];
@@ -153,6 +191,7 @@ export default class SessionStarterService {
     const [clan2Resp, clan2Errors] = await this.createBoxClan(
       clanName2,
       box_id,
+      clanPlans[1],
       session,
     );
     if (clan2Errors) return [null, clan2Errors];
@@ -173,6 +212,7 @@ export default class SessionStarterService {
   private async createBoxClan(
     clanName: string,
     box_id: string,
+    clanPlan: BoxClanPlan,
     session: ClientSession,
   ): Promise<IServiceReturn<Clan>> {
     const defaultClanData = {
@@ -186,6 +226,8 @@ export default class SessionStarterService {
       await this.clanService.createOneWithoutAdmin(
         {
           name: clanName,
+          boxMemberLimit: clanPlan.memberLimit,
+          targetPoints: clanPlan.targetPoints,
           ...defaultClanData,
         },
         session,
@@ -259,7 +301,7 @@ export default class SessionStarterService {
    * @returns true if tasks was created or ServiceErrors if any occurred
    */
   private async createDailyTasks(
-    tasks: PredefinedDailyTask[],
+    tasks: (TaskInfo | UIDailyTaskData)[],
     clan1_id: string | ObjectId,
     clan2_id: string | ObjectId,
     box_id: string,
@@ -269,10 +311,8 @@ export default class SessionStarterService {
       return {
         ...dailyTask,
         amountLeft: dailyTask.amount,
-        title: { fi: dailyTask.title },
-        timeLimitMinutes: 30,
+        title: { ...dailyTask.title },
         player_id: null,
-        _id: undefined,
         box_id,
       };
     });
@@ -296,6 +336,29 @@ export default class SessionStarterService {
       return await cancelTransaction(session, clan2TasksCreationErrors);
 
     return [true, null];
+  }
+
+  /**
+   * Creates exactly one instance of every server and UI daily task type for a
+   * Box testing session.
+   */
+  private createBoxSessionTaskPool(): (TaskInfo | UIDailyTaskData)[] {
+    const tasks = [
+      ...this.taskGeneratorService.createAllServerTaskValues(),
+      ...Object.values(uiDailyTasks),
+    ];
+    const uniqueTypes = new Set(tasks.map((task) => task.type));
+
+    if (
+      tasks.length !== BOX_SESSION_TASK_COUNT ||
+      uniqueTypes.size !== BOX_SESSION_TASK_COUNT
+    ) {
+      throw new Error(
+        `Box session task catalog must contain exactly ${BOX_SESSION_TASK_COUNT} unique task types`,
+      );
+    }
+
+    return tasks;
   }
 
   /**
