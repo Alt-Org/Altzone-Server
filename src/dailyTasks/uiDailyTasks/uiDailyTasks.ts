@@ -171,5 +171,5 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
-  }
+  },
 };
