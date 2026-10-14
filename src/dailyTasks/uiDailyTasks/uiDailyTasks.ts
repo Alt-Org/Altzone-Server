@@ -18,157 +18,157 @@ export type UIDailyTaskData = {
  * Record with basic information about each UI managed daily task
  */
 export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
-  [UITaskName.FIND_THE_ERROR]: {
+  [UITaskName.SPOT_THE_GLITCH]: {
     title: {
-      fi: 'Etsi sisäinen toimintahäiriö.',
+      fi: 'Ohjelmistovirheen metsästys.',
     },
-    type: UITaskName.FIND_THE_ERROR,
+    type: UITaskName.SPOT_THE_GLITCH,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.PLAY_MELODY]: {
+  [UITaskName.PLAY_A_MELODY]: {
     title: {
-      fi: 'Soita sävelmä.',
+      fi: 'Soita Ukko Nooa.',
     },
-    type: UITaskName.PLAY_MELODY,
+    type: UITaskName.PLAY_A_MELODY,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.CHOOSE_YOUR_TRUTH]: {
+  [UITaskName.CHOOSE_A_STORY_SCENE]: {
     title: {
-      fi: 'Valitse prologin näkymä, joka herättää eniten tunnistettavan tunteen.',
+      fi: 'Valitse tarinan koskettavin ruutu',
     },
-    type: UITaskName.CHOOSE_YOUR_TRUTH,
+    type: UITaskName.CHOOSE_A_STORY_SCENE,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.HOLD_THE_CHARACTER]: {
+  [UITaskName.LEARN_ABOUT_A_DEFENCE_SOLDIER]: {
     title: {
-      fi: 'Pysähdy defenssisoturin äärelle ja kuuntele sen taustaa.',
+      fi: 'Tutustu defenssisoturiin',
     },
-    type: UITaskName.HOLD_THE_CHARACTER,
+    type: UITaskName.LEARN_ABOUT_A_DEFENCE_SOLDIER,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.WHERE_ARE_YOU]: {
+  [UITaskName.IDENTIFY_A_SETTING]: {
     title: {
-      fi: 'Tunnista tila, jossa sisäinen tapahtuma tapahtuu.',
+      fi: 'Tunnista pelin tapahtumapaikka',
     },
-    type: UITaskName.WHERE_ARE_YOU,
+    type: UITaskName.IDENTIFY_A_SETTING,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.FOLLOW_THE_VOICE]: {
+  [UITaskName.THREE_INSTRUCTIONS]: {
     title: {
-      fi: 'Etsi ohjeet, jotka oikeasti ohjaavat toimintaasi.',
+      fi: 'Etsi kolme peliopastetta',
     },
-    type: UITaskName.FOLLOW_THE_VOICE,
+    type: UITaskName.THREE_INSTRUCTIONS,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.READ_THE_SIGNS]: {
-    title: { fi: 'Etsi symboli, joka ei selitä itseään vaan ehdottaa.' },
-    type: UITaskName.READ_THE_SIGNS,
+  [UITaskName.IDENTIFY_A_SYMBOL]: {
+    title: { fi: 'Tunnista pelin symboli' },
+    type: UITaskName.IDENTIFY_A_SYMBOL,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.FIND_THE_ROOTS]: {
-    title: { fi: 'Löydä osa, jossa toisen vaikutus on muokannut sinua.' },
-    type: UITaskName.FIND_THE_ROOTS,
+  [UITaskName.SPOT_A_CULTURAL_REFERENCE]: {
+    title: { fi: 'Etsi kulttuuriviite' },
+    type: UITaskName.SPOT_A_CULTURAL_REFERENCE,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.LOOK_INSIDE]: {
-    title: { fi: 'Tunnista, millainen rakenne sinua ohjaa.' },
-    type: UITaskName.LOOK_INSIDE,
+  [UITaskName.IDENTIFY_THE_GAME_GENRE]: {
+    title: { fi: 'Tunnista pelin genre' },
+    type: UITaskName.IDENTIFY_THE_GAME_GENRE,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.USE_OF_POWER]: {
+  [UITaskName.LOCATE_DECISION_MAKING]: {
     title: {
-      fi: 'Missä käyt sisäisen valtataistelusi tai punnitset eri vaihtoehtoja?',
+      fi: 'Etsi päätöksenteon näkymä',
     },
-    type: UITaskName.USE_OF_POWER,
+    type: UITaskName.LOCATE_DECISION_MAKING,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.COMMON_FACTOR]: {
+  [UITaskName.FIND_A_GAME_REFERENCE]: {
     title: {
-      fi: 'Mitä olet oppinut joltain toiselta? Etsi teitä yhdistävä asia.',
+      fi: 'Etsi viittaus toiseen peliin',
     },
-    type: UITaskName.COMMON_FACTOR,
+    type: UITaskName.FIND_A_GAME_REFERENCE,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.SPIRITUAL_CURRENCY]: {
-    title: { fi: 'Etsi pelistä henkisen valuutan symboli.' },
-    type: UITaskName.SPIRITUAL_CURRENCY,
+  [UITaskName.FIND_SPIRITUAL_CURRENCY]: {
+    title: { fi: 'Etsi henkinen valuutta' },
+    type: UITaskName.FIND_SPIRITUAL_CURRENCY,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.REWARD_TRAPS]: {
+  [UITaskName.SPOT_THE_REWARD]: {
     title: {
-      fi: 'Tunnista, missä syntyy dopamiinia ja onnistumisen tunnetta.',
+      fi: 'Tunnista palkitseminen',
     },
-    type: UITaskName.REWARD_TRAPS,
+    type: UITaskName.SPOT_THE_REWARD,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.MORAL_DILEMMAS]: {
+  [UITaskName.MAKE_A_MORAL_CHOICE]: {
     title: {
-      fi: 'Etsi kohta, jossa jouduit pohtimaan oikean ja väärän merkitystä.',
+      fi: 'Tee moraalinen valinta',
     },
-    type: UITaskName.MORAL_DILEMMAS,
+    type: UITaskName.MAKE_A_MORAL_CHOICE,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
   [UITaskName.ECO_FRIENDLY]: {
-    title: { fi: 'Huomaa, miten toimintasi jättää jäljen tähän maailmaan.' },
+    title: { fi: 'Etsi hiilijalanjälkimittari' },
     type: UITaskName.ECO_FRIENDLY,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.HUNTING_FOR_VALUES]: {
-    title: { fi: 'Miten ohjenuorasi rakentuu? Minkälaisia arvoja edustat?' },
-    type: UITaskName.HUNTING_FOR_VALUES,
+  [UITaskName.IDENTIFY_GAME_VALUES]: {
+    title: { fi: 'Tunnista pelin arvot' },
+    type: UITaskName.IDENTIFY_GAME_VALUES,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.ETHICS_METRICS]: {
-    title: { fi: 'Kumpi soturisi kulkee parempaa polkua?' },
-    type: UITaskName.ETHICS_METRICS,
+  [UITaskName.COMPARE_DEFENCE_SOLDIERS]: {
+    title: { fi: 'Vertaile defenssisotureita' },
+    type: UITaskName.COMPARE_DEFENCE_SOLDIERS,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,

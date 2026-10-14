@@ -30,81 +30,81 @@ const createRandomAmount = () =>
 
 export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
   {
-    type: ServerTaskName.BANISH_THE_EARWORM,
+    type: ServerTaskName.CHANGE_THE_MUSIC,
     createAmount: createRandomAmount,
-    createTitle: (amount) => ({ fi: `Karkoita korvamato ${amount} kertaa.` }),
+    createTitle: (amount) => ({ fi: `Vaihda musiikkia ${amount} kertaa.` }),
   },
   {
-    type: ServerTaskName.GO_TO_BATTLE,
+    type: ServerTaskName.ENTER_THE_BATTLE,
     createAmount: createRandomAmount,
     createTitle: (amount) => ({ fi: `Pelaa ${amount} taistelua.` }),
   },
   {
-    type: ServerTaskName.STRONGER_SOLDIER,
+    type: ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
     createAmount: () => 2,
     createTitle: () => ({
-      fi: 'Kasvata puolustussotilaan hyökkäysarvoa ja pelaa sen jälkeen taistelu.',
+      fi: 'Kehitä Defenssisoturia',
     }),
   },
   {
-    type: ServerTaskName.FORM_AN_INNER_CONNECTION,
+    type: ServerTaskName.MESSAGE_YOUR_CLAN,
     createAmount: () => 1,
     createTitle: () => ({
-      fi: 'Avaa klaanin chat ja lähetä viesti. Huomaa, miltä tuntuu aloittaa vuorovaikutus. Opit, että viestintä pelissä rakentaa suhteita ja merkityksiä, ei vain siirrä tietoa.',
+      fi: 'Lähetä viesti klaanille',
     }),
   },
   {
-    type: ServerTaskName.PLAY_WITH_EMOTIONS,
+    type: ServerTaskName.SPECTRUM_OF_EMOTIONS,
     createAmount: () => 6,
     createTitle: () => ({
-      fi: 'Avaa klaanin chat. Lähetä viestejä käyttämällä kaikkia eri tunnevaihtoehtoja. Huomaa, miten sama viesti muuttuu eri tunteilla.',
+      fi: 'Tunnekirjo chatissa',
     }),
   },
   {
-    type: ServerTaskName.INNER_VOICE,
+    type: ServerTaskName.UPDATE_CLAN_MOTTO,
     createAmount: () => 1,
     createTitle: () => ({
-      fi: 'Avaa klaanin asetukset. Muokkaa klaanin mottoa, ja tallenna muutos. Mieti, mitä haluatte viestiä toisillenne ja muille.',
+      fi: 'Päivitä klaanin motto',
     }),
   },
   {
-    type: ServerTaskName.INNER_DISCUSSION,
+    type: ServerTaskName.START_A_VOTE,
     createAmount: () => 1,
     createTitle: () => ({
-      fi: 'Osallistu klaanin sisäiseen keskusteluun.',
+      fi: 'Aloita äänestys',
     }),
   },
   {
-    type: ServerTaskName.YOUR_VOICE,
+    type: ServerTaskName.CAST_YOUR_VOICE,
     createAmount: () => 1,
-    createTitle: () => ({ fi: 'Äänestä klaanin äänestyksessä.' }),
+    createTitle: () => ({ fi: 'Äänestä päätöksestä' }),
   },
   {
-    type: ServerTaskName.BUILD_YOUR_WORLD,
+    type: ServerTaskName.FURNISH_WITH_ONE_COLLECTION,
     createAmount: () => 1,
     createTitle: () => ({
-      fi: 'Sisusta yksi klaanin Turvapaikan huone vähintään kolmella saman malliston huonekalulla.',
+      fi: 'Sisusta saman malliston huonekaluilla',
     }),
   },
   {
-    type: ServerTaskName.RECYCLING_EXPERIENCES,
+    type: ServerTaskName.LIST_AN_ITEM_FOR_SALE,
     createAmount: () => 1,
     createTitle: () => ({
-      fi: 'Avaa klaanin kirpputori. Valitse äänestyksessä myytäväksi hyväksytty tavara ja lisää se myytäväksi. Katso, miten muut reagoivat ja miltä tuntuu kun tavara alkaa liikkua pelaajien välillä.',
+      fi: 'Laita tavara myyntiin',
     }),
   },
   {
-    type: ServerTaskName.LETTING_GO_OF_THE_OLD,
+    type: ServerTaskName.PROPOSE_AN_ITEM_SALE,
     createAmount: () => 1,
     createTitle: () => ({
-      fi: 'Avaa klaanin äänestys. Valitse vaihtoehto, ja anna äänesi. Huomaa, miten oma valintasi vaikuttaa yhteiseen päätökseen.',
+      fi: 'Ehdota myyntiä',
     }),
   },
   {
-    type: ServerTaskName.SET_BOUNDARIES,
+    type: ServerTaskName.EDIT_CLAN_RULES,
     createAmount: () => 1,
     createTitle: () => ({
-      fi: 'Avaa klaanin säännöt ja muokkaa niitä. Säännöt muovaavat sitä, millainen yhteisö te olette. Mieti, mitä toimintaa haluatte vahvistaa.',
+      fi: 'Muokkaa klaanin sääntöjä',
     }),
     timeLimitMinutes: SET_BOUNDARIES_TIME_LIMIT_MINUTES,
   },

@@ -2,38 +2,38 @@
  * Enum containing daily tasks monitored by the client side
  */
 export enum UITaskName {
-  // UI tasks 2026
-  FIND_THE_ERROR = 'find_the_error',
+  // UI tasks 10/2026
+  SPOT_THE_GLITCH = 'spot_the_glitch', // was FIND_THE_ERROR
 
-  PLAY_MELODY = 'play_melody',
+  PLAY_A_MELODY = 'play_a_melody', // was PLAY_MELODY
 
-  CHOOSE_YOUR_TRUTH = 'choose_your_truth',
+  CHOOSE_A_STORY_SCENE = 'choose_a_story_scene', // was CHOOSE_YOUR_TRUTH
 
-  HOLD_THE_CHARACTER = 'hold_the_character',
+  LEARN_ABOUT_A_DEFENCE_SOLDIER = 'learn_about_a_defence_soldier', // was HOLD_THE_CHARACTER
 
-  WHERE_ARE_YOU = 'where_are_you',
+  IDENTIFY_A_SETTING = 'identify_a_setting', // was WHERE_ARE_YOU
 
-  FOLLOW_THE_VOICE = 'follow_the_voice',
+  THREE_INSTRUCTIONS = 'three_instructions', // was FOLLOW_THE_VOICE
 
-  READ_THE_SIGNS = 'read_the_signs',
+  IDENTIFY_A_SYMBOL = 'identify_a_symbol', // was READ_THE_SIGNS
 
-  FIND_THE_ROOTS = 'find_the_roots',
+  SPOT_A_CULTURAL_REFERENCE = 'spot_a_cultural_reference', // was FIND_THE_ROOTS
 
-  LOOK_INSIDE = 'look_inside',
+  IDENTIFY_THE_GAME_GENRE = 'indentify_the_game_genre', // was LOOK_INSIDE
 
-  USE_OF_POWER = 'use_of_power',
+  LOCATE_DECISION_MAKING = 'locate_decision_making', // was USE_OF_POWER
 
-  COMMON_FACTOR = 'common_factor',
+  FIND_A_GAME_REFERENCE = 'find_a_game_reference', // was COMMON_FACTOR
 
-  SPIRITUAL_CURRENCY = 'spiritual_currency',
+  FIND_SPIRITUAL_CURRENCY = 'find_spiritual_currency', // was SPIRITUAL_CURRENCY
 
-  REWARD_TRAPS = 'reward_traps',
+  SPOT_THE_REWARD = 'spot_the_reward', // was REWARD_TRAPS
 
-  MORAL_DILEMMAS = 'moral_dilemmas',
+  MAKE_A_MORAL_CHOICE = 'make_a_moral_choice', // was MORAL_DILEMMAS
 
-  ECO_FRIENDLY = 'eco_friendly',
+  ECO_FRIENDLY = 'eco_friendly', // was ECO_FRIENDLY, not changed yet!
 
-  HUNTING_FOR_VALUES = 'hunting for values',
+  IDENTIFY_GAME_VALUES = 'identify_game_values', // was HUNTING_FOR_VALUES
 
-  ETHICS_METRICS = 'ethics_metrics',
+  COMPARE_DEFENCE_SOLDIERS = 'compare_defence_soldiers', // was ETHICS_METRICS
 }
