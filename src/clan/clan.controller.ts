@@ -246,7 +246,7 @@ export class ClanController {
       this.clanNotifier.rulesUpdated(body._id, body.rules);
       this.emitterService.EmitNewDailyTaskEvent(
         user.player_id,
-        ServerTaskName.SET_BOUNDARIES,
+        ServerTaskName.EDIT_CLAN_RULES,
       );
     }
 
@@ -278,11 +278,11 @@ export class ClanController {
         await this.dailyTasksService.updateClanTask(
           body._id,
           user.player_id,
-          ServerTaskName.INNER_VOICE,
+          ServerTaskName.UPDATE_CLAN_MOTTO,
           session,
         );
 
-      // A clan can have no active INNER_VOICE task after its daily instances
+      // A clan can have no active UPDATE_CLAN_MOTTO task after its daily instances
       // have been completed and replaced. Saving its phrase must still work.
       const hasNoActiveInnerVoiceTask =
         taskErrors?.every((error) => error.reason === SEReason.NOT_FOUND) ??

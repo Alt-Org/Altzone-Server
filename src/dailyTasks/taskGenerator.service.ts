@@ -5,7 +5,7 @@ import { TaskTitle } from './type/taskTitle.type';
 
 export const MIN_OCCURRENCES_PER_TASK_TYPE = 2;
 
-const SET_BOUNDARIES_TIME_LIMIT_MINUTES = 60;
+const EDIT_CLAN_RULES_TIME_LIMIT_MINUTES = 60;
 
 type ServerTaskDefinition = {
   type: ServerTaskName;
@@ -106,7 +106,7 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     createTitle: () => ({
       fi: 'Muokkaa klaanin sääntöjä',
     }),
-    timeLimitMinutes: SET_BOUNDARIES_TIME_LIMIT_MINUTES,
+    timeLimitMinutes: EDIT_CLAN_RULES_TIME_LIMIT_MINUTES,
   },
 ];
 

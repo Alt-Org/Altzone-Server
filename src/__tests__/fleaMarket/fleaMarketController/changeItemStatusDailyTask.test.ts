@@ -45,7 +45,7 @@ describe('FleaMarketController.changeItemStatus() daily task progress', () => {
     ]);
   });
 
-  it('progresses RECYCLING_EXPERIENCES when an approved item is listed for sale', async () => {
+  it('progresses LIST_AN_ITEM_FOR_SALE when an approved item is listed for sale', async () => {
     fleaMarketService.readOneById.mockResolvedValue([
       {
         _id: itemId,
@@ -63,7 +63,7 @@ describe('FleaMarketController.changeItemStatus() daily task progress', () => {
 
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       playerId,
-      ServerTaskName.RECYCLING_EXPERIENCES,
+      ServerTaskName.LIST_AN_ITEM_FOR_SALE,
     );
   });
 
@@ -180,7 +180,7 @@ describe('FleaMarketController.changeItemStatus() daily task progress', () => {
     expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalled();
   });
 
-  it('does not progress RECYCLING_EXPERIENCES when proposing an item for sale', async () => {
+  it('does not progress LIST_AN_ITEM_FOR_SALE when proposing an item for sale', async () => {
     fleaMarketService.getClanId = jest.fn().mockResolvedValue(clanId);
     fleaMarketService.handleSellItem = jest
       .fn()

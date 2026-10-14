@@ -411,7 +411,7 @@ export class DailyTasksService {
         {
           player_id: playerId,
           clan_id: clanId,
-          type: ServerTaskName.PLAY_WITH_EMOTIONS,
+          type: ServerTaskName.SPECTRUM_OF_EMOTIONS,
           amountLeft: { $gt: 0 },
           $or: [
             { 'progress.key': { $exists: false } },
@@ -460,7 +460,7 @@ export class DailyTasksService {
   }
 
   /**
-   * Advances STRONGER_SOLDIER only when its two events occur in order.
+   * Advances UPGRADE_A_DEFENCE_SOLDIER only when its two events occur in order.
    * The conditional update makes repeated and out-of-order events no-ops.
    */
   async updateStrongerSoldierTask(
@@ -475,7 +475,7 @@ export class DailyTasksService {
       .findOneAndUpdate(
         {
           player_id: playerId,
-          type: ServerTaskName.STRONGER_SOLDIER,
+          type: ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
           amountLeft: expectedAmountLeft,
         },
         { $inc: { amountLeft: -1 } },
@@ -586,9 +586,9 @@ export class DailyTasksService {
     emotion?: ChatEmotion;
     strongerSoldierStep?: StrongerSoldierStep;
   }): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
-    // Validates payload for FORM_AN_INNER_CONNECTION task to ensure clanId, responseType, and emotion are provided and valid
+    // Validates payload for MESSAGE_YOUR_CLAN task to ensure clanId, responseType, and emotion are provided and valid
     if (
-      payload.serverTaskName === ServerTaskName.FORM_AN_INNER_CONNECTION &&
+      payload.serverTaskName === ServerTaskName.MESSAGE_YOUR_CLAN &&
       (!payload.clanId ||
         !isChatResponseType(payload.responseType) ||
         !isChatEmotion(payload.emotion))
@@ -597,7 +597,7 @@ export class DailyTasksService {
     }
 
     if (
-      payload.serverTaskName === ServerTaskName.PLAY_WITH_EMOTIONS &&
+      payload.serverTaskName === ServerTaskName.SPECTRUM_OF_EMOTIONS &&
       (!payload.clanId ||
         !isChatResponseType(payload.responseType) ||
         !isChatEmotion(payload.emotion))
@@ -606,7 +606,7 @@ export class DailyTasksService {
     }
 
     if (
-      payload.serverTaskName === ServerTaskName.STRONGER_SOLDIER &&
+      payload.serverTaskName === ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER &&
       !isStrongerSoldierStep(payload.strongerSoldierStep)
     ) {
       return [null, null];
@@ -618,7 +618,7 @@ export class DailyTasksService {
     let progressResult: DailyTaskProgressResult<DailyTaskDto> | null;
     let updateErrors: ServiceError[] | null;
 
-    if (payload.serverTaskName === ServerTaskName.PLAY_WITH_EMOTIONS) {
+    if (payload.serverTaskName === ServerTaskName.SPECTRUM_OF_EMOTIONS) {
       [progressResult, updateErrors] = await this.updatePlayWithEmotionsTask(
         payload.playerId,
         payload.clanId!,
@@ -626,14 +626,14 @@ export class DailyTasksService {
         payload.emotion,
         session,
       );
-    } else if (payload.serverTaskName === ServerTaskName.STRONGER_SOLDIER) {
+    } else if (payload.serverTaskName === ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER) {
       [progressResult, updateErrors] = await this.updateStrongerSoldierTask(
         payload.playerId,
         payload.strongerSoldierStep!,
         session,
       );
     } else {
-      // Handles standard tasks including FORM_AN_INNER_CONNECTION via updateTask
+      // Handles standard tasks including MESSAGE_YOUR_CLAN via updateTask
       [progressResult, updateErrors] = await this.updateTask(
         payload.playerId,
         payload.serverTaskName,

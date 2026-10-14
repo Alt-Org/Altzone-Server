@@ -121,7 +121,7 @@ export class VotingController {
 
     await this.emitterService.EmitNewDailyTaskEvent(
       user.player_id,
-      ServerTaskName.YOUR_VOICE,
+      ServerTaskName.CAST_YOUR_VOICE,
     );
   }
 }

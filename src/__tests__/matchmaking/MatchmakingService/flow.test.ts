@@ -1414,12 +1414,12 @@ describe('MatchmakingService flow', () => {
     expect(clanService.basicService.updateOneById).not.toHaveBeenCalled();
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.GO_TO_BATTLE,
+      ServerTaskName.ENTER_THE_BATTLE,
       false,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-2',
-      ServerTaskName.GO_TO_BATTLE,
+      ServerTaskName.ENTER_THE_BATTLE,
       false,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);
@@ -1503,12 +1503,12 @@ describe('MatchmakingService flow', () => {
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.GO_TO_BATTLE,
+      ServerTaskName.ENTER_THE_BATTLE,
       true,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-2',
-      ServerTaskName.GO_TO_BATTLE,
+      ServerTaskName.ENTER_THE_BATTLE,
       true,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);

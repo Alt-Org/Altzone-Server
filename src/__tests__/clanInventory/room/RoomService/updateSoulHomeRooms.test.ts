@@ -214,7 +214,7 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
     ).toBeNull();
   });
 
-  it('Should emit BUILD_YOUR_WORLD when final saved room has at least three furniture items from the same set', async () => {
+  it('Should emit FURNISH_WITH_ONE_COLLECTION when final saved room has at least three furniture items from the same set', async () => {
     const items = await Promise.all(
       [
         ItemName.SOFA_RAKKAUS,
@@ -252,10 +252,10 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
     expect(error).toBeNull();
     expect(
       roomService['eventEmitterService'].EmitNewDailyTaskEvent,
-    ).toHaveBeenCalledWith('player-id', ServerTaskName.BUILD_YOUR_WORLD);
+    ).toHaveBeenCalledWith('player-id', ServerTaskName.FURNISH_WITH_ONE_COLLECTION);
   });
 
-  it('Should not emit BUILD_YOUR_WORLD when final saved room has fewer than three furniture items', async () => {
+  it('Should not emit FURNISH_WITH_ONE_COLLECTION when final saved room has fewer than three furniture items', async () => {
     const items = await Promise.all(
       [ItemName.SOFA_RAKKAUS, ItemName.ARMCHAIR_RAKKAUS].map((name) =>
         itemService.createOne(
@@ -292,7 +292,7 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
     ).not.toHaveBeenCalled();
   });
 
-  it('Should not emit BUILD_YOUR_WORLD when final saved room has mixed furniture sets', async () => {
+  it('Should not emit FURNISH_WITH_ONE_COLLECTION when final saved room has mixed furniture sets', async () => {
     const items = await Promise.all(
       [
         ItemName.SOFA_RAKKAUS,
@@ -333,7 +333,7 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
     ).not.toHaveBeenCalled();
   });
 
-  it('Should not emit BUILD_YOUR_WORLD when furniture is omitted from the payload', async () => {
+  it('Should not emit FURNISH_WITH_ONE_COLLECTION when furniture is omitted from the payload', async () => {
     const readFinalFurnitureSpy = jest.spyOn(
       roomService as any,
       'readFinalSavedRoomFurniture',
@@ -355,7 +355,7 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
     ).not.toHaveBeenCalled();
   });
 
-  it('Should not emit BUILD_YOUR_WORLD when only non-furniture items match the same set', async () => {
+  it('Should not emit FURNISH_WITH_ONE_COLLECTION when only non-furniture items match the same set', async () => {
     const items = await Promise.all(
       [
         ItemName.MIRROR_RAKKAUS,
@@ -396,7 +396,7 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
     ).not.toHaveBeenCalled();
   });
 
-  it('Should validate BUILD_YOUR_WORLD against final room state instead of payload alone', async () => {
+  it('Should validate FURNISH_WITH_ONE_COLLECTION against final room state instead of payload alone', async () => {
     const readFinalFurnitureSpy = jest
       .spyOn(roomService as any, 'readFinalSavedRoomFurniture')
       .mockResolvedValue([

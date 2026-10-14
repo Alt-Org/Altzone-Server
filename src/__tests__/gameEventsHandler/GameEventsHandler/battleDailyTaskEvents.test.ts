@@ -47,11 +47,11 @@ describe('GameEventsHandler battle daily task events', () => {
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.GO_TO_BATTLE,
+      ServerTaskName.ENTER_THE_BATTLE,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.STRONGER_SOLDIER,
+      ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
       true,
       { strongerSoldierStep: StrongerSoldierStep.BATTLE_PLAYED },
     );
@@ -79,11 +79,11 @@ describe('GameEventsHandler battle daily task events', () => {
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.GO_TO_BATTLE,
+      ServerTaskName.ENTER_THE_BATTLE,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.STRONGER_SOLDIER,
+      ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
       true,
       { strongerSoldierStep: StrongerSoldierStep.BATTLE_PLAYED },
     );

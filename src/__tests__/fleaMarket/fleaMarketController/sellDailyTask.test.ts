@@ -35,7 +35,7 @@ describe('FleaMarketController.sell() daily task progress', () => {
     );
   });
 
-  it('progresses LETTING_GO_OF_THE_OLD after sell-item voting starts', async () => {
+  it('progresses PROPOSE_AN_ITEM_SALE after sell-item voting starts', async () => {
     fleaMarketService.handleSellItem.mockResolvedValue([
       SellItemResult.VOTING_STARTED,
       null,
@@ -50,7 +50,7 @@ describe('FleaMarketController.sell() daily task progress', () => {
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       playerId,
-      ServerTaskName.LETTING_GO_OF_THE_OLD,
+      ServerTaskName.PROPOSE_AN_ITEM_SALE,
     );
     expect(
       emitterService.EmitNewDailyTaskEvent.mock.invocationCallOrder[0],

@@ -113,19 +113,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
-      ServerTaskName.FORM_AN_INNER_CONNECTION,
+      ServerTaskName.MESSAGE_YOUR_CLAN,
       true,
       payload,
     );
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
-      ServerTaskName.PLAY_WITH_EMOTIONS,
+      ServerTaskName.SPECTRUM_OF_EMOTIONS,
       true,
       payload,
     );
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
-      ServerTaskName.INNER_DISCUSSION,
+      ServerTaskName.START_A_VOTE,
       true,
       payload,
     );

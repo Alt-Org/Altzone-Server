@@ -153,7 +153,7 @@ describe('JukeboxService', () => {
     );
     expect(emitterServiceMock.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      'banish_the_earworm',
+      'change_the_music',
       false,
     );
   });
