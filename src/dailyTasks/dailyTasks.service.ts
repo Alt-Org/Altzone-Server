@@ -626,7 +626,9 @@ export class DailyTasksService {
         payload.emotion,
         session,
       );
-    } else if (payload.serverTaskName === ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER) {
+    } else if (
+      payload.serverTaskName === ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER
+    ) {
       [progressResult, updateErrors] = await this.updateStrongerSoldierTask(
         payload.playerId,
         payload.strongerSoldierStep!,

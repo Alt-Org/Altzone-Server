@@ -252,7 +252,10 @@ describe('Room.updateSoulHomeRooms() test suite', () => {
     expect(error).toBeNull();
     expect(
       roomService['eventEmitterService'].EmitNewDailyTaskEvent,
-    ).toHaveBeenCalledWith('player-id', ServerTaskName.FURNISH_WITH_ONE_COLLECTION);
+    ).toHaveBeenCalledWith(
+      'player-id',
+      ServerTaskName.FURNISH_WITH_ONE_COLLECTION,
+    );
   });
 
   it('Should not emit FURNISH_WITH_ONE_COLLECTION when final saved room has fewer than three furniture items', async () => {
