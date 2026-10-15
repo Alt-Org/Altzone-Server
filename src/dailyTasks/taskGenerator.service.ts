@@ -32,12 +32,12 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
   {
     type: ServerTaskName.CHANGE_THE_MUSIC,
     createAmount: createRandomAmount,
-    createTitle: (amount) => ({ fi: `Vaihda musiikkia ${amount} kertaa.` }),
+    createTitle: (amount) => ({ fi: `Vaihda musiikkia ${amount} kertaa` }),
   },
   {
     type: ServerTaskName.ENTER_THE_BATTLE,
     createAmount: createRandomAmount,
-    createTitle: (amount) => ({ fi: `Pelaa ${amount} taistelua.` }),
+    createTitle: (amount) => ({ fi: `Pelaa ${amount} taistelua` }),
   },
   {
     type: ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,

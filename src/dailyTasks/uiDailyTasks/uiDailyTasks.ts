@@ -20,7 +20,7 @@ export type UIDailyTaskData = {
 export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
   [UITaskName.SPOT_THE_GLITCH]: {
     title: {
-      fi: 'Ohjelmistovirheen metsästys.',
+      fi: 'Ohjelmistovirheen metsästys',
     },
     type: UITaskName.SPOT_THE_GLITCH,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
