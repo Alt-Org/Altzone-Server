@@ -30,7 +30,7 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
   },
   [UITaskName.PLAY_A_MELODY]: {
     title: {
-      fi: 'Soita Ukko Nooa.',
+      fi: 'Soita Ukko Nooa',
     },
     type: UITaskName.PLAY_A_MELODY,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
