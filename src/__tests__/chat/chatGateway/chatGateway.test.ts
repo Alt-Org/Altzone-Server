@@ -95,7 +95,7 @@ describe('ChatGateway user initialization', () => {
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenNthCalledWith(
       1,
       'player-id',
-      ServerTaskName.FORM_AN_INNER_CONNECTION,
+      ServerTaskName.MESSAGE_YOUR_CLAN,
       true,
       {
         clanId: 'clan-id',
@@ -106,7 +106,7 @@ describe('ChatGateway user initialization', () => {
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenNthCalledWith(
       2,
       'player-id',
-      ServerTaskName.PLAY_WITH_EMOTIONS,
+      ServerTaskName.SPECTRUM_OF_EMOTIONS,
       true,
       {
         clanId: 'clan-id',
@@ -117,7 +117,7 @@ describe('ChatGateway user initialization', () => {
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenNthCalledWith(
       3,
       'player-id',
-      ServerTaskName.INNER_DISCUSSION,
+      ServerTaskName.START_A_VOTE,
       true,
       {
         clanId: 'clan-id',

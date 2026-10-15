@@ -17,30 +17,29 @@
  * ```
  */
 export enum ServerTaskName {
-  // Server tasks 2026
+  // Server tasks 10/2026
 
-  BANISH_THE_EARWORM = 'banish_the_earworm',
+  CHANGE_THE_MUSIC = 'change_the_music', // was BANISH_THE_EARWORM
 
-  // Server task: finish / participate in a battle
-  GO_TO_BATTLE = 'go_to_battle',
+  ENTER_THE_BATTLE = 'enter_the_battle', // was GO_TO_BATTLE
 
-  STRONGER_SOLDIER = 'stronger_soldier',
+  UPGRADE_A_DEFENCE_SOLDIER = 'upgrade_a_defence_soldier', // was STRONGER_SOLDIER
 
-  FORM_AN_INNER_CONNECTION = 'form_an_inner_connection',
+  MESSAGE_YOUR_CLAN = 'message_your_clan', // was FORM_AN_INNER_CONNECTION
 
-  PLAY_WITH_EMOTIONS = 'play_with_emotions',
+  SPECTRUM_OF_EMOTIONS = 'spectrum_of_emotions', // was PLAY_WITH_EMOTIONS
 
-  YOUR_VOICE = 'your_voice',
+  CAST_YOUR_VOICE = 'cast_your_voice', // was YOUR_VOICE
 
-  LETTING_GO_OF_THE_OLD = 'letting_go_of_the_old',
+  PROPOSE_AN_ITEM_SALE = 'propose_an_item_sale', // was LETTING_GO_OF_THE_OLD
 
-  RECYCLING_EXPERIENCES = 'recycling_experiences',
+  LIST_AN_ITEM_FOR_SALE = 'list_an_item_for_sale', // was RECYCLING_EXPERIENCES
 
-  INNER_VOICE = 'inner_voice',
+  UPDATE_CLAN_MOTTO = 'update_clan_motto', // was INNER_VOICE
 
-  INNER_DISCUSSION = 'inner_discussion',
+  START_A_VOTE = 'start_a_vote', // was INNER_DISCUSSION
 
-  BUILD_YOUR_WORLD = 'build_your_world',
+  FURNISH_WITH_ONE_COLLECTION = 'furnish_with_one_collection', // was BUILD_YOUR_WORLD
 
-  SET_BOUNDARIES = 'set_boundaries',
+  EDIT_CLAN_RULES = 'edit_clan_rules', // was SET_BOUNDARIES
 }

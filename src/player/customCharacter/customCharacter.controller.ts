@@ -163,7 +163,7 @@ export class CustomCharacterController {
     ) {
       await this.emitterService.EmitNewDailyTaskEvent(
         user.player_id,
-        ServerTaskName.STRONGER_SOLDIER,
+        ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
         true,
         { strongerSoldierStep: StrongerSoldierStep.ATTACK_INCREASED },
       );

@@ -584,11 +584,11 @@ export class RoomService {
     try {
       await this.eventEmitterService.EmitNewDailyTaskEvent(
         player_id,
-        ServerTaskName.BUILD_YOUR_WORLD,
+        ServerTaskName.FURNISH_WITH_ONE_COLLECTION,
       );
     } catch (error) {
       this.logger.error(
-        'Failed to emit BUILD_YOUR_WORLD daily task event after room layout save',
+        'Failed to emit FURNISH_WITH_ONE_COLLECTION daily task event after room layout save',
         error,
       );
     }

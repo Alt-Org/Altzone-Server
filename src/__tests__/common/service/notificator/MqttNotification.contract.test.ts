@@ -194,7 +194,7 @@ describe('MQTT notification contract', () => {
 
   it('wraps daily task notifications', () => {
     const notifier = new DailyTaskNotifier();
-    const task = { type: UITaskName.FIND_THE_ROOTS };
+    const task = { type: UITaskName.SPOT_A_CULTURAL_REFERENCE };
 
     notifier.taskReceived('player-1', task);
     expectLastPayloadToMatchEnvelope(
