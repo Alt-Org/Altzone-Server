@@ -5,7 +5,7 @@ import { TaskTitle } from './type/taskTitle.type';
 
 export const MIN_OCCURRENCES_PER_TASK_TYPE = 2;
 
-const EDIT_CLAN_RULES_TIME_LIMIT_MINUTES = 60;
+const PROPOSE_A_RULE_CHANGE_TIME_LIMIT_MINUTES = 60;
 
 type ServerTaskDefinition = {
   type: ServerTaskName;
@@ -35,7 +35,7 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     createTitle: (amount) => ({ fi: `Vaihda musiikkia ${amount} kertaa` }),
   },
   {
-    type: ServerTaskName.ENTER_THE_BATTLE,
+    type: ServerTaskName.PLAY_A_BATTLE,
     createAmount: createRandomAmount,
     createTitle: (amount) => ({ fi: `Pelaa ${amount} taistelua` }),
   },
@@ -75,7 +75,7 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     }),
   },
   {
-    type: ServerTaskName.CAST_YOUR_VOICE,
+    type: ServerTaskName.CAST_YOUR_VOTE,
     createAmount: () => 1,
     createTitle: () => ({ fi: 'Äänestä päätöksestä' }),
   },
@@ -101,12 +101,12 @@ export const ACTIVE_SERVER_TASK_DEFINITIONS: readonly ServerTaskDefinition[] = [
     }),
   },
   {
-    type: ServerTaskName.EDIT_CLAN_RULES,
+    type: ServerTaskName.PROPOSE_A_RULE_CHANGE,
     createAmount: () => 1,
     createTitle: () => ({
       fi: 'Muokkaa klaanin sääntöjä',
     }),
-    timeLimitMinutes: EDIT_CLAN_RULES_TIME_LIMIT_MINUTES,
+    timeLimitMinutes: PROPOSE_A_RULE_CHANGE_TIME_LIMIT_MINUTES,
   },
 ];
 

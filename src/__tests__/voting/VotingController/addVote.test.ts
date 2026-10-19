@@ -24,7 +24,7 @@ describe('VotingController.addVote()', () => {
     controller = new VotingController(votingService, emitterService);
   });
 
-  it('progresses CAST_YOUR_VOICE only after a clan vote has been saved', async () => {
+  it('progresses CAST_YOUR_VOTE only after a clan vote has been saved', async () => {
     await controller.addVote(body, user);
 
     expect(votingService.addVote).toHaveBeenCalledWith(
@@ -34,7 +34,7 @@ describe('VotingController.addVote()', () => {
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       user.player_id,
-      ServerTaskName.CAST_YOUR_VOICE,
+      ServerTaskName.CAST_YOUR_VOTE,
     );
     expect(votingService.addVote.mock.invocationCallOrder[0]).toBeLessThan(
       emitterService.EmitNewDailyTaskEvent.mock.invocationCallOrder[0],

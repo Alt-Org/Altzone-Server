@@ -28,11 +28,11 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.PLAY_A_MELODY]: {
+  [UITaskName.PLAY_UKKO_NOOA]: {
     title: {
       fi: 'Soita Ukko Nooa',
     },
-    type: UITaskName.PLAY_A_MELODY,
+    type: UITaskName.PLAY_UKKO_NOOA,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
@@ -58,21 +58,21 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.IDENTIFY_A_SETTING]: {
+  [UITaskName.IDENTIFY_THE_SETTING]: {
     title: {
       fi: 'Tunnista pelin tapahtumapaikka',
     },
-    type: UITaskName.IDENTIFY_A_SETTING,
+    type: UITaskName.IDENTIFY_THE_SETTING,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.THREE_INSTRUCTIONS]: {
+  [UITaskName.FIND_AN_INSTRUCTION]: {
     title: {
       fi: 'Etsi kolme peliopastetta',
     },
-    type: UITaskName.THREE_INSTRUCTIONS,
+    type: UITaskName.FIND_AN_INSTRUCTION,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
@@ -112,19 +112,9 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.FIND_A_GAME_REFERENCE]: {
-    title: {
-      fi: 'Etsi viittaus toiseen peliin',
-    },
-    type: UITaskName.FIND_A_GAME_REFERENCE,
-    points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
-    coins: 10,
-    amount: 1,
-    timeLimitMinutes: 60,
-  },
-  [UITaskName.FIND_SPIRITUAL_CURRENCY]: {
+  [UITaskName.IDENTIFY_GAME_INFLUENCES]: {
     title: { fi: 'Etsi henkinen valuutta' },
-    type: UITaskName.FIND_SPIRITUAL_CURRENCY,
+    type: UITaskName.IDENTIFY_GAME_INFLUENCES,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,
@@ -140,19 +130,9 @@ export const uiDailyTasks: Record<UITaskName, UIDailyTaskData> = {
     amount: 1,
     timeLimitMinutes: 60,
   },
-  [UITaskName.MAKE_A_MORAL_CHOICE]: {
-    title: {
-      fi: 'Tee moraalinen valinta',
-    },
-    type: UITaskName.MAKE_A_MORAL_CHOICE,
-    points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
-    coins: 10,
-    amount: 1,
-    timeLimitMinutes: 60,
-  },
-  [UITaskName.ECO_FRIENDLY]: {
+  [UITaskName.FIND_THE_CARBON_FOOTPRINT_METER]: {
     title: { fi: 'Etsi hiilijalanjälkimittari' },
-    type: UITaskName.ECO_FRIENDLY,
+    type: UITaskName.FIND_THE_CARBON_FOOTPRINT_METER,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
     coins: 10,
     amount: 1,

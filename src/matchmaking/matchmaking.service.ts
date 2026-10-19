@@ -1184,7 +1184,7 @@ export class MatchmakingService {
     for (const playerId of this.getRealPlayerIds(match)) {
       await this.tryEmitDailyTaskEvent(
         playerId,
-        ServerTaskName.ENTER_THE_BATTLE,
+        ServerTaskName.PLAY_A_BATTLE,
         needsClanReward,
       );
     }

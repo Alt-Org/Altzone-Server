@@ -113,7 +113,7 @@ export class GameEventsHandler {
   private async emitBattleDailyTaskEvents(playerId: string) {
     await this.emitterService.EmitNewDailyTaskEvent(
       playerId,
-      ServerTaskName.ENTER_THE_BATTLE,
+      ServerTaskName.PLAY_A_BATTLE,
     );
     await this.emitterService.EmitNewDailyTaskEvent(
       playerId,

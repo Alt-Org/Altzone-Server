@@ -246,7 +246,7 @@ export class ClanController {
       this.clanNotifier.rulesUpdated(body._id, body.rules);
       this.emitterService.EmitNewDailyTaskEvent(
         user.player_id,
-        ServerTaskName.EDIT_CLAN_RULES,
+        ServerTaskName.PROPOSE_A_RULE_CHANGE,
       );
     }
 

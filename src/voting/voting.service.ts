@@ -351,7 +351,7 @@ export class VotingService {
    * Validates that a voting belongs to the player's current clan.
    *
    * Unlike validatePermission, this deliberately rejects non-clan votings.
-   * Casting a vote is the only action that can progress CAST_YOUR_VOICE.
+   * Casting a vote is the only action that can progress CAST_YOUR_VOTE.
    */
   async validateClanVotingPermission(votingId: string, playerId: string) {
     const [voting, errors] =

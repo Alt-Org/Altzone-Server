@@ -19,7 +19,7 @@ describe('SPECTRUM_OF_EMOTIONS daily task', () => {
       {} as any,
       {
         createTaskRandomValues: jest.fn().mockReturnValue({
-          type: ServerTaskName.ENTER_THE_BATTLE,
+          type: ServerTaskName.PLAY_A_BATTLE,
           amount: 2,
           points: 10,
           coins: 5,
