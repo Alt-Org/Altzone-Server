@@ -5,33 +5,29 @@ export enum UITaskName {
   // UI tasks 10/2026
   SPOT_THE_GLITCH = 'spot_the_glitch', // was FIND_THE_ERROR
 
-  PLAY_A_MELODY = 'play_a_melody', // was PLAY_MELODY
+  PLAY_UKKO_NOOA = 'play_ukko_nooa', // was PLAY_MELODY
 
   CHOOSE_A_STORY_SCENE = 'choose_a_story_scene', // was CHOOSE_YOUR_TRUTH
 
   LEARN_ABOUT_A_DEFENCE_SOLDIER = 'learn_about_a_defence_soldier', // was HOLD_THE_CHARACTER
 
-  IDENTIFY_A_SETTING = 'identify_a_setting', // was WHERE_ARE_YOU
+  IDENTIFY_THE_SETTING = 'identify_the_setting', // was WHERE_ARE_YOU
 
-  THREE_INSTRUCTIONS = 'three_instructions', // was FOLLOW_THE_VOICE
+  FIND_AN_INSTRUCTION = 'find_an_instruction', // was FOLLOW_THE_VOICE
 
   IDENTIFY_A_SYMBOL = 'identify_a_symbol', // was READ_THE_SIGNS
 
   SPOT_A_CULTURAL_REFERENCE = 'spot_a_cultural_reference', // was FIND_THE_ROOTS
 
-  IDENTIFY_THE_GAME_GENRE = 'indentify_the_game_genre', // was LOOK_INSIDE
+  IDENTIFY_THE_GAME_GENRE = 'identify_the_game_genre', // was LOOK_INSIDE
 
   LOCATE_DECISION_MAKING = 'locate_decision_making', // was USE_OF_POWER
 
-  FIND_A_GAME_REFERENCE = 'find_a_game_reference', // was COMMON_FACTOR
-
-  FIND_SPIRITUAL_CURRENCY = 'find_spiritual_currency', // was SPIRITUAL_CURRENCY
+  IDENTIFY_GAME_INFLUENCES = 'identify_game_influences', // was SPIRITUAL_CURRENCY
 
   SPOT_THE_REWARD = 'spot_the_reward', // was REWARD_TRAPS
 
-  MAKE_A_MORAL_CHOICE = 'make_a_moral_choice', // was MORAL_DILEMMAS
-
-  ECO_FRIENDLY = 'eco_friendly', // was ECO_FRIENDLY, not changed yet!
+  FIND_THE_CARBON_FOOTPRINT_METER = 'find_the_carbon_footprint_meter',
 
   IDENTIFY_GAME_VALUES = 'identify_game_values', // was HUNTING_FOR_VALUES
 

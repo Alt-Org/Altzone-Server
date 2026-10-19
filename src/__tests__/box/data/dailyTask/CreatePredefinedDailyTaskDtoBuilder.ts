@@ -3,7 +3,7 @@ import { ServerTaskName } from '../../../../dailyTasks/enum/serverTaskName.enum'
 
 export default class CreatePredefinedDailyTaskDtoBuilder {
   private readonly base: Partial<CreatePredefinedDailyTaskDto> = {
-    type: ServerTaskName.ENTER_THE_BATTLE,
+    type: ServerTaskName.PLAY_A_BATTLE,
     title: 'Default Predefined Task Title',
     amount: 1,
     points: 10,

@@ -33,14 +33,14 @@ describe('daily task scoring values', () => {
     });
   });
 
-  it('configures CAST_YOUR_VOICE as a one-step clan-voting task', () => {
+  it('configures CAST_YOUR_VOTE as a one-step clan-voting task', () => {
     const generator = new TaskGeneratorService();
     jest
       .spyOn(generator, 'getRandomTaskType')
-      .mockReturnValue(ServerTaskName.CAST_YOUR_VOICE);
+      .mockReturnValue(ServerTaskName.CAST_YOUR_VOTE);
 
     expect(generator.createTaskRandomValues()).toMatchObject({
-      type: ServerTaskName.CAST_YOUR_VOICE,
+      type: ServerTaskName.CAST_YOUR_VOTE,
       amount: 1,
       title: { fi: 'Äänestä päätöksestä' },
     });

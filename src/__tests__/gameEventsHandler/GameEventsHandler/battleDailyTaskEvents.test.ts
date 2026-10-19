@@ -47,7 +47,7 @@ describe('GameEventsHandler battle daily task events', () => {
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.ENTER_THE_BATTLE,
+      ServerTaskName.PLAY_A_BATTLE,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
@@ -79,7 +79,7 @@ describe('GameEventsHandler battle daily task events', () => {
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.ENTER_THE_BATTLE,
+      ServerTaskName.PLAY_A_BATTLE,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',

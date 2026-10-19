@@ -37,4 +37,5 @@ export enum ModelName {
   BOX = 'Box',
   GROUP_ADMIN = 'GroupAdmin',
   FRIENDSHIP = 'Friendship',
+  GAME_ANALYSIS_RESPONSE = 'GameAnalysisResponse', // for game analytics tasks
 }

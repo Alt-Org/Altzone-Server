@@ -21,7 +21,7 @@ export enum ServerTaskName {
 
   CHANGE_THE_MUSIC = 'change_the_music', // was BANISH_THE_EARWORM
 
-  ENTER_THE_BATTLE = 'enter_the_battle', // was GO_TO_BATTLE
+  PLAY_A_BATTLE = 'play_a_battle', // was GO_TO_BATTLE
 
   UPGRADE_A_DEFENCE_SOLDIER = 'upgrade_a_defence_soldier', // was STRONGER_SOLDIER
 
@@ -29,7 +29,7 @@ export enum ServerTaskName {
 
   SPECTRUM_OF_EMOTIONS = 'spectrum_of_emotions', // was PLAY_WITH_EMOTIONS
 
-  CAST_YOUR_VOICE = 'cast_your_voice', // was YOUR_VOICE
+  CAST_YOUR_VOTE = 'cast_your_vote', // was YOUR_VOICE
 
   PROPOSE_AN_ITEM_SALE = 'propose_an_item_sale', // was LETTING_GO_OF_THE_OLD
 
@@ -41,5 +41,5 @@ export enum ServerTaskName {
 
   FURNISH_WITH_ONE_COLLECTION = 'furnish_with_one_collection', // was BUILD_YOUR_WORLD
 
-  EDIT_CLAN_RULES = 'edit_clan_rules', // was SET_BOUNDARIES
+  PROPOSE_A_RULE_CHANGE = 'propose_a_rule_change', // was SET_BOUNDARIES
 }
