@@ -2,7 +2,7 @@
  * Enum containing daily tasks monitored by the client side
  */
 export enum UITaskName {
-  // UI tasks 10/2026
+  // UI tasks 10/2026, 2 daily tasks removed 19.10.2026
   SPOT_THE_GLITCH = 'spot_the_glitch', // was FIND_THE_ERROR
 
   PLAY_UKKO_NOOA = 'play_ukko_nooa', // was PLAY_MELODY
