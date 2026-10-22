@@ -407,7 +407,7 @@ export class AuthService {
         errors: [
           new APIError({
             reason: APIErrorReason.INVALID_AUTH_TOKEN,
-            message: 'Invalid token typeAAAAAAAAAaa',
+            message: 'Invalid token type',
           }),
         ],
       });
