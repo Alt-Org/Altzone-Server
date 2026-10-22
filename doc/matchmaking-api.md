@@ -10,12 +10,14 @@ explicit notifications sent to players so they can join an existing room.
 
 1. A player creates a room with `POST /matchmaking/rooms`.
 2. Other players may join the room with `POST /matchmaking/rooms/{roomId}/join`.
-3. When the room has a playable composition, the owner starts matchmaking with
+3. Before a match is created, any room member may leave with
+   `POST /matchmaking/rooms/leave`.
+4. When the room has a playable composition, the owner starts matchmaking with
    `POST /matchmaking/rooms/{roomId}/start`.
-4. When matchmaking creates an active match, clients join the Photon Room.
-5. Each real player confirms Photon readiness with
+5. When matchmaking creates an active match, clients join the Photon Room.
+6. Each real player confirms Photon readiness with
    `POST /matchmaking/matches/{matchId}/start`.
-6. The match is finished with `POST /matchmaking/matches/{matchId}/finish`.
+7. The match is finished with `POST /matchmaking/matches/{matchId}/finish`.
 
 Bots can fill missing player slots when `allowBots` is enabled. Bots are not
 expected to call HTTP endpoints.
@@ -130,6 +132,37 @@ Adds the authenticated player to an existing room.
 ### Response
 
 Returns the updated `MatchmakingInviteDto`.
+
+## Leave Room
+
+```http
+POST /matchmaking/rooms/leave
+```
+
+Removes the authenticated player from their current matchmaking room. The
+request does not include a room ID or a request body because a player can belong
+to only one active matchmaking room.
+
+If other players remain in the room:
+
+- the departing player is removed from the room;
+- ownership is transferred to the first remaining player when the owner leaves;
+- bot fillers and the room's `OPEN` or `READY` status are recalculated;
+- a queued room is removed from matchmaking before its updated state is saved;
+- the remaining players receive a `ROOM_UPDATED` MQTT notification.
+
+If the departing player is the last player, the room and its matchmaking queue
+entry are deleted. No MQTT notification is sent because no room members remain.
+
+The endpoint cannot be used after the room has reached `MATCHED` status.
+
+### Response
+
+Returns `204 No Content` when the player leaves successfully.
+
+Returns `404 NOT_FOUND` when the authenticated player does not have an active
+matchmaking room. A stale player-to-room lookup is removed when detected and
+produces the same response.
 
 ## Start Matchmaking For Room
 

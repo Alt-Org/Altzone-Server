@@ -56,6 +56,19 @@ describe('JoinService.leaveClan() test suite', () => {
     expect(leftPlayer.clan_id).toBeNull();
   });
 
+  it('Should clear clan_joindate of the player who left', async () => {
+    await playerModel.updateOne(
+      { _id: player._id },
+      { clan_joindate: new Date(Date.UTC(2026, 8, 1)) },
+    );
+
+    await joinService.leaveClan(player._id);
+
+    const leftPlayer = await playerModel.findById(player._id);
+
+    expect(leftPlayer.clan_joindate).toBeNull();
+  });
+
   it('Should throw NotFoundException if clan does not exists', async () => {
     const nonExisting_id = getNonExisting_id();
     await playerModel.updateOne(

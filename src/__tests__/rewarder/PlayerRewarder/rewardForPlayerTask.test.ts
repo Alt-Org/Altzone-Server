@@ -39,6 +39,23 @@ describe('PlayerRewarder.rewardForPlayerTask() test suite', () => {
     expect(playerAfter.points).toBe(playerBefore.points + pointsToAdd);
   });
 
+  it('Should deduct regular points and clamp the result at zero', async () => {
+    await playerModel.updateOne(
+      { _id: existingPlayer._id },
+      { $set: { points: 5 } },
+    );
+
+    const [isSuccess, errors] = await rewarder.deductPlayerPoints(
+      existingPlayer._id,
+      10,
+    );
+
+    const playerAfter = await playerModel.findById(existingPlayer._id);
+    expect(errors).toBeNull();
+    expect(isSuccess).toBeTruthy();
+    expect(playerAfter.points).toBe(0);
+  });
+
   it('Should not update points amount if the specified amount is a negative number and return LESS_THAN_MIN ServiceError', async () => {
     const pointsToAdd = -10;
     const playerBefore = await playerModel.findById(existingPlayer._id);

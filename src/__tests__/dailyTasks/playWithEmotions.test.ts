@@ -4,7 +4,7 @@ import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
 import { ChatEmotion } from '../../chat/enum/chatEmotion.enum';
 import { ChatResponseType } from '../../chat/enum/chatResponseType.enum';
 
-describe('PLAY_WITH_EMOTIONS daily task', () => {
+describe('SPECTRUM_OF_EMOTIONS daily task', () => {
   const createService = (updatedTask: any = null) => {
     const model = {
       findOneAndUpdate: jest.fn(() => ({
@@ -19,7 +19,7 @@ describe('PLAY_WITH_EMOTIONS daily task', () => {
       {} as any,
       {
         createTaskRandomValues: jest.fn().mockReturnValue({
-          type: ServerTaskName.GO_TO_BATTLE,
+          type: ServerTaskName.PLAY_A_BATTLE,
           amount: 2,
           points: 10,
           coins: 5,
@@ -28,6 +28,7 @@ describe('PLAY_WITH_EMOTIONS daily task', () => {
         }),
       } as any,
       progressService as any,
+      {} as any,
     );
     const basicService = {
       updateOne: jest.fn().mockResolvedValue([true, null]),
@@ -67,7 +68,7 @@ describe('PLAY_WITH_EMOTIONS daily task', () => {
       expect.objectContaining({
         player_id: 'player-1',
         clan_id: 'clan-1',
-        type: ServerTaskName.PLAY_WITH_EMOTIONS,
+        type: ServerTaskName.SPECTRUM_OF_EMOTIONS,
         $or: [
           { 'progress.key': { $exists: false } },
           { 'progress.key': ChatResponseType.NEED_COMPANY },
@@ -120,7 +121,7 @@ describe('PLAY_WITH_EMOTIONS daily task', () => {
 
     const [result, errors] = await service.handleDailyTaskEvent({
       playerId: 'player-1',
-      serverTaskName: ServerTaskName.PLAY_WITH_EMOTIONS,
+      serverTaskName: ServerTaskName.SPECTRUM_OF_EMOTIONS,
       clanId: 'clan-1',
       responseType: ChatResponseType.YES,
       emotion: ChatEmotion.JOY,

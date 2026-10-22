@@ -88,6 +88,11 @@ export enum APIErrorReason {
   NOT_AUTHORIZED = 'NOT_AUTHORIZED',
 
   /**
+   * Normal clan mutations are disabled during a Box testing session.
+   */
+  CLAN_ACTION_BLOCKED_DURING_TESTING_SESSION = 'CLAN_ACTION_BLOCKED_DURING_TESTING_SESSION',
+
+  /**
    * The maximum amount of requests allowed for one user is exceeded
    */
   TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS',

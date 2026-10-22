@@ -42,7 +42,7 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
     const dailyTaskToCreate = taskBuilder
       .setClanId(existingClan._id)
       .setPlayerId(loggedPlayer._id)
-      .setType(UITaskName.FIND_THE_ROOTS)
+      .setType(UITaskName.SPOT_A_CULTURAL_REFERENCE)
       .setAmount(initialAmount)
       .setAmountLeft(initialAmount)
       .setPlayerId(loggedPlayer._id)
@@ -115,7 +115,7 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       .setPlayerId(loggedPlayer._id)
       .setAmount(1)
       .setAmountLeft(1)
-      .setType(UITaskName.ETHICS_METRICS)
+      .setType(UITaskName.COMPARE_DEFENCE_SOLDIERS)
       .setPlayerId(loggedPlayer._id)
       .setClanId(existingClan._id)
       .build();
@@ -154,7 +154,7 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
     const dailyTaskToCreate = taskBuilder
       .setClanId(existingClan._id)
       .setPlayerId(loggedPlayer._id)
-      .setType(ServerTaskName.GO_TO_BATTLE)
+      .setType(ServerTaskName.PLAY_A_BATTLE)
       .setAmount(5)
       .setAmountLeft(5)
       .setPlayerId(loggedPlayer._id)

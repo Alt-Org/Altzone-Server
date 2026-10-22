@@ -5,6 +5,7 @@ import { MatchmakingParticipant } from './matchmakingParticipant.type';
 export type MatchmakingInvite = {
   id: string;
   matchType: MatchType;
+  gameType: number;
   status: InviteStatus;
   ownerPlayerId: string;
   clanId?: string;

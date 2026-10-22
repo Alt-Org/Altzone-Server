@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 
 export default class PredefinedDailyTaskBuilder {
   private readonly base: Partial<PredefinedDailyTask> = {
-    type: ServerTaskName.GO_TO_BATTLE,
+    type: ServerTaskName.PLAY_A_BATTLE,
     title: 'Default Predefined Task',
     amount: 1,
     points: 10,

@@ -1,5 +1,4 @@
 import { defaultPredefinedDailyTasks } from '../../box/dailyTask/defaultPredefinedDailyTasks';
-import { Score } from '../../common/values/scoring.values';
 import {
   ACTIVE_SERVER_TASK_DEFINITIONS,
   MIN_OCCURRENCES_PER_TASK_TYPE,
@@ -8,6 +7,7 @@ import {
 } from '../../dailyTasks/taskGenerator.service';
 import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
 import { uiDailyTasks } from '../../dailyTasks/uiDailyTasks/uiDailyTasks';
+import { TASK_CONSTS } from '../../dailyTasks/consts/taskConstants';
 
 describe('daily task scoring values', () => {
   it('uses the shared completed daily task score for generated server tasks', () => {
@@ -15,105 +15,129 @@ describe('daily task scoring values', () => {
 
     const task = generator.createTaskRandomValues();
 
-    expect(task.points).toBe(Score.DAILY_TASK.COMPLETED);
+    expect(task.points).toBe(TASK_CONSTS.POINTS.DAILY_TASK.SMALL);
   });
 
-  it('configures INNER_VOICE as a one-step clan motto task', () => {
+  it('configures UPDATE_CLAN_MOTTO as a one-step clan motto task', () => {
     const generator = new TaskGeneratorService();
     jest
       .spyOn(generator, 'getRandomTaskType')
-      .mockReturnValue(ServerTaskName.INNER_VOICE);
+      .mockReturnValue(ServerTaskName.UPDATE_CLAN_MOTTO);
 
     expect(generator.createTaskRandomValues()).toMatchObject({
-      type: ServerTaskName.INNER_VOICE,
+      type: ServerTaskName.UPDATE_CLAN_MOTTO,
       amount: 1,
       title: {
-        fi: 'Avaa klaanin asetukset. Muokkaa klaanin mottoa ja tallenna muutos. Mieti, mitä haluatte viestiä toisillenne ja muille.',
+        fi: 'Päivitä klaanin motto',
       },
     });
   });
 
-  it('configures YOUR_VOICE as a one-step clan-voting task', () => {
+  it('configures CAST_YOUR_VOTE as a one-step clan-voting task', () => {
     const generator = new TaskGeneratorService();
     jest
       .spyOn(generator, 'getRandomTaskType')
-      .mockReturnValue(ServerTaskName.YOUR_VOICE);
+      .mockReturnValue(ServerTaskName.CAST_YOUR_VOTE);
 
     expect(generator.createTaskRandomValues()).toMatchObject({
-      type: ServerTaskName.YOUR_VOICE,
+      type: ServerTaskName.CAST_YOUR_VOTE,
       amount: 1,
-      title: { fi: 'Äänestä klaanin äänestyksessä.' },
+      title: { fi: 'Äänestä päätöksestä' },
     });
   });
 
-  it('configures PLAY_WITH_EMOTIONS with one step for each chat emotion', () => {
+  it('configures START_A_VOTE as a one-step server task', () => {
+    const generator = new TaskGeneratorService();
+    const task = generator
+      .createAllServerTaskValues()
+      .find(({ type }) => type === ServerTaskName.START_A_VOTE);
+
+    expect(task).toMatchObject({
+      type: ServerTaskName.START_A_VOTE,
+      amount: 1,
+    });
+  });
+
+  it('creates exactly one task for every server task type', () => {
+    const generator = new TaskGeneratorService();
+    const tasks = generator.createAllServerTaskValues();
+    const taskTypes = tasks.map(({ type }) => type);
+
+    expect(tasks).toHaveLength(Object.values(ServerTaskName).length);
+    expect(new Set(taskTypes).size).toBe(Object.values(ServerTaskName).length);
+    expect(taskTypes).toEqual(
+      expect.arrayContaining(Object.values(ServerTaskName)),
+    );
+  });
+
+  it('configures SPECTRUM_OF_EMOTIONS with one step for each chat emotion', () => {
     const generator = new TaskGeneratorService();
     jest
       .spyOn(generator, 'getRandomTaskType')
-      .mockReturnValue(ServerTaskName.PLAY_WITH_EMOTIONS);
+      .mockReturnValue(ServerTaskName.SPECTRUM_OF_EMOTIONS);
 
     expect(generator.createTaskRandomValues()).toMatchObject({
-      type: ServerTaskName.PLAY_WITH_EMOTIONS,
+      type: ServerTaskName.SPECTRUM_OF_EMOTIONS,
       amount: 6,
     });
   });
 
-  it('configures STRONGER_SOLDIER as a two-step server task', () => {
+  it('configures UPGRADE_A_DEFENCE_SOLDIER as a two-step server task', () => {
     const generator = new TaskGeneratorService();
     jest
       .spyOn(generator, 'getRandomTaskType')
-      .mockReturnValue(ServerTaskName.STRONGER_SOLDIER);
+      .mockReturnValue(ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER);
 
     expect(generator.createTaskRandomValues()).toMatchObject({
-      type: ServerTaskName.STRONGER_SOLDIER,
+      type: ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
       amount: 2,
       title: {
-        fi: 'Kasvata puolustussotilaan hyökkäysarvoa ja pelaa sen jälkeen taistelu.',
+        fi: 'Kehitä Defenssisoturia',
       },
     });
   });
 
-  it('configures BUILD_YOUR_WORLD as a one-step room-layout task', () => {
+  it('configures FURNISH_WITH_ONE_COLLECTION as a one-step room-layout task', () => {
     const generator = new TaskGeneratorService();
     jest
       .spyOn(generator, 'getRandomTaskType')
-      .mockReturnValue(ServerTaskName.BUILD_YOUR_WORLD);
+      .mockReturnValue(ServerTaskName.FURNISH_WITH_ONE_COLLECTION);
 
     expect(generator.createTaskRandomValues()).toMatchObject({
-      type: ServerTaskName.BUILD_YOUR_WORLD,
+      type: ServerTaskName.FURNISH_WITH_ONE_COLLECTION,
       amount: 1,
       title: {
-        fi: 'Sisusta yksi klaanin Turvapaikan huone vähintään kolmella saman malliston huonekalulla.',
+        fi: 'Sisusta saman malliston huonekaluilla',
       },
     });
   });
 
-  it('configures RECYCLING_EXPERIENCES as a one-step flea-market listing task', () => {
+  it('configures LIST_AN_ITEM_FOR_SALE as a one-step flea-market listing task', () => {
     const generator = new TaskGeneratorService();
     jest
       .spyOn(generator, 'getRandomTaskType')
-      .mockReturnValue(ServerTaskName.RECYCLING_EXPERIENCES);
+      .mockReturnValue(ServerTaskName.LIST_AN_ITEM_FOR_SALE);
 
     expect(generator.createTaskRandomValues()).toMatchObject({
-      type: ServerTaskName.RECYCLING_EXPERIENCES,
+      type: ServerTaskName.LIST_AN_ITEM_FOR_SALE,
       amount: 1,
       title: {
-        fi: 'Avaa klaanin kirpputori. Valitse äänestyksessä myytäväksi hyväksytty tavara ja lisää se myytäväksi. Katso, miten muut reagoivat ja miltä tuntuu kun tavara alkaa liikkua pelaajien välillä.',
+        fi: 'Laita tavara myyntiin',
       },
     });
   });
 
-  it('configures LETTING_GO_OF_THE_OLD as a one-step sell-voting task', () => {
+  it('configures PROPOSE_AN_ITEM_SALE as a one-step sell-voting task', () => {
     const generator = new TaskGeneratorService();
     jest
       .spyOn(generator, 'getRandomTaskType')
-      .mockReturnValue(ServerTaskName.LETTING_GO_OF_THE_OLD);
+      .mockReturnValue(ServerTaskName.PROPOSE_AN_ITEM_SALE);
 
     expect(generator.createTaskRandomValues()).toMatchObject({
-      type: ServerTaskName.LETTING_GO_OF_THE_OLD,
+      type: ServerTaskName.PROPOSE_AN_ITEM_SALE,
       amount: 1,
       title: {
-        fi: 'Avaa klaanin äänestys. Valitse vaihtoehto ja anna äänesi. Huomaa, miten oma valintasi vaikuttaa yhteiseen päätökseen.',
+        fi: 'Ehdota myyntiä',
       },
     });
   });
@@ -141,12 +165,14 @@ describe('daily task scoring values', () => {
   it('uses the shared completed daily task score for default predefined tasks', () => {
     expect(defaultPredefinedDailyTasks).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ points: Score.DAILY_TASK.COMPLETED }),
+        expect.objectContaining({
+          points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
+        }),
       ]),
     );
     expect(
       defaultPredefinedDailyTasks.every(
-        (task) => task.points === Score.DAILY_TASK.COMPLETED,
+        (task) => task.points === TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
       ),
     ).toBe(true);
   });
@@ -154,7 +180,7 @@ describe('daily task scoring values', () => {
   it('uses the shared completed daily task score for UI daily tasks', () => {
     expect(
       Object.values(uiDailyTasks).every(
-        (task) => task.points === Score.DAILY_TASK.COMPLETED,
+        (task) => task.points === TASK_CONSTS.POINTS.DAILY_TASK.SMALL,
       ),
     ).toBe(true);
   });

@@ -24,7 +24,7 @@ describe('ClanController phrase daily task', () => {
     const progressResult = {
       status: 'completed',
       task: {
-        type: ServerTaskName.INNER_VOICE,
+        type: ServerTaskName.UPDATE_CLAN_MOTTO,
         points: 10,
         coins: 5,
         clan_id: clanId,
@@ -107,7 +107,7 @@ describe('ClanController phrase daily task', () => {
     expect(dailyTasksService.updateClanTask).toHaveBeenCalledWith(
       clanId,
       'player-1',
-      ServerTaskName.INNER_VOICE,
+      ServerTaskName.UPDATE_CLAN_MOTTO,
       session,
     );
     expect(

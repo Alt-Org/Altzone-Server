@@ -3,6 +3,7 @@ import {
   IsBoolean,
   IsEnum,
   IsIn,
+  IsInt,
   IsMongoId,
   IsOptional,
   IsString,
@@ -43,6 +44,15 @@ export class CreateMatchmakingInviteDto {
    */
   @IsEnum(MatchType)
   matchType: MatchType;
+
+  /**
+   * Client-defined game mode played in the room.
+   *
+   * @example 1
+   */
+  @Type(() => Number)
+  @IsInt()
+  gameType: number;
 
   /**
    * Existing custom lobby or room ID. Required for CUSTOM matches.

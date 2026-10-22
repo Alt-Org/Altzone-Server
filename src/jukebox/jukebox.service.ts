@@ -92,7 +92,7 @@ export class JukeboxService {
       // event from player's action to change the current song
       await this.tryEmitDailyTaskEvent(
         playerId,
-        ServerTaskName.BANISH_THE_EARWORM,
+        ServerTaskName.CHANGE_THE_MUSIC,
         false,
       );
 

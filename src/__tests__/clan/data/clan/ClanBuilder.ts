@@ -92,6 +92,16 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
     return this;
   }
 
+  setBoxMemberLimit(boxMemberLimit: number) {
+    this.base.boxMemberLimit = boxMemberLimit;
+    return this;
+  }
+
+  setTargetPoints(targetPoints: number) {
+    this.base.targetPoints = targetPoints;
+    return this;
+  }
+
   setBattlePoints(battlePoints: number) {
     this.base.battlePoints = battlePoints;
     return this;

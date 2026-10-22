@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -60,6 +61,7 @@ import { DailyTaskProgressService } from '../dailyTasks/dailyTaskProgress.servic
 import { DailyTasksService } from '../dailyTasks/dailyTasks.service';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import ClanNotifier from './clan.notifier';
+import { BlockClanMutationInTestingSessionGuard } from './guard/blockClanMutationInTestingSession.guard';
 
 @Controller('clan')
 export class ClanController {
@@ -100,6 +102,7 @@ export class ClanController {
     errors: [400, 401, 403, 409],
   })
   @Post()
+  @UseGuards(BlockClanMutationInTestingSessionGuard)
   @Authorize({ action: Action.create, subject: ClanDto })
   @UniformResponse(ModelName.CLAN)
   public async create(@Body() body: CreateClanDto, @LoggedUser() user: User) {
@@ -243,7 +246,7 @@ export class ClanController {
       this.clanNotifier.rulesUpdated(body._id, body.rules);
       this.emitterService.EmitNewDailyTaskEvent(
         user.player_id,
-        ServerTaskName.SET_BOUNDARIES,
+        ServerTaskName.PROPOSE_A_RULE_CHANGE,
       );
     }
 
@@ -275,11 +278,11 @@ export class ClanController {
         await this.dailyTasksService.updateClanTask(
           body._id,
           user.player_id,
-          ServerTaskName.INNER_VOICE,
+          ServerTaskName.UPDATE_CLAN_MOTTO,
           session,
         );
 
-      // A clan can have no active INNER_VOICE task after its daily instances
+      // A clan can have no active UPDATE_CLAN_MOTTO task after its daily instances
       // have been completed and replaced. Saving its phrase must still work.
       const hasNoActiveInnerVoiceTask =
         taskErrors?.every((error) => error.reason === SEReason.NOT_FOUND) ??
@@ -325,6 +328,7 @@ export class ClanController {
     errors: [400, 401, 403, 404],
   })
   @Delete('/:_id')
+  @UseGuards(BlockClanMutationInTestingSessionGuard)
   @Authorize({ action: Action.delete, subject: UpdateClanDto })
   @UniformResponse()
   public async delete(@Param() param: _idDto) {
@@ -351,6 +355,7 @@ export class ClanController {
   })
   @UniformResponse(ModelName.CLAN)
   @Post('join')
+  @UseGuards(BlockClanMutationInTestingSessionGuard)
   public async createJoin(
     @Body() body: JoinRequestDto,
     @LoggedUser() user: User,
@@ -373,9 +378,10 @@ export class ClanController {
     success: {
       status: 204,
     },
-    errors: [401, 404],
+    errors: [401, 403, 404],
   })
   @Post('leave')
+  @UseGuards(BlockClanMutationInTestingSessionGuard)
   @HttpCode(204)
   @Authorize({ action: Action.create, subject: PlayerLeaveClanDto })
   public leaveClan(@LoggedUser() user: User) {
@@ -394,9 +400,10 @@ export class ClanController {
     success: {
       status: 204,
     },
-    errors: [400, 401, 404],
+    errors: [400, 401, 403, 404],
   })
   @Post('exclude')
+  @UseGuards(BlockClanMutationInTestingSessionGuard)
   @HttpCode(204)
   @DetermineClanId()
   @Authorize({ action: Action.create, subject: RemovePlayerDTO })

@@ -20,6 +20,7 @@ describe('MatchmakingNotifier notifications', () => {
   const room: MatchmakingRoomDto = {
     id: 'invite-1',
     matchType: MatchType.RANDOM,
+    gameType: 1,
     status: InviteStatus.QUEUED,
     ownerPlayerId: 'player-1',
     players: [{ playerId: 'player-1', name: 'Player 1', avatar: null }],
@@ -40,6 +41,7 @@ describe('MatchmakingNotifier notifications', () => {
   const match: MatchmakingMqttMatchDto = {
     id: 'match-1',
     matchType: MatchType.RANDOM,
+    gameType: 1,
     status: MatchStatus.ACTIVE,
     teamSize: 2,
     teams: [
@@ -60,6 +62,7 @@ describe('MatchmakingNotifier notifications', () => {
   const roomInvite: MatchmakingRoomInviteDto = {
     id: 'invite-1',
     matchType: MatchType.RANDOM,
+    gameType: 1,
     status: InviteStatus.OPEN,
     ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
     senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },

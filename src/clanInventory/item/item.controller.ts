@@ -60,21 +60,20 @@ export class ItemController {
   ) {
     if (stealToken.playerId !== user.player_id) throw IdMismatchError;
 
-    const [soulHome, error] = await this.soulHomeService.readOneById(
-      stealToken.soulHomeId,
-      { includeRefs: [ModelName.ROOM] },
+    // get rooms with items that are stealable
+    const [soulHomeWithRooms, soulHomeErrors] =
+      await this.soulHomeService.readSoulHomeWithRooms(stealToken.soulHomeId, {
+        includeRefs: [ModelName.ROOM],
+      });
+
+    if (soulHomeErrors) return soulHomeErrors;
+
+    // return only rooms, that have items
+    soulHomeWithRooms.Room = soulHomeWithRooms.Room.filter(
+      (room) => room['Item'].length !== 0,
     );
-    if (error) return error;
 
-    const [rooms, roomsError] = await this.roomService.readPlayerClanRooms(
-      user.player_id,
-      { includeRefs: [ModelName.ITEM] },
-    );
-    if (roomsError) return roomsError;
-
-    soulHome.Room = rooms.filter((room) => room['Item'].length !== 0);
-
-    return soulHome;
+    return soulHomeWithRooms;
   }
 
   /**

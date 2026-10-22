@@ -79,6 +79,9 @@ export class Player {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.CLAN })
   clan_id?: string;
 
+  @Prop({ type: Date, default: null })
+  clan_joindate?: Date;
+
   @ExtractField()
   @Prop({ type: [ObjectId], default: [] })
   battleCharacter_ids?: string[] | ObjectId[];
