@@ -19,6 +19,21 @@
  * @property COINS.FACTOR - The factor used to calculate coins (points * FACTOR).
  *
  * @property TIME - The time to complete the task in milliseconds.
+ *
+ * @property DAILY_TASK - Points configuration for daily tasks.
+ * @property DAILY_TASK.SMALL - Points awarded for small daily tasks.
+ * @property DAILY_TASK.MEDIUM - Points awarded for medium daily tasks (reserved for future use).
+ * @property DAILY_TASK.BIG - Points awarded for big daily tasks (reserved for future use).
+ * @property DAILY_TASK.CANCEL_PENALTY - Points deducted for canceling a daily task.
+ *
+ * @property BATTLE - Points configuration for battle tasks.
+ * @property BATTLE.RANDOM_PAIR - Points configuration for random pair battles.
+ * @property BATTLE.RANDOM_PAIR.WIN - Points awarded for winning a random pair battle.
+ * @property BATTLE.RANDOM_PAIR.LOSS - Points deducted for losing a random pair battle.
+ * @property BATTLE.CLAN_PAIR - Points configuration for clan pair battles.
+ * @property BATTLE.CLAN_PAIR.WIN - Points awarded for winning a clan pair battle.
+ * @property BATTLE.CLAN_PAIR.LOSS - Points deducted for losing a clan pair battle.
+ *
  */
 export const TASK_CONSTS = {
   AMOUNT: {
@@ -26,11 +41,25 @@ export const TASK_CONSTS = {
     MAX: 20,
   },
   POINTS: {
-    MIN: 5,
-    MAX: 100,
+    DAILY_TASK: {
+      SMALL: 20,
+      MEDIUM: 0, // Reserved for future use
+      BIG: 0, // Reserved for future use
+      CANCEL_PENALTY: 10,
+    },
+    BATTLE: {
+      RANDOM_PAIR: {
+        WIN: 30,
+        LOSS: -20,
+      },
+      CLAN_PAIR: {
+        WIN: 40,
+        LOSS: -25,
+      },
+    },
   },
   COINS: {
-    FACTOR: 0.5, // Coins are calculated as points * FACTOR
+    FACTOR: 0.5, // Coins are calculated as points * FACTOR.
   },
   TIME: 1000 * 60, // Time to complete the task in milliseconds.
 };

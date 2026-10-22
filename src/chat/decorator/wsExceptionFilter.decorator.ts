@@ -1,4 +1,9 @@
-import { ArgumentsHost, Catch, WsExceptionFilter } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  BadRequestException,
+  Catch,
+  WsExceptionFilter,
+} from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 
 @Catch()
@@ -9,7 +14,9 @@ export class GlobalWsExceptionFilter implements WsExceptionFilter {
     const error =
       exception instanceof WsException
         ? exception.getError()
-        : 'Internal server error';
+        : exception instanceof BadRequestException
+          ? exception.getResponse()
+          : 'Internal server error';
 
     client.send?.(JSON.stringify({ event: 'error', data: error }));
   }

@@ -113,11 +113,11 @@ export class GameEventsHandler {
   private async emitBattleDailyTaskEvents(playerId: string) {
     await this.emitterService.EmitNewDailyTaskEvent(
       playerId,
-      ServerTaskName.GO_TO_BATTLE,
+      ServerTaskName.PLAY_A_BATTLE,
     );
     await this.emitterService.EmitNewDailyTaskEvent(
       playerId,
-      ServerTaskName.STRONGER_SOLDIER,
+      ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
       true,
       { strongerSoldierStep: StrongerSoldierStep.BATTLE_PLAYED },
     );

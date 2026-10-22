@@ -1,6 +1,15 @@
 import { ModelName } from '../../../common/enum/modelName.enum';
 import ServiceError from './ServiceError';
-import { ClientSession, FilterQuery } from 'mongoose';
+import {
+  AnyBulkWriteOperation,
+  AnyKeys,
+  ClientSession,
+  FilterQuery,
+  HydratedDocument,
+  MongooseBulkWriteOptions,
+  UpdateQuery,
+} from 'mongoose';
+import { Document as MongoDocument } from 'mongodb';
 
 export type TIServiceCreateOneOptions = {
   /**
@@ -388,19 +397,25 @@ export type TIServiceDeleteManyOptions<TObject = any> = {
  */
 export type IServiceReturn<TData> = [TData | null, ServiceError[] | null];
 
+export type TServiceBulkWriteOperation<TModel extends object> =
+  AnyBulkWriteOperation<TModel extends MongoDocument ? TModel : any>;
+
 /**
  * Interface for a service class, which provides all basic operations with DB.
  *
  * Notice that the class implementing the interface should not throw any errors but return them as a ServiceError array instead.
  */
-export interface IService {
+export interface IService<TModel extends object = any> {
   /**
    * Add the specified object to the DB.
    * @param input - The object to add.
    * @param options - Options for the request.
    * @returns The added object to the DB with the _id field or a ServiceError array if something went wrong.
    */
-  createOne<TInput = any, TOutput = any>(
+  createOne<
+    TInput extends AnyKeys<TModel> = AnyKeys<TModel>,
+    TOutput = HydratedDocument<TModel>,
+  >(
     input: TInput,
     options?: TIServiceCreateOneOptions,
   ): Promise<IServiceReturn<TOutput>>;
@@ -411,7 +426,10 @@ export interface IService {
    * @param options - Options for the request.
    * @returns An array of added objects to the DB with _id fields or a ServiceError array if something went wrong.
    */
-  createMany<TInput = any, TOutput = any>(
+  createMany<
+    TInput extends AnyKeys<TModel> = AnyKeys<TModel>,
+    TOutput = HydratedDocument<TModel>,
+  >(
     input: TInput[],
     options?: TIServiceCreateManyOptions,
   ): Promise<IServiceReturn<TOutput[]>>;
@@ -422,7 +440,7 @@ export interface IService {
    * @param options - Options for the request.
    * @returns The found object or a ServiceError array if it was not found or something else went wrong.
    */
-  readOneById<TOutput = any>(
+  readOneById<TOutput = HydratedDocument<TModel>>(
     _id: string,
     options?: TReadByIdOptions,
   ): Promise<IServiceReturn<TOutput>>;
@@ -434,7 +452,7 @@ export interface IService {
    * @param options - Options for the request.
    * @returns The found object or a ServiceError array if it was not found or something else went wrong.
    */
-  readOne<TOutput = any>(
+  readOne<TOutput = HydratedDocument<TModel>>(
     options: TIServiceReadOneOptions,
   ): Promise<IServiceReturn<TOutput>>;
 
@@ -443,7 +461,7 @@ export interface IService {
    * @param options - Options for the request.
    * @returns An array of found objects or a ServiceError array if none were found or something else went wrong.
    */
-  readMany<TOutput = any>(
+  readMany<TOutput = HydratedDocument<TModel>>(
     options?: TIServiceReadManyOptions,
   ): Promise<IServiceReturn<TOutput[]>>;
 
@@ -454,7 +472,7 @@ export interface IService {
    * @param options - Options for the request.
    * @returns _true_ if it was updated successfully, _false_ if nothing was updated for the object, or a ServiceError array if it was not found or something else went wrong.
    */
-  updateOneById<TInput = any>(
+  updateOneById<TInput = UpdateQuery<TModel>>(
     _id: string,
     input: TInput,
     options?: TIServiceUpdateByIdOptions,
@@ -468,7 +486,7 @@ export interface IService {
    * @param options - Options for the request.
    * @returns _true_ if it was updated successfully, _false_ if nothing was updated for the object, or a ServiceError array if it was not found or something else went wrong.
    */
-  updateOne<TInput = any>(
+  updateOne<TInput = UpdateQuery<TModel>>(
     input: TInput,
     options: TIServiceUpdateOneOptions,
   ): Promise<IServiceReturn<boolean>>;
@@ -479,7 +497,7 @@ export interface IService {
    * @param options - Options for the request.
    * @returns _true_ if the objects were updated successfully, _false_ if nothing was updated for the objects, or a ServiceError array if none were found or something else went wrong.
    */
-  updateMany<TInput = any>(
+  updateMany<TInput = UpdateQuery<TModel>>(
     input: TInput[],
     options: TIServiceUpdateManyOptions,
   ): Promise<IServiceReturn<boolean>>;
@@ -512,4 +530,9 @@ export interface IService {
   deleteMany(
     options: TIServiceDeleteManyOptions,
   ): Promise<IServiceReturn<true>>;
+
+  bulkWrite<TBulkModel extends object = TModel>(
+    operations: AnyBulkWriteOperation<TBulkModel>[],
+    options?: MongooseBulkWriteOptions,
+  ): Promise<IServiceReturn<boolean>>;
 }

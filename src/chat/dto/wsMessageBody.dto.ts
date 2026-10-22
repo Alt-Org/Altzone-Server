@@ -1,5 +1,4 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { Feeling } from '../enum/feeling.enum';
+import { IsDefined, IsEnum } from 'class-validator';
 import { ChatEmotion } from '../enum/chatEmotion.enum';
 import { ChatResponseType } from '../enum/chatResponseType.enum';
 
@@ -8,31 +7,16 @@ import { ChatResponseType } from '../enum/chatResponseType.enum';
  */
 export class WsMessageBodyDto {
   /**
-   * The message content.
-   * @example "Hello there!"
-   */
-  @IsString()
-  content: string;
-
-  /**
-   * Feeling of the message.
-   * @example "Happy"
-   */
-  @IsOptional()
-  @IsEnum(Feeling)
-  feeling?: Feeling;
-
-  /**
    * Predefined response selected by the player.
    */
-  @IsOptional()
+  @IsDefined()
   @IsEnum(ChatResponseType)
-  responseType?: ChatResponseType;
+  responseType: ChatResponseType;
 
   /**
    * Emotion selected for a predefined response.
    */
-  @IsOptional()
+  @IsDefined()
   @IsEnum(ChatEmotion)
-  emotion?: ChatEmotion;
+  emotion: ChatEmotion;
 }

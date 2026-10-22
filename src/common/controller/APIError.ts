@@ -199,7 +199,10 @@ function determineStatus(reason: APIErrorReason) {
     APIErrorReason.AUTHENTICATION_FAILED,
   ];
 
-  const notAuthorized = [APIErrorReason.NOT_AUTHORIZED];
+  const notAuthorized = [
+    APIErrorReason.NOT_AUTHORIZED,
+    APIErrorReason.CLAN_ACTION_BLOCKED_DURING_TESTING_SESSION,
+  ];
 
   const conflict = [APIErrorReason.NOT_UNIQUE];
 

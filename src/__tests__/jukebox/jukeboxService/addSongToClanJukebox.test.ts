@@ -46,7 +46,7 @@ describe('jukeboxService.addSongToclanJukebox() test suite', () => {
     expect(typeof notifiedArg.startedAt).toBe('number');
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       playerId,
-      'banish_the_earworm',
+      'change_the_music',
       false,
     );
   });

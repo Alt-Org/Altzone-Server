@@ -1,5 +1,6 @@
 import {
   IsEnum,
+  IsDefined,
   IsMongoId,
   IsNotEmpty,
   IsOptional,
@@ -76,11 +77,11 @@ export class CreateChatMessageDto {
   @IsOptional()
   feeling?: Feeling;
 
+  @IsDefined()
   @IsEnum(ChatResponseType)
-  @IsOptional()
-  responseType?: ChatResponseType;
+  responseType: ChatResponseType;
 
+  @IsDefined()
   @IsEnum(ChatEmotion)
-  @IsOptional()
-  emotion?: ChatEmotion;
+  emotion: ChatEmotion;
 }

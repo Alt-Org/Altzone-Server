@@ -3,7 +3,7 @@ import { DailyTasksService } from '../../dailyTasks/dailyTasks.service';
 import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
 import { StrongerSoldierStep } from '../../dailyTasks/enum/strongerSoldierStep.enum';
 
-describe('STRONGER_SOLDIER daily task', () => {
+describe('UPGRADE_A_DEFENCE_SOLDIER daily task', () => {
   const createService = (updatedTask: any = null) => {
     const model = {
       findOneAndUpdate: jest.fn(() => ({
@@ -18,7 +18,7 @@ describe('STRONGER_SOLDIER daily task', () => {
       {} as any,
       {
         createTaskRandomValues: jest.fn().mockReturnValue({
-          type: ServerTaskName.GO_TO_BATTLE,
+          type: ServerTaskName.PLAY_A_BATTLE,
           amount: 2,
           points: 10,
           coins: 5,
@@ -27,6 +27,7 @@ describe('STRONGER_SOLDIER daily task', () => {
         }),
       } as any,
       progressService as any,
+      {} as any,
     );
     const basicService = {
       updateOne: jest.fn().mockResolvedValue([true, null]),
@@ -59,7 +60,7 @@ describe('STRONGER_SOLDIER daily task', () => {
     expect(model.findOneAndUpdate).toHaveBeenCalledWith(
       {
         player_id: 'player-1',
-        type: ServerTaskName.STRONGER_SOLDIER,
+        type: ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
         amountLeft: 2,
       },
       { $inc: { amountLeft: -1 } },
@@ -124,7 +125,7 @@ describe('STRONGER_SOLDIER daily task', () => {
 
     const [result, errors] = await service.handleDailyTaskEvent({
       playerId: 'player-1',
-      serverTaskName: ServerTaskName.STRONGER_SOLDIER,
+      serverTaskName: ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
       strongerSoldierStep: step,
     });
 
@@ -143,7 +144,7 @@ describe('STRONGER_SOLDIER daily task', () => {
 
     const [result, errors] = await service.handleDailyTaskEvent({
       playerId: 'player-1',
-      serverTaskName: ServerTaskName.STRONGER_SOLDIER,
+      serverTaskName: ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
     });
 
     expect(result).toBeNull();

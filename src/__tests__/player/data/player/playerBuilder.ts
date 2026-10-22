@@ -44,6 +44,7 @@ export default class PlayerBuilder {
     clanRole_id: null,
     _id: undefined,
     environment: Environment.TEACHING_DEMO,
+    clan_joindate: null,
   };
 
   build(): Player {

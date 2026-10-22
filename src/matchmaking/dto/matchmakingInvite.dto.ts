@@ -46,6 +46,14 @@ export class MatchmakingInviteDto {
   matchType: MatchType;
 
   /**
+   * Client-defined game mode played in the room.
+   *
+   * @example 1
+   */
+  @Expose()
+  gameType: number;
+
+  /**
    * Current invite status.
    *
    * @example "OPEN"

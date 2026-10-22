@@ -1,6 +1,8 @@
 import {
   AnyBulkWriteOperation,
+  AnyKeys,
   Error,
+  HydratedDocument,
   Model,
   MongooseBulkWriteOptions,
   UpdateQuery,
@@ -19,6 +21,7 @@ import {
   TIServiceUpdateByIdOptions,
   TIServiceUpdateManyOptions,
   TIServiceUpdateOneOptions,
+  TServiceBulkWriteOperation,
   TReadByIdOptions,
 } from './IService';
 import ServiceError from './ServiceError';
@@ -32,27 +35,39 @@ import { hasUnsafeMongoUpdateKey } from '../../function/validateMongoUpdate';
  *
  * In case of any errors occurred class methods will return an array of ServiceErrors
  */
-export default class BasicService implements IService {
+export default class BasicService<TModel extends object = any>
+  implements IService<TModel>
+{
+  private readonly model: Model<TModel>;
+
   /**
    *
    * @param model DB model class to query. Can also be injected with @InjectModel() by mongoose
    */
-  constructor(private readonly model: Model<any>) {}
+  constructor(model: Model<any>) {
+    this.model = model as Model<TModel>;
+  }
 
-  async createOne<TInput = any, TOutput = any>(
+  async createOne<
+    TInput extends AnyKeys<TModel> = AnyKeys<TModel>,
+    TOutput = HydratedDocument<TModel>,
+  >(
     input: TInput,
     options?: TIServiceCreateOneOptions,
   ): Promise<IServiceReturn<TOutput>> {
     try {
       const data = await this.model.create([input], options);
-      return [data[0], null];
+      return [data[0] as TOutput, null];
     } catch (error) {
       const errors = convertMongooseToServiceErrors(error);
       return [null, errors];
     }
   }
 
-  async createMany<TInput = any, TOutput = any>(
+  async createMany<
+    TInput extends AnyKeys<TModel> = AnyKeys<TModel>,
+    TOutput = HydratedDocument<TModel>,
+  >(
     input: TInput[],
     options?: TIServiceCreateManyOptions,
   ): Promise<IServiceReturn<TOutput[]>> {
@@ -61,14 +76,14 @@ export default class BasicService implements IService {
         ? { ...options, ordered: true }
         : options;
       const data = await this.model.create(input, createOptions);
-      return [data, null];
+      return [data as TOutput[], null];
     } catch (error) {
       const errors = convertMongooseToServiceErrors(error);
       return [null, errors];
     }
   }
 
-  async readOneById<TOutput = any>(
+  async readOneById<TOutput = HydratedDocument<TModel>>(
     _id: string,
     options?: TReadByIdOptions,
   ): Promise<IServiceReturn<TOutput>> {
@@ -95,14 +110,14 @@ export default class BasicService implements IService {
           ],
         ];
 
-      return [resp, null];
+      return [resp as unknown as TOutput, null];
     } catch (error: any) {
       const errors = convertMongooseToServiceErrors(error);
       return [null, errors];
     }
   }
 
-  async readOne<TOutput = any>(
+  async readOne<TOutput = HydratedDocument<TModel>>(
     options: TIServiceReadOneOptions,
   ): Promise<IServiceReturn<TOutput>> {
     try {
@@ -125,14 +140,14 @@ export default class BasicService implements IService {
           ],
         ];
 
-      return [resp, null];
+      return [resp as unknown as TOutput, null];
     } catch (error) {
       const errors = convertMongooseToServiceErrors(error);
       return [null, errors];
     }
   }
 
-  async readMany<TOutput = any>(
+  async readMany<TOutput = HydratedDocument<TModel>>(
     options?: TIServiceReadManyOptions,
   ): Promise<IServiceReturn<TOutput[]>> {
     try {
@@ -155,14 +170,14 @@ export default class BasicService implements IService {
           ],
         ];
 
-      return [resp, null];
+      return [resp as TOutput[], null];
     } catch (error) {
       const errors = convertMongooseToServiceErrors(error);
       return [null, errors];
     }
   }
 
-  async updateOneById<TInput = any>(
+  async updateOneById<TInput = UpdateQuery<TModel>>(
     _id: string,
     input: TInput,
     options?: TIServiceUpdateByIdOptions,
@@ -202,7 +217,7 @@ export default class BasicService implements IService {
     }
   }
 
-  async updateOne<TInput = any>(
+  async updateOne<TInput = UpdateQuery<TModel>>(
     input: TInput,
     options: TIServiceUpdateOneOptions,
   ): Promise<IServiceReturn<boolean>> {
@@ -248,7 +263,7 @@ export default class BasicService implements IService {
     }
   }
 
-  async updateMany<TInput = any>(
+  async updateMany<TInput = UpdateQuery<TModel>>(
     input: TInput[],
     options: TIServiceUpdateManyOptions,
   ): Promise<IServiceReturn<boolean>> {
@@ -293,11 +308,11 @@ export default class BasicService implements IService {
     }
   }
 
-  async findByIdAndUpdate<T extends object>(
+  async findByIdAndUpdate<TOutput extends object = HydratedDocument<TModel>>(
     _id: string,
-    input: UpdateQuery<T>,
+    input: UpdateQuery<TModel>,
     options?: TIServiceUpdateByIdOptions,
-  ): Promise<IServiceReturn<T>> {
+  ): Promise<IServiceReturn<TOutput>> {
     try {
       if (hasUnsafeMongoUpdateKey(input)) {
         return [
@@ -329,17 +344,17 @@ export default class BasicService implements IService {
           ],
         ];
 
-      return [resp, null];
+      return [resp as unknown as TOutput, null];
     } catch (error) {
       const errors = convertMongooseToServiceErrors(error);
       return [null, errors];
     }
   }
 
-  async findOneAndUpdate<T extends object>(
-    input: UpdateQuery<T>,
+  async findOneAndUpdate<TOutput extends object = HydratedDocument<TModel>>(
+    input: UpdateQuery<TModel>,
     options: TIServiceFindOneAndUpdate,
-  ): Promise<IServiceReturn<T>> {
+  ): Promise<IServiceReturn<TOutput>> {
     try {
       if (hasUnsafeMongoUpdateKey(input)) {
         return [
@@ -381,7 +396,7 @@ export default class BasicService implements IService {
           ],
         ];
 
-      return [resp, null];
+      return [resp as unknown as TOutput, null];
     } catch (error) {
       const errors = convertMongooseToServiceErrors(error);
       return [null, errors];
@@ -464,12 +479,14 @@ export default class BasicService implements IService {
     }
   }
 
-  async bulkWrite<T extends object>(
-    operations: AnyBulkWriteOperation<T>[],
+  async bulkWrite<TBulkModel extends object = TModel>(
+    operations: AnyBulkWriteOperation<TBulkModel>[],
     options?: MongooseBulkWriteOptions,
   ): Promise<IServiceReturn<boolean>> {
     try {
-      const resp = await this.model.bulkWrite(operations, options);
+      const modelOperations =
+        operations as unknown as TServiceBulkWriteOperation<TModel>[];
+      const resp = await this.model.bulkWrite(modelOperations, options);
       if (resp.matchedCount === 0)
         return [
           null,

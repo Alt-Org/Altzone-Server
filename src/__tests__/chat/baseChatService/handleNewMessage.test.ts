@@ -6,6 +6,8 @@ import { ChatType } from '../../../chat/enum/chatMessageType.enum';
 import { MessageEventType } from '../../../chat/enum/messageEventType.enum';
 import ChatModule from '../modules/chat.module';
 import { ObjectId } from 'mongodb';
+import { ChatEmotion } from '../../../chat/enum/chatEmotion.enum';
+import { ChatResponseType } from '../../../chat/enum/chatResponseType.enum';
 
 class TestBaseChatService extends BaseChatService {
   public broadcast = jest.fn();
@@ -63,7 +65,9 @@ describe('BaseChatService.handleNewMessage() test suite', () => {
     const message = new CreateChatMessageDto({
       type: ChatType.GLOBAL,
       sender_id: new ObjectId().toString(),
-      content: 'Hello there!',
+      content: ChatResponseType.ONLINE,
+      responseType: ChatResponseType.ONLINE,
+      emotion: ChatEmotion.JOY,
     });
     (chatService.createChatMessage as jest.Mock).mockResolvedValue([
       message,

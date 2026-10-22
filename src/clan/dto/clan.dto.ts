@@ -81,6 +81,22 @@ export class ClanDto {
   points: number;
 
   /**
+   * Planned member limit for a Box-session clan
+   *
+   * @example 15
+   */
+  @Expose()
+  boxMemberLimit?: number;
+
+  /**
+   * Locked target score for a Box-session clan
+   *
+   * @example 6300
+   */
+  @Expose()
+  targetPoints?: number;
+
+  /**
    * Total battle points accumulated by the clan
    *
    * @example 320
@@ -222,4 +238,11 @@ export class ClanDto {
    */
   @Expose()
   rules?: ClanRule[];
+
+  /**
+   * Date when the clan was created
+   * @example "2024-01-20T12:00:00Z"
+   */
+  @Expose()
+  createdAt?: Date;
 }
