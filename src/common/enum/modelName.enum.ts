@@ -37,4 +37,5 @@ export enum ModelName {
   BOX = 'Box',
   GROUP_ADMIN = 'GroupAdmin',
   FRIENDSHIP = 'Friendship',
+  SESSION = 'Session',
 }

@@ -4,7 +4,7 @@ import { SEReason } from '../../common/service/basicService/SEReason';
 import BasicService from '../../common/service/basicService/BasicService';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Box } from '../schemas/box.schema';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, MongooseError } from 'mongoose';
 import ClaimedAccount from './payloads/claimedAccount';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import { TesterAccountService } from './testerAccount.service';
@@ -15,6 +15,8 @@ import {
   initializeSession,
 } from '../../common/function/Transactions';
 import BoxAuthService from '../../auth/box/BoxAuthService';
+import { ObjectId } from 'mongodb';
+import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export default class AccountClaimerService {
@@ -86,16 +88,42 @@ export default class AccountClaimerService {
     if (clanAssigningErrors)
       return await cancelTransaction(session, clanAssigningErrors);
 
+    const _id = new ObjectId();
+    const session_id = randomUUID();
+
     const payload = {
+      token_id: _id.toString(),
+      session_id,
       player_id: account.Player._id.toString(),
       profile_id: account.Profile._id.toString(),
       clan_id: accountClan._id.toString(),
       box_id: box._id.toString(),
       groupAdmin: false,
-      tokenVersion: account.Profile.tokenVersion ?? 0,
     };
 
     const tokens = await this.boxAuthService.createTokens(payload);
+
+    const sessionPayload = {
+      _id,
+      session_id, 
+      profile_id: account.Profile._id.toString(), 
+      refreshToken: tokens.refreshToken, 
+      refreshTokenExpires: tokens.refreshTokenExpires,
+    };
+
+    const sessionResp = await this.boxAuthService.createSession(
+      sessionPayload,
+      session,
+    );
+
+    if (sessionResp instanceof MongooseError || !sessionResp)
+      return cancelTransaction(
+        session,
+        new ServiceError({
+          reason: SEReason.UNEXPECTED,
+          message: 'Token Session creation failed',
+        }),
+      );
 
     return await endTransaction(session, {
       ...account.Player,

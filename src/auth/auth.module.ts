@@ -14,6 +14,7 @@ import { PlayerSchema } from '../player/schemas/player.schema';
 import { ProfileSchema } from '../profile/profile.schema';
 import { ClanSchema } from '../clan/clan.schema';
 import { ProfileModule } from '../profile/profile.module';
+import { SessionSchema } from './session.schema';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ProfileModule } from '../profile/profile.module';
       { name: ModelName.CLAN, schema: ClanSchema },
       { name: ModelName.BOX, schema: BoxSchema },
       { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
+      { name: ModelName.SESSION, schema: SessionSchema },
     ]),
     forwardRef(() => ProfileModule),
   ],

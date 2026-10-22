@@ -11,9 +11,10 @@ describe('AuthService.createTokens() test suite', () => {
 
   it('Should return access and refresh tokens and expiration dates', async () => {
     const payload = {
+      token_id: '12345',
+      session_id: '12345',
       profile_id: '12345',
       player_id: '12345',
-      tokenVersion: 0,
     };
 
     const result = await authService.createTokens(payload);
@@ -31,7 +32,6 @@ describe('AuthService.createTokens() test suite', () => {
 
     expect(refreshToken.profile_id).toBe(payload.profile_id);
     expect(refreshToken.player_id).toBe(payload.player_id);
-    expect(refreshToken.tokenVersion).toBe(payload.tokenVersion);
     expect(refreshToken.type).toBe('refresh');
 
     expect(result.tokenExpires).toBe(accessToken.exp);

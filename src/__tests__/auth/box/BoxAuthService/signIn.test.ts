@@ -19,16 +19,19 @@ jest.mock('argon2', () => ({
   verify: jest.fn(async (hashed: string, plain: string) => {
     return hashed === hashedPassword && plain === validPassword;
   }),
+  hash: jest.fn().mockResolvedValue('mocked-hash'),
 }));
 
 describe('BoxAuthService.signIn() test suite', () => {
   const validUsername = 'valid-username';
+  const refreshToken = 'refresh-token';
   const accessToken = 'access-token';
   const tokenExpires = new Date().getTime();
 
   const signAsyncSpy = jest
     .spyOn(JwtService.prototype, 'signAsync')
-    .mockResolvedValue(accessToken);
+    .mockResolvedValueOnce(refreshToken)
+    .mockResolvedValueOnce(accessToken);
   jest
     .spyOn(JwtService.prototype, 'decode')
     .mockReturnValue({ exp: tokenExpires });
@@ -128,14 +131,27 @@ describe('BoxAuthService.signIn() test suite', () => {
 
     await boxAuthService.signIn(validUsername, validPassword);
 
-    expect(signAsyncSpy).toHaveBeenCalledWith(
+    expect(signAsyncSpy).toHaveBeenNthCalledWith(
+      1,
       {
         profile_id: existingAdminProfile._id.toString(),
         player_id: createdPlayer._id.toString(),
         box_id: existingBox._id.toString(),
         groupAdmin: true,
-        tokenVersion: 0,
+        session_id: expect.any(String),
+        token_id: expect.any(String),
         type: 'refresh',
+      },
+      { expiresIn: '30d' },
+    );
+
+    expect(signAsyncSpy).toHaveBeenNthCalledWith(
+      2,
+      {
+        profile_id: existingAdminProfile._id.toString(),
+        player_id: createdPlayer._id.toString(),
+        box_id: existingBox._id.toString(),
+        groupAdmin: true,
       },
       { expiresIn: '2d' },
     );
@@ -147,14 +163,27 @@ describe('BoxAuthService.signIn() test suite', () => {
 
     await boxAuthService.signIn(validUsername, validPassword);
 
-    expect(signAsyncSpy).toHaveBeenCalledWith(
+    expect(signAsyncSpy).toHaveBeenNthCalledWith(
+      1,
       {
         profile_id: existingAdminProfile._id.toString(),
         player_id: createdPlayer._id.toString(),
         box_id: existingBox._id.toString(),
         groupAdmin: true,
-        tokenVersion: 0,
+        session_id: expect.any(String),
+        token_id: expect.any(String),
         type: 'refresh',
+      },
+      { expiresIn: '30d' },
+    );
+
+    expect(signAsyncSpy).toHaveBeenNthCalledWith(
+      2,
+      {
+        profile_id: existingAdminProfile._id.toString(),
+        player_id: createdPlayer._id.toString(),
+        box_id: existingBox._id.toString(),
+        groupAdmin: true,
       },
       { expiresIn: '2d' },
     );

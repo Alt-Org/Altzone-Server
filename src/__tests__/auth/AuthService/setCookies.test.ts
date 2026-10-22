@@ -17,8 +17,11 @@ describe('setCookies', () => {
 
     const accessToken = 'access-token';
     const refreshToken = 'refresh-token';
-    const accessExpires = 3600000;
-    const refreshExpires = 3600000;
+    const now = Math.floor(Date.now() / 1000);
+    const accessExpires = now + 15 * 60;
+    const refreshExpires = now + 30 * 24 * 60 * 60;
+    const accessExpected = (accessExpires - now) * 1000;
+    const refreshExpected = (refreshExpires - now) * 1000;
 
     authService.setCookies(
       response,
@@ -37,7 +40,7 @@ describe('setCookies', () => {
         secure: true,
         sameSite: 'lax',
         path: '/',
-        maxAge: accessExpires,
+        maxAge: accessExpected,
       },
     );
 
@@ -50,7 +53,7 @@ describe('setCookies', () => {
         secure: true,
         sameSite: 'lax',
         path: '/auth/refresh',
-        maxAge: refreshExpires,
+        maxAge: refreshExpected,
       },
     );
   });

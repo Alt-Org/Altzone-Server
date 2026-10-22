@@ -15,6 +15,7 @@ jest.mock('argon2', () => ({
   verify: jest.fn(async (hashed: string, plain: string) => {
     return hashed === hashedPassword && plain === validPassword;
   }),
+  hash: jest.fn().mockResolvedValue('mocked-hash'),
 }));
 
 describe('AuthService.signIn() test suite', () => {
