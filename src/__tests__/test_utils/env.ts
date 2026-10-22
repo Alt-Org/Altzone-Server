@@ -3,7 +3,9 @@ import './jest.matchers.d';
 process.env.MONGO_DB_NAME = 'altzone_' + process.env.JEST_WORKER_ID;
 process.env.PORT = '8080';
 process.env.JWT_SECRET = 'mySecret';
-process.env.JWT_EXPIRES = '2d';
+process.env.JWT_EXPIRES = '15m';
+process.env.JWT_REFRESH_EXPIRES = '30d';
+process.env.JWT_REFRESH_INACTIVITY = '7d';
 
 process.env.PSW_MEMORY = '1300';
 process.env.PSW_TIME = '1';

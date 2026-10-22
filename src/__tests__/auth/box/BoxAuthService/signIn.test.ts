@@ -153,7 +153,7 @@ describe('BoxAuthService.signIn() test suite', () => {
         box_id: existingBox._id.toString(),
         groupAdmin: true,
       },
-      { expiresIn: '2d' },
+      { expiresIn: '15m' },
     );
   });
 
@@ -185,7 +185,7 @@ describe('BoxAuthService.signIn() test suite', () => {
         box_id: existingBox._id.toString(),
         groupAdmin: true,
       },
-      { expiresIn: '2d' },
+      { expiresIn: '15m' },
     );
   });
 
