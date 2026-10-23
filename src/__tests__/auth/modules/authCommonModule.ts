@@ -16,6 +16,7 @@ import { PlayerSchema } from '../../../player/schemas/player.schema';
 import { ClanSchema } from '../../../clan/clan.schema';
 import { BoxTestingSessionGuard } from '../../../box/auth/boxTestingSession.guard';
 import { ProfileModule } from '../../../profile/profile.module';
+import { SessionSchema } from '../../../auth/session.schema';
 
 export default class AuthCommonModule {
   private constructor() {}
@@ -39,6 +40,7 @@ export default class AuthCommonModule {
             { name: ModelName.CLAN, schema: ClanSchema },
             { name: ModelName.BOX, schema: BoxSchema },
             { name: ModelName.GROUP_ADMIN, schema: GroupAdminSchema },
+            { name: ModelName.SESSION, schema: SessionSchema },
           ]),
           ProfileModule,
         ],

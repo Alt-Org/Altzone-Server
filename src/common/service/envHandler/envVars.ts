@@ -15,6 +15,12 @@ interface EnvVars {
   /** For how long JWT is valid. */
   JWT_EXPIRES: string;
 
+  /** For how long refresh JWT is valid. */
+  JWT_REFRESH_EXPIRES: string;
+
+  /** For how long refresh JWT is valid after inactivity. */
+  JWT_REFRESH_INACTIVITY: string;
+
   /** Password setting. */
   PSW_MEMORY: string;
 
@@ -122,6 +128,8 @@ export const envVars: EnvVars = {
   PORT: process.env.PORT,
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRES: process.env.JWT_EXPIRES,
+  JWT_REFRESH_EXPIRES: process.env.JWT_REFRESH_EXPIRES,
+  JWT_REFRESH_INACTIVITY: process.env.JWT_REFRESH_INACTIVITY,
   PSW_MEMORY: process.env.PSW_MEMORY,
   PSW_TIME: process.env.PSW_TIME,
   PSW_PARALLELISM: process.env.PSW_PARALLELISM,

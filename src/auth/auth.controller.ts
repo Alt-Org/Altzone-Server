@@ -1,4 +1,4 @@
-import { Body, Controller, Inject, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, Inject, Post, Req, Res } from '@nestjs/common';
 import { SignInDto } from './dto/signIn.dto';
 import { AuthService } from './auth.service';
 import { ThrowAuthErrorIfFound } from './decorator/ThrowAuthErrorIfFound.decorator';
@@ -98,7 +98,9 @@ export class AuthController {
   ) {
     const refreshToken =
       body?.refreshToken ?? request.cookies[TokenName.REFRESH_TOKEN];
-    const result = await this.authService.refresh(refreshToken);
+
+    const [result, errors] = await this.authService.refresh(refreshToken);
+    if (errors) return errors;
 
     if (!body.refreshToken) {
       const { accessToken, refreshToken, ...data } = result;
@@ -118,22 +120,34 @@ export class AuthController {
   }
 
   /**
-   * Log out of system. Currently browser only.
+   * Log out of system. 
+   * 
+   * Revokes refresh token in DB. Clears cookies.
    *
-   * clearCookies "deletes" browser cookies by replacing them with expired cookies.
-   *
-   * @param response - Response sent by browser
+   * @param request - Contains browser cookies
+   * @param body - Optional body containig refresh token
    */
   @ApiResponseDescription({
     success: {
-      status: 201,
+      status: 204,
     },
-    errors: [400],
+    errors: [400, 401],
     hasAuth: false,
   })
   @NoBoxIdFilter()
-  @Post('/logout')
-  public async logout(@Res({ passthrough: true }) response: Response) {
-    this.authService.clearCookies(response);
+  @HttpCode(204)
+  @Delete('/refresh')
+  public async logout(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+    @Body() body?: RefreshTokenDto,
+  ) {
+    const cookieToken = request.cookies[TokenName.REFRESH_TOKEN];
+    const refreshToken = body?.refreshToken ?? cookieToken;
+
+    await this.authService.logout(refreshToken);
+
+    if (cookieToken)
+      this.authService.clearCookies(response);
   }
 }
