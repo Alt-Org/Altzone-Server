@@ -4,6 +4,7 @@ import { FleaMarketItemDto } from '../../fleaMarket/dto/fleaMarketItem.dto';
 import { PlayerDto } from '../../player/dto/player.dto';
 import { VotingQueueName } from '../enum/VotingQueue.enum';
 import { VotingType } from '../enum/VotingType.enum';
+import { GovernancePayload } from './governancePayload';
 
 export type StartVotingParams = {
   voterPlayer: PlayerDto;
@@ -15,4 +16,5 @@ export type StartVotingParams = {
   setClanRole?: SetClanRoleDto;
   endsOn?: Date;
   newItemPrice?: number;
+  governancePayload?: GovernancePayload;
 };

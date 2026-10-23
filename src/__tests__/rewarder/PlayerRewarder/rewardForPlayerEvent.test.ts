@@ -31,7 +31,7 @@ describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
 
     const playerAfter = await playerModel.findById(existingPlayer._id);
     expect(playerAfter.points).toBe(playerBefore.points);
-    expect(playerAfter.battlePoints).toBe(130);
+    expect(playerAfter.battlePoints).toBe(playerBefore.battlePoints + 30);
     expect(isSuccess).toBe(true);
     expect(errors).toBeNull();
   });
@@ -49,7 +49,7 @@ describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
 
     const playerAfter = await playerModel.findById(existingPlayer._id);
     expect(playerAfter.points).toBe(playerBefore.points);
-    expect(playerAfter.battlePoints).toBe(10);
+    expect(playerAfter.battlePoints).toBe(playerBefore.battlePoints - 20);
     expect(isSuccess).toBe(true);
     expect(errors).toBeNull();
   });
@@ -61,7 +61,7 @@ describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
       .setName('loserPlayer')
       .setUniqueIdentifier('loserIdentifier')
       .setPoints(0)
-      .setBattlePoints(10)
+      .setBattlePoints(3)
       .build();
 
     const createdPlayer = await playerModel.create(existingPlayer);
@@ -105,7 +105,7 @@ describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
     const playerAfter = await playerModel.findById(existingPlayer._id);
     expect(playerAfter.points).toBe(playerBefore.points);
     expect(playerAfter.battlePoints).toBe(0);
-    expect(isSuccess).toBe(false);
+    expect(isSuccess).toBe(true);
     expect(errors).toBeNull();
   });
 

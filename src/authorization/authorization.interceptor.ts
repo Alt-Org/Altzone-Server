@@ -159,23 +159,52 @@ export class AuthorizationInterceptor implements NestInterceptor {
     //Filter out all fields that logged user can not update
     //Basically create a new request body
     if (action === Action.update) {
-      //@ts-expect-error: The `plainToInstance` function may not strictly match the expected type of `subject` at runtime
-      const dataClass: typeof subject = plainToInstance(subject, request.body);
-      if (!userAbility.can(requestAction, dataClass))
-        throw requestForbiddenError;
+      if (Array.isArray(request.body)) {
+        // 1. Process Array Payloads
+        const items = request.body.map((item) => {
+          const dataClass = plainToInstance(subject, item);
 
-      const allowedFields = this.getAllowedFields(
-        userAbility,
-        requestAction,
-        dataClass,
-        subject,
-      );
-      //Add _id field, because it may not appear in case it is not specified in rule => it will be excluded from body
-      allowedFields.push('_id');
-      if (!allowedFields || allowedFields.length === 0)
-        throw requestForbiddenError;
+          if (!userAbility.can(requestAction, dataClass)) {
+            throw requestForbiddenError;
+          }
 
-      request.body = pick(dataClass, allowedFields);
+          const allowedFields = this.getAllowedFields(
+            userAbility,
+            requestAction,
+            dataClass,
+            subject,
+          );
+          allowedFields.push('_id');
+
+          if (!allowedFields || allowedFields.length === 0) {
+            throw requestForbiddenError;
+          }
+
+          return pick(dataClass, allowedFields);
+        });
+
+        request.body = items;
+      } else {
+        // 2. Process Single Object Payloads (Original Logic)
+        const dataClass = plainToInstance(subject, request.body);
+        if (!userAbility.can(requestAction, dataClass)) {
+          throw requestForbiddenError;
+        }
+
+        const allowedFields = this.getAllowedFields(
+          userAbility,
+          requestAction,
+          dataClass,
+          subject,
+        );
+        allowedFields.push('_id');
+
+        if (!allowedFields || allowedFields.length === 0) {
+          throw requestForbiddenError;
+        }
+
+        request.body = pick(dataClass, allowedFields);
+      }
     }
 
     return next.handle().pipe(

@@ -2,6 +2,7 @@ import { CreatePlayerDto } from '../../../../player/dto/createPlayer.dto';
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 import { ObjectId } from 'mongodb';
 import { ModifyAvatarDto } from '../../../../player/dto/modifyAvatar.dto';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class CreatePlayerDtoBuilder
   implements IDataBuilder<CreatePlayerDto>
@@ -15,16 +16,17 @@ export default class CreatePlayerDtoBuilder
     currentAvatarId: 101,
     profile_id: undefined,
     battleCharacter_ids: [],
+    environment: Environment.TEACHING_DEMO,
     avatar: {
-      head: 1,
-      hair: 1,
-      eyes: 1,
-      nose: 1,
-      mouth: 1,
-      eyebrows: 1,
-      clothes: 1,
-      feet: 1,
-      hands: 1,
+      head: { id: 1, color: '#ffffff' },
+      hair: { id: 1, color: '#ffffff' },
+      eyes: { id: 1, color: '#ffffff' },
+      nose: { id: 1, color: '#ffffff' },
+      mouth: { id: 1, color: '#ffffff' },
+      eyebrows: { id: 1, color: '#ffffff' },
+      clothes: { id: 1, color: '#ffffff' },
+      feet: { id: 1, color: '#ffffff' },
+      hands: { id: 1, color: '#ffffff' },
       skinColor: '#f5cba7',
     },
   };
@@ -75,6 +77,11 @@ export default class CreatePlayerDtoBuilder
 
   setBattleCharacterIds(_ids?: string[] | ObjectId[]) {
     this.base.battleCharacter_ids = _ids as any;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }

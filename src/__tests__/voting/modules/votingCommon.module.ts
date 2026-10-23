@@ -14,6 +14,15 @@ import { VotingQueueName } from '../../../voting/enum/VotingQueue.enum';
 import { FleaMarketItemVotingSchema } from '../../../voting/schemas/fleamarketItemVoting.schema';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
 import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
+import { ExpiredVotingCleanupService } from '../../../voting/expired-voting-cleanup.service';
+import {
+  SetClanRoleVoting,
+  SetClanRoleVotingSchema,
+} from '../../../voting/schemas/setClanRoleVoting.schema';
+import {
+  BuyClanShopItemVoting,
+  BuyClanShopItemVotingSchema,
+} from '../../../voting/schemas/buyShopItem.schema';
 
 export default class VotingCommonModule {
   private constructor() {}
@@ -41,6 +50,26 @@ export default class VotingCommonModule {
                   schema: FleaMarketItemVotingSchema,
                   value: VotingType.FLEA_MARKET_SELL_ITEM,
                 },
+                {
+                  name: 'ChangeFleaMarketItemPriceVoting',
+                  schema: FleaMarketItemVotingSchema,
+                  value: VotingType.FLEA_MARKET_CHANGE_ITEM_PRICE,
+                },
+                {
+                  name: SetClanRoleVoting.name,
+                  schema: SetClanRoleVotingSchema,
+                  value: VotingType.SET_CLAN_ROLE,
+                },
+                {
+                  name: BuyClanShopItemVoting.name,
+                  schema: BuyClanShopItemVotingSchema,
+                  value: VotingType.SHOP_BUY_ITEM,
+                },
+                {
+                  name: 'ClanGovernanceUpdateVoting',
+                  schema: VotingSchema,
+                  value: VotingType.CLAN_GOVERNANCE_UPDATE,
+                },
               ],
             },
             { name: ModelName.FLEA_MARKET_ITEM, schema: FleaMarketItemSchema },
@@ -53,7 +82,12 @@ export default class VotingCommonModule {
             { name: VotingQueueName.FLEA_MARKET },
           ),
         ],
-        providers: [VotingService, VotingNotifier, VotingQueue],
+        providers: [
+          VotingService,
+          VotingNotifier,
+          VotingQueue,
+          ExpiredVotingCleanupService,
+        ],
       }).compile();
 
     return VotingCommonModule.module;

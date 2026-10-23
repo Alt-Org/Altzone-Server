@@ -12,6 +12,7 @@ import {
   TIServiceUpdateManyOptions,
   TIServiceReadManyOptions,
   TIServiceCreateOneOptions,
+  TIServiceDeleteByIdOptions,
 } from '../../common/service/basicService/IService';
 
 @Injectable()
@@ -26,7 +27,7 @@ export class ItemService {
 
   public readonly refsInModel: ModelName[];
   public readonly modelName: ModelName;
-  private readonly basicService: BasicService;
+  public readonly basicService: BasicService;
 
   /**
    * Creates an new Item in DB.
@@ -43,10 +44,15 @@ export class ItemService {
    * Creates many new Items in DB.
    *
    * @param items - The Items data to create.
+   * @param options - Optional mongoose ClientSession for transaction support.
    * @returns created Item or an array of service errors if any occurred.
    */
-  async createMany(items: CreateItemDto[]) {
-    return this.basicService.createMany<CreateItemDto, ItemDto>(items);
+
+  async createMany(
+    items: CreateItemDto[],
+    options?: TIServiceCreateOneOptions,
+  ) {
+    return this.basicService.createMany<CreateItemDto, ItemDto>(items, options);
   }
 
   /**
@@ -114,29 +120,44 @@ export class ItemService {
    * Deletes an Item by its _id from DB.
    *
    * @param _id - The Mongo _id of the Item to delete.
+   * @param options - Optional mongoose ClientSession for transaction support.
    * @returns _true_ if Item was removed successfully, or a ServiceError array if the Item was not found or something else went wrong
    */
-  async deleteOneById(_id: string) {
-    return this.basicService.deleteOneById(_id);
+  async deleteOneById(_id: string, options?: TIServiceDeleteByIdOptions) {
+    return this.basicService.deleteOneById(_id, options);
   }
 
   /**
    * Deletes all Items of the specified by _id Stock from DB.
    *
-   * @param stock_id - The Mongo _id of the Stock from which all items should be deleted
-   * @returns _true_ if Items was removed successfully, or a ServiceError array if any Items of the Stock was not found or something else went wrong
+   * @param stock_id - The Mongo _id of the Stock to delete all Items from.
+   * @param options - Optional mongoose ClientSession for transaction support.
+   * @returns _true_ if Items were removed successfully, or a ServiceError array if the Items were not found or something else went wrong
    */
-  async deleteAllStockItems(stock_id: string) {
-    return this.basicService.deleteMany({ filter: { stock_id } });
+  async deleteAllStockItems(
+    stock_id: string,
+    options?: TIServiceDeleteByIdOptions,
+  ) {
+    return this.basicService.deleteMany({
+      filter: { stock_id },
+      ...options,
+    });
   }
 
   /**
    * Deletes all Items of the specified by _id Room from DB.
    *
-   * @param room_id - The Mongo _id of the Stock from which all items should be deleted
-   * @returns _true_ if Items was removed successfully, or a ServiceError array if any Items of the Room was not found or something else went wrong
+   * @param room_id - The Mongo _id of the Room from which all items should be deleted
+   * @param options - Optional mongoose ClientSession for transaction support.
+   * @returns _true_ if Items were removed successfully, or a ServiceError array if the Items were not found or something else went wrong
    */
-  async deleteAllRoomItems(room_id: string) {
-    return this.basicService.deleteMany({ filter: { room_id } });
+  async deleteAllRoomItems(
+    room_id: string,
+    options?: TIServiceDeleteByIdOptions,
+  ) {
+    return this.basicService.deleteMany({
+      filter: { room_id },
+      ...options,
+    });
   }
 }

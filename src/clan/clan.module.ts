@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ClanSchema } from './clan.schema';
 import { ClanController } from './clan.controller';
@@ -20,6 +20,8 @@ import { ClanRoleVotingProcessor } from './role/clanRole.processor';
 import { ChatModule } from '../chat/chat.module';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
 import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
+import { DailyTasksModule } from '../dailyTasks/dailyTasks.module';
+import { ClanTimestampsStartupRefreshService } from './clanTimestampsStartupRefresh.service';
 
 @Module({
   imports: [
@@ -27,13 +29,14 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
       { name: ModelName.CLAN, schema: ClanSchema },
       { name: ModelName.PLAYER, schema: PlayerSchema },
     ]),
-    ClanInventoryModule,
+    forwardRef(() => ClanInventoryModule),
     RequestHelperModule,
     PlayerModule,
     GameEventsEmitterModule,
-    VotingModule,
+    forwardRef(() => VotingModule),
     ChatModule,
     EventEmitterCommonModule,
+    DailyTasksModule,
   ],
   controllers: [ClanController, ClanRoleController],
   providers: [
@@ -45,7 +48,14 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
     ClanRoleService,
     ClanRoleVotingProcessor,
     PasswordGenerator,
+    ClanTimestampsStartupRefreshService,
   ],
-  exports: [ClanService, PlayerCounterFactory, ClanRoleService],
+  exports: [
+    ClanService,
+    ClanHelperService,
+    PlayerCounterFactory,
+    ClanRoleService,
+    PasswordGenerator,
+  ],
 })
 export class ClanModule {}

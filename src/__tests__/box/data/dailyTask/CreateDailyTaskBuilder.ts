@@ -3,7 +3,7 @@ import { CreateDailyTask } from '../../../../box/dailyTask/payloads/CreateDailyT
 
 export default class CreateDailyTaskBuilder {
   private readonly base: Partial<CreateDailyTask> = {
-    type: ServerTaskName.PLAY_BATTLE,
+    type: ServerTaskName.GO_TO_BATTLE,
     title: 'Default Task Title',
     amount: 1,
     points: 10,

@@ -21,6 +21,14 @@ import { RoomService } from '../../../clanInventory/room/room.service';
 import RoomHelperService from '../../../clanInventory/room/utils/room.helper.service';
 import { SoulHomeService } from '../../../clanInventory/soulhome/soulhome.service';
 import SoulHomeHelperService from '../../../clanInventory/soulhome/utils/soulHomeHelper.service';
+import { ClanService } from '../../../clan/clan.service';
+import { PasswordGenerator } from '../../../common/function/passwordGenerator';
+import ClanHelperService from '../../../clan/utils/clanHelper.service';
+import GameEventEmitter from '../../../gameEventsEmitter/gameEventEmitter';
+import { RoomScheduler } from '../../../clanInventory/room/room.scheduler';
+import RoomRemovalNotifier from '../../../clanInventory/room/roomRemoval.notifier';
+import RoomNotifier from '../../../clanInventory/room/room.notifier';
+import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
 
 export default class ClanInventoryCommonModule {
   private constructor() {}
@@ -53,9 +61,28 @@ export default class ClanInventoryCommonModule {
           ItemHelperService,
           StealTokenGuard,
           RoomService,
+          RoomNotifier,
           RoomHelperService,
+          RoomScheduler,
+          RoomRemovalNotifier,
           SoulHomeService,
           SoulHomeHelperService,
+          PasswordGenerator,
+          ClanService,
+          ClanHelperService,
+          {
+            provide: GameEventEmitter,
+            useValue: {
+              emit: jest.fn(),
+              emitAsync: jest.fn(),
+            },
+          },
+          {
+            provide: EventEmitterService,
+            useValue: {
+              EmitNewDailyTaskEvent: jest.fn(async () => undefined),
+            },
+          },
         ],
       }).compile();
 

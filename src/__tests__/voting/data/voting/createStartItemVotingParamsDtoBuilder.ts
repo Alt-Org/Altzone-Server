@@ -8,6 +8,7 @@ import { AgeRange } from '../../../../clan/enum/ageRange.enum';
 import { Goal } from '../../../../clan/enum/goal.enum';
 import { Language } from '../../../../common/enum/language.enum';
 import { VotingQueueName } from '../../../../voting/enum/VotingQueue.enum.js';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class CreateStartItemVotingParamsDtoBuilder
   implements IDataBuilder<StartVotingParams>
@@ -18,12 +19,14 @@ export default class CreateStartItemVotingParamsDtoBuilder
       name: '',
       points: 0,
       battlePoints: 0,
+      claimableRewards: [],
       backpackCapacity: 0,
       uniqueIdentifier: '',
       parentalAuth: false,
       gameStatistics: null,
       profile_id: new ObjectId().toString(),
       clan_id: new ObjectId().toString(),
+      environment: undefined,
       Clan: {
         _id: new ObjectId().toString(),
         name: 'clan-1',
@@ -32,6 +35,7 @@ export default class CreateStartItemVotingParamsDtoBuilder
         labels: [],
         gameCoins: 0,
         points: 0,
+        unlockedMilestones: [],
         admin_ids: [],
         playerCount: 0,
         itemCount: 0,
@@ -46,6 +50,8 @@ export default class CreateStartItemVotingParamsDtoBuilder
         SoulHome: null,
         roles: [],
         battlePoints: 0,
+        furnitureTotalValue: 0,
+        environment: undefined,
       },
       CustomCharacter: [],
     },
@@ -90,6 +96,12 @@ export default class CreateStartItemVotingParamsDtoBuilder
     if (this.base.voterPlayer) {
       this.base.voterPlayer.battlePoints = battlePoints;
     }
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.voterPlayer.environment = environment;
+    this.base.voterPlayer.Clan.environment = environment;
     return this;
   }
 }

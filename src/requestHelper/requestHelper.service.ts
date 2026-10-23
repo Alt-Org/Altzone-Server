@@ -5,6 +5,9 @@ import { ReferenceToNullType } from './type/ReferenceToNull.type';
 import { IgnoreReferencesType } from '../common/type/ignoreReferences.type';
 import { ModelName } from '../common/enum/modelName.enum';
 import { ClassConstructor, plainToInstance } from 'class-transformer';
+import { hasUnsafeMongoUpdateKey } from '../common/function/validateMongoUpdate';
+import { SEReason } from '../common/service/basicService/SEReason';
+import ServiceError from '../common/service/basicService/ServiceError';
 
 @Injectable()
 export class RequestHelperService {
@@ -21,7 +24,7 @@ export class RequestHelperService {
     if (!isValid_id) {
       return null;
     }
-    const resp = await this.connection.model(modelName).findById(_id);
+    const resp = await this.connection.model(modelName).findById(_id).lean();
     return this.convertRespToInstance(resp, classConstructor);
   };
 
@@ -119,6 +122,12 @@ export class RequestHelperService {
     _id: string | Types.ObjectId,
     updateObject: object,
   ) => {
+    if (hasUnsafeMongoUpdateKey(updateObject)) {
+      throw new ServiceError({
+        reason: SEReason.VALIDATION,
+        message: 'Dangerous or invalid key path detected in update object',
+      });
+    }
     return this.connection.model(modelName).updateOne({ _id }, updateObject);
   };
 
@@ -149,8 +158,8 @@ export class RequestHelperService {
     resp: any,
     classConstructor: ClassConstructor<any>,
   ) => {
-    if (resp && resp._doc) {
-      const instance = plainToInstance(classConstructor, resp._doc);
+    if (resp) {
+      const instance = plainToInstance(classConstructor, resp);
 
       for (const key in instance) {
         if (instance[key] && instance[key] instanceof Types.ObjectId)

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { PlayerSchema } from '../player/schemas/player.schema';
@@ -10,6 +10,7 @@ import { ItemSchema } from './item/item.schema';
 import { ItemService } from './item/item.service';
 import { ItemHelperService } from './item/itemHelper.service';
 import { RoomController } from './room/room.controller';
+import RoomNotifier from './room/room.notifier';
 import { RoomSchema } from './room/room.schema';
 import { RoomService } from './room/room.service';
 import RoomHelperService from './room/utils/room.helper.service';
@@ -19,11 +20,17 @@ import { SoulHomeService } from './soulhome/soulhome.service';
 import SoulHomeHelperService from './soulhome/utils/soulHomeHelper.service';
 import { isStockExists } from './stock/decorator/validation/IsStockExists.decorator';
 import { StockController } from './stock/stock.controller';
+import StockNotifier from './stock/stock.notifier';
 import { StockSchema } from './stock/stock.schema';
 import { StockService } from './stock/stock.service';
 import { ClanSchema } from '../clan/clan.schema';
 import { StealTokenGuard } from './item/guards/StealToken.guard';
 import { AuthorizationModule } from '../authorization/authorization.module';
+import { ClanModule } from '../clan/clan.module';
+import { FleaMarketModule } from '../fleaMarket/fleaMarket.module';
+import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
+// well be removed in the future
+import { RoomStartupFloorTypeRefreshService } from './room/roomStartupFloorTypeRefresh.service';
 
 @Module({
   imports: [
@@ -39,6 +46,9 @@ import { AuthorizationModule } from '../authorization/authorization.module';
     RequestHelperModule,
     AuthModule,
     AuthorizationModule,
+    EventEmitterCommonModule,
+    forwardRef(() => ClanModule),
+    forwardRef(() => FleaMarketModule),
   ],
   controllers: [
     StockController,
@@ -48,22 +58,27 @@ import { AuthorizationModule } from '../authorization/authorization.module';
   ],
   providers: [
     StockService,
+    StockNotifier,
     isStockExists,
     ItemService,
     isItemExists,
     ItemHelperService,
     StealTokenGuard,
     RoomService,
+    RoomNotifier,
+    RoomStartupFloorTypeRefreshService, // will be removed in the future
     RoomHelperService,
     SoulHomeService,
     SoulHomeHelperService,
   ],
   exports: [
     StockService,
+    StockNotifier,
     ItemService,
     ItemHelperService,
     StealTokenGuard,
     RoomService,
+    RoomNotifier,
     SoulHomeService,
   ],
 })

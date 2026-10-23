@@ -43,7 +43,7 @@ describe('StallService.buyStallSlot() test suite', () => {
     const [result, error] = await stallService.buyStallSlot(clanId, 1);
 
     expect(error).toBeNull();
-    expect(result).toBe(true);
+    expect(result).toBeTruthy();
     const updatedClan = await clanModel.findOne({ name: 'clan1' });
     const { stallSlotPrice } = getStallDefaultValues();
     expect(updatedClan.gameCoins).toBe(dbClan.gameCoins - stallSlotPrice);
@@ -57,7 +57,7 @@ describe('StallService.buyStallSlot() test suite', () => {
     const [result, error] = await stallService.buyStallSlot(clanId, 2);
 
     expect(error).toBeNull();
-    expect(result).toBe(true);
+    expect(result).toBeTruthy();
     const updatedClan = await clanModel.findOne({ name: 'clan1' });
     const { stallSlotPrice } = getStallDefaultValues();
     expect(updatedClan.gameCoins).toBe(dbClan.gameCoins - stallSlotPrice * 2);

@@ -11,8 +11,12 @@ import {
   MemberClanRole,
 } from '../../../../clan/role/initializationClanRoles';
 import { Stall } from '../../../../clan/stall/stall.schema';
+import { Environment } from '../../../../common/enum/environment.enum';
+import { ClanRule } from '../../../../clan/enum/clanRule.enum';
 
 export default class ClanBuilder implements IDataBuilder<Clan> {
+  private static uniqueNameCounter = 0;
+
   private readonly base: Clan = {
     _id: undefined,
     name: 'clan',
@@ -23,6 +27,7 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
     itemCount: 0,
     stockCount: 0,
     points: 0,
+    unlockedMilestones: [],
     battlePoints: 0,
     gameCoins: 0,
     isOpen: true,
@@ -31,6 +36,7 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
     goal: Goal.GRINDAUS,
     phrase: 'We are the best',
     language: Language.ENGLISH,
+    environment: Environment.TEACHING_DEMO,
     clanLogo: { logoType: LogoType.HEART, pieceColors: ['#FFFFFF', '#000000'] },
     roles: [MemberClanRole, LeaderClanRole] as any,
     stall: {
@@ -41,11 +47,19 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
       },
       maxSlots: 7,
     },
+    furnitureTotalValue: 0,
+    rules: [ClanRule.FAIR_GAME, ClanRule.NO_TOXICITY, ClanRule.NO_SPAM],
   };
 
   // Returns a new Clan object with the current base properties
   build() {
-    return { ...this.base };
+    const clan = { ...this.base };
+
+    if (clan.name === 'clan') {
+      clan.name = `cl-${Date.now().toString(36).slice(-6)}-${ClanBuilder.uniqueNameCounter++}`;
+    }
+
+    return clan;
   }
 
   setId(id: string) {
@@ -145,6 +159,11 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
 
   setStallMaxSlots(amount: number) {
     this.base.stall.maxSlots = amount;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }

@@ -20,6 +20,7 @@ import { ProfileDto } from '../profile/dto/profile.dto';
 import UniqueFieldGenerator from './util/UniqueFieldGenerator';
 import { Profile } from '../profile/profile.schema';
 import { generateRandomClanName } from './util/generateRandomClanName';
+import { Environment } from '../common/enum/environment.enum';
 
 @Injectable()
 export default class BoxCreator {
@@ -73,6 +74,7 @@ export default class BoxCreator {
     const boxToCreate: Partial<Box> = {};
     boxToCreate.adminPassword = boxToInit.adminPassword;
     boxToCreate._id = boxToCreate_id;
+    boxToCreate['box_id'] = boxToCreate_id;
 
     const [adminProfile, adminProfileErrors] = await this.createAdminProfile(
       boxToInit.adminPassword,
@@ -217,6 +219,7 @@ export default class BoxCreator {
       await this.profilesService.createWithHashedPassword({
         username: adminPassword,
         password: adminPassword,
+        environment: Environment.OPEN_DEMO,
       });
 
     if (errors) return [null, errors];

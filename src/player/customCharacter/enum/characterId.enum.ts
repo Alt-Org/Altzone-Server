@@ -32,6 +32,7 @@ export enum CharacterId {
   Stoner_504 = '504',
   Martyrdom_505 = '505',
   Self_Harm_506 = '506',
+  Shopping_507 = '507',
 
   SoulSisters_601 = '601',
   Limerence_602 = '602',
@@ -42,6 +43,6 @@ export enum CharacterId {
   Wiseacre_701 = '701',
   Capitalism_702 = '702',
   Ocd_703 = '703',
-  // Overcomplication_704 = '704',
-  // Nitpicking_705 = '705',
+  Overcomplication_704 = '704',
+  Nitpicking_705 = '705',
 }

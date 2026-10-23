@@ -1,83 +1,142 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type, Transform } from 'class-transformer';
+import { IsNumber, IsHexColor, ValidateNested } from 'class-validator';
 
+export class AvatarPieceDto {
+  /**
+   * Piece identifier
+   * @example 1
+   */
+  @Expose()
+  @IsNumber()
+  id: number;
+
+  /**
+   * Piece color in HEX format
+   * @example "#ff0000"
+   */
+  @Expose()
+  @IsHexColor()
+  color: string;
+}
+
+/**
+ * Data Transfer Object for the complete Avatar configuration.
+ * Groups various physical and clothing components together.
+ */
 export class AvatarDto {
   /**
-   * Head variant identifier
-   *
-   * @example 1
+   * Configuration for the avatar's head shape and base.
+   * @example {AvatarPieceDto}
    */
   @Expose()
-  head: number;
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  head: AvatarPieceDto;
 
   /**
-   * Hairstyle identifier
-   *
-   * @example 2
+   * Configuration for the avatar's hairstyle and color.
+   * @type {AvatarPieceDto}
    */
   @Expose()
-  hair: number;
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  hair: AvatarPieceDto;
 
   /**
-   * Eye style identifier
-   *
-   * @example 3
+   * Configuration for the avatar's eye shape and iris color.
+   * @type {AvatarPieceDto}
    */
   @Expose()
-  eyes: number;
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  eyes: AvatarPieceDto;
 
   /**
-   * Nose style identifier
-   *
-   * @example 1
+   * Configuration for the avatar's nose structure.
+   * @type {AvatarPieceDto}
    */
   @Expose()
-  nose: number;
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  nose: AvatarPieceDto;
 
   /**
-   * Mouth style identifier
-   *
-   * @example 2
+   * Configuration for the avatar's mouth and lip shape.
+   * @type {AvatarPieceDto}
    */
   @Expose()
-  mouth: number;
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  mouth: AvatarPieceDto;
 
   /**
-   * Eyebrows style identifier
-   *
-   * @example 1
+   * Configuration for the avatar's eyebrow shape and thickness.
+   * @type {AvatarPieceDto}
    */
   @Expose()
-  eyebrows: number;
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  eyebrows: AvatarPieceDto;
 
   /**
-   * Clothes identifier
-   *
-   * @example 4
+   * Configuration for the avatar's upper body clothing or outfit.
+   * @type {AvatarPieceDto}
    */
   @Expose()
-  clothes: number;
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  clothes: AvatarPieceDto;
 
   /**
-   * Feet (footwear) identifier
-   *
-   * @example 1
+   * Configuration for the avatar's footwear.
+   * @type {AvatarPieceDto}
    */
   @Expose()
-  feet: number;
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  feet: AvatarPieceDto;
 
   /**
-   * Hands (gloves, etc.) identifier
-   *
-   * @example 2
+   * Configuration for the avatar's hand features or gloves.
+   * @type {AvatarPieceDto}
    */
   @Expose()
-  hands: number;
+  @Transform(({ value }) =>
+    typeof value === 'number' ? { id: value, color: '#ffffff' } : value,
+  )
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  hands: AvatarPieceDto;
 
   /**
    * Avatar skin color in HEX format
-   *
    * @example "#FAD9B5"
    */
   @Expose()
+  @IsHexColor()
   skinColor: string;
 }

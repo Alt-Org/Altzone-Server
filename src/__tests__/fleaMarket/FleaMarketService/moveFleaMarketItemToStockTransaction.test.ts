@@ -59,7 +59,7 @@ describe('FleaMarketService.moveFleaMarketItemToStockTransaction() integration',
     // Call transaction
     const [result, error] = await fleaMarketService[
       'moveFleaMarketItemToStockTransaction'
-    ](createItemDto, createdFMItem._id.toString());
+    ](createItemDto, createdFMItem._id.toString(), clanId);
 
     expect(result).toBeTruthy();
     expect(error).toBeNull();
@@ -105,7 +105,7 @@ describe('FleaMarketService.moveFleaMarketItemToStockTransaction() integration',
     // Call transaction
     const [result, error] = await fleaMarketService[
       'moveFleaMarketItemToStockTransaction'
-    ](createItemDto, createdFMItem._id.toString());
+    ](createItemDto, createdFMItem._id.toString(), clanId);
 
     expect(result).toBeNull();
     expect(error).toBeTruthy();
@@ -148,7 +148,7 @@ describe('FleaMarketService.moveFleaMarketItemToStockTransaction() integration',
     // Call transaction
     const [result, error] = await fleaMarketService[
       'moveFleaMarketItemToStockTransaction'
-    ](createItemDto, createdFMItem._id.toString());
+    ](createItemDto, createdFMItem._id.toString(), clanId);
 
     expect(result).toBeNull();
     expect(error).toBeTruthy();

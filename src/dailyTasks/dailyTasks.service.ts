@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { ClientSession, Connection, Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { ModelName } from '../common/enum/modelName.enum';
 import DailyTaskNotifier from './dailyTask.notifier';
@@ -8,28 +8,53 @@ import { DailyTask } from './dailyTasks.schema';
 import { DailyTaskDto } from './dto/dailyTask.dto';
 import { DailyTaskQueue } from './dailyTask.queue';
 import { taskReservedError } from './errors/taskReserved.error';
-import { TaskGeneratorService } from './taskGenerator.service';
+import {
+  SERVER_TASKS_PER_CLAN,
+  TaskGeneratorService,
+} from './taskGenerator.service';
 import {
   IServiceReturn,
   TIServiceReadManyOptions,
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
 import { SEReason } from '../common/service/basicService/SEReason';
-import { cancelTransaction } from '../common/function/cancelTransaction';
 import { OnEvent } from '@nestjs/event-emitter';
 import { ServerTaskName } from './enum/serverTaskName.enum';
-import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
-import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
+import {
+  cancelTransaction,
+  endTransaction,
+  initializeSession,
+} from '../common/function/Transactions';
+import { prizePool } from '../rewarder/const/prizePool';
+import { DailyTaskProgressResult } from './type/dailyTaskProgressResult.type';
+import { DailyTaskProgressService } from './dailyTaskProgress.service';
+import { ChatEmotion } from '../chat/enum/chatEmotion.enum';
+import { ChatResponseType } from '../chat/enum/chatResponseType.enum';
+import { StrongerSoldierStep } from './enum/strongerSoldierStep.enum';
+import ServiceError from '../common/service/basicService/ServiceError';
+
+const isChatEmotion = (emotion: unknown): emotion is ChatEmotion =>
+  typeof emotion === 'number' && Object.values(ChatEmotion).includes(emotion);
+
+const isChatResponseType = (
+  responseType: unknown,
+): responseType is ChatResponseType =>
+  typeof responseType === 'string' &&
+  Object.values(ChatResponseType).includes(responseType as ChatResponseType);
+
+const isStrongerSoldierStep = (step: unknown): step is StrongerSoldierStep =>
+  typeof step === 'string' &&
+  Object.values(StrongerSoldierStep).includes(step as StrongerSoldierStep);
 
 @Injectable()
 export class DailyTasksService {
   public constructor(
     @InjectModel(DailyTask.name) public readonly model: Model<DailyTask>,
+    @InjectConnection() private readonly connection: Connection,
     private readonly notifier: DailyTaskNotifier,
     private readonly taskQueue: DailyTaskQueue,
     private readonly taskGenerator: TaskGeneratorService,
-    private readonly playerRewarder: PlayerRewarder,
-    private readonly clanRewarder: ClanRewarder,
+    private readonly progressService: DailyTaskProgressService,
   ) {
     this.basicService = new BasicService(model);
     this.modelName = ModelName.DAILY_TASK;
@@ -43,8 +68,8 @@ export class DailyTasksService {
   /**
    * Generates a set of tasks for a new clan.
    *
-   * This method creates 20 tasks with random values and assigns them to the specified clan.
-   * Each task is created by calling `createTaskRandomValues` and then adding the `clanId`.
+   * Each active server task type occurs at least twice, with the remaining
+   * slots selected randomly and the final list shuffled.
    *
    * @param clanId - The ID of the clan for which tasks are being generated.
    * @returns generated random tasks.
@@ -52,20 +77,18 @@ export class DailyTasksService {
   generateServerTasksForNewClan(
     clanId: string,
   ): IServiceReturn<Omit<DailyTask, '_id'>[]> {
-    const tasks: Omit<DailyTask, '_id'>[] = [];
-    for (let i = 0; i < 20; i++) {
-      const partial = this.taskGenerator.createTaskRandomValues();
-      const timeLimitMinutes = partial.amount * 2;
-      const task: Omit<DailyTask, '_id'> = {
-        ...partial,
-        amountLeft: partial.amount,
-        timeLimitMinutes,
-        clan_id: clanId,
-        player_id: null,
-        startedAt: null,
-      };
-      tasks.push(task);
-    }
+    const tasks = this.taskGenerator
+      .createBalancedTaskValues(SERVER_TASKS_PER_CLAN)
+      .map(
+        (task): Omit<DailyTask, '_id'> => ({
+          ...task,
+          amountLeft: task.amount,
+          clan_id: clanId,
+          player_id: null,
+          startedAt: null,
+          progress: {},
+        }),
+      );
 
     return [tasks, null];
   }
@@ -77,20 +100,20 @@ export class DailyTasksService {
    * @param playerId - The ID of the player reserving the task.
    * @param taskId - The ID of the task to be reserved.
    * @param clanId - The ID of the clan to which the task belongs.
-   * @returns The reserved task.
-   * @throws Will throw an error if the task is already reserved by another player or if any database operation fails.
+   * @returns DailyTask with the given player _id on succeed or an array of ServiceErrors if any occurred.
    */
   async reserveTask(playerId: string, taskId: string, clanId: string) {
     const [task, error] = await this.basicService.readOne<DailyTaskDto>({
       filter: { _id: taskId, clan_id: clanId },
     });
     if (error) throw error;
-    if (task.player_id && task.player_id !== playerId) throw taskReservedError;
+    if (task.player_id && task.player_id !== playerId)
+      return [null, taskReservedError];
 
-    const session = await this.model.db.startSession();
-    session.startTransaction();
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (initErrors) return [null, initErrors];
 
-    const [, unreserveError] = await this.unreserveTask(playerId);
+    const [, unreserveError] = await this.unreserveTask(playerId, session);
     if (unreserveError && unreserveError[0].reason !== SEReason.NOT_FOUND)
       await cancelTransaction(session, unreserveError);
 
@@ -101,28 +124,29 @@ export class DailyTasksService {
     const [_, updateError] = await this.basicService.updateOneById(
       taskId,
       task,
+      { session },
     );
     if (updateError) await cancelTransaction(session, updateError);
 
-    session.commitTransaction();
-    session.endSession();
+    await endTransaction(session, task);
 
     await this.taskQueue.addDailyTask(task);
-    await this.notifier.taskReceived(playerId, task);
+    this.notifier.taskReceived(playerId, task);
 
-    return task;
+    return [task, null];
   }
 
   /**
    * Unreserve a task for a given player by unsetting the player_id field.
    *
    * @param playerId - The ID of the player whose task should be unreserved.
+   * @param session - Optional MongoDB client session for transaction support.
    * @returns A promise that resolves with the result of the update operation.
    */
-  async unreserveTask(playerId: string) {
+  async unreserveTask(playerId: string, session?: ClientSession) {
     return this.basicService.updateOne(
       { $unset: { player_id: '', startedAt: '' } },
-      { filter: { player_id: playerId } },
+      { filter: { player_id: playerId }, session },
     );
   }
 
@@ -132,9 +156,15 @@ export class DailyTasksService {
    * @param taskId - The ID of the task to be deleted.
    * @param clanId - The ID of the clan associated with the task.
    * @param playerId - The ID of the player associated with the task.
+   * @param session - Optional MongoDB client session for transaction support.
    * @returns A promise that resolves to the result of the update operation.
    */
-  async deleteTask(taskId: string, clanId: string, playerId: string) {
+  async deleteTask(
+    taskId: string,
+    clanId: string,
+    playerId: string,
+    session?: ClientSession,
+  ) {
     const newValues = this.taskGenerator.createTaskRandomValues();
     const filter: any = { _id: taskId, clan_id: clanId };
     filter.$or = [{ player_id: playerId }, { player_id: { $exists: false } }];
@@ -143,13 +173,14 @@ export class DailyTasksService {
         $set: {
           ...newValues,
           amountLeft: newValues.amount,
+          progress: {},
         },
         $unset: {
           player_id: '',
           startedAt: '',
         },
       },
-      { filter },
+      { filter, session },
     );
   }
 
@@ -159,10 +190,14 @@ export class DailyTasksService {
    *
    * @param playerId - The ID of the player whose task is being updated.
    * @param serverTaskName - (Optional) The specific server task name to filter the task.
-   * @returns The updated task.
-   * @throws Will throw an error if there is an issue reading or updating the task.
+   * @param session - (Optional) MongoDB client session for transaction support.
+   * @returns DailyTaskDto with the updated task or an array of ServiceErrors if any occurred.
    */
-  async updateTask(playerId: string, serverTaskName?: ServerTaskName) {
+  async updateTask(
+    playerId: string,
+    serverTaskName?: ServerTaskName,
+    session?: ClientSession,
+  ): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
     const filter: any = { player_id: playerId };
     if (serverTaskName) {
       filter.type = serverTaskName;
@@ -171,22 +206,227 @@ export class DailyTasksService {
     const [task, error] = await this.basicService.readOne<DailyTaskDto>({
       filter,
     });
-    if (error) throw error;
+    if (error) return [null, error];
 
-    task.amountLeft--;
+    const previousAmountLeft = task.amountLeft;
+    const completedAmount = Math.min(1, previousAmountLeft);
+    const currentAmountLeft = Math.max(previousAmountLeft - completedAmount, 0);
+    task.amountLeft = currentAmountLeft;
 
-    if (task.amountLeft <= 0) {
-      await this.deleteTask(task._id.toString(), task.clan_id, playerId);
-      this.notifier.taskCompleted(playerId, task);
+    if (currentAmountLeft <= 0) {
+      const [, deleteErrors] = await this.deleteTask(
+        task._id.toString(),
+        task.clan_id,
+        playerId,
+        session,
+      );
+      if (deleteErrors) return [null, deleteErrors];
     } else {
       const [_, updateError] = await this.basicService.updateOne(task, {
         filter,
+        session,
       });
-      if (updateError) throw updateError;
-      this.notifier.taskUpdated(playerId, task);
+      if (updateError) return [null, updateError];
     }
 
-    return task;
+    return [
+      {
+        status: currentAmountLeft <= 0 ? 'completed' : 'advanced',
+        task,
+        completedByPlayerId: playerId,
+        clanId: task.clan_id.toString(),
+        completedAmount,
+        previousAmountLeft,
+        currentAmountLeft,
+      },
+      null,
+    ];
+  }
+
+  /**
+   * Progresses a shared clan task. Unlike updateTask, this never requires a
+   * player reservation and does not make the task an individual player task.
+   */
+  async updateClanTask(
+    clanId: string,
+    completedByPlayerId: string,
+    serverTaskName: ServerTaskName,
+    session?: ClientSession,
+  ): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
+    const filter = {
+      clan_id: clanId,
+      type: serverTaskName,
+      amountLeft: { $gt: 0 },
+    };
+    const [task, error] = await this.basicService.readOne<DailyTaskDto>({
+      filter,
+      session,
+    });
+    if (error) return [null, error];
+
+    const previousAmountLeft = task.amountLeft;
+    const completedAmount = Math.min(1, previousAmountLeft);
+    const currentAmountLeft = Math.max(previousAmountLeft - completedAmount, 0);
+    task.amountLeft = currentAmountLeft;
+
+    if (currentAmountLeft <= 0) {
+      const newValues = this.taskGenerator.createTaskRandomValues();
+      const [, replacementErrors] = await this.basicService.updateOne(
+        {
+          $set: {
+            ...newValues,
+            amountLeft: newValues.amount,
+            progress: {},
+          },
+          $unset: {
+            player_id: '',
+            startedAt: '',
+          },
+        },
+        { filter: { _id: task._id, clan_id: clanId }, session },
+      );
+      if (replacementErrors) return [null, replacementErrors];
+    } else {
+      const [, updateError] = await this.basicService.updateOne(
+        { $set: { amountLeft: currentAmountLeft } },
+        { filter: { _id: task._id, clan_id: clanId }, session },
+      );
+      if (updateError) return [null, updateError];
+    }
+
+    return [
+      {
+        status: currentAmountLeft <= 0 ? 'completed' : 'advanced',
+        task,
+        completedByPlayerId,
+        clanId: task.clan_id.toString(),
+        completedAmount,
+        previousAmountLeft,
+        currentAmountLeft,
+      },
+      null,
+    ];
+  }
+
+  /**
+   * Records a unique emotion for a player's selected predefined clan-chat
+   * response. The filter and update are atomic so repeated emotions and a
+   * different response cannot progress the active sequence.
+   */
+  async updatePlayWithEmotionsTask(
+    playerId: string,
+    clanId: string,
+    responseType?: ChatResponseType,
+    emotion?: ChatEmotion,
+    session?: ClientSession,
+  ): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
+    if (!isChatResponseType(responseType) || !isChatEmotion(emotion))
+      return [null, null];
+
+    const task = await this.model
+      .findOneAndUpdate(
+        {
+          player_id: playerId,
+          clan_id: clanId,
+          type: ServerTaskName.PLAY_WITH_EMOTIONS,
+          amountLeft: { $gt: 0 },
+          $or: [
+            { 'progress.key': { $exists: false } },
+            { 'progress.key': responseType },
+          ],
+          'progress.steps': { $ne: emotion },
+        },
+        {
+          $set: { 'progress.key': responseType },
+          $addToSet: { 'progress.steps': emotion },
+          $inc: { amountLeft: -1 },
+        },
+        { new: true, session },
+      )
+      .exec();
+
+    // No matching task covers an unreserved task, a different response type,
+    // and an already-counted emotion. All intentionally have no side effects.
+    if (!task) return [null, null];
+
+    const currentAmountLeft = task.amountLeft;
+    const previousAmountLeft = currentAmountLeft + 1;
+
+    if (currentAmountLeft <= 0) {
+      const [, deleteErrors] = await this.deleteTask(
+        task._id.toString(),
+        task.clan_id.toString(),
+        playerId,
+        session,
+      );
+      if (deleteErrors) return [null, deleteErrors];
+    }
+
+    return [
+      {
+        status: currentAmountLeft <= 0 ? 'completed' : 'advanced',
+        task: task as DailyTaskDto,
+        completedByPlayerId: playerId,
+        clanId: task.clan_id.toString(),
+        completedAmount: 1,
+        previousAmountLeft,
+        currentAmountLeft,
+      },
+      null,
+    ];
+  }
+
+  /**
+   * Advances STRONGER_SOLDIER only when its two events occur in order.
+   * The conditional update makes repeated and out-of-order events no-ops.
+   */
+  async updateStrongerSoldierTask(
+    playerId: string,
+    step: StrongerSoldierStep,
+    session?: ClientSession,
+  ): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
+    const expectedAmountLeft =
+      step === StrongerSoldierStep.ATTACK_INCREASED ? 2 : 1;
+
+    const task = await this.model
+      .findOneAndUpdate(
+        {
+          player_id: playerId,
+          type: ServerTaskName.STRONGER_SOLDIER,
+          amountLeft: expectedAmountLeft,
+        },
+        { $inc: { amountLeft: -1 } },
+        { new: true, session },
+      )
+      .exec();
+
+    if (!task) return [null, null];
+
+    const currentAmountLeft = task.amountLeft;
+    const previousAmountLeft = currentAmountLeft + 1;
+
+    if (currentAmountLeft <= 0) {
+      const [, deleteErrors] = await this.deleteTask(
+        task._id.toString(),
+        task.clan_id.toString(),
+        playerId,
+        session,
+      );
+      if (deleteErrors) return [null, deleteErrors];
+    }
+
+    return [
+      {
+        status: currentAmountLeft <= 0 ? 'completed' : 'advanced',
+        task: task as DailyTaskDto,
+        completedByPlayerId: playerId,
+        clanId: task.clan_id.toString(),
+        completedAmount: 1,
+        previousAmountLeft,
+        currentAmountLeft,
+      },
+      null,
+    ];
   }
 
   /**
@@ -230,11 +470,15 @@ export class DailyTasksService {
    * Creates multiple daily tasks in DB.
    *
    * @param dailyTasksToCreate daily tasks to create
+   * @param session optional transaction session
    *
    * @returns created daily task or ServiceError if any occurred
    */
-  async createMany(dailyTasksToCreate: Omit<DailyTask, '_id'>[]) {
-    return this.basicService.createMany(dailyTasksToCreate);
+  async createMany(
+    dailyTasksToCreate: Omit<DailyTask, '_id'>[],
+    session?: ClientSession,
+  ) {
+    return this.basicService.createMany(dailyTasksToCreate, { session });
   }
 
   /**
@@ -247,36 +491,125 @@ export class DailyTasksService {
    * @param payload.playerId - The unique identifier of the player.
    * @param payload.message - The WebSocket message body associated with the event.
    * @param payload.serverTaskName - The name of the server-side task to update.
-   * @returns A promise that resolves to the updated task object.
-   *
-   * @throws Will throw an error if updating the task or rewarding the player fails.
+   * @returns DailyTaskDto with the updated task or an array of ServiceErrors if any occurred.
    */
   @OnEvent('newDailyTaskEvent')
   async handleDailyTaskEvent(payload: {
     playerId: string;
     serverTaskName: ServerTaskName;
     needsClanReward?: boolean;
-  }) {
-    const task = await this.updateTask(
-      payload.playerId,
-      payload.serverTaskName,
-    );
-
-    if (task.amountLeft <= 0) {
-      await this.playerRewarder.rewardForPlayerTask(
-        payload.playerId,
-        task.points,
-      );
-
-      if (payload.needsClanReward ?? false) {
-        await this.clanRewarder.rewardClanForPlayerTask(
-          task.clan_id,
-          task.points,
-          task.coins,
-        );
-      }
+    clanId?: string;
+    responseType?: ChatResponseType;
+    emotion?: ChatEmotion;
+    strongerSoldierStep?: StrongerSoldierStep;
+  }): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
+    // Validates payload for FORM_AN_INNER_CONNECTION task to ensure clanId, responseType, and emotion are provided and valid
+    if (
+      payload.serverTaskName === ServerTaskName.FORM_AN_INNER_CONNECTION &&
+      (!payload.clanId ||
+        !isChatResponseType(payload.responseType) ||
+        !isChatEmotion(payload.emotion))
+    ) {
+      return [null, null];
     }
 
-    return task;
+    if (
+      payload.serverTaskName === ServerTaskName.PLAY_WITH_EMOTIONS &&
+      (!payload.clanId ||
+        !isChatResponseType(payload.responseType) ||
+        !isChatEmotion(payload.emotion))
+    ) {
+      return [null, null];
+    }
+
+    if (
+      payload.serverTaskName === ServerTaskName.STRONGER_SOLDIER &&
+      !isStrongerSoldierStep(payload.strongerSoldierStep)
+    ) {
+      return [null, null];
+    }
+
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
+    let progressResult: DailyTaskProgressResult<DailyTaskDto> | null;
+    let updateErrors: ServiceError[] | null;
+
+    if (payload.serverTaskName === ServerTaskName.PLAY_WITH_EMOTIONS) {
+      [progressResult, updateErrors] = await this.updatePlayWithEmotionsTask(
+        payload.playerId,
+        payload.clanId!,
+        payload.responseType,
+        payload.emotion,
+        session,
+      );
+    } else if (payload.serverTaskName === ServerTaskName.STRONGER_SOLDIER) {
+      [progressResult, updateErrors] = await this.updateStrongerSoldierTask(
+        payload.playerId,
+        payload.strongerSoldierStep!,
+        session,
+      );
+    } else {
+      // Handles standard tasks including FORM_AN_INNER_CONNECTION via updateTask
+      [progressResult, updateErrors] = await this.updateTask(
+        payload.playerId,
+        payload.serverTaskName,
+        session,
+      );
+    }
+
+    // Checks whether the completed task should reward the entire clan.
+    if (progressResult) {
+      progressResult.needsClanReward = payload.needsClanReward;
+    }
+
+    if (updateErrors) return cancelTransaction(session, updateErrors);
+
+    if (!progressResult) {
+      const [, endErrors] = await endTransaction(session);
+      return endErrors ? [null, endErrors] : [null, null];
+    }
+
+    const [, progressErrors] = await this.progressService.handleProgress(
+      progressResult,
+      session,
+    );
+    if (progressErrors) return cancelTransaction(session, progressErrors);
+
+    return endTransaction(session, progressResult);
+  }
+
+  /**
+   * Handles a shared clan task event without granting player-task rewards.
+   */
+  @OnEvent('newClanDailyTaskEvent')
+  async handleClanDailyTaskEvent(payload: {
+    clanId: string;
+    completedByPlayerId: string;
+    serverTaskName: ServerTaskName;
+  }): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
+    const [progressResult, updateErrors] = await this.updateClanTask(
+      payload.clanId,
+      payload.completedByPlayerId,
+      payload.serverTaskName,
+      session,
+    );
+    if (updateErrors) return cancelTransaction(session, updateErrors);
+
+    const [, progressErrors] =
+      await this.progressService.handleClanTaskCompletion(
+        progressResult,
+        session,
+      );
+    if (progressErrors) return cancelTransaction(session, progressErrors);
+
+    return endTransaction(session, progressResult);
+  }
+
+  async getRewards() {
+    return { prizePool: prizePool };
   }
 }

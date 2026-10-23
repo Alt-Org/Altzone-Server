@@ -7,12 +7,14 @@ import ServiceError from '../common/service/basicService/ServiceError';
 import { SEReason } from '../common/service/basicService/SEReason';
 import { ClanService } from '../clan/clan.service';
 import { envVars } from '../common/service/envHandler/envVars';
-
+import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
+import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 @Injectable()
 export class JukeboxService {
   constructor(
     private readonly notifier: JukeboxNotifier,
     private readonly clanService: ClanService,
+    private readonly emitterService: EventEmitterService,
   ) {}
 
   private clanJukeboxMap = new Map<ClanId, Jukebox>();
@@ -77,12 +79,23 @@ export class JukeboxService {
       id: new ObjectId().toString(),
     };
 
-    if (!jukebox.currentSong) {
+    // has player's action started a new song from jukebox?
+    const currentSongChanged = !jukebox.currentSong;
+
+    if (currentSongChanged) {
       jukebox.currentSong = { ...newSong, startedAt: Date.now() };
       await this.notifier.songChange(
         { songId: newSong.songId, startedAt: jukebox.currentSong.startedAt },
         clanId,
       );
+
+      // event from player's action to change the current song
+      await this.tryEmitDailyTaskEvent(
+        playerId,
+        ServerTaskName.BANISH_THE_EARWORM,
+        false,
+      );
+
       setTimeout(async () => {
         await this.startNextSong(clanId);
       }, song.songDurationSeconds * 1000);
@@ -90,6 +103,9 @@ export class JukeboxService {
       jukebox.songQueue.push(newSong);
     }
     this.clanJukeboxMap.set(clanId, jukebox);
+
+    // Publish the playlist update after adding the song
+    await this.publishPlaylistUpdate(clanId, jukebox);
   }
 
   /**
@@ -108,19 +124,52 @@ export class JukeboxService {
     const nextSong = jukebox.songQueue.shift();
 
     if (!nextSong) {
+      const emptyJukebox: Jukebox = {
+        clanId,
+        songQueue: [],
+        currentSong: null,
+      };
+      await this.notifier.playlistUpdate(emptyJukebox, clanId);
       this.clanJukeboxMap.delete(clanId);
       return;
     }
 
     jukebox.currentSong = { ...nextSong, startedAt: Date.now() };
+
     await this.notifier.songChange(
       { songId: nextSong.songId, startedAt: jukebox.currentSong.startedAt },
       clanId,
     );
 
+    await this.publishPlaylistUpdate(clanId, jukebox);
+
     setTimeout(async () => {
       await this.startNextSong(clanId);
     }, nextSong.songDurationSeconds * 1000);
+  }
+
+  /*
+   * Helper method to emit a daily task event for the player.
+   * If the daily task event fails to emit, it will be caught and ignored.
+   * @param playerId - The ID of the player for whom the daily task event is to be emitted.
+   * @param taskName - The name of the daily task to be emitted.
+   * @param needsClanReward - A boolean indicating whether the daily task requires a clan reward.
+   */
+
+  private async tryEmitDailyTaskEvent(
+    playerId: string,
+    taskName: ServerTaskName,
+    needsClanReward = true,
+  ) {
+    try {
+      await this.emitterService.EmitNewDailyTaskEvent(
+        playerId,
+        taskName,
+        needsClanReward,
+      );
+    } catch {
+      return;
+    }
   }
 
   /**
@@ -142,6 +191,11 @@ export class JukeboxService {
 
     if (jukebox.songQueue.length === initialLength)
       throw new ServiceError({ reason: SEReason.NOT_FOUND });
+
+    this.clanJukeboxMap.set(clanId, jukebox);
+
+    // Publish the playlist update after removing the song
+    this.publishPlaylistUpdate(clanId, jukebox);
   }
 
   /**
@@ -158,5 +212,17 @@ export class JukeboxService {
       maxSongAmount = parseInt(envVars.JUKEBOX_MAX_SONG_AMOUNT_BIG);
 
     return maxSongAmount;
+  }
+
+  /**
+   * Helper method to publish the playlist update after any change in the jukebox state (song change, song addition, song removal).
+   *
+   * @param clanId Id of the clan whose jukebox to update
+   * @param jukebox the updated jukebox to be sent in the notification
+   *
+   */
+  private async publishPlaylistUpdate(clanId: string, jukebox: Jukebox) {
+    this.clanJukeboxMap.set(clanId, jukebox);
+    await this.notifier.playlistUpdate(jukebox, clanId);
   }
 }

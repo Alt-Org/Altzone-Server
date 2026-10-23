@@ -11,16 +11,13 @@ import BasicService, {
 import { PopulatedFriendship } from './type/populated-friendship.type';
 import { NotFoundServiceError } from './error/not-found.error';
 import { FriendlistDto } from './dto/friend-list.dto';
-import { Player } from '../player/schemas/player.schema';
-import FriendshipNotifier from './friendship.notifier';
 import { InvalidIdsServiceError } from './error/duplicateId.error';
+import { FriendRequestDto } from './dto/FriendRequest.dto';
 
 @Injectable()
 export class FriendshipService {
   constructor(
     @InjectModel(ModelName.FRIENDSHIP) public readonly model: Model<Friendship>,
-    @InjectModel(ModelName.PLAYER) public readonly playerModel: Model<Player>,
-    public readonly notifier: FriendshipNotifier,
   ) {
     this.basicService = new BasicService(model);
   }
@@ -37,13 +34,13 @@ export class FriendshipService {
    */
   async getPlayerFriendlist(
     playerId: string,
-  ): Promise<IServiceReturn<PopulatedFriendship[]>> {
+  ): Promise<IServiceReturn<FriendlistDto[]>> {
     try {
       const [friendships, error] = await this.getFriendshipsWithStatus(
         playerId,
         FriendshipStatus.ACCEPTED,
       );
-      if (error) throw error;
+      if (error) return [null, error];
 
       const filtered: FriendlistDto[] = friendships.map((doc) => {
         if (!doc.playerA || !doc.playerB) return null;
@@ -52,15 +49,16 @@ export class FriendshipService {
           doc.playerA._id.toString() === me ? doc.playerB : doc.playerA;
 
         return {
+          _friendship_id: doc._id.toString(),
           _id: friend._id.toString(),
           name: friend.name,
           avatar: friend.avatar,
           clanName: friend.Clan?.name ?? null,
           clan_id: friend.clan_id.toString(),
-        };
+        } as FriendlistDto;
       });
 
-      return [filtered as any, null];
+      return [filtered, null];
     } catch (error) {
       const errors = convertMongooseToServiceErrors(error);
       return [null, errors];
@@ -75,15 +73,17 @@ export class FriendshipService {
    * @param - playerId of the player whose friendlist to return
    * @returns Friend request list
    */
-  async getFriendRequests(playerId: string) {
+  async getFriendRequests(
+    playerId: string,
+  ): Promise<IServiceReturn<FriendRequestDto[]>> {
     try {
       const [requests, error] = await this.getFriendshipsWithStatus(
         playerId,
         FriendshipStatus.PENDING,
       );
-      if (error) throw error;
+      if (error) return [null, error];
 
-      const filtered = requests.map((doc) => {
+      const filtered: FriendRequestDto[] = requests.map((doc) => {
         if (!doc.playerA || !doc.playerB) return null;
         const friend =
           doc.playerA._id.toString() === playerId ? doc.playerB : doc.playerA;
@@ -100,7 +100,7 @@ export class FriendshipService {
             clan_id: friend.clan_id.toString(),
             clanName: friend.Clan?.name ?? null,
           },
-        };
+        } as FriendRequestDto;
       });
 
       return [filtered, null];
@@ -146,41 +146,7 @@ export class FriendshipService {
   }
 
   /**
-   * Constructs a payload for new friend request notification and calls the notifier
-   * to build and send the notification.
-   *
-   * @param - friendship document to construct to notification payload from.
-   */
-  async sendNewFriendRequestNotification(friendship: FriendshipDocument) {
-    try {
-      const friend = await this.playerModel
-        .findOne({ _id: friendship.requester })
-        .select('name avatar clan_id')
-        .populate({
-          path: ModelName.CLAN,
-          select: 'name',
-        })
-        .lean();
-
-      const payload = {
-        friendship_id: friendship._id.toString(),
-        friend: {
-          _id: friend._id.toString(),
-          name: friend.name,
-          avatar: friend.avatar,
-          clanName: friend['Clan'].name,
-          clan_id: friend.clan_id.toString(),
-        },
-      };
-      this.notifier.newFriendRequest(payload, friendship.playerB.toString());
-    } catch (error) {
-      const errors = convertMongooseToServiceErrors(error);
-      return [null, errors];
-    }
-  }
-
-  /**
-   * Create and send a friend request.
+   * Create a friend request.
    *
    * @param - playerId of the user requesting the friendship
    * @param - friendId of the user to be added as a friend.
@@ -197,7 +163,7 @@ export class FriendshipService {
         requester: playerId,
       });
       if (error) return [friendship, error];
-      await this.sendNewFriendRequestNotification(friendship);
+      return [friendship, null];
     } catch (error) {
       const errors = convertMongooseToServiceErrors(error);
       return [null, errors];

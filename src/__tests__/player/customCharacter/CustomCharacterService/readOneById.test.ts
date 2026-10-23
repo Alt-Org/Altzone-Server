@@ -33,8 +33,12 @@ describe('CustomCharacter.readOneById() test suite', () => {
 
     const clearedItem = clearDBRespDefaultFields(character);
 
+    const expected = clearDBRespDefaultFields(
+      characterService.addValues(existingCharacter),
+    );
+
     expect(errors).toBeNull();
-    expect(clearedItem).toEqual(expect.objectContaining(existingCharacter));
+    expect(clearedItem).toEqual(expect.objectContaining(expected));
   });
 
   it('Should return fields only requested in "select"', async () => {

@@ -4,8 +4,10 @@ import {
   IsEnum,
   IsMongoId,
   IsNotEmpty,
+  IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Environment } from '../../common/enum/environment.enum';
 
 export class GameDto {
   /**
@@ -83,4 +85,13 @@ export class GameDto {
   @Type(() => Date)
   @IsNotEmpty()
   endedAt: Date;
+
+  /**
+   * The environment in which the game was played
+   *
+   * @example Environment.TEACHING_DEMO
+   */
+  @IsOptional()
+  @IsEnum(Environment)
+  environment?: Environment;
 }

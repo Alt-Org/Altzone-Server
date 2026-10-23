@@ -6,8 +6,20 @@ import AddType from '../../common/base/decorator/AddType.decorator';
 import { GameStatisticsDto } from './gameStatistics.dto';
 import { TaskDto } from './task.dto';
 import { AvatarDto } from './avatar.dto';
-import { Min } from 'class-validator';
+import { IsOptional, Min } from 'class-validator';
+import { EmotionDto } from './emotion.dto';
+import { Environment } from '../../common/enum/environment.enum';
 
+export class StatDetailDto {
+  @Expose()
+  name: string;
+
+  @Expose()
+  gamesPlayed: number;
+
+  @Expose()
+  wins: number;
+}
 @AddType('PlayerDto')
 export class PlayerDto {
   /**
@@ -43,6 +55,9 @@ export class PlayerDto {
   @Min(0)
   @Expose()
   battlePoints: number;
+
+  @Expose()
+  claimableRewards: number[];
 
   /**
    * Maximum capacity of player's backpack
@@ -111,6 +126,13 @@ export class PlayerDto {
   clan_id: string;
 
   /**
+   * Date when the player joined their current clan.
+   * @example "2026-09-01T12:00:00.000Z"
+   */
+  @Expose()
+  clan_joindate?: Date;
+
+  /**
    * Player's clan object
    */
   @Type(() => ClanDto)
@@ -144,4 +166,63 @@ export class PlayerDto {
   @ExtractField()
   @Expose()
   clanRole_id?: string;
+
+  /**
+   * Date when the account was created
+   * @example "2024-01-20T12:00:00Z"
+   */
+  @Expose()
+  createdAt?: Date;
+
+  /**
+   * Player playstyle
+   * @example "Aggressive"
+   */
+  @Expose()
+  playstyle?: string;
+
+  /**
+   * Total carbon footprint
+   * @example 450
+   */
+  @Expose()
+  carbonFootprint?: number;
+
+  /**
+   * Amount of coins accumulated for the clan
+   * @example 1500
+   */
+  @Expose()
+  clanCoinsAccumulated?: number;
+
+  /**
+   * Favourite defense class information
+   */
+  @Type(() => StatDetailDto)
+  @Expose()
+  favouriteClass?: StatDetailDto;
+
+  /**
+   * Favourite defence character information
+   */
+  @Type(() => StatDetailDto)
+  @Expose()
+  favouriteCharacter?: StatDetailDto;
+  /* A historical list of emotions recorded by the player on a daily basis.
+   * Each entry contains the emotion type and the timestamp of the recording.
+   * @type {[EmotionDto]}
+   */
+  @Type(() => EmotionDto)
+  @Expose()
+  emotions?: EmotionDto[];
+
+  /**
+   * Environment value linked to player profile
+   */
+  @Expose()
+  environment?: Environment;
+
+  @Expose()
+  @IsOptional()
+  clanName?: string;
 }

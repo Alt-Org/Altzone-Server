@@ -35,7 +35,7 @@ describe('ClanHelperService.createDefaultSoulHome() test suite', () => {
     expect(createdSoulHome).not.toBeNull();
   });
 
-  it('Should create 30 Rooms for the SoulHome', async () => {
+  it('Should create 1 Room for the SoulHome', async () => {
     await clanHelperService.createDefaultSoulHome(
       existingClan._id,
       'soulhome1',
@@ -49,7 +49,7 @@ describe('ClanHelperService.createDefaultSoulHome() test suite', () => {
     });
 
     expect(createdRooms).not.toBeNull();
-    expect(createdRooms).toHaveLength(30);
+    expect(createdRooms).toHaveLength(1);
   });
 
   it('Should add default items to the first SoulHome room', async () => {
@@ -68,7 +68,7 @@ describe('ClanHelperService.createDefaultSoulHome() test suite', () => {
       expect.arrayContaining([
         expect.objectContaining({
           room_id: itemsRoom_id,
-          unityKey: ItemName.SOFA_RAKKAUS,
+          unityKey: ItemName.COFFEETABLE_RAKKAUS,
         }),
         expect.objectContaining({
           room_id: itemsRoom_id,
@@ -76,7 +76,7 @@ describe('ClanHelperService.createDefaultSoulHome() test suite', () => {
         }),
         expect.objectContaining({
           room_id: itemsRoom_id,
-          unityKey: ItemName.LAMP_RAKKAUS,
+          unityKey: ItemName.CEILINGLAMP_RAKKAUS,
         }),
         expect.objectContaining({
           room_id: itemsRoom_id,
@@ -84,7 +84,7 @@ describe('ClanHelperService.createDefaultSoulHome() test suite', () => {
         }),
         expect.objectContaining({
           room_id: itemsRoom_id,
-          unityKey: ItemName.SOFATABLE_RAKKAUS,
+          unityKey: ItemName.SOFA_RAKKAUS,
         }),
         expect.objectContaining({
           room_id: itemsRoom_id,

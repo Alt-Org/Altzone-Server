@@ -89,12 +89,12 @@ export default class BoxAuthService extends AuthService {
       player_id: player?._id,
       box_id,
       groupAdmin,
+      tokenVersion: profile.tokenVersion ?? 0,
     };
 
-    const accessToken = await this.jwt.signAsync(payload);
-    const decodedAccessToken: any = this.jwt.decode(accessToken);
-    // Extract the expiration time in Unix timestamp format
-    const tokenExpires = decodedAccessToken?.exp;
+    // has the player set the security question?
+    const hasSecurityQuestion = !!profile.securityQuestion;
+    const tokens = await this.createTokens(payload);
 
     profile['Player'] = player;
 
@@ -104,12 +104,21 @@ export default class BoxAuthService extends AuthService {
     if (clan)
       profile['Clan'] = { ...clan.toObject(), _id: clan._id.toString() };
 
-    const { password: _p, isSystemAdmin: _a, ...serializedProfile } = profile;
+    const {
+      password: _p,
+      isSystemAdmin: _a,
+      securityAnswer: _sa,
+      securityQuestion: _sq,
+      failedRecoveryAttempts: _fra,
+      recoveryLockedUntil: _rlu,
+      tokenVersion: _tv,
+      ...serializedProfile
+    } = profile;
 
     return {
       ...serializedProfile,
-      accessToken,
-      tokenExpires,
+      hasSecurityQuestion,
+      ...tokens,
     };
   };
 }

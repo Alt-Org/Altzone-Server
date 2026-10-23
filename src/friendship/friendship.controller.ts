@@ -12,11 +12,16 @@ import ApiResponseDescription from '../common/swagger/response/ApiResponseDescri
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 import { FriendRequestDto } from './dto/FriendRequest.dto';
 import { PlayerIdDto } from '../common/dto/player_id.dto';
+import FriendshipNotifier from './friendship.notifier';
+import { FriendshipDocument } from './friendship.schema';
 
 @SwaggerTags('Friendship')
 @Controller('friendship')
 export class FriendshipController {
-  constructor(private readonly service: FriendshipService) {}
+  constructor(
+    private readonly service: FriendshipService,
+    private readonly notifier: FriendshipNotifier,
+  ) {}
 
   @ApiResponseDescription({
     success: {
@@ -61,7 +66,12 @@ export class FriendshipController {
   @Post('add/:_id')
   @UniformResponse(ModelName.FRIENDSHIP)
   async addFriend(@Param() param: PlayerIdDto, @LoggedUser() user: User) {
-    return await this.service.addFriend(user.player_id, param._id);
+    const result = await this.service.addFriend(user.player_id, param._id);
+    const [friendship, error] = result;
+
+    if (!error) await this.notifier.newFriendRequest(friendship);
+
+    return result;
   }
 
   @ApiResponseDescription({
@@ -75,20 +85,34 @@ export class FriendshipController {
   @Post('accept/:_id')
   @UniformResponse(ModelName.FRIENDSHIP)
   async acceptRequest(@Param() param: _idDto, @LoggedUser() user: User) {
-    return await this.service.basicService.updateOne(
+    const filter = {
+      _id: param._id,
+      status: FriendshipStatus.PENDING,
+      requester: { $ne: user.player_id },
+      $or: [{ playerA: user.player_id }, { playerB: user.player_id }],
+    };
+    const [friendship, readError] =
+      await this.service.basicService.readOne<FriendshipDocument>({
+        filter,
+      });
+    if (readError) return [friendship, readError];
+
+    const result = await this.service.basicService.updateOne(
       {
         $set: { status: FriendshipStatus.ACCEPTED },
         $unset: { requester: '' },
       },
       {
-        filter: {
-          _id: param._id,
-          status: FriendshipStatus.PENDING,
-          requester: { $ne: user.player_id },
-          $or: [{ playerA: user.player_id }, { playerB: user.player_id }],
-        },
+        filter,
       },
     );
+    const [, updateError] = result;
+
+    if (!updateError) {
+      await this.notifier.friendRequestAccepted(friendship, user.player_id);
+    }
+
+    return result;
   }
 
   @ApiResponseDescription({
@@ -102,6 +126,15 @@ export class FriendshipController {
   @Delete(':_id')
   @UniformResponse(ModelName.FRIENDSHIP)
   async deleteFriendship(@Param() param: _idDto, @LoggedUser() user: User) {
+    const [friendship, readError] =
+      await this.service.basicService.readOne<FriendshipDocument>({
+        filter: {
+          _id: param._id,
+          $or: [{ playerA: user.player_id }, { playerB: user.player_id }],
+        },
+      });
+    if (readError) return readError;
+
     const [, error] = await this.service.basicService.deleteOne({
       filter: {
         _id: param._id,
@@ -109,5 +142,12 @@ export class FriendshipController {
       },
     });
     if (error) return error;
+
+    if (
+      friendship.status === FriendshipStatus.PENDING &&
+      friendship.requester.toString() !== user.player_id
+    ) {
+      await this.notifier.friendRequestRejected(friendship, user.player_id);
+    }
   }
 }

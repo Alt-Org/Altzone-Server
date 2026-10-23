@@ -3,10 +3,12 @@ import VotingBuilderFactory from '../../voting/data/voting/VotingBuilderFactory'
 import FleaMarketModule from '../modules/fleaMarketModule';
 import { FleaMarketVotingProcessor } from '../../../fleaMarket/fleaMarketVoting.processor';
 import { FleaMarketService } from '../../../fleaMarket/fleaMarket.service';
+import { VotingService } from '../../../voting/voting.service';
 
 describe('FleaMarketVotingProcessor.process() test suite', () => {
   let fleaMarketVotingProcessor: FleaMarketVotingProcessor;
   let fleaMarketService: FleaMarketService;
+  let votingService: VotingService;
 
   const votingBuilder = VotingBuilderFactory.getBuilder('VotingDto');
 
@@ -14,10 +16,11 @@ describe('FleaMarketVotingProcessor.process() test suite', () => {
     fleaMarketVotingProcessor =
       await FleaMarketModule.getFleaMarketVotingProcessor();
     fleaMarketService = await FleaMarketModule.getFleaMarketService();
+    votingService = await FleaMarketModule.getVotingService();
   });
 
   it('Should call the FleaMarketService.checkVotingOnExpire', async () => {
-    const voting = votingBuilder.build();
+    const voting = votingBuilder.setEndedAt(null).build();
 
     const mockedJob: any = {
       data: {
@@ -32,6 +35,10 @@ describe('FleaMarketVotingProcessor.process() test suite', () => {
     const ret = jest
       .spyOn(fleaMarketService, 'checkVotingOnExpire')
       .mockResolvedValue(undefined);
+
+    jest
+      .spyOn(votingService.basicService, 'readOneById')
+      .mockResolvedValue([voting, null]);
 
     await fleaMarketVotingProcessor.process(mockedJob);
 

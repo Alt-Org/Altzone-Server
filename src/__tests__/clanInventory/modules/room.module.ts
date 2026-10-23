@@ -4,6 +4,7 @@ import { RoomService } from '../../../clanInventory/room/room.service';
 import RoomHelperService from '../../../clanInventory/room/utils/room.helper.service';
 import { RoomSchema } from '../../../clanInventory/room/room.schema';
 import ClanInventoryCommonModule from './clanInventoryCommon';
+import { RoomScheduler } from '../../../clanInventory/room/room.scheduler';
 
 export default class RoomModule {
   private constructor() {}
@@ -20,5 +21,10 @@ export default class RoomModule {
 
   static getRoomModel() {
     return mongoose.model(ModelName.ROOM, RoomSchema);
+  }
+
+  static async getRoomScheduler() {
+    const module = await ClanInventoryCommonModule.getModule();
+    return await module.resolve(RoomScheduler);
   }
 }

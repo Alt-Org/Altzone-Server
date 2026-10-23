@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { ObjectId } from 'mongodb';
 import ClanInventoryBuilderFactory from '../../data/clanInventoryBuilderFactory';
 import ItemModule from '../../modules/item.module';
@@ -6,14 +7,25 @@ import { StockService } from '../../../../clanInventory/stock/stock.service';
 import StockModule from '../../modules/stock.module';
 import { clearDBRespDefaultFields } from '../../../test_utils/util/removeDBDefaultFields';
 import { ModelName } from '../../../../common/enum/modelName.enum';
+import { Environment } from '../../../../common/enum/environment.enum';
+import PlayerBuilder from '../../../player/data/player/playerBuilder';
 
 describe('StockService.readAll() test suite', () => {
   let stockService: StockService;
   const stockBuilder = ClanInventoryBuilderFactory.getBuilder('Stock');
   const stockModel = StockModule.getStockModel();
+  let playerModel: mongoose.Model<any>;
   const clan_id = new ObjectId(getNonExisting_id());
-  const stock1 = stockBuilder.setClanId(clan_id).setCellCount(1).build();
-  const stock2 = stockBuilder.setClanId(clan_id).setCellCount(1).build();
+  const stock1 = stockBuilder
+    .setClanId(clan_id)
+    .setCellCount(1)
+    .setEnvironment(Environment.TEACHING_DEMO)
+    .build();
+  const stock2 = stockBuilder
+    .setClanId(clan_id)
+    .setCellCount(1)
+    .setEnvironment(Environment.TEACHING_DEMO)
+    .build();
 
   const itemBuilder = ClanInventoryBuilderFactory.getBuilder('Item');
   const itemModel = ItemModule.getItemModel();
@@ -22,6 +34,7 @@ describe('StockService.readAll() test suite', () => {
 
   beforeEach(async () => {
     stockService = await StockModule.getStockService();
+    playerModel = mongoose.model(ModelName.PLAYER);
 
     const stock1Resp = await stockModel.create(stock1);
     stock1._id = stock1Resp._id;
@@ -35,9 +48,12 @@ describe('StockService.readAll() test suite', () => {
   });
 
   it('Should return all stocks that match the provided filter', async () => {
-    const [stocks, errors] = await stockService.readAll({
-      filter: { clan_id: clan_id },
-    });
+    const [stocks, errors] = await stockService.readAll(
+      {
+        filter: { clan_id: clan_id },
+      },
+      Environment.TEACHING_DEMO,
+    );
 
     expect(errors).toBeNull();
     expect(stocks).toHaveLength(2);
@@ -49,13 +65,73 @@ describe('StockService.readAll() test suite', () => {
     );
   });
 
+  it('Should return only stocks of the logged-in player Clan', async () => {
+    const anotherClan_id = new ObjectId();
+    const player = new PlayerBuilder()
+      .setName('stockPlayer')
+      .setUniqueIdentifier('stock-player')
+      .setClanId(clan_id)
+      .build();
+    const otherClanStock = stockBuilder
+      .setClanId(anotherClan_id)
+      .setCellCount(99)
+      .setEnvironment(Environment.TEACHING_DEMO)
+      .build();
+
+    const createdPlayer = await playerModel.create(player);
+    await stockModel.create(otherClanStock);
+
+    const [stocks, errors] = await stockService.readPlayerClanStocks(
+      createdPlayer._id.toString(),
+      { filter: {} },
+      Environment.TEACHING_DEMO,
+    );
+
+    expect(errors).toBeNull();
+    expect(stocks).toHaveLength(2);
+    expect(stocks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ clan_id }),
+        expect.objectContaining({ clan_id }),
+      ]),
+    );
+    expect(stocks).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ clan_id: anotherClan_id }),
+      ]),
+    );
+  });
+
+  it('Should apply OPEN_DEMO environment filter', async () => {
+    const openDemoStock = stockBuilder
+      .setClanId(clan_id)
+      .setCellCount(2)
+      .setEnvironment(Environment.OPEN_DEMO)
+      .build();
+    await stockModel.create(openDemoStock);
+
+    const [stocks, errors] = await stockService.readAll(
+      { filter: { clan_id } },
+      Environment.OPEN_DEMO,
+    );
+
+    expect(errors).toBeNull();
+    expect(stocks).toHaveLength(1);
+    expect(stocks[0]).toEqual(
+      expect.objectContaining({ environment: Environment.OPEN_DEMO }),
+    );
+  });
+
   it('Should return stocks with only specified fields using options.select', async () => {
     const select = ['_id', 'cellCount'];
 
-    const [stocks, errors] = await stockService.readAll({
-      filter: { clan_id: clan_id },
-      select,
-    });
+    const [stocks, errors] = await stockService.readAll(
+      {
+        filter: { clan_id: clan_id },
+        select,
+      },
+      Environment.TEACHING_DEMO,
+    );
 
     const clearedClans = clearDBRespDefaultFields(stocks);
 
@@ -75,10 +151,13 @@ describe('StockService.readAll() test suite', () => {
   it('Should limit the number of returned stocks using options.limit', async () => {
     const limit = 1;
 
-    const [stocks, errors] = await stockService.readAll({
-      filter: { clan_id: clan_id },
-      limit,
-    });
+    const [stocks, errors] = await stockService.readAll(
+      {
+        filter: { clan_id: clan_id },
+        limit,
+      },
+      Environment.TEACHING_DEMO,
+    );
 
     expect(errors).toBeNull();
     expect(stocks).toHaveLength(1);
@@ -87,11 +166,14 @@ describe('StockService.readAll() test suite', () => {
   it('Should skip specified number of stocks using options.skip', async () => {
     const skip = 1;
 
-    const [clans, errors] = await stockService.readAll({
-      filter: { clan_id: clan_id },
-      skip,
-      sort: { cellCount: 1 },
-    });
+    const [clans, errors] = await stockService.readAll(
+      {
+        filter: { clan_id: clan_id },
+        skip,
+        sort: { cellCount: 1 },
+      },
+      Environment.TEACHING_DEMO,
+    );
 
     expect(errors).toBeNull();
     expect(clans).toHaveLength(1);
@@ -105,10 +187,13 @@ describe('StockService.readAll() test suite', () => {
   it('Should return sorted stocks using options.sort', async () => {
     const sort = { cellCount: 1 } as any;
 
-    const [stocks, errors] = await stockService.readAll({
-      filter: { clan_id: clan_id },
-      sort,
-    });
+    const [stocks, errors] = await stockService.readAll(
+      {
+        filter: { clan_id: clan_id },
+        sort,
+      },
+      Environment.TEACHING_DEMO,
+    );
 
     expect(errors).toBeNull();
     expect(stocks.map((stock) => stock.cellCount)).toEqual([
@@ -118,10 +203,13 @@ describe('StockService.readAll() test suite', () => {
   });
 
   it('Should return stocks with reference objects using options.includeRefs', async () => {
-    const [stocks, errors] = await stockService.readAll({
-      filter: { clan_id: clan_id },
-      includeRefs: [ModelName.ITEM],
-    });
+    const [stocks, errors] = await stockService.readAll(
+      {
+        filter: { clan_id: clan_id },
+        includeRefs: [ModelName.ITEM],
+      },
+      Environment.TEACHING_DEMO,
+    );
 
     expect(errors).toBeNull();
 
@@ -141,7 +229,10 @@ describe('StockService.readAll() test suite', () => {
   it('Should return ServiceError NOT_FOUND if no stocks match the filter', async () => {
     const filter = { cellCount: -12345789 };
 
-    const [stocks, errors] = await stockService.readAll({ filter });
+    const [stocks, errors] = await stockService.readAll(
+      { filter },
+      Environment.TEACHING_DEMO,
+    );
 
     expect(stocks).toBeNull();
     expect(errors).toContainSE_NOT_FOUND();

@@ -30,10 +30,12 @@ describe('CustomCharacterService.readOne() test suite', () => {
   it('Should find and return a character based on the provided filter', async () => {
     const [foundCharacter, errors] = await characterService.readOne({ filter });
 
-    expect(errors).toBeNull();
-    expect(foundCharacter).toEqual(
-      expect.objectContaining({ ...existingCharacter }),
+    const expected = clearDBRespDefaultFields(
+      characterService.addValues(existingCharacter),
     );
+
+    expect(errors).toBeNull();
+    expect(foundCharacter).toEqual(expect.objectContaining(expected));
   });
 
   it('Should return SE NOT_FOUND if no characters matches the provided filter', async () => {

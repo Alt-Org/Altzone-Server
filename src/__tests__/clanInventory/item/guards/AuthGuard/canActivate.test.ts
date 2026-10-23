@@ -64,6 +64,21 @@ describe('StealTokenGuard.canActivate() test suite', () => {
     await expect(throwsNotAuthorized).rejects.toThrow(expectedException);
   });
 
+  it('Should throw NOT_AUTHORIZED APIError if the request body is not provided', async () => {
+    const context = contextBuilder
+      .setHttpRequest({ query: undefined, body: undefined })
+      .build();
+
+    const throwsNotAuthorized = async () =>
+      await stealGuard.canActivate(context);
+
+    const expectedException = new APIError({
+      reason: APIErrorReason.NOT_AUTHORIZED,
+      message: 'steal_token is not provided',
+    });
+    await expect(throwsNotAuthorized).rejects.toThrow(expectedException);
+  });
+
   it('Should throw UnauthorizedException if the steal token is not valid', async () => {
     const bodyWithInvalidToken = {
       body: { steal_token: 'invalid-steal-token' },

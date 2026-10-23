@@ -5,10 +5,8 @@ import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
 import { JukeboxService } from './jukebox.service';
-import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { AddSongDto } from './dto/AddSong.dto';
 import { ModelName } from '../common/enum/modelName.enum';
-import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { _idDto } from '../common/dto/_id.dto';
 import { JukeboxDto } from './dto/Jukebox.dto';
 import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
@@ -16,10 +14,7 @@ import SwaggerTags from '../common/swagger/tags/SwaggerTags.decorator';
 @SwaggerTags('Jukebox')
 @Controller('jukebox')
 export class JukeboxController {
-  constructor(
-    private readonly service: JukeboxService,
-    private readonly emitterService: EventEmitterService,
-  ) {}
+  constructor(private readonly service: JukeboxService) {}
 
   /**
    * Get jukebox.
@@ -61,11 +56,6 @@ export class JukeboxController {
     @LoggedUser() user: User,
   ) {
     await this.service.addSongToClanJukebox(user.clan_id, user.player_id, body);
-
-    this.emitterService.EmitNewDailyTaskEvent(
-      user.player_id,
-      ServerTaskName.CREATE_CLAN_PLAYLIST,
-    );
   }
 
   /**

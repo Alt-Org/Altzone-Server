@@ -13,7 +13,6 @@ import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 import GameDataBuilderFactory from '../data/gameDataBuilderFactory';
 import AuthBuilderFactory from '../../auth/data/authBuilderFactory';
 import { ObjectId } from 'mongodb';
-import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
 import { JwtService } from '@nestjs/jwt';
 import { Game } from '../../../gameData/game.schema';
 import { BattleResultDto } from '../../../gameData/dto/battleResult.dto';
@@ -38,7 +37,6 @@ describe('GameDataService.handleResultType() test suite', () => {
   let roomService: RoomService;
   let gameEventsHandler: GameEventsHandler;
   let gameDataService: GameDataService;
-  let eventEmitterService: EventEmitterService;
   let battleResultDto: BattleResultDto;
   let game: Game;
 
@@ -47,15 +45,7 @@ describe('GameDataService.handleResultType() test suite', () => {
   const p3Id = new ObjectId();
   const p4Id = new ObjectId();
 
-  const p1 = playerBuilder.setId(p1Id.toString()).setName('p10').build();
-  const p2 = playerBuilder.setId(p2Id.toString()).setName('p20').build();
-  const p3 = playerBuilder.setId(p3Id.toString()).setName('p30').build();
-  const p4 = playerBuilder.setId(p4Id.toString()).setName('p40').build();
-
-  playerModel.create(p1);
-  playerModel.create(p2);
-  playerModel.create(p3);
-  playerModel.create(p4);
+  let p1, p2, p3, p4;
 
   const playerDto = playerDtoBuilder.setClanId('c1').build();
 
@@ -63,11 +53,38 @@ describe('GameDataService.handleResultType() test suite', () => {
 
   const clan = clanDtoBuilder.setSoulHome(soulHomeDto).setName('clan').build();
 
-  let userDto = userBuilder.setPlayerId(p1Id.toString()).build();
+  let userDto;
 
   beforeEach(async () => {
     jest.resetAllMocks();
-    gameDataModel.deleteMany();
+    await gameDataModel.deleteMany({});
+    await playerModel.deleteMany({});
+
+    p1 = playerBuilder
+      .setId(p1Id.toString())
+      .setName('p1_' + Date.now())
+      .setUniqueIdentifier('uid1_' + Date.now())
+      .build();
+    p2 = playerBuilder
+      .setId(p2Id.toString())
+      .setName('p2_' + Date.now())
+      .setUniqueIdentifier('uid2_' + Date.now())
+      .build();
+    p3 = playerBuilder
+      .setId(p3Id.toString())
+      .setName('p3_' + Date.now())
+      .setUniqueIdentifier('uid3_' + Date.now())
+      .build();
+    p4 = playerBuilder
+      .setId(p4Id.toString())
+      .setName('p4_' + Date.now())
+      .setUniqueIdentifier('uid4_' + Date.now())
+      .build();
+
+    await playerModel.create(p1);
+    await playerModel.create(p2);
+    await playerModel.create(p3);
+    await playerModel.create(p4);
 
     battleResultDto = battleResultDtoBuilder
       .setTeam1([p1Id.toString(), p2Id.toString()])
@@ -95,8 +112,6 @@ describe('GameDataService.handleResultType() test suite', () => {
     roomService = await GameDataModule.getRoomService();
     gameEventsHandler = await GameDataModule.getGameEventHandler();
 
-    eventEmitterService = await GameDataModule.getEventEmitterService();
-
     jest.spyOn(JwtService.prototype, 'signAsync').mockResolvedValue('token');
 
     jest
@@ -104,9 +119,6 @@ describe('GameDataService.handleResultType() test suite', () => {
       .mockResolvedValue([[roomDto1, roomDto2], null]);
 
     jest.spyOn(gameEventsHandler, 'handleEvent').mockImplementation();
-    jest
-      .spyOn(eventEmitterService, 'EmitNewDailyTaskEvent')
-      .mockImplementation();
 
     jest
       .spyOn(playerService, 'getPlayerById')

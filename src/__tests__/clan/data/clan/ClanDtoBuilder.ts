@@ -8,6 +8,7 @@ import { ClanLogoDto } from '../../../../clan/dto/clanLogo.dto';
 import ClanRoleDto from '../../../../clan/role/dto/clanRole.dto';
 import { Stall } from '../../../../clan/stall/stall.schema';
 import { SoulHomeDto } from '../../../../clanInventory/soulhome/dto/soulhome.dto';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
   private readonly base: ClanDto = {
@@ -17,6 +18,7 @@ export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
     labels: [],
     gameCoins: 0,
     points: 0,
+    unlockedMilestones: [],
     battlePoints: 0,
     admin_ids: [],
     playerCount: 0,
@@ -32,6 +34,8 @@ export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
     language: Language.NONE,
     roles: [],
     stall: new Stall(),
+    furnitureTotalValue: 0,
+    environment: Environment.TEACHING_DEMO,
   };
 
   // Returns a new Clan object with the current base properties
@@ -136,6 +140,11 @@ export default class ClanDtoBuilder implements IDataBuilder<ClanDto> {
 
   setSoulHome(stall: SoulHomeDto) {
     this.base.SoulHome = stall;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }

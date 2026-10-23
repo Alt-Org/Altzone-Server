@@ -59,6 +59,14 @@ export class FleaMarketItemDto {
   material: Material[];
 
   /**
+   * Furniture size
+   *
+   * @example [1, 1]
+   */
+  @Expose()
+  furnitureSize: number[];
+
+  /**
    * Unity engine key for referencing the item
    *
    * @example "Some key"
@@ -89,6 +97,14 @@ export class FleaMarketItemDto {
    */
   @Expose()
   price: number;
+
+  /**
+   * Whether the item was approved for sale through clan voting
+   *
+   * @example true
+   */
+  @Expose()
+  saleApprovedByVoting: boolean;
 
   /**
    * ID of the clan that owns the item

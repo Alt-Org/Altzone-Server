@@ -12,10 +12,12 @@ export default class FleaMarketItemDtoBuilder {
     weight: 1,
     recycling: Recycling.GLASS,
     rarity: Rarity.common,
+    furnitureSize: [1, 1],
     unityKey: 'defaultUnityKey',
     status: Status.AVAILABLE,
     isFurniture: false,
     price: 10,
+    saleApprovedByVoting: false,
     clan_id: new ObjectId().toString(),
   };
 
@@ -65,6 +67,11 @@ export default class FleaMarketItemDtoBuilder {
 
   setPrice(price: number) {
     this.base.price = price;
+    return this;
+  }
+
+  setSaleApprovedByVoting(saleApprovedByVoting: boolean) {
+    this.base.saleApprovedByVoting = saleApprovedByVoting;
     return this;
   }
 

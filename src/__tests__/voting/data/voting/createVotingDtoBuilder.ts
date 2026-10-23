@@ -15,7 +15,7 @@ export default class CreateVotingDtoBuilder
     },
     endsOn: new Date(Date.now() + 3600000),
     type: VotingType.FLEA_MARKET_BUY_ITEM,
-    minPercentage: 50,
+    minPercentage: 51,
     fleaMarketItem_id: new ObjectId().toString(),
     votes: [],
   };

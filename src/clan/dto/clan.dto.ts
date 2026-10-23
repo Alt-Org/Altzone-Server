@@ -10,6 +10,8 @@ import { ClanLogoDto } from './clanLogo.dto';
 import ClanRoleDto from '../role/dto/clanRole.dto';
 import { ClanLabel } from '../enum/clanLabel.enum';
 import { StallDto } from './stall.dto';
+import { Environment } from '../../common/enum/environment.enum';
+import { ClanRule } from '../enum/clanRule.enum';
 
 /**
  * DTO for reading clan data.
@@ -63,6 +65,14 @@ export class ClanDto {
   gameCoins: number;
 
   /**
+   * Value of items in Clan SoulHome
+   *
+   * @example 1500
+   */
+  @Expose()
+  furnitureTotalValue: number;
+
+  /**
    * Total points accumulated by the clan
    *
    * @example 320
@@ -77,6 +87,12 @@ export class ClanDto {
    */
   @Expose()
   battlePoints: number;
+
+  /**
+   * Unlocked milestones
+   */
+  @Expose()
+  unlockedMilestones: number[];
 
   /**
    * List of user IDs that are administrators of the clan
@@ -192,4 +208,25 @@ export class ClanDto {
   @Type(() => StallDto)
   @Expose()
   stall?: StallDto;
+
+  /**
+   * Clan environment
+   * @example Environment.TEACHING_DEMO
+   */
+  @Expose()
+  environment?: Environment;
+
+  /**
+   * List of Clan rules
+   * @example [ClanRule.ACTIVITY_DAILY, ClanRule.NO_SPAM]
+   */
+  @Expose()
+  rules?: ClanRule[];
+
+  /**
+   * Date when the clan was created
+   * @example "2024-01-20T12:00:00Z"
+   */
+  @Expose()
+  createdAt?: Date;
 }

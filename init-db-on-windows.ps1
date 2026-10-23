@@ -20,7 +20,7 @@ docker run -d `
   -e "MONGO_INITDB_ROOT_PASSWORD=$PASSWORD" `
   -e "MONGO_INITDB_DATABASE=$DATABASE" `
   -v "${VOLUME_NAME}:/data/db" `
-  -p "${MONGO_PORT}" `
+  -p "${MONGO_PORT}:27017" `
   mongo:8.0.12-rc0-noble
 
 # Step 2: Wait for MongoDB to be ready
@@ -37,8 +37,21 @@ Write-Host "Starting MongoDB container with docker compose"
 docker compose up -d $SERVICE_NAME
 
 # Step 4: Wait for the container to be ready
-Write-Host "Waiting for MongoDB to be ready..."
-Start-Sleep -Seconds 10
+Write-Host "Waiting for MongoDB to respond..."
+
+do {
+    Start-Sleep -Seconds 2
+
+    docker exec $CONTAINER_NAME mongosh `
+        -u $USERNAME `
+        -p $PASSWORD `
+        --authenticationDatabase admin `
+        --quiet `
+        --eval "db.adminCommand({ ping: 1 })" 2>$null
+
+} while ($LASTEXITCODE -ne 0)
+
+Write-Host "MongoDB is ready!"
 
 
 # Step 5: Initiate replica set

@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
+import { ClanModule } from '../clan/clan.module';
 import { Voting, VotingSchema } from './schemas/voting.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { VotingController } from './voting.controller';
@@ -19,6 +20,7 @@ import {
 } from './schemas/buyShopItem.schema';
 import { FleaMarketItemVotingSchema } from './schemas/fleamarketItemVoting.schema';
 import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
+import { ExpiredVotingCleanupService } from './expired-voting-cleanup.service';
 
 @Module({
   imports: [
@@ -52,10 +54,16 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
             schema: BuyClanShopItemVotingSchema,
             value: VotingType.SHOP_BUY_ITEM,
           },
+          {
+            name: 'ClanGovernanceUpdateVoting',
+            schema: VotingSchema,
+            value: VotingType.CLAN_GOVERNANCE_UPDATE,
+          },
         ],
       },
     ]),
     PlayerModule,
+    forwardRef(() => ClanModule),
     BullModule.registerQueue(
       { name: VotingQueueName.CLAN_ROLE },
       { name: VotingQueueName.CLAN_SHOP },
@@ -63,7 +71,12 @@ import { EventEmitterCommonModule } from '../common/service/EventEmitterService/
     ),
     EventEmitterCommonModule,
   ],
-  providers: [VotingService, VotingNotifier, VotingQueue],
+  providers: [
+    VotingService,
+    VotingNotifier,
+    VotingQueue,
+    ExpiredVotingCleanupService,
+  ],
   controllers: [VotingController],
   exports: [VotingService, VotingQueue],
 })

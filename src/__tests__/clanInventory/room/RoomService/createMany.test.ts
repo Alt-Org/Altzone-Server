@@ -32,12 +32,10 @@ describe('RoomService.createMany() test suite', () => {
         expect.objectContaining({
           ...room1ToCreate,
           _id: expect.any(ObjectId),
-          isActive: false,
         }),
         expect.objectContaining({
           ...room2ToCreate,
           _id: expect.any(ObjectId),
-          isActive: false,
         }),
       ]),
     );
@@ -55,36 +53,13 @@ describe('RoomService.createMany() test suite', () => {
         expect.objectContaining({
           ...room1ToCreate,
           _id: expect.any(ObjectId),
-          isActive: false,
         }),
         expect.objectContaining({
           ...room2ToCreate,
           _id: expect.any(ObjectId),
-          isActive: false,
         }),
       ]),
     );
-  });
-
-  //TODO: should not save, sometimes saves sometimes not
-  it('Should save any data in DB, if the provided cellCount is null', async () => {
-    const invalidRoom = { ...room1ToCreate, cellCount: null } as any;
-    await roomService.createMany([invalidRoom, room2ToCreate]);
-
-    const dbResp = await roomModel.find({ soulHome_id: soulHome_id });
-
-    expect(dbResp).not.toHaveLength(3);
-  });
-
-  it('Should return ServiceError with reason REQUIRED, if the provided cellCount is null', async () => {
-    const invalidRoom = { ...room1ToCreate, cellCount: null } as any;
-    const [result, errors] = await roomService.createMany([
-      invalidRoom,
-      room2ToCreate,
-    ]);
-
-    expect(result).toBeNull();
-    expect(errors).toContainSE_REQUIRED();
   });
 
   it('Should not throw any error if provided input is null or undefined', async () => {

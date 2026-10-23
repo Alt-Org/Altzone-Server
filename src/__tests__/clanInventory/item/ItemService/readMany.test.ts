@@ -23,7 +23,7 @@ describe('ItemService.readMany() test suite', () => {
     .setRarityLevel(Rarity.common)
     .build();
   const item3 = itemBuilder
-    .setName(ItemName.SOFATABLE_RAKKAUS)
+    .setName(ItemName.COFFEETABLE_RAKKAUS)
     .setRarityLevel(Rarity.common)
     .build();
 

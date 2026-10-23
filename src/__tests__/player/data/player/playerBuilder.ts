@@ -2,6 +2,7 @@ import { GameStatistics } from '../../../../player/gameStatistics.schema';
 import { Player } from '../../../../player/schemas/player.schema';
 import { ObjectId } from 'mongodb';
 import { Avatar } from '../../../../player/schemas/avatar.schema';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class PlayerBuilder {
   private readonly base: Player = {
@@ -9,10 +10,16 @@ export default class PlayerBuilder {
     backpackCapacity: 10,
     points: 0,
     battlePoints: 0,
+    claimableRewards: [],
     uniqueIdentifier: 'unique-id',
     above13: true,
     parentalAuth: true,
     currentAvatarId: 101,
+    carbonFootprint: 0,
+    clanCoinsAccumulated: 0,
+    playstyle: 'Balanced',
+    classStatistics: new Map(),
+    characterStatistics: new Map(),
     gameStatistics: {
       playedBattles: 0,
       wonBattles: 0,
@@ -23,19 +30,21 @@ export default class PlayerBuilder {
     clan_id: undefined,
     battleCharacter_ids: [],
     avatar: {
-      head: 1,
-      hair: 1,
-      eyes: 1,
-      nose: 1,
-      mouth: 1,
-      eyebrows: 1,
-      clothes: 1,
-      feet: 1,
-      hands: 1,
+      head: { id: 1, color: '#ff0000' },
+      hair: { id: 1, color: '#ff0000' },
+      eyes: { id: 1, color: '#ff0000' },
+      nose: { id: 1, color: '#ff0000' },
+      mouth: { id: 1, color: '#ff0000' },
+      eyebrows: { id: 1, color: '#ff0000' },
+      clothes: { id: 1, color: '#ff0000' },
+      feet: { id: 1, color: '#ff0000' },
+      hands: { id: 1, color: '#ff0000' },
       skinColor: '#f5cba7',
     },
     clanRole_id: null,
     _id: undefined,
+    environment: Environment.TEACHING_DEMO,
+    clan_joindate: null,
   };
 
   build(): Player {
@@ -117,6 +126,11 @@ export default class PlayerBuilder {
 
   setClanRoleId(clanRole_id: string | ObjectId | null) {
     this.base.clanRole_id = clanRole_id as any;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }

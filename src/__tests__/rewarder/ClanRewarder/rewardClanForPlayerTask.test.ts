@@ -6,7 +6,7 @@ import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 
 describe('ClanRewarder.rewardClanForPlayerTask() test suite', () => {
   let rewarder: ClanRewarder;
-  const clanMaxPoints = 10000;
+  const clanMaxPoints = 2000;
 
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
   const existingClan = clanBuilder.setPoints(0).setGameCoins(0).build();

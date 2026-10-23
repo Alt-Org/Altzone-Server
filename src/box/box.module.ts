@@ -31,6 +31,7 @@ import AccountClaimerService from './accountClaimer/accountClaimer.service';
 import { TesterAccountService } from './accountClaimer/testerAccount.service';
 import UniqueFieldGenerator from './util/UniqueFieldGenerator';
 import { ItemSchema } from '../clanInventory/item/item.schema';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { ItemSchema } from '../clanInventory/item/item.schema';
     PlayerModule,
     DailyTasksModule,
     PlayerModule,
+    AuthModule,
   ],
   controllers: [BoxController, DailyTaskController, AccountClaimerController],
   providers: [

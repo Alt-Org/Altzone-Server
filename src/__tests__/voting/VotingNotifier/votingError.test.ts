@@ -5,6 +5,7 @@ import mqtt from 'mqtt';
 import { NotificationStatus } from '../../../common/service/notificator/enum/NotificationStatus.enum';
 import { NotificationResource } from '../../../common/service/notificator/enum/NotificationResource.enum';
 import { NotificationGroup } from '../../../common/service/notificator/enum/NotificationGroup.enum';
+import { MqttNotificationType } from '../../../common/service/notificator/enum/MqttNotificationType.enum';
 import { VotingType } from '../../../voting/enum/VotingType.enum';
 import TestUtilDataFactory from '../../test_utils/data/TestUtilsDataFactory';
 import createMockMqttClient from '../../common/service/notificator/mocks/createMockMqttClient';
@@ -27,7 +28,11 @@ describe('VotingNotifier.votingError() test suite', () => {
     const apiError = TestUtilDataFactory.getBuilder('APIError').build();
 
     const expectedTopic = `/${NotificationGroup.CLAN}/${organizer.clan_id}/${NotificationResource.VOTING}/${VotingType.FLEA_MARKET_SELL_ITEM}/${NotificationStatus.ERROR}`;
-    const expectedPayload = JSON.stringify(apiError);
+    const expectedPayload = JSON.stringify({
+      topic: 'voting',
+      type: MqttNotificationType.VOTING_ERROR,
+      payload: apiError,
+    });
 
     const { publishAsyncMock } = createMockMqttClient();
     await votingNotifier.votingError(

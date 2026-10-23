@@ -10,7 +10,6 @@ import { RequestHelperModule } from '../../../requestHelper/requestHelper.module
 import { MongooseModule } from '@nestjs/mongoose';
 import { mongooseOptions, mongoString } from '../../test_utils/const/db';
 import UiDailyTaskHandler from '../../../gameEventsHandler/dailyTask/uiDailyTaskHandler';
-import DailyTaskNotifier from '../../../gameEventsHandler/dailyTask/DailyTaskNotifier';
 import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
 
 export default class GameEventsHandlerCommonModule {
@@ -36,7 +35,6 @@ export default class GameEventsHandlerCommonModule {
           ClanEventHandler,
           GameEventsHandler,
           UiDailyTaskHandler,
-          DailyTaskNotifier,
         ],
       }).compile();
 

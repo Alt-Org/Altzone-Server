@@ -14,6 +14,14 @@ import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.servic
 import { Player, PlayerSchema } from '../player/schemas/player.schema';
 import { ClanRewarder } from '../rewarder/clanRewarder/clanRewarder.service';
 import { Clan, ClanSchema } from '../clan/clan.schema';
+import { ClanProgression } from '../rewarder/clanProgression/clanProgression.service';
+import { Stock, StockSchema } from '../clanInventory/stock/stock.schema';
+import { Item, ItemSchema } from '../clanInventory/item/item.schema';
+import { DailyTasksScheduler } from './dailyTasksScheduler.service';
+import DailyTasksResetNotifier from './dailyTaskReset.notifier';
+import { DailyTaskProgressService } from './dailyTaskProgress.service';
+// will be removed in the future
+import { DailyTasksStartupRefreshService } from './dailyTasksStartupRefresh.service';
 
 @Module({
   imports: [
@@ -21,6 +29,9 @@ import { Clan, ClanSchema } from '../clan/clan.schema';
       { name: DailyTask.name, schema: DailyTaskSchema },
       { name: Player.name, schema: PlayerSchema },
       { name: Clan.name, schema: ClanSchema },
+      { name: Stock.name, schema: StockSchema },
+      { name: Item.name, schema: ItemSchema },
+      { name: Player.name, schema: PlayerSchema },
     ]),
     BullModule.registerQueue({
       name: 'daily-tasks',
@@ -35,10 +46,15 @@ import { Clan, ClanSchema } from '../clan/clan.schema';
     DailyTaskNotifier,
     DailyTaskQueue,
     DailyTaskProcessor,
+    DailyTaskProgressService,
     PlayerRewarder,
     ClanRewarder,
+    ClanProgression,
+    DailyTasksScheduler,
+    DailyTasksResetNotifier,
+    DailyTasksStartupRefreshService, // will be removed in the future
   ],
   controllers: [DailyTasksController],
-  exports: [DailyTasksService, UiDailyTasksService],
+  exports: [DailyTasksService, UiDailyTasksService, DailyTaskProgressService],
 })
 export class DailyTasksModule {}

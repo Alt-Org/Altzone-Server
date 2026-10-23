@@ -37,6 +37,11 @@ describe('BoxCreator.createBox() test suite', () => {
   let playerBuilder: PlayerBuilder;
 
   beforeEach(async () => {
+    await boxModel.deleteMany({});
+    await playerModel.deleteMany({});
+    await profileModel.deleteMany({});
+    await adminModel.deleteMany({});
+
     boxCreator = await BoxModule.getBoxCreator();
 
     boxBuilder = BoxBuilderFactory.getBuilder('Box');

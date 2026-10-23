@@ -7,6 +7,7 @@ import { Organizer } from './organizer.dto';
 import { ItemName } from '../../clanInventory/item/enum/itemName.enum';
 import { VoteDto } from './vote.dto';
 import { SetClanRole } from '../schemas/setClanRole.schema';
+import { GovernancePayload } from '../type/governancePayload';
 
 @AddType('VotingDto')
 export class VotingDto {
@@ -115,5 +116,13 @@ export class VotingDto {
    * @example { "player_id": "6630af1234cd5ef001a1b4c5", "role_id": "6630af1234cd5ef001a1b4c3" }
    */
   @Expose()
+  @Type(() => SetClanRole)
   setClanRole: SetClanRole;
+
+  /**
+   * Proposed changes for clan governance (roles and admin IDs and whatever else).
+   */
+  @Expose()
+  @Type(() => GovernancePayload)
+  governancePayload?: GovernancePayload;
 }

@@ -50,6 +50,7 @@ describe('GlobalChatService.handleNewGlobalReaction() test suite', () => {
       client,
       reaction,
       expect.any(Set),
+      undefined,
     );
   });
 });

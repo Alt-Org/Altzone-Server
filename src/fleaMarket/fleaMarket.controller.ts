@@ -22,6 +22,7 @@ import { ChangeItemStatusDto } from './dto/changeItemStatus.dto';
 import { Status } from './enum/status.enum';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
+import { SellItemResult } from './enum/sellItemResult.enum';
 
 @Controller('fleaMarket')
 export class FleaMarketController {
@@ -30,6 +31,38 @@ export class FleaMarketController {
     private readonly playerService: PlayerService,
     private readonly emitterService: EventEmitterService,
   ) {}
+
+  /**
+   * Fetch all the furniture, that the clan has accepted for selling
+   * The furniture can be in a stall or not. If no furniture is found,
+   * null is returned.
+   *
+   * @remarks Fetch all the furniture, that the clan has accepted for selling
+   * The furniture can be in a stall or not.
+   * Player has a right to SHOP.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 200,
+      modelName: ModelName.STALL,
+    },
+    errors: [400, 403, 404],
+  })
+  @HasClanRights([ClanBasicRight.SHOP])
+  @Get('ownClan')
+  @UniformResponse(ModelName.STALL)
+  async getOwnClanStall(@LoggedUser() user: User) {
+    const clanId = await this.playerService.getPlayerClanId(user.player_id);
+
+    if (!clanId) {
+      throw new APIError({
+        reason: APIErrorReason.NOT_AUTHORIZED,
+        message: 'Player must be a member of a clan to access this resource',
+      });
+    }
+
+    return await this.service.getClanFurnitureItems(clanId);
+  }
 
   /**
    * Get flea market item by _id.
@@ -52,7 +85,12 @@ export class FleaMarketController {
   /**
    * Get all flea market items
    *
-   * @remarks Get all FleaMarketItems of the flea market
+   * @deprecated This endpoint returns ALL FleaMarketItems across every clan
+   * and is not scalable as the flea market grows. Use `GET /stock/{_id}`
+   * instead, which now includes the calling clan's FleaMarketItems alongside
+   * its stock items. This endpoint will be removed in a future release.
+   *
+   * @remarks Get all FleaMarketItems of the flea market.
    */
   @ApiResponseDescription({
     success: {
@@ -70,17 +108,17 @@ export class FleaMarketController {
   }
 
   /**
-   * Sell a clan item on flea market
-   * Emit a server event for daily task "SUGGEST_ITEM_TO_FLEA_MARKET, ADD_ITEM_TO_FLEA_MARKET"
+   * Sell a clan item on the flea market
    *
-   * @remarks Sell an Item on the flea market.
-   * This will start a voting in the Clan from which Item is being moved to the flea marked.
-   * Voting min approval percentage is 51. During the voting an Item is in "Shipping" status and can not be bought by other players.
+   * @remarks Sell an item from the clan's stock on the flea market.
    *
-   * Notice that the player must be in the same clan, and it must have a basic right "Shop".
-   *
-   * Notice that if a FleaMarketItem has already "Shipping" status 403 will be returned.
-   *
+   * The behavior depends on the selling player's clan rights:
+   * - With the SHOP right, the item is moved to the flea market directly
+   *   with SHIPPING status. It can later be made buyable via the
+   *   change-item-status endpoint.
+   * - Without the SHOP right, a voting process is started; the item moves
+   *   to the flea market only if the majority of clan members vote to accept
+   *   the listing.
    */
   @ApiResponseDescription({
     success: {
@@ -89,7 +127,6 @@ export class FleaMarketController {
     errors: [400, 401, 403, 404],
   })
   @Post('sell')
-  @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
   async sell(
     @Body() sellFleaMarketItemDto: SellFleaMarketItemDto,
@@ -106,32 +143,34 @@ export class FleaMarketController {
         message: 'The item does not belong to the clan of logged in player',
       });
 
-    const [, sellItemErrors] = await this.service.handleSellItem(
+    const [sellItemResult, sellItemErrors] = await this.service.handleSellItem(
       sellFleaMarketItemDto,
       clanId,
       user.player_id,
     );
     if (sellItemErrors) return sellItemErrors;
 
-    [
-      ServerTaskName.SUGGEST_ITEM_TO_FLEA_MARKET,
-      ServerTaskName.ADD_ITEM_TO_FLEA_MARKET,
-    ].forEach((task) => {
-      this.emitterService.EmitNewDailyTaskEvent(user.player_id, task);
-    });
+    if (sellItemResult === SellItemResult.VOTING_STARTED) {
+      await this.emitterService.EmitNewDailyTaskEvent(
+        user.player_id,
+        ServerTaskName.LETTING_GO_OF_THE_OLD,
+      );
+    }
   }
 
   /**
-   * Buy an item on flea market for your clan
+   * Buy an item on the flea market for your clan
    *
    * @remarks Buy an Item from the flea market.
-   * This will start a voting in the Clan for which Item is being purchased.
-   * Voting duration is 10 min at max and the min approval percentage is 51.
-   * During the voting an Item is in "Booked" status and can not be bought by other players.
+   * The behavior depends on the buying player's clan rights:
+   * - With the SHOP right, the item is bought directly and added to the
+   *   clan's stock.
+   * - Without the SHOP right, a voting process is started; the item is
+   *   delivered only if the majority of clan members vote to accept it
+   *   within the voting period.
    *
-   * Notice that the player must be in the same clan and it must have a basic right "Shop".
-   *
-   * Notice that if a FleaMarketItem has already "Booked" status 403 will be returned.
+   * In both cases, the clan must have enough coins to cover the item's price
+   * and the item must have an AVAILABLE status.
    */
   @ApiResponseDescription({
     success: {
@@ -140,7 +179,6 @@ export class FleaMarketController {
     errors: [400, 401, 403, 404],
   })
   @Post('buy')
-  @HasClanRights([ClanBasicRight.SHOP])
   @UniformResponse()
   async buy(@Body() itemIdDto: ItemIdDto, @LoggedUser() user: User) {
     await this.playerService.readOneById(user.player_id);
@@ -235,6 +273,17 @@ export class FleaMarketController {
     );
 
     if (updateError) throw updateError;
+
+    if (
+      item.status === Status.AVAILABLE &&
+      body.status === Status.SHIPPING &&
+      item.saleApprovedByVoting
+    ) {
+      await this.emitterService.EmitNewDailyTaskEvent(
+        user.player_id,
+        ServerTaskName.RECYCLING_EXPERIENCES,
+      );
+    }
   }
 
   /**

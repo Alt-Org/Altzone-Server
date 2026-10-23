@@ -42,7 +42,7 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
     const dailyTaskToCreate = taskBuilder
       .setClanId(existingClan._id)
       .setPlayerId(loggedPlayer._id)
-      .setType(UITaskName.CHANGE_LANGUAGE)
+      .setType(UITaskName.FIND_THE_ROOTS)
       .setAmount(initialAmount)
       .setAmountLeft(initialAmount)
       .setPlayerId(loggedPlayer._id)
@@ -88,12 +88,9 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       .build();
     await taskModel.create(dailyTaskToCreate);
 
-    const [[status]] = await uiDailyTasksService.updateTask(
-      loggedPlayer._id,
-      1,
-    );
+    const [result] = await uiDailyTasksService.updateTask(loggedPlayer._id, 1);
 
-    expect(status).toBe('updated');
+    expect(result.status).toBe('advanced');
   });
 
   it('Should return completed status if daily task amountLeft field became 0', async () => {
@@ -107,12 +104,9 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       .build();
     await taskModel.create(dailyTaskToCreate);
 
-    const [[status]] = await uiDailyTasksService.updateTask(
-      loggedPlayer._id,
-      1,
-    );
+    const [result] = await uiDailyTasksService.updateTask(loggedPlayer._id, 1);
 
-    expect(status).toBe('completed');
+    expect(result.status).toBe('completed');
   });
 
   it('Should remove the daily task if the task is completed', async () => {
@@ -121,7 +115,7 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       .setPlayerId(loggedPlayer._id)
       .setAmount(1)
       .setAmountLeft(1)
-      .setType(UITaskName.PRESS_FAMOUS_CHARACTER)
+      .setType(UITaskName.ETHICS_METRICS)
       .setPlayerId(loggedPlayer._id)
       .setClanId(existingClan._id)
       .build();
@@ -160,7 +154,7 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
     const dailyTaskToCreate = taskBuilder
       .setClanId(existingClan._id)
       .setPlayerId(loggedPlayer._id)
-      .setType(ServerTaskName.ADD_FRIEND)
+      .setType(ServerTaskName.GO_TO_BATTLE)
       .setAmount(5)
       .setAmountLeft(5)
       .setPlayerId(loggedPlayer._id)

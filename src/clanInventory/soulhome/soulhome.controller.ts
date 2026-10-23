@@ -53,6 +53,6 @@ export class SoulHomeController {
     );
     if (errors || !soulHome) return [null, errors];
 
-    return this.service.readOneById(soulHome._id, { includeRefs });
+    return this.service.readSoulHomeWithRooms(soulHome._id, { includeRefs });
   }
 }

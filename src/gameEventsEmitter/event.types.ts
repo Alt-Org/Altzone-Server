@@ -1,5 +1,6 @@
 import UIBasicDailyTask from './payloads/UIBasicDailyTask';
 import CreatedClan from './payloads/CreatedClan';
+import UpdatedClan from './payloads/UpdatedClan';
 
 /**
  * Record containing all possible event resources with their supported actions.
@@ -16,7 +17,7 @@ const EventNamesMap = {
   diamond: ['collect'] as const,
   character: ['startBattle'] as const,
   dailyTask: ['updateUIBasicTask'] as const,
-  clan: ['create'] as const,
+  clan: ['create', 'update'] as const,
 } as const;
 
 /**
@@ -33,6 +34,7 @@ const EventsPayloadMap = {
   'character.startBattle': {},
   'dailyTask.updateUIBasicTask': {} as UIBasicDailyTask,
   'clan.create': {} as CreatedClan,
+  'clan.update': {} as UpdatedClan,
 } as const;
 
 /**

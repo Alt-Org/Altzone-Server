@@ -17,7 +17,7 @@ const config: Config = {
   testPathIgnorePatterns: [`${testDir}/test_utils`],
   collectCoverageFrom: [`${codeDir}/**/*.ts`],
   coverageDirectory: './coverage',
-  coverageReporters: ['cobertura'],
+  coverageReporters: ['json', 'json-summary', 'text-summary'],
   reporters: ['default', 'jest-junit'],
 
   setupFiles: [

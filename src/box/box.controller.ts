@@ -35,9 +35,13 @@ import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { Model } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { NoBoxIdFilter } from './auth/decorator/NoBoxIdFilter.decorator';
+import { Authorize } from '../authorization/decorator/Authorize';
+import { Action } from '../authorization/enum/action.enum';
+import { BoxTestingSessionGuard } from './auth/boxTestingSession.guard';
+import { TokensDto } from '../auth/dto/tokens.dto';
 
 @Controller('box')
-@UseGuards(BoxAuthGuard)
+@UseGuards(BoxAuthGuard, BoxTestingSessionGuard)
 export class BoxController {
   public constructor(
     @InjectModel(GroupAdmin.name) public readonly groupModel: Model<GroupAdmin>,
@@ -75,13 +79,52 @@ export class BoxController {
     const [createdBox, errors] = await this.boxCreator.createBox(body);
     if (errors) return [null, errors];
 
-    const groupAdminAccessToken = await this.authHandler.getGroupAdminToken({
+    const [tokenData, tokenErrors] = await this.authHandler.getGroupAdminToken({
       box_id: createdBox._id.toString(),
       player_id: createdBox.adminPlayer_id.toString(),
       profile_id: createdBox.adminProfile_id.toString(),
     });
+    if (tokenErrors) return [null, tokenErrors];
 
-    return [{ ...createdBox, accessToken: groupAdminAccessToken }, null];
+    return [
+      {
+        ...createdBox,
+        ...tokenData,
+      },
+      null,
+    ];
+  }
+
+  /**
+   * Admin sign in
+   *
+   * @remarks Checks that admin Profile and Player exist, returns accessToken
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 201,
+      dto: TokensDto,
+      modelName: ModelName.BOX,
+    },
+    errors: [400, 404],
+    hasAuth: false,
+  })
+  @NoAuth()
+  @NoBoxIdFilter()
+  @UniformResponse(ModelName.BOX, TokensDto)
+  @Post('admin/signIn')
+  async signIn(@Body() body: CreateBoxDto) {
+    const [box, errors] = await this.service.readAdminBox(body);
+    if (errors) return [null, errors];
+
+    const [tokenData, tokenErrors] = await this.authHandler.getGroupAdminToken({
+      box_id: box._id.toString(),
+      player_id: box.adminPlayer_id.toString(),
+      profile_id: box.adminProfile_id.toString(),
+    });
+    if (tokenErrors) return [null, tokenErrors];
+
+    return tokenData;
   }
 
   /**
@@ -203,7 +246,7 @@ export class BoxController {
   }
 
   /**
-   * Get all boxes. The endpoint for time of development only
+   * Get all Admins boxes.
    *
    * @remarks Endpoint for getting all boxes data
    */
@@ -213,19 +256,19 @@ export class BoxController {
       modelName: ModelName.BOX,
       returnsArray: true,
     },
-    errors: [404],
-    hasAuth: false,
+    errors: [401, 403, 404],
   })
   @Get('/')
-  @NoAuth()
-  @NoBoxIdFilter()
+  @IsGroupAdmin()
   @UniformResponse(ModelName.BOX)
-  public getAll() {
-    return this.service.readAll();
+  public getAll(@LoggedUser() user: BoxUser) {
+    return this.service.readAll({
+      filter: { adminProfile_id: new ObjectId(user.profile_id) },
+    });
   }
 
   /**
-   * Get box by _id. The endpoint for time of development only
+   * Get box by _id.
    *
    * @remarks Endpoint for getting box data by its _id
    */
@@ -234,12 +277,11 @@ export class BoxController {
       dto: BoxDto,
       modelName: ModelName.BOX,
     },
-    errors: [404],
-    hasAuth: false,
+    errors: [401, 403, 404],
   })
   @Get('/:_id')
-  @NoBoxIdFilter()
-  @NoAuth()
+  @IsGroupAdmin()
+  @Authorize({ action: Action.read, subject: BoxDto })
   @UniformResponse(ModelName.BOX)
   public getOne(
     @Param() param: _idDto,

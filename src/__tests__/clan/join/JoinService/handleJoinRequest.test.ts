@@ -6,9 +6,17 @@ import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { MemberClanRole } from '../../../../clan/role/initializationClanRoles';
+import ClanInventoryBuilderFactory from '../../../../__tests__/clanInventory/data/clanInventoryBuilderFactory';
+import SoulhomeModule from '../../../../__tests__/clanInventory/modules/soulhome.module';
+import MQTTConnector from '../../../../common/service/notificator/MQTTConnector';
+
+jest.mock('../../../../common/service/notificator/MQTTConnector', () => ({
+  getInstance: jest.fn(),
+}));
 
 describe('JoinService.handleJoinRequest() test suite', () => {
   let joinService: JoinService;
+  let publishMock: jest.Mock;
   const joinBuilder = ClanBuilderFactory.getBuilder('JoinRequestDto');
 
   const clanModel = ClanModule.getClanModel();
@@ -24,11 +32,25 @@ describe('JoinService.handleJoinRequest() test suite', () => {
   const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
   const player = playerBuilder.build();
 
+  const soulHomeModel = SoulhomeModule.getSoulhomeModel();
+  const soulHomeCreateBuilder =
+    ClanInventoryBuilderFactory.getBuilder('CreateSoulHomeDto');
+  const soulHome = soulHomeCreateBuilder.build();
+  openClan.environment = player.environment;
+  closedClan.environment = player.environment;
+
   beforeEach(async () => {
+    publishMock = jest.fn();
+    (MQTTConnector.getInstance as jest.Mock).mockReturnValue({
+      publish: publishMock,
+    });
+
     const playerResp = await playerModel.create(player);
     player._id = playerResp._id.toString();
     const clanResp1 = await clanModel.create(openClan);
     openClan._id = clanResp1._id.toString();
+    soulHome.clan_id = clanResp1._id.toString();
+    await soulHomeModel.create(soulHome);
 
     const clanResp2 = await clanModel.create(closedClan);
     closedClan._id = clanResp2._id.toString();
@@ -55,6 +77,20 @@ describe('JoinService.handleJoinRequest() test suite', () => {
     expect(clanDto).toBeDefined();
     expect(error).toBeNull();
     expect(clanDto.name).toBe(openClan.name);
+  });
+
+  it('Should set clan_joindate of the joined player to the current date', async () => {
+    const joinToCreate = joinBuilder.setClanId(openClan._id).build();
+
+    const before = Date.now();
+    await joinService.handleJoinRequest(joinToCreate.clan_id, player._id);
+    const after = Date.now();
+
+    const playerInDB = await playerModel.findById(player._id);
+    const joinTime = playerInDB.clan_joindate.getTime();
+
+    expect(joinTime).toBeGreaterThanOrEqual(before);
+    expect(joinTime).toBeLessThanOrEqual(after);
   });
 
   it('Should throw NotFoundException if clan with that _id does not exists', async () => {
@@ -141,5 +177,47 @@ describe('JoinService.handleJoinRequest() test suite', () => {
     const oldClanInDB = await clanModel.findById(oldClan._id);
 
     expect(oldClanInDB.playerCount).toBe(1);
+  });
+
+  it('Should create a new Expedition clan if all existing open clans are full', async () => {
+    await clanModel.deleteMany({});
+
+    const fullClan = clanBuilder
+      .setIsOpen(true)
+      .setPlayerCount(30)
+      .setName('Full')
+      .build();
+    await clanModel.create(fullClan);
+
+    const newPlayer = await playerModel.create(playerBuilder.build());
+
+    await joinService.findClanForNewPlayer(newPlayer._id.toString());
+
+    const createdClan = await clanModel.findOne({
+      name: { $regex: /Expedition/i },
+    });
+
+    expect(createdClan).not.toBeNull();
+    expect(createdClan.name).toMatch(/Expedition/);
+  });
+
+  it('Should publish an MQTT join notification when player joins the clan', async () => {
+    const joinToCreate = joinBuilder.setClanId(openClan._id).build();
+
+    await joinService.handleJoinRequest(joinToCreate.clan_id, player._id);
+
+    expect(publishMock).toHaveBeenCalledTimes(1);
+    const [topic, payload] = publishMock.mock.calls[0];
+    expect(topic).toBe(`/clan/${openClan._id}/member/join/new`);
+
+    const parsedPayload = JSON.parse(payload);
+    expect(parsedPayload.topic).toBe('clan');
+    expect(parsedPayload.type).toBe('MEMBER_JOINED');
+    expect(parsedPayload.payload.topic).toBe(
+      `/clan/${openClan._id}/member/join`,
+    );
+    expect(parsedPayload.payload.playerId).toBe(player._id);
+    expect(parsedPayload.payload.event).toBe('join');
+    expect(parsedPayload.payload.ts).toBeLessThanOrEqual(Date.now());
   });
 });

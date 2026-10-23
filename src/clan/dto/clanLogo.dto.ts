@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsEnum, IsHexColor } from 'class-validator';
 import { LogoType } from '../enum/logoType.enum';
 import { Expose } from 'class-transformer';
@@ -8,6 +9,10 @@ export class ClanLogoDto {
    *
    * @example "Heart"
    */
+  @ApiProperty({
+    enum: LogoType,
+    example: 'Heart',
+  })
   @Expose()
   @IsEnum(LogoType)
   logoType: LogoType;
@@ -17,6 +22,10 @@ export class ClanLogoDto {
    *
    * @example ["#FFFFFF", "#000000"]
    */
+  @ApiProperty({
+    type: [String],
+    example: ['#FFFFFF', '#000000'],
+  })
   @Expose()
   @IsArray()
   @IsHexColor({ each: true })

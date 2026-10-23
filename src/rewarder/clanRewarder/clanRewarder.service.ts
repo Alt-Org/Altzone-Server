@@ -7,7 +7,7 @@ import { points } from './points';
 import BasicService from '../../common/service/basicService/BasicService';
 import { InjectModel } from '@nestjs/mongoose';
 import { Clan } from '../../clan/clan.schema';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { ClanDto } from '../../clan/dto/clan.dto';
 import { PlayerDto } from '../../player/dto/player.dto';
 import { Player } from '../../player/schemas/player.schema';
@@ -28,26 +28,28 @@ export class ClanRewarder {
     this.playerService = new BasicService(playerModel);
   }
 
-  clanMaxPoints = 10000;
+  clanMaxPoints = 2000;
 
   /**
-   * Increases specified clan points and coins amounts.
+   * Increases specified clan's regular points and coins amounts.
    *
-   * Notice that clan can have 10000 points at max
+   * Notice that clan can have 2000 regular points at max.
    *
    * @param clan_id clan _id for which to increase
-   * @param points amount of points to add, default 0
+   * @param points amount of regular points to add
    * @param coins amount of coins to add, default 0
+   * @param session optional client session for transaction
    * @throws ServiceError if clan can not be found during the clan data fetching
    *
-   * @returns true if the clan was rewarder successfully or ServiceErrors:
+   * @returns updated Clan if the clan was rewarder successfully or ServiceErrors:
    * - NOT_FOUND if the clan can not be found during the update
    */
   async rewardClanForPlayerTask(
     clan_id: string,
     points: number,
     coins: number,
-  ) {
+    session?: ClientSession,
+  ): Promise<IServiceReturn<Clan>> {
     if (points < 0)
       return [
         null,
@@ -74,26 +76,31 @@ export class ClanRewarder {
         ],
       ];
 
-    const [clanToUpdate, errors] = await this.clanService.readOneById(clan_id);
+    const [clanToUpdate, errors] = await this.clanService.readOneById(clan_id, {
+      session,
+    });
 
-    if (errors) throw errors;
+    if (errors) return [null, errors];
 
     const { points: clanPoints, gameCoins } = clanToUpdate;
     const newPoints = Math.min(this.clanMaxPoints, clanPoints + points);
 
-    return this.clanService.updateOne(
+    return this.clanService.findByIdAndUpdate<Clan>(
+      clan_id,
       {
-        points: newPoints,
-        gameCoins: gameCoins + coins,
+        $set: {
+          points: newPoints,
+          gameCoins: gameCoins + coins,
+        },
       },
-      { filter: { _id: clan_id } },
+      { session },
     );
   }
 
   /**
-   * Rewards specified clan for an event happen
-   * @param player_id player _id that belongs to the clan to reward
-   * @param clanEvent clan event that happened
+   * Updates a player's clan battlePoints for a battle-related event.
+   * @param player_id player _id that belongs to the clan to update
+   * @param clanEvent battle event that happened
    * @throws MongooseError if any occurred
    * @returns true if clan was rewarded successfully
    */
@@ -101,8 +108,8 @@ export class ClanRewarder {
     player_id: string,
     clanEvent: ClanEvent,
   ): Promise<IServiceReturn<boolean>> {
-    const pointAmount = points[clanEvent];
-    if (pointAmount === undefined)
+    const battlePointAmount = points[clanEvent];
+    if (battlePointAmount === undefined)
       return [
         null,
         [
@@ -132,13 +139,13 @@ export class ClanRewarder {
       ];
     }
 
-    return this.updateClanBattlePoints(player.clan_id, pointAmount);
+    return this.updateClanBattlePoints(player.clan_id, battlePointAmount);
   }
 
   /**
-   * Update specified clan battle points amount
+   * Updates specified clan's battlePoints amount.
    * @param clan_id clan _id
-   * @param battlePoints amount of battle points to increase
+   * @param battlePoints battlePoints delta to apply
    * @throws MongooseError if any occurred
    * @returns true if clan was rewarded successfully
    */

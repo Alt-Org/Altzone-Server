@@ -11,6 +11,7 @@ import {
   ValidateNested,
   MaxLength,
   IsNotEmpty,
+  ArrayUnique,
 } from 'class-validator';
 import { IsClanExists } from '../decorator/validation/IsClanExists.decorator';
 import { IsPlayerExists } from '../../player/decorator/validation/IsPlayerExists.decorator';
@@ -22,6 +23,11 @@ import { Language } from '../../common/enum/language.enum';
 import { ClanLogoDto } from './clanLogo.dto';
 import { Type } from 'class-transformer';
 import { StallDto } from './stall.dto';
+import { Environment } from '../../common/enum/environment.enum';
+import { CreateClanRoleDto } from '../role/dto/createClanRole.dto';
+import { ClanGovernanceUpdateDto } from './clanGovernanceUpdate.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { ClanRule } from '../enum/clanRule.enum';
 
 @AddType('UpdateClanDto')
 export class UpdateClanDto {
@@ -56,15 +62,28 @@ export class UpdateClanDto {
   /**
    * New logo configuration for the clan (optional)
    */
+  @ApiProperty({
+    type: () => ClanLogoDto,
+    required: false,
+  })
   @ValidateNested()
   @Type(() => ClanLogoDto)
   @IsOptional()
   clanLogo?: ClanLogoDto;
 
   /**
+   * Governance payload for role and admin updates (fully optional).
+   * Used when an update is processed after a successful vote.
+   */
+  @ValidateNested()
+  @Type(() => ClanGovernanceUpdateDto)
+  @IsOptional()
+  governancePayload?: ClanGovernanceUpdateDto;
+
+  /**
    * Updated labels for the clan (max 5, optional)
    *
-   * @example ["ELÄINRAKKAAT", "SYVÄLLISET"]
+   * @example ["eläinrakkaat", "syvälliset"]
    */
   @IsArray()
   @ArrayMaxSize(5)
@@ -149,10 +168,60 @@ export class UpdateClanDto {
   language?: Language;
 
   /**
+   * Proposed roles for the clan (optional)
+   * * @example
+   * [
+   * {
+   * "name": "Veteran",
+   * "rights": { "shop": true, "edit_soulhome": true }
+   * }
+   * ]
+   */
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => CreateClanRoleDto)
+  roles?: CreateClanRoleDto[];
+
+  /**
    * Clan stall
    * @example { adPoster: { border: "border1", colour: "red", mainFurniture: "table" }, maxSlots: 10 }
    */
   @Type(() => StallDto)
   @IsOptional()
   stall?: StallDto;
+
+  /**
+   * Environment mode that the clan uses (Teaching Mode or Open Mode)
+   *
+   * @example Environment.OPEN_DEMO
+   */
+  @IsEnum(Environment)
+  @IsOptional()
+  environment?: Environment;
+
+  /**
+   * Box id in testing sessions
+   *
+   * @example "67fe4e2d8a54d4cc39266a43"
+   */
+  @IsString()
+  @IsOptional()
+  box_id?: string;
+
+  /**
+   * List of Clan rules
+   * @example [ClanRule.ACTIVITY_DAILY, ClanRule.POSITIVITY]
+   */
+  @ApiProperty({
+    enum: ClanRule,
+    isArray: true,
+    example: [ClanRule.ACTIVITY_DAILY, ClanRule.POSITIVITY],
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayUnique()
+  @IsEnum(ClanRule, { each: true })
+  rules?: ClanRule[];
 }

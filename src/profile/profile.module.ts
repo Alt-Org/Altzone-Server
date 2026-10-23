@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProfileSchema } from './profile.schema';
 import ProfileController from './profile.controller';
@@ -17,7 +17,7 @@ import { AuthModule } from '../auth/auth.module';
     ]),
     PlayerModule,
     RequestHelperModule,
-    AuthModule,
+    forwardRef(() => AuthModule),
   ],
   controllers: [ProfileController],
   providers: [ProfileService, isProfileExists, PasswordGenerator],

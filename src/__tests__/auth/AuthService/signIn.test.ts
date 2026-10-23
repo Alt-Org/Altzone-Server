@@ -21,8 +21,13 @@ describe('AuthService.signIn() test suite', () => {
   const validUsername = 'valid-username';
   const accessToken = 'access-token';
   const tokenExpires = new Date().getTime();
+  const refreshToken = 'refresh-token';
+  const refreshTokenExpires = new Date().getTime();
 
-  jest.spyOn(JwtService.prototype, 'signAsync').mockResolvedValue(accessToken);
+  jest
+    .spyOn(JwtService.prototype, 'signAsync')
+    .mockResolvedValueOnce(refreshToken)
+    .mockResolvedValueOnce(accessToken);
   jest
     .spyOn(JwtService.prototype, 'decode')
     .mockReturnValue({ exp: tokenExpires });
@@ -49,7 +54,7 @@ describe('AuthService.signIn() test suite', () => {
     existingProfile._id = createdProfile._id;
   });
 
-  it('Should return access token, expiration time, profile, player and clan data if username and password are valid', async () => {
+  it('Should return access tokens, expiration times, profile, player and clan data if username and password are valid', async () => {
     const clanDB = clanBuilder.build();
     const createdClanDB = await clanModel.create(clanDB);
     const clearedClan = clearDBRespDefaultFields(createdClanDB);
@@ -79,8 +84,11 @@ describe('AuthService.signIn() test suite', () => {
     const expectedResult = {
       accessToken,
       tokenExpires,
+      refreshToken,
+      refreshTokenExpires,
       _id: existingProfile._id.toString(),
       username: existingProfile.username,
+      hasSecurityQuestion: false,
     };
 
     expect(clearedResult).toMatchObject({
@@ -90,6 +98,28 @@ describe('AuthService.signIn() test suite', () => {
     });
     expect(clearedPlayerResult).toEqual(playerDBFinal);
     expect(clearedClanResult).toEqual(clanDBFinal);
+  });
+
+  it('Should return hasSecurityQuestion true if profile has securityQuestion', async () => {
+    await profileModel.updateOne(
+      { _id: existingProfile._id },
+      { securityQuestion: 'What is your favorite color?' },
+    );
+    const player = playerBuilder.setProfileId(existingProfile._id).build();
+    await playerModel.create(player);
+
+    const result = await authService.signIn(validUsername, validPassword);
+
+    expect(result['hasSecurityQuestion']).toBe(true);
+  });
+
+  it('Should return hasSecurityQuestion false if profile does not have securityQuestion', async () => {
+    const player = playerBuilder.setProfileId(existingProfile._id).build();
+    await playerModel.create(player);
+
+    const result = await authService.signIn(validUsername, validPassword);
+
+    expect(result['hasSecurityQuestion']).toBe(false);
   });
 
   it('Should not return clan data if player is not in any clan', async () => {

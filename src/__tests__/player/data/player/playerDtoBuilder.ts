@@ -4,6 +4,7 @@ import { ClanDto } from '../../../../clan/dto/clan.dto';
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
 import { ObjectId } from 'mongodb';
 import { AvatarDto } from '../../../../player/dto/avatar.dto';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
   private readonly base: PlayerDto = {
@@ -11,21 +12,23 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
     name: 'defaultPlayer',
     points: 0,
     battlePoints: 0,
+    claimableRewards: [],
     backpackCapacity: 10,
     uniqueIdentifier: 'unique-id',
     above13: true,
     parentalAuth: false,
     currentAvatarId: 101,
+    environment: Environment.TEACHING_DEMO,
     avatar: {
-      head: 1,
-      hair: 1,
-      eyes: 1,
-      nose: 1,
-      mouth: 1,
-      eyebrows: 1,
-      clothes: 1,
-      feet: 1,
-      hands: 1,
+      head: { id: 1, color: '#ffffff' },
+      hair: { id: 1, color: '#ffffff' },
+      eyes: { id: 1, color: '#ffffff' },
+      nose: { id: 1, color: '#ffffff' },
+      mouth: { id: 1, color: '#ffffff' },
+      eyebrows: { id: 1, color: '#ffffff' },
+      clothes: { id: 1, color: '#ffffff' },
+      feet: { id: 1, color: '#ffffff' },
+      hands: { id: 1, color: '#ffffff' },
       skinColor: '#f5cba7',
     },
     gameStatistics: {
@@ -37,9 +40,11 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
     },
     profile_id: 'profile-id',
     clan_id: 'clan-id',
+    clanRole_id: null,
     battleCharacter_ids: [],
     Clan: undefined,
     CustomCharacter: [],
+    clan_joindate: null,
   };
 
   build(): PlayerDto {
@@ -121,8 +126,18 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
     return this;
   }
 
+  setClanRoleId(clanRoleId: string | ObjectId): PlayerDtoBuilder {
+    this.base.clanRole_id = clanRoleId as any;
+    return this;
+  }
+
   setCustomCharacters(customCharacters: CustomCharacterDto[]) {
     this.base.CustomCharacter = customCharacters;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }

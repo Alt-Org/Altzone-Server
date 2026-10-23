@@ -41,6 +41,8 @@ import { RequestLoggerService } from './common/service/logger/RequestLogger.serv
 import { RequestLoggerInterceptor } from './common/service/logger/RequestLogger.interceptor';
 import { JukeboxModule } from './jukebox/jukebox.module';
 import { FriendshipModule } from './friendship/friendship.module';
+import { AdminModule } from './admin/admin.module';
+import { MatchmakingModule } from './matchmaking/matchmaking.module';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -53,6 +55,7 @@ const mongoString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mong
 // Set up redis connection
 const redisHost = envVars.REDIS_HOST;
 const redisPort = parseInt(envVars.REDIS_PORT);
+const redisEnvPrefix = envVars.REDIS_ENV_PREFIX;
 const testEnvironmentName = 'TESTING_SESSION';
 
 const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
@@ -69,6 +72,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
         return {
           uri: mongoString,
           dbName,
+          autoIndex: true,
         };
       },
     }),
@@ -77,6 +81,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
         host: redisHost,
         port: redisPort,
       },
+      prefix: `bullmq:${redisEnvPrefix}`,
     }),
     GameDataModule,
     ChatModule,
@@ -106,6 +111,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
 
     BoxModule,
     OnlinePlayersModule,
+    MatchmakingModule,
     ClanShopModule,
     ShopModule,
 
@@ -115,6 +121,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
     MetadataModule,
     ...(envVars.ENVIRONMENT === testEnvironmentName ? [FeedbackModule] : []),
     FriendshipModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

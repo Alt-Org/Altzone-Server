@@ -1,6 +1,7 @@
 import { CreateProfileDto } from '../../../../profile/dto/createProfile.dto';
 import { CreatePlayerDto } from '../../../../player/dto/createPlayer.dto';
 import IDataBuilder from '../../../test_utils/interface/IDataBuilder';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class CreateProfileDtoBuilder
   implements IDataBuilder<CreateProfileDto>
@@ -8,6 +9,7 @@ export default class CreateProfileDtoBuilder
   private readonly base: CreateProfileDto = {
     username: 'defaultUser',
     password: 'defaultPassword',
+    environment: Environment.TEACHING_DEMO,
     Player: undefined,
   };
 
@@ -27,6 +29,11 @@ export default class CreateProfileDtoBuilder
 
   setPlayer(player: CreatePlayerDto) {
     this.base.Player = player;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }

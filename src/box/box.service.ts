@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { FilterQuery, Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import mongoose, {
+  ClientSession,
+  Connection,
+  FilterQuery,
+  Model,
+} from 'mongoose';
 import { Box, BoxDocument, publicReferences } from './schemas/box.schema';
 import BasicService, {
   convertMongooseToServiceErrors,
@@ -16,11 +21,18 @@ import { GroupAdmin } from './groupAdmin/groupAdmin.schema';
 import { BoxHelper } from './util/boxHelper';
 import {
   IServiceReturn,
+  TIServiceReadManyOptions,
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
 import { ObjectId } from 'mongodb';
 import { SessionStage } from './enum/SessionStage.enum';
 import { Profile } from '../profile/profile.schema';
+import {
+  cancelTransaction,
+  endTransaction,
+  initializeSession,
+} from '../common/function/Transactions';
+import { CreateBoxDto } from './dto/createBox.dto';
 
 @Injectable()
 export class BoxService {
@@ -33,6 +45,7 @@ export class BoxService {
     @InjectModel(GroupAdmin.name)
     public readonly groupAdminModel: Model<GroupAdmin>,
     private readonly boxHelper: BoxHelper,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     this.refsInModel = publicReferences;
     this.basicService = new BasicService(model);
@@ -46,6 +59,7 @@ export class BoxService {
   /**
    * Creates a new box
    * @param box box to create
+   * @param session optional opened session for transaction management
    * @returns created box on success or ServiceErrors:
    *
    * - REQUIRED if the provided input is null or undefined
@@ -53,12 +67,15 @@ export class BoxService {
    * - NOT_UNIQUE if a box with provided admin password already exists
    * - validation errors if input is invalid
    */
-  public async createOne(box: Box): Promise<IServiceReturn<BoxDocument>> {
+  public async createOne(
+    box: Box,
+    session?: ClientSession,
+  ): Promise<IServiceReturn<BoxDocument>> {
     const [, validationErrors] = await this.boxHelper.validateBox(box);
 
     if (validationErrors) return [null, validationErrors];
 
-    return this.basicService.createOne(box);
+    return this.basicService.createOne(box, { session });
   }
 
   /**
@@ -79,12 +96,62 @@ export class BoxService {
   }
 
   /**
-   * Reads all Boxes in DB.
+   * Checks Admin Profile and Player exist. Reads a Box by its adminPassword in DB.
    *
-   * @returns found Boxes
+   * @param credentials Admin credentials.
+   * @returns Box with the given adminPassword on succeed or an array of ServiceErrors if any occurred.
    */
-  async readAll() {
-    return this.basicService.readMany<Box>();
+  async readAdminBox(
+    credentials: CreateBoxDto,
+  ): Promise<IServiceReturn<BoxDocument>> {
+    const adminPlayer = await this.playerModel.findOne({
+      name: credentials.playerName,
+    });
+    if (!adminPlayer)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'name',
+            value: credentials.playerName,
+            message: 'Admin player name is not found',
+          }),
+        ],
+      ];
+
+    const adminProfile = await this.profileModel.findById(
+      adminPlayer.profile_id,
+    );
+    if (!adminProfile)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_FOUND,
+            field: 'adminProfile_id',
+            value: adminPlayer.profile_id,
+            message: 'Admin profile _id is not found',
+          }),
+        ],
+      ];
+
+    const [box, errors] = await this.basicService.readOne({
+      filter: { adminPassword: credentials.adminPassword },
+    });
+    if (errors) return [null, errors];
+
+    return [box, null];
+  }
+
+  /**
+   * Reads multiple items from the database based on the provided options.
+   *
+   * @param options - Settings for the read operation.
+   * @returns A promise that resolves to a tuple where the first element is an array of BoxDto objects, and the second element is either null or an array of ServiceError objects if something went wrong.
+   */
+  async readAll(options: TIServiceReadManyOptions) {
+    return this.basicService.readMany<Box>(options);
   }
 
   /**
@@ -146,6 +213,9 @@ export class BoxService {
     const [box, readErrors] = await this.basicService.readOneById(parsed_id);
     if (readErrors) return [null, readErrors];
 
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
     const [, clearingErrors] = await this.clearSession(parsed_id, [
       ModelName.BOX,
       ModelName.GROUP_ADMIN,
@@ -154,6 +224,10 @@ export class BoxService {
       ModelName.PROFILE,
     ]);
 
+    if (clearingErrors) {
+      return await cancelTransaction(session, clearingErrors);
+    }
+
     const [, adminProfileErrors] = await this.clearBoxCollection<Profile>(
       parsed_id,
       this.profileModel,
@@ -161,6 +235,11 @@ export class BoxService {
         filter: { _id: { $ne: box.adminProfile_id } },
       },
     );
+
+    if (adminProfileErrors) {
+      return await cancelTransaction(session, adminProfileErrors);
+    }
+
     const [, adminPlayerErrors] = await this.clearBoxCollection<Player>(
       parsed_id,
       this.playerModel,
@@ -169,18 +248,33 @@ export class BoxService {
       },
     );
 
-    await this.basicService.updateOneById<Partial<Box>>(parsed_id, {
+    if (adminPlayerErrors) {
+      return await cancelTransaction(session, adminPlayerErrors);
+    }
+
+    const [, boxUpdateErrors] = await this.basicService.updateOneById<
+      Partial<Box>
+    >(parsed_id, {
       sessionStage: SessionStage.PREPARING,
+      // Clear session-specific claiming state so a reset box can accept new testers.
+      testersSharedPassword: null,
+      createdClan_ids: [],
+      testerAccountsClaimed: 0,
+      accountClaimersIds: [],
     });
+    if (boxUpdateErrors) {
+      return await cancelTransaction(session, boxUpdateErrors);
+    }
 
     const occurredErrors = [
       ...(clearingErrors ?? []),
       ...(adminProfileErrors ?? []),
       ...(adminPlayerErrors ?? []),
     ];
-    if (occurredErrors.length !== 0) return [null, occurredErrors];
+    if (occurredErrors.length !== 0)
+      return await cancelTransaction(session, occurredErrors);
 
-    return [true, null];
+    return await endTransaction(session);
   }
 
   /**
@@ -233,7 +327,7 @@ export class BoxService {
     box_id: string,
     collectionsToIgnore: ModelName[],
   ): Promise<IServiceReturn<true>> {
-    const collections = mongoose.connection.models;
+    const collections = this.connection.models;
     const errors: ServiceError[] = [];
 
     for (const name in collections) {

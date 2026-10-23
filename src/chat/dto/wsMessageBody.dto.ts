@@ -1,22 +1,22 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { Feeling } from '../enum/feeling.enum';
+import { IsDefined, IsEnum } from 'class-validator';
+import { ChatEmotion } from '../enum/chatEmotion.enum';
+import { ChatResponseType } from '../enum/chatResponseType.enum';
 
 /**
  * DTO representing message body of incoming websocket chat messages.
  */
 export class WsMessageBodyDto {
   /**
-   * The message content.
-   * @example "Hello there!"
+   * Predefined response selected by the player.
    */
-  @IsString()
-  content: string;
+  @IsDefined()
+  @IsEnum(ChatResponseType)
+  responseType: ChatResponseType;
 
   /**
-   * Feeling of the message.
-   * @example "Happy"
+   * Emotion selected for a predefined response.
    */
-  @IsOptional()
-  @IsEnum(Feeling)
-  feeling?: Feeling;
+  @IsDefined()
+  @IsEnum(ChatEmotion)
+  emotion: ChatEmotion;
 }

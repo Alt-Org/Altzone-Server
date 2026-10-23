@@ -46,7 +46,7 @@ describe('ClanShopService.buyItem() test suite', () => {
   it('Should successfully start the item buying vote', async () => {
     const createdClan = await clanModel.create(clanToCreate);
     const createdPlayer = await playerModel.create(playerToCreate);
-    const itemToBuy = itemProperties['ArmChair_Kylmä_Tulevaisuus'];
+    const itemToBuy = itemProperties.Armchair_Rakkaus;
 
     stockToCreate.clan_id = createdClan;
     const stock = await stockModel.create(stockToCreate);
@@ -85,7 +85,7 @@ describe('ClanShopService.buyItem() test suite', () => {
   it('Should throw an error if the clan has insufficient funds', async () => {
     const createdClan = await clanModel.create(clanToCreate);
     const createdPlayer = await playerModel.create(playerToCreate);
-    const itemToBuy = itemProperties['ArmChair_Kylmä_Tulevaisuus'];
+    const itemToBuy = itemProperties.Armchair_Rakkaus;
 
     stockToCreate.clan_id = createdClan;
     await stockModel.create(stockToCreate);
@@ -113,7 +113,7 @@ describe('ClanShopService.buyItem() test suite', () => {
   });
 
   it('Should throw an error if the clan does not exist', async () => {
-    const itemToBuy = itemProperties['ArmChair_Kylmä_Tulevaisuus'];
+    const itemToBuy = itemProperties.Armchair_Rakkaus;
 
     const [_, err] = await clanShopService.buyItem(
       new ObjectId().toString(),
@@ -125,7 +125,7 @@ describe('ClanShopService.buyItem() test suite', () => {
 
   it('Should throw an error if the player does not exist', async () => {
     const createdClan = await clanModel.create(clanToCreate);
-    const itemToBuy = itemProperties['ArmChair_Kylmä_Tulevaisuus'];
+    const itemToBuy = itemProperties.Armchair_Rakkaus;
 
     stockToCreate.clan_id = createdClan;
     await stockModel.create(stockToCreate);
@@ -146,7 +146,7 @@ describe('ClanShopService.buyItem() test suite', () => {
   it('Should throw an error if the voting process fails', async () => {
     const createdClan = await clanModel.create(clanToCreate);
     const createdPlayer = await playerModel.create(playerToCreate);
-    const itemToBuy = itemProperties['ArmChair_Kylmä_Tulevaisuus'];
+    const itemToBuy = itemProperties.Armchair_Rakkaus;
 
     stockToCreate.clan_id = createdClan;
     await stockModel.create(stockToCreate);
@@ -174,7 +174,7 @@ describe('ClanShopService.buyItem() test suite', () => {
 
   it('Should rollback funds if player does not exist after reserving funds', async () => {
     const createdClan = await clanModel.create(clanToCreate);
-    const itemToBuy = itemProperties['ArmChair_Kylmä_Tulevaisuus'];
+    const itemToBuy = itemProperties.Armchair_Rakkaus;
 
     stockToCreate.clan_id = createdClan;
     await stockModel.create(stockToCreate);

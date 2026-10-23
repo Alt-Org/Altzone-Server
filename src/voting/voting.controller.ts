@@ -35,7 +35,7 @@ export class VotingController {
   @Get()
   @UniformResponse(ModelName.VOTING, VotingDto)
   async getClanVotings(@LoggedUser() user: User) {
-    return this.service.getClanVotings(user.player_id);
+    return await this.service.getClanVotings(user.player_id);
   }
 
   /**
@@ -111,17 +111,17 @@ export class VotingController {
   @Put()
   @UniformResponse()
   async addVote(@Body() body: AddVoteDto, @LoggedUser() user: User) {
-    const permission = await this.service.validatePermission(
+    const permission = await this.service.validateClanVotingPermission(
       body.voting_id,
       user.player_id,
     );
     if (!permission) return noPermissionError;
 
-    this.service.addVote(body.voting_id, body.choice, user.player_id);
+    await this.service.addVote(body.voting_id, body.choice, user.player_id);
 
-    this.emitterService.EmitNewDailyTaskEvent(
+    await this.emitterService.EmitNewDailyTaskEvent(
       user.player_id,
-      ServerTaskName.PARTICIPATE_CLAN_VOTING,
+      ServerTaskName.YOUR_VOICE,
     );
   }
 }

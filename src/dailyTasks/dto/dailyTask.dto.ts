@@ -91,6 +91,15 @@ export class DailyTaskDto {
   amountLeft: number;
 
   /**
+   * Generic server-tracked task progress.
+   */
+  @Expose()
+  progress?: {
+    key?: string;
+    steps?: number[];
+  };
+
+  /**
    * Time limit to finish the task, in minutes
    *
    * @example 60

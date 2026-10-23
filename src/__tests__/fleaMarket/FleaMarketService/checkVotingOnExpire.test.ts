@@ -110,13 +110,11 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     expect(votingService.checkVotingSuccess).toHaveBeenCalledWith(
       params.voting,
+      true,
     );
     expect(sessionMock.startTransaction).toHaveBeenCalled();
     expect(sessionMock.commitTransaction).toHaveBeenCalled();
     expect(sessionMock.endSession).toHaveBeenCalled();
-    expect(votingService.basicService.deleteOneById).toHaveBeenCalledWith(
-      params.voting._id,
-    );
   });
 
   it('Should throw exception if handlePassedBuyVoting dependency throws | itemService.createOne', async () => {
@@ -163,6 +161,7 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     expect(votingService.checkVotingSuccess).toHaveBeenCalledWith(
       params.voting,
+      true,
     );
     expect(clanService.readOneById).toHaveBeenCalledWith(params.clanId);
     expect(basicService.updateOneById).toHaveBeenCalled();
@@ -170,9 +169,6 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     expect(sessionMock.startTransaction).toHaveBeenCalled();
     expect(sessionMock.commitTransaction).toHaveBeenCalled();
     expect(sessionMock.endSession).toHaveBeenCalled();
-    expect(votingService.basicService.deleteOneById).toHaveBeenCalledWith(
-      params.voting._id,
-    );
   });
 
   it('Should process voting expiration and update item/clan (voting PASSED, SELL)', async () => {
@@ -184,10 +180,15 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     expect(votingService.checkVotingSuccess).toHaveBeenCalledWith(
       params.voting,
+      true,
     );
-    expect(basicService.updateOneById).toHaveBeenCalled();
-    expect(votingService.basicService.deleteOneById).toHaveBeenCalledWith(
-      params.voting._id,
+    expect(basicService.updateOneById).toHaveBeenCalledWith(
+      params.fleaMarketItemId,
+      {
+        status: Status.AVAILABLE,
+        price: params.price,
+        saleApprovedByVoting: true,
+      },
     );
   });
 
@@ -200,14 +201,12 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     expect(votingService.checkVotingSuccess).toHaveBeenCalledWith(
       params.voting,
+      true,
     );
     expect(basicService.readOneById).toHaveBeenCalled();
     expect(sessionMock.startTransaction).toHaveBeenCalled();
     expect(sessionMock.commitTransaction).toHaveBeenCalled();
     expect(sessionMock.endSession).toHaveBeenCalled();
-    expect(votingService.basicService.deleteOneById).toHaveBeenCalledWith(
-      params.voting._id,
-    );
   });
 
   it('Should throw exception if handleRejectedSellVoting dependency throws | itemService.createOne', async () => {
@@ -237,7 +236,6 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     await fleaMarketService.checkVotingOnExpire(params);
     expect(sessionMock.abortTransaction).toHaveBeenCalled();
     expect(sessionMock.endSession).toHaveBeenCalled();
-    expect(votingService.basicService.deleteOneById).toHaveBeenCalled();
   });
 
   it('Should throw exception if handleRejectedBuyVoting dependency throws | basicService.updateOneById', async () => {
@@ -252,7 +250,6 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     expect(sessionMock.abortTransaction).toHaveBeenCalled();
     expect(sessionMock.endSession).toHaveBeenCalled();
-    expect(votingService.basicService.deleteOneById).toHaveBeenCalled();
   });
 
   it('Should throw if handleRejectedBuyVoting dependency throws | clanService.readOneById', async () => {
@@ -264,7 +261,6 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     await fleaMarketService.checkVotingOnExpire(params);
     expect(sessionMock.abortTransaction).toHaveBeenCalled();
     expect(sessionMock.endSession).toHaveBeenCalled();
-    expect(votingService.basicService.deleteOneById).toHaveBeenCalled();
   });
 
   it('Should throw if handleRejectedBuyVoting dependency throws | clanService.updateOne', async () => {
@@ -277,7 +273,6 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
 
     expect(sessionMock.abortTransaction).toHaveBeenCalled();
     expect(sessionMock.endSession).toHaveBeenCalled();
-    expect(votingService.basicService.deleteOneById).toHaveBeenCalled();
   });
 
   it('Should throw exception if handlePassedSellVoting dependency throws | basicService.updateOneById', async () => {
@@ -320,7 +315,6 @@ describe('FleaMarketService.checkVotingOnExpire() test suit', () => {
     await fleaMarketService.checkVotingOnExpire(params);
     expect(sessionMock.abortTransaction).toHaveBeenCalled();
     expect(sessionMock.endSession).toHaveBeenCalled();
-    expect(votingService.basicService.deleteOneById).toHaveBeenCalled();
   });
 
   it('Should throw exception if voting type is unknown', async () => {

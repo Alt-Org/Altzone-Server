@@ -78,6 +78,9 @@ interface EnvVars {
   /** The Redis server port. */
   REDIS_PORT: string;
 
+  /** Redis environment prefix dev | main | prod */
+  REDIS_ENV_PREFIX: string;
+
   /** The Mosquitto broker host. */
   MOSQUITTO_HOST: string;
 
@@ -143,6 +146,7 @@ export const envVars: EnvVars = {
   REDIS_PASSWORD: process.env.REDIS_PASSWORD ?? 'mySecretPassword',
   REDIS_HOST: process.env.REDIS_HOST ?? 'localhost',
   REDIS_PORT: process.env.REDIS_PORT ?? '6379',
+  REDIS_ENV_PREFIX: process.env.REDIS_ENV_PREFIX ?? 'dev',
 
   MOSQUITTO_HOST: process.env.MOSQUITTO_HOST,
   MOSQUITTO_PORT: process.env.MOSQUITTO_PORT,

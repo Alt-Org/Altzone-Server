@@ -5,7 +5,10 @@ import {
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
+  WsException,
 } from '@nestjs/websockets';
+import { Connection } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
 import { PlayerService } from '../player/player.service';
 import { WebSocketUser } from './types/WsUser.type';
 import { ClanChatService } from './service/clanChat.service';
@@ -16,9 +19,13 @@ import { GlobalChatService } from './service/globalChat.service';
 import { UseFilters } from '@nestjs/common';
 import { GlobalWsExceptionFilter } from './decorator/wsExceptionFilter.decorator';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
-import { RequestLoggerService } from '../common/service/logger/RequestLogger.service';
 import { WsLog } from '../common/service/logger/WsLog.decorator';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
+import {
+  initializeSession,
+  cancelTransaction,
+  endTransaction,
+} from '../common/function/Transactions';
 
 const apiPort = Number.parseInt(envVars.PORT, 10);
 
@@ -26,10 +33,10 @@ const apiPort = Number.parseInt(envVars.PORT, 10);
 @UseFilters(GlobalWsExceptionFilter)
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
+    @InjectConnection() private readonly connection: Connection,
     private readonly playerService: PlayerService,
     private readonly clanChatService: ClanChatService,
     private readonly globalChatService: GlobalChatService,
-    private readonly requestLoggerService: RequestLoggerService,
     private readonly emitterService: EventEmitterService,
   ) {}
 
@@ -49,6 +56,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.close?.();
       return;
     }
+
     const clanId = player.clan_id?.toString();
     client.user = {
       playerId,
@@ -59,6 +67,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.clanChatService.handleJoinChat(client);
     this.globalChatService.handleJoinChat(client);
+
+    client.send?.(JSON.stringify({ event: 'ready', data: true }));
   }
 
   /**
@@ -71,17 +81,47 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.globalChatService.handleDisconnect(client);
   }
 
+  private assertUserInitialized(client: WebSocketUser): void {
+    if (!client.user) {
+      throw new WsException('WebSocket user is not initialized yet');
+    }
+  }
+
   @SubscribeMessage('clanMessage')
   @WsLog()
   async handleClanMessage(
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
-    await this.clanChatService.handleNewClanMessage(client, message);
+    this.assertUserInitialized(client);
+
+    const result = await this.clanChatService.handleNewClanMessage(
+      client,
+      message,
+    );
+    if (!result) return;
+
+    const [createdMessage, error] = result;
+
+    if (error) return [null, error];
+
+    const payload = {
+      clanId: createdMessage.clan_id,
+      responseType: createdMessage.responseType,
+      emotion: createdMessage.emotion,
+    };
 
     this.emitterService.EmitNewDailyTaskEvent(
       client.user.playerId,
-      ServerTaskName.WRITE_CHAT_MESSAGE_CLAN,
+      ServerTaskName.FORM_AN_INNER_CONNECTION,
+      true,
+      payload,
+    );
+    this.emitterService.EmitNewDailyTaskEvent(
+      client.user.playerId,
+      ServerTaskName.PLAY_WITH_EMOTIONS,
+      true,
+      payload,
     );
   }
 
@@ -91,7 +131,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
-    await this.clanChatService.handleNewClanReaction(client, reaction);
+    this.assertUserInitialized(client);
+
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
+    const [updatedMessage, error] =
+      await this.clanChatService.handleNewClanReaction(client, reaction, {
+        session,
+      });
+
+    if (error) return cancelTransaction(session, error);
+
+    const [_, endError] = await endTransaction(session, updatedMessage);
+    if (endError) return [null, endError];
   }
 
   @SubscribeMessage('globalMessage')
@@ -100,20 +153,38 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() message: WsMessageBodyDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
-    await this.globalChatService.handleNewGlobalMessage(message, client);
+    this.assertUserInitialized(client);
 
-    this.emitterService.EmitNewDailyTaskEvent(
-      client.user.playerId,
-      ServerTaskName.WRITE_CHAT_MESSAGE_GLOBAL,
+    const result = await this.globalChatService.handleNewGlobalMessage(
+      message,
+      client,
     );
+    if (!result) return;
+
+    const [_, error] = result;
+
+    if (error) return [null, error];
   }
 
   @SubscribeMessage('globalMessageReaction')
   @WsLog()
-  async handleGlobalMessageReaction(
+  async handleGlobalReaction(
     @MessageBody() reaction: AddReactionDto,
     @ConnectedSocket() client: WebSocketUser,
   ) {
-    await this.globalChatService.handleNewGlobalReaction(client, reaction);
+    this.assertUserInitialized(client);
+
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
+    const [updatedMessage, error] =
+      await this.globalChatService.handleNewGlobalReaction(client, reaction, {
+        session,
+      });
+
+    if (error) return cancelTransaction(session, error);
+
+    const [_, endError] = await endTransaction(session, updatedMessage);
+    if (endError) return [null, endError];
   }
 }

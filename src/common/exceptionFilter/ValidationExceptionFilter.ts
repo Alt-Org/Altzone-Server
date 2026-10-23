@@ -10,6 +10,28 @@ import { APIError } from '../controller/APIError';
 import { APIErrorReason } from '../controller/APIErrorReason';
 
 /**
+ * Converts class-validator ValidationErrors thrown by a ValidationPipe into a
+ * Nest BadRequestException with a body of converted APIErrors.
+ *
+ * Meant to be passed as `exceptionFactory` to a NestJS `ValidationPipe` (@nestjs/common).
+ */
+export function apiValidationExceptionFactory(
+  validationErrors: ValidationError[],
+) {
+  const apiErrors: APIError[] = [];
+  for (let i = 0; i < validationErrors.length; i++) {
+    const errors = validationToAPIErrors(validationErrors[i]);
+    apiErrors.push(...errors);
+  }
+
+  return new BadRequestException({
+    statusCode: 400,
+    error: 'Bad Request',
+    errors: apiErrors,
+  });
+}
+
+/**
  * Error filter to handle ValidationErrors thrown by class-validator module.
  *
  * Filter will convert ValidationError(s) to appropriate APIError(s)
@@ -42,23 +64,39 @@ export class ValidationExceptionFilter implements ExceptionFilter {
   }
 }
 
-export function validationToAPIErrors(error: ValidationError): APIError[] {
+export function validationToAPIErrors(
+  error: ValidationError,
+  parentPath = '',
+): APIError[] {
   if (error instanceof APIError) return [error];
 
   const { property, value, constraints } = error;
 
   const errors: APIError[] = [];
-  for (const constraint in constraints) {
-    errors.push(
-      new APIError({
-        reason: constraintToAPIErrorReason(constraint),
-        statusCode: 400,
-        field: property,
-        value,
-        message: constraints[constraint],
-        additional: constraint,
-      }),
-    );
+
+  const propertyPath = parentPath
+    ? `${parentPath}.${error.property}`
+    : property;
+
+  if (constraints) {
+    for (const constraint in constraints) {
+      errors.push(
+        new APIError({
+          reason: constraintToAPIErrorReason(constraint),
+          statusCode: 400,
+          field: propertyPath,
+          value,
+          message: constraints[constraint],
+          additional: constraint,
+        }),
+      );
+    }
+  }
+
+  if (error.children && error.children.length > 0) {
+    for (const child of error.children) {
+      errors.push(...validationToAPIErrors(child, propertyPath));
+    }
   }
 
   return errors;

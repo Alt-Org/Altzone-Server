@@ -64,14 +64,12 @@ describe('Room.readOneByIdAndPlayerId() test suite', () => {
     const [room, errors] = await roomService.readOneByIdAndPlayerId(
       existingRoom._id,
       existingPlayer._id,
-      { select: ['_id', 'cellCount'], filter: {} },
+      { select: ['_id'], filter: {} },
     );
 
     const clearedRoom = clearDBRespDefaultFields(room);
     const expected = {
       _id: existingRoom._id,
-      cellCount: existingRoom.cellCount,
-      isActive: false,
     };
 
     expect(errors).toBeNull();

@@ -15,7 +15,6 @@ import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { ProfileDto } from './dto/profile.dto';
 import { BasicGET } from '../common/base/decorator/BasicGET.decorator';
 import { BasicDELETE } from '../common/base/decorator/BasicDELETE.decorator';
-import { BasicPUT } from '../common/base/decorator/BasicPUT.decorator';
 import { ModelName } from '../common/enum/modelName.enum';
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
 import { Action } from '../authorization/enum/action.enum';
@@ -36,6 +35,9 @@ import { User } from '../auth/user';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
 import { AuthService } from '../auth/auth.service';
 import { GuestProfileDto } from './dto/guestProfile.dto';
+import { ResetPasswordDto } from './dto/resetPassword.dto';
+import { SecurityAnswerDto } from './dto/securityAnswer.dto';
+import { Environment } from '../common/enum/environment.enum';
 
 @Controller('profile')
 export default class ProfileController {
@@ -52,6 +54,12 @@ export default class ProfileController {
    *
    * Notice, that it is also possible in some edge cases to create a Profile without Player object associated with it,
    * however it is not recommended and API expects that for every Profile there is a Player object created.
+   *
+   * BE CAREFUL! Don't post this Example Value as-is!
+   * Check Player object values before sending. name, backpackCapacity and uniqueIdentifier are safe to send. Don't send profile_id.
+   *
+   * OLE VAROVAINEN! Älä postaa tätä esimerkki arvoa sellaisenaan!
+   * Tarkasta mitä Player-objektin arvoja lähetät. name, backpackCapacity ja uniqueIdentifier ovat turvallisia lähettää. Älä lähetä profile_id.
    */
   @ApiResponseDescription({
     success: {
@@ -76,7 +84,12 @@ export default class ProfileController {
     if (errors) return [null, errors];
 
     const createdProfile_id = createdProfile._id;
+    const createdProfile_environment =
+      createdProfile.environment ?? Environment.OPEN_DEMO;
+
     Player['profile_id'] = createdProfile_id;
+    Player['environment'] = createdProfile_environment;
+
     try {
       const playerResp = await this.playerService.createOne(Player);
       if (playerResp && !(playerResp instanceof MongooseError))
@@ -121,6 +134,72 @@ export default class ProfileController {
       guestProfileDto.username,
       guestProfileDto.password,
     );
+  }
+
+  /**
+   * Post username to get profile securityQuestion
+   *
+   * Note, Post is used here because securityQuestion is part of password recovery flow
+   *
+   * @remarks Post username to get profile securityQuestion
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 200,
+      modelName: ModelName.PROFILE,
+    },
+    errors: [401, 404],
+    hasAuth: false,
+  })
+  @NoAuth()
+  @Post('/securityquestion')
+  @UniformResponse(ModelName.PROFILE)
+  public async getSecurityQuestion(@Body('username') username: string) {
+    return this.service.getSecurityQuestion(username);
+  }
+
+  /**
+   * Post securityAnswer
+   *
+   * @remarks Verify securityAnswer
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 200,
+      modelName: ModelName.PROFILE,
+    },
+    errors: [401, 404],
+    hasAuth: false,
+  })
+  @NoAuth()
+  @Post('/securityanswer')
+  @UniformResponse(ModelName.PROFILE)
+  public async verifySecurityAnswer(@Body() body: SecurityAnswerDto) {
+    const { username, securityAnswer } = body;
+
+    return this.service.verifySecurityAnswer(username, securityAnswer);
+  }
+
+  /**
+   * Post resetToken and newPassword
+   *
+   * @remarks Reset profile password using resetToken and newPassword.
+   */
+  @ApiResponseDescription({
+    success: {
+      status: 204,
+      modelName: ModelName.PROFILE,
+    },
+    errors: [400, 401],
+    hasAuth: false,
+  })
+  @NoAuth()
+  @Post('/resetpassword')
+  @UniformResponse(ModelName.PROFILE)
+  public async resetPassword(@Body() body: ResetPasswordDto) {
+    const { resetToken, newPassword } = body;
+
+    return this.service.resetPassword(resetToken, newPassword);
   }
 
   /**
@@ -200,9 +279,12 @@ export default class ProfileController {
   })
   @Put()
   @Authorize({ action: Action.update, subject: UpdateProfileDto })
-  @BasicPUT(ModelName.PROFILE)
-  public async update(@Body() body: UpdateProfileDto) {
-    return this.service.updateOneById(body);
+  @UniformResponse(ModelName.PROFILE)
+  public async update(
+    @Body() body: UpdateProfileDto,
+    @LoggedUser() user: User,
+  ) {
+    return this.service.updateProfileById(user.profile_id, body);
   }
 
   /**

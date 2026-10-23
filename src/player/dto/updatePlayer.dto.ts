@@ -117,6 +117,7 @@ export class UpdatePlayerDto {
   /**
    * Update avatar configuration
    */
+  @ApiProperty({ type: () => ModifyAvatarDto })
   @IsOptional()
   @ValidateNested()
   @Type(() => ModifyAvatarDto)

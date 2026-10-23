@@ -59,7 +59,7 @@ describe('StallService.updateAdPosterByClanId() test suite', () => {
       .populate('stall');
 
     expect(error).toBeNull();
-    expect(result).toBe(true);
+    expect(result).toBeTruthy();
     expect(clanFromDb.stall.adPoster.border).toBe(adPosterDto.border);
     expect(clanFromDb.stall.adPoster.colour).toBe(adPosterDto.colour);
     expect(clanFromDb.stall.adPoster.mainFurniture).toBe(

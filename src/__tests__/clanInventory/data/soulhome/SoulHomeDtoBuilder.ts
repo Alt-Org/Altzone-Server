@@ -1,11 +1,13 @@
 import { SoulHomeDto } from '../../../../clanInventory/soulhome/dto/soulhome.dto';
 import { ObjectId } from 'mongodb';
+import { Environment } from '../../../../common/enum/environment.enum';
 
 export default class SoulHomeDtoBuilder {
   private readonly base: Partial<SoulHomeDto> = {
     _id: new ObjectId().toString(),
     name: 'soulhome',
     clan_id: 'clan_id',
+    environment: Environment.TEACHING_DEMO,
   };
 
   build() {
@@ -24,6 +26,11 @@ export default class SoulHomeDtoBuilder {
 
   setId(_id: string) {
     this.base._id = _id;
+    return this;
+  }
+
+  setEnvironment(environment: Environment) {
+    this.base.environment = environment;
     return this;
   }
 }

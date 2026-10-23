@@ -1,83 +1,110 @@
-import { IsInt, IsString } from 'class-validator';
+import { IsHexColor, IsOptional, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { AvatarPieceDto } from './avatar.dto';
+import AddType from '../../common/base/decorator/AddType.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 
+/**
+ * Data Transfer Object for partially updating an avatar's configuration.
+ * All fields are optional to allow for specific component updates.
+ */
+@AddType('ModifyAvatarDto')
 export class ModifyAvatarDto {
   /**
-   * Head variant ID
-   *
-   * @example 1
+   * Optional update for the avatar's head shape.
+   * @type {AvatarPieceDto}
    */
-  @IsInt()
-  head: number;
+  @ApiProperty({ type: () => AvatarPieceDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  head?: AvatarPieceDto;
 
   /**
-   * Hair style ID
-   *
-   * @example 3
+   * Optional update for the avatar's hair style or color.
+   * @type {AvatarPieceDto}
    */
-  @IsInt()
-  hair: number;
+  @ApiProperty({ type: () => AvatarPieceDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  hair?: AvatarPieceDto;
 
   /**
-   * Eyes style ID
-   *
-   * @example 2
+   * Optional update for the avatar's eyes.
+   * @type {AvatarPieceDto}
    */
-  @IsInt()
-  eyes: number;
+  @ApiProperty({ type: () => AvatarPieceDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  eyes?: AvatarPieceDto;
 
   /**
-   * Nose style ID
-   *
-   * @example 1
+   * Optional update for the avatar's nose.
+   * @type {AvatarPieceDto}
    */
-  @IsInt()
-  nose: number;
+  @ApiProperty({ type: () => AvatarPieceDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  nose?: AvatarPieceDto;
 
   /**
-   * Mouth style ID
-   *
-   * @example 2
+   * Optional update for the avatar's mouth.
+   * @type {AvatarPieceDto}
    */
-  @IsInt()
-  mouth: number;
+  @ApiProperty({ type: () => AvatarPieceDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  mouth?: AvatarPieceDto;
 
   /**
-   * Eyebrows style ID
-   *
-   * @example 1
+   * Optional update for the avatar's eyebrows.
+   * @type {AvatarPieceDto}
    */
-  @IsInt()
-  eyebrows: number;
+  @ApiProperty({ type: () => AvatarPieceDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  eyebrows?: AvatarPieceDto;
 
   /**
-   * Clothes set ID
-   *
-   * @example 4
+   * Optional update for the avatar's clothing.
+   * @type {AvatarPieceDto}
    */
-  @IsInt()
-  clothes: number;
+  @ApiProperty({ type: () => AvatarPieceDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  clothes?: AvatarPieceDto;
 
   /**
-   * Feet (footwear) ID
-   *
-   * @example 1
+   * Optional update for the avatar's footwear.
+   * @type {AvatarPieceDto}
    */
-  @IsInt()
-  feet: number;
+  @ApiProperty({ type: () => AvatarPieceDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  feet?: AvatarPieceDto;
 
   /**
-   * Hands (gloves/accessories) ID
-   *
-   * @example 2
+   * Optional update for the avatar's hand or glove configuration.
+   * @type {AvatarPieceDto}
    */
-  @IsInt()
-  hands: number;
+  @ApiProperty({ type: () => AvatarPieceDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AvatarPieceDto)
+  hands?: AvatarPieceDto;
 
   /**
-   * Skin color as a hex string
-   *
+   * The primary skin tone of the avatar represented as a hex color string.
    * @example "#FAD9B5"
    */
-  @IsString()
-  skinColor: string;
+  @IsOptional()
+  @IsHexColor()
+  skinColor?: string;
 }

@@ -1,13 +1,17 @@
 import {
   IsEnum,
+  IsDefined,
   IsMongoId,
   IsNotEmpty,
   IsOptional,
   IsString,
+  MaxLength,
   ValidateIf,
 } from 'class-validator';
 import { ChatType } from '../enum/chatMessageType.enum';
 import { Feeling } from '../enum/feeling.enum';
+import { ChatEmotion } from '../enum/chatEmotion.enum';
+import { ChatResponseType } from '../enum/chatResponseType.enum';
 import { ObjectId } from 'mongodb';
 
 export class CreateChatMessageDto {
@@ -27,16 +31,19 @@ export class CreateChatMessageDto {
    *
    * @example "60f7c2d9a2d3c7b7e56d01df"
    */
+  @IsNotEmpty()
   @IsMongoId()
   sender_id: string | ObjectId;
 
   /**
-   * Text content of the message
+   * Text content of the message.
+   * Content must not exceed 256 characters
    *
    * @example "Let’s meet at Soul Arena!"
    */
   @IsString()
   @IsNotEmpty()
+  @MaxLength(256)
   content: string;
 
   /**
@@ -69,4 +76,12 @@ export class CreateChatMessageDto {
   @IsEnum(Feeling)
   @IsOptional()
   feeling?: Feeling;
+
+  @IsDefined()
+  @IsEnum(ChatResponseType)
+  responseType: ChatResponseType;
+
+  @IsDefined()
+  @IsEnum(ChatEmotion)
+  emotion: ChatEmotion;
 }

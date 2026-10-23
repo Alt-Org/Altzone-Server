@@ -11,10 +11,16 @@ import { ClanRole, ClanRoleSchema } from './role/ClanRole.schema';
 import { initializationClanRoles } from './role/initializationClanRoles';
 import { Stall } from './stall/stall.schema';
 import { getDefaultStall } from './defaultValues/stall';
+import { Environment } from '../common/enum/environment.enum';
+import { ClanRule } from './enum/clanRule.enum';
 
 export type ClanDocument = HydratedDocument<Clan>;
 
-@Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
+@Schema({
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+  timestamps: { createdAt: true, updatedAt: false },
+})
 export class Clan {
   @Prop({ type: String, required: true, unique: true, maxlength: 20 })
   name: string;
@@ -32,7 +38,13 @@ export class Clan {
   gameCoins: number;
 
   @Prop({ type: Number, default: 0 })
+  furnitureTotalValue: number;
+
+  @Prop({ type: Number, default: 0 })
   points: number;
+
+  @Prop({ type: [Number], default: [] })
+  unlockedMilestones: number[];
 
   @Prop({ type: Number, default: 0, min: 0 })
   battlePoints: number;
@@ -80,6 +92,21 @@ export class Clan {
     default: getDefaultStall(),
   })
   stall: Stall;
+
+  @Prop({
+    type: Number,
+    enum: Environment,
+  })
+  environment: Environment;
+
+  @Prop({
+    type: [String],
+    enum: ClanRule,
+    default: [ClanRule.FAIR_GAME, ClanRule.NO_TOXICITY, ClanRule.NO_SPAM],
+  })
+  rules: ClanRule[];
+
+  createdAt?: Date;
 
   @ExtractField()
   _id: string;

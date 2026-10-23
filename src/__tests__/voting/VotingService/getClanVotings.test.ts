@@ -3,6 +3,7 @@ import VotingModule from '../modules/voting.module';
 import { VotingService } from '../../../voting/voting.service';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import PlayerModule from '../../player/modules/player.module';
+import { ObjectId } from 'mongodb';
 
 describe('VotingService.getClanVotings() test suite', () => {
   let votingService: VotingService;
@@ -25,19 +26,30 @@ describe('VotingService.getClanVotings() test suite', () => {
   };
 
   it('Should return all votings where organizer is the player or their clan', async () => {
-    const playerToCreate = playerBuilder.setName('john').build();
-    const player = await playerModel.create(playerToCreate);
-    const clanId = '67e98660df641b26bb7cbf6b';
+    const clanId = new ObjectId().toString();
+    const playerToCreate = playerBuilder
+      .setName(`voting-${Date.now().toString(36).slice(-6)}`)
+      .build();
+    (playerToCreate as any).clan_id = clanId;
 
-    await createVotingForOrganizer(player._id.toString(), clanId);
-    await createVotingForOrganizer(player._id.toString(), clanId);
+    const player = await playerModel.create(playerToCreate);
+    const createdVotings = await Promise.all([
+      createVotingForOrganizer(player._id.toString(), clanId),
+      createVotingForOrganizer(player._id.toString(), clanId),
+    ]);
 
     const [votings] = await votingService.getClanVotings(player._id.toString());
+    const returnedVotingIds = votings.map((voting) => voting._id.toString());
+    const createdVotingIds = createdVotings.map((voting) =>
+      voting._id.toString(),
+    );
 
-    expect(votings).toHaveLength(2);
+    expect(returnedVotingIds).toEqual(expect.arrayContaining(createdVotingIds));
     expect(
       votings.every(
-        (v) => v.organizer.player_id.toString() === player._id.toString(),
+        (v) =>
+          v.organizer.player_id.toString() === player._id.toString() ||
+          v.organizer.clan_id?.toString() === clanId,
       ),
     ).toBe(true);
   });

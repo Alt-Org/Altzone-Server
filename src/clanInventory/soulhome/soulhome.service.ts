@@ -1,20 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { publicReferences, SoulHome } from './soulhome.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Connection } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
 import { RoomService } from '../room/room.service';
 import { SoulHomeDto } from './dto/soulhome.dto';
 import { CreateSoulHomeDto } from './dto/createSoulHome.dto';
 import { UpdateSoulHomeDto } from './dto/updateSoulHome.dto';
 import { ModelName } from '../../common/enum/modelName.enum';
 import BasicService from '../../common/service/basicService/BasicService';
-import { TReadByIdOptions } from '../../common/service/basicService/IService';
+import {
+  IServiceReturn,
+  TIServiceCreateOneOptions,
+  TIServiceDeleteByIdOptions,
+  TReadByIdOptions,
+} from '../../common/service/basicService/IService';
+import { Environment } from '../../common/enum/environment.enum';
 
 @Injectable()
 export class SoulHomeService {
   public constructor(
     @InjectModel(SoulHome.name) public readonly model: Model<SoulHome>,
+    @Inject(forwardRef(() => RoomService))
     private readonly roomService: RoomService,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     this.basicService = new BasicService(model);
   }
@@ -26,12 +35,41 @@ export class SoulHomeService {
    * Creates a new SoulHome in DB.
    *
    * @param soulHome - The SoulHome data to create.
+   * @param options - DB query options.
    * @returns  created SoulHome or an array of service errors if any occurred.
    */
-  async createOne(soulHome: CreateSoulHomeDto) {
-    return this.basicService.createOne<CreateSoulHomeDto, SoulHomeDto>(
-      soulHome,
-    );
+  async createOne(
+    soulHome: CreateSoulHomeDto,
+    options?: TIServiceCreateOneOptions,
+  ) {
+    const [created, createErrors] = await this.basicService.createOne<
+      CreateSoulHomeDto,
+      SoulHomeDto
+    >(soulHome, options);
+
+    if (createErrors) return [null, createErrors];
+
+    const clan = await this.connection
+      .model(ModelName.CLAN)
+      .findById(soulHome.clan_id);
+
+    if (!clan) return [created, null];
+
+    const environment = clan.environment ?? Environment.OPEN_DEMO;
+
+    if (created.environment === environment) return [created, null];
+
+    const updateOptions = options?.session ? { session: options.session } : {};
+    const [updated, updateErrors] =
+      await this.basicService.findByIdAndUpdate<SoulHome>(
+        created._id.toString(),
+        { environment: environment },
+        updateOptions,
+      );
+
+    if (updateErrors) return [created, null];
+
+    return [updated, null];
   }
 
   /**
@@ -69,10 +107,50 @@ export class SoulHomeService {
    * Notice that the method will also delete associated rooms.
    *
    * @param _id - The Mongo _id of the SoulHome to delete.
+   * @param options - Optional session for transaction support.
    * @returns _true_ if SoulHome was removed successfully, or a ServiceError array if the SoulHome was not found or something else went wrong
    */
-  async deleteOneById(_id: string) {
-    await this.roomService.deleteAllSoulHomeRooms(_id);
-    return this.basicService.deleteOneById(_id);
+  async deleteOneById(_id: string, options?: TIServiceDeleteByIdOptions) {
+    await this.roomService.deleteAllSoulHomeRooms(_id, options);
+    return this.basicService.deleteOneById(_id, options);
+  }
+
+  /**
+   * Read SoulHome of Clan Player belongs to. If Room is given as a parameter, get Rooms with Items.
+   *
+   * @param _id - The Mongo _id of the SoulHome to read.
+   * @param options - Options for reading the SoulHome.
+   * @returns SoulHome with the given _id on succeed or an array of ServiceErrors if any occurred.
+   */
+  async readSoulHomeWithRooms(
+    _id: string,
+    options?: TReadByIdOptions,
+  ): Promise<IServiceReturn<SoulHomeDto>> {
+    const optionsToApply = options;
+    if (options?.includeRefs)
+      optionsToApply.includeRefs = options.includeRefs.filter((ref) =>
+        publicReferences.includes(ref),
+      );
+
+    const [soulHome, soulHomeErrors] =
+      await this.basicService.readOneById<SoulHomeDto>(_id);
+    if (soulHomeErrors) return [null, soulHomeErrors];
+
+    if (optionsToApply.includeRefs.includes(ModelName.ROOM)) {
+      const roomOptions = {
+        filter: {
+          soulHome_id: soulHome._id,
+        },
+        includeRefs: [ModelName.ITEM],
+      };
+
+      const [rooms, roomsErrors] =
+        await this.roomService.basicService.readMany(roomOptions);
+      if (roomsErrors) return [null, roomsErrors];
+
+      soulHome.Room = rooms;
+    }
+
+    return [soulHome, null];
   }
 }
