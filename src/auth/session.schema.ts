@@ -1,4 +1,4 @@
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types, Schema as MongooseSchema } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ExtractField } from '../common/decorator/response/ExtractField';
 import { ModelName } from '../common/enum/modelName.enum';
@@ -14,8 +14,12 @@ export class Session {
   @Prop({ type: String, required: true })
   session_id: string;
   
-  @Prop({ type: String, required: true })
-  profile_id: string;
+  @Prop({ 
+    type: MongooseSchema.Types.ObjectId, 
+    ref: ModelName.PROFILE, 
+    required: true,
+  })
+  profile_id: Types.ObjectId;
   
   @Prop({ type: String, required: true })
   tokenHash: string;
