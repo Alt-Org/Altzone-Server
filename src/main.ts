@@ -17,6 +17,7 @@ async function bootstrap() {
   new EnvHandler().validateAllEnvFound();
 
   const app = await NestFactory.create(AppModule);
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
   const server = http.createServer(app.getHttpAdapter().getInstance());
   app.useWebSocketAdapter(new JwtWsAdapter(app, server));
 
