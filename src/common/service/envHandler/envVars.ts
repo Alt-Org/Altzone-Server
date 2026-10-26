@@ -24,6 +24,12 @@ interface EnvVars {
   /** Password setting. */
   PSW_PARALLELISM: string;
 
+  /** Max number of requests within the TTL (global setting) */
+  THROTTLE_LIMIT: string;
+
+  /** Throttler global TTL (time in ms) */
+  THROTTLE_TTL: string;
+
   /** Environment where the API runs, see Environment enum, default is PRODUCTION */
   ENVIRONMENT: string;
 
@@ -125,6 +131,9 @@ export const envVars: EnvVars = {
   PSW_MEMORY: process.env.PSW_MEMORY,
   PSW_TIME: process.env.PSW_TIME,
   PSW_PARALLELISM: process.env.PSW_PARALLELISM,
+  THROTTLE_LIMIT: process.env.THROTTLE_LIMIT ?? '100',
+  THROTTLE_TTL: process.env.THROTTLE_TTL ?? '60000',
+
   ENVIRONMENT: process.env.ENVIRONMENT ?? Environment.PRODUCTION,
   SWAGGER_PATH: process.env.SWAGGER_PATH,
   SWAGGER_USER: process.env.SWAGGER_USER,
