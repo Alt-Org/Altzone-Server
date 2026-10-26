@@ -43,6 +43,8 @@ import { JukeboxModule } from './jukebox/jukebox.module';
 import { FriendshipModule } from './friendship/friendship.module';
 import { AdminModule } from './admin/admin.module';
 import { MatchmakingModule } from './matchmaking/matchmaking.module';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { APIRateLimitGuard } from './common/throttler/guard/APIRateLimit.guard';
 
 // Set up database connection
 const mongoUser = envVars.MONGO_USERNAME;
@@ -122,6 +124,16 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
     ...(envVars.ENVIRONMENT === testEnvironmentName ? [FeedbackModule] : []),
     FriendshipModule,
     AdminModule,
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          name: 'default',
+          limit: parseInt(envVars.THROTTLE_LIMIT),
+          ttl: parseInt(envVars.THROTTLE_TTL),
+        },
+      ],
+      errorMessage: 'Too many requests!',
+    }),
   ],
   controllers: [AppController],
   providers: [
@@ -133,6 +145,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
       inject: [RequestLoggerService],
     },
     { provide: APP_GUARD, useClass: authGuardClassToUse },
+    { provide: APP_GUARD, useClass: APIRateLimitGuard },
     ...(isTestingSession()
       ? [{ provide: APP_INTERCEPTOR, useClass: BoxIdFilterInterceptor }]
       : []),
