@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, HttpCode, Inject, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  HttpCode,
+  Inject,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { SignInDto } from './dto/signIn.dto';
 import { AuthService } from './auth.service';
 import { ThrowAuthErrorIfFound } from './decorator/ThrowAuthErrorIfFound.decorator';
@@ -120,8 +129,8 @@ export class AuthController {
   }
 
   /**
-   * Log out of system. 
-   * 
+   * Log out of system.
+   *
    * Revokes refresh token in DB. Clears cookies.
    *
    * @param request - Contains browser cookies
@@ -147,7 +156,6 @@ export class AuthController {
 
     await this.authService.logout(refreshToken);
 
-    if (cookieToken)
-      this.authService.clearCookies(response);
+    if (cookieToken) this.authService.clearCookies(response);
   }
 }
