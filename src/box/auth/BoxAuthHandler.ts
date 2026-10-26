@@ -61,9 +61,9 @@ export default class BoxAuthHandler {
 
     const sessionPayload = {
       _id,
-      session_id, 
-      profile_id: profile._id.toString(), 
-      refreshToken: tokens.refreshToken, 
+      session_id,
+      profile_id: profile._id.toString(),
+      refreshToken: tokens.refreshToken,
       refreshTokenExpires: tokens.refreshTokenExpires,
     };
 
@@ -71,11 +71,13 @@ export default class BoxAuthHandler {
 
     if (sessionResp instanceof MongooseError || !sessionResp)
       return [
-        null, 
-        [new ServiceError({
-          reason: SEReason.UNEXPECTED,
-          message: 'Token Session creation failed',
-        })],
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.UNEXPECTED,
+            message: 'Token Session creation failed',
+          }),
+        ],
       ];
 
     return [tokens, null];

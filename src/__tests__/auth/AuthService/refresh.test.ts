@@ -21,7 +21,7 @@ describe('AuthService.refresh() test suite', () => {
     type: string;
   };
 
-  let player_id : string;
+  let player_id: string;
 
   const token_id = new ObjectId();
   const session_id = '12345';
@@ -73,7 +73,7 @@ describe('AuthService.refresh() test suite', () => {
   it('Should return tokens if refresh token is valid', async () => {
     const refreshToken = await createRefreshSession();
 
-    const [result,] = await authService.refresh(refreshToken);
+    const [result] = await authService.refresh(refreshToken);
     expect(result).toHaveProperty('accessToken');
     expect(result).toHaveProperty('refreshToken');
   });

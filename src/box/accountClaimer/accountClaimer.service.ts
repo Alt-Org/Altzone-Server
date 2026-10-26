@@ -105,9 +105,9 @@ export default class AccountClaimerService {
 
     const sessionPayload = {
       _id,
-      session_id, 
-      profile_id: account.Profile._id.toString(), 
-      refreshToken: tokens.refreshToken, 
+      session_id,
+      profile_id: account.Profile._id.toString(),
+      refreshToken: tokens.refreshToken,
       refreshTokenExpires: tokens.refreshTokenExpires,
     };
 

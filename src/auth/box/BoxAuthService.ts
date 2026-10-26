@@ -25,7 +25,7 @@ export default class BoxAuthService extends AuthService {
     public readonly groupAdminModel: Model<GroupAdmin>,
     @InjectConnection() connection: Connection,
   ) {
-    super(jwt, profileModel, playerModel, clanModel, sessionModel, connection,);
+    super(jwt, profileModel, playerModel, clanModel, sessionModel, connection);
   }
 
   /**
@@ -106,16 +106,15 @@ export default class BoxAuthService extends AuthService {
 
     const sessionPayload = {
       _id,
-      session_id, 
-      profile_id: profileResp._id, 
-      refreshToken: tokens.refreshToken, 
+      session_id,
+      profile_id: profileResp._id,
+      refreshToken: tokens.refreshToken,
       refreshTokenExpires: tokens.refreshTokenExpires,
     };
 
     const sessionResp = await this.createSession(sessionPayload);
 
-    if (sessionResp instanceof MongooseError || !sessionResp)
-      return null;
+    if (sessionResp instanceof MongooseError || !sessionResp) return null;
 
     profile['Player'] = player;
 

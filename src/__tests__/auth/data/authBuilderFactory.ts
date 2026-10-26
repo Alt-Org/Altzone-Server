@@ -2,10 +2,7 @@ import UserBuilder from './auth/User';
 import SignInDtoBuilder from './auth/SignInDtoBuilder';
 import SessionBuilder from './auth/SessionBuilder';
 
-type BuilderName = 
-  |'SignInDto' 
-  | 'User'
-  | 'Session';
+type BuilderName = 'SignInDto' | 'User' | 'Session';
 
 type BuilderMap = {
   SignInDto: SignInDtoBuilder;

@@ -8,7 +8,7 @@ export class TokenPayload {
    * @example "67fe4e2d8a54d4cc39266a43"
    */
   token_id: string;
-  
+
   /**
    * Session Id to identify token family
    *
