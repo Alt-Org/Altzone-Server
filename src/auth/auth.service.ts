@@ -19,7 +19,11 @@ import { Response } from 'express';
 import { TokenName } from './enum/tokenName.enum';
 import { Session } from './session.schema';
 import { randomUUID } from 'node:crypto';
-import { cancelTransaction, endTransaction, initializeSession } from '../common/function/Transactions';
+import {
+  cancelTransaction,
+  endTransaction,
+  initializeSession,
+} from '../common/function/Transactions';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { ObjectId } from 'mongodb';
 import { SessionPayload } from './dto/sessionPayload.dto';
@@ -102,16 +106,15 @@ export class AuthService {
 
     const sessionPayload = {
       _id,
-      session_id, 
-      profile_id: profileResp._id, 
-      refreshToken: tokens.refreshToken, 
+      session_id,
+      profile_id: profileResp._id,
+      refreshToken: tokens.refreshToken,
       refreshTokenExpires: tokens.refreshTokenExpires,
     };
 
     const sessionResp = await this.createSession(sessionPayload);
 
-    if (sessionResp instanceof MongooseError || !sessionResp)
-      return null;
+    if (sessionResp instanceof MongooseError || !sessionResp) return null;
 
     profile['Player'] = player;
     let clan = null;
@@ -215,7 +218,9 @@ export class AuthService {
    * @param refreshToken - refresh token from client
    * @returns access and refresh tokens + token expiration dates if successul, else errors
    */
-  public async refresh(refreshToken: string): Promise<IServiceReturn<TokensDto>> {
+  public async refresh(
+    refreshToken: string,
+  ): Promise<IServiceReturn<TokensDto>> {
     if (!refreshToken)
       throw new UnauthorizedException({
         statusCode: 401,
@@ -241,9 +246,10 @@ export class AuthService {
       });
 
     const nowSeconds = Math.floor(Date.now() / 1000);
-    const inactivityLimit = ms(envVars.JWT_REFRESH_INACTIVITY as StringValue ?? '7d') / 1000;
+    const inactivityLimit =
+      ms((envVars.JWT_REFRESH_INACTIVITY as StringValue) ?? '7d') / 1000;
     const inactivityExpired = decoded.iat + inactivityLimit < nowSeconds;
-    
+
     if (inactivityExpired)
       throw new UnauthorizedException({
         statusCode: 401,
@@ -256,12 +262,11 @@ export class AuthService {
       });
 
     const sessionResp = await this.sessionModel.findById(decoded.token_id);
-    if (!sessionResp || sessionResp instanceof MongooseError) 
-      return null;
+    if (!sessionResp || sessionResp instanceof MongooseError) return null;
 
     if (sessionResp.revokedAt !== null) {
       const revokedSessionResp = await this.sessionModel.updateMany(
-        { 
+        {
           session_id: decoded.session_id,
           revokedAt: null,
         },
@@ -279,7 +284,7 @@ export class AuthService {
           }),
         ],
       });
-    };
+    }
 
     const [isValid, errors] = await this.verifyPassword(
       refreshToken,
@@ -288,16 +293,14 @@ export class AuthService {
     if (errors || !isValid) return null;
 
     const profileResp = await this.profileModel.findById({
-      _id: decoded.profile_id
+      _id: decoded.profile_id,
     });
-    if (!profileResp || profileResp instanceof MongooseError) 
-      return null;
+    if (!profileResp || profileResp instanceof MongooseError) return null;
 
     const playerResp = await this.playerModel.findOne({
-      profile_id: profileResp._id
+      profile_id: profileResp._id,
     });
-    if (!playerResp || playerResp instanceof MongooseError) 
-      return null;
+    if (!playerResp || playerResp instanceof MongooseError) return null;
 
     const _id = new ObjectId();
 
@@ -315,20 +318,17 @@ export class AuthService {
     const tokens = await this.createTokens(payload, decoded.exp);
 
     const [session, initErrors] = await initializeSession(this.connection);
-      if (initErrors) return [null, initErrors];
+    if (initErrors) return [null, initErrors];
 
     const sessionPayload = {
       _id,
-      session_id: sessionResp.session_id, 
-      profile_id: profileResp._id, 
-      refreshToken: tokens.refreshToken, 
+      session_id: sessionResp.session_id,
+      profile_id: profileResp._id,
+      refreshToken: tokens.refreshToken,
       refreshTokenExpires: tokens.refreshTokenExpires,
     };
 
-    const newSessionResp = await this.createSession(
-      sessionPayload,
-      session,
-    );
+    const newSessionResp = await this.createSession(sessionPayload, session);
 
     if (newSessionResp instanceof MongooseError || !newSessionResp)
       return await cancelTransaction(
@@ -359,15 +359,12 @@ export class AuthService {
 
   /**
    * Helper function to create Session in DB
-   * 
+   *
    * @param payload - Data used in Session creation
    * @param session - Optional Client session
    * @returns Created Session or Errors
    */
-  public async createSession(
-    payload: SessionPayload, 
-    session?: ClientSession,
-  ) {
+  public async createSession(payload: SessionPayload, session?: ClientSession) {
     const sessionData = {
       _id: payload._id,
       session_id: payload.session_id,
@@ -376,15 +373,12 @@ export class AuthService {
       expiresAt: new Date(payload.refreshTokenExpires * 1000),
     };
 
-    return await this.sessionModel.create(
-      [sessionData],
-      { session },
-    );
+    return await this.sessionModel.create([sessionData], { session });
   }
 
   /**
    * Revoke refresh token
-   * 
+   *
    * @param refreshToken - refreshToken needed to revoke session
    */
   public async logout(refreshToken: string) {
@@ -398,7 +392,7 @@ export class AuthService {
           }),
         ],
       });
-    
+
     const decoded = await this.verifyToken(refreshToken);
 
     if (decoded.type !== 'refresh')
@@ -413,7 +407,7 @@ export class AuthService {
       });
 
     await this.sessionModel.updateOne(
-      { 
+      {
         _id: decoded.token_id,
         revokedAt: null,
       },
@@ -436,9 +430,9 @@ export class AuthService {
   ): Promise<TokensDto> {
     const now = Math.floor(Date.now() / 1000);
     const expiresIn = (envVars.JWT_EXPIRES ?? '15m') as StringValue;
-    const refreshExpiresIn = exp 
-      ? exp - now 
-      : (envVars.JWT_REFRESH_EXPIRES ?? '30d') as StringValue;
+    const refreshExpiresIn = exp
+      ? exp - now
+      : ((envVars.JWT_REFRESH_EXPIRES ?? '30d') as StringValue);
 
     const refreshToken = await this.jwtService.signAsync(
       { ...payload, type: 'refresh' },

@@ -5,22 +5,22 @@ import { ModelName } from '../common/enum/modelName.enum';
 
 export type SessionDocument = HydratedDocument<Session>;
 
-@Schema({ 
-  toJSON: { virtuals: true }, 
-  toObject: { virtuals: true }, 
+@Schema({
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
   timestamps: true,
 })
 export class Session {
   @Prop({ type: String, required: true })
   session_id: string;
-  
-  @Prop({ 
-    type: MongooseSchema.Types.ObjectId, 
-    ref: ModelName.PROFILE, 
+
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: ModelName.PROFILE,
     required: true,
   })
   profile_id: Types.ObjectId;
-  
+
   @Prop({ type: String, required: true })
   tokenHash: string;
 
