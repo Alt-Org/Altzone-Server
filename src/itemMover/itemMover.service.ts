@@ -59,7 +59,10 @@ export class ItemMoverService {
     const [_, err] = await this.itemService.updateMany([update], { filter });
     if (err) return [null, err];
 
-    return [items, null];
+    const [updatedItems, errors] = await this.itemService.readMany({ filter });
+    if (errors) return [null, errors];
+
+    return [updatedItems, null];
   }
 
   /**
