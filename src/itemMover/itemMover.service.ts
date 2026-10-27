@@ -129,19 +129,60 @@ export class ItemMoverService {
    * @returns - A promise that resolves into array of stolen items.
    * @throws - Throws an error if no movable items are found.
    */
-  async stealItems(itemIds: string[], stealToken: StealToken, roomId: string) {
+  async stealItems(
+    itemIds: string[],
+    stealToken: StealToken,
+    roomId: string,
+  ) {
     if (!Array.isArray(itemIds) || itemIds.length === 0) {
       throw new APIError({
         reason: APIErrorReason.NOT_FOUND,
         message: 'No movable items found',
       });
     }
-    const itemSoulHomeIds: { itemId: string; soulHomeId: string }[] = (
+
+    const [player, playerErrors] = await this.playerBasicService.readOneById(
+      stealToken.playerId,
+    );
+
+    if (playerErrors || !player?.clan_id) {
+      return [null, playerErrors ?? [NotFoundError]];
+    }
+
+    const [destinationRoom, roomErrors] = await this.roomService.readOneById(
+      roomId,
+      { includeRefs: [ModelName.SOULHOME] },
+    );
+
+    if (roomErrors) {
+      return [null, roomErrors];
+    }
+
+    const destinationClanId =
+      destinationRoom['SoulHome']?.clan_id?.toString();
+
+    if (
+      !destinationClanId ||
+      player.clan_id.toString() !== destinationClanId
+    ) {
+      throw new APIError({
+        reason: APIErrorReason.NOT_AUTHORIZED,
+        field: 'room_id',
+        value: roomId,
+        message: "Cannot steal items into another Clan's Room",
+      });
+    }
+
+    const itemSoulHomeIds: {
+      itemId: string;
+      soulHomeId: string;
+    }[] = (
       await Promise.all(
         itemIds.map(async (itemId) => {
           try {
             const soulHomeId =
               await this.itemHelperService.getItemSoulHomeId(itemId);
+
             return { itemId, soulHomeId };
           } catch {
             return undefined;
@@ -153,13 +194,16 @@ export class ItemMoverService {
     const filteredItems = itemSoulHomeIds.filter(
       (item) => item.soulHomeId === stealToken.soulHomeId,
     );
-    if (filteredItems.length === 0)
+
+    if (filteredItems.length === 0) {
       throw new APIError({
         reason: APIErrorReason.NOT_FOUND,
         message: 'No movable items found',
       });
+    }
 
     const filteredItemIds = filteredItems.map((item) => item.itemId);
+
     return this.moveItems(filteredItemIds, roomId, MoveTo.ROOM);
   }
 }
