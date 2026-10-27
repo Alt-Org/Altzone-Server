@@ -67,6 +67,8 @@ export class MatchmakingService {
   private readonly QUEUE_KEY_PREFIX = 'matchmaking:queue';
   private readonly MATCH_KEY_PREFIX = 'matchmaking:match';
   private readonly PLAYER_MATCH_KEY_PREFIX = 'matchmaking:match-player';
+  private readonly INVITE_JOIN_LOCK_KEY_PREFIX = 'matchmaking:invite-join-lock';
+  private readonly INVITE_JOIN_LOCK_TTL_S = 5;
   private readonly MATCH_LEADERBOARD_LOCK_KEY_PREFIX =
     'matchmaking:leaderboard-lock';
 
@@ -155,6 +157,12 @@ export class MatchmakingService {
       if (invite.players.includes(playerId)) return true;
       if (invite.ownerPlayerId === playerId) return true;
       if (invite.matchType === MatchType.CUSTOM) return true;
+      if (
+        invite.matchType === MatchType.RANDOM &&
+        this.isInviteJoinable(invite)
+      ) {
+        return true;
+      }
       if (invite.matchType === MatchType.CLAN && invite.clanId === clanId) {
         return true;
       }
@@ -182,6 +190,40 @@ export class MatchmakingService {
    * invite is recalculated and potentially moved into matchmaking.
    */
   async joinInvite(
+    inviteId: string,
+    playerId: string,
+    body: JoinMatchmakingInviteDto,
+  ): Promise<IServiceReturn<MatchmakingInviteDto>> {
+    const lockKey = this.inviteJoinLockKey(inviteId);
+    const lockValue = new Types.ObjectId().toString();
+    const lockAcquired = await this.redisService.setNx(
+      lockKey,
+      lockValue,
+      this.INVITE_JOIN_LOCK_TTL_S,
+    );
+
+    if (!lockAcquired) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'inviteId',
+            value: inviteId,
+            message: 'Room join is already being processed. Please retry.',
+          }),
+        ],
+      ];
+    }
+
+    try {
+      return await this.joinInviteWhileLocked(inviteId, playerId, body);
+    } finally {
+      await this.redisService.deleteIfValue(lockKey, lockValue);
+    }
+  }
+
+  private async joinInviteWhileLocked(
     inviteId: string,
     playerId: string,
     body: JoinMatchmakingInviteDto,
@@ -1614,7 +1656,7 @@ export class MatchmakingService {
       }
     }
 
-    if (this.isInviteFull(invite) && invite.bots.length === 0) {
+    if (!this.isInviteJoinable(invite)) {
       return [
         new ServiceError({
           reason: SEReason.NOT_ALLOWED,
@@ -1741,6 +1783,20 @@ export class MatchmakingService {
     );
   }
 
+  /**
+   * Returns whether another real player can join the room. Bot fillers do not
+   * consume a real-player slot because joining replaces one of them.
+   */
+  private isInviteJoinable(invite: MatchmakingInvite) {
+    const acceptsPlayers =
+      invite.status === InviteStatus.OPEN ||
+      invite.status === InviteStatus.READY;
+
+    return (
+      acceptsPlayers && invite.players.length < this.getInviteCapacity(invite)
+    );
+  }
+
   private getInviteCapacity(invite: MatchmakingInvite) {
     return invite.matchType === MatchType.CUSTOM
       ? invite.teamSize * 2
@@ -1852,6 +1908,10 @@ export class MatchmakingService {
 
   private playerInviteKey(playerId: string) {
     return `${this.PLAYER_INVITE_KEY_PREFIX}:${playerId}`;
+  }
+
+  private inviteJoinLockKey(inviteId: string) {
+    return `${this.INVITE_JOIN_LOCK_KEY_PREFIX}:${inviteId}`;
   }
 
   private queueKey(matchType: MatchType, gameType: number) {
