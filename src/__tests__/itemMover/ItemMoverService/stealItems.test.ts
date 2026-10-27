@@ -113,8 +113,8 @@ describe('ItemMoverService.stealItems() test suite', () => {
     expect(errors).toBeNull();
     expect(clearedItems).toEqual(
       expect.arrayContaining([
-        { ...item1, room_id: sourceRoom._id },
-        { ...item2, room_id: sourceRoom._id },
+        { ...item1, room_id: destinationRoom._id },
+        { ...item2, room_id: destinationRoom._id },
       ]),
     );
   });
