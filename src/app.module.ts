@@ -133,6 +133,7 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
         },
       ],
       errorMessage: 'Too many requests!',
+      setHeaders: true,
     }),
   ],
   controllers: [AppController],
