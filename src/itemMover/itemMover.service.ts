@@ -129,11 +129,7 @@ export class ItemMoverService {
    * @returns - A promise that resolves into array of stolen items.
    * @throws - Throws an error if no movable items are found.
    */
-  async stealItems(
-    itemIds: string[],
-    stealToken: StealToken,
-    roomId: string,
-  ) {
+  async stealItems(itemIds: string[], stealToken: StealToken, roomId: string) {
     if (!Array.isArray(itemIds) || itemIds.length === 0) {
       throw new APIError({
         reason: APIErrorReason.NOT_FOUND,
@@ -158,13 +154,9 @@ export class ItemMoverService {
       return [null, roomErrors];
     }
 
-    const destinationClanId =
-      destinationRoom['SoulHome']?.clan_id?.toString();
+    const destinationClanId = destinationRoom['SoulHome']?.clan_id?.toString();
 
-    if (
-      !destinationClanId ||
-      player.clan_id.toString() !== destinationClanId
-    ) {
+    if (!destinationClanId || player.clan_id.toString() !== destinationClanId) {
       throw new APIError({
         reason: APIErrorReason.NOT_AUTHORIZED,
         field: 'room_id',
