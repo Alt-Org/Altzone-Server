@@ -7,6 +7,8 @@ export default interface IRedisService {
 
   delete(key: string): Promise<number>;
 
+  deleteIfValue(key: string, value: string): Promise<boolean>;
+
   expire(key: string, ttlS: number): Promise<boolean>;
 
   lpush(key: string, ...values: string[]): Promise<number>;
