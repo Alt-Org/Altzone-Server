@@ -13,6 +13,7 @@ import { APIError } from '../../../common/controller/APIError';
 import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 import ClanModule from '../../clan/modules/clan.module';
 import { APIErrorReason } from '../../../common/controller/APIErrorReason';
+import PlayerModule from '../../player/modules/player.module';
 
 describe('ItemMoverService.stealItems() test suite', () => {
   let itemMoverService: ItemMoverService;
@@ -31,6 +32,7 @@ describe('ItemMoverService.stealItems() test suite', () => {
 
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
   const clanModel = ClanModule.getClanModel();
+  const playerModel = PlayerModule.getPlayerModel();
   const sourceClan = clanBuilder.setName('source-clan').build();
   const destinationClan = clanBuilder.setName('destination-clan').build();
 
@@ -51,6 +53,12 @@ describe('ItemMoverService.stealItems() test suite', () => {
 
     const destinationClanResp = await clanModel.create(destinationClan);
     destinationClan._id = destinationClanResp._id;
+    const destinationPlayerResp = await playerModel.create({
+      name: 'destination-player',
+      backpackCapacity: 10,
+      uniqueIdentifier: 'destination-player',
+      clan_id: destinationClan._id,
+    });
     const sourceClanResp = await clanModel.create(sourceClan);
     sourceClan._id = sourceClanResp._id;
 
@@ -79,7 +87,7 @@ describe('ItemMoverService.stealItems() test suite', () => {
     stealToken = {
       exp: new Date().getTime() + 60000,
       iat: 1000,
-      playerId: getNonExisting_id(),
+      playerId: destinationPlayerResp._id.toString(),
       soulHomeId: sourceSoulHome._id,
     };
   });
@@ -111,6 +119,35 @@ describe('ItemMoverService.stealItems() test suite', () => {
     const clearedItems = clearDBRespDefaultFields(movedItems);
 
     expect(errors).toBeNull();
+    expect(clearedItems).toEqual(
+      expect.arrayContaining([
+        { ...item1, room_id: destinationRoom._id },
+        { ...item2, room_id: destinationRoom._id },
+      ]),
+    );
+  });
+
+  it('Should reject a destination room belonging to another clan without moving the items', async () => {
+    const throwingCall = async () => {
+      await itemMoverService.stealItems(
+        [item1._id, item2._id],
+        stealToken,
+        sourceRoom._id,
+      );
+    };
+
+    await expect(throwingCall).rejects.toThrow(
+      new APIError({
+        reason: APIErrorReason.NOT_AUTHORIZED,
+        field: 'room_id',
+        value: sourceRoom._id,
+        message: "Cannot steal items into another Clan's Room",
+      }),
+    );
+
+    const itemsInDB = await itemModel.find(allItemsFilter);
+    const clearedItems = clearDBRespDefaultFields(itemsInDB);
+
     expect(clearedItems).toEqual(
       expect.arrayContaining([
         { ...item1, room_id: sourceRoom._id },
