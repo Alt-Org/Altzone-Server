@@ -77,6 +77,27 @@ export class RedisService implements OnModuleDestroy, IRedisService {
   }
 
   /**
+   * Deletes a key only when it still contains the expected value. This is used
+   * to release short-lived locks without deleting a lock acquired by another
+   * request after the original lock expired.
+   */
+  async deleteIfValue(key: string, value: string) {
+    const result = await this.client.eval(
+      `
+        if redis.call('GET', KEYS[1]) == ARGV[1] then
+          return redis.call('DEL', KEYS[1])
+        end
+        return 0
+      `,
+      1,
+      key,
+      value,
+    );
+
+    return result === 1;
+  }
+
+  /**
    * Applies a TTL to an existing key.
    *
    * @param key - The key to expire.
