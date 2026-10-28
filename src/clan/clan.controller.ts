@@ -15,6 +15,7 @@ import { Connection } from 'mongoose';
 import { CreateClanDto } from './dto/createClan.dto';
 import { UpdateClanDto } from './dto/updateClan.dto';
 import { ClanDto } from './dto/clan.dto';
+import { ClanListDto } from './dto/clanList.dto';
 import { _idDto } from '../common/dto/_id.dto';
 import { ModelName } from '../common/enum/modelName.enum';
 import { Authorize } from '../authorization/decorator/Authorize';
@@ -177,7 +178,7 @@ export class ClanController {
    */
   @ApiResponseDescription({
     success: {
-      dto: ClanDto,
+      dto: ClanListDto,
       modelName: ModelName.CLAN,
       returnsArray: true,
     },
@@ -185,18 +186,18 @@ export class ClanController {
     hasAuth: false,
   })
   @Get()
-  @ApiSuccessResponse(ClanDto, {
+  @ApiSuccessResponse(ClanListDto, {
     modelName: ModelName.CLAN,
     returnsArray: true,
   })
   @ApiStandardErrors(404)
   @NoAuth()
-  @UniformResponse(ModelName.CLAN, ClanDto)
+  @UniformResponse(ModelName.CLAN, ClanListDto)
   @OffsetPaginate(ModelName.CLAN)
-  @AddSearchQuery(ClanDto)
-  @AddSortQuery(ClanDto)
+  @AddSearchQuery(ClanListDto)
+  @AddSortQuery(ClanListDto)
   public getAll(@GetAllQuery() query: IGetAllQuery) {
-    return this.service.readAll(query);
+    return this.service.readClanList(query);
   }
 
   /**
