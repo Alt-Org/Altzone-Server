@@ -65,6 +65,9 @@ describe('StallService.updateAdPosterByClanId() test suite', () => {
     expect(clanFromDb.stall.adPoster.mainFurniture).toBe(
       adPosterDto.mainFurniture,
     );
+    expect(clanFromDb.stall.adPoster.textField).toMatchObject(
+      adPosterDto.textField,
+    );
   });
 
   it('should return with error if the clan does NOT exist', async () => {
