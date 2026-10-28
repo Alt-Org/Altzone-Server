@@ -185,6 +185,20 @@ export class StallService {
       stall.adPoster.mainFurniture = adPosterToUpdate.mainFurniture;
     }
 
+    if (adPosterToUpdate.textField) {
+      const currentTextField = stall.adPoster.textField ?? {
+        textString: '',
+        textFont: '',
+        textColour: '#FFFFFF',
+        textPosition: [0, 0, 0, 0],
+      };
+
+      stall.adPoster.textField = {
+        ...currentTextField,
+        ...adPosterToUpdate.textField,
+      };
+    }
+
     return stall;
   }
 }
