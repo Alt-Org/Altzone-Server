@@ -103,19 +103,25 @@ export class JoinService {
     if (player.clan_id) {
       const [pclan] = await this.clanService.readOneById(player.clan_id);
       if (pclan.playerCount <= 1) {
-        const [succ_delete_curr_clan, _] = await this.clanService.deleteOneById(pclan._id);
+        const [succ_delete_curr_clan, _] = await this.clanService.deleteOneById(
+          pclan._id,
+        );
 
-        if (!succ_delete_curr_clan) throw new ServiceError({
-          reason: SEReason.UNEXPECTED,
-          message: "Could not delete player from current clan"
-        });
+        if (!succ_delete_curr_clan)
+          throw new ServiceError({
+            reason: SEReason.UNEXPECTED,
+            message: 'Could not delete player from current clan',
+          });
       } else {
-        const succ_dec_curr_clan = await this.playerCounter.decreaseByIdOnOne(player.clan_id);
+        const succ_dec_curr_clan = await this.playerCounter.decreaseByIdOnOne(
+          player.clan_id,
+        );
 
-        if (!succ_dec_curr_clan) throw new ServiceError({
-          reason: SEReason.UNEXPECTED,
-          message: "Could not decrease player count from current clan"
-        });
+        if (!succ_dec_curr_clan)
+          throw new ServiceError({
+            reason: SEReason.UNEXPECTED,
+            message: 'Could not decrease player count from current clan',
+          });
       }
     }
 
