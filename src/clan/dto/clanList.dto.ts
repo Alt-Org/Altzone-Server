@@ -2,6 +2,7 @@ import { Expose, Type } from 'class-transformer';
 import { ExtractField } from '../../common/decorator/response/ExtractField';
 import { Language } from '../../common/enum/language.enum';
 import { ClanLabel } from '../enum/clanLabel.enum';
+import { AgeRange } from '../enum/ageRange.enum';
 import { Goal } from '../enum/goal.enum';
 import { ClanLogoDto } from './clanLogo.dto';
 
@@ -65,6 +66,13 @@ export class ClanListDto {
   playerCount: number;
 
   /**
+   * Allowed age range for clan members
+   * @example "All"
+   */
+  @Expose()
+  ageRange: AgeRange;
+
+  /**
    * Goal or purpose of the clan
    * @example "Competitive"
    */
@@ -103,6 +111,7 @@ export const clanListFields: (keyof ClanListDto)[] = [
   'furnitureTotalValue',
   'battlePoints',
   'playerCount',
+  'ageRange',
   'goal',
   'phrase',
   'language',
