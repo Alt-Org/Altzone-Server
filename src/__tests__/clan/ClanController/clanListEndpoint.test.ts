@@ -18,6 +18,7 @@ const publicFields = [
   'furnitureTotalValue',
   'battlePoints',
   'playerCount',
+  'ageRange',
   'goal',
   'phrase',
   'language',
@@ -114,7 +115,7 @@ describe('GET /clan endpoint', () => {
     getLoggedUserInfo.mockClear();
   });
 
-  it('returns only the 12 public fields for every clan', async () => {
+  it('returns only the 13 public fields for every clan', async () => {
     const response = await request(app.getHttpServer())
       .get('/clan')
       .expect(200);
@@ -126,12 +127,12 @@ describe('GET /clan endpoint', () => {
 
   it('does not expose sensitive or expanded fields through select', async () => {
     const response = await request(app.getHttpServer())
-      .get('/clan?select=password,ageRange,roles,Player,Stock,SoulHome')
+      .get('/clan?select=password,roles,Player,Stock,SoulHome')
       .expect(200);
 
     for (const clan of response.body.data.Clan) {
       expect(clan).not.toHaveProperty('password');
-      expect(clan).not.toHaveProperty('ageRange');
+      expect(clan).toHaveProperty('ageRange', 'Adults');
       expect(clan).not.toHaveProperty('roles');
       expect(clan).not.toHaveProperty('admin_ids');
       expect(clan).not.toHaveProperty('Player');

@@ -16,9 +16,21 @@ describe('GET /clan query field restrictions', () => {
     });
   });
 
-  it('rejects searching with a field outside the clan list', () => {
+  it('allows searching with ageRange', () => {
     const { context, nextFn, request } = createRequest({
       search: 'ageRange="Adults"',
+    });
+
+    new AddSearchQueryInterceptor(ClanListDto).intercept(context, nextFn);
+
+    expect(request['mongoFilter']).toEqual({
+      $and: [{ ageRange: { $eq: 'Adults' } }],
+    });
+  });
+
+  it('rejects searching with a field outside the clan list', () => {
+    const { context, nextFn, request } = createRequest({
+      search: 'roles="Leader"',
     });
 
     new AddSearchQueryInterceptor(ClanListDto).intercept(context, nextFn);
@@ -36,8 +48,16 @@ describe('GET /clan query field restrictions', () => {
     expect(request['mongoSort']).toEqual({ playerCount: 1 });
   });
 
-  it('rejects sorting with a field outside the clan list', () => {
+  it('allows sorting with ageRange', () => {
     const { context, nextFn, request } = createRequest({ sort: 'ageRange' });
+
+    new AddSortQueryInterceptor(ClanListDto).intercept(context, nextFn);
+
+    expect(request['mongoSort']).toEqual({ ageRange: 1 });
+  });
+
+  it('rejects sorting with a field outside the clan list', () => {
+    const { context, nextFn, request } = createRequest({ sort: 'roles' });
 
     new AddSortQueryInterceptor(ClanListDto).intercept(context, nextFn);
 
