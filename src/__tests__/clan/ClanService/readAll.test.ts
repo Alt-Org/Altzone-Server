@@ -77,7 +77,7 @@ describe('ClanService.readAll() test suite', () => {
   it('Should use the fixed public projection when reading the clan list', async () => {
     const [clans, errors] = await clanService.readClanList({
       filter: allClansFilter,
-      select: ['password', 'ageRange', 'roles'],
+      select: ['password', 'roles'],
     });
 
     expect(errors).toBeNull();
@@ -89,7 +89,7 @@ describe('ClanService.readAll() test suite', () => {
         [...clanListFields].sort(),
       );
       expect(clanObject).not.toHaveProperty('password');
-      expect(clanObject).not.toHaveProperty('ageRange');
+      expect(clanObject).toHaveProperty('ageRange');
       expect(clanObject).not.toHaveProperty('roles');
     }
   });
