@@ -103,15 +103,34 @@ export class JoinService {
     if (player.clan_id) {
       const [pclan] = await this.clanService.readOneById(player.clan_id);
       if (pclan.playerCount <= 1) {
-        await this.clanService.deleteOneById(pclan._id);
+        const [succ_delete_curr_clan, _] = await this.clanService.deleteOneById(
+          pclan._id,
+        );
+
+        if (!succ_delete_curr_clan)
+          throw new ServiceError({
+            reason: SEReason.UNEXPECTED,
+            message: 'Could not delete player from current clan',
+          });
       } else {
-        await this.playerCounter.decreaseByIdOnOne(player.clan_id);
+        const succ_dec_curr_clan = await this.playerCounter.decreaseByIdOnOne(
+          player.clan_id,
+        );
+
+        if (!succ_dec_curr_clan)
+          throw new ServiceError({
+            reason: SEReason.UNEXPECTED,
+            message: 'Could not decrease player count from current clan',
+          });
       }
     }
 
     await this.joinClan(player_id, clan_id);
 
-    return [clan, null];
+    const [updatedClan, errors] = await this.clanService.readOneById(clan_id);
+    if (errors) return [null, errors];
+
+    return [updatedClan, null];
   }
 
   /**
@@ -322,15 +341,13 @@ export class JoinService {
       );
 
       const [, clanUpdateErrors] =
-        await this.clanService.basicService.updateOne(
+        await this.clanService.basicService.updateOneById(
+          clan._id,
           { $inc: { playerCount: 1 } },
-          {
-            filter: { _id: clan._id },
-            session,
-          },
+          { session },
         );
       if (clanUpdateErrors)
-        throw new NotFoundException('Player count reduction failed');
+        throw new NotFoundException('Increasing player count failed');
 
       const [soulHome, soulHomeErrors] =
         await this.soulHomeService.basicService.readOne({
