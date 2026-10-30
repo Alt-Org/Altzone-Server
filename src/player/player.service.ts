@@ -15,7 +15,6 @@ import {
   PostCreateHookFunction,
   PostHookFunction,
 } from '../common/interface/IHookImplementer';
-import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { PlayerDto, StatDetailDto } from './dto/player.dto';
 import BasicService from '../common/service/basicService/BasicService';
 import ServiceError from '../common/service/basicService/ServiceError';
@@ -179,34 +178,8 @@ export class PlayerService
     return true;
   };
 
-  public updateOnePostHook: PostHookFunction = async (
-    input: Partial<UpdatePlayerDto>,
-    oldDoc: Partial<Player>,
-    _output: Partial<Player>,
-  ): Promise<boolean> => {
-    if (!input?.clan_id) return true;
-
-    const changeCounterValue = this.requestHelperService.changeCounterValue;
-
-    //decrease playerCounter from old clan
-    const clanRemoveFrom_id = oldDoc.clan_id;
-    if (clanRemoveFrom_id)
-      await changeCounterValue(
-        ModelName.CLAN,
-        { _id: clanRemoveFrom_id },
-        'playerCount',
-        -1,
-      );
-
-    const isPlayerCountIncreased = await changeCounterValue(
-      ModelName.CLAN,
-      { _id: input.clan_id },
-      'playerCount',
-      1,
-    );
-
-    return isPlayerCountIncreased;
-  };
+  public updateOnePostHook: PostHookFunction = async (): Promise<boolean> =>
+    true;
 
   /**
    * Updates one player data
