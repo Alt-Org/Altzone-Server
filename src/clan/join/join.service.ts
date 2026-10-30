@@ -342,15 +342,15 @@ export class JoinService {
 
       const [, clanUpdateErrors] =
         await this.clanService.basicService.updateOne(
-        { $inc: { playerCount: 1 } },
-        {
-          filter: {
-            _id: clan._id,
-            playerCount: { $lt: 30 },
+          { $inc: { playerCount: 1 } },
+          {
+            filter: {
+              _id: clan._id,
+              playerCount: { $lt: 30 },
+            },
+            session,
           },
-          session,
-        },
-      );
+        );
       if (clanUpdateErrors)
         throw new NotFoundException('Increasing player count failed');
 
