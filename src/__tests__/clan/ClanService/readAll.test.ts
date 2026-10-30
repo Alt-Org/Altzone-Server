@@ -5,7 +5,6 @@ import ClanModule from '../modules/clan.module';
 import { ModelName } from '../../../common/enum/modelName.enum';
 import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultFields';
 import PlayerModule from '../../player/modules/player.module';
-import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import { ObjectId } from 'mongodb';
 import { clanListFields } from '../../../clan/dto/clanList.dto';
 
@@ -15,7 +14,6 @@ describe('ClanService.readAll() test suite', () => {
   const clanModel = ClanModule.getClanModel();
 
   const loggedPlayer = LoggedUser.getPlayer();
-  const playerBuilder = PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
   const playerModel = PlayerModule.getPlayerModel();
 
   const clanWithPlayer = clanBuilder
@@ -35,8 +33,9 @@ describe('ClanService.readAll() test suite', () => {
     await clanModel.create(clan2);
     await clanModel.create(clan3);
 
-    const playerUpdate = playerBuilder.setClanId(clan1Resp._id).build();
-    await playerModel.findByIdAndUpdate(loggedPlayer._id, playerUpdate);
+    await playerModel.findByIdAndUpdate(loggedPlayer._id, {
+      clan_id: clan1Resp._id,
+    });
     loggedPlayer.clan_id = clan1Resp._id;
   });
 

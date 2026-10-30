@@ -1,6 +1,5 @@
 import ClanBuilderFactory from '../../../clan/data/clanBuilderFactory';
 import ClanModule from '../../../clan/modules/clan.module';
-import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import LoggedUser from '../../../test_utils/const/loggedUser';
 import PlayerModule from '../../../player/modules/player.module';
 import DailyTaskBuilderFactory from '../../data/dailyTaskBuilderFactory';
@@ -17,7 +16,6 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
   const clanModel = ClanModule.getClanModel();
   const existingClan = clanBuilder.setName('clan1').build();
 
-  const playerBuilder = PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
   const loggedPlayer = LoggedUser.getPlayer();
   const playerModel = PlayerModule.getPlayerModel();
 
@@ -30,8 +28,9 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
     const clanResp = await clanModel.create(existingClan);
     existingClan._id = clanResp._id;
 
-    const playerUpdate = playerBuilder.setClanId(existingClan._id).build();
-    await playerModel.findByIdAndUpdate(loggedPlayer._id, playerUpdate);
+    await playerModel.findByIdAndUpdate(loggedPlayer._id, {
+      clan_id: existingClan._id,
+    });
     loggedPlayer.clan_id = existingClan._id;
   });
 

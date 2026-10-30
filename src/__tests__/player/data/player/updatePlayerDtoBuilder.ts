@@ -11,8 +11,6 @@ export default class UpdatePlayerDtoBuilder {
     above13: undefined,
     parentalAuth: undefined,
     currentAvatarId: undefined,
-    clan_id: undefined,
-    clan_idToDelete: undefined,
     battleCharacter_ids: undefined,
     avatar: undefined,
   };
@@ -58,16 +56,6 @@ export default class UpdatePlayerDtoBuilder {
 
   setAvatar(avatar: ModifyAvatarDto) {
     this.base.avatar = avatar;
-    return this;
-  }
-
-  setClanId(clanId: string | ObjectId) {
-    this.base.clan_id = clanId as any;
-    return this;
-  }
-
-  setClanIdToDelete(clanIdToDelete: string | ObjectId) {
-    this.base.clan_idToDelete = clanIdToDelete as any;
     return this;
   }
 
