@@ -13,6 +13,10 @@ import { Stall } from './stall/stall.schema';
 import { getDefaultStall } from './defaultValues/stall';
 import { Environment } from '../common/enum/environment.enum';
 import { ClanRule } from './enum/clanRule.enum';
+import {
+  BOX_SESSION_MAX_MEMBERS_PER_CLAN,
+  BOX_SESSION_POINTS_PER_MEMBER,
+} from '../box/consts/boxSessionConstants';
 
 export type ClanDocument = HydratedDocument<Clan>;
 
@@ -42,6 +46,22 @@ export class Clan {
 
   @Prop({ type: Number, default: 0 })
   points: number;
+
+  @Prop({
+    type: Number,
+    required: false,
+    min: 0,
+    max: BOX_SESSION_MAX_MEMBERS_PER_CLAN,
+  })
+  boxMemberLimit?: number;
+
+  @Prop({
+    type: Number,
+    required: false,
+    min: 0,
+    max: BOX_SESSION_MAX_MEMBERS_PER_CLAN * BOX_SESSION_POINTS_PER_MEMBER,
+  })
+  targetPoints?: number;
 
   @Prop({ type: [Number], default: [] })
   unlockedMilestones: number[];

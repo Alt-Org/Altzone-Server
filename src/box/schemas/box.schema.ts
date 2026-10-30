@@ -105,6 +105,9 @@ export class Box {
 
   /**
    * array of predefined by the group admin tasks
+   *
+   * @deprecated Box testing sessions use the complete server and UI task
+   * catalogs. This field is retained for backwards compatibility.
    */
   @Prop({
     type: [PredefinedDailyTaskSchema],

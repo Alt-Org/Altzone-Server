@@ -61,7 +61,7 @@ export class Item {
   stock_id: Stock;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: ModelName.ROOM })
-  room_id: Room;
+  room_id: Room | string;
 
   @ExtractField()
   _id: string;

@@ -33,6 +33,10 @@ import {
   initializeSession,
 } from '../common/function/Transactions';
 import { CreateBoxDto } from './dto/createBox.dto';
+import {
+  BOX_SESSION_MAX_PARTICIPANTS,
+  BOX_SESSION_MIN_PARTICIPANTS,
+} from './consts/boxSessionConstants';
 
 @Injectable()
 export class BoxService {
@@ -174,6 +178,48 @@ export class BoxService {
             field: '_id',
             value: box._id,
             message: '_id field is required',
+          }),
+        ],
+      ];
+    if (box.testersAmount !== undefined && !Number.isInteger(box.testersAmount))
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_NUMBER,
+            field: 'testersAmount',
+            value: box.testersAmount,
+            message: 'testersAmount must be an integer',
+          }),
+        ],
+      ];
+    if (
+      box.testersAmount !== undefined &&
+      box.testersAmount < BOX_SESSION_MIN_PARTICIPANTS
+    )
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.LESS_THAN_MIN,
+            field: 'testersAmount',
+            value: box.testersAmount,
+            message: `testersAmount must be at least ${BOX_SESSION_MIN_PARTICIPANTS}`,
+          }),
+        ],
+      ];
+    if (
+      box.testersAmount !== undefined &&
+      box.testersAmount > BOX_SESSION_MAX_PARTICIPANTS
+    )
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.MORE_THAN_MAX,
+            field: 'testersAmount',
+            value: box.testersAmount,
+            message: `testersAmount cannot exceed ${BOX_SESSION_MAX_PARTICIPANTS}`,
           }),
         ],
       ];

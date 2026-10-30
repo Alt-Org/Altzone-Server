@@ -7,6 +7,7 @@ import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultF
 import PlayerModule from '../../player/modules/player.module';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import { ObjectId } from 'mongodb';
+import { clanListFields } from '../../../clan/dto/clanList.dto';
 
 describe('ClanService.readAll() test suite', () => {
   let clanService: ClanService;
@@ -71,6 +72,26 @@ describe('ClanService.readAll() test suite', () => {
       { _id: expect.any(ObjectId), name: clan2.name },
       { _id: expect.any(ObjectId), name: clan3.name },
     ]);
+  });
+
+  it('Should use the fixed public projection when reading the clan list', async () => {
+    const [clans, errors] = await clanService.readClanList({
+      filter: allClansFilter,
+      select: ['password', 'roles'],
+    });
+
+    expect(errors).toBeNull();
+    expect(clans).toHaveLength(3);
+
+    for (const clan of clans) {
+      const clanObject = clearDBRespDefaultFields(clan);
+      expect(Object.keys(clanObject).sort()).toEqual(
+        [...clanListFields].sort(),
+      );
+      expect(clanObject).not.toHaveProperty('password');
+      expect(clanObject).toHaveProperty('ageRange');
+      expect(clanObject).not.toHaveProperty('roles');
+    }
   });
 
   it('Should limit the number of returned objects using options.limit', async () => {

@@ -33,6 +33,13 @@ class InMemoryRedisService {
     return removed ? 1 : 0;
   });
 
+  deleteIfValue = jest.fn(async (key: string, value: string) => {
+    if (this.values.get(key) !== value) return false;
+
+    this.values.delete(key);
+    return true;
+  });
+
   expire = jest.fn(async () => true);
 
   rpush = jest.fn(async (key: string, ...values: string[]) => {
@@ -196,6 +203,189 @@ const createActiveBattleStartMatch = (
 
 describe('MatchmakingService flow', () => {
   const gameType = 1;
+
+  it('lists joinable RANDOM rooms for players outside the room', async () => {
+    const { service } = createService();
+    const [readyRoom] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    const [openRoom] = await service.createInvite('player-2', {
+      matchType: MatchType.RANDOM,
+      gameType,
+      allowBots: false,
+    });
+
+    const [visibleRooms, errors] = await service.getInvites('player-3');
+
+    expect(errors).toBeNull();
+    expect(visibleRooms).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: readyRoom.id,
+          status: InviteStatus.READY,
+          players: ['player-1'],
+        }),
+        expect.objectContaining({
+          id: openRoom.id,
+          status: InviteStatus.OPEN,
+          players: ['player-2'],
+        }),
+      ]),
+    );
+  });
+
+  it('hides full and queued RANDOM rooms from players outside the room', async () => {
+    const { service } = createService();
+    const [fullRoom] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+      allowBots: false,
+    });
+    await service.joinInvite(fullRoom.id, 'player-2', {} as any);
+    const [queuedRoom] = await service.createInvite('player-3', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    await service.startRoom(queuedRoom.id, 'player-3');
+
+    const [visibleRooms, errors] = await service.getInvites('player-4');
+
+    expect(errors).toBeNull();
+    expect(visibleRooms.map((room) => room.id)).not.toContain(fullRoom.id);
+    expect(visibleRooms.map((room) => room.id)).not.toContain(queuedRoom.id);
+  });
+
+  it('allows only one concurrent join into the last real-player slot', async () => {
+    const { service } = createService();
+    const [room] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+
+    const results = await Promise.all([
+      service.joinInvite(room.id, 'player-2', {} as any),
+      service.joinInvite(room.id, 'player-3', {} as any),
+    ]);
+    const successfulJoins = results.filter(([, errors]) => errors === null);
+    const rejectedJoins = results.filter(([, errors]) => errors !== null);
+    const [updatedRoom] = await service.getInvite(room.id);
+
+    expect(successfulJoins).toHaveLength(1);
+    expect(rejectedJoins).toHaveLength(1);
+    expect(rejectedJoins[0][1][0]).toMatchObject({
+      reason: SEReason.NOT_ALLOWED,
+      field: 'inviteId',
+      value: room.id,
+      message: 'Room join is already being processed. Please retry.',
+    });
+    expect(updatedRoom.players).toHaveLength(2);
+    expect(updatedRoom.bots).toHaveLength(0);
+  });
+
+  it('replaces a RANDOM room bot when a real player joins', async () => {
+    const { service } = createService();
+    const [room] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+
+    const [joinedRoom, joinErrors] = await service.joinInvite(
+      room.id,
+      'player-2',
+      {} as any,
+    );
+    const [outsiderRooms] = await service.getInvites('player-3');
+
+    expect(joinErrors).toBeNull();
+    expect(joinedRoom).toMatchObject({
+      players: ['player-1', 'player-2'],
+      bots: [],
+      status: InviteStatus.READY,
+    });
+    expect(outsiderRooms.map((invite) => invite.id)).not.toContain(room.id);
+  });
+
+  it('hides matched and cancelled rooms from room listings', async () => {
+    const { service } = createService();
+    const [firstRoom] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    const [secondRoom] = await service.createInvite('player-2', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    await service.startRoom(firstRoom.id, 'player-1');
+    await service.startRoom(secondRoom.id, 'player-2');
+
+    const [cancelledRoom] = await service.createInvite('player-3', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    await service.cancelInvite(cancelledRoom.id, 'player-3');
+
+    const [visibleRooms, errors] = await service.getInvites('player-4');
+    const visibleRoomIds = visibleRooms.map((room) => room.id);
+
+    expect(errors).toBeNull();
+    expect(visibleRoomIds).not.toContain(firstRoom.id);
+    expect(visibleRoomIds).not.toContain(secondRoom.id);
+    expect(visibleRoomIds).not.toContain(cancelledRoom.id);
+  });
+
+  it('keeps queued rooms visible to their owner and members', async () => {
+    const { service } = createService();
+    const [room] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+      allowBots: false,
+    });
+    await service.joinInvite(room.id, 'player-2', {} as any);
+    await service.startRoom(room.id, 'player-1');
+
+    const [ownerRooms] = await service.getInvites('player-1');
+    const [memberRooms] = await service.getInvites('player-2');
+
+    expect(ownerRooms).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: room.id, status: InviteStatus.QUEUED }),
+      ]),
+    );
+    expect(memberRooms).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: room.id, status: InviteStatus.QUEUED }),
+      ]),
+    );
+  });
+
+  it('preserves CLAN and CUSTOM room visibility rules', async () => {
+    const { service } = createService({
+      'clan-owner': 'clan-1',
+      'clan-member': 'clan-1',
+      outsider: 'clan-2',
+    });
+    const [clanRoom] = await service.createInvite('clan-owner', {
+      matchType: MatchType.CLAN,
+      gameType,
+    });
+    const [customRoom] = await service.createInvite('custom-owner', {
+      matchType: MatchType.CUSTOM,
+      gameType,
+      roomId: '665af23e5e982f0013aa334b',
+      allowBots: false,
+    });
+
+    const [clanMemberRooms] = await service.getInvites('clan-member');
+    const [outsiderRooms] = await service.getInvites('outsider');
+    const clanMemberRoomIds = clanMemberRooms.map((room) => room.id);
+    const outsiderRoomIds = outsiderRooms.map((room) => room.id);
+
+    expect(clanMemberRoomIds).toContain(clanRoom.id);
+    expect(clanMemberRoomIds).toContain(customRoom.id);
+    expect(outsiderRoomIds).not.toContain(clanRoom.id);
+    expect(outsiderRoomIds).toContain(customRoom.id);
+  });
 
   it('creates an active RANDOM match after ready room owners start matchmaking', async () => {
     const { redis, notifier, service } = createService();
@@ -1414,12 +1604,12 @@ describe('MatchmakingService flow', () => {
     expect(clanService.basicService.updateOneById).not.toHaveBeenCalled();
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.GO_TO_BATTLE,
+      ServerTaskName.PLAY_A_BATTLE,
       false,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-2',
-      ServerTaskName.GO_TO_BATTLE,
+      ServerTaskName.PLAY_A_BATTLE,
       false,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);
@@ -1503,12 +1693,12 @@ describe('MatchmakingService flow', () => {
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.GO_TO_BATTLE,
+      ServerTaskName.PLAY_A_BATTLE,
       true,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-2',
-      ServerTaskName.GO_TO_BATTLE,
+      ServerTaskName.PLAY_A_BATTLE,
       true,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);

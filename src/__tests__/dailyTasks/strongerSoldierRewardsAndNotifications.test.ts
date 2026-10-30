@@ -8,7 +8,7 @@ jest.mock('../../common/service/notificator/MQTTConnector', () => ({
   getInstance: jest.fn(),
 }));
 
-describe('STRONGER_SOLDIER rewards and MQTT notifications', () => {
+describe('UPGRADE_A_DEFENCE_SOLDIER rewards and MQTT notifications', () => {
   let publish: jest.Mock;
   let playerRewarder: { rewardForPlayerTask: jest.Mock };
   let clanRewarder: { rewardClanForPlayerTask: jest.Mock };
@@ -20,7 +20,7 @@ describe('STRONGER_SOLDIER rewards and MQTT notifications', () => {
     _id: 'task-1',
     clan_id: 'clan-1',
     player_id: 'player-1',
-    type: ServerTaskName.STRONGER_SOLDIER,
+    type: ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
     title: { fi: 'Kasvata puolustussotilaan hyökkäysarvoa.' },
     amount: 2,
     amountLeft: 1,
@@ -69,7 +69,7 @@ describe('STRONGER_SOLDIER rewards and MQTT notifications', () => {
     expect(errors).toBeNull();
     expect(handled).toBe(result);
     expect(publish).toHaveBeenCalledWith(
-      '/player/player-1/daily_task/stronger_soldier/update',
+      '/player/player-1/daily_task/upgrade_a_defence_soldier/update',
       JSON.stringify({
         topic: 'daily_task',
         type: MqttNotificationType.TASK_UPDATED,
@@ -112,7 +112,7 @@ describe('STRONGER_SOLDIER rewards and MQTT notifications', () => {
       session,
     );
     expect(publish).toHaveBeenCalledWith(
-      '/player/player-1/daily_task/stronger_soldier/end',
+      '/player/player-1/daily_task/upgrade_a_defence_soldier/end',
       JSON.stringify({
         topic: 'daily_task',
         type: MqttNotificationType.TASK_COMPLETED,
@@ -120,7 +120,7 @@ describe('STRONGER_SOLDIER rewards and MQTT notifications', () => {
       }),
     );
     expect(publish).toHaveBeenCalledWith(
-      '/clan/clan-1/daily_task/stronger_soldier/end',
+      '/clan/clan-1/daily_task/upgrade_a_defence_soldier/end',
       JSON.stringify({
         topic: 'daily_task',
         type: MqttNotificationType.CLAN_TASK_COMPLETED,

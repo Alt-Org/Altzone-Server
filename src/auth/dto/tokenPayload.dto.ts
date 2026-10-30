@@ -1,14 +1,26 @@
-import { Expose } from 'class-transformer';
 import AddType from '../../common/base/decorator/AddType.decorator';
 
 @AddType('TokenPayload')
 export class TokenPayload {
   /**
+   * Token Id used to find Session in DB
+   *
+   * @example "67fe4e2d8a54d4cc39266a43"
+   */
+  token_id: string;
+
+  /**
+   * Session Id to identify token family
+   *
+   * @example "67fe4e2d8a54d4cc39266a43"
+   */
+  session_id: string;
+
+  /**
    * Profile Id
    *
    * @example "67fe4e2d8a54d4cc39266a43"
    */
-  @Expose()
   profile_id: string;
 
   /**
@@ -16,13 +28,11 @@ export class TokenPayload {
    *
    * @example "67fe4e2d8a54d4cc39266a43"
    */
-  @Expose()
   player_id: string;
 
   /**
    * Id of Box session
    */
-  @Expose()
   box_id?: string;
 
   /**
@@ -30,22 +40,12 @@ export class TokenPayload {
    *
    * @example false
    */
-  @Expose()
   groupAdmin?: boolean;
-
-  /**
-   * Token version
-   *
-   * @example 0
-   */
-  @Expose()
-  tokenVersion: number;
 
   /**
    * Clan Id
    *
    * @example "67fe4e2d8a54d4cc39266a43"
    */
-  @Expose()
   clan_id?: string;
 }

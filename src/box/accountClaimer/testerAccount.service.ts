@@ -101,14 +101,34 @@ export class TesterAccountService {
 
     const clanWithLeastPlayers = await this.clanModel
       .findOneAndUpdate(
-        { _id: { $in: clan_ids } },
+        {
+          _id: { $in: clan_ids },
+          $or: [
+            { boxMemberLimit: { $exists: false } },
+            { boxMemberLimit: null },
+            { $expr: { $lt: ['$playerCount', '$boxMemberLimit'] } },
+          ],
+        },
         { $inc: { playerCount: 1 } },
         {
-          sort: { playerCount: 1 },
+          sort: { playerCount: 1, boxMemberLimit: -1, _id: 1 },
           new: true,
         },
       )
       .exec();
+
+    if (!clanWithLeastPlayers)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.MORE_THAN_MAX,
+            field: 'boxMemberLimit',
+            value: clan_ids,
+            message: 'All Box session clans have reached their member limit',
+          }),
+        ],
+      ];
 
     const leaderRole = clanWithLeastPlayers.roles.find((role) => {
       return role.name === 'leader';

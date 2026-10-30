@@ -2,7 +2,7 @@ import { DailyTasksService } from '../../dailyTasks/dailyTasks.service';
 import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
 
 describe('DailyTasksService.updateClanTask', () => {
-  it('progresses INNER_VOICE by clan without a player reservation', async () => {
+  it('progresses UPDATE_CLAN_MOTTO by clan without a player reservation', async () => {
     const service = new DailyTasksService(
       {} as any,
       {} as any,
@@ -10,13 +10,14 @@ describe('DailyTasksService.updateClanTask', () => {
       {} as any,
       {
         createTaskRandomValues: jest.fn().mockReturnValue({
-          type: ServerTaskName.GO_TO_BATTLE,
+          type: ServerTaskName.PLAY_A_BATTLE,
           amount: 2,
           points: 10,
           coins: 5,
           title: { fi: 'Pelaa 2 taistelua' },
         }),
       } as any,
+      {} as any,
       {} as any,
     );
     const basicService = {
@@ -25,7 +26,7 @@ describe('DailyTasksService.updateClanTask', () => {
           _id: 'task-1',
           clan_id: 'clan-1',
           player_id: null,
-          type: ServerTaskName.INNER_VOICE,
+          type: ServerTaskName.UPDATE_CLAN_MOTTO,
           amount: 1,
           amountLeft: 1,
           points: 10,
@@ -40,7 +41,7 @@ describe('DailyTasksService.updateClanTask', () => {
     const [result, errors] = await service.updateClanTask(
       'clan-1',
       'player-1',
-      ServerTaskName.INNER_VOICE,
+      ServerTaskName.UPDATE_CLAN_MOTTO,
       {} as any,
     );
 
@@ -54,7 +55,7 @@ describe('DailyTasksService.updateClanTask', () => {
     expect(basicService.readOne).toHaveBeenCalledWith({
       filter: {
         clan_id: 'clan-1',
-        type: ServerTaskName.INNER_VOICE,
+        type: ServerTaskName.UPDATE_CLAN_MOTTO,
         amountLeft: { $gt: 0 },
       },
       session: expect.anything(),

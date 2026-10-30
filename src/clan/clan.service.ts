@@ -39,6 +39,7 @@ import { ClientSession } from 'mongoose';
 import { getRoomDefaultItems } from './utils/defaultValues/items';
 import { Environment } from '../common/enum/environment.enum';
 import ClanRoleService from './role/clanRole.service';
+import { clanListFields, ClanListDto } from './dto/clanList.dto';
 
 type CreateWithoutDtoType = Clan & {
   soulHome: SoulHomeDto;
@@ -163,7 +164,8 @@ export class ClanService {
    * Creates a clan without assigning an initial administrator.
    */
   public async createOneWithoutAdmin(
-    clanToCreate: CreateClanDto,
+    clanToCreate: CreateClanDto &
+      Partial<Pick<Clan, 'boxMemberLimit' | 'targetPoints'>>,
     externalSession?: ClientSession,
   ): Promise<IServiceReturn<CreateWithoutDtoType>> {
     const [session, initErrors] = externalSession
@@ -264,6 +266,20 @@ export class ClanService {
       );
     }
     return await this.basicService.readMany<ClanDto>(optionsToApply);
+  }
+
+  /**
+   * Reads clans for the public clan list using a fixed field projection.
+   * A caller-provided projection cannot expand or narrow the public response.
+   */
+  async readClanList(options?: TIServiceReadManyOptions) {
+    const optionsToApply = {
+      ...(options || {}),
+      select: [...clanListFields],
+      includeRefs: [],
+    };
+
+    return await this.basicService.readMany<ClanListDto>(optionsToApply);
   }
 
   async updateOne(

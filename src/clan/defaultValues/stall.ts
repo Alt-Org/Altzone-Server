@@ -20,6 +20,12 @@ export function getDefaultStall(): Stall {
       border: '#000000',
       colour: '#FFFFFF',
       mainFurniture: '',
+      textField: {
+        textString: '',
+        textFont: '',
+        textColour: '#FFFFFF',
+        textPosition: [0, 0, 0, 0],
+      },
     },
     maxSlots: 10,
   };

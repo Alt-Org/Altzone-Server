@@ -46,7 +46,7 @@ describe('CustomCharacterController stronger soldier progress', () => {
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
-      ServerTaskName.STRONGER_SOLDIER,
+      ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
       true,
       { strongerSoldierStep: StrongerSoldierStep.ATTACK_INCREASED },
     );

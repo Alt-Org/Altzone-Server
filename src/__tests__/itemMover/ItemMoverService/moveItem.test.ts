@@ -114,8 +114,8 @@ describe('ItemMoverService.moveItem() test suite', () => {
       expect.arrayContaining([
         expect.objectContaining({
           ...item,
-          room_id: existingRoom._id,
-          stock_id: null,
+          room_id: null,
+          stock_id: existingStock._id,
         }),
       ]),
     );
@@ -165,8 +165,8 @@ describe('ItemMoverService.moveItem() test suite', () => {
       expect.arrayContaining([
         expect.objectContaining({
           ...item,
-          stock_id: existingStock._id,
-          room_id: null,
+          stock_id: null,
+          room_id: existingRoom._id,
         }),
       ]),
     );

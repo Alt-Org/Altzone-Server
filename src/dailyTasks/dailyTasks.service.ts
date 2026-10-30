@@ -32,6 +32,8 @@ import { ChatEmotion } from '../chat/enum/chatEmotion.enum';
 import { ChatResponseType } from '../chat/enum/chatResponseType.enum';
 import { StrongerSoldierStep } from './enum/strongerSoldierStep.enum';
 import ServiceError from '../common/service/basicService/ServiceError';
+import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.service';
+import { TASK_CONSTS } from './consts/taskConstants';
 
 const isChatEmotion = (emotion: unknown): emotion is ChatEmotion =>
   typeof emotion === 'number' && Object.values(ChatEmotion).includes(emotion);
@@ -55,6 +57,7 @@ export class DailyTasksService {
     private readonly taskQueue: DailyTaskQueue,
     private readonly taskGenerator: TaskGeneratorService,
     private readonly progressService: DailyTaskProgressService,
+    private readonly playerRewarder: PlayerRewarder,
   ) {
     this.basicService = new BasicService(model);
     this.modelName = ModelName.DAILY_TASK;
@@ -109,13 +112,14 @@ export class DailyTasksService {
     if (error) throw error;
     if (task.player_id && task.player_id !== playerId)
       return [null, taskReservedError];
+    if (task.player_id === playerId) return [task, null];
 
     const [session, initErrors] = await initializeSession(this.connection);
     if (initErrors) return [null, initErrors];
 
     const [, unreserveError] = await this.unreserveTask(playerId, session);
     if (unreserveError && unreserveError[0].reason !== SEReason.NOT_FOUND)
-      await cancelTransaction(session, unreserveError);
+      return await cancelTransaction(session, unreserveError);
 
     const startedAt = new Date();
     task.player_id = playerId;
@@ -126,14 +130,15 @@ export class DailyTasksService {
       task,
       { session },
     );
-    if (updateError) await cancelTransaction(session, updateError);
+    if (updateError) return await cancelTransaction(session, updateError);
 
-    await endTransaction(session, task);
+    const [reservedTask, endErrors] = await endTransaction(session, task);
+    if (endErrors) return [null, endErrors];
 
-    await this.taskQueue.addDailyTask(task);
-    this.notifier.taskReceived(playerId, task);
+    await this.taskQueue.addDailyTask(reservedTask);
+    this.notifier.taskReceived(playerId, reservedTask);
 
-    return [task, null];
+    return [reservedTask, null];
   }
 
   /**
@@ -144,10 +149,88 @@ export class DailyTasksService {
    * @returns A promise that resolves with the result of the update operation.
    */
   async unreserveTask(playerId: string, session?: ClientSession) {
-    return this.basicService.updateOne(
-      { $unset: { player_id: '', startedAt: '' } },
+    if (session) return this.relinquishActiveTask(playerId, session);
+
+    const [newSession, initErrors] = await initializeSession(this.connection);
+    if (!newSession) return [null, initErrors];
+
+    const [wasUnreserved, unreserveErrors] = await this.relinquishActiveTask(
+      playerId,
+      newSession,
+    );
+    if (unreserveErrors)
+      return await cancelTransaction(newSession, unreserveErrors);
+
+    return await endTransaction(newSession, wasUnreserved);
+  }
+
+  /**
+   * Releases the player's active task back to the pool in a fresh state and
+   * applies one cancellation penalty. The caller owns the transaction.
+   */
+  private async relinquishActiveTask(playerId: string, session: ClientSession) {
+    const [wasUnreserved, unreserveErrors] = await this.basicService.updateOne(
+      [
+        {
+          $set: {
+            player_id: null,
+            startedAt: null,
+            amountLeft: '$amount',
+            progress: {},
+          },
+        },
+      ],
       { filter: { player_id: playerId }, session },
     );
+    if (unreserveErrors) return [null, unreserveErrors] as const;
+
+    const [, deductionErrors] = await this.playerRewarder.deductPlayerPoints(
+      playerId,
+      TASK_CONSTS.POINTS.DAILY_TASK.CANCEL_PENALTY,
+      session,
+    );
+    if (deductionErrors) return [null, deductionErrors] as const;
+
+    return [wasUnreserved, null] as const;
+  }
+
+  /**
+   * Replaces an active player-owned task and applies one cancellation
+   * penalty. This is intentionally separate from deleteTask, which is also
+   * used by task-completion flows and must not charge a penalty.
+   */
+  async relinquishTaskById(taskId: string, clanId: string, playerId: string) {
+    const [session, initErrors] = await initializeSession(this.connection);
+    if (!session) return [null, initErrors];
+
+    const newValues = this.taskGenerator.createTaskRandomValues();
+    const [, replacementErrors] = await this.basicService.updateOne(
+      {
+        $set: {
+          ...newValues,
+          amountLeft: newValues.amount,
+          progress: {},
+          player_id: null,
+          startedAt: null,
+        },
+      },
+      {
+        filter: { _id: taskId, clan_id: clanId, player_id: playerId },
+        session,
+      },
+    );
+    if (replacementErrors)
+      return await cancelTransaction(session, replacementErrors);
+
+    const [, deductionErrors] = await this.playerRewarder.deductPlayerPoints(
+      playerId,
+      TASK_CONSTS.POINTS.DAILY_TASK.CANCEL_PENALTY,
+      session,
+    );
+    if (deductionErrors)
+      return await cancelTransaction(session, deductionErrors);
+
+    return await endTransaction(session, true);
   }
 
   /**
@@ -328,7 +411,7 @@ export class DailyTasksService {
         {
           player_id: playerId,
           clan_id: clanId,
-          type: ServerTaskName.PLAY_WITH_EMOTIONS,
+          type: ServerTaskName.SPECTRUM_OF_EMOTIONS,
           amountLeft: { $gt: 0 },
           $or: [
             { 'progress.key': { $exists: false } },
@@ -377,7 +460,7 @@ export class DailyTasksService {
   }
 
   /**
-   * Advances STRONGER_SOLDIER only when its two events occur in order.
+   * Advances UPGRADE_A_DEFENCE_SOLDIER only when its two events occur in order.
    * The conditional update makes repeated and out-of-order events no-ops.
    */
   async updateStrongerSoldierTask(
@@ -392,7 +475,7 @@ export class DailyTasksService {
       .findOneAndUpdate(
         {
           player_id: playerId,
-          type: ServerTaskName.STRONGER_SOLDIER,
+          type: ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
           amountLeft: expectedAmountLeft,
         },
         { $inc: { amountLeft: -1 } },
@@ -503,9 +586,9 @@ export class DailyTasksService {
     emotion?: ChatEmotion;
     strongerSoldierStep?: StrongerSoldierStep;
   }): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
-    // Validates payload for FORM_AN_INNER_CONNECTION task to ensure clanId, responseType, and emotion are provided and valid
+    // Validates payload for MESSAGE_YOUR_CLAN task to ensure clanId, responseType, and emotion are provided and valid
     if (
-      payload.serverTaskName === ServerTaskName.FORM_AN_INNER_CONNECTION &&
+      payload.serverTaskName === ServerTaskName.MESSAGE_YOUR_CLAN &&
       (!payload.clanId ||
         !isChatResponseType(payload.responseType) ||
         !isChatEmotion(payload.emotion))
@@ -514,7 +597,7 @@ export class DailyTasksService {
     }
 
     if (
-      payload.serverTaskName === ServerTaskName.PLAY_WITH_EMOTIONS &&
+      payload.serverTaskName === ServerTaskName.SPECTRUM_OF_EMOTIONS &&
       (!payload.clanId ||
         !isChatResponseType(payload.responseType) ||
         !isChatEmotion(payload.emotion))
@@ -523,7 +606,7 @@ export class DailyTasksService {
     }
 
     if (
-      payload.serverTaskName === ServerTaskName.STRONGER_SOLDIER &&
+      payload.serverTaskName === ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER &&
       !isStrongerSoldierStep(payload.strongerSoldierStep)
     ) {
       return [null, null];
@@ -535,7 +618,7 @@ export class DailyTasksService {
     let progressResult: DailyTaskProgressResult<DailyTaskDto> | null;
     let updateErrors: ServiceError[] | null;
 
-    if (payload.serverTaskName === ServerTaskName.PLAY_WITH_EMOTIONS) {
+    if (payload.serverTaskName === ServerTaskName.SPECTRUM_OF_EMOTIONS) {
       [progressResult, updateErrors] = await this.updatePlayWithEmotionsTask(
         payload.playerId,
         payload.clanId!,
@@ -543,14 +626,16 @@ export class DailyTasksService {
         payload.emotion,
         session,
       );
-    } else if (payload.serverTaskName === ServerTaskName.STRONGER_SOLDIER) {
+    } else if (
+      payload.serverTaskName === ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER
+    ) {
       [progressResult, updateErrors] = await this.updateStrongerSoldierTask(
         payload.playerId,
         payload.strongerSoldierStep!,
         session,
       );
     } else {
-      // Handles standard tasks including FORM_AN_INNER_CONNECTION via updateTask
+      // Handles standard tasks including MESSAGE_YOUR_CLAN via updateTask
       [progressResult, updateErrors] = await this.updateTask(
         payload.playerId,
         payload.serverTaskName,

@@ -129,7 +129,7 @@ describe('DailyTaskProgressService', () => {
   });
 
   it('should complete a clan task without rewarding or notifying a player', async () => {
-    const result = makeResult('completed', 'inner_voice');
+    const result = makeResult('completed', 'update_clan_motto');
     clanProgression.handleClanProgression.mockResolvedValue([
       { reachedMilestones: [100] },
       null,
@@ -160,7 +160,7 @@ describe('DailyTaskProgressService', () => {
 
   it('should complete player-only task without rewarding or notifying clan', async () => {
     const result = {
-      ...makeResult('completed', 'banish_the_earworm'),
+      ...makeResult('completed', 'change_the_music'),
       needsClanReward: false,
     };
 

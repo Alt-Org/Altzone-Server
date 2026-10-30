@@ -72,7 +72,7 @@ describe('ChatGateway user initialization', () => {
     );
   });
 
-  it('checks both clan-chat daily tasks after a message is handled successfully', async () => {
+  it('checks all clan-chat daily tasks after a message is handled successfully', async () => {
     const client = createClient();
     client.user = { playerId: 'player-id', clanId: 'clan-id' } as any;
     clanChatService.handleNewClanMessage.mockResolvedValue([
@@ -95,7 +95,7 @@ describe('ChatGateway user initialization', () => {
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenNthCalledWith(
       1,
       'player-id',
-      ServerTaskName.FORM_AN_INNER_CONNECTION,
+      ServerTaskName.MESSAGE_YOUR_CLAN,
       true,
       {
         clanId: 'clan-id',
@@ -106,7 +106,18 @@ describe('ChatGateway user initialization', () => {
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenNthCalledWith(
       2,
       'player-id',
-      ServerTaskName.PLAY_WITH_EMOTIONS,
+      ServerTaskName.SPECTRUM_OF_EMOTIONS,
+      true,
+      {
+        clanId: 'clan-id',
+        responseType: ChatResponseType.YES,
+        emotion: ChatEmotion.JOY,
+      },
+    );
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenNthCalledWith(
+      3,
+      'player-id',
+      ServerTaskName.START_A_VOTE,
       true,
       {
         clanId: 'clan-id',

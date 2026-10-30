@@ -44,6 +44,12 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
         border: '#000000',
         colour: '#FFFFFF',
         mainFurniture: 'default_furniture',
+        textField: {
+          textString: '',
+          textFont: '',
+          textColour: '#FFFFFF',
+          textPosition: [0, 0, 0, 0],
+        },
       },
       maxSlots: 7,
     },
@@ -89,6 +95,16 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
 
   setPoints(points: number) {
     this.base.points = points;
+    return this;
+  }
+
+  setBoxMemberLimit(boxMemberLimit: number) {
+    this.base.boxMemberLimit = boxMemberLimit;
+    return this;
+  }
+
+  setTargetPoints(targetPoints: number) {
+    this.base.targetPoints = targetPoints;
     return this;
   }
 

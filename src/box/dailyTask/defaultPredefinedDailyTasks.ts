@@ -7,7 +7,7 @@ import { TASK_CONSTS } from '../../dailyTasks/consts/taskConstants';
  */
 export const defaultPredefinedDailyTasks: CreatePredefinedDailyTaskDto[] = [
   {
-    type: ServerTaskName.GO_TO_BATTLE,
+    type: ServerTaskName.PLAY_A_BATTLE,
     title: 'Pelaa otteluita',
     amount: 5,
     points: TASK_CONSTS.POINTS.DAILY_TASK.SMALL,

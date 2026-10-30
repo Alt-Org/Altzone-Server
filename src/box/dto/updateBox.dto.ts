@@ -128,7 +128,10 @@ export class UpdateBoxDto {
   accountClaimersIds?: string[];
 
   /**
-   * Updated daily tasks
+   * Legacy predefined daily tasks.
+   *
+   * @deprecated Testing sessions always use the complete server and UI task
+   * catalogs. Updating this field does not change the session task pool.
    */
   @IsOptional()
   @IsArray()

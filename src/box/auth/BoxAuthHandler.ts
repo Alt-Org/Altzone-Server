@@ -4,13 +4,15 @@ import { BoxUser } from './BoxUser';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import { InjectModel } from '@nestjs/mongoose';
 import { Box } from '../schemas/box.schema';
-import { Model } from 'mongoose';
+import { Model, MongooseError } from 'mongoose';
 import { GroupAdmin } from '../groupAdmin/groupAdmin.schema';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { ProfileService } from '../../profile/profile.service';
 import BoxAuthService from '../../auth/box/BoxAuthService';
 import { TokensDto } from '../../auth/dto/tokens.dto';
+import { ObjectId } from 'mongodb';
+import { randomUUID } from 'node:crypto';
 
 type AuthTokenPayload = {
   profile_id: string;
@@ -43,15 +45,42 @@ export default class BoxAuthHandler {
       );
     if (profileErrors) return [null, profileErrors];
 
+    const _id = new ObjectId();
+    const session_id = randomUUID();
+
     const payload = {
+      token_id: _id.toString(),
+      session_id,
       profile_id: authPayload.profile_id,
       player_id: authPayload.player_id,
       box_id: authPayload.box_id,
       groupAdmin: true,
-      tokenVersion: profile.tokenVersion ?? 0,
     };
 
-    return [await this.boxAuthService.createTokens(payload), null];
+    const tokens = await this.boxAuthService.createTokens(payload);
+
+    const sessionPayload = {
+      _id,
+      session_id,
+      profile_id: profile._id.toString(),
+      refreshToken: tokens.refreshToken,
+      refreshTokenExpires: tokens.refreshTokenExpires,
+    };
+
+    const sessionResp = await this.boxAuthService.createSession(sessionPayload);
+
+    if (sessionResp instanceof MongooseError || !sessionResp)
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.UNEXPECTED,
+            message: 'Token Session creation failed',
+          }),
+        ],
+      ];
+
+    return [tokens, null];
   }
 
   /**

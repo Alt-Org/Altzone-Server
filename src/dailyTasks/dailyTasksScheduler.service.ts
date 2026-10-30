@@ -9,11 +9,10 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import UIDailyTasksService from './uiDailyTasks/uiDailyTasks.service';
 import { DailyTasksService } from './dailyTasks.service';
 import DailyTasksResetNotifier from './dailyTaskReset.notifier';
+import isTestingSession from '../box/util/isTestingSession';
 
 @Injectable()
 export class DailyTasksScheduler {
-  private readonly clanService: BasicService;
-  private readonly playerService: BasicService;
   private readonly dailyTasksBasicService: BasicService;
 
   constructor(
@@ -28,8 +27,6 @@ export class DailyTasksScheduler {
     private readonly dailyTasksService: DailyTasksService,
     private readonly dailyTasksResetNotifier: DailyTasksResetNotifier,
   ) {
-    this.clanService = new BasicService(clanModel);
-    this.playerService = new BasicService(playerModel);
     this.dailyTasksBasicService = new BasicService(dailyTaskModel);
   }
 
@@ -43,11 +40,12 @@ export class DailyTasksScheduler {
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async resetDailyTasks() {
     const session = await this.connection.startSession();
+    const preserveBoxSessionData = isTestingSession();
+    const resetFilter = preserveBoxSessionData ? { box_id: null } : {};
 
     try {
       await session.withTransaction(async () => {
-        const [clans, clansErrors] = await this.clanService.readMany();
-        if (clansErrors) throw new Error('Failed to get clans');
+        const clans = await this.clanModel.find(resetFilter, null, { session });
 
         const newTasks = [];
 
@@ -63,34 +61,32 @@ export class DailyTasksScheduler {
           newTasks.push(...uiTasks, ...tasks);
         }
 
-        if (newTasks.length <= 0) {
-          throw new Error('Failed to create tasks');
+        await this.dailyTaskModel.deleteMany(resetFilter, { session });
+
+        if (newTasks.length > 0) {
+          const [, taskCreateErrors] =
+            await this.dailyTasksBasicService.createMany(newTasks, { session });
+          if (taskCreateErrors) throw new Error('Failed to add tasks');
         }
 
-        const [, taskDeleteErrors] =
-          await this.dailyTasksBasicService.deleteMany({ filter: {} });
-        if (taskDeleteErrors) throw new Error('Failed to delete tasks');
-
-        const [, taskCreateErrors] =
-          await this.dailyTasksBasicService.createMany(newTasks);
-        if (taskCreateErrors) throw new Error('Failed to add tasks');
-
-        const [, clansUpdateErrors] = await this.clanService.updateMany(
-          [{ $set: { points: 0, unlockedMilestones: [] } }],
-          { filter: {} },
+        await this.clanModel.updateMany(
+          resetFilter,
+          { $set: { points: 0, unlockedMilestones: [] } },
+          { session },
         );
-        if (clansUpdateErrors) throw new Error('Failed to update clans');
-
-        const [, playersUpdateErrors] = await this.playerService.updateMany(
-          [{ $set: { points: 0, claimableRewards: [] } }],
-          { filter: {} },
+        await this.playerModel.updateMany(
+          resetFilter,
+          { $set: { points: 0, claimableRewards: [] } },
+          { session },
         );
-        if (playersUpdateErrors) throw new Error('Failed to update players');
       });
 
-      this.dailyTasksResetNotifier.dailyTasksReset();
+      if (!preserveBoxSessionData)
+        this.dailyTasksResetNotifier.dailyTasksReset();
     } catch (error) {
       console.error('Daily task reset failed', error);
+    } finally {
+      await session.endSession();
     }
   }
 }

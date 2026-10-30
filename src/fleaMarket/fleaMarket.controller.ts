@@ -153,7 +153,7 @@ export class FleaMarketController {
     if (sellItemResult === SellItemResult.VOTING_STARTED) {
       await this.emitterService.EmitNewDailyTaskEvent(
         user.player_id,
-        ServerTaskName.LETTING_GO_OF_THE_OLD,
+        ServerTaskName.PROPOSE_AN_ITEM_SALE,
       );
     }
   }
@@ -281,7 +281,7 @@ export class FleaMarketController {
     ) {
       await this.emitterService.EmitNewDailyTaskEvent(
         user.player_id,
-        ServerTaskName.RECYCLING_EXPERIENCES,
+        ServerTaskName.LIST_AN_ITEM_FOR_SALE,
       );
     }
   }

@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, MongooseError } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model, MongooseError } from 'mongoose';
 import { ObjectId } from 'mongodb';
+import { randomUUID } from 'node:crypto';
 import { AuthService } from '../auth.service';
 import { Box } from '../../box/schemas/box.schema';
 import { GroupAdmin } from '../../box/groupAdmin/groupAdmin.schema';
 import { Player } from '../../player/schemas/player.schema';
 import { Clan } from '../../clan/clan.schema';
 import { Profile } from '../../profile/profile.schema';
+import { Session } from '../session.schema';
 
 @Injectable()
 export default class BoxAuthService extends AuthService {
@@ -18,10 +20,12 @@ export default class BoxAuthService extends AuthService {
     @InjectModel(Player.name) public readonly playerModel: Model<Player>,
     @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
     @InjectModel(Box.name) public readonly boxModel: Model<Box>,
+    @InjectModel(Session.name) public readonly sessionModel: Model<Session>,
     @InjectModel(GroupAdmin.name)
     public readonly groupAdminModel: Model<GroupAdmin>,
+    @InjectConnection() connection: Connection,
   ) {
-    super(jwt, profileModel, playerModel, clanModel);
+    super(jwt, profileModel, playerModel, clanModel, sessionModel, connection);
   }
 
   /**
@@ -84,17 +88,33 @@ export default class BoxAuthService extends AuthService {
       groupAdmin = true;
     }
 
+    const _id = new ObjectId();
+    const session_id = randomUUID();
+
     const payload = {
+      token_id: _id.toString(),
+      session_id,
       profile_id: profile._id,
       player_id: player?._id,
       box_id,
       groupAdmin,
-      tokenVersion: profile.tokenVersion ?? 0,
     };
 
     // has the player set the security question?
     const hasSecurityQuestion = !!profile.securityQuestion;
     const tokens = await this.createTokens(payload);
+
+    const sessionPayload = {
+      _id,
+      session_id,
+      profile_id: profileResp._id,
+      refreshToken: tokens.refreshToken,
+      refreshTokenExpires: tokens.refreshTokenExpires,
+    };
+
+    const sessionResp = await this.createSession(sessionPayload);
+
+    if (sessionResp instanceof MongooseError || !sessionResp) return null;
 
     profile['Player'] = player;
 

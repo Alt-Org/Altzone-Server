@@ -7,6 +7,12 @@ export default class StallBuilder implements IDataBuilder<Stall> {
       border: 'defaultBorder',
       colour: 'defaultColour',
       mainFurniture: 'defaultFurniture',
+      textField: {
+        textString: 'defaultAdTitle',
+        textFont: 'defaultFont',
+        textColour: 'defaultColour',
+        textPosition: [0, 0, 0, 0],
+      },
     },
     maxSlots: 7,
   };
