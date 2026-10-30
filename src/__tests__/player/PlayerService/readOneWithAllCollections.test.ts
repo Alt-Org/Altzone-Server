@@ -11,8 +11,6 @@ import { Player } from '../../../player/schemas/player.schema';
 describe('PlayerService.readOneWithAllCollections() test suite', () => {
   let playerService: PlayerService;
   const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
-  const updatePlayerBuilder =
-    PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
   const playerModel = PlayerModule.getPlayerModel();
   let existingPlayer: Player;
 
@@ -31,10 +29,10 @@ describe('PlayerService.readOneWithAllCollections() test suite', () => {
     const clanResp = await clanModel.create(clanToCreate);
     existingClan = clanResp.toObject();
 
-    const playerUpdate = updatePlayerBuilder
-      .setClanId(existingClan._id)
-      .build();
-    await playerModel.updateOne({ _id: existingPlayer._id }, playerUpdate);
+    await playerModel.updateOne(
+      { _id: existingPlayer._id },
+      { clan_id: existingClan._id },
+    );
   });
 
   it('Should retrieve player with all collections populated', async () => {

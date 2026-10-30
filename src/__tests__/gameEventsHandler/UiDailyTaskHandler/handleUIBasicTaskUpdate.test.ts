@@ -6,7 +6,6 @@ import UiDailyTaskHandler from '../../../gameEventsHandler/dailyTask/uiDailyTask
 import DailyTaskBuilderFactory from '../../dailyTasks/data/dailyTaskBuilderFactory';
 import DailyTasksModule from '../../dailyTasks/modules/dailyTasks.module';
 import GameEventsHandlerModule from '../modules/gameEventsHandler.module';
-import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import GameEventsEmitterBuilderFactory from '../../gameEventsEmitter/data/gameEventsEmitterBuilderFactory';
 import GameEventBuilder from '../../gameEventsEmitter/data/gameEventsEmitter/GameEventBuilder';
 import { UITaskName } from '../../../dailyTasks/enum/uiTaskName.enum';
@@ -23,7 +22,6 @@ describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
   const clanModel = ClanModule.getClanModel();
   const existingClan = clanBuilder.setName('clan1').build();
 
-  const playerBuilder = PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
   const loggedPlayer = LoggedUser.getPlayer();
   const playerModel = PlayerModule.getPlayerModel();
 
@@ -38,8 +36,9 @@ describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
     const clanResp = await clanModel.create(existingClan);
     existingClan._id = clanResp._id;
 
-    const playerUpdate = playerBuilder.setClanId(existingClan._id).build();
-    await playerModel.findByIdAndUpdate(loggedPlayer._id, playerUpdate);
+    await playerModel.findByIdAndUpdate(loggedPlayer._id, {
+      clan_id: existingClan._id,
+    });
     loggedPlayer.clan_id = existingClan._id;
   });
 

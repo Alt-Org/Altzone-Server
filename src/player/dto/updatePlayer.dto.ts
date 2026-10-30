@@ -8,7 +8,6 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { IsClanExists } from '../../clan/decorator/validation/IsClanExists.decorator';
 import { IsPlayerExists } from '../decorator/validation/IsPlayerExists.decorator';
 import AddType from '../../common/base/decorator/AddType.decorator';
 import { Type } from 'class-transformer';
@@ -93,26 +92,6 @@ export class UpdatePlayerDto {
   @IsOptional()
   @IsInt()
   currentAvatarId?: number;
-
-  /**
-   * New clan assignment
-   *
-   * @example "60f7c2d9a2d3c7b7e56d01ab"
-   */
-  @IsClanExists()
-  @IsMongoId()
-  @IsOptional()
-  clan_id?: string;
-
-  /**
-   * Clan ID to remove from player
-   *
-   * @example "60f7c2d9a2d3c7b7e56d01ab"
-   */
-  @IsClanExists()
-  @IsMongoId()
-  @IsOptional()
-  clan_idToDelete?: string;
 
   /**
    * Update avatar configuration

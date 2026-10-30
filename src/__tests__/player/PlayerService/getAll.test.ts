@@ -13,8 +13,6 @@ import { PlayerObject } from 'src/common/type/playerObject.type';
 describe('PlayerService.getAll() test suite', () => {
   let playerService: PlayerService;
   const playerBuilder = PlayerBuilderFactory.getBuilder('CreatePlayerDto');
-  const updatePlayerBuilder =
-    PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
   const playerModel = PlayerModule.getPlayerModel();
   const playerName1 = 'player1';
   const playerName2 = 'player2';
@@ -46,14 +44,11 @@ describe('PlayerService.getAll() test suite', () => {
     const clanResp = await clanModel.create(clanToCreate);
     existingClan = clanResp.toObject();
 
-    const playerUpdate = updatePlayerBuilder
-      .setClanId(existingClan._id)
-      .build();
     await playerModel.updateMany(
       {
         $or: [{ name: playerName1 }, { name: playerName2 }],
       },
-      playerUpdate,
+      { clan_id: existingClan._id },
     );
 
     player1.clan_id = existingClan._id;
