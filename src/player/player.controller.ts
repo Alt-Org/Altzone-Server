@@ -8,6 +8,8 @@ import {
   Post,
   Put,
   BadRequestException,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { PlayerService } from './player.service';
 import { CreatePlayerDto } from './dto/createPlayer.dto';
@@ -31,6 +33,7 @@ import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { publicReferences } from './schemas/player.schema';
 import { IncludeQuery } from '../common/decorator/param/IncludeQuery.decorator';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
+import { apiValidationExceptionFactory } from '../common/exceptionFilter/ValidationExceptionFilter';
 
 @Controller('player')
 export default class PlayerController {
@@ -166,6 +169,14 @@ export default class PlayerController {
   })
   @Put()
   @HttpCode(204)
+  @UsePipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      exceptionFactory: apiValidationExceptionFactory,
+    }),
+  )
   @Authorize({ action: Action.update, subject: UpdatePlayerDto })
   @UniformResponse()
   public async update(@Body() body: UpdatePlayerDto) {
