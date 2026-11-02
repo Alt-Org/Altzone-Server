@@ -7,7 +7,16 @@ import { BattleStatus } from './enum/battleStatus.enum';
 
 export type GameDocument = HydratedDocument<Game>;
 
-@Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
+@Schema({
+  toJSON: {
+    virtuals: true,
+    transform: (_document, result) => {
+      delete (result as Record<string, unknown>).isRewarded;
+      return result;
+    },
+  },
+  toObject: { virtuals: true },
+})
 export class Game {
   @Prop({
     type: [MongooseSchema.Types.ObjectId],
@@ -42,6 +51,10 @@ export class Game {
 
   @Prop({ type: String, enum: BattleStatus, default: BattleStatus.OPEN })
   status: BattleStatus;
+
+  /** Internal reward-processing state. This field must never be client-controlled. */
+  @Prop({ type: Boolean, default: false, select: false })
+  isRewarded: boolean;
 
   @Prop({
     type: [
