@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Game } from './game.schema';
-import { Model, Types } from 'mongoose';
+import { ClientSession, Connection, Model, Types } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { CreateGameDto } from './dto/createGame.dto';
 import { PlayerService } from '../player/player.service';
@@ -33,6 +33,7 @@ export class GameDataService {
     public readonly roomService: RoomService,
     private readonly gameEventsBroker: GameEventsHandler,
     private readonly jwtService: JwtService,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     this.basicService = new BasicService(model);
     this.refsInModel = [ModelName.STOCK];
@@ -492,6 +493,10 @@ export class GameDataService {
     );
 
     if (battle.status === BattleStatus.COMPLETED) {
+      // Safe retry point when an earlier reward transaction failed after the
+      // battle itself had already been marked completed.
+      await this.rewardCompletedBattle(battle);
+
       return await this.generateCompletedBattleResponse(
         battle,
         user,
@@ -680,17 +685,54 @@ export class GameDataService {
    * completion path follows the same rules. These side effects include player
    * and clan battle points, Raid Tokens, and battle-based daily task progress.
    *
-   * Idempotency and transaction handling are added separately. Until they are
-   * in place, this method must only be called when a battle first transitions
-   * to COMPLETED.
+   * The conditional update is both the reward claim and the idempotency guard.
+   * `$ne: true` intentionally includes legacy battle documents that predate
+   * the isRewarded field. The claim and all database reward updates run in the
+   * same transaction, so a failed reward rolls the claim back as well.
    *
    * @param battle - The validated completed Battle document with finalWinner set.
+   * @returns true when this call claimed and processed the rewards, otherwise false.
    */
-  private async rewardCompletedBattle(battle: GameDocument): Promise<void> {
+  private async rewardCompletedBattle(battle: GameDocument): Promise<boolean> {
+    return this.connection.transaction(async (session) => {
+      const claimedBattle = await this.model
+        .findOneAndUpdate(
+          {
+            _id: battle._id,
+            status: BattleStatus.COMPLETED,
+            finalWinner: { $in: [1, 2] },
+            isRewarded: { $ne: true },
+          },
+          { $set: { isRewarded: true } },
+          { new: true, session },
+        )
+        .select('+isRewarded')
+        .exec();
+
+      // A missing match means the battle is incomplete, invalid, or already
+      // rewarded. All cases are intentional no-ops for this private operation.
+      if (!claimedBattle) return false;
+
+      await this.applyCompletedBattleRewards(claimedBattle, session);
+
+      return true;
+    });
+  }
+
+  /**
+   * Applies database-backed battle rewards using the reward claim's session.
+   * External notifications must be dispatched only after the transaction has
+   * committed and therefore do not belong in this method.
+   */
+  private async applyCompletedBattleRewards(
+    battle: GameDocument,
+    _session: ClientSession,
+  ): Promise<void> {
     const winners =
       (battle.finalWinner === 1 ? battle.team1 : battle.team2) || [];
 
-    // Raid Token distribution will be implemented through this entry point.
+    // Player, clan, daily task, and Raid Token database updates will be added
+    // here and must use _session.
     void winners;
   }
 
@@ -715,7 +757,12 @@ export class GameDataService {
    */
   private async resolveConflict(_id: string) {
     const battle = await this.model.findOne({ _id });
-    if (!battle || battle.status === BattleStatus.COMPLETED) return;
+    if (!battle) return;
+
+    if (battle.status === BattleStatus.COMPLETED) {
+      await this.rewardCompletedBattle(battle);
+      return;
+    }
 
     const results = battle.receivedResults;
     const team1Votes = results.filter((r) => r.winnerTeam === 1).length;
