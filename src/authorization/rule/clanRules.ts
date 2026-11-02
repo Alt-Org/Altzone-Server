@@ -60,7 +60,7 @@ export const clanRules: RulesSetterAsync<Ability, Subjects> = async (
 
     const isAdmin = isClanAdmin(clan, user.player_id);
     if (!isAdmin)
-      throw new NotFoundException('The logged-in user is not clan admin');
+      throw new ForbiddenException('The logged-in user is not clan admin');
 
     can(Action.update_request, subject);
     can(Action.delete_request, subject);
