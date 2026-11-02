@@ -9,6 +9,7 @@ import { User } from '../../auth/user';
 import { AuthorizationInterceptor } from '../../authorization/authorization.interceptor';
 import { Action } from '../../authorization/enum/action.enum';
 import { APIErrorReason } from '../../common/controller/APIErrorReason';
+import { AbilityBuilder, createMongoAbility } from '@casl/ability';
 
 describe('AuthorizationInterceptor - _id validation', () => {
   class TestDto {
@@ -157,6 +158,25 @@ describe('AuthorizationInterceptor - _id validation', () => {
       Action.update,
       body,
     );
+  });
+
+  it('continues to the endpoint for a valid authorized update', async () => {
+    reflector.get.mockReturnValue({
+      action: Action.update,
+      subject: TestDto,
+    });
+    const { can, build } = new AbilityBuilder(createMongoAbility);
+    can(Action.update_request, TestDto);
+    caslAbilityFactory.createForUser.mockResolvedValueOnce(build());
+
+    await interceptor.intercept(
+      createContext(undefined, new User('profile-id', 'player-id'), {
+        _id: validId,
+      }),
+      callHandler,
+    );
+
+    expect(callHandler.handle).toHaveBeenCalledTimes(1);
   });
 
   it('validates additional update body ID fields from metadata', async () => {
