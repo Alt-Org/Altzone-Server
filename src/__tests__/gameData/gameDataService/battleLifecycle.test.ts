@@ -245,6 +245,46 @@ describe('GameDataService battle lifecycle test suite', () => {
     expect(battleAfterRetry?.isRewarded).toBe(true);
   });
 
+  it('Should dispatch external reward notifications only after commit', async () => {
+    const matchId = new Types.ObjectId().toHexString();
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+    await gameDataModel.create({
+      _id: matchId,
+      gameType: GameType.CASUAL,
+      team1: [team1PlayerId],
+      team2: [team2PlayerId],
+      status: BattleStatus.COMPLETED,
+      finalWinner: 1,
+      receivedResults: [],
+    });
+
+    const battle = await gameDataModel.findById(matchId);
+    const notificationSpy = jest
+      .spyOn(
+        gameDataService as any,
+        'dispatchCompletedBattleRewardNotifications',
+      )
+      .mockImplementation(async () => {
+        const committedBattle = await gameDataModel
+          .findById(matchId)
+          .select('+isRewarded');
+        expect(committedBattle?.isRewarded).toBe(true);
+      });
+
+    const firstResult = await (gameDataService as any).rewardCompletedBattle(
+      battle,
+    );
+    const repeatedResult = await (gameDataService as any).rewardCompletedBattle(
+      battle,
+    );
+
+    expect(firstResult).toBe(true);
+    expect(repeatedResult).toBe(false);
+    expect(notificationSpy).toHaveBeenCalledTimes(1);
+    notificationSpy.mockRestore();
+  });
+
   it('Should submit a battle result by finding the battle with matchId as _id', async () => {
     const matchId = new Types.ObjectId().toHexString();
     const team1PlayerId = new Types.ObjectId().toHexString();
