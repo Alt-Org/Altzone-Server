@@ -13,8 +13,7 @@ export class ValidateUpdateMongoIdMiddleware implements NestMiddleware {
       : [request.body];
 
     for (const updateItem of updateItems) {
-      if (updateItem?._id !== undefined)
-        validateMongoId('_id', updateItem._id);
+      if (updateItem?._id !== undefined) validateMongoId('_id', updateItem._id);
     }
 
     next();
