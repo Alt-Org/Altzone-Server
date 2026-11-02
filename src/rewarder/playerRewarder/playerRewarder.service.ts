@@ -45,11 +45,7 @@ export class PlayerRewarder {
         ],
       ];
 
-    return this.updatePlayerBattlePoints(
-      player_id,
-      battlePointAmount,
-      session,
-    );
+    return this.updatePlayerBattlePoints(player_id, battlePointAmount, session);
   }
 
   /**

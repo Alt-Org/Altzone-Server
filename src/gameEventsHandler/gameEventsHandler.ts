@@ -48,10 +48,7 @@ export class GameEventsHandler {
    * @param player_id id of the player
    * @returns
    */
-  private async handleWinBattle(
-    player_id: string,
-    session?: ClientSession,
-  ) {
+  private async handleWinBattle(player_id: string, session?: ClientSession) {
     const [, rewardErrors] = await this.handleBattleRewards(
       player_id,
       GameEventType.PLAYER_WIN_BATTLE,
@@ -64,10 +61,7 @@ export class GameEventsHandler {
     return [true, null];
   }
 
-  private async handleLoseBattle(
-    player_id: string,
-    session?: ClientSession,
-  ) {
+  private async handleLoseBattle(player_id: string, session?: ClientSession) {
     const [, rewardErrors] = await this.handleBattleRewards(
       player_id,
       GameEventType.PLAYER_LOSE_BATTLE,
@@ -106,11 +100,7 @@ export class GameEventsHandler {
     );
     if (playerErrors) return [null, playerErrors];
 
-    return this.clanEventHandler.handleClanEvent(
-      player_id,
-      clanEvent,
-      session,
-    );
+    return this.clanEventHandler.handleClanEvent(player_id, clanEvent, session);
   }
 
   private async handleStartVoting(player_id: string) {

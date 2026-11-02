@@ -735,9 +735,7 @@ export class GameDataService {
       GameEventType.PLAYER_LOSE_BATTLE;
     const rewardEvents: {
       playerId: string;
-      event:
-        | GameEventType.PLAYER_WIN_BATTLE
-        | GameEventType.PLAYER_LOSE_BATTLE;
+      event: GameEventType.PLAYER_WIN_BATTLE | GameEventType.PLAYER_LOSE_BATTLE;
     }[] = [
       ...battle.team1.map((playerId) => ({
         playerId: playerId.toString(),

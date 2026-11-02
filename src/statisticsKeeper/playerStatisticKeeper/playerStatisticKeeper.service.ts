@@ -23,9 +23,13 @@ export class PlayerStatisticService {
   ): Promise<[boolean, ServiceError[] | MongooseError]> {
     switch (playerEvent) {
       case PlayerEvent.BATTLE_WON:
-        return this.playerService.updatePlayerById(player_id, {
-          $inc: { 'gameStatistics.wonBattles': 1 },
-        }, session);
+        return this.playerService.updatePlayerById(
+          player_id,
+          {
+            $inc: { 'gameStatistics.wonBattles': 1 },
+          },
+          session,
+        );
 
       default:
         return [
