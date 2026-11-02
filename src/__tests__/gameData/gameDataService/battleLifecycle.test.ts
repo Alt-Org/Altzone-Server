@@ -67,6 +67,57 @@ describe('GameDataService battle lifecycle test suite', () => {
     expect(battleInDb?.status).toBe(BattleStatus.OPEN);
   });
 
+  it('Should initialize isRewarded to false and keep it out of normal responses', async () => {
+    const matchId = new Types.ObjectId().toHexString();
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+
+    const battle = await gameDataService.registerBattle(
+      {
+        gameType: GameType.CASUAL,
+        team1: [team1PlayerId],
+        team2: [team2PlayerId],
+        matchId,
+      },
+      team1PlayerId,
+    );
+
+    expect(battle).not.toBeInstanceOf(ServiceError);
+    expect((battle as any).isRewarded).toBe(false);
+    expect((battle as any).toJSON()).not.toHaveProperty('isRewarded');
+
+    const normallySelectedBattle = await gameDataModel.findById(matchId);
+    const internallySelectedBattle = await gameDataModel
+      .findById(matchId)
+      .select('+isRewarded');
+
+    expect(normallySelectedBattle?.isRewarded).toBeUndefined();
+    expect(internallySelectedBattle?.isRewarded).toBe(false);
+  });
+
+  it('Should ignore a client-provided isRewarded value when registering a battle', async () => {
+    const matchId = new Types.ObjectId().toHexString();
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+
+    await gameDataService.registerBattle(
+      {
+        gameType: GameType.CASUAL,
+        team1: [team1PlayerId],
+        team2: [team2PlayerId],
+        matchId,
+        isRewarded: true,
+      } as any,
+      team1PlayerId,
+    );
+
+    const battleInDb = await gameDataModel
+      .findById(matchId)
+      .select('+isRewarded');
+
+    expect(battleInDb?.isRewarded).toBe(false);
+  });
+
   it('Should submit a battle result by finding the battle with matchId as _id', async () => {
     const matchId = new Types.ObjectId().toHexString();
     const team1PlayerId = new Types.ObjectId().toHexString();
