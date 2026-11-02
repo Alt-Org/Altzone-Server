@@ -10,6 +10,7 @@ import { RulesSetterAsync } from '../type/RulesSetter.type';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { isClanAdmin } from '../util/isClanAdmin';
+import { ClanDto } from '../../clan/dto/clan.dto';
 
 type Subjects = InferSubjects<any>;
 type Ability = MongoAbility<[AllowedAction | Action.manage, Subjects | 'all']>;
@@ -48,9 +49,11 @@ export const clanRules: RulesSetterAsync<Ability, Subjects> = async (
   }
 
   if (action === Action.update || action === Action.delete) {
-    const clan = await connection
-      .model(ModelName.CLAN)
-      .findById(subjectObj._id);
+    const clan = await requestHelperService.getModelInstanceById(
+      ModelName.CLAN,
+      subjectObj._id,
+      ClanDto,
+    );
 
     if (!clan)
       throw new NotFoundException('The clan with that _id is not found');
