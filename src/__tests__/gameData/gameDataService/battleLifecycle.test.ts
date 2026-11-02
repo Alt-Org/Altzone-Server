@@ -138,6 +138,10 @@ describe('GameDataService battle lifecycle test suite', () => {
     const signAsyncSpy = jest
       .spyOn(JwtService.prototype, 'signAsync')
       .mockResolvedValue('steal-token');
+    const rewardCompletedBattleSpy = jest.spyOn(
+      gameDataService as any,
+      'rewardCompletedBattle',
+    );
 
     await gameDataService.registerBattle(
       {
@@ -182,6 +186,10 @@ describe('GameDataService battle lifecycle test suite', () => {
       BattleStatus.COMPLETED,
     );
     expect((completedResult as any).battleDocument.finalWinner).toBe(1);
+    expect(rewardCompletedBattleSpy).toHaveBeenCalledTimes(1);
+    expect(
+      (rewardCompletedBattleSpy.mock.calls[0][0] as any)._id.toString(),
+    ).toBe(matchId);
     expect(signAsyncSpy).toHaveBeenNthCalledWith(
       1,
       {
@@ -412,6 +420,10 @@ describe('GameDataService battle lifecycle test suite', () => {
     };
 
     await gameDataModel.create(battle);
+    const rewardCompletedBattleSpy = jest.spyOn(
+      gameDataService as any,
+      'rewardCompletedBattle',
+    );
     await (
       gameDataService as unknown as {
         resolveConflict: (_id: string) => Promise<void>;
@@ -422,6 +434,10 @@ describe('GameDataService battle lifecycle test suite', () => {
 
     expect(battleInDb?.status).toBe(BattleStatus.COMPLETED);
     expect(battleInDb?.finalWinner).toBe(1);
+    expect(rewardCompletedBattleSpy).toHaveBeenCalledTimes(1);
+    expect(
+      (rewardCompletedBattleSpy.mock.calls[0][0] as any)._id.toString(),
+    ).toBe(matchId);
   });
 
   it('Should not register a matchmaking battle through battle start', async () => {
