@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   CallHandler,
   ExecutionContext,
   ForbiddenException,
@@ -9,7 +8,6 @@ import {
   UnauthorizedException,
   UseInterceptors,
 } from '@nestjs/common';
-import { isMongoId } from 'class-validator';
 import { Observable } from 'rxjs';
 import { Action } from './enum/action.enum';
 import { AllowedSubject, CASLAbilityFactory } from './caslAbility.factory';
@@ -25,6 +23,7 @@ import { MongoAbility } from '@casl/ability';
 import { IResponseShape } from '../common/interface/IResponseShape';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
+import { validateMongoId } from '../common/function/validateMongoId';
 
 export type PermissionMetaData = {
   action: SupportedAction;
@@ -93,19 +92,19 @@ export class AuthorizationInterceptor implements NestInterceptor {
     const isReadOrDelete = action === Action.read || action === Action.delete;
     const requestId = request.params?._id;
 
-    if (isReadOrDelete && requestId !== undefined && !isMongoId(requestId))
-      throw new BadRequestException({
-        statusCode: 400,
-        error: 'Bad Request',
-        errors: [
-          new APIError({
-            reason: APIErrorReason.VALIDATION,
-            message: '_id must be a MongoDB ObjectId',
-            field: '_id',
-            value: requestId,
-          }),
-        ],
-      });
+    if (isReadOrDelete && requestId !== undefined)
+      validateMongoId('_id', requestId);
+
+    if (action === Action.update) {
+      const updateItems = Array.isArray(request.body)
+        ? request.body
+        : [request.body];
+
+      for (const updateItem of updateItems) {
+        if (updateItem?._id !== undefined)
+          validateMongoId('_id', updateItem._id);
+      }
+    }
 
     const requestAction = Action[action + '_request'];
     const responseAction = Action[action + '_response'];
