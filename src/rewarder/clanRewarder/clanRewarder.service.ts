@@ -8,7 +8,6 @@ import BasicService from '../../common/service/basicService/BasicService';
 import { InjectModel } from '@nestjs/mongoose';
 import { Clan } from '../../clan/clan.schema';
 import { ClientSession, Model } from 'mongoose';
-import { ClanDto } from '../../clan/dto/clan.dto';
 import { PlayerDto } from '../../player/dto/player.dto';
 import { Player } from '../../player/schemas/player.schema';
 
@@ -76,23 +75,18 @@ export class ClanRewarder {
         ],
       ];
 
-    const [clanToUpdate, errors] = await this.clanService.readOneById(clan_id, {
-      session,
-    });
-
-    if (errors) return [null, errors];
-
-    const { points: clanPoints, gameCoins } = clanToUpdate;
-    const newPoints = Math.min(this.clanMaxPoints, clanPoints + points);
-
     return this.clanService.findByIdAndUpdate<Clan>(
       clan_id,
-      {
-        $set: {
-          points: newPoints,
-          gameCoins: gameCoins + coins,
+      [
+        {
+          $set: {
+            points: {
+              $min: [this.clanMaxPoints, { $add: ['$points', points] }],
+            },
+            gameCoins: { $add: ['$gameCoins', coins] },
+          },
         },
-      },
+      ],
       { session },
     );
   }
@@ -107,6 +101,7 @@ export class ClanRewarder {
   async rewardForClanEvent(
     player_id: string,
     clanEvent: ClanEvent,
+    session?: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
     const battlePointAmount = points[clanEvent];
     if (battlePointAmount === undefined)
@@ -122,7 +117,7 @@ export class ClanRewarder {
         ],
       ];
     const [player, playerErrors] =
-      await this.playerService.readOneById<PlayerDto>(player_id);
+      await this.playerService.readOneById<PlayerDto>(player_id, { session });
     if (playerErrors) return [null, playerErrors];
 
     if (!player.clan_id) {
@@ -139,7 +134,11 @@ export class ClanRewarder {
       ];
     }
 
-    return this.updateClanBattlePoints(player.clan_id, battlePointAmount);
+    return this.updateClanBattlePoints(
+      player.clan_id,
+      battlePointAmount,
+      session,
+    );
   }
 
   /**
@@ -152,15 +151,20 @@ export class ClanRewarder {
   private async updateClanBattlePoints(
     clan_id: string,
     battlePoints: number,
+    session?: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
-    const [clan, errors] = await this.clanService.readOneById<ClanDto>(clan_id);
-
-    if (errors) return [null, errors];
-
-    battlePoints = Math.max(0, clan.battlePoints + battlePoints);
-
-    return await this.clanService.updateOneById(clan_id, {
-      $set: { battlePoints },
-    });
+    return this.clanService.updateOneById(
+      clan_id,
+      [
+        {
+          $set: {
+            battlePoints: {
+              $max: [0, { $add: ['$battlePoints', battlePoints] }],
+            },
+          },
+        },
+      ],
+      { session },
+    );
   }
 }

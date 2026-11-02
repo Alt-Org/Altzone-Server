@@ -726,14 +726,47 @@ export class GameDataService {
    */
   private async applyCompletedBattleRewards(
     battle: GameDocument,
-    _session: ClientSession,
+    session: ClientSession,
   ): Promise<void> {
-    const winners =
-      (battle.finalWinner === 1 ? battle.team1 : battle.team2) || [];
+    const team1Won = battle.finalWinner === 1;
+    const winningEvent: GameEventType.PLAYER_WIN_BATTLE =
+      GameEventType.PLAYER_WIN_BATTLE;
+    const losingEvent: GameEventType.PLAYER_LOSE_BATTLE =
+      GameEventType.PLAYER_LOSE_BATTLE;
+    const rewardEvents: {
+      playerId: string;
+      event:
+        | GameEventType.PLAYER_WIN_BATTLE
+        | GameEventType.PLAYER_LOSE_BATTLE;
+    }[] = [
+      ...battle.team1.map((playerId) => ({
+        playerId: playerId.toString(),
+        event: team1Won ? winningEvent : losingEvent,
+      })),
+      ...battle.team2.map((playerId) => ({
+        playerId: playerId.toString(),
+        event: team1Won ? losingEvent : winningEvent,
+      })),
+    ];
 
-    // Player, clan, daily task, and Raid Token database updates will be added
-    // here and must use _session.
-    void winners;
+    for (const { playerId, event } of rewardEvents) {
+      const [, errors] = await this.gameEventsBroker.handleBattleRewards(
+        playerId,
+        event,
+        session,
+      );
+
+      if (errors) {
+        throw new Error(
+          `Failed to apply battle rewards for player ${playerId}: ${errors
+            .map((error) => error.message)
+            .join(', ')}`,
+        );
+      }
+    }
+
+    // Daily task and Raid Token database updates will be added here later and
+    // must use the same session.
   }
 
   /**
