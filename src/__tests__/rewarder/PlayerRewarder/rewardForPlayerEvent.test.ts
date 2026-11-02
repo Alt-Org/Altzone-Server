@@ -125,4 +125,35 @@ describe('PlayerRewarder.rewardForPlayerEvent() test suite', () => {
     expect(errors[0].field).toBe('playerEvent');
     expect(errors[0].value).toBe(event);
   });
+
+  it('Should preserve all concurrent battle point rewards', async () => {
+    const concurrentRewards = 5;
+
+    await Promise.all(
+      Array.from({ length: concurrentRewards }, () =>
+        rewarder.rewardForPlayerEvent(existingPlayer._id, 'battle_won' as any),
+      ),
+    );
+
+    const playerAfter = await playerModel.findById(existingPlayer._id);
+    expect(playerAfter.battlePoints).toBe(30 + concurrentRewards * 30);
+  });
+
+  it('Should use the provided session for battle point rewards', async () => {
+    const session = await rewarder.playerModel.db.startSession();
+    session.startTransaction();
+
+    const [isSuccess, errors] = await rewarder.rewardForPlayerEvent(
+      existingPlayer._id,
+      'battle_won' as any,
+      session,
+    );
+    await session.abortTransaction();
+    await session.endSession();
+
+    const playerAfter = await playerModel.findById(existingPlayer._id);
+    expect(isSuccess).toBe(true);
+    expect(errors).toBeNull();
+    expect(playerAfter.battlePoints).toBe(30);
+  });
 });

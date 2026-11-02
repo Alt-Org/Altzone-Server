@@ -200,4 +200,35 @@ describe('ClanRewarder.rewardForClanEvent() test suite', () => {
     expect(errors[0].message).toBe('Player does not belong to a clan');
     expect(errors[0].field).toBe('clan_id');
   });
+
+  it('Should preserve all concurrent clan battle point rewards', async () => {
+    const concurrentRewards = 5;
+
+    await Promise.all(
+      Array.from({ length: concurrentRewards }, () =>
+        rewarder.rewardForClanEvent(existingPlayer._id, 'battle_won' as any),
+      ),
+    );
+
+    const clanAfter = await clanModel.findById(createdClan._id);
+    expect(clanAfter.battlePoints).toBe(30 + concurrentRewards * 30);
+  });
+
+  it('Should use the provided session for clan battle point rewards', async () => {
+    const session = await rewarder.clanModel.db.startSession();
+    session.startTransaction();
+
+    const [isSuccess, errors] = await rewarder.rewardForClanEvent(
+      existingPlayer._id,
+      'battle_won' as any,
+      session,
+    );
+    await session.abortTransaction();
+    await session.endSession();
+
+    const clanAfter = await clanModel.findById(createdClan._id);
+    expect(isSuccess).toBe(true);
+    expect(errors).toBeNull();
+    expect(clanAfter.battlePoints).toBe(30);
+  });
 });

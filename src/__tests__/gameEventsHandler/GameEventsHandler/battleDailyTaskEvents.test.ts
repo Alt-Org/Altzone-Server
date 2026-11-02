@@ -40,10 +40,12 @@ describe('GameEventsHandler battle daily task events', () => {
     expect(playerEventHandler.handlePlayerEvent).toHaveBeenCalledWith(
       'player-1',
       PlayerEvent.BATTLE_WON,
+      undefined,
     );
     expect(clanEventHandler.handleClanEvent).toHaveBeenCalledWith(
       'player-1',
       ClanEvent.BATTLE_WON,
+      undefined,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
@@ -72,10 +74,12 @@ describe('GameEventsHandler battle daily task events', () => {
     expect(playerEventHandler.handlePlayerEvent).toHaveBeenCalledWith(
       'player-1',
       PlayerEvent.BATTLE_LOSE,
+      undefined,
     );
     expect(clanEventHandler.handleClanEvent).toHaveBeenCalledWith(
       'player-1',
       ClanEvent.BATTLE_LOSE,
+      undefined,
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
@@ -88,5 +92,27 @@ describe('GameEventsHandler battle daily task events', () => {
       { strongerSoldierStep: StrongerSoldierStep.BATTLE_PLAYED },
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);
+  });
+
+  it('forwards a database session to battle reward handlers', async () => {
+    const { clanEventHandler, handler, playerEventHandler } = createHandler();
+    const session = { id: 'session' } as any;
+
+    await handler.handleEvent(
+      'player-1',
+      GameEventType.PLAYER_WIN_BATTLE,
+      session,
+    );
+
+    expect(playerEventHandler.handlePlayerEvent).toHaveBeenCalledWith(
+      'player-1',
+      PlayerEvent.BATTLE_WON,
+      session,
+    );
+    expect(clanEventHandler.handleClanEvent).toHaveBeenCalledWith(
+      'player-1',
+      ClanEvent.BATTLE_WON,
+      session,
+    );
   });
 });

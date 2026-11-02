@@ -118,4 +118,32 @@ describe('ClanRewarder.rewardClanForPlayerTask() test suite', () => {
       expect(e).toContainSE_NOT_FOUND();
     }
   });
+
+  it('Should preserve concurrent task point and coin rewards', async () => {
+    const concurrentRewards = 5;
+    const pointsPerReward = 10;
+    const coinsPerReward = 7;
+    const clanBefore = await clanModel.findById(existingClan._id);
+
+    await Promise.all(
+      Array.from({ length: concurrentRewards }, () =>
+        rewarder.rewardClanForPlayerTask(
+          existingClan._id,
+          pointsPerReward,
+          coinsPerReward,
+        ),
+      ),
+    );
+
+    const clanAfter = await clanModel.findById(existingClan._id);
+    expect(clanAfter.points).toBe(
+      Math.min(
+        clanMaxPoints,
+        clanBefore.points + concurrentRewards * pointsPerReward,
+      ),
+    );
+    expect(clanAfter.gameCoins).toBe(
+      clanBefore.gameCoins + concurrentRewards * coinsPerReward,
+    );
+  });
 });

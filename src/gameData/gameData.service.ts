@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Game } from './game.schema';
-import { Model, Types } from 'mongoose';
+import { ClientSession, Connection, Model, Types } from 'mongoose';
 import BasicService from '../common/service/basicService/BasicService';
 import { CreateGameDto } from './dto/createGame.dto';
 import { PlayerService } from '../player/player.service';
@@ -33,6 +33,7 @@ export class GameDataService {
     public readonly roomService: RoomService,
     private readonly gameEventsBroker: GameEventsHandler,
     private readonly jwtService: JwtService,
+    @InjectConnection() private readonly connection: Connection,
   ) {
     this.basicService = new BasicService(model);
     this.refsInModel = [ModelName.STOCK];
@@ -492,6 +493,10 @@ export class GameDataService {
     );
 
     if (battle.status === BattleStatus.COMPLETED) {
+      // Safe retry point when an earlier reward transaction failed after the
+      // battle itself had already been marked completed.
+      await this.rewardCompletedBattle(battle);
+
       return await this.generateCompletedBattleResponse(
         battle,
         user,
@@ -523,6 +528,8 @@ export class GameDataService {
         battle.status = BattleStatus.COMPLETED;
         battle.finalWinner = results[0];
         const battleDocument = await battle.save();
+
+        await this.rewardCompletedBattle(battleDocument);
 
         // Return steal data in the same PUT response that completes the battle.
         return await this.generateCompletedBattleResponse(
@@ -672,17 +679,116 @@ export class GameDataService {
   }
 
   /**
-   * Distributes rewards (Raid Tokens) to the members of the winning team.
-   * This method is triggered only when a final winner has been determined.
-   * * @param battle - The validated Battle document with a set finalWinner.
-   * @returns A promise resolving to the saved Battle document after reward distribution.
-   * @private
+   * Single entry point for all rewards caused by a completed battle.
+   *
+   * All battle reward side effects must be added behind this method so every
+   * completion path follows the same rules. These side effects include player
+   * and clan battle points, Raid Tokens, and battle-based daily task progress.
+   *
+   * The conditional update is both the reward claim and the idempotency guard.
+   * `$ne: true` intentionally includes legacy battle documents that predate
+   * the isRewarded field. The claim and all database reward updates run in the
+   * same transaction, so a failed reward rolls the claim back as well.
+   *
+   * @param battle - The validated completed Battle document with finalWinner set.
+   * @returns true when this call claimed and processed the rewards, otherwise false.
    */
-  private async generateRaidTokens(battle: GameDocument) {
-    const winners =
-      (battle.finalWinner === 1 ? battle.team1 : battle.team2) || [];
+  private async rewardCompletedBattle(battle: GameDocument): Promise<boolean> {
+    const rewardedBattle = await this.connection.transaction(
+      async (session) => {
+        const claimedBattle = await this.model
+          .findOneAndUpdate(
+            {
+              _id: battle._id,
+              status: BattleStatus.COMPLETED,
+              finalWinner: { $in: [1, 2] },
+              isRewarded: { $ne: true },
+            },
+            { $set: { isRewarded: true } },
+            { new: true, session },
+          )
+          .select('+isRewarded')
+          .exec();
 
-    return await battle.save();
+        // A missing match means the battle is incomplete, invalid, or already
+        // rewarded. All cases are intentional no-ops for this operation.
+        if (!claimedBattle) return null;
+
+        await this.applyCompletedBattleRewards(claimedBattle, session);
+
+        return claimedBattle;
+      },
+    );
+
+    if (!rewardedBattle) return false;
+
+    // connection.transaction resolves only after a successful commit, so no
+    // external side effect can be observed for a rolled-back reward claim.
+    await this.dispatchCompletedBattleRewardNotifications(rewardedBattle);
+
+    return true;
+  }
+
+  /**
+   * Applies database-backed battle rewards using the reward claim's session.
+   * External notifications must be dispatched only after the transaction has
+   * committed and therefore do not belong in this method.
+   */
+  private async applyCompletedBattleRewards(
+    battle: GameDocument,
+    session: ClientSession,
+  ): Promise<void> {
+    const team1Won = battle.finalWinner === 1;
+    const winningEvent: GameEventType.PLAYER_WIN_BATTLE =
+      GameEventType.PLAYER_WIN_BATTLE;
+    const losingEvent: GameEventType.PLAYER_LOSE_BATTLE =
+      GameEventType.PLAYER_LOSE_BATTLE;
+    const rewardEvents: {
+      playerId: string;
+      event: GameEventType.PLAYER_WIN_BATTLE | GameEventType.PLAYER_LOSE_BATTLE;
+    }[] = [
+      ...battle.team1.map((playerId) => ({
+        playerId: playerId.toString(),
+        event: team1Won ? winningEvent : losingEvent,
+      })),
+      ...battle.team2.map((playerId) => ({
+        playerId: playerId.toString(),
+        event: team1Won ? losingEvent : winningEvent,
+      })),
+    ];
+
+    for (const { playerId, event } of rewardEvents) {
+      const [, errors] = await this.gameEventsBroker.handleBattleRewards(
+        playerId,
+        event,
+        session,
+      );
+
+      if (errors) {
+        throw new Error(
+          `Failed to apply battle rewards for player ${playerId}: ${errors
+            .map((error) => error.message)
+            .join(', ')}`,
+        );
+      }
+    }
+
+    // Daily task and Raid Token database updates will be added here later and
+    // must use the same session.
+  }
+
+  /**
+   * Dispatches external side effects after the reward transaction commits.
+   *
+   * There is currently no standalone battle reward notification. Keep future
+   * MQTT, WebSocket, analytics, and similar non-transactional calls behind
+   * this hook. Daily task progress does not belong here because it mutates the
+   * database and must be integrated into the reward transaction separately.
+   */
+  private async dispatchCompletedBattleRewardNotifications(
+    battle: GameDocument,
+  ): Promise<void> {
+    void battle;
   }
 
   /**
@@ -706,7 +812,12 @@ export class GameDataService {
    */
   private async resolveConflict(_id: string) {
     const battle = await this.model.findOne({ _id });
-    if (!battle || battle.status === BattleStatus.COMPLETED) return;
+    if (!battle) return;
+
+    if (battle.status === BattleStatus.COMPLETED) {
+      await this.rewardCompletedBattle(battle);
+      return;
+    }
 
     const results = battle.receivedResults;
     const team1Votes = results.filter((r) => r.winnerTeam === 1).length;
@@ -716,8 +827,8 @@ export class GameDataService {
 
     battle.status = BattleStatus.COMPLETED;
     battle.finalWinner = finalWinner;
-    await battle.save();
+    const battleDocument = await battle.save();
 
-    await this.generateRaidTokens(battle);
+    await this.rewardCompletedBattle(battleDocument);
   }
 }

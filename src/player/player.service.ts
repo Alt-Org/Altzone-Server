@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Model, Types, UpdateQuery } from 'mongoose';
+import { ClientSession, Model, Types, UpdateQuery } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Player, publicReferences } from './schemas/player.schema';
 import { RequestHelperService } from '../requestHelper/requestHelper.service';
@@ -187,8 +187,12 @@ export class PlayerService
    * @param options required options of the query
    * @returns tuple in form [ isSuccess, errors ]
    */
-  async updatePlayerById(_id: string, updateInfo: UpdateQuery<Player>) {
-    return this.basicService.updateOneById(_id, updateInfo);
+  async updatePlayerById(
+    _id: string,
+    updateInfo: UpdateQuery<Player>,
+    session?: ClientSession,
+  ) {
+    return this.basicService.updateOneById(_id, updateInfo, { session });
   }
 
   public deleteOnePostHook: PostHookFunction = async (

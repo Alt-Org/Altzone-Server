@@ -7,6 +7,7 @@ import { GameEventPayload } from '../gameEventsEmitter/gameEvent';
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { ClanEvent } from '../rewarder/clanRewarder/enum/ClanEvent.enum';
 import { DailyTaskProgressService } from '../dailyTasks/dailyTaskProgress.service';
+import { ClientSession } from 'mongoose';
 
 @Injectable()
 export class ClanEventHandler {
@@ -44,8 +45,13 @@ export class ClanEventHandler {
   async handleClanEvent(
     player_id: string,
     event: ClanEvent,
+    session?: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
-    return await this.clanRewarder.rewardForClanEvent(player_id, event);
+    return await this.clanRewarder.rewardForClanEvent(
+      player_id,
+      event,
+      session,
+    );
   }
 
   /**

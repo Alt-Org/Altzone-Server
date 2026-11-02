@@ -3,6 +3,7 @@ import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.servic
 import { PlayerStatisticService } from '../statisticsKeeper/playerStatisticKeeper/playerStatisticKeeper.service';
 import { PlayerEvent } from '../rewarder/playerRewarder/enum/PlayerEvent.enum';
 import ServiceError from '../common/service/basicService/ServiceError';
+import { ClientSession } from 'mongoose';
 
 @Injectable()
 export class PlayerEventHandler {
@@ -14,9 +15,20 @@ export class PlayerEventHandler {
   async handlePlayerEvent(
     player_id: string,
     event: PlayerEvent,
+    session?: ClientSession,
   ): Promise<[boolean, ServiceError[]]> {
-    await this.playerStatistics.updatePlayerStatistic(player_id, event);
-    await this.playerRewarder.rewardForPlayerEvent(player_id, event);
+    await this.playerStatistics.updatePlayerStatistic(
+      player_id,
+      event,
+      session,
+    );
+    const [, rewardErrors] = await this.playerRewarder.rewardForPlayerEvent(
+      player_id,
+      event,
+      session,
+    );
+    if (rewardErrors) return [null, rewardErrors];
+
     return [true, null];
   }
 }
