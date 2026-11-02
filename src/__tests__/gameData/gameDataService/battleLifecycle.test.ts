@@ -7,6 +7,7 @@ import { BattleStatus } from '../../../gameData/enum/battleStatus.enum';
 import ServiceError from '../../../common/service/basicService/ServiceError';
 import { SEReason } from '../../../common/service/basicService/SEReason';
 import { JwtService } from '@nestjs/jwt';
+import { GameEventType } from '../../../gameEventsHandler/enum/GameEventType.enum';
 
 describe('GameDataService battle lifecycle test suite', () => {
   const gameDataModel = GameDataModule.getGameModel();
@@ -16,6 +17,9 @@ describe('GameDataService battle lifecycle test suite', () => {
   beforeEach(async () => {
     await gameDataModel.deleteMany({});
     gameDataService = await GameDataModule.getGameDataService();
+    jest
+      .spyOn((gameDataService as any).gameEventsBroker, 'handleBattleRewards')
+      .mockResolvedValue([true, null]);
     jest
       .spyOn(gameDataService.playerService, 'getPlayerById')
       .mockImplementation(async (playerId: string) => [
@@ -364,6 +368,27 @@ describe('GameDataService battle lifecycle test suite', () => {
     expect(
       (rewardCompletedBattleSpy.mock.calls[0][0] as any)._id.toString(),
     ).toBe(matchId);
+    const battleRewardsMock = (gameDataService as any).gameEventsBroker
+      .handleBattleRewards as jest.Mock;
+    expect(battleRewardsMock).toHaveBeenCalledTimes(3);
+    expect(battleRewardsMock).toHaveBeenNthCalledWith(
+      1,
+      team1PlayerId,
+      GameEventType.PLAYER_WIN_BATTLE,
+      expect.anything(),
+    );
+    expect(battleRewardsMock).toHaveBeenNthCalledWith(
+      2,
+      team1SecondPlayerId,
+      GameEventType.PLAYER_WIN_BATTLE,
+      battleRewardsMock.mock.calls[0][2],
+    );
+    expect(battleRewardsMock).toHaveBeenNthCalledWith(
+      3,
+      team2PlayerId,
+      GameEventType.PLAYER_LOSE_BATTLE,
+      battleRewardsMock.mock.calls[0][2],
+    );
     expect(signAsyncSpy).toHaveBeenNthCalledWith(
       1,
       {
