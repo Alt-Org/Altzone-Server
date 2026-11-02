@@ -159,6 +159,79 @@ describe('AuthorizationInterceptor - _id validation', () => {
     );
   });
 
+  it('validates additional update body ID fields from metadata', async () => {
+    reflector.get.mockReturnValue({
+      action: Action.update,
+      subject: TestDto,
+      mongoIdFields: ['owner_id'],
+    });
+    const invalidId = 'invalid-owner-id';
+
+    try {
+      await interceptor.intercept(
+        createContext(undefined, new User('profile-id', 'player-id'), {
+          _id: validId,
+          owner_id: invalidId,
+        }),
+        callHandler,
+      );
+      fail('Expected interceptor to reject the invalid owner_id');
+    } catch (error) {
+      expect(error).toBeInstanceOf(BadRequestException);
+      const response = (error as BadRequestException).getResponse() as any;
+      expect(response.errors[0]).toMatchObject({
+        reason: APIErrorReason.VALIDATION,
+        field: 'owner_id',
+        value: invalidId,
+        statusCode: 400,
+      });
+    }
+
+    expect(caslAbilityFactory.createForUser).not.toHaveBeenCalled();
+  });
+
+  it('allows null for an explicitly nullable metadata ID field', async () => {
+    reflector.get.mockReturnValue({
+      action: Action.update,
+      subject: TestDto,
+      mongoIdFields: [{ field: 'owner_id', allowNull: true }],
+    });
+    const authorizationError = new Error('Authorization was called');
+    caslAbilityFactory.createForUser.mockRejectedValueOnce(authorizationError);
+
+    await expect(
+      interceptor.intercept(
+        createContext(undefined, new User('profile-id', 'player-id'), {
+          _id: validId,
+          owner_id: null,
+        }),
+        callHandler,
+      ),
+    ).rejects.toBe(authorizationError);
+
+    expect(caslAbilityFactory.createForUser).toHaveBeenCalled();
+  });
+
+  it('rejects null for a metadata ID field by default', async () => {
+    reflector.get.mockReturnValue({
+      action: Action.update,
+      subject: TestDto,
+      mongoIdFields: ['owner_id'],
+    });
+
+    await expect(
+      interceptor.intercept(
+        createContext(undefined, new User('profile-id', 'player-id'), {
+          _id: validId,
+          owner_id: null,
+        }),
+        callHandler,
+      ),
+    ).rejects.toMatchObject({ status: 400 });
+
+    expect(caslAbilityFactory.createForUser).not.toHaveBeenCalled();
+  });
+
   it('checks authentication before validating _id', async () => {
     const context = createContext('invalidid', null);
 
