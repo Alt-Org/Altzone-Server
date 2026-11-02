@@ -9,6 +9,8 @@ import { User } from '../../auth/user';
 import { createMongoAbility, AbilityBuilder } from '@casl/ability';
 
 describe('AuthorizationInterceptor - Array Payload Handling', () => {
+  const firstRoomId = '507f1f77bcf86cd799439011';
+  const secondRoomId = '507f1f77bcf86cd799439012';
   let interceptor: AuthorizationInterceptor;
   let mockCaslFactory: any;
   let mockReflector: any;
@@ -41,7 +43,7 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
   });
 
   it('should process single object payloads correctly', async () => {
-    const requestBody = { _id: 'room_1', name: 'Living Room' };
+    const requestBody = { _id: firstRoomId, name: 'Living Room' };
     const mockUser = new User(
       'mock_profile_id',
       'mock_player_id',
@@ -68,15 +70,15 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
       next: () => {
         const request = mockExecutionContext.switchToHttp().getRequest();
         expect(Array.isArray(request.body)).toBe(false);
-        expect(request.body._id).toBe('room_1');
+        expect(request.body._id).toBe(firstRoomId);
       },
     });
   });
 
   it('should process array payloads without throwing 403 or stripping items', async () => {
     const requestBody = [
-      { _id: 'room_1', name: 'Living Room' },
-      { _id: 'room_2', name: 'Bedroom' },
+      { _id: firstRoomId, name: 'Living Room' },
+      { _id: secondRoomId, name: 'Bedroom' },
     ];
 
     const mockUser = new User(
@@ -106,8 +108,8 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
         const request = mockExecutionContext.switchToHttp().getRequest();
         expect(Array.isArray(request.body)).toBe(true);
         expect(request.body).toHaveLength(2);
-        expect(request.body[0]._id).toBe('room_1');
-        expect(request.body[1]._id).toBe('room_2');
+        expect(request.body[0]._id).toBe(firstRoomId);
+        expect(request.body[1]._id).toBe(secondRoomId);
       },
     });
   });
@@ -118,7 +120,7 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
 
     mockCaslFactory.createForUser.mockResolvedValueOnce(restrictAbility);
 
-    const requestBody = [{ _id: 'room_1', name: 'Living Room' }];
+    const requestBody = [{ _id: firstRoomId, name: 'Living Room' }];
     const mockUser = new User(
       'mock_profile_id',
       'mock_player_id',
@@ -145,7 +147,7 @@ describe('AuthorizationInterceptor - Array Payload Handling', () => {
 
     mockCaslFactory.createForUser.mockResolvedValueOnce(restrictAbility);
 
-    const requestBody = { _id: 'room_1', name: 'Living Room' };
+    const requestBody = { _id: firstRoomId, name: 'Living Room' };
     const mockUser = new User(
       'mock_profile_id',
       'mock_player_id',
