@@ -524,6 +524,8 @@ export class GameDataService {
         battle.finalWinner = results[0];
         const battleDocument = await battle.save();
 
+        await this.rewardCompletedBattle(battleDocument);
+
         // Return steal data in the same PUT response that completes the battle.
         return await this.generateCompletedBattleResponse(
           battleDocument,
@@ -672,17 +674,24 @@ export class GameDataService {
   }
 
   /**
-   * Distributes rewards (Raid Tokens) to the members of the winning team.
-   * This method is triggered only when a final winner has been determined.
-   * * @param battle - The validated Battle document with a set finalWinner.
-   * @returns A promise resolving to the saved Battle document after reward distribution.
-   * @private
+   * Single entry point for all rewards caused by a completed battle.
+   *
+   * All battle reward side effects must be added behind this method so every
+   * completion path follows the same rules. These side effects include player
+   * and clan battle points, Raid Tokens, and battle-based daily task progress.
+   *
+   * Idempotency and transaction handling are added separately. Until they are
+   * in place, this method must only be called when a battle first transitions
+   * to COMPLETED.
+   *
+   * @param battle - The validated completed Battle document with finalWinner set.
    */
-  private async generateRaidTokens(battle: GameDocument) {
+  private async rewardCompletedBattle(battle: GameDocument): Promise<void> {
     const winners =
       (battle.finalWinner === 1 ? battle.team1 : battle.team2) || [];
 
-    return await battle.save();
+    // Raid Token distribution will be implemented through this entry point.
+    void winners;
   }
 
   /**
@@ -716,8 +725,8 @@ export class GameDataService {
 
     battle.status = BattleStatus.COMPLETED;
     battle.finalWinner = finalWinner;
-    await battle.save();
+    const battleDocument = await battle.save();
 
-    await this.generateRaidTokens(battle);
+    await this.rewardCompletedBattle(battleDocument);
   }
 }
