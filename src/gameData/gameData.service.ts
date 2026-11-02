@@ -694,29 +694,39 @@ export class GameDataService {
    * @returns true when this call claimed and processed the rewards, otherwise false.
    */
   private async rewardCompletedBattle(battle: GameDocument): Promise<boolean> {
-    return this.connection.transaction(async (session) => {
-      const claimedBattle = await this.model
-        .findOneAndUpdate(
-          {
-            _id: battle._id,
-            status: BattleStatus.COMPLETED,
-            finalWinner: { $in: [1, 2] },
-            isRewarded: { $ne: true },
-          },
-          { $set: { isRewarded: true } },
-          { new: true, session },
-        )
-        .select('+isRewarded')
-        .exec();
+    const rewardedBattle = await this.connection.transaction(
+      async (session) => {
+        const claimedBattle = await this.model
+          .findOneAndUpdate(
+            {
+              _id: battle._id,
+              status: BattleStatus.COMPLETED,
+              finalWinner: { $in: [1, 2] },
+              isRewarded: { $ne: true },
+            },
+            { $set: { isRewarded: true } },
+            { new: true, session },
+          )
+          .select('+isRewarded')
+          .exec();
 
-      // A missing match means the battle is incomplete, invalid, or already
-      // rewarded. All cases are intentional no-ops for this private operation.
-      if (!claimedBattle) return false;
+        // A missing match means the battle is incomplete, invalid, or already
+        // rewarded. All cases are intentional no-ops for this operation.
+        if (!claimedBattle) return null;
 
-      await this.applyCompletedBattleRewards(claimedBattle, session);
+        await this.applyCompletedBattleRewards(claimedBattle, session);
 
-      return true;
-    });
+        return claimedBattle;
+      },
+    );
+
+    if (!rewardedBattle) return false;
+
+    // connection.transaction resolves only after a successful commit, so no
+    // external side effect can be observed for a rolled-back reward claim.
+    await this.dispatchCompletedBattleRewardNotifications(rewardedBattle);
+
+    return true;
   }
 
   /**
@@ -765,6 +775,20 @@ export class GameDataService {
 
     // Daily task and Raid Token database updates will be added here later and
     // must use the same session.
+  }
+
+  /**
+   * Dispatches external side effects after the reward transaction commits.
+   *
+   * There is currently no standalone battle reward notification. Keep future
+   * MQTT, WebSocket, analytics, and similar non-transactional calls behind
+   * this hook. Daily task progress does not belong here because it mutates the
+   * database and must be integrated into the reward transaction separately.
+   */
+  private async dispatchCompletedBattleRewardNotifications(
+    battle: GameDocument,
+  ): Promise<void> {
+    void battle;
   }
 
   /**
