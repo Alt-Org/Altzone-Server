@@ -118,6 +118,129 @@ describe('GameDataService battle lifecycle test suite', () => {
     expect(battleInDb?.isRewarded).toBe(false);
   });
 
+  it('Should claim rewards for a legacy completed battle without isRewarded', async () => {
+    const matchId = new Types.ObjectId();
+    const team1PlayerId = new Types.ObjectId();
+    const team2PlayerId = new Types.ObjectId();
+
+    await gameDataModel.collection.insertOne({
+      _id: matchId,
+      gameType: GameType.CASUAL,
+      team1: [team1PlayerId],
+      team2: [team2PlayerId],
+      status: BattleStatus.COMPLETED,
+      finalWinner: 1,
+      receivedResults: [],
+    });
+
+    const legacyBattle = await gameDataModel.findById(matchId);
+    const didClaimRewards = await (
+      gameDataService as any
+    ).rewardCompletedBattle(legacyBattle);
+    const battleInDb = await gameDataModel
+      .findById(matchId)
+      .select('+isRewarded');
+
+    expect(didClaimRewards).toBe(true);
+    expect(battleInDb?.isRewarded).toBe(true);
+  });
+
+  it('Should not claim rewards for an incomplete battle', async () => {
+    const matchId = new Types.ObjectId().toHexString();
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+    await gameDataModel.create({
+      _id: matchId,
+      gameType: GameType.CASUAL,
+      team1: [team1PlayerId],
+      team2: [team2PlayerId],
+      status: BattleStatus.OPEN,
+      receivedResults: [],
+    });
+
+    const battle = await gameDataModel.findById(matchId);
+    const didClaimRewards = await (
+      gameDataService as any
+    ).rewardCompletedBattle(battle);
+    const battleInDb = await gameDataModel
+      .findById(matchId)
+      .select('+isRewarded');
+
+    expect(didClaimRewards).toBe(false);
+    expect(battleInDb?.isRewarded).toBe(false);
+  });
+
+  it('Should claim completed battle rewards only once for concurrent calls', async () => {
+    const matchId = new Types.ObjectId().toHexString();
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+    await gameDataModel.create({
+      _id: matchId,
+      gameType: GameType.CASUAL,
+      team1: [team1PlayerId],
+      team2: [team2PlayerId],
+      status: BattleStatus.COMPLETED,
+      finalWinner: 1,
+      receivedResults: [],
+    });
+
+    const battle = await gameDataModel.findById(matchId);
+    const applyRewardsSpy = jest.spyOn(
+      gameDataService as any,
+      'applyCompletedBattleRewards',
+    );
+    const results = await Promise.all([
+      (gameDataService as any).rewardCompletedBattle(battle),
+      (gameDataService as any).rewardCompletedBattle(battle),
+    ]);
+    const battleInDb = await gameDataModel
+      .findById(matchId)
+      .select('+isRewarded');
+
+    expect(results.sort()).toEqual([false, true]);
+    expect(applyRewardsSpy).toHaveBeenCalledTimes(1);
+    expect(battleInDb?.isRewarded).toBe(true);
+  });
+
+  it('Should roll back isRewarded when applying rewards fails', async () => {
+    const matchId = new Types.ObjectId().toHexString();
+    const team1PlayerId = new Types.ObjectId().toHexString();
+    const team2PlayerId = new Types.ObjectId().toHexString();
+    await gameDataModel.create({
+      _id: matchId,
+      gameType: GameType.CASUAL,
+      team1: [team1PlayerId],
+      team2: [team2PlayerId],
+      status: BattleStatus.COMPLETED,
+      finalWinner: 1,
+      receivedResults: [],
+    });
+
+    const battle = await gameDataModel.findById(matchId);
+    jest
+      .spyOn(gameDataService as any, 'applyCompletedBattleRewards')
+      .mockRejectedValueOnce(new Error('Reward update failed'));
+
+    await expect(
+      (gameDataService as any).rewardCompletedBattle(battle),
+    ).rejects.toThrow('Reward update failed');
+
+    const battleInDb = await gameDataModel
+      .findById(matchId)
+      .select('+isRewarded');
+    expect(battleInDb?.isRewarded).toBe(false);
+
+    const retryResult = await (gameDataService as any).rewardCompletedBattle(
+      battle,
+    );
+    const battleAfterRetry = await gameDataModel
+      .findById(matchId)
+      .select('+isRewarded');
+
+    expect(retryResult).toBe(true);
+    expect(battleAfterRetry?.isRewarded).toBe(true);
+  });
+
   it('Should submit a battle result by finding the battle with matchId as _id', async () => {
     const matchId = new Types.ObjectId().toHexString();
     const team1PlayerId = new Types.ObjectId().toHexString();
