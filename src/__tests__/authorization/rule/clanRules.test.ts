@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { User } from '../../../auth/user';
 import { Action } from '../../../authorization/enum/action.enum';
 import { clanRules } from '../../../authorization/rule/clanRules';
@@ -52,5 +52,39 @@ describe('clanRules() update and delete lookups', () => {
         { getModelInstanceById } as any,
       ),
     ).rejects.toThrow(NotFoundException);
+  });
+
+  it('returns 403 when the clan exists but the player is not an admin', async () => {
+    getModelInstanceById.mockResolvedValue({
+      _id: clanId,
+      admin_ids: ['another-player-id'],
+    });
+
+    await expect(
+      clanRules(
+        user,
+        UpdateClanDto,
+        Action.update,
+        { _id: clanId } as any,
+        { getModelInstanceById } as any,
+      ),
+    ).rejects.toThrow(ForbiddenException);
+  });
+
+  it('allows an update when the clan exists and the player is an admin', async () => {
+    getModelInstanceById.mockResolvedValue({
+      _id: clanId,
+      admin_ids: [playerId],
+    });
+
+    const ability = await clanRules(
+      user,
+      UpdateClanDto,
+      Action.update,
+      { _id: clanId } as any,
+      { getModelInstanceById } as any,
+    );
+
+    expect(ability.can(Action.update_request, UpdateClanDto)).toBe(true);
   });
 });
