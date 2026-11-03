@@ -14,8 +14,12 @@ import { PlayerRewarder } from '../../rewarder/playerRewarder/playerRewarder.ser
 describe('MESSAGE_YOUR_CLAN Daily Task', () => {
   let service: DailyTasksService;
   let mockModel: any;
+  let commitTransaction: jest.Mock;
+  let notifyProgress: jest.Mock;
 
   beforeEach(async () => {
+    commitTransaction = jest.fn();
+    notifyProgress = jest.fn();
     mockModel = {
       findOne: jest.fn(),
       findOneAndUpdate: jest.fn(),
@@ -34,7 +38,7 @@ describe('MESSAGE_YOUR_CLAN Daily Task', () => {
           useValue: {
             startSession: jest.fn().mockResolvedValue({
               startTransaction: jest.fn(),
-              commitTransaction: jest.fn(),
+              commitTransaction,
               abortTransaction: jest.fn(),
               endSession: jest.fn(),
               inTransaction: jest.fn().mockReturnValue(true),
@@ -59,6 +63,7 @@ describe('MESSAGE_YOUR_CLAN Daily Task', () => {
           provide: DailyTaskProgressService,
           useValue: {
             handleProgress: jest.fn().mockResolvedValue([true, null]),
+            notifyProgress,
           },
         },
         {
@@ -121,12 +126,9 @@ describe('MESSAGE_YOUR_CLAN Daily Task', () => {
         type: ServerTaskName.MESSAGE_YOUR_CLAN,
       };
 
-      jest
-        .spyOn(service['basicService'], 'readOne')
-        .mockResolvedValue([mockTask as any, null]);
-      jest
-        .spyOn(service['basicService'], 'updateOne')
-        .mockResolvedValue([true, null]);
+      mockModel.findOneAndUpdate.mockReturnValue({
+        exec: jest.fn().mockResolvedValue({ ...mockTask, amountLeft: 1 }),
+      });
 
       const [res, err] = await service.handleDailyTaskEvent({
         playerId: 'player-1',
@@ -141,6 +143,11 @@ describe('MESSAGE_YOUR_CLAN Daily Task', () => {
       expect(res).toBeDefined();
       expect(res?.status).toBe('advanced');
       expect(res?.needsClanReward).toBe(true);
+      expect(commitTransaction).toHaveBeenCalled();
+      expect(notifyProgress).toHaveBeenCalledWith(res);
+      expect(commitTransaction.mock.invocationCallOrder[0]).toBeLessThan(
+        notifyProgress.mock.invocationCallOrder[0],
+      );
     });
 
     it('successfully completes task when amountLeft reaches 0', async () => {
@@ -152,9 +159,9 @@ describe('MESSAGE_YOUR_CLAN Daily Task', () => {
         type: ServerTaskName.MESSAGE_YOUR_CLAN,
       };
 
-      jest
-        .spyOn(service['basicService'], 'readOne')
-        .mockResolvedValue([mockTask as any, null]);
+      mockModel.findOneAndUpdate.mockReturnValue({
+        exec: jest.fn().mockResolvedValue({ ...mockTask, amountLeft: 0 }),
+      });
       jest.spyOn(service, 'deleteTask').mockResolvedValue([true as any, null]);
 
       const [res, err] = await service.handleDailyTaskEvent({
@@ -178,13 +185,10 @@ describe('MESSAGE_YOUR_CLAN Daily Task', () => {
       );
     });
 
-    it('returns error when task is not found or owned by another clan', async () => {
-      jest
-        .spyOn(service['basicService'], 'readOne')
-        .mockResolvedValue([
-          null,
-          [{ reason: 'NOT_FOUND', message: 'Task not found' }] as any,
-        ]);
+    it('does not progress a task that is missing or has the wrong type', async () => {
+      mockModel.findOneAndUpdate.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      });
 
       const [res, err] = await service.handleDailyTaskEvent({
         playerId: 'player-1',
@@ -195,29 +199,15 @@ describe('MESSAGE_YOUR_CLAN Daily Task', () => {
       });
 
       expect(res).toBeNull();
-      expect(err).toBeDefined();
+      expect(err).toBeNull();
     });
   });
 
   describe('Failed Persistence', () => {
     it('returns database error when update fails', async () => {
-      const mockTask = {
-        _id: 'task-1',
-        clan_id: 'clan-1',
-        player_id: 'player-1',
-        amountLeft: 2,
-        type: ServerTaskName.MESSAGE_YOUR_CLAN,
-      };
-
-      jest
-        .spyOn(service['basicService'], 'readOne')
-        .mockResolvedValue([mockTask as any, null]);
-      jest
-        .spyOn(service['basicService'], 'updateOne')
-        .mockResolvedValue([
-          null,
-          [{ reason: 'DATABASE_ERROR', message: 'Write failed' }] as any,
-        ]);
+      mockModel.findOneAndUpdate.mockReturnValue({
+        exec: jest.fn().mockRejectedValue(new Error('Write failed')),
+      });
 
       const [res, err] = await service.handleDailyTaskEvent({
         playerId: 'player-1',

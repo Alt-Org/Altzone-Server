@@ -3,8 +3,26 @@ import { ServerTaskName } from '../../dailyTasks/enum/serverTaskName.enum';
 
 describe('DailyTasksService.updateClanTask', () => {
   it('progresses UPDATE_CLAN_MOTTO by clan without a player reservation', async () => {
+    const model = {
+      findOneAndUpdate: jest.fn(() => ({
+        exec: jest.fn().mockResolvedValue({
+          _id: 'task-1',
+          clan_id: 'clan-1',
+          player_id: null,
+          type: ServerTaskName.UPDATE_CLAN_MOTTO,
+          amount: 1,
+          amountLeft: 0,
+          points: 10,
+          coins: 5,
+        }),
+      })),
+      findOneAndDelete: jest.fn(() => ({
+        exec: jest.fn().mockResolvedValue({ _id: 'task-1' }),
+      })),
+      create: jest.fn().mockResolvedValue([{ _id: 'task-2' }]),
+    };
     const service = new DailyTasksService(
-      {} as any,
+      model as any,
       {} as any,
       {} as any,
       {} as any,
@@ -21,19 +39,6 @@ describe('DailyTasksService.updateClanTask', () => {
       {} as any,
     );
     const basicService = {
-      readOne: jest.fn().mockResolvedValue([
-        {
-          _id: 'task-1',
-          clan_id: 'clan-1',
-          player_id: null,
-          type: ServerTaskName.UPDATE_CLAN_MOTTO,
-          amount: 1,
-          amountLeft: 1,
-          points: 10,
-          coins: 5,
-        },
-        null,
-      ]),
       updateOne: jest.fn().mockResolvedValue([true, null]),
     };
     (service as any).basicService = basicService;
@@ -52,21 +57,27 @@ describe('DailyTasksService.updateClanTask', () => {
       clanId: 'clan-1',
       currentAmountLeft: 0,
     });
-    expect(basicService.readOne).toHaveBeenCalledWith({
-      filter: {
+    expect(model.findOneAndUpdate).toHaveBeenCalledWith(
+      {
         clan_id: 'clan-1',
         type: ServerTaskName.UPDATE_CLAN_MOTTO,
         amountLeft: { $gt: 0 },
+        isRewarded: { $ne: true },
       },
-      session: expect.anything(),
-    });
-    expect(basicService.updateOne).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.objectContaining({ new: true, session: expect.anything() }),
+    );
+    expect(model.findOneAndDelete).toHaveBeenCalledWith(
       expect.objectContaining({
-        $unset: { player_id: '', startedAt: '' },
+        _id: 'task-1',
+        clan_id: 'clan-1',
+        isRewarded: true,
       }),
-      expect.objectContaining({
-        filter: { _id: 'task-1', clan_id: 'clan-1' },
-      }),
+      expect.objectContaining({ session: expect.anything() }),
+    );
+    expect(model.create).toHaveBeenCalledWith(
+      [expect.objectContaining({ clan_id: 'clan-1', player_id: null })],
+      expect.objectContaining({ session: expect.anything() }),
     );
   });
 });

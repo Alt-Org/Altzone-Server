@@ -68,6 +68,8 @@ describe('UPGRADE_A_DEFENCE_SOLDIER rewards and MQTT notifications', () => {
 
     expect(errors).toBeNull();
     expect(handled).toBe(result);
+    expect(publish).not.toHaveBeenCalled();
+    service.notifyProgress(handled);
     expect(publish).toHaveBeenCalledWith(
       '/player/player-1/daily_task/upgrade_a_defence_soldier/update',
       JSON.stringify({
@@ -100,6 +102,7 @@ describe('UPGRADE_A_DEFENCE_SOLDIER rewards and MQTT notifications', () => {
 
     expect(errors).toBeNull();
     expect(handled.reachedMilestones).toEqual([100]);
+    expect(publish).not.toHaveBeenCalled();
     expect(playerRewarder.rewardForPlayerTask).toHaveBeenCalledWith(
       'player-1',
       completedTask.points,
@@ -111,6 +114,7 @@ describe('UPGRADE_A_DEFENCE_SOLDIER rewards and MQTT notifications', () => {
       completedTask.coins,
       session,
     );
+    service.notifyProgress(handled);
     expect(publish).toHaveBeenCalledWith(
       '/player/player-1/daily_task/upgrade_a_defence_soldier/end',
       JSON.stringify({

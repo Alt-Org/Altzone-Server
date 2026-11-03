@@ -211,6 +211,10 @@ describe('Daily task cancellation penalties', () => {
     const clanId = new ObjectId().toString();
     await playerModel.updateOne({ _id: playerId }, { $set: { points: 15 } });
     const task = await createReservedTask({ clanId, playerId });
+    await dailyTasksService.model.updateOne(
+      { _id: task._id },
+      { $set: { isRewarded: true } },
+    );
 
     const [, errors] = await dailyTasksService.deleteTask(
       task._id.toString(),

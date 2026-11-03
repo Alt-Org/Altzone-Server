@@ -9,7 +9,16 @@ import { ServerTaskName } from './enum/serverTaskName.enum';
 
 export type DailyTaskDocument = HydratedDocument<DailyTask>;
 
-@Schema({ toJSON: { virtuals: true }, toObject: { virtuals: true } })
+@Schema({
+  toJSON: {
+    virtuals: true,
+    transform: (_document, result) => {
+      delete (result as Record<string, unknown>).isRewarded;
+      return result;
+    },
+  },
+  toObject: { virtuals: true },
+})
 export class DailyTask {
   @Prop({ type: MongooseSchema.Types.ObjectId, required: true })
   clan_id: string;
@@ -41,6 +50,10 @@ export class DailyTask {
 
   @Prop({ type: Number, required: true })
   amountLeft: number; // Amount of atomic tasks to complete. When 0 set completedAt.
+
+  /** Internal reward-processing state. This field must never be client-controlled. */
+  @Prop({ type: Boolean, default: false, select: false })
+  isRewarded?: boolean;
 
   @Prop({ type: Object, default: () => ({}) })
   progress?: {

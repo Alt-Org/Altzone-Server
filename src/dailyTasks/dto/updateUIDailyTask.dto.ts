@@ -1,6 +1,10 @@
-import { IsInt, IsOptional } from 'class-validator';
+import { IsInt, IsMongoId, IsOptional, Max, Min } from 'class-validator';
 
 export class UpdateUIDailyTaskDto {
+  /** ID of the task instance being progressed. */
+  @IsMongoId()
+  taskId: string;
+
   /**
    * Updated amount toward completing the task
    *
@@ -8,5 +12,7 @@ export class UpdateUIDailyTaskDto {
    */
   @IsOptional()
   @IsInt()
-  amount: number;
+  @Min(1)
+  @Max(1)
+  amount?: number;
 }
