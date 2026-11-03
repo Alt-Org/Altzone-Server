@@ -1,4 +1,4 @@
-import { IsInt, IsOptional } from 'class-validator';
+import { IsInt, IsOptional, Max, Min } from 'class-validator';
 
 export class UpdateUIDailyTaskDto {
   /**
@@ -8,5 +8,7 @@ export class UpdateUIDailyTaskDto {
    */
   @IsOptional()
   @IsInt()
+  @Min(1)
+  @Max(1)
   amount: number;
 }
