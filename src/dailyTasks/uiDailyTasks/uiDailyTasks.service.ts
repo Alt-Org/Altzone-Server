@@ -10,6 +10,7 @@ import { SEReason } from '../../common/service/basicService/SEReason';
 import { DailyTaskDto } from '../dto/dailyTask.dto';
 import { UITaskName } from '../enum/uiTaskName.enum';
 import { DailyTaskProgressResult } from '../type/dailyTaskProgressResult.type';
+import { DailyTaskProgressService } from '../dailyTaskProgress.service';
 
 class DailyTaskUpdateError extends Error {
   constructor(public readonly serviceErrors: ServiceError[]) {
@@ -22,6 +23,7 @@ export default class UIDailyTasksService {
   constructor(
     @InjectModel(DailyTask.name) public readonly model: Model<DailyTask>,
     @InjectConnection() private readonly connection: Connection,
+    private readonly progressService: DailyTaskProgressService,
   ) {
     this.basicService = new BasicService(model);
   }
@@ -141,17 +143,19 @@ export default class UIDailyTasksService {
           if (errors) throw new DailyTaskUpdateError(errors);
         }
 
-        return [
-          this.buildProgressResult(
-            isTaskCompleted ? 'completed' : 'advanced',
-            task,
-            player_id,
-            completedAmount,
-            previousAmountLeft,
-            currentAmountLeft,
-          ),
-          null,
-        ];
+        const progressResult = this.buildProgressResult(
+          isTaskCompleted ? 'completed' : 'advanced',
+          task,
+          player_id,
+          completedAmount,
+          previousAmountLeft,
+          currentAmountLeft,
+        );
+        const [handledResult, progressErrors] =
+          await this.progressService.handleProgress(progressResult, session);
+        if (progressErrors) throw new DailyTaskUpdateError(progressErrors);
+
+        return [handledResult, null];
       });
     } catch (error) {
       if (error instanceof DailyTaskUpdateError)
