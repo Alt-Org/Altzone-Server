@@ -241,4 +241,66 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
     ).toHaveLength(1);
     expect(await taskModel.findById(createdTask._id)).toBeNull();
   });
+
+  it('Should commit task completion and player and clan rewards together', async () => {
+    const playerBefore = await playerModel.findById(loggedPlayer._id);
+    const clanBefore = await clanModel.findById(existingClan._id);
+    const createdTask = await taskModel.create(
+      taskBuilder
+        .setClanId(existingClan._id)
+        .setPlayerId(loggedPlayer._id)
+        .setType(UITaskName.COMPARE_DEFENCE_SOLDIERS)
+        .setAmount(1)
+        .setAmountLeft(1)
+        .setPoints(10)
+        .setCoins(5)
+        .build(),
+    );
+
+    const [result, errors] = await uiDailyTasksService.updateTask(
+      loggedPlayer._id,
+    );
+    const [playerAfter, clanAfter, taskAfter] = await Promise.all([
+      playerModel.findById(loggedPlayer._id),
+      clanModel.findById(existingClan._id),
+      taskModel.findById(createdTask._id),
+    ]);
+
+    expect(errors).toBeNull();
+    expect(result?.status).toBe('completed');
+    expect(taskAfter).toBeNull();
+    expect(playerAfter?.points).toBe(playerBefore.points + 10);
+    expect(clanAfter?.points).toBe(clanBefore.points + 10);
+    expect(clanAfter?.gameCoins).toBe(clanBefore.gameCoins + 5);
+  });
+
+  it('Should roll back completion and player rewards when clan reward fails', async () => {
+    const missingClanId = new ObjectId();
+    const playerBefore = await playerModel.findById(loggedPlayer._id);
+    const createdTask = await taskModel.create(
+      taskBuilder
+        .setClanId(missingClanId)
+        .setPlayerId(loggedPlayer._id)
+        .setType(UITaskName.COMPARE_DEFENCE_SOLDIERS)
+        .setAmount(1)
+        .setAmountLeft(1)
+        .setPoints(10)
+        .setCoins(5)
+        .build(),
+    );
+
+    const [result, errors] = await uiDailyTasksService.updateTask(
+      loggedPlayer._id,
+    );
+    const [playerAfter, taskAfter] = await Promise.all([
+      playerModel.findById(loggedPlayer._id),
+      taskModel.findById(createdTask._id).select('+isRewarded'),
+    ]);
+
+    expect(result).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
+    expect(playerAfter?.points).toBe(playerBefore.points);
+    expect(taskAfter?.amountLeft).toBe(1);
+    expect(taskAfter?.isRewarded).toBe(false);
+  });
 });
