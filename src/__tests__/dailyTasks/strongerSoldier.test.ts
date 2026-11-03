@@ -62,8 +62,9 @@ describe('UPGRADE_A_DEFENCE_SOLDIER daily task', () => {
         player_id: 'player-1',
         type: ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
         amountLeft: 2,
+        isRewarded: { $ne: true },
       },
-      { $inc: { amountLeft: -1 } },
+      expect.any(Array),
       expect.objectContaining({ new: true }),
     );
   });
@@ -89,7 +90,7 @@ describe('UPGRADE_A_DEFENCE_SOLDIER daily task', () => {
     });
     expect(model.findOneAndUpdate).toHaveBeenCalledWith(
       expect.objectContaining({ amountLeft: 1 }),
-      { $inc: { amountLeft: -1 } },
+      expect.any(Array),
       expect.objectContaining({ new: true }),
     );
     expect(basicService.updateOne).toHaveBeenCalledWith(
@@ -133,7 +134,7 @@ describe('UPGRADE_A_DEFENCE_SOLDIER daily task', () => {
     expect(errors).toBeNull();
     expect(model.findOneAndUpdate).toHaveBeenCalledWith(
       expect.objectContaining({ amountLeft: expectedAmountLeft }),
-      { $inc: { amountLeft: -1 } },
+      expect.any(Array),
       expect.objectContaining({ new: true, session }),
     );
     expect(progressService.handleProgress).not.toHaveBeenCalled();

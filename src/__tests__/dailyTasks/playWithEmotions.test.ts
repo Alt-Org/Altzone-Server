@@ -74,12 +74,9 @@ describe('SPECTRUM_OF_EMOTIONS daily task', () => {
           { 'progress.key': ChatResponseType.NEED_COMPANY },
         ],
         'progress.steps': { $ne: -1 },
+        isRewarded: { $ne: true },
       }),
-      {
-        $set: { 'progress.key': ChatResponseType.NEED_COMPANY },
-        $addToSet: { 'progress.steps': -1 },
-        $inc: { amountLeft: -1 },
-      },
+      expect.any(Array),
       expect.objectContaining({ new: true }),
     );
   });

@@ -34,7 +34,7 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
     loggedPlayer.clan_id = existingClan._id;
   });
 
-  it('Should update amountLeft field of the daily task', async () => {
+  it('Should reject client attempts to advance more than one step', async () => {
     const initialAmount = 5;
     const completedAmount = 3;
 
@@ -49,11 +49,16 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       .build();
     const createdTask = await taskModel.create(dailyTaskToCreate);
 
-    await uiDailyTasksService.updateTask(loggedPlayer._id, completedAmount);
+    const [result, errors] = await uiDailyTasksService.updateTask(
+      loggedPlayer._id,
+      completedAmount,
+    );
 
     const updatedTask = await taskModel.findById(createdTask._id);
 
-    expect(updatedTask.amountLeft).toBe(initialAmount - completedAmount);
+    expect(result).toBeNull();
+    expect(errors).toContainSE_VALIDATION();
+    expect(updatedTask.amountLeft).toBe(initialAmount);
   });
 
   it('Should update amountLeft field of the daily task on one if amount is not specified', async () => {
@@ -167,5 +172,73 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
     );
     expect(result).toBeNull();
     expect(errors).toContainSE_WRONG_ENUM();
+  });
+
+  it('Should hide isRewarded and default it to false', async () => {
+    const createdTask = await taskModel.create(
+      taskBuilder
+        .setClanId(existingClan._id)
+        .setPlayerId(loggedPlayer._id)
+        .setType(UITaskName.COMPARE_DEFENCE_SOLDIERS)
+        .setAmount(2)
+        .setAmountLeft(2)
+        .build(),
+    );
+
+    const normalTask = await taskModel.findById(createdTask._id);
+    const internalTask = await taskModel
+      .findById(createdTask._id)
+      .select('+isRewarded');
+
+    expect(normalTask?.isRewarded).toBeUndefined();
+    expect(internalTask?.isRewarded).toBe(false);
+    expect(createdTask.toJSON()).not.toHaveProperty('isRewarded');
+  });
+
+  it('Should complete a legacy task without isRewarded', async () => {
+    const taskId = new ObjectId();
+    const legacyTask = taskBuilder
+      .setId(taskId)
+      .setClanId(existingClan._id)
+      .setPlayerId(loggedPlayer._id)
+      .setType(UITaskName.COMPARE_DEFENCE_SOLDIERS)
+      .setAmount(1)
+      .setAmountLeft(1)
+      .build();
+    await taskModel.collection.insertOne({
+      ...legacyTask,
+      clan_id: new ObjectId(existingClan._id.toString()),
+      player_id: new ObjectId(loggedPlayer._id.toString()),
+    } as any);
+
+    const [result, errors] = await uiDailyTasksService.updateTask(
+      loggedPlayer._id,
+    );
+
+    expect(errors).toBeNull();
+    expect(result?.status).toBe('completed');
+    expect(await taskModel.findById(taskId)).toBeNull();
+  });
+
+  it('Should allow only one concurrent completion claim', async () => {
+    const createdTask = await taskModel.create(
+      taskBuilder
+        .setClanId(existingClan._id)
+        .setPlayerId(loggedPlayer._id)
+        .setType(UITaskName.COMPARE_DEFENCE_SOLDIERS)
+        .setAmount(1)
+        .setAmountLeft(1)
+        .build(),
+    );
+
+    const results = await Promise.all([
+      uiDailyTasksService.updateTask(loggedPlayer._id),
+      uiDailyTasksService.updateTask(loggedPlayer._id),
+    ]);
+
+    expect(
+      results.filter(([result]) => result?.status === 'completed'),
+    ).toHaveLength(1);
+    expect(await taskModel.findById(createdTask._id)).toBeNull();
   });
 });
