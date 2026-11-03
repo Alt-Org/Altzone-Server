@@ -1,24 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { DailyTask } from '../dailyTasks.schema';
-import { Connection, Model } from 'mongoose';
+import { ClientSession, Connection, Model } from 'mongoose';
 import BasicService from '../../common/service/basicService/BasicService';
 import { UIDailyTaskData, uiDailyTasks } from './uiDailyTasks';
-import {
-  IServiceReturn,
-  TIServiceDeleteByIdOptions,
-  TIServiceUpdateByIdOptions,
-} from '../../common/service/basicService/IService';
+import { IServiceReturn } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { DailyTaskDto } from '../dto/dailyTask.dto';
 import { UITaskName } from '../enum/uiTaskName.enum';
-import {
-  cancelTransaction,
-  endTransaction,
-  initializeSession,
-} from '../../common/function/Transactions';
 import { DailyTaskProgressResult } from '../type/dailyTaskProgressResult.type';
+
+class DailyTaskUpdateError extends Error {
+  constructor(public readonly serviceErrors: ServiceError[]) {
+    super('Daily task update failed');
+  }
+}
 
 @Injectable()
 export default class UIDailyTasksService {
@@ -81,61 +78,86 @@ export default class UIDailyTasksService {
     player_id: string,
     amount = 1,
   ): Promise<IServiceReturn<DailyTaskProgressResult<DailyTask>>> {
-    const [task, errors] = await this.findUIDailyTask(player_id);
-    if (errors) return [null, errors];
-
-    const previousAmountLeft = task.amountLeft;
-    const completedAmount = Math.min(amount, previousAmountLeft);
-    const currentAmountLeft = Math.max(previousAmountLeft - completedAmount, 0);
-    const isTaskCompleted = currentAmountLeft <= 0;
-
-    const [session, initErrors] = await initializeSession(this.connection);
-    if (!session) return [null, initErrors];
-
-    task.amountLeft = currentAmountLeft;
-
-    if (isTaskCompleted) {
-      const [_isSuccess, errors] = await this.handleTaskCompletion(task, {
-        session,
-      });
-      if (errors) return cancelTransaction(session, errors);
-
-      const [_, endErrors] = await endTransaction(session);
-      if (endErrors) return [null, endErrors];
-
+    if (amount !== 1) {
       return [
-        this.buildProgressResult(
-          'completed',
-          task,
-          player_id,
-          completedAmount,
-          previousAmountLeft,
-          currentAmountLeft,
-        ),
         null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
+            field: 'amount',
+            value: amount,
+            message: 'A UI daily task can progress by exactly one per event',
+          }),
+        ],
       ];
     }
 
-    const [_isSuccess, updateErrors] = await this.handleTaskAmountUpdate(task, {
-      session,
-    });
+    try {
+      return await this.connection.transaction(async (session) => {
+        const task = await this.model
+          .findOneAndUpdate(
+            {
+              player_id,
+              type: { $in: Object.values(UITaskName) },
+              amountLeft: { $gt: 0 },
+              isRewarded: { $ne: true },
+            },
+            [
+              {
+                $set: {
+                  amountLeft: { $subtract: ['$amountLeft', 1] },
+                  isRewarded: {
+                    $cond: [
+                      { $eq: ['$amountLeft', 1] },
+                      true,
+                      { $ifNull: ['$isRewarded', false] },
+                    ],
+                  },
+                },
+              },
+            ],
+            { new: true, session },
+          )
+          .exec();
 
-    if (updateErrors) return cancelTransaction(session, updateErrors);
+        if (!task) {
+          const [, lookupErrors] = await this.findUIDailyTask(
+            player_id,
+            session,
+          );
+          return [null, lookupErrors];
+        }
 
-    const [_, endErrors] = await endTransaction(session);
-    if (endErrors) return [null, endErrors];
+        const currentAmountLeft = task.amountLeft;
+        const previousAmountLeft = currentAmountLeft + 1;
+        const completedAmount = 1;
+        const isTaskCompleted = currentAmountLeft === 0;
 
-    return [
-      this.buildProgressResult(
-        'advanced',
-        task,
-        player_id,
-        completedAmount,
-        previousAmountLeft,
-        currentAmountLeft,
-      ),
-      null,
-    ];
+        if (isTaskCompleted) {
+          const [, errors] = await this.basicService.deleteOne({
+            filter: { _id: task._id, player_id, isRewarded: true },
+            session,
+          });
+          if (errors) throw new DailyTaskUpdateError(errors);
+        }
+
+        return [
+          this.buildProgressResult(
+            isTaskCompleted ? 'completed' : 'advanced',
+            task,
+            player_id,
+            completedAmount,
+            previousAmountLeft,
+            currentAmountLeft,
+          ),
+          null,
+        ];
+      });
+    } catch (error) {
+      if (error instanceof DailyTaskUpdateError)
+        return [null, error.serviceErrors];
+      throw error;
+    }
   }
 
   /**
@@ -150,9 +172,11 @@ export default class UIDailyTasksService {
    */
   private async findUIDailyTask(
     player_id: string,
+    session?: ClientSession,
   ): Promise<IServiceReturn<DailyTask>> {
     const [task, errors] = await this.basicService.readOne<DailyTaskDto>({
       filter: { player_id },
+      session,
     });
     if (errors) return [null, errors];
 
@@ -171,53 +195,6 @@ export default class UIDailyTasksService {
     }
 
     return [task, null];
-  }
-
-  /**
-   * Handles daily task update by decreasing amountLeft field of the task.
-   *
-   * @param task task data to update
-   * @param options update options
-   * @private
-   *
-   * @returns true if task was updated successfully or ServiceErrors if any occurred
-   */
-  private async handleTaskAmountUpdate(
-    task: DailyTask,
-    options?: TIServiceUpdateByIdOptions,
-  ): Promise<IServiceReturn<true>> {
-    const [_, updateErrors] = await this.basicService.updateOneById(
-      task._id.toString(),
-      { amountLeft: task.amountLeft },
-      options,
-    );
-
-    if (updateErrors) return [null, updateErrors];
-
-    return [true, null];
-  }
-
-  /**
-   * Handles daily task completion logic, which is removing the task from DB.
-   *
-   * @param task completed task data
-   * @param options delete options
-   * @private
-   *
-   * @returns true if task completion was handled successfully or ServiceErrors if any occurred
-   */
-  private async handleTaskCompletion(
-    task: DailyTask,
-    options?: TIServiceDeleteByIdOptions,
-  ): Promise<IServiceReturn<true>> {
-    const [, deletionErrors] = await this.basicService.deleteOneById(
-      task._id.toString(),
-      options,
-    );
-
-    if (deletionErrors) return [null, deletionErrors];
-
-    return [true, null];
   }
 
   private buildProgressResult(
