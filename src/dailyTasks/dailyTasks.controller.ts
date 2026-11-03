@@ -181,6 +181,7 @@ export class DailyTasksController {
   ) {
     const [result, errors] = await this.uiDailyTasksService.updateTask(
       user.player_id,
+      body.taskId,
       body.amount,
     );
     if (errors) throw errors;

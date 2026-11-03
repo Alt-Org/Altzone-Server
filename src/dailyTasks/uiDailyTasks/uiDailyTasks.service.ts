@@ -73,11 +73,13 @@ export default class UIDailyTasksService {
    * Updates the daily task for a given player. Decrements the amount left for the task.
    *
    * @param player_id - The ID of the player whose task is being updated.
+   * @param taskId - The ID of the exact task instance being updated.
    * @param amount - Amount of completed atomic tasks, default is 1
    * @returns The updated task and status or ServiceErrors if any occurred.
    */
   async updateTask(
     player_id: string,
+    taskId: string,
     amount = 1,
   ): Promise<IServiceReturn<DailyTaskProgressResult<DailyTask>>> {
     if (amount !== 1) {
@@ -99,6 +101,7 @@ export default class UIDailyTasksService {
         const task = await this.model
           .findOneAndUpdate(
             {
+              _id: taskId,
               player_id,
               type: { $in: Object.values(UITaskName) },
               amountLeft: { $gt: 0 },
@@ -125,6 +128,7 @@ export default class UIDailyTasksService {
         if (!task) {
           const [, lookupErrors] = await this.findUIDailyTask(
             player_id,
+            taskId,
             session,
           );
           return [null, lookupErrors];
@@ -176,10 +180,11 @@ export default class UIDailyTasksService {
    */
   private async findUIDailyTask(
     player_id: string,
+    taskId: string,
     session?: ClientSession,
   ): Promise<IServiceReturn<DailyTask>> {
     const [task, errors] = await this.basicService.readOne<DailyTaskDto>({
-      filter: { player_id },
+      filter: { _id: taskId, player_id },
       session,
     });
     if (errors) return [null, errors];

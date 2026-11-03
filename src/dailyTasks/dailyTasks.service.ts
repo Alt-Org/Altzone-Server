@@ -238,13 +238,13 @@ export class DailyTasksService {
   }
 
   /**
-   * Deletes a task by updating it with new random values and resetting certain fields.
+   * Replaces a completed task with a new unreserved task instance.
    *
    * @param taskId - The ID of the task to be deleted.
    * @param clanId - The ID of the clan associated with the task.
    * @param playerId - The ID of the player associated with the task.
    * @param session - Optional MongoDB client session for transaction support.
-   * @returns A promise that resolves to the result of the update operation.
+   * @returns A promise that resolves when the old instance has been replaced.
    */
   async deleteTask(
     taskId: string,
@@ -252,28 +252,51 @@ export class DailyTasksService {
     playerId: string,
     session?: ClientSession,
   ) {
+    if (!session) {
+      try {
+        return await this.connection.transaction((transactionSession) =>
+          this.deleteTask(taskId, clanId, playerId, transactionSession),
+        );
+      } catch (error) {
+        return [null, convertMongooseToServiceErrors(error)];
+      }
+    }
+
     const newValues = this.taskGenerator.createTaskRandomValues();
     const filter: FilterQuery<DailyTask> = {
       _id: taskId,
       clan_id: clanId,
       isRewarded: true,
     };
-    filter.$or = [{ player_id: playerId }, { player_id: { $exists: false } }];
-    return this.basicService.updateOne(
-      {
-        $set: {
-          ...newValues,
-          amountLeft: newValues.amount,
-          progress: {},
-          isRewarded: false,
-        },
-        $unset: {
-          player_id: '',
-          startedAt: '',
-        },
-      },
-      { filter, session },
-    );
+    filter.$or = [
+      { player_id: playerId },
+      { player_id: null },
+      { player_id: { $exists: false } },
+    ];
+    try {
+      const deletedTask = await this.model
+        .findOneAndDelete(filter, { session })
+        .exec();
+      if (!deletedTask) return [null, null];
+
+      await this.model.create(
+        [
+          {
+            ...newValues,
+            clan_id: clanId,
+            player_id: null,
+            startedAt: null,
+            amountLeft: newValues.amount,
+            progress: {},
+            isRewarded: false,
+          },
+        ],
+        { session },
+      );
+      return [true, null];
+    } catch (error) {
+      return [null, convertMongooseToServiceErrors(error)];
+    }
   }
 
   /**
@@ -401,24 +424,11 @@ export class DailyTasksService {
     const completedAmount = 1;
 
     if (currentAmountLeft <= 0) {
-      const newValues = this.taskGenerator.createTaskRandomValues();
-      const [, replacementErrors] = await this.basicService.updateOne(
-        {
-          $set: {
-            ...newValues,
-            amountLeft: newValues.amount,
-            progress: {},
-            isRewarded: false,
-          },
-          $unset: {
-            player_id: '',
-            startedAt: '',
-          },
-        },
-        {
-          filter: { _id: task._id, clan_id: clanId, isRewarded: true },
-          session,
-        },
+      const [, replacementErrors] = await this.deleteTask(
+        task._id.toString(),
+        clanId,
+        completedByPlayerId,
+        session,
       );
       if (replacementErrors) return [null, replacementErrors];
     } else {
