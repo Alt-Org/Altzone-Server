@@ -97,70 +97,78 @@ export default class UIDailyTasksService {
     }
 
     try {
-      return await this.connection.transaction(async (session) => {
-        const task = await this.model
-          .findOneAndUpdate(
-            {
-              _id: taskId,
-              player_id,
-              type: { $in: Object.values(UITaskName) },
-              amountLeft: { $gt: 0 },
-              isRewarded: { $ne: true },
-            },
-            [
+      const transactionResult = await this.connection.transaction(
+        async (
+          session,
+        ): Promise<IServiceReturn<DailyTaskProgressResult<DailyTask>>> => {
+          const task = await this.model
+            .findOneAndUpdate(
               {
-                $set: {
-                  amountLeft: { $subtract: ['$amountLeft', 1] },
-                  isRewarded: {
-                    $cond: [
-                      { $eq: ['$amountLeft', 1] },
-                      true,
-                      { $ifNull: ['$isRewarded', false] },
-                    ],
+                _id: taskId,
+                player_id,
+                type: { $in: Object.values(UITaskName) },
+                amountLeft: { $gt: 0 },
+                isRewarded: { $ne: true },
+              },
+              [
+                {
+                  $set: {
+                    amountLeft: { $subtract: ['$amountLeft', 1] },
+                    isRewarded: {
+                      $cond: [
+                        { $eq: ['$amountLeft', 1] },
+                        true,
+                        { $ifNull: ['$isRewarded', false] },
+                      ],
+                    },
                   },
                 },
-              },
-            ],
-            { new: true, session },
-          )
-          .exec();
+              ],
+              { new: true, session },
+            )
+            .exec();
 
-        if (!task) {
-          const [, lookupErrors] = await this.findUIDailyTask(
+          if (!task) {
+            const [, lookupErrors] = await this.findUIDailyTask(
+              player_id,
+              taskId,
+              session,
+            );
+            return [null, lookupErrors];
+          }
+
+          const currentAmountLeft = task.amountLeft;
+          const previousAmountLeft = currentAmountLeft + 1;
+          const completedAmount = 1;
+          const isTaskCompleted = currentAmountLeft === 0;
+
+          if (isTaskCompleted) {
+            const [, errors] = await this.basicService.deleteOne({
+              filter: { _id: task._id, player_id, isRewarded: true },
+              session,
+            });
+            if (errors) throw new DailyTaskUpdateError(errors);
+          }
+
+          const progressResult = this.buildProgressResult(
+            isTaskCompleted ? 'completed' : 'advanced',
+            task,
             player_id,
-            taskId,
-            session,
+            completedAmount,
+            previousAmountLeft,
+            currentAmountLeft,
           );
-          return [null, lookupErrors];
-        }
+          const [handledResult, progressErrors] =
+            await this.progressService.handleProgress(progressResult, session);
+          if (progressErrors) throw new DailyTaskUpdateError(progressErrors);
 
-        const currentAmountLeft = task.amountLeft;
-        const previousAmountLeft = currentAmountLeft + 1;
-        const completedAmount = 1;
-        const isTaskCompleted = currentAmountLeft === 0;
-
-        if (isTaskCompleted) {
-          const [, errors] = await this.basicService.deleteOne({
-            filter: { _id: task._id, player_id, isRewarded: true },
-            session,
-          });
-          if (errors) throw new DailyTaskUpdateError(errors);
-        }
-
-        const progressResult = this.buildProgressResult(
-          isTaskCompleted ? 'completed' : 'advanced',
-          task,
-          player_id,
-          completedAmount,
-          previousAmountLeft,
-          currentAmountLeft,
-        );
-        const [handledResult, progressErrors] =
-          await this.progressService.handleProgress(progressResult, session);
-        if (progressErrors) throw new DailyTaskUpdateError(progressErrors);
-
-        return [handledResult, null];
-      });
+          return [handledResult, null];
+        },
+      );
+      if (transactionResult[0]) {
+        this.progressService.notifyProgress(transactionResult[0]);
+      }
+      return transactionResult;
     } catch (error) {
       if (error instanceof DailyTaskUpdateError)
         return [null, error.serviceErrors];

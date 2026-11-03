@@ -296,7 +296,6 @@ export class ClanController {
           await this.dailyTaskProgressService.handleClanTaskCompletion(
             progressResult,
             session,
-            false,
           );
         if (progressErrors) return cancelTransaction(session, progressErrors);
 

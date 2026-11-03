@@ -34,7 +34,7 @@ export class DailyTaskProgressService {
     session?: ClientSession,
   ): Promise<IServiceReturn<DailyTaskProgressResult<TTask>>> {
     if (result.status === 'advanced') {
-      this.notifier.taskUpdated(result.completedByPlayerId, result.task);
+      if (!session) this.notifyProgress(result);
       return [result, null];
     }
 
@@ -49,7 +49,14 @@ export class DailyTaskProgressService {
     );
     if (errors) return cancelTransaction(newSession, errors);
 
-    return endTransaction(newSession, handledResult);
+    const [committedResult, endErrors] = await endTransaction(
+      newSession,
+      handledResult,
+    );
+    if (endErrors) return [null, endErrors];
+
+    this.notifyProgress(committedResult);
+    return [committedResult, null];
   }
 
   /**
@@ -58,9 +65,8 @@ export class DailyTaskProgressService {
   async handleClanTaskCompletion<TTask extends ProgressTask>(
     result: DailyTaskProgressResult<TTask>,
     session?: ClientSession,
-    notify = true,
   ): Promise<IServiceReturn<DailyTaskProgressResult<TTask>>> {
-    if (session) return this.handleClanCompletion(result, session, notify);
+    if (session) return this.handleClanCompletion(result, session);
 
     const [newSession, initErrors] = await initializeSession(this.connection);
     if (!newSession) return [null, initErrors];
@@ -68,11 +74,17 @@ export class DailyTaskProgressService {
     const [handledResult, errors] = await this.handleClanCompletion(
       result,
       newSession,
-      notify,
     );
     if (errors) return cancelTransaction(newSession, errors);
 
-    return endTransaction(newSession, handledResult);
+    const [committedResult, endErrors] = await endTransaction(
+      newSession,
+      handledResult,
+    );
+    if (endErrors) return [null, endErrors];
+
+    this.notifyClanTaskCompletion(committedResult);
+    return [committedResult, null];
   }
 
   private async handleCompletion<TTask extends ProgressTask>(
@@ -88,8 +100,6 @@ export class DailyTaskProgressService {
         session,
       );
     if (playerRewardErrors) return [null, playerRewardErrors];
-
-    this.notifier.taskCompleted(result.completedByPlayerId, task);
 
     if (result.needsClanReward === false) {
       return [result, null];
@@ -110,28 +120,12 @@ export class DailyTaskProgressService {
 
     result.reachedMilestones = progressionResult.reachedMilestones;
 
-    this.notifier.taskCompletedForClan(
-      result.clanId,
-      task,
-      result.completedByPlayerId,
-    );
-
-    if (result.reachedMilestones?.length) {
-      this.notifier.milestoneReached(
-        result.clanId,
-        task,
-        result.completedByPlayerId,
-        result.reachedMilestones,
-      );
-    }
-
     return [result, null];
   }
 
   private async handleClanCompletion<TTask extends ProgressTask>(
     result: DailyTaskProgressResult<TTask>,
     session: ClientSession,
-    notify: boolean,
   ): Promise<IServiceReturn<DailyTaskProgressResult<TTask>>> {
     const { task } = result;
 
@@ -150,9 +144,22 @@ export class DailyTaskProgressService {
 
     result.reachedMilestones = progressionResult.reachedMilestones;
 
-    if (notify) this.notifyClanTaskCompletion(result);
-
     return [result, null];
+  }
+
+  /** Publishes progress notifications only after the owning transaction commits. */
+  notifyProgress<TTask extends ProgressTask>(
+    result: DailyTaskProgressResult<TTask>,
+  ) {
+    if (result.status === 'advanced') {
+      this.notifier.taskUpdated(result.completedByPlayerId, result.task);
+      return;
+    }
+
+    this.notifier.taskCompleted(result.completedByPlayerId, result.task);
+    if (result.needsClanReward !== false) {
+      this.notifyClanTaskCompletion(result);
+    }
   }
 
   /**

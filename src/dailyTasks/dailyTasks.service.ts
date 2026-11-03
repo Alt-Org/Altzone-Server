@@ -751,7 +751,14 @@ export class DailyTasksService {
     );
     if (progressErrors) return cancelTransaction(session, progressErrors);
 
-    return endTransaction(session, progressResult);
+    const [committedResult, endErrors] = await endTransaction(
+      session,
+      progressResult,
+    );
+    if (endErrors) return [null, endErrors];
+
+    this.progressService.notifyProgress(committedResult);
+    return [committedResult, null];
   }
 
   /**
@@ -781,7 +788,14 @@ export class DailyTasksService {
       );
     if (progressErrors) return cancelTransaction(session, progressErrors);
 
-    return endTransaction(session, progressResult);
+    const [committedResult, endErrors] = await endTransaction(
+      session,
+      progressResult,
+    );
+    if (endErrors) return [null, endErrors];
+
+    this.progressService.notifyClanTaskCompletion(committedResult);
+    return [committedResult, null];
   }
 
   async getRewards() {
