@@ -51,6 +51,7 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
 
     const [result, errors] = await uiDailyTasksService.updateTask(
       loggedPlayer._id,
+      createdTask._id.toString(),
       completedAmount,
     );
 
@@ -74,7 +75,10 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       .build();
     const createdTask = await taskModel.create(dailyTaskToCreate);
 
-    await uiDailyTasksService.updateTask(loggedPlayer._id);
+    await uiDailyTasksService.updateTask(
+      loggedPlayer._id,
+      createdTask._id.toString(),
+    );
 
     const updatedTask = await taskModel.findById(createdTask._id);
 
@@ -90,9 +94,13 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       .setPlayerId(loggedPlayer._id)
       .setClanId(existingClan._id)
       .build();
-    await taskModel.create(dailyTaskToCreate);
+    const createdTask = await taskModel.create(dailyTaskToCreate);
 
-    const [result] = await uiDailyTasksService.updateTask(loggedPlayer._id, 1);
+    const [result] = await uiDailyTasksService.updateTask(
+      loggedPlayer._id,
+      createdTask._id.toString(),
+      1,
+    );
 
     expect(result.status).toBe('advanced');
   });
@@ -106,9 +114,13 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       .setPlayerId(loggedPlayer._id)
       .setClanId(existingClan._id)
       .build();
-    await taskModel.create(dailyTaskToCreate);
+    const createdTask = await taskModel.create(dailyTaskToCreate);
 
-    const [result] = await uiDailyTasksService.updateTask(loggedPlayer._id, 1);
+    const [result] = await uiDailyTasksService.updateTask(
+      loggedPlayer._id,
+      createdTask._id.toString(),
+      1,
+    );
 
     expect(result.status).toBe('completed');
   });
@@ -125,7 +137,11 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       .build();
     const createdTask = await taskModel.create(dailyTaskToCreate);
 
-    await uiDailyTasksService.updateTask(loggedPlayer._id, 1);
+    await uiDailyTasksService.updateTask(
+      loggedPlayer._id,
+      createdTask._id.toString(),
+      1,
+    );
 
     const updatedTask = await taskModel.findById(createdTask._id);
 
@@ -141,12 +157,13 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       .setPlayerId(loggedPlayer._id)
       .setClanId(existingClan._id)
       .build();
-    await taskModel.create(dailyTaskToCreate);
+    const createdTask = await taskModel.create(dailyTaskToCreate);
 
     await clanModel.findByIdAndDelete(existingClan._id);
 
     const [result, errors] = await uiDailyTasksService.updateTask(
       new ObjectId().toString(),
+      createdTask._id.toString(),
       1,
     );
 
@@ -164,10 +181,11 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       .setPlayerId(loggedPlayer._id)
       .setClanId(existingClan._id)
       .build();
-    await taskModel.create(dailyTaskToCreate);
+    const createdTask = await taskModel.create(dailyTaskToCreate);
 
     const [result, errors] = await uiDailyTasksService.updateTask(
       loggedPlayer._id,
+      createdTask._id.toString(),
       1,
     );
     expect(result).toBeNull();
@@ -213,6 +231,7 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
 
     const [result, errors] = await uiDailyTasksService.updateTask(
       loggedPlayer._id,
+      taskId.toString(),
     );
 
     expect(errors).toBeNull();
@@ -232,14 +251,81 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
     );
 
     const results = await Promise.all([
-      uiDailyTasksService.updateTask(loggedPlayer._id),
-      uiDailyTasksService.updateTask(loggedPlayer._id),
+      uiDailyTasksService.updateTask(
+        loggedPlayer._id,
+        createdTask._id.toString(),
+      ),
+      uiDailyTasksService.updateTask(
+        loggedPlayer._id,
+        createdTask._id.toString(),
+      ),
     ]);
 
     expect(
       results.filter(([result]) => result?.status === 'completed'),
     ).toHaveLength(1);
     expect(await taskModel.findById(createdTask._id)).toBeNull();
+  });
+
+  it('Should not progress a task owned by another player', async () => {
+    const createdTask = await taskModel.create(
+      taskBuilder
+        .setClanId(existingClan._id)
+        .setPlayerId(loggedPlayer._id)
+        .setType(UITaskName.COMPARE_DEFENCE_SOLDIERS)
+        .setAmount(2)
+        .setAmountLeft(2)
+        .build(),
+    );
+
+    const [result, errors] = await uiDailyTasksService.updateTask(
+      new ObjectId().toString(),
+      createdTask._id.toString(),
+    );
+    const taskAfter = await taskModel.findById(createdTask._id);
+
+    expect(result).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
+    expect(taskAfter?.amountLeft).toBe(2);
+  });
+
+  it('Should not apply a stale request to a new task instance', async () => {
+    const oldTaskId = new ObjectId();
+    const oldTask = await taskModel.create(
+      taskBuilder
+        .setId(oldTaskId)
+        .setClanId(existingClan._id)
+        .setPlayerId(loggedPlayer._id)
+        .setType(UITaskName.COMPARE_DEFENCE_SOLDIERS)
+        .setAmount(1)
+        .setAmountLeft(1)
+        .build(),
+    );
+    await uiDailyTasksService.updateTask(
+      loggedPlayer._id,
+      oldTask._id.toString(),
+    );
+
+    const newTaskId = new ObjectId();
+    const newTask = await taskModel.create(
+      taskBuilder
+        .setId(newTaskId)
+        .setClanId(existingClan._id)
+        .setPlayerId(loggedPlayer._id)
+        .setType(UITaskName.SPOT_A_CULTURAL_REFERENCE)
+        .setAmount(2)
+        .setAmountLeft(2)
+        .build(),
+    );
+    const [result, errors] = await uiDailyTasksService.updateTask(
+      loggedPlayer._id,
+      oldTask._id.toString(),
+    );
+    const taskAfter = await taskModel.findById(newTask._id);
+
+    expect(result).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
+    expect(taskAfter?.amountLeft).toBe(2);
   });
 
   it('Should commit task completion and player and clan rewards together', async () => {
@@ -259,6 +345,7 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
 
     const [result, errors] = await uiDailyTasksService.updateTask(
       loggedPlayer._id,
+      createdTask._id.toString(),
     );
     const [playerAfter, clanAfter, taskAfter] = await Promise.all([
       playerModel.findById(loggedPlayer._id),
@@ -291,6 +378,7 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
 
     const [result, errors] = await uiDailyTasksService.updateTask(
       loggedPlayer._id,
+      createdTask._id.toString(),
     );
     const [playerAfter, taskAfter] = await Promise.all([
       playerModel.findById(loggedPlayer._id),

@@ -16,6 +16,10 @@ describe('DailyTasksService.updateClanTask', () => {
           coins: 5,
         }),
       })),
+      findOneAndDelete: jest.fn(() => ({
+        exec: jest.fn().mockResolvedValue({ _id: 'task-1' }),
+      })),
+      create: jest.fn().mockResolvedValue([{ _id: 'task-2' }]),
     };
     const service = new DailyTasksService(
       model as any,
@@ -63,17 +67,17 @@ describe('DailyTasksService.updateClanTask', () => {
       expect.any(Array),
       expect.objectContaining({ new: true, session: expect.anything() }),
     );
-    expect(basicService.updateOne).toHaveBeenCalledWith(
+    expect(model.findOneAndDelete).toHaveBeenCalledWith(
       expect.objectContaining({
-        $unset: { player_id: '', startedAt: '' },
+        _id: 'task-1',
+        clan_id: 'clan-1',
+        isRewarded: true,
       }),
-      expect.objectContaining({
-        filter: {
-          _id: 'task-1',
-          clan_id: 'clan-1',
-          isRewarded: true,
-        },
-      }),
+      expect.objectContaining({ session: expect.anything() }),
+    );
+    expect(model.create).toHaveBeenCalledWith(
+      [expect.objectContaining({ clan_id: 'clan-1', player_id: null })],
+      expect.objectContaining({ session: expect.anything() }),
     );
   });
 });

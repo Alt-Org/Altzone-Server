@@ -9,11 +9,17 @@ describe('UPGRADE_A_DEFENCE_SOLDIER daily task', () => {
       findOneAndUpdate: jest.fn(() => ({
         exec: jest.fn().mockResolvedValue(updatedTask),
       })),
+      findOneAndDelete: jest.fn(() => ({
+        exec: jest.fn().mockResolvedValue(updatedTask),
+      })),
+      create: jest.fn().mockResolvedValue([{ _id: 'task-2' }]),
     };
     const progressService = { handleProgress: jest.fn() };
     const service = new DailyTasksService(
       model as any,
-      {} as Connection,
+      {
+        transaction: jest.fn((callback) => callback({})),
+      } as unknown as Connection,
       {} as any,
       {} as any,
       {
@@ -75,7 +81,7 @@ describe('UPGRADE_A_DEFENCE_SOLDIER daily task', () => {
       clan_id: 'clan-1',
       amountLeft: 0,
     };
-    const { basicService, model, service } = createService(updatedTask);
+    const { model, service } = createService(updatedTask);
 
     const [result, errors] = await service.updateStrongerSoldierTask(
       'player-1',
@@ -93,11 +99,13 @@ describe('UPGRADE_A_DEFENCE_SOLDIER daily task', () => {
       expect.any(Array),
       expect.objectContaining({ new: true }),
     );
-    expect(basicService.updateOne).toHaveBeenCalledWith(
-      expect.objectContaining({
-        $set: expect.objectContaining({ amountLeft: 2, progress: {} }),
-      }),
-      expect.anything(),
+    expect(model.findOneAndDelete).toHaveBeenCalledWith(
+      expect.objectContaining({ _id: 'task-1', isRewarded: true }),
+      expect.objectContaining({ session: expect.anything() }),
+    );
+    expect(model.create).toHaveBeenCalledWith(
+      [expect.objectContaining({ amountLeft: 2, progress: {} })],
+      expect.objectContaining({ session: expect.anything() }),
     );
   });
 
