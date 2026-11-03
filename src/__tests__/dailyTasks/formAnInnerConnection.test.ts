@@ -14,8 +14,12 @@ import { PlayerRewarder } from '../../rewarder/playerRewarder/playerRewarder.ser
 describe('MESSAGE_YOUR_CLAN Daily Task', () => {
   let service: DailyTasksService;
   let mockModel: any;
+  let commitTransaction: jest.Mock;
+  let notifyProgress: jest.Mock;
 
   beforeEach(async () => {
+    commitTransaction = jest.fn();
+    notifyProgress = jest.fn();
     mockModel = {
       findOne: jest.fn(),
       findOneAndUpdate: jest.fn(),
@@ -34,7 +38,7 @@ describe('MESSAGE_YOUR_CLAN Daily Task', () => {
           useValue: {
             startSession: jest.fn().mockResolvedValue({
               startTransaction: jest.fn(),
-              commitTransaction: jest.fn(),
+              commitTransaction,
               abortTransaction: jest.fn(),
               endSession: jest.fn(),
               inTransaction: jest.fn().mockReturnValue(true),
@@ -59,6 +63,7 @@ describe('MESSAGE_YOUR_CLAN Daily Task', () => {
           provide: DailyTaskProgressService,
           useValue: {
             handleProgress: jest.fn().mockResolvedValue([true, null]),
+            notifyProgress,
           },
         },
         {
@@ -138,6 +143,11 @@ describe('MESSAGE_YOUR_CLAN Daily Task', () => {
       expect(res).toBeDefined();
       expect(res?.status).toBe('advanced');
       expect(res?.needsClanReward).toBe(true);
+      expect(commitTransaction).toHaveBeenCalled();
+      expect(notifyProgress).toHaveBeenCalledWith(res);
+      expect(commitTransaction.mock.invocationCallOrder[0]).toBeLessThan(
+        notifyProgress.mock.invocationCallOrder[0],
+      );
     });
 
     it('successfully completes task when amountLeft reaches 0', async () => {
