@@ -214,6 +214,8 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
   });
 
   it('Should complete a legacy task without isRewarded', async () => {
+    const playerBefore = await playerModel.findById(loggedPlayer._id);
+    const clanBefore = await clanModel.findById(existingClan._id);
     const taskId = new ObjectId();
     const legacyTask = taskBuilder
       .setId(taskId)
@@ -233,13 +235,28 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       loggedPlayer._id,
       taskId.toString(),
     );
+    const repeatedResult = await uiDailyTasksService.updateTask(
+      loggedPlayer._id,
+      taskId.toString(),
+    );
+    const [playerAfter, clanAfter] = await Promise.all([
+      playerModel.findById(loggedPlayer._id),
+      clanModel.findById(existingClan._id),
+    ]);
 
     expect(errors).toBeNull();
     expect(result?.status).toBe('completed');
+    expect(repeatedResult[0]).toBeNull();
+    expect(repeatedResult[1]).toContainSE_NOT_FOUND();
     expect(await taskModel.findById(taskId)).toBeNull();
+    expect(playerAfter?.points).toBe(playerBefore.points + legacyTask.points);
+    expect(clanAfter?.points).toBe(clanBefore.points + legacyTask.points);
+    expect(clanAfter?.gameCoins).toBe(clanBefore.gameCoins + legacyTask.coins);
   });
 
-  it('Should allow only one concurrent completion claim', async () => {
+  it('Should allow only one concurrent final progress and reward claim', async () => {
+    const playerBefore = await playerModel.findById(loggedPlayer._id);
+    const clanBefore = await clanModel.findById(existingClan._id);
     const createdTask = await taskModel.create(
       taskBuilder
         .setClanId(existingClan._id)
@@ -265,6 +282,49 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
       results.filter(([result]) => result?.status === 'completed'),
     ).toHaveLength(1);
     expect(await taskModel.findById(createdTask._id)).toBeNull();
+    const [playerAfter, clanAfter] = await Promise.all([
+      playerModel.findById(loggedPlayer._id),
+      clanModel.findById(existingClan._id),
+    ]);
+    expect(playerAfter?.points).toBe(playerBefore.points + createdTask.points);
+    expect(clanAfter?.points).toBe(clanBefore.points + createdTask.points);
+    expect(clanAfter?.gameCoins).toBe(clanBefore.gameCoins + createdTask.coins);
+  });
+
+  it('Should not claim or reward a task before its final progress', async () => {
+    const playerBefore = await playerModel.findById(loggedPlayer._id);
+    const clanBefore = await clanModel.findById(existingClan._id);
+    const taskId = new ObjectId();
+    const createdTask = await taskModel.create(
+      taskBuilder
+        .setId(taskId)
+        .setClanId(existingClan._id)
+        .setPlayerId(loggedPlayer._id)
+        .setType(UITaskName.COMPARE_DEFENCE_SOLDIERS)
+        .setAmount(2)
+        .setAmountLeft(2)
+        .setPoints(10)
+        .setCoins(5)
+        .build(),
+    );
+
+    const [result, errors] = await uiDailyTasksService.updateTask(
+      loggedPlayer._id,
+      createdTask._id.toString(),
+    );
+    const [playerAfter, clanAfter, taskAfter] = await Promise.all([
+      playerModel.findById(loggedPlayer._id),
+      clanModel.findById(existingClan._id),
+      taskModel.findById(createdTask._id).select('+isRewarded'),
+    ]);
+
+    expect(errors).toBeNull();
+    expect(result?.status).toBe('advanced');
+    expect(taskAfter?.amountLeft).toBe(1);
+    expect(taskAfter?.isRewarded).toBe(false);
+    expect(playerAfter?.points).toBe(playerBefore.points);
+    expect(clanAfter?.points).toBe(clanBefore.points);
+    expect(clanAfter?.gameCoins).toBe(clanBefore.gameCoins);
   });
 
   it('Should not progress a task owned by another player', async () => {
@@ -361,9 +421,13 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
     expect(clanAfter?.gameCoins).toBe(clanBefore.gameCoins + 5);
   });
 
-  it('Should roll back completion and player rewards when clan reward fails', async () => {
+  it('Should roll back completion, balances and notifications and allow retry', async () => {
     const missingClanId = new ObjectId();
     const playerBefore = await playerModel.findById(loggedPlayer._id);
+    const notifyProgress = jest.spyOn(
+      (uiDailyTasksService as any).progressService,
+      'notifyProgress',
+    );
     const createdTask = await taskModel.create(
       taskBuilder
         .setClanId(missingClanId)
@@ -390,5 +454,34 @@ describe('UIDailyTasksService.updateTask() test suite', () => {
     expect(playerAfter?.points).toBe(playerBefore.points);
     expect(taskAfter?.amountLeft).toBe(1);
     expect(taskAfter?.isRewarded).toBe(false);
+    expect(notifyProgress).not.toHaveBeenCalled();
+
+    const retryClanSuffix = missingClanId.toString().slice(-8);
+    const retryClan = ClanBuilderFactory.getBuilder('Clan')
+      .setId(missingClanId.toString())
+      .setName(`retry-${retryClanSuffix}`)
+      .setTag(`retry-${retryClanSuffix}`)
+      .build();
+    await clanModel.create(retryClan);
+
+    const [retryResult, retryErrors] = await uiDailyTasksService.updateTask(
+      loggedPlayer._id,
+      createdTask._id.toString(),
+    );
+    const [playerAfterRetry, clanAfterRetry, taskAfterRetry] =
+      await Promise.all([
+        playerModel.findById(loggedPlayer._id),
+        clanModel.findById(missingClanId),
+        taskModel.findById(createdTask._id),
+      ]);
+
+    expect(retryErrors).toBeNull();
+    expect(retryResult?.status).toBe('completed');
+    expect(taskAfterRetry).toBeNull();
+    expect(playerAfterRetry?.points).toBe(playerBefore.points + 10);
+    expect(clanAfterRetry?.points).toBe(10);
+    expect(clanAfterRetry?.gameCoins).toBe(5);
+    expect(notifyProgress).toHaveBeenCalledTimes(1);
+    notifyProgress.mockRestore();
   });
 });
