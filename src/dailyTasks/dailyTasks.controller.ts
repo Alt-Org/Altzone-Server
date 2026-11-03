@@ -15,7 +15,6 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { PlayerService } from '../player/player.service';
 import { DailyTaskDto } from './dto/dailyTask.dto';
 import { _idDto } from '../common/dto/_id.dto';
-import GameEventEmitter from '../gameEventsEmitter/gameEventEmitter';
 import { UpdateUIDailyTaskDto } from './dto/updateUIDailyTask.dto';
 import UIDailyTasksService from './uiDailyTasks/uiDailyTasks.service';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
@@ -25,7 +24,6 @@ export class DailyTasksController {
   constructor(
     private readonly dailyTasksService: DailyTasksService,
     private readonly playerService: PlayerService,
-    private readonly emitter: GameEventEmitter,
     private readonly uiDailyTasksService: UIDailyTasksService,
   ) {}
 
@@ -187,9 +185,7 @@ export class DailyTasksController {
     );
     if (errors) throw errors;
 
-    await this.emitter.emitAsync('dailyTask.updateUIBasicTask', {
-      result,
-    });
+    return result;
   }
 
   /**
