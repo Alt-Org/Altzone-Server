@@ -61,12 +61,12 @@ describe('Friendship.getFriendRequests() test suites', () => {
     expect(friendships).toHaveLength(1);
   });
 
-  it('should return NOT_FOUND for player4', async () => {
+  it('should return an empty array for a player without pending requests', async () => {
     const [friendships, err] =
       await friendshipService.getFriendRequests(player4_id);
 
-    expect(err).toContainSE_NOT_FOUND();
-    expect(friendships).toBeNull();
+    expect(err).toBeNull();
+    expect(friendships).toEqual([]);
   });
 
   it('Should avoid status ACCEPTED and return one friendship request', async () => {

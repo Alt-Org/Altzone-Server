@@ -52,8 +52,8 @@ describe('Friendship.getPlayerFriendlist() test suite', () => {
       randomPlayer_id.toString(),
     );
 
-    expect(err).toContainSE_NOT_FOUND();
-    expect(friendships).toBeNull();
+    expect(err).toBeNull();
+    expect(friendships).toEqual([]);
   });
 
   it('Should get only one friendship for player2', async () => {
