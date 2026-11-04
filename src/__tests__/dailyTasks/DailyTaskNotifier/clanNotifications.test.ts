@@ -46,8 +46,8 @@ describe('DailyTaskNotifier clan notifications', () => {
     expect(publishMock).toHaveBeenCalledWith(expectedTopic, expectedPayload);
   });
 
-  it('Should send milestone reached notification to clan', () => {
-    const reachedMilestones = [100, 200];
+  it('Should send the Box-session target as a milestone notification to the clan', () => {
+    const reachedMilestones = [6300];
 
     notifier.milestoneReached(clanId, task, playerId, reachedMilestones);
 

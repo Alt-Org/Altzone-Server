@@ -96,9 +96,13 @@ export class DailyTasksController {
   }
 
   /**
-   * Claim player reward.
+   * Claim a player reward through the legacy reward flow.
    *
-   * Param 1-3
+   * This endpoint is retained for backwards compatibility. The current final
+   * milestone flow notifies the frontend automatically through MQTT and does
+   * not add new entries to claimableRewards or require this request.
+   *
+   * @param reward Legacy placeholder reward ID (1-3)
    */
   @ApiResponseDescription({
     success: {

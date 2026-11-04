@@ -75,6 +75,32 @@ describe('ClanRewarder.rewardClanForPlayerTask() test suite', () => {
     expect(clanAfter.points).toBe(clanMaxPoints);
   });
 
+  it('Should allow a Box-session clan to progress beyond the normal maximum', async () => {
+    const targetPoints = 6300;
+    await clanModel.findByIdAndUpdate(existingClan._id, {
+      points: clanMaxPoints,
+      targetPoints,
+    });
+
+    await rewarder.rewardClanForPlayerTask(existingClan._id, 420, 1);
+
+    const clanAfter = await clanModel.findById(existingClan._id);
+    expect(clanAfter.points).toBe(clanMaxPoints + 420);
+  });
+
+  it('Should allow a Box-session clan to progress after reaching its target', async () => {
+    const targetPoints = 4200;
+    await clanModel.findByIdAndUpdate(existingClan._id, {
+      points: targetPoints,
+      targetPoints,
+    });
+
+    await rewarder.rewardClanForPlayerTask(existingClan._id, 10, 1);
+
+    const clanAfter = await clanModel.findById(existingClan._id);
+    expect(clanAfter.points).toBe(targetPoints + 10);
+  });
+
   it('Should not update points amount if the specified amount is a negative number and return LESS_THAN_MIN ServiceError', async () => {
     const pointsToAdd = -10;
     const clanBefore = await clanModel.findById(existingClan._id);

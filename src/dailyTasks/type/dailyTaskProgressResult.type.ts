@@ -10,6 +10,7 @@ export type DailyTaskProgressResult<TTask = DailyTaskDto> = {
   completedAmount: number;
   previousAmountLeft: number;
   currentAmountLeft: number;
+  /** Newly reached active clan milestone, including a Box-session target. */
   reachedMilestones?: number[];
   needsClanReward?: boolean;
 };

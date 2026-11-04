@@ -166,6 +166,55 @@ describe('DailyTaskProgressService', () => {
     );
   });
 
+  it('should forward a Box-session target reached by a player task after completion', async () => {
+    const result = makeResult('completed', 'serverTask');
+    clanProgression.handleClanProgression.mockResolvedValue([
+      { reachedMilestones: [6300] },
+      null,
+    ]);
+
+    const [handled, error] = await service.handleProgress(result, session);
+
+    expect(error).toBeNull();
+    expect(handled.reachedMilestones).toEqual([6300]);
+    expect(notifier.milestoneReached).not.toHaveBeenCalled();
+
+    service.notifyProgress(handled);
+
+    expect(notifier.milestoneReached).toHaveBeenCalledWith(
+      'clan-1',
+      result.task,
+      'player-1',
+      [6300],
+    );
+  });
+
+  it('should forward a Box-session target reached by a clan task after completion', async () => {
+    const result = makeResult('completed', 'update_clan_motto');
+    clanProgression.handleClanProgression.mockResolvedValue([
+      { reachedMilestones: [6300] },
+      null,
+    ]);
+
+    const [handled, error] = await service.handleClanTaskCompletion(
+      result,
+      session,
+    );
+
+    expect(error).toBeNull();
+    expect(handled.reachedMilestones).toEqual([6300]);
+    expect(notifier.milestoneReached).not.toHaveBeenCalled();
+
+    service.notifyClanTaskCompletion(handled);
+
+    expect(notifier.milestoneReached).toHaveBeenCalledWith(
+      'clan-1',
+      result.task,
+      'player-1',
+      [6300],
+    );
+  });
+
   it('should complete player-only task without rewarding or notifying clan', async () => {
     const result = {
       ...makeResult('completed', 'change_the_music'),
