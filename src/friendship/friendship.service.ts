@@ -9,7 +9,6 @@ import BasicService, {
   convertMongooseToServiceErrors,
 } from '../common/service/basicService/BasicService';
 import { PopulatedFriendship } from './type/populated-friendship.type';
-import { NotFoundServiceError } from './error/not-found.error';
 import { FriendlistDto } from './dto/friend-list.dto';
 import { InvalidIdsServiceError } from './error/duplicateId.error';
 import { FriendRequestDto } from './dto/FriendRequest.dto';
