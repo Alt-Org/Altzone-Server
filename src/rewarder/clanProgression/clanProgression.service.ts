@@ -1,210 +1,93 @@
-import { ItemProperty } from '../../clanInventory/item/const/itemProperties';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Clan } from '../../clan/clan.schema';
 import { ClientSession, Model } from 'mongoose';
-import { Player } from '../../player/schemas/player.schema';
-import BasicService from '../../common/service/basicService/BasicService';
-import { prizePool } from '../const/prizePool';
-import { Stock } from '../../clanInventory/stock/stock.schema';
-import { Item } from '../../clanInventory/item/item.schema';
-import { ItemName } from '../../clanInventory/item/enum/itemName.enum';
-import { itemProperties } from '../../clanInventory/item/const/itemProperties';
+import { Clan } from '../../clan/clan.schema';
+import { convertMongooseToServiceErrors } from '../../common/service/basicService/BasicService';
 import { IServiceReturn } from '../../common/service/basicService/IService';
+import { NORMAL_GAME_TARGET_POINTS } from '../const/prizePool';
 
 export type ClanProgressionResult = {
+  /**
+   * Contains the final target when it was reached for the first time.
+   * The array shape is retained for compatibility with the MQTT contract.
+   */
   reachedMilestones: number[];
-};
-
-type ClanProgressionItem = ItemProperty & {
-  unityKey: string;
-  location: number[];
-  stock_id: string;
-  room_id: string | null;
 };
 
 @Injectable()
 export class ClanProgression {
-  private readonly clanService: BasicService;
-  private readonly playerService: BasicService;
-  private readonly stockService: BasicService;
-  private readonly itemService: BasicService;
-
   constructor(
-    @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
-    @InjectModel(Player.name) public readonly playerModel: Model<Player>,
-    @InjectModel(Stock.name) public readonly stockModel: Model<Stock>,
-    @InjectModel(Item.name) public readonly itemModel: Model<Item>,
-  ) {
-    this.clanService = new BasicService(clanModel);
-    this.playerService = new BasicService(playerModel);
-    this.stockService = new BasicService(stockModel);
-    this.itemService = new BasicService(itemModel);
-  }
+    @InjectModel(Clan.name)
+    private readonly clanModel: Model<Clan>,
+  ) {}
 
   /**
-   * Handles prize pool progression
+   * Checks whether a clan has reached its single final score target and, if
+   * so, records it once. Regular clans target 2000 points, while Box-session
+   * clans use the targetPoints value assigned when the session starts.
    *
-   * @param clan Clan to be updated
-   * @param session Session for transactions
+   * The optional MongoDB session keeps the milestone update in the same
+   * transaction as the task completion and clan point update.
    */
   async handleClanProgression(
     clan: Clan,
     session?: ClientSession,
   ): Promise<IServiceReturn<ClanProgressionResult>> {
-    const pool = prizePool;
-    const existingUnlocked = [...(clan.unlockedMilestones ?? [])];
-    const newUnlockedPoints: number[] = [];
-    const newItemRewards: ItemProperty[] = [];
-    let coins = clan.gameCoins;
+    const targetPoints = this.getTargetPoints(clan);
 
-    const newMilestones = pool.milestones.filter(
-      (milestone) =>
-        clan.points >= milestone.points &&
-        !existingUnlocked.includes(milestone.points),
-    );
-
-    if (newMilestones.length === 0) return [{ reachedMilestones: [] }, null];
-
-    for (const milestone of newMilestones) {
-      existingUnlocked.push(milestone.points);
-      newUnlockedPoints.push(milestone.points);
-      newItemRewards.push(milestone.rewards.item);
-      coins += milestone.rewards.coins;
-    }
-
-    const clanUpdateErrors = await this.handleClanUpdate(
-      clan._id,
-      existingUnlocked,
-      coins,
-      session,
-    );
-    if (clanUpdateErrors) return [null, clanUpdateErrors];
-
-    const itemUpdateErrors = await this.handleItemUpdate(
-      clan._id,
-      newItemRewards,
-      session,
-    );
-    if (itemUpdateErrors) return [null, itemUpdateErrors];
-
-    const playerUpdateErrors = await this.handlePlayerUpdate(
-      clan._id,
-      newUnlockedPoints,
-      session,
-    );
-    if (playerUpdateErrors) return [null, playerUpdateErrors];
-
-    return [{ reachedMilestones: newUnlockedPoints }, null];
+    return this.recordTargetReached(clan._id, targetPoints, session);
   }
 
   /**
-   * Add Unlocked Milestones and update Coins
-   * @param clan_id Clan Id
-   * @param existingUnlocked Milestones Clan has unlocked
-   * @param coins Bonus Coins added to Clan
-   * @param session Session for transactions
-   * @returns If errors, Errors
+   * Resolves the clan's only active milestone. A stored targetPoints value
+   * identifies the session-specific Box target; otherwise the normal game's
+   * final target is used.
    */
-  private async handleClanUpdate(
-    clan_id: string,
-    existingUnlocked: number[],
-    coins: number,
-    session: ClientSession,
-  ) {
-    const [, clanUpdateErrors] = await this.clanService.updateOneById(
-      clan_id,
-      {
-        $set: {
-          unlockedMilestones: existingUnlocked,
-          gameCoins: coins,
-        },
-      },
-      { session },
-    );
-    if (clanUpdateErrors) return clanUpdateErrors;
+  private getTargetPoints(clan: Clan): number {
+    return clan.targetPoints ?? NORMAL_GAME_TARGET_POINTS;
   }
 
   /**
-   * Add Claimable rewards to Players claimableRewards
-   * @param clan_id Clan Id
-   * @param newUnlockedPoints Rewards Players have unlocked
-   * @param session Session for transactions
-   * @returns If errors, Errors
+   * Atomically records the final target if the persisted clan has enough
+   * points and the target has not already been recorded. The conditional
+   * update prevents concurrent task completions from reporting the same
+   * milestone more than once.
    */
-  private async handlePlayerUpdate(
-    clan_id: string,
-    newUnlockedPoints: number[],
-    session: ClientSession,
-  ) {
-    const [players, playerErrors] = await this.playerService.readMany({
-      filter: { clan_id },
-      session,
-    });
-    if (playerErrors) return playerErrors;
-
-    const filter = { _id: { $in: players.map((player) => player._id) } };
-
-    const [, playersUpdateErrors] = await this.playerService.updateMany(
-      [
+  private async recordTargetReached(
+    clanId: string,
+    targetPoints: number,
+    session?: ClientSession,
+  ): Promise<IServiceReturn<ClanProgressionResult>> {
+    try {
+      const result = await this.clanModel.updateOne(
         {
-          $set: {
-            claimableRewards: {
-              $concatArrays: [
-                { $ifNull: ['$claimableRewards', []] },
-                newUnlockedPoints,
-              ],
-            },
+          _id: clanId,
+          points: { $gte: targetPoints },
+          unlockedMilestones: { $ne: targetPoints },
+        },
+        {
+          $addToSet: {
+            unlockedMilestones: targetPoints,
           },
         },
-      ],
-      { filter, session },
-    );
-    if (playersUpdateErrors) return playersUpdateErrors;
+        { session },
+      );
+
+      if (result.modifiedCount === 0) {
+        return this.noMilestoneReached();
+      }
+
+      return [{ reachedMilestones: [targetPoints] }, null];
+    } catch (error) {
+      return [null, convertMongooseToServiceErrors(error)];
+    }
   }
 
   /**
-   * Add Items from rewards to DB
-   * @param clan_id Clan Id
-   * @param newItemRewards Bonus furniture given to Clan when milestone achieved
-   * @param session Session for transactions
-   * @returns If errors, Errors
+   * Returns the common empty result when the target has not been reached or
+   * another concurrent operation has already recorded it.
    */
-  private async handleItemUpdate(
-    clan_id: string,
-    newItemRewards: ItemProperty[],
-    session: ClientSession,
-  ) {
-    const [stock, stockErrors] = await this.stockService.readOne({
-      filter: { clan_id: clan_id },
-      session,
-    });
-    if (stockErrors) return stockErrors;
-
-    const items = newItemRewards.map((reward) =>
-      this.createItem(reward.name, stock._id),
-    );
-
-    const [, itemErrors] = await this.itemService.createMany(items, {
-      session,
-    });
-    if (itemErrors) return itemErrors;
-  }
-
-  /**
-   * Create item to be added to Clan's Stock
-   * @param itemName Name of item to be created
-   * @param stockId Stock Id used to track ownership
-   * @returns Created item
-   */
-  private createItem(itemName: ItemName, stockId: string): ClanProgressionItem {
-    const item = itemProperties[itemName];
-    return {
-      ...item,
-      location: [-1, -1],
-      unityKey: item.name,
-      stock_id: stockId,
-      room_id: null,
-    };
+  private noMilestoneReached(): IServiceReturn<ClanProgressionResult> {
+    return [{ reachedMilestones: [] }, null];
   }
 }

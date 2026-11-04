@@ -418,9 +418,12 @@ export class PlayerService
   }
 
   /**
-   * Claim Player reward. Removes claimable reward from claimableRewards, return chosen reward.
+   * Claims a reward through the legacy reward flow. Removes the final target
+   * from claimableRewards and returns the selected placeholder reward.
    *
-   * Currently, Player rewards are not implemented, so a mock reward is instead returned.
+   * Current clan progression no longer adds new claimableRewards entries; it
+   * reports the final target automatically through MQTT instead. This method
+   * remains available for backwards compatibility with existing data.
    *
    * @param _id Player Id
    * @param reward_id Reward Id - Currently, there are no rewards, so placeholder rewards are used

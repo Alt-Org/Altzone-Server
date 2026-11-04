@@ -118,6 +118,8 @@ export class DailyTaskProgressService {
       await this.clanProgression.handleClanProgression(updatedClan, session);
     if (clanProgressionErrors) return [null, clanProgressionErrors];
 
+    // The same result field carries either the normal 2000-point milestone or
+    // the Box session's targetPoints to the post-commit notification phase.
     result.reachedMilestones = progressionResult.reachedMilestones;
 
     return [result, null];
@@ -142,6 +144,7 @@ export class DailyTaskProgressService {
       await this.clanProgression.handleClanProgression(updatedClan, session);
     if (clanProgressionErrors) return [null, clanProgressionErrors];
 
+    // Clan-level tasks use the same active-milestone notification contract.
     result.reachedMilestones = progressionResult.reachedMilestones;
 
     return [result, null];

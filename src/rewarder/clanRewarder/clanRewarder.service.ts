@@ -81,7 +81,13 @@ export class ClanRewarder {
         {
           $set: {
             points: {
-              $min: [this.clanMaxPoints, { $add: ['$points', points] }],
+              $cond: [
+                { $isNumber: '$targetPoints' },
+                { $add: ['$points', points] },
+                {
+                  $min: [this.clanMaxPoints, { $add: ['$points', points] }],
+                },
+              ],
             },
             gameCoins: { $add: ['$gameCoins', coins] },
           },

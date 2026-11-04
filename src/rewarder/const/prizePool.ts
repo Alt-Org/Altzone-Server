@@ -1,19 +1,12 @@
-import { itemProperties } from '../../clanInventory/item/const/itemProperties';
+/** The single final score target for each normal daily-task progression cycle. */
+export const NORMAL_GAME_TARGET_POINTS = 2000;
 
 /**
  * Temporary hard-coded prize pool
  */
 export const prizePool = {
-  maxPoints: 2000,
-  milestones: [
-    { points: 300, rewards: { coins: 30, item: itemProperties.Sofa_Taakka } },
-    { points: 600, rewards: { coins: 60, item: itemProperties.Sofa_Rakkaus } },
-    {
-      points: 1200,
-      rewards: { coins: 120, item: itemProperties.Sofa_Muistoja },
-    },
-    { points: 2000, rewards: { coins: 200, item: itemProperties.Sofa_Kipu } },
-  ],
+  maxPoints: NORMAL_GAME_TARGET_POINTS,
+  milestones: [{ points: NORMAL_GAME_TARGET_POINTS }],
   finalRewards: [
     { id: 1, reward: 'Reward 1' },
     { id: 2, reward: 'Reward 2' },

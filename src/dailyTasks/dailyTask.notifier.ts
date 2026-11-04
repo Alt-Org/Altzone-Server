@@ -141,7 +141,7 @@ export default class DailyTaskNotifier {
   }
 
   /**
-   * A clan reached new daily task reward milestones.
+   * A clan reached its active daily-task or Box-session milestone.
    * @param clan_id the DB _id of the clan for whom notification is addressed
    * @param task task that triggered the milestone update
    * @param completedByPlayerId the DB _id of the player who completed the task
