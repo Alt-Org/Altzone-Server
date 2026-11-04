@@ -13,7 +13,6 @@ import { NotFoundServiceError } from './error/not-found.error';
 import { FriendlistDto } from './dto/friend-list.dto';
 import { InvalidIdsServiceError } from './error/duplicateId.error';
 import { FriendRequestDto } from './dto/FriendRequest.dto';
-
 @Injectable()
 export class FriendshipService {
   constructor(
@@ -23,7 +22,6 @@ export class FriendshipService {
   }
 
   public readonly basicService: BasicService;
-
   /**
    * Returns a friendlist for a player.
    * Finds accepted friendships for the given player and populates player and clan data
@@ -40,6 +38,7 @@ export class FriendshipService {
         playerId,
         FriendshipStatus.ACCEPTED,
       );
+      if (friendships.length === 0) return [[], null];
       if (error) return [null, error];
 
       const filtered: FriendlistDto[] = friendships.map((doc) => {
@@ -141,7 +140,8 @@ export class FriendshipService {
       ])
       .lean<PopulatedFriendship[]>();
 
-    if (!friendships.length) return NotFoundServiceError;
+    if (friendships.length === 0) return [[], null];
+
     return [friendships, null];
   }
 
