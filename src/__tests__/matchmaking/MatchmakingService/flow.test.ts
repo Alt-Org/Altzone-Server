@@ -209,10 +209,12 @@ describe('MatchmakingService flow', () => {
     const [readyRoom] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
       gameType,
+      teamSize: 2,
     });
     const [openRoom] = await service.createInvite('player-2', {
       matchType: MatchType.RANDOM,
       gameType,
+      teamSize: 2,
       allowBots: false,
     });
 
@@ -240,6 +242,7 @@ describe('MatchmakingService flow', () => {
     const [fullRoom] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
       gameType,
+      teamSize: 2,
       allowBots: false,
     });
     await service.joinInvite(fullRoom.id, 'player-2', {} as any);
@@ -261,6 +264,7 @@ describe('MatchmakingService flow', () => {
     const [room] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
       gameType,
+      teamSize: 2,
     });
 
     const results = await Promise.all([
@@ -288,6 +292,7 @@ describe('MatchmakingService flow', () => {
     const [room] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
       gameType,
+      teamSize: 2,
     });
 
     const [joinedRoom, joinErrors] = await service.joinInvite(
@@ -339,6 +344,7 @@ describe('MatchmakingService flow', () => {
     const [room] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
       gameType,
+      teamSize: 2,
       allowBots: false,
     });
     await service.joinInvite(room.id, 'player-2', {} as any);
@@ -387,7 +393,7 @@ describe('MatchmakingService flow', () => {
     expect(outsiderRoomIds).toContain(customRoom.id);
   });
 
-  it('creates an active RANDOM match after ready room owners start matchmaking', async () => {
+  it('creates a default 1v1 RANDOM match after ready room owners start matchmaking', async () => {
     const { redis, notifier, service } = createService();
 
     const [firstInvite, firstErrors] = await service.createInvite('player-1', {
@@ -434,15 +440,13 @@ describe('MatchmakingService flow', () => {
       matchType: MatchType.RANDOM,
       gameType,
       status: MatchStatus.ACTIVE,
-      teamSize: 2,
+      teamSize: 1,
     });
     expect(matches[0].teams[0].participants).toEqual([
       { playerId: 'player-1', isBot: false },
-      expect.objectContaining({ isBot: true }),
     ]);
     expect(matches[0].teams[1].participants).toEqual([
       { playerId: 'player-2', isBot: false },
-      expect.objectContaining({ isBot: true }),
     ]);
     expect(
       await redis.lrange(`matchmaking:queue:RANDOM:${gameType}`, 0, -1),
@@ -458,6 +462,83 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({ id: startedInvite.matchId }),
     );
     expect(notifier.matchEvent).not.toHaveBeenCalled();
+  });
+
+  it('creates an explicit 2v2 RANDOM match with bot-filled team slots', async () => {
+    const { redis, service } = createService();
+
+    const [firstInvite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+      teamSize: 2,
+    });
+    const [secondInvite] = await service.createInvite('player-2', {
+      matchType: MatchType.RANDOM,
+      gameType,
+      teamSize: 2,
+    });
+
+    expect(firstInvite).toMatchObject({
+      status: InviteStatus.READY,
+      teamSize: 2,
+    });
+    expect(firstInvite.bots).toHaveLength(1);
+    expect(secondInvite.bots).toHaveLength(1);
+
+    await service.startRoom(firstInvite.id, 'player-1');
+    await service.startRoom(secondInvite.id, 'player-2');
+
+    const [match] = getStoredMatches(redis);
+    expect(match).toMatchObject({
+      matchType: MatchType.RANDOM,
+      gameType,
+      teamSize: 2,
+    });
+    expect(match.teams[0].participants).toEqual([
+      { playerId: 'player-1', isBot: false },
+      expect.objectContaining({ isBot: true }),
+    ]);
+    expect(match.teams[1].participants).toEqual([
+      { playerId: 'player-2', isBot: false },
+      expect.objectContaining({ isBot: true }),
+    ]);
+  });
+
+  it('does not pair RANDOM rooms with different team sizes', async () => {
+    const { redis, service } = createService();
+
+    const [oneVsOne] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+      teamSize: 1,
+    });
+    const [twoVsTwo] = await service.createInvite('player-2', {
+      matchType: MatchType.RANDOM,
+      gameType,
+      teamSize: 2,
+    });
+
+    await service.startRoom(oneVsOne.id, 'player-1');
+    await service.startRoom(twoVsTwo.id, 'player-2');
+
+    expect(getStoredMatches(redis)).toHaveLength(0);
+
+    const [secondOneVsOne] = await service.createInvite('player-3', {
+      matchType: MatchType.RANDOM,
+      gameType,
+      teamSize: 1,
+    });
+    await service.startRoom(secondOneVsOne.id, 'player-3');
+
+    const [match] = getStoredMatches(redis);
+    expect(match.teamSize).toBe(1);
+    expect(match.teams.flatMap((team) => team.participants)).toEqual([
+      { playerId: 'player-1', isBot: false },
+      { playerId: 'player-3', isBot: false },
+    ]);
+    expect(
+      await redis.lrange(`matchmaking:queue:RANDOM:${gameType}`, 0, -1),
+    ).toEqual([twoVsTwo.id]);
   });
 
   it('keeps RANDOM rooms with different game types in separate queues', async () => {
@@ -496,7 +577,7 @@ describe('MatchmakingService flow', () => {
     expect(notifier.matchFound).not.toHaveBeenCalled();
   });
 
-  it('creates a CLAN bot opponent when the opponent timeout expires', async () => {
+  it('creates a default 1v1 CLAN bot opponent when the opponent timeout expires', async () => {
     const { redis, notifier, queue, service } = createService({
       'player-1': 'clan-1',
     });
@@ -534,11 +615,10 @@ describe('MatchmakingService flow', () => {
       matchType: MatchType.CLAN,
       gameType,
       status: MatchStatus.ACTIVE,
-      teamSize: 2,
+      teamSize: 1,
     });
     expect(matches[0].teams[0].clanId).toBe('clan-1');
     expect(matches[0].teams[1].participants).toEqual([
-      expect.objectContaining({ isBot: true }),
       expect.objectContaining({ isBot: true }),
     ]);
     expect(
@@ -549,6 +629,105 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({ id: matchedInvite.matchId }),
     );
     expect(notifier.matchEvent).not.toHaveBeenCalled();
+  });
+
+  it('pairs default 1v1 CLAN rooms from different clans', async () => {
+    const { redis, service } = createService({
+      'player-1': 'clan-1',
+      'player-2': 'clan-2',
+    });
+
+    const [firstInvite] = await service.createInvite('player-1', {
+      matchType: MatchType.CLAN,
+      gameType,
+    });
+    const [secondInvite] = await service.createInvite('player-2', {
+      matchType: MatchType.CLAN,
+      gameType,
+    });
+
+    await service.startRoom(firstInvite.id, 'player-1');
+    await service.startRoom(secondInvite.id, 'player-2');
+
+    const [match] = getStoredMatches(redis);
+    expect(match).toMatchObject({
+      matchType: MatchType.CLAN,
+      gameType,
+      teamSize: 1,
+    });
+    expect(match.teams).toEqual([
+      {
+        side: TeamSide.A,
+        clanId: 'clan-2',
+        participants: [{ playerId: 'player-2', isBot: false }],
+      },
+      {
+        side: TeamSide.B,
+        clanId: 'clan-1',
+        participants: [{ playerId: 'player-1', isBot: false }],
+      },
+    ]);
+  });
+
+  it('creates an explicit 2v2 CLAN match with bot-filled team slots', async () => {
+    const { redis, service } = createService({
+      'player-1': 'clan-1',
+      'player-2': 'clan-2',
+    });
+
+    const [firstInvite] = await service.createInvite('player-1', {
+      matchType: MatchType.CLAN,
+      gameType,
+      teamSize: 2,
+    });
+    const [secondInvite] = await service.createInvite('player-2', {
+      matchType: MatchType.CLAN,
+      gameType,
+      teamSize: 2,
+    });
+
+    await service.startRoom(firstInvite.id, 'player-1');
+    await service.startRoom(secondInvite.id, 'player-2');
+
+    const [match] = getStoredMatches(redis);
+    expect(match).toMatchObject({
+      matchType: MatchType.CLAN,
+      gameType,
+      teamSize: 2,
+    });
+    expect(match.teams[0].participants).toEqual([
+      { playerId: 'player-2', isBot: false },
+      expect.objectContaining({ isBot: true }),
+    ]);
+    expect(match.teams[1].participants).toEqual([
+      { playerId: 'player-1', isBot: false },
+      expect.objectContaining({ isBot: true }),
+    ]);
+  });
+
+  it('does not pair CLAN rooms with different team sizes', async () => {
+    const { redis, service } = createService({
+      'player-1': 'clan-1',
+      'player-2': 'clan-2',
+    });
+
+    const [oneVsOne] = await service.createInvite('player-1', {
+      matchType: MatchType.CLAN,
+      gameType,
+      teamSize: 1,
+    });
+    const [twoVsTwo] = await service.createInvite('player-2', {
+      matchType: MatchType.CLAN,
+      gameType,
+      teamSize: 2,
+    });
+
+    const [firstQueued] = await service.startRoom(oneVsOne.id, 'player-1');
+    const [secondQueued] = await service.startRoom(twoVsTwo.id, 'player-2');
+
+    expect(firstQueued.status).toBe(InviteStatus.QUEUED);
+    expect(secondQueued.status).toBe(InviteStatus.QUEUED);
+    expect(getStoredMatches(redis)).toHaveLength(0);
   });
 
   it('keeps CLAN rooms with different game types in separate queues', async () => {
@@ -621,6 +800,7 @@ describe('MatchmakingService flow', () => {
     const [invite] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
       gameType,
+      teamSize: 2,
       allowBots: false,
     });
     await service.joinInvite(invite.id, 'player-2', {} as any);
@@ -710,6 +890,7 @@ describe('MatchmakingService flow', () => {
     const [invite] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
       gameType,
+      teamSize: 2,
       allowBots: false,
     });
     await service.joinInvite(invite.id, 'player-2', {} as any);
@@ -734,6 +915,7 @@ describe('MatchmakingService flow', () => {
     const [invite] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
       gameType,
+      teamSize: 2,
       allowBots: true,
     });
     const [joinedInvite] = await service.joinInvite(
@@ -1044,7 +1226,7 @@ describe('MatchmakingService flow', () => {
         status: invite.status,
         ownerPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
         senderPlayer: { playerId: 'player-1', name: 'Player 1', avatar: null },
-        teamSize: 2,
+        teamSize: 1,
         allowBots: true,
         sentAt: expect.any(String),
       }),
