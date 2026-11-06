@@ -774,7 +774,10 @@ export class MatchmakingService {
 
     if (invite.matchType === MatchType.RANDOM) {
       const queuedInvite = await this.enqueueReadyInvite(invite);
-      const match = await this.tryCreateRandomMatch(invite.gameType);
+      const match = await this.tryCreateRandomMatch(
+        invite.gameType,
+        invite.teamSize,
+      );
       if (!match) return queuedInvite;
 
       const [processedInvite] = await this.readInvite(invite.id);
@@ -839,14 +842,19 @@ export class MatchmakingService {
    * Pairs the first two valid RANDOM invites for one game type into an active
    * match.
    */
-  private async tryCreateRandomMatch(gameType: number) {
+  private async tryCreateRandomMatch(gameType: number, teamSize: 1 | 2) {
     const queuedInvites = await this.getValidQueuedInvites(
       MatchType.RANDOM,
       gameType,
     );
-    if (queuedInvites.length < 2) return null;
 
-    const [firstInvite, secondInvite] = queuedInvites;
+    const compatibleInvites = queuedInvites.filter(
+      (invite) => invite.teamSize === teamSize,
+    );
+
+    if (compatibleInvites.length < 2) return null;
+
+    const [firstInvite, secondInvite] = compatibleInvites;
     const match = await this.createActiveMatch(firstInvite, secondInvite);
 
     await Promise.all([
@@ -875,7 +883,8 @@ export class MatchmakingService {
         candidate.id !== invite.id &&
         candidate.clanId &&
         invite.clanId &&
-        candidate.clanId !== invite.clanId,
+        candidate.clanId !== invite.clanId &&
+        candidate.teamSize === invite.teamSize,
     );
 
     if (!opponent) return null;
@@ -1344,17 +1353,6 @@ export class MatchmakingService {
     playerId: string,
     body: CreateMatchmakingInviteDto,
   ) {
-    if (body.matchType !== MatchType.CUSTOM && body.teamSize !== undefined) {
-      return [
-        new ServiceError({
-          reason: SEReason.NOT_ALLOWED,
-          field: 'teamSize',
-          value: body.teamSize,
-          message: 'Only CUSTOM invites may define teamSize.',
-        }),
-      ];
-    }
-
     if (body.matchType === MatchType.CUSTOM && !body.roomId) {
       return [
         new ServiceError({
@@ -1819,9 +1817,8 @@ export class MatchmakingService {
   }
 
   private resolveTeamSize(body: CreateMatchmakingInviteDto): 1 | 2 {
-    if (body.matchType === MatchType.CUSTOM) return body.teamSize ?? 2;
-
-    return 2;
+    // teamSize is given in the body, if not given teamSize of 1 is used
+    return body.teamSize ?? 1;
   }
 
   private resolveAllowBots(body: CreateMatchmakingInviteDto) {

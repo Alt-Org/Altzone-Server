@@ -14,6 +14,36 @@ describe('CreateMatchmakingInviteDto', () => {
     await expect(validate(createDto(1))).resolves.toHaveLength(0);
   });
 
+  it.each([MatchType.RANDOM, MatchType.CLAN, MatchType.CUSTOM])(
+    'accepts team sizes 1 and 2 for %s matchmaking',
+    async (matchType) => {
+      for (const teamSize of [1, 2]) {
+        const dto = Object.assign(new CreateMatchmakingInviteDto(), {
+          matchType,
+          gameType: 1,
+          teamSize,
+        });
+
+        await expect(validate(dto)).resolves.toHaveLength(0);
+      }
+    },
+  );
+
+  it('accepts an omitted teamSize', async () => {
+    await expect(validate(createDto(1))).resolves.toHaveLength(0);
+  });
+
+  it.each([0, 3, 1.5, '1'])('rejects invalid teamSize %p', async (teamSize) => {
+    const dto = Object.assign(createDto(1), { teamSize });
+    const errors = await validate(dto);
+
+    expect(errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ property: 'teamSize' }),
+      ]),
+    );
+  });
+
   it.each([
     ['missing', undefined],
     ['string', '1'],
