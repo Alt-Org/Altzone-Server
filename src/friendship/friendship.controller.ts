@@ -44,9 +44,6 @@ export class FriendshipController {
 
     if (error) return [null, error];
 
-    // returns 204 no content
-    if (requests.length === 0) return undefined;
-
     return [requests, null];
   }
 
@@ -69,9 +66,6 @@ export class FriendshipController {
     );
 
     if (error) return [null, error];
-
-    // returns 204 no content
-    if (requests.length === 0) return undefined;
 
     return [requests, null];
   }
