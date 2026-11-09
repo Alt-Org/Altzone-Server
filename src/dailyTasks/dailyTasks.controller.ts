@@ -18,6 +18,7 @@ import { _idDto } from '../common/dto/_id.dto';
 import { UpdateUIDailyTaskDto } from './dto/updateUIDailyTask.dto';
 import UIDailyTasksService from './uiDailyTasks/uiDailyTasks.service';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
+import { SEReason } from '../common/service/basicService/SEReason';
 
 @Controller('dailyTasks')
 export class DailyTasksController {
@@ -55,9 +56,15 @@ export class DailyTasksController {
   @UniformResponse(ModelName.DAILY_TASK, DailyTaskDto)
   async getClanTasks(@LoggedUser() user: User) {
     const clanId = await this.playerService.getPlayerClanId(user.player_id);
-    return this.dailyTasksService.readMany({
+    const [tasks, errors] = await this.dailyTasksService.readMany({
       filter: { clan_id: clanId },
     });
+
+    if (errors?.every((error) => error.reason === SEReason.NOT_FOUND)) {
+      return [[], null];
+    }
+
+    return [tasks, errors];
   }
 
   /**
