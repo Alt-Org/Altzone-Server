@@ -559,9 +559,14 @@ export class MatchmakingService {
   }
 
   /**
-   * Finishes an active match once, updates the correct battlePoints
-   * leaderboards, and keeps the completed match briefly available in Redis for
-   * clients that refresh.
+   * Accepts an active match result from an authenticated participant, finishes
+   * the match once, updates the correct leaderboards, and keeps the completed
+   * match briefly available in Redis for clients that refresh.
+   *
+   * This is the current authoritative server state transition: the service
+   * validates membership and active state and assigns the completion time.
+   * The winning side is participant-reported until an independently verified
+   * result protocol is introduced.
    */
   async finishMatch(
     matchId: string,
