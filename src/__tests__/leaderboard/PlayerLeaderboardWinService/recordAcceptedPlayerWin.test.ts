@@ -72,6 +72,22 @@ describe('PlayerLeaderboardWinService.recordAcceptedPlayerWin', () => {
     );
   });
 
+  it('records the player on the accepted winning side', async () => {
+    updateOne.mockResolvedValue({ upsertedCount: 1 } as UpdateResult);
+    const match = makeMatch({ result: { winningSide: TeamSide.B } });
+
+    await expect(service.recordAcceptedPlayerWin(match)).resolves.toBe(true);
+    expect(updateOne).toHaveBeenCalledWith(
+      { battleId: match.id },
+      expect.objectContaining({
+        $setOnInsert: expect.objectContaining({
+          playerId: '665af23e5e9820013aa99992',
+        }),
+      }),
+      { upsert: true },
+    );
+  });
+
   it.each([
     ['an unfinished match', { status: MatchStatus.ACTIVE }],
     ['a custom match', { matchType: MatchType.CUSTOM }],
