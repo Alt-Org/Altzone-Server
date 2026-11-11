@@ -298,11 +298,24 @@ POST /matchmaking/matches/{matchId}/finish
 Finishes an active match, updates leaderboards, and stores the finished match for
 a short read-after-finish window.
 
+This operation is the current server-side acceptance point for a matchmaking
+result. The server accepts the result only when the requester is an
+authenticated participant of the active match and the request passes finish
+validation. After acceptance, the server assigns `finishedAt`, changes the
+match to `FINISHED`, and records any eligible production leaderboard win from
+that server-built state.
+
+The current protocol does not independently verify the reported winning side
+against Photon events or require matching reports from both teams. Adding
+signed game-server results or multi-player consensus would be a separate,
+backwards-incompatible result-validation feature. Clients cannot increment the
+production win counter directly.
+
 ### Request Body
 
 ```ts
 {
-  winningSide: 'A' | 'B'
+  winningSide: 'A' | 'B';
 }
 ```
 

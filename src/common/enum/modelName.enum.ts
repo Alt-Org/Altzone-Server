@@ -39,4 +39,5 @@ export enum ModelName {
   FRIENDSHIP = 'Friendship',
   SESSION = 'Session',
   GAME_ANALYSIS_RESPONSE = 'GameAnalysisResponse', // for game analytics tasks
+  PLAYER_LEADERBOARD_WIN = 'PlayerLeaderboardWin',
 }

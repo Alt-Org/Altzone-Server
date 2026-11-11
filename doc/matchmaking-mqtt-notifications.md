@@ -297,6 +297,12 @@ MATCH_FINISHED
 - The backend accepts the finish request, updates leaderboards, stores the
   finished match with the finished-match TTL, and invalidates leaderboard caches.
 
+Acceptance here means that an authenticated match participant submitted a
+valid finish request for an active match. The backend owns the resulting
+`FINISHED` transition and `finishedAt` timestamp. The current protocol does not
+independently validate the winning side against Photon events or require result
+consensus from both teams.
+
 The payload contains the finished match with `status: 'FINISHED'`, `finishedAt`,
 and `result`.
 
