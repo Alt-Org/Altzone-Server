@@ -105,6 +105,9 @@ type TestDeps = {
   queue: {
     scheduleClanOpponentTimeout: jest.Mock;
   };
+  playerLeaderboardWinService: {
+    recordAcceptedPlayerWin: jest.Mock;
+  };
   service: MatchmakingService;
 };
 
@@ -154,6 +157,9 @@ const createService = (
   const queue = {
     scheduleClanOpponentTimeout: jest.fn(async () => undefined),
   };
+  const playerLeaderboardWinService = {
+    recordAcceptedPlayerWin: jest.fn(async () => true),
+  };
   const service = new MatchmakingService(
     redis as any,
     playerService as any,
@@ -161,6 +167,7 @@ const createService = (
     notifier as any,
     emitterService as any,
     queue as any,
+    playerLeaderboardWinService as any,
   );
 
   return {
@@ -170,6 +177,7 @@ const createService = (
     notifier,
     emitterService,
     queue,
+    playerLeaderboardWinService,
     service,
   } satisfies TestDeps;
 };
@@ -1734,6 +1742,7 @@ describe('MatchmakingService flow', () => {
       clanService,
       notifier,
       emitterService,
+      playerLeaderboardWinService,
       service,
     } = createService();
     const match: ActiveMatch = {
@@ -1770,6 +1779,20 @@ describe('MatchmakingService flow', () => {
       status: MatchStatus.FINISHED,
       result: { winningSide: TeamSide.A },
     });
+    expect(
+      playerLeaderboardWinService.recordAcceptedPlayerWin,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'match-1',
+        status: MatchStatus.FINISHED,
+        finishedAt: expect.any(String),
+        result: { winningSide: TeamSide.A },
+      }),
+    );
+    expect(
+      playerLeaderboardWinService.recordAcceptedPlayerWin.mock
+        .invocationCallOrder[0],
+    ).toBeLessThan(playerService.updatePlayerById.mock.invocationCallOrder[0]);
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
       $inc: {
         battlePoints: 30,
@@ -1815,9 +1838,151 @@ describe('MatchmakingService flow', () => {
     );
   });
 
+  it('does not accept or record a finish result from a non-participant', async () => {
+    const { redis, playerLeaderboardWinService, service } = createService();
+    const match: ActiveMatch = {
+      id: 'match-outsider-finish',
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    await redis.set(
+      'matchmaking:match:match-outsider-finish',
+      JSON.stringify(match),
+    );
+
+    const [finishedMatch, errors] = await service.finishMatch(
+      match.id,
+      'player-3',
+      { winningSide: TeamSide.A },
+    );
+
+    expect(finishedMatch).toBeNull();
+    expect(errors).toEqual([
+      expect.objectContaining({
+        reason: SEReason.NOT_AUTHORIZED,
+        field: 'playerId',
+        value: 'player-3',
+      }),
+    ]);
+    expect(
+      playerLeaderboardWinService.recordAcceptedPlayerWin,
+    ).not.toHaveBeenCalled();
+  });
+
+  it('does not record the production win again when finish is retried', async () => {
+    const { redis, playerLeaderboardWinService, service } = createService();
+    const match: ActiveMatch = {
+      id: 'match-finish-retry',
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    await redis.set(
+      'matchmaking:match:match-finish-retry',
+      JSON.stringify(match),
+    );
+
+    const firstResult = await service.finishMatch(match.id, 'player-1', {
+      winningSide: TeamSide.A,
+    });
+    const retriedResult = await service.finishMatch(match.id, 'player-2', {
+      winningSide: TeamSide.A,
+    });
+
+    expect(firstResult[1]).toBeNull();
+    expect(retriedResult[1]).toBeNull();
+    expect(retriedResult[0].status).toBe(MatchStatus.FINISHED);
+    expect(
+      playerLeaderboardWinService.recordAcceptedPlayerWin,
+    ).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not publish or apply legacy updates when durable win recording fails', async () => {
+    const {
+      redis,
+      playerService,
+      notifier,
+      playerLeaderboardWinService,
+      service,
+    } = createService();
+    const match: ActiveMatch = {
+      id: 'match-win-recording-error',
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    playerLeaderboardWinService.recordAcceptedPlayerWin.mockRejectedValueOnce(
+      new Error('win persistence failed'),
+    );
+    await redis.set(
+      'matchmaking:match:match-win-recording-error',
+      JSON.stringify(match),
+    );
+
+    await expect(
+      service.finishMatch(match.id, 'player-1', {
+        winningSide: TeamSide.A,
+      }),
+    ).rejects.toThrow('win persistence failed');
+
+    const storedMatch = JSON.parse(
+      await redis.get('matchmaking:match:match-win-recording-error'),
+    ) as ActiveMatch;
+    expect(storedMatch.status).toBe(MatchStatus.ACTIVE);
+    expect(playerService.updatePlayerById).not.toHaveBeenCalled();
+    expect(notifier.matchEvent).not.toHaveBeenCalledWith(
+      match.id,
+      'MATCH_FINISHED',
+      expect.anything(),
+    );
+  });
+
   it('finishes a CLAN match with personal and clan leaderboard updates', async () => {
-    const { redis, playerService, clanService, emitterService, service } =
-      createService();
+    const {
+      redis,
+      playerService,
+      clanService,
+      emitterService,
+      playerLeaderboardWinService,
+      service,
+    } = createService();
     const match: ActiveMatch = {
       id: 'match-2',
       matchType: MatchType.CLAN,
@@ -1848,6 +2013,16 @@ describe('MatchmakingService flow', () => {
 
     expect(errors).toBeNull();
     expect(finishedMatch.result).toEqual({ winningSide: TeamSide.B });
+    expect(
+      playerLeaderboardWinService.recordAcceptedPlayerWin,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'match-2',
+        matchType: MatchType.CLAN,
+        status: MatchStatus.FINISHED,
+        result: { winningSide: TeamSide.B },
+      }),
+    );
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
       $inc: {
         battlePoints: -25,

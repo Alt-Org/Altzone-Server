@@ -12,6 +12,7 @@ import {
   MatchmakingQueue,
 } from './matchmaking.queue';
 import { MatchmakingService } from './matchmaking.service';
+import { LeaderboardModule } from '../leaderboard/leaderboard.module';
 
 /**
  * Wires the matchmaking feature together.
@@ -26,6 +27,7 @@ import { MatchmakingService } from './matchmaking.service';
     PlayerModule,
     ClanModule,
     EventEmitterCommonModule,
+    LeaderboardModule,
     BullModule.registerQueue({ name: MATCHMAKING_QUEUE }),
   ],
   controllers: [MatchmakingController],

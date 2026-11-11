@@ -145,8 +145,10 @@ export class MatchmakingController {
   }
 
   /**
-   * Finishes an active match, updates battlePoints leaderboards, and keeps the
-   * finished match in Redis for a short read-after-finish window.
+   * Accepts an active match result from an authenticated participant, updates
+   * leaderboards, and keeps the finished match in Redis for a short
+   * read-after-finish window. This endpoint is the current result-acceptance
+   * boundary; it does not independently verify Photon gameplay events.
    */
   @Post('matches/:matchId/finish')
   @UniformResponse(undefined, MatchmakingMatchDto)

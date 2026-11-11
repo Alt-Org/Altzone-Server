@@ -692,6 +692,11 @@ export class GameDataService {
    *
    * @param battle - The validated completed Battle document with finalWinner set.
    * @returns true when this call claimed and processed the rewards, otherwise false.
+   *
+   * This legacy CASUAL/CUSTOM battle path is intentionally not a source for
+   * production leaderboard wins. Its gameStatistics.wonBattles updates remain
+   * general gameplay statistics. Production wins are recorded only from the
+   * authoritative matchmaking completion flow by PlayerLeaderboardWinService.
    */
   private async rewardCompletedBattle(battle: GameDocument): Promise<boolean> {
     const rewardedBattle = await this.connection.transaction(
