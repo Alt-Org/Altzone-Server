@@ -224,8 +224,13 @@ export class ClanService {
     extendedClan.stock = stock.Stock;
     extendedClan.stockItems = stock.Item;
 
-    if (ownsTransaction)
-      return await endTransaction<CreateWithoutDtoType>(session, extendedClan);
+    if (ownsTransaction) {
+      const [result, commitError] = await endTransaction<CreateWithoutDtoType>(session, extendedClan);
+      if (commitError) return [null, commitError];
+
+      this.emitter.emitAsync('clan.create', { clan_id: clan._id });
+      return [result, null];
+    }
 
     return [extendedClan, null];
   }
