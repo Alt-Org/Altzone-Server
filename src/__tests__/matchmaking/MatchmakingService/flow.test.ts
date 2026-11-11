@@ -1838,6 +1838,50 @@ describe('MatchmakingService flow', () => {
     );
   });
 
+  it('does not accept or record a finish result from a non-participant', async () => {
+    const { redis, playerLeaderboardWinService, service } = createService();
+    const match: ActiveMatch = {
+      id: 'match-outsider-finish',
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    await redis.set(
+      'matchmaking:match:match-outsider-finish',
+      JSON.stringify(match),
+    );
+
+    const [finishedMatch, errors] = await service.finishMatch(
+      match.id,
+      'player-3',
+      { winningSide: TeamSide.A },
+    );
+
+    expect(finishedMatch).toBeNull();
+    expect(errors).toEqual([
+      expect.objectContaining({
+        reason: SEReason.NOT_AUTHORIZED,
+        field: 'playerId',
+        value: 'player-3',
+      }),
+    ]);
+    expect(
+      playerLeaderboardWinService.recordAcceptedPlayerWin,
+    ).not.toHaveBeenCalled();
+  });
+
   it('does not record the production win again when finish is retried', async () => {
     const { redis, playerLeaderboardWinService, service } = createService();
     const match: ActiveMatch = {
