@@ -47,6 +47,7 @@ import { Clan } from '../clan/clan.schema';
 import { TASK_CONSTS } from '../dailyTasks/consts/taskConstants';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
+import { PlayerLeaderboardWinService } from '../leaderboard/playerLeaderboardWin.service';
 
 /**
  * Orchestrates matchmaking state transitions.
@@ -80,6 +81,7 @@ export class MatchmakingService {
     private readonly emitterService: EventEmitterService,
     @Inject(forwardRef(() => MatchmakingQueue))
     private readonly queue: MatchmakingQueue,
+    private readonly playerLeaderboardWinService: PlayerLeaderboardWinService,
   ) {}
 
   /**
@@ -618,6 +620,13 @@ export class MatchmakingService {
       finishedAt: new Date().toISOString(),
       result: { winningSide: body.winningSide },
     };
+
+    // Persist the production win before legacy battle-point/statistics updates.
+    // The recorder owns eligibility checks and uses the durable battle ID as
+    // its idempotency key, independently of this short-lived Redis lock.
+    await this.playerLeaderboardWinService.recordAcceptedPlayerWin(
+      finishedMatch,
+    );
 
     const leaderboardErrors =
       await this.updateLeaderboardsForFinishedMatch(finishedMatch);
