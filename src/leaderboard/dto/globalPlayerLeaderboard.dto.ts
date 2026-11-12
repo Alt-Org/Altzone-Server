@@ -43,8 +43,55 @@ export class GlobalPlayerLeaderboardDto {
 
   @Expose()
   ownRank: number | null;
+}
 
-  /** Used to build pagination metadata until response envelope formatting. */
+export class GlobalPlayerLeaderboardResponseDataDto {
+  @Expose()
+  @Type(() => GlobalPlayerLeaderboardDto)
+  leaderboard: GlobalPlayerLeaderboardDto;
+}
+
+export class GlobalPlayerLeaderboardMetaDataDto {
+  @Expose()
+  dataKey: 'leaderboard';
+
+  @Expose()
+  modelName: 'Leaderboard';
+
+  @Expose()
+  dataType: 'Object';
+
+  @Expose()
+  dataCount: 1;
+}
+
+export class GlobalPlayerLeaderboardPaginationDto {
+  @Expose()
+  currentPage: number;
+
+  @Expose()
+  limit: number;
+
+  @Expose()
+  offset: number;
+
   @Expose()
   itemCount: number;
+
+  @Expose()
+  pageCount: number;
+}
+
+export class GlobalPlayerLeaderboardResponseDto {
+  @Expose()
+  @Type(() => GlobalPlayerLeaderboardResponseDataDto)
+  data: GlobalPlayerLeaderboardResponseDataDto;
+
+  @Expose()
+  @Type(() => GlobalPlayerLeaderboardMetaDataDto)
+  metaData: GlobalPlayerLeaderboardMetaDataDto;
+
+  @Expose()
+  @Type(() => GlobalPlayerLeaderboardPaginationDto)
+  paginationData: GlobalPlayerLeaderboardPaginationDto;
 }
