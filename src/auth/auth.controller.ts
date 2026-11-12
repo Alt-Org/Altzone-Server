@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { SignInDto } from './dto/signIn.dto';
 import { AuthService } from './auth.service';
-import { ThrowAuthErrorIfFound } from './decorator/ThrowAuthErrorIfFound.decorator';
 import { NoAuth } from './decorator/NoAuth.decorator';
 import { AUTH_SERVICE } from './constant';
 import BoxAuthService from './box/BoxAuthService';
@@ -24,6 +23,7 @@ import { TokensDto } from './dto/tokens.dto';
 import { Request, Response } from 'express';
 import { TokenName } from './enum/tokenName.enum';
 import { ClientType } from './enum/clientType.enum';
+import { UniformResponse } from '../common/decorator/response/UniformResponse';
 
 @NoAuth()
 @Controller('auth')
@@ -55,12 +55,13 @@ export class AuthController {
   })
   @NoBoxIdFilter()
   @Post('/signIn')
-  @ThrowAuthErrorIfFound()
+  @UniformResponse(ModelName.PROFILE)
   public async signIn(
     @Body() body: SignInDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const result = await this.authService.signIn(body.username, body.password);
+    const [result, errors] = await this.authService.signIn(body.username, body.password);
+    if (errors) return errors;
 
     if (body.clientType === ClientType.WEB) {
       const { accessToken, refreshToken, ...data } = result;
@@ -99,7 +100,7 @@ export class AuthController {
   })
   @NoBoxIdFilter()
   @Post('/refresh')
-  @ThrowAuthErrorIfFound()
+  @UniformResponse(ModelName.PROFILE)
   public async refresh(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
@@ -154,7 +155,8 @@ export class AuthController {
     const cookieToken = request.cookies[TokenName.REFRESH_TOKEN];
     const refreshToken = body?.refreshToken ?? cookieToken;
 
-    await this.authService.logout(refreshToken);
+    const [, errors] = await this.authService.logout(refreshToken);
+    if (errors) return [null, errors];
 
     if (cookieToken) this.authService.clearCookies(response);
   }

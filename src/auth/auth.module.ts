@@ -14,7 +14,11 @@ import { PlayerSchema } from '../player/schemas/player.schema';
 import { ProfileSchema } from '../profile/profile.schema';
 import { ClanSchema } from '../clan/clan.schema';
 import { ProfileModule } from '../profile/profile.module';
-import { SessionSchema } from './session.schema';
+import { SessionSchema } from '../session/session.schema';
+import { PlayerModule } from '../player/player.module';
+import { ClanModule } from '../clan/clan.module';
+import { BoxModule } from '../box/box.module';
+import { SessionModule } from '../session/session.module';
 
 @Module({
   imports: [
@@ -33,6 +37,10 @@ import { SessionSchema } from './session.schema';
       { name: ModelName.SESSION, schema: SessionSchema },
     ]),
     forwardRef(() => ProfileModule),
+    PlayerModule,
+    forwardRef(() => ClanModule),
+    SessionModule,
+    forwardRef(() => BoxModule),
   ],
   providers: [AuthService, BoxAuthService, AuthServiceProvider],
   controllers: [AuthController],

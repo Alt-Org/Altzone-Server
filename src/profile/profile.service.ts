@@ -19,6 +19,7 @@ import { ProfileDto } from './dto/profile.dto';
 import {
   IServiceReturn,
   TIServiceReadManyOptions,
+  TIServiceReadOneOptions,
 } from '../common/service/basicService/IService';
 import { PasswordGenerator } from '../common/function/passwordGenerator';
 import { ObjectId } from 'mongodb';
@@ -59,6 +60,34 @@ export class ProfileService
   public readonly refsInModel: ModelName[];
   public readonly modelName: ModelName;
   public readonly basicService: BasicService;
+
+  /**
+   * Read Profile from DB.
+   * 
+   * Transforms SEReason NOT_FOUND Errors to VALIDATION Errors. Primarily used for Auth.
+   * 
+   * Sign in should not reveal why it failed, hence the transformation.
+   * 
+   * @param options - Options for reading Profile
+   */
+  async readOne(options: TIServiceReadOneOptions) {
+    const [profile, errors] = await this.basicService.readOne(options);
+    if (errors) {
+      return [
+        profile,
+        errors.map(
+          error => error.reason === SEReason.NOT_FOUND 
+          ? new ServiceError({
+              reason: SEReason.VALIDATION,
+              message: 'Credentials for that profile are incorrect',
+            })
+          : error
+        )
+      ];
+    }
+
+    return [profile, errors];
+  }
 
   /**
    * This method serves as a replacement

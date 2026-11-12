@@ -254,7 +254,7 @@ export class ClanService {
         publicReferences.includes(ref),
       );
     }
-    return await this.basicService.readOneById<ClanDto>(_id, optionsToApply);
+    return await this.basicService.readOneById(_id, optionsToApply);
   }
 
   async readAll(options?: TIServiceReadManyOptions) {

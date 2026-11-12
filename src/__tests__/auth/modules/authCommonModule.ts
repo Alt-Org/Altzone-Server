@@ -16,7 +16,11 @@ import { PlayerSchema } from '../../../player/schemas/player.schema';
 import { ClanSchema } from '../../../clan/clan.schema';
 import { BoxTestingSessionGuard } from '../../../box/auth/boxTestingSession.guard';
 import { ProfileModule } from '../../../profile/profile.module';
-import { SessionSchema } from '../../../auth/session.schema';
+import { SessionSchema } from '../../../session/session.schema';
+import { PlayerModule } from '../../../player/player.module';
+import { ClanModule } from '../../../clan/clan.module';
+import { SessionModule } from '../../../session/session.module';
+import { BoxModule } from '../../../box/box.module';
 
 export default class AuthCommonModule {
   private constructor() {}
@@ -43,6 +47,10 @@ export default class AuthCommonModule {
             { name: ModelName.SESSION, schema: SessionSchema },
           ]),
           ProfileModule,
+          PlayerModule,
+          ClanModule,
+          SessionModule,
+          BoxModule,
         ],
         providers: [
           AuthService,

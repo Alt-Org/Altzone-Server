@@ -99,7 +99,7 @@ describe('BoxAuthService.signIn() test suite', () => {
       profile_id: clearedPlayer.profile_id.toString(),
     };
 
-    const result = await boxAuthService.signIn(validUsername, validPassword);
+    const [result, errors] = await boxAuthService.signIn(validUsername, validPassword);
     const clearedResult = clearDBRespDefaultFields(result);
     const clearedPlayerResult = {
       ...clearDBRespDefaultFields(result['Player']),
@@ -116,6 +116,7 @@ describe('BoxAuthService.signIn() test suite', () => {
       username: existingAdminProfile.username,
     };
 
+    expect(errors).toBeNull();
     expect(clearedResult).toMatchObject({
       ...expectedResult,
       Player: expect.anything(),
@@ -193,34 +194,38 @@ describe('BoxAuthService.signIn() test suite', () => {
     const player = playerBuilder.setProfileId(existingAdminProfile._id).build();
     await playerModel.create(player);
 
-    const result = await boxAuthService.signIn(validUsername, validPassword);
+    const [result,] = await boxAuthService.signIn(validUsername, validPassword);
 
     expect(result['Clan']).toBeUndefined();
   });
 
-  it('Should return null if profile does not exists', async () => {
-    const result = await boxAuthService.signIn(
+  it('Should return VALIDATION SError if profile not found', async () => {
+    const [result, errors] = await boxAuthService.signIn(
       'non-existing-user',
       validPassword,
     );
     expect(result).toBeNull();
+    expect(errors).toContainSE_VALIDATION();
   });
 
-  it('Should return null if player does not exists', async () => {
-    const result = await boxAuthService.signIn(validUsername, validPassword);
+  it('Should return NOT_FOUND SError if player not found', async () => {
+    const [result, errors] = await boxAuthService.signIn(validUsername, validPassword);
     expect(result).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
   });
 
-  it('Should return null if password is not valid', async () => {
-    const result = await boxAuthService.signIn(
+  it('Should return VALIDATION SError if provided password is not valid', async () => {
+    const [result, errors] = await boxAuthService.signIn(
       validUsername,
       'invalid-password',
     );
     expect(result).toBeNull();
+    expect(errors).toContainSE_VALIDATION();
   });
 
-  it('Should return null if hashed password is provided', async () => {
-    const result = await boxAuthService.signIn(validUsername, hashedPassword);
+  it('Should return VALIDATION SError if provided password is hashed', async () => {
+    const [result, errors] = await boxAuthService.signIn(validUsername, hashedPassword);
     expect(result).toBeNull();
+    expect(errors).toContainSE_VALIDATION();
   });
 });
