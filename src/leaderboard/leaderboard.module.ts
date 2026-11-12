@@ -9,6 +9,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { PlayerLeaderboardWinSchema } from './schemas/playerLeaderboardWin.schema';
 import { PlayerLeaderboardWinService } from './playerLeaderboardWin.service';
+import { GlobalLeaderboardController } from './globalLeaderboard.controller';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { PlayerLeaderboardWinService } from './playerLeaderboardWin.service';
       },
     ]),
   ],
-  controllers: [LeaderboardController],
+  controllers: [LeaderboardController, GlobalLeaderboardController],
   providers: [LeaderboardService, PlayerLeaderboardWinService],
   exports: [PlayerLeaderboardWinService],
 })
