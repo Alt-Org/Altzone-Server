@@ -10,6 +10,13 @@ import { RedisService } from '../common/service/redis/redis.service';
 import { PlayerDocument } from '../player/schemas/player.schema';
 import { envVars } from '../common/service/envHandler/envVars';
 import { Environment } from '../common/enum/environment.enum';
+import { Environment as ServerEnvironment } from '../common/service/envHandler/enum/environment.enum';
+import { Types } from 'mongoose';
+import { ModelName } from '../common/enum/modelName.enum';
+import {
+  GlobalPlayerLeaderboardEntry,
+  GlobalPlayerLeaderboardResult,
+} from './type/globalPlayerLeaderboard.type';
 
 @Injectable()
 export class LeaderboardService {
@@ -64,6 +71,132 @@ export class LeaderboardService {
       environment,
       reqQuery,
     );
+  }
+
+  /**
+   * Retrieves one page of the production player leaderboard.
+   *
+   * Ranking is calculated after filtering the player population and before
+   * pagination. Accepted wins are the only score source. Presentation data is
+   * read from the current player and clan documents.
+   */
+  async getGlobalPlayerLeaderboard(
+    reqQuery: IGetAllQuery,
+    requestingPlayerId?: string,
+  ): Promise<GlobalPlayerLeaderboardResult> {
+    if (envVars.ENVIRONMENT === ServerEnvironment.TESTING_SESSION) {
+      return { entries: [], ownRank: null, itemCount: 0 };
+    }
+
+    const requestingPlayerObjectId =
+      requestingPlayerId && Types.ObjectId.isValid(requestingPlayerId)
+        ? new Types.ObjectId(requestingPlayerId)
+        : null;
+
+    type AggregationResult = {
+      entries: GlobalPlayerLeaderboardEntry[];
+      ownRank: { rank: number }[];
+      total: { count: number }[];
+    };
+
+    const [result] = await this.playerService.model
+      .aggregate<AggregationResult>([
+        // Testing-session players share the Player collection but are marked
+        // with a box_id. Exclude them before scoring, ranking and pagination.
+        {
+          $match: {
+            $or: [{ box_id: null }, { box_id: { $exists: false } }],
+          },
+        },
+        {
+          $lookup: {
+            from: ModelName.PLAYER_LEADERBOARD_WIN,
+            localField: '_id',
+            foreignField: 'playerId',
+            as: 'acceptedWins',
+          },
+        },
+        {
+          $set: {
+            wins: { $size: '$acceptedWins' },
+            scoreReachedAt: {
+              $cond: [
+                { $gt: [{ $size: '$acceptedWins' }, 0] },
+                { $max: '$acceptedWins.scoreReachedAt' },
+                '$createdAt',
+              ],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: ModelName.CLAN,
+            localField: 'clan_id',
+            foreignField: '_id',
+            as: 'currentClan',
+          },
+        },
+        {
+          $unwind: {
+            path: '$currentClan',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $setWindowFields: {
+            sortBy: { wins: -1, scoreReachedAt: 1, _id: 1 },
+            output: {
+              rank: {
+                $sum: 1,
+                window: { documents: ['unbounded', 'current'] },
+              },
+            },
+          },
+        },
+        {
+          $facet: {
+            entries: [
+              { $skip: Math.max(reqQuery.skip, 0) },
+              { $limit: reqQuery.limit },
+              {
+                $project: {
+                  _id: 0,
+                  rank: 1,
+                  wins: 1,
+                  playerId: { $toString: '$_id' },
+                  nickname: '$name',
+                  avatar: { $ifNull: ['$avatar', null] },
+                  clan: {
+                    $cond: [
+                      { $ne: [{ $ifNull: ['$currentClan', null] }, null] },
+                      {
+                        clanId: { $toString: '$currentClan._id' },
+                        name: '$currentClan.name',
+                        logo: '$currentClan.clanLogo',
+                      },
+                      null,
+                    ],
+                  },
+                },
+              },
+            ],
+            ownRank: requestingPlayerObjectId
+              ? [
+                  { $match: { _id: requestingPlayerObjectId } },
+                  { $project: { _id: 0, rank: 1 } },
+                ]
+              : [{ $match: { _id: { $exists: false } } }],
+            total: [{ $count: 'count' }],
+          },
+        },
+      ])
+      .exec();
+
+    return {
+      entries: result?.entries ?? [],
+      ownRank: result?.ownRank[0]?.rank ?? null,
+      itemCount: result?.total[0]?.count ?? 0,
+    };
   }
 
   /**
