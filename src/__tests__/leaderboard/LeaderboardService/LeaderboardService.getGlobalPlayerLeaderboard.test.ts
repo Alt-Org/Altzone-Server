@@ -143,6 +143,65 @@ describe('LeaderboardService.getGlobalPlayerLeaderboard', () => {
     expect(result.ownRank).toBeNull();
   });
 
+  it('orders zero-win players by creation time before the stable id', async () => {
+    const earlierHigherId = '665af23e5e9820013aa99992';
+    const laterLowerId = '665af23e5e9820013aa99991';
+
+    await createPlayer(
+      laterLowerId,
+      'later-player',
+      Environment.OPEN_DEMO,
+      new Date('2026-02-01T00:00:00.000Z'),
+    );
+    await createPlayer(
+      earlierHigherId,
+      'earlier-player',
+      Environment.OPEN_DEMO,
+      new Date('2026-01-01T00:00:00.000Z'),
+    );
+
+    const result = await service.getGlobalPlayerLeaderboard(query(20, 0));
+
+    expect(result.entries.map((entry) => entry.playerId)).toEqual([
+      earlierHigherId,
+      laterLowerId,
+    ]);
+    expect(result.entries.every((entry) => entry.wins === 0)).toBe(true);
+  });
+
+  it('returns an empty out-of-range page while preserving ownRank', async () => {
+    const playerId = '665af23e5e9820013aa99991';
+    await createPlayer(
+      playerId,
+      'ranked-player',
+      Environment.OPEN_DEMO,
+      new Date('2026-01-01T00:00:00.000Z'),
+    );
+
+    const result = await service.getGlobalPlayerLeaderboard(
+      query(20, 100),
+      playerId,
+    );
+
+    expect(result).toEqual({ entries: [], ownRank: 1, itemCount: 1 });
+  });
+
+  it('returns null ownRank for a player outside the eligible population', async () => {
+    await createPlayer(
+      '665af23e5e9820013aa99991',
+      'known-player',
+      Environment.OPEN_DEMO,
+      new Date('2026-01-01T00:00:00.000Z'),
+    );
+
+    const result = await service.getGlobalPlayerLeaderboard(
+      query(20, 0),
+      '665af23e5e9820013aa99999',
+    );
+
+    expect(result.ownRank).toBeNull();
+  });
+
   it('returns current clan presentation and ignores orphaned win records', async () => {
     const clan = await clanModel.create(
       ClanBuilderFactory.getBuilder('Clan')
@@ -187,5 +246,27 @@ describe('LeaderboardService.getGlobalPlayerLeaderboard', () => {
         logo: clan.clanLogo,
       },
     });
+  });
+
+  it('returns null clan when the referenced clan has been deleted', async () => {
+    const clan = await clanModel.create(
+      ClanBuilderFactory.getBuilder('Clan')
+        .setName('deleted-clan')
+        .setEnvironment(Environment.OPEN_DEMO)
+        .build(),
+    );
+    await createPlayer(
+      '665af23e5e9820013aa99991',
+      'clan-player',
+      Environment.OPEN_DEMO,
+      new Date('2026-01-01T00:00:00.000Z'),
+      clan._id,
+    );
+    await clanModel.deleteOne({ _id: clan._id });
+
+    const result = await service.getGlobalPlayerLeaderboard(query(20, 0));
+
+    expect(result.entries).toHaveLength(1);
+    expect(result.entries[0].clan).toBeNull();
   });
 });
