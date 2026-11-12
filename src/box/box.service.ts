@@ -307,6 +307,7 @@ export class BoxService {
       createdClan_ids: [],
       testerAccountsClaimed: 0,
       accountClaimersIds: [],
+      packageRace: null,
     });
     if (boxUpdateErrors) {
       return await cancelTransaction(session, boxUpdateErrors);
