@@ -1,14 +1,12 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { User } from '../auth/user';
 import { OptionalAuth } from '../auth/decorator/OptionalAuth.decorator';
-import { GetAllQuery } from '../common/decorator/param/GetAllQuery';
 import { OptionalLoggedUser } from '../common/decorator/param/OptionalLoggedUser.decorator';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { ModelName } from '../common/enum/modelName.enum';
-import { IGetAllQuery } from '../common/interface/IGetAllQuery';
-import { OffsetPaginate } from '../common/interceptor/request/offsetPagination.interceptor';
 import { LeaderboardService } from './leaderboard.service';
-import { LeaderboardPlayerDto } from './dto/leaderboardPlayer.dto';
+import { GlobalPlayerLeaderboardQueryDto } from './dto/globalPlayerLeaderboardQuery.dto';
+import { GlobalPlayerLeaderboardDto } from './dto/globalPlayerLeaderboard.dto';
 
 /**
  * Production, win-based leaderboard API.
@@ -22,14 +20,18 @@ export class GlobalLeaderboardController {
 
   @Get('players/global')
   @OptionalAuth()
-  @UniformResponse(ModelName.PLAYER, LeaderboardPlayerDto)
-  @OffsetPaginate(ModelName.PLAYER, 20, 50)
+  @UniformResponse(ModelName.PLAYER, GlobalPlayerLeaderboardDto)
   async getGlobalPlayerLeaderboard(
-    @GetAllQuery() query: IGetAllQuery,
+    @Query() query: GlobalPlayerLeaderboardQueryDto,
     @OptionalLoggedUser() user?: User,
   ) {
     return this.leaderboardService.getGlobalPlayerLeaderboard(
-      query,
+      {
+        filter: {},
+        sort: {},
+        limit: query.limit,
+        skip: (query.page - 1) * query.limit,
+      },
       user?.player_id,
     );
   }
