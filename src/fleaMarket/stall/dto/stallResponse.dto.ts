@@ -1,5 +1,23 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import AddType from '../../../common/base/decorator/AddType.decorator';
+
+class AdPosterTextField {
+  /** Text used in ad */
+  @Expose()
+  textString?: string;
+
+  /** Font name */
+  @Expose()
+  textFont?: string;
+
+  /** Colour in hex */
+  @Expose()
+  textColour?: string;
+
+  /** "Vector4" for text position (MinX, MaxX, MinY, MaxY) */
+  @Expose()
+  textPosition?: number[];
+}
 
 /**
  * Represents the advertisement poster for a stall
@@ -26,6 +44,11 @@ class AdPoster {
    */
   @Expose()
   mainFurniture?: string;
+
+  /** Text field settings of the stall's advertisement poster */
+  @Expose()
+  @Type(() => AdPosterTextField)
+  textField?: AdPosterTextField;
 }
 
 /**
@@ -35,7 +58,7 @@ class AdPoster {
 export class StallResponse {
   /**
    * Stall's advertisement poster
-   * @example { border: "border1", colour: "red", mainFurniture: "table" }
+   * @example { border: "border1", colour: "red", mainFurniture: "table", textField: { textString: "Christmas table", textFont: "Helvetica.ttf", textColour: "#FFFFFF", textPosition: [0, 10, 0, 10] } }
    */
   @Expose()
   adPoster?: AdPoster;

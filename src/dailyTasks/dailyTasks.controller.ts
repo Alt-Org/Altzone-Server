@@ -15,17 +15,16 @@ import { ModelName } from '../common/enum/modelName.enum';
 import { PlayerService } from '../player/player.service';
 import { DailyTaskDto } from './dto/dailyTask.dto';
 import { _idDto } from '../common/dto/_id.dto';
-import GameEventEmitter from '../gameEventsEmitter/gameEventEmitter';
 import { UpdateUIDailyTaskDto } from './dto/updateUIDailyTask.dto';
 import UIDailyTasksService from './uiDailyTasks/uiDailyTasks.service';
 import ApiResponseDescription from '../common/swagger/response/ApiResponseDescription';
+import { SEReason } from '../common/service/basicService/SEReason';
 
 @Controller('dailyTasks')
 export class DailyTasksController {
   constructor(
     private readonly dailyTasksService: DailyTasksService,
     private readonly playerService: PlayerService,
-    private readonly emitter: GameEventEmitter,
     private readonly uiDailyTasksService: UIDailyTasksService,
   ) {}
 
@@ -57,9 +56,15 @@ export class DailyTasksController {
   @UniformResponse(ModelName.DAILY_TASK, DailyTaskDto)
   async getClanTasks(@LoggedUser() user: User) {
     const clanId = await this.playerService.getPlayerClanId(user.player_id);
-    return this.dailyTasksService.readMany({
+    const [tasks, errors] = await this.dailyTasksService.readMany({
       filter: { clan_id: clanId },
     });
+
+    if (errors?.every((error) => error.reason === SEReason.NOT_FOUND)) {
+      return [[], null];
+    }
+
+    return [tasks, errors];
   }
 
   /**
@@ -98,9 +103,13 @@ export class DailyTasksController {
   }
 
   /**
-   * Claim player reward.
+   * Claim a player reward through the legacy reward flow.
    *
-   * Param 1-3
+   * This endpoint is retained for backwards compatibility. The current final
+   * milestone flow notifies the frontend automatically through MQTT and does
+   * not add new entries to claimableRewards or require this request.
+   *
+   * @param reward Legacy placeholder reward ID (1-3)
    */
   @ApiResponseDescription({
     success: {
@@ -183,13 +192,12 @@ export class DailyTasksController {
   ) {
     const [result, errors] = await this.uiDailyTasksService.updateTask(
       user.player_id,
+      body.taskId,
       body.amount,
     );
     if (errors) throw errors;
 
-    await this.emitter.emitAsync('dailyTask.updateUIBasicTask', {
-      result,
-    });
+    return result;
   }
 
   /**

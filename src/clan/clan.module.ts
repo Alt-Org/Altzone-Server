@@ -1,4 +1,10 @@
-import { Module, forwardRef } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+  forwardRef,
+} from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ClanSchema } from './clan.schema';
 import { ClanController } from './clan.controller';
@@ -22,6 +28,7 @@ import { PasswordGenerator } from '../common/function/passwordGenerator';
 import { EventEmitterCommonModule } from '../common/service/EventEmitterService/EventEmitterCommon.module';
 import { DailyTasksModule } from '../dailyTasks/dailyTasks.module';
 import { BlockClanMutationInTestingSessionGuard } from './guard/blockClanMutationInTestingSession.guard';
+import { ValidateUpdateMongoIdMiddleware } from '../common/middleware/validateUpdateMongoId.middleware';
 
 @Module({
   imports: [
@@ -58,4 +65,11 @@ import { BlockClanMutationInTestingSessionGuard } from './guard/blockClanMutatio
     PasswordGenerator,
   ],
 })
-export class ClanModule {}
+export class ClanModule implements NestModule {
+  public configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(ValidateUpdateMongoIdMiddleware).forRoutes({
+      path: 'clan',
+      method: RequestMethod.PUT,
+    });
+  }
+}

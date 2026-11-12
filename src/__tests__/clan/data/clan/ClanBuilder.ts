@@ -44,6 +44,12 @@ export default class ClanBuilder implements IDataBuilder<Clan> {
         border: '#000000',
         colour: '#FFFFFF',
         mainFurniture: 'default_furniture',
+        textField: {
+          textString: '',
+          textFont: '',
+          textColour: '#FFFFFF',
+          textPosition: [0, 0, 0, 0],
+        },
       },
       maxSlots: 7,
     },

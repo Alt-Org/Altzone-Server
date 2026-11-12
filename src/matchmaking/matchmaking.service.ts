@@ -47,6 +47,7 @@ import { Clan } from '../clan/clan.schema';
 import { TASK_CONSTS } from '../dailyTasks/consts/taskConstants';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
+import { PlayerLeaderboardWinService } from '../leaderboard/playerLeaderboardWin.service';
 
 /**
  * Orchestrates matchmaking state transitions.
@@ -67,6 +68,8 @@ export class MatchmakingService {
   private readonly QUEUE_KEY_PREFIX = 'matchmaking:queue';
   private readonly MATCH_KEY_PREFIX = 'matchmaking:match';
   private readonly PLAYER_MATCH_KEY_PREFIX = 'matchmaking:match-player';
+  private readonly INVITE_JOIN_LOCK_KEY_PREFIX = 'matchmaking:invite-join-lock';
+  private readonly INVITE_JOIN_LOCK_TTL_S = 5;
   private readonly MATCH_LEADERBOARD_LOCK_KEY_PREFIX =
     'matchmaking:leaderboard-lock';
 
@@ -78,6 +81,7 @@ export class MatchmakingService {
     private readonly emitterService: EventEmitterService,
     @Inject(forwardRef(() => MatchmakingQueue))
     private readonly queue: MatchmakingQueue,
+    private readonly playerLeaderboardWinService: PlayerLeaderboardWinService,
   ) {}
 
   /**
@@ -155,6 +159,12 @@ export class MatchmakingService {
       if (invite.players.includes(playerId)) return true;
       if (invite.ownerPlayerId === playerId) return true;
       if (invite.matchType === MatchType.CUSTOM) return true;
+      if (
+        invite.matchType === MatchType.RANDOM &&
+        this.isInviteJoinable(invite)
+      ) {
+        return true;
+      }
       if (invite.matchType === MatchType.CLAN && invite.clanId === clanId) {
         return true;
       }
@@ -182,6 +192,40 @@ export class MatchmakingService {
    * invite is recalculated and potentially moved into matchmaking.
    */
   async joinInvite(
+    inviteId: string,
+    playerId: string,
+    body: JoinMatchmakingInviteDto,
+  ): Promise<IServiceReturn<MatchmakingInviteDto>> {
+    const lockKey = this.inviteJoinLockKey(inviteId);
+    const lockValue = new Types.ObjectId().toString();
+    const lockAcquired = await this.redisService.setNx(
+      lockKey,
+      lockValue,
+      this.INVITE_JOIN_LOCK_TTL_S,
+    );
+
+    if (!lockAcquired) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'inviteId',
+            value: inviteId,
+            message: 'Room join is already being processed. Please retry.',
+          }),
+        ],
+      ];
+    }
+
+    try {
+      return await this.joinInviteWhileLocked(inviteId, playerId, body);
+    } finally {
+      await this.redisService.deleteIfValue(lockKey, lockValue);
+    }
+  }
+
+  private async joinInviteWhileLocked(
     inviteId: string,
     playerId: string,
     body: JoinMatchmakingInviteDto,
@@ -515,9 +559,14 @@ export class MatchmakingService {
   }
 
   /**
-   * Finishes an active match once, updates the correct battlePoints
-   * leaderboards, and keeps the completed match briefly available in Redis for
-   * clients that refresh.
+   * Accepts an active match result from an authenticated participant, finishes
+   * the match once, updates the correct leaderboards, and keeps the completed
+   * match briefly available in Redis for clients that refresh.
+   *
+   * This is the current authoritative server state transition: the service
+   * validates membership and active state and assigns the completion time.
+   * The winning side is participant-reported until an independently verified
+   * result protocol is introduced.
    */
   async finishMatch(
     matchId: string,
@@ -576,6 +625,13 @@ export class MatchmakingService {
       finishedAt: new Date().toISOString(),
       result: { winningSide: body.winningSide },
     };
+
+    // Persist the production win before legacy battle-point/statistics updates.
+    // The recorder owns eligibility checks and uses the durable battle ID as
+    // its idempotency key, independently of this short-lived Redis lock.
+    await this.playerLeaderboardWinService.recordAcceptedPlayerWin(
+      finishedMatch,
+    );
 
     const leaderboardErrors =
       await this.updateLeaderboardsForFinishedMatch(finishedMatch);
@@ -732,7 +788,10 @@ export class MatchmakingService {
 
     if (invite.matchType === MatchType.RANDOM) {
       const queuedInvite = await this.enqueueReadyInvite(invite);
-      const match = await this.tryCreateRandomMatch(invite.gameType);
+      const match = await this.tryCreateRandomMatch(
+        invite.gameType,
+        invite.teamSize,
+      );
       if (!match) return queuedInvite;
 
       const [processedInvite] = await this.readInvite(invite.id);
@@ -797,14 +856,19 @@ export class MatchmakingService {
    * Pairs the first two valid RANDOM invites for one game type into an active
    * match.
    */
-  private async tryCreateRandomMatch(gameType: number) {
+  private async tryCreateRandomMatch(gameType: number, teamSize: 1 | 2) {
     const queuedInvites = await this.getValidQueuedInvites(
       MatchType.RANDOM,
       gameType,
     );
-    if (queuedInvites.length < 2) return null;
 
-    const [firstInvite, secondInvite] = queuedInvites;
+    const compatibleInvites = queuedInvites.filter(
+      (invite) => invite.teamSize === teamSize,
+    );
+
+    if (compatibleInvites.length < 2) return null;
+
+    const [firstInvite, secondInvite] = compatibleInvites;
     const match = await this.createActiveMatch(firstInvite, secondInvite);
 
     await Promise.all([
@@ -833,7 +897,8 @@ export class MatchmakingService {
         candidate.id !== invite.id &&
         candidate.clanId &&
         invite.clanId &&
-        candidate.clanId !== invite.clanId,
+        candidate.clanId !== invite.clanId &&
+        candidate.teamSize === invite.teamSize,
     );
 
     if (!opponent) return null;
@@ -1302,17 +1367,6 @@ export class MatchmakingService {
     playerId: string,
     body: CreateMatchmakingInviteDto,
   ) {
-    if (body.matchType !== MatchType.CUSTOM && body.teamSize !== undefined) {
-      return [
-        new ServiceError({
-          reason: SEReason.NOT_ALLOWED,
-          field: 'teamSize',
-          value: body.teamSize,
-          message: 'Only CUSTOM invites may define teamSize.',
-        }),
-      ];
-    }
-
     if (body.matchType === MatchType.CUSTOM && !body.roomId) {
       return [
         new ServiceError({
@@ -1614,7 +1668,7 @@ export class MatchmakingService {
       }
     }
 
-    if (this.isInviteFull(invite) && invite.bots.length === 0) {
+    if (!this.isInviteJoinable(invite)) {
       return [
         new ServiceError({
           reason: SEReason.NOT_ALLOWED,
@@ -1741,6 +1795,20 @@ export class MatchmakingService {
     );
   }
 
+  /**
+   * Returns whether another real player can join the room. Bot fillers do not
+   * consume a real-player slot because joining replaces one of them.
+   */
+  private isInviteJoinable(invite: MatchmakingInvite) {
+    const acceptsPlayers =
+      invite.status === InviteStatus.OPEN ||
+      invite.status === InviteStatus.READY;
+
+    return (
+      acceptsPlayers && invite.players.length < this.getInviteCapacity(invite)
+    );
+  }
+
   private getInviteCapacity(invite: MatchmakingInvite) {
     return invite.matchType === MatchType.CUSTOM
       ? invite.teamSize * 2
@@ -1763,9 +1831,8 @@ export class MatchmakingService {
   }
 
   private resolveTeamSize(body: CreateMatchmakingInviteDto): 1 | 2 {
-    if (body.matchType === MatchType.CUSTOM) return body.teamSize ?? 2;
-
-    return 2;
+    // teamSize is given in the body, if not given teamSize of 1 is used
+    return body.teamSize ?? 1;
   }
 
   private resolveAllowBots(body: CreateMatchmakingInviteDto) {
@@ -1852,6 +1919,10 @@ export class MatchmakingService {
 
   private playerInviteKey(playerId: string) {
     return `${this.PLAYER_INVITE_KEY_PREFIX}:${playerId}`;
+  }
+
+  private inviteJoinLockKey(inviteId: string) {
+    return `${this.INVITE_JOIN_LOCK_KEY_PREFIX}:${inviteId}`;
   }
 
   private queueKey(matchType: MatchType, gameType: number) {

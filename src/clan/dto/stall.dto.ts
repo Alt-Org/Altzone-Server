@@ -1,3 +1,17 @@
+export class ClanAdPosterTextFieldDto {
+  /** Actual text in ad text section */
+  textString: string;
+
+  /** Font used */
+  textFont: string;
+
+  /** Colour used in ad text */
+  textColour: string;
+
+  /** Text position in the ad */
+  textPosition: number[];
+}
+
 /**
  * DTO for AdPoster embedded document in Stall
  */
@@ -10,6 +24,9 @@ export class ClanAdPosterDto {
 
   /** Main furniture used as the focal point of the stall's poster */
   mainFurniture: string;
+
+  /** Text field settings of the stall's advertisement poster */
+  textField: ClanAdPosterTextFieldDto;
 }
 
 /**

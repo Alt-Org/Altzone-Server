@@ -8,6 +8,12 @@ export default class AdPosterDtoBuilder
     border: 'defaultBorder',
     colour: 'defaultColour',
     mainFurniture: 'defaultFurniture',
+    textField: {
+      textString: 'defaultAdTitle',
+      textFont: 'defaultFont',
+      textColour: 'defaultColour',
+      textPosition: [0, 0, 0, 0],
+    },
   };
 
   setBorder(border: string): this {
@@ -22,8 +28,24 @@ export default class AdPosterDtoBuilder
     this.base.mainFurniture = mainFurniture;
     return this;
   }
+  setTextString(textString: string): this {
+    this.base.textField.textString = textString;
+    return this;
+  }
+  setTextFont(textFont: string): this {
+    this.base.textField.textFont = textFont;
+    return this;
+  }
+  setTextColour(textColour: string): this {
+    this.base.textField.textColour = textColour;
+    return this;
+  }
+  setTextPosition(textPosition: number[]): this {
+    this.base.textField.textPosition = textPosition;
+    return this;
+  }
 
   build(): FleaMarketAdPosterDto {
-    return { ...this.base };
+    return { ...this.base, textField: { ...this.base.textField } };
   }
 }

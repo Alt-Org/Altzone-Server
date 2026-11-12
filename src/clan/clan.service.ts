@@ -39,6 +39,7 @@ import { ClientSession } from 'mongoose';
 import { getRoomDefaultItems } from './utils/defaultValues/items';
 import { Environment } from '../common/enum/environment.enum';
 import ClanRoleService from './role/clanRole.service';
+import { clanListFields, ClanListDto } from './dto/clanList.dto';
 
 type CreateWithoutDtoType = Clan & {
   soulHome: SoulHomeDto;
@@ -223,8 +224,16 @@ export class ClanService {
     extendedClan.stock = stock.Stock;
     extendedClan.stockItems = stock.Item;
 
-    if (ownsTransaction)
-      return await endTransaction<CreateWithoutDtoType>(session, extendedClan);
+    if (ownsTransaction) {
+      const [result, commitError] = await endTransaction<CreateWithoutDtoType>(
+        session,
+        extendedClan,
+      );
+      if (commitError) return [null, commitError];
+
+      this.emitter.emitAsync('clan.create', { clan_id: clan._id });
+      return [result, null];
+    }
 
     return [extendedClan, null];
   }
@@ -265,6 +274,20 @@ export class ClanService {
       );
     }
     return await this.basicService.readMany<ClanDto>(optionsToApply);
+  }
+
+  /**
+   * Reads clans for the public clan list using a fixed field projection.
+   * A caller-provided projection cannot expand or narrow the public response.
+   */
+  async readClanList(options?: TIServiceReadManyOptions) {
+    const optionsToApply = {
+      ...(options || {}),
+      select: [...clanListFields],
+      includeRefs: [],
+    };
+
+    return await this.basicService.readMany<ClanListDto>(optionsToApply);
   }
 
   async updateOne(

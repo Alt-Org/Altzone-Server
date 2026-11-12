@@ -85,24 +85,24 @@ describe('FriendshipService.getFriendshipsWithStatus() test suites', () => {
     expect(friendships).toHaveLength(1);
   });
 
-  it('Should return NOT_FOUND if no match player_id', async () => {
+  it('Should return an empty array if no player_id matches', async () => {
     const randomPlayer_id = new ObjectId().toString();
     const [friendships, err] = await friendshipService.getFriendshipsWithStatus(
       randomPlayer_id,
       FriendshipStatus.ACCEPTED,
     );
 
-    expect(err).toContainSE_NOT_FOUND();
-    expect(friendships).toBeNull();
+    expect(err).toBeNull();
+    expect(friendships).toEqual([]);
   });
 
-  it('Should return NOT_FOUND if no match STATUS', async () => {
+  it('Should return an empty array if no status matches', async () => {
     const [friendships, err] = await friendshipService.getFriendshipsWithStatus(
       player1_id,
       undefined,
     );
 
-    expect(err).toContainSE_NOT_FOUND();
-    expect(friendships).toBeNull();
+    expect(err).toBeNull();
+    expect(friendships).toEqual([]);
   });
 });

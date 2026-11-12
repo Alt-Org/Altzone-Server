@@ -8,7 +8,7 @@ This is a REST API for the Altzone game. For more detailed API description and a
 
 ALT Zone is an open-source project developed by Psyche's Royale Gaming ry.
 
-GitHub issues are primarily used to coordinate the work of the PRG project team and should not be considered automatically available tasks for external contributors. 
+GitHub issues are primarily used to coordinate the work of the PRG project team and should not be considered automatically available tasks for external contributors.
 
 ## Contributing
 
@@ -121,6 +121,9 @@ The API will be accessible on your machine on http://localhost:8080/
 ## DB Schema
 
 ![ERD](doc/img/ERD.png)
+
+Database changes and deployed-container instructions are documented in
+[Database Migrations](database/README.md).
 
 ## API architecture schema
 

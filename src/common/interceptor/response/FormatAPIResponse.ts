@@ -113,6 +113,7 @@ function isMongooseError(error: any): boolean {
   return (
     error?.code === 11000 ||
     (error?.name === 'StrictPopulateError' && error?.path) ||
-    error instanceof Error.ValidationError
+    error instanceof Error.ValidationError ||
+    error instanceof Error.CastError
   );
 }

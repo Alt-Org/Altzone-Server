@@ -6,15 +6,22 @@ import { ChatResponseType } from '../../chat/enum/chatResponseType.enum';
 
 describe('SPECTRUM_OF_EMOTIONS daily task', () => {
   const createService = (updatedTask: any = null) => {
+    const replacementTask = { _id: 'task-2' };
     const model = {
       findOneAndUpdate: jest.fn(() => ({
         exec: jest.fn().mockResolvedValue(updatedTask),
       })),
+      findOneAndDelete: jest.fn(() => ({
+        exec: jest.fn().mockResolvedValue(updatedTask),
+      })),
+      create: jest.fn().mockResolvedValue([replacementTask]),
     };
     const progressService = { handleProgress: jest.fn() };
     const service = new DailyTasksService(
       model as any,
-      {} as Connection,
+      {
+        transaction: jest.fn((callback) => callback({})),
+      } as unknown as Connection,
       {} as any,
       {} as any,
       {
@@ -74,12 +81,9 @@ describe('SPECTRUM_OF_EMOTIONS daily task', () => {
           { 'progress.key': ChatResponseType.NEED_COMPANY },
         ],
         'progress.steps': { $ne: -1 },
+        isRewarded: { $ne: true },
       }),
-      {
-        $set: { 'progress.key': ChatResponseType.NEED_COMPANY },
-        $addToSet: { 'progress.steps': -1 },
-        $inc: { amountLeft: -1 },
-      },
+      expect.any(Array),
       expect.objectContaining({ new: true }),
     );
   });
@@ -142,7 +146,7 @@ describe('SPECTRUM_OF_EMOTIONS daily task', () => {
         steps: [-1, 0, 1, 2, 3, 4],
       },
     };
-    const { basicService, service } = createService(updatedTask);
+    const { model, service } = createService(updatedTask);
 
     const [result, errors] = await service.updatePlayWithEmotionsTask(
       'player-1',
@@ -153,11 +157,21 @@ describe('SPECTRUM_OF_EMOTIONS daily task', () => {
 
     expect(errors).toBeNull();
     expect(result).toMatchObject({ status: 'completed', currentAmountLeft: 0 });
-    expect(basicService.updateOne).toHaveBeenCalledWith(
-      expect.objectContaining({
-        $set: expect.objectContaining({ amountLeft: 2, progress: {} }),
-      }),
-      expect.anything(),
+    expect(model.findOneAndDelete).toHaveBeenCalledWith(
+      expect.objectContaining({ _id: 'task-1', isRewarded: true }),
+      expect.objectContaining({ session: expect.anything() }),
+    );
+    expect(model.create).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          clan_id: 'clan-1',
+          player_id: null,
+          amountLeft: 2,
+          progress: {},
+          isRewarded: false,
+        }),
+      ],
+      expect.objectContaining({ session: expect.anything() }),
     );
   });
 });

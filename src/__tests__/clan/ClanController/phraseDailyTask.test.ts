@@ -112,12 +112,19 @@ describe('ClanController phrase daily task', () => {
     );
     expect(
       dailyTaskProgressService.handleClanTaskCompletion,
-    ).toHaveBeenCalledWith(expect.any(Object), session, false);
+    ).toHaveBeenCalledWith(expect.any(Object), session);
     expect(session.commitTransaction).toHaveBeenCalled();
     expect(
       dailyTaskProgressService.notifyClanTaskCompletion,
     ).toHaveBeenCalled();
     expect(notifier).toHaveBeenCalledWith(clanId, 'Victory or nothing!');
+    expect(session.commitTransaction.mock.invocationCallOrder[0]).toBeLessThan(
+      dailyTaskProgressService.notifyClanTaskCompletion.mock
+        .invocationCallOrder[0],
+    );
+    expect(session.commitTransaction.mock.invocationCallOrder[0]).toBeLessThan(
+      notifier.mock.invocationCallOrder[0],
+    );
   });
 
   it('does not progress the task or publish MQTT when the phrase is unchanged', async () => {

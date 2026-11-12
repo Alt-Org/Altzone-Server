@@ -91,8 +91,24 @@ Returns `MatchmakingInviteDto`, which represents the created room:
 GET /matchmaking/rooms
 ```
 
-Lists rooms visible to the authenticated player. Visibility depends on ownership,
-current membership, custom rooms, and clan membership for clan rooms.
+Lists rooms visible to the authenticated player. `CANCELLED` and `MATCHED` rooms
+are not included.
+
+The authenticated player can see:
+
+- rooms they own or have already joined;
+- `CUSTOM` rooms;
+- `CLAN` rooms belonging to their clan;
+- joinable `RANDOM` rooms owned by other players.
+
+A `RANDOM` room is joinable while its status is `OPEN` or `READY` and its number
+of real players is lower than `teamSize`. Bot fillers do not consume a real-player
+slot for this check. Therefore, a `READY` 2v2 room containing one real player and
+one bot remains visible to other players, and a joining player can replace the bot.
+
+Once a `RANDOM` room contains two real players or enters the `QUEUED` state, it is
+no longer listed for players outside the room. Its owner and existing members can
+still see a queued room.
 
 ### Response
 
@@ -116,7 +132,14 @@ Returns `MatchmakingInviteDto`.
 POST /matchmaking/rooms/{roomId}/join
 ```
 
-Adds the authenticated player to an existing room.
+Adds the authenticated player to an existing joinable room. Both `OPEN` rooms and
+`READY` rooms containing a replaceable bot can be joined. When a real player joins
+a bot-filled room, one bot is removed before the room composition and status are
+recalculated.
+
+Room joins are serialized per room. If another join is already being processed,
+the request is rejected with `NOT_ALLOWED` and the client may retry. This prevents
+multiple concurrent requests from taking the same final real-player slot.
 
 ### Request Body
 
@@ -275,11 +298,24 @@ POST /matchmaking/matches/{matchId}/finish
 Finishes an active match, updates leaderboards, and stores the finished match for
 a short read-after-finish window.
 
+This operation is the current server-side acceptance point for a matchmaking
+result. The server accepts the result only when the requester is an
+authenticated participant of the active match and the request passes finish
+validation. After acceptance, the server assigns `finishedAt`, changes the
+match to `FINISHED`, and records any eligible production leaderboard win from
+that server-built state.
+
+The current protocol does not independently verify the reported winning side
+against Photon events or require matching reports from both teams. Adding
+signed game-server results or multi-player consensus would be a separate,
+backwards-incompatible result-validation feature. Clients cannot increment the
+production win counter directly.
+
 ### Request Body
 
 ```ts
 {
-  winningSide: 'A' | 'B'
+  winningSide: 'A' | 'B';
 }
 ```
 

@@ -34,7 +34,7 @@ export class MatchmakingQueue {
       { inviteId } satisfies ClanOpponentTimeoutJob,
       {
         delay: delaySeconds * 1000,
-        jobId: `clan-opponent-timeout:${inviteId}`,
+        jobId: `clan-opponent-timeout-${inviteId}`,
         removeOnComplete: true,
         removeOnFail: false,
         attempts: 3,

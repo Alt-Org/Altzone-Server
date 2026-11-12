@@ -7,7 +7,6 @@ import { Clan } from '../../../clan/clan.schema';
 import { ModelName } from '../../../common/enum/modelName.enum';
 import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultFields';
 import PlayerModule from '../../player/modules/player.module';
-import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 
 describe('ClanService.readOneById() test suite', () => {
   let clanService: ClanService;
@@ -18,7 +17,6 @@ describe('ClanService.readOneById() test suite', () => {
   let existingClan: Clan;
 
   const loggedPlayer = LoggedUser.getPlayer();
-  const playerBuilder = PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
   const playerModel = PlayerModule.getPlayerModel();
 
   beforeEach(async () => {
@@ -32,8 +30,9 @@ describe('ClanService.readOneById() test suite', () => {
     const clanResp = await clanModel.create(clanToCreate);
     existingClan = clanResp.toObject();
 
-    const playerUpdate = playerBuilder.setClanId(existingClan._id).build();
-    await playerModel.findByIdAndUpdate(loggedPlayer._id, playerUpdate);
+    await playerModel.findByIdAndUpdate(loggedPlayer._id, {
+      clan_id: existingClan._id,
+    });
     loggedPlayer.clan_id = existingClan._id;
   });
 

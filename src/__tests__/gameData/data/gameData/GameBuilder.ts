@@ -17,6 +17,7 @@ export class GameBuilder {
     _id: undefined as unknown as string,
     gameType: GameType.CASUAL,
     status: BattleStatus.OPEN,
+    isRewarded: false,
     receivedResults: [],
     finalWinner: 0,
   };

@@ -3,7 +3,7 @@ import { PlayerService } from '../../player/player.service';
 import { PlayerEvent } from '../../rewarder/playerRewarder/enum/PlayerEvent.enum';
 import { Message } from '../../player/message.schema';
 import ServiceError from '../../common/service/basicService/ServiceError';
-import { MongooseError } from 'mongoose';
+import { ClientSession, MongooseError } from 'mongoose';
 import { SEReason } from '../../common/service/basicService/SEReason';
 
 @Injectable()
@@ -19,12 +19,17 @@ export class PlayerStatisticService {
   async updatePlayerStatistic(
     player_id: string,
     playerEvent: PlayerEvent,
+    session?: ClientSession,
   ): Promise<[boolean, ServiceError[] | MongooseError]> {
     switch (playerEvent) {
       case PlayerEvent.BATTLE_WON:
-        return this.playerService.updatePlayerById(player_id, {
-          $inc: { 'gameStatistics.wonBattles': 1 },
-        });
+        return this.playerService.updatePlayerById(
+          player_id,
+          {
+            $inc: { 'gameStatistics.wonBattles': 1 },
+          },
+          session,
+        );
 
       default:
         return [

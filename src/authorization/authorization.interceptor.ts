@@ -23,11 +23,19 @@ import { MongoAbility } from '@casl/ability';
 import { IResponseShape } from '../common/interface/IResponseShape';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
+import { validateMongoId } from '../common/function/validateMongoId';
 
 export type PermissionMetaData = {
   action: SupportedAction;
   subject: AllowedSubject;
+  mongoIdFields?: MongoIdField[];
 };
+export type MongoIdField =
+  | string
+  | {
+      field: string;
+      allowNull?: boolean;
+    };
 export type SupportedAction =
   | Action.create
   | Action.read
@@ -86,7 +94,34 @@ export class AuthorizationInterceptor implements NestInterceptor {
         error: 'Internal Server Error',
       });
 
-    const { action, subject } = metadata;
+    const { action, subject, mongoIdFields = [] } = metadata;
+
+    const isReadOrDelete = action === Action.read || action === Action.delete;
+    const requestId = request.params?._id;
+
+    if (isReadOrDelete && requestId !== undefined)
+      validateMongoId('_id', requestId);
+
+    if (action === Action.update) {
+      const updateItems = Array.isArray(request.body)
+        ? request.body
+        : [request.body];
+      const fieldsToValidate: MongoIdField[] = ['_id', ...mongoIdFields];
+
+      for (const updateItem of updateItems) {
+        for (const fieldConfig of fieldsToValidate) {
+          const { field, allowNull } =
+            typeof fieldConfig === 'string'
+              ? { field: fieldConfig, allowNull: false }
+              : fieldConfig;
+          const value = updateItem?.[field];
+
+          if (value === undefined || (value === null && allowNull)) continue;
+
+          validateMongoId(field, value);
+        }
+      }
+    }
 
     const requestAction = Action[action + '_request'];
     const responseAction = Action[action + '_response'];
@@ -106,8 +141,7 @@ export class AuthorizationInterceptor implements NestInterceptor {
 
     //Determine subject to be manipulated
     let subjectObj: any = {};
-    if (action === Action.read || action === Action.delete)
-      subjectObj['_id'] = request.params._id;
+    if (isReadOrDelete) subjectObj['_id'] = requestId;
     else if (action === Action.update) subjectObj = request.body;
 
     const userAbility = await this.caslAbilityFactory.createForUser(

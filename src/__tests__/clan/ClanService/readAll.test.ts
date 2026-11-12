@@ -5,8 +5,8 @@ import ClanModule from '../modules/clan.module';
 import { ModelName } from '../../../common/enum/modelName.enum';
 import { clearDBRespDefaultFields } from '../../test_utils/util/removeDBDefaultFields';
 import PlayerModule from '../../player/modules/player.module';
-import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import { ObjectId } from 'mongodb';
+import { clanListFields } from '../../../clan/dto/clanList.dto';
 
 describe('ClanService.readAll() test suite', () => {
   let clanService: ClanService;
@@ -14,7 +14,6 @@ describe('ClanService.readAll() test suite', () => {
   const clanModel = ClanModule.getClanModel();
 
   const loggedPlayer = LoggedUser.getPlayer();
-  const playerBuilder = PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
   const playerModel = PlayerModule.getPlayerModel();
 
   const clanWithPlayer = clanBuilder
@@ -34,8 +33,9 @@ describe('ClanService.readAll() test suite', () => {
     await clanModel.create(clan2);
     await clanModel.create(clan3);
 
-    const playerUpdate = playerBuilder.setClanId(clan1Resp._id).build();
-    await playerModel.findByIdAndUpdate(loggedPlayer._id, playerUpdate);
+    await playerModel.findByIdAndUpdate(loggedPlayer._id, {
+      clan_id: clan1Resp._id,
+    });
     loggedPlayer.clan_id = clan1Resp._id;
   });
 
@@ -71,6 +71,26 @@ describe('ClanService.readAll() test suite', () => {
       { _id: expect.any(ObjectId), name: clan2.name },
       { _id: expect.any(ObjectId), name: clan3.name },
     ]);
+  });
+
+  it('Should use the fixed public projection when reading the clan list', async () => {
+    const [clans, errors] = await clanService.readClanList({
+      filter: allClansFilter,
+      select: ['password', 'roles'],
+    });
+
+    expect(errors).toBeNull();
+    expect(clans).toHaveLength(3);
+
+    for (const clan of clans) {
+      const clanObject = clearDBRespDefaultFields(clan);
+      expect(Object.keys(clanObject).sort()).toEqual(
+        [...clanListFields].sort(),
+      );
+      expect(clanObject).not.toHaveProperty('password');
+      expect(clanObject).toHaveProperty('ageRange');
+      expect(clanObject).not.toHaveProperty('roles');
+    }
   });
 
   it('Should limit the number of returned objects using options.limit', async () => {

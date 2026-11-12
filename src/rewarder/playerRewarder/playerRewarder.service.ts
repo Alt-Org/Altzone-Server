@@ -5,7 +5,6 @@ import { Injectable } from '@nestjs/common';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import { IServiceReturn } from '../../common/service/basicService/IService';
-import { PlayerDto } from '../../player/dto/player.dto';
 import BasicService from '../../common/service/basicService/BasicService';
 import { Player } from '../../player/schemas/player.schema';
 import { InjectModel } from '@nestjs/mongoose';
@@ -30,6 +29,7 @@ export class PlayerRewarder {
   async rewardForPlayerEvent(
     player_id: string,
     playerEvent: PlayerEvent,
+    session?: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
     const battlePointAmount = points[playerEvent];
     if (battlePointAmount === undefined)
@@ -45,7 +45,7 @@ export class PlayerRewarder {
         ],
       ];
 
-    return this.updatePlayerBattlePoints(player_id, battlePointAmount);
+    return this.updatePlayerBattlePoints(player_id, battlePointAmount, session);
   }
 
   /**
@@ -156,16 +156,20 @@ export class PlayerRewarder {
   private async updatePlayerBattlePoints(
     player_id: string,
     battlePoints: number,
+    session?: ClientSession,
   ): Promise<IServiceReturn<boolean>> {
-    const [player, errors] =
-      await this.playerService.readOneById<PlayerDto>(player_id);
-
-    if (errors) return [null, errors];
-
-    battlePoints = Math.max(0, player.battlePoints + battlePoints);
-
-    return await this.playerService.updateOneById(player_id, {
-      $set: { battlePoints },
-    });
+    return this.playerService.updateOneById(
+      player_id,
+      [
+        {
+          $set: {
+            battlePoints: {
+              $max: [0, { $add: ['$battlePoints', battlePoints] }],
+            },
+          },
+        },
+      ],
+      { session },
+    );
   }
 }

@@ -86,7 +86,6 @@ describe('ItemMoverService.moveItems() test suite', () => {
     );
   });
 
-  //TODO: should return items with updated stock_id field
   it('Should return moved to stock items', async () => {
     await itemModel.updateMany(allItemsFilter, { room_id: existingRoom._id });
 
@@ -103,13 +102,13 @@ describe('ItemMoverService.moveItems() test suite', () => {
       expect.arrayContaining([
         expect.objectContaining({
           ...item1,
-          room_id: existingRoom._id,
-          stock_id: null,
+          room_id: null,
+          stock_id: existingStock._id,
         }),
         expect.objectContaining({
           ...item2,
-          room_id: existingRoom._id,
-          stock_id: null,
+          room_id: null,
+          stock_id: existingStock._id,
         }),
       ]),
     );
@@ -143,7 +142,6 @@ describe('ItemMoverService.moveItems() test suite', () => {
     );
   });
 
-  //TODO: should return items with updated room_id field
   it('Should return moved to room items', async () => {
     await itemModel.updateMany(allItemsFilter, { stock_id: existingStock._id });
 
@@ -160,13 +158,13 @@ describe('ItemMoverService.moveItems() test suite', () => {
       expect.arrayContaining([
         expect.objectContaining({
           ...item1,
-          stock_id: existingStock._id,
-          room_id: null,
+          stock_id: null,
+          room_id: existingRoom._id,
         }),
         expect.objectContaining({
           ...item2,
-          stock_id: existingStock._id,
-          room_id: null,
+          stock_id: null,
+          room_id: existingRoom._id,
         }),
       ]),
     );

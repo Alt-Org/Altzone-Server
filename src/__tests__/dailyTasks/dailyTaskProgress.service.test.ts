@@ -69,6 +69,8 @@ describe('DailyTaskProgressService', () => {
 
     expect(error).toBeNull();
     expect(handled).toBe(result);
+    expect(notifier.taskUpdated).not.toHaveBeenCalled();
+    service.notifyProgress(handled);
     expect(notifier.taskUpdated).toHaveBeenCalledWith('player-1', result.task);
     expect(notifier.taskCompleted).not.toHaveBeenCalled();
     expect(clanRewarder.rewardClanForPlayerTask).not.toHaveBeenCalled();
@@ -82,6 +84,8 @@ describe('DailyTaskProgressService', () => {
 
     expect(error).toBeNull();
     expect(handled).toBe(result);
+    expect(notifier.taskUpdated).not.toHaveBeenCalled();
+    service.notifyProgress(handled);
     expect(notifier.taskUpdated).toHaveBeenCalledWith('player-1', result.task);
     expect(notifier.taskCompleted).not.toHaveBeenCalled();
     expect(clanRewarder.rewardClanForPlayerTask).not.toHaveBeenCalled();
@@ -100,6 +104,7 @@ describe('DailyTaskProgressService', () => {
 
     expect(error).toBeNull();
     expect(handled.reachedMilestones).toEqual([100]);
+    expect(notifier.taskCompleted).not.toHaveBeenCalled();
     expect(playerRewarder.rewardForPlayerTask).toHaveBeenCalledWith(
       'player-1',
       result.task.points,
@@ -111,6 +116,7 @@ describe('DailyTaskProgressService', () => {
       result.task.coins,
       session,
     );
+    service.notifyProgress(handled);
     expect(notifier.taskCompleted).toHaveBeenCalledWith(
       'player-1',
       result.task,
@@ -151,10 +157,61 @@ describe('DailyTaskProgressService', () => {
       result.task.coins,
       session,
     );
+    expect(notifier.taskCompletedForClan).not.toHaveBeenCalled();
+    service.notifyClanTaskCompletion(handled);
     expect(notifier.taskCompletedForClan).toHaveBeenCalledWith(
       'clan-1',
       result.task,
       'player-1',
+    );
+  });
+
+  it('should forward a Box-session target reached by a player task after completion', async () => {
+    const result = makeResult('completed', 'serverTask');
+    clanProgression.handleClanProgression.mockResolvedValue([
+      { reachedMilestones: [6300] },
+      null,
+    ]);
+
+    const [handled, error] = await service.handleProgress(result, session);
+
+    expect(error).toBeNull();
+    expect(handled.reachedMilestones).toEqual([6300]);
+    expect(notifier.milestoneReached).not.toHaveBeenCalled();
+
+    service.notifyProgress(handled);
+
+    expect(notifier.milestoneReached).toHaveBeenCalledWith(
+      'clan-1',
+      result.task,
+      'player-1',
+      [6300],
+    );
+  });
+
+  it('should forward a Box-session target reached by a clan task after completion', async () => {
+    const result = makeResult('completed', 'update_clan_motto');
+    clanProgression.handleClanProgression.mockResolvedValue([
+      { reachedMilestones: [6300] },
+      null,
+    ]);
+
+    const [handled, error] = await service.handleClanTaskCompletion(
+      result,
+      session,
+    );
+
+    expect(error).toBeNull();
+    expect(handled.reachedMilestones).toEqual([6300]);
+    expect(notifier.milestoneReached).not.toHaveBeenCalled();
+
+    service.notifyClanTaskCompletion(handled);
+
+    expect(notifier.milestoneReached).toHaveBeenCalledWith(
+      'clan-1',
+      result.task,
+      'player-1',
+      [6300],
     );
   });
 
@@ -173,6 +230,8 @@ describe('DailyTaskProgressService', () => {
       result.task.points,
       session,
     );
+    expect(notifier.taskCompleted).not.toHaveBeenCalled();
+    service.notifyProgress(handled);
     expect(notifier.taskCompleted).toHaveBeenCalledWith(
       'player-1',
       result.task,
@@ -194,6 +253,8 @@ describe('DailyTaskProgressService', () => {
 
     expect(error).toBeNull();
     expect(handled.reachedMilestones).toEqual([200]);
+    expect(notifier.taskCompleted).not.toHaveBeenCalled();
+    service.notifyProgress(handled);
     expect(notifier.taskCompleted).toHaveBeenCalledWith(
       'player-1',
       result.task,
@@ -222,6 +283,8 @@ describe('DailyTaskProgressService', () => {
 
     expect(error).toBeNull();
     expect(handled.reachedMilestones).toEqual([]);
+    expect(notifier.taskCompleted).not.toHaveBeenCalled();
+    service.notifyProgress(handled);
     expect(notifier.taskCompleted).toHaveBeenCalled();
     expect(notifier.taskCompletedForClan).toHaveBeenCalled();
     expect(notifier.milestoneReached).not.toHaveBeenCalled();
@@ -238,6 +301,8 @@ describe('DailyTaskProgressService', () => {
 
     expect(error).toBeNull();
     expect(handled.reachedMilestones).toEqual([100, 200]);
+    expect(notifier.milestoneReached).not.toHaveBeenCalled();
+    service.notifyProgress(handled);
     expect(notifier.milestoneReached).toHaveBeenCalledWith(
       'clan-1',
       result.task,

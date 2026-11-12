@@ -1,5 +1,5 @@
 import { CallHandler, ExecutionContext, HttpException } from '@nestjs/common';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ModelName } from '../../../../../common/enum/modelName.enum';
 import ClanBuilderFactory from '../../../../clan/data/clanBuilderFactory';
 import { FormatAPIResponseInterceptor } from '../../../../../common/interceptor/response/FormatAPIResponse';
@@ -11,6 +11,7 @@ import {
 import { APIErrorReason } from '../../../../../common/controller/APIErrorReason';
 import ServiceError from '../../../../../common/service/basicService/ServiceError';
 import { SEReason } from '../../../../../common/service/basicService/SEReason';
+import { Error as MongooseError } from 'mongoose';
 
 jest.mock('../../../../../common/controller/formatResponse');
 
@@ -114,5 +115,44 @@ describe('FormatAPIResponseInterceptor.intercept() test suite', () => {
     await expect(
       interceptor.intercept(executionContext, callHandler).toPromise(),
     ).rejects.toThrow(HttpException);
+  });
+
+  it('Should convert a Mongoose ObjectId CastError to a 400 validation error', async () => {
+    const castError = new MongooseError.CastError(
+      'ObjectId',
+      'invalidid',
+      '_id',
+    );
+    (callHandler.handle as jest.Mock).mockReturnValue(
+      throwError(() => castError),
+    );
+
+    try {
+      await interceptor.intercept(executionContext, callHandler).toPromise();
+      fail('Expected interceptor to throw the converted CastError');
+    } catch (error) {
+      expect(error).toBeInstanceOf(HttpException);
+      expect((error as HttpException).getStatus()).toBe(400);
+      expect((error as HttpException).getResponse()).toMatchObject({
+        statusCode: 400,
+        errors: [
+          expect.objectContaining({
+            reason: APIErrorReason.VALIDATION,
+            field: '_id',
+            statusCode: 400,
+          }),
+        ],
+      });
+    }
+  });
+
+  it('Should continue to convert an unexpected error to a 500 error', async () => {
+    (callHandler.handle as jest.Mock).mockReturnValue(
+      throwError(() => new Error('unexpected')),
+    );
+
+    await expect(
+      interceptor.intercept(executionContext, callHandler).toPromise(),
+    ).rejects.toMatchObject({ status: 500 });
   });
 });

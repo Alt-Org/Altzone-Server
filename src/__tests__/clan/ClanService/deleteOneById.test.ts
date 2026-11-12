@@ -2,7 +2,6 @@ import { ClanService } from '../../../clan/clan.service';
 import ClanBuilderFactory from '../data/clanBuilderFactory';
 import { Clan } from '../../../clan/clan.schema';
 import LoggedUser from '../../test_utils/const/loggedUser';
-import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import PlayerModule from '../../player/modules/player.module';
 import ClanModule from '../modules/clan.module';
 import ClanInventoryBuilderFactory from '../../clanInventory/data/clanInventoryBuilderFactory';
@@ -21,8 +20,6 @@ describe('ClanService.deleteOneById() test suite', () => {
   let existingClan: Clan;
 
   const loggedPlayer = LoggedUser.getPlayer();
-  const playerUpdateBuilder =
-    PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
   const playerModel = PlayerModule.getPlayerModel();
 
   let clanStock: Stock;
@@ -42,10 +39,9 @@ describe('ClanService.deleteOneById() test suite', () => {
     existingClan_id = existingClan._id.toString();
 
     loggedPlayer.clan_id = existingClan._id;
-    const playerUpdate = playerUpdateBuilder
-      .setClanId(existingClan._id)
-      .build();
-    await playerModel.findByIdAndUpdate(loggedPlayer._id, playerUpdate);
+    await playerModel.findByIdAndUpdate(loggedPlayer._id, {
+      clan_id: existingClan._id,
+    });
 
     const stock = stockBuilder.setClanId(existingClan_id).build();
     const stockResp = await stockModel.create(stock);

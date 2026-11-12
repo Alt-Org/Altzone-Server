@@ -6,12 +6,11 @@ import UiDailyTaskHandler from '../../../gameEventsHandler/dailyTask/uiDailyTask
 import DailyTaskBuilderFactory from '../../dailyTasks/data/dailyTaskBuilderFactory';
 import DailyTasksModule from '../../dailyTasks/modules/dailyTasks.module';
 import GameEventsHandlerModule from '../modules/gameEventsHandler.module';
-import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import GameEventsEmitterBuilderFactory from '../../gameEventsEmitter/data/gameEventsEmitterBuilderFactory';
 import GameEventBuilder from '../../gameEventsEmitter/data/gameEventsEmitter/GameEventBuilder';
 import { UITaskName } from '../../../dailyTasks/enum/uiTaskName.enum';
-import StockBuilder from '../../clanInventory/data/stock/StockBuilder';
 import DailyTaskNotifier from '../../../dailyTasks/dailyTask.notifier';
+import { NORMAL_GAME_TARGET_POINTS } from '../../../rewarder/const/prizePool';
 
 describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
   let handler: UiDailyTaskHandler;
@@ -23,23 +22,20 @@ describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
   const clanModel = ClanModule.getClanModel();
   const existingClan = clanBuilder.setName('clan1').build();
 
-  const playerBuilder = PlayerBuilderFactory.getBuilder('UpdatePlayerDto');
   const loggedPlayer = LoggedUser.getPlayer();
   const playerModel = PlayerModule.getPlayerModel();
 
   const taskBuilder = DailyTaskBuilderFactory.getBuilder('DailyTask');
   const taskModel = DailyTasksModule.getDailyTaskModel();
-  const stockModel = DailyTasksModule.getStockModel();
-  const stockBuilder = new StockBuilder();
-
   beforeEach(async () => {
     handler = await GameEventsHandlerModule.getUiDailyTaskHandler();
 
     const clanResp = await clanModel.create(existingClan);
     existingClan._id = clanResp._id;
 
-    const playerUpdate = playerBuilder.setClanId(existingClan._id).build();
-    await playerModel.findByIdAndUpdate(loggedPlayer._id, playerUpdate);
+    await playerModel.findByIdAndUpdate(loggedPlayer._id, {
+      clan_id: existingClan._id,
+    });
     loggedPlayer.clan_id = existingClan._id;
   });
 
@@ -123,20 +119,17 @@ describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
 
   it('Should notify reached milestones if task completion advances clan progression', async () => {
     const taskType = UITaskName.COMPARE_DEFENCE_SOLDIERS;
-    const milestonePoints = 300;
     const dailyTaskToCreate = taskBuilder
       .setClanId(existingClan._id)
       .setPlayerId(loggedPlayer._id)
       .setAmount(1)
       .setAmountLeft(1)
       .setType(taskType)
-      .setPoints(milestonePoints)
+      .setPoints(NORMAL_GAME_TARGET_POINTS)
       .setCoins(10)
       .setPlayerId(loggedPlayer._id)
       .setClanId(existingClan._id)
       .build();
-    const stockToCreate = stockBuilder.setClanId(existingClan._id).build();
-    await stockModel.create(stockToCreate);
     const createdTask = await taskModel.create(dailyTaskToCreate);
     const event = gameEventBuilder
       .setEventName('dailyTask.updateUIBasicTask')
@@ -162,7 +155,7 @@ describe('UiDailyTaskHandler.updateUIBasicTask() test suite', () => {
       existingClan._id.toString(),
       createdTask,
       loggedPlayer._id.toString(),
-      [milestonePoints],
+      [NORMAL_GAME_TARGET_POINTS],
     );
   });
 });

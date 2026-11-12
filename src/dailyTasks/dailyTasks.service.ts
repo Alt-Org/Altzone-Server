@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { ClientSession, Connection, Model } from 'mongoose';
-import BasicService from '../common/service/basicService/BasicService';
+import { ClientSession, Connection, FilterQuery, Model } from 'mongoose';
+import BasicService, {
+  convertMongooseToServiceErrors,
+} from '../common/service/basicService/BasicService';
 import { ModelName } from '../common/enum/modelName.enum';
 import DailyTaskNotifier from './dailyTask.notifier';
-import { DailyTask } from './dailyTasks.schema';
+import { DailyTask, DailyTaskDocument } from './dailyTasks.schema';
 import { DailyTaskDto } from './dto/dailyTask.dto';
 import { DailyTaskQueue } from './dailyTask.queue';
 import { taskReservedError } from './errors/taskReserved.error';
@@ -177,6 +179,7 @@ export class DailyTasksService {
             startedAt: null,
             amountLeft: '$amount',
             progress: {},
+            isRewarded: false,
           },
         },
       ],
@@ -210,6 +213,7 @@ export class DailyTasksService {
           ...newValues,
           amountLeft: newValues.amount,
           progress: {},
+          isRewarded: false,
           player_id: null,
           startedAt: null,
         },
@@ -234,13 +238,13 @@ export class DailyTasksService {
   }
 
   /**
-   * Deletes a task by updating it with new random values and resetting certain fields.
+   * Replaces a completed task with a new unreserved task instance.
    *
    * @param taskId - The ID of the task to be deleted.
    * @param clanId - The ID of the clan associated with the task.
    * @param playerId - The ID of the player associated with the task.
    * @param session - Optional MongoDB client session for transaction support.
-   * @returns A promise that resolves to the result of the update operation.
+   * @returns A promise that resolves when the old instance has been replaced.
    */
   async deleteTask(
     taskId: string,
@@ -248,23 +252,51 @@ export class DailyTasksService {
     playerId: string,
     session?: ClientSession,
   ) {
+    if (!session) {
+      try {
+        return await this.connection.transaction((transactionSession) =>
+          this.deleteTask(taskId, clanId, playerId, transactionSession),
+        );
+      } catch (error) {
+        return [null, convertMongooseToServiceErrors(error)];
+      }
+    }
+
     const newValues = this.taskGenerator.createTaskRandomValues();
-    const filter: any = { _id: taskId, clan_id: clanId };
-    filter.$or = [{ player_id: playerId }, { player_id: { $exists: false } }];
-    return this.basicService.updateOne(
-      {
-        $set: {
-          ...newValues,
-          amountLeft: newValues.amount,
-          progress: {},
-        },
-        $unset: {
-          player_id: '',
-          startedAt: '',
-        },
-      },
-      { filter, session },
-    );
+    const filter: FilterQuery<DailyTask> = {
+      _id: taskId,
+      clan_id: clanId,
+      isRewarded: true,
+    };
+    filter.$or = [
+      { player_id: playerId },
+      { player_id: null },
+      { player_id: { $exists: false } },
+    ];
+    try {
+      const deletedTask = await this.model
+        .findOneAndDelete(filter, { session })
+        .exec();
+      if (!deletedTask) return [null, null];
+
+      await this.model.create(
+        [
+          {
+            ...newValues,
+            clan_id: clanId,
+            player_id: null,
+            startedAt: null,
+            amountLeft: newValues.amount,
+            progress: {},
+            isRewarded: false,
+          },
+        ],
+        { session },
+      );
+      return [true, null];
+    } catch (error) {
+      return [null, convertMongooseToServiceErrors(error)];
+    }
   }
 
   /**
@@ -281,20 +313,48 @@ export class DailyTasksService {
     serverTaskName?: ServerTaskName,
     session?: ClientSession,
   ): Promise<IServiceReturn<DailyTaskProgressResult<DailyTaskDto>>> {
-    const filter: any = { player_id: playerId };
+    const filter: FilterQuery<DailyTask> = {
+      player_id: playerId,
+      amountLeft: { $gt: 0 },
+      isRewarded: { $ne: true },
+    };
     if (serverTaskName) {
       filter.type = serverTaskName;
     }
 
-    const [task, error] = await this.basicService.readOne<DailyTaskDto>({
-      filter,
-    });
-    if (error) return [null, error];
+    let task: DailyTaskDocument | null;
+    try {
+      task = await this.model
+        .findOneAndUpdate(
+          filter,
+          [
+            {
+              $set: {
+                amountLeft: { $subtract: ['$amountLeft', 1] },
+                isRewarded: {
+                  $cond: [
+                    { $eq: ['$amountLeft', 1] },
+                    true,
+                    { $ifNull: ['$isRewarded', false] },
+                  ],
+                },
+              },
+            },
+          ],
+          { new: true, session },
+        )
+        .exec();
+    } catch (error) {
+      return [null, convertMongooseToServiceErrors(error)];
+    }
 
-    const previousAmountLeft = task.amountLeft;
-    const completedAmount = Math.min(1, previousAmountLeft);
-    const currentAmountLeft = Math.max(previousAmountLeft - completedAmount, 0);
-    task.amountLeft = currentAmountLeft;
+    // Missing, unreserved, wrong-type, completed, and rewarded tasks are all
+    // intentional no-ops for server-originated events.
+    if (!task) return [null, null];
+
+    const currentAmountLeft = task.amountLeft;
+    const previousAmountLeft = currentAmountLeft + 1;
+    const completedAmount = 1;
 
     if (currentAmountLeft <= 0) {
       const [, deleteErrors] = await this.deleteTask(
@@ -304,18 +364,12 @@ export class DailyTasksService {
         session,
       );
       if (deleteErrors) return [null, deleteErrors];
-    } else {
-      const [_, updateError] = await this.basicService.updateOne(task, {
-        filter,
-        session,
-      });
-      if (updateError) return [null, updateError];
     }
 
     return [
       {
         status: currentAmountLeft <= 0 ? 'completed' : 'advanced',
-        task,
+        task: task as DailyTaskDto,
         completedByPlayerId: playerId,
         clanId: task.clan_id.toString(),
         completedAmount,
@@ -340,33 +394,41 @@ export class DailyTasksService {
       clan_id: clanId,
       type: serverTaskName,
       amountLeft: { $gt: 0 },
+      isRewarded: { $ne: true },
     };
-    const [task, error] = await this.basicService.readOne<DailyTaskDto>({
-      filter,
-      session,
-    });
-    if (error) return [null, error];
+    const task = await this.model
+      .findOneAndUpdate(
+        filter,
+        [
+          {
+            $set: {
+              amountLeft: { $subtract: ['$amountLeft', 1] },
+              isRewarded: {
+                $cond: [
+                  { $eq: ['$amountLeft', 1] },
+                  true,
+                  { $ifNull: ['$isRewarded', false] },
+                ],
+              },
+            },
+          },
+        ],
+        { new: true, session },
+      )
+      .exec();
 
-    const previousAmountLeft = task.amountLeft;
-    const completedAmount = Math.min(1, previousAmountLeft);
-    const currentAmountLeft = Math.max(previousAmountLeft - completedAmount, 0);
-    task.amountLeft = currentAmountLeft;
+    if (!task) return [null, null];
+
+    const currentAmountLeft = task.amountLeft;
+    const previousAmountLeft = currentAmountLeft + 1;
+    const completedAmount = 1;
 
     if (currentAmountLeft <= 0) {
-      const newValues = this.taskGenerator.createTaskRandomValues();
-      const [, replacementErrors] = await this.basicService.updateOne(
-        {
-          $set: {
-            ...newValues,
-            amountLeft: newValues.amount,
-            progress: {},
-          },
-          $unset: {
-            player_id: '',
-            startedAt: '',
-          },
-        },
-        { filter: { _id: task._id, clan_id: clanId }, session },
+      const [, replacementErrors] = await this.deleteTask(
+        task._id.toString(),
+        clanId,
+        completedByPlayerId,
+        session,
       );
       if (replacementErrors) return [null, replacementErrors];
     } else {
@@ -380,7 +442,7 @@ export class DailyTasksService {
     return [
       {
         status: currentAmountLeft <= 0 ? 'completed' : 'advanced',
-        task,
+        task: task as DailyTaskDto,
         completedByPlayerId,
         clanId: task.clan_id.toString(),
         completedAmount,
@@ -413,17 +475,31 @@ export class DailyTasksService {
           clan_id: clanId,
           type: ServerTaskName.SPECTRUM_OF_EMOTIONS,
           amountLeft: { $gt: 0 },
+          isRewarded: { $ne: true },
           $or: [
             { 'progress.key': { $exists: false } },
             { 'progress.key': responseType },
           ],
           'progress.steps': { $ne: emotion },
         },
-        {
-          $set: { 'progress.key': responseType },
-          $addToSet: { 'progress.steps': emotion },
-          $inc: { amountLeft: -1 },
-        },
+        [
+          {
+            $set: {
+              'progress.key': responseType,
+              'progress.steps': {
+                $setUnion: [{ $ifNull: ['$progress.steps', []] }, [emotion]],
+              },
+              amountLeft: { $subtract: ['$amountLeft', 1] },
+              isRewarded: {
+                $cond: [
+                  { $eq: ['$amountLeft', 1] },
+                  true,
+                  { $ifNull: ['$isRewarded', false] },
+                ],
+              },
+            },
+          },
+        ],
         { new: true, session },
       )
       .exec();
@@ -477,8 +553,22 @@ export class DailyTasksService {
           player_id: playerId,
           type: ServerTaskName.UPGRADE_A_DEFENCE_SOLDIER,
           amountLeft: expectedAmountLeft,
+          isRewarded: { $ne: true },
         },
-        { $inc: { amountLeft: -1 } },
+        [
+          {
+            $set: {
+              amountLeft: { $subtract: ['$amountLeft', 1] },
+              isRewarded: {
+                $cond: [
+                  { $eq: ['$amountLeft', 1] },
+                  true,
+                  { $ifNull: ['$isRewarded', false] },
+                ],
+              },
+            },
+          },
+        ],
         { new: true, session },
       )
       .exec();
@@ -661,7 +751,14 @@ export class DailyTasksService {
     );
     if (progressErrors) return cancelTransaction(session, progressErrors);
 
-    return endTransaction(session, progressResult);
+    const [committedResult, endErrors] = await endTransaction(
+      session,
+      progressResult,
+    );
+    if (endErrors) return [null, endErrors];
+
+    this.progressService.notifyProgress(committedResult);
+    return [committedResult, null];
   }
 
   /**
@@ -691,7 +788,14 @@ export class DailyTasksService {
       );
     if (progressErrors) return cancelTransaction(session, progressErrors);
 
-    return endTransaction(session, progressResult);
+    const [committedResult, endErrors] = await endTransaction(
+      session,
+      progressResult,
+    );
+    if (endErrors) return [null, endErrors];
+
+    this.progressService.notifyClanTaskCompletion(committedResult);
+    return [committedResult, null];
   }
 
   async getRewards() {

@@ -1,4 +1,5 @@
 import { Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { ApiNoContentResponse } from '@nestjs/swagger';
 import { FriendshipService } from './friendship.service';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { User } from '../auth/user';
@@ -33,10 +34,17 @@ export class FriendshipController {
     errors: [400, 401, 403, 404],
     hasAuth: true,
   })
+  @ApiNoContentResponse({ description: 'Friend list is empty' })
   @Get()
   @UniformResponse(ModelName.FRIENDSHIP, FriendlistDto)
   async getFriendlist(@LoggedUser() user: User) {
-    return await this.service.getPlayerFriendlist(user.player_id);
+    const [requests, error] = await this.service.getPlayerFriendlist(
+      user.player_id,
+    );
+
+    if (error) return [null, error];
+
+    return [requests, null];
   }
 
   @ApiResponseDescription({
@@ -49,10 +57,17 @@ export class FriendshipController {
     errors: [400, 401, 403, 404],
     hasAuth: true,
   })
+  @ApiNoContentResponse({ description: 'Friend request list is empty' })
   @Get('requests')
   @UniformResponse(ModelName.FRIENDSHIP, FriendRequestDto)
   async getRequests(@LoggedUser() user: User) {
-    return await this.service.getFriendRequests(user.player_id);
+    const [requests, error] = await this.service.getFriendRequests(
+      user.player_id,
+    );
+
+    if (error) return [null, error];
+
+    return [requests, null];
   }
 
   @ApiResponseDescription({

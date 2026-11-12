@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Model, Types, UpdateQuery } from 'mongoose';
+import { ClientSession, Model, Types, UpdateQuery } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Player, publicReferences } from './schemas/player.schema';
 import { RequestHelperService } from '../requestHelper/requestHelper.service';
@@ -15,7 +15,6 @@ import {
   PostCreateHookFunction,
   PostHookFunction,
 } from '../common/interface/IHookImplementer';
-import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { PlayerDto, StatDetailDto } from './dto/player.dto';
 import BasicService from '../common/service/basicService/BasicService';
 import ServiceError from '../common/service/basicService/ServiceError';
@@ -189,34 +188,8 @@ export class PlayerService
     return true;
   };
 
-  public updateOnePostHook: PostHookFunction = async (
-    input: Partial<UpdatePlayerDto>,
-    oldDoc: Partial<Player>,
-    _output: Partial<Player>,
-  ): Promise<boolean> => {
-    if (!input?.clan_id) return true;
-
-    const changeCounterValue = this.requestHelperService.changeCounterValue;
-
-    //decrease playerCounter from old clan
-    const clanRemoveFrom_id = oldDoc.clan_id;
-    if (clanRemoveFrom_id)
-      await changeCounterValue(
-        ModelName.CLAN,
-        { _id: clanRemoveFrom_id },
-        'playerCount',
-        -1,
-      );
-
-    const isPlayerCountIncreased = await changeCounterValue(
-      ModelName.CLAN,
-      { _id: input.clan_id },
-      'playerCount',
-      1,
-    );
-
-    return isPlayerCountIncreased;
-  };
+  public updateOnePostHook: PostHookFunction = async (): Promise<boolean> =>
+    true;
 
   /**
    * Updates one player data
@@ -224,8 +197,12 @@ export class PlayerService
    * @param options required options of the query
    * @returns tuple in form [ isSuccess, errors ]
    */
-  async updatePlayerById(_id: string, updateInfo: UpdateQuery<Player>) {
-    return this.basicService.updateOneById(_id, updateInfo);
+  async updatePlayerById(
+    _id: string,
+    updateInfo: UpdateQuery<Player>,
+    session?: ClientSession,
+  ) {
+    return this.basicService.updateOneById(_id, updateInfo, { session });
   }
 
   public deleteOnePostHook: PostHookFunction = async (
@@ -451,9 +428,12 @@ export class PlayerService
   }
 
   /**
-   * Claim Player reward. Removes claimable reward from claimableRewards, return chosen reward.
+   * Claims a reward through the legacy reward flow. Removes the final target
+   * from claimableRewards and returns the selected placeholder reward.
    *
-   * Currently, Player rewards are not implemented, so a mock reward is instead returned.
+   * Current clan progression no longer adds new claimableRewards entries; it
+   * reports the final target automatically through MQTT instead. This method
+   * remains available for backwards compatibility with existing data.
    *
    * @param _id Player Id
    * @param reward_id Reward Id - Currently, there are no rewards, so placeholder rewards are used

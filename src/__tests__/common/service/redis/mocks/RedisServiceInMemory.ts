@@ -44,6 +44,12 @@ export class RedisServiceInMemory implements IRedisService, OnModuleDestroy {
     return this.store.delete(key) ? 1 : 0;
   }
 
+  async deleteIfValue(key: string, value: string): Promise<boolean> {
+    if ((await this.get(key)) !== value) return false;
+
+    return (await this.delete(key)) === 1;
+  }
+
   async expire(key: string, ttlS: number): Promise<boolean> {
     const entry = await this.getEntry(key);
     if (!entry) return false;
