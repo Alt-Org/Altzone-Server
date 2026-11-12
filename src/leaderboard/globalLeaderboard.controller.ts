@@ -28,10 +28,9 @@ export class GlobalLeaderboardController {
     @GetAllQuery() query: IGetAllQuery,
     @OptionalLoggedUser() user?: User,
   ) {
-    // The requesting player is accepted at the HTTP boundary now so the
-    // win-based query can calculate ownRank without another contract change.
-    void user;
-
-    return this.leaderboardService.getPlayerLeaderboard(query);
+    return this.leaderboardService.getGlobalPlayerLeaderboard(
+      query,
+      user?.player_id,
+    );
   }
 }
