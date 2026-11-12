@@ -30,6 +30,40 @@ describe('AuthGuard with ExecutionContextBuilder and RequestBuilder', () => {
     expect(canActivate).toBe(true);
   });
 
+  it('Should allow anonymous access if OPTIONAL_AUTH is set', async () => {
+    jest
+      .spyOn(Reflector.prototype, 'getAllAndOverride')
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true);
+
+    const request = requestBuilder.setHeaders({}).setCookies({}).build();
+    const context = contextBuilder.setHttpRequest(request).build();
+
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+    expect(request['user']).toBeUndefined();
+  });
+
+  it('Should validate a supplied token if OPTIONAL_AUTH is set', async () => {
+    jest
+      .spyOn(Reflector.prototype, 'getAllAndOverride')
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true);
+
+    const request = requestBuilder
+      .setHeaders({ authorization: 'Bearer invalid-token' })
+      .setCookies({})
+      .build();
+    const context = contextBuilder.setHttpRequest(request).build();
+
+    jest
+      .spyOn(JwtService.prototype, 'verifyAsync')
+      .mockRejectedValue(new Error('Invalid token'));
+
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      UnauthorizedException,
+    );
+  });
+
   it('Should allow access and set user on request when token is valid', async () => {
     const request = requestBuilder
       .setHeaders({ authorization: 'Bearer valid-token' })
