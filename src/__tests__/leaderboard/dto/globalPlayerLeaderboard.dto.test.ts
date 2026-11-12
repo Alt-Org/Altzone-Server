@@ -1,6 +1,9 @@
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { GlobalPlayerLeaderboardDto } from '../../../leaderboard/dto/globalPlayerLeaderboard.dto';
+import {
+  GlobalPlayerLeaderboardDto,
+  GlobalPlayerLeaderboardResponseDto,
+} from '../../../leaderboard/dto/globalPlayerLeaderboard.dto';
 import { GlobalPlayerLeaderboardQueryDto } from '../../../leaderboard/dto/globalPlayerLeaderboardQuery.dto';
 
 describe('Global player leaderboard DTOs', () => {
@@ -42,7 +45,6 @@ describe('Global player leaderboard DTOs', () => {
           },
         ],
         ownRank: 1,
-        itemCount: 1,
         acceptedWins: ['internal'],
       },
       { excludeExtraneousValues: true },
@@ -60,7 +62,47 @@ describe('Global player leaderboard DTOs', () => {
         },
       ],
       ownRank: 1,
-      itemCount: 1,
+    });
+  });
+
+  it('serializes the documented response envelope', () => {
+    const response = plainToInstance(
+      GlobalPlayerLeaderboardResponseDto,
+      {
+        data: { leaderboard: { entries: [], ownRank: null } },
+        metaData: {
+          dataKey: 'leaderboard',
+          modelName: 'Leaderboard',
+          dataType: 'Object',
+          dataCount: 1,
+        },
+        paginationData: {
+          currentPage: 2,
+          limit: 20,
+          offset: 20,
+          itemCount: 21,
+          pageCount: 2,
+        },
+        internal: true,
+      },
+      { excludeExtraneousValues: true },
+    );
+
+    expect(response).toEqual({
+      data: { leaderboard: { entries: [], ownRank: null } },
+      metaData: {
+        dataKey: 'leaderboard',
+        modelName: 'Leaderboard',
+        dataType: 'Object',
+        dataCount: 1,
+      },
+      paginationData: {
+        currentPage: 2,
+        limit: 20,
+        offset: 20,
+        itemCount: 21,
+        pageCount: 2,
+      },
     });
   });
 });

@@ -19,7 +19,7 @@ describe('GlobalLeaderboardController.getGlobalPlayerLeaderboard', () => {
   it('converts page pagination to an offset and forwards the player id', async () => {
     const user = new User('profile-id', 'player-id');
 
-    await controller.getGlobalPlayerLeaderboard(
+    const response = await controller.getGlobalPlayerLeaderboard(
       { page: 3, limit: 20 },
       user,
     );
@@ -33,6 +33,22 @@ describe('GlobalLeaderboardController.getGlobalPlayerLeaderboard', () => {
       },
       'player-id',
     );
+    expect(response).toEqual({
+      data: { leaderboard: { entries: [], ownRank: null } },
+      metaData: {
+        dataKey: 'leaderboard',
+        modelName: 'Leaderboard',
+        dataType: 'Object',
+        dataCount: 1,
+      },
+      paginationData: {
+        currentPage: 3,
+        limit: 20,
+        offset: 40,
+        itemCount: 0,
+        pageCount: 0,
+      },
+    });
   });
 
   it('forwards an anonymous request without a player id', async () => {
