@@ -126,6 +126,44 @@ describe('LeaderboardService.getGlobalPlayerLeaderboard', () => {
     ).resolves.toEqual({ entries: [], ownRank: null, itemCount: 0 });
   });
 
+  it('excludes box players stored in the production Player collection', async () => {
+    const productionId = '665af23e5e9820013aa99991';
+    const boxPlayerId = '665af23e5e9820013aa99992';
+    await createPlayer(
+      productionId,
+      'production-player',
+      Environment.OPEN_DEMO,
+      new Date('2026-01-01T00:00:00.000Z'),
+    );
+    await createPlayer(
+      boxPlayerId,
+      'iloinen-susi-torniss',
+      Environment.TEACHING_DEMO,
+      new Date('2026-01-01T00:00:00.000Z'),
+    );
+    await playerModel.collection.updateOne(
+      { _id: new mongoose.Types.ObjectId(boxPlayerId) },
+      { $set: { box_id: 'testing-session-box-id' } },
+    );
+
+    const result = await service.getGlobalPlayerLeaderboard(
+      query(20, 0),
+      boxPlayerId,
+    );
+
+    expect(result).toEqual({
+      entries: [
+        expect.objectContaining({
+          rank: 1,
+          playerId: productionId,
+          nickname: 'production-player',
+        }),
+      ],
+      ownRank: null,
+      itemCount: 1,
+    });
+  });
+
   it('uses the stable player id as the final tie-breaker', async () => {
     const lowerId = '665af23e5e9820013aa99991';
     const higherId = '665af23e5e9820013aa99992';
