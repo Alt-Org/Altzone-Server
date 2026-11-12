@@ -11,6 +11,10 @@ import {
 } from '../dailyTask/predefinedDailyTask.schema';
 import { ClanToCreate, ClanToCreateSchema } from './ClanToCreate.schema';
 import { defaultPredefinedDailyTasks } from '../dailyTask/defaultPredefinedDailyTasks';
+import {
+  PackageRace,
+  PackageRaceSchema,
+} from '../packageRace/packageRace.schema';
 
 export type BoxDocument = HydratedDocument<Box>;
 
@@ -115,6 +119,13 @@ export class Box {
     default: defaultPredefinedDailyTasks,
   })
   dailyTasks: PredefinedDailyTask[];
+
+  /**
+   * The package race between the two session teams.
+   * Created when the testing session starts and cleared when the box is reset.
+   */
+  @Prop({ type: PackageRaceSchema, default: null })
+  packageRace?: PackageRace | null;
 
   @ExtractField()
   _id: ObjectId;
