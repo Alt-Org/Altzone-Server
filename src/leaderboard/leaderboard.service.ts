@@ -105,10 +105,7 @@ export class LeaderboardService {
         // with a box_id. Exclude them before scoring, ranking and pagination.
         {
           $match: {
-            $or: [
-              { box_id: null },
-              { box_id: { $exists: false } },
-            ],
+            $or: [{ box_id: null }, { box_id: { $exists: false } }],
           },
         },
         {
