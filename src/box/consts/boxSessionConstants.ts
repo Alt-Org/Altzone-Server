@@ -4,3 +4,5 @@ export const BOX_SESSION_CLAN_COUNT = 2;
 export const BOX_SESSION_MAX_MEMBERS_PER_CLAN = 15;
 export const BOX_SESSION_POINTS_PER_MEMBER = 420;
 export const BOX_SESSION_TASK_COUNT = 27;
+export const BOX_SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
+export const BOX_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;

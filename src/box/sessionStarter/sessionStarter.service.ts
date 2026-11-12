@@ -35,7 +35,12 @@ import {
   UIDailyTaskData,
   uiDailyTasks,
 } from '../../dailyTasks/uiDailyTasks/uiDailyTasks';
-import { BOX_SESSION_TASK_COUNT } from '../consts/boxSessionConstants';
+import {
+  BOX_LIFETIME_MS,
+  BOX_SESSION_DURATION_MS,
+  BOX_SESSION_TASK_COUNT,
+} from '../consts/boxSessionConstants';
+import { PackageRaceStatus } from '../packageRace/enum/packageRaceStatus.enum';
 
 /**
  * Class responsible for starting the testing session process.
@@ -66,6 +71,7 @@ export default class SessionStarterService {
    * - Generates and sets shared password
    * - Sets testing session stage to TESTING
    * - Sets reset and removal times of the box
+   * - Starts the package race between the two created clans (session teams)
    *
    * @param box_id _id of the box where to start the session
    *
@@ -79,8 +85,8 @@ export default class SessionStarterService {
       this.passwordGenerator.generatePassword('fi') + `-${randNumber}`;
 
     const now = new Date().getTime();
-    const timeAfterWeek = now + 60 * 60 * 24 * 7 * 1000;
-    const timeAfterMonth = now + 60 * 60 * 24 * 30 * 1000;
+    const timeAfterWeek = now + BOX_SESSION_DURATION_MS;
+    const timeAfterMonth = now + BOX_LIFETIME_MS;
 
     const [session, initErrors] = await initializeSession(this.connection);
     if (!session) return [null, initErrors];
@@ -154,6 +160,13 @@ export default class SessionStarterService {
         testersSharedPassword: testersPassword,
         sessionResetTime: timeAfterWeek,
         boxRemovalTime: timeAfterMonth,
+        packageRace: {
+          status: PackageRaceStatus.ACTIVE,
+          startedAt: new Date(now),
+          endsAt: new Date(timeAfterWeek),
+          endedAt: null,
+          teams: [],
+        },
       },
       { session },
     );
