@@ -101,6 +101,16 @@ export class LeaderboardService {
 
     const [result] = await this.playerService.model
       .aggregate<AggregationResult>([
+        // Testing-session players share the Player collection but are marked
+        // with a box_id. Exclude them before scoring, ranking and pagination.
+        {
+          $match: {
+            $or: [
+              { box_id: null },
+              { box_id: { $exists: false } },
+            ],
+          },
+        },
         {
           $lookup: {
             from: ModelName.PLAYER_LEADERBOARD_WIN,
