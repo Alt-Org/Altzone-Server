@@ -12,6 +12,7 @@ import { APIError } from '../../common/controller/APIError';
 import { APIErrorReason } from '../../common/controller/APIErrorReason';
 import { envVars } from '../../common/service/envHandler/envVars';
 import { BoxUser } from './BoxUser';
+import { OPTIONAL_AUTH } from '../../auth/decorator/OptionalAuth.decorator';
 
 /**
  * Auth guard for testing sessions.
@@ -34,6 +35,11 @@ export class BoxAuthGuard implements CanActivate {
     ]);
     if (noAuthRequired) return true;
 
+    const optionalAuth = this.reflector.getAllAndOverride(OPTIONAL_AUTH, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
     const errorResponse = {
       statusCode: 401,
       error: 'Unauthorized',
@@ -41,6 +47,7 @@ export class BoxAuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+    if (!token && optionalAuth) return true;
     if (!token)
       throw new UnauthorizedException({
         ...errorResponse,
