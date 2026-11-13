@@ -17,6 +17,10 @@ import {
   GlobalPlayerLeaderboardEntry,
   GlobalPlayerLeaderboardResult,
 } from './type/globalPlayerLeaderboard.type';
+import {
+  GlobalClanLeaderboardEntry,
+  GlobalClanLeaderboardResult,
+} from './type/globalClanLeaderboard.type';
 
 @Injectable()
 export class LeaderboardService {
@@ -183,6 +187,124 @@ export class LeaderboardService {
             ownRank: requestingPlayerObjectId
               ? [
                   { $match: { _id: requestingPlayerObjectId } },
+                  { $project: { _id: 0, rank: 1 } },
+                ]
+              : [{ $match: { _id: { $exists: false } } }],
+            total: [{ $count: 'count' }],
+          },
+        },
+      ])
+      .exec();
+
+    return {
+      entries: result?.entries ?? [],
+      ownRank: result?.ownRank[0]?.rank ?? null,
+      itemCount: result?.total[0]?.count ?? 0,
+    };
+  }
+
+  /**
+   * Retrieves one page of the production clan leaderboard.
+   *
+   * A clan's score consists only of accepted wins attributed to that clan at
+   * the time they were earned. Ranking is calculated before pagination and is
+   * deterministic for clans with equal win counts.
+   */
+  async getGlobalClanLeaderboard(
+    reqQuery: IGetAllQuery,
+    requestingPlayerId?: string,
+  ): Promise<GlobalClanLeaderboardResult> {
+    if (envVars.ENVIRONMENT === ServerEnvironment.TESTING_SESSION) {
+      return { entries: [], ownRank: null, itemCount: 0 };
+    }
+
+    const requestingPlayerObjectId =
+      requestingPlayerId && Types.ObjectId.isValid(requestingPlayerId)
+        ? new Types.ObjectId(requestingPlayerId)
+        : null;
+
+    let requestingClanObjectId: Types.ObjectId | null = null;
+    if (requestingPlayerObjectId) {
+      const [requestingPlayer] = await this.playerService.model
+        .aggregate<{
+          clan_id?: Types.ObjectId;
+          box_id?: Types.ObjectId;
+          environment?: Environment;
+        }>([
+          { $match: { _id: requestingPlayerObjectId } },
+          { $project: { clan_id: 1, box_id: 1, environment: 1 } },
+        ])
+        .exec();
+
+      if (
+        !requestingPlayer?.box_id &&
+        requestingPlayer?.environment === Environment.OPEN_DEMO &&
+        requestingPlayer?.clan_id
+      ) {
+        requestingClanObjectId = requestingPlayer.clan_id;
+      }
+    }
+
+    type AggregationResult = {
+      entries: GlobalClanLeaderboardEntry[];
+      ownRank: { rank: number }[];
+      total: { count: number }[];
+    };
+
+    const [result] = await this.clanService.model
+      .aggregate<AggregationResult>([
+        // Teaching/package-race clans must never enter the production ranking.
+        { $match: { environment: Environment.OPEN_DEMO } },
+        {
+          $lookup: {
+            from: ModelName.CLAN_LEADERBOARD_WIN,
+            localField: '_id',
+            foreignField: 'clanId',
+            as: 'acceptedWins',
+          },
+        },
+        {
+          $set: {
+            wins: { $size: '$acceptedWins' },
+            scoreReachedAt: {
+              $cond: [
+                { $gt: [{ $size: '$acceptedWins' }, 0] },
+                { $max: '$acceptedWins.scoreReachedAt' },
+                '$createdAt',
+              ],
+            },
+          },
+        },
+        {
+          $setWindowFields: {
+            sortBy: { wins: -1, scoreReachedAt: 1, _id: 1 },
+            output: {
+              rank: {
+                $sum: 1,
+                window: { documents: ['unbounded', 'current'] },
+              },
+            },
+          },
+        },
+        {
+          $facet: {
+            entries: [
+              { $skip: Math.max(reqQuery.skip, 0) },
+              { $limit: reqQuery.limit },
+              {
+                $project: {
+                  _id: 0,
+                  rank: 1,
+                  wins: 1,
+                  clanId: { $toString: '$_id' },
+                  name: 1,
+                  logo: { $ifNull: ['$clanLogo', null] },
+                },
+              },
+            ],
+            ownRank: requestingClanObjectId
+              ? [
+                  { $match: { _id: requestingClanObjectId } },
                   { $project: { _id: 0, rank: 1 } },
                 ]
               : [{ $match: { _id: { $exists: false } } }],
