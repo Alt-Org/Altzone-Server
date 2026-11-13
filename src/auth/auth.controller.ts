@@ -111,7 +111,7 @@ export class AuthController {
     const [result, errors] = await this.authService.refresh(refreshToken);
     if (errors) return errors;
 
-    if (!body.refreshToken) {
+    if (!body?.refreshToken) {
       const { accessToken, refreshToken, ...data } = result;
 
       this.authService.setCookies(
