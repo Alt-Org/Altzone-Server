@@ -108,6 +108,9 @@ type TestDeps = {
   playerLeaderboardWinService: {
     recordAcceptedPlayerWin: jest.Mock;
   };
+  clanLeaderboardWinService: {
+    recordAcceptedClanWin: jest.Mock;
+  };
   service: MatchmakingService;
 };
 
@@ -160,6 +163,9 @@ const createService = (
   const playerLeaderboardWinService = {
     recordAcceptedPlayerWin: jest.fn(async () => true),
   };
+  const clanLeaderboardWinService = {
+    recordAcceptedClanWin: jest.fn(async () => true),
+  };
   const service = new MatchmakingService(
     redis as any,
     playerService as any,
@@ -168,6 +174,7 @@ const createService = (
     emitterService as any,
     queue as any,
     playerLeaderboardWinService as any,
+    clanLeaderboardWinService as any,
   );
 
   return {
@@ -178,6 +185,7 @@ const createService = (
     emitterService,
     queue,
     playerLeaderboardWinService,
+    clanLeaderboardWinService,
     service,
   } satisfies TestDeps;
 };
