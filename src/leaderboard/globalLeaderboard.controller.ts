@@ -9,6 +9,7 @@ import { GlobalPlayerLeaderboardQueryDto } from './dto/globalPlayerLeaderboardQu
 import { GlobalPlayerLeaderboardResponseDto } from './dto/globalPlayerLeaderboard.dto';
 import { GlobalClanLeaderboardQueryDto } from './dto/globalClanLeaderboardQuery.dto';
 import { GlobalClanLeaderboardResponseDto } from './dto/globalClanLeaderboard.dto';
+import { ApiOkResponse } from '@nestjs/swagger';
 
 /**
  * Production, win-based leaderboard API.
@@ -63,6 +64,7 @@ export class GlobalLeaderboardController {
 
   @Get('clans/global')
   @OptionalAuth()
+  @ApiOkResponse({ type: GlobalClanLeaderboardResponseDto })
   @UseFilters(new ValidationExceptionFilter(), new APIErrorFilter())
   async getGlobalClanLeaderboard(
     @Query() query: GlobalClanLeaderboardQueryDto,
