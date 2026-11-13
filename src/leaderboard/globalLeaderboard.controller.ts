@@ -7,6 +7,8 @@ import { ValidationExceptionFilter } from '../common/exceptionFilter/ValidationE
 import { LeaderboardService } from './leaderboard.service';
 import { GlobalPlayerLeaderboardQueryDto } from './dto/globalPlayerLeaderboardQuery.dto';
 import { GlobalPlayerLeaderboardResponseDto } from './dto/globalPlayerLeaderboard.dto';
+import { GlobalClanLeaderboardQueryDto } from './dto/globalClanLeaderboardQuery.dto';
+import { GlobalClanLeaderboardResponseDto } from './dto/globalClanLeaderboard.dto';
 
 /**
  * Production, win-based leaderboard API.
@@ -27,6 +29,47 @@ export class GlobalLeaderboardController {
   ): Promise<GlobalPlayerLeaderboardResponseDto> {
     const offset = (query.page - 1) * query.limit;
     const result = await this.leaderboardService.getGlobalPlayerLeaderboard(
+      {
+        filter: {},
+        sort: {},
+        limit: query.limit,
+        skip: offset,
+      },
+      user?.player_id,
+    );
+
+    return {
+      data: {
+        leaderboard: {
+          entries: result.entries,
+          ownRank: result.ownRank,
+        },
+      },
+      metaData: {
+        dataKey: 'leaderboard',
+        modelName: 'Leaderboard',
+        dataType: 'Object',
+        dataCount: 1,
+      },
+      paginationData: {
+        currentPage: query.page,
+        limit: query.limit,
+        offset,
+        itemCount: result.itemCount,
+        pageCount: Math.ceil(result.itemCount / query.limit),
+      },
+    };
+  }
+
+  @Get('clans/global')
+  @OptionalAuth()
+  @UseFilters(new ValidationExceptionFilter(), new APIErrorFilter())
+  async getGlobalClanLeaderboard(
+    @Query() query: GlobalClanLeaderboardQueryDto,
+    @OptionalLoggedUser() user?: User,
+  ): Promise<GlobalClanLeaderboardResponseDto> {
+    const offset = (query.page - 1) * query.limit;
+    const result = await this.leaderboardService.getGlobalClanLeaderboard(
       {
         filter: {},
         sort: {},
