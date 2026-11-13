@@ -33,6 +33,7 @@ import UniqueFieldGenerator from '../../../box/util/UniqueFieldGenerator';
 import { ItemSchema } from '../../../clanInventory/item/item.schema';
 import { GameSchema } from '../../../gameData/game.schema';
 import { AuthModule } from '../../../auth/auth.module';
+import { PackageRaceService } from '../../../box/packageRace/packageRace.service';
 
 export default class BoxCommonModule {
   private constructor() {}
@@ -84,6 +85,7 @@ export default class BoxCommonModule {
           SessionStarterService,
           PasswordGenerator,
           UniqueFieldGenerator,
+          PackageRaceService,
         ],
       }).compile();
 

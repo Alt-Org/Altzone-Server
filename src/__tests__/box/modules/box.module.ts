@@ -14,6 +14,7 @@ import { BoxScheduler } from '../../../box/box.scheduler';
 import { TesterAccountService } from '../../../box/accountClaimer/testerAccount.service';
 import AccountClaimerService from '../../../box/accountClaimer/accountClaimer.service';
 import UniqueFieldGenerator from '../../../box/util/UniqueFieldGenerator';
+import { PackageRaceService } from '../../../box/packageRace/packageRace.service';
 
 export default class BoxModule {
   private constructor() {}
@@ -79,5 +80,10 @@ export default class BoxModule {
   static async getUniqueFieldGenerator() {
     const module = await BoxCommonModule.getModule();
     return module.resolve(UniqueFieldGenerator);
+  }
+
+  static async getPackageRaceService() {
+    const module = await BoxCommonModule.getModule();
+    return module.resolve(PackageRaceService);
   }
 }
