@@ -57,10 +57,10 @@ import { PackageRaceService } from './packageRace/packageRace.service';
     AuthModule,
   ],
   controllers: [
+    PackageRaceController,
     BoxController,
     DailyTaskController,
     AccountClaimerController,
-    PackageRaceController,
   ],
   providers: [
     BoxService,
