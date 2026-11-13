@@ -48,6 +48,7 @@ import { TASK_CONSTS } from '../dailyTasks/consts/taskConstants';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { PlayerLeaderboardWinService } from '../leaderboard/playerLeaderboardWin.service';
+import { ClanLeaderboardWinService } from '../leaderboard/clanLeaderboardWin.service';
 
 /**
  * Orchestrates matchmaking state transitions.
@@ -82,6 +83,7 @@ export class MatchmakingService {
     @Inject(forwardRef(() => MatchmakingQueue))
     private readonly queue: MatchmakingQueue,
     private readonly playerLeaderboardWinService: PlayerLeaderboardWinService,
+    private readonly clanLeaderboardWinService: ClanLeaderboardWinService,
   ) {}
 
   /**
@@ -632,6 +634,7 @@ export class MatchmakingService {
     await this.playerLeaderboardWinService.recordAcceptedPlayerWin(
       finishedMatch,
     );
+    await this.clanLeaderboardWinService.recordAcceptedClanWin(finishedMatch);
 
     const leaderboardErrors =
       await this.updateLeaderboardsForFinishedMatch(finishedMatch);
