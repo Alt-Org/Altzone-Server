@@ -32,6 +32,8 @@ import { TesterAccountService } from './accountClaimer/testerAccount.service';
 import UniqueFieldGenerator from './util/UniqueFieldGenerator';
 import { ItemSchema } from '../clanInventory/item/item.schema';
 import { AuthModule } from '../auth/auth.module';
+import { PackageRaceController } from './packageRace/packageRace.controller';
+import { PackageRaceService } from './packageRace/packageRace.service';
 
 @Module({
   imports: [
@@ -54,7 +56,12 @@ import { AuthModule } from '../auth/auth.module';
     PlayerModule,
     AuthModule,
   ],
-  controllers: [BoxController, DailyTaskController, AccountClaimerController],
+  controllers: [
+    BoxController,
+    DailyTaskController,
+    AccountClaimerController,
+    PackageRaceController,
+  ],
   providers: [
     BoxService,
     GroupAdminService,
@@ -69,6 +76,7 @@ import { AuthModule } from '../auth/auth.module';
     AccountClaimerService,
     TesterAccountService,
     UniqueFieldGenerator,
+    PackageRaceService,
   ],
   exports: [BoxService, GroupAdminGuard, BoxAuthHandler],
 })
