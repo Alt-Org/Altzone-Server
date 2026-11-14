@@ -6,7 +6,7 @@ import { BoxTestingSessionGuard } from '../../../box/auth/boxTestingSession.guar
 import { JwtService } from '@nestjs/jwt';
 import mongoose from 'mongoose';
 import { ModelName } from '../../../common/enum/modelName.enum';
-import { SessionSchema } from '../../../auth/session.schema';
+import { SessionSchema } from '../../../session/session.schema';
 
 export default class AuthModule {
   private constructor() {}

@@ -48,11 +48,10 @@ import { AuthModule } from '../auth/auth.module';
     ]),
     forwardRef(() => ClanModule),
     forwardRef(() => ChatModule),
-    ProfileModule,
+    forwardRef(() => ProfileModule),
     PlayerModule,
     DailyTasksModule,
-    PlayerModule,
-    AuthModule,
+    forwardRef(() => AuthModule),
   ],
   controllers: [BoxController, DailyTaskController, AccountClaimerController],
   providers: [

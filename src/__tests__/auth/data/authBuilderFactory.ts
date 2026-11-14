@@ -1,6 +1,6 @@
 import UserBuilder from './auth/User';
 import SignInDtoBuilder from './auth/SignInDtoBuilder';
-import SessionBuilder from './auth/SessionBuilder';
+import SessionBuilder from '../../session/data/session/SessionBuilder';
 
 type BuilderName = 'SignInDto' | 'User' | 'Session';
 

@@ -23,6 +23,7 @@ import {
   TIServiceReadManyOptions,
   TReadByIdOptions,
   IServiceReturn,
+  TIServiceReadOneOptions,
 } from '../common/service/basicService/IService';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { PlayerEmotion } from './enum/playerEmotion.enum';
@@ -51,6 +52,15 @@ export class PlayerService
   public readonly refsInModel: ModelName[];
   public readonly modelName: ModelName;
   public readonly basicService: BasicService;
+
+  /**
+   * Read Player from DB.
+   * 
+   * @param options - Options for reading Player
+   */
+  async readOne(options: TIServiceReadOneOptions) {
+    return await this.basicService.readOne(options);
+  }
 
   /**
    * Retrieves a player by their unique identifier.

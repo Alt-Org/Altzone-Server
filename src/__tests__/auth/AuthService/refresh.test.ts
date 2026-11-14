@@ -7,7 +7,6 @@ import PlayerModule from '../../../__tests__/player/modules/player.module';
 import PlayerBuilderFactory from '../../../__tests__/player/data/playerBuilderFactory';
 import { ObjectId } from 'mongodb';
 import AuthBuilderFactory from '../../auth/data/authBuilderFactory';
-import { UnauthorizedException } from '@nestjs/common';
 
 describe('AuthService.refresh() test suite', () => {
   let authService: AuthService;
@@ -73,21 +72,21 @@ describe('AuthService.refresh() test suite', () => {
   it('Should return tokens if refresh token is valid', async () => {
     const refreshToken = await createRefreshSession();
 
-    const [result] = await authService.refresh(refreshToken);
+    const [result,] = await authService.refresh(refreshToken);
     expect(result).toHaveProperty('accessToken');
     expect(result).toHaveProperty('refreshToken');
   });
 
-  it('Should throw UnauthorizedException if type is invalid', async () => {
+  it('Should return VALIDATION SError if token type is invalid', async () => {
     tokenData.type = 'reset';
     const refreshToken = await createRefreshSession();
 
-    await expect(authService.refresh(refreshToken)).rejects.toThrow(
-      UnauthorizedException,
-    );
+    const [result, errors] = await authService.refresh(refreshToken);
+    expect(result).toBeNull();
+    expect(errors).toContainSE_VALIDATION();
   });
 
-  it('Should revoke session and throw UnauthorizedException if session revokedAt is not null', async () => {
+  it('Should revoke session and return VALIDATION SError if session revokedAt is not null', async () => {
     const refreshToken = await createRefreshSession();
 
     const anotherSession = AuthBuilderFactory.getBuilder('Session')
@@ -105,16 +104,16 @@ describe('AuthService.refresh() test suite', () => {
       { $set: { revokedAt: new Date() } },
     );
 
-    await expect(authService.refresh(refreshToken)).rejects.toThrow(
-      UnauthorizedException,
-    );
+    const [result, errors] = await authService.refresh(refreshToken);
+    expect(result).toBeNull();
+    expect(errors).toContainSE_VALIDATION();
 
     const sessions = await sessionModel.find({ session_id: session_id });
     expect(sessions[0].revokedAt).not.toBeNull();
     expect(sessions[1].revokedAt).not.toBeNull();
   });
 
-  it('Should throw UnauthorizedException if token inactivity past limit', async () => {
+  it('Should return VALIDATION SError if token inactivity past limit', async () => {
     const refreshToken = await createRefreshSession();
 
     const decoded = await jwtService.decode(refreshToken);
@@ -124,34 +123,37 @@ describe('AuthService.refresh() test suite', () => {
 
     const updatedToken = await jwtService.signAsync(decoded);
 
-    await expect(authService.refresh(updatedToken)).rejects.toThrow(
-      UnauthorizedException,
-    );
+    const [result, errors] = await authService.refresh(updatedToken);
+    expect(result).toBeNull();
+    expect(errors).toContainSE_VALIDATION();
   });
 
-  it('Should return null if session not found', async () => {
+  it('Should return NOT_FOUND SError if session not found', async () => {
     const refreshToken = await createRefreshSession();
 
     await sessionModel.deleteOne({ _id: token_id });
 
-    const result = await authService.refresh(refreshToken);
+    const [result, errors] = await authService.refresh(refreshToken);
     expect(result).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
   });
 
-  it('Should return null if profile not found', async () => {
+  it('Should return VALIDATION SError if profile not found', async () => {
     tokenData.profile_id = new ObjectId().toString();
     const refreshToken = await createRefreshSession();
 
-    const result = await authService.refresh(refreshToken);
+    const [result, errors] = await authService.refresh(refreshToken);
     expect(result).toBeNull();
+    expect(errors).toContainSE_VALIDATION();
   });
 
-  it('Should return null if player not found', async () => {
+  it('Should return VALIDATION SError if player not found', async () => {
     await playerModel.deleteOne({ _id: player_id });
 
     const refreshToken = await createRefreshSession();
 
-    const result = await authService.refresh(refreshToken);
+    const [result, errors] = await authService.refresh(refreshToken);
     expect(result).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
   });
 });

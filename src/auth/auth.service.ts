@@ -1,15 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ClientSession, Connection, Model, MongooseError } from 'mongoose';
+import { ClientSession, Connection, } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import ServiceError from '../common/service/basicService/ServiceError';
 import * as argon2 from 'argon2';
 import { SEReason } from '../common/service/basicService/SEReason';
-import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Player } from '../player/schemas/player.schema';
-import { Profile } from '../profile/profile.schema';
-import { Clan } from '../clan/clan.schema';
+import { InjectConnection, } from '@nestjs/mongoose';
 import { envVars } from '../common/service/envHandler/envVars';
 import { StringValue } from 'ms';
 import ms from 'ms';
@@ -17,7 +14,6 @@ import { TokensDto } from './dto/tokens.dto';
 import { TokenPayload } from './dto/tokenPayload.dto';
 import { Response } from 'express';
 import { TokenName } from './enum/tokenName.enum';
-import { Session } from './session.schema';
 import { randomUUID } from 'node:crypto';
 import {
   cancelTransaction,
@@ -27,6 +23,10 @@ import {
 import { IServiceReturn } from '../common/service/basicService/IService';
 import { ObjectId } from 'mongodb';
 import { SessionPayload } from './dto/sessionPayload.dto';
+import { ProfileService } from '../profile/profile.service';
+import { PlayerService } from '../player/player.service';
+import { ClanService } from '../clan/clan.service';
+import SessionService from '../session/session.service';
 
 const ARGON2_CONFIG = {
   type: argon2.argon2id,
@@ -39,11 +39,11 @@ const ARGON2_CONFIG = {
 export class AuthService {
   public constructor(
     private readonly jwtService: JwtService,
-    @InjectModel(Profile.name) public readonly profileModel: Model<Profile>,
-    @InjectModel(Player.name) public readonly playerModel: Model<Player>,
-    @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
-    @InjectModel(Session.name) public readonly sessionModel: Model<Session>,
     @InjectConnection() private readonly connection: Connection,
+    public readonly profileService: ProfileService,
+    public readonly playerService: PlayerService,
+    public readonly clanService: ClanService,
+    public readonly sessionService: SessionService,
   ) {}
 
   /**
@@ -53,12 +53,13 @@ export class AuthService {
    * @param pass password of the profile
    *
    * @returns - access token and its expiration time, profile, player and clan data if password is valid.
-   * null if profile is not found, or it was not possible to verify password, or if the password is not valid
+   * errors if profile is not found, or it was not possible to verify password, or if the password is not valid
    */
   public signIn = async (username: string, pass: string) => {
-    const profileResp = await this.profileModel.findOne({ username });
-
-    if (!profileResp || profileResp instanceof MongooseError) return null;
+    const [profileResp, profileErrors] = await this.profileService.readOne(
+      { filter: { username } }
+    );
+    if(profileErrors) return [null, profileErrors];
 
     const profile = {
       ...profileResp.toObject(),
@@ -69,19 +70,22 @@ export class AuthService {
       pass,
       profile.password,
     );
+    if (errors) return [null, errors];
+    if (!isValidPassword) 
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
+            message: 'Credentials for that profile are incorrect',
+          }),
+        ],
+      ];
 
-    if (errors || !isValidPassword) return null;
-
-    const playerResp = await this.playerModel.findOne({
-      profile_id: profile._id,
+    const [playerResp, playerErrors] = await this.playerService.readOne({
+      filter: { profile_id: profile._id }
     });
-
-    //TODO: throw meaningful errors, i.e. !player => no player found for that profile
-    if (
-      playerResp instanceof MongooseError ||
-      (!profile.isSystemAdmin && !playerResp)
-    )
-      return null;
+    if (playerErrors) return [null, playerErrors];
 
     const player = {
       ...playerResp.toObject(),
@@ -100,7 +104,6 @@ export class AuthService {
       player_id: player._id,
     };
 
-    // has the player set the security question?
     const hasSecurityQuestion = !!profile.securityQuestion;
     const tokens = await this.createTokens(payload);
 
@@ -112,16 +115,16 @@ export class AuthService {
       refreshTokenExpires: tokens.refreshTokenExpires,
     };
 
-    const sessionResp = await this.createSession(sessionPayload);
-
-    if (sessionResp instanceof MongooseError || !sessionResp) return null;
+    const [, sessionErrors] = await this.createSession(sessionPayload);
+    if (sessionErrors) return [null, sessionErrors];
 
     profile['Player'] = player;
-    let clan = null;
-    if (player?.clan_id) clan = await this.clanModel.findById(player.clan_id);
 
-    if (clan)
-      profile['Clan'] = { ...clan.toObject(), _id: clan._id.toString() };
+    if (player?.clan_id) {
+      const [clan,] = await this.clanService.readOneById(player.clan_id);
+      if (clan) 
+        profile['Clan'] = { ...clan.toObject(), _id: clan._id.toString() };
+    }
 
     const {
       password: _p,
@@ -134,11 +137,13 @@ export class AuthService {
       ...serializedProfile
     } = profile;
 
-    return {
+    const result = {
       ...serializedProfile,
       hasSecurityQuestion,
       ...tokens,
     };
+
+    return [result, null];
   };
 
   /**
@@ -222,28 +227,28 @@ export class AuthService {
     refreshToken: string,
   ): Promise<IServiceReturn<TokensDto>> {
     if (!refreshToken)
-      throw new UnauthorizedException({
-        statusCode: 401,
-        errors: [
-          new APIError({
-            reason: APIErrorReason.INVALID_AUTH_TOKEN,
-            message: 'Invalid token',
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            message: 'No refresh token provided',
           }),
         ],
-      });
+      ];
 
     const decoded = await this.verifyToken(refreshToken);
 
     if (decoded.type !== 'refresh')
-      throw new UnauthorizedException({
-        statusCode: 401,
-        errors: [
-          new APIError({
-            reason: APIErrorReason.INVALID_AUTH_TOKEN,
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
             message: 'Invalid token',
           }),
         ],
-      });
+      ];
 
     const nowSeconds = Math.floor(Date.now() / 1000);
     const inactivityLimit =
@@ -251,56 +256,68 @@ export class AuthService {
     const inactivityExpired = decoded.iat + inactivityLimit < nowSeconds;
 
     if (inactivityExpired)
-      throw new UnauthorizedException({
-        statusCode: 401,
-        errors: [
-          new APIError({
-            reason: APIErrorReason.INVALID_AUTH_TOKEN,
-            message: 'Invalid token',
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
+            message: 'Token inactivity expired',
           }),
         ],
-      });
+      ];
 
-    const sessionResp = await this.sessionModel.findById(decoded.token_id);
-    if (!sessionResp || sessionResp instanceof MongooseError) return null;
+    const [sessionResp, sessionErrors] = 
+      await this.sessionService.readOneById(decoded.token_id);
+    if (sessionErrors) return [null, sessionErrors];
 
     if (sessionResp.revokedAt !== null) {
-      const revokedSessionResp = await this.sessionModel.updateMany(
-        {
-          session_id: decoded.session_id,
-          revokedAt: null,
-        },
-        { $set: { revokedAt: new Date() } },
+      const [, revokedErrors] = await this.sessionService.updateOne(
+        { revokedAt: new Date() },
+        { filter:
+          {
+            session_id: decoded.session_id, 
+            revokedAt: null,
+          }
+        }
       );
-      if (!revokedSessionResp || revokedSessionResp instanceof MongooseError)
-        return null;
+      if (revokedErrors) return [null, revokedErrors];
 
-      throw new UnauthorizedException({
-        statusCode: 401,
-        errors: [
-          new APIError({
-            reason: APIErrorReason.INVALID_AUTH_TOKEN,
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
             message: 'Invalid token',
           }),
         ],
-      });
+      ];
     }
 
     const [isValid, errors] = await this.verifyPassword(
       refreshToken,
       sessionResp.tokenHash,
     );
-    if (errors || !isValid) return null;
+    if (errors) return [null, errors];
+    if (!isValid) 
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
+            message: 'Invalid token',
+          }),
+        ],
+      ];
 
-    const profileResp = await this.profileModel.findById({
-      _id: decoded.profile_id,
-    });
-    if (!profileResp || profileResp instanceof MongooseError) return null;
+    const [profileResp, profileErrors] = await this.profileService.readOne(
+      { filter: { _id: decoded.profile_id } }
+    );
+    if(profileErrors) return [null, profileErrors];
 
-    const playerResp = await this.playerModel.findOne({
-      profile_id: profileResp._id,
+    const [playerResp, playerErrors] = await this.playerService.readOne({
+      filter: { profile_id: profileResp._id }
     });
-    if (!playerResp || playerResp instanceof MongooseError) return null;
+    if (playerErrors) return [null, playerErrors];
 
     const _id = new ObjectId();
 
@@ -328,31 +345,17 @@ export class AuthService {
       refreshTokenExpires: tokens.refreshTokenExpires,
     };
 
-    const newSessionResp = await this.createSession(sessionPayload, session);
+    const [, sessionRespErrors] = await this.createSession(sessionPayload, session);
+    if (sessionRespErrors) return await cancelTransaction(session, sessionRespErrors);
 
-    if (newSessionResp instanceof MongooseError || !newSessionResp)
-      return await cancelTransaction(
+    const [, updateSessionErrors] = await this.sessionService.updateOne(
+      { revokedAt: new Date() },
+      { 
+        filter: { _id: decoded.token_id }, 
         session,
-        new ServiceError({
-          reason: SEReason.UNEXPECTED,
-          message: 'Session creation failed',
-        }),
-      );
-
-    const updateSessionResp = await this.sessionModel.updateOne(
-      { _id: decoded.token_id },
-      { $set: { revokedAt: new Date() } },
-      { session },
+      }
     );
-
-    if (updateSessionResp instanceof MongooseError || !updateSessionResp)
-      return await cancelTransaction(
-        session,
-        new ServiceError({
-          reason: SEReason.UNEXPECTED,
-          message: 'Session update failed',
-        }),
-      );
+    if (updateSessionErrors) return await cancelTransaction(session, updateSessionErrors);
 
     return await endTransaction(session, tokens);
   }
@@ -373,7 +376,8 @@ export class AuthService {
       expiresAt: new Date(payload.refreshTokenExpires * 1000),
     };
 
-    return await this.sessionModel.create([sessionData], { session });
+    const [sessionResp, sessionErrors] = await this.sessionService.createOne(sessionData, session);
+    return [sessionResp, sessionErrors];
   }
 
   /**
@@ -383,36 +387,40 @@ export class AuthService {
    */
   public async logout(refreshToken: string) {
     if (!refreshToken)
-      throw new UnauthorizedException({
-        statusCode: 401,
-        errors: [
-          new APIError({
-            reason: APIErrorReason.INVALID_AUTH_TOKEN,
-            message: 'Invalid token',
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.REQUIRED,
+            message: 'No refresh token provided',
           }),
         ],
-      });
+      ];
 
     const decoded = await this.verifyToken(refreshToken);
 
     if (decoded.type !== 'refresh')
-      throw new UnauthorizedException({
-        statusCode: 401,
-        errors: [
-          new APIError({
-            reason: APIErrorReason.INVALID_AUTH_TOKEN,
-            message: 'Invalid token type',
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
+            message: 'Invalid token',
           }),
         ],
-      });
+      ];
 
-    await this.sessionModel.updateOne(
-      {
-        _id: decoded.token_id,
-        revokedAt: null,
-      },
-      { $set: { revokedAt: new Date() } },
+    await this.sessionService.updateOne(
+      { revokedAt: new Date() },
+      { filter: 
+        {
+          _id: decoded.token_id,
+          revokedAt: null,
+        } 
+      }
     );
+
+    return [null, null];
   }
 
   /**
