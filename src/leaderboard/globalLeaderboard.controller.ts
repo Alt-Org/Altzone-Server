@@ -2,6 +2,9 @@ import { Controller, Get, Query, UseFilters } from '@nestjs/common';
 import { User } from '../auth/user';
 import { OptionalAuth } from '../auth/decorator/OptionalAuth.decorator';
 import { OptionalLoggedUser } from '../common/decorator/param/OptionalLoggedUser.decorator';
+import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
+import { APIError } from '../common/controller/APIError';
+import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { APIErrorFilter } from '../common/exceptionFilter/APIErrorFilter';
 import { ValidationExceptionFilter } from '../common/exceptionFilter/ValidationExceptionFilter';
 import { LeaderboardService } from './leaderboard.service';
@@ -38,6 +41,55 @@ export class GlobalLeaderboardController {
       },
       user?.player_id,
     );
+
+    return {
+      data: {
+        leaderboard: {
+          entries: result.entries,
+          ownRank: result.ownRank,
+        },
+      },
+      metaData: {
+        dataKey: 'leaderboard',
+        modelName: 'Leaderboard',
+        dataType: 'Object',
+        dataCount: 1,
+      },
+      paginationData: {
+        currentPage: query.page,
+        limit: query.limit,
+        offset,
+        itemCount: result.itemCount,
+        pageCount: Math.ceil(result.itemCount / query.limit),
+      },
+    };
+  }
+
+  @Get('players/clan')
+  @ApiOkResponse({ type: GlobalPlayerLeaderboardResponseDto })
+  @UseFilters(new ValidationExceptionFilter(), new APIErrorFilter())
+  async getClanPlayerLeaderboard(
+    @Query() query: GlobalPlayerLeaderboardQueryDto,
+    @LoggedUser() user: User,
+  ): Promise<GlobalPlayerLeaderboardResponseDto> {
+    const offset = (query.page - 1) * query.limit;
+    const result = await this.leaderboardService.getClanPlayerLeaderboard(
+      {
+        filter: {},
+        sort: {},
+        limit: query.limit,
+        skip: offset,
+      },
+      user.player_id,
+    );
+
+    if (!result) {
+      throw new APIError({
+        reason: APIErrorReason.NOT_FOUND,
+        field: 'clan_id',
+        message: 'The requesting player does not belong to a clan',
+      });
+    }
 
     return {
       data: {
