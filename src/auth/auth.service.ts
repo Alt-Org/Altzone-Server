@@ -443,9 +443,10 @@ export class AuthService {
 
     const { session_id, token_id, ...accessPayload } = payload;
 
-    const accessToken = await this.jwtService.signAsync(accessPayload, {
-      expiresIn,
-    });
+    const accessToken = await this.jwtService.signAsync(
+      { ...accessPayload, type: 'access' },
+      { expiresIn },
+    );
     const decodedAccessToken = this.jwtService.decode(accessToken);
     const tokenExpires = decodedAccessToken?.exp;
 
