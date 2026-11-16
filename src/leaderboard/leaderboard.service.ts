@@ -14,9 +14,9 @@ import { Environment as ServerEnvironment } from '../common/service/envHandler/e
 import { Types } from 'mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import {
-  GlobalPlayerLeaderboardEntry,
-  GlobalPlayerLeaderboardResult,
-} from './type/globalPlayerLeaderboard.type';
+  PlayerLeaderboardEntry,
+  PlayerLeaderboardResult,
+} from './type/playerLeaderboard.type';
 import {
   GlobalClanLeaderboardEntry,
   GlobalClanLeaderboardResult,
@@ -87,7 +87,7 @@ export class LeaderboardService {
   async getGlobalPlayerLeaderboard(
     reqQuery: IGetAllQuery,
     requestingPlayerId?: string,
-  ): Promise<GlobalPlayerLeaderboardResult> {
+  ): Promise<PlayerLeaderboardResult> {
     if (envVars.ENVIRONMENT === ServerEnvironment.TESTING_SESSION) {
       return { entries: [], ownRank: null, itemCount: 0 };
     }
@@ -98,7 +98,7 @@ export class LeaderboardService {
         : null;
 
     type AggregationResult = {
-      entries: GlobalPlayerLeaderboardEntry[];
+      entries: PlayerLeaderboardEntry[];
       ownRank: { rank: number }[];
       total: { count: number }[];
     };
@@ -110,6 +110,7 @@ export class LeaderboardService {
         {
           $match: {
             $or: [{ box_id: null }, { box_id: { $exists: false } }],
+            isProfilePrivate: { $ne: true },
           },
         },
         {
@@ -199,6 +200,118 @@ export class LeaderboardService {
     return {
       entries: result?.entries ?? [],
       ownRank: result?.ownRank[0]?.rank ?? null,
+      itemCount: result?.total[0]?.count ?? 0,
+    };
+  }
+
+  /**
+   * Retrieves one page of a clan's publicly visible player leaderboard.
+   *
+   * Personal accepted wins remain attached to players when they change clans,
+   * while the ranked population is restricted to current public clan members.
+   * Returns null when the requested production clan does not exist.
+   */
+  async getClanPlayerLeaderboard(
+    reqQuery: IGetAllQuery,
+    clanId: string,
+  ): Promise<PlayerLeaderboardResult | null> {
+    if (envVars.ENVIRONMENT === ServerEnvironment.TESTING_SESSION) {
+      return { entries: [], ownRank: null, itemCount: 0 };
+    }
+
+    if (!Types.ObjectId.isValid(clanId)) return null;
+
+    const clanObjectId = new Types.ObjectId(clanId);
+    const clanExists = await this.clanService.model.exists({
+      _id: clanObjectId,
+      environment: Environment.OPEN_DEMO,
+    });
+    if (!clanExists) return null;
+
+    type AggregationResult = {
+      entries: PlayerLeaderboardEntry[];
+      total: { count: number }[];
+    };
+
+    const [result] = await this.playerService.model
+      .aggregate<AggregationResult>([
+        {
+          $match: {
+            clan_id: clanObjectId,
+            $or: [{ box_id: null }, { box_id: { $exists: false } }],
+            isProfilePrivate: { $ne: true },
+          },
+        },
+        {
+          $lookup: {
+            from: ModelName.PLAYER_LEADERBOARD_WIN,
+            localField: '_id',
+            foreignField: 'playerId',
+            as: 'acceptedWins',
+          },
+        },
+        {
+          $set: {
+            wins: { $size: '$acceptedWins' },
+            scoreReachedAt: {
+              $cond: [
+                { $gt: [{ $size: '$acceptedWins' }, 0] },
+                { $max: '$acceptedWins.scoreReachedAt' },
+                '$createdAt',
+              ],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: ModelName.CLAN,
+            localField: 'clan_id',
+            foreignField: '_id',
+            as: 'currentClan',
+          },
+        },
+        { $unwind: '$currentClan' },
+        {
+          $setWindowFields: {
+            sortBy: { wins: -1, scoreReachedAt: 1, _id: 1 },
+            output: {
+              rank: {
+                $sum: 1,
+                window: { documents: ['unbounded', 'current'] },
+              },
+            },
+          },
+        },
+        {
+          $facet: {
+            entries: [
+              { $skip: Math.max(reqQuery.skip, 0) },
+              { $limit: reqQuery.limit },
+              {
+                $project: {
+                  _id: 0,
+                  rank: 1,
+                  wins: 1,
+                  playerId: { $toString: '$_id' },
+                  nickname: '$name',
+                  avatar: { $ifNull: ['$avatar', null] },
+                  clan: {
+                    clanId: { $toString: '$currentClan._id' },
+                    name: '$currentClan.name',
+                    logo: '$currentClan.clanLogo',
+                  },
+                },
+              },
+            ],
+            total: [{ $count: 'count' }],
+          },
+        },
+      ])
+      .exec();
+
+    return {
+      entries: result?.entries ?? [],
+      ownRank: null,
       itemCount: result?.total[0]?.count ?? 0,
     };
   }

@@ -14,6 +14,7 @@ export default class PlayerBuilder {
     uniqueIdentifier: 'unique-id',
     above13: true,
     parentalAuth: true,
+    isProfilePrivate: false,
     currentAvatarId: 101,
     carbonFootprint: 0,
     clanCoinsAccumulated: 0,
@@ -91,6 +92,11 @@ export default class PlayerBuilder {
 
   setParentalAuth(parentalAuth: boolean | null) {
     this.base.parentalAuth = parentalAuth;
+    return this;
+  }
+
+  setIsProfilePrivate(isProfilePrivate: boolean) {
+    this.base.isProfilePrivate = isProfilePrivate;
     return this;
   }
 

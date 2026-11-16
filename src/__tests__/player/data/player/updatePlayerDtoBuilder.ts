@@ -10,6 +10,7 @@ export default class UpdatePlayerDtoBuilder {
     uniqueIdentifier: undefined,
     above13: undefined,
     parentalAuth: undefined,
+    isProfilePrivate: undefined,
     currentAvatarId: undefined,
     battleCharacter_ids: undefined,
     avatar: undefined,
@@ -46,6 +47,11 @@ export default class UpdatePlayerDtoBuilder {
 
   setParentalAuth(parentalAuth: boolean) {
     this.base.parentalAuth = parentalAuth;
+    return this;
+  }
+
+  setIsProfilePrivate(isProfilePrivate: boolean) {
+    this.base.isProfilePrivate = isProfilePrivate;
     return this;
   }
 

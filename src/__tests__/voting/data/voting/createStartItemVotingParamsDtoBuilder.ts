@@ -23,6 +23,7 @@ export default class CreateStartItemVotingParamsDtoBuilder
       backpackCapacity: 0,
       uniqueIdentifier: '',
       parentalAuth: false,
+      isProfilePrivate: false,
       gameStatistics: null,
       profile_id: new ObjectId().toString(),
       clan_id: new ObjectId().toString(),

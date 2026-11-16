@@ -240,6 +240,38 @@ describe('LeaderboardService.getGlobalPlayerLeaderboard', () => {
     expect(result.ownRank).toBeNull();
   });
 
+  it('excludes private profiles before assigning global ranks', async () => {
+    const publicId = '665af23e5e9820013aa99991';
+    const privateId = '665af23e5e9820013aa99992';
+    await createPlayer(
+      publicId,
+      'public-player',
+      Environment.OPEN_DEMO,
+      new Date('2026-01-02T00:00:00.000Z'),
+    );
+    await createPlayer(
+      privateId,
+      'private-player',
+      Environment.OPEN_DEMO,
+      new Date('2026-01-01T00:00:00.000Z'),
+    );
+    await playerModel.updateOne(
+      { _id: new mongoose.Types.ObjectId(privateId) },
+      { $set: { isProfilePrivate: true } },
+    );
+
+    const result = await service.getGlobalPlayerLeaderboard(
+      query(20, 0),
+      privateId,
+    );
+
+    expect(result).toEqual({
+      entries: [expect.objectContaining({ rank: 1, playerId: publicId })],
+      ownRank: null,
+      itemCount: 1,
+    });
+  });
+
   it('returns current clan presentation and ignores orphaned win records', async () => {
     const clan = await clanModel.create(
       ClanBuilderFactory.getBuilder('Clan')

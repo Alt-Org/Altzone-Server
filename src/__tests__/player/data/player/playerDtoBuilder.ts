@@ -17,6 +17,7 @@ export default class PlayerDtoBuilder implements IDataBuilder<PlayerDto> {
     uniqueIdentifier: 'unique-id',
     above13: true,
     parentalAuth: false,
+    isProfilePrivate: false,
     currentAvatarId: 101,
     environment: Environment.TEACHING_DEMO,
     avatar: {

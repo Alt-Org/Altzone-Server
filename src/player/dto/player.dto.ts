@@ -91,6 +91,10 @@ export class PlayerDto {
   @Expose()
   parentalAuth: boolean | null;
 
+  /** Whether this player is hidden from public leaderboards. */
+  @Expose()
+  isProfilePrivate: boolean;
+
   /**
    * Game statistics
    */
