@@ -152,6 +152,7 @@ describe('BoxAuthService.signIn() test suite', () => {
         player_id: createdPlayer._id.toString(),
         box_id: existingBox._id.toString(),
         groupAdmin: true,
+        type: 'access',
       },
       { expiresIn: '15m' },
     );
@@ -184,6 +185,7 @@ describe('BoxAuthService.signIn() test suite', () => {
         player_id: createdPlayer._id.toString(),
         box_id: existingBox._id.toString(),
         groupAdmin: true,
+        type: 'access',
       },
       { expiresIn: '15m' },
     );

@@ -64,9 +64,9 @@ export class AuthGuard implements CanActivate {
         secret: envVars.JWT_SECRET,
       });
 
-      const { profile_id, player_id } = payload;
+      const { type, profile_id, player_id } = payload;
 
-      if (!profile_id || !player_id)
+      if (type !== 'access' || !profile_id || !player_id)
         throw new UnauthorizedException({
           ...errorResponse,
           message: 'Incorrect token provided',

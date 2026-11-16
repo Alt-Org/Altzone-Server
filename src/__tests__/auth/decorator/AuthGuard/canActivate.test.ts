@@ -71,7 +71,7 @@ describe('AuthGuard with ExecutionContextBuilder and RequestBuilder', () => {
 
     const context = contextBuilder.setHttpRequest(request).build();
 
-    const payload = { profile_id: '123', player_id: '456' };
+    const payload = { profile_id: '123', player_id: '456', type: 'access' };
     jest.spyOn(JwtService.prototype, 'verifyAsync').mockResolvedValue(payload);
 
     const canActivate = await guard.canActivate(context);
@@ -87,7 +87,7 @@ describe('AuthGuard with ExecutionContextBuilder and RequestBuilder', () => {
 
     const context = contextBuilder.setHttpRequest(request).build();
 
-    const payload = { profile_id: '123', player_id: '456' };
+    const payload = { profile_id: '123', player_id: '456', type: 'access' };
     jest.spyOn(JwtService.prototype, 'verifyAsync').mockResolvedValue(payload);
 
     const canActivate = await guard.canActivate(context);
