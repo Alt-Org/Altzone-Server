@@ -204,6 +204,137 @@ export class LeaderboardService {
   }
 
   /**
+   * Retrieves one page of the requesting player's current clan leaderboard.
+   *
+   * Personal accepted wins remain attached to players when they change clans,
+   * while the ranked population is restricted to current clan members.
+   * Returns null when the requesting player has no existing current clan.
+   */
+  async getClanPlayerLeaderboard(
+    reqQuery: IGetAllQuery,
+    requestingPlayerId: string,
+  ): Promise<GlobalPlayerLeaderboardResult | null> {
+    if (envVars.ENVIRONMENT === ServerEnvironment.TESTING_SESSION) {
+      return { entries: [], ownRank: null, itemCount: 0 };
+    }
+
+    if (!Types.ObjectId.isValid(requestingPlayerId)) return null;
+
+    const requestingPlayerObjectId = new Types.ObjectId(requestingPlayerId);
+    const [requestingPlayer] = await this.playerService.model
+      .aggregate<{ clan_id?: Types.ObjectId }>([
+        {
+          $match: {
+            _id: requestingPlayerObjectId,
+            $or: [{ box_id: null }, { box_id: { $exists: false } }],
+          },
+        },
+        { $project: { clan_id: 1 } },
+      ])
+      .exec();
+
+    if (!requestingPlayer?.clan_id) return null;
+
+    const clanObjectId = requestingPlayer.clan_id;
+    const clanExists = await this.clanService.model.exists({
+      _id: clanObjectId,
+      environment: Environment.OPEN_DEMO,
+    });
+    if (!clanExists) return null;
+
+    type AggregationResult = {
+      entries: GlobalPlayerLeaderboardEntry[];
+      ownRank: { rank: number }[];
+      total: { count: number }[];
+    };
+
+    const [result] = await this.playerService.model
+      .aggregate<AggregationResult>([
+        {
+          $match: {
+            clan_id: clanObjectId,
+            $or: [{ box_id: null }, { box_id: { $exists: false } }],
+          },
+        },
+        {
+          $lookup: {
+            from: ModelName.PLAYER_LEADERBOARD_WIN,
+            localField: '_id',
+            foreignField: 'playerId',
+            as: 'acceptedWins',
+          },
+        },
+        {
+          $set: {
+            wins: { $size: '$acceptedWins' },
+            scoreReachedAt: {
+              $cond: [
+                { $gt: [{ $size: '$acceptedWins' }, 0] },
+                { $max: '$acceptedWins.scoreReachedAt' },
+                '$createdAt',
+              ],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: ModelName.CLAN,
+            localField: 'clan_id',
+            foreignField: '_id',
+            as: 'currentClan',
+          },
+        },
+        { $unwind: '$currentClan' },
+        {
+          $setWindowFields: {
+            sortBy: { wins: -1, scoreReachedAt: 1, _id: 1 },
+            output: {
+              rank: {
+                $sum: 1,
+                window: { documents: ['unbounded', 'current'] },
+              },
+            },
+          },
+        },
+        {
+          $facet: {
+            entries: [
+              { $skip: Math.max(reqQuery.skip, 0) },
+              { $limit: reqQuery.limit },
+              {
+                $project: {
+                  _id: 0,
+                  rank: 1,
+                  wins: 1,
+                  playerId: { $toString: '$_id' },
+                  nickname: '$name',
+                  avatar: { $ifNull: ['$avatar', null] },
+                  clan: {
+                    clanId: { $toString: '$currentClan._id' },
+                    name: '$currentClan.name',
+                    logo: '$currentClan.clanLogo',
+                  },
+                },
+              },
+            ],
+            ownRank: [
+              { $match: { _id: requestingPlayerObjectId } },
+              { $project: { _id: 0, rank: 1 } },
+            ],
+            total: [{ $count: 'count' }],
+          },
+        },
+      ])
+      .exec();
+
+    return {
+      entries: result?.entries ?? [],
+      ownRank: result?.ownRank[0]?.rank ?? null,
+      itemCount: result?.total[0]?.count ?? 0,
+    };
+  }
+
+  /**
    * Retrieves one page of the production clan leaderboard.
    *
    * A clan's score consists only of accepted wins attributed to that clan at
