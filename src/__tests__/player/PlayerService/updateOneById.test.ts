@@ -30,6 +30,18 @@ describe('PlayerService.updateOneById() test suite', () => {
     expect(updatedPlayer.name).toBe(updateData.name);
   });
 
+  it('Should update the public leaderboard privacy setting', async () => {
+    const updateData = {
+      _id: existingPlayer._id,
+      isProfilePrivate: true,
+    };
+
+    await playerService.updateOneById(updateData);
+
+    const updatedPlayer = await playerModel.findById(existingPlayer._id);
+    expect(updatedPlayer.isProfilePrivate).toBe(true);
+  });
+
   it('Should successfully update an existing player battleCharacterId ', async () => {
     const updateData = {
       _id: existingPlayer._id,

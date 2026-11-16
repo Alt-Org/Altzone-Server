@@ -55,6 +55,10 @@ export class Player {
   @Prop({ type: Boolean, default: null })
   parentalAuth?: boolean;
 
+  /** Whether this player's identifying data is hidden from public listings. */
+  @Prop({ type: Boolean, default: false })
+  isProfilePrivate?: boolean;
+
   @Prop({ type: Number, default: null })
   currentAvatarId?: number;
 
