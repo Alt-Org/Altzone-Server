@@ -2,8 +2,9 @@
  * Migration: Index current player clan memberships.
  *
  * The own-clan player leaderboard first restricts the ranked population by
- * current clan and then excludes box/testing-session players. This compound
- * index prevents that population lookup from scanning the Player collection.
+ * current clan, excludes box/testing-session players and applies the public
+ * profile visibility setting. This compound index prevents that population
+ * lookup from scanning the Player collection.
  */
 
 const COLLECTION = 'Player';
@@ -16,7 +17,7 @@ module.exports.up = async (db) => {
   await db
     .collection(COLLECTION)
     .createIndex(
-      { clan_id: 1, box_id: 1 },
+      { clan_id: 1, box_id: 1, isProfilePrivate: 1 },
       { name: PLAYER_CLAN_MEMBERSHIP_INDEX },
     );
 
