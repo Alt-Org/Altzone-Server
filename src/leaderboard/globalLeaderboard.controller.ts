@@ -12,7 +12,8 @@ import { PlayerLeaderboardQueryDto } from './dto/playerLeaderboardQuery.dto';
 import { PlayerLeaderboardResponseDto } from './dto/playerLeaderboard.dto';
 import { GlobalClanLeaderboardQueryDto } from './dto/globalClanLeaderboardQuery.dto';
 import { GlobalClanLeaderboardResponseDto } from './dto/globalClanLeaderboard.dto';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiStandardErrors } from '../common/swagger/response/errors/ApiStandardErrors.decorator';
 
 /**
  * Production, win-based leaderboard API.
@@ -66,7 +67,15 @@ export class GlobalLeaderboardController {
   }
 
   @Get('players/clan')
+  @ApiOperation({
+    summary: "Get the authenticated player's current clan member leaderboard",
+    description:
+      'Ranks current clan members by personal accepted lifetime wins. ' +
+      'Returns NOT_FOUND for clan_id when the requesting player has no current clan.',
+  })
+  @ApiBearerAuth()
   @ApiOkResponse({ type: PlayerLeaderboardResponseDto })
+  @ApiStandardErrors(400, 401, 404)
   @UseFilters(new ValidationExceptionFilter(), new APIErrorFilter())
   async getClanPlayerLeaderboard(
     @Query() query: PlayerLeaderboardQueryDto,
