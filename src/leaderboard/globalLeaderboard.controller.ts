@@ -8,8 +8,8 @@ import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { APIErrorFilter } from '../common/exceptionFilter/APIErrorFilter';
 import { ValidationExceptionFilter } from '../common/exceptionFilter/ValidationExceptionFilter';
 import { LeaderboardService } from './leaderboard.service';
-import { GlobalPlayerLeaderboardQueryDto } from './dto/globalPlayerLeaderboardQuery.dto';
-import { GlobalPlayerLeaderboardResponseDto } from './dto/globalPlayerLeaderboard.dto';
+import { PlayerLeaderboardQueryDto } from './dto/playerLeaderboardQuery.dto';
+import { PlayerLeaderboardResponseDto } from './dto/playerLeaderboard.dto';
 import { GlobalClanLeaderboardQueryDto } from './dto/globalClanLeaderboardQuery.dto';
 import { GlobalClanLeaderboardResponseDto } from './dto/globalClanLeaderboard.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
@@ -28,9 +28,9 @@ export class GlobalLeaderboardController {
   @OptionalAuth()
   @UseFilters(new ValidationExceptionFilter(), new APIErrorFilter())
   async getGlobalPlayerLeaderboard(
-    @Query() query: GlobalPlayerLeaderboardQueryDto,
+    @Query() query: PlayerLeaderboardQueryDto,
     @OptionalLoggedUser() user?: User,
-  ): Promise<GlobalPlayerLeaderboardResponseDto> {
+  ): Promise<PlayerLeaderboardResponseDto> {
     const offset = (query.page - 1) * query.limit;
     const result = await this.leaderboardService.getGlobalPlayerLeaderboard(
       {
@@ -66,12 +66,12 @@ export class GlobalLeaderboardController {
   }
 
   @Get('players/clan')
-  @ApiOkResponse({ type: GlobalPlayerLeaderboardResponseDto })
+  @ApiOkResponse({ type: PlayerLeaderboardResponseDto })
   @UseFilters(new ValidationExceptionFilter(), new APIErrorFilter())
   async getClanPlayerLeaderboard(
-    @Query() query: GlobalPlayerLeaderboardQueryDto,
+    @Query() query: PlayerLeaderboardQueryDto,
     @LoggedUser() user: User,
-  ): Promise<GlobalPlayerLeaderboardResponseDto> {
+  ): Promise<PlayerLeaderboardResponseDto> {
     const offset = (query.page - 1) * query.limit;
     const result = await this.leaderboardService.getClanPlayerLeaderboard(
       {

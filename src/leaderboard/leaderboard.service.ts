@@ -14,9 +14,9 @@ import { Environment as ServerEnvironment } from '../common/service/envHandler/e
 import { Types } from 'mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import {
-  GlobalPlayerLeaderboardEntry,
-  GlobalPlayerLeaderboardResult,
-} from './type/globalPlayerLeaderboard.type';
+  PlayerLeaderboardEntry,
+  PlayerLeaderboardResult,
+} from './type/playerLeaderboard.type';
 import {
   GlobalClanLeaderboardEntry,
   GlobalClanLeaderboardResult,
@@ -87,7 +87,7 @@ export class LeaderboardService {
   async getGlobalPlayerLeaderboard(
     reqQuery: IGetAllQuery,
     requestingPlayerId?: string,
-  ): Promise<GlobalPlayerLeaderboardResult> {
+  ): Promise<PlayerLeaderboardResult> {
     if (envVars.ENVIRONMENT === ServerEnvironment.TESTING_SESSION) {
       return { entries: [], ownRank: null, itemCount: 0 };
     }
@@ -98,7 +98,7 @@ export class LeaderboardService {
         : null;
 
     type AggregationResult = {
-      entries: GlobalPlayerLeaderboardEntry[];
+      entries: PlayerLeaderboardEntry[];
       ownRank: { rank: number }[];
       total: { count: number }[];
     };
@@ -213,7 +213,7 @@ export class LeaderboardService {
   async getClanPlayerLeaderboard(
     reqQuery: IGetAllQuery,
     requestingPlayerId: string,
-  ): Promise<GlobalPlayerLeaderboardResult | null> {
+  ): Promise<PlayerLeaderboardResult | null> {
     if (envVars.ENVIRONMENT === ServerEnvironment.TESTING_SESSION) {
       return { entries: [], ownRank: null, itemCount: 0 };
     }
@@ -243,7 +243,7 @@ export class LeaderboardService {
     if (!clanExists) return null;
 
     type AggregationResult = {
-      entries: GlobalPlayerLeaderboardEntry[];
+      entries: PlayerLeaderboardEntry[];
       ownRank: { rank: number }[];
       total: { count: number }[];
     };
