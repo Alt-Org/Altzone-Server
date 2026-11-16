@@ -53,6 +53,7 @@ import { getNonExisting_id } from '../../test_utils/util/getNonExisting_id';
 import { VotingBuilder } from '../../voting/data/voting/VotingBuilder';
 import ServiceError from '../../../common/service/basicService/ServiceError';
 import { SEReason } from '../../../common/service/basicService/SEReason';
+import { PackageRaceStatus } from '../../../box/packageRace/enum/packageRaceStatus.enum';
 
 describe('BoxService.reset() test suite', () => {
   process.env.ENVIRONMENT = Environment.TESTING_SESSION;
@@ -131,6 +132,27 @@ describe('BoxService.reset() test suite', () => {
 
     expect(errors).toBeNull();
     expect(isRemoved).toBe(true);
+  });
+
+  it('Should clear the package race of the box', async () => {
+    await boxModel.updateOne(
+      { _id: box._id },
+      {
+        packageRace: {
+          status: PackageRaceStatus.ENDED,
+          startedAt: new Date(),
+          endsAt: new Date(),
+          endedAt: new Date(),
+          teams: [],
+        },
+      },
+    );
+
+    const [, errors] = await boxService.reset(box._id);
+
+    expect(errors).toBeNull();
+    const boxInDB = await boxModel.findById(box._id).lean();
+    expect(boxInDB.packageRace).toBeNull();
   });
 
   it('Should delete all box related clans from DB', async () => {

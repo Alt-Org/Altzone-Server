@@ -10,7 +10,11 @@ import { Box } from '../../../box/schemas/box.schema';
 import DailyTasksModule from '../../dailyTasks/modules/dailyTasks.module';
 import { SessionStage } from '../../../box/enum/SessionStage.enum';
 import ClanModule from '../../clan/modules/clan.module';
-import { BOX_SESSION_TASK_COUNT } from '../../../box/consts/boxSessionConstants';
+import {
+  BOX_SESSION_DURATION_MS,
+  BOX_SESSION_TASK_COUNT,
+} from '../../../box/consts/boxSessionConstants';
+import { PackageRaceStatus } from '../../../box/packageRace/enum/packageRaceStatus.enum';
 import { ServerTaskName } from '../../../dailyTasks/enum/serverTaskName.enum';
 import { UITaskName } from '../../../dailyTasks/enum/uiTaskName.enum';
 import SoulhomeModule from '../../clanInventory/modules/soulhome.module';
@@ -210,5 +214,20 @@ describe('SessionStarterService.start() test suite', () => {
 
     expect(clans.map((clan) => clan.boxMemberLimit)).toEqual([15, 14]);
     expect(clans.map((clan) => clan.targetPoints)).toEqual([6300, 5880]);
+  });
+
+  it('Should start an active package race that ends when the session is reset', async () => {
+    await starter.start(existingBox._id);
+
+    const boxInDB = await boxModel.findById(existingBox._id).lean();
+
+    expect(boxInDB.packageRace.status).toBe(PackageRaceStatus.ACTIVE);
+    expect(boxInDB.packageRace.endedAt).toBeNull();
+    expect(boxInDB.packageRace.teams).toEqual([]);
+    expect(boxInDB.packageRace.endsAt.getTime()).toBe(boxInDB.sessionResetTime);
+    expect(
+      boxInDB.packageRace.endsAt.getTime() -
+        boxInDB.packageRace.startedAt.getTime(),
+    ).toBe(BOX_SESSION_DURATION_MS);
   });
 });
