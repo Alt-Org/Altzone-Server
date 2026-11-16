@@ -1,8 +1,7 @@
-import { Controller, Get, Query, UseFilters } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseFilters } from '@nestjs/common';
 import { User } from '../auth/user';
 import { OptionalAuth } from '../auth/decorator/OptionalAuth.decorator';
 import { OptionalLoggedUser } from '../common/decorator/param/OptionalLoggedUser.decorator';
-import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { APIErrorFilter } from '../common/exceptionFilter/APIErrorFilter';
@@ -12,8 +11,10 @@ import { PlayerLeaderboardQueryDto } from './dto/playerLeaderboardQuery.dto';
 import { PlayerLeaderboardResponseDto } from './dto/playerLeaderboard.dto';
 import { GlobalClanLeaderboardQueryDto } from './dto/globalClanLeaderboardQuery.dto';
 import { GlobalClanLeaderboardResponseDto } from './dto/globalClanLeaderboard.dto';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { ApiStandardErrors } from '../common/swagger/response/errors/ApiStandardErrors.decorator';
+import { NoAuth } from '../auth/decorator/NoAuth.decorator';
+import { ClanPlayerLeaderboardParamDto } from './dto/clanPlayerLeaderboardParam.dto';
 
 /**
  * Production, win-based leaderboard API.
@@ -66,20 +67,20 @@ export class GlobalLeaderboardController {
     };
   }
 
-  @Get('players/clan')
+  @Get('clans/:clanId/players')
+  @NoAuth()
   @ApiOperation({
-    summary: "Get the authenticated player's current clan member leaderboard",
+    summary: "Get a clan's public player leaderboard",
     description:
-      'Ranks current clan members by personal accepted lifetime wins. ' +
-      'Returns NOT_FOUND for clan_id when the requesting player has no current clan.',
+      'Ranks current clan members who allow public visibility by personal ' +
+      'accepted lifetime wins.',
   })
-  @ApiBearerAuth()
   @ApiOkResponse({ type: PlayerLeaderboardResponseDto })
-  @ApiStandardErrors(400, 401, 404)
+  @ApiStandardErrors(400, 404)
   @UseFilters(new ValidationExceptionFilter(), new APIErrorFilter())
   async getClanPlayerLeaderboard(
+    @Param() param: ClanPlayerLeaderboardParamDto,
     @Query() query: PlayerLeaderboardQueryDto,
-    @LoggedUser() user: User,
   ): Promise<PlayerLeaderboardResponseDto> {
     const offset = (query.page - 1) * query.limit;
     const result = await this.leaderboardService.getClanPlayerLeaderboard(
@@ -89,14 +90,15 @@ export class GlobalLeaderboardController {
         limit: query.limit,
         skip: offset,
       },
-      user.player_id,
+      param.clanId,
     );
 
     if (!result) {
       throw new APIError({
         reason: APIErrorReason.NOT_FOUND,
-        field: 'clan_id',
-        message: 'The requesting player does not belong to a clan',
+        field: 'clanId',
+        value: param.clanId,
+        message: 'The requested clan does not exist',
       });
     }
 

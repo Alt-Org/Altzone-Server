@@ -110,6 +110,7 @@ export class LeaderboardService {
         {
           $match: {
             $or: [{ box_id: null }, { box_id: { $exists: false } }],
+            isProfilePrivate: { $ne: true },
           },
         },
         {
@@ -204,38 +205,23 @@ export class LeaderboardService {
   }
 
   /**
-   * Retrieves one page of the requesting player's current clan leaderboard.
+   * Retrieves one page of a clan's publicly visible player leaderboard.
    *
    * Personal accepted wins remain attached to players when they change clans,
-   * while the ranked population is restricted to current clan members.
-   * Returns null when the requesting player has no existing current clan.
+   * while the ranked population is restricted to current public clan members.
+   * Returns null when the requested production clan does not exist.
    */
   async getClanPlayerLeaderboard(
     reqQuery: IGetAllQuery,
-    requestingPlayerId: string,
+    clanId: string,
   ): Promise<PlayerLeaderboardResult | null> {
     if (envVars.ENVIRONMENT === ServerEnvironment.TESTING_SESSION) {
       return { entries: [], ownRank: null, itemCount: 0 };
     }
 
-    if (!Types.ObjectId.isValid(requestingPlayerId)) return null;
+    if (!Types.ObjectId.isValid(clanId)) return null;
 
-    const requestingPlayerObjectId = new Types.ObjectId(requestingPlayerId);
-    const [requestingPlayer] = await this.playerService.model
-      .aggregate<{ clan_id?: Types.ObjectId }>([
-        {
-          $match: {
-            _id: requestingPlayerObjectId,
-            $or: [{ box_id: null }, { box_id: { $exists: false } }],
-          },
-        },
-        { $project: { clan_id: 1 } },
-      ])
-      .exec();
-
-    if (!requestingPlayer?.clan_id) return null;
-
-    const clanObjectId = requestingPlayer.clan_id;
+    const clanObjectId = new Types.ObjectId(clanId);
     const clanExists = await this.clanService.model.exists({
       _id: clanObjectId,
       environment: Environment.OPEN_DEMO,
@@ -244,7 +230,6 @@ export class LeaderboardService {
 
     type AggregationResult = {
       entries: PlayerLeaderboardEntry[];
-      ownRank: { rank: number }[];
       total: { count: number }[];
     };
 
@@ -254,6 +239,7 @@ export class LeaderboardService {
           $match: {
             clan_id: clanObjectId,
             $or: [{ box_id: null }, { box_id: { $exists: false } }],
+            isProfilePrivate: { $ne: true },
           },
         },
         {
@@ -317,10 +303,6 @@ export class LeaderboardService {
                 },
               },
             ],
-            ownRank: [
-              { $match: { _id: requestingPlayerObjectId } },
-              { $project: { _id: 0, rank: 1 } },
-            ],
             total: [{ $count: 'count' }],
           },
         },
@@ -329,7 +311,7 @@ export class LeaderboardService {
 
     return {
       entries: result?.entries ?? [],
-      ownRank: result?.ownRank[0]?.rank ?? null,
+      ownRank: null,
       itemCount: result?.total[0]?.count ?? 0,
     };
   }
