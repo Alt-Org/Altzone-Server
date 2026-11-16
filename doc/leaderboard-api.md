@@ -2,8 +2,8 @@
 
 This document defines the HTTP contract and terminology for the production,
 win-based leaderboards. It is the source of truth for the four leaderboard
-query endpoints described below. Implementing the queries is outside the scope
-of this contract.
+query endpoints described below. Endpoint availability follows the server
+release in which each query implementation is introduced.
 
 The existing `/leaderboard/player`, `/leaderboard/clan`, and
 `/leaderboard/clan/position` endpoints are legacy battle-point endpoints. They
@@ -270,6 +270,11 @@ Returns current members of the requesting player's current clan. Membership is
 evaluated at request time; historical members are not included. Rank is local
 to this clan population. The requesting player is included and `ownRank`
 contains their clan-member rank.
+
+The score comes from the same accepted personal lifetime wins as the global
+player leaderboard. Wins earned before joining the current clan remain part of
+the player's score. Nickname, avatar, and clan summary are read from current
+player and clan data and do not affect ordering.
 
 If the requesting player has no current clan, the endpoint returns
 `404 Not Found` with reason `NOT_FOUND` and field `clan_id`. An existing clan
