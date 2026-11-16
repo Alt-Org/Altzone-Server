@@ -14,16 +14,16 @@ are not part of this contract and must not be used as aliases for these routes.
 ```http
 GET /leaderboards/players/global
 GET /leaderboards/clans/global
-GET /leaderboards/players/clan
+GET /leaderboards/clans/:clanId/players
 GET /leaderboards/players/friends
 ```
 
-| Endpoint                        | Authentication | Population                                      | `ownRank` refers to              |
-| ------------------------------- | -------------- | ----------------------------------------------- | -------------------------------- |
-| `/leaderboards/players/global`  | Optional       | All production players                          | Requesting player                |
-| `/leaderboards/clans/global`    | Optional       | All production clans                            | Requesting player's current clan |
-| `/leaderboards/players/clan`    | Required       | Members of the requesting player's current clan | Requesting player                |
-| `/leaderboards/players/friends` | Required       | Requesting player and their accepted friends    | Requesting player                |
+| Endpoint                              | Authentication | Population                                   | `ownRank` refers to              |
+| ------------------------------------- | -------------- | -------------------------------------------- | -------------------------------- |
+| `/leaderboards/players/global`        | Optional       | All production players                       | Requesting player                |
+| `/leaderboards/clans/global`          | Optional       | All production clans                         | Requesting player's current clan |
+| `/leaderboards/clans/:clanId/players` | No             | Public members of the requested clan         | Always `null`                    |
+| `/leaderboards/players/friends`       | Required       | Requesting player and their accepted friends | Requesting player                |
 
 When authentication is optional, an invalid or expired bearer token returns
 `401 Unauthorized`; it is not treated as an anonymous request. An anonymous
@@ -88,9 +88,11 @@ therefore not change ordering by itself.
 
 ## Eligibility and Ordering
 
-All current production players are eligible for the global player leaderboard,
-including players with zero wins. All current production clans are similarly
-eligible for the global clan leaderboard. Deleted entities are not returned.
+All current public production players are eligible for the global player
+leaderboard, including players with zero wins. Players with
+`isProfilePrivate: true` are excluded before ranks are assigned. All current
+production clans are similarly eligible for the global clan leaderboard.
+Deleted entities are not returned.
 
 Each endpoint applies its population filter before assigning ranks. Rank is
 one-based and contiguous: the first entry is rank 1, the second rank 2, and so
@@ -259,27 +261,26 @@ authenticated player who currently belongs to a clan, `ownRank` is that clan's
 global clan rank. It is `null` for an anonymous request or an authenticated
 player without a clan.
 
-### Own-clan member leaderboard
+### Public clan-member leaderboard
 
 ```http
-GET /leaderboards/players/clan?page=1&limit=20
-Authorization: Bearer <token>
+GET /leaderboards/clans/6650f79d17f2c78f42f42b02/players?page=1&limit=20
 ```
 
-Returns current members of the requesting player's current clan. Membership is
-evaluated at request time; historical members are not included. Rank is local
-to this clan population. The requesting player is included and `ownRank`
-contains their clan-member rank.
+Returns the requested clan's current publicly visible members without requiring
+authentication. Membership is evaluated at request time; historical members
+are not included. Players with `isProfilePrivate: true` are excluded before
+ranks and pagination are calculated. Rank is local to the remaining public clan
+population and `ownRank` is always `null`.
 
 The score comes from the same accepted personal lifetime wins as the global
 player leaderboard. Wins earned before joining the current clan remain part of
 the player's score. Nickname, avatar, and clan summary are read from current
 player and clan data and do not affect ordering.
 
-If the requesting player has no current clan, the endpoint returns
-`404 Not Found` with reason `NOT_FOUND` and field `clan_id`. An existing clan
-with no eligible members is represented as a successful empty result, although
-this should not normally occur while the requester is a member.
+If the requested production clan does not exist, the endpoint returns
+`404 Not Found` with reason `NOT_FOUND` and field `clanId`. An existing clan
+with no publicly visible members is represented as a successful empty result.
 
 ### Friends leaderboard
 
@@ -431,12 +432,12 @@ Errors use the API's standard error envelope:
 }
 ```
 
-| Status                      | Reason                                                                | When                                                                  |
-| --------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `400 Bad Request`           | `VALIDATION`, `NOT_NUMBER`, `LESS_THAN_MIN`, or `MORE_THAN_MAX`       | `page` or `limit` is invalid                                          |
-| `401 Unauthorized`          | `NOT_AUTHENTICATED`, `INVALID_AUTH_TOKEN`, or `AUTHENTICATION_FAILED` | Authentication is required, or a supplied token is invalid            |
-| `404 Not Found`             | `NOT_FOUND`                                                           | The own-clan endpoint is requested by a player without a current clan |
-| `500 Internal Server Error` | `UNEXPECTED`                                                          | The server cannot build a consistent leaderboard response             |
+| Status                      | Reason                                                                | When                                                       |
+| --------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `400 Bad Request`           | `VALIDATION`, `NOT_NUMBER`, `LESS_THAN_MIN`, or `MORE_THAN_MAX`       | `page` or `limit` is invalid                               |
+| `401 Unauthorized`          | `NOT_AUTHENTICATED`, `INVALID_AUTH_TOKEN`, or `AUTHENTICATION_FAILED` | Authentication is required, or a supplied token is invalid |
+| `404 Not Found`             | `NOT_FOUND`                                                           | The requested clan does not exist                          |
+| `500 Internal Server Error` | `UNEXPECTED`                                                          | The server cannot build a consistent leaderboard response  |
 
 Example invalid pagination response:
 
