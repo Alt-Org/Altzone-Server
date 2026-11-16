@@ -40,6 +40,7 @@ describe('GET /leaderboards/players/clan', () => {
     );
     await app.init();
     accessToken = app.get(JwtService).sign({
+      type: 'access',
       profile_id: 'profile-id',
       player_id: playerId,
     });
