@@ -9,11 +9,14 @@ import { LeaderboardService } from '../../../leaderboard/leaderboard.service';
 import PlayerBuilderFactory from '../../player/data/playerBuilderFactory';
 import PlayerModule from '../../player/modules/player.module';
 import LeaderboardModule from '../modules/leaderboard.module';
+import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
+import ClanModule from '../../clan/modules/clan.module';
 
 describe('LeaderboardService.getFriendsPlayerLeaderboard', () => {
   let service: LeaderboardService;
   const originalServerEnvironment = envVars.ENVIRONMENT;
   const playerModel = PlayerModule.getPlayerModel();
+  const clanModel = ClanModule.getClanModel();
   const friendshipCollection = mongoose.connection.collection(
     ModelName.FRIENDSHIP,
   );
@@ -33,6 +36,7 @@ describe('LeaderboardService.getFriendsPlayerLeaderboard', () => {
     name: string,
     createdAt: Date,
     isProfilePrivate = false,
+    clanId?: string | ObjectId,
   ) => {
     const player = PlayerBuilderFactory.getBuilder('Player')
       .setId(new ObjectId(id))
@@ -40,6 +44,7 @@ describe('LeaderboardService.getFriendsPlayerLeaderboard', () => {
       .setUniqueIdentifier(`${name}-identifier`)
       .setEnvironment(Environment.OPEN_DEMO)
       .setIsProfilePrivate(isProfilePrivate)
+      .setClanId(clanId)
       .build();
 
     return playerModel.create({ ...player, createdAt });
@@ -76,6 +81,7 @@ describe('LeaderboardService.getFriendsPlayerLeaderboard', () => {
     envVars.ENVIRONMENT = ServerEnvironment.PRODUCTION;
     await Promise.all([
       playerModel.deleteMany({}),
+      clanModel.deleteMany({}),
       friendshipCollection.deleteMany({}),
       winCollection.deleteMany({}),
     ]);
@@ -300,5 +306,85 @@ describe('LeaderboardService.getFriendsPlayerLeaderboard', () => {
     expect(result.entries.map((entry) => entry.playerId)).toEqual([
       requesterId,
     ]);
+  });
+
+  it('uses the stable player id as the final tie-breaker', async () => {
+    const requesterId = '665af23e5e9820013aa99993';
+    const lowerFriendId = '665af23e5e9820013aa99991';
+    const higherFriendId = '665af23e5e9820013aa99992';
+    const createdAt = new Date('2026-01-01T00:00:00.000Z');
+    await Promise.all([
+      createPlayer(requesterId, 'requester', createdAt),
+      createPlayer(lowerFriendId, 'lower-friend', createdAt),
+      createPlayer(higherFriendId, 'higher-friend', createdAt),
+      createFriendship(requesterId, lowerFriendId, FriendshipStatus.ACCEPTED),
+      createFriendship(requesterId, higherFriendId, FriendshipStatus.ACCEPTED),
+    ]);
+
+    const result = await service.getFriendsPlayerLeaderboard(
+      query(),
+      requesterId,
+    );
+
+    expect(result.entries.map((entry) => entry.playerId)).toEqual([
+      lowerFriendId,
+      higherFriendId,
+      requesterId,
+    ]);
+    expect(result.ownRank).toBe(3);
+  });
+
+  it('returns current clan presentation data for a friend', async () => {
+    const requesterId = '665af23e5e9820013aa99991';
+    const friendId = '665af23e5e9820013aa99992';
+    const clan = await clanModel.create(
+      ClanBuilderFactory.getBuilder('Clan')
+        .setName('current-clan')
+        .setEnvironment(Environment.OPEN_DEMO)
+        .build(),
+    );
+    await Promise.all([
+      createPlayer(
+        requesterId,
+        'requester',
+        new Date('2026-01-01T00:00:00.000Z'),
+      ),
+      createPlayer(
+        friendId,
+        'clan-friend',
+        new Date('2026-01-02T00:00:00.000Z'),
+        false,
+        clan._id,
+      ),
+      createFriendship(requesterId, friendId, FriendshipStatus.ACCEPTED),
+    ]);
+
+    const result = await service.getFriendsPlayerLeaderboard(
+      query(),
+      requesterId,
+    );
+    const friendEntry = result.entries.find(
+      (entry) => entry.playerId === friendId,
+    );
+
+    expect(friendEntry?.clan).toEqual({
+      clanId: clan._id.toString(),
+      name: 'current-clan',
+      logo: clan.clanLogo,
+    });
+  });
+
+  it('does not expose production players in testing-session mode', async () => {
+    const requesterId = '665af23e5e9820013aa99991';
+    await createPlayer(
+      requesterId,
+      'requester',
+      new Date('2026-01-01T00:00:00.000Z'),
+    );
+    envVars.ENVIRONMENT = ServerEnvironment.TESTING_SESSION;
+
+    await expect(
+      service.getFriendsPlayerLeaderboard(query(), requesterId),
+    ).resolves.toEqual({ entries: [], ownRank: null, itemCount: 0 });
   });
 });

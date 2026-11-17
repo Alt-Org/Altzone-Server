@@ -14,6 +14,7 @@ import { LeaderboardService } from '../../../leaderboard/leaderboard.service';
 describe('GET /leaderboards/players/friends', () => {
   let app: INestApplication;
   let accessToken: string;
+  let expiredAccessToken: string;
   const getFriendsPlayerLeaderboard = jest.fn();
 
   beforeAll(async () => {
@@ -29,11 +30,20 @@ describe('GET /leaderboards/players/friends', () => {
       ],
     }).compile();
 
-    accessToken = module.get(JwtService).sign({
+    const jwtService = module.get(JwtService);
+    accessToken = jwtService.sign({
       type: 'access',
       profile_id: 'profile-id',
       player_id: 'player-id',
     });
+    expiredAccessToken = jwtService.sign(
+      {
+        type: 'access',
+        profile_id: 'profile-id',
+        player_id: 'player-id',
+      },
+      { expiresIn: -1 },
+    );
     app = module.createNestApplication();
     app.use(cookieParser());
     app.useGlobalPipes(
@@ -102,12 +112,36 @@ describe('GET /leaderboards/players/friends', () => {
     expect(getFriendsPlayerLeaderboard).not.toHaveBeenCalled();
   });
 
-  it('rejects invalid pagination before calling the service', async () => {
-    await request(app.getHttpServer())
-      .get('/leaderboards/players/friends?limit=51')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .expect(400);
+  it.each([
+    '/leaderboards/players/friends?page=0',
+    '/leaderboards/players/friends?limit=51',
+    '/leaderboards/players/friends?page=1.5',
+    '/leaderboards/players/friends?limit=not-a-number',
+    '/leaderboards/players/friends?page=1&page=2',
+  ])(
+    'rejects invalid pagination before calling the service: %s',
+    async (url) => {
+      await request(app.getHttpServer())
+        .get(url)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(400);
 
-    expect(getFriendsPlayerLeaderboard).not.toHaveBeenCalled();
-  });
+      expect(getFriendsPlayerLeaderboard).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(['invalid-token', () => expiredAccessToken])(
+    'rejects an invalid or expired bearer token',
+    async (token) => {
+      await request(app.getHttpServer())
+        .get('/leaderboards/players/friends')
+        .set(
+          'Authorization',
+          `Bearer ${typeof token === 'function' ? token() : token}`,
+        )
+        .expect(401);
+
+      expect(getFriendsPlayerLeaderboard).not.toHaveBeenCalled();
+    },
+  );
 });
