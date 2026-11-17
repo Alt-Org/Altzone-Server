@@ -205,6 +205,19 @@ export class LeaderboardService {
   }
 
   /**
+   * Retrieves one page of the authenticated player's friends leaderboard.
+   *
+   * The population query and ranking implementation are introduced separately
+   * from the HTTP contract.
+   */
+  async getFriendsPlayerLeaderboard(
+    _reqQuery: IGetAllQuery,
+    _requestingPlayerId: string,
+  ): Promise<PlayerLeaderboardResult> {
+    throw new Error('Friends player leaderboard is not implemented');
+  }
+
+  /**
    * Retrieves one page of a clan's publicly visible player leaderboard.
    *
    * Personal accepted wins remain attached to players when they change clans,

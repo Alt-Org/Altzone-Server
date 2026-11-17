@@ -15,6 +15,7 @@ import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { ApiStandardErrors } from '../common/swagger/response/errors/ApiStandardErrors.decorator';
 import { NoAuth } from '../auth/decorator/NoAuth.decorator';
 import { ClanPlayerLeaderboardParamDto } from './dto/clanPlayerLeaderboardParam.dto';
+import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 
 /**
  * Production, win-based leaderboard API.
@@ -42,6 +43,54 @@ export class GlobalLeaderboardController {
         skip: offset,
       },
       user?.player_id,
+    );
+
+    return {
+      data: {
+        leaderboard: {
+          entries: result.entries,
+          ownRank: result.ownRank,
+        },
+      },
+      metaData: {
+        dataKey: 'leaderboard',
+        modelName: 'Leaderboard',
+        dataType: 'Object',
+        dataCount: 1,
+      },
+      paginationData: {
+        currentPage: query.page,
+        limit: query.limit,
+        offset,
+        itemCount: result.itemCount,
+        pageCount: Math.ceil(result.itemCount / query.limit),
+      },
+    };
+  }
+
+  @Get('players/friends')
+  @ApiOperation({
+    summary: "Get the authenticated player's friends leaderboard",
+    description:
+      'Ranks the authenticated player and their current accepted friends by ' +
+      'personal accepted lifetime wins.',
+  })
+  @ApiOkResponse({ type: PlayerLeaderboardResponseDto })
+  @ApiStandardErrors(400, 401)
+  @UseFilters(new ValidationExceptionFilter(), new APIErrorFilter())
+  async getFriendsPlayerLeaderboard(
+    @Query() query: PlayerLeaderboardQueryDto,
+    @LoggedUser() user: User,
+  ): Promise<PlayerLeaderboardResponseDto> {
+    const offset = (query.page - 1) * query.limit;
+    const result = await this.leaderboardService.getFriendsPlayerLeaderboard(
+      {
+        filter: {},
+        sort: {},
+        limit: query.limit,
+        skip: offset,
+      },
+      user.player_id,
     );
 
     return {
