@@ -21,6 +21,7 @@ import {
   GlobalClanLeaderboardEntry,
   GlobalClanLeaderboardResult,
 } from './type/globalClanLeaderboard.type';
+import { FriendshipService } from '../friendship/friendship.service';
 
 @Injectable()
 export class LeaderboardService {
@@ -28,6 +29,7 @@ export class LeaderboardService {
     private readonly redisService: RedisService,
     private readonly playerService: PlayerService,
     private readonly clanService: ClanService,
+    private readonly friendshipService: FriendshipService,
   ) {}
 
   /**
@@ -212,9 +214,22 @@ export class LeaderboardService {
    */
   async getFriendsPlayerLeaderboard(
     _reqQuery: IGetAllQuery,
-    _requestingPlayerId: string,
+    requestingPlayerId: string,
   ): Promise<PlayerLeaderboardResult> {
+    await this.getFriendsLeaderboardPlayerIds(requestingPlayerId);
     throw new Error('Friends player leaderboard is not implemented');
+  }
+
+  /** Builds the current, unique friends-leaderboard comparison population. */
+  async getFriendsLeaderboardPlayerIds(
+    requestingPlayerId: string,
+  ): Promise<string[]> {
+    const friendIds =
+      await this.friendshipService.getAcceptedFriendPlayerIds(
+        requestingPlayerId,
+      );
+
+    return [...new Set([requestingPlayerId, ...friendIds])];
   }
 
   /**
