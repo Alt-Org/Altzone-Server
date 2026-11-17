@@ -205,4 +205,100 @@ describe('LeaderboardService.getFriendsPlayerLeaderboard', () => {
       service.getFriendsPlayerLeaderboard(query(20, 100), requesterId),
     ).resolves.toEqual({ entries: [], ownRank: 1, itemCount: 1 });
   });
+
+  it('removes a former friend from the next leaderboard request', async () => {
+    const requesterId = '665af23e5e9820013aa99991';
+    const friendId = '665af23e5e9820013aa99992';
+    await Promise.all([
+      createPlayer(
+        requesterId,
+        'requester',
+        new Date('2026-01-01T00:00:00.000Z'),
+      ),
+      createPlayer(
+        friendId,
+        'former-friend',
+        new Date('2026-01-02T00:00:00.000Z'),
+      ),
+      createFriendship(requesterId, friendId, FriendshipStatus.ACCEPTED),
+    ]);
+
+    await expect(
+      service.getFriendsPlayerLeaderboard(query(), requesterId),
+    ).resolves.toMatchObject({ itemCount: 2 });
+
+    await friendshipCollection.deleteOne({
+      pairKey: [requesterId, friendId].sort().join('_'),
+    });
+
+    const result = await service.getFriendsPlayerLeaderboard(
+      query(),
+      requesterId,
+    );
+    expect(result.itemCount).toBe(1);
+    expect(result.entries.map((entry) => entry.playerId)).toEqual([
+      requesterId,
+    ]);
+  });
+
+  it('excludes a friend as soon as the relationship is blocked', async () => {
+    const requesterId = '665af23e5e9820013aa99991';
+    const friendId = '665af23e5e9820013aa99992';
+    const pairKey = [requesterId, friendId].sort().join('_');
+    await Promise.all([
+      createPlayer(
+        requesterId,
+        'requester',
+        new Date('2026-01-01T00:00:00.000Z'),
+      ),
+      createPlayer(
+        friendId,
+        'blocked-player',
+        new Date('2026-01-02T00:00:00.000Z'),
+      ),
+      createFriendship(requesterId, friendId, FriendshipStatus.ACCEPTED),
+    ]);
+
+    await friendshipCollection.updateOne(
+      { pairKey },
+      { $set: { status: FriendshipStatus.BLOCKED } },
+    );
+
+    const result = await service.getFriendsPlayerLeaderboard(
+      query(),
+      requesterId,
+    );
+    expect(result.itemCount).toBe(1);
+    expect(result.entries.map((entry) => entry.playerId)).toEqual([
+      requesterId,
+    ]);
+  });
+
+  it('ignores an accepted friendship whose friend account was deleted', async () => {
+    const requesterId = '665af23e5e9820013aa99991';
+    const deletedFriendId = '665af23e5e9820013aa99992';
+    await Promise.all([
+      createPlayer(
+        requesterId,
+        'requester',
+        new Date('2026-01-01T00:00:00.000Z'),
+      ),
+      createPlayer(
+        deletedFriendId,
+        'deleted-friend',
+        new Date('2026-01-02T00:00:00.000Z'),
+      ),
+      createFriendship(requesterId, deletedFriendId, FriendshipStatus.ACCEPTED),
+    ]);
+    await playerModel.deleteOne({ _id: new ObjectId(deletedFriendId) });
+
+    const result = await service.getFriendsPlayerLeaderboard(
+      query(),
+      requesterId,
+    );
+    expect(result.itemCount).toBe(1);
+    expect(result.entries.map((entry) => entry.playerId)).toEqual([
+      requesterId,
+    ]);
+  });
 });
