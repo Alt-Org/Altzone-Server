@@ -246,6 +246,9 @@ export class LeaderboardService {
           $match: {
             _id: { $in: populationIds },
             $or: [{ box_id: null }, { box_id: { $exists: false } }],
+            // Private profiles remain visible in this authenticated view when
+            // the players have a current accepted friendship. The requester
+            // is likewise always part of their own comparison population.
           },
         },
         {
