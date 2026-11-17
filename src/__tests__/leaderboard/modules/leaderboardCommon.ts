@@ -8,6 +8,7 @@ import { ClanModule } from '../../../clan/clan.module';
 import { RedisModule } from '../../../common/service/redis/redis.module';
 import { LeaderboardService } from '../../../leaderboard/leaderboard.service';
 import { RedisService } from '../../../common/service/redis/redis.service';
+import { FriendshipModule } from '../../../friendship/friendship.module';
 
 export default class LeaderboardCommonModule {
   private constructor() {}
@@ -23,6 +24,7 @@ export default class LeaderboardCommonModule {
           ClanModule,
           RedisModule,
           RequestHelperModule,
+          FriendshipModule,
         ],
         providers: [LeaderboardService],
       })
