@@ -12,6 +12,7 @@ import { PlayerLeaderboardWinService } from './playerLeaderboardWin.service';
 import { GlobalLeaderboardController } from './globalLeaderboard.controller';
 import { ClanLeaderboardWinSchema } from './schemas/clanLeaderboardWin.schema';
 import { ClanLeaderboardWinService } from './clanLeaderboardWin.service';
+import { FriendshipModule } from '../friendship/friendship.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ClanLeaderboardWinService } from './clanLeaderboardWin.service';
     ClanModule,
     RedisModule,
     RequestHelperModule,
+    FriendshipModule,
     MongooseModule.forFeature([
       {
         name: ModelName.PLAYER_LEADERBOARD_WIN,

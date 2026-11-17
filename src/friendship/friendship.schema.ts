@@ -51,6 +51,14 @@ export const FriendshipSchema = SchemaFactory.createForClass(Friendship);
 
 FriendshipSchema.set('collection', ModelName.FRIENDSHIP);
 FriendshipSchema.index({ pairKey: 1 }, { unique: true });
+FriendshipSchema.index(
+  { playerA: 1, status: 1 },
+  { name: 'friendship_player_a_status' },
+);
+FriendshipSchema.index(
+  { playerB: 1, status: 1 },
+  { name: 'friendship_player_b_status' },
+);
 FriendshipSchema.pre('validate', function (next) {
   const a = this.playerA.toString();
   const b = this.playerB.toString();
