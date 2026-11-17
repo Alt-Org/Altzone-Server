@@ -213,11 +213,130 @@ export class LeaderboardService {
    * from the HTTP contract.
    */
   async getFriendsPlayerLeaderboard(
-    _reqQuery: IGetAllQuery,
+    reqQuery: IGetAllQuery,
     requestingPlayerId: string,
   ): Promise<PlayerLeaderboardResult> {
-    await this.getFriendsLeaderboardPlayerIds(requestingPlayerId);
-    throw new Error('Friends player leaderboard is not implemented');
+    if (envVars.ENVIRONMENT === ServerEnvironment.TESTING_SESSION) {
+      return { entries: [], ownRank: null, itemCount: 0 };
+    }
+
+    const populationIds = (
+      await this.getFriendsLeaderboardPlayerIds(requestingPlayerId)
+    )
+      .filter((playerId) => Types.ObjectId.isValid(playerId))
+      .map((playerId) => new Types.ObjectId(playerId));
+
+    if (populationIds.length === 0) {
+      return { entries: [], ownRank: null, itemCount: 0 };
+    }
+
+    const requestingPlayerObjectId = Types.ObjectId.isValid(requestingPlayerId)
+      ? new Types.ObjectId(requestingPlayerId)
+      : null;
+
+    type AggregationResult = {
+      entries: PlayerLeaderboardEntry[];
+      ownRank: { rank: number }[];
+      total: { count: number }[];
+    };
+
+    const [result] = await this.playerService.model
+      .aggregate<AggregationResult>([
+        {
+          $match: {
+            _id: { $in: populationIds },
+            $or: [{ box_id: null }, { box_id: { $exists: false } }],
+          },
+        },
+        {
+          $lookup: {
+            from: ModelName.PLAYER_LEADERBOARD_WIN,
+            localField: '_id',
+            foreignField: 'playerId',
+            as: 'acceptedWins',
+          },
+        },
+        {
+          $set: {
+            wins: { $size: '$acceptedWins' },
+            scoreReachedAt: {
+              $cond: [
+                { $gt: [{ $size: '$acceptedWins' }, 0] },
+                { $max: '$acceptedWins.scoreReachedAt' },
+                '$createdAt',
+              ],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: ModelName.CLAN,
+            localField: 'clan_id',
+            foreignField: '_id',
+            as: 'currentClan',
+          },
+        },
+        {
+          $unwind: {
+            path: '$currentClan',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $setWindowFields: {
+            sortBy: { wins: -1, scoreReachedAt: 1, _id: 1 },
+            output: {
+              rank: {
+                $sum: 1,
+                window: { documents: ['unbounded', 'current'] },
+              },
+            },
+          },
+        },
+        {
+          $facet: {
+            entries: [
+              { $skip: Math.max(reqQuery.skip, 0) },
+              { $limit: reqQuery.limit },
+              {
+                $project: {
+                  _id: 0,
+                  rank: 1,
+                  wins: 1,
+                  playerId: { $toString: '$_id' },
+                  nickname: '$name',
+                  avatar: { $ifNull: ['$avatar', null] },
+                  clan: {
+                    $cond: [
+                      { $ne: [{ $ifNull: ['$currentClan', null] }, null] },
+                      {
+                        clanId: { $toString: '$currentClan._id' },
+                        name: '$currentClan.name',
+                        logo: '$currentClan.clanLogo',
+                      },
+                      null,
+                    ],
+                  },
+                },
+              },
+            ],
+            ownRank: requestingPlayerObjectId
+              ? [
+                  { $match: { _id: requestingPlayerObjectId } },
+                  { $project: { _id: 0, rank: 1 } },
+                ]
+              : [{ $match: { _id: { $exists: false } } }],
+            total: [{ $count: 'count' }],
+          },
+        },
+      ])
+      .exec();
+
+    return {
+      entries: result?.entries ?? [],
+      ownRank: result?.ownRank[0]?.rank ?? null,
+      itemCount: result?.total[0]?.count ?? 0,
+    };
   }
 
   /** Builds the current, unique friends-leaderboard comparison population. */
