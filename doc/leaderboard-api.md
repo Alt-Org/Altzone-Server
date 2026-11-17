@@ -29,6 +29,11 @@ When authentication is optional, an invalid or expired bearer token returns
 `401 Unauthorized`; it is not treated as an anonymous request. An anonymous
 global request has `ownRank: null`.
 
+Authenticated requests may provide the access token either as an
+`Authorization: Bearer <token>` header or in the `altzone_access_token` cookie.
+The two mechanisms identify the same requesting player. Browser clients using
+the cookie must send credentials with the request.
+
 ## Terminology and Score Source
 
 ### Production leaderboard
@@ -291,10 +296,28 @@ Authorization: Bearer <token>
 
 Returns the requesting player plus players connected to them by a current
 `accepted` friendship. Pending, rejected, removed, and one-sided requests are
+excluded. A `blocked` relationship is not an accepted friendship and is also
 excluded. Each player appears at most once. Rank is local to this population.
 
 The requesting player is included even when they have no accepted friends, so
 the population then contains one entry with `rank: 1` and `ownRank: 1`.
+
+An accepted friendship grants visibility in this authenticated comparison:
+accepted friends with `isProfilePrivate: true` remain in the population. The
+requesting player is likewise included when their own profile is private. This
+does not change the public-profile filtering rules of the global or public
+clan-member leaderboards.
+
+The friendship population is evaluated from the current friendship relations
+for every request. Removing or blocking a friendship removes that player from
+the next response. Deleted player accounts are omitted even if an orphaned
+friendship document remains. Historical friend lists and friends-leaderboard
+snapshots are not retained, and the friendship population is not cached.
+
+`paginationData.itemCount` includes the requesting player and all current,
+accepted friends whose player accounts still exist. Nickname, avatar, and clan
+summary are read from the players' current data. Historical names, avatars,
+clan memberships, and leaderboard presentation snapshots are not returned.
 
 ## Examples
 
