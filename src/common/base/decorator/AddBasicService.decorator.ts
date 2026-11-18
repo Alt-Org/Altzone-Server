@@ -163,7 +163,7 @@ export const AddBasicService = () => {
 
         const result = await this.model.deleteOne({ _id });
         if (this.deleteOnePostHook)
-          this.deleteOnePostHook(_id, entityToDelete, result);
+          await this.deleteOnePostHook(_id, entityToDelete, result);
 
         return result;
       };
@@ -179,9 +179,11 @@ export const AddBasicService = () => {
 
           const _id = entityToDelete._id;
           await this.clearCollectionReferences(_id, ignoreReferences);
-          const result = this.model.deleteOne({ _id: entityToDelete._id });
+          const result = await this.model.deleteOne({
+            _id: entityToDelete._id,
+          });
           if (this.deleteOnePostHook)
-            this.deleteOnePostHook(_id, entityToDelete, result);
+            await this.deleteOnePostHook(_id, entityToDelete, result);
 
           return result;
         } else {
@@ -194,7 +196,14 @@ export const AddBasicService = () => {
             await this.clearCollectionReferences(_id, ignoreReferences);
           }
 
-          return this.model.deleteMany(condition);
+          const result = await this.model.deleteMany(condition);
+          if (this.deleteOnePostHook) {
+            for (const entity of entitiesToDelete) {
+              await this.deleteOnePostHook(entity._id, entity, result);
+            }
+          }
+
+          return result;
         }
       };
 
