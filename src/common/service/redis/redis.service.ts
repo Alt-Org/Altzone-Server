@@ -66,6 +66,11 @@ export class RedisService implements OnModuleDestroy, IRedisService {
     return this.client.get(key);
   }
 
+  /** Atomically increments an integer value and returns the new value. */
+  async increment(key: string) {
+    return this.client.incr(key);
+  }
+
   /**
    * Deletes one Redis key.
    *
