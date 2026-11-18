@@ -4,11 +4,13 @@ describe('LeaderboardInvalidationService', () => {
   const invalidateScope = jest.fn();
   const getPlayerById = jest.fn();
   const getAcceptedFriendPlayerIds = jest.fn();
+  const deleteMany = jest.fn();
 
   const service = new LeaderboardInvalidationService(
     { invalidateScope } as never,
     { getPlayerById } as never,
     { getAcceptedFriendPlayerIds } as never,
+    { deleteMany } as never,
   );
 
   beforeEach(() => {
@@ -19,6 +21,7 @@ describe('LeaderboardInvalidationService', () => {
       null,
     ]);
     getAcceptedFriendPlayerIds.mockResolvedValue(['friend-1', 'friend-2']);
+    deleteMany.mockResolvedValue({ deletedCount: 1 });
   });
 
   it('invalidates global, current clan and every relevant friends view', async () => {
@@ -52,5 +55,18 @@ describe('LeaderboardInvalidationService', () => {
   it('invalidates the global clan view after a clan win', async () => {
     await service.invalidateClanWin();
     expect(invalidateScope).toHaveBeenCalledWith('clans:global');
+  });
+
+  it('removes personal wins and invalidates deletion scopes', async () => {
+    await service.handlePlayerDeleted({
+      playerId: 'winner-1',
+      formerClanId: 'former-clan',
+    });
+
+    expect(deleteMany).toHaveBeenCalledWith({ playerId: 'winner-1' });
+    expect(getPlayerById).not.toHaveBeenCalled();
+    expect(invalidateScope).toHaveBeenCalledWith('players:global');
+    expect(invalidateScope).toHaveBeenCalledWith('players:clan:former-clan');
+    expect(invalidateScope).toHaveBeenCalledWith('players:friends:friend-1');
   });
 });

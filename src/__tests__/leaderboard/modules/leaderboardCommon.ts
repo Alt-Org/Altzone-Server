@@ -10,7 +10,6 @@ import { LeaderboardService } from '../../../leaderboard/leaderboard.service';
 import { RedisService } from '../../../common/service/redis/redis.service';
 import { FriendshipModule } from '../../../friendship/friendship.module';
 import { LeaderboardCacheService } from '../../../leaderboard/leaderboardCache.service';
-import { LeaderboardInvalidationService } from '../../../leaderboard/leaderboardInvalidation.service';
 
 export default class LeaderboardCommonModule {
   private constructor() {}
@@ -28,11 +27,7 @@ export default class LeaderboardCommonModule {
           RequestHelperModule,
           FriendshipModule,
         ],
-        providers: [
-          LeaderboardService,
-          LeaderboardCacheService,
-          LeaderboardInvalidationService,
-        ],
+        providers: [LeaderboardService, LeaderboardCacheService],
       })
         .overrideProvider(RedisService)
         .useClass(RedisServiceInMemory)
