@@ -71,14 +71,26 @@ describe('BoxAuthGuard with ExecutionContextBuilder and RequestBuilder', () => {
 
     const context = contextBuilder.setHttpRequest(request).build();
 
-    const payload = { profile_id: '123', player_id: '456', groupAdmin: true, box_id: '789', type: 'access' };
+    const payload = {
+      profile_id: '123',
+      player_id: '456',
+      groupAdmin: true,
+      box_id: '789',
+      type: 'access',
+    };
     jest.spyOn(JwtService.prototype, 'verifyAsync').mockResolvedValue(payload);
 
     const canActivate = await guard.canActivate(context);
     expect(canActivate).toBe(true);
 
     expect(request['user']).toEqual(
-      new BoxUser({ profile_id: '123', player_id: '456', box_id: '789', groupAdmin: true, type: 'access' })
+      new BoxUser({
+        profile_id: '123',
+        player_id: '456',
+        box_id: '789',
+        groupAdmin: true,
+        type: 'access',
+      }),
     );
   });
 
@@ -89,14 +101,26 @@ describe('BoxAuthGuard with ExecutionContextBuilder and RequestBuilder', () => {
 
     const context = contextBuilder.setHttpRequest(request).build();
 
-    const payload = { profile_id: '123', player_id: '456', groupAdmin: true, box_id: '789', type: 'access' };
+    const payload = {
+      profile_id: '123',
+      player_id: '456',
+      groupAdmin: true,
+      box_id: '789',
+      type: 'access',
+    };
     jest.spyOn(JwtService.prototype, 'verifyAsync').mockResolvedValue(payload);
 
     const canActivate = await guard.canActivate(context);
 
     expect(canActivate).toBe(true);
     expect(request['user']).toEqual(
-      new BoxUser({ profile_id: '123', player_id: '456', box_id: '789', groupAdmin: true, type: 'access' })
+      new BoxUser({
+        profile_id: '123',
+        player_id: '456',
+        box_id: '789',
+        groupAdmin: true,
+        type: 'access',
+      }),
     );
   });
 
