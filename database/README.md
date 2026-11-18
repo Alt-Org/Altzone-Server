@@ -22,6 +22,25 @@ npm run migrate:up
 # 4. Verify the result in MongoDB Compass or mongosh
 ```
 
+## Win leaderboard baseline
+
+Before applying `20261118120000-record-win-leaderboard-migration-baseline.js`,
+run the read-only audit against the intended database:
+
+```bash
+npm run migrate:leaderboard:audit
+```
+
+The audit reports existing accepted-win rows and legacy aggregate statistics.
+Legacy `battlePoints` and `gameStatistics.wonBattles` values are deliberately
+not backfilled: they do not identify the original battle, its eligibility, or
+the clan in which a win was earned. Existing `PlayerLeaderboardWin` and
+`ClanLeaderboardWin` documents are preserved. If no authoritative accepted-win
+documents exist, the new leaderboard history starts at zero.
+
+The migration writes only an audit marker to `LeaderboardMigrationAudit`.
+Rollback removes only that marker and never removes win or legacy data.
+
 ---
 
 ## Environment & Config
