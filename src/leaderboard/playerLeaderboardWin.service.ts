@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { ActiveMatch } from '../matchmaking/type/activeMatch.type';
 import { PlayerLeaderboardWinDocument } from './schemas/playerLeaderboardWin.schema';
 import { getAcceptedLeaderboardWin } from './util/getAcceptedLeaderboardWin';
+import { LeaderboardInvalidationService } from './leaderboardInvalidation.service';
 
 /**
  * Persists accepted production player wins for the win-based leaderboard.
@@ -16,6 +17,8 @@ export class PlayerLeaderboardWinService {
   constructor(
     @InjectModel(ModelName.PLAYER_LEADERBOARD_WIN)
     private readonly winModel: Model<PlayerLeaderboardWinDocument>,
+    @Optional()
+    private readonly invalidationService?: LeaderboardInvalidationService,
   ) {}
 
   /**
@@ -44,6 +47,13 @@ export class PlayerLeaderboardWinService {
       { upsert: true },
     );
 
-    return result.upsertedCount === 1;
+    const inserted = result.upsertedCount === 1;
+    if (inserted) {
+      await this.invalidationService?.invalidatePlayerWin(
+        acceptedWin.winnerPlayerId,
+      );
+    }
+
+    return inserted;
   }
 }

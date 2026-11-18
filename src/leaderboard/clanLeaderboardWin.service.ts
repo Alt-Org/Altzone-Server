@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ClanService } from '../clan/clan.service';
@@ -8,6 +8,7 @@ import { ActiveMatch } from '../matchmaking/type/activeMatch.type';
 import { PlayerService } from '../player/player.service';
 import { ClanLeaderboardWinDocument } from './schemas/clanLeaderboardWin.schema';
 import { getAcceptedLeaderboardWin } from './util/getAcceptedLeaderboardWin';
+import { LeaderboardInvalidationService } from './leaderboardInvalidation.service';
 
 /**
  * Owns persistence of accepted production clan wins.
@@ -22,6 +23,8 @@ export class ClanLeaderboardWinService {
     private readonly winModel: Model<ClanLeaderboardWinDocument>,
     private readonly playerService: PlayerService,
     private readonly clanService: ClanService,
+    @Optional()
+    private readonly invalidationService?: LeaderboardInvalidationService,
   ) {}
 
   /**
@@ -56,6 +59,11 @@ export class ClanLeaderboardWinService {
       { upsert: true },
     );
 
-    return result.upsertedCount === 1;
+    const inserted = result.upsertedCount === 1;
+    if (inserted) {
+      await this.invalidationService?.invalidateClanWin();
+    }
+
+    return inserted;
   }
 }

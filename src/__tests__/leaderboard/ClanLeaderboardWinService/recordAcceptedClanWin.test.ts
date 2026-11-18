@@ -35,10 +35,12 @@ describe('ClanLeaderboardWinService.recordAcceptedClanWin', () => {
   const updateOne = jest.fn();
   const getPlayerById = jest.fn();
   const readOneById = jest.fn();
+  const invalidateClanWin = jest.fn();
   const service = new ClanLeaderboardWinService(
     { updateOne } as never,
     { getPlayerById } as never,
     { readOneById } as never,
+    { invalidateClanWin } as never,
   );
 
   beforeEach(() => {
@@ -59,6 +61,7 @@ describe('ClanLeaderboardWinService.recordAcceptedClanWin', () => {
       null,
     ]);
     updateOne.mockResolvedValue({ upsertedCount: 1 } as UpdateResult);
+    invalidateClanWin.mockResolvedValue(undefined);
   });
 
   afterAll(() => {
@@ -81,6 +84,7 @@ describe('ClanLeaderboardWinService.recordAcceptedClanWin', () => {
       },
       { upsert: true },
     );
+    expect(invalidateClanWin).toHaveBeenCalledTimes(1);
   });
 
   it('returns false when the battle has already been recorded', async () => {
@@ -89,6 +93,7 @@ describe('ClanLeaderboardWinService.recordAcceptedClanWin', () => {
     await expect(service.recordAcceptedClanWin(makeMatch())).resolves.toBe(
       false,
     );
+    expect(invalidateClanWin).not.toHaveBeenCalled();
   });
 
   it('does not record a win when the winner has no clan', async () => {

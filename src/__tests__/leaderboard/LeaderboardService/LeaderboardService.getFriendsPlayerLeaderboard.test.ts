@@ -11,6 +11,8 @@ import PlayerModule from '../../player/modules/player.module';
 import LeaderboardModule from '../modules/leaderboard.module';
 import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 import ClanModule from '../../clan/modules/clan.module';
+import { RedisService } from '../../../common/service/redis/redis.service';
+import LeaderboardCommonModule from '../modules/leaderboardCommon';
 
 describe('LeaderboardService.getFriendsPlayerLeaderboard', () => {
   let service: LeaderboardService;
@@ -79,7 +81,11 @@ describe('LeaderboardService.getFriendsPlayerLeaderboard', () => {
 
   beforeEach(async () => {
     envVars.ENVIRONMENT = ServerEnvironment.PRODUCTION;
+    const module = await LeaderboardCommonModule.getModule();
+    const redis = module.get(RedisService);
+    const cacheKeys = await redis.getKeys('leaderboards:*');
     await Promise.all([
+      ...cacheKeys.map((key) => redis.delete(key)),
       playerModel.deleteMany({}),
       clanModel.deleteMany({}),
       friendshipCollection.deleteMany({}),
