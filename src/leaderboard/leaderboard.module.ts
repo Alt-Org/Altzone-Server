@@ -13,6 +13,7 @@ import { GlobalLeaderboardController } from './globalLeaderboard.controller';
 import { ClanLeaderboardWinSchema } from './schemas/clanLeaderboardWin.schema';
 import { ClanLeaderboardWinService } from './clanLeaderboardWin.service';
 import { FriendshipModule } from '../friendship/friendship.module';
+import { LeaderboardCacheService } from './leaderboardCache.service';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { FriendshipModule } from '../friendship/friendship.module';
   controllers: [LeaderboardController, GlobalLeaderboardController],
   providers: [
     LeaderboardService,
+    LeaderboardCacheService,
     PlayerLeaderboardWinService,
     ClanLeaderboardWinService,
   ],
