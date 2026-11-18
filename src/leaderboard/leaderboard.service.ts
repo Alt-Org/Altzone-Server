@@ -99,16 +99,20 @@ export class LeaderboardService {
     }
 
     const page = this.getPageNumber(reqQuery);
+    const cacheVersion =
+      (await this.leaderboardCacheService?.getVersion('players:global')) ?? 0;
     const cachedPage =
       await this.leaderboardCacheService?.getPage<PlayerLeaderboardEntry>(
         'players:global',
         page,
         reqQuery.limit,
+        cacheVersion,
       );
     const cachedRank = requestingPlayerId
       ? await this.leaderboardCacheService?.getRank(
           'players:global',
           requestingPlayerId,
+          cacheVersion,
         )
       : null;
 
@@ -233,6 +237,7 @@ export class LeaderboardService {
       reqQuery.limit,
       leaderboard,
       requestingPlayerId,
+      cacheVersion,
     );
     return leaderboard;
   }
@@ -266,16 +271,21 @@ export class LeaderboardService {
       .digest('hex')
       .slice(0, 16);
     const page = this.getPageNumber(reqQuery);
-    const cacheScope = `players:friends:${requestingPlayerId}:${populationVersion}`;
+    const versionScope = `players:friends:${requestingPlayerId}`;
+    const cacheScope = `${versionScope}:${populationVersion}`;
+    const cacheVersion =
+      (await this.leaderboardCacheService?.getVersion(versionScope)) ?? 0;
     const cachedPage =
       await this.leaderboardCacheService?.getPage<PlayerLeaderboardEntry>(
         cacheScope,
         page,
         reqQuery.limit,
+        cacheVersion,
       );
     const cachedRank = await this.leaderboardCacheService?.getRank(
       cacheScope,
       requestingPlayerId,
+      cacheVersion,
     );
     if (cachedPage && cachedRank !== undefined) {
       return { ...cachedPage, ownRank: cachedRank };
@@ -398,6 +408,7 @@ export class LeaderboardService {
       reqQuery.limit,
       leaderboard,
       requestingPlayerId,
+      cacheVersion,
     );
     return leaderboard;
   }
@@ -433,11 +444,14 @@ export class LeaderboardService {
 
     const page = this.getPageNumber(reqQuery);
     const cacheScope = `players:clan:${clanId}`;
+    const cacheVersion =
+      (await this.leaderboardCacheService?.getVersion(cacheScope)) ?? 0;
     const cachedPage =
       await this.leaderboardCacheService?.getPage<PlayerLeaderboardEntry>(
         cacheScope,
         page,
         reqQuery.limit,
+        cacheVersion,
       );
     if (cachedPage) return { ...cachedPage, ownRank: null };
 
@@ -540,6 +554,8 @@ export class LeaderboardService {
       page,
       reqQuery.limit,
       leaderboard,
+      undefined,
+      cacheVersion,
     );
     return leaderboard;
   }
@@ -560,16 +576,20 @@ export class LeaderboardService {
     }
 
     const page = this.getPageNumber(reqQuery);
+    const cacheVersion =
+      (await this.leaderboardCacheService?.getVersion('clans:global')) ?? 0;
     const cachedPage =
       await this.leaderboardCacheService?.getPage<GlobalClanLeaderboardEntry>(
         'clans:global',
         page,
         reqQuery.limit,
+        cacheVersion,
       );
     const cachedRank = requestingPlayerId
       ? await this.leaderboardCacheService?.getRank(
           'clans:global',
           requestingPlayerId,
+          cacheVersion,
         )
       : null;
     if (cachedPage && (!requestingPlayerId || cachedRank !== undefined)) {
@@ -684,6 +704,7 @@ export class LeaderboardService {
       reqQuery.limit,
       leaderboard,
       requestingPlayerId,
+      cacheVersion,
     );
     return leaderboard;
   }
@@ -698,18 +719,26 @@ export class LeaderboardService {
     limit: number,
     result: { entries: T[]; ownRank: number | null; itemCount: number },
     rankSubjectId?: string,
+    version = 0,
   ): Promise<void> {
     if (!this.leaderboardCacheService) return;
 
-    await this.leaderboardCacheService.setPage(scope, page, limit, {
-      entries: result.entries,
-      itemCount: result.itemCount,
-    });
+    await this.leaderboardCacheService.setPage(
+      scope,
+      page,
+      limit,
+      {
+        entries: result.entries,
+        itemCount: result.itemCount,
+      },
+      version,
+    );
     if (rankSubjectId) {
       await this.leaderboardCacheService.setRank(
         scope,
         rankSubjectId,
         result.ownRank,
+        version,
       );
     }
   }

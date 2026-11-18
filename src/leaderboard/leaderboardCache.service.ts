@@ -23,9 +23,10 @@ export class LeaderboardCacheService {
     scope: string,
     page: number,
     limit: number,
+    version = 0,
   ): Promise<LeaderboardCachedPage<T> | null> {
     return this.readJson<LeaderboardCachedPage<T>>(
-      this.pageKey(scope, page, limit),
+      this.pageKey(scope, version, page, limit),
       (value): value is LeaderboardCachedPage<T> =>
         this.isObject(value) &&
         Array.isArray(value.entries) &&
@@ -40,16 +41,18 @@ export class LeaderboardCacheService {
     page: number,
     limit: number,
     value: LeaderboardCachedPage<T>,
+    version = 0,
   ): Promise<void> {
-    await this.writeJson(this.pageKey(scope, page, limit), value);
+    await this.writeJson(this.pageKey(scope, version, page, limit), value);
   }
 
   async getRank(
     scope: string,
     subjectId: string,
+    version = 0,
   ): Promise<number | null | undefined> {
     const value = await this.readJson<CachedRank>(
-      this.rankKey(scope, subjectId),
+      this.rankKey(scope, version, subjectId),
       (candidate): candidate is CachedRank =>
         this.isObject(candidate) &&
         (candidate.rank === null ||
@@ -65,16 +68,46 @@ export class LeaderboardCacheService {
     scope: string,
     subjectId: string,
     rank: number | null,
+    version = 0,
   ): Promise<void> {
-    await this.writeJson(this.rankKey(scope, subjectId), { rank });
+    await this.writeJson(this.rankKey(scope, version, subjectId), { rank });
   }
 
-  private pageKey(scope: string, page: number, limit: number): string {
-    return `leaderboards:${scope}:page:${page}:limit:${limit}`;
+  async getVersion(scope: string): Promise<number> {
+    try {
+      const value = await this.redisService.get(this.versionKey(scope));
+      if (value === null) return 0;
+
+      const version = Number.parseInt(value, 10);
+      return Number.isInteger(version) && version >= 0 ? version : 0;
+    } catch {
+      return 0;
+    }
   }
 
-  private rankKey(scope: string, subjectId: string): string {
-    return `leaderboards:${scope}:rank:${subjectId}`;
+  async invalidateScope(scope: string): Promise<void> {
+    try {
+      await this.redisService.increment(this.versionKey(scope));
+    } catch {
+      // Cache invalidation must not make an accepted battle fail.
+    }
+  }
+
+  private pageKey(
+    scope: string,
+    version: number,
+    page: number,
+    limit: number,
+  ): string {
+    return `leaderboards:${scope}:v:${version}:page:${page}:limit:${limit}`;
+  }
+
+  private rankKey(scope: string, version: number, subjectId: string): string {
+    return `leaderboards:${scope}:v:${version}:rank:${subjectId}`;
+  }
+
+  private versionKey(scope: string): string {
+    return `leaderboards:${scope}:version`;
   }
 
   private async readJson<T>(
