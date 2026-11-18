@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { PlayerService } from '../player/player.service';
 import { ClanService } from '../clan/clan.service';
 import { IGetAllQuery } from '../common/interface/IGetAllQuery';
@@ -22,6 +22,8 @@ import {
   GlobalClanLeaderboardResult,
 } from './type/globalClanLeaderboard.type';
 import { FriendshipService } from '../friendship/friendship.service';
+import { LeaderboardCacheService } from './leaderboardCache.service';
+import { createHash } from 'node:crypto';
 
 @Injectable()
 export class LeaderboardService {
@@ -30,6 +32,8 @@ export class LeaderboardService {
     private readonly playerService: PlayerService,
     private readonly clanService: ClanService,
     private readonly friendshipService: FriendshipService,
+    @Optional()
+    private readonly leaderboardCacheService?: LeaderboardCacheService,
   ) {}
 
   /**
@@ -92,6 +96,24 @@ export class LeaderboardService {
   ): Promise<PlayerLeaderboardResult> {
     if (envVars.ENVIRONMENT === ServerEnvironment.TESTING_SESSION) {
       return { entries: [], ownRank: null, itemCount: 0 };
+    }
+
+    const page = this.getPageNumber(reqQuery);
+    const cachedPage =
+      await this.leaderboardCacheService?.getPage<PlayerLeaderboardEntry>(
+        'players:global',
+        page,
+        reqQuery.limit,
+      );
+    const cachedRank = requestingPlayerId
+      ? await this.leaderboardCacheService?.getRank(
+          'players:global',
+          requestingPlayerId,
+        )
+      : null;
+
+    if (cachedPage && (!requestingPlayerId || cachedRank !== undefined)) {
+      return { ...cachedPage, ownRank: cachedRank ?? null };
     }
 
     const requestingPlayerObjectId =
@@ -199,11 +221,20 @@ export class LeaderboardService {
       ])
       .exec();
 
-    return {
+    const leaderboard = {
       entries: result?.entries ?? [],
       ownRank: result?.ownRank[0]?.rank ?? null,
       itemCount: result?.total[0]?.count ?? 0,
     };
+
+    await this.cacheLeaderboardResult(
+      'players:global',
+      page,
+      reqQuery.limit,
+      leaderboard,
+      requestingPlayerId,
+    );
+    return leaderboard;
   }
 
   /**
@@ -228,6 +259,26 @@ export class LeaderboardService {
 
     if (populationIds.length === 0) {
       return { entries: [], ownRank: null, itemCount: 0 };
+    }
+
+    const populationVersion = createHash('sha256')
+      .update(populationIds.map(String).sort().join(':'))
+      .digest('hex')
+      .slice(0, 16);
+    const page = this.getPageNumber(reqQuery);
+    const cacheScope = `players:friends:${requestingPlayerId}:${populationVersion}`;
+    const cachedPage =
+      await this.leaderboardCacheService?.getPage<PlayerLeaderboardEntry>(
+        cacheScope,
+        page,
+        reqQuery.limit,
+      );
+    const cachedRank = await this.leaderboardCacheService?.getRank(
+      cacheScope,
+      requestingPlayerId,
+    );
+    if (cachedPage && cachedRank !== undefined) {
+      return { ...cachedPage, ownRank: cachedRank };
     }
 
     const requestingPlayerObjectId = Types.ObjectId.isValid(requestingPlayerId)
@@ -335,11 +386,20 @@ export class LeaderboardService {
       ])
       .exec();
 
-    return {
+    const leaderboard = {
       entries: result?.entries ?? [],
       ownRank: result?.ownRank[0]?.rank ?? null,
       itemCount: result?.total[0]?.count ?? 0,
     };
+
+    await this.cacheLeaderboardResult(
+      cacheScope,
+      page,
+      reqQuery.limit,
+      leaderboard,
+      requestingPlayerId,
+    );
+    return leaderboard;
   }
 
   /** Builds the current, unique friends-leaderboard comparison population. */
@@ -370,6 +430,16 @@ export class LeaderboardService {
     }
 
     if (!Types.ObjectId.isValid(clanId)) return null;
+
+    const page = this.getPageNumber(reqQuery);
+    const cacheScope = `players:clan:${clanId}`;
+    const cachedPage =
+      await this.leaderboardCacheService?.getPage<PlayerLeaderboardEntry>(
+        cacheScope,
+        page,
+        reqQuery.limit,
+      );
+    if (cachedPage) return { ...cachedPage, ownRank: null };
 
     const clanObjectId = new Types.ObjectId(clanId);
     const clanExists = await this.clanService.model.exists({
@@ -459,11 +529,19 @@ export class LeaderboardService {
       ])
       .exec();
 
-    return {
+    const leaderboard = {
       entries: result?.entries ?? [],
       ownRank: null,
       itemCount: result?.total[0]?.count ?? 0,
     };
+
+    await this.cacheLeaderboardResult(
+      cacheScope,
+      page,
+      reqQuery.limit,
+      leaderboard,
+    );
+    return leaderboard;
   }
 
   /**
@@ -479,6 +557,23 @@ export class LeaderboardService {
   ): Promise<GlobalClanLeaderboardResult> {
     if (envVars.ENVIRONMENT === ServerEnvironment.TESTING_SESSION) {
       return { entries: [], ownRank: null, itemCount: 0 };
+    }
+
+    const page = this.getPageNumber(reqQuery);
+    const cachedPage =
+      await this.leaderboardCacheService?.getPage<GlobalClanLeaderboardEntry>(
+        'clans:global',
+        page,
+        reqQuery.limit,
+      );
+    const cachedRank = requestingPlayerId
+      ? await this.leaderboardCacheService?.getRank(
+          'clans:global',
+          requestingPlayerId,
+        )
+      : null;
+    if (cachedPage && (!requestingPlayerId || cachedRank !== undefined)) {
+      return { ...cachedPage, ownRank: cachedRank ?? null };
     }
 
     const requestingPlayerObjectId =
@@ -577,11 +672,46 @@ export class LeaderboardService {
       ])
       .exec();
 
-    return {
+    const leaderboard = {
       entries: result?.entries ?? [],
       ownRank: result?.ownRank[0]?.rank ?? null,
       itemCount: result?.total[0]?.count ?? 0,
     };
+
+    await this.cacheLeaderboardResult(
+      'clans:global',
+      page,
+      reqQuery.limit,
+      leaderboard,
+      requestingPlayerId,
+    );
+    return leaderboard;
+  }
+
+  private getPageNumber(reqQuery: IGetAllQuery): number {
+    return Math.floor(Math.max(reqQuery.skip, 0) / reqQuery.limit) + 1;
+  }
+
+  private async cacheLeaderboardResult<T>(
+    scope: string,
+    page: number,
+    limit: number,
+    result: { entries: T[]; ownRank: number | null; itemCount: number },
+    rankSubjectId?: string,
+  ): Promise<void> {
+    if (!this.leaderboardCacheService) return;
+
+    await this.leaderboardCacheService.setPage(scope, page, limit, {
+      entries: result.entries,
+      itemCount: result.itemCount,
+    });
+    if (rankSubjectId) {
+      await this.leaderboardCacheService.setRank(
+        scope,
+        rankSubjectId,
+        result.ownRank,
+      );
+    }
   }
 
   /**
