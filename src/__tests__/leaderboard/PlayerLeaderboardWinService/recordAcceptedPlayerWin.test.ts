@@ -32,13 +32,16 @@ const makeMatch = (overrides: Partial<ActiveMatch> = {}): ActiveMatch => ({
 describe('PlayerLeaderboardWinService.recordAcceptedPlayerWin', () => {
   const originalEnvironment = envVars.ENVIRONMENT;
   const updateOne = jest.fn();
-  const service = new PlayerLeaderboardWinService({
-    updateOne,
-  } as never);
+  const invalidatePlayerWin = jest.fn();
+  const service = new PlayerLeaderboardWinService(
+    { updateOne } as never,
+    { invalidatePlayerWin } as never,
+  );
 
   beforeEach(() => {
     jest.clearAllMocks();
     envVars.ENVIRONMENT = Environment.PRODUCTION;
+    invalidatePlayerWin.mockResolvedValue(undefined);
   });
 
   afterAll(() => {
@@ -62,6 +65,9 @@ describe('PlayerLeaderboardWinService.recordAcceptedPlayerWin', () => {
       },
       { upsert: true },
     );
+    expect(invalidatePlayerWin).toHaveBeenCalledWith(
+      '665af23e5e9820013aa99991',
+    );
   });
 
   it('returns false when the battle ID has already been recorded', async () => {
@@ -70,6 +76,7 @@ describe('PlayerLeaderboardWinService.recordAcceptedPlayerWin', () => {
     await expect(service.recordAcceptedPlayerWin(makeMatch())).resolves.toBe(
       false,
     );
+    expect(invalidatePlayerWin).not.toHaveBeenCalled();
   });
 
   it('records the player on the accepted winning side', async () => {
