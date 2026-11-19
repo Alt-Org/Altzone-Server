@@ -618,6 +618,112 @@ describe('MatchmakingService flow', () => {
     );
   });
 
+  it('creates one 1v1 RANDOM bot match after the player accepts the offer', async () => {
+    const { redis, notifier, service } = createService();
+    const [invite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    await service.startRoom(invite.id, 'player-1');
+    await service.handleRandomOpponentTimeout(invite.id);
+
+    const [match, acceptErrors] = await service.acceptRandomBotOffer(
+      invite.id,
+      'player-1',
+    );
+
+    expect(acceptErrors).toBeNull();
+    expect(match).toMatchObject({
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+    });
+    expect(match.teams[0].players).toEqual([
+      expect.objectContaining({ playerId: 'player-1', isBot: false }),
+    ]);
+    expect(match.teams[0].bots).toEqual([]);
+    expect(match.teams[1].players).toEqual([]);
+    expect(match.teams[1].bots).toEqual([
+      expect.objectContaining({ isBot: true }),
+    ]);
+
+    const [matchedInvite] = await service.getInvite(invite.id);
+    expect(matchedInvite).toMatchObject({
+      status: InviteStatus.MATCHED,
+      matchId: match.id,
+      stateVersion: 3,
+    });
+    expect(notifier.matchFound).toHaveBeenCalledWith(
+      'player-1',
+      expect.objectContaining({ id: match.id }),
+    );
+
+    const [repeatedMatch, repeatedErrors] = await service.acceptRandomBotOffer(
+      invite.id,
+      'player-1',
+    );
+    expect(repeatedErrors).toBeNull();
+    expect(repeatedMatch.id).toBe(match.id);
+    expect(getStoredMatches(redis)).toHaveLength(1);
+  });
+
+  it('cancels a RANDOM request when the player declines the bot offer', async () => {
+    const { redis, service } = createService();
+    const [invite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    await service.startRoom(invite.id, 'player-1');
+    await service.handleRandomOpponentTimeout(invite.id);
+
+    const [result, declineErrors] = await service.declineRandomBotOffer(
+      invite.id,
+      'player-1',
+    );
+
+    expect(result).toBeNull();
+    expect(declineErrors).toBeNull();
+    const [cancelledInvite] = await service.getInvite(invite.id);
+    expect(cancelledInvite).toMatchObject({
+      status: InviteStatus.CANCELLED,
+      stateVersion: 3,
+    });
+    expect(getStoredMatches(redis)).toHaveLength(0);
+    expect(redis.values.has('matchmaking:player-invite:player-1')).toBe(false);
+
+    const [, repeatedErrors] = await service.declineRandomBotOffer(
+      invite.id,
+      'player-1',
+    );
+    expect(repeatedErrors).toBeNull();
+    expect(getStoredMatches(redis)).toHaveLength(0);
+  });
+
+  it('rejects a bot-offer response from anyone except the room owner', async () => {
+    const { service } = createService();
+    const [invite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    await service.startRoom(invite.id, 'player-1');
+    await service.handleRandomOpponentTimeout(invite.id);
+
+    const [match, errors] = await service.acceptRandomBotOffer(
+      invite.id,
+      'player-2',
+    );
+
+    expect(match).toBeNull();
+    expect(errors).toEqual([
+      expect.objectContaining({
+        reason: SEReason.NOT_AUTHORIZED,
+        field: 'playerId',
+        value: 'player-2',
+      }),
+    ]);
+  });
+
   it('ignores a delayed RANDOM timeout after a human match was created', async () => {
     const { redis, service } = createService();
     const [firstInvite] = await service.createInvite('player-1', {

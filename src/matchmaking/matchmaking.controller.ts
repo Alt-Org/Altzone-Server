@@ -128,10 +128,7 @@ export class MatchmakingController {
     @Param('roomId') roomId: string,
     @LoggedUser() user: User,
   ) {
-    return this.matchmakingService.acceptRandomBotOffer(
-      roomId,
-      user.player_id,
-    );
+    return this.matchmakingService.acceptRandomBotOffer(roomId, user.player_id);
   }
 
   /**
