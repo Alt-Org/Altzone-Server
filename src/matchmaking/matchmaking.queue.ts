@@ -12,6 +12,12 @@ type ClanOpponentTimeoutJob = {
   inviteId: string;
 };
 
+type RandomOpponentTimeoutJob = {
+  inviteId: string;
+};
+
+type MatchmakingJob = ClanOpponentTimeoutJob | RandomOpponentTimeoutJob;
+
 /**
  * Queue facade used by the service.
  *
@@ -42,6 +48,32 @@ export class MatchmakingQueue {
       },
     );
   }
+
+  async cancelClanOpponentTimeout(inviteId: string) {
+    return this.queue.remove(`clan-opponent-timeout-${inviteId}`);
+  }
+
+  /**
+   * Schedules the end of the RANDOM human-opponent search window.
+   */
+  async scheduleRandomOpponentTimeout(inviteId: string, delaySeconds: number) {
+    return this.queue.add(
+      'randomOpponentTimeout',
+      { inviteId } satisfies RandomOpponentTimeoutJob,
+      {
+        delay: delaySeconds * 1000,
+        jobId: `random-opponent-timeout-${inviteId}`,
+        removeOnComplete: true,
+        removeOnFail: false,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 3000 },
+      },
+    );
+  }
+
+  async cancelRandomOpponentTimeout(inviteId: string) {
+    return this.queue.remove(`random-opponent-timeout-${inviteId}`);
+  }
 }
 
 /**
@@ -59,9 +91,14 @@ export class MatchmakingProcessor extends WorkerHost {
   /**
    * Dispatches known matchmaking jobs back into the service layer.
    */
-  async process(job: Job<ClanOpponentTimeoutJob>): Promise<void> {
-    if (job.name !== 'clanOpponentTimeout') return;
+  async process(job: Job<MatchmakingJob>): Promise<void> {
+    if (job.name === 'clanOpponentTimeout') {
+      await this.service.handleClanOpponentTimeout(job.data.inviteId);
+      return;
+    }
 
-    await this.service.handleClanOpponentTimeout(job.data.inviteId);
+    if (job.name === 'randomOpponentTimeout') {
+      await this.service.handleRandomOpponentTimeout(job.data.inviteId);
+    }
   }
 }

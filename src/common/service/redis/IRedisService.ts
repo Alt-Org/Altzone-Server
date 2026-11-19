@@ -1,3 +1,10 @@
+export type RedisCompareAndSetEntry = {
+  key: string;
+  expectedValue: string | null;
+  value: string;
+  ttlS?: number;
+};
+
 export default interface IRedisService {
   set(key: string, value: string, ttlS?: number): Promise<void>;
 
@@ -10,6 +17,8 @@ export default interface IRedisService {
   delete(key: string): Promise<number>;
 
   deleteIfValue(key: string, value: string): Promise<boolean>;
+
+  compareAndSetMany(entries: RedisCompareAndSetEntry[]): Promise<boolean>;
 
   expire(key: string, ttlS: number): Promise<boolean>;
 
