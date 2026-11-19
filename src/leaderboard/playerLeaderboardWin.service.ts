@@ -1,13 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
-import { envVars } from '../common/service/envHandler/envVars';
-import { Environment } from '../common/service/envHandler/enum/environment.enum';
-import { MatchStatus } from '../matchmaking/enum/matchStatus.enum';
-import { MatchType } from '../matchmaking/enum/matchType.enum';
 import { ActiveMatch } from '../matchmaking/type/activeMatch.type';
 import { PlayerLeaderboardWinDocument } from './schemas/playerLeaderboardWin.schema';
+import { getAcceptedLeaderboardWin } from './util/getAcceptedLeaderboardWin';
+import { LeaderboardInvalidationService } from './leaderboardInvalidation.service';
 
 /**
  * Persists accepted production player wins for the win-based leaderboard.
@@ -19,6 +17,8 @@ export class PlayerLeaderboardWinService {
   constructor(
     @InjectModel(ModelName.PLAYER_LEADERBOARD_WIN)
     private readonly winModel: Model<PlayerLeaderboardWinDocument>,
+    @Optional()
+    private readonly invalidationService?: LeaderboardInvalidationService,
   ) {}
 
   /**
@@ -32,44 +32,28 @@ export class PlayerLeaderboardWinService {
    * ineligible or its win has already been recorded.
    */
   async recordAcceptedPlayerWin(match: ActiveMatch): Promise<boolean> {
-    if (envVars.ENVIRONMENT === Environment.TESTING_SESSION) return false;
-    if (match.status !== MatchStatus.FINISHED) return false;
-    if (match.matchType === MatchType.CUSTOM || match.teamSize !== 1) {
-      return false;
-    }
-    if (!match.result?.winningSide || !match.finishedAt) return false;
-
-    const teams = match.teams;
-    if (
-      teams.length !== 2 ||
-      teams.some(
-        (team) => team.participants.length !== 1 || team.participants[0].isBot,
-      )
-    ) {
-      return false;
-    }
-
-    const winningTeam = teams.find(
-      (team) => team.side === match.result?.winningSide,
-    );
-    const winner = winningTeam?.participants[0];
-    if (!winner || winner.isBot !== false) return false;
-
-    const scoreReachedAt = new Date(match.finishedAt);
-    if (Number.isNaN(scoreReachedAt.getTime())) return false;
+    const acceptedWin = getAcceptedLeaderboardWin(match);
+    if (!acceptedWin) return false;
 
     const result = await this.winModel.updateOne(
       { battleId: match.id },
       {
         $setOnInsert: {
           battleId: match.id,
-          playerId: winner.playerId,
-          scoreReachedAt,
+          playerId: acceptedWin.winnerPlayerId,
+          scoreReachedAt: acceptedWin.scoreReachedAt,
         },
       },
       { upsert: true },
     );
 
-    return result.upsertedCount === 1;
+    const inserted = result.upsertedCount === 1;
+    if (inserted) {
+      await this.invalidationService?.invalidatePlayerWin(
+        acceptedWin.winnerPlayerId,
+      );
+    }
+
+    return inserted;
   }
 }

@@ -5,6 +5,8 @@ export default interface IRedisService {
 
   get(key: string): Promise<string | null>;
 
+  increment(key: string): Promise<number>;
+
   delete(key: string): Promise<number>;
 
   deleteIfValue(key: string, value: string): Promise<boolean>;

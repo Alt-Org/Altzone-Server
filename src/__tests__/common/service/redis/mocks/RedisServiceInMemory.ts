@@ -40,6 +40,18 @@ export class RedisServiceInMemory implements IRedisService, OnModuleDestroy {
     return entry.value;
   }
 
+  async increment(key: string): Promise<number> {
+    const currentValue = await this.get(key);
+    const current =
+      currentValue === null ? 0 : Number.parseInt(currentValue, 10);
+    if (!Number.isInteger(current))
+      throw new Error('ERR value is not an integer');
+
+    const next = current + 1;
+    await this.set(key, next.toString());
+    return next;
+  }
+
   async delete(key: string): Promise<number> {
     return this.store.delete(key) ? 1 : 0;
   }

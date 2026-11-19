@@ -108,6 +108,9 @@ type TestDeps = {
   playerLeaderboardWinService: {
     recordAcceptedPlayerWin: jest.Mock;
   };
+  clanLeaderboardWinService: {
+    recordAcceptedClanWin: jest.Mock;
+  };
   service: MatchmakingService;
 };
 
@@ -160,6 +163,9 @@ const createService = (
   const playerLeaderboardWinService = {
     recordAcceptedPlayerWin: jest.fn(async () => true),
   };
+  const clanLeaderboardWinService = {
+    recordAcceptedClanWin: jest.fn(async () => true),
+  };
   const service = new MatchmakingService(
     redis as any,
     playerService as any,
@@ -168,6 +174,7 @@ const createService = (
     emitterService as any,
     queue as any,
     playerLeaderboardWinService as any,
+    clanLeaderboardWinService as any,
   );
 
   return {
@@ -178,6 +185,7 @@ const createService = (
     emitterService,
     queue,
     playerLeaderboardWinService,
+    clanLeaderboardWinService,
     service,
   } satisfies TestDeps;
 };
@@ -1743,6 +1751,7 @@ describe('MatchmakingService flow', () => {
       notifier,
       emitterService,
       playerLeaderboardWinService,
+      clanLeaderboardWinService,
       service,
     } = createService();
     const match: ActiveMatch = {
@@ -1790,7 +1799,19 @@ describe('MatchmakingService flow', () => {
       }),
     );
     expect(
+      clanLeaderboardWinService.recordAcceptedClanWin,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'match-1', status: MatchStatus.FINISHED }),
+    );
+    expect(
       playerLeaderboardWinService.recordAcceptedPlayerWin.mock
+        .invocationCallOrder[0],
+    ).toBeLessThan(
+      clanLeaderboardWinService.recordAcceptedClanWin.mock
+        .invocationCallOrder[0],
+    );
+    expect(
+      clanLeaderboardWinService.recordAcceptedClanWin.mock
         .invocationCallOrder[0],
     ).toBeLessThan(playerService.updatePlayerById.mock.invocationCallOrder[0]);
     expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
@@ -1839,7 +1860,12 @@ describe('MatchmakingService flow', () => {
   });
 
   it('does not accept or record a finish result from a non-participant', async () => {
-    const { redis, playerLeaderboardWinService, service } = createService();
+    const {
+      redis,
+      playerLeaderboardWinService,
+      clanLeaderboardWinService,
+      service,
+    } = createService();
     const match: ActiveMatch = {
       id: 'match-outsider-finish',
       matchType: MatchType.RANDOM,
@@ -1880,10 +1906,18 @@ describe('MatchmakingService flow', () => {
     expect(
       playerLeaderboardWinService.recordAcceptedPlayerWin,
     ).not.toHaveBeenCalled();
+    expect(
+      clanLeaderboardWinService.recordAcceptedClanWin,
+    ).not.toHaveBeenCalled();
   });
 
   it('does not record the production win again when finish is retried', async () => {
-    const { redis, playerLeaderboardWinService, service } = createService();
+    const {
+      redis,
+      playerLeaderboardWinService,
+      clanLeaderboardWinService,
+      service,
+    } = createService();
     const match: ActiveMatch = {
       id: 'match-finish-retry',
       matchType: MatchType.RANDOM,
@@ -1920,6 +1954,54 @@ describe('MatchmakingService flow', () => {
     expect(
       playerLeaderboardWinService.recordAcceptedPlayerWin,
     ).toHaveBeenCalledTimes(1);
+    expect(
+      clanLeaderboardWinService.recordAcceptedClanWin,
+    ).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not apply legacy updates when clan win recording fails', async () => {
+    const {
+      redis,
+      playerService,
+      notifier,
+      clanLeaderboardWinService,
+      service,
+    } = createService();
+    const match: ActiveMatch = {
+      id: 'match-clan-win-recording-error',
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    clanLeaderboardWinService.recordAcceptedClanWin.mockRejectedValueOnce(
+      new Error('clan win persistence failed'),
+    );
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    await expect(
+      service.finishMatch(match.id, 'player-1', {
+        winningSide: TeamSide.A,
+      }),
+    ).rejects.toThrow('clan win persistence failed');
+
+    expect(playerService.updatePlayerById).not.toHaveBeenCalled();
+    expect(notifier.matchEvent).not.toHaveBeenCalledWith(
+      match.id,
+      'MATCH_FINISHED',
+      expect.anything(),
+    );
   });
 
   it('does not publish or apply legacy updates when durable win recording fails', async () => {

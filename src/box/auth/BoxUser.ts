@@ -6,6 +6,7 @@ type BoxUserProps = {
   clan_id?: string;
   box_id: string;
   groupAdmin?: boolean;
+  type?: string;
 };
 
 export class BoxUser extends User {
@@ -15,12 +16,15 @@ export class BoxUser extends User {
     clan_id,
     box_id,
     groupAdmin = false,
+    type,
   }: BoxUserProps) {
     super(profile_id, player_id, clan_id);
     this.box_id = box_id;
     this.groupAdmin = groupAdmin;
+    this.type = type;
   }
 
   public box_id: string;
   public groupAdmin = false;
+  public type: string;
 }

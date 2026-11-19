@@ -21,6 +21,7 @@ import { PlayerModule } from '../../../player/player.module';
 import { ClanModule } from '../../../clan/clan.module';
 import { SessionModule } from '../../../session/session.module';
 import { BoxModule } from '../../../box/box.module';
+import { BoxAuthGuard } from '../../../box/auth/boxAuth.guard';
 
 export default class AuthCommonModule {
   private constructor() {}
@@ -58,6 +59,7 @@ export default class AuthCommonModule {
           BoxAuthService,
           AuthServiceProvider,
           BoxTestingSessionGuard,
+          BoxAuthGuard,
         ],
       }).compile();
 

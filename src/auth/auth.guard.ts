@@ -13,6 +13,7 @@ import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import { envVars } from '../common/service/envHandler/envVars';
 import { TokenName } from './enum/tokenName.enum';
+import { OPTIONAL_AUTH } from './decorator/OptionalAuth.decorator';
 
 //TODO: remove or change error messages to less specific for production
 
@@ -30,6 +31,11 @@ export class AuthGuard implements CanActivate {
     ]);
     if (noAuthRequired) return true;
 
+    const optionalAuth = this.reflector.getAllAndOverride(OPTIONAL_AUTH, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
     const errorResponse = {
       statusCode: 401,
       error: 'Unauthorized',
@@ -37,6 +43,7 @@ export class AuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+    if (!token && optionalAuth) return true;
     if (!token)
       throw new UnauthorizedException({
         ...errorResponse,
@@ -57,9 +64,9 @@ export class AuthGuard implements CanActivate {
         secret: envVars.JWT_SECRET,
       });
 
-      const { profile_id, player_id } = payload;
+      const { type, profile_id, player_id } = payload;
 
-      if (!profile_id || !player_id)
+      if (type !== 'access' || !profile_id || !player_id)
         throw new UnauthorizedException({
           ...errorResponse,
           message: 'Incorrect token provided',

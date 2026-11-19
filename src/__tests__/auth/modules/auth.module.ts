@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import mongoose from 'mongoose';
 import { ModelName } from '../../../common/enum/modelName.enum';
 import { SessionSchema } from '../../../session/session.schema';
+import { BoxAuthGuard } from '../../../box/auth/boxAuth.guard';
 
 export default class AuthModule {
   private constructor() {}
@@ -24,6 +25,11 @@ export default class AuthModule {
   static async getBoxAuthService() {
     const module = await AuthCommonModule.getModule();
     return module.resolve(BoxAuthService);
+  }
+
+  static async getBoxAuthGuard() {
+    const module = await AuthCommonModule.getModule();
+    return module.resolve(BoxAuthGuard);
   }
 
   static async getBoxTestingGuard() {

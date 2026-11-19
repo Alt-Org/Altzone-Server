@@ -9,6 +9,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { PlayerLeaderboardWinSchema } from './schemas/playerLeaderboardWin.schema';
 import { PlayerLeaderboardWinService } from './playerLeaderboardWin.service';
+import { GlobalLeaderboardController } from './globalLeaderboard.controller';
+import { ClanLeaderboardWinSchema } from './schemas/clanLeaderboardWin.schema';
+import { ClanLeaderboardWinService } from './clanLeaderboardWin.service';
+import { FriendshipModule } from '../friendship/friendship.module';
+import { LeaderboardCacheService } from './leaderboardCache.service';
+import { LeaderboardInvalidationService } from './leaderboardInvalidation.service';
 
 @Module({
   imports: [
@@ -16,15 +22,26 @@ import { PlayerLeaderboardWinService } from './playerLeaderboardWin.service';
     ClanModule,
     RedisModule,
     RequestHelperModule,
+    FriendshipModule,
     MongooseModule.forFeature([
       {
         name: ModelName.PLAYER_LEADERBOARD_WIN,
         schema: PlayerLeaderboardWinSchema,
       },
+      {
+        name: ModelName.CLAN_LEADERBOARD_WIN,
+        schema: ClanLeaderboardWinSchema,
+      },
     ]),
   ],
-  controllers: [LeaderboardController],
-  providers: [LeaderboardService, PlayerLeaderboardWinService],
-  exports: [PlayerLeaderboardWinService],
+  controllers: [LeaderboardController, GlobalLeaderboardController],
+  providers: [
+    LeaderboardService,
+    LeaderboardCacheService,
+    LeaderboardInvalidationService,
+    PlayerLeaderboardWinService,
+    ClanLeaderboardWinService,
+  ],
+  exports: [PlayerLeaderboardWinService, ClanLeaderboardWinService],
 })
 export class LeaderboardModule {}

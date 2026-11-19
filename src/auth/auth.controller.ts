@@ -107,12 +107,12 @@ export class AuthController {
     @Body() body?: RefreshTokenDto,
   ) {
     const refreshToken =
-      body?.refreshToken ?? request.cookies[TokenName.REFRESH_TOKEN];
+      body?.refreshToken || request.cookies?.[TokenName.REFRESH_TOKEN];
 
     const [result, errors] = await this.authService.refresh(refreshToken);
     if (errors) return errors;
 
-    if (!body.refreshToken) {
+    if (!body?.refreshToken) {
       const { accessToken, refreshToken, ...data } = result;
 
       this.authService.setCookies(
@@ -152,8 +152,8 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
     @Body() body?: RefreshTokenDto,
   ) {
-    const cookieToken = request.cookies[TokenName.REFRESH_TOKEN];
-    const refreshToken = body?.refreshToken ?? cookieToken;
+    const cookieToken = request.cookies?.[TokenName.REFRESH_TOKEN];
+    const refreshToken = body?.refreshToken || cookieToken;
 
     const [, errors] = await this.authService.logout(refreshToken);
     if (errors) return [null, errors];

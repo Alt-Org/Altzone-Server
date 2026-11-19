@@ -74,6 +74,15 @@ export class UpdatePlayerDto {
   parentalAuth?: boolean;
 
   /**
+   * Hide this player from public leaderboards.
+   *
+   * @example false
+   */
+  @IsOptional()
+  @IsBoolean()
+  isProfilePrivate?: boolean;
+
+  /**
    * Update battle characters (max 3)
    *
    * @example ["60f7c2d9a2d3c7b7e56d01df"]
