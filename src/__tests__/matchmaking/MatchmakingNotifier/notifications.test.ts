@@ -140,6 +140,46 @@ describe('MatchmakingNotifier notifications', () => {
     );
   });
 
+  it('publishes bot opponent offers to the player room topic', async () => {
+    const offer = {
+      roomId: room.id,
+      status: InviteStatus.BOT_OFFERED as const,
+      offeredAt: '2026-07-06T08:00:20.000Z',
+      updatedAt: '2026-07-06T08:00:20.000Z',
+    };
+
+    await notifier.botOpponentOffered('player-1', offer);
+
+    expect(publishMock).toHaveBeenCalledWith(
+      '/matchmaking/rooms/player/player-1',
+      JSON.stringify({
+        topic: 'matchmaking',
+        type: MqttNotificationType.BOT_OPPONENT_OFFERED,
+        payload: offer,
+      }),
+    );
+  });
+
+  it('publishes declined bot offers to the player room topic', async () => {
+    const offer = {
+      roomId: room.id,
+      status: InviteStatus.CANCELLED as const,
+      offeredAt: '2026-07-06T08:00:20.000Z',
+      updatedAt: '2026-07-06T08:00:25.000Z',
+    };
+
+    await notifier.botOpponentDeclined('player-1', offer);
+
+    expect(publishMock).toHaveBeenCalledWith(
+      '/matchmaking/rooms/player/player-1',
+      JSON.stringify({
+        topic: 'matchmaking',
+        type: MqttNotificationType.BOT_OPPONENT_DECLINED,
+        payload: offer,
+      }),
+    );
+  });
+
   it('publishes match-scoped events to the match topic', async () => {
     await notifier.matchEvent('match-1', 'MATCH_STARTED', match);
 

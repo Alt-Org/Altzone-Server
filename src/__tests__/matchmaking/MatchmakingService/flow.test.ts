@@ -117,6 +117,8 @@ type TestDeps = {
     inviteReceived: jest.Mock;
     matchFound: jest.Mock;
     matchEvent: jest.Mock;
+    botOpponentOffered: jest.Mock;
+    botOpponentDeclined: jest.Mock;
   };
   emitterService: {
     EmitNewDailyTaskEvent: jest.Mock;
@@ -175,6 +177,8 @@ const createService = (
     inviteReceived: jest.fn(async () => undefined),
     matchFound: jest.fn(async () => undefined),
     matchEvent: jest.fn(async () => undefined),
+    botOpponentOffered: jest.fn(async () => undefined),
+    botOpponentDeclined: jest.fn(async () => undefined),
   };
   const emitterService = {
     EmitNewDailyTaskEvent: jest.fn(async () => undefined),
@@ -645,6 +649,13 @@ describe('MatchmakingService flow', () => {
         botOfferCreatedAt: expect.any(String),
       }),
     );
+    expect(notifier.botOpponentOffered).toHaveBeenCalledWith('player-1', {
+      roomId: invite.id,
+      status: InviteStatus.BOT_OFFERED,
+      offeredAt: offeredInvite.botOfferCreatedAt,
+      expiresAt: undefined,
+      updatedAt: offeredInvite.updatedAt,
+    });
   });
 
   it('creates one 1v1 RANDOM bot match after the player accepts the offer', async () => {
@@ -698,7 +709,7 @@ describe('MatchmakingService flow', () => {
   });
 
   it('cancels a RANDOM request when the player declines the bot offer', async () => {
-    const { redis, queue, service } = createService();
+    const { redis, notifier, queue, service } = createService();
     const [invite] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
       gameType,
@@ -721,6 +732,13 @@ describe('MatchmakingService flow', () => {
     expect(getStoredMatches(redis)).toHaveLength(0);
     expect(redis.values.has('matchmaking:player-invite:player-1')).toBe(false);
     expect(queue.cancelRandomOpponentTimeout).toHaveBeenCalledWith(invite.id);
+    expect(notifier.botOpponentDeclined).toHaveBeenCalledWith('player-1', {
+      roomId: invite.id,
+      status: InviteStatus.CANCELLED,
+      offeredAt: cancelledInvite.botOfferCreatedAt,
+      expiresAt: undefined,
+      updatedAt: cancelledInvite.updatedAt,
+    });
 
     const [, repeatedErrors] = await service.declineRandomBotOffer(
       invite.id,
