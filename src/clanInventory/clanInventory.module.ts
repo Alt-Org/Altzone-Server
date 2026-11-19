@@ -44,7 +44,7 @@ import { RoomStartupFloorTypeRefreshService } from './room/roomStartupFloorTypeR
     ]),
 
     RequestHelperModule,
-    AuthModule,
+    forwardRef(() => AuthModule),
     AuthorizationModule,
     EventEmitterCommonModule,
     forwardRef(() => ClanModule),

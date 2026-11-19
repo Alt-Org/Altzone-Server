@@ -29,6 +29,7 @@ import { RoomScheduler } from '../../../clanInventory/room/room.scheduler';
 import RoomRemovalNotifier from '../../../clanInventory/room/roomRemoval.notifier';
 import RoomNotifier from '../../../clanInventory/room/room.notifier';
 import EventEmitterService from '../../../common/service/EventEmitterService/EventEmitter.service';
+import { EventEmitterCommonModule } from '../../../common/service/EventEmitterService/EventEmitterCommon.module';
 
 export default class ClanInventoryCommonModule {
   private constructor() {}
@@ -52,6 +53,7 @@ export default class ClanInventoryCommonModule {
           RequestHelperModule,
           AuthModule,
           AuthorizationModule,
+          EventEmitterCommonModule,
         ],
         providers: [
           StockService,
@@ -77,14 +79,11 @@ export default class ClanInventoryCommonModule {
               emitAsync: jest.fn(),
             },
           },
-          {
-            provide: EventEmitterService,
-            useValue: {
-              EmitNewDailyTaskEvent: jest.fn(async () => undefined),
-            },
-          },
         ],
-      }).compile();
+      })
+      .overrideProvider(EventEmitterService)
+      .useValue({ EmitNewDailyTaskEvent: jest.fn().mockResolvedValue(undefined) })
+      .compile();
 
     return ClanInventoryCommonModule.module;
   }

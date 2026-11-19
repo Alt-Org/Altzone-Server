@@ -50,11 +50,10 @@ import { PackageRaceService } from './packageRace/packageRace.service';
     ]),
     forwardRef(() => ClanModule),
     forwardRef(() => ChatModule),
-    ProfileModule,
+    forwardRef(() => ProfileModule),
     PlayerModule,
     DailyTasksModule,
-    PlayerModule,
-    AuthModule,
+    forwardRef(() => AuthModule),
   ],
   controllers: [
     PackageRaceController,
