@@ -600,6 +600,12 @@ export class MatchmakingService {
       ),
     );
     await this.notifyInvitePlayers(cancelledInvite);
+    if (invite.status === InviteStatus.BOT_OFFERED) {
+      await this.notifier.botOpponentDeclined(
+        invite.ownerPlayerId,
+        this.toBotOfferDto(cancelledInvite),
+      );
+    }
 
     return [null, null];
   }
@@ -1053,6 +1059,10 @@ export class MatchmakingService {
 
     await this.removeInviteFromQueue(latestInvite);
     await this.notifyInvitePlayers(offeredInvite);
+    await this.notifier.botOpponentOffered(
+      offeredInvite.ownerPlayerId,
+      this.toBotOfferDto(offeredInvite),
+    );
   }
 
   /**
@@ -2370,6 +2380,18 @@ export class MatchmakingService {
       botOfferCreatedAt: invite.botOfferCreatedAt,
       botOfferExpiresAt: invite.botOfferExpiresAt,
       matchId: invite.matchId,
+    };
+  }
+
+  private toBotOfferDto(invite: MatchmakingInvite) {
+    return {
+      roomId: invite.id,
+      status: invite.status as
+        | InviteStatus.BOT_OFFERED
+        | InviteStatus.CANCELLED,
+      offeredAt: invite.botOfferCreatedAt!,
+      expiresAt: invite.botOfferExpiresAt,
+      updatedAt: invite.updatedAt,
     };
   }
 

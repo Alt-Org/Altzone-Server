@@ -6,6 +6,7 @@ import {
   MqttNotification,
 } from '../common/service/notificator/type/MqttNotification.type';
 import { MatchmakingMqttMatchDto } from './dto/matchmakingMqttMatch.dto';
+import { MatchmakingBotOfferDto } from './dto/matchmakingBotOffer.dto';
 import { MatchmakingRoomDto } from './dto/matchmakingRoom.dto';
 import { MatchmakingRoomInviteDto } from './dto/matchmakingRoomInvite.dto';
 
@@ -61,6 +62,30 @@ export class MatchmakingNotifier {
         'matchmaking',
         MqttNotificationType.MATCH_FOUND,
         match,
+      ),
+    );
+  }
+
+  /** Notifies a player that the RANDOM human search produced a bot offer. */
+  async botOpponentOffered(playerId: string, offer: MatchmakingBotOfferDto) {
+    await this.publish(
+      `/matchmaking/rooms/player/${playerId}`,
+      buildMqttNotification(
+        'matchmaking',
+        MqttNotificationType.BOT_OPPONENT_OFFERED,
+        offer,
+      ),
+    );
+  }
+
+  /** Notifies a player that a pending bot offer was declined or invalidated. */
+  async botOpponentDeclined(playerId: string, offer: MatchmakingBotOfferDto) {
+    await this.publish(
+      `/matchmaking/rooms/player/${playerId}`,
+      buildMqttNotification(
+        'matchmaking',
+        MqttNotificationType.BOT_OPPONENT_DECLINED,
+        offer,
       ),
     );
   }
