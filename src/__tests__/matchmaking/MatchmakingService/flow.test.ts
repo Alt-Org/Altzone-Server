@@ -104,6 +104,7 @@ type TestDeps = {
   };
   queue: {
     scheduleClanOpponentTimeout: jest.Mock;
+    scheduleRandomOpponentTimeout: jest.Mock;
   };
   playerLeaderboardWinService: {
     recordAcceptedPlayerWin: jest.Mock;
@@ -159,6 +160,7 @@ const createService = (
   };
   const queue = {
     scheduleClanOpponentTimeout: jest.fn(async () => undefined),
+    scheduleRandomOpponentTimeout: jest.fn(async () => undefined),
   };
   const playerLeaderboardWinService = {
     recordAcceptedPlayerWin: jest.fn(async () => true),
@@ -491,7 +493,7 @@ describe('MatchmakingService flow', () => {
 
     expect(firstStartErrors).toBeNull();
     expect(secondStartErrors).toBeNull();
-    expect(queuedInvite.status).toBe('QUEUED');
+    expect(queuedInvite.status).toBe(InviteStatus.SEARCHING);
     expect(startedInvite.status).toBe('MATCHED');
 
     const [storedFirstInvite] = await service.getInvite(firstInvite.id);
@@ -530,7 +532,7 @@ describe('MatchmakingService flow', () => {
   });
 
   it('keeps RANDOM rooms with different game types in separate queues', async () => {
-    const { redis, notifier, service } = createService();
+    const { redis, notifier, queue, service } = createService();
     const otherGameType = 2;
 
     const [firstInvite] = await service.createInvite('player-1', {
@@ -553,8 +555,8 @@ describe('MatchmakingService flow', () => {
 
     expect(firstErrors).toBeNull();
     expect(secondErrors).toBeNull();
-    expect(firstQueued.status).toBe(InviteStatus.QUEUED);
-    expect(secondQueued.status).toBe(InviteStatus.QUEUED);
+    expect(firstQueued.status).toBe(InviteStatus.SEARCHING);
+    expect(secondQueued.status).toBe(InviteStatus.SEARCHING);
     expect(getStoredMatches(redis)).toHaveLength(0);
     expect(
       await redis.lrange(`matchmaking:queue:RANDOM:${gameType}`, 0, -1),
@@ -563,6 +565,77 @@ describe('MatchmakingService flow', () => {
       await redis.lrange(`matchmaking:queue:RANDOM:${otherGameType}`, 0, -1),
     ).toEqual([secondInvite.id]);
     expect(notifier.matchFound).not.toHaveBeenCalled();
+    expect(queue.scheduleRandomOpponentTimeout).toHaveBeenCalledWith(
+      firstInvite.id,
+      20,
+    );
+    expect(queue.scheduleRandomOpponentTimeout).toHaveBeenCalledWith(
+      secondInvite.id,
+      20,
+    );
+  });
+
+  it('offers a RANDOM bot opponent after the human search timeout', async () => {
+    const { redis, notifier, queue, service } = createService();
+    const [invite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+
+    const [searchingInvite] = await service.startRoom(invite.id, 'player-1');
+
+    expect(searchingInvite).toMatchObject({
+      status: InviteStatus.SEARCHING,
+      stateVersion: 1,
+      searchStartedAt: expect.any(String),
+    });
+    expect(queue.scheduleRandomOpponentTimeout).toHaveBeenCalledWith(
+      invite.id,
+      20,
+    );
+
+    await service.handleRandomOpponentTimeout(invite.id);
+
+    const [offeredInvite] = await service.getInvite(invite.id);
+    expect(offeredInvite).toMatchObject({
+      status: InviteStatus.BOT_OFFERED,
+      stateVersion: 2,
+      searchStartedAt: searchingInvite.searchStartedAt,
+      botOfferCreatedAt: expect.any(String),
+      bots: [],
+    });
+    expect(getStoredMatches(redis)).toHaveLength(0);
+    expect(
+      await redis.lrange(`matchmaking:queue:RANDOM:${gameType}`, 0, -1),
+    ).toEqual([]);
+    expect(notifier.inviteUpdated).toHaveBeenLastCalledWith(
+      'player-1',
+      expect.objectContaining({
+        id: invite.id,
+        status: InviteStatus.BOT_OFFERED,
+        botOfferCreatedAt: expect.any(String),
+      }),
+    );
+  });
+
+  it('ignores a delayed RANDOM timeout after a human match was created', async () => {
+    const { redis, service } = createService();
+    const [firstInvite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    const [secondInvite] = await service.createInvite('player-2', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    await service.startRoom(firstInvite.id, 'player-1');
+    await service.startRoom(secondInvite.id, 'player-2');
+
+    await service.handleRandomOpponentTimeout(firstInvite.id);
+
+    const [storedFirstInvite] = await service.getInvite(firstInvite.id);
+    expect(storedFirstInvite.status).toBe(InviteStatus.MATCHED);
+    expect(getStoredMatches(redis)).toHaveLength(1);
   });
 
   it('creates a default 1v1 CLAN bot opponent when the opponent timeout expires', async () => {

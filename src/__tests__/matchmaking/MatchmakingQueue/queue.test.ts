@@ -43,17 +43,48 @@ describe('MatchmakingQueue', () => {
 
     expect(scheduledJob).toEqual({ id: 'scheduled-job' });
   });
+
+  it('schedules the RANDOM opponent timeout for 20 seconds', async () => {
+    await matchmakingQueue.scheduleRandomOpponentTimeout(inviteId, 20);
+
+    expect(add).toHaveBeenCalledWith(
+      'randomOpponentTimeout',
+      { inviteId },
+      {
+        delay: 20_000,
+        jobId: `random-opponent-timeout-${inviteId}`,
+        removeOnComplete: true,
+        removeOnFail: false,
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 3000 },
+      },
+    );
+  });
 });
 
 describe('MatchmakingProcessor', () => {
   let handleClanOpponentTimeout: jest.Mock;
+  let handleRandomOpponentTimeout: jest.Mock;
   let processor: MatchmakingProcessor;
 
   beforeEach(() => {
     handleClanOpponentTimeout = jest.fn().mockResolvedValue(undefined);
+    handleRandomOpponentTimeout = jest.fn().mockResolvedValue(undefined);
     processor = new MatchmakingProcessor({
       handleClanOpponentTimeout,
+      handleRandomOpponentTimeout,
     } as unknown as MatchmakingService);
+  });
+
+  it('handles a scheduled RANDOM opponent timeout', async () => {
+    const job = {
+      name: 'randomOpponentTimeout',
+      data: { inviteId: 'invite-1' },
+    } as Job<{ inviteId: string }>;
+
+    await processor.process(job);
+
+    expect(handleRandomOpponentTimeout).toHaveBeenCalledWith('invite-1');
   });
 
   it('handles a scheduled clan opponent timeout', async () => {
@@ -76,5 +107,6 @@ describe('MatchmakingProcessor', () => {
     await processor.process(job);
 
     expect(handleClanOpponentTimeout).not.toHaveBeenCalled();
+    expect(handleRandomOpponentTimeout).not.toHaveBeenCalled();
   });
 });
