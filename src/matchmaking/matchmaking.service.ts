@@ -117,7 +117,7 @@ export class MatchmakingService {
     const invite: MatchmakingInvite = this.recalculateInvite({
       id: new Types.ObjectId().toString(),
       matchType: body.matchType,
-      gameType: body.gameType,
+      gameType: this.resolveGameType(body),
       status: InviteStatus.OPEN,
       ownerPlayerId: playerId,
       clanId:
@@ -2235,6 +2235,10 @@ export class MatchmakingService {
   private resolveTeamSize(body: CreateMatchmakingInviteDto): 1 | 2 {
     // teamSize is given in the body, if not given teamSize of 1 is used
     return body.teamSize ?? 1;
+  }
+
+  private resolveGameType(body: CreateMatchmakingInviteDto) {
+    return body.gameType ?? 1;
   }
 
   private resolveAllowBots(body: CreateMatchmakingInviteDto) {

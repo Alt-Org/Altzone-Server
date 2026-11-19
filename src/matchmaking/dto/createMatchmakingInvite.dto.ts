@@ -46,13 +46,15 @@ export class CreateMatchmakingInviteDto {
   matchType: MatchType;
 
   /**
-   * Client-defined game mode played in the room.
+   * Optional client-defined gameplay variant used to separate matchmaking
+   * pools. Defaults to 1 when omitted.
    *
    * @example 1
    */
   @Type(() => Number)
   @IsInt()
-  gameType: number;
+  @IsOptional()
+  gameType?: number;
 
   /**
    * Existing custom lobby or room ID. Required for CUSTOM matches.
