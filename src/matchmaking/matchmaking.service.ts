@@ -553,6 +553,7 @@ export class MatchmakingService {
     const cancelledInvite: MatchmakingInvite = {
       ...invite,
       status: InviteStatus.CANCELLED,
+      stateVersion: invite.stateVersion + 1,
       updatedAt: new Date().toISOString(),
     };
 
@@ -1002,6 +1003,114 @@ export class MatchmakingService {
   }
 
   /**
+   * Accepts a pending RANDOM bot offer and creates one human-versus-bot match.
+   * A repeated request returns the match already linked to the invite.
+   */
+  async acceptRandomBotOffer(
+    inviteId: string,
+    playerId: string,
+  ): Promise<IServiceReturn<MatchmakingMatchDto>> {
+    const [invite, inviteErrors] = await this.readInvite(inviteId);
+    if (inviteErrors) return [null, inviteErrors];
+
+    const accessErrors = this.validateRandomBotOfferOwner(invite, playerId);
+    if (accessErrors) return [null, accessErrors];
+
+    if (
+      invite.status === InviteStatus.MATCHED &&
+      invite.botOfferCreatedAt &&
+      invite.matchId
+    ) {
+      const [existingMatch, matchErrors] = await this.readMatch(invite.matchId);
+      if (matchErrors) return [null, matchErrors];
+
+      return [this.toMatchDto(existingMatch), null];
+    }
+
+    if (invite.status !== InviteStatus.BOT_OFFERED) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'status',
+            value: invite.status,
+            message: 'The room does not have a pending bot opponent offer.',
+          }),
+        ],
+      ];
+    }
+
+    const match = await this.createRandomBotMatch(invite);
+    await this.markInviteMatched(invite, match.id);
+    await this.notifyMatchPlayers(match);
+
+    return [this.toMatchDto(match), null];
+  }
+
+  /**
+   * Declines a pending RANDOM bot offer without creating a match. Repeating a
+   * successful decline is a no-op.
+   */
+  async declineRandomBotOffer(
+    inviteId: string,
+    playerId: string,
+  ): Promise<IServiceReturn<void>> {
+    const [invite, inviteErrors] = await this.readInvite(inviteId);
+    if (inviteErrors) return [null, inviteErrors];
+
+    const accessErrors = this.validateRandomBotOfferOwner(invite, playerId);
+    if (accessErrors) return [null, accessErrors];
+
+    if (invite.status === InviteStatus.CANCELLED) return [null, null];
+
+    if (invite.status !== InviteStatus.BOT_OFFERED) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'status',
+            value: invite.status,
+            message: 'The room does not have a pending bot opponent offer.',
+          }),
+        ],
+      ];
+    }
+
+    return this.cancelInvite(inviteId, playerId);
+  }
+
+  private validateRandomBotOfferOwner(
+    invite: MatchmakingInvite,
+    playerId: string,
+  ) {
+    if (invite.ownerPlayerId !== playerId) {
+      return [
+        new ServiceError({
+          reason: SEReason.NOT_AUTHORIZED,
+          field: 'playerId',
+          value: playerId,
+          message: 'Only the room owner can respond to the bot offer.',
+        }),
+      ];
+    }
+
+    if (invite.matchType !== MatchType.RANDOM) {
+      return [
+        new ServiceError({
+          reason: SEReason.NOT_ALLOWED,
+          field: 'matchType',
+          value: invite.matchType,
+          message: 'Bot opponent offers are only available for RANDOM rooms.',
+        }),
+      ];
+    }
+
+    return null;
+  }
+
+  /**
    * Loads queued invite ids, drops stale entries, and returns still-READY invites.
    */
   private async getValidQueuedInvites(matchType: MatchType, gameType: number) {
@@ -1077,6 +1186,29 @@ export class MatchmakingService {
       teams: [
         this.createTeam(invite, TeamSide.A),
         this.createBotTeam(invite.id, TeamSide.B, invite.teamSize),
+      ],
+      startedAt: now,
+    };
+
+    await this.saveActiveMatch(match);
+
+    return match;
+  }
+
+  /**
+   * Creates the 1v1 RANDOM match selected by an accepted bot offer.
+   */
+  private async createRandomBotMatch(invite: MatchmakingInvite) {
+    const now = new Date().toISOString();
+    const match: ActiveMatch = {
+      id: new Types.ObjectId().toString(),
+      matchType: MatchType.RANDOM,
+      gameType: invite.gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        this.createTeam(invite, TeamSide.A),
+        this.createBotTeam(invite.id, TeamSide.B, 1),
       ],
       startedAt: now,
     };
@@ -1174,6 +1306,7 @@ export class MatchmakingService {
     const matchedInvite: MatchmakingInvite = {
       ...invite,
       status: InviteStatus.MATCHED,
+      stateVersion: invite.stateVersion + 1,
       matchId,
       updatedAt: new Date().toISOString(),
     };

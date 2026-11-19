@@ -120,6 +120,37 @@ export class MatchmakingController {
   }
 
   /**
+   * Accepts a pending RANDOM bot-opponent offer and creates a 1v1 match.
+   */
+  @Post('rooms/:roomId/bot-offer/accept')
+  @UniformResponse(undefined, MatchmakingMatchDto)
+  async acceptBotOffer(
+    @Param('roomId') roomId: string,
+    @LoggedUser() user: User,
+  ) {
+    return this.matchmakingService.acceptRandomBotOffer(
+      roomId,
+      user.player_id,
+    );
+  }
+
+  /**
+   * Declines a pending RANDOM bot-opponent offer without creating a match.
+   */
+  @Post('rooms/:roomId/bot-offer/decline')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UniformResponse()
+  async declineBotOffer(
+    @Param('roomId') roomId: string,
+    @LoggedUser() user: User,
+  ) {
+    return this.matchmakingService.declineRandomBotOffer(
+      roomId,
+      user.player_id,
+    );
+  }
+
+  /**
    * Cancels an open room owned by the authenticated player.
    */
   @Delete('rooms/:roomId')
