@@ -67,18 +67,8 @@ export default class BoxAuthHandler {
       refreshTokenExpires: tokens.refreshTokenExpires,
     };
 
-    const sessionResp = await this.boxAuthService.createSession(sessionPayload);
-
-    if (sessionResp instanceof MongooseError || !sessionResp)
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.UNEXPECTED,
-            message: 'Token Session creation failed',
-          }),
-        ],
-      ];
+    const [, sessionErrors] = await this.boxAuthService.createSession(sessionPayload);
+    if (sessionErrors) return [null, sessionErrors];
 
     return [tokens, null];
   }

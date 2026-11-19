@@ -111,19 +111,12 @@ export default class AccountClaimerService {
       refreshTokenExpires: tokens.refreshTokenExpires,
     };
 
-    const sessionResp = await this.boxAuthService.createSession(
+    const [, sessionErrors] = await this.boxAuthService.createSession(
       sessionPayload,
       session,
     );
-
-    if (sessionResp instanceof MongooseError || !sessionResp)
-      return cancelTransaction(
-        session,
-        new ServiceError({
-          reason: SEReason.UNEXPECTED,
-          message: 'Token Session creation failed',
-        }),
-      );
+    if (sessionErrors) 
+      return await cancelTransaction(session, sessionErrors);
 
     return await endTransaction(session, {
       ...account.Player,

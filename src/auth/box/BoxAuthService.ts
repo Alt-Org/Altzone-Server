@@ -1,31 +1,40 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Connection, Model, MongooseError } from 'mongoose';
+import { Connection, Model} from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { randomUUID } from 'node:crypto';
 import { AuthService } from '../auth.service';
-import { Box } from '../../box/schemas/box.schema';
 import { GroupAdmin } from '../../box/groupAdmin/groupAdmin.schema';
-import { Player } from '../../player/schemas/player.schema';
-import { Clan } from '../../clan/clan.schema';
-import { Profile } from '../../profile/profile.schema';
-import { Session } from '../session.schema';
+import { ProfileService } from '../../profile/profile.service';
+import { PlayerService } from '../../player/player.service';
+import { ClanService } from '../../clan/clan.service';
+import SessionService from '../../session/session.service';
+import { BoxService } from '../../box/box.service';
+import ServiceError from '../../common/service/basicService/ServiceError';
+import { SEReason } from '../../common/service/basicService/SEReason';
 
 @Injectable()
 export default class BoxAuthService extends AuthService {
   constructor(
     private readonly jwt: JwtService,
-    @InjectModel(Profile.name) public readonly profileModel: Model<Profile>,
-    @InjectModel(Player.name) public readonly playerModel: Model<Player>,
-    @InjectModel(Clan.name) public readonly clanModel: Model<Clan>,
-    @InjectModel(Box.name) public readonly boxModel: Model<Box>,
-    @InjectModel(Session.name) public readonly sessionModel: Model<Session>,
     @InjectModel(GroupAdmin.name)
     public readonly groupAdminModel: Model<GroupAdmin>,
     @InjectConnection() connection: Connection,
+    profileService: ProfileService,
+    playerService: PlayerService,
+    clanService: ClanService,
+    sessionService: SessionService,
+    private readonly boxService: BoxService,
   ) {
-    super(jwt, profileModel, playerModel, clanModel, sessionModel, connection);
+    super(
+      jwt, 
+      connection, 
+      profileService, 
+      playerService, 
+      clanService,
+      sessionService
+    );
   }
 
   /**
@@ -39,9 +48,10 @@ export default class BoxAuthService extends AuthService {
    * - or if the profile does not correspond to any box
    */
   public signIn = async (username: string, pass: string) => {
-    const profileResp = await this.profileModel.findOne({ username });
-
-    if (!profileResp || profileResp instanceof MongooseError) return null;
+    const [profileResp, profileErrors] = await this.profileService.readOne(
+      { filter: { username } }
+    );
+    if(profileErrors) return [null, profileErrors];
 
     const profile = {
       ...profileResp.toObject(),
@@ -52,19 +62,22 @@ export default class BoxAuthService extends AuthService {
       pass,
       profile.password,
     );
+    if (errors) return [null, errors];
+    if (!isValidPassword) 
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
+            message: 'Credentials for that profile are incorrect',
+          }),
+        ],
+      ];
 
-    if (errors || !isValidPassword) return null;
-
-    const playerResp = await this.playerModel.findOne({
-      profile_id: profile._id,
+    const [playerResp, playerErrors] = await this.playerService.readOne({
+      filter: { profile_id: profile._id }
     });
-
-    if (
-      playerResp instanceof MongooseError ||
-      !playerResp ||
-      (!profile.isSystemAdmin && !playerResp)
-    )
-      return null;
+    if (playerErrors) return [null, playerErrors];
 
     const player = {
       ...playerResp.toObject(),
@@ -75,14 +88,24 @@ export default class BoxAuthService extends AuthService {
 
     let box_id: string;
     let groupAdmin = false;
-    const box = await this.boxModel.findOne({
-      adminProfile_id: new ObjectId(profile._id),
+
+    const [box,] = await this.boxService.readOne({
+      filter: { adminProfile_id: new ObjectId(profile._id) }
     });
 
     if (!box) {
-      if (!(profile as any).box_id) return null;
+      if (!profile.box_id)
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.REQUIRED,
+              message: 'Profile has no box_id',
+            }),
+          ]
+        ];
 
-      box_id = (profile as any).box_id.toString();
+      box_id = profile.box_id.toString();
     } else {
       box_id = box._id.toString();
       groupAdmin = true;
@@ -100,7 +123,6 @@ export default class BoxAuthService extends AuthService {
       groupAdmin,
     };
 
-    // has the player set the security question?
     const hasSecurityQuestion = !!profile.securityQuestion;
     const tokens = await this.createTokens(payload);
 
@@ -112,17 +134,16 @@ export default class BoxAuthService extends AuthService {
       refreshTokenExpires: tokens.refreshTokenExpires,
     };
 
-    const sessionResp = await this.createSession(sessionPayload);
-
-    if (sessionResp instanceof MongooseError || !sessionResp) return null;
+    const [, sessionErrors] = await this.createSession(sessionPayload);
+    if (sessionErrors) return [null, sessionErrors];
 
     profile['Player'] = player;
 
-    let clan = null;
-    if (player?.clan_id) clan = await this.clanModel.findById(player.clan_id);
-
-    if (clan)
-      profile['Clan'] = { ...clan.toObject(), _id: clan._id.toString() };
+    if (player?.clan_id) {
+      const [clan,] = await this.clanService.readOneById(player.clan_id);
+      if (clan) 
+        profile['Clan'] = { ...clan.toObject(), _id: clan._id.toString() };
+    }
 
     const {
       password: _p,
@@ -135,10 +156,12 @@ export default class BoxAuthService extends AuthService {
       ...serializedProfile
     } = profile;
 
-    return {
+    const result = {
       ...serializedProfile,
       hasSecurityQuestion,
       ...tokens,
     };
+
+    return [result, null];
   };
 }
