@@ -102,6 +102,7 @@ export class MatchmakingInviteDto {
 
   /**
    * Number of participants per team.
+   * RANDOM (Ego Clash) always uses 1.
    *
    * @example 2
    */
@@ -110,6 +111,7 @@ export class MatchmakingInviteDto {
 
   /**
    * Whether bots may fill missing player slots.
+   * Always false for RANDOM; an optional opponent bot is modeled separately.
    *
    * @example true
    */
