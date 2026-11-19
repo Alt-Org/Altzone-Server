@@ -83,6 +83,10 @@ export class MatchmakingRoomDto {
   @Expose()
   allowBots: boolean;
 
+  /** Version of the room state used by atomic state transitions. */
+  @Expose()
+  stateVersion: number;
+
   /**
    * Creation timestamp.
    *
@@ -106,4 +110,16 @@ export class MatchmakingRoomDto {
    */
   @Expose()
   readyAt?: string;
+
+  /** Timestamp when human-opponent search started. */
+  @Expose()
+  searchStartedAt?: string;
+
+  /** Timestamp when a bot-opponent offer was created. */
+  @Expose()
+  botOfferCreatedAt?: string;
+
+  /** Optional expiry timestamp for a pending bot-opponent offer. */
+  @Expose()
+  botOfferExpiresAt?: string;
 }

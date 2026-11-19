@@ -128,6 +128,7 @@ export class MatchmakingService {
       bots: [],
       teamSize: this.resolveTeamSize(body),
       allowBots: this.resolveAllowBots(body),
+      stateVersion: 0,
       createdAt: now,
       updatedAt: now,
     });
@@ -1972,9 +1973,13 @@ export class MatchmakingService {
       bots: invite.bots,
       teamSize: invite.teamSize,
       allowBots: invite.allowBots,
+      stateVersion: invite.stateVersion,
       createdAt: invite.createdAt,
       updatedAt: invite.updatedAt,
       readyAt: invite.readyAt,
+      searchStartedAt: invite.searchStartedAt,
+      botOfferCreatedAt: invite.botOfferCreatedAt,
+      botOfferExpiresAt: invite.botOfferExpiresAt,
       matchId: invite.matchId,
     };
   }
@@ -2000,9 +2005,13 @@ export class MatchmakingService {
       bots: invite.bots,
       teamSize: invite.teamSize,
       allowBots: invite.allowBots,
+      stateVersion: invite.stateVersion,
       createdAt: invite.createdAt,
       updatedAt: invite.updatedAt,
       readyAt: invite.readyAt,
+      searchStartedAt: invite.searchStartedAt,
+      botOfferCreatedAt: invite.botOfferCreatedAt,
+      botOfferExpiresAt: invite.botOfferExpiresAt,
     };
   }
 

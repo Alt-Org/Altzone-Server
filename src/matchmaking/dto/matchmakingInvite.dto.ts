@@ -117,6 +117,14 @@ export class MatchmakingInviteDto {
   allowBots: boolean;
 
   /**
+   * Monotonically increasing version reserved for atomic state transitions.
+   *
+   * @example 0
+   */
+  @Expose()
+  stateVersion: number;
+
+  /**
    * Creation timestamp.
    *
    * @example "2026-07-06T08:00:00.000Z"
@@ -139,6 +147,18 @@ export class MatchmakingInviteDto {
    */
   @Expose()
   readyAt?: string;
+
+  /** Timestamp when human-opponent search started. */
+  @Expose()
+  searchStartedAt?: string;
+
+  /** Timestamp when a bot-opponent offer was created. */
+  @Expose()
+  botOfferCreatedAt?: string;
+
+  /** Optional expiry timestamp for a pending bot-opponent offer. */
+  @Expose()
+  botOfferExpiresAt?: string;
 
   /**
    * Match ID after a match has been created from this invite.
