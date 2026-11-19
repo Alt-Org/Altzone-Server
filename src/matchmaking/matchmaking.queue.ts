@@ -49,6 +49,10 @@ export class MatchmakingQueue {
     );
   }
 
+  async cancelClanOpponentTimeout(inviteId: string) {
+    return this.queue.remove(`clan-opponent-timeout-${inviteId}`);
+  }
+
   /**
    * Schedules the end of the RANDOM human-opponent search window.
    */
@@ -65,6 +69,10 @@ export class MatchmakingQueue {
         backoff: { type: 'exponential', delay: 3000 },
       },
     );
+  }
+
+  async cancelRandomOpponentTimeout(inviteId: string) {
+    return this.queue.remove(`random-opponent-timeout-${inviteId}`);
   }
 }
 

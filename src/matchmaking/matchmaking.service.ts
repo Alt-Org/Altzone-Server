@@ -316,11 +316,17 @@ export class MatchmakingService {
     );
     if (remainingPlayerIds.length === 0) {
       if (
-        invite.status === InviteStatus.QUEUED ||
-        invite.status === InviteStatus.SEARCHING
+        invite.status === InviteStatus.SEARCHING ||
+        invite.status === InviteStatus.BOT_OFFERED
       ) {
+        return this.cancelInvite(invite.id, playerId);
+      }
+
+      if (invite.status === InviteStatus.QUEUED) {
         await this.removeInviteFromQueue(invite);
       }
+
+      await this.cancelOpponentTimeout(invite);
 
       await Promise.all([
         this.redisService.delete(this.playerInviteKey(playerId)),
@@ -335,6 +341,7 @@ export class MatchmakingService {
       invite.status === InviteStatus.SEARCHING
     ) {
       await this.removeInviteFromQueue(invite);
+      await this.cancelOpponentTimeout(invite);
     }
 
     const updatedAt = new Date().toISOString();
@@ -586,6 +593,7 @@ export class MatchmakingService {
     }
 
     await this.removeInviteFromQueue(invite);
+    await this.cancelOpponentTimeout(invite);
     await Promise.all(
       invite.players.map((invitePlayerId) =>
         this.redisService.delete(this.playerInviteKey(invitePlayerId)),
@@ -1298,6 +1306,9 @@ export class MatchmakingService {
         this.redisService.delete(this.playerInviteKey(playerId)),
       ),
     ]);
+    await Promise.allSettled(
+      invites.map((invite) => this.cancelOpponentTimeout(invite)),
+    );
     await Promise.all(
       matchedInvites.map((invite) => this.notifyInvitePlayers(invite)),
     );
@@ -1458,6 +1469,22 @@ export class MatchmakingService {
       0,
       invite.id,
     );
+  }
+
+  private async cancelOpponentTimeout(invite: MatchmakingInvite) {
+    try {
+      if (invite.matchType === MatchType.RANDOM) {
+        await this.queue.cancelRandomOpponentTimeout(invite.id);
+        return;
+      }
+
+      if (invite.matchType === MatchType.CLAN) {
+        await this.queue.cancelClanOpponentTimeout(invite.id);
+      }
+    } catch {
+      // State validation in each worker remains the authoritative fallback when
+      // BullMQ cannot remove an already active or otherwise unavailable job.
+    }
   }
 
   /**
