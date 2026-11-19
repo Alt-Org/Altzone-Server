@@ -64,6 +64,7 @@ export class MatchmakingService {
   private readonly CANCELLED_INVITE_TTL_S = 60;
   private readonly FINISHED_MATCH_TTL_S = 10 * 60;
   private readonly CLAN_OPPONENT_TIMEOUT_S = 30;
+  private readonly RANDOM_OPPONENT_TIMEOUT_S = 20;
   private readonly INVITE_KEY_PREFIX = 'matchmaking:invite';
   private readonly PLAYER_INVITE_KEY_PREFIX = 'matchmaking:player-invite';
   private readonly QUEUE_KEY_PREFIX = 'matchmaking:queue';
@@ -314,7 +315,10 @@ export class MatchmakingService {
       (invitePlayerId) => invitePlayerId !== playerId,
     );
     if (remainingPlayerIds.length === 0) {
-      if (invite.status === InviteStatus.QUEUED) {
+      if (
+        invite.status === InviteStatus.QUEUED ||
+        invite.status === InviteStatus.SEARCHING
+      ) {
         await this.removeInviteFromQueue(invite);
       }
 
@@ -326,7 +330,10 @@ export class MatchmakingService {
       return [null, null];
     }
 
-    if (invite.status === InviteStatus.QUEUED) {
+    if (
+      invite.status === InviteStatus.QUEUED ||
+      invite.status === InviteStatus.SEARCHING
+    ) {
       await this.removeInviteFromQueue(invite);
     }
 
@@ -796,7 +803,14 @@ export class MatchmakingService {
         invite.gameType,
         invite.teamSize,
       );
-      if (!match) return queuedInvite;
+      if (!match) {
+        await this.queue.scheduleRandomOpponentTimeout(
+          queuedInvite.id,
+          this.RANDOM_OPPONENT_TIMEOUT_S,
+        );
+
+        return queuedInvite;
+      }
 
       const [processedInvite] = await this.readInvite(invite.id);
 
@@ -839,10 +853,14 @@ export class MatchmakingService {
    */
   private async enqueueReadyInvite(invite: MatchmakingInvite) {
     const queueKey = this.queueKey(invite.matchType, invite.gameType);
+    const now = new Date().toISOString();
+    const isRandomSearch = invite.matchType === MatchType.RANDOM;
     const queuedInvite: MatchmakingInvite = {
       ...invite,
-      status: InviteStatus.QUEUED,
-      updatedAt: new Date().toISOString(),
+      status: isRandomSearch ? InviteStatus.SEARCHING : InviteStatus.QUEUED,
+      stateVersion: invite.stateVersion + 1,
+      updatedAt: now,
+      searchStartedAt: isRandomSearch ? now : invite.searchStartedAt,
     };
     const queuedInviteIds = await this.redisService.lrange(queueKey, 0, -1);
 
@@ -949,6 +967,41 @@ export class MatchmakingService {
   }
 
   /**
+   * Ends a RANDOM human-opponent search without creating a bot match.
+   * A compatible human is checked once more before a pending bot offer is
+   * exposed to the player.
+   */
+  async handleRandomOpponentTimeout(inviteId: string) {
+    const [invite] = await this.readInvite(inviteId);
+    if (!invite) return;
+    if (invite.matchType !== MatchType.RANDOM) return;
+    if (invite.status !== InviteStatus.SEARCHING) return;
+
+    const randomMatch = await this.tryCreateRandomMatch(
+      invite.gameType,
+      invite.teamSize,
+    );
+    if (randomMatch) return;
+
+    const [latestInvite] = await this.readInvite(inviteId);
+    if (!latestInvite) return;
+    if (latestInvite.status !== InviteStatus.SEARCHING) return;
+
+    const now = new Date().toISOString();
+    const offeredInvite: MatchmakingInvite = {
+      ...latestInvite,
+      status: InviteStatus.BOT_OFFERED,
+      stateVersion: latestInvite.stateVersion + 1,
+      botOfferCreatedAt: now,
+      updatedAt: now,
+    };
+
+    await this.removeInviteFromQueue(latestInvite);
+    await this.saveInvite(offeredInvite);
+    await this.notifyInvitePlayers(offeredInvite);
+  }
+
+  /**
    * Loads queued invite ids, drops stale entries, and returns still-READY invites.
    */
   private async getValidQueuedInvites(matchType: MatchType, gameType: number) {
@@ -968,7 +1021,10 @@ export class MatchmakingService {
       const isValid =
         invite.matchType === matchType &&
         invite.gameType === gameType &&
-        invite.status === InviteStatus.QUEUED;
+        invite.status ===
+          (matchType === MatchType.RANDOM
+            ? InviteStatus.SEARCHING
+            : InviteStatus.QUEUED);
       if (!isValid) {
         await this.redisService.lrem(queueKey, 0, inviteId);
         continue;
@@ -1614,7 +1670,9 @@ export class MatchmakingService {
     if (
       invite.status === InviteStatus.CANCELLED ||
       invite.status === InviteStatus.MATCHED ||
-      invite.status === InviteStatus.QUEUED
+      invite.status === InviteStatus.QUEUED ||
+      invite.status === InviteStatus.SEARCHING ||
+      invite.status === InviteStatus.BOT_OFFERED
     ) {
       return [
         null,
@@ -1672,7 +1730,9 @@ export class MatchmakingService {
     if (
       invite.status === InviteStatus.CANCELLED ||
       invite.status === InviteStatus.MATCHED ||
-      invite.status === InviteStatus.QUEUED
+      invite.status === InviteStatus.QUEUED ||
+      invite.status === InviteStatus.SEARCHING ||
+      invite.status === InviteStatus.BOT_OFFERED
     ) {
       return [
         new ServiceError({
