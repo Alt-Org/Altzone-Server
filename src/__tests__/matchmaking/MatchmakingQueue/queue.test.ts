@@ -8,11 +8,16 @@ import { MatchmakingService } from '../../../matchmaking/matchmaking.service';
 describe('MatchmakingQueue', () => {
   const inviteId = '665af23e5e982f0013aa334b';
   let add: jest.Mock;
+  let remove: jest.Mock;
   let matchmakingQueue: MatchmakingQueue;
 
   beforeEach(() => {
     add = jest.fn().mockResolvedValue({ id: 'scheduled-job' });
-    matchmakingQueue = new MatchmakingQueue({ add } as unknown as Queue);
+    remove = jest.fn().mockResolvedValue(1);
+    matchmakingQueue = new MatchmakingQueue({
+      add,
+      remove,
+    } as unknown as Queue);
   });
 
   it('schedules the clan opponent timeout with a BullMQ-safe job id', async () => {
@@ -59,6 +64,14 @@ describe('MatchmakingQueue', () => {
         backoff: { type: 'exponential', delay: 3000 },
       },
     );
+  });
+
+  it('cancels delayed opponent timeout jobs by their stable ids', async () => {
+    await matchmakingQueue.cancelRandomOpponentTimeout(inviteId);
+    await matchmakingQueue.cancelClanOpponentTimeout(inviteId);
+
+    expect(remove).toHaveBeenCalledWith(`random-opponent-timeout-${inviteId}`);
+    expect(remove).toHaveBeenCalledWith(`clan-opponent-timeout-${inviteId}`);
   });
 });
 

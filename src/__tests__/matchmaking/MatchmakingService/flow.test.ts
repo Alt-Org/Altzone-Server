@@ -124,6 +124,8 @@ type TestDeps = {
   queue: {
     scheduleClanOpponentTimeout: jest.Mock;
     scheduleRandomOpponentTimeout: jest.Mock;
+    cancelClanOpponentTimeout: jest.Mock;
+    cancelRandomOpponentTimeout: jest.Mock;
   };
   playerLeaderboardWinService: {
     recordAcceptedPlayerWin: jest.Mock;
@@ -180,6 +182,8 @@ const createService = (
   const queue = {
     scheduleClanOpponentTimeout: jest.fn(async () => undefined),
     scheduleRandomOpponentTimeout: jest.fn(async () => undefined),
+    cancelClanOpponentTimeout: jest.fn(async () => undefined),
+    cancelRandomOpponentTimeout: jest.fn(async () => undefined),
   };
   const playerLeaderboardWinService = {
     recordAcceptedPlayerWin: jest.fn(async () => true),
@@ -480,7 +484,7 @@ describe('MatchmakingService flow', () => {
   });
 
   it('creates a default 1v1 RANDOM match after ready room owners start matchmaking', async () => {
-    const { redis, notifier, service } = createService();
+    const { redis, notifier, queue, service } = createService();
 
     const [firstInvite, firstErrors] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
@@ -548,6 +552,12 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({ id: startedInvite.matchId }),
     );
     expect(notifier.matchEvent).not.toHaveBeenCalled();
+    expect(queue.cancelRandomOpponentTimeout).toHaveBeenCalledWith(
+      firstInvite.id,
+    );
+    expect(queue.cancelRandomOpponentTimeout).toHaveBeenCalledWith(
+      secondInvite.id,
+    );
   });
 
   it('keeps RANDOM rooms with different game types in separate queues', async () => {
@@ -688,7 +698,7 @@ describe('MatchmakingService flow', () => {
   });
 
   it('cancels a RANDOM request when the player declines the bot offer', async () => {
-    const { redis, service } = createService();
+    const { redis, queue, service } = createService();
     const [invite] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
       gameType,
@@ -710,6 +720,7 @@ describe('MatchmakingService flow', () => {
     });
     expect(getStoredMatches(redis)).toHaveLength(0);
     expect(redis.values.has('matchmaking:player-invite:player-1')).toBe(false);
+    expect(queue.cancelRandomOpponentTimeout).toHaveBeenCalledWith(invite.id);
 
     const [, repeatedErrors] = await service.declineRandomBotOffer(
       invite.id,
@@ -717,6 +728,44 @@ describe('MatchmakingService flow', () => {
     );
     expect(repeatedErrors).toBeNull();
     expect(getStoredMatches(redis)).toHaveLength(0);
+  });
+
+  it('cancels a RANDOM human search and ignores its delayed timeout', async () => {
+    const { redis, queue, service } = createService();
+    const [invite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    await service.startRoom(invite.id, 'player-1');
+
+    const [, cancelErrors] = await service.cancelInvite(invite.id, 'player-1');
+    await service.handleRandomOpponentTimeout(invite.id);
+
+    expect(cancelErrors).toBeNull();
+    const [cancelledInvite] = await service.getInvite(invite.id);
+    expect(cancelledInvite.status).toBe(InviteStatus.CANCELLED);
+    expect(getStoredMatches(redis)).toHaveLength(0);
+    expect(
+      await redis.lrange(`matchmaking:queue:RANDOM:${gameType}`, 0, -1),
+    ).toEqual([]);
+    expect(queue.cancelRandomOpponentTimeout).toHaveBeenCalledWith(invite.id);
+  });
+
+  it('treats leaving during a pending RANDOM bot offer as cancellation', async () => {
+    const { queue, service } = createService();
+    const [invite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    await service.startRoom(invite.id, 'player-1');
+    await service.handleRandomOpponentTimeout(invite.id);
+
+    const [, leaveErrors] = await service.leaveRoom('player-1');
+
+    expect(leaveErrors).toBeNull();
+    const [cancelledInvite] = await service.getInvite(invite.id);
+    expect(cancelledInvite.status).toBe(InviteStatus.CANCELLED);
+    expect(queue.cancelRandomOpponentTimeout).toHaveBeenCalledWith(invite.id);
   });
 
   it('rejects a bot-offer response from anyone except the room owner', async () => {
