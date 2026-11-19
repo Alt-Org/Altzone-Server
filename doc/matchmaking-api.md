@@ -112,6 +112,15 @@ Returns `MatchmakingInviteDto`, which represents the created room:
 }
 ```
 
+`stateVersion` is a server-managed, monotonically increasing version of the
+room state. The backend increments it whenever the room moves to a new
+matchmaking state, for example from `READY` to `SEARCHING` and then to
+`BOT_OFFERED`, `MATCHED`, or `CANCELLED`. It is used together with atomic state
+updates to prevent competing operations, such as a timeout and a cancellation,
+from both changing the same room. Clients must not send or modify this value.
+They may compare it with a previously received version and ignore an older HTTP
+or MQTT representation of the room.
+
 ## List Rooms
 
 ```http

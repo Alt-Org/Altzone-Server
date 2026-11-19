@@ -121,6 +121,13 @@ Room updates use a compact room payload with one room identifier: `id`.
 }
 ```
 
+`stateVersion` is assigned and incremented by the backend whenever the room
+transitions to a new matchmaking state. Clients do not send or update it. When
+multiple HTTP responses or MQTT notifications are received out of order, a
+client may keep the representation with the greatest `stateVersion` and ignore
+older ones. The backend also uses the version for atomic transitions so that
+competing operations cannot both update the same room state.
+
 ## 2. Invite Received
 
 ### Topic
