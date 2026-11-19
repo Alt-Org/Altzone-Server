@@ -564,6 +564,31 @@ describe('MatchmakingService flow', () => {
     );
   });
 
+  it('pairs RANDOM players without considering their clan membership', async () => {
+    const { redis, service } = createService({
+      'player-1': 'shared-clan',
+      'player-2': 'shared-clan',
+    });
+    const [firstInvite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    const [secondInvite] = await service.createInvite('player-2', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+
+    await service.startRoom(firstInvite.id, 'player-1');
+    await service.startRoom(secondInvite.id, 'player-2');
+
+    const [match] = getStoredMatches(redis);
+    expect(match.matchType).toBe(MatchType.RANDOM);
+    expect(match.teams.flatMap((team) => team.participants)).toEqual([
+      { playerId: 'player-1', isBot: false },
+      { playerId: 'player-2', isBot: false },
+    ]);
+  });
+
   it('keeps RANDOM rooms with different game types in separate queues', async () => {
     const { redis, notifier, queue, service } = createService();
     const otherGameType = 2;
@@ -868,6 +893,40 @@ describe('MatchmakingService flow', () => {
     );
   });
 
+  it('allows only human assignment or timeout to consume a RANDOM search', async () => {
+    const { redis, service } = createService();
+    const [firstInvite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    const [secondInvite] = await service.createInvite('player-2', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    await service.startRoom(firstInvite.id, 'player-1');
+
+    await Promise.all([
+      service.handleRandomOpponentTimeout(firstInvite.id),
+      service.startRoom(secondInvite.id, 'player-2'),
+    ]);
+
+    const [storedFirstInvite] = await service.getInvite(firstInvite.id);
+    const matches = getStoredMatches(redis);
+    expect([
+      InviteStatus.BOT_OFFERED,
+      InviteStatus.MATCHED,
+    ]).toContain(storedFirstInvite.status);
+    expect(matches).toHaveLength(
+      storedFirstInvite.status === InviteStatus.MATCHED ? 1 : 0,
+    );
+    if (storedFirstInvite.status === InviteStatus.MATCHED) {
+      expect(storedFirstInvite.matchId).toBe(matches[0].id);
+    } else {
+      expect(storedFirstInvite.matchId).toBeUndefined();
+      expect(storedFirstInvite.bots).toEqual([]);
+    }
+  });
+
   it('ignores a delayed RANDOM timeout after a human match was created', async () => {
     const { redis, service } = createService();
     const [firstInvite] = await service.createInvite('player-1', {
@@ -1103,6 +1162,40 @@ describe('MatchmakingService flow', () => {
         gameType,
       }),
     );
+  });
+
+  it('keeps 2v2 bot-filled compositions in CUSTOM matchmaking', async () => {
+    const { redis, service } = createService();
+    const [invite, createErrors] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      gameType,
+      roomId: '665af23e5e982f0013aa334b',
+      teamSize: 2,
+      allowBots: true,
+    });
+
+    const [matchedInvite, startErrors] = await service.startRoom(
+      invite.id,
+      'player-1',
+    );
+
+    expect(createErrors).toBeNull();
+    expect(startErrors).toBeNull();
+    expect(matchedInvite.status).toBe(InviteStatus.MATCHED);
+    const [match] = getStoredMatches(redis);
+    expect(match).toMatchObject({
+      matchType: MatchType.CUSTOM,
+      teamSize: 2,
+    });
+    expect(match.teams).toHaveLength(2);
+    expect(match.teams[0].participants).toHaveLength(2);
+    expect(match.teams[1].participants).toHaveLength(2);
+    expect(match.teams.flatMap((team) => team.participants)).toEqual([
+      { playerId: 'player-1', isBot: false },
+      expect.objectContaining({ isBot: true }),
+      expect.objectContaining({ isBot: true }),
+      expect.objectContaining({ isBot: true }),
+    ]);
   });
 
   it('removes a player from a room and notifies only the remaining players', async () => {
