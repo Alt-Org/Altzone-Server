@@ -33,6 +33,7 @@ describe('MatchmakingNotifier notifications', () => {
     ],
     teamSize: 2,
     allowBots: true,
+    stateVersion: 0,
     createdAt: '2026-07-06T08:00:00.000Z',
     updatedAt: '2026-07-06T08:00:01.000Z',
     readyAt: '2026-07-06T08:00:01.000Z',
