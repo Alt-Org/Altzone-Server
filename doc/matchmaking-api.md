@@ -51,7 +51,7 @@ the room is ready.
 ```ts
 {
   matchType: 'RANDOM' | 'CLAN' | 'CUSTOM',
-  gameType: number,
+  gameType?: number,
   roomId?: string,
   teamSize?: 1 | 2,
   allowBots?: boolean,
@@ -64,7 +64,9 @@ the room is ready.
 ```
 
 - `roomId` is required by the service for `CUSTOM` rooms.
-- `gameType` is required and selects the compatible gameplay pool.
+- `gameType` is optional and defaults to `1`. When supplied, it separates
+  otherwise compatible rooms into different matchmaking pools. Clients that do
+  not expose multiple gameplay variants should omit it.
 - RANDOM accepts only `teamSize: 1`; omitting it also resolves to `1`.
 - RANDOM rejects `teamSize: 2`, `allowBots: true`, and `automaticInvite`.
 - RANDOM responses always contain `allowBots: false`.
