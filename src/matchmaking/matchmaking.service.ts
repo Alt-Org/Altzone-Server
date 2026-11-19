@@ -1371,6 +1371,42 @@ export class MatchmakingService {
     playerId: string,
     body: CreateMatchmakingInviteDto,
   ) {
+    if (body.matchType === MatchType.RANDOM) {
+      if (body.teamSize !== undefined && body.teamSize !== 1) {
+        return [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
+            field: 'teamSize',
+            value: body.teamSize,
+            message: 'RANDOM matchmaking only supports 1v1 matches.',
+          }),
+        ];
+      }
+
+      if (body.allowBots === true) {
+        return [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'allowBots',
+            value: body.allowBots,
+            message:
+              'RANDOM matchmaking does not support bot-filled player teams.',
+          }),
+        ];
+      }
+
+      if (body.automaticInvite) {
+        return [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'automaticInvite',
+            value: body.automaticInvite,
+            message: 'RANDOM matchmaking does not support automatic invites.',
+          }),
+        ];
+      }
+    }
+
     if (body.matchType === MatchType.CUSTOM && !body.roomId) {
       return [
         new ServiceError({
@@ -1841,6 +1877,7 @@ export class MatchmakingService {
 
   private resolveAllowBots(body: CreateMatchmakingInviteDto) {
     if (body.matchType === MatchType.CUSTOM) return body.allowBots ?? false;
+    if (body.matchType === MatchType.RANDOM) return false;
 
     return body.allowBots ?? true;
   }
