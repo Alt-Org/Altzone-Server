@@ -1225,11 +1225,7 @@ export class MatchmakingService {
     secondInvite: MatchmakingInvite,
     matchType = MatchType.RANDOM,
   ) {
-    const match = this.buildActiveMatch(
-      firstInvite,
-      secondInvite,
-      matchType,
-    );
+    const match = this.buildActiveMatch(firstInvite, secondInvite, matchType);
 
     await this.saveActiveMatch(match);
 
