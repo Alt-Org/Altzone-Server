@@ -40,6 +40,25 @@ class InMemoryRedisService {
     return true;
   });
 
+  compareAndSetMany = jest.fn(
+    async (
+      entries: Array<{
+        key: string;
+        expectedValue: string | null;
+        value: string;
+      }>,
+    ) => {
+      for (const entry of entries) {
+        if ((this.values.get(entry.key) ?? null) !== entry.expectedValue) {
+          return false;
+        }
+      }
+
+      for (const entry of entries) this.values.set(entry.key, entry.value);
+      return true;
+    },
+  );
+
   expire = jest.fn(async () => true);
 
   rpush = jest.fn(async (key: string, ...values: string[]) => {
@@ -722,6 +741,64 @@ describe('MatchmakingService flow', () => {
         value: 'player-2',
       }),
     ]);
+  });
+
+  it('allows only acceptance or cancellation to consume a bot offer', async () => {
+    const { redis, service } = createService();
+    const [invite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    await service.startRoom(invite.id, 'player-1');
+    await service.handleRandomOpponentTimeout(invite.id);
+
+    const [acceptResult, cancelResult] = await Promise.all([
+      service.acceptRandomBotOffer(invite.id, 'player-1'),
+      service.cancelInvite(invite.id, 'player-1'),
+    ]);
+    const successfulTransitions = [acceptResult, cancelResult].filter(
+      ([, errors]) => errors === null,
+    );
+    const [finalInvite] = await service.getInvite(invite.id);
+    const matches = getStoredMatches(redis);
+
+    expect(successfulTransitions).toHaveLength(1);
+    expect([InviteStatus.MATCHED, InviteStatus.CANCELLED]).toContain(
+      finalInvite.status,
+    );
+    if (finalInvite.status === InviteStatus.MATCHED) {
+      expect(matches).toHaveLength(1);
+      expect(finalInvite.matchId).toBe(matches[0].id);
+    } else {
+      expect(matches).toHaveLength(0);
+    }
+  });
+
+  it('allows only human assignment or cancellation to consume a search', async () => {
+    const { redis, service } = createService();
+    const [firstInvite] = await service.createInvite('player-1', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    const [secondInvite] = await service.createInvite('player-2', {
+      matchType: MatchType.RANDOM,
+      gameType,
+    });
+    await service.startRoom(firstInvite.id, 'player-1');
+
+    await Promise.all([
+      service.startRoom(secondInvite.id, 'player-2'),
+      service.cancelInvite(firstInvite.id, 'player-1'),
+    ]);
+
+    const [storedFirstInvite] = await service.getInvite(firstInvite.id);
+    const matches = getStoredMatches(redis);
+    expect([InviteStatus.MATCHED, InviteStatus.CANCELLED]).toContain(
+      storedFirstInvite.status,
+    );
+    expect(matches).toHaveLength(
+      storedFirstInvite.status === InviteStatus.MATCHED ? 1 : 0,
+    );
   });
 
   it('ignores a delayed RANDOM timeout after a human match was created', async () => {

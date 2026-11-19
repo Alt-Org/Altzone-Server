@@ -1,5 +1,6 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import IRedisService from '../../../../../common/service/redis/IRedisService';
+import { RedisCompareAndSetEntry } from '../../../../../common/service/redis/IRedisService';
 
 type RedisValue = string | string[];
 type RedisEntry = { value: RedisValue; expiresAt?: number };
@@ -60,6 +61,20 @@ export class RedisServiceInMemory implements IRedisService, OnModuleDestroy {
     if ((await this.get(key)) !== value) return false;
 
     return (await this.delete(key)) === 1;
+  }
+
+  async compareAndSetMany(
+    entries: RedisCompareAndSetEntry[],
+  ): Promise<boolean> {
+    for (const entry of entries) {
+      if ((await this.get(entry.key)) !== entry.expectedValue) return false;
+    }
+
+    for (const entry of entries) {
+      await this.set(entry.key, entry.value, entry.ttlS);
+    }
+
+    return true;
   }
 
   async expire(key: string, ttlS: number): Promise<boolean> {
