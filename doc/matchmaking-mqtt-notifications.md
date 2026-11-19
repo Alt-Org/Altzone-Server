@@ -73,7 +73,7 @@ ROOM_UPDATED
 - A player creates a matchmaking room.
 - A player joins a room.
 - A room status changes.
-- A room is queued, matched, or cancelled.
+- A room starts searching, receives a bot offer, is matched, or is cancelled.
 
 The notification is sent to every real player currently attached to the room.
 Bots do not receive MQTT notifications.
@@ -89,7 +89,9 @@ Room updates use a compact room payload with one room identifier: `id`.
   payload: {
     id: string,
     matchType: 'RANDOM' | 'CLAN' | 'CUSTOM',
-    status: 'OPEN' | 'READY' | 'QUEUED' | 'MATCHED' | 'CANCELLED',
+    gameType: number,
+    status: 'OPEN' | 'READY' | 'QUEUED' | 'SEARCHING' | 'BOT_OFFERED' |
+      'MATCHED' | 'CANCELLED' | 'EXPIRED',
     ownerPlayerId: string,
     clanId?: string,
     players: [
@@ -108,9 +110,13 @@ Room updates use a compact room payload with one room identifier: `id`.
     ],
     teamSize: 1 | 2,
     allowBots: boolean,
+    stateVersion: number,
     createdAt: string,
     updatedAt: string,
-    readyAt?: string
+    readyAt?: string,
+    searchStartedAt?: string,
+    botOfferCreatedAt?: string,
+    botOfferExpiresAt?: string
   }
 }
 ```
@@ -150,7 +156,9 @@ This topic is only for explicit invitations into a specific existing room.
   payload: {
     id: string,
     matchType: 'RANDOM' | 'CLAN' | 'CUSTOM',
-    status: 'OPEN' | 'READY' | 'QUEUED' | 'MATCHED' | 'CANCELLED',
+    gameType: number,
+    status: 'OPEN' | 'READY' | 'QUEUED' | 'SEARCHING' | 'BOT_OFFERED' |
+      'MATCHED' | 'CANCELLED' | 'EXPIRED',
     ownerPlayer: {
       playerId: string,
       name: string,
@@ -168,7 +176,56 @@ This topic is only for explicit invitations into a specific existing room.
 }
 ```
 
-## 3. Match Found
+## 3. RANDOM Bot Opponent Offer
+
+### Topic
+
+```text
+/matchmaking/rooms/player/{playerId}
+```
+
+### Event Types
+
+```text
+BOT_OPPONENT_OFFERED
+BOT_OPPONENT_DECLINED
+```
+
+`BOT_OPPONENT_OFFERED` is published when a RANDOM human-opponent search has run
+for 20 seconds without finding a match. It is a pending offer only; no match or
+bot participant exists until the player accepts through the HTTP API.
+
+`BOT_OPPONENT_DECLINED` is published when the player declines the offer or when
+another cancellation path invalidates it. `ROOM_UPDATED` is also published for
+both state transitions and remains the authoritative room snapshot.
+
+### Payload Shape
+
+```ts
+{
+  topic: 'matchmaking',
+  type: 'BOT_OPPONENT_OFFERED' | 'BOT_OPPONENT_DECLINED',
+  payload: {
+    roomId: string,
+    status: 'BOT_OFFERED' | 'CANCELLED',
+    offeredAt: string,
+    expiresAt?: string,
+    updatedAt: string
+  }
+}
+```
+
+When `BOT_OPPONENT_OFFERED` is received, the client may call either:
+
+```text
+POST /matchmaking/rooms/{roomId}/bot-offer/accept
+POST /matchmaking/rooms/{roomId}/bot-offer/decline
+```
+
+Acceptance produces the normal `MATCH_FOUND` event. It does not produce a
+separate bot-offer-accepted event.
+
+## 4. Match Found
 
 ### Topic
 
@@ -184,7 +241,8 @@ MATCH_FOUND
 
 ### Publish Triggers
 
-- Ready `RANDOM` rooms are paired.
+- Searching `RANDOM` requests are paired into a human 1v1 match.
+- A RANDOM player explicitly accepts a pending bot-opponent offer.
 - Ready `CLAN` rooms from different clans are paired.
 - A `CLAN` room reaches the opponent timeout and receives a bot opponent team.
 - A `CUSTOM` room starts a match from its room settings.
@@ -208,6 +266,7 @@ included in the match payload but do not receive player-specific notifications.
 {
   id: string,
   matchType: 'RANDOM' | 'CLAN' | 'CUSTOM',
+  gameType: number,
   status: 'ACTIVE' | 'FINISHED',
   teamSize: 1 | 2,
   teams: [
@@ -240,7 +299,11 @@ included in the match payload but do not receive player-specific notifications.
 }
 ```
 
-## 4. Match Started
+RANDOM never sends a 2v2 `MATCH_FOUND` payload. RANDOM bot matches contain the
+human on one side and exactly one bot on the other. Clan membership does not
+affect RANDOM pairing.
+
+## 5. Match Started
 
 ### Topic
 
@@ -276,7 +339,7 @@ calls from clients.
 The payload includes `readyPlayerIds` and `battleStartedAt` after all real
 players are ready.
 
-## 5. Match Finished
+## 6. Match Finished
 
 ### Topic
 
@@ -325,21 +388,30 @@ Recommended frontend flow:
    room invitations.
 3. Subscribe to `/matchmaking/matches/player/{playerId}` while the player is in
    matchmaking.
-4. Use `ROOM_UPDATED` to keep room and lobby UI synchronized.
-5. Use `INVITE_RECEIVED` and `CLAN_INVITE_RECEIVED` to show incoming room
+4. Use `ROOM_UPDATED` to keep room and lobby UI synchronized, including
+   `SEARCHING`, `BOT_OFFERED`, and terminal states.
+5. Use `BOT_OPPONENT_OFFERED` to show the accept/decline UI, and
+   `BOT_OPPONENT_DECLINED` to close it when the offer is invalidated.
+6. Use `INVITE_RECEIVED` and `CLAN_INVITE_RECEIVED` to show incoming room
    invitations.
-6. When `MATCH_FOUND` is received, read `message.payload.id`, join the Photon
+7. When `MATCH_FOUND` is received, read `message.payload.id`, join the Photon
    Room, call `POST /matchmaking/matches/{matchId}/start`, and subscribe to
    `/match/{matchId}`.
-7. Use `MATCH_STARTED` to start the clientside battle once every real player is
+8. Use `MATCH_STARTED` to start the clientside battle once every real player is
    ready.
-8. Use `MATCH_FINISHED` to show the result screen and refresh leaderboard views.
+9. Use `MATCH_FINISHED` to show the result screen and refresh leaderboard views.
 
 ## Notes
 
 - MQTT payloads are JSON strings produced with `JSON.stringify`.
 - Room and match data are stored in Redis, so clients should treat these events
   as real-time state notifications rather than durable history.
+- `RANDOM` means Ego Clash and is always 1v1. `CUSTOM` is the mode for 2v2 and
+  freely selected bot participation. `CLAN` has a separate automatic bot-timeout
+  policy and must not be used as the RANDOM implementation.
+- Practice or tutorial gameplay does not alter matchmaking state. Keep the
+  player room and match subscriptions active if matchmaking should continue in
+  the background.
 - `CLAN` match finishes update both clan leaderboards and personal leaderboards
   for participating clan players. `RANDOM` and `CUSTOM` finishes update only
   personal leaderboards.
