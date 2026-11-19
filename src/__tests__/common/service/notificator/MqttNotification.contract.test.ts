@@ -74,8 +74,9 @@ describe('MQTT notification contract', () => {
       ownerPlayerId: 'player-1',
       players: [{ playerId: 'player-1', name: 'Player 1', avatar: null }],
       bots: [],
-      teamSize: 2 as const,
-      allowBots: true,
+      teamSize: 1 as const,
+      allowBots: false,
+      stateVersion: 1,
       createdAt: '2026-07-06T08:00:00.000Z',
       updatedAt: '2026-07-06T08:00:01.000Z',
     };
