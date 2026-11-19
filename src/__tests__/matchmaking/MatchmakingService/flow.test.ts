@@ -912,10 +912,9 @@ describe('MatchmakingService flow', () => {
 
     const [storedFirstInvite] = await service.getInvite(firstInvite.id);
     const matches = getStoredMatches(redis);
-    expect([
-      InviteStatus.BOT_OFFERED,
-      InviteStatus.MATCHED,
-    ]).toContain(storedFirstInvite.status);
+    expect([InviteStatus.BOT_OFFERED, InviteStatus.MATCHED]).toContain(
+      storedFirstInvite.status,
+    );
     expect(matches).toHaveLength(
       storedFirstInvite.status === InviteStatus.MATCHED ? 1 : 0,
     );
