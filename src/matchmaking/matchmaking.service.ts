@@ -550,6 +550,8 @@ export class MatchmakingService {
       ];
     }
 
+    if (invite.status === InviteStatus.CANCELLED) return [null, null];
+
     const cancelledInvite: MatchmakingInvite = {
       ...invite,
       status: InviteStatus.CANCELLED,
@@ -557,8 +559,33 @@ export class MatchmakingService {
       updatedAt: new Date().toISOString(),
     };
 
+    const cancelled = await this.redisService.compareAndSetMany([
+      {
+        key: this.inviteKey(invite.id),
+        expectedValue: JSON.stringify(invite),
+        value: JSON.stringify(cancelledInvite),
+        ttlS: this.CANCELLED_INVITE_TTL_S,
+      },
+    ]);
+    if (!cancelled) {
+      const [latestInvite, latestErrors] = await this.readInvite(inviteId);
+      if (latestErrors) return [null, latestErrors];
+      if (latestInvite.status === InviteStatus.CANCELLED) return [null, null];
+
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'status',
+            value: latestInvite.status,
+            message: 'The invite state changed before it could be cancelled.',
+          }),
+        ],
+      ];
+    }
+
     await this.removeInviteFromQueue(invite);
-    await this.saveInvite(cancelledInvite, this.CANCELLED_INVITE_TTL_S);
     await Promise.all(
       invite.players.map((invitePlayerId) =>
         this.redisService.delete(this.playerInviteKey(invitePlayerId)),
@@ -800,6 +827,7 @@ export class MatchmakingService {
 
     if (invite.matchType === MatchType.RANDOM) {
       const queuedInvite = await this.enqueueReadyInvite(invite);
+      if (queuedInvite.status !== InviteStatus.SEARCHING) return queuedInvite;
       const match = await this.tryCreateRandomMatch(
         invite.gameType,
         invite.teamSize,
@@ -820,6 +848,7 @@ export class MatchmakingService {
 
     if (invite.matchType === MatchType.CLAN) {
       const queuedInvite = await this.enqueueReadyInvite(invite);
+      if (queuedInvite.status !== InviteStatus.QUEUED) return queuedInvite;
       const match = await this.tryCreateClanMatch(queuedInvite);
       if (match) {
         const [processedInvite] = await this.readInvite(invite.id);
@@ -863,13 +892,24 @@ export class MatchmakingService {
       updatedAt: now,
       searchStartedAt: isRandomSearch ? now : invite.searchStartedAt,
     };
-    const queuedInviteIds = await this.redisService.lrange(queueKey, 0, -1);
+    const claimed = await this.redisService.compareAndSetMany([
+      {
+        key: this.inviteKey(invite.id),
+        expectedValue: JSON.stringify(invite),
+        value: JSON.stringify(queuedInvite),
+        ttlS: this.INVITE_TTL_S,
+      },
+    ]);
+    if (!claimed) {
+      const [latestInvite] = await this.readInvite(invite.id);
+      return latestInvite ?? invite;
+    }
 
+    const queuedInviteIds = await this.redisService.lrange(queueKey, 0, -1);
     if (!queuedInviteIds.includes(invite.id)) {
       await this.redisService.rpush(queueKey, invite.id);
     }
 
-    await this.saveInvite(queuedInvite);
     await this.notifyInvitePlayers(queuedInvite);
 
     return queuedInvite;
@@ -892,16 +932,12 @@ export class MatchmakingService {
     if (compatibleInvites.length < 2) return null;
 
     const [firstInvite, secondInvite] = compatibleInvites;
-    const match = await this.createActiveMatch(firstInvite, secondInvite);
-
-    await Promise.all([
-      this.markInviteMatched(firstInvite, match.id),
-      this.markInviteMatched(secondInvite, match.id),
-      this.removeInviteFromQueue(firstInvite),
-      this.removeInviteFromQueue(secondInvite),
-    ]);
-
-    await this.notifyMatchPlayers(match);
+    const match = this.buildActiveMatch(firstInvite, secondInvite);
+    const claimed = await this.claimInvitesForMatch(
+      [firstInvite, secondInvite],
+      match,
+    );
+    if (!claimed) return null;
 
     return match;
   }
@@ -997,8 +1033,17 @@ export class MatchmakingService {
       updatedAt: now,
     };
 
+    const offered = await this.redisService.compareAndSetMany([
+      {
+        key: this.inviteKey(latestInvite.id),
+        expectedValue: JSON.stringify(latestInvite),
+        value: JSON.stringify(offeredInvite),
+        ttlS: this.INVITE_TTL_S,
+      },
+    ]);
+    if (!offered) return;
+
     await this.removeInviteFromQueue(latestInvite);
-    await this.saveInvite(offeredInvite);
     await this.notifyInvitePlayers(offeredInvite);
   }
 
@@ -1041,9 +1086,36 @@ export class MatchmakingService {
       ];
     }
 
-    const match = await this.createRandomBotMatch(invite);
-    await this.markInviteMatched(invite, match.id);
-    await this.notifyMatchPlayers(match);
+    const match = this.buildRandomBotMatch(invite);
+    const claimed = await this.claimInvitesForMatch([invite], match);
+    if (!claimed) {
+      const [latestInvite, latestErrors] = await this.readInvite(inviteId);
+      if (latestErrors) return [null, latestErrors];
+      if (
+        latestInvite.status === InviteStatus.MATCHED &&
+        latestInvite.botOfferCreatedAt &&
+        latestInvite.matchId
+      ) {
+        const [existingMatch, matchErrors] = await this.readMatch(
+          latestInvite.matchId,
+        );
+        if (matchErrors) return [null, matchErrors];
+
+        return [this.toMatchDto(existingMatch), null];
+      }
+
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'status',
+            value: latestInvite.status,
+            message: 'The bot opponent offer has already been consumed.',
+          }),
+        ],
+      ];
+    }
 
     return [this.toMatchDto(match), null];
   }
@@ -1153,6 +1225,22 @@ export class MatchmakingService {
     secondInvite: MatchmakingInvite,
     matchType = MatchType.RANDOM,
   ) {
+    const match = this.buildActiveMatch(
+      firstInvite,
+      secondInvite,
+      matchType,
+    );
+
+    await this.saveActiveMatch(match);
+
+    return match;
+  }
+
+  private buildActiveMatch(
+    firstInvite: MatchmakingInvite,
+    secondInvite: MatchmakingInvite,
+    matchType = MatchType.RANDOM,
+  ): ActiveMatch {
     const now = new Date().toISOString();
     const match: ActiveMatch = {
       id: new Types.ObjectId().toString(),
@@ -1167,9 +1255,59 @@ export class MatchmakingService {
       startedAt: now,
     };
 
-    await this.saveActiveMatch(match);
-
     return match;
+  }
+
+  /**
+   * Atomically consumes one or more invites and persists the match plus its
+   * real-player reverse indexes. Only one competing assignment can win.
+   */
+  private async claimInvitesForMatch(
+    invites: MatchmakingInvite[],
+    match: ActiveMatch,
+  ) {
+    const now = new Date().toISOString();
+    const matchedInvites = invites.map(
+      (invite): MatchmakingInvite => ({
+        ...invite,
+        status: InviteStatus.MATCHED,
+        stateVersion: invite.stateVersion + 1,
+        matchId: match.id,
+        updatedAt: now,
+      }),
+    );
+    const claimed = await this.redisService.compareAndSetMany([
+      ...invites.map((invite, index) => ({
+        key: this.inviteKey(invite.id),
+        expectedValue: JSON.stringify(invite),
+        value: JSON.stringify(matchedInvites[index]),
+        ttlS: this.INVITE_TTL_S,
+      })),
+      {
+        key: this.matchKey(match.id),
+        expectedValue: null,
+        value: JSON.stringify(match),
+      },
+      ...this.getRealPlayerIds(match).map((playerId) => ({
+        key: this.playerMatchKey(playerId),
+        expectedValue: null,
+        value: match.id,
+      })),
+    ]);
+    if (!claimed) return false;
+
+    await Promise.all([
+      ...invites.map((invite) => this.removeInviteFromQueue(invite)),
+      ...this.getRealPlayerIds(match).map((playerId) =>
+        this.redisService.delete(this.playerInviteKey(playerId)),
+      ),
+    ]);
+    await Promise.all(
+      matchedInvites.map((invite) => this.notifyInvitePlayers(invite)),
+    );
+    await this.notifyMatchPlayers(match);
+
+    return true;
   }
 
   /**
@@ -1198,7 +1336,7 @@ export class MatchmakingService {
   /**
    * Creates the 1v1 RANDOM match selected by an accepted bot offer.
    */
-  private async createRandomBotMatch(invite: MatchmakingInvite) {
+  private buildRandomBotMatch(invite: MatchmakingInvite): ActiveMatch {
     const now = new Date().toISOString();
     const match: ActiveMatch = {
       id: new Types.ObjectId().toString(),
@@ -1212,8 +1350,6 @@ export class MatchmakingService {
       ],
       startedAt: now,
     };
-
-    await this.saveActiveMatch(match);
 
     return match;
   }
