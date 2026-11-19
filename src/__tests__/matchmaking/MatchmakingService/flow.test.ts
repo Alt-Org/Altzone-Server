@@ -254,12 +254,12 @@ describe('MatchmakingService flow', () => {
 
     const [room, errors] = await service.createInvite('player-1', {
       matchType: MatchType.RANDOM,
-      gameType,
     });
 
     expect(errors).toBeNull();
     expect(room).toMatchObject({
       matchType: MatchType.RANDOM,
+      gameType: 1,
       teamSize: 1,
       allowBots: false,
       bots: [],

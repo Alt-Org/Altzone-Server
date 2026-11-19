@@ -14,6 +14,13 @@ describe('CreateMatchmakingInviteDto', () => {
     await expect(validate(createDto(1))).resolves.toHaveLength(0);
   });
 
+  it.each([undefined, null])(
+    'accepts omitted gameType %p',
+    async (gameType) => {
+      await expect(validate(createDto(gameType))).resolves.toHaveLength(0);
+    },
+  );
+
   it.each([MatchType.RANDOM, MatchType.CLAN, MatchType.CUSTOM])(
     'accepts team sizes 1 and 2 for %s matchmaking',
     async (matchType) => {
@@ -45,10 +52,8 @@ describe('CreateMatchmakingInviteDto', () => {
   });
 
   it.each([
-    ['missing', undefined],
     ['string', '1'],
     ['decimal', 1.5],
-    ['null', null],
   ])('rejects a %s gameType', async (_case, gameType) => {
     const errors = await validate(createDto(gameType));
 
