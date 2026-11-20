@@ -10,6 +10,8 @@ import { ActiveMatch } from '../../../matchmaking/type/activeMatch.type';
 import { SEReason } from '../../../common/service/basicService/SEReason';
 import ServiceError from '../../../common/service/basicService/ServiceError';
 import { ServerTaskName } from '../../../dailyTasks/enum/serverTaskName.enum';
+import { envVars } from '../../../common/service/envHandler/envVars';
+import { Environment as ServerEnvironment } from '../../../common/service/envHandler/enum/environment.enum';
 
 class InMemoryRedisService {
   readonly values = new Map<string, string>();
@@ -2548,6 +2550,136 @@ describe('MatchmakingService flow', () => {
     expect(
       clanLeaderboardWinService.recordAcceptedClanWin,
     ).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows only one concurrent finish request to apply rewards', async () => {
+    const {
+      redis,
+      playerService,
+      playerLeaderboardWinService,
+      clanLeaderboardWinService,
+      rewardClaimModel,
+      service,
+    } = createService();
+    const match: ActiveMatch = {
+      id: 'match-concurrent-finish',
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    let releaseFirst!: () => void;
+    let firstEntered!: () => void;
+    const firstCanContinue = new Promise<void>((resolve) => {
+      releaseFirst = resolve;
+    });
+    const firstReachedRewards = new Promise<void>((resolve) => {
+      firstEntered = resolve;
+    });
+    playerLeaderboardWinService.recordAcceptedPlayerWin.mockImplementationOnce(
+      async () => {
+        firstEntered();
+        await firstCanContinue;
+        return true;
+      },
+    );
+
+    const firstFinish = service.finishMatch(match.id, 'player-1', {
+      winningSide: TeamSide.A,
+    });
+    await firstReachedRewards;
+    const secondResult = await service.finishMatch(match.id, 'player-2', {
+      winningSide: TeamSide.A,
+    });
+    releaseFirst();
+    const firstResult = await firstFinish;
+
+    expect(firstResult[1]).toBeNull();
+    expect(secondResult[0]).toBeNull();
+    expect(secondResult[1]).toEqual([
+      expect.objectContaining({
+        reason: SEReason.NOT_ALLOWED,
+        field: 'matchId',
+      }),
+    ]);
+    expect(rewardClaimModel.updateOne).toHaveBeenCalledTimes(1);
+    expect(
+      playerLeaderboardWinService.recordAcceptedPlayerWin,
+    ).toHaveBeenCalledTimes(1);
+    expect(
+      clanLeaderboardWinService.recordAcceptedClanWin,
+    ).toHaveBeenCalledTimes(1);
+    expect(playerService.updatePlayerById).toHaveBeenCalledTimes(2);
+  });
+
+  it('finishes a TESTING_SESSION match without reward side effects', async () => {
+    const originalEnvironment = envVars.ENVIRONMENT;
+    const {
+      redis,
+      playerService,
+      clanService,
+      emitterService,
+      playerLeaderboardWinService,
+      clanLeaderboardWinService,
+      rewardClaimModel,
+      service,
+    } = createService();
+    const match: ActiveMatch = {
+      id: 'match-testing-session',
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ botId: 'bot-1', displayName: 'Bot 1', isBot: true }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    try {
+      envVars.ENVIRONMENT = ServerEnvironment.TESTING_SESSION;
+      const [finishedMatch, errors] = await service.finishMatch(
+        match.id,
+        'player-1',
+        { winningSide: TeamSide.A },
+      );
+
+      expect(errors).toBeNull();
+      expect(finishedMatch.status).toBe(MatchStatus.FINISHED);
+      expect(rewardClaimModel.updateOne).not.toHaveBeenCalled();
+      expect(
+        playerLeaderboardWinService.recordAcceptedPlayerWin,
+      ).not.toHaveBeenCalled();
+      expect(
+        clanLeaderboardWinService.recordAcceptedClanWin,
+      ).not.toHaveBeenCalled();
+      expect(playerService.updatePlayerById).not.toHaveBeenCalled();
+      expect(clanService.basicService.updateOneById).not.toHaveBeenCalled();
+      expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalled();
+    } finally {
+      envVars.ENVIRONMENT = originalEnvironment;
+    }
   });
 
   it('does not reapply rewards when the finished Redis state is lost', async () => {
