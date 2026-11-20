@@ -111,8 +111,27 @@ describe('PlayerLeaderboardWinService.recordAcceptedPlayerWin', () => {
     expect(updateOne).not.toHaveBeenCalled();
   });
 
-  it('does not record a match containing a bot', async () => {
+  it('records a human win against a bot', async () => {
+    updateOne.mockResolvedValue({ upsertedCount: 1 } as UpdateResult);
     const match = makeMatch();
+    match.teams[1].participants = [
+      { botId: 'bot-1', displayName: 'Bot 1', isBot: true },
+    ];
+
+    await expect(service.recordAcceptedPlayerWin(match)).resolves.toBe(true);
+    expect(updateOne).toHaveBeenCalledWith(
+      { battleId: match.id },
+      expect.objectContaining({
+        $setOnInsert: expect.objectContaining({
+          playerId: '665af23e5e9820013aa99991',
+        }),
+      }),
+      { upsert: true },
+    );
+  });
+
+  it('does not record a leaderboard win for a winning bot', async () => {
+    const match = makeMatch({ result: { winningSide: TeamSide.B } });
     match.teams[1].participants = [
       { botId: 'bot-1', displayName: 'Bot 1', isBot: true },
     ];
