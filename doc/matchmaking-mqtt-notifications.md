@@ -367,6 +367,11 @@ MATCH_FINISHED
 - The backend accepts the finish request, updates leaderboards, stores the
   finished match with the finished-match TTL, and invalidates leaderboard caches.
 
+Eligible human-versus-bot matches use the same mode-specific scoring and
+leaderboard rules as human-versus-human matches. Bots never receive rewards or
+leaderboard records. Mongo-backed reward updates use a durable per-battle claim,
+so retrying a finish does not award them again.
+
 Acceptance here means that an authenticated match participant submitted a
 valid finish request for an active match. The backend owns the resulting
 `FINISHED` transition and `finishedAt` timestamp. The current protocol does not
@@ -419,6 +424,7 @@ Recommended frontend flow:
 - Practice or tutorial gameplay does not alter matchmaking state. Keep the
   player room and match subscriptions active if matchmaking should continue in
   the background.
-- `CLAN` match finishes update both clan leaderboards and personal leaderboards
-  for participating clan players. `RANDOM` and `CUSTOM` finishes update only
-  personal leaderboards.
+- Eligible 1v1 `CLAN` finishes update clan and personal leaderboards for real
+  participants. Eligible 1v1 `RANDOM` finishes update personal leaderboards.
+  `CUSTOM`, 2v2, and `TESTING_SESSION` finishes do not enter the production
+  leaderboard/reward path. Bot-only sides never receive player or clan rewards.
