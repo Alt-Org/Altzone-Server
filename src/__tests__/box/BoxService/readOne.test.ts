@@ -42,7 +42,7 @@ describe('BoxService.readOne() test suite', () => {
     const createdBox = await boxModel.create(existingBox);
 
     const [result, errors] = await boxService.readOne({
-      filter: { adminProfile_id: existingBox.adminProfile_id }
+      filter: { adminProfile_id: existingBox.adminProfile_id },
     });
 
     expect(errors).toBeNull();
@@ -51,7 +51,7 @@ describe('BoxService.readOne() test suite', () => {
 
   it('Should return ServiceError NOT_FOUND if Box not found', async () => {
     const [result, errors] = await boxService.readOne({
-      filter: { adminProfile_id: existingBox.adminProfile_id }
+      filter: { adminProfile_id: existingBox.adminProfile_id },
     });
 
     expect(result).toBeNull();

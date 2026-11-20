@@ -77,7 +77,10 @@ describe('AuthService.signIn() test suite', () => {
       profile_id: clearedPlayer.profile_id.toString(),
     };
 
-    const [result, errors] = await authService.signIn(validUsername, validPassword);
+    const [result, errors] = await authService.signIn(
+      validUsername,
+      validPassword,
+    );
     const clearedResult = clearDBRespDefaultFields(result);
     const clearedPlayerResult = clearDBRespDefaultFields(result['Player']);
     const clearedClanResult = clearDBRespDefaultFields(result['Clan']);
@@ -110,7 +113,7 @@ describe('AuthService.signIn() test suite', () => {
     const player = playerBuilder.setProfileId(existingProfile._id).build();
     await playerModel.create(player);
 
-    const [result,] = await authService.signIn(validUsername, validPassword);
+    const [result] = await authService.signIn(validUsername, validPassword);
 
     expect(result['hasSecurityQuestion']).toBe(true);
   });
@@ -119,7 +122,7 @@ describe('AuthService.signIn() test suite', () => {
     const player = playerBuilder.setProfileId(existingProfile._id).build();
     await playerModel.create(player);
 
-    const [result,] = await authService.signIn(validUsername, validPassword);
+    const [result] = await authService.signIn(validUsername, validPassword);
 
     expect(result['hasSecurityQuestion']).toBe(false);
   });
@@ -128,31 +131,43 @@ describe('AuthService.signIn() test suite', () => {
     const player = playerBuilder.setProfileId(existingProfile._id).build();
     await playerModel.create(player);
 
-    const [result,] = await authService.signIn(validUsername, validPassword);
+    const [result] = await authService.signIn(validUsername, validPassword);
 
     expect(result['Clan']).toBeUndefined();
   });
 
   it('Should return VALIDATION SError if profile not found', async () => {
-    const [result, errors] = await authService.signIn('non-existing-user', validPassword);
+    const [result, errors] = await authService.signIn(
+      'non-existing-user',
+      validPassword,
+    );
     expect(result).toBeNull();
     expect(errors).toContainSE_VALIDATION();
   });
 
   it('Should return NOT_FOUND SError if player not found', async () => {
-    const [result, errors] = await authService.signIn(validUsername, validPassword);
+    const [result, errors] = await authService.signIn(
+      validUsername,
+      validPassword,
+    );
     expect(result).toBeNull();
     expect(errors).toContainSE_NOT_FOUND();
   });
 
   it('Should return VALIDATION SError if provided password is not valid', async () => {
-    const [result, errors] = await authService.signIn(validUsername, 'invalid-password');
+    const [result, errors] = await authService.signIn(
+      validUsername,
+      'invalid-password',
+    );
     expect(result).toBeNull();
     expect(errors).toContainSE_VALIDATION();
   });
 
   it('Should return VALIDATION SError if provided password is hashed', async () => {
-    const [result, errors] = await authService.signIn(validUsername, hashedPassword);
+    const [result, errors] = await authService.signIn(
+      validUsername,
+      hashedPassword,
+    );
     expect(result).toBeNull();
     expect(errors).toContainSE_VALIDATION();
   });

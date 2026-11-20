@@ -10,7 +10,7 @@ import { TIServiceUpdateOneOptions } from '../common/service/basicService/IServi
 @Injectable()
 export default class SessionService {
   constructor(
-    @InjectModel(Session.name) public readonly model: Model<Session>
+    @InjectModel(Session.name) public readonly model: Model<Session>,
   ) {
     this.basicService = new BasicService(model);
   }
@@ -46,7 +46,10 @@ export default class SessionService {
    * @param options - Options for updating, filter and optional ClientSession
    * @returns updated Session or an array of service errors if any occurred.
    */
-  async updateOne(update: Partial<SessionDto>, options: TIServiceUpdateOneOptions) {
+  async updateOne(
+    update: Partial<SessionDto>,
+    options: TIServiceUpdateOneOptions,
+  ) {
     return this.basicService.updateOne(update, options);
   }
 }

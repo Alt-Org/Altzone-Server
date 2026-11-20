@@ -60,7 +60,10 @@ export class AuthController {
     @Body() body: SignInDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const [result, errors] = await this.authService.signIn(body.username, body.password);
+    const [result, errors] = await this.authService.signIn(
+      body.username,
+      body.password,
+    );
     if (errors) return errors;
 
     if (body.clientType === ClientType.WEB) {

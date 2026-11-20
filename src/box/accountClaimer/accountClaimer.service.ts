@@ -115,8 +115,7 @@ export default class AccountClaimerService {
       sessionPayload,
       session,
     );
-    if (sessionErrors) 
-      return await cancelTransaction(session, sessionErrors);
+    if (sessionErrors) return await cancelTransaction(session, sessionErrors);
 
     return await endTransaction(session, {
       ...account.Player,

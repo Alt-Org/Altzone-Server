@@ -67,7 +67,8 @@ export default class BoxAuthHandler {
       refreshTokenExpires: tokens.refreshTokenExpires,
     };
 
-    const [, sessionErrors] = await this.boxAuthService.createSession(sessionPayload);
+    const [, sessionErrors] =
+      await this.boxAuthService.createSession(sessionPayload);
     if (sessionErrors) return [null, sessionErrors];
 
     return [tokens, null];

@@ -1,5 +1,5 @@
-import { IsDate, IsString } from "class-validator";
-import AddType from "../../common/base/decorator/AddType.decorator";
+import { IsDate, IsString } from 'class-validator';
+import AddType from '../../common/base/decorator/AddType.decorator';
 import { ObjectId } from 'mongodb';
 
 @AddType('CreateSessionDto')
@@ -14,19 +14,19 @@ export class CreateSessionDto {
    */
   @IsString()
   session_id: string;
-  
+
   /**
    * Profile ID
    */
   @IsString()
   profile_id: string;
-  
+
   /**
    * Hashed refresh token
    */
   @IsString()
   tokenHash: string;
-  
+
   /**
    * Expiration Date
    */

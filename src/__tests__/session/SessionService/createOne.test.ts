@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
-import SessionModule from "../modules/session.module";
-import SessionService from "../../../session/session.service";
+import SessionModule from '../modules/session.module';
+import SessionService from '../../../session/session.service';
 
 describe('SessionService.createOne() test suite', () => {
   let sessionService: SessionService;
@@ -12,7 +12,7 @@ describe('SessionService.createOne() test suite', () => {
     tokenHash: string;
     expiresAt: Date;
   };
-  
+
   beforeEach(async () => {
     sessionService = await SessionModule.getSessionService();
 
