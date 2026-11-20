@@ -135,6 +135,9 @@ type TestDeps = {
   clanLeaderboardWinService: {
     recordAcceptedClanWin: jest.Mock;
   };
+  rewardClaimModel: {
+    updateOne: jest.Mock;
+  };
   service: MatchmakingService;
 };
 
@@ -195,6 +198,15 @@ const createService = (
   const clanLeaderboardWinService = {
     recordAcceptedClanWin: jest.fn(async () => true),
   };
+  const transactionSession = { id: 'matchmaking-transaction-session' };
+  const connection = {
+    transaction: jest.fn(async (callback: (session: unknown) => unknown) =>
+      callback(transactionSession),
+    ),
+  };
+  const rewardClaimModel = {
+    updateOne: jest.fn(async () => ({ upsertedCount: 1 })),
+  };
   const service = new MatchmakingService(
     redis as any,
     playerService as any,
@@ -204,6 +216,8 @@ const createService = (
     queue as any,
     playerLeaderboardWinService as any,
     clanLeaderboardWinService as any,
+    connection as any,
+    rewardClaimModel as any,
   );
 
   return {
@@ -215,6 +229,7 @@ const createService = (
     queue,
     playerLeaderboardWinService,
     clanLeaderboardWinService,
+    rewardClaimModel,
     service,
   } satisfies TestDeps;
 };
@@ -2196,11 +2211,13 @@ describe('MatchmakingService flow', () => {
         finishedAt: expect.any(String),
         result: { winningSide: TeamSide.A },
       }),
+      expect.anything(),
     );
     expect(
       clanLeaderboardWinService.recordAcceptedClanWin,
     ).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'match-1', status: MatchStatus.FINISHED }),
+      expect.anything(),
     );
     expect(
       playerLeaderboardWinService.recordAcceptedPlayerWin.mock
@@ -2213,19 +2230,27 @@ describe('MatchmakingService flow', () => {
       clanLeaderboardWinService.recordAcceptedClanWin.mock
         .invocationCallOrder[0],
     ).toBeLessThan(playerService.updatePlayerById.mock.invocationCallOrder[0]);
-    expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
-      $inc: {
-        battlePoints: 30,
-        'gameStatistics.playedBattles': 1,
-        'gameStatistics.wonBattles': 1,
+    expect(playerService.updatePlayerById).toHaveBeenCalledWith(
+      'player-1',
+      {
+        $inc: {
+          battlePoints: 30,
+          'gameStatistics.playedBattles': 1,
+          'gameStatistics.wonBattles': 1,
+        },
       },
-    });
-    expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-2', {
-      $inc: {
-        battlePoints: -20,
-        'gameStatistics.playedBattles': 1,
+      expect.anything(),
+    );
+    expect(playerService.updatePlayerById).toHaveBeenCalledWith(
+      'player-2',
+      {
+        $inc: {
+          battlePoints: -20,
+          'gameStatistics.playedBattles': 1,
+        },
       },
-    });
+      expect.anything(),
+    );
     expect(clanService.basicService.updateOneById).not.toHaveBeenCalled();
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
@@ -2303,13 +2328,17 @@ describe('MatchmakingService flow', () => {
       clanLeaderboardWinService.recordAcceptedClanWin,
     ).toHaveBeenCalledTimes(1);
     expect(playerService.updatePlayerById).toHaveBeenCalledTimes(1);
-    expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
-      $inc: {
-        battlePoints: 30,
-        'gameStatistics.playedBattles': 1,
-        'gameStatistics.wonBattles': 1,
+    expect(playerService.updatePlayerById).toHaveBeenCalledWith(
+      'player-1',
+      {
+        $inc: {
+          battlePoints: 30,
+          'gameStatistics.playedBattles': 1,
+          'gameStatistics.wonBattles': 1,
+        },
       },
-    });
+      expect.anything(),
+    );
     expect(clanService.basicService.updateOneById).not.toHaveBeenCalled();
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
@@ -2347,12 +2376,16 @@ describe('MatchmakingService flow', () => {
 
     expect(errors).toBeNull();
     expect(playerService.updatePlayerById).toHaveBeenCalledTimes(1);
-    expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
-      $inc: {
-        battlePoints: -20,
-        'gameStatistics.playedBattles': 1,
+    expect(playerService.updatePlayerById).toHaveBeenCalledWith(
+      'player-1',
+      {
+        $inc: {
+          battlePoints: -20,
+          'gameStatistics.playedBattles': 1,
+        },
       },
-    });
+      expect.anything(),
+    );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
       ServerTaskName.PLAY_A_BATTLE,
@@ -2517,6 +2550,66 @@ describe('MatchmakingService flow', () => {
     ).toHaveBeenCalledTimes(1);
   });
 
+  it('does not reapply rewards when the finished Redis state is lost', async () => {
+    const {
+      redis,
+      playerService,
+      emitterService,
+      playerLeaderboardWinService,
+      clanLeaderboardWinService,
+      rewardClaimModel,
+      service,
+    } = createService();
+    const match: ActiveMatch = {
+      id: 'match-durable-reward-claim',
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    rewardClaimModel.updateOne
+      .mockResolvedValueOnce({ upsertedCount: 1 })
+      .mockResolvedValueOnce({ upsertedCount: 0 });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const firstResult = await service.finishMatch(match.id, 'player-1', {
+      winningSide: TeamSide.A,
+    });
+
+    // Simulate Redis losing the finished snapshot and its short-lived lock
+    // while the durable Mongo reward claim remains.
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+    await redis.delete(`matchmaking:leaderboard-lock:${match.id}`);
+
+    const retriedResult = await service.finishMatch(match.id, 'player-1', {
+      winningSide: TeamSide.A,
+    });
+
+    expect(firstResult[1]).toBeNull();
+    expect(retriedResult[1]).toBeNull();
+    expect(retriedResult[0].status).toBe(MatchStatus.FINISHED);
+    expect(rewardClaimModel.updateOne).toHaveBeenCalledTimes(2);
+    expect(
+      playerLeaderboardWinService.recordAcceptedPlayerWin,
+    ).toHaveBeenCalledTimes(1);
+    expect(
+      clanLeaderboardWinService.recordAcceptedClanWin,
+    ).toHaveBeenCalledTimes(1);
+    expect(playerService.updatePlayerById).toHaveBeenCalledTimes(2);
+    expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);
+  });
+
   it('does not apply legacy updates when clan win recording fails', async () => {
     const {
       redis,
@@ -2662,31 +2755,42 @@ describe('MatchmakingService flow', () => {
         status: MatchStatus.FINISHED,
         result: { winningSide: TeamSide.B },
       }),
+      expect.anything(),
     );
-    expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
-      $inc: {
-        battlePoints: -25,
-        'gameStatistics.playedBattles': 1,
+    expect(playerService.updatePlayerById).toHaveBeenCalledWith(
+      'player-1',
+      {
+        $inc: {
+          battlePoints: -25,
+          'gameStatistics.playedBattles': 1,
+        },
       },
-    });
-    expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-2', {
-      $inc: {
-        battlePoints: 40,
-        'gameStatistics.playedBattles': 1,
-        'gameStatistics.wonBattles': 1,
+      expect.anything(),
+    );
+    expect(playerService.updatePlayerById).toHaveBeenCalledWith(
+      'player-2',
+      {
+        $inc: {
+          battlePoints: 40,
+          'gameStatistics.playedBattles': 1,
+          'gameStatistics.wonBattles': 1,
+        },
       },
-    });
+      expect.anything(),
+    );
     expect(clanService.basicService.updateOneById).toHaveBeenCalledWith(
       'clan-1',
       {
         $inc: { battlePoints: -25 },
       },
+      expect.objectContaining({ session: expect.anything() }),
     );
     expect(clanService.basicService.updateOneById).toHaveBeenCalledWith(
       'clan-2',
       {
         $inc: { battlePoints: 40 },
       },
+      expect.objectContaining({ session: expect.anything() }),
     );
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',
@@ -2731,21 +2835,27 @@ describe('MatchmakingService flow', () => {
     });
 
     expect(errors).toBeNull();
-    expect(playerService.updatePlayerById).toHaveBeenCalledWith('player-1', {
-      $inc: {
-        battlePoints: -25,
-        'gameStatistics.playedBattles': 1,
+    expect(playerService.updatePlayerById).toHaveBeenCalledWith(
+      'player-1',
+      {
+        $inc: {
+          battlePoints: -25,
+          'gameStatistics.playedBattles': 1,
+        },
       },
-    });
+      expect.anything(),
+    );
     expect(clanService.basicService.updateOneById).toHaveBeenCalledTimes(1);
     expect(clanService.basicService.updateOneById).toHaveBeenCalledWith(
       'clan-1',
       { $inc: { battlePoints: -25 } },
+      expect.objectContaining({ session: expect.anything() }),
     );
-    expect(clanService.basicService.updateOneById).not.toHaveBeenCalledWith(
-      'clan-bot',
-      expect.anything(),
-    );
+    expect(
+      (clanService.basicService.updateOneById.mock.calls as unknown[][]).some(
+        ([clanId]) => clanId === 'clan-bot',
+      ),
+    ).toBe(false);
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(1);
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledWith(
       'player-1',

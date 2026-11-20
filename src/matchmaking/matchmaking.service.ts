@@ -1,5 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Types, UpdateQuery } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { ClientSession, Connection, Model, Types, UpdateQuery } from 'mongoose';
 import { ClanService } from '../clan/clan.service';
 import { RedisService } from '../common/service/redis/redis.service';
 import { CacheKeys } from '../common/service/redis/cacheKeys.enum';
@@ -50,6 +51,14 @@ import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { PlayerLeaderboardWinService } from '../leaderboard/playerLeaderboardWin.service';
 import { ClanLeaderboardWinService } from '../leaderboard/clanLeaderboardWin.service';
 import { getMatchRewardEligibility } from '../leaderboard/util/getAcceptedLeaderboardWin';
+import { ModelName } from '../common/enum/modelName.enum';
+import { MatchmakingRewardClaimDocument } from './schema/matchmakingRewardClaim.schema';
+
+class MatchRewardUpdateError extends Error {
+  constructor(readonly serviceErrors: ServiceError[]) {
+    super('Failed to apply matchmaking rewards');
+  }
+}
 
 /**
  * Orchestrates matchmaking state transitions.
@@ -86,6 +95,9 @@ export class MatchmakingService {
     private readonly queue: MatchmakingQueue,
     private readonly playerLeaderboardWinService: PlayerLeaderboardWinService,
     private readonly clanLeaderboardWinService: ClanLeaderboardWinService,
+    @InjectConnection() private readonly connection: Connection,
+    @InjectModel(ModelName.MATCHMAKING_REWARD_CLAIM)
+    private readonly rewardClaimModel: Model<MatchmakingRewardClaimDocument>,
   ) {}
 
   /**
@@ -681,27 +693,27 @@ export class MatchmakingService {
 
     const rewardEligibility = getMatchRewardEligibility(finishedMatch);
 
+    let rewardsApplied = false;
     if (rewardEligibility.eligible) {
-      // Persist the production win before battle-point/statistics updates. The
-      // recorders use the durable battle ID as their idempotency key,
-      // independently of this short-lived Redis lock.
-      await this.playerLeaderboardWinService.recordAcceptedPlayerWin(
-        finishedMatch,
-      );
-      await this.clanLeaderboardWinService.recordAcceptedClanWin(finishedMatch);
+      try {
+        rewardsApplied = await this.applyMatchRewardsOnce(finishedMatch);
+      } catch (error) {
+        if (error instanceof MatchRewardUpdateError) {
+          return [null, error.serviceErrors];
+        }
+        throw error;
+      }
 
-      const leaderboardErrors =
-        await this.updateLeaderboardsForFinishedMatch(finishedMatch);
-      if (leaderboardErrors) return [null, leaderboardErrors];
-
-      await this.emitDailyTaskEventsForFinishedMatch(
-        finishedMatch,
-        rewardEligibility.humanParticipantIds,
-      );
+      if (rewardsApplied) {
+        await this.emitDailyTaskEventsForFinishedMatch(
+          finishedMatch,
+          rewardEligibility.humanParticipantIds,
+        );
+      }
     }
 
     await this.saveFinishedMatch(finishedMatch);
-    if (rewardEligibility.eligible) {
+    if (rewardsApplied) {
       await this.invalidateLeaderboardCaches();
     }
     await this.notifier.matchEvent(
@@ -1551,20 +1563,68 @@ export class MatchmakingService {
    * Updates personal battlePoints leaderboards for all modes and clan
    * battlePoints leaderboards for CLAN matches only.
    */
-  private async updateLeaderboardsForFinishedMatch(match: ActiveMatch) {
-    const playerErrors =
-      await this.updatePlayerLeaderboardForFinishedMatch(match);
+  private async applyMatchRewardsOnce(match: ActiveMatch): Promise<boolean> {
+    return this.connection.transaction(async (session) => {
+      const claimResult = await this.rewardClaimModel.updateOne(
+        { battleId: match.id },
+        {
+          $setOnInsert: {
+            battleId: match.id,
+            matchType: match.matchType,
+            winningSide: match.result.winningSide,
+            finishedAt: new Date(match.finishedAt),
+          },
+        },
+        { upsert: true, session },
+      );
+
+      if (claimResult.upsertedCount !== 1) return false;
+
+      await this.playerLeaderboardWinService.recordAcceptedPlayerWin(
+        match,
+        session,
+      );
+      await this.clanLeaderboardWinService.recordAcceptedClanWin(
+        match,
+        session,
+      );
+
+      const leaderboardErrors = await this.updateLeaderboardsForFinishedMatch(
+        match,
+        session,
+      );
+      if (leaderboardErrors)
+        throw new MatchRewardUpdateError(leaderboardErrors);
+
+      return true;
+    });
+  }
+
+  private async updateLeaderboardsForFinishedMatch(
+    match: ActiveMatch,
+    session?: ClientSession,
+  ) {
+    const playerErrors = await this.updatePlayerLeaderboardForFinishedMatch(
+      match,
+      session,
+    );
     if (playerErrors) return playerErrors;
 
     if (match.matchType !== MatchType.CLAN) return null;
 
-    const clanErrors = await this.updateClanLeaderboardForFinishedMatch(match);
+    const clanErrors = await this.updateClanLeaderboardForFinishedMatch(
+      match,
+      session,
+    );
     if (clanErrors) return clanErrors;
 
     return null;
   }
 
-  private async updatePlayerLeaderboardForFinishedMatch(match: ActiveMatch) {
+  private async updatePlayerLeaderboardForFinishedMatch(
+    match: ActiveMatch,
+    session?: ClientSession,
+  ) {
     for (const team of match.teams) {
       const outcome = this.getTeamOutcome(team, match.result.winningSide);
       const battlePoints = this.getBattlePointsForOutcome(
@@ -1586,6 +1646,7 @@ export class MatchmakingService {
         const [, updateErrors] = await this.playerService.updatePlayerById(
           playerId,
           { $inc: increment },
+          session,
         );
         if (updateErrors) return updateErrors;
       }
@@ -1594,7 +1655,10 @@ export class MatchmakingService {
     return null;
   }
 
-  private async updateClanLeaderboardForFinishedMatch(match: ActiveMatch) {
+  private async updateClanLeaderboardForFinishedMatch(
+    match: ActiveMatch,
+    session?: ClientSession,
+  ) {
     for (const team of match.teams) {
       if (!team.clanId || this.getTeamPlayerIds(team).length === 0) continue;
 
@@ -1608,6 +1672,7 @@ export class MatchmakingService {
         await this.clanService.basicService.updateOneById<UpdateQuery<Clan>>(
           team.clanId,
           update,
+          { session },
         );
       if (updateErrors) return updateErrors;
     }

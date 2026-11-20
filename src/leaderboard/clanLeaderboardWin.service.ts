@@ -1,6 +1,6 @@
 import { Injectable, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { ClanService } from '../clan/clan.service';
 import { Environment } from '../common/enum/environment.enum';
 import { ModelName } from '../common/enum/modelName.enum';
@@ -32,7 +32,10 @@ export class ClanLeaderboardWinService {
    * Persisting clanId here ensures that the win does not move if the player
    * changes clans later. The battle ID makes retries successful no-ops.
    */
-  async recordAcceptedClanWin(match: ActiveMatch): Promise<boolean> {
+  async recordAcceptedClanWin(
+    match: ActiveMatch,
+    session?: ClientSession,
+  ): Promise<boolean> {
     const acceptedWin = getAcceptedLeaderboardWin(match);
     if (!acceptedWin) return false;
 
@@ -56,11 +59,11 @@ export class ClanLeaderboardWinService {
           scoreReachedAt: acceptedWin.scoreReachedAt,
         },
       },
-      { upsert: true },
+      { upsert: true, session },
     );
 
     const inserted = result.upsertedCount === 1;
-    if (inserted) {
+    if (inserted && !session) {
       await this.invalidationService?.invalidateClanWin();
     }
 
