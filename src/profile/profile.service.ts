@@ -63,11 +63,11 @@ export class ProfileService
 
   /**
    * Read Profile from DB.
-   * 
+   *
    * Transforms SEReason NOT_FOUND Errors to VALIDATION Errors. Primarily used for Auth.
-   * 
+   *
    * Sign in should not reveal why it failed, hence the transformation.
-   * 
+   *
    * @param options - Options for reading Profile
    */
   async readOne(options: TIServiceReadOneOptions) {
@@ -75,14 +75,14 @@ export class ProfileService
     if (errors) {
       return [
         profile,
-        errors.map(
-          error => error.reason === SEReason.NOT_FOUND 
-          ? new ServiceError({
-              reason: SEReason.VALIDATION,
-              message: 'Credentials for that profile are incorrect',
-            })
-          : error
-        )
+        errors.map((error) =>
+          error.reason === SEReason.NOT_FOUND
+            ? new ServiceError({
+                reason: SEReason.VALIDATION,
+                message: 'Credentials for that profile are incorrect',
+              })
+            : error,
+        ),
       ];
     }
 

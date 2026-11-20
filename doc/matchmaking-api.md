@@ -370,6 +370,24 @@ validation. After acceptance, the server assigns `finishedAt`, changes the
 match to `FINISHED`, and records any eligible production leaderboard win from
 that server-built state.
 
+For eligible production 1v1 `RANDOM` and `CLAN` matches, human participants use
+the normal scoring rules for the mode whether the opposing participant is a
+human or a bot:
+
+- a human winner receives the mode's win `battlePoints`, a played-match and
+  won-match increment, an accepted player leaderboard win, and battle daily-task
+  progress;
+- a human loser receives the mode's loss `battlePoints`, a played-match
+  increment, and battle daily-task progress;
+- bots never receive leaderboard records, `battlePoints`, statistics, daily-task
+  progress, or other player rewards;
+- in `CLAN`, only sides containing a real player receive clan `battlePoints`,
+  and a clan win is attributed to the `clanId` stored on the winning match side.
+
+`CUSTOM`, 2v2, and `TESTING_SESSION` matches are outside this production reward
+path. They can be finished normally, but do not apply these leaderboard,
+statistics, `battlePoints`, clan, or daily-task updates.
+
 The current protocol does not independently verify the reported winning side
 against Photon events or require matching reports from both teams. Adding
 signed game-server results or multi-player consensus would be a separate,
@@ -393,6 +411,15 @@ Returns the finished `MatchmakingMatchDto`.
 RANDOM assignment, timeout, cancellation, and bot acceptance use atomic Redis
 state transitions. Only one operation can consume a request; delayed jobs always
 verify the current state before acting.
+
+Match finishing also uses a short-lived Redis lock to serialize concurrent
+requests. Mongo-backed reward changes are committed in one transaction together
+with a durable, unique reward claim keyed by `battleId`. The transaction covers
+player and clan win records, `battlePoints`, and player/clan statistics. A
+failure rolls back the claim and all those changes. Repeated requests, concurrent
+requests, process restarts, and loss of the finished Redis snapshot therefore
+cannot apply Mongo-backed rewards more than once. Cache invalidation and
+external notifications occur only after a successful commit.
 
 Tutorial or practice gameplay is separate from this API. Entering or leaving it
 does not create, cancel, or modify a matchmaking request. A client may keep its

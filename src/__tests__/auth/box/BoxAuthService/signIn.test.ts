@@ -99,7 +99,10 @@ describe('BoxAuthService.signIn() test suite', () => {
       profile_id: clearedPlayer.profile_id.toString(),
     };
 
-    const [result, errors] = await boxAuthService.signIn(validUsername, validPassword);
+    const [result, errors] = await boxAuthService.signIn(
+      validUsername,
+      validPassword,
+    );
     const clearedResult = clearDBRespDefaultFields(result);
     const clearedPlayerResult = {
       ...clearDBRespDefaultFields(result['Player']),
@@ -196,7 +199,7 @@ describe('BoxAuthService.signIn() test suite', () => {
     const player = playerBuilder.setProfileId(existingAdminProfile._id).build();
     await playerModel.create(player);
 
-    const [result,] = await boxAuthService.signIn(validUsername, validPassword);
+    const [result] = await boxAuthService.signIn(validUsername, validPassword);
 
     expect(result['Clan']).toBeUndefined();
   });
@@ -211,7 +214,10 @@ describe('BoxAuthService.signIn() test suite', () => {
   });
 
   it('Should return NOT_FOUND SError if player not found', async () => {
-    const [result, errors] = await boxAuthService.signIn(validUsername, validPassword);
+    const [result, errors] = await boxAuthService.signIn(
+      validUsername,
+      validPassword,
+    );
     expect(result).toBeNull();
     expect(errors).toContainSE_NOT_FOUND();
   });
@@ -226,7 +232,10 @@ describe('BoxAuthService.signIn() test suite', () => {
   });
 
   it('Should return VALIDATION SError if provided password is hashed', async () => {
-    const [result, errors] = await boxAuthService.signIn(validUsername, hashedPassword);
+    const [result, errors] = await boxAuthService.signIn(
+      validUsername,
+      hashedPassword,
+    );
     expect(result).toBeNull();
     expect(errors).toContainSE_VALIDATION();
   });

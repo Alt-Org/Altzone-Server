@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Connection, Model} from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { randomUUID } from 'node:crypto';
 import { AuthService } from '../auth.service';
@@ -28,12 +28,12 @@ export default class BoxAuthService extends AuthService {
     private readonly boxService: BoxService,
   ) {
     super(
-      jwt, 
-      connection, 
-      profileService, 
-      playerService, 
+      jwt,
+      connection,
+      profileService,
+      playerService,
       clanService,
-      sessionService
+      sessionService,
     );
   }
 
@@ -48,10 +48,10 @@ export default class BoxAuthService extends AuthService {
    * - or if the profile does not correspond to any box
    */
   public signIn = async (username: string, pass: string) => {
-    const [profileResp, profileErrors] = await this.profileService.readOne(
-      { filter: { username } }
-    );
-    if(profileErrors) return [null, profileErrors];
+    const [profileResp, profileErrors] = await this.profileService.readOne({
+      filter: { username },
+    });
+    if (profileErrors) return [null, profileErrors];
 
     const profile = {
       ...profileResp.toObject(),
@@ -63,7 +63,7 @@ export default class BoxAuthService extends AuthService {
       profile.password,
     );
     if (errors) return [null, errors];
-    if (!isValidPassword) 
+    if (!isValidPassword)
       return [
         null,
         [
@@ -75,7 +75,7 @@ export default class BoxAuthService extends AuthService {
       ];
 
     const [playerResp, playerErrors] = await this.playerService.readOne({
-      filter: { profile_id: profile._id }
+      filter: { profile_id: profile._id },
     });
     if (playerErrors) return [null, playerErrors];
 
@@ -89,8 +89,8 @@ export default class BoxAuthService extends AuthService {
     let box_id: string;
     let groupAdmin = false;
 
-    const [box,] = await this.boxService.readOne({
-      filter: { adminProfile_id: new ObjectId(profile._id) }
+    const [box] = await this.boxService.readOne({
+      filter: { adminProfile_id: new ObjectId(profile._id) },
     });
 
     if (!box) {
@@ -102,7 +102,7 @@ export default class BoxAuthService extends AuthService {
               reason: SEReason.REQUIRED,
               message: 'Profile has no box_id',
             }),
-          ]
+          ],
         ];
 
       box_id = profile.box_id.toString();
@@ -140,8 +140,8 @@ export default class BoxAuthService extends AuthService {
     profile['Player'] = player;
 
     if (player?.clan_id) {
-      const [clan,] = await this.clanService.readOneById(player.clan_id);
-      if (clan) 
+      const [clan] = await this.clanService.readOneById(player.clan_id);
+      if (clan)
         profile['Clan'] = { ...clan.toObject(), _id: clan._id.toString() };
     }
 

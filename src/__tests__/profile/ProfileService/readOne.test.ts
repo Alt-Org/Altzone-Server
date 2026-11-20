@@ -17,7 +17,7 @@ describe('ProfileService.readOne() test suite', () => {
     const profileResp = await profileModel.create(profileToCreate);
 
     const [result, errors] = await profileService.readOne({
-      filter: { _id: profileResp._id } 
+      filter: { _id: profileResp._id },
     });
 
     expect(errors).toBeNull();
@@ -26,7 +26,7 @@ describe('ProfileService.readOne() test suite', () => {
 
   it('Should return null for non-existing profile and error to be VALIDATION error', async () => {
     const [result, errors] = await profileService.readOne({
-      filter: { _id: getNonExisting_id() } 
+      filter: { _id: getNonExisting_id() },
     });
 
     expect(result).toBeNull();

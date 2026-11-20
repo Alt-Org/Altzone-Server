@@ -1,8 +1,8 @@
-import { Module } from "@nestjs/common";
-import SessionService from "./session.service";
-import { MongooseModule } from "@nestjs/mongoose";
-import { ModelName } from "../common/enum/modelName.enum";
-import { SessionSchema } from "./session.schema";
+import { Module } from '@nestjs/common';
+import SessionService from './session.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ModelName } from '../common/enum/modelName.enum';
+import { SessionSchema } from './session.schema';
 
 @Module({
   imports: [

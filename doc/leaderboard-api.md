@@ -60,6 +60,13 @@ finalized exactly once:
 - the player belongs to the authoritative winning team; and
 - the battle passes the production and package-race exclusions above.
 
+Bot participation does not by itself make a production match ineligible. An
+eligible human-versus-bot match follows the same win rules as a
+human-versus-human match of the same matchmaking mode. A human winner receives
+one accepted win; a bot winner never receives a player leaderboard record.
+Bots are never leaderboard entities and are not included indirectly through a
+placeholder player ID.
+
 Duplicate result submissions and multiple reports for the same battle count as
 one battle. A player receives one win for an accepted battle regardless of the
 number of result reports.
@@ -68,6 +75,15 @@ A clan receives one win when the authoritative winning side represents that
 clan in an eligible clan battle. A regular battle without a winning clan does
 not increase a clan's score. The implementation must not infer clan ownership
 from a player's current clan after the battle has completed.
+
+For a `CLAN` human-versus-bot match, a human win is attributed to the `clanId`
+stored on that human's winning match side. A bot-only winning side receives no
+clan win, even if malformed or legacy match data contains a `clanId` for that
+side. `RANDOM` wins do not become clan wins based on the winner's current clan.
+
+The current matchmaking win source accepts finalized production 1v1 `RANDOM`
+and `CLAN` matches. `CUSTOM`, 2v2, and `TESTING_SESSION` matches do not create
+production player or clan win records.
 
 ### Lifetime wins
 

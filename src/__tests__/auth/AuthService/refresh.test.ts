@@ -72,7 +72,7 @@ describe('AuthService.refresh() test suite', () => {
   it('Should return tokens if refresh token is valid', async () => {
     const refreshToken = await createRefreshSession();
 
-    const [result,] = await authService.refresh(refreshToken);
+    const [result] = await authService.refresh(refreshToken);
     expect(result).toHaveProperty('accessToken');
     expect(result).toHaveProperty('refreshToken');
   });

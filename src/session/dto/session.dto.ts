@@ -1,5 +1,5 @@
-import { IsDate, IsString } from "class-validator";
-import AddType from "../../common/base/decorator/AddType.decorator";
+import { IsDate, IsString } from 'class-validator';
+import AddType from '../../common/base/decorator/AddType.decorator';
 import { ObjectId } from 'mongodb';
 
 @AddType('SessionDto')
@@ -48,5 +48,5 @@ export class SessionDto {
    * Session update Date
    */
   @IsDate()
-  updatedAt: Date
+  updatedAt: Date;
 }

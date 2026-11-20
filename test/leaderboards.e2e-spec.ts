@@ -88,6 +88,31 @@ describe('win-based leaderboards (e2e)', () => {
     result: { winningSide: TeamSide.A },
   });
 
+  const finishedBotMatch = (
+    playerId: string,
+    winningSide: TeamSide,
+    id: string,
+  ): ActiveMatch => ({
+    id,
+    matchType: MatchType.RANDOM,
+    gameType: 1,
+    status: MatchStatus.FINISHED,
+    teamSize: 1,
+    teams: [
+      {
+        side: TeamSide.A,
+        participants: [{ playerId, isBot: false }],
+      },
+      {
+        side: TeamSide.B,
+        participants: [{ botId: 'bot-1', displayName: 'Bot 1', isBot: true }],
+      },
+    ],
+    startedAt: '2026-11-18T11:00:00.000Z',
+    finishedAt: '2026-11-18T11:05:00.000Z',
+    result: { winningSide },
+  });
+
   beforeAll(async () => {
     mongod = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
     module = await Test.createTestingModule({
@@ -238,5 +263,34 @@ describe('win-based leaderboards (e2e)', () => {
     await expect(winModel.countDocuments({ battleId: match.id })).resolves.toBe(
       1,
     );
+  });
+
+  it('counts a human win against a bot but never a bot win', async () => {
+    const playerId = '665af23e5e9820013aa99991';
+    await createPlayer(
+      playerId,
+      'bot-opponent-player',
+      new Date('2026-01-01T00:00:00.000Z'),
+    );
+
+    await expect(
+      winService.recordAcceptedPlayerWin(
+        finishedBotMatch(playerId, TeamSide.A, 'human-wins-against-bot'),
+      ),
+    ).resolves.toBe(true);
+    await expect(
+      winService.recordAcceptedPlayerWin(
+        finishedBotMatch(playerId, TeamSide.B, 'bot-wins-against-human'),
+      ),
+    ).resolves.toBe(false);
+
+    const response = await request(app.getHttpServer())
+      .get('/leaderboards/players/global')
+      .expect(200);
+
+    expect(response.body.data.leaderboard.entries).toEqual([
+      expect.objectContaining({ playerId, wins: 1 }),
+    ]);
+    await expect(winModel.countDocuments({})).resolves.toBe(1);
   });
 });

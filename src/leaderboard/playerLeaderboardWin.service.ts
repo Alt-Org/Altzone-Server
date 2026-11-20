@@ -1,6 +1,6 @@
 import { Injectable, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { ActiveMatch } from '../matchmaking/type/activeMatch.type';
 import { PlayerLeaderboardWinDocument } from './schemas/playerLeaderboardWin.schema';
@@ -31,7 +31,10 @@ export class PlayerLeaderboardWinService {
    * @returns true when a new win was inserted; false when the match is
    * ineligible or its win has already been recorded.
    */
-  async recordAcceptedPlayerWin(match: ActiveMatch): Promise<boolean> {
+  async recordAcceptedPlayerWin(
+    match: ActiveMatch,
+    session?: ClientSession,
+  ): Promise<boolean> {
     const acceptedWin = getAcceptedLeaderboardWin(match);
     if (!acceptedWin) return false;
 
@@ -44,11 +47,11 @@ export class PlayerLeaderboardWinService {
           scoreReachedAt: acceptedWin.scoreReachedAt,
         },
       },
-      { upsert: true },
+      { upsert: true, session },
     );
 
     const inserted = result.upsertedCount === 1;
-    if (inserted) {
+    if (inserted && !session) {
       await this.invalidationService?.invalidatePlayerWin(
         acceptedWin.winnerPlayerId,
       );

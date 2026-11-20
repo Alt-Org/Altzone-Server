@@ -17,7 +17,7 @@ describe('PlayerService.readOne() test suite', () => {
     const playerResp = await playerModel.create(playerToCreate);
 
     const [result, errors] = await playerService.readOne({
-      filter: { _id: playerResp._id }
+      filter: { _id: playerResp._id },
     });
 
     expect(errors).toBeNull();
@@ -26,7 +26,7 @@ describe('PlayerService.readOne() test suite', () => {
 
   it('Should return null for non-existing player', async () => {
     const [result, errors] = await playerService.readOne({
-      filter: { _id: getNonExisting_id() }
+      filter: { _id: getNonExisting_id() },
     });
 
     expect(result).toBeNull();

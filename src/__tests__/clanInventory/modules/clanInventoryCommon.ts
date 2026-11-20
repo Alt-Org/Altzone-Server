@@ -81,9 +81,11 @@ export default class ClanInventoryCommonModule {
           },
         ],
       })
-      .overrideProvider(EventEmitterService)
-      .useValue({ EmitNewDailyTaskEvent: jest.fn().mockResolvedValue(undefined) })
-      .compile();
+        .overrideProvider(EventEmitterService)
+        .useValue({
+          EmitNewDailyTaskEvent: jest.fn().mockResolvedValue(undefined),
+        })
+        .compile();
 
     return ClanInventoryCommonModule.module;
   }

@@ -1,12 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ClientSession, Connection, } from 'mongoose';
+import { ClientSession, Connection } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { APIError } from '../common/controller/APIError';
 import { APIErrorReason } from '../common/controller/APIErrorReason';
 import ServiceError from '../common/service/basicService/ServiceError';
 import * as argon2 from 'argon2';
 import { SEReason } from '../common/service/basicService/SEReason';
-import { InjectConnection, } from '@nestjs/mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
 import { envVars } from '../common/service/envHandler/envVars';
 import { StringValue } from 'ms';
 import ms from 'ms';
@@ -56,10 +56,10 @@ export class AuthService {
    * errors if profile is not found, or it was not possible to verify password, or if the password is not valid
    */
   public signIn = async (username: string, pass: string) => {
-    const [profileResp, profileErrors] = await this.profileService.readOne(
-      { filter: { username } }
-    );
-    if(profileErrors) return [null, profileErrors];
+    const [profileResp, profileErrors] = await this.profileService.readOne({
+      filter: { username },
+    });
+    if (profileErrors) return [null, profileErrors];
 
     const profile = {
       ...profileResp.toObject(),
@@ -71,7 +71,7 @@ export class AuthService {
       profile.password,
     );
     if (errors) return [null, errors];
-    if (!isValidPassword) 
+    if (!isValidPassword)
       return [
         null,
         [
@@ -83,7 +83,7 @@ export class AuthService {
       ];
 
     const [playerResp, playerErrors] = await this.playerService.readOne({
-      filter: { profile_id: profile._id }
+      filter: { profile_id: profile._id },
     });
     if (playerErrors) return [null, playerErrors];
 
@@ -121,8 +121,8 @@ export class AuthService {
     profile['Player'] = player;
 
     if (player?.clan_id) {
-      const [clan,] = await this.clanService.readOneById(player.clan_id);
-      if (clan) 
+      const [clan] = await this.clanService.readOneById(player.clan_id);
+      if (clan)
         profile['Clan'] = { ...clan.toObject(), _id: clan._id.toString() };
     }
 
@@ -266,19 +266,20 @@ export class AuthService {
         ],
       ];
 
-    const [sessionResp, sessionErrors] = 
-      await this.sessionService.readOneById(decoded.token_id);
+    const [sessionResp, sessionErrors] = await this.sessionService.readOneById(
+      decoded.token_id,
+    );
     if (sessionErrors) return [null, sessionErrors];
 
     if (sessionResp.revokedAt !== null) {
       const [, revokedErrors] = await this.sessionService.updateOne(
         { revokedAt: new Date() },
-        { filter:
-          {
-            session_id: decoded.session_id, 
+        {
+          filter: {
+            session_id: decoded.session_id,
             revokedAt: null,
-          }
-        }
+          },
+        },
       );
       if (revokedErrors) return [null, revokedErrors];
 
@@ -298,7 +299,7 @@ export class AuthService {
       sessionResp.tokenHash,
     );
     if (errors) return [null, errors];
-    if (!isValid) 
+    if (!isValid)
       return [
         null,
         [
@@ -309,13 +310,13 @@ export class AuthService {
         ],
       ];
 
-    const [profileResp, profileErrors] = await this.profileService.readOne(
-      { filter: { _id: decoded.profile_id } }
-    );
-    if(profileErrors) return [null, profileErrors];
+    const [profileResp, profileErrors] = await this.profileService.readOne({
+      filter: { _id: decoded.profile_id },
+    });
+    if (profileErrors) return [null, profileErrors];
 
     const [playerResp, playerErrors] = await this.playerService.readOne({
-      filter: { profile_id: profileResp._id }
+      filter: { profile_id: profileResp._id },
     });
     if (playerErrors) return [null, playerErrors];
 
@@ -345,17 +346,22 @@ export class AuthService {
       refreshTokenExpires: tokens.refreshTokenExpires,
     };
 
-    const [, sessionRespErrors] = await this.createSession(sessionPayload, session);
-    if (sessionRespErrors) return await cancelTransaction(session, sessionRespErrors);
+    const [, sessionRespErrors] = await this.createSession(
+      sessionPayload,
+      session,
+    );
+    if (sessionRespErrors)
+      return await cancelTransaction(session, sessionRespErrors);
 
     const [, updateSessionErrors] = await this.sessionService.updateOne(
       { revokedAt: new Date() },
-      { 
-        filter: { _id: decoded.token_id }, 
+      {
+        filter: { _id: decoded.token_id },
         session,
-      }
+      },
     );
-    if (updateSessionErrors) return await cancelTransaction(session, updateSessionErrors);
+    if (updateSessionErrors)
+      return await cancelTransaction(session, updateSessionErrors);
 
     return await endTransaction(session, tokens);
   }
@@ -376,7 +382,10 @@ export class AuthService {
       expiresAt: new Date(payload.refreshTokenExpires * 1000),
     };
 
-    const [sessionResp, sessionErrors] = await this.sessionService.createOne(sessionData, session);
+    const [sessionResp, sessionErrors] = await this.sessionService.createOne(
+      sessionData,
+      session,
+    );
     return [sessionResp, sessionErrors];
   }
 
@@ -412,12 +421,12 @@ export class AuthService {
 
     await this.sessionService.updateOne(
       { revokedAt: new Date() },
-      { filter: 
-        {
+      {
+        filter: {
           _id: decoded.token_id,
           revokedAt: null,
-        } 
-      }
+        },
+      },
     );
 
     return [null, null];

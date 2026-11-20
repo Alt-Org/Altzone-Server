@@ -55,7 +55,7 @@ export class PlayerService
 
   /**
    * Read Player from DB.
-   * 
+   *
    * @param options - Options for reading Player
    */
   async readOne(options: TIServiceReadOneOptions) {
