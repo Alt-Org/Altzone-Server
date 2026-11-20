@@ -4,8 +4,8 @@ import { ClientSession, Model } from 'mongoose';
 import { ClanService } from '../clan/clan.service';
 import { Environment } from '../common/enum/environment.enum';
 import { ModelName } from '../common/enum/modelName.enum';
+import { MatchType } from '../matchmaking/enum/matchType.enum';
 import { ActiveMatch } from '../matchmaking/type/activeMatch.type';
-import { PlayerService } from '../player/player.service';
 import { ClanLeaderboardWinDocument } from './schemas/clanLeaderboardWin.schema';
 import { getAcceptedLeaderboardWin } from './util/getAcceptedLeaderboardWin';
 import { LeaderboardInvalidationService } from './leaderboardInvalidation.service';
@@ -21,30 +21,36 @@ export class ClanLeaderboardWinService {
   constructor(
     @InjectModel(ModelName.CLAN_LEADERBOARD_WIN)
     private readonly winModel: Model<ClanLeaderboardWinDocument>,
-    private readonly playerService: PlayerService,
     private readonly clanService: ClanService,
     @Optional()
     private readonly invalidationService?: LeaderboardInvalidationService,
   ) {}
 
   /**
-   * Records an eligible win for the winner's current production clan.
-   * Persisting clanId here ensures that the win does not move if the player
-   * changes clans later. The battle ID makes retries successful no-ops.
+   * Records an eligible CLAN win for the clan captured on the winning match
+   * side. Historical wins therefore cannot move when a player changes clans.
+   * The battle ID makes retries successful no-ops.
    */
   async recordAcceptedClanWin(
     match: ActiveMatch,
     session?: ClientSession,
   ): Promise<boolean> {
     const acceptedWin = getAcceptedLeaderboardWin(match);
-    if (!acceptedWin) return false;
+    if (!acceptedWin || match.matchType !== MatchType.CLAN) return false;
 
-    const [player, playerErrors] = await this.playerService.getPlayerById(
-      acceptedWin.winnerPlayerId,
+    const winningTeam = match.teams.find(
+      (team) => team.side === match.result?.winningSide,
     );
-    if (playerErrors || !player?.clan_id) return false;
+    if (!winningTeam?.clanId) return false;
 
-    const clanId = player.clan_id.toString();
+    const winnerBelongsToTeam = winningTeam.participants.some(
+      (participant) =>
+        participant.isBot === false &&
+        participant.playerId === acceptedWin.winnerPlayerId,
+    );
+    if (!winnerBelongsToTeam) return false;
+
+    const clanId = winningTeam.clanId;
     const [clan, clanErrors] = await this.clanService.readOneById(clanId);
     if (clanErrors || !clan || clan.environment !== Environment.OPEN_DEMO) {
       return false;
