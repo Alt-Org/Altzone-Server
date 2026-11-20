@@ -49,6 +49,7 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { PlayerLeaderboardWinService } from '../leaderboard/playerLeaderboardWin.service';
 import { ClanLeaderboardWinService } from '../leaderboard/clanLeaderboardWin.service';
+import { getMatchRewardEligibility } from '../leaderboard/util/getAcceptedLeaderboardWin';
 
 /**
  * Orchestrates matchmaking state transitions.
@@ -678,22 +679,31 @@ export class MatchmakingService {
       result: { winningSide: body.winningSide },
     };
 
-    // Persist the production win before legacy battle-point/statistics updates.
-    // The recorder owns eligibility checks and uses the durable battle ID as
-    // its idempotency key, independently of this short-lived Redis lock.
-    await this.playerLeaderboardWinService.recordAcceptedPlayerWin(
-      finishedMatch,
-    );
-    await this.clanLeaderboardWinService.recordAcceptedClanWin(finishedMatch);
+    const rewardEligibility = getMatchRewardEligibility(finishedMatch);
 
-    const leaderboardErrors =
-      await this.updateLeaderboardsForFinishedMatch(finishedMatch);
-    if (leaderboardErrors) return [null, leaderboardErrors];
+    if (rewardEligibility.eligible) {
+      // Persist the production win before battle-point/statistics updates. The
+      // recorders use the durable battle ID as their idempotency key,
+      // independently of this short-lived Redis lock.
+      await this.playerLeaderboardWinService.recordAcceptedPlayerWin(
+        finishedMatch,
+      );
+      await this.clanLeaderboardWinService.recordAcceptedClanWin(finishedMatch);
 
-    await this.emitDailyTaskEventsForFinishedMatch(finishedMatch);
+      const leaderboardErrors =
+        await this.updateLeaderboardsForFinishedMatch(finishedMatch);
+      if (leaderboardErrors) return [null, leaderboardErrors];
+
+      await this.emitDailyTaskEventsForFinishedMatch(
+        finishedMatch,
+        rewardEligibility.humanParticipantIds,
+      );
+    }
 
     await this.saveFinishedMatch(finishedMatch);
-    await this.invalidateLeaderboardCaches();
+    if (rewardEligibility.eligible) {
+      await this.invalidateLeaderboardCaches();
+    }
     await this.notifier.matchEvent(
       finishedMatch.id,
       'MATCH_FINISHED',
@@ -1586,7 +1596,7 @@ export class MatchmakingService {
 
   private async updateClanLeaderboardForFinishedMatch(match: ActiveMatch) {
     for (const team of match.teams) {
-      if (!team.clanId) continue;
+      if (!team.clanId || this.getTeamPlayerIds(team).length === 0) continue;
 
       const outcome = this.getTeamOutcome(team, match.result.winningSide);
       const battlePoints = this.getBattlePointsForOutcome(
@@ -1605,10 +1615,13 @@ export class MatchmakingService {
     return null;
   }
 
-  private async emitDailyTaskEventsForFinishedMatch(match: ActiveMatch) {
+  private async emitDailyTaskEventsForFinishedMatch(
+    match: ActiveMatch,
+    humanParticipantIds: string[],
+  ) {
     const needsClanReward = match.matchType === MatchType.CLAN;
 
-    for (const playerId of this.getRealPlayerIds(match)) {
+    for (const playerId of humanParticipantIds) {
       await this.tryEmitDailyTaskEvent(
         playerId,
         ServerTaskName.PLAY_A_BATTLE,
