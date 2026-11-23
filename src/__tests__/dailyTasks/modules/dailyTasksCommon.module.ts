@@ -25,6 +25,12 @@ import { ClanProgression } from '../../../rewarder/clanProgression/clanProgressi
 import { Stock, StockSchema } from '../../../clanInventory/stock/stock.schema';
 import { Item, ItemSchema } from '../../../clanInventory/item/item.schema';
 import { DailyTaskProgressService } from '../../../dailyTasks/dailyTaskProgress.service';
+import { Box, BoxSchema } from '../../../box/schemas/box.schema';
+import {
+  SessionTaskCompletion,
+  SessionTaskCompletionSchema,
+} from '../../../box/packageRace/sessionTask/sessionTaskCompletion.schema';
+import { SessionTaskRewarder } from '../../../box/packageRace/sessionTask/sessionTaskRewarder.service';
 
 export default class DailyTasksCommonModule {
   private constructor() {}
@@ -42,6 +48,11 @@ export default class DailyTasksCommonModule {
             { name: Clan.name, schema: ClanSchema },
             { name: Stock.name, schema: StockSchema },
             { name: Item.name, schema: ItemSchema },
+            { name: Box.name, schema: BoxSchema },
+            {
+              name: SessionTaskCompletion.name,
+              schema: SessionTaskCompletionSchema,
+            },
           ]),
           BullModule.registerQueue({
             name: 'daily-tasks',
@@ -62,6 +73,7 @@ export default class DailyTasksCommonModule {
           PlayerRewarder,
           ClanRewarder,
           ClanProgression,
+          SessionTaskRewarder,
         ],
       }).compile();
 
