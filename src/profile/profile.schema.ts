@@ -18,9 +18,6 @@ export class Profile {
   password: string;
 
   @Prop({ type: Boolean, default: false })
-  isSystemAdmin: boolean;
-
-  @Prop({ type: Boolean, default: false })
   isGuest: boolean;
 
   @Prop({ type: String })
