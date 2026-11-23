@@ -1,11 +1,11 @@
 import BoxModule from '../../modules/box.module';
 import ClanModule from '../../../clan/modules/clan.module';
+import { Environment } from '../../../../common/service/envHandler/enum/environment.enum';
 import PlayerModule from '../../../player/modules/player.module';
 import { PackageRaceService } from '../../../../box/packageRace/packageRace.service';
 import { PackageRaceStatus } from '../../../../box/packageRace/enum/packageRaceStatus.enum';
 import { SEReason } from '../../../../common/service/basicService/SEReason';
 import { envVars } from '../../../../common/service/envHandler/envVars';
-import { Environment } from '../../../../common/service/envHandler/enum/environment.enum';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
 import {
   createNotStartedBox,
