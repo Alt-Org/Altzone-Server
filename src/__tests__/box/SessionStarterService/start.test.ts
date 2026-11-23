@@ -12,6 +12,8 @@ import { SessionStage } from '../../../box/enum/SessionStage.enum';
 import ClanModule from '../../clan/modules/clan.module';
 import {
   BOX_SESSION_DURATION_MS,
+  BOX_SESSION_MAX_PARTICIPANTS,
+  BOX_SESSION_POINTS_PER_MEMBER,
   BOX_SESSION_TASK_COUNT,
 } from '../../../box/consts/boxSessionConstants';
 import { PackageRaceStatus } from '../../../box/packageRace/enum/packageRaceStatus.enum';
@@ -223,11 +225,77 @@ describe('SessionStarterService.start() test suite', () => {
 
     expect(boxInDB.packageRace.status).toBe(PackageRaceStatus.ACTIVE);
     expect(boxInDB.packageRace.endedAt).toBeNull();
-    expect(boxInDB.packageRace.teams).toEqual([]);
     expect(boxInDB.packageRace.endsAt.getTime()).toBe(boxInDB.sessionResetTime);
     expect(
       boxInDB.packageRace.endsAt.getTime() -
         boxInDB.packageRace.startedAt.getTime(),
     ).toBe(BOX_SESSION_DURATION_MS);
   });
+
+  it('Should create both package race teams with fixed targets and zeroed scores', async () => {
+    await boxModel.findByIdAndUpdate(existingBox._id, { testersAmount: 25 });
+
+    await starter.start(existingBox._id);
+
+    const boxInDB = await boxModel.findById(existingBox._id).lean();
+    const teams = boxInDB.packageRace.teams;
+
+    expect(teams).toEqual([
+      {
+        team_id: boxInDB.createdClan_ids[0],
+        name: 'sessionClan1',
+        memberCount: 13,
+        targetPoints: 13 * BOX_SESSION_POINTS_PER_MEMBER,
+        taskPoints: 0,
+        battlePoints: 0,
+      },
+      {
+        team_id: boxInDB.createdClan_ids[1],
+        name: 'sessionClan2',
+        memberCount: 12,
+        targetPoints: 12 * BOX_SESSION_POINTS_PER_MEMBER,
+        taskPoints: 0,
+        battlePoints: 0,
+      },
+    ]);
+
+    expect(teams[0].targetPoints).toBe(5460);
+    expect(teams[1].targetPoints).toBe(5040);
+  });
+
+  it('Should lock the same targets on the race teams and session clans', async () => {
+    await starter.start(existingBox._id);
+
+    const boxInDB = await boxModel.findById(existingBox._id).lean();
+    const teams = boxInDB.packageRace.teams ?? [];
+    const clans = await clanModel
+      .find({ _id: { $in: boxInDB.createdClan_ids } })
+      .lean();
+
+    teams.forEach((team) => {
+      const clan = clans.find(
+        (clan) => clan._id.toString() === team.team_id.toString(),
+      );
+      expect(clan.boxMemberLimit).toBe(team.memberCount);
+      expect(clan.targetPoints).toBe(team.targetPoints);
+      expect(clan.points).toBe(0);
+      expect(clan.battlePoints).toBe(0);
+    });
+  });
+
+  it.each([0, BOX_SESSION_MAX_PARTICIPANTS + 1, 2.5])(
+    'Should reject invalid testersAmount without creating any race data',
+    async (testersAmount) => {
+      await boxModel.collection.updateOne(
+        { _id: existingBox._id },
+        { $set: { testersAmount } },
+      );
+
+      const [result, errors] = await starter.start(existingBox._id);
+
+      expect(result).toBeNull();
+      expect(errors).toContainSE_MISCONFIGURED();
+      expect(errors[0].field).toBe('testersAmount');
+    },
+  );
 });

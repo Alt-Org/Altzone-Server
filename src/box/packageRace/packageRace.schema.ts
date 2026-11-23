@@ -59,7 +59,7 @@ export class PackageRace {
   endedAt?: Date | null;
 
   /**
-   * Team standings frozen at the moment the race was ended, empty while the race is active
+   * Teams of the race (created when the session starts with a fixed member count and target points)
    */
   @Prop({ type: [PackageRaceTeamResultSchema], default: [] })
   teams?: PackageRaceTeamResult[];

@@ -1,4 +1,3 @@
-import { ObjectId } from 'mongodb';
 import BoxModule from '../../modules/box.module';
 import ClanModule from '../../../clan/modules/clan.module';
 import PlayerModule from '../../../player/modules/player.module';
@@ -57,7 +56,7 @@ describe('PackageRaceService.getPackageRace() test suite', () => {
         {
           teamId: clanIds[0].toString(),
           name: teams[0].name,
-          memberCount: 3,
+          memberCount: 13,
           targetPoints: 5460,
           taskPoints: 50,
           battlePoints: 100,
@@ -66,7 +65,7 @@ describe('PackageRaceService.getPackageRace() test suite', () => {
         {
           teamId: clanIds[1].toString(),
           name: teams[1].name,
-          memberCount: 2,
+          memberCount: 12,
           targetPoints: 5040,
           taskPoints: 20,
           battlePoints: 5,
@@ -126,35 +125,20 @@ describe('PackageRaceService.getPackageRace() test suite', () => {
     );
   });
 
-  it('Should ignore a clan that belongs to another box', async () => {
-    const boxA = await createStartedBox();
-    const boxB = await createStartedBox();
-    await boxModel.updateOne(
-      { _id: boxA.box_id },
-      { $push: { createdClan_ids: boxB.clanIds[0] } },
-    );
-
-    const [raceA] = await service.getPackageRace(boxA.box_id);
-
-    expect(raceA.teams.map((t) => t.teamId)).toEqual(
-      boxA.clanIds.map((id) => id.toString()),
-    );
-  });
-
-  it('Should not count players of another box as team members', async () => {
+  it('Should not change the fixed member count when a player joins a team', async () => {
     const { box_id, clanIds } = await createStartedBox();
     await playerModel.create({
       ...playerBuilder
-        .setName(uniqueName('intruder'))
+        .setName(uniqueName('latecomer'))
         .setUniqueIdentifier(uniqueName('id'))
         .setClanId(clanIds[0])
         .build(),
-      box_id: new ObjectId().toString(),
+      box_id,
     });
 
     const [race] = await service.getPackageRace(box_id);
 
-    expect(race.teams[0].memberCount).toBe(3);
+    expect(race.teams[0].memberCount).toBe(13);
   });
 
   it('Should return ServiceError NOT_FOUND if the session of the box is not started', async () => {
