@@ -23,7 +23,7 @@ documented per feature.
 | Logical topic   | Event types                                                                                                                      |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `jukebox`       | `SONG_UPDATED`, `PLAYLIST_UPDATED`                                                                                               |
-| `matchmaking`   | `ROOM_UPDATED`, `INVITE_RECEIVED`, `CLAN_INVITE_RECEIVED`, `MATCH_FOUND`, `MATCH_STARTED`, `MATCH_FINISHED`                      |
+| `matchmaking`   | `ROOM_UPDATED`, `INVITE_RECEIVED`, `CLAN_INVITE_RECEIVED`, `BOT_OPPONENT_OFFERED`, `BOT_OPPONENT_DECLINED`, `MATCH_FOUND`, `MATCH_STARTED`, `MATCH_FINISHED` |
 | `voting`        | `VOTING_CREATED`, `VOTING_UPDATED`, `VOTING_ENDED`, `VOTING_ERROR`                                                               |
 | `daily_task`    | `TASK_RECEIVED`, `TASK_UPDATED`, `TASK_COMPLETED`, `TASK_ERROR`, `CLAN_TASK_COMPLETED`, `MILESTONE_REACHED`, `DAILY_TASKS_RESET` |
 | `clan`          | `MEMBER_JOINED`, `MEMBER_LEFT`, `CLAN_RULES_UPDATED`                                                                             |
@@ -73,6 +73,9 @@ stock-specific topic and payload contract.
 
 See [Soulhome MQTT Notifications](soulhome-mqtt-notifications.md) for the full
 Soul Home room notification topic and payload contract.
+
+See [Matchmaking MQTT Notifications](matchmaking-mqtt-notifications.md) for the
+RANDOM/Ego Clash search, bot-offer, room, and match notification contract.
 
 ## Clan Member Notifications
 

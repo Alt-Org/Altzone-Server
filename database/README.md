@@ -22,6 +22,54 @@ npm run migrate:up
 # 4. Verify the result in MongoDB Compass or mongosh
 ```
 
+## Win leaderboard baseline
+
+Before applying `20261118120000-record-win-leaderboard-migration-baseline.js`,
+run the read-only audit against the intended database:
+
+```bash
+npm run migrate:leaderboard:audit
+```
+
+The audit reports existing accepted-win rows and legacy aggregate statistics.
+Legacy `battlePoints` and `gameStatistics.wonBattles` values are deliberately
+not backfilled: they do not identify the original battle, its eligibility, or
+the clan in which a win was earned. Existing `PlayerLeaderboardWin` and
+`ClanLeaderboardWin` documents are preserved. If no authoritative accepted-win
+documents exist, the new leaderboard history starts at zero.
+
+The migration writes only an audit marker to `LeaderboardMigrationAudit`.
+Rollback removes only that marker and never removes win or legacy data.
+
+### Leaderboard rollout
+
+Run the rollout once per database, not once per API instance:
+
+1. Run `npm run migrate:leaderboard:audit` and save the output with the
+   deployment record. Stop if accepted-win documents are reported malformed.
+2. Run `npm run migrate:status` and verify only the intended migrations are
+   pending.
+3. Apply pending migrations with `npm run migrate:up` before deploying the API
+   version that depends on their indexes.
+4. Deploy the API and smoke-test the four new endpoints:
+   `/leaderboards/players/global`, `/leaderboards/players/friends`,
+   `/leaderboards/clans/:clanId/players`, and `/leaderboards/clans/global`.
+5. Monitor API errors, MongoDB aggregation latency, Redis errors, cache hit
+   behavior, and unexpected growth of the two accepted-win collections.
+
+The singular `/leaderboard/player`, `/leaderboard/clan`, and
+`/leaderboard/clan/position` endpoints remain supported for existing website
+consumers during this rollout.
+
+### Leaderboard rollback
+
+The application can be rolled back without deleting accepted-win documents;
+older versions ignore the new collections and versioned Redis keys. Do not
+remove the unique battle-ID indexes while any version can record accepted
+wins. Run `npm run migrate:down` only as an explicit database rollback after
+confirming which migration is last in `migrations_changelog`. For the baseline
+migration, `down` removes only its audit marker.
+
 ---
 
 ## Environment & Config

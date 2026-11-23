@@ -13,6 +13,7 @@ import { APIErrorReason } from '../../common/controller/APIErrorReason';
 import { envVars } from '../../common/service/envHandler/envVars';
 import { BoxUser } from './BoxUser';
 import { OPTIONAL_AUTH } from '../../auth/decorator/OptionalAuth.decorator';
+import { TokenName } from '../../auth/enum/tokenName.enum';
 
 /**
  * Auth guard for testing sessions.
@@ -68,11 +69,12 @@ export class BoxAuthGuard implements CanActivate {
         secret: envVars.JWT_SECRET,
       });
 
-      const { profile_id, player_id, box_id, groupAdmin } = {
+      const { type, profile_id, player_id, box_id, groupAdmin } = {
         profile_id: null,
         player_id: null,
         box_id: null,
         groupAdmin: null,
+        type: null,
         ...payload,
       };
 
@@ -90,7 +92,13 @@ export class BoxAuthGuard implements CanActivate {
           ],
         });
 
-      if (!profile_id || !player_id || !box_id || groupAdmin === null)
+      if (
+        type !== 'access' ||
+        !profile_id ||
+        !player_id ||
+        !box_id ||
+        groupAdmin === null
+      )
         throw new UnauthorizedException({
           ...errorResponse,
           message: 'Incorrect token provided.',
@@ -124,8 +132,17 @@ export class BoxAuthGuard implements CanActivate {
     return true;
   }
 
+  /**
+   * Extract Token from Request
+   *
+   * If no token in authorization, try to get token from cookies
+   *
+   * @param request - Request
+   * @returns string or null
+   */
   private extractTokenFromHeader(request: Request): string | null {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : null;
+    const cookieToken = request.cookies[TokenName.ACCESS_TOKEN];
+    return type === 'Bearer' ? token : cookieToken ? cookieToken : null;
   }
 }

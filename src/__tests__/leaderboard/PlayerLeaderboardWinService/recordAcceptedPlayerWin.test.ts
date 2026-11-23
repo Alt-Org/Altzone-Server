@@ -32,13 +32,16 @@ const makeMatch = (overrides: Partial<ActiveMatch> = {}): ActiveMatch => ({
 describe('PlayerLeaderboardWinService.recordAcceptedPlayerWin', () => {
   const originalEnvironment = envVars.ENVIRONMENT;
   const updateOne = jest.fn();
-  const service = new PlayerLeaderboardWinService({
-    updateOne,
-  } as never);
+  const invalidatePlayerWin = jest.fn();
+  const service = new PlayerLeaderboardWinService(
+    { updateOne } as never,
+    { invalidatePlayerWin } as never,
+  );
 
   beforeEach(() => {
     jest.clearAllMocks();
     envVars.ENVIRONMENT = Environment.PRODUCTION;
+    invalidatePlayerWin.mockResolvedValue(undefined);
   });
 
   afterAll(() => {
@@ -62,6 +65,9 @@ describe('PlayerLeaderboardWinService.recordAcceptedPlayerWin', () => {
       },
       { upsert: true },
     );
+    expect(invalidatePlayerWin).toHaveBeenCalledWith(
+      '665af23e5e9820013aa99991',
+    );
   });
 
   it('returns false when the battle ID has already been recorded', async () => {
@@ -70,6 +76,7 @@ describe('PlayerLeaderboardWinService.recordAcceptedPlayerWin', () => {
     await expect(service.recordAcceptedPlayerWin(makeMatch())).resolves.toBe(
       false,
     );
+    expect(invalidatePlayerWin).not.toHaveBeenCalled();
   });
 
   it('records the player on the accepted winning side', async () => {
@@ -104,8 +111,27 @@ describe('PlayerLeaderboardWinService.recordAcceptedPlayerWin', () => {
     expect(updateOne).not.toHaveBeenCalled();
   });
 
-  it('does not record a match containing a bot', async () => {
+  it('records a human win against a bot', async () => {
+    updateOne.mockResolvedValue({ upsertedCount: 1 } as UpdateResult);
     const match = makeMatch();
+    match.teams[1].participants = [
+      { botId: 'bot-1', displayName: 'Bot 1', isBot: true },
+    ];
+
+    await expect(service.recordAcceptedPlayerWin(match)).resolves.toBe(true);
+    expect(updateOne).toHaveBeenCalledWith(
+      { battleId: match.id },
+      expect.objectContaining({
+        $setOnInsert: expect.objectContaining({
+          playerId: '665af23e5e9820013aa99991',
+        }),
+      }),
+      { upsert: true },
+    );
+  });
+
+  it('does not record a leaderboard win for a winning bot', async () => {
+    const match = makeMatch({ result: { winningSide: TeamSide.B } });
     match.teams[1].participants = [
       { botId: 'bot-1', displayName: 'Bot 1', isBot: true },
     ];

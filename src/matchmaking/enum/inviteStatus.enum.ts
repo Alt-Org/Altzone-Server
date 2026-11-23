@@ -2,6 +2,9 @@ export enum InviteStatus {
   OPEN = 'OPEN',
   READY = 'READY',
   QUEUED = 'QUEUED',
+  SEARCHING = 'SEARCHING',
+  BOT_OFFERED = 'BOT_OFFERED',
   MATCHED = 'MATCHED',
   CANCELLED = 'CANCELLED',
+  EXPIRED = 'EXPIRED',
 }

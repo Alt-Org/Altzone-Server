@@ -46,13 +46,15 @@ export class CreateMatchmakingInviteDto {
   matchType: MatchType;
 
   /**
-   * Client-defined game mode played in the room.
+   * Optional client-defined gameplay variant used to separate matchmaking
+   * pools. Defaults to 1 when omitted.
    *
    * @example 1
    */
   @Type(() => Number)
   @IsInt()
-  gameType: number;
+  @IsOptional()
+  gameType?: number;
 
   /**
    * Existing custom lobby or room ID. Required for CUSTOM matches.
@@ -65,6 +67,7 @@ export class CreateMatchmakingInviteDto {
 
   /**
    * Number of real or bot participants per team.
+   * RANDOM (Ego Clash) only supports 1. CUSTOM and CLAN support 1 or 2.
    *
    * @example 2
    */
@@ -75,6 +78,7 @@ export class CreateMatchmakingInviteDto {
 
   /**
    * Whether bots may fill missing player slots.
+   * RANDOM does not support bot-filled player teams; true is rejected.
    *
    * @example true
    */
@@ -84,7 +88,8 @@ export class CreateMatchmakingInviteDto {
 
   /**
    * Optional automatic invite settings. CLAN invites available clan members,
-   * PLAYER invites the specified player.
+   * PLAYER invites the specified player. RANDOM does not support automatic
+   * invites.
    */
   @ValidateNested()
   @Type(() => CreateMatchmakingAutoInviteDto)

@@ -41,4 +41,5 @@ export enum ModelName {
   GAME_ANALYSIS_RESPONSE = 'GameAnalysisResponse', // for game analytics tasks
   PLAYER_LEADERBOARD_WIN = 'PlayerLeaderboardWin',
   CLAN_LEADERBOARD_WIN = 'ClanLeaderboardWin',
+  MATCHMAKING_REWARD_CLAIM = 'MatchmakingRewardClaim',
 }

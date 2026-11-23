@@ -22,7 +22,8 @@
     "migrate:create": "migrate-mongo create",
     "migrate:up": "migrate-mongo up",
     "migrate:down": "migrate-mongo down",
-    "migrate:status": "migrate-mongo status"
+    "migrate:status": "migrate-mongo status",
+    "migrate:leaderboard:audit": "node database/scripts/audit-win-leaderboard-migration.js"
   },
   "keywords": [],
   "author": "",

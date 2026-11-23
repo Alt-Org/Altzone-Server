@@ -2,6 +2,7 @@ import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import Redis from 'ioredis';
 import { envVars } from '../envHandler/envVars';
 import IRedisService from './IRedisService';
+import { RedisCompareAndSetEntry } from './IRedisService';
 
 /**
  * A service for interacting directly with Redis using ioredis.
@@ -66,6 +67,11 @@ export class RedisService implements OnModuleDestroy, IRedisService {
     return this.client.get(key);
   }
 
+  /** Atomically increments an integer value and returns the new value. */
+  async increment(key: string) {
+    return this.client.incr(key);
+  }
+
   /**
    * Deletes one Redis key.
    *
@@ -92,6 +98,59 @@ export class RedisService implements OnModuleDestroy, IRedisService {
       1,
       key,
       value,
+    );
+
+    return result === 1;
+  }
+
+  /**
+   * Atomically verifies the current value of every key and writes all new
+   * values only when every comparison succeeds. A null expectation means that
+   * the key must not exist.
+   */
+  async compareAndSetMany(entries: RedisCompareAndSetEntry[]) {
+    if (entries.length === 0) return true;
+
+    const missingValueMarker = '__ALTZONE_REDIS_VALUE_MUST_BE_MISSING__';
+    const args = [
+      entries.length.toString(),
+      missingValueMarker,
+      ...entries.map((entry) => entry.expectedValue ?? missingValueMarker),
+      ...entries.flatMap((entry) => [
+        entry.value,
+        (entry.ttlS ?? 0).toString(),
+      ]),
+    ];
+    const result = await this.client.eval(
+      `
+        local count = tonumber(ARGV[1])
+        local missing = ARGV[2]
+
+        for i = 1, count do
+          local expected = ARGV[2 + i]
+          if expected == missing then
+            if redis.call('EXISTS', KEYS[i]) == 1 then return 0 end
+          elseif redis.call('GET', KEYS[i]) ~= expected then
+            return 0
+          end
+        end
+
+        local writeOffset = 2 + count
+        for i = 1, count do
+          local value = ARGV[writeOffset + ((i - 1) * 2) + 1]
+          local ttl = tonumber(ARGV[writeOffset + ((i - 1) * 2) + 2])
+          if ttl > 0 then
+            redis.call('SET', KEYS[i], value, 'EX', ttl)
+          else
+            redis.call('SET', KEYS[i], value)
+          end
+        end
+
+        return 1
+      `,
+      entries.length,
+      ...entries.map((entry) => entry.key),
+      ...args,
     );
 
     return result === 1;

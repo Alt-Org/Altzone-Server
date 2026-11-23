@@ -22,6 +22,7 @@ import { BoxHelper } from './util/boxHelper';
 import {
   IServiceReturn,
   TIServiceReadManyOptions,
+  TIServiceReadOneOptions,
   TReadByIdOptions,
 } from '../common/service/basicService/IService';
 import { ObjectId } from 'mongodb';
@@ -80,6 +81,16 @@ export class BoxService {
     if (validationErrors) return [null, validationErrors];
 
     return this.basicService.createOne(box, { session });
+  }
+
+  /**
+   * Reads a Box in DB.
+   *
+   * @param options - Options for reading box
+   * @returns Box on succeed or an array of ServiceErrors if any occurred.
+   */
+  async readOne(options: TIServiceReadOneOptions) {
+    return this.basicService.readOne<BoxDocument>(options);
   }
 
   /**

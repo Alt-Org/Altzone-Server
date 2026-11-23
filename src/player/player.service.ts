@@ -23,6 +23,7 @@ import {
   TIServiceReadManyOptions,
   TReadByIdOptions,
   IServiceReturn,
+  TIServiceReadOneOptions,
 } from '../common/service/basicService/IService';
 import EventEmitterService from '../common/service/EventEmitterService/EventEmitter.service';
 import { PlayerEmotion } from './enum/playerEmotion.enum';
@@ -51,6 +52,15 @@ export class PlayerService
   public readonly refsInModel: ModelName[];
   public readonly modelName: ModelName;
   public readonly basicService: BasicService;
+
+  /**
+   * Read Player from DB.
+   *
+   * @param options - Options for reading Player
+   */
+  async readOne(options: TIServiceReadOneOptions) {
+    return await this.basicService.readOne(options);
+  }
 
   /**
    * Retrieves a player by their unique identifier.
@@ -201,15 +211,21 @@ export class PlayerService
   ): Promise<boolean> => {
     const clan_id = oldDoc.clan_id;
 
-    if (!clan_id) return true;
+    let isPlayerCountDecreased = true;
+    if (clan_id) {
+      isPlayerCountDecreased =
+        await this.requestHelperService.changeCounterValue(
+          ModelName.CLAN,
+          { _id: clan_id },
+          'playerCount',
+          -1,
+        );
+    }
 
-    const isPlayerCountDecreased =
-      await this.requestHelperService.changeCounterValue(
-        ModelName.CLAN,
-        { _id: clan_id },
-        'playerCount',
-        -1,
-      );
+    await this.eventEmitterService.EmitPlayerDeletedEvent(
+      input.toString(),
+      clan_id?.toString(),
+    );
 
     return isPlayerCountDecreased;
   };
