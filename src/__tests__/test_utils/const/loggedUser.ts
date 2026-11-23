@@ -27,7 +27,6 @@ export default class LoggedUser {
     _id: '',
     username: defaultUsername,
     password: defaultPassword,
-    isSystemAdmin: false,
     isGuest: false,
     environment: Environment.TEACHING_DEMO,
   };
