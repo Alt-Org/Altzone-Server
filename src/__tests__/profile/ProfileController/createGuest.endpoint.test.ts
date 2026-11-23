@@ -12,10 +12,12 @@ describe('POST /profile/guest', () => {
   let app: INestApplication;
 
   const profileService = {
-    createGuestAccount: jest.fn().mockResolvedValue([
-      { username: 'Guest-22e0d8d1', password: 'password' },
-      null,
-    ]),
+    createGuestAccount: jest
+      .fn()
+      .mockResolvedValue([
+        { username: 'Guest-22e0d8d1', password: 'password' },
+        null,
+      ]),
   };
   const authService = {
     signIn: jest.fn().mockResolvedValue([
