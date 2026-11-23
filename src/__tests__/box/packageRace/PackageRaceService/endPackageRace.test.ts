@@ -1,11 +1,11 @@
 import BoxModule from '../../modules/box.module';
 import ClanModule from '../../../clan/modules/clan.module';
+import { Environment } from '../../../../common/service/envHandler/enum/environment.enum';
 import PlayerModule from '../../../player/modules/player.module';
 import { PackageRaceService } from '../../../../box/packageRace/packageRace.service';
 import { PackageRaceStatus } from '../../../../box/packageRace/enum/packageRaceStatus.enum';
 import { SEReason } from '../../../../common/service/basicService/SEReason';
 import { envVars } from '../../../../common/service/envHandler/envVars';
-import { Environment } from '../../../../common/service/envHandler/enum/environment.enum';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
 import {
   createNotStartedBox,
@@ -49,6 +49,17 @@ describe('PackageRaceService.endPackageRace() test suite', () => {
     expect(race.teams.map((t) => t.totalPoints)).toEqual([150, 25]);
   });
 
+  it('Should freeze the member counts and targets fixed at session start', async () => {
+    const { box_id, clanIds } = await createStartedBox();
+    await clanModel.updateOne({ _id: clanIds[0] }, { targetPoints: 1 });
+
+    const [race, errors] = await service.endPackageRace(box_id);
+
+    expect(errors).toBeNull();
+    expect(race.teams.map((t) => t.memberCount)).toEqual([13, 12]);
+    expect(race.teams.map((t) => t.targetPoints)).toEqual([5460, 5040]);
+  });
+
   it('Should persist the ended package race results in the box', async () => {
     const { box_id, clanIds } = await createStartedBox();
 
@@ -85,14 +96,14 @@ describe('PackageRaceService.endPackageRace() test suite', () => {
     expect(boxBInDB.packageRace.status).toBe(PackageRaceStatus.ACTIVE);
   });
 
-  it('Should end a started box that has no package race', async () => {
+  it('Should return ServiceError NOT_FOUND if the started box has no package race', async () => {
     const { box_id } = await createStartedBox();
     await boxModel.updateOne({ _id: box_id }, { packageRace: null });
 
     const [race, errors] = await service.endPackageRace(box_id);
 
-    expect(errors).toBeNull();
-    expect(race.status).toBe(PackageRaceStatus.ENDED);
+    expect(race).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
   });
 
   it('Should return ServiceError NOT_ALLOWED if the race has already ended', async () => {

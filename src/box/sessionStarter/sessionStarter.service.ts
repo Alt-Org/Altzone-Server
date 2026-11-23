@@ -38,9 +38,11 @@ import {
 import {
   BOX_LIFETIME_MS,
   BOX_SESSION_DURATION_MS,
+  BOX_SESSION_POINTS_PER_MEMBER,
   BOX_SESSION_TASK_COUNT,
 } from '../consts/boxSessionConstants';
 import { PackageRaceStatus } from '../packageRace/enum/packageRaceStatus.enum';
+import { PackageRaceTeamResult } from '../packageRace/packageRace.schema';
 
 /**
  * Class responsible for starting the testing session process.
@@ -165,7 +167,7 @@ export default class SessionStarterService {
           startedAt: new Date(now),
           endsAt: new Date(timeAfterWeek),
           endedAt: null,
-          teams: [],
+          teams: this.createPackageRaceTeams(clans, clanPlans),
         },
       },
       { session },
@@ -349,6 +351,28 @@ export default class SessionStarterService {
       return await cancelTransaction(session, clan2TasksCreationErrors);
 
     return [true, null];
+  }
+
+  /**
+   * Creates the package race teams from the session clans.
+   *
+   * @param clans created session clans
+   * @param clanPlans plans the clans were created with
+   *
+   * @returns package race teams
+   */
+  private createPackageRaceTeams(
+    clans: Clan[],
+    clanPlans: [BoxClanPlan, BoxClanPlan],
+  ): PackageRaceTeamResult[] {
+    return clans.map((clan, i) => ({
+      team_id: new ObjectId(clan._id.toString()),
+      name: clan.name,
+      memberCount: clanPlans[i].memberLimit,
+      targetPoints: BOX_SESSION_POINTS_PER_MEMBER * clanPlans[i].memberLimit,
+      taskPoints: 0,
+      battlePoints: 0,
+    }));
   }
 
   /**

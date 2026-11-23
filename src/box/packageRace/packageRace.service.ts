@@ -4,28 +4,17 @@ import { FilterQuery, Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { Box } from '../schemas/box.schema';
 import { Clan } from '../../clan/clan.schema';
-import { Player } from '../../player/schemas/player.schema';
 import { IServiceReturn } from '../../common/service/basicService/IService';
 import ServiceError from '../../common/service/basicService/ServiceError';
 import { SEReason } from '../../common/service/basicService/SEReason';
 import BasicService from '../../common/service/basicService/BasicService';
-import { SessionStage } from '../enum/SessionStage.enum';
-import { BOX_SESSION_DURATION_MS } from '../consts/boxSessionConstants';
 import { BoxService } from '../box.service';
 import { ClanService } from '../../clan/clan.service';
-import { PlayerService } from '../../player/player.service';
 import { PackageRace, PackageRaceTeamResult } from './packageRace.schema';
 import { PackageRaceStatus } from './enum/packageRaceStatus.enum';
 import { PackageRaceDto } from './dto/packageRace.dto';
 import { PackageRaceHelperService } from './packageRaceHelper.service';
-
-type BoxWithRace = Pick<
-  Box,
-  '_id' | 'sessionStage' | 'sessionResetTime' | 'createdClan_ids'
-> & { packageRace: PackageRace };
-
-const isOnlyNotFound = (errors: ServiceError[]) =>
-  errors.every((e) => e.reason === SEReason.NOT_FOUND);
+import { BoxWithRace, isOnlyNotFound } from './packageRace.utils';
 
 @Injectable()
 export class PackageRaceService {
@@ -33,13 +22,13 @@ export class PackageRaceService {
     @InjectModel(Box.name) private readonly boxModel: Model<Box>,
     private readonly boxService: BoxService,
     private readonly clanService: ClanService,
-    private readonly playerService: PlayerService,
   ) {
     this.basicService = new BasicService(boxModel);
+    this.helperService = new PackageRaceHelperService();
   }
 
   private readonly basicService: BasicService;
-  private readonly helperService = new PackageRaceHelperService();
+  private readonly helperService: PackageRaceHelperService;
 
   /**
    * Reads the package race of the specified box session.
@@ -109,10 +98,7 @@ export class PackageRaceService {
     // Only an active race may be ended
     const activeRaceFilter: FilterQuery<Box> = {
       _id: box._id,
-      $or: [
-        { 'packageRace.status': PackageRaceStatus.ACTIVE },
-        { packageRace: null, sessionStage: SessionStage.TESTING },
-      ],
+      'packageRace.status': PackageRaceStatus.ACTIVE,
     };
 
     const [, updateErrors] = await this.basicService.updateOne(
@@ -162,12 +148,7 @@ export class PackageRaceService {
     if (!ObjectId.isValid(box_id)) return [null, [boxNotFoundError]];
 
     const [boxDoc, readErrors] = await this.boxService.readOneById(box_id, {
-      select: [
-        'sessionStage',
-        'sessionResetTime',
-        'createdClan_ids',
-        'packageRace',
-      ],
+      select: ['packageRace'],
     });
     if (readErrors) {
       if (isOnlyNotFound(readErrors)) return [null, [boxNotFoundError]];
@@ -177,21 +158,6 @@ export class PackageRaceService {
     const box = boxDoc.toObject<Box>();
 
     if (box.packageRace) return [box as BoxWithRace, null];
-
-    if (box.sessionStage === SessionStage.TESTING)
-      return [
-        {
-          ...box,
-          packageRace: {
-            status: PackageRaceStatus.ACTIVE,
-            startedAt: new Date(box.sessionResetTime - BOX_SESSION_DURATION_MS),
-            endsAt: new Date(box.sessionResetTime),
-            endedAt: null,
-            teams: [],
-          },
-        },
-        null,
-      ];
 
     return [
       null,
@@ -208,7 +174,7 @@ export class PackageRaceService {
   }
 
   /**
-   * Reads the current standings of the session teams of the box.
+   * Reads the current standings of the package race teams of the box.
    *
    * @param box Box with valid package race.
    * @returns a Promise that resolves to an object (Package race team results) or an array of ServiceErrors.
@@ -216,52 +182,37 @@ export class PackageRaceService {
   private async readLiveTeamResults(
     box: BoxWithRace,
   ): Promise<IServiceReturn<PackageRaceTeamResult[]>> {
-    const box_id = box._id.toString();
-    const team_ids = box.createdClan_ids ?? [];
-    if (team_ids.length === 0) return [[], null];
+    const teams = box.packageRace.teams ?? [];
+    if (teams.length === 0) return [[], null];
 
     const [clans, clanErrors] = await this.clanService.readAll({
-      filter: { _id: { $in: team_ids }, box_id } as FilterQuery<Clan>,
-      select: ['_id', 'name', 'targetPoints', 'points', 'battlePoints'],
+      filter: {
+        _id: { $in: teams.map((team) => team.team_id) },
+        box_id: box._id.toString(),
+      } as FilterQuery<Clan>,
+      select: ['_id', 'name', 'points', 'battlePoints'],
     });
     if (clanErrors) {
       if (isOnlyNotFound(clanErrors)) return [[], null];
       return [null, clanErrors];
     }
 
-    // Read the members of all teams at once and count them per team
-    const [players, playerErrors] =
-      await this.playerService.basicService.readMany<Player>({
-        filter: {
-          clan_id: { $in: clans.map((clan) => clan._id) },
-          box_id,
-        } as FilterQuery<Player>,
-        select: ['clan_id'],
+    const clansById = new Map(clans.map((clan) => [clan._id.toString(), clan]));
+
+    const results: PackageRaceTeamResult[] = [];
+    for (const team of teams) {
+      const clan = clansById.get(team.team_id.toString());
+      if (!clan) continue;
+
+      results.push({
+        team_id: new ObjectId(team.team_id.toString()),
+        name: clan.name,
+        memberCount: team.memberCount,
+        targetPoints: team.targetPoints,
+        taskPoints: clan.points ?? 0,
+        battlePoints: clan.battlePoints ?? 0,
       });
-    if (playerErrors && !isOnlyNotFound(playerErrors))
-      return [null, playerErrors];
-
-    const memberCounts = new Map<string, number>();
-    for (const player of players ?? []) {
-      const clan_id = player.clan_id?.toString();
-      memberCounts.set(clan_id, (memberCounts.get(clan_id) ?? 0) + 1);
     }
-
-    const results = clans.map((clan) => ({
-      team_id: new ObjectId(clan._id.toString()),
-      name: clan.name,
-      memberCount: memberCounts.get(clan._id.toString()) ?? 0,
-      targetPoints: clan.targetPoints ?? 0,
-      taskPoints: clan.points ?? 0,
-      battlePoints: clan.battlePoints ?? 0,
-    }));
-
-    const order = team_ids.map((id) => id.toString());
-    results.sort(
-      (a, b) =>
-        order.indexOf(a.team_id.toString()) -
-        order.indexOf(b.team_id.toString()),
-    );
 
     return [results, null];
   }
