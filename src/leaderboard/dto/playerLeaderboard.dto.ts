@@ -15,9 +15,11 @@ export class PlayerLeaderboardClanDto {
 }
 
 export class PlayerLeaderboardEntryDto {
+  /** One-based rank in the complete filtered population, before pagination. */
   @Expose()
   rank: number;
 
+  /** Accepted lifetime human 1v1 wins. */
   @Expose()
   wins: number;
 
@@ -41,6 +43,10 @@ export class PlayerLeaderboardDto {
   @Type(() => PlayerLeaderboardEntryDto)
   entries: PlayerLeaderboardEntryDto[];
 
+  /**
+   * Authenticated player's rank in this view. Null for anonymous, ineligible,
+   * or public clan-player requests.
+   */
   @Expose()
   ownRank: number | null;
 }
@@ -66,15 +72,18 @@ export class PlayerLeaderboardMetaDataDto {
 }
 
 export class PlayerLeaderboardPaginationDto {
+  /** One-based page requested by the client. */
   @Expose()
   currentPage: number;
 
+  /** Maximum number of entries on the page, from 1 to 50. */
   @Expose()
   limit: number;
 
   @Expose()
   offset: number;
 
+  /** Total entries in the complete filtered leaderboard population. */
   @Expose()
   itemCount: number;
 

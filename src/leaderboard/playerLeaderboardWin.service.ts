@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { ActiveMatch } from '../matchmaking/type/activeMatch.type';
 import { PlayerLeaderboardWinDocument } from './schemas/playerLeaderboardWin.schema';
 import { getAcceptedLeaderboardWin } from './util/getAcceptedLeaderboardWin';
+import { LeaderboardInvalidationService } from './leaderboardInvalidation.service';
 
 /**
  * Persists accepted production player wins for the win-based leaderboard.
@@ -16,6 +17,8 @@ export class PlayerLeaderboardWinService {
   constructor(
     @InjectModel(ModelName.PLAYER_LEADERBOARD_WIN)
     private readonly winModel: Model<PlayerLeaderboardWinDocument>,
+    @Optional()
+    private readonly invalidationService?: LeaderboardInvalidationService,
   ) {}
 
   /**
@@ -28,7 +31,10 @@ export class PlayerLeaderboardWinService {
    * @returns true when a new win was inserted; false when the match is
    * ineligible or its win has already been recorded.
    */
-  async recordAcceptedPlayerWin(match: ActiveMatch): Promise<boolean> {
+  async recordAcceptedPlayerWin(
+    match: ActiveMatch,
+    session?: ClientSession,
+  ): Promise<boolean> {
     const acceptedWin = getAcceptedLeaderboardWin(match);
     if (!acceptedWin) return false;
 
@@ -41,9 +47,16 @@ export class PlayerLeaderboardWinService {
           scoreReachedAt: acceptedWin.scoreReachedAt,
         },
       },
-      { upsert: true },
+      { upsert: true, session },
     );
 
-    return result.upsertedCount === 1;
+    const inserted = result.upsertedCount === 1;
+    if (inserted && !session) {
+      await this.invalidationService?.invalidatePlayerWin(
+        acceptedWin.winnerPlayerId,
+      );
+    }
+
+    return inserted;
   }
 }

@@ -3,7 +3,6 @@ import AuthModule from '../modules/auth.module';
 import { JwtService } from '@nestjs/jwt';
 import { ObjectId } from 'mongodb';
 import AuthBuilderFactory from '../../auth/data/authBuilderFactory';
-import { UnauthorizedException } from '@nestjs/common';
 
 describe('AuthService.logout() test suite', () => {
   let authService: AuthService;
@@ -85,8 +84,8 @@ describe('AuthService.logout() test suite', () => {
     tokenData.type = 'reset';
     const refreshToken = await createRefreshSession();
 
-    await expect(authService.logout(refreshToken)).rejects.toThrow(
-      UnauthorizedException,
-    );
+    const [result, errors] = await authService.logout(refreshToken);
+    expect(result).toBeNull();
+    expect(errors).toContainSE_VALIDATION();
   });
 });

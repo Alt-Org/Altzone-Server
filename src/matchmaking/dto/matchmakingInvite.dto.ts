@@ -102,6 +102,7 @@ export class MatchmakingInviteDto {
 
   /**
    * Number of participants per team.
+   * RANDOM (Ego Clash) always uses 1.
    *
    * @example 2
    */
@@ -110,11 +111,20 @@ export class MatchmakingInviteDto {
 
   /**
    * Whether bots may fill missing player slots.
+   * Always false for RANDOM; an optional opponent bot is modeled separately.
    *
    * @example true
    */
   @Expose()
   allowBots: boolean;
+
+  /**
+   * Monotonically increasing version reserved for atomic state transitions.
+   *
+   * @example 0
+   */
+  @Expose()
+  stateVersion: number;
 
   /**
    * Creation timestamp.
@@ -139,6 +149,18 @@ export class MatchmakingInviteDto {
    */
   @Expose()
   readyAt?: string;
+
+  /** Timestamp when human-opponent search started. */
+  @Expose()
+  searchStartedAt?: string;
+
+  /** Timestamp when a bot-opponent offer was created. */
+  @Expose()
+  botOfferCreatedAt?: string;
+
+  /** Optional expiry timestamp for a pending bot-opponent offer. */
+  @Expose()
+  botOfferExpiresAt?: string;
 
   /**
    * Match ID after a match has been created from this invite.

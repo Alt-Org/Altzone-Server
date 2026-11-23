@@ -2,9 +2,11 @@ import { Expose, Type } from 'class-transformer';
 import { ClanLogoDto } from '../../clan/dto/clanLogo.dto';
 
 export class GlobalClanLeaderboardEntryDto {
+  /** One-based rank in the complete production clan population. */
   @Expose()
   rank: number;
 
+  /** Accepted wins attributed to the clan when they were earned. */
   @Expose()
   wins: number;
 
@@ -24,6 +26,7 @@ export class GlobalClanLeaderboardDto {
   @Type(() => GlobalClanLeaderboardEntryDto)
   entries: GlobalClanLeaderboardEntryDto[];
 
+  /** Authenticated player's current production clan rank, otherwise null. */
   @Expose()
   ownRank: number | null;
 }
@@ -49,15 +52,18 @@ export class GlobalClanLeaderboardMetaDataDto {
 }
 
 export class GlobalClanLeaderboardPaginationDto {
+  /** One-based page requested by the client. */
   @Expose()
   currentPage: number;
 
+  /** Maximum number of entries on the page, from 1 to 50. */
   @Expose()
   limit: number;
 
   @Expose()
   offset: number;
 
+  /** Total entries in the production clan leaderboard. */
   @Expose()
   itemCount: number;
 

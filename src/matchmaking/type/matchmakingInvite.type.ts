@@ -14,8 +14,12 @@ export type MatchmakingInvite = {
   bots: Extract<MatchmakingParticipant, { isBot: true }>[];
   teamSize: 1 | 2;
   allowBots: boolean;
+  stateVersion: number;
   createdAt: string;
   updatedAt: string;
   readyAt?: string;
+  searchStartedAt?: string;
+  botOfferCreatedAt?: string;
+  botOfferExpiresAt?: string;
   matchId?: string;
 };

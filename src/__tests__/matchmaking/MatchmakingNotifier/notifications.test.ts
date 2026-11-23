@@ -33,6 +33,7 @@ describe('MatchmakingNotifier notifications', () => {
     ],
     teamSize: 2,
     allowBots: true,
+    stateVersion: 0,
     createdAt: '2026-07-06T08:00:00.000Z',
     updatedAt: '2026-07-06T08:00:01.000Z',
     readyAt: '2026-07-06T08:00:01.000Z',
@@ -135,6 +136,46 @@ describe('MatchmakingNotifier notifications', () => {
         topic: 'matchmaking',
         type: MqttNotificationType.MATCH_FOUND,
         payload: match,
+      }),
+    );
+  });
+
+  it('publishes bot opponent offers to the player room topic', async () => {
+    const offer = {
+      roomId: room.id,
+      status: InviteStatus.BOT_OFFERED as const,
+      offeredAt: '2026-07-06T08:00:20.000Z',
+      updatedAt: '2026-07-06T08:00:20.000Z',
+    };
+
+    await notifier.botOpponentOffered('player-1', offer);
+
+    expect(publishMock).toHaveBeenCalledWith(
+      '/matchmaking/rooms/player/player-1',
+      JSON.stringify({
+        topic: 'matchmaking',
+        type: MqttNotificationType.BOT_OPPONENT_OFFERED,
+        payload: offer,
+      }),
+    );
+  });
+
+  it('publishes declined bot offers to the player room topic', async () => {
+    const offer = {
+      roomId: room.id,
+      status: InviteStatus.CANCELLED as const,
+      offeredAt: '2026-07-06T08:00:20.000Z',
+      updatedAt: '2026-07-06T08:00:25.000Z',
+    };
+
+    await notifier.botOpponentDeclined('player-1', offer);
+
+    expect(publishMock).toHaveBeenCalledWith(
+      '/matchmaking/rooms/player/player-1',
+      JSON.stringify({
+        topic: 'matchmaking',
+        type: MqttNotificationType.BOT_OPPONENT_DECLINED,
+        payload: offer,
       }),
     );
   });

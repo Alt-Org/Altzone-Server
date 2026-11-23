@@ -61,4 +61,15 @@ export default class EventEmitterService {
   public async EmitPlayerCreatedEvent(playerId: string) {
     this.eventEmitter.emit('player.created', playerId);
   }
+
+  /** Emits cleanup work after a player document has been deleted. */
+  public async EmitPlayerDeletedEvent(
+    playerId: string,
+    formerClanId?: string,
+  ): Promise<void> {
+    await this.eventEmitter.emitAsync('player.deleted', {
+      playerId,
+      formerClanId,
+    });
+  }
 }

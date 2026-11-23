@@ -16,5 +16,6 @@ import { PlayerSchema } from '../player/schemas/player.schema';
   ],
   providers: [FriendshipService, FriendshipNotifier],
   controllers: [FriendshipController],
+  exports: [FriendshipService],
 })
 export class FriendshipModule {}

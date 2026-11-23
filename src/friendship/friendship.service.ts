@@ -21,6 +21,30 @@ export class FriendshipService {
   }
 
   public readonly basicService: BasicService;
+
+  /**
+   * Returns the other participant from each current accepted friendship.
+   *
+   * Only identifiers are read so callers that need a comparison population do
+   * not have to populate or copy friendship and player presentation data.
+   */
+  async getAcceptedFriendPlayerIds(playerId: string): Promise<string[]> {
+    const friendships = await this.model
+      .find({
+        status: FriendshipStatus.ACCEPTED,
+        $or: [{ playerA: playerId }, { playerB: playerId }],
+      })
+      .select({ playerA: 1, playerB: 1 })
+      .lean<Array<Pick<Friendship, 'playerA' | 'playerB'>>>();
+
+    const friendIds = friendships.map((friendship) => {
+      const playerA = friendship.playerA.toString();
+      return playerA === playerId ? friendship.playerB.toString() : playerA;
+    });
+
+    return [...new Set(friendIds)];
+  }
+
   /**
    * Returns a friendlist for a player.
    * Finds accepted friendships for the given player and populates player and clan data
