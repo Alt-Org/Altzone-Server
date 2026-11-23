@@ -34,6 +34,23 @@ describe('PackageRaceService.readLiveTeamResults() test suite', () => {
     box: Parameters<PackageRaceService['readLiveTeamResults']>[0],
   ) => service['readLiveTeamResults'](box);
 
+  const pushTeam = (box_id: string, team_id: ObjectId) =>
+    boxModel.updateOne(
+      { _id: box_id },
+      {
+        $push: {
+          'packageRace.teams': {
+            team_id,
+            name: uniqueName('foreign'),
+            memberCount: 1,
+            targetPoints: 420,
+            taskPoints: 0,
+            battlePoints: 0,
+          },
+        },
+      },
+    );
+
   beforeEach(async () => {
     service = await BoxModule.getPackageRaceService();
   });
@@ -47,7 +64,7 @@ describe('PackageRaceService.readLiveTeamResults() test suite', () => {
     ]);
   });
 
-  it('Should return the current results of all box teams', async () => {
+  it('Should return the fixed member count and target with live scores of all teams', async () => {
     const teams = defaultTeams();
     const { box_id, clanIds } = await createStartedBox(teams);
     const box = await readBox(box_id);
@@ -59,7 +76,7 @@ describe('PackageRaceService.readLiveTeamResults() test suite', () => {
     expect(results[0]).toEqual({
       team_id: expect.any(ObjectId),
       name: teams[0].name,
-      memberCount: 3,
+      memberCount: 13,
       targetPoints: 5460,
       taskPoints: 50,
       battlePoints: 100,
@@ -68,7 +85,7 @@ describe('PackageRaceService.readLiveTeamResults() test suite', () => {
     expect(results[1]).toEqual({
       team_id: expect.any(ObjectId),
       name: teams[1].name,
-      memberCount: 2,
+      memberCount: 12,
       targetPoints: 5040,
       taskPoints: 20,
       battlePoints: 5,
@@ -76,43 +93,61 @@ describe('PackageRaceService.readLiveTeamResults() test suite', () => {
     expect(results[1].team_id.toString()).toBe(clanIds[1].toString());
   });
 
-  it('Should return the teams in the order of createdClan_ids', async () => {
+  it('Should return the teams in the order of the package race teams', async () => {
     const { box_id, clanIds } = await createStartedBox();
-    const reversed = [...clanIds].reverse();
-    await boxModel.updateOne({ _id: box_id }, { createdClan_ids: reversed });
     const box = await readBox(box_id);
+    const reversedTeams = [...box.packageRace.teams].reverse();
 
-    const [results] = await readLiveTeamResults(box);
+    const [results] = await readLiveTeamResults({
+      ...box,
+      packageRace: { ...box.packageRace, teams: reversedTeams },
+    });
 
     expect(results.map((r) => r.team_id.toString())).toEqual(
-      reversed.map((id) => id.toString()),
+      [...clanIds].reverse().map((id) => id.toString()),
     );
   });
 
-  it('Should read the latest points of the teams', async () => {
+  it('Should read the latest scores of the teams', async () => {
     const { box_id, clanIds } = await createStartedBox();
     const box = await readBox(box_id);
     await clanModel.updateOne(
       { _id: clanIds[1] },
-      { $inc: { points: 7, battlePoints: 3, targetPoints: 1 } },
+      { $inc: { points: 7, battlePoints: 3 } },
     );
 
     const [results] = await readLiveTeamResults(box);
 
     expect(results[1]).toEqual(
-      expect.objectContaining({
-        taskPoints: 27,
-        battlePoints: 8,
-        targetPoints: 5041,
-      }),
+      expect.objectContaining({ taskPoints: 27, battlePoints: 8 }),
     );
   });
 
-  it('Should default missing points fields to 0', async () => {
+  it('Should not move the finish line when the clan target or members change', async () => {
+    const { box_id, clanIds } = await createStartedBox();
+    await clanModel.updateOne({ _id: clanIds[0] }, { targetPoints: 1 });
+    await playerModel.create({
+      ...playerBuilder
+        .setName(uniqueName('latecomer'))
+        .setUniqueIdentifier(uniqueName('id'))
+        .setClanId(clanIds[0])
+        .build(),
+      box_id,
+    });
+    const box = await readBox(box_id);
+
+    const [results] = await readLiveTeamResults(box);
+
+    expect(results[0]).toEqual(
+      expect.objectContaining({ memberCount: 13, targetPoints: 5460 }),
+    );
+  });
+
+  it('Should default missing score fields to 0', async () => {
     const { box_id, clanIds } = await createStartedBox();
     await clanModel.collection.updateOne(
       { _id: clanIds[0] },
-      { $unset: { points: '', battlePoints: '', targetPoints: '' } },
+      { $unset: { points: '', battlePoints: '' } },
     );
     const box = await readBox(box_id);
 
@@ -120,57 +155,14 @@ describe('PackageRaceService.readLiveTeamResults() test suite', () => {
 
     expect(errors).toBeNull();
     expect(results[0]).toEqual(
-      expect.objectContaining({
-        targetPoints: 0,
-        taskPoints: 0,
-        battlePoints: 0,
-      }),
+      expect.objectContaining({ taskPoints: 0, battlePoints: 0 }),
     );
   });
 
-  it('Should return 0 members for a team without players', async () => {
-    const { box_id } = await createStartedBox([
-      {
-        name: uniqueName('empty'),
-        taskPoints: 0,
-        battlePoints: 0,
-        targetPoints: 0,
-        members: 0,
-      },
-    ]);
-    const box = await readBox(box_id);
-
-    const [results, errors] = await readLiveTeamResults(box);
-
-    expect(errors).toBeNull();
-    expect(results).toHaveLength(1);
-    expect(results[0].memberCount).toBe(0);
-  });
-
-  it('Should not count players of another box as team members', async () => {
-    const { box_id, clanIds } = await createStartedBox();
-    await playerModel.create({
-      ...playerBuilder
-        .setName(uniqueName('intruder'))
-        .setUniqueIdentifier(uniqueName('id'))
-        .setClanId(clanIds[0])
-        .build(),
-      box_id: new ObjectId().toString(),
-    });
-    const box = await readBox(box_id);
-
-    const [results] = await readLiveTeamResults(box);
-
-    expect(results[0].memberCount).toBe(3);
-  });
-
-  it('Should ignore a referenced clan that belongs to another box', async () => {
+  it('Should ignore a team which clan belongs to another box', async () => {
     const boxA = await createStartedBox();
     const boxB = await createStartedBox();
-    await boxModel.updateOne(
-      { _id: boxA.box_id },
-      { $push: { createdClan_ids: boxB.clanIds[0] } },
-    );
+    await pushTeam(boxA.box_id, boxB.clanIds[0]);
     const box = await readBox(boxA.box_id);
 
     const [results] = await readLiveTeamResults(box);
@@ -180,7 +172,7 @@ describe('PackageRaceService.readLiveTeamResults() test suite', () => {
     );
   });
 
-  it('Should ignore a clan of the box that is not in createdClan_ids', async () => {
+  it('Should ignore a clan of the box that is not a package race team', async () => {
     const { box_id, clanIds } = await createStartedBox();
     await clanModel.create({
       ...clanBuilder.setName(uniqueName('unlisted')).build(),
@@ -195,12 +187,9 @@ describe('PackageRaceService.readLiveTeamResults() test suite', () => {
     );
   });
 
-  it('Should ignore referenced clans that do not exist', async () => {
+  it('Should ignore teams which clans do not exist', async () => {
     const { box_id, clanIds } = await createStartedBox();
-    await boxModel.updateOne(
-      { _id: box_id },
-      { $push: { createdClan_ids: new ObjectId() } },
-    );
+    await pushTeam(box_id, new ObjectId());
     const box = await readBox(box_id);
 
     const [results, errors] = await readLiveTeamResults(box);
@@ -221,13 +210,13 @@ describe('PackageRaceService.readLiveTeamResults() test suite', () => {
     expect(results).toEqual([]);
   });
 
-  it('Should return an empty array if createdClan_ids is not defined', async () => {
+  it('Should return an empty array if the package race teams are not defined', async () => {
     const { box_id } = await createStartedBox();
     const box = await readBox(box_id);
 
     const [results, errors] = await readLiveTeamResults({
       ...box,
-      createdClan_ids: undefined,
+      packageRace: { ...box.packageRace, teams: undefined },
     });
 
     expect(errors).toBeNull();

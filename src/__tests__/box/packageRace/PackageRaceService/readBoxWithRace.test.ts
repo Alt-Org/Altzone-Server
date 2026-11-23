@@ -4,7 +4,6 @@ import ClanModule from '../../../clan/modules/clan.module';
 import PlayerModule from '../../../player/modules/player.module';
 import { PackageRaceService } from '../../../../box/packageRace/packageRace.service';
 import { PackageRaceStatus } from '../../../../box/packageRace/enum/packageRaceStatus.enum';
-import { SessionStage } from '../../../../box/enum/SessionStage.enum';
 import { envVars } from '../../../../common/service/envHandler/envVars';
 import { Environment } from '../../../../common/service/envHandler/enum/environment.enum';
 import { getNonExisting_id } from '../../../test_utils/util/getNonExisting_id';
@@ -48,11 +47,9 @@ describe('PackageRaceService.readBoxWithRace() test suite', () => {
 
     expect(errors).toBeNull();
     expect(box._id.toString()).toBe(box_id);
-    expect(box.sessionStage).toBe(SessionStage.TESTING);
-    expect(box.sessionResetTime).toBe(raceEndsAt.getTime());
-    expect(box.createdClan_ids.map((id) => id.toString())).toEqual(
-      clanIds.map((id) => id.toString()),
-    );
+    expect(
+      box.packageRace.teams.map((team) => team.team_id.toString()),
+    ).toEqual(clanIds.map((id) => id.toString()));
     expect(box.packageRace).toEqual(
       expect.objectContaining({
         status: PackageRaceStatus.ACTIVE,
@@ -117,6 +114,18 @@ describe('PackageRaceService.readBoxWithRace() test suite', () => {
     expect(box).not.toHaveProperty('adminPassword');
     expect(box).not.toHaveProperty('adminProfile_id');
     expect(box).not.toHaveProperty('adminPlayer_id');
+    expect(box).not.toHaveProperty('createdClan_ids');
+  });
+
+  it('Should return ServiceError NOT_FOUND with field packageRace if the started box has no package race', async () => {
+    const { box_id } = await createStartedBox();
+    await boxModel.updateOne({ _id: box_id }, { packageRace: null });
+
+    const [box, errors] = await readBoxWithRace(box_id);
+
+    expect(box).toBeNull();
+    expect(errors).toContainSE_NOT_FOUND();
+    expect(errors[0].field).toBe('packageRace');
   });
 
   it('Should return ServiceError NOT_FOUND with field packageRace if the session is not started', async () => {
