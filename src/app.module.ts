@@ -41,7 +41,6 @@ import { RequestLoggerService } from './common/service/logger/RequestLogger.serv
 import { RequestLoggerInterceptor } from './common/service/logger/RequestLogger.interceptor';
 import { JukeboxModule } from './jukebox/jukebox.module';
 import { FriendshipModule } from './friendship/friendship.module';
-import { AdminModule } from './admin/admin.module';
 import { MatchmakingModule } from './matchmaking/matchmaking.module';
 import { SessionModule } from './session/session.module';
 
@@ -123,7 +122,6 @@ const authGuardClassToUse = isTestingSession() ? BoxAuthGuard : AuthGuard;
     MetadataModule,
     ...(envVars.ENVIRONMENT === testEnvironmentName ? [FeedbackModule] : []),
     FriendshipModule,
-    AdminModule,
   ],
   controllers: [AppController],
   providers: [

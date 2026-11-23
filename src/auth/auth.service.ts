@@ -128,7 +128,6 @@ export class AuthService {
 
     const {
       password: _p,
-      isSystemAdmin: _a,
       securityAnswer: _sa,
       securityQuestion: _sq,
       failedRecoveryAttempts: _fra,
