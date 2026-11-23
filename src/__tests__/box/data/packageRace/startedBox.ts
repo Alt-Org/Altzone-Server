@@ -3,8 +3,6 @@ import BoxModule from '../../modules/box.module';
 import BoxBuilderFactory from '../boxBuilderFactory';
 import ClanModule from '../../../clan/modules/clan.module';
 import ClanBuilderFactory from '../../../clan/data/clanBuilderFactory';
-import PlayerModule from '../../../player/modules/player.module';
-import PlayerBuilderFactory from '../../../player/data/playerBuilderFactory';
 import { PackageRaceStatus } from '../../../../box/packageRace/enum/packageRaceStatus.enum';
 import { SessionStage } from '../../../../box/enum/SessionStage.enum';
 
@@ -13,7 +11,7 @@ export type StartedBoxTeam = {
   taskPoints: number;
   battlePoints: number;
   targetPoints: number;
-  members: number;
+  memberCount: number;
 };
 
 export const raceStartedAt = new Date('2026-11-01T10:00:00.000Z');
@@ -28,19 +26,22 @@ export const defaultTeams = (): StartedBoxTeam[] => [
     taskPoints: 50,
     battlePoints: 100,
     targetPoints: 5460,
-    members: 3,
+    memberCount: 13,
   },
   {
     name: uniqueName('red'),
     taskPoints: 20,
     battlePoints: 5,
     targetPoints: 5040,
-    members: 2,
+    memberCount: 12,
   },
 ];
 
 /**
- * Creates a box with a started session: clans with points and members and an active package race.
+ * Creates a box with a started session: clans with points and an active package race
+ * which teams have the member count and target points locked at session start.
+ *
+ * @param teams teams to create
  *
  * @returns _id of the created box and a list of _ids of its clans.
  */
@@ -49,11 +50,9 @@ export async function createStartedBox(
 ) {
   const boxModel = BoxModule.getBoxModel();
   const clanModel = ClanModule.getClanModel();
-  const playerModel = PlayerModule.getPlayerModel();
 
   const boxBuilder = BoxBuilderFactory.getBuilder('Box');
   const clanBuilder = ClanBuilderFactory.getBuilder('Clan');
-  const playerBuilder = PlayerBuilderFactory.getBuilder('Player');
 
   const box_id = new ObjectId();
 
@@ -69,16 +68,6 @@ export async function createStartedBox(
       box_id: box_id.toString(),
     });
     clanIds.push(new ObjectId(clan._id.toString()));
-
-    for (let i = 0; i < team.members; i++)
-      await playerModel.create({
-        ...playerBuilder
-          .setName(uniqueName('tester'))
-          .setUniqueIdentifier(uniqueName('id'))
-          .setClanId(clan._id)
-          .build(),
-        box_id: box_id.toString(),
-      });
   }
 
   await boxModel.create({
@@ -96,7 +85,14 @@ export async function createStartedBox(
       startedAt: raceStartedAt,
       endsAt: raceEndsAt,
       endedAt: null,
-      teams: [],
+      teams: teams.map((team, i) => ({
+        team_id: clanIds[i],
+        name: team.name,
+        memberCount: team.memberCount,
+        targetPoints: team.targetPoints,
+        taskPoints: 0,
+        battlePoints: 0,
+      })),
     },
   });
 
