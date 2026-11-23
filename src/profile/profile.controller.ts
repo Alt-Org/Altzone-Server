@@ -38,6 +38,7 @@ import { GuestProfileDto } from './dto/guestProfile.dto';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
 import { SecurityAnswerDto } from './dto/securityAnswer.dto';
 import { Environment } from '../common/enum/environment.enum';
+import { SignInResponseDto } from '../auth/dto/signInResponse.dto';
 
 @Controller('profile')
 export default class ProfileController {
@@ -114,13 +115,15 @@ export default class ProfileController {
   @ApiResponseDescription({
     success: {
       status: 201,
-      modelName: ModelName.CLAN,
-      type: ProfileDto,
+      modelName: ModelName.PROFILE,
+      dto: SignInResponseDto,
     },
-    errors: [],
+    errors: [400, 401],
+    hasAuth: false,
   })
   @NoAuth()
   @Post('/guest')
+  @UniformResponse(ModelName.PROFILE)
   public async createGuest() {
     const [guestProfileDto, errors] =
       (await this.service.createGuestAccount()) as unknown as [
