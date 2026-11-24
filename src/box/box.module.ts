@@ -34,6 +34,7 @@ import { ItemSchema } from '../clanInventory/item/item.schema';
 import { AuthModule } from '../auth/auth.module';
 import { PackageRaceController } from './packageRace/packageRace.controller';
 import { PackageRaceService } from './packageRace/packageRace.service';
+import PackageRaceNotifier from './packageRace/packageRace.notifier';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { PackageRaceService } from './packageRace/packageRace.service';
     TesterAccountService,
     UniqueFieldGenerator,
     PackageRaceService,
+    PackageRaceNotifier,
   ],
   exports: [BoxService, GroupAdminGuard, BoxAuthHandler],
 })
