@@ -16,6 +16,7 @@ import { LeaderboardModule } from '../leaderboard/leaderboard.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { MatchmakingRewardClaimSchema } from './schema/matchmakingRewardClaim.schema';
+import { MatchmakingMatchHistorySchema } from './schema/matchmakingMatchHistory.schema';
 
 /**
  * Wires the matchmaking feature together.
@@ -35,6 +36,10 @@ import { MatchmakingRewardClaimSchema } from './schema/matchmakingRewardClaim.sc
       {
         name: ModelName.MATCHMAKING_REWARD_CLAIM,
         schema: MatchmakingRewardClaimSchema,
+      },
+      {
+        name: ModelName.MATCHMAKING_MATCH_HISTORY,
+        schema: MatchmakingMatchHistorySchema,
       },
     ]),
     BullModule.registerQueue({ name: MATCHMAKING_QUEUE }),

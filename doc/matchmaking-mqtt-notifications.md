@@ -301,7 +301,9 @@ included in the match payload but do not receive player-specific notifications.
   battleStartedAt?: string,
   finishedAt?: string,
   result?: {
-    winningSide: 'A' | 'B'
+    winningSide: 'A' | 'B',
+    finishReason?: 'COMPLETED' | 'FORFEIT' | 'DISCONNECTED',
+    teamScores?: Array<{ side: 'A' | 'B', score: number }>
   }
 }
 ```
@@ -364,13 +366,18 @@ MATCH_FINISHED
 
 - A participant finishes an active match through
   `POST /matchmaking/matches/{matchId}/finish`.
-- The backend accepts the finish request, updates leaderboards, stores the
-  finished match with the finished-match TTL, and invalidates leaderboard caches.
+- The backend accepts the finish request, atomically stores permanent match
+  history with eligible rewards, keeps a Redis copy with the finished-match TTL,
+  and invalidates leaderboard caches.
 
 Eligible human-versus-bot matches use the same mode-specific scoring and
 leaderboard rules as human-versus-human matches. Bots never receive rewards or
 leaderboard records. Mongo-backed reward updates use a durable per-battle claim,
 so retrying a finish does not award them again.
+
+A finish retry after the Redis TTL reads the permanent history and returns the
+original result to an authenticated participant. It does not publish another
+`MATCH_FINISHED` event.
 
 Acceptance here means that an authenticated match participant submitted a
 valid finish request for an active match. The backend owns the resulting
@@ -379,7 +386,8 @@ independently validate the winning side against Photon events or require result
 consensus from both teams.
 
 The payload contains the finished match with `status: 'FINISHED'`, `finishedAt`,
-and `result`.
+and `result`. The result always contains `winningSide` and may contain the
+participant-reported `finishReason` and `teamScores` accepted by the finish API.
 
 ### Payload Shape
 
