@@ -1906,7 +1906,7 @@ describe('MatchmakingService flow', () => {
     );
   });
 
-  it('handles repeated match start calls from the same participant idempotently', async () => {
+  it('handles concurrent match start calls from the same participant idempotently', async () => {
     const { redis, notifier, service } = createService();
     const match = createActiveBattleStartMatch({
       id: 'match-start-idempotent',
@@ -1923,20 +1923,29 @@ describe('MatchmakingService flow', () => {
     });
     await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
 
-    const [firstStart, firstErrors] = await service.startMatch(
-      match.id,
-      'player-1',
-    );
-    const [secondStart, secondErrors] = await service.startMatch(
-      match.id,
-      'player-1',
-    );
+    const [
+      [firstStart, firstErrors],
+      [secondStart, secondErrors],
+      [thirdStart, thirdErrors],
+    ] = await Promise.all([
+      service.startMatch(match.id, 'player-1'),
+      service.startMatch(match.id, 'player-1'),
+      service.startMatch(match.id, 'player-1'),
+    ]);
+    const storedMatch = JSON.parse(
+      await redis.get(`matchmaking:match:${match.id}`),
+    ) as ActiveMatch;
 
     expect(firstErrors).toBeNull();
     expect(secondErrors).toBeNull();
+    expect(thirdErrors).toBeNull();
     expect(firstStart.readyPlayerIds).toEqual(['player-1']);
     expect(secondStart.readyPlayerIds).toEqual(['player-1']);
+    expect(thirdStart.readyPlayerIds).toEqual(['player-1']);
     expect(secondStart.battleStartedAt).toBe(firstStart.battleStartedAt);
+    expect(thirdStart.battleStartedAt).toBe(firstStart.battleStartedAt);
+    expect(storedMatch.readyPlayerIds).toEqual(['player-1']);
+    expect(storedMatch.battleStartedAt).toBe(firstStart.battleStartedAt);
     expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
     expect(notifier.matchEvent).toHaveBeenCalledWith(
       match.id,
@@ -2012,27 +2021,30 @@ describe('MatchmakingService flow', () => {
     });
   });
 
-  it('publishes MATCH_STARTED only after all real players are ready', async () => {
+  it('retains concurrent confirmations and publishes MATCH_STARTED once', async () => {
     const { redis, notifier, service } = createService();
     const match = createActiveBattleStartMatch({
       id: 'match-start-two-players',
     });
     await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
 
-    const [firstStart, firstErrors] = await service.startMatch(
-      match.id,
-      'player-1',
-    );
-    const [secondStart, secondErrors] = await service.startMatch(
-      match.id,
-      'player-2',
-    );
+    const [[firstStart, firstErrors], [secondStart, secondErrors]] =
+      await Promise.all([
+        service.startMatch(match.id, 'player-1'),
+        service.startMatch(match.id, 'player-2'),
+      ]);
+    const storedMatch = JSON.parse(
+      await redis.get(`matchmaking:match:${match.id}`),
+    ) as ActiveMatch;
 
     expect(firstErrors).toBeNull();
     expect(secondErrors).toBeNull();
-    expect(firstStart.battleStartedAt).toBeUndefined();
-    expect(secondStart.readyPlayerIds).toEqual(['player-1', 'player-2']);
-    expect(secondStart.battleStartedAt).toEqual(expect.any(String));
+    expect(
+      [firstStart, secondStart].some((result) => result.battleStartedAt),
+    ).toBe(true);
+    expect(storedMatch.readyPlayerIds).toEqual(['player-1', 'player-2']);
+    expect(storedMatch.battleStartedAt).toEqual(expect.any(String));
+    expect(redis.compareAndSetMany).toHaveBeenCalledTimes(3);
     expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
     expect(notifier.matchEvent).toHaveBeenCalledWith(
       match.id,
@@ -2040,12 +2052,12 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({
         id: match.id,
         readyPlayerIds: ['player-1', 'player-2'],
-        battleStartedAt: secondStart.battleStartedAt,
+        battleStartedAt: storedMatch.battleStartedAt,
       }),
     );
   });
 
-  it('waits for all four real players before starting a 2v2 clientside battle', async () => {
+  it('retains all four concurrent confirmations before starting a 2v2 battle', async () => {
     const { redis, notifier, service } = createService();
     const match = createActiveBattleStartMatch({
       id: 'match-start-2v2',
@@ -2069,23 +2081,24 @@ describe('MatchmakingService flow', () => {
     });
     await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
 
-    await service.startMatch(match.id, 'player-1');
-    await service.startMatch(match.id, 'player-2');
-    const [thirdStart] = await service.startMatch(match.id, 'player-3');
-    const [fourthStart, fourthErrors] = await service.startMatch(
-      match.id,
-      'player-4',
-    );
+    const results = await Promise.all([
+      service.startMatch(match.id, 'player-1'),
+      service.startMatch(match.id, 'player-2'),
+      service.startMatch(match.id, 'player-3'),
+      service.startMatch(match.id, 'player-4'),
+    ]);
+    const storedMatch = JSON.parse(
+      await redis.get(`matchmaking:match:${match.id}`),
+    ) as ActiveMatch;
 
-    expect(fourthErrors).toBeNull();
-    expect(thirdStart.battleStartedAt).toBeUndefined();
-    expect(fourthStart.readyPlayerIds).toEqual([
+    expect(results.every(([, errors]) => errors === null)).toBe(true);
+    expect(storedMatch.readyPlayerIds).toEqual([
       'player-1',
       'player-2',
       'player-3',
       'player-4',
     ]);
-    expect(fourthStart.battleStartedAt).toEqual(expect.any(String));
+    expect(storedMatch.battleStartedAt).toEqual(expect.any(String));
     expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
     expect(notifier.matchEvent).toHaveBeenCalledWith(
       match.id,

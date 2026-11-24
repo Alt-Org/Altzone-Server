@@ -733,68 +733,101 @@ export class MatchmakingService {
     matchId: string,
     playerId: string,
   ): Promise<IServiceReturn<MatchmakingMatchDto>> {
-    const [match, matchErrors] = await this.readMatch(matchId);
-    if (matchErrors) return [null, matchErrors];
+    const matchKey = this.matchKey(matchId);
 
-    if (match.status !== MatchStatus.ACTIVE) {
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_ALLOWED,
-            field: 'matchId',
-            value: matchId,
-            message: 'Only active matchmaking matches can be started.',
-          }),
-        ],
-      ];
-    }
+    // The whole match is stored as one Redis value. Use optimistic locking so
+    // concurrent readiness confirmations cannot overwrite each other.
+    while (true) {
+      const matchRaw = await this.redisService.get(matchKey);
+      if (!matchRaw) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_FOUND,
+              field: 'matchId',
+              value: matchId,
+              message: 'Matchmaking match not found.',
+            }),
+          ],
+        ];
+      }
 
-    if (!this.matchHasPlayer(match, playerId)) {
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_AUTHORIZED,
-            field: 'playerId',
-            value: playerId,
-            message: 'Only match participants can start the match.',
-          }),
-        ],
-      ];
-    }
+      const match = JSON.parse(matchRaw) as ActiveMatch;
 
-    const requiredPlayerIds = Array.from(new Set(this.getRealPlayerIds(match)));
-    const readyPlayerIds = Array.from(
-      new Set([
-        ...(match.readyPlayerIds ?? []).filter((readyPlayerId) =>
-          requiredPlayerIds.includes(readyPlayerId),
-        ),
-        playerId,
-      ]),
-    );
-    const allPlayersReady = requiredPlayerIds.every((requiredPlayerId) =>
-      readyPlayerIds.includes(requiredPlayerId),
-    );
-    const startedMatch: ActiveMatch = {
-      ...match,
-      readyPlayerIds,
-      battleStartedAt:
-        match.battleStartedAt ??
-        (allPlayersReady ? new Date().toISOString() : undefined),
-    };
+      if (match.status !== MatchStatus.ACTIVE) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_ALLOWED,
+              field: 'matchId',
+              value: matchId,
+              message: 'Only active matchmaking matches can be started.',
+            }),
+          ],
+        ];
+      }
 
-    await this.saveMatch(startedMatch);
+      if (!this.matchHasPlayer(match, playerId)) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_AUTHORIZED,
+              field: 'playerId',
+              value: playerId,
+              message: 'Only match participants can start the match.',
+            }),
+          ],
+        ];
+      }
 
-    if (allPlayersReady && !match.battleStartedAt) {
-      await this.notifier.matchEvent(
-        startedMatch.id,
-        MqttNotificationType.MATCH_STARTED,
-        await this.toMqttMatchDto(startedMatch),
+      const requiredPlayerIds = Array.from(
+        new Set(this.getRealPlayerIds(match)),
       );
-    }
+      const readyPlayerIds = Array.from(
+        new Set([
+          ...(match.readyPlayerIds ?? []).filter((readyPlayerId) =>
+            requiredPlayerIds.includes(readyPlayerId),
+          ),
+          playerId,
+        ]),
+      );
+      const allPlayersReady = requiredPlayerIds.every((requiredPlayerId) =>
+        readyPlayerIds.includes(requiredPlayerId),
+      );
+      const startsBattle = allPlayersReady && !match.battleStartedAt;
+      const startedMatch: ActiveMatch = {
+        ...match,
+        readyPlayerIds,
+        battleStartedAt: startsBattle
+          ? new Date().toISOString()
+          : match.battleStartedAt,
+      };
 
-    return [this.toMatchDto(startedMatch), null];
+      const updated = await this.redisService.compareAndSetMany([
+        {
+          key: matchKey,
+          expectedValue: matchRaw,
+          value: JSON.stringify(startedMatch),
+        },
+      ]);
+      if (!updated) continue;
+
+      // Only the request whose atomic state transition set battleStartedAt may
+      // publish MATCH_STARTED. Retried and duplicate requests observe the
+      // timestamp and return the current state without publishing again.
+      if (startsBattle) {
+        await this.notifier.matchEvent(
+          startedMatch.id,
+          MqttNotificationType.MATCH_STARTED,
+          await this.toMqttMatchDto(startedMatch),
+        );
+      }
+
+      return [this.toMatchDto(startedMatch), null];
+    }
   }
 
   /**
