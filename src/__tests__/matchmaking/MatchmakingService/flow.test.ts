@@ -150,6 +150,7 @@ type TestDeps = {
   };
   matchHistoryModel: {
     updateOne: jest.Mock;
+    findOne: jest.Mock;
   };
   service: MatchmakingService;
 };
@@ -229,6 +230,9 @@ const createService = (
   };
   const matchHistoryModel = {
     updateOne: jest.fn(async () => ({ upsertedCount: 1 })),
+    findOne: jest.fn(() => ({
+      lean: () => ({ exec: async () => null }),
+    })),
   };
   const service = new MatchmakingService(
     redis as any,
@@ -2946,6 +2950,136 @@ describe('MatchmakingService flow', () => {
     ).toHaveBeenCalledTimes(1);
     expect(playerService.updatePlayerById).toHaveBeenCalledTimes(2);
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);
+  });
+
+  it('returns permanent history when finish is retried after the Redis TTL', async () => {
+    const {
+      notifier,
+      emitterService,
+      playerLeaderboardWinService,
+      clanLeaderboardWinService,
+      rewardClaimModel,
+      matchHistoryModel,
+      service,
+    } = createService();
+    const history = {
+      matchId: 'match-history-retry',
+      matchType: MatchType.RANDOM,
+      gameType,
+      teamSize: 1,
+      opponentType: MatchmakingOpponentType.HUMAN,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [
+            {
+              playerId: 'player-1',
+              displayName: 'Player 1',
+              isBot: false,
+            },
+          ],
+        },
+        {
+          side: TeamSide.B,
+          participants: [
+            {
+              playerId: 'player-2',
+              displayName: 'Player 2',
+              isBot: false,
+            },
+          ],
+        },
+      ],
+      startedAt: new Date('2026-07-06T08:00:00.000Z'),
+      finishedAt: new Date('2026-07-06T08:05:00.000Z'),
+      result: { winningSide: TeamSide.A },
+      rewards: [],
+      rewardStatus: MatchmakingRewardStatus.APPLIED,
+      createdAt: new Date('2026-07-06T08:05:00.000Z'),
+    };
+    matchHistoryModel.findOne.mockReturnValueOnce({
+      lean: () => ({ exec: async () => history }),
+    });
+
+    const [finishedMatch, errors] = await service.finishMatch(
+      history.matchId,
+      'player-1',
+      // The persisted authoritative result wins over a conflicting retry body.
+      { winningSide: TeamSide.B },
+    );
+
+    expect(errors).toBeNull();
+    expect(finishedMatch).toMatchObject({
+      id: history.matchId,
+      status: MatchStatus.FINISHED,
+      result: { winningSide: TeamSide.A },
+    });
+    expect(matchHistoryModel.findOne).toHaveBeenCalledWith({
+      matchId: history.matchId,
+    });
+    expect(matchHistoryModel.updateOne).not.toHaveBeenCalled();
+    expect(rewardClaimModel.updateOne).not.toHaveBeenCalled();
+    expect(
+      playerLeaderboardWinService.recordAcceptedPlayerWin,
+    ).not.toHaveBeenCalled();
+    expect(
+      clanLeaderboardWinService.recordAcceptedClanWin,
+    ).not.toHaveBeenCalled();
+    expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalled();
+    expect(notifier.matchEvent).not.toHaveBeenCalled();
+  });
+
+  it('does not expose permanent match history to a non-participant retry', async () => {
+    const { matchHistoryModel, rewardClaimModel, service } = createService();
+    const history = {
+      matchId: 'match-history-outsider',
+      matchType: MatchType.RANDOM,
+      gameType,
+      teamSize: 1,
+      opponentType: MatchmakingOpponentType.BOT,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [
+            {
+              playerId: 'player-1',
+              displayName: 'Player 1',
+              isBot: false,
+            },
+          ],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ botId: 'bot-1', displayName: 'Bot 1', isBot: true }],
+        },
+      ],
+      startedAt: new Date('2026-07-06T08:00:00.000Z'),
+      finishedAt: new Date('2026-07-06T08:05:00.000Z'),
+      result: { winningSide: TeamSide.A },
+      rewards: [],
+      rewardStatus: MatchmakingRewardStatus.APPLIED,
+      createdAt: new Date('2026-07-06T08:05:00.000Z'),
+    };
+    matchHistoryModel.findOne.mockReturnValueOnce({
+      lean: () => ({ exec: async () => history }),
+    });
+
+    const [finishedMatch, errors] = await service.finishMatch(
+      history.matchId,
+      'player-2',
+      { winningSide: TeamSide.A },
+    );
+
+    expect(finishedMatch).toBeNull();
+    expect(errors).toEqual([
+      expect.objectContaining({
+        reason: SEReason.NOT_AUTHORIZED,
+        field: 'playerId',
+        value: 'player-2',
+      }),
+    ]);
+    expect(matchHistoryModel.updateOne).not.toHaveBeenCalled();
+    expect(rewardClaimModel.updateOne).not.toHaveBeenCalled();
   });
 
   it('does not apply legacy updates when clan win recording fails', async () => {

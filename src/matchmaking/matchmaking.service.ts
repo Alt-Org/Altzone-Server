@@ -651,7 +651,7 @@ export class MatchmakingService {
     playerId: string,
     body: FinishMatchDto,
   ): Promise<IServiceReturn<MatchmakingMatchDto>> {
-    const [match, matchErrors] = await this.readMatch(matchId);
+    const [match, matchErrors] = await this.readMatchForFinish(matchId);
     if (matchErrors) return [null, matchErrors];
 
     if (!this.matchHasPlayer(match, playerId)) {
@@ -1998,6 +1998,62 @@ export class MatchmakingService {
     }
 
     return [JSON.parse(matchRaw) as ActiveMatch, null];
+  }
+
+  /**
+   * Reads transient match state first and falls back to permanent history.
+   * This keeps finish retries idempotent after the Redis finished-match TTL.
+   */
+  private async readMatchForFinish(
+    matchId: string,
+  ): Promise<IServiceReturn<ActiveMatch>> {
+    const [redisMatch, redisErrors] = await this.readMatch(matchId);
+    if (redisMatch) return [redisMatch, null];
+
+    const history = await this.matchHistoryModel
+      .findOne({ matchId })
+      .lean<MatchmakingMatchHistory>()
+      .exec();
+    if (!history) return [null, redisErrors];
+
+    return [this.fromMatchHistory(history), null];
+  }
+
+  private fromMatchHistory(history: MatchmakingMatchHistory): ActiveMatch {
+    const teams = history.teams.map((team) => ({
+      side: team.side,
+      clanId: team.clan?.clanId,
+      clan: team.clan,
+      participants: team.participants.map((participant) =>
+        participant.isBot
+          ? {
+              botId: participant.botId!,
+              displayName: participant.displayName,
+              isBot: true as const,
+            }
+          : {
+              playerId: participant.playerId!,
+              displayName: participant.displayName,
+              clan: participant.clan,
+              isBot: false as const,
+            },
+      ),
+    })) as [MatchmakingTeam, MatchmakingTeam];
+
+    return {
+      id: history.matchId,
+      matchType: history.matchType,
+      gameType: history.gameType,
+      status: MatchStatus.FINISHED,
+      teamSize: history.teamSize,
+      teams,
+      startedAt: new Date(history.startedAt).toISOString(),
+      battleStartedAt: history.battleStartedAt
+        ? new Date(history.battleStartedAt).toISOString()
+        : undefined,
+      finishedAt: new Date(history.finishedAt).toISOString(),
+      result: { winningSide: history.result.winningSide },
+    };
   }
 
   /**
