@@ -5,6 +5,8 @@ describe('DailyTaskProgressService', () => {
   let playerRewarder: any;
   let clanRewarder: any;
   let clanProgression: any;
+  let sessionTaskRewarder: any;
+  let eventEmitter: any;
   let service: DailyTaskProgressService;
   const session = {} as any;
 
@@ -54,13 +56,148 @@ describe('DailyTaskProgressService', () => {
         .mockResolvedValue([{ reachedMilestones: [] }, null]),
     };
 
+    sessionTaskRewarder = {
+      rewardTeam: jest.fn().mockResolvedValue([null, null]),
+    };
+
+    eventEmitter = { emit: jest.fn() };
+
     service = new DailyTaskProgressService(
       notifier,
       clanRewarder,
       playerRewarder,
       clanProgression,
       {} as any,
+      sessionTaskRewarder,
+      eventEmitter,
     );
+  });
+
+  describe('session tasks', () => {
+    const makeSessionReward = (overrides: Record<string, unknown> = {}) => ({
+      boxId: 'box-1',
+      teamId: 'clan-1',
+      completedByPlayerId: 'player-1',
+      taskType: 'serverTask',
+      points: 20,
+      awarded: true,
+      reachedMilestones: [],
+      ...overrides,
+    });
+
+    it('should reward the session team instead of applying the regular clan reward', async () => {
+      const result = makeResult('completed', 'serverTask', 999, 5);
+      const reward = makeSessionReward({ reachedMilestones: [5460] });
+      sessionTaskRewarder.rewardTeam.mockResolvedValue([reward, null]);
+
+      const [handled, error] = await service.handleProgress(result, session);
+
+      expect(error).toBeNull();
+      expect(sessionTaskRewarder.rewardTeam).toHaveBeenCalledWith(
+        {
+          teamId: 'clan-1',
+          completedByPlayerId: 'player-1',
+          task: result.task,
+        },
+        session,
+      );
+      expect(clanRewarder.rewardClanForPlayerTask).not.toHaveBeenCalled();
+      expect(clanProgression.handleClanProgression).not.toHaveBeenCalled();
+      expect(handled.sessionTaskReward).toBe(reward);
+      expect(handled.reachedMilestones).toEqual([5460]);
+    });
+
+    it('should reward the session team even if the task does not need a clan reward', async () => {
+      const result = {
+        ...makeResult('completed', 'play_battle'),
+        needsClanReward: false,
+      };
+      sessionTaskRewarder.rewardTeam.mockResolvedValue([
+        makeSessionReward(),
+        null,
+      ]);
+
+      const [handled] = await service.handleProgress(result, session);
+      service.notifyProgress(handled);
+
+      expect(handled.sessionTaskReward.awarded).toBe(true);
+      expect(notifier.taskCompletedForClan).toHaveBeenCalled();
+      expect(eventEmitter.emit).toHaveBeenCalled();
+    });
+
+    it('should publish the package race score only after notifyProgress is called', async () => {
+      const result = makeResult('completed', 'serverTask');
+      const reward = makeSessionReward();
+      sessionTaskRewarder.rewardTeam.mockResolvedValue([reward, null]);
+
+      const [handled] = await service.handleProgress(result, session);
+      expect(eventEmitter.emit).not.toHaveBeenCalled();
+
+      service.notifyProgress(handled);
+
+      expect(eventEmitter.emit).toHaveBeenCalledTimes(1);
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        'packageRace.sessionTaskPointsAwarded',
+        reward,
+      );
+    });
+
+    it('should not publish the package race score if no points were awarded', async () => {
+      const result = makeResult('completed', 'serverTask');
+      sessionTaskRewarder.rewardTeam.mockResolvedValue([
+        makeSessionReward({
+          awarded: false,
+          points: 0,
+          skipReason: 'ALREADY_COMPLETED',
+        }),
+        null,
+      ]);
+
+      const [handled] = await service.handleProgress(result, session);
+      service.notifyProgress(handled);
+
+      expect(clanRewarder.rewardClanForPlayerTask).not.toHaveBeenCalled();
+      expect(eventEmitter.emit).not.toHaveBeenCalled();
+    });
+
+    it('should reward the session team for a completed clan task', async () => {
+      const result = makeResult('completed', 'update_clan_motto');
+      const reward = makeSessionReward({ taskType: 'update_clan_motto' });
+      sessionTaskRewarder.rewardTeam.mockResolvedValue([reward, null]);
+
+      const [handled, error] = await service.handleClanTaskCompletion(
+        result,
+        session,
+      );
+      service.notifyClanTaskCompletion(handled);
+
+      expect(error).toBeNull();
+      expect(clanRewarder.rewardClanForPlayerTask).not.toHaveBeenCalled();
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        'packageRace.sessionTaskPointsAwarded',
+        reward,
+      );
+    });
+
+    it('should return errors of the session team reward', async () => {
+      const result = makeResult('completed', 'serverTask');
+      const errors = [new Error('db failure')];
+      sessionTaskRewarder.rewardTeam.mockResolvedValue([null, errors]);
+
+      const [handled, error] = await service.handleProgress(result, session);
+
+      expect(handled).toBeNull();
+      expect(error).toBe(errors);
+      expect(clanRewarder.rewardClanForPlayerTask).not.toHaveBeenCalled();
+    });
+
+    it('should not touch the session team reward for advanced tasks', async () => {
+      const result = makeResult('advanced', 'serverTask');
+
+      await service.handleProgress(result, session);
+
+      expect(sessionTaskRewarder.rewardTeam).not.toHaveBeenCalled();
+    });
   });
 
   it('should update server task without completing it', async () => {
