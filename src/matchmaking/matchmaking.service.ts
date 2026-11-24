@@ -701,7 +701,11 @@ export class MatchmakingService {
       ...match,
       status: MatchStatus.FINISHED,
       finishedAt: new Date().toISOString(),
-      result: { winningSide: body.winningSide },
+      result: {
+        winningSide: body.winningSide,
+        finishReason: body.finishReason,
+        teamScores: body.teamScores,
+      },
     };
 
     const rewardEligibility = getMatchRewardEligibility(finishedMatch);
@@ -1819,7 +1823,11 @@ export class MatchmakingService {
         ? new Date(match.battleStartedAt)
         : undefined,
       finishedAt: new Date(match.finishedAt),
-      result: { winningSide: match.result.winningSide },
+      result: {
+        winningSide: match.result.winningSide,
+        finishReason: match.result.finishReason,
+        teamScores: match.result.teamScores,
+      },
       rewards,
       rewardStatus: rewardEligibility.eligible
         ? MatchmakingRewardStatus.APPLIED
@@ -2052,7 +2060,11 @@ export class MatchmakingService {
         ? new Date(history.battleStartedAt).toISOString()
         : undefined,
       finishedAt: new Date(history.finishedAt).toISOString(),
-      result: { winningSide: history.result.winningSide },
+      result: {
+        winningSide: history.result.winningSide,
+        finishReason: history.result.finishReason,
+        teamScores: history.result.teamScores,
+      },
     };
   }
 

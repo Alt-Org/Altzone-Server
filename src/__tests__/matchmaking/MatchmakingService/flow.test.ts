@@ -3,6 +3,7 @@ import { MqttNotificationType } from '../../../common/service/notificator/enum/M
 import { MatchmakingAutoInviteType } from '../../../matchmaking/dto/createMatchmakingInvite.dto';
 import { InviteStatus } from '../../../matchmaking/enum/inviteStatus.enum';
 import { MatchStatus } from '../../../matchmaking/enum/matchStatus.enum';
+import { MatchFinishReason } from '../../../matchmaking/enum/matchFinishReason.enum';
 import { MatchType } from '../../../matchmaking/enum/matchType.enum';
 import { TeamSide } from '../../../matchmaking/enum/teamSide.enum';
 import { MatchmakingService } from '../../../matchmaking/matchmaking.service';
@@ -2331,18 +2332,26 @@ describe('MatchmakingService flow', () => {
     await redis.set('matchmaking:match:match-1', JSON.stringify(match));
     await redis.set('matchmaking:match-player:player-1', 'match-1');
     await redis.set('matchmaking:match-player:player-2', 'match-1');
+    const detailedResult = {
+      winningSide: TeamSide.A,
+      finishReason: MatchFinishReason.COMPLETED,
+      teamScores: [
+        { side: TeamSide.A, score: 4 },
+        { side: TeamSide.B, score: 2 },
+      ],
+    };
 
     const [finishedMatch, errors] = await service.finishMatch(
       'match-1',
       'player-1',
-      { winningSide: TeamSide.A },
+      detailedResult,
     );
 
     expect(errors).toBeNull();
     expect(finishedMatch).toMatchObject({
       id: 'match-1',
       status: MatchStatus.FINISHED,
-      result: { winningSide: TeamSide.A },
+      result: detailedResult,
     });
     expect(matchHistoryModel.updateOne).toHaveBeenCalledWith(
       { matchId: 'match-1' },
@@ -2355,7 +2364,7 @@ describe('MatchmakingService flow', () => {
           opponentType: MatchmakingOpponentType.HUMAN,
           startedAt: new Date('2026-07-06T08:00:00.000Z'),
           finishedAt: expect.any(Date),
-          result: { winningSide: TeamSide.A },
+          result: detailedResult,
           rewards: [
             {
               playerId: 'player-1',
@@ -2392,7 +2401,7 @@ describe('MatchmakingService flow', () => {
         id: 'match-1',
         status: MatchStatus.FINISHED,
         finishedAt: expect.any(String),
-        result: { winningSide: TeamSide.A },
+        result: detailedResult,
       }),
       expect.anything(),
     );
@@ -2992,7 +3001,14 @@ describe('MatchmakingService flow', () => {
       ],
       startedAt: new Date('2026-07-06T08:00:00.000Z'),
       finishedAt: new Date('2026-07-06T08:05:00.000Z'),
-      result: { winningSide: TeamSide.A },
+      result: {
+        winningSide: TeamSide.A,
+        finishReason: MatchFinishReason.FORFEIT,
+        teamScores: [
+          { side: TeamSide.A, score: 3 },
+          { side: TeamSide.B, score: 1 },
+        ],
+      },
       rewards: [],
       rewardStatus: MatchmakingRewardStatus.APPLIED,
       createdAt: new Date('2026-07-06T08:05:00.000Z'),
@@ -3012,7 +3028,14 @@ describe('MatchmakingService flow', () => {
     expect(finishedMatch).toMatchObject({
       id: history.matchId,
       status: MatchStatus.FINISHED,
-      result: { winningSide: TeamSide.A },
+      result: {
+        winningSide: TeamSide.A,
+        finishReason: MatchFinishReason.FORFEIT,
+        teamScores: [
+          { side: TeamSide.A, score: 3 },
+          { side: TeamSide.B, score: 1 },
+        ],
+      },
     });
     expect(matchHistoryModel.findOne).toHaveBeenCalledWith({
       matchId: history.matchId,

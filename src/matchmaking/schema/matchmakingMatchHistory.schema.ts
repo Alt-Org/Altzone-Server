@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { ModelName } from '../../common/enum/modelName.enum';
 import { MatchType } from '../enum/matchType.enum';
+import { MatchFinishReason } from '../enum/matchFinishReason.enum';
 import { TeamSide } from '../enum/teamSide.enum';
 
 export enum MatchmakingOpponentType {
@@ -95,8 +96,8 @@ export class MatchmakingMatchResult {
   @Prop({ type: String, enum: TeamSide, required: true })
   winningSide: TeamSide;
 
-  @Prop({ type: String })
-  finishReason?: string;
+  @Prop({ type: String, enum: MatchFinishReason })
+  finishReason?: MatchFinishReason;
 
   @Prop({ type: [MatchmakingTeamScoreSchema], default: undefined })
   teamScores?: MatchmakingTeamScore[];
