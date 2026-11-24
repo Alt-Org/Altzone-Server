@@ -364,13 +364,18 @@ MATCH_FINISHED
 
 - A participant finishes an active match through
   `POST /matchmaking/matches/{matchId}/finish`.
-- The backend accepts the finish request, updates leaderboards, stores the
-  finished match with the finished-match TTL, and invalidates leaderboard caches.
+- The backend accepts the finish request, atomically stores permanent match
+  history with eligible rewards, keeps a Redis copy with the finished-match TTL,
+  and invalidates leaderboard caches.
 
 Eligible human-versus-bot matches use the same mode-specific scoring and
 leaderboard rules as human-versus-human matches. Bots never receive rewards or
 leaderboard records. Mongo-backed reward updates use a durable per-battle claim,
 so retrying a finish does not award them again.
+
+A finish retry after the Redis TTL reads the permanent history and returns the
+original result to an authenticated participant. It does not publish another
+`MATCH_FINISHED` event.
 
 Acceptance here means that an authenticated match participant submitted a
 valid finish request for an active match. The backend owns the resulting

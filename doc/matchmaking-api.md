@@ -360,8 +360,8 @@ Returns `MatchmakingMatchDto`:
 POST /matchmaking/matches/{matchId}/finish
 ```
 
-Finishes an active match, updates leaderboards, and stores the finished match for
-a short read-after-finish window.
+Finishes an active match, updates leaderboards, stores permanent match history,
+and keeps the finished Redis state for a short read-after-finish window.
 
 This operation is the current server-side acceptance point for a matchmaking
 result. The server accepts the result only when the requester is an
@@ -406,6 +406,13 @@ production win counter directly.
 
 Returns the finished `MatchmakingMatchDto`.
 
+The operation is idempotent after completion. While the finished Redis snapshot
+exists it is returned directly. After its TTL expires, an authenticated match
+participant receives the same result reconstructed from permanent history. A
+retry cannot replace the stored winner, even when its request body differs from
+the accepted result, and it does not reapply rewards or publish another finish
+notification. A non-participant cannot use this fallback to read match history.
+
 ## Concurrency And Practice Mode
 
 RANDOM assignment, timeout, cancellation, and bot acceptance use atomic Redis
@@ -413,13 +420,14 @@ state transitions. Only one operation can consume a request; delayed jobs always
 verify the current state before acting.
 
 Match finishing also uses a short-lived Redis lock to serialize concurrent
-requests. Mongo-backed reward changes are committed in one transaction together
-with a durable, unique reward claim keyed by `battleId`. The transaction covers
-player and clan win records, `battlePoints`, and player/clan statistics. A
-failure rolls back the claim and all those changes. Repeated requests, concurrent
-requests, process restarts, and loss of the finished Redis snapshot therefore
-cannot apply Mongo-backed rewards more than once. Cache invalidation and
-external notifications occur only after a successful commit.
+requests. Permanent match history and Mongo-backed reward changes are committed
+in one transaction together with a durable, unique reward claim keyed by
+`battleId`. The transaction covers player and clan win records, `battlePoints`,
+and player/clan statistics. A failure rolls back the history, claim, and all
+those changes. Repeated requests, concurrent requests, process restarts, and
+loss of the finished Redis snapshot therefore cannot apply Mongo-backed rewards
+more than once. Cache invalidation and external notifications occur only after a
+successful commit.
 
 Tutorial or practice gameplay is separate from this API. Entering or leaving it
 does not create, cancel, or modify a matchmaking request. A client may keep its
