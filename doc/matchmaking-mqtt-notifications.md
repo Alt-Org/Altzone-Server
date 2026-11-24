@@ -301,7 +301,9 @@ included in the match payload but do not receive player-specific notifications.
   battleStartedAt?: string,
   finishedAt?: string,
   result?: {
-    winningSide: 'A' | 'B'
+    winningSide: 'A' | 'B',
+    finishReason?: 'COMPLETED' | 'FORFEIT' | 'DISCONNECTED',
+    teamScores?: Array<{ side: 'A' | 'B', score: number }>
   }
 }
 ```
@@ -384,7 +386,8 @@ independently validate the winning side against Photon events or require result
 consensus from both teams.
 
 The payload contains the finished match with `status: 'FINISHED'`, `finishedAt`,
-and `result`.
+and `result`. The result always contains `winningSide` and may contain the
+participant-reported `finishReason` and `teamScores` accepted by the finish API.
 
 ### Payload Shape
 

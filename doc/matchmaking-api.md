@@ -349,7 +349,9 @@ Returns `MatchmakingMatchDto`:
   battleStartedAt?: string,
   finishedAt?: string,
   result?: {
-    winningSide: 'A' | 'B'
+    winningSide: 'A' | 'B',
+    finishReason?: 'COMPLETED' | 'FORFEIT' | 'DISCONNECTED',
+    teamScores?: Array<{ side: 'A' | 'B', score: number }>
   }
 }
 ```
@@ -399,8 +401,20 @@ production win counter directly.
 ```ts
 {
   winningSide: 'A' | 'B';
+  finishReason?: 'COMPLETED' | 'FORFEIT' | 'DISCONNECTED';
+  teamScores?: [
+    { side: 'A' | 'B'; score: number },
+    { side: 'A' | 'B'; score: number }
+  ];
 }
 ```
+
+`winningSide` remains required for backwards compatibility. `finishReason` and
+`teamScores` are optional. When scores are supplied, both sides must appear
+exactly once and each score must be a non-negative integer. These result details
+are participant-reported under the current protocol and are stored in the
+authoritative finalized record; the server does not currently verify them
+against Photon events.
 
 ### Response
 
