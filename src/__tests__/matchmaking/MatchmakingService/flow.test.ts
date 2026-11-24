@@ -2657,6 +2657,89 @@ describe('MatchmakingService flow', () => {
     );
   });
 
+  it('persists MIXED participation and the match-time snapshots unchanged', async () => {
+    const { redis, matchHistoryModel, service } = createService({
+      'player-1': 'current-clan-1',
+      'player-2': 'current-clan-2',
+    });
+    const historicalClan = {
+      clanId: 'match-time-clan',
+      name: 'Match Time Clan',
+      tag: 'MTC',
+    };
+    const match: ActiveMatch = {
+      id: 'match-mixed-snapshots',
+      matchType: MatchType.CUSTOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 2,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [
+            {
+              playerId: 'player-1',
+              displayName: 'Match Time Player',
+              clan: historicalClan,
+              isBot: false,
+            },
+            { botId: 'bot-a', displayName: 'Bot A', isBot: true },
+          ],
+        },
+        {
+          side: TeamSide.B,
+          participants: [
+            {
+              playerId: 'player-2',
+              displayName: 'Opponent At Match Time',
+              isBot: false,
+            },
+            { botId: 'bot-b', displayName: 'Bot B', isBot: true },
+          ],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [, errors] = await service.finishMatch(match.id, 'player-1', {
+      winningSide: TeamSide.A,
+    });
+
+    expect(errors).toBeNull();
+    const history = (
+      matchHistoryModel.updateOne.mock.calls[0] as unknown[]
+    )[1] as { $setOnInsert: any };
+    expect(history.$setOnInsert).toMatchObject({
+      opponentType: MatchmakingOpponentType.MIXED,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [
+            {
+              playerId: 'player-1',
+              displayName: 'Match Time Player',
+              clan: historicalClan,
+              isBot: false,
+            },
+            { botId: 'bot-a', displayName: 'Bot A', isBot: true },
+          ],
+        },
+        {
+          side: TeamSide.B,
+          participants: [
+            {
+              playerId: 'player-2',
+              displayName: 'Opponent At Match Time',
+              isBot: false,
+            },
+            { botId: 'bot-b', displayName: 'Bot B', isBot: true },
+          ],
+        },
+      ],
+    });
+  });
+
   it('does not accept or record a finish result from a non-participant', async () => {
     const {
       redis,
@@ -3411,6 +3494,108 @@ describe('MatchmakingService flow', () => {
         status: MatchStatus.FINISHED,
       }),
     );
+  });
+
+  it('keeps the committed result when the finish MQTT notification fails', async () => {
+    const {
+      redis,
+      playerService,
+      notifier,
+      rewardClaimModel,
+      matchHistoryModel,
+      service,
+    } = createService();
+    const match: ActiveMatch = {
+      id: 'match-finish-mqtt-error',
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+    notifier.matchEvent.mockRejectedValueOnce(new Error('MQTT unavailable'));
+
+    await expect(
+      service.finishMatch(match.id, 'player-1', {
+        winningSide: TeamSide.A,
+      }),
+    ).rejects.toThrow('MQTT unavailable');
+
+    const storedMatch = JSON.parse(
+      await redis.get(`matchmaking:match:${match.id}`),
+    ) as ActiveMatch;
+    expect(storedMatch.status).toBe(MatchStatus.FINISHED);
+    expect(matchHistoryModel.updateOne).toHaveBeenCalledTimes(1);
+    expect(rewardClaimModel.updateOne).toHaveBeenCalledTimes(1);
+    expect(playerService.updatePlayerById).toHaveBeenCalledTimes(2);
+
+    const [retriedMatch, retryErrors] = await service.finishMatch(
+      match.id,
+      'player-1',
+      { winningSide: TeamSide.A },
+    );
+    expect(retryErrors).toBeNull();
+    expect(retriedMatch.status).toBe(MatchStatus.FINISHED);
+    expect(matchHistoryModel.updateOne).toHaveBeenCalledTimes(1);
+    expect(rewardClaimModel.updateOne).toHaveBeenCalledTimes(1);
+    expect(playerService.updatePlayerById).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not undo committed history or rewards when the Redis finish write fails', async () => {
+    const {
+      redis,
+      playerService,
+      notifier,
+      rewardClaimModel,
+      matchHistoryModel,
+      service,
+    } = createService();
+    const match: ActiveMatch = {
+      id: 'match-finish-redis-error',
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+    redis.set.mockRejectedValueOnce(new Error('Redis unavailable'));
+
+    await expect(
+      service.finishMatch(match.id, 'player-1', {
+        winningSide: TeamSide.A,
+      }),
+    ).rejects.toThrow('Redis unavailable');
+
+    expect(matchHistoryModel.updateOne).toHaveBeenCalledTimes(1);
+    expect(rewardClaimModel.updateOne).toHaveBeenCalledTimes(1);
+    expect(playerService.updatePlayerById).toHaveBeenCalledTimes(2);
+    expect(notifier.matchEvent).not.toHaveBeenCalled();
+    const storedMatch = JSON.parse(
+      await redis.get(`matchmaking:match:${match.id}`),
+    ) as ActiveMatch;
+    expect(storedMatch.status).toBe(MatchStatus.ACTIVE);
   });
 
   it('returns service errors when player leaderboard update fails while finishing a match', async () => {
