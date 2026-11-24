@@ -40,6 +40,7 @@ import { ActiveMatch } from './type/activeMatch.type';
 import { MatchmakingInvite } from './type/matchmakingInvite.type';
 import {
   MatchmakingBotParticipant,
+  MatchmakingClanSnapshot,
   MatchmakingParticipant,
   MatchmakingPlayerParticipant,
 } from './type/matchmakingParticipant.type';
@@ -1001,7 +1002,9 @@ export class MatchmakingService {
     if (compatibleInvites.length < 2) return null;
 
     const [firstInvite, secondInvite] = compatibleInvites;
-    const match = this.buildActiveMatch(firstInvite, secondInvite);
+    const match = await this.attachMatchSnapshots(
+      this.buildActiveMatch(firstInvite, secondInvite),
+    );
     const claimed = await this.claimInvitesForMatch(
       [firstInvite, secondInvite],
       match,
@@ -1159,7 +1162,9 @@ export class MatchmakingService {
       ];
     }
 
-    const match = this.buildRandomBotMatch(invite);
+    const match = await this.attachMatchSnapshots(
+      this.buildRandomBotMatch(invite),
+    );
     const claimed = await this.claimInvitesForMatch([invite], match);
     if (!claimed) {
       const [latestInvite, latestErrors] = await this.readInvite(inviteId);
@@ -1298,7 +1303,9 @@ export class MatchmakingService {
     secondInvite: MatchmakingInvite,
     matchType = MatchType.RANDOM,
   ) {
-    const match = this.buildActiveMatch(firstInvite, secondInvite, matchType);
+    const match = await this.attachMatchSnapshots(
+      this.buildActiveMatch(firstInvite, secondInvite, matchType),
+    );
 
     await this.saveActiveMatch(match);
 
@@ -1400,6 +1407,8 @@ export class MatchmakingService {
       startedAt: now,
     };
 
+    await this.attachMatchSnapshots(match);
+
     await this.saveActiveMatch(match);
 
     return match;
@@ -1442,6 +1451,8 @@ export class MatchmakingService {
       teams,
       startedAt: now,
     };
+
+    await this.attachMatchSnapshots(match);
 
     await this.saveActiveMatch(match);
 
@@ -1505,6 +1516,74 @@ export class MatchmakingService {
       side,
       participants: this.createBots(`${inviteId}:opponent`, teamSize),
     };
+  }
+
+  /**
+   * Captures stable player and clan presentation at match creation time.
+   *
+   * Player-level clan snapshots are recorded for every match type. The
+   * team-level clan snapshot remains the clan represented by a CLAN match side
+   * and is therefore kept separate from each player's current membership.
+   */
+  private async attachMatchSnapshots(match: ActiveMatch): Promise<ActiveMatch> {
+    const playerIds = this.getRealPlayerIds(match);
+    const playerSnapshots = await Promise.all(
+      playerIds.map(async (playerId) => {
+        const [player, playerErrors] =
+          await this.playerService.getPlayerById(playerId);
+        if (!player || playerErrors) {
+          throw new Error(
+            `Cannot create matchmaking snapshot for player ${playerId}`,
+          );
+        }
+        return {
+          playerId,
+          displayName: player.name,
+          clanId: player?.clan_id?.toString(),
+        };
+      }),
+    );
+    const playerSnapshotMap = new Map(
+      playerSnapshots.map((snapshot) => [snapshot.playerId, snapshot]),
+    );
+
+    const clanIds = Array.from(
+      new Set(
+        [
+          ...match.teams.map((team) => team.clanId),
+          ...playerSnapshots.map((snapshot) => snapshot.clanId),
+        ].filter((clanId): clanId is string => Boolean(clanId)),
+      ),
+    );
+    const clans = await Promise.all(
+      clanIds.map(async (clanId): Promise<MatchmakingClanSnapshot> => {
+        const [clan] = await this.clanService.readOneById(clanId);
+        return {
+          clanId,
+          name: clan?.name,
+          tag: clan?.tag,
+        };
+      }),
+    );
+    const clanSnapshotMap = new Map(clans.map((clan) => [clan.clanId, clan]));
+
+    for (const team of match.teams) {
+      team.clan = team.clanId ? clanSnapshotMap.get(team.clanId) : undefined;
+      team.participants = team.participants.map((participant) => {
+        if (this.isBotParticipant(participant)) return participant;
+
+        const playerSnapshot = playerSnapshotMap.get(participant.playerId);
+        return {
+          ...participant,
+          displayName: playerSnapshot?.displayName ?? participant.playerId,
+          clan: playerSnapshot?.clanId
+            ? clanSnapshotMap.get(playerSnapshot.clanId)
+            : undefined,
+        };
+      });
+    }
+
+    return match;
   }
 
   /**

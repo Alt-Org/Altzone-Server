@@ -13,12 +13,25 @@ describe('MatchmakingMatchHistorySchema', () => {
 
     expect(indexes).toEqual(
       expect.arrayContaining([
-        [{ matchId: 1 }, expect.objectContaining({ unique: true })],
+        [
+          { matchId: 1 },
+          expect.objectContaining({
+            name: 'uniq_matchmaking_match_history_match_id',
+            unique: true,
+          }),
+        ],
         [
           { 'teams.participants.playerId': 1, finishedAt: -1 },
-          expect.any(Object),
+          expect.objectContaining({
+            name: 'matchmaking_history_player_finished_at',
+          }),
         ],
-        [{ 'teams.clan.clanId': 1, finishedAt: -1 }, expect.any(Object)],
+        [
+          { 'teams.clan.clanId': 1, finishedAt: -1 },
+          expect.objectContaining({
+            name: 'matchmaking_history_clan_finished_at',
+          }),
+        ],
       ]),
     );
     expect(indexes).not.toEqual(

@@ -204,12 +204,15 @@ MatchmakingMatchHistorySchema.set(
   ModelName.MATCHMAKING_MATCH_HISTORY,
 );
 
-MatchmakingMatchHistorySchema.index({ matchId: 1 }, { unique: true });
-MatchmakingMatchHistorySchema.index({
-  'teams.participants.playerId': 1,
-  finishedAt: -1,
-});
-MatchmakingMatchHistorySchema.index({
-  'teams.clan.clanId': 1,
-  finishedAt: -1,
-});
+MatchmakingMatchHistorySchema.index(
+  { matchId: 1 },
+  { name: 'uniq_matchmaking_match_history_match_id', unique: true },
+);
+MatchmakingMatchHistorySchema.index(
+  { 'teams.participants.playerId': 1, finishedAt: -1 },
+  { name: 'matchmaking_history_player_finished_at' },
+);
+MatchmakingMatchHistorySchema.index(
+  { 'teams.clan.clanId': 1, finishedAt: -1 },
+  { name: 'matchmaking_history_clan_finished_at' },
+);

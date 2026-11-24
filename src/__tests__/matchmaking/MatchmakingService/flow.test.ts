@@ -172,7 +172,14 @@ const createService = (
     },
   };
   const clanService = {
-    readOneById: jest.fn(async (clanId: string) => [{ _id: clanId }, null]),
+    readOneById: jest.fn(async (clanId: string) => [
+      {
+        _id: clanId,
+        name: `Clan ${clanId}`,
+        tag: `TAG-${clanId}`,
+      },
+      null,
+    ]),
     basicService: {
       updateOneById: jest.fn(async () => [{}, null]),
     },
@@ -554,10 +561,18 @@ describe('MatchmakingService flow', () => {
       teamSize: 1,
     });
     expect(matches[0].teams[0].participants).toEqual([
-      { playerId: 'player-1', isBot: false },
+      {
+        playerId: 'player-1',
+        isBot: false,
+        displayName: 'Player 1',
+      },
     ]);
     expect(matches[0].teams[1].participants).toEqual([
-      { playerId: 'player-2', isBot: false },
+      {
+        playerId: 'player-2',
+        isBot: false,
+        displayName: 'Player 2',
+      },
     ]);
     expect(
       await redis.lrange(`matchmaking:queue:RANDOM:${gameType}`, 0, -1),
@@ -601,8 +616,26 @@ describe('MatchmakingService flow', () => {
     const [match] = getStoredMatches(redis);
     expect(match.matchType).toBe(MatchType.RANDOM);
     expect(match.teams.flatMap((team) => team.participants)).toEqual([
-      { playerId: 'player-1', isBot: false },
-      { playerId: 'player-2', isBot: false },
+      {
+        playerId: 'player-1',
+        isBot: false,
+        displayName: 'Player 1',
+        clan: {
+          clanId: 'shared-clan',
+          name: 'Clan shared-clan',
+          tag: 'TAG-shared-clan',
+        },
+      },
+      {
+        playerId: 'player-2',
+        isBot: false,
+        displayName: 'Player 2',
+        clan: {
+          clanId: 'shared-clan',
+          name: 'Clan shared-clan',
+          tag: 'TAG-shared-clan',
+        },
+      },
     ]);
   });
 
@@ -728,6 +761,13 @@ describe('MatchmakingService flow', () => {
     expect(match.teams[1].players).toEqual([]);
     expect(match.teams[1].bots).toEqual([
       expect.objectContaining({ isBot: true }),
+    ]);
+    const [storedMatch] = getStoredMatches(redis);
+    expect(storedMatch.teams[0].participants).toEqual([
+      expect.objectContaining({
+        playerId: 'player-1',
+        displayName: 'Player 1',
+      }),
     ]);
 
     const [matchedInvite] = await service.getInvite(invite.id);
@@ -1004,6 +1044,25 @@ describe('MatchmakingService flow', () => {
       teamSize: 1,
     });
     expect(matches[0].teams[0].clanId).toBe('clan-1');
+    expect(matches[0].teams[0]).toMatchObject({
+      clan: {
+        clanId: 'clan-1',
+        name: 'Clan clan-1',
+        tag: 'TAG-clan-1',
+      },
+      participants: [
+        {
+          playerId: 'player-1',
+          isBot: false,
+          displayName: 'Player 1',
+          clan: {
+            clanId: 'clan-1',
+            name: 'Clan clan-1',
+            tag: 'TAG-clan-1',
+          },
+        },
+      ],
+    });
     expect(matches[0].teams[1].participants).toEqual([
       expect.objectContaining({ isBot: true }),
     ]);
@@ -1045,12 +1104,44 @@ describe('MatchmakingService flow', () => {
       {
         side: TeamSide.A,
         clanId: 'clan-2',
-        participants: [{ playerId: 'player-2', isBot: false }],
+        clan: {
+          clanId: 'clan-2',
+          name: 'Clan clan-2',
+          tag: 'TAG-clan-2',
+        },
+        participants: [
+          {
+            playerId: 'player-2',
+            isBot: false,
+            displayName: 'Player 2',
+            clan: {
+              clanId: 'clan-2',
+              name: 'Clan clan-2',
+              tag: 'TAG-clan-2',
+            },
+          },
+        ],
       },
       {
         side: TeamSide.B,
         clanId: 'clan-1',
-        participants: [{ playerId: 'player-1', isBot: false }],
+        clan: {
+          clanId: 'clan-1',
+          name: 'Clan clan-1',
+          tag: 'TAG-clan-1',
+        },
+        participants: [
+          {
+            playerId: 'player-1',
+            isBot: false,
+            displayName: 'Player 1',
+            clan: {
+              clanId: 'clan-1',
+              name: 'Clan clan-1',
+              tag: 'TAG-clan-1',
+            },
+          },
+        ],
       },
     ]);
   });
@@ -1082,11 +1173,21 @@ describe('MatchmakingService flow', () => {
       teamSize: 2,
     });
     expect(match.teams[0].participants).toEqual([
-      { playerId: 'player-2', isBot: false },
+      expect.objectContaining({
+        playerId: 'player-2',
+        isBot: false,
+        displayName: 'Player 2',
+        clan: expect.objectContaining({ clanId: 'clan-2' }),
+      }),
       expect.objectContaining({ isBot: true }),
     ]);
     expect(match.teams[1].participants).toEqual([
-      { playerId: 'player-1', isBot: false },
+      expect.objectContaining({
+        playerId: 'player-1',
+        isBot: false,
+        displayName: 'Player 1',
+        clan: expect.objectContaining({ clanId: 'clan-1' }),
+      }),
       expect.objectContaining({ isBot: true }),
     ]);
   });
@@ -1207,7 +1308,11 @@ describe('MatchmakingService flow', () => {
     expect(match.teams[0].participants).toHaveLength(2);
     expect(match.teams[1].participants).toHaveLength(2);
     expect(match.teams.flatMap((team) => team.participants)).toEqual([
-      { playerId: 'player-1', isBot: false },
+      expect.objectContaining({
+        playerId: 'player-1',
+        isBot: false,
+        displayName: 'Player 1',
+      }),
       expect.objectContaining({ isBot: true }),
       expect.objectContaining({ isBot: true }),
       expect.objectContaining({ isBot: true }),
