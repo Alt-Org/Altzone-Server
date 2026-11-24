@@ -12,6 +12,14 @@ import ServiceError from '../../../common/service/basicService/ServiceError';
 import { ServerTaskName } from '../../../dailyTasks/enum/serverTaskName.enum';
 import { envVars } from '../../../common/service/envHandler/envVars';
 import { Environment as ServerEnvironment } from '../../../common/service/envHandler/enum/environment.enum';
+import {
+  MatchmakingMatchHistorySchema,
+  MatchmakingOpponentType,
+  MatchmakingParticipantOutcome,
+  MatchmakingRewardStatus,
+} from '../../../matchmaking/schema/matchmakingMatchHistory.schema';
+import mongoose from 'mongoose';
+import { MatchmakingRewardClaimSchema } from '../../../matchmaking/schema/matchmakingRewardClaim.schema';
 
 class InMemoryRedisService {
   readonly values = new Map<string, string>();
@@ -140,6 +148,9 @@ type TestDeps = {
   rewardClaimModel: {
     updateOne: jest.Mock;
   };
+  matchHistoryModel: {
+    updateOne: jest.Mock;
+  };
   service: MatchmakingService;
 };
 
@@ -216,6 +227,9 @@ const createService = (
   const rewardClaimModel = {
     updateOne: jest.fn(async () => ({ upsertedCount: 1 })),
   };
+  const matchHistoryModel = {
+    updateOne: jest.fn(async () => ({ upsertedCount: 1 })),
+  };
   const service = new MatchmakingService(
     redis as any,
     playerService as any,
@@ -227,6 +241,7 @@ const createService = (
     clanLeaderboardWinService as any,
     connection as any,
     rewardClaimModel as any,
+    matchHistoryModel as any,
   );
 
   return {
@@ -239,6 +254,7 @@ const createService = (
     playerLeaderboardWinService,
     clanLeaderboardWinService,
     rewardClaimModel,
+    matchHistoryModel,
     service,
   } satisfies TestDeps;
 };
@@ -2286,6 +2302,8 @@ describe('MatchmakingService flow', () => {
       emitterService,
       playerLeaderboardWinService,
       clanLeaderboardWinService,
+      rewardClaimModel,
+      matchHistoryModel,
       service,
     } = createService();
     const match: ActiveMatch = {
@@ -2322,6 +2340,47 @@ describe('MatchmakingService flow', () => {
       status: MatchStatus.FINISHED,
       result: { winningSide: TeamSide.A },
     });
+    expect(matchHistoryModel.updateOne).toHaveBeenCalledWith(
+      { matchId: 'match-1' },
+      {
+        $setOnInsert: expect.objectContaining({
+          matchId: 'match-1',
+          matchType: MatchType.RANDOM,
+          gameType,
+          teamSize: 1,
+          opponentType: MatchmakingOpponentType.HUMAN,
+          startedAt: new Date('2026-07-06T08:00:00.000Z'),
+          finishedAt: expect.any(Date),
+          result: { winningSide: TeamSide.A },
+          rewards: [
+            {
+              playerId: 'player-1',
+              outcome: MatchmakingParticipantOutcome.WIN,
+              battlePoints: 30,
+              statistics: { playedBattles: 1, wonBattles: 1 },
+            },
+            {
+              playerId: 'player-2',
+              outcome: MatchmakingParticipantOutcome.LOSS,
+              battlePoints: -20,
+              statistics: { playedBattles: 1, wonBattles: 0 },
+            },
+          ],
+          rewardStatus: MatchmakingRewardStatus.APPLIED,
+        }),
+      },
+      { upsert: true, session: expect.anything() },
+    );
+    const historyOptions = (
+      matchHistoryModel.updateOne.mock.calls[0] as unknown[]
+    )[2] as { session: unknown };
+    const claimOptions = (
+      rewardClaimModel.updateOne.mock.calls[0] as unknown[]
+    )[2] as { session: unknown };
+    expect(claimOptions.session).toBe(historyOptions.session);
+    expect(
+      matchHistoryModel.updateOne.mock.invocationCallOrder[0],
+    ).toBeLessThan(rewardClaimModel.updateOne.mock.invocationCallOrder[0]);
     expect(
       playerLeaderboardWinService.recordAcceptedPlayerWin,
     ).toHaveBeenCalledWith(
@@ -2521,6 +2580,8 @@ describe('MatchmakingService flow', () => {
       emitterService,
       playerLeaderboardWinService,
       clanLeaderboardWinService,
+      rewardClaimModel,
+      matchHistoryModel,
       notifier,
       service,
     } = createService();
@@ -2552,6 +2613,19 @@ describe('MatchmakingService flow', () => {
 
     expect(errors).toBeNull();
     expect(finishedMatch.status).toBe(MatchStatus.FINISHED);
+    expect(matchHistoryModel.updateOne).toHaveBeenCalledWith(
+      { matchId: match.id },
+      {
+        $setOnInsert: expect.objectContaining({
+          matchId: match.id,
+          opponentType: MatchmakingOpponentType.BOT,
+          rewards: [],
+          rewardStatus: MatchmakingRewardStatus.NOT_ELIGIBLE,
+        }),
+      },
+      { upsert: true, session: expect.anything() },
+    );
+    expect(rewardClaimModel.updateOne).not.toHaveBeenCalled();
     expect(
       playerLeaderboardWinService.recordAcceptedPlayerWin,
     ).not.toHaveBeenCalled();
@@ -2753,6 +2827,7 @@ describe('MatchmakingService flow', () => {
       playerLeaderboardWinService,
       clanLeaderboardWinService,
       rewardClaimModel,
+      matchHistoryModel,
       service,
     } = createService();
     const match: ActiveMatch = {
@@ -2785,6 +2860,17 @@ describe('MatchmakingService flow', () => {
 
       expect(errors).toBeNull();
       expect(finishedMatch.status).toBe(MatchStatus.FINISHED);
+      expect(matchHistoryModel.updateOne).toHaveBeenCalledWith(
+        { matchId: match.id },
+        {
+          $setOnInsert: expect.objectContaining({
+            matchId: match.id,
+            rewards: [],
+            rewardStatus: MatchmakingRewardStatus.NOT_ELIGIBLE,
+          }),
+        },
+        { upsert: true, session: expect.anything() },
+      );
       expect(rewardClaimModel.updateOne).not.toHaveBeenCalled();
       expect(
         playerLeaderboardWinService.recordAcceptedPlayerWin,
@@ -2808,6 +2894,7 @@ describe('MatchmakingService flow', () => {
       playerLeaderboardWinService,
       clanLeaderboardWinService,
       rewardClaimModel,
+      matchHistoryModel,
       service,
     } = createService();
     const match: ActiveMatch = {
@@ -2828,7 +2915,7 @@ describe('MatchmakingService flow', () => {
       ],
       startedAt: '2026-07-06T08:00:00.000Z',
     };
-    rewardClaimModel.updateOne
+    matchHistoryModel.updateOne
       .mockResolvedValueOnce({ upsertedCount: 1 })
       .mockResolvedValueOnce({ upsertedCount: 0 });
     await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
@@ -2849,7 +2936,8 @@ describe('MatchmakingService flow', () => {
     expect(firstResult[1]).toBeNull();
     expect(retriedResult[1]).toBeNull();
     expect(retriedResult[0].status).toBe(MatchStatus.FINISHED);
-    expect(rewardClaimModel.updateOne).toHaveBeenCalledTimes(2);
+    expect(matchHistoryModel.updateOne).toHaveBeenCalledTimes(2);
+    expect(rewardClaimModel.updateOne).toHaveBeenCalledTimes(1);
     expect(
       playerLeaderboardWinService.recordAcceptedPlayerWin,
     ).toHaveBeenCalledTimes(1);
@@ -3281,5 +3369,70 @@ describe('MatchmakingService flow', () => {
       'MATCH_FINISHED',
       expect.anything(),
     );
+  });
+
+  it('rolls back permanent history and the reward claim when reward updates fail', async () => {
+    const { redis, playerService, service } = createService();
+    const historyModel = mongoose.connection.model(
+      'MatchmakingMatchHistoryAtomicTest',
+      MatchmakingMatchHistorySchema,
+    );
+    const rewardClaimModel = mongoose.connection.model(
+      'MatchmakingRewardClaimAtomicTest',
+      MatchmakingRewardClaimSchema,
+    );
+    const match: ActiveMatch = {
+      id: 'match-atomic-history-rollback',
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    const updateError = new ServiceError({
+      reason: SEReason.NOT_FOUND,
+      field: 'playerId',
+      value: 'player-1',
+      message: 'Player not found.',
+    });
+
+    await Promise.all([
+      historyModel.deleteMany({ matchId: match.id }),
+      rewardClaimModel.deleteMany({ battleId: match.id }),
+    ]);
+    (service as any).connection = mongoose.connection;
+    (service as any).matchHistoryModel = historyModel;
+    (service as any).rewardClaimModel = rewardClaimModel;
+    playerService.updatePlayerById.mockResolvedValueOnce([null, [updateError]]);
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [finishedMatch, errors] = await service.finishMatch(
+      match.id,
+      'player-1',
+      { winningSide: TeamSide.A },
+    );
+
+    expect(finishedMatch).toBeNull();
+    expect(errors).toEqual([updateError]);
+    await expect(
+      historyModel.countDocuments({ matchId: match.id }),
+    ).resolves.toBe(0);
+    await expect(
+      rewardClaimModel.countDocuments({ battleId: match.id }),
+    ).resolves.toBe(0);
+    const storedMatch = JSON.parse(
+      await redis.get(`matchmaking:match:${match.id}`),
+    ) as ActiveMatch;
+    expect(storedMatch.status).toBe(MatchStatus.ACTIVE);
   });
 });
