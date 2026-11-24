@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { OnEvent } from '@nestjs/event-emitter';
 import { FilterQuery, Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { Box } from '../schemas/box.schema';
@@ -15,6 +16,11 @@ import { PackageRaceStatus } from './enum/packageRaceStatus.enum';
 import { PackageRaceDto } from './dto/packageRace.dto';
 import { PackageRaceHelperService } from './packageRaceHelper.service';
 import { BoxWithRace, isOnlyNotFound } from './packageRace.utils';
+import PackageRaceNotifier from './packageRace.notifier';
+import {
+  SESSION_TASK_POINTS_AWARDED_EVENT,
+  SessionTaskReward,
+} from './sessionTask/sessionTaskReward.type';
 
 @Injectable()
 export class PackageRaceService {
@@ -22,6 +28,7 @@ export class PackageRaceService {
     @InjectModel(Box.name) private readonly boxModel: Model<Box>,
     private readonly boxService: BoxService,
     private readonly clanService: ClanService,
+    private readonly notifier: PackageRaceNotifier,
   ) {
     this.basicService = new BasicService(boxModel);
     this.helperService = new PackageRaceHelperService();
@@ -29,6 +36,38 @@ export class PackageRaceService {
 
   private readonly basicService: BasicService;
   private readonly helperService: PackageRaceHelperService;
+  private readonly logger = new Logger(PackageRaceService.name);
+
+  /**
+   * Publishes the updated package race to both session teams after session
+   * task points were awarded.
+   *
+   * @param reward the awarded session task reward
+   */
+  @OnEvent(SESSION_TASK_POINTS_AWARDED_EVENT)
+  async publishSessionTaskScore(reward: SessionTaskReward): Promise<void> {
+    try {
+      const [race, errors] = await this.getPackageRace(reward.boxId);
+      if (errors) {
+        this.logger.warn(
+          `Could not publish package race score of box ${reward.boxId}`,
+        );
+        return;
+      }
+
+      this.notifier.scoreUpdated(race, {
+        type: reward.taskType,
+        teamId: reward.teamId,
+        completedByPlayerId: reward.completedByPlayerId,
+        points: reward.points,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to publish package race score of box ${reward.boxId}`,
+        error,
+      );
+    }
+  }
 
   /**
    * Reads the package race of the specified box session.
