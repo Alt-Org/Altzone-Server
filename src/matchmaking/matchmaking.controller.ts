@@ -11,6 +11,7 @@ import {
 import { User } from '../auth/user';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
+import { ChangeRoomPositionDto } from './dto/changeRoomPosition.dto';
 import { CreateMatchmakingInviteDto } from './dto/createMatchmakingInvite.dto';
 import { FinishMatchDto } from './dto/finishMatch.dto';
 import { JoinMatchmakingInviteDto } from './dto/joinMatchmakingInvite.dto';
@@ -117,6 +118,19 @@ export class MatchmakingController {
   @UniformResponse(undefined, MatchmakingInviteDto)
   async startRoom(@Param('roomId') roomId: string, @LoggedUser() user: User) {
     return this.matchmakingService.startRoom(roomId, user.player_id);
+  }
+
+  /** Moves the authenticated player to a free slot in their CUSTOM room. */
+  @Post('rooms/changePosition')
+  @UniformResponse(undefined, MatchmakingInviteDto)
+  async changeRoomPosition(
+    @Body() body: ChangeRoomPositionDto,
+    @LoggedUser() user: User,
+  ) {
+    return this.matchmakingService.changeRoomPosition(
+      user.player_id,
+      body.position,
+    );
   }
 
   /**

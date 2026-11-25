@@ -412,6 +412,85 @@ export class MatchmakingService {
     return [null, null];
   }
 
+  async changeRoomPosition(
+    playerId: string,
+    position: number,
+  ): Promise<IServiceReturn<MatchmakingInviteDto>> {
+    const [invite, errors] = await this.getActiveInviteForPlayer(playerId);
+    if (errors) return [null, errors];
+
+    if (
+      !invite.players.includes(playerId) ||
+      invite.matchType !== MatchType.CUSTOM ||
+      (invite.status !== InviteStatus.OPEN &&
+        invite.status !== InviteStatus.READY)
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'inviteId',
+            value: invite.id,
+            message:
+              'Only members of an editable CUSTOM room can change position.',
+          }),
+        ],
+      ];
+    }
+
+    if (
+      !Number.isInteger(position) ||
+      position < 0 ||
+      position >= this.getInviteCapacity(invite)
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
+            field: 'position',
+            value: position,
+            message: 'Position is outside the room slot range.',
+          }),
+        ],
+      ];
+    }
+
+    const room = this.withCustomPositions(invite);
+    if (room.playerPositions[playerId] === position) {
+      return [this.toInviteDto(room), null];
+    }
+    if (
+      Object.values(room.playerPositions).includes(position) ||
+      room.bots.some((bot) => bot.position === position)
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'position',
+            value: position,
+            message: 'Position is already occupied.',
+          }),
+        ],
+      ];
+    }
+
+    const updatedRoom = {
+      ...room,
+      playerPositions: { ...room.playerPositions, [playerId]: position },
+      readyPlayerIds: room.readyPlayerIds.filter((id) => id !== playerId),
+      updatedAt: new Date().toISOString(),
+    };
+    if (!(await this.updateCustomInvite(invite, updatedRoom))) {
+      return [null, this.customInviteChangedError(invite.id)];
+    }
+    await this.notifyInvitePlayers(updatedRoom);
+    return [this.toInviteDto(updatedRoom), null];
+  }
+
   /**
    * Starts matchmaking for a ready room. Only the room owner may move a room
    * from READY into matchmaking.
