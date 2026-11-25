@@ -298,6 +298,7 @@ export class MatchmakingService {
     const updatedInvite = this.recalculateInvite({
       ...this.makeRoomForPlayer(invite),
       players: [...invite.players, playerId],
+      ...(invite.matchType === MatchType.CUSTOM ? { readyPlayerIds: [] } : {}),
       updatedAt: new Date().toISOString(),
     });
 
@@ -396,6 +397,7 @@ export class MatchmakingService {
           ? remainingPlayerIds[0]
           : invite.ownerPlayerId,
       players: remainingPlayerIds,
+      ...(invite.matchType === MatchType.CUSTOM ? { readyPlayerIds: [] } : {}),
       updatedAt,
     });
 
@@ -491,6 +493,65 @@ export class MatchmakingService {
     return [this.toInviteDto(updatedRoom), null];
   }
 
+  async toggleRoomReady(
+    playerId: string,
+  ): Promise<IServiceReturn<MatchmakingInviteDto>> {
+    const [activeRoom, errors] = await this.getActiveInviteForPlayer(playerId);
+    if (errors) return [null, errors];
+
+    let invite = activeRoom;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      if (attempt > 0) {
+        const [latest, readErrors] = await this.readInvite(activeRoom.id);
+        if (readErrors) return [null, readErrors];
+        invite = latest;
+      }
+      if (
+        invite.matchType !== MatchType.CUSTOM ||
+        !invite.players.includes(playerId) ||
+        (invite.status !== InviteStatus.OPEN &&
+          invite.status !== InviteStatus.READY)
+      ) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_ALLOWED,
+              field: 'inviteId',
+              value: invite.id,
+              message:
+                'Only members of an editable CUSTOM room can change readiness.',
+            }),
+          ],
+        ];
+      }
+
+      const room = this.withCustomPositions(invite);
+      const readyPlayers = new Set(room.readyPlayerIds);
+      if (!readyPlayers.delete(playerId)) readyPlayers.add(playerId);
+      const updatedRoom = {
+        ...room,
+        readyPlayerIds: [...readyPlayers],
+        updatedAt: new Date().toISOString(),
+      };
+      if (
+        this.isInviteFull(updatedRoom) &&
+        updatedRoom.players.every((id) => readyPlayers.has(id))
+      ) {
+        const matched = await this.commitCustomMatch(
+          invite,
+          updatedRoom,
+          room.ownerPlayerId,
+        );
+        if (matched) return [this.toInviteDto(matched), null];
+      } else if (await this.updateCustomInvite(invite, updatedRoom)) {
+        await this.notifyInvitePlayers(updatedRoom);
+        return [this.toInviteDto(updatedRoom), null];
+      }
+    }
+    return [null, this.customInviteChangedError(activeRoom.id)];
+  }
+
   /**
    * Starts matchmaking for a ready room. Only the room owner may move a room
    * from READY into matchmaking.
@@ -531,32 +592,41 @@ export class MatchmakingService {
     }
 
     if (invite.matchType === MatchType.CUSTOM) {
-      const match = await this.createCustomMatch(invite);
-      const matchedInvite = {
-        ...invite,
-        status: InviteStatus.MATCHED,
-        matchId: match.id,
-        updatedAt: match.startedAt,
-      };
-      const updated = await this.updateCustomInvite(
-        invite,
-        matchedInvite,
-        match,
-      );
-      if (!updated) return [null, this.customInviteChangedError(invite.id)];
-      await Promise.all(
-        invite.players.map((id) =>
-          this.redisService.deleteIfValue(this.playerInviteKey(id), invite.id),
-        ),
-      );
-      await this.notifyInvitePlayers(matchedInvite);
-      await this.notifyMatchPlayers(match);
+      const matchedInvite = await this.commitCustomMatch(invite, invite);
+      if (!matchedInvite)
+        return [null, this.customInviteChangedError(invite.id)];
       return [this.toInviteDto(matchedInvite), null];
     }
 
     const processedInvite = await this.processReadyInvite(invite);
 
     return [this.toInviteDto(processedInvite), null];
+  }
+
+  private async commitCustomMatch(
+    previous: MatchmakingInvite,
+    room: MatchmakingInvite,
+    photonHostId?: string,
+  ) {
+    const match = await this.createCustomMatch(room);
+    const matchedRoom = {
+      ...room,
+      status: InviteStatus.MATCHED,
+      matchId: match.id,
+      updatedAt: match.startedAt,
+    };
+    if (!(await this.updateCustomInvite(previous, matchedRoom, match)))
+      return null;
+    await Promise.all(
+      room.players.map((id) =>
+        this.redisService.deleteIfValue(this.playerInviteKey(id), room.id),
+      ),
+    );
+    await Promise.all([
+      this.notifyInvitePlayers(matchedRoom),
+      this.notifyMatchPlayers(match, photonHostId),
+    ]);
+    return matchedRoom;
   }
 
   /**
@@ -1789,11 +1859,17 @@ export class MatchmakingService {
   /**
    * Sends per-player match-found events after a match is created.
    */
-  private async notifyMatchPlayers(match: ActiveMatch) {
+  private async notifyMatchPlayers(match: ActiveMatch, photonHostId?: string) {
     const matchDto = await this.toMqttMatchDto(match);
     await Promise.all(
       this.getRealPlayerIds(match).map((playerId) =>
-        this.notifier.matchFound(playerId, matchDto),
+        playerId === photonHostId
+          ? this.notifier.matchFound(
+              playerId,
+              matchDto,
+              MqttNotificationType.CUSTOM_MATCH_READY,
+            )
+          : this.notifier.matchFound(playerId, matchDto),
       ),
     );
   }

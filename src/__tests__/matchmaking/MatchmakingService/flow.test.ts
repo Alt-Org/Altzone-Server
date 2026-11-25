@@ -1325,6 +1325,81 @@ describe('MatchmakingService flow', () => {
     }
   });
 
+  it('toggles CUSTOM readiness and starts once after concurrent confirmations', async () => {
+    const { redis, notifier, service } = createService();
+    const roomId = '665af23e5e982f0013aa334b';
+    const [room] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId,
+    });
+    const [waiting] = await service.toggleRoomReady('player-1');
+    expect(waiting.readyPlayerIds).toEqual(['player-1']);
+    expect(waiting.status).toBe(InviteStatus.OPEN);
+    expect(getStoredMatches(redis)).toHaveLength(0);
+    const [unready] = await service.toggleRoomReady('player-1');
+    expect(unready.readyPlayerIds).toEqual([]);
+    await service.toggleRoomReady('player-1');
+    const [joined] = await service.joinInvite(room.id, 'player-2', { roomId });
+    expect(joined.readyPlayerIds).toEqual([]);
+    notifier.inviteUpdated.mockClear();
+
+    const results = await Promise.all([
+      service.toggleRoomReady('player-1'),
+      service.toggleRoomReady('player-2'),
+    ]);
+    expect(results.map(([, errors]) => errors)).toEqual([null, null]);
+    const [match] = getStoredMatches(redis);
+    expect(getStoredMatches(redis)).toHaveLength(1);
+    expect(match.readyPlayerIds).toBeUndefined();
+    const [matchedRoom] = await service.getInvite(room.id);
+    expect(matchedRoom).toMatchObject({
+      matchId: match.id,
+      status: InviteStatus.MATCHED,
+      readyPlayerIds: expect.arrayContaining(['player-1', 'player-2']),
+    });
+    for (const playerId of ['player-1', 'player-2']) {
+      expect(notifier.inviteUpdated).toHaveBeenCalledWith(
+        playerId,
+        expect.objectContaining({ status: InviteStatus.MATCHED }),
+      );
+    }
+    expect(notifier.matchFound).toHaveBeenCalledTimes(2);
+    expect(notifier.matchFound).toHaveBeenCalledWith(
+      'player-1',
+      expect.objectContaining({ id: match.id }),
+      MqttNotificationType.CUSTOM_MATCH_READY,
+    );
+    expect(notifier.matchFound).toHaveBeenCalledWith(
+      'player-2',
+      expect.objectContaining({ id: match.id }),
+    );
+  });
+
+  it('starts a bot-filled CUSTOM room after its only human confirms readiness', async () => {
+    const { redis, service } = createService();
+    const [room] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId: '665af23e5e982f0013aa334b',
+      allowBots: true,
+    });
+    const key = `matchmaking:invite:${room.id}`;
+    redis.values.set(
+      key,
+      JSON.stringify({
+        ...JSON.parse(redis.values.get(key)!),
+        status: InviteStatus.READY,
+        bots: [
+          { botId: 'bot-1', displayName: 'Bot 1', isBot: true, position: 1 },
+        ],
+      }),
+    );
+    const [matched, errors] = await service.toggleRoomReady('player-1');
+    expect(errors).toBeNull();
+    expect(matched.status).toBe(InviteStatus.MATCHED);
+    expect(matched.readyPlayerIds).toEqual(['player-1']);
+    expect(getStoredMatches(redis)).toHaveLength(1);
+  });
+
   it('copies the room game type to a CUSTOM match', async () => {
     const { redis, notifier, service } = createService();
 

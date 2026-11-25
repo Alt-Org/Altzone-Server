@@ -133,6 +133,13 @@ export class MatchmakingController {
     );
   }
 
+  /** Toggles the authenticated player's readiness in their CUSTOM room. */
+  @Post('rooms/ready')
+  @UniformResponse(undefined, MatchmakingInviteDto)
+  async toggleRoomReady(@LoggedUser() user: User) {
+    return this.matchmakingService.toggleRoomReady(user.player_id);
+  }
+
   /**
    * Accepts a pending RANDOM bot-opponent offer and creates a 1v1 match.
    */
