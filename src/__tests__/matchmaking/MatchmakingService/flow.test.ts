@@ -1269,6 +1269,62 @@ describe('MatchmakingService flow', () => {
     expect(notifier.matchFound).not.toHaveBeenCalled();
   });
 
+  it('allows only one CUSTOM member to move into the same free slot', async () => {
+    const { redis, notifier, service } = createService();
+    const roomId = '665af23e5e982f0013aa334b';
+    const [room] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId,
+      teamSize: 2,
+    });
+    const [joined] = await service.joinInvite(room.id, 'player-2', { roomId });
+    const key = `matchmaking:invite:${room.id}`;
+    const stored = JSON.parse(redis.values.get(key)!);
+    redis.values.set(
+      key,
+      JSON.stringify({
+        ...stored,
+        readyPlayerIds: ['player-1', 'player-2'],
+        bots: [
+          { botId: 'bot-1', displayName: 'Bot 1', isBot: true, position: 3 },
+        ],
+      }),
+    );
+    notifier.inviteUpdated.mockClear();
+
+    for (const position of [0, 3, 4, 1.5]) {
+      const [result, errors] = await service.changeRoomPosition(
+        'player-2',
+        position,
+      );
+      expect(result).toBeNull();
+      expect(errors[0].field).toBe('position');
+    }
+    const [unchanged] = await service.changeRoomPosition('player-2', 1);
+    expect(unchanged.stateVersion).toBe(joined.stateVersion);
+    const [, outsiderErrors] = await service.changeRoomPosition('player-3', 2);
+    expect(outsiderErrors[0].reason).toBe(SEReason.NOT_FOUND);
+    expect(notifier.inviteUpdated).not.toHaveBeenCalled();
+
+    const results = await Promise.all(
+      ['player-2', 'player-1'].map((id) => service.changeRoomPosition(id, 2)),
+    );
+    expect(results.filter(([result]) => result !== null)).toHaveLength(1);
+    const [updated] = await service.getInvite(room.id);
+    const movedPlayer =
+      updated.playerPositions['player-2'] === 2 ? 'player-2' : 'player-1';
+    expect(updated.readyPlayerIds).not.toContain(movedPlayer);
+    expect(updated.readyPlayerIds).toHaveLength(1);
+    expect(updated.stateVersion).toBe(joined.stateVersion + 1);
+    expect(notifier.inviteUpdated).toHaveBeenCalledTimes(2);
+    for (const playerId of ['player-1', 'player-2']) {
+      expect(notifier.inviteUpdated).toHaveBeenCalledWith(
+        playerId,
+        expect.objectContaining({ playerPositions: updated.playerPositions }),
+      );
+    }
+  });
+
   it('copies the room game type to a CUSTOM match', async () => {
     const { redis, notifier, service } = createService();
 
