@@ -34,6 +34,7 @@ import { ItemSchema } from '../../../clanInventory/item/item.schema';
 import { GameSchema } from '../../../gameData/game.schema';
 import { AuthModule } from '../../../auth/auth.module';
 import { PackageRaceService } from '../../../box/packageRace/packageRace.service';
+import PackageRaceNotifier from '../../../box/packageRace/packageRace.notifier';
 
 export default class BoxCommonModule {
   private constructor() {}
@@ -86,6 +87,7 @@ export default class BoxCommonModule {
           PasswordGenerator,
           UniqueFieldGenerator,
           PackageRaceService,
+          PackageRaceNotifier,
         ],
       }).compile();
 

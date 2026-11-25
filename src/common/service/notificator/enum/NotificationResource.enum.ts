@@ -45,4 +45,8 @@ export enum NotificationResource {
    * Notification about clan rules changes
    */
   RULES = 'rules',
+  /**
+   * Notification about the package race of a box testing session
+   */
+  PACKAGE_RACE = 'package_race',
 }

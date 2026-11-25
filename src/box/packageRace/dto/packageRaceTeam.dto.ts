@@ -34,9 +34,10 @@ export class PackageRaceTeamDto {
   targetPoints: number;
 
   /**
-   * Team daily task points
+   * Team session task points.
+   * Each completed session task gives the team a fixed amount of points.
    *
-   * @example 50
+   * @example 60
    */
   @Expose()
   taskPoints: number;

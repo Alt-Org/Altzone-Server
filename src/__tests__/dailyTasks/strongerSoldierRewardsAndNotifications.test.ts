@@ -50,6 +50,8 @@ describe('UPGRADE_A_DEFENCE_SOLDIER rewards and MQTT notifications', () => {
       playerRewarder as any,
       clanProgression as any,
       {} as any,
+      { rewardTeam: jest.fn().mockResolvedValue([null, null]) } as any,
+      { emit: jest.fn() } as any,
     );
   });
 

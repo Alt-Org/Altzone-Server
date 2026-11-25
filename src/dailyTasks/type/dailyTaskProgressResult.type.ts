@@ -1,4 +1,5 @@
 import { DailyTaskDto } from '../dto/dailyTask.dto';
+import { SessionTaskReward } from '../../box/packageRace/sessionTask/sessionTaskReward.type';
 
 export type DailyTaskProgressStatus = 'advanced' | 'completed';
 
@@ -13,4 +14,5 @@ export type DailyTaskProgressResult<TTask = DailyTaskDto> = {
   /** Newly reached active clan milestone, including a Box-session target. */
   reachedMilestones?: number[];
   needsClanReward?: boolean;
+  sessionTaskReward?: SessionTaskReward;
 };

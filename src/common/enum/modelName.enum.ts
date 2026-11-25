@@ -42,5 +42,6 @@ export enum ModelName {
   PLAYER_LEADERBOARD_WIN = 'PlayerLeaderboardWin',
   CLAN_LEADERBOARD_WIN = 'ClanLeaderboardWin',
   MATCHMAKING_REWARD_CLAIM = 'MatchmakingRewardClaim',
+  SESSION_TASK_COMPLETION = 'SessionTaskCompletion',
   MATCHMAKING_MATCH_HISTORY = 'MatchmakingMatchHistory',
 }
