@@ -1325,6 +1325,49 @@ describe('MatchmakingService flow', () => {
     }
   });
 
+  it('rejects position and readiness changes from an outsider with a stale room index', async () => {
+    const { redis, notifier, service } = createService();
+    const [room] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId: '665af23e5e982f0013aa334b',
+    });
+    await redis.set('matchmaking:player-invite:player-2', room.id);
+    notifier.inviteUpdated.mockClear();
+
+    const results = await Promise.all([
+      service.changeRoomPosition('player-2', 1),
+      service.toggleRoomReady('player-2'),
+    ]);
+    for (const [result, errors] of results) {
+      expect(result).toBeNull();
+      expect(errors[0].reason).toBe(SEReason.NOT_ALLOWED);
+    }
+    const [unchanged] = await service.getInvite(room.id);
+    expect(unchanged).toEqual(room);
+    expect(notifier.inviteUpdated).not.toHaveBeenCalled();
+  });
+
+  it.each([MatchType.CUSTOM, MatchType.RANDOM, MatchType.CLAN])(
+    'rejects manual bot toggles when unavailable for a %s room',
+    async (matchType) => {
+      const { notifier, service } = createService({ 'player-1': 'clan-1' });
+      const [room, createErrors] = await service.createInvite('player-1', {
+        matchType,
+        roomId: '665af23e5e982f0013aa334b',
+        allowBots: matchType === MatchType.CLAN,
+      });
+      expect(createErrors).toBeNull();
+      notifier.inviteUpdated.mockClear();
+
+      const [result, errors] = await service.toggleRoomBot('player-1', 1);
+      expect(result).toBeNull();
+      expect(errors[0].reason).toBe(SEReason.NOT_ALLOWED);
+      const [unchanged] = await service.getInvite(room.id);
+      expect(unchanged).toEqual(room);
+      expect(notifier.inviteUpdated).not.toHaveBeenCalled();
+    },
+  );
+
   it('toggles CUSTOM readiness and starts once after concurrent confirmations', async () => {
     const { redis, notifier, service } = createService();
     const roomId = '665af23e5e982f0013aa334b';
@@ -1373,6 +1416,10 @@ describe('MatchmakingService flow', () => {
       'player-2',
       expect.objectContaining({ id: match.id }),
     );
+    const [, lateErrors] = await service.toggleRoomReady('player-1');
+    expect(lateErrors[0].reason).toBe(SEReason.NOT_FOUND);
+    expect(getStoredMatches(redis)).toHaveLength(1);
+    expect(notifier.matchFound).toHaveBeenCalledTimes(2);
   });
 
   it('lets only the CUSTOM owner toggle bots in unoccupied player slots', async () => {

@@ -93,6 +93,26 @@ describe('MatchmakingNotifier notifications', () => {
     );
   });
 
+  it('includes CUSTOM positions and lobby readiness in the room update payload', async () => {
+    const customRoom: MatchmakingRoomDto = {
+      ...room,
+      matchType: MatchType.CUSTOM,
+      status: InviteStatus.OPEN,
+      playerPositions: { 'player-1': 2 },
+      readyPlayerIds: ['player-1'],
+      bots: [{ ...room.bots[0], position: 3 }],
+    };
+    await notifier.inviteUpdated('player-1', customRoom);
+    expect(publishMock).toHaveBeenCalledWith(
+      '/matchmaking/rooms/player/player-1',
+      JSON.stringify({
+        topic: 'matchmaking',
+        type: MqttNotificationType.ROOM_UPDATED,
+        payload: customRoom,
+      }),
+    );
+  });
+
   it('publishes player invite notifications to the player invite topic', async () => {
     await notifier.inviteReceived(
       'player-2',
@@ -136,6 +156,23 @@ describe('MatchmakingNotifier notifications', () => {
         topic: 'matchmaking',
         type: MqttNotificationType.MATCH_FOUND,
         payload: match,
+      }),
+    );
+  });
+
+  it('publishes the CUSTOM Photon setup signal on the owner match topic', async () => {
+    const customMatch = { ...match, matchType: MatchType.CUSTOM };
+    await notifier.matchFound(
+      'owner',
+      customMatch,
+      MqttNotificationType.CUSTOM_MATCH_READY,
+    );
+    expect(publishMock).toHaveBeenCalledWith(
+      '/matchmaking/matches/player/owner',
+      JSON.stringify({
+        topic: 'matchmaking',
+        type: MqttNotificationType.CUSTOM_MATCH_READY,
+        payload: customMatch,
       }),
     );
   });
