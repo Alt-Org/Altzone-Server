@@ -326,6 +326,13 @@ affect RANDOM pairing.
 ### Event Type
 
 ```text
+CUSTOM_MATCH_READY
+
+For a CUSTOM match created through lobby readiness, only the room owner
+receives `CUSTOM_MATCH_READY` on `/matchmaking/matches/player/{playerId}`.
+It uses the `MATCH_FOUND` payload shape and tells the owner to initiate
+Photon setup. Other real participants receive `MATCH_FOUND`.
+
 MATCH_STARTED
 ```
 

@@ -236,6 +236,18 @@ A successful move returns the updated room, clears the moving player's lobby
 readiness, and sends `ROOM_UPDATED` to all real players in the room. If a
 concurrent update wins, fetch the latest room state before retrying.
 
+## Toggle Readiness In A CUSTOM Room
+
+`POST /matchmaking/rooms/ready` toggles the authenticated member's lobby
+readiness in their active CUSTOM room. The request has no body. The response
+and `ROOM_UPDATED` show the new `readyPlayerIds`. Joining or leaving clears
+all lobby confirmations, and moving slots clears the moving player's confirmation.
+
+When all slots are occupied and all real players are ready, the backend
+creates the match and returns the room with status `MATCHED` and its
+`matchId`. Bots count as ready. The owner receives `CUSTOM_MATCH_READY`
+to initiate Photon setup, and the other players receive `MATCH_FOUND`.
+
 ## Start Matchmaking For Room
 
 ```http
