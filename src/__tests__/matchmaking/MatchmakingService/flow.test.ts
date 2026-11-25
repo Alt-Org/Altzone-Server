@@ -1278,6 +1278,11 @@ describe('MatchmakingService flow', () => {
       roomId: '665af23e5e982f0013aa334b',
       allowBots: true,
     });
+    const [joined] = await service.joinInvite(invite.id, 'player-2', {
+      roomId: invite.roomId,
+    });
+    expect(joined.playerPositions).toEqual({ 'player-1': 0, 'player-2': 1 });
+    expect(joined.stateVersion).toBe(invite.stateVersion + 1);
     const [matchedInvite, startErrors] = await service.startRoom(
       invite.id,
       'player-1',
@@ -1302,7 +1307,7 @@ describe('MatchmakingService flow', () => {
     );
   });
 
-  it('keeps 2v2 bot-filled compositions in CUSTOM matchmaking', async () => {
+  it('preserves legacy CUSTOM bots without automatically filling new rooms', async () => {
     const { redis, service } = createService();
     const [invite, createErrors] = await service.createInvite('player-1', {
       matchType: MatchType.CUSTOM,
@@ -1311,6 +1316,30 @@ describe('MatchmakingService flow', () => {
       teamSize: 2,
       allowBots: true,
     });
+
+    expect(invite).toMatchObject({
+      status: InviteStatus.OPEN,
+      playerPositions: { 'player-1': 0 },
+      readyPlayerIds: [],
+      bots: [],
+    });
+    const key = `matchmaking:invite:${invite.id}`;
+    const stored = JSON.parse(redis.values.get(key)!);
+    const { playerPositions, readyPlayerIds, ...legacy } = stored;
+    expect(playerPositions).toEqual({ 'player-1': 0 });
+    expect(readyPlayerIds).toEqual([]);
+    redis.values.set(
+      key,
+      JSON.stringify({
+        ...legacy,
+        status: InviteStatus.READY,
+        bots: [1, 2, 3].map((id) => ({
+          botId: `bot-${id}`,
+          displayName: `Bot ${id}`,
+          isBot: true,
+        })),
+      }),
+    );
 
     const [matchedInvite, startErrors] = await service.startRoom(
       invite.id,
@@ -1553,7 +1582,14 @@ describe('MatchmakingService flow', () => {
       roomId,
       allowBots: true,
     });
-    const [matchedInvite] = await service.startRoom(invite.id, 'player-1');
+    await service.joinInvite(invite.id, 'player-2', { roomId });
+    const starts = await Promise.all([
+      service.startRoom(invite.id, 'player-1'),
+      service.startRoom(invite.id, 'player-1'),
+    ]);
+    const [matchedInvite] = starts.find(([room]) => room !== null)!;
+    expect(starts.filter(([room]) => room !== null)).toHaveLength(1);
+    expect(getStoredMatches(redis)).toHaveLength(1);
     await redis.set('matchmaking:player-invite:player-1', invite.id);
 
     const [, leaveErrors] = await service.leaveRoom('player-1');
@@ -1566,7 +1602,11 @@ describe('MatchmakingService flow', () => {
       field: 'status',
       value: InviteStatus.MATCHED,
     });
-    expect(unchangedInvite.players).toEqual(['player-1']);
+    expect(unchangedInvite.players).toEqual(['player-1', 'player-2']);
+    expect(unchangedInvite.playerPositions).toEqual({
+      'player-1': 0,
+      'player-2': 1,
+    });
     expect(unchangedInvite.status).toBe(InviteStatus.MATCHED);
   });
 
