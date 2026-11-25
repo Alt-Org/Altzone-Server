@@ -12,6 +12,7 @@ import { User } from '../auth/user';
 import { LoggedUser } from '../common/decorator/param/LoggedUser.decorator';
 import { UniformResponse } from '../common/decorator/response/UniformResponse';
 import { ChangeRoomPositionDto } from './dto/changeRoomPosition.dto';
+import { ToggleRoomBotDto } from './dto/toggleRoomBot.dto';
 import { CreateMatchmakingInviteDto } from './dto/createMatchmakingInvite.dto';
 import { FinishMatchDto } from './dto/finishMatch.dto';
 import { JoinMatchmakingInviteDto } from './dto/joinMatchmakingInvite.dto';
@@ -138,6 +139,16 @@ export class MatchmakingController {
   @UniformResponse(undefined, MatchmakingInviteDto)
   async toggleRoomReady(@LoggedUser() user: User) {
     return this.matchmakingService.toggleRoomReady(user.player_id);
+  }
+
+  /** Adds or removes a bot in the authenticated owner's CUSTOM room. */
+  @Post('rooms/bot')
+  @UniformResponse(undefined, MatchmakingInviteDto)
+  async toggleRoomBot(
+    @Body() body: ToggleRoomBotDto,
+    @LoggedUser() user: User,
+  ) {
+    return this.matchmakingService.toggleRoomBot(user.player_id, body.position);
   }
 
   /**

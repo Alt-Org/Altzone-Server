@@ -493,6 +493,106 @@ export class MatchmakingService {
     return [this.toInviteDto(updatedRoom), null];
   }
 
+  async toggleRoomBot(
+    playerId: string,
+    position: number,
+  ): Promise<IServiceReturn<MatchmakingInviteDto>> {
+    const [invite, errors] = await this.getActiveInviteForPlayer(playerId);
+    if (errors) return [null, errors];
+
+    if (
+      !invite.players.includes(playerId) ||
+      invite.ownerPlayerId !== playerId
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_AUTHORIZED,
+            field: 'playerId',
+            value: playerId,
+            message: 'Only the room owner can manage bots.',
+          }),
+        ],
+      ];
+    }
+    if (
+      invite.matchType !== MatchType.CUSTOM ||
+      !invite.allowBots ||
+      (invite.status !== InviteStatus.OPEN &&
+        invite.status !== InviteStatus.READY)
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'inviteId',
+            value: invite.id,
+            message:
+              'Bots can only be managed in an editable CUSTOM room that allows bots.',
+          }),
+        ],
+      ];
+    }
+    if (
+      !Number.isInteger(position) ||
+      position < 0 ||
+      position >= this.getInviteCapacity(invite)
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
+            field: 'position',
+            value: position,
+            message: 'Position is outside the room slot range.',
+          }),
+        ],
+      ];
+    }
+
+    const room = this.withCustomPositions(invite);
+    if (Object.values(room.playerPositions).includes(position)) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'position',
+            value: position,
+            message: 'A player already occupies this position.',
+          }),
+        ],
+      ];
+    }
+
+    const botAtPosition = room.bots.find((bot) => bot.position === position);
+    const bots: MatchmakingBotParticipant[] = botAtPosition
+      ? room.bots.filter((bot) => bot !== botAtPosition)
+      : [
+          ...room.bots,
+          {
+            botId: `${room.id}:bot:${new Types.ObjectId().toString()}`,
+            displayName: `Bot ${position + 1}`,
+            isBot: true,
+            position,
+          },
+        ];
+    const updatedRoom = this.recalculateInvite({
+      ...room,
+      bots,
+      readyPlayerIds: [],
+      updatedAt: new Date().toISOString(),
+    });
+    if (!(await this.updateCustomInvite(invite, updatedRoom))) {
+      return [null, this.customInviteChangedError(invite.id)];
+    }
+    await this.notifyInvitePlayers(updatedRoom);
+    return [this.toInviteDto(updatedRoom), null];
+  }
+
   async toggleRoomReady(
     playerId: string,
   ): Promise<IServiceReturn<MatchmakingInviteDto>> {
