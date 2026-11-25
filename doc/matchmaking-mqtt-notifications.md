@@ -78,6 +78,9 @@ ROOM_UPDATED
 The notification is sent to every real player currently attached to the room.
 Bots do not receive MQTT notifications.
 
+CUSTOM `ROOM_UPDATED` payloads also include `playerPositions` (zero-based
+slots keyed by player ID), `readyPlayerIds`, and `position` on each bot.
+
 ### Payload Shape
 
 Room updates use a compact room payload with one room identifier: `id`.

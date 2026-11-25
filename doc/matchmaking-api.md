@@ -69,6 +69,10 @@ the room is ready.
   not expose multiple gameplay variants should omit it.
 - RANDOM accepts only `teamSize: 1`; omitting it also resolves to `1`.
 - RANDOM rejects `teamSize: 2`, `allowBots: true`, and `automaticInvite`.
+- New CUSTOM rooms start without bots, including when `allowBots` is true.
+  CUSTOM room responses include `playerPositions` (zero-based slots keyed by
+  player ID), `readyPlayerIds` (initially empty), and `position` on each bot.
+  Slots below `teamSize` belong to team A and the remaining slots to team B.
 - RANDOM responses always contain `allowBots: false`.
 - CUSTOM and CLAN accept `teamSize: 1 | 2` and retain their mode-specific bot
   defaults.
