@@ -224,6 +224,18 @@ Returns `404 NOT_FOUND` when the authenticated player does not have an active
 matchmaking room. A stale player-to-room lookup is removed when detected and
 produces the same response.
 
+## Change Position In A CUSTOM Room
+
+`POST /matchmaking/rooms/changePosition` accepts `{ "position": 2 }`.
+The authenticated player moves within their active CUSTOM room. Slot numbers
+are zero-based and must be below `teamSize * 2`. A slot occupied by a
+player or bot is unavailable. Selecting the current slot returns the current
+room without changing its version.
+
+A successful move returns the updated room, clears the moving player's lobby
+readiness, and sends `ROOM_UPDATED` to all real players in the room. If a
+concurrent update wins, fetch the latest room state before retrying.
+
 ## Start Matchmaking For Room
 
 ```http
