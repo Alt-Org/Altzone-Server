@@ -248,6 +248,17 @@ creates the match and returns the room with status `MATCHED` and its
 `matchId`. Bots count as ready. The owner receives `CUSTOM_MATCH_READY`
 to initiate Photon setup, and the other players receive `MATCH_FOUND`.
 
+## Toggle A Bot In A CUSTOM Room
+
+`POST /matchmaking/rooms/bot` accepts `{ "position": 2 }`. The authenticated
+owner can use it in an open or ready CUSTOM room with `allowBots: true`.
+Positions are zero-based and must be below `teamSize * 2`.
+
+An empty slot gets a bot, a bot-occupied slot is cleared, and a slot occupied
+by a real player is rejected. A successful change clears all human lobby
+confirmations, returns the updated room, and sends `ROOM_UPDATED` to everyone
+in the room.
+
 ## Start Matchmaking For Room
 
 ```http
