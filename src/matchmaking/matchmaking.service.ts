@@ -301,7 +301,13 @@ export class MatchmakingService {
       updatedAt: new Date().toISOString(),
     });
 
-    await this.saveInvite(updatedInvite);
+    if (invite.matchType === MatchType.CUSTOM) {
+      if (!(await this.updateCustomInvite(invite, updatedInvite))) {
+        return [null, this.customInviteChangedError(invite.id)];
+      }
+    } else {
+      await this.saveInvite(updatedInvite);
+    }
     await this.setPlayerInvite(playerId, updatedInvite.id);
     await this.notifyInvitePlayers(updatedInvite);
 
@@ -341,6 +347,18 @@ export class MatchmakingService {
       (invitePlayerId) => invitePlayerId !== playerId,
     );
     if (remainingPlayerIds.length === 0) {
+      if (invite.matchType === MatchType.CUSTOM) {
+        const removed = await this.redisService.deleteIfValue(
+          this.inviteKey(invite.id),
+          JSON.stringify(invite),
+        );
+        if (!removed) return [null, this.customInviteChangedError(invite.id)];
+        await this.redisService.deleteIfValue(
+          this.playerInviteKey(playerId),
+          invite.id,
+        );
+        return [null, null];
+      }
       if (
         invite.status === InviteStatus.SEARCHING ||
         invite.status === InviteStatus.BOT_OFFERED
@@ -381,8 +399,14 @@ export class MatchmakingService {
       updatedAt,
     });
 
+    if (invite.matchType === MatchType.CUSTOM) {
+      if (!(await this.updateCustomInvite(invite, updatedInvite))) {
+        return [null, this.customInviteChangedError(invite.id)];
+      }
+    } else {
+      await this.saveInvite(updatedInvite);
+    }
     await this.redisService.delete(this.playerInviteKey(playerId));
-    await this.saveInvite(updatedInvite);
     await this.notifyInvitePlayers(updatedInvite);
 
     return [null, null];
@@ -425,6 +449,30 @@ export class MatchmakingService {
           }),
         ],
       ];
+    }
+
+    if (invite.matchType === MatchType.CUSTOM) {
+      const match = await this.createCustomMatch(invite);
+      const matchedInvite = {
+        ...invite,
+        status: InviteStatus.MATCHED,
+        matchId: match.id,
+        updatedAt: match.startedAt,
+      };
+      const updated = await this.updateCustomInvite(
+        invite,
+        matchedInvite,
+        match,
+      );
+      if (!updated) return [null, this.customInviteChangedError(invite.id)];
+      await Promise.all(
+        invite.players.map((id) =>
+          this.redisService.deleteIfValue(this.playerInviteKey(id), invite.id),
+        ),
+      );
+      await this.notifyInvitePlayers(matchedInvite);
+      await this.notifyMatchPlayers(match);
+      return [this.toInviteDto(matchedInvite), null];
     }
 
     const processedInvite = await this.processReadyInvite(invite);
@@ -907,7 +955,7 @@ export class MatchmakingService {
    *
    * RANDOM tries to pair ready teams playing the same game type, CLAN searches
    * for another clan playing the same game type and schedules a timeout
-   * fallback, and CUSTOM starts directly from room settings.
+   * fallback.
    */
   private async processReadyInvite(invite: MatchmakingInvite) {
     if (invite.status !== InviteStatus.READY) return invite;
@@ -949,16 +997,6 @@ export class MatchmakingService {
       );
 
       return queuedInvite;
-    }
-
-    if (invite.matchType === MatchType.CUSTOM) {
-      const match = await this.createCustomMatch(invite);
-      await this.markInviteMatched(invite, match.id);
-      await this.notifyMatchPlayers(match);
-
-      const [processedInvite] = await this.readInvite(invite.id);
-
-      return processedInvite ?? invite;
     }
 
     return invite;
@@ -1425,9 +1463,7 @@ export class MatchmakingService {
     };
 
     await this.attachMatchSnapshots(match);
-
     await this.saveActiveMatch(match);
-
     return match;
   }
 
@@ -1469,11 +1505,7 @@ export class MatchmakingService {
       startedAt: now,
     };
 
-    await this.attachMatchSnapshots(match);
-
-    await this.saveActiveMatch(match);
-
-    return match;
+    return this.attachMatchSnapshots(match);
   }
 
   /**
@@ -1482,7 +1514,14 @@ export class MatchmakingService {
   private createCustomTeams(
     invite: MatchmakingInvite,
   ): [MatchmakingTeam, MatchmakingTeam] {
-    const participants = this.getInviteParticipants(invite);
+    const room = this.withCustomPositions(invite);
+    const participants = this.getInviteParticipants(room).sort((a, b) => {
+      const position = (participant: MatchmakingParticipant) =>
+        this.isBotParticipant(participant)
+          ? participant.position!
+          : room.playerPositions![participant.playerId];
+      return position(a) - position(b);
+    });
     const teamA = participants.slice(0, invite.teamSize);
     const teamB = participants.slice(invite.teamSize, invite.teamSize * 2);
 
@@ -2535,11 +2574,15 @@ export class MatchmakingService {
    * Recomputes bot fillers and OPEN/READY status after create or join changes.
    */
   private recalculateInvite(invite: MatchmakingInvite): MatchmakingInvite {
+    if (invite.matchType === MatchType.CUSTOM) {
+      invite = this.withCustomPositions(invite);
+    }
     const capacity = this.getInviteCapacity(invite);
     const playerSlots = Math.max(capacity - invite.players.length, 0);
-    const bots = !invite.allowBots
-      ? invite.bots.slice(0, playerSlots)
-      : this.createBots(invite.id, playerSlots);
+    const bots =
+      invite.matchType === MatchType.CUSTOM || !invite.allowBots
+        ? invite.bots.slice(0, playerSlots)
+        : this.createBots(invite.id, playerSlots);
     const participantCount = invite.players.length + bots.length;
     const status =
       participantCount >= capacity ? InviteStatus.READY : InviteStatus.OPEN;
@@ -2556,12 +2599,104 @@ export class MatchmakingService {
   }
 
   private makeRoomForPlayer(invite: MatchmakingInvite): MatchmakingInvite {
+    if (invite.matchType === MatchType.CUSTOM) {
+      invite = this.withCustomPositions(invite);
+    }
     if (!this.isInviteFull(invite) || invite.bots.length === 0) return invite;
 
     return {
       ...invite,
       bots: invite.bots.slice(0, -1),
     };
+  }
+
+  /** Assigns slots to older Redis rooms and to newly joined players. */
+  private withCustomPositions(invite: MatchmakingInvite): MatchmakingInvite {
+    const freePositions = new Set(
+      Array.from({ length: invite.teamSize * 2 }, (_, position) => position),
+    );
+    const playerPositions: Record<string, number> = {};
+    for (const playerId of invite.players) {
+      const position = invite.playerPositions?.[playerId];
+      if (position !== undefined && freePositions.delete(position)) {
+        playerPositions[playerId] = position;
+      }
+    }
+    const bots = invite.bots.map((bot) => ({
+      ...bot,
+      position:
+        bot.position !== undefined && freePositions.delete(bot.position)
+          ? bot.position
+          : undefined,
+    }));
+    const takePosition = () => {
+      const position = freePositions.values().next().value;
+      if (position !== undefined) freePositions.delete(position);
+      return position;
+    };
+    for (const playerId of invite.players) {
+      if (playerPositions[playerId] !== undefined) continue;
+      const position = takePosition();
+      if (position !== undefined) playerPositions[playerId] = position;
+    }
+    for (const bot of bots) {
+      bot.position ??= takePosition();
+    }
+    return {
+      ...invite,
+      bots,
+      playerPositions,
+      readyPlayerIds: (invite.readyPlayerIds ?? []).filter((playerId) =>
+        invite.players.includes(playerId),
+      ),
+    };
+  }
+
+  private async updateCustomInvite(
+    previous: MatchmakingInvite,
+    next: MatchmakingInvite,
+    match?: ActiveMatch,
+  ) {
+    next.stateVersion = previous.stateVersion + 1;
+    const matchEntries = match
+      ? [
+          {
+            key: this.matchKey(match.id),
+            expectedValue: null,
+            value: JSON.stringify(match),
+          },
+          ...(await Promise.all(
+            previous.players.map(async (playerId) => {
+              const key = this.playerMatchKey(playerId);
+              return {
+                key,
+                expectedValue: await this.redisService.get(key),
+                value: match.id,
+              };
+            }),
+          )),
+        ]
+      : [];
+    return this.redisService.compareAndSetMany([
+      {
+        key: this.inviteKey(previous.id),
+        expectedValue: JSON.stringify(previous),
+        value: JSON.stringify(next),
+        ttlS: this.INVITE_TTL_S,
+      },
+      ...matchEntries,
+    ]);
+  }
+
+  private customInviteChangedError(inviteId: string) {
+    return [
+      new ServiceError({
+        reason: SEReason.NOT_ALLOWED,
+        field: 'inviteId',
+        value: inviteId,
+        message: 'The room state changed. Please retry.',
+      }),
+    ];
   }
 
   private isInviteFull(invite: MatchmakingInvite) {
@@ -2738,6 +2873,9 @@ export class MatchmakingService {
    * Maps internal Redis invite state to the public API shape.
    */
   private toInviteDto(invite: MatchmakingInvite): MatchmakingInviteDto {
+    if (invite.matchType === MatchType.CUSTOM) {
+      invite = this.withCustomPositions(invite);
+    }
     return {
       id: invite.id,
       matchType: invite.matchType,
@@ -2747,6 +2885,8 @@ export class MatchmakingService {
       clanId: invite.clanId,
       roomId: invite.roomId,
       players: invite.players,
+      playerPositions: invite.playerPositions,
+      readyPlayerIds: invite.readyPlayerIds,
       bots: invite.bots,
       teamSize: invite.teamSize,
       allowBots: invite.allowBots,
@@ -2779,6 +2919,9 @@ export class MatchmakingService {
   private async toRoomDto(
     invite: MatchmakingInvite,
   ): Promise<MatchmakingRoomDto> {
+    if (invite.matchType === MatchType.CUSTOM) {
+      invite = this.withCustomPositions(invite);
+    }
     const playerMap = await this.getMqttPlayerMap(invite.players);
 
     return {
@@ -2792,6 +2935,8 @@ export class MatchmakingService {
         this.getMappedMqttPlayer(playerMap, playerId),
       ),
       bots: invite.bots,
+      playerPositions: invite.playerPositions,
+      readyPlayerIds: invite.readyPlayerIds,
       teamSize: invite.teamSize,
       allowBots: invite.allowBots,
       stateVersion: invite.stateVersion,
