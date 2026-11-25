@@ -298,10 +298,17 @@ export class MatchmakingService {
     const updatedInvite = this.recalculateInvite({
       ...this.makeRoomForPlayer(invite),
       players: [...invite.players, playerId],
+      ...(invite.matchType === MatchType.CUSTOM ? { readyPlayerIds: [] } : {}),
       updatedAt: new Date().toISOString(),
     });
 
-    await this.saveInvite(updatedInvite);
+    if (invite.matchType === MatchType.CUSTOM) {
+      if (!(await this.updateCustomInvite(invite, updatedInvite))) {
+        return [null, this.customInviteChangedError(invite.id)];
+      }
+    } else {
+      await this.saveInvite(updatedInvite);
+    }
     await this.setPlayerInvite(playerId, updatedInvite.id);
     await this.notifyInvitePlayers(updatedInvite);
 
@@ -341,6 +348,18 @@ export class MatchmakingService {
       (invitePlayerId) => invitePlayerId !== playerId,
     );
     if (remainingPlayerIds.length === 0) {
+      if (invite.matchType === MatchType.CUSTOM) {
+        const removed = await this.redisService.deleteIfValue(
+          this.inviteKey(invite.id),
+          JSON.stringify(invite),
+        );
+        if (!removed) return [null, this.customInviteChangedError(invite.id)];
+        await this.redisService.deleteIfValue(
+          this.playerInviteKey(playerId),
+          invite.id,
+        );
+        return [null, null];
+      }
       if (
         invite.status === InviteStatus.SEARCHING ||
         invite.status === InviteStatus.BOT_OFFERED
@@ -378,14 +397,259 @@ export class MatchmakingService {
           ? remainingPlayerIds[0]
           : invite.ownerPlayerId,
       players: remainingPlayerIds,
+      ...(invite.matchType === MatchType.CUSTOM ? { readyPlayerIds: [] } : {}),
       updatedAt,
     });
 
+    if (invite.matchType === MatchType.CUSTOM) {
+      if (!(await this.updateCustomInvite(invite, updatedInvite))) {
+        return [null, this.customInviteChangedError(invite.id)];
+      }
+    } else {
+      await this.saveInvite(updatedInvite);
+    }
     await this.redisService.delete(this.playerInviteKey(playerId));
-    await this.saveInvite(updatedInvite);
     await this.notifyInvitePlayers(updatedInvite);
 
     return [null, null];
+  }
+
+  async changeRoomPosition(
+    playerId: string,
+    position: number,
+  ): Promise<IServiceReturn<MatchmakingInviteDto>> {
+    const [invite, errors] = await this.getActiveInviteForPlayer(playerId);
+    if (errors) return [null, errors];
+
+    if (
+      !invite.players.includes(playerId) ||
+      invite.matchType !== MatchType.CUSTOM ||
+      (invite.status !== InviteStatus.OPEN &&
+        invite.status !== InviteStatus.READY)
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'inviteId',
+            value: invite.id,
+            message:
+              'Only members of an editable CUSTOM room can change position.',
+          }),
+        ],
+      ];
+    }
+
+    if (
+      !Number.isInteger(position) ||
+      position < 0 ||
+      position >= this.getInviteCapacity(invite)
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
+            field: 'position',
+            value: position,
+            message: 'Position is outside the room slot range.',
+          }),
+        ],
+      ];
+    }
+
+    const room = this.withCustomPositions(invite);
+    if (room.playerPositions[playerId] === position) {
+      return [this.toInviteDto(room), null];
+    }
+    if (
+      Object.values(room.playerPositions).includes(position) ||
+      room.bots.some((bot) => bot.position === position)
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'position',
+            value: position,
+            message: 'Position is already occupied.',
+          }),
+        ],
+      ];
+    }
+
+    const updatedRoom = {
+      ...room,
+      playerPositions: { ...room.playerPositions, [playerId]: position },
+      readyPlayerIds: room.readyPlayerIds.filter((id) => id !== playerId),
+      updatedAt: new Date().toISOString(),
+    };
+    if (!(await this.updateCustomInvite(invite, updatedRoom))) {
+      return [null, this.customInviteChangedError(invite.id)];
+    }
+    await this.notifyInvitePlayers(updatedRoom);
+    return [this.toInviteDto(updatedRoom), null];
+  }
+
+  async toggleRoomBot(
+    playerId: string,
+    position: number,
+  ): Promise<IServiceReturn<MatchmakingInviteDto>> {
+    const [invite, errors] = await this.getActiveInviteForPlayer(playerId);
+    if (errors) return [null, errors];
+
+    if (
+      !invite.players.includes(playerId) ||
+      invite.ownerPlayerId !== playerId
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_AUTHORIZED,
+            field: 'playerId',
+            value: playerId,
+            message: 'Only the room owner can manage bots.',
+          }),
+        ],
+      ];
+    }
+    if (
+      invite.matchType !== MatchType.CUSTOM ||
+      !invite.allowBots ||
+      (invite.status !== InviteStatus.OPEN &&
+        invite.status !== InviteStatus.READY)
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'inviteId',
+            value: invite.id,
+            message:
+              'Bots can only be managed in an editable CUSTOM room that allows bots.',
+          }),
+        ],
+      ];
+    }
+    if (
+      !Number.isInteger(position) ||
+      position < 0 ||
+      position >= this.getInviteCapacity(invite)
+    ) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.VALIDATION,
+            field: 'position',
+            value: position,
+            message: 'Position is outside the room slot range.',
+          }),
+        ],
+      ];
+    }
+
+    const room = this.withCustomPositions(invite);
+    if (Object.values(room.playerPositions).includes(position)) {
+      return [
+        null,
+        [
+          new ServiceError({
+            reason: SEReason.NOT_ALLOWED,
+            field: 'position',
+            value: position,
+            message: 'A player already occupies this position.',
+          }),
+        ],
+      ];
+    }
+
+    const botAtPosition = room.bots.find((bot) => bot.position === position);
+    const bots: MatchmakingBotParticipant[] = botAtPosition
+      ? room.bots.filter((bot) => bot !== botAtPosition)
+      : [
+          ...room.bots,
+          {
+            botId: `${room.id}:bot:${new Types.ObjectId().toString()}`,
+            displayName: `Bot ${position + 1}`,
+            isBot: true,
+            position,
+          },
+        ];
+    const updatedRoom = this.recalculateInvite({
+      ...room,
+      bots,
+      readyPlayerIds: [],
+      updatedAt: new Date().toISOString(),
+    });
+    if (!(await this.updateCustomInvite(invite, updatedRoom))) {
+      return [null, this.customInviteChangedError(invite.id)];
+    }
+    await this.notifyInvitePlayers(updatedRoom);
+    return [this.toInviteDto(updatedRoom), null];
+  }
+
+  async toggleRoomReady(
+    playerId: string,
+  ): Promise<IServiceReturn<MatchmakingInviteDto>> {
+    const [activeRoom, errors] = await this.getActiveInviteForPlayer(playerId);
+    if (errors) return [null, errors];
+
+    let invite = activeRoom;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      if (attempt > 0) {
+        const [latest, readErrors] = await this.readInvite(activeRoom.id);
+        if (readErrors) return [null, readErrors];
+        invite = latest;
+      }
+      if (
+        invite.matchType !== MatchType.CUSTOM ||
+        !invite.players.includes(playerId) ||
+        (invite.status !== InviteStatus.OPEN &&
+          invite.status !== InviteStatus.READY)
+      ) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_ALLOWED,
+              field: 'inviteId',
+              value: invite.id,
+              message:
+                'Only members of an editable CUSTOM room can change readiness.',
+            }),
+          ],
+        ];
+      }
+
+      const room = this.withCustomPositions(invite);
+      const readyPlayers = new Set(room.readyPlayerIds);
+      if (!readyPlayers.delete(playerId)) readyPlayers.add(playerId);
+      const updatedRoom = {
+        ...room,
+        readyPlayerIds: [...readyPlayers],
+        updatedAt: new Date().toISOString(),
+      };
+      if (
+        this.isInviteFull(updatedRoom) &&
+        updatedRoom.players.every((id) => readyPlayers.has(id))
+      ) {
+        const matched = await this.commitCustomMatch(
+          invite,
+          updatedRoom,
+          room.ownerPlayerId,
+        );
+        if (matched) return [this.toInviteDto(matched), null];
+      } else if (await this.updateCustomInvite(invite, updatedRoom)) {
+        await this.notifyInvitePlayers(updatedRoom);
+        return [this.toInviteDto(updatedRoom), null];
+      }
+    }
+    return [null, this.customInviteChangedError(activeRoom.id)];
   }
 
   /**
@@ -427,9 +691,42 @@ export class MatchmakingService {
       ];
     }
 
+    if (invite.matchType === MatchType.CUSTOM) {
+      const matchedInvite = await this.commitCustomMatch(invite, invite);
+      if (!matchedInvite)
+        return [null, this.customInviteChangedError(invite.id)];
+      return [this.toInviteDto(matchedInvite), null];
+    }
+
     const processedInvite = await this.processReadyInvite(invite);
 
     return [this.toInviteDto(processedInvite), null];
+  }
+
+  private async commitCustomMatch(
+    previous: MatchmakingInvite,
+    room: MatchmakingInvite,
+    photonHostId?: string,
+  ) {
+    const match = await this.createCustomMatch(room);
+    const matchedRoom = {
+      ...room,
+      status: InviteStatus.MATCHED,
+      matchId: match.id,
+      updatedAt: match.startedAt,
+    };
+    if (!(await this.updateCustomInvite(previous, matchedRoom, match)))
+      return null;
+    await Promise.all(
+      room.players.map((id) =>
+        this.redisService.deleteIfValue(this.playerInviteKey(id), room.id),
+      ),
+    );
+    await Promise.all([
+      this.notifyInvitePlayers(matchedRoom),
+      this.notifyMatchPlayers(match, photonHostId),
+    ]);
+    return matchedRoom;
   }
 
   /**
@@ -907,7 +1204,7 @@ export class MatchmakingService {
    *
    * RANDOM tries to pair ready teams playing the same game type, CLAN searches
    * for another clan playing the same game type and schedules a timeout
-   * fallback, and CUSTOM starts directly from room settings.
+   * fallback.
    */
   private async processReadyInvite(invite: MatchmakingInvite) {
     if (invite.status !== InviteStatus.READY) return invite;
@@ -949,16 +1246,6 @@ export class MatchmakingService {
       );
 
       return queuedInvite;
-    }
-
-    if (invite.matchType === MatchType.CUSTOM) {
-      const match = await this.createCustomMatch(invite);
-      await this.markInviteMatched(invite, match.id);
-      await this.notifyMatchPlayers(match);
-
-      const [processedInvite] = await this.readInvite(invite.id);
-
-      return processedInvite ?? invite;
     }
 
     return invite;
@@ -1425,9 +1712,7 @@ export class MatchmakingService {
     };
 
     await this.attachMatchSnapshots(match);
-
     await this.saveActiveMatch(match);
-
     return match;
   }
 
@@ -1469,11 +1754,7 @@ export class MatchmakingService {
       startedAt: now,
     };
 
-    await this.attachMatchSnapshots(match);
-
-    await this.saveActiveMatch(match);
-
-    return match;
+    return this.attachMatchSnapshots(match);
   }
 
   /**
@@ -1482,7 +1763,14 @@ export class MatchmakingService {
   private createCustomTeams(
     invite: MatchmakingInvite,
   ): [MatchmakingTeam, MatchmakingTeam] {
-    const participants = this.getInviteParticipants(invite);
+    const room = this.withCustomPositions(invite);
+    const participants = this.getInviteParticipants(room).sort((a, b) => {
+      const position = (participant: MatchmakingParticipant) =>
+        this.isBotParticipant(participant)
+          ? participant.position!
+          : room.playerPositions![participant.playerId];
+      return position(a) - position(b);
+    });
     const teamA = participants.slice(0, invite.teamSize);
     const teamB = participants.slice(invite.teamSize, invite.teamSize * 2);
 
@@ -1671,11 +1959,17 @@ export class MatchmakingService {
   /**
    * Sends per-player match-found events after a match is created.
    */
-  private async notifyMatchPlayers(match: ActiveMatch) {
+  private async notifyMatchPlayers(match: ActiveMatch, photonHostId?: string) {
     const matchDto = await this.toMqttMatchDto(match);
     await Promise.all(
       this.getRealPlayerIds(match).map((playerId) =>
-        this.notifier.matchFound(playerId, matchDto),
+        playerId === photonHostId
+          ? this.notifier.matchFound(
+              playerId,
+              matchDto,
+              MqttNotificationType.CUSTOM_MATCH_READY,
+            )
+          : this.notifier.matchFound(playerId, matchDto),
       ),
     );
   }
@@ -2535,11 +2829,15 @@ export class MatchmakingService {
    * Recomputes bot fillers and OPEN/READY status after create or join changes.
    */
   private recalculateInvite(invite: MatchmakingInvite): MatchmakingInvite {
+    if (invite.matchType === MatchType.CUSTOM) {
+      invite = this.withCustomPositions(invite);
+    }
     const capacity = this.getInviteCapacity(invite);
     const playerSlots = Math.max(capacity - invite.players.length, 0);
-    const bots = !invite.allowBots
-      ? invite.bots.slice(0, playerSlots)
-      : this.createBots(invite.id, playerSlots);
+    const bots =
+      invite.matchType === MatchType.CUSTOM || !invite.allowBots
+        ? invite.bots.slice(0, playerSlots)
+        : this.createBots(invite.id, playerSlots);
     const participantCount = invite.players.length + bots.length;
     const status =
       participantCount >= capacity ? InviteStatus.READY : InviteStatus.OPEN;
@@ -2556,12 +2854,104 @@ export class MatchmakingService {
   }
 
   private makeRoomForPlayer(invite: MatchmakingInvite): MatchmakingInvite {
+    if (invite.matchType === MatchType.CUSTOM) {
+      invite = this.withCustomPositions(invite);
+    }
     if (!this.isInviteFull(invite) || invite.bots.length === 0) return invite;
 
     return {
       ...invite,
       bots: invite.bots.slice(0, -1),
     };
+  }
+
+  /** Assigns slots to older Redis rooms and to newly joined players. */
+  private withCustomPositions(invite: MatchmakingInvite): MatchmakingInvite {
+    const freePositions = new Set(
+      Array.from({ length: invite.teamSize * 2 }, (_, position) => position),
+    );
+    const playerPositions: Record<string, number> = {};
+    for (const playerId of invite.players) {
+      const position = invite.playerPositions?.[playerId];
+      if (position !== undefined && freePositions.delete(position)) {
+        playerPositions[playerId] = position;
+      }
+    }
+    const bots = invite.bots.map((bot) => ({
+      ...bot,
+      position:
+        bot.position !== undefined && freePositions.delete(bot.position)
+          ? bot.position
+          : undefined,
+    }));
+    const takePosition = () => {
+      const position = freePositions.values().next().value;
+      if (position !== undefined) freePositions.delete(position);
+      return position;
+    };
+    for (const playerId of invite.players) {
+      if (playerPositions[playerId] !== undefined) continue;
+      const position = takePosition();
+      if (position !== undefined) playerPositions[playerId] = position;
+    }
+    for (const bot of bots) {
+      bot.position ??= takePosition();
+    }
+    return {
+      ...invite,
+      bots,
+      playerPositions,
+      readyPlayerIds: (invite.readyPlayerIds ?? []).filter((playerId) =>
+        invite.players.includes(playerId),
+      ),
+    };
+  }
+
+  private async updateCustomInvite(
+    previous: MatchmakingInvite,
+    next: MatchmakingInvite,
+    match?: ActiveMatch,
+  ) {
+    next.stateVersion = previous.stateVersion + 1;
+    const matchEntries = match
+      ? [
+          {
+            key: this.matchKey(match.id),
+            expectedValue: null,
+            value: JSON.stringify(match),
+          },
+          ...(await Promise.all(
+            previous.players.map(async (playerId) => {
+              const key = this.playerMatchKey(playerId);
+              return {
+                key,
+                expectedValue: await this.redisService.get(key),
+                value: match.id,
+              };
+            }),
+          )),
+        ]
+      : [];
+    return this.redisService.compareAndSetMany([
+      {
+        key: this.inviteKey(previous.id),
+        expectedValue: JSON.stringify(previous),
+        value: JSON.stringify(next),
+        ttlS: this.INVITE_TTL_S,
+      },
+      ...matchEntries,
+    ]);
+  }
+
+  private customInviteChangedError(inviteId: string) {
+    return [
+      new ServiceError({
+        reason: SEReason.NOT_ALLOWED,
+        field: 'inviteId',
+        value: inviteId,
+        message: 'The room state changed. Please retry.',
+      }),
+    ];
   }
 
   private isInviteFull(invite: MatchmakingInvite) {
@@ -2738,6 +3128,9 @@ export class MatchmakingService {
    * Maps internal Redis invite state to the public API shape.
    */
   private toInviteDto(invite: MatchmakingInvite): MatchmakingInviteDto {
+    if (invite.matchType === MatchType.CUSTOM) {
+      invite = this.withCustomPositions(invite);
+    }
     return {
       id: invite.id,
       matchType: invite.matchType,
@@ -2747,6 +3140,8 @@ export class MatchmakingService {
       clanId: invite.clanId,
       roomId: invite.roomId,
       players: invite.players,
+      playerPositions: invite.playerPositions,
+      readyPlayerIds: invite.readyPlayerIds,
       bots: invite.bots,
       teamSize: invite.teamSize,
       allowBots: invite.allowBots,
@@ -2779,6 +3174,9 @@ export class MatchmakingService {
   private async toRoomDto(
     invite: MatchmakingInvite,
   ): Promise<MatchmakingRoomDto> {
+    if (invite.matchType === MatchType.CUSTOM) {
+      invite = this.withCustomPositions(invite);
+    }
     const playerMap = await this.getMqttPlayerMap(invite.players);
 
     return {
@@ -2792,6 +3190,8 @@ export class MatchmakingService {
         this.getMappedMqttPlayer(playerMap, playerId),
       ),
       bots: invite.bots,
+      playerPositions: invite.playerPositions,
+      readyPlayerIds: invite.readyPlayerIds,
       teamSize: invite.teamSize,
       allowBots: invite.allowBots,
       stateVersion: invite.stateVersion,

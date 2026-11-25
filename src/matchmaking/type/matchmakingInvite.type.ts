@@ -11,6 +11,8 @@ export type MatchmakingInvite = {
   clanId?: string;
   roomId?: string;
   players: string[];
+  playerPositions?: Record<string, number>;
+  readyPlayerIds?: string[];
   bots: Extract<MatchmakingParticipant, { isBot: true }>[];
   teamSize: 1 | 2;
   allowBots: boolean;
