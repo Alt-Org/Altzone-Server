@@ -1,5 +1,6 @@
 import { Expose, Type } from 'class-transformer';
 import { MatchStatus } from '../enum/matchStatus.enum';
+import { MatchFinishReason } from '../enum/matchFinishReason.enum';
 import { MatchType } from '../enum/matchType.enum';
 import { TeamSide } from '../enum/teamSide.enum';
 
@@ -79,6 +80,14 @@ export class MatchmakingTeamDto {
   bots: MatchmakingMatchBotParticipantDto[];
 }
 
+export class MatchTeamScoreDto {
+  @Expose()
+  side: TeamSide;
+
+  @Expose()
+  score: number;
+}
+
 export class MatchResultDto {
   /**
    * Winning team side.
@@ -87,6 +96,15 @@ export class MatchResultDto {
    */
   @Expose()
   winningSide: TeamSide;
+
+  /** Reason the match ended, when reported by the client. */
+  @Expose()
+  finishReason?: MatchFinishReason;
+
+  /** Final score for each side, when reported by the game mode. */
+  @Expose()
+  @Type(() => MatchTeamScoreDto)
+  teamScores?: MatchTeamScoreDto[];
 }
 
 export class MatchmakingMatchDto {

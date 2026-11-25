@@ -40,6 +40,7 @@ import { ActiveMatch } from './type/activeMatch.type';
 import { MatchmakingInvite } from './type/matchmakingInvite.type';
 import {
   MatchmakingBotParticipant,
+  MatchmakingClanSnapshot,
   MatchmakingParticipant,
   MatchmakingPlayerParticipant,
 } from './type/matchmakingParticipant.type';
@@ -50,9 +51,19 @@ import EventEmitterService from '../common/service/EventEmitterService/EventEmit
 import { ServerTaskName } from '../dailyTasks/enum/serverTaskName.enum';
 import { PlayerLeaderboardWinService } from '../leaderboard/playerLeaderboardWin.service';
 import { ClanLeaderboardWinService } from '../leaderboard/clanLeaderboardWin.service';
-import { getMatchRewardEligibility } from '../leaderboard/util/getAcceptedLeaderboardWin';
+import {
+  getMatchRewardEligibility,
+  MatchRewardEligibility,
+} from '../leaderboard/util/getAcceptedLeaderboardWin';
 import { ModelName } from '../common/enum/modelName.enum';
 import { MatchmakingRewardClaimDocument } from './schema/matchmakingRewardClaim.schema';
+import {
+  MatchmakingMatchHistory,
+  MatchmakingMatchHistoryDocument,
+  MatchmakingOpponentType,
+  MatchmakingParticipantOutcome,
+  MatchmakingRewardStatus,
+} from './schema/matchmakingMatchHistory.schema';
 
 class MatchRewardUpdateError extends Error {
   constructor(readonly serviceErrors: ServiceError[]) {
@@ -98,6 +109,8 @@ export class MatchmakingService {
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(ModelName.MATCHMAKING_REWARD_CLAIM)
     private readonly rewardClaimModel: Model<MatchmakingRewardClaimDocument>,
+    @InjectModel(ModelName.MATCHMAKING_MATCH_HISTORY)
+    private readonly matchHistoryModel: Model<MatchmakingMatchHistoryDocument>,
   ) {}
 
   /**
@@ -638,7 +651,7 @@ export class MatchmakingService {
     playerId: string,
     body: FinishMatchDto,
   ): Promise<IServiceReturn<MatchmakingMatchDto>> {
-    const [match, matchErrors] = await this.readMatch(matchId);
+    const [match, matchErrors] = await this.readMatchForFinish(matchId);
     if (matchErrors) return [null, matchErrors];
 
     if (!this.matchHasPlayer(match, playerId)) {
@@ -688,28 +701,33 @@ export class MatchmakingService {
       ...match,
       status: MatchStatus.FINISHED,
       finishedAt: new Date().toISOString(),
-      result: { winningSide: body.winningSide },
+      result: {
+        winningSide: body.winningSide,
+        finishReason: body.finishReason,
+        teamScores: body.teamScores,
+      },
     };
 
     const rewardEligibility = getMatchRewardEligibility(finishedMatch);
 
     let rewardsApplied = false;
-    if (rewardEligibility.eligible) {
-      try {
-        rewardsApplied = await this.applyMatchRewardsOnce(finishedMatch);
-      } catch (error) {
-        if (error instanceof MatchRewardUpdateError) {
-          return [null, error.serviceErrors];
-        }
-        throw error;
+    try {
+      rewardsApplied = await this.persistFinishedMatchAndRewards(
+        finishedMatch,
+        rewardEligibility,
+      );
+    } catch (error) {
+      if (error instanceof MatchRewardUpdateError) {
+        return [null, error.serviceErrors];
       }
+      throw error;
+    }
 
-      if (rewardsApplied) {
-        await this.emitDailyTaskEventsForFinishedMatch(
-          finishedMatch,
-          rewardEligibility.humanParticipantIds,
-        );
-      }
+    if (rewardsApplied && rewardEligibility.eligible) {
+      await this.emitDailyTaskEventsForFinishedMatch(
+        finishedMatch,
+        rewardEligibility.humanParticipantIds,
+      );
     }
 
     await this.saveFinishedMatch(finishedMatch);
@@ -733,68 +751,101 @@ export class MatchmakingService {
     matchId: string,
     playerId: string,
   ): Promise<IServiceReturn<MatchmakingMatchDto>> {
-    const [match, matchErrors] = await this.readMatch(matchId);
-    if (matchErrors) return [null, matchErrors];
+    const matchKey = this.matchKey(matchId);
 
-    if (match.status !== MatchStatus.ACTIVE) {
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_ALLOWED,
-            field: 'matchId',
-            value: matchId,
-            message: 'Only active matchmaking matches can be started.',
-          }),
-        ],
-      ];
-    }
+    // The whole match is stored as one Redis value. Use optimistic locking so
+    // concurrent readiness confirmations cannot overwrite each other.
+    while (true) {
+      const matchRaw = await this.redisService.get(matchKey);
+      if (!matchRaw) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_FOUND,
+              field: 'matchId',
+              value: matchId,
+              message: 'Matchmaking match not found.',
+            }),
+          ],
+        ];
+      }
 
-    if (!this.matchHasPlayer(match, playerId)) {
-      return [
-        null,
-        [
-          new ServiceError({
-            reason: SEReason.NOT_AUTHORIZED,
-            field: 'playerId',
-            value: playerId,
-            message: 'Only match participants can start the match.',
-          }),
-        ],
-      ];
-    }
+      const match = JSON.parse(matchRaw) as ActiveMatch;
 
-    const requiredPlayerIds = Array.from(new Set(this.getRealPlayerIds(match)));
-    const readyPlayerIds = Array.from(
-      new Set([
-        ...(match.readyPlayerIds ?? []).filter((readyPlayerId) =>
-          requiredPlayerIds.includes(readyPlayerId),
-        ),
-        playerId,
-      ]),
-    );
-    const allPlayersReady = requiredPlayerIds.every((requiredPlayerId) =>
-      readyPlayerIds.includes(requiredPlayerId),
-    );
-    const startedMatch: ActiveMatch = {
-      ...match,
-      readyPlayerIds,
-      battleStartedAt:
-        match.battleStartedAt ??
-        (allPlayersReady ? new Date().toISOString() : undefined),
-    };
+      if (match.status !== MatchStatus.ACTIVE) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_ALLOWED,
+              field: 'matchId',
+              value: matchId,
+              message: 'Only active matchmaking matches can be started.',
+            }),
+          ],
+        ];
+      }
 
-    await this.saveMatch(startedMatch);
+      if (!this.matchHasPlayer(match, playerId)) {
+        return [
+          null,
+          [
+            new ServiceError({
+              reason: SEReason.NOT_AUTHORIZED,
+              field: 'playerId',
+              value: playerId,
+              message: 'Only match participants can start the match.',
+            }),
+          ],
+        ];
+      }
 
-    if (allPlayersReady && !match.battleStartedAt) {
-      await this.notifier.matchEvent(
-        startedMatch.id,
-        MqttNotificationType.MATCH_STARTED,
-        await this.toMqttMatchDto(startedMatch),
+      const requiredPlayerIds = Array.from(
+        new Set(this.getRealPlayerIds(match)),
       );
-    }
+      const readyPlayerIds = Array.from(
+        new Set([
+          ...(match.readyPlayerIds ?? []).filter((readyPlayerId) =>
+            requiredPlayerIds.includes(readyPlayerId),
+          ),
+          playerId,
+        ]),
+      );
+      const allPlayersReady = requiredPlayerIds.every((requiredPlayerId) =>
+        readyPlayerIds.includes(requiredPlayerId),
+      );
+      const startsBattle = allPlayersReady && !match.battleStartedAt;
+      const startedMatch: ActiveMatch = {
+        ...match,
+        readyPlayerIds,
+        battleStartedAt: startsBattle
+          ? new Date().toISOString()
+          : match.battleStartedAt,
+      };
 
-    return [this.toMatchDto(startedMatch), null];
+      const updated = await this.redisService.compareAndSetMany([
+        {
+          key: matchKey,
+          expectedValue: matchRaw,
+          value: JSON.stringify(startedMatch),
+        },
+      ]);
+      if (!updated) continue;
+
+      // Only the request whose atomic state transition set battleStartedAt may
+      // publish MATCH_STARTED. Retried and duplicate requests observe the
+      // timestamp and return the current state without publishing again.
+      if (startsBattle) {
+        await this.notifier.matchEvent(
+          startedMatch.id,
+          MqttNotificationType.MATCH_STARTED,
+          await this.toMqttMatchDto(startedMatch),
+        );
+      }
+
+      return [this.toMatchDto(startedMatch), null];
+    }
   }
 
   /**
@@ -968,7 +1019,9 @@ export class MatchmakingService {
     if (compatibleInvites.length < 2) return null;
 
     const [firstInvite, secondInvite] = compatibleInvites;
-    const match = this.buildActiveMatch(firstInvite, secondInvite);
+    const match = await this.attachMatchSnapshots(
+      this.buildActiveMatch(firstInvite, secondInvite),
+    );
     const claimed = await this.claimInvitesForMatch(
       [firstInvite, secondInvite],
       match,
@@ -1126,7 +1179,9 @@ export class MatchmakingService {
       ];
     }
 
-    const match = this.buildRandomBotMatch(invite);
+    const match = await this.attachMatchSnapshots(
+      this.buildRandomBotMatch(invite),
+    );
     const claimed = await this.claimInvitesForMatch([invite], match);
     if (!claimed) {
       const [latestInvite, latestErrors] = await this.readInvite(inviteId);
@@ -1265,7 +1320,9 @@ export class MatchmakingService {
     secondInvite: MatchmakingInvite,
     matchType = MatchType.RANDOM,
   ) {
-    const match = this.buildActiveMatch(firstInvite, secondInvite, matchType);
+    const match = await this.attachMatchSnapshots(
+      this.buildActiveMatch(firstInvite, secondInvite, matchType),
+    );
 
     await this.saveActiveMatch(match);
 
@@ -1367,6 +1424,8 @@ export class MatchmakingService {
       startedAt: now,
     };
 
+    await this.attachMatchSnapshots(match);
+
     await this.saveActiveMatch(match);
 
     return match;
@@ -1409,6 +1468,8 @@ export class MatchmakingService {
       teams,
       startedAt: now,
     };
+
+    await this.attachMatchSnapshots(match);
 
     await this.saveActiveMatch(match);
 
@@ -1472,6 +1533,74 @@ export class MatchmakingService {
       side,
       participants: this.createBots(`${inviteId}:opponent`, teamSize),
     };
+  }
+
+  /**
+   * Captures stable player and clan presentation at match creation time.
+   *
+   * Player-level clan snapshots are recorded for every match type. The
+   * team-level clan snapshot remains the clan represented by a CLAN match side
+   * and is therefore kept separate from each player's current membership.
+   */
+  private async attachMatchSnapshots(match: ActiveMatch): Promise<ActiveMatch> {
+    const playerIds = this.getRealPlayerIds(match);
+    const playerSnapshots = await Promise.all(
+      playerIds.map(async (playerId) => {
+        const [player, playerErrors] =
+          await this.playerService.getPlayerById(playerId);
+        if (!player || playerErrors) {
+          throw new Error(
+            `Cannot create matchmaking snapshot for player ${playerId}`,
+          );
+        }
+        return {
+          playerId,
+          displayName: player.name,
+          clanId: player?.clan_id?.toString(),
+        };
+      }),
+    );
+    const playerSnapshotMap = new Map(
+      playerSnapshots.map((snapshot) => [snapshot.playerId, snapshot]),
+    );
+
+    const clanIds = Array.from(
+      new Set(
+        [
+          ...match.teams.map((team) => team.clanId),
+          ...playerSnapshots.map((snapshot) => snapshot.clanId),
+        ].filter((clanId): clanId is string => Boolean(clanId)),
+      ),
+    );
+    const clans = await Promise.all(
+      clanIds.map(async (clanId): Promise<MatchmakingClanSnapshot> => {
+        const [clan] = await this.clanService.readOneById(clanId);
+        return {
+          clanId,
+          name: clan?.name,
+          tag: clan?.tag,
+        };
+      }),
+    );
+    const clanSnapshotMap = new Map(clans.map((clan) => [clan.clanId, clan]));
+
+    for (const team of match.teams) {
+      team.clan = team.clanId ? clanSnapshotMap.get(team.clanId) : undefined;
+      team.participants = team.participants.map((participant) => {
+        if (this.isBotParticipant(participant)) return participant;
+
+        const playerSnapshot = playerSnapshotMap.get(participant.playerId);
+        return {
+          ...participant,
+          displayName: playerSnapshot?.displayName ?? participant.playerId,
+          clan: playerSnapshot?.clanId
+            ? clanSnapshotMap.get(playerSnapshot.clanId)
+            : undefined,
+        };
+      });
+    }
+
+    return match;
   }
 
   /**
@@ -1560,11 +1689,26 @@ export class MatchmakingService {
   }
 
   /**
-   * Updates personal battlePoints leaderboards for all modes and clan
-   * battlePoints leaderboards for CLAN matches only.
+   * Atomically inserts permanent history and applies Mongo-backed rewards once.
+   * Redis and MQTT state are updated only after this transaction commits.
    */
-  private async applyMatchRewardsOnce(match: ActiveMatch): Promise<boolean> {
+  private async persistFinishedMatchAndRewards(
+    match: ActiveMatch,
+    rewardEligibility: MatchRewardEligibility,
+  ): Promise<boolean> {
+    const history = this.toMatchHistory(match, rewardEligibility);
+
     return this.connection.transaction(async (session) => {
+      const historyResult = await this.matchHistoryModel.updateOne(
+        { matchId: match.id },
+        { $setOnInsert: history },
+        { upsert: true, session },
+      );
+
+      if (historyResult.upsertedCount !== 1 || !rewardEligibility.eligible) {
+        return false;
+      }
+
       const claimResult = await this.rewardClaimModel.updateOne(
         { battleId: match.id },
         {
@@ -1598,6 +1742,98 @@ export class MatchmakingService {
 
       return true;
     });
+  }
+
+  private toMatchHistory(
+    match: ActiveMatch,
+    rewardEligibility: MatchRewardEligibility,
+  ): MatchmakingMatchHistory {
+    const hasBots = match.teams.some((team) =>
+      team.participants.some((participant) => participant.isBot),
+    );
+    const hasMixedTeam = match.teams.some((team) => {
+      const hasTeamBots = team.participants.some(
+        (participant) => participant.isBot,
+      );
+      const hasTeamPlayers = team.participants.some(
+        (participant) => !participant.isBot,
+      );
+      return hasTeamBots && hasTeamPlayers;
+    });
+    const opponentType = hasMixedTeam
+      ? MatchmakingOpponentType.MIXED
+      : hasBots
+        ? MatchmakingOpponentType.BOT
+        : MatchmakingOpponentType.HUMAN;
+
+    const teams = match.teams.map((team) => {
+      if (!team.side) throw new Error('Finished match team side is required');
+
+      return {
+        side: team.side,
+        clan: team.clan ?? (team.clanId ? { clanId: team.clanId } : undefined),
+        participants: team.participants.map((participant) => {
+          if (this.isBotParticipant(participant)) {
+            return {
+              isBot: true,
+              botId: participant.botId,
+              displayName: participant.displayName,
+            };
+          }
+
+          return {
+            isBot: false,
+            playerId: participant.playerId,
+            displayName: participant.displayName ?? participant.playerId,
+            clan: participant.clan,
+          };
+        }),
+      };
+    }) as MatchmakingMatchHistory['teams'];
+
+    const rewards = rewardEligibility.eligible
+      ? match.teams.flatMap((team) => {
+          const outcome = this.getTeamOutcome(team, match.result.winningSide);
+          const battlePoints = this.getBattlePointsForOutcome(
+            outcome,
+            match.matchType,
+          );
+
+          return this.getTeamPlayerIds(team).map((playerId) => ({
+            playerId,
+            outcome: MatchmakingParticipantOutcome[outcome],
+            battlePoints,
+            statistics: {
+              playedBattles: 1,
+              wonBattles: outcome === 'WIN' ? 1 : 0,
+            },
+          }));
+        })
+      : [];
+
+    return {
+      matchId: match.id,
+      matchType: match.matchType,
+      gameType: match.gameType,
+      teamSize: match.teamSize,
+      opponentType,
+      teams,
+      startedAt: new Date(match.startedAt),
+      battleStartedAt: match.battleStartedAt
+        ? new Date(match.battleStartedAt)
+        : undefined,
+      finishedAt: new Date(match.finishedAt),
+      result: {
+        winningSide: match.result.winningSide,
+        finishReason: match.result.finishReason,
+        teamScores: match.result.teamScores,
+      },
+      rewards,
+      rewardStatus: rewardEligibility.eligible
+        ? MatchmakingRewardStatus.APPLIED
+        : MatchmakingRewardStatus.NOT_ELIGIBLE,
+      createdAt: new Date(),
+    };
   }
 
   private async updateLeaderboardsForFinishedMatch(
@@ -1770,6 +2006,66 @@ export class MatchmakingService {
     }
 
     return [JSON.parse(matchRaw) as ActiveMatch, null];
+  }
+
+  /**
+   * Reads transient match state first and falls back to permanent history.
+   * This keeps finish retries idempotent after the Redis finished-match TTL.
+   */
+  private async readMatchForFinish(
+    matchId: string,
+  ): Promise<IServiceReturn<ActiveMatch>> {
+    const [redisMatch, redisErrors] = await this.readMatch(matchId);
+    if (redisMatch) return [redisMatch, null];
+
+    const history = await this.matchHistoryModel
+      .findOne({ matchId })
+      .lean<MatchmakingMatchHistory>()
+      .exec();
+    if (!history) return [null, redisErrors];
+
+    return [this.fromMatchHistory(history), null];
+  }
+
+  private fromMatchHistory(history: MatchmakingMatchHistory): ActiveMatch {
+    const teams = history.teams.map((team) => ({
+      side: team.side,
+      clanId: team.clan?.clanId,
+      clan: team.clan,
+      participants: team.participants.map((participant) =>
+        participant.isBot
+          ? {
+              botId: participant.botId!,
+              displayName: participant.displayName,
+              isBot: true as const,
+            }
+          : {
+              playerId: participant.playerId!,
+              displayName: participant.displayName,
+              clan: participant.clan,
+              isBot: false as const,
+            },
+      ),
+    })) as [MatchmakingTeam, MatchmakingTeam];
+
+    return {
+      id: history.matchId,
+      matchType: history.matchType,
+      gameType: history.gameType,
+      status: MatchStatus.FINISHED,
+      teamSize: history.teamSize,
+      teams,
+      startedAt: new Date(history.startedAt).toISOString(),
+      battleStartedAt: history.battleStartedAt
+        ? new Date(history.battleStartedAt).toISOString()
+        : undefined,
+      finishedAt: new Date(history.finishedAt).toISOString(),
+      result: {
+        winningSide: history.result.winningSide,
+        finishReason: history.result.finishReason,
+        teamScores: history.result.teamScores,
+      },
+    };
   }
 
   /**

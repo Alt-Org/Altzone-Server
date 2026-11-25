@@ -1,0 +1,5 @@
+export enum MatchFinishReason {
+  COMPLETED = 'COMPLETED',
+  FORFEIT = 'FORFEIT',
+  DISCONNECTED = 'DISCONNECTED',
+}

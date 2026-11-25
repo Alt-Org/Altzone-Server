@@ -3,6 +3,7 @@ import { MqttNotificationType } from '../../../common/service/notificator/enum/M
 import { MatchmakingAutoInviteType } from '../../../matchmaking/dto/createMatchmakingInvite.dto';
 import { InviteStatus } from '../../../matchmaking/enum/inviteStatus.enum';
 import { MatchStatus } from '../../../matchmaking/enum/matchStatus.enum';
+import { MatchFinishReason } from '../../../matchmaking/enum/matchFinishReason.enum';
 import { MatchType } from '../../../matchmaking/enum/matchType.enum';
 import { TeamSide } from '../../../matchmaking/enum/teamSide.enum';
 import { MatchmakingService } from '../../../matchmaking/matchmaking.service';
@@ -12,6 +13,14 @@ import ServiceError from '../../../common/service/basicService/ServiceError';
 import { ServerTaskName } from '../../../dailyTasks/enum/serverTaskName.enum';
 import { envVars } from '../../../common/service/envHandler/envVars';
 import { Environment as ServerEnvironment } from '../../../common/service/envHandler/enum/environment.enum';
+import {
+  MatchmakingMatchHistorySchema,
+  MatchmakingOpponentType,
+  MatchmakingParticipantOutcome,
+  MatchmakingRewardStatus,
+} from '../../../matchmaking/schema/matchmakingMatchHistory.schema';
+import mongoose from 'mongoose';
+import { MatchmakingRewardClaimSchema } from '../../../matchmaking/schema/matchmakingRewardClaim.schema';
 
 class InMemoryRedisService {
   readonly values = new Map<string, string>();
@@ -140,6 +149,10 @@ type TestDeps = {
   rewardClaimModel: {
     updateOne: jest.Mock;
   };
+  matchHistoryModel: {
+    updateOne: jest.Mock;
+    findOne: jest.Mock;
+  };
   service: MatchmakingService;
 };
 
@@ -172,7 +185,14 @@ const createService = (
     },
   };
   const clanService = {
-    readOneById: jest.fn(async (clanId: string) => [{ _id: clanId }, null]),
+    readOneById: jest.fn(async (clanId: string) => [
+      {
+        _id: clanId,
+        name: `Clan ${clanId}`,
+        tag: `TAG-${clanId}`,
+      },
+      null,
+    ]),
     basicService: {
       updateOneById: jest.fn(async () => [{}, null]),
     },
@@ -209,6 +229,12 @@ const createService = (
   const rewardClaimModel = {
     updateOne: jest.fn(async () => ({ upsertedCount: 1 })),
   };
+  const matchHistoryModel = {
+    updateOne: jest.fn(async () => ({ upsertedCount: 1 })),
+    findOne: jest.fn(() => ({
+      lean: () => ({ exec: async () => null }),
+    })),
+  };
   const service = new MatchmakingService(
     redis as any,
     playerService as any,
@@ -220,6 +246,7 @@ const createService = (
     clanLeaderboardWinService as any,
     connection as any,
     rewardClaimModel as any,
+    matchHistoryModel as any,
   );
 
   return {
@@ -232,6 +259,7 @@ const createService = (
     playerLeaderboardWinService,
     clanLeaderboardWinService,
     rewardClaimModel,
+    matchHistoryModel,
     service,
   } satisfies TestDeps;
 };
@@ -554,10 +582,18 @@ describe('MatchmakingService flow', () => {
       teamSize: 1,
     });
     expect(matches[0].teams[0].participants).toEqual([
-      { playerId: 'player-1', isBot: false },
+      {
+        playerId: 'player-1',
+        isBot: false,
+        displayName: 'Player 1',
+      },
     ]);
     expect(matches[0].teams[1].participants).toEqual([
-      { playerId: 'player-2', isBot: false },
+      {
+        playerId: 'player-2',
+        isBot: false,
+        displayName: 'Player 2',
+      },
     ]);
     expect(
       await redis.lrange(`matchmaking:queue:RANDOM:${gameType}`, 0, -1),
@@ -601,8 +637,26 @@ describe('MatchmakingService flow', () => {
     const [match] = getStoredMatches(redis);
     expect(match.matchType).toBe(MatchType.RANDOM);
     expect(match.teams.flatMap((team) => team.participants)).toEqual([
-      { playerId: 'player-1', isBot: false },
-      { playerId: 'player-2', isBot: false },
+      {
+        playerId: 'player-1',
+        isBot: false,
+        displayName: 'Player 1',
+        clan: {
+          clanId: 'shared-clan',
+          name: 'Clan shared-clan',
+          tag: 'TAG-shared-clan',
+        },
+      },
+      {
+        playerId: 'player-2',
+        isBot: false,
+        displayName: 'Player 2',
+        clan: {
+          clanId: 'shared-clan',
+          name: 'Clan shared-clan',
+          tag: 'TAG-shared-clan',
+        },
+      },
     ]);
   });
 
@@ -728,6 +782,13 @@ describe('MatchmakingService flow', () => {
     expect(match.teams[1].players).toEqual([]);
     expect(match.teams[1].bots).toEqual([
       expect.objectContaining({ isBot: true }),
+    ]);
+    const [storedMatch] = getStoredMatches(redis);
+    expect(storedMatch.teams[0].participants).toEqual([
+      expect.objectContaining({
+        playerId: 'player-1',
+        displayName: 'Player 1',
+      }),
     ]);
 
     const [matchedInvite] = await service.getInvite(invite.id);
@@ -1004,6 +1065,25 @@ describe('MatchmakingService flow', () => {
       teamSize: 1,
     });
     expect(matches[0].teams[0].clanId).toBe('clan-1');
+    expect(matches[0].teams[0]).toMatchObject({
+      clan: {
+        clanId: 'clan-1',
+        name: 'Clan clan-1',
+        tag: 'TAG-clan-1',
+      },
+      participants: [
+        {
+          playerId: 'player-1',
+          isBot: false,
+          displayName: 'Player 1',
+          clan: {
+            clanId: 'clan-1',
+            name: 'Clan clan-1',
+            tag: 'TAG-clan-1',
+          },
+        },
+      ],
+    });
     expect(matches[0].teams[1].participants).toEqual([
       expect.objectContaining({ isBot: true }),
     ]);
@@ -1045,12 +1125,44 @@ describe('MatchmakingService flow', () => {
       {
         side: TeamSide.A,
         clanId: 'clan-2',
-        participants: [{ playerId: 'player-2', isBot: false }],
+        clan: {
+          clanId: 'clan-2',
+          name: 'Clan clan-2',
+          tag: 'TAG-clan-2',
+        },
+        participants: [
+          {
+            playerId: 'player-2',
+            isBot: false,
+            displayName: 'Player 2',
+            clan: {
+              clanId: 'clan-2',
+              name: 'Clan clan-2',
+              tag: 'TAG-clan-2',
+            },
+          },
+        ],
       },
       {
         side: TeamSide.B,
         clanId: 'clan-1',
-        participants: [{ playerId: 'player-1', isBot: false }],
+        clan: {
+          clanId: 'clan-1',
+          name: 'Clan clan-1',
+          tag: 'TAG-clan-1',
+        },
+        participants: [
+          {
+            playerId: 'player-1',
+            isBot: false,
+            displayName: 'Player 1',
+            clan: {
+              clanId: 'clan-1',
+              name: 'Clan clan-1',
+              tag: 'TAG-clan-1',
+            },
+          },
+        ],
       },
     ]);
   });
@@ -1082,11 +1194,21 @@ describe('MatchmakingService flow', () => {
       teamSize: 2,
     });
     expect(match.teams[0].participants).toEqual([
-      { playerId: 'player-2', isBot: false },
+      expect.objectContaining({
+        playerId: 'player-2',
+        isBot: false,
+        displayName: 'Player 2',
+        clan: expect.objectContaining({ clanId: 'clan-2' }),
+      }),
       expect.objectContaining({ isBot: true }),
     ]);
     expect(match.teams[1].participants).toEqual([
-      { playerId: 'player-1', isBot: false },
+      expect.objectContaining({
+        playerId: 'player-1',
+        isBot: false,
+        displayName: 'Player 1',
+        clan: expect.objectContaining({ clanId: 'clan-1' }),
+      }),
       expect.objectContaining({ isBot: true }),
     ]);
   });
@@ -1207,7 +1329,11 @@ describe('MatchmakingService flow', () => {
     expect(match.teams[0].participants).toHaveLength(2);
     expect(match.teams[1].participants).toHaveLength(2);
     expect(match.teams.flatMap((team) => team.participants)).toEqual([
-      { playerId: 'player-1', isBot: false },
+      expect.objectContaining({
+        playerId: 'player-1',
+        isBot: false,
+        displayName: 'Player 1',
+      }),
       expect.objectContaining({ isBot: true }),
       expect.objectContaining({ isBot: true }),
       expect.objectContaining({ isBot: true }),
@@ -1906,7 +2032,7 @@ describe('MatchmakingService flow', () => {
     );
   });
 
-  it('handles repeated match start calls from the same participant idempotently', async () => {
+  it('handles concurrent match start calls from the same participant idempotently', async () => {
     const { redis, notifier, service } = createService();
     const match = createActiveBattleStartMatch({
       id: 'match-start-idempotent',
@@ -1923,20 +2049,29 @@ describe('MatchmakingService flow', () => {
     });
     await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
 
-    const [firstStart, firstErrors] = await service.startMatch(
-      match.id,
-      'player-1',
-    );
-    const [secondStart, secondErrors] = await service.startMatch(
-      match.id,
-      'player-1',
-    );
+    const [
+      [firstStart, firstErrors],
+      [secondStart, secondErrors],
+      [thirdStart, thirdErrors],
+    ] = await Promise.all([
+      service.startMatch(match.id, 'player-1'),
+      service.startMatch(match.id, 'player-1'),
+      service.startMatch(match.id, 'player-1'),
+    ]);
+    const storedMatch = JSON.parse(
+      await redis.get(`matchmaking:match:${match.id}`),
+    ) as ActiveMatch;
 
     expect(firstErrors).toBeNull();
     expect(secondErrors).toBeNull();
+    expect(thirdErrors).toBeNull();
     expect(firstStart.readyPlayerIds).toEqual(['player-1']);
     expect(secondStart.readyPlayerIds).toEqual(['player-1']);
+    expect(thirdStart.readyPlayerIds).toEqual(['player-1']);
     expect(secondStart.battleStartedAt).toBe(firstStart.battleStartedAt);
+    expect(thirdStart.battleStartedAt).toBe(firstStart.battleStartedAt);
+    expect(storedMatch.readyPlayerIds).toEqual(['player-1']);
+    expect(storedMatch.battleStartedAt).toBe(firstStart.battleStartedAt);
     expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
     expect(notifier.matchEvent).toHaveBeenCalledWith(
       match.id,
@@ -2012,27 +2147,30 @@ describe('MatchmakingService flow', () => {
     });
   });
 
-  it('publishes MATCH_STARTED only after all real players are ready', async () => {
+  it('retains concurrent confirmations and publishes MATCH_STARTED once', async () => {
     const { redis, notifier, service } = createService();
     const match = createActiveBattleStartMatch({
       id: 'match-start-two-players',
     });
     await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
 
-    const [firstStart, firstErrors] = await service.startMatch(
-      match.id,
-      'player-1',
-    );
-    const [secondStart, secondErrors] = await service.startMatch(
-      match.id,
-      'player-2',
-    );
+    const [[firstStart, firstErrors], [secondStart, secondErrors]] =
+      await Promise.all([
+        service.startMatch(match.id, 'player-1'),
+        service.startMatch(match.id, 'player-2'),
+      ]);
+    const storedMatch = JSON.parse(
+      await redis.get(`matchmaking:match:${match.id}`),
+    ) as ActiveMatch;
 
     expect(firstErrors).toBeNull();
     expect(secondErrors).toBeNull();
-    expect(firstStart.battleStartedAt).toBeUndefined();
-    expect(secondStart.readyPlayerIds).toEqual(['player-1', 'player-2']);
-    expect(secondStart.battleStartedAt).toEqual(expect.any(String));
+    expect(
+      [firstStart, secondStart].some((result) => result.battleStartedAt),
+    ).toBe(true);
+    expect(storedMatch.readyPlayerIds).toEqual(['player-1', 'player-2']);
+    expect(storedMatch.battleStartedAt).toEqual(expect.any(String));
+    expect(redis.compareAndSetMany).toHaveBeenCalledTimes(3);
     expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
     expect(notifier.matchEvent).toHaveBeenCalledWith(
       match.id,
@@ -2040,12 +2178,12 @@ describe('MatchmakingService flow', () => {
       expect.objectContaining({
         id: match.id,
         readyPlayerIds: ['player-1', 'player-2'],
-        battleStartedAt: secondStart.battleStartedAt,
+        battleStartedAt: storedMatch.battleStartedAt,
       }),
     );
   });
 
-  it('waits for all four real players before starting a 2v2 clientside battle', async () => {
+  it('retains all four concurrent confirmations before starting a 2v2 battle', async () => {
     const { redis, notifier, service } = createService();
     const match = createActiveBattleStartMatch({
       id: 'match-start-2v2',
@@ -2069,23 +2207,24 @@ describe('MatchmakingService flow', () => {
     });
     await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
 
-    await service.startMatch(match.id, 'player-1');
-    await service.startMatch(match.id, 'player-2');
-    const [thirdStart] = await service.startMatch(match.id, 'player-3');
-    const [fourthStart, fourthErrors] = await service.startMatch(
-      match.id,
-      'player-4',
-    );
+    const results = await Promise.all([
+      service.startMatch(match.id, 'player-1'),
+      service.startMatch(match.id, 'player-2'),
+      service.startMatch(match.id, 'player-3'),
+      service.startMatch(match.id, 'player-4'),
+    ]);
+    const storedMatch = JSON.parse(
+      await redis.get(`matchmaking:match:${match.id}`),
+    ) as ActiveMatch;
 
-    expect(fourthErrors).toBeNull();
-    expect(thirdStart.battleStartedAt).toBeUndefined();
-    expect(fourthStart.readyPlayerIds).toEqual([
+    expect(results.every(([, errors]) => errors === null)).toBe(true);
+    expect(storedMatch.readyPlayerIds).toEqual([
       'player-1',
       'player-2',
       'player-3',
       'player-4',
     ]);
-    expect(fourthStart.battleStartedAt).toEqual(expect.any(String));
+    expect(storedMatch.battleStartedAt).toEqual(expect.any(String));
     expect(notifier.matchEvent).toHaveBeenCalledTimes(1);
     expect(notifier.matchEvent).toHaveBeenCalledWith(
       match.id,
@@ -2168,6 +2307,8 @@ describe('MatchmakingService flow', () => {
       emitterService,
       playerLeaderboardWinService,
       clanLeaderboardWinService,
+      rewardClaimModel,
+      matchHistoryModel,
       service,
     } = createService();
     const match: ActiveMatch = {
@@ -2191,19 +2332,68 @@ describe('MatchmakingService flow', () => {
     await redis.set('matchmaking:match:match-1', JSON.stringify(match));
     await redis.set('matchmaking:match-player:player-1', 'match-1');
     await redis.set('matchmaking:match-player:player-2', 'match-1');
+    const detailedResult = {
+      winningSide: TeamSide.A,
+      finishReason: MatchFinishReason.COMPLETED,
+      teamScores: [
+        { side: TeamSide.A, score: 4 },
+        { side: TeamSide.B, score: 2 },
+      ],
+    };
 
     const [finishedMatch, errors] = await service.finishMatch(
       'match-1',
       'player-1',
-      { winningSide: TeamSide.A },
+      detailedResult,
     );
 
     expect(errors).toBeNull();
     expect(finishedMatch).toMatchObject({
       id: 'match-1',
       status: MatchStatus.FINISHED,
-      result: { winningSide: TeamSide.A },
+      result: detailedResult,
     });
+    expect(matchHistoryModel.updateOne).toHaveBeenCalledWith(
+      { matchId: 'match-1' },
+      {
+        $setOnInsert: expect.objectContaining({
+          matchId: 'match-1',
+          matchType: MatchType.RANDOM,
+          gameType,
+          teamSize: 1,
+          opponentType: MatchmakingOpponentType.HUMAN,
+          startedAt: new Date('2026-07-06T08:00:00.000Z'),
+          finishedAt: expect.any(Date),
+          result: detailedResult,
+          rewards: [
+            {
+              playerId: 'player-1',
+              outcome: MatchmakingParticipantOutcome.WIN,
+              battlePoints: 30,
+              statistics: { playedBattles: 1, wonBattles: 1 },
+            },
+            {
+              playerId: 'player-2',
+              outcome: MatchmakingParticipantOutcome.LOSS,
+              battlePoints: -20,
+              statistics: { playedBattles: 1, wonBattles: 0 },
+            },
+          ],
+          rewardStatus: MatchmakingRewardStatus.APPLIED,
+        }),
+      },
+      { upsert: true, session: expect.anything() },
+    );
+    const historyOptions = (
+      matchHistoryModel.updateOne.mock.calls[0] as unknown[]
+    )[2] as { session: unknown };
+    const claimOptions = (
+      rewardClaimModel.updateOne.mock.calls[0] as unknown[]
+    )[2] as { session: unknown };
+    expect(claimOptions.session).toBe(historyOptions.session);
+    expect(
+      matchHistoryModel.updateOne.mock.invocationCallOrder[0],
+    ).toBeLessThan(rewardClaimModel.updateOne.mock.invocationCallOrder[0]);
     expect(
       playerLeaderboardWinService.recordAcceptedPlayerWin,
     ).toHaveBeenCalledWith(
@@ -2211,7 +2401,7 @@ describe('MatchmakingService flow', () => {
         id: 'match-1',
         status: MatchStatus.FINISHED,
         finishedAt: expect.any(String),
-        result: { winningSide: TeamSide.A },
+        result: detailedResult,
       }),
       expect.anything(),
     );
@@ -2403,6 +2593,8 @@ describe('MatchmakingService flow', () => {
       emitterService,
       playerLeaderboardWinService,
       clanLeaderboardWinService,
+      rewardClaimModel,
+      matchHistoryModel,
       notifier,
       service,
     } = createService();
@@ -2434,6 +2626,19 @@ describe('MatchmakingService flow', () => {
 
     expect(errors).toBeNull();
     expect(finishedMatch.status).toBe(MatchStatus.FINISHED);
+    expect(matchHistoryModel.updateOne).toHaveBeenCalledWith(
+      { matchId: match.id },
+      {
+        $setOnInsert: expect.objectContaining({
+          matchId: match.id,
+          opponentType: MatchmakingOpponentType.BOT,
+          rewards: [],
+          rewardStatus: MatchmakingRewardStatus.NOT_ELIGIBLE,
+        }),
+      },
+      { upsert: true, session: expect.anything() },
+    );
+    expect(rewardClaimModel.updateOne).not.toHaveBeenCalled();
     expect(
       playerLeaderboardWinService.recordAcceptedPlayerWin,
     ).not.toHaveBeenCalled();
@@ -2450,6 +2655,89 @@ describe('MatchmakingService flow', () => {
       'MATCH_FINISHED',
       expect.objectContaining({ status: MatchStatus.FINISHED }),
     );
+  });
+
+  it('persists MIXED participation and the match-time snapshots unchanged', async () => {
+    const { redis, matchHistoryModel, service } = createService({
+      'player-1': 'current-clan-1',
+      'player-2': 'current-clan-2',
+    });
+    const historicalClan = {
+      clanId: 'match-time-clan',
+      name: 'Match Time Clan',
+      tag: 'MTC',
+    };
+    const match: ActiveMatch = {
+      id: 'match-mixed-snapshots',
+      matchType: MatchType.CUSTOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 2,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [
+            {
+              playerId: 'player-1',
+              displayName: 'Match Time Player',
+              clan: historicalClan,
+              isBot: false,
+            },
+            { botId: 'bot-a', displayName: 'Bot A', isBot: true },
+          ],
+        },
+        {
+          side: TeamSide.B,
+          participants: [
+            {
+              playerId: 'player-2',
+              displayName: 'Opponent At Match Time',
+              isBot: false,
+            },
+            { botId: 'bot-b', displayName: 'Bot B', isBot: true },
+          ],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [, errors] = await service.finishMatch(match.id, 'player-1', {
+      winningSide: TeamSide.A,
+    });
+
+    expect(errors).toBeNull();
+    const history = (
+      matchHistoryModel.updateOne.mock.calls[0] as unknown[]
+    )[1] as { $setOnInsert: any };
+    expect(history.$setOnInsert).toMatchObject({
+      opponentType: MatchmakingOpponentType.MIXED,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [
+            {
+              playerId: 'player-1',
+              displayName: 'Match Time Player',
+              clan: historicalClan,
+              isBot: false,
+            },
+            { botId: 'bot-a', displayName: 'Bot A', isBot: true },
+          ],
+        },
+        {
+          side: TeamSide.B,
+          participants: [
+            {
+              playerId: 'player-2',
+              displayName: 'Opponent At Match Time',
+              isBot: false,
+            },
+            { botId: 'bot-b', displayName: 'Bot B', isBot: true },
+          ],
+        },
+      ],
+    });
   });
 
   it('does not accept or record a finish result from a non-participant', async () => {
@@ -2635,6 +2923,7 @@ describe('MatchmakingService flow', () => {
       playerLeaderboardWinService,
       clanLeaderboardWinService,
       rewardClaimModel,
+      matchHistoryModel,
       service,
     } = createService();
     const match: ActiveMatch = {
@@ -2667,6 +2956,17 @@ describe('MatchmakingService flow', () => {
 
       expect(errors).toBeNull();
       expect(finishedMatch.status).toBe(MatchStatus.FINISHED);
+      expect(matchHistoryModel.updateOne).toHaveBeenCalledWith(
+        { matchId: match.id },
+        {
+          $setOnInsert: expect.objectContaining({
+            matchId: match.id,
+            rewards: [],
+            rewardStatus: MatchmakingRewardStatus.NOT_ELIGIBLE,
+          }),
+        },
+        { upsert: true, session: expect.anything() },
+      );
       expect(rewardClaimModel.updateOne).not.toHaveBeenCalled();
       expect(
         playerLeaderboardWinService.recordAcceptedPlayerWin,
@@ -2690,6 +2990,7 @@ describe('MatchmakingService flow', () => {
       playerLeaderboardWinService,
       clanLeaderboardWinService,
       rewardClaimModel,
+      matchHistoryModel,
       service,
     } = createService();
     const match: ActiveMatch = {
@@ -2710,7 +3011,7 @@ describe('MatchmakingService flow', () => {
       ],
       startedAt: '2026-07-06T08:00:00.000Z',
     };
-    rewardClaimModel.updateOne
+    matchHistoryModel.updateOne
       .mockResolvedValueOnce({ upsertedCount: 1 })
       .mockResolvedValueOnce({ upsertedCount: 0 });
     await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
@@ -2731,7 +3032,8 @@ describe('MatchmakingService flow', () => {
     expect(firstResult[1]).toBeNull();
     expect(retriedResult[1]).toBeNull();
     expect(retriedResult[0].status).toBe(MatchStatus.FINISHED);
-    expect(rewardClaimModel.updateOne).toHaveBeenCalledTimes(2);
+    expect(matchHistoryModel.updateOne).toHaveBeenCalledTimes(2);
+    expect(rewardClaimModel.updateOne).toHaveBeenCalledTimes(1);
     expect(
       playerLeaderboardWinService.recordAcceptedPlayerWin,
     ).toHaveBeenCalledTimes(1);
@@ -2740,6 +3042,150 @@ describe('MatchmakingService flow', () => {
     ).toHaveBeenCalledTimes(1);
     expect(playerService.updatePlayerById).toHaveBeenCalledTimes(2);
     expect(emitterService.EmitNewDailyTaskEvent).toHaveBeenCalledTimes(2);
+  });
+
+  it('returns permanent history when finish is retried after the Redis TTL', async () => {
+    const {
+      notifier,
+      emitterService,
+      playerLeaderboardWinService,
+      clanLeaderboardWinService,
+      rewardClaimModel,
+      matchHistoryModel,
+      service,
+    } = createService();
+    const history = {
+      matchId: 'match-history-retry',
+      matchType: MatchType.RANDOM,
+      gameType,
+      teamSize: 1,
+      opponentType: MatchmakingOpponentType.HUMAN,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [
+            {
+              playerId: 'player-1',
+              displayName: 'Player 1',
+              isBot: false,
+            },
+          ],
+        },
+        {
+          side: TeamSide.B,
+          participants: [
+            {
+              playerId: 'player-2',
+              displayName: 'Player 2',
+              isBot: false,
+            },
+          ],
+        },
+      ],
+      startedAt: new Date('2026-07-06T08:00:00.000Z'),
+      finishedAt: new Date('2026-07-06T08:05:00.000Z'),
+      result: {
+        winningSide: TeamSide.A,
+        finishReason: MatchFinishReason.FORFEIT,
+        teamScores: [
+          { side: TeamSide.A, score: 3 },
+          { side: TeamSide.B, score: 1 },
+        ],
+      },
+      rewards: [],
+      rewardStatus: MatchmakingRewardStatus.APPLIED,
+      createdAt: new Date('2026-07-06T08:05:00.000Z'),
+    };
+    matchHistoryModel.findOne.mockReturnValueOnce({
+      lean: () => ({ exec: async () => history }),
+    });
+
+    const [finishedMatch, errors] = await service.finishMatch(
+      history.matchId,
+      'player-1',
+      // The persisted authoritative result wins over a conflicting retry body.
+      { winningSide: TeamSide.B },
+    );
+
+    expect(errors).toBeNull();
+    expect(finishedMatch).toMatchObject({
+      id: history.matchId,
+      status: MatchStatus.FINISHED,
+      result: {
+        winningSide: TeamSide.A,
+        finishReason: MatchFinishReason.FORFEIT,
+        teamScores: [
+          { side: TeamSide.A, score: 3 },
+          { side: TeamSide.B, score: 1 },
+        ],
+      },
+    });
+    expect(matchHistoryModel.findOne).toHaveBeenCalledWith({
+      matchId: history.matchId,
+    });
+    expect(matchHistoryModel.updateOne).not.toHaveBeenCalled();
+    expect(rewardClaimModel.updateOne).not.toHaveBeenCalled();
+    expect(
+      playerLeaderboardWinService.recordAcceptedPlayerWin,
+    ).not.toHaveBeenCalled();
+    expect(
+      clanLeaderboardWinService.recordAcceptedClanWin,
+    ).not.toHaveBeenCalled();
+    expect(emitterService.EmitNewDailyTaskEvent).not.toHaveBeenCalled();
+    expect(notifier.matchEvent).not.toHaveBeenCalled();
+  });
+
+  it('does not expose permanent match history to a non-participant retry', async () => {
+    const { matchHistoryModel, rewardClaimModel, service } = createService();
+    const history = {
+      matchId: 'match-history-outsider',
+      matchType: MatchType.RANDOM,
+      gameType,
+      teamSize: 1,
+      opponentType: MatchmakingOpponentType.BOT,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [
+            {
+              playerId: 'player-1',
+              displayName: 'Player 1',
+              isBot: false,
+            },
+          ],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ botId: 'bot-1', displayName: 'Bot 1', isBot: true }],
+        },
+      ],
+      startedAt: new Date('2026-07-06T08:00:00.000Z'),
+      finishedAt: new Date('2026-07-06T08:05:00.000Z'),
+      result: { winningSide: TeamSide.A },
+      rewards: [],
+      rewardStatus: MatchmakingRewardStatus.APPLIED,
+      createdAt: new Date('2026-07-06T08:05:00.000Z'),
+    };
+    matchHistoryModel.findOne.mockReturnValueOnce({
+      lean: () => ({ exec: async () => history }),
+    });
+
+    const [finishedMatch, errors] = await service.finishMatch(
+      history.matchId,
+      'player-2',
+      { winningSide: TeamSide.A },
+    );
+
+    expect(finishedMatch).toBeNull();
+    expect(errors).toEqual([
+      expect.objectContaining({
+        reason: SEReason.NOT_AUTHORIZED,
+        field: 'playerId',
+        value: 'player-2',
+      }),
+    ]);
+    expect(matchHistoryModel.updateOne).not.toHaveBeenCalled();
+    expect(rewardClaimModel.updateOne).not.toHaveBeenCalled();
   });
 
   it('does not apply legacy updates when clan win recording fails', async () => {
@@ -3050,6 +3496,108 @@ describe('MatchmakingService flow', () => {
     );
   });
 
+  it('keeps the committed result when the finish MQTT notification fails', async () => {
+    const {
+      redis,
+      playerService,
+      notifier,
+      rewardClaimModel,
+      matchHistoryModel,
+      service,
+    } = createService();
+    const match: ActiveMatch = {
+      id: 'match-finish-mqtt-error',
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+    notifier.matchEvent.mockRejectedValueOnce(new Error('MQTT unavailable'));
+
+    await expect(
+      service.finishMatch(match.id, 'player-1', {
+        winningSide: TeamSide.A,
+      }),
+    ).rejects.toThrow('MQTT unavailable');
+
+    const storedMatch = JSON.parse(
+      await redis.get(`matchmaking:match:${match.id}`),
+    ) as ActiveMatch;
+    expect(storedMatch.status).toBe(MatchStatus.FINISHED);
+    expect(matchHistoryModel.updateOne).toHaveBeenCalledTimes(1);
+    expect(rewardClaimModel.updateOne).toHaveBeenCalledTimes(1);
+    expect(playerService.updatePlayerById).toHaveBeenCalledTimes(2);
+
+    const [retriedMatch, retryErrors] = await service.finishMatch(
+      match.id,
+      'player-1',
+      { winningSide: TeamSide.A },
+    );
+    expect(retryErrors).toBeNull();
+    expect(retriedMatch.status).toBe(MatchStatus.FINISHED);
+    expect(matchHistoryModel.updateOne).toHaveBeenCalledTimes(1);
+    expect(rewardClaimModel.updateOne).toHaveBeenCalledTimes(1);
+    expect(playerService.updatePlayerById).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not undo committed history or rewards when the Redis finish write fails', async () => {
+    const {
+      redis,
+      playerService,
+      notifier,
+      rewardClaimModel,
+      matchHistoryModel,
+      service,
+    } = createService();
+    const match: ActiveMatch = {
+      id: 'match-finish-redis-error',
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+    redis.set.mockRejectedValueOnce(new Error('Redis unavailable'));
+
+    await expect(
+      service.finishMatch(match.id, 'player-1', {
+        winningSide: TeamSide.A,
+      }),
+    ).rejects.toThrow('Redis unavailable');
+
+    expect(matchHistoryModel.updateOne).toHaveBeenCalledTimes(1);
+    expect(rewardClaimModel.updateOne).toHaveBeenCalledTimes(1);
+    expect(playerService.updatePlayerById).toHaveBeenCalledTimes(2);
+    expect(notifier.matchEvent).not.toHaveBeenCalled();
+    const storedMatch = JSON.parse(
+      await redis.get(`matchmaking:match:${match.id}`),
+    ) as ActiveMatch;
+    expect(storedMatch.status).toBe(MatchStatus.ACTIVE);
+  });
+
   it('returns service errors when player leaderboard update fails while finishing a match', async () => {
     const { redis, playerService, clanService, notifier, service } =
       createService();
@@ -3163,5 +3711,70 @@ describe('MatchmakingService flow', () => {
       'MATCH_FINISHED',
       expect.anything(),
     );
+  });
+
+  it('rolls back permanent history and the reward claim when reward updates fail', async () => {
+    const { redis, playerService, service } = createService();
+    const historyModel = mongoose.connection.model(
+      'MatchmakingMatchHistoryAtomicTest',
+      MatchmakingMatchHistorySchema,
+    );
+    const rewardClaimModel = mongoose.connection.model(
+      'MatchmakingRewardClaimAtomicTest',
+      MatchmakingRewardClaimSchema,
+    );
+    const match: ActiveMatch = {
+      id: 'match-atomic-history-rollback',
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    };
+    const updateError = new ServiceError({
+      reason: SEReason.NOT_FOUND,
+      field: 'playerId',
+      value: 'player-1',
+      message: 'Player not found.',
+    });
+
+    await Promise.all([
+      historyModel.deleteMany({ matchId: match.id }),
+      rewardClaimModel.deleteMany({ battleId: match.id }),
+    ]);
+    (service as any).connection = mongoose.connection;
+    (service as any).matchHistoryModel = historyModel;
+    (service as any).rewardClaimModel = rewardClaimModel;
+    playerService.updatePlayerById.mockResolvedValueOnce([null, [updateError]]);
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [finishedMatch, errors] = await service.finishMatch(
+      match.id,
+      'player-1',
+      { winningSide: TeamSide.A },
+    );
+
+    expect(finishedMatch).toBeNull();
+    expect(errors).toEqual([updateError]);
+    await expect(
+      historyModel.countDocuments({ matchId: match.id }),
+    ).resolves.toBe(0);
+    await expect(
+      rewardClaimModel.countDocuments({ battleId: match.id }),
+    ).resolves.toBe(0);
+    const storedMatch = JSON.parse(
+      await redis.get(`matchmaking:match:${match.id}`),
+    ) as ActiveMatch;
+    expect(storedMatch.status).toBe(MatchStatus.ACTIVE);
   });
 });
