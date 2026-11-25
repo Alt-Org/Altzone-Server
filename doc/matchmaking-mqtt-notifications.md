@@ -20,7 +20,7 @@ use the exact topic strings shown below.
 Where:
 
 - `{playerId}` is the authenticated player's player id.
-- `{matchId}` is the match id returned in a `MATCH_FOUND` payload.
+- `{matchId}` is the ID in the `MATCH_FOUND` or `CUSTOM_MATCH_READY` payload.
 
 ## Common Payload Shape
 
@@ -72,6 +72,9 @@ ROOM_UPDATED
 
 - A player creates a matchmaking room.
 - A player joins a room.
+- A player leaves and other real players remain in the room.
+- A CUSTOM player moves slots or toggles lobby readiness, or the owner
+  adds or removes a bot.
 - A room status changes.
 - A room starts searching, receives a bot offer, is matched, or is cancelled.
 
@@ -104,11 +107,14 @@ Room updates use a compact room payload with one room identifier: `id`.
         avatar: AvatarDto | null
       }
     ],
+    playerPositions?: Record<string, number>, // CUSTOM
+    readyPlayerIds?: string[], // CUSTOM lobby
     bots: [
       {
         botId: string,
         displayName: string,
-        isBot: true
+        isBot: true,
+        position?: number // CUSTOM
       }
     ],
     teamSize: 1 | 2,
@@ -124,8 +130,8 @@ Room updates use a compact room payload with one room identifier: `id`.
 }
 ```
 
-`stateVersion` is assigned and incremented by the backend whenever the room
-transitions to a new matchmaking state. Clients do not send or update it. When
+`stateVersion` is assigned by the backend and advances on CUSTOM room changes
+and matchmaking transitions. Clients do not send or update it. When
 multiple HTTP responses or MQTT notifications are received out of order, a
 client may keep the representation with the greatest `stateVersion` and ignore
 older ones. The backend also uses the version for atomic transitions so that
@@ -333,6 +339,19 @@ receives `CUSTOM_MATCH_READY` on `/matchmaking/matches/player/{playerId}`.
 It uses the `MATCH_FOUND` payload shape and tells the owner to initiate
 Photon setup. Other real participants receive `MATCH_FOUND`.
 
+```ts
+{
+  topic: 'matchmaking',
+  type: 'CUSTOM_MATCH_READY',
+  payload: MatchmakingMqttMatchDto
+}
+```
+
+The lobby's `readyPlayerIds` belongs to `ROOM_UPDATED`. In the match payload,
+`readyPlayerIds` tracks the later confirmations that players have joined
+the Photon Room. The match may be announced before the corresponding room
+update arrives, so clients should handle these messages independently.
+
 MATCH_STARTED
 ```
 
@@ -424,9 +443,10 @@ Recommended frontend flow:
    `BOT_OPPONENT_DECLINED` to close it when the offer is invalidated.
 6. Use `INVITE_RECEIVED` and `CLAN_INVITE_RECEIVED` to show incoming room
    invitations.
-7. When `MATCH_FOUND` is received, read `message.payload.id`, join the Photon
-   Room, call `POST /matchmaking/matches/{matchId}/start`, and subscribe to
-   `/match/{matchId}`.
+7. Read the match ID from `message.payload.id` and subscribe to
+   `/match/{matchId}`. On `CUSTOM_MATCH_READY`, initiate Photon setup as the
+   owner. On `MATCH_FOUND`, follow the regular Photon join flow. Once in
+   the Photon Room, call `POST /matchmaking/matches/{matchId}/start`.
 8. Use `MATCH_STARTED` to start the clientside battle once every real player is
    ready.
 9. Use `MATCH_FINISHED` to show the result screen and refresh leaderboard views.

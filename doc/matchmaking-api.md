@@ -22,8 +22,11 @@ Mode names in the backend map to player-facing modes as follows:
    matchmaking queue instead of joining each other's rooms.
 3. Before a match is created, any room member may leave with
    `POST /matchmaking/rooms/leave`.
-4. When the room has a playable composition, the owner starts matchmaking with
-   `POST /matchmaking/rooms/{roomId}/start`.
+4. CUSTOM members can move slots and toggle lobby readiness. Once all slots
+   are occupied and all humans are ready, the backend creates the match.
+   The owner can also start a full CUSTOM room through
+   `POST /matchmaking/rooms/{roomId}/start`, which is the owner start route
+   used for RANDOM and CLAN matchmaking as well.
 5. RANDOM searches for a human opponent for 20 seconds. If none is found, the
    player receives a bot offer and either accepts or declines it.
 6. When matchmaking creates an active match, clients join the Photon Room.
@@ -31,8 +34,8 @@ Mode names in the backend map to player-facing modes as follows:
    `POST /matchmaking/matches/{matchId}/start`.
 8. The match is finished with `POST /matchmaking/matches/{matchId}/finish`.
 
-Bots can fill missing player slots in CUSTOM and CLAN rooms when `allowBots` is
-enabled. RANDOM never fills the player's own team with bots. Its only bot is an
+In CUSTOM, `allowBots` lets the owner assign bots to slots. In CLAN, it enables
+automatic team filling. RANDOM never fills the player's own team with bots. Its only bot is an
 opposing 1v1 participant created after timeout and explicit acceptance. Bots are
 not expected to call HTTP endpoints.
 
@@ -96,11 +99,14 @@ Returns `MatchmakingInviteDto`, which represents the created room:
   clanId?: string,
   roomId?: string,
   players: string[],
+  playerPositions?: Record<string, number>, // CUSTOM
+  readyPlayerIds?: string[], // CUSTOM lobby
   bots: [
     {
       botId: string,
       displayName: string,
-      isBot: true
+      isBot: true,
+      position?: number // CUSTOM
     }
   ],
   teamSize: 1 | 2,
@@ -117,8 +123,8 @@ Returns `MatchmakingInviteDto`, which represents the created room:
 ```
 
 `stateVersion` is a server-managed, monotonically increasing version of the
-room state. The backend increments it whenever the room moves to a new
-matchmaking state, for example from `READY` to `SEARCHING` and then to
+room state. The backend increments it on CUSTOM slot, readiness, and bot
+changes, and on matchmaking transitions such as `READY` to `SEARCHING` and then to
 `BOT_OFFERED`, `MATCHED`, or `CANCELLED`. It is used together with atomic state
 updates to prevent competing operations, such as a timeout and a cancellation,
 from both changing the same room. Clients must not send or modify this value.
@@ -226,6 +232,9 @@ produces the same response.
 
 ## Change Position In A CUSTOM Room
 
+The three CUSTOM actions below resolve the room from the authenticated player's
+active membership. They apply to rooms in `OPEN` or `READY` status.
+
 `POST /matchmaking/rooms/changePosition` accepts `{ "position": 2 }`.
 The authenticated player moves within their active CUSTOM room. Slot numbers
 are zero-based and must be below `teamSize * 2`. A slot occupied by a
@@ -259,15 +268,31 @@ by a real player is rejected. A successful change clears all human lobby
 confirmations, returns the updated room, and sends `ROOM_UPDATED` to everyone
 in the room.
 
+### CUSTOM Room Acceptance Criteria
+
+- All three actions require authentication and an active editable CUSTOM room.
+  Only the room owner can manage bots, and the room must allow bots.
+- REST responses and `ROOM_UPDATED` give clients enough information to
+  render each player's and bot's slot and the lobby readiness of each human.
+- Two competing requests cannot both claim the same free slot. Rejected
+  changes leave the room unchanged and publish no room update.
+- Every successful room change sends the committed snapshot to all real room
+  members. A full room with every human ready creates one match, even when
+  confirmations arrive concurrently. Bots count as ready.
+- The owner receives `CUSTOM_MATCH_READY` to initiate Photon setup.
+  Other participants receive `MATCH_FOUND` with the same match ID.
+- RANDOM opponent offers and CLAN bot filling continue using their existing flows.
+
 ## Start Matchmaking For Room
 
 ```http
 POST /matchmaking/rooms/{roomId}/start
 ```
 
-Starts matchmaking for a ready room. This must be called by the room owner. The
-endpoint is used to ensure the owner explicitly starts matchmaking only after the
-players are ready.
+Starts matchmaking for a room in `READY` status. This must be called by the
+room owner. For CUSTOM, this manual route checks that the room has a playable
+composition and sends `MATCH_FOUND` to all real participants. Individual
+lobby confirmations apply to the automatic start through `POST /matchmaking/rooms/ready`.
 
 For RANDOM this atomically changes `READY` to `SEARCHING`, records
 `searchStartedAt`, enters the human-opponent queue, and schedules a 20-second
