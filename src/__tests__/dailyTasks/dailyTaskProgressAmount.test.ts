@@ -28,6 +28,8 @@ describe('DailyTaskProgressService amount handling', () => {
       playerRewarder as any,
       clanProgression as any,
       {} as any,
+      { rewardTeam: jest.fn().mockResolvedValue([null, null]) } as any,
+      { emit: jest.fn() } as any,
     );
     const result = {
       status: 'completed',

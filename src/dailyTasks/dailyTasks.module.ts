@@ -20,6 +20,12 @@ import { Item, ItemSchema } from '../clanInventory/item/item.schema';
 import { DailyTasksScheduler } from './dailyTasksScheduler.service';
 import DailyTasksResetNotifier from './dailyTaskReset.notifier';
 import { DailyTaskProgressService } from './dailyTaskProgress.service';
+import { Box, BoxSchema } from '../box/schemas/box.schema';
+import {
+  SessionTaskCompletion,
+  SessionTaskCompletionSchema,
+} from '../box/packageRace/sessionTask/sessionTaskCompletion.schema';
+import { SessionTaskRewarder } from '../box/packageRace/sessionTask/sessionTaskRewarder.service';
 
 @Module({
   imports: [
@@ -30,6 +36,8 @@ import { DailyTaskProgressService } from './dailyTaskProgress.service';
       { name: Stock.name, schema: StockSchema },
       { name: Item.name, schema: ItemSchema },
       { name: Player.name, schema: PlayerSchema },
+      { name: Box.name, schema: BoxSchema },
+      { name: SessionTaskCompletion.name, schema: SessionTaskCompletionSchema },
     ]),
     BullModule.registerQueue({
       name: 'daily-tasks',
@@ -48,6 +56,7 @@ import { DailyTaskProgressService } from './dailyTaskProgress.service';
     PlayerRewarder,
     ClanRewarder,
     ClanProgression,
+    SessionTaskRewarder,
     DailyTasksScheduler,
     DailyTasksResetNotifier,
   ],

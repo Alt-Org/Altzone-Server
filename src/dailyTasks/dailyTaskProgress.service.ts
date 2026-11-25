@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectConnection } from '@nestjs/mongoose';
 import { ClientSession, Connection } from 'mongoose';
 import { IServiceReturn } from '../common/service/basicService/IService';
@@ -13,11 +14,13 @@ import { PlayerRewarder } from '../rewarder/playerRewarder/playerRewarder.servic
 import DailyTaskNotifier from './dailyTask.notifier';
 import { DailyTaskDto } from './dto/dailyTask.dto';
 import { DailyTaskProgressResult } from './type/dailyTaskProgressResult.type';
+import { SessionTaskRewarder } from '../box/packageRace/sessionTask/sessionTaskRewarder.service';
+import { SESSION_TASK_POINTS_AWARDED_EVENT } from '../box/packageRace/sessionTask/sessionTaskReward.type';
 
 type ProgressTask = Pick<
   DailyTaskDto,
   'clan_id' | 'player_id' | 'points' | 'coins' | 'type'
->;
+> & { _id?: unknown };
 
 @Injectable()
 export class DailyTaskProgressService {
@@ -27,6 +30,8 @@ export class DailyTaskProgressService {
     private readonly playerRewarder: PlayerRewarder,
     private readonly clanProgression: ClanProgression,
     @InjectConnection() private readonly connection: Connection,
+    private readonly sessionTaskRewarder: SessionTaskRewarder,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async handleProgress<TTask extends ProgressTask>(
@@ -101,6 +106,14 @@ export class DailyTaskProgressService {
       );
     if (playerRewardErrors) return [null, playerRewardErrors];
 
+    // A session task always rewards the player's session team
+    const [isSessionTask, sessionTaskErrors] = await this.rewardSessionTeam(
+      result,
+      session,
+    );
+    if (sessionTaskErrors) return [null, sessionTaskErrors];
+    if (isSessionTask) return [result, null];
+
     if (result.needsClanReward === false) {
       return [result, null];
     }
@@ -131,6 +144,13 @@ export class DailyTaskProgressService {
   ): Promise<IServiceReturn<DailyTaskProgressResult<TTask>>> {
     const { task } = result;
 
+    const [isSessionTask, sessionTaskErrors] = await this.rewardSessionTeam(
+      result,
+      session,
+    );
+    if (sessionTaskErrors) return [null, sessionTaskErrors];
+    if (isSessionTask) return [result, null];
+
     const [updatedClan, clanRewardErrors] =
       await this.clanRewarder.rewardClanForPlayerTask(
         result.clanId,
@@ -150,6 +170,36 @@ export class DailyTaskProgressService {
     return [result, null];
   }
 
+  /**
+   * Rewards the session team with package-race points, if the completed task
+   * is a session task of a box testing session.
+   *
+   * @returns
+   * - true if the task is a session task
+   * - false if it is not a session task,
+   * - ServiceErrors if any occurred
+   */
+  private async rewardSessionTeam<TTask extends ProgressTask>(
+    result: DailyTaskProgressResult<TTask>,
+    session: ClientSession,
+  ): Promise<IServiceReturn<boolean>> {
+    const [sessionTaskReward, errors] =
+      await this.sessionTaskRewarder.rewardTeam(
+        {
+          teamId: result.clanId,
+          completedByPlayerId: result.completedByPlayerId,
+          task: result.task,
+        },
+        session,
+      );
+    if (errors) return [null, errors];
+    if (!sessionTaskReward) return [false, null];
+
+    result.sessionTaskReward = sessionTaskReward;
+    result.reachedMilestones = sessionTaskReward.reachedMilestones;
+    return [true, null];
+  }
+
   /** Publishes progress notifications only after the owning transaction commits. */
   notifyProgress<TTask extends ProgressTask>(
     result: DailyTaskProgressResult<TTask>,
@@ -160,7 +210,7 @@ export class DailyTaskProgressService {
     }
 
     this.notifier.taskCompleted(result.completedByPlayerId, result.task);
-    if (result.needsClanReward !== false) {
+    if (result.needsClanReward !== false || result.sessionTaskReward) {
       this.notifyClanTaskCompletion(result);
     }
   }
@@ -184,6 +234,14 @@ export class DailyTaskProgressService {
         result.task,
         result.completedByPlayerId,
         result.reachedMilestones,
+      );
+    }
+
+    // The package race publishes the updated team scores
+    if (result.sessionTaskReward?.awarded) {
+      this.eventEmitter.emit(
+        SESSION_TASK_POINTS_AWARDED_EVENT,
+        result.sessionTaskReward,
       );
     }
   }
