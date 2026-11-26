@@ -9,14 +9,8 @@ import { IServiceReturn } from '../../../common/service/basicService/IService';
 import BasicService, {
   convertMongooseToServiceErrors,
 } from '../../../common/service/basicService/BasicService';
-import ServiceError from '../../../common/service/basicService/ServiceError';
-import { SEReason } from '../../../common/service/basicService/SEReason';
 import { ActiveMatch } from '../../../matchmaking/type/activeMatch.type';
 import isTestingSession from '../../util/isTestingSession';
-import {
-  BOX_SESSION_BATTLE_LOSS_POINTS,
-  BOX_SESSION_BATTLE_WIN_POINTS,
-} from '../../consts/boxSessionConstants';
 import { PackageRaceStatus } from '../enum/packageRaceStatus.enum';
 import { isOnlyNotFound } from '../packageRace.utils';
 import {
@@ -24,18 +18,13 @@ import {
   PackageRaceBattleTeamChange,
 } from './packageRaceBattleResult.schema';
 import {
-  PackageRaceBattleReward,
-  PackageRaceBattleSkipReason,
-  PackageRaceBattleTeamReward,
-} from './packageRaceBattleReward.type';
-import {
-  getPackageRaceBattlePlayers,
   PackageRaceBattlePlayer,
-} from './getPackageRaceBattlePlayers';
-
-type BattleTeam = PackageRaceBattlePlayer & { teamId: string };
-type BattleTeams = { boxId: string; teams: [BattleTeam, BattleTeam] };
-type BoxIdDoc = { _id: unknown; box_id?: string | null };
+  PackageRaceBattleReward,
+  PackageRaceBattleTeamReward,
+} from './packageRaceBattle.type';
+import { BattleTeam, BattleTeams, BoxIdDoc } from './packageRaceBattle.type';
+import { PackageRaceBattleRewarderHelperService } from './packageRaceBattleRewarderHelper.service';
+import { teamNotInBoxError } from '../packageRace.utils';
 
 @Injectable()
 export class PackageRaceBattleRewarder {
@@ -47,9 +36,11 @@ export class PackageRaceBattleRewarder {
     private readonly resultModel: Model<PackageRaceBattleResult>,
   ) {
     this.resultBasicService = new BasicService(resultModel);
+    this.helperService = new PackageRaceBattleRewarderHelperService();
   }
 
   private readonly resultBasicService: BasicService;
+  private readonly helperService: PackageRaceBattleRewarderHelperService;
 
   /**
    * Applies the package race battle points of a finished session battle to both teams.
@@ -70,7 +61,7 @@ export class PackageRaceBattleRewarder {
   ): Promise<IServiceReturn<PackageRaceBattleReward | null>> {
     if (!isTestingSession()) return [null, null];
 
-    const players = getPackageRaceBattlePlayers(match);
+    const players = this.helperService.getPackageRaceBattlePlayers(match);
     if (!players) return [null, null];
 
     const [battle, battleErrors] = await this.readBattleTeams(players, session);
@@ -82,15 +73,14 @@ export class PackageRaceBattleRewarder {
       matchId: match.id,
       matchType: match.matchType,
       awarded: false,
-      teams: battle.teams.map((team) => this.toTeamReward(team, 0)) as [
-        PackageRaceBattleTeamReward,
-        PackageRaceBattleTeamReward,
-      ],
+      teams: battle.teams.map((team) =>
+        this.helperService.toTeamReward(team, 0),
+      ) as [PackageRaceBattleTeamReward, PackageRaceBattleTeamReward],
     };
 
     const [first, second] = battle.teams;
     if (first.teamId === second.teamId)
-      return [this.skipReward(reward, 'SAME_TEAM'), null];
+      return [this.helperService.skipReward(reward, 'SAME_TEAM'), null];
 
     const [isRaceActive, raceErrors] = await this.areTeamsInActiveRace(
       battle.boxId,
@@ -99,7 +89,7 @@ export class PackageRaceBattleRewarder {
     );
     if (raceErrors) return [null, raceErrors];
     if (!isRaceActive)
-      return [this.skipReward(reward, 'RACE_NOT_ACTIVE'), null];
+      return [this.helperService.skipReward(reward, 'RACE_NOT_ACTIVE'), null];
 
     const [isFirstResult, recordErrors] = await this.recordResult(
       match,
@@ -108,7 +98,7 @@ export class PackageRaceBattleRewarder {
     );
     if (recordErrors) return [null, recordErrors];
     if (!isFirstResult)
-      return [this.skipReward(reward, 'ALREADY_PROCESSED'), null];
+      return [this.helperService.skipReward(reward, 'ALREADY_PROCESSED'), null];
 
     const changes: PackageRaceBattleTeamChange[] = [];
     for (const team of battle.teams) {
@@ -129,7 +119,7 @@ export class PackageRaceBattleRewarder {
 
     reward.awarded = true;
     reward.teams = battle.teams.map((team, i) =>
-      this.toTeamReward(team, changes[i].appliedPoints),
+      this.helperService.toTeamReward(team, changes[i].appliedPoints),
     ) as [PackageRaceBattleTeamReward, PackageRaceBattleTeamReward];
 
     return [reward, null];
@@ -162,7 +152,7 @@ export class PackageRaceBattleRewarder {
         select: ['_id', 'clan_id', 'box_id'],
         session,
       });
-    if (playerErrors) return this.notFoundAsNull(playerErrors);
+    if (playerErrors) return this.helperService.notFoundAsNull(playerErrors);
 
     const playersById = new Map(
       playerDocs.map((player) => [player._id.toString(), player]),
@@ -188,7 +178,7 @@ export class PackageRaceBattleRewarder {
         select: ['_id', 'box_id'],
         session,
       });
-    if (clanErrors) return this.notFoundAsNull(clanErrors);
+    if (clanErrors) return this.helperService.notFoundAsNull(clanErrors);
 
     const clanBoxIds = new Map(
       clanDocs.map((clan) => [clan._id.toString(), clan.box_id?.toString()]),
@@ -263,7 +253,7 @@ export class PackageRaceBattleRewarder {
               player_id: new ObjectId(team.playerId),
               side: team.side,
               outcome: team.outcome,
-              points: this.getPointsForOutcome(team.outcome),
+              points: this.helperService.getPointsForOutcome(team.outcome),
               appliedPoints: null,
               battlePointsAfter: null,
             })),
@@ -292,14 +282,14 @@ export class PackageRaceBattleRewarder {
     team: BattleTeam,
     session: ClientSession,
   ): Promise<IServiceReturn<PackageRaceBattleTeamChange>> {
-    const points = this.getPointsForOutcome(team.outcome);
+    const points = this.helperService.getPointsForOutcome(team.outcome);
 
     const [clan, readErrors] = await this.clanService.basicService.readOneById<
       BoxIdDoc & { battlePoints?: number }
     >(team.teamId, { select: ['_id', 'battlePoints', 'box_id'], session });
     if (readErrors) return [null, readErrors];
     if (clan.box_id?.toString() !== boxId)
-      return [null, [this.teamNotInBoxError(team.teamId, boxId)]];
+      return [null, [teamNotInBoxError(team.teamId, boxId)]];
 
     const [, updateErrors] = await this.clanService.basicService.updateOneById(
       team.teamId,
@@ -331,78 +321,5 @@ export class PackageRaceBattleRewarder {
       },
       null,
     ];
-  }
-
-  /**
-   * A not found read means the battle is not a box session battle.
-   * Other errors are returned as they are.
-   *
-   * @param errors array of ServiceErrors
-   *
-   * @returns null if only error is NOT_FOUND or ServiceErrors if other errors occurred.
-   */
-  private notFoundAsNull(
-    errors: ServiceError[],
-  ): IServiceReturn<BattleTeams | null> {
-    if (isOnlyNotFound(errors)) return [null, null];
-    return [null, errors];
-  }
-
-  private teamNotInBoxError(teamId: string, boxId: string) {
-    return new ServiceError({
-      reason: SEReason.NOT_FOUND,
-      field: 'team_id',
-      value: teamId,
-      message: `Package race team is not found in box ${boxId}`,
-    });
-  }
-
-  /**
-   * Get points for battle outcome
-   *
-   * @param outcome win or loss identifier
-   *
-   * @returns battle points based on outcome
-   */
-  private getPointsForOutcome(outcome: 'WIN' | 'LOSS') {
-    return outcome === 'WIN'
-      ? BOX_SESSION_BATTLE_WIN_POINTS
-      : BOX_SESSION_BATTLE_LOSS_POINTS;
-  }
-
-  /**
-   * Transforms data into a valid PackageRaceBattleTeamReward object
-   *
-   * @param team team taking part in a battle
-   * @param points battle points
-   *
-   * @returns PackageRaceBattleTeamReward object
-   */
-  private toTeamReward(
-    team: BattleTeam,
-    points: number,
-  ): PackageRaceBattleTeamReward {
-    return {
-      teamId: team.teamId,
-      playerId: team.playerId,
-      side: team.side,
-      outcome: team.outcome,
-      points,
-    };
-  }
-
-  /**
-   * Skips the battle reward (don't change battle points)
-   *
-   * @param reward battle reward data
-   * @param skipReason reason why the battle is not counted
-   *
-   * @returns PackageRaceBattleReward data and reason why the battle was not counted
-   */
-  private skipReward(
-    reward: PackageRaceBattleReward,
-    skipReason: PackageRaceBattleSkipReason,
-  ): PackageRaceBattleReward {
-    return { ...reward, skipReason };
   }
 }

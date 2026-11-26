@@ -24,7 +24,7 @@ import {
 import {
   PACKAGE_RACE_BATTLE_POINTS_AWARDED_EVENT,
   PackageRaceBattleReward,
-} from './battle/packageRaceBattleReward.type';
+} from './battle/packageRaceBattle.type';
 
 @Injectable()
 export class PackageRaceService {
