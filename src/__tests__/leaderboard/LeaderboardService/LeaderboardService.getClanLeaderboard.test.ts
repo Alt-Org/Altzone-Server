@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import { LeaderboardService } from '../../../leaderboard/leaderboard.service';
 import ClanBuilderFactory from '../../clan/data/clanBuilderFactory';
 import ClanModule from '../../clan/modules/clan.module';
@@ -5,6 +6,9 @@ import LeaderboardModule from '../modules/leaderboard.module';
 import InterfaceBuilderFactory from '../../common/interface/data/interfaceBuilderFactory';
 import { Clan } from '../../../clan/clan.schema';
 import { Environment } from '../../../common/enum/environment.enum';
+import LeaderboardCommonModule from '../modules/leaderboardCommon';
+import { RedisService } from '../../../common/service/redis/redis.service';
+import { CacheKeys } from '../../../common/service/redis/cacheKeys.enum';
 
 describe('LeaderboardService.getClanLeaderboard() test suite', () => {
   let service: LeaderboardService;
@@ -63,5 +67,29 @@ describe('LeaderboardService.getClanLeaderboard() test suite', () => {
 
     expect(leaders).toHaveLength(1);
     expect(leaders[0].name).toBe(clan3.name);
+  });
+
+  it('Should not include box session teams', async () => {
+    const boxTeam = await clanModel.create(
+      clanBuilder.setName('box-team').setBattlePoints(1000).build(),
+    );
+    await clanModel.collection.updateOne(
+      { _id: new ObjectId(boxTeam._id.toString()) },
+      { $set: { box_id: 'testing-session-box-id' } },
+    );
+    const module = await LeaderboardCommonModule.getModule();
+    await module.get(RedisService).delete(CacheKeys.CLAN_LEADERBOARD);
+    const query = queryBuilder.setLimit(10).setSkip(0).build();
+
+    const leaders = (await service.getClanLeaderboard(
+      query,
+      Environment.TEACHING_DEMO,
+    )) as Clan[];
+
+    expect(leaders.map((leader) => leader.name)).toEqual([
+      clan1.name,
+      clan2.name,
+      clan3.name,
+    ]);
   });
 });
