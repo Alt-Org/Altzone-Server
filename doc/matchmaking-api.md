@@ -390,11 +390,33 @@ human or a bot:
 path. They can be finished normally, but do not apply these leaderboard,
 statistics, `battlePoints`, clan, or daily-task updates.
 
-The current protocol does not independently verify the reported winning side
-against Photon events or require matching reports from both teams. Adding
-signed game-server results or multi-player consensus would be a separate,
-backwards-incompatible result-validation feature. Clients cannot increment the
-production win counter directly.
+#### Box testing session package race
+
+If the API is running in `TESTING_SESSION` Environment, an accepted result updates the package race of the players' box session. A match counts when all of the following are true:
+
+- the match is a 1v1 `RANDOM` or `CLAN` match (not `CUSTOM`) between two human players
+  (no bots);
+- both players and their session teams belong to the same box;
+- the players are in different session teams;
+- the box's package race is `ACTIVE` and both teams take part in it.
+
+The winning team's `battlePoints` change by +30 and the losing team's by
+-20. A team's `battlePoints` never go below 0. The package
+race's `totalPoints` is `taskPoints + battlePoints`.
+
+The changes of both teams are stored together in a `PackageRaceBattleResult`
+record which is unique per `matchId`. In this case a retried or concurrent finish of the same
+match is counted only once. Only session team (clan) `battlePoints` change.
+Player `battlePoints`, game statistics, and leaderboard wins are not updated.
+Box players and teams (clans) are excluded from the PRODUCTION leaderboards.
+
+After the transaction commits both teams receive a
+`PACKAGE_RACE_SCORE_UPDATED` MQTT notification on
+`/clan/{teamId}/package_race/{boxId}/update`. The payload is
+`{ battle, packageRace }`, where `battle` is
+`{ matchId, teams: [{ teamId, playerId, outcome, points }] }` and `points` is
+the change that was applied. Similar how session task score updates use the same
+notification type with a `sessionTask` field instead of `battle`.
 
 ### Request Body
 
