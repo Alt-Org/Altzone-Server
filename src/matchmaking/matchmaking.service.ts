@@ -1,4 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Connection, Model, Types, UpdateQuery } from 'mongoose';
 import { ClanService } from '../clan/clan.service';
@@ -64,6 +65,18 @@ import {
   MatchmakingParticipantOutcome,
   MatchmakingRewardStatus,
 } from './schema/matchmakingMatchHistory.schema';
+import { PackageRaceBattleRewarder } from '../box/packageRace/battle/packageRaceBattleRewarder.service';
+import {
+  PACKAGE_RACE_BATTLE_POINTS_AWARDED_EVENT,
+  PackageRaceBattleReward,
+} from '../box/packageRace/battle/packageRaceBattle.type';
+
+type PersistedMatchRewards = {
+  /** Production rewards (leaderboards, statistics, battlePoints) were applied */
+  rewardsApplied: boolean;
+  /** Box session package race battle points, null if the match is not a package race battle */
+  packageRaceBattleReward: PackageRaceBattleReward | null;
+};
 
 class MatchRewardUpdateError extends Error {
   constructor(readonly serviceErrors: ServiceError[]) {
@@ -111,6 +124,8 @@ export class MatchmakingService {
     private readonly rewardClaimModel: Model<MatchmakingRewardClaimDocument>,
     @InjectModel(ModelName.MATCHMAKING_MATCH_HISTORY)
     private readonly matchHistoryModel: Model<MatchmakingMatchHistoryDocument>,
+    private readonly packageRaceBattleRewarder: PackageRaceBattleRewarder,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   /**
@@ -710,9 +725,9 @@ export class MatchmakingService {
 
     const rewardEligibility = getMatchRewardEligibility(finishedMatch);
 
-    let rewardsApplied = false;
+    let persisted: PersistedMatchRewards;
     try {
-      rewardsApplied = await this.persistFinishedMatchAndRewards(
+      persisted = await this.persistFinishedMatchAndRewards(
         finishedMatch,
         rewardEligibility,
       );
@@ -722,11 +737,20 @@ export class MatchmakingService {
       }
       throw error;
     }
+    const { rewardsApplied, packageRaceBattleReward } = persisted;
 
     if (rewardsApplied && rewardEligibility.eligible) {
       await this.emitDailyTaskEventsForFinishedMatch(
         finishedMatch,
         rewardEligibility.humanParticipantIds,
+      );
+    }
+
+    // The package race publishes the updated team scores
+    if (packageRaceBattleReward?.awarded) {
+      this.eventEmitter.emit(
+        PACKAGE_RACE_BATTLE_POINTS_AWARDED_EVENT,
+        packageRaceBattleReward,
       );
     }
 
@@ -1695,8 +1719,12 @@ export class MatchmakingService {
   private async persistFinishedMatchAndRewards(
     match: ActiveMatch,
     rewardEligibility: MatchRewardEligibility,
-  ): Promise<boolean> {
+  ): Promise<PersistedMatchRewards> {
     const history = this.toMatchHistory(match, rewardEligibility);
+    const noRewards: PersistedMatchRewards = {
+      rewardsApplied: false,
+      packageRaceBattleReward: null,
+    };
 
     return this.connection.transaction(async (session) => {
       const historyResult = await this.matchHistoryModel.updateOne(
@@ -1705,8 +1733,15 @@ export class MatchmakingService {
         { upsert: true, session },
       );
 
-      if (historyResult.upsertedCount !== 1 || !rewardEligibility.eligible) {
-        return false;
+      if (historyResult.upsertedCount !== 1) return noRewards;
+
+      if (!rewardEligibility.eligible) {
+        const [packageRaceBattleReward, packageRaceErrors] =
+          await this.packageRaceBattleRewarder.rewardTeams(match, session);
+        if (packageRaceErrors)
+          throw new MatchRewardUpdateError(packageRaceErrors);
+
+        return { rewardsApplied: false, packageRaceBattleReward };
       }
 
       const claimResult = await this.rewardClaimModel.updateOne(
@@ -1722,7 +1757,7 @@ export class MatchmakingService {
         { upsert: true, session },
       );
 
-      if (claimResult.upsertedCount !== 1) return false;
+      if (claimResult.upsertedCount !== 1) return noRewards;
 
       await this.playerLeaderboardWinService.recordAcceptedPlayerWin(
         match,
@@ -1740,7 +1775,7 @@ export class MatchmakingService {
       if (leaderboardErrors)
         throw new MatchRewardUpdateError(leaderboardErrors);
 
-      return true;
+      return { rewardsApplied: true, packageRaceBattleReward: null };
     });
   }
 
