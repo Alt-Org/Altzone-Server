@@ -21,6 +21,10 @@ import {
   SESSION_TASK_POINTS_AWARDED_EVENT,
   SessionTaskReward,
 } from './sessionTask/sessionTaskReward.type';
+import {
+  PACKAGE_RACE_BATTLE_POINTS_AWARDED_EVENT,
+  PackageRaceBattleReward,
+} from './battle/packageRaceBattleReward.type';
 
 @Injectable()
 export class PackageRaceService {
@@ -60,6 +64,40 @@ export class PackageRaceService {
         teamId: reward.teamId,
         completedByPlayerId: reward.completedByPlayerId,
         points: reward.points,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to publish package race score of box ${reward.boxId}`,
+        error,
+      );
+    }
+  }
+
+  /**
+   * Publishes the updated package race to both session teams after battle
+   * points of a session battle were applied.
+   *
+   * @param reward the awarded battle reward
+   */
+  @OnEvent(PACKAGE_RACE_BATTLE_POINTS_AWARDED_EVENT)
+  async publishBattleScore(reward: PackageRaceBattleReward): Promise<void> {
+    try {
+      const [race, errors] = await this.getPackageRace(reward.boxId);
+      if (errors) {
+        this.logger.warn(
+          `Could not publish package race score of box ${reward.boxId}`,
+        );
+        return;
+      }
+
+      this.notifier.battleScoreUpdated(race, {
+        matchId: reward.matchId,
+        teams: reward.teams.map((team) => ({
+          teamId: team.teamId,
+          playerId: team.playerId,
+          outcome: team.outcome,
+          points: team.points,
+        })),
       });
     } catch (error) {
       this.logger.error(
