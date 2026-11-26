@@ -10,7 +10,7 @@ import { isOnlyNotFound } from '../packageRace.utils';
 import {
   BOX_SESSION_BATTLE_LOSS_POINTS,
   BOX_SESSION_BATTLE_WIN_POINTS,
-} from 'src/box/consts/boxSessionConstants';
+} from '../../../box/consts/boxSessionConstants';
 import { ActiveMatch } from '../../../matchmaking/type/activeMatch.type';
 import { MatchStatus } from '../../../matchmaking/enum/matchStatus.enum';
 import { MatchType } from '../../../matchmaking/enum/matchType.enum';
