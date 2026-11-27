@@ -153,6 +153,13 @@ type TestDeps = {
     updateOne: jest.Mock;
     findOne: jest.Mock;
   };
+  packageRaceBattleRewarder: {
+    rewardTeams: jest.Mock;
+  };
+  eventEmitter: {
+    emit: jest.Mock;
+  };
+  transactionSession: { id: string };
   service: MatchmakingService;
 };
 
@@ -235,6 +242,12 @@ const createService = (
       lean: () => ({ exec: async () => null }),
     })),
   };
+  const packageRaceBattleRewarder = {
+    rewardTeams: jest.fn(async () => [null, null]),
+  };
+  const eventEmitter = {
+    emit: jest.fn(),
+  };
   const service = new MatchmakingService(
     redis as any,
     playerService as any,
@@ -247,6 +260,8 @@ const createService = (
     connection as any,
     rewardClaimModel as any,
     matchHistoryModel as any,
+    packageRaceBattleRewarder as any,
+    eventEmitter as any,
   );
 
   return {
@@ -260,6 +275,9 @@ const createService = (
     clanLeaderboardWinService,
     rewardClaimModel,
     matchHistoryModel,
+    packageRaceBattleRewarder,
+    eventEmitter,
+    transactionSession,
     service,
   } satisfies TestDeps;
 };
@@ -3251,6 +3269,189 @@ describe('MatchmakingService flow', () => {
     } finally {
       envVars.ENVIRONMENT = originalEnvironment;
     }
+  });
+
+  describe('TESTING_SESSION package race battle points', () => {
+    const createHumanMatch = (id: string): ActiveMatch => ({
+      id,
+      matchType: MatchType.RANDOM,
+      gameType,
+      status: MatchStatus.ACTIVE,
+      teamSize: 1,
+      teams: [
+        {
+          side: TeamSide.A,
+          participants: [{ playerId: 'player-1', isBot: false }],
+        },
+        {
+          side: TeamSide.B,
+          participants: [{ playerId: 'player-2', isBot: false }],
+        },
+      ],
+      startedAt: '2026-07-06T08:00:00.000Z',
+    });
+
+    const awardedReward = (matchId: string) => ({
+      boxId: 'box-1',
+      matchId,
+      matchType: MatchType.RANDOM,
+      awarded: true,
+      teams: [
+        {
+          teamId: 'team-1',
+          playerId: 'player-1',
+          side: TeamSide.A,
+          outcome: 'WIN',
+          points: 30,
+        },
+        {
+          teamId: 'team-2',
+          playerId: 'player-2',
+          side: TeamSide.B,
+          outcome: 'LOSS',
+          points: -20,
+        },
+      ],
+    });
+
+    let originalEnvironment: string;
+    beforeEach(() => {
+      originalEnvironment = envVars.ENVIRONMENT;
+      envVars.ENVIRONMENT = ServerEnvironment.TESTING_SESSION;
+    });
+    afterEach(() => {
+      envVars.ENVIRONMENT = originalEnvironment;
+    });
+
+    it('rewards the package race teams in the match finish transaction', async () => {
+      const {
+        redis,
+        packageRaceBattleRewarder,
+        eventEmitter,
+        transactionSession,
+        playerService,
+        clanService,
+        service,
+      } = createService();
+      const match = createHumanMatch('match-package-race');
+      await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+      const reward = awardedReward(match.id);
+      packageRaceBattleRewarder.rewardTeams.mockResolvedValue([reward, null]);
+
+      const [finishedMatch, errors] = await service.finishMatch(
+        match.id,
+        'player-1',
+        { winningSide: TeamSide.A },
+      );
+
+      expect(errors).toBeNull();
+      expect(finishedMatch.status).toBe(MatchStatus.FINISHED);
+      expect(packageRaceBattleRewarder.rewardTeams).toHaveBeenCalledTimes(1);
+      expect(packageRaceBattleRewarder.rewardTeams).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: match.id,
+          status: MatchStatus.FINISHED,
+          result: expect.objectContaining({ winningSide: TeamSide.A }),
+        }),
+        transactionSession,
+      );
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        'packageRace.battlePointsAwarded',
+        reward,
+      );
+      expect(playerService.updatePlayerById).not.toHaveBeenCalled();
+      expect(clanService.basicService.updateOneById).not.toHaveBeenCalled();
+    });
+
+    it('does not publish the score when the battle was not counted', async () => {
+      const { redis, packageRaceBattleRewarder, eventEmitter, service } =
+        createService();
+      const match = createHumanMatch('match-package-race-skipped');
+      await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+      packageRaceBattleRewarder.rewardTeams.mockResolvedValue([
+        {
+          ...awardedReward(match.id),
+          awarded: false,
+          skipReason: 'RACE_NOT_ACTIVE',
+        },
+        null,
+      ]);
+
+      const [, errors] = await service.finishMatch(match.id, 'player-1', {
+        winningSide: TeamSide.A,
+      });
+
+      expect(errors).toBeNull();
+      expect(eventEmitter.emit).not.toHaveBeenCalled();
+    });
+
+    it('returns the errors and does not finish the match if the race update fails', async () => {
+      const {
+        redis,
+        notifier,
+        packageRaceBattleRewarder,
+        eventEmitter,
+        service,
+      } = createService();
+      const match = createHumanMatch('match-package-race-error');
+      await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+      const error = new ServiceError({ reason: SEReason.UNEXPECTED });
+      packageRaceBattleRewarder.rewardTeams.mockResolvedValue([null, [error]]);
+
+      const [finishedMatch, errors] = await service.finishMatch(
+        match.id,
+        'player-1',
+        { winningSide: TeamSide.A },
+      );
+
+      expect(finishedMatch).toBeNull();
+      expect(errors).toEqual([error]);
+      expect(eventEmitter.emit).not.toHaveBeenCalled();
+      expect(notifier.matchEvent).not.toHaveBeenCalled();
+      expect(getStoredMatches(redis)[0].status).toBe(MatchStatus.ACTIVE);
+    });
+
+    it('does not count a retried result whose history already exists', async () => {
+      const {
+        redis,
+        matchHistoryModel,
+        packageRaceBattleRewarder,
+        eventEmitter,
+        service,
+      } = createService();
+      const match = createHumanMatch('match-package-race-retry');
+      await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+      matchHistoryModel.updateOne.mockResolvedValue({ upsertedCount: 0 });
+
+      const [, errors] = await service.finishMatch(match.id, 'player-1', {
+        winningSide: TeamSide.A,
+      });
+
+      expect(errors).toBeNull();
+      expect(packageRaceBattleRewarder.rewardTeams).not.toHaveBeenCalled();
+      expect(eventEmitter.emit).not.toHaveBeenCalled();
+    });
+  });
+
+  it('does not use the package race outside TESTING_SESSION', async () => {
+    const {
+      redis,
+      packageRaceBattleRewarder,
+      eventEmitter,
+      playerService,
+      service,
+    } = createService();
+    const match = createActiveBattleStartMatch({ id: 'match-production' });
+    await redis.set(`matchmaking:match:${match.id}`, JSON.stringify(match));
+
+    const [, errors] = await service.finishMatch(match.id, 'player-1', {
+      winningSide: TeamSide.A,
+    });
+
+    expect(errors).toBeNull();
+    expect(playerService.updatePlayerById).toHaveBeenCalled();
+    expect(packageRaceBattleRewarder.rewardTeams).not.toHaveBeenCalled();
+    expect(eventEmitter.emit).not.toHaveBeenCalled();
   });
 
   it('does not reapply rewards when the finished Redis state is lost', async () => {

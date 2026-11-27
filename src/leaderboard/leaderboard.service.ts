@@ -763,10 +763,17 @@ export class LeaderboardService {
     let data: object[] = JSON.parse(dataRaw);
 
     if (!data) {
-      const fetchedData =
-        environment !== undefined
-          ? await model.find({ environment }).sort({ battlePoints: -1 }).exec()
-          : await model.find().sort({ battlePoints: -1 }).exec();
+      // Box testing session players and teams are separated from PRODUCTION
+      // as they're separately filtered by box_id
+      const notInBox = {
+        $or: [{ box_id: null }, { box_id: { $exists: false } }],
+      };
+      const fetchedData = await model
+        .find(
+          environment !== undefined ? { ...notInBox, environment } : notInBox,
+        )
+        .sort({ battlePoints: -1 })
+        .exec();
 
       if (!fetchedData) throw new ServiceError({ reason: SEReason.NOT_FOUND });
 

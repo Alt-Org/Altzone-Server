@@ -17,6 +17,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ModelName } from '../common/enum/modelName.enum';
 import { MatchmakingRewardClaimSchema } from './schema/matchmakingRewardClaim.schema';
 import { MatchmakingMatchHistorySchema } from './schema/matchmakingMatchHistory.schema';
+import { BoxModule } from '../box/box.module';
+import {
+  PackageRaceBattleResult,
+  PackageRaceBattleResultSchema,
+} from '../box/packageRace/battle/packageRaceBattleResult.schema';
+import { PackageRaceBattleRewarder } from '../box/packageRace/battle/packageRaceBattleRewarder.service';
 
 /**
  * Wires the matchmaking feature together.
@@ -32,6 +38,7 @@ import { MatchmakingMatchHistorySchema } from './schema/matchmakingMatchHistory.
     ClanModule,
     EventEmitterCommonModule,
     LeaderboardModule,
+    BoxModule,
     MongooseModule.forFeature([
       {
         name: ModelName.MATCHMAKING_REWARD_CLAIM,
@@ -40,6 +47,10 @@ import { MatchmakingMatchHistorySchema } from './schema/matchmakingMatchHistory.
       {
         name: ModelName.MATCHMAKING_MATCH_HISTORY,
         schema: MatchmakingMatchHistorySchema,
+      },
+      {
+        name: PackageRaceBattleResult.name,
+        schema: PackageRaceBattleResultSchema,
       },
     ]),
     BullModule.registerQueue({ name: MATCHMAKING_QUEUE }),
@@ -50,6 +61,7 @@ import { MatchmakingMatchHistorySchema } from './schema/matchmakingMatchHistory.
     MatchmakingNotifier,
     MatchmakingQueue,
     MatchmakingProcessor,
+    PackageRaceBattleRewarder,
   ],
   exports: [MatchmakingService, MatchmakingNotifier, MatchmakingQueue],
 })
