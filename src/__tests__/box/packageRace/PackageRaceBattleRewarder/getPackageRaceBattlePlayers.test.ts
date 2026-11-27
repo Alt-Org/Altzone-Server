@@ -2,7 +2,7 @@ import { MatchStatus } from '../../../../matchmaking/enum/matchStatus.enum';
 import { MatchType } from '../../../../matchmaking/enum/matchType.enum';
 import { TeamSide } from '../../../../matchmaking/enum/teamSide.enum';
 import { createFinishedMatch } from '../../data/packageRace/battle';
-import { PackageRaceBattleRewarderHelperService } from 'src/box/packageRace/battle/packageRaceBattleRewarderHelper.service';
+import { PackageRaceBattleRewarderHelperService } from '../../../../box/packageRace/battle/packageRaceBattleRewarderHelper.service';
 
 describe('getPackageRaceBattlePlayers() test suite', () => {
   let helperService: PackageRaceBattleRewarderHelperService;

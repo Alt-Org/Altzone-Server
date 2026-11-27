@@ -1,38 +1,37 @@
-import { PackageRaceBattleRewarder } from '../../../../box/packageRace/battle/packageRaceBattleRewarder.service';
 import ServiceError from '../../../../common/service/basicService/ServiceError';
 import { SEReason } from '../../../../common/service/basicService/SEReason';
-import { createRewarderWithMocks } from '../../data/packageRace/battle';
+import { PackageRaceBattleRewarderHelperService } from '../../../../box/packageRace/battle/packageRaceBattleRewarderHelper.service';
 
 describe('PackageRaceBattleRewarder.notFoundAsNull() test suite', () => {
-  let rewarder: PackageRaceBattleRewarder;
+  let helperService: PackageRaceBattleRewarderHelperService;
 
   const notFound = new ServiceError({ reason: SEReason.NOT_FOUND });
   const unexpected = new ServiceError({ reason: SEReason.UNEXPECTED });
 
   beforeEach(() => {
-    rewarder = createRewarderWithMocks().rewarder;
+    helperService = new PackageRaceBattleRewarderHelperService();
   });
 
   it('Should return null without errors if the only error is NOT_FOUND', () => {
-    expect(rewarder['notFoundAsNull']([notFound])).toEqual([null, null]);
+    expect(helperService.notFoundAsNull([notFound])).toEqual([null, null]);
   });
 
   it('Should return null without errors if all errors are NOT_FOUND', () => {
-    expect(rewarder['notFoundAsNull']([notFound, notFound])).toEqual([
+    expect(helperService.notFoundAsNull([notFound, notFound])).toEqual([
       null,
       null,
     ]);
   });
 
   it('Should return the errors if an error is not NOT_FOUND', () => {
-    expect(rewarder['notFoundAsNull']([unexpected])).toEqual([
+    expect(helperService.notFoundAsNull([unexpected])).toEqual([
       null,
       [unexpected],
     ]);
   });
 
   it('Should return all errors if NOT_FOUND is mixed with other errors', () => {
-    expect(rewarder['notFoundAsNull']([notFound, unexpected])).toEqual([
+    expect(helperService.notFoundAsNull([notFound, unexpected])).toEqual([
       null,
       [notFound, unexpected],
     ]);
