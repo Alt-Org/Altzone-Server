@@ -390,6 +390,12 @@ human or a bot:
 path. They can be finished normally, but do not apply these leaderboard,
 statistics, `battlePoints`, clan, or daily-task updates.
 
+The current protocol does not independently verify the reported winning side
+against Photon events or require matching reports from both teams. Adding
+signed game-server results or multi-player consensus would be a separate,
+backwards-incompatible result-validation feature. Clients cannot increment the
+production win counter directly.
+
 #### Box testing session package race
 
 If the API is running in `TESTING_SESSION` Environment, an accepted result updates the package race of the players' box session. A match counts when all of the following are true:
