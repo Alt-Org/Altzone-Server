@@ -1287,6 +1287,237 @@ describe('MatchmakingService flow', () => {
     expect(notifier.matchFound).not.toHaveBeenCalled();
   });
 
+  it('allows only one CUSTOM member to move into the same free slot', async () => {
+    const { redis, notifier, service } = createService();
+    const roomId = '665af23e5e982f0013aa334b';
+    const [room] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId,
+      teamSize: 2,
+    });
+    const [joined] = await service.joinInvite(room.id, 'player-2', { roomId });
+    const key = `matchmaking:invite:${room.id}`;
+    const stored = JSON.parse(redis.values.get(key)!);
+    redis.values.set(
+      key,
+      JSON.stringify({
+        ...stored,
+        readyPlayerIds: ['player-1', 'player-2'],
+        bots: [
+          { botId: 'bot-1', displayName: 'Bot 1', isBot: true, position: 3 },
+        ],
+      }),
+    );
+    notifier.inviteUpdated.mockClear();
+
+    for (const position of [0, 3, 4, 1.5]) {
+      const [result, errors] = await service.changeRoomPosition(
+        'player-2',
+        position,
+      );
+      expect(result).toBeNull();
+      expect(errors[0].field).toBe('position');
+    }
+    const [unchanged] = await service.changeRoomPosition('player-2', 1);
+    expect(unchanged.stateVersion).toBe(joined.stateVersion);
+    const [, outsiderErrors] = await service.changeRoomPosition('player-3', 2);
+    expect(outsiderErrors[0].reason).toBe(SEReason.NOT_FOUND);
+    expect(notifier.inviteUpdated).not.toHaveBeenCalled();
+
+    const results = await Promise.all(
+      ['player-2', 'player-1'].map((id) => service.changeRoomPosition(id, 2)),
+    );
+    expect(results.filter(([result]) => result !== null)).toHaveLength(1);
+    const [updated] = await service.getInvite(room.id);
+    const movedPlayer =
+      updated.playerPositions['player-2'] === 2 ? 'player-2' : 'player-1';
+    expect(updated.readyPlayerIds).not.toContain(movedPlayer);
+    expect(updated.readyPlayerIds).toHaveLength(1);
+    expect(updated.stateVersion).toBe(joined.stateVersion + 1);
+    expect(notifier.inviteUpdated).toHaveBeenCalledTimes(2);
+    for (const playerId of ['player-1', 'player-2']) {
+      expect(notifier.inviteUpdated).toHaveBeenCalledWith(
+        playerId,
+        expect.objectContaining({ playerPositions: updated.playerPositions }),
+      );
+    }
+  });
+
+  it('rejects position and readiness changes from an outsider with a stale room index', async () => {
+    const { redis, notifier, service } = createService();
+    const [room] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId: '665af23e5e982f0013aa334b',
+    });
+    await redis.set('matchmaking:player-invite:player-2', room.id);
+    notifier.inviteUpdated.mockClear();
+
+    const results = await Promise.all([
+      service.changeRoomPosition('player-2', 1),
+      service.toggleRoomReady('player-2'),
+    ]);
+    for (const [result, errors] of results) {
+      expect(result).toBeNull();
+      expect(errors[0].reason).toBe(SEReason.NOT_ALLOWED);
+    }
+    const [unchanged] = await service.getInvite(room.id);
+    expect(unchanged).toEqual(room);
+    expect(notifier.inviteUpdated).not.toHaveBeenCalled();
+  });
+
+  it.each([MatchType.CUSTOM, MatchType.RANDOM, MatchType.CLAN])(
+    'rejects manual bot toggles when unavailable for a %s room',
+    async (matchType) => {
+      const { notifier, service } = createService({ 'player-1': 'clan-1' });
+      const [room, createErrors] = await service.createInvite('player-1', {
+        matchType,
+        roomId: '665af23e5e982f0013aa334b',
+        allowBots: matchType === MatchType.CLAN,
+      });
+      expect(createErrors).toBeNull();
+      notifier.inviteUpdated.mockClear();
+
+      const [result, errors] = await service.toggleRoomBot('player-1', 1);
+      expect(result).toBeNull();
+      expect(errors[0].reason).toBe(SEReason.NOT_ALLOWED);
+      const [unchanged] = await service.getInvite(room.id);
+      expect(unchanged).toEqual(room);
+      expect(notifier.inviteUpdated).not.toHaveBeenCalled();
+    },
+  );
+
+  it('toggles CUSTOM readiness and starts once after concurrent confirmations', async () => {
+    const { redis, notifier, service } = createService();
+    const roomId = '665af23e5e982f0013aa334b';
+    const [room] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId,
+    });
+    const [waiting] = await service.toggleRoomReady('player-1');
+    expect(waiting.readyPlayerIds).toEqual(['player-1']);
+    expect(waiting.status).toBe(InviteStatus.OPEN);
+    expect(getStoredMatches(redis)).toHaveLength(0);
+    const [unready] = await service.toggleRoomReady('player-1');
+    expect(unready.readyPlayerIds).toEqual([]);
+    await service.toggleRoomReady('player-1');
+    const [joined] = await service.joinInvite(room.id, 'player-2', { roomId });
+    expect(joined.readyPlayerIds).toEqual([]);
+    notifier.inviteUpdated.mockClear();
+
+    const results = await Promise.all([
+      service.toggleRoomReady('player-1'),
+      service.toggleRoomReady('player-2'),
+    ]);
+    expect(results.map(([, errors]) => errors)).toEqual([null, null]);
+    const [match] = getStoredMatches(redis);
+    expect(getStoredMatches(redis)).toHaveLength(1);
+    expect(match.readyPlayerIds).toBeUndefined();
+    const [matchedRoom] = await service.getInvite(room.id);
+    expect(matchedRoom).toMatchObject({
+      matchId: match.id,
+      status: InviteStatus.MATCHED,
+      readyPlayerIds: expect.arrayContaining(['player-1', 'player-2']),
+    });
+    for (const playerId of ['player-1', 'player-2']) {
+      expect(notifier.inviteUpdated).toHaveBeenCalledWith(
+        playerId,
+        expect.objectContaining({ status: InviteStatus.MATCHED }),
+      );
+    }
+    expect(notifier.matchFound).toHaveBeenCalledTimes(2);
+    expect(notifier.matchFound).toHaveBeenCalledWith(
+      'player-1',
+      expect.objectContaining({ id: match.id }),
+      MqttNotificationType.CUSTOM_MATCH_READY,
+    );
+    expect(notifier.matchFound).toHaveBeenCalledWith(
+      'player-2',
+      expect.objectContaining({ id: match.id }),
+    );
+    const [, lateErrors] = await service.toggleRoomReady('player-1');
+    expect(lateErrors[0].reason).toBe(SEReason.NOT_FOUND);
+    expect(getStoredMatches(redis)).toHaveLength(1);
+    expect(notifier.matchFound).toHaveBeenCalledTimes(2);
+  });
+
+  it('lets only the CUSTOM owner toggle bots in unoccupied player slots', async () => {
+    const { notifier, service } = createService();
+    const roomId = '665af23e5e982f0013aa334b';
+    const [room] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId,
+      allowBots: true,
+      teamSize: 2,
+    });
+    await service.joinInvite(room.id, 'player-2', { roomId });
+    const [before] = await service.toggleRoomReady('player-2');
+    notifier.inviteUpdated.mockClear();
+
+    const [, nonOwnerErrors] = await service.toggleRoomBot('player-2', 2);
+    expect(nonOwnerErrors[0].reason).toBe(SEReason.NOT_AUTHORIZED);
+    for (const position of [1, 4]) {
+      const [result, errors] = await service.toggleRoomBot(
+        'player-1',
+        position,
+      );
+      expect(result).toBeNull();
+      expect(errors[0].field).toBe('position');
+    }
+    expect(notifier.inviteUpdated).not.toHaveBeenCalled();
+    const [unchanged] = await service.getInvite(room.id);
+    expect(unchanged).toEqual(before);
+
+    const results = await Promise.all([
+      service.toggleRoomBot('player-1', 2),
+      service.toggleRoomBot('player-1', 2),
+    ]);
+    const additions = results.flatMap(([updated]) =>
+      updated ? [updated] : [],
+    );
+    expect(additions).toHaveLength(1);
+    const [added] = additions;
+    expect(added.readyPlayerIds).toEqual([]);
+    expect(added.bots).toEqual([
+      expect.objectContaining({ position: 2, isBot: true }),
+    ]);
+    expect(notifier.inviteUpdated).toHaveBeenCalledTimes(2);
+    for (const playerId of ['player-1', 'player-2']) {
+      expect(notifier.inviteUpdated).toHaveBeenCalledWith(
+        playerId,
+        expect.objectContaining({ bots: added.bots, readyPlayerIds: [] }),
+      );
+    }
+
+    const [full] = await service.toggleRoomBot('player-1', 3);
+    expect(full.status).toBe(InviteStatus.READY);
+    await service.toggleRoomReady('player-2');
+    const [removed] = await service.toggleRoomBot('player-1', 2);
+    expect(removed.status).toBe(InviteStatus.OPEN);
+    expect(removed.readyPlayerIds).toEqual([]);
+    expect(removed.bots).toEqual([full.bots.find((bot) => bot.position === 3)]);
+    const [readded] = await service.toggleRoomBot('player-1', 2);
+    expect(readded.bots.find((bot) => bot.position === 2).botId).not.toBe(
+      added.bots[0].botId,
+    );
+  });
+
+  it('starts a bot-filled CUSTOM room after its only human confirms readiness', async () => {
+    const { redis, service } = createService();
+    const [room] = await service.createInvite('player-1', {
+      matchType: MatchType.CUSTOM,
+      roomId: '665af23e5e982f0013aa334b',
+      allowBots: true,
+    });
+    const [filled, botErrors] = await service.toggleRoomBot('player-1', 1);
+    expect(botErrors).toBeNull();
+    expect(filled.id).toBe(room.id);
+    const [matched, errors] = await service.toggleRoomReady('player-1');
+    expect(errors).toBeNull();
+    expect(matched.status).toBe(InviteStatus.MATCHED);
+    expect(matched.readyPlayerIds).toEqual(['player-1']);
+    expect(getStoredMatches(redis)).toHaveLength(1);
+  });
+
   it('copies the room game type to a CUSTOM match', async () => {
     const { redis, notifier, service } = createService();
 
@@ -1296,6 +1527,11 @@ describe('MatchmakingService flow', () => {
       roomId: '665af23e5e982f0013aa334b',
       allowBots: true,
     });
+    const [joined] = await service.joinInvite(invite.id, 'player-2', {
+      roomId: invite.roomId,
+    });
+    expect(joined.playerPositions).toEqual({ 'player-1': 0, 'player-2': 1 });
+    expect(joined.stateVersion).toBe(invite.stateVersion + 1);
     const [matchedInvite, startErrors] = await service.startRoom(
       invite.id,
       'player-1',
@@ -1320,7 +1556,7 @@ describe('MatchmakingService flow', () => {
     );
   });
 
-  it('keeps 2v2 bot-filled compositions in CUSTOM matchmaking', async () => {
+  it('preserves legacy CUSTOM bots without automatically filling new rooms', async () => {
     const { redis, service } = createService();
     const [invite, createErrors] = await service.createInvite('player-1', {
       matchType: MatchType.CUSTOM,
@@ -1329,6 +1565,30 @@ describe('MatchmakingService flow', () => {
       teamSize: 2,
       allowBots: true,
     });
+
+    expect(invite).toMatchObject({
+      status: InviteStatus.OPEN,
+      playerPositions: { 'player-1': 0 },
+      readyPlayerIds: [],
+      bots: [],
+    });
+    const key = `matchmaking:invite:${invite.id}`;
+    const stored = JSON.parse(redis.values.get(key)!);
+    const { playerPositions, readyPlayerIds, ...legacy } = stored;
+    expect(playerPositions).toEqual({ 'player-1': 0 });
+    expect(readyPlayerIds).toEqual([]);
+    redis.values.set(
+      key,
+      JSON.stringify({
+        ...legacy,
+        status: InviteStatus.READY,
+        bots: [1, 2, 3].map((id) => ({
+          botId: `bot-${id}`,
+          displayName: `Bot ${id}`,
+          isBot: true,
+        })),
+      }),
+    );
 
     const [matchedInvite, startErrors] = await service.startRoom(
       invite.id,
@@ -1571,7 +1831,14 @@ describe('MatchmakingService flow', () => {
       roomId,
       allowBots: true,
     });
-    const [matchedInvite] = await service.startRoom(invite.id, 'player-1');
+    await service.joinInvite(invite.id, 'player-2', { roomId });
+    const starts = await Promise.all([
+      service.startRoom(invite.id, 'player-1'),
+      service.startRoom(invite.id, 'player-1'),
+    ]);
+    const [matchedInvite] = starts.find(([room]) => room !== null)!;
+    expect(starts.filter(([room]) => room !== null)).toHaveLength(1);
+    expect(getStoredMatches(redis)).toHaveLength(1);
     await redis.set('matchmaking:player-invite:player-1', invite.id);
 
     const [, leaveErrors] = await service.leaveRoom('player-1');
@@ -1584,7 +1851,11 @@ describe('MatchmakingService flow', () => {
       field: 'status',
       value: InviteStatus.MATCHED,
     });
-    expect(unchangedInvite.players).toEqual(['player-1']);
+    expect(unchangedInvite.players).toEqual(['player-1', 'player-2']);
+    expect(unchangedInvite.playerPositions).toEqual({
+      'player-1': 0,
+      'player-2': 1,
+    });
     expect(unchangedInvite.status).toBe(InviteStatus.MATCHED);
   });
 

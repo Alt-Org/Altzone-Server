@@ -55,14 +55,16 @@ export class MatchmakingNotifier {
   /**
    * Notifies one real player that a match has been created for them.
    */
-  async matchFound(playerId: string, match: MatchmakingMqttMatchDto) {
+  async matchFound(
+    playerId: string,
+    match: MatchmakingMqttMatchDto,
+    type:
+      | MqttNotificationType.MATCH_FOUND
+      | MqttNotificationType.CUSTOM_MATCH_READY = MqttNotificationType.MATCH_FOUND,
+  ) {
     await this.publish(
       `/matchmaking/matches/player/${playerId}`,
-      buildMqttNotification(
-        'matchmaking',
-        MqttNotificationType.MATCH_FOUND,
-        match,
-      ),
+      buildMqttNotification('matchmaking', type, match),
     );
   }
 

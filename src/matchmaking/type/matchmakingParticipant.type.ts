@@ -13,6 +13,7 @@ export type MatchmakingPlayerParticipant = {
 
 export type MatchmakingBotParticipant = {
   botId: string;
+  position?: number;
   displayName: string;
   isBot: true;
 };

@@ -142,6 +142,16 @@ describe('MQTT notification contract', () => {
       'matchmaking',
       MqttNotificationType.MATCH_STARTED,
     );
+
+    await notifier.matchFound(
+      'player-1',
+      { ...match, matchType: MatchType.CUSTOM },
+      MqttNotificationType.CUSTOM_MATCH_READY,
+    );
+    expectLastPayloadToMatchEnvelope(
+      'matchmaking',
+      MqttNotificationType.CUSTOM_MATCH_READY,
+    );
   });
 
   it('wraps voting notifications while preserving the voting payload fields', async () => {

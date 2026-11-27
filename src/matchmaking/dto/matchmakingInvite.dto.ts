@@ -11,6 +11,10 @@ export class MatchmakingBotParticipantDto {
   @Expose()
   botId: string;
 
+  /** Slot occupied by this bot in a CUSTOM room. */
+  @Expose()
+  position?: number;
+
   /**
    * Display name shown for the bot.
    *
@@ -92,6 +96,14 @@ export class MatchmakingInviteDto {
    */
   @Expose()
   players: string[];
+
+  /** Zero-based CUSTOM room slot by player ID. */
+  @Expose()
+  playerPositions?: Record<string, number>;
+
+  /** Real players who have confirmed readiness in the CUSTOM lobby. */
+  @Expose()
+  readyPlayerIds?: string[];
 
   /**
    * Bot participants currently attached to the invite.

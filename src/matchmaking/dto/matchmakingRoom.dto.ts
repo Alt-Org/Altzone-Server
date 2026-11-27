@@ -60,6 +60,14 @@ export class MatchmakingRoomDto {
   @Type(() => MatchmakingMqttPlayerDto)
   players: MatchmakingMqttPlayerDto[];
 
+  /** Zero-based CUSTOM room slot by player ID. */
+  @Expose()
+  playerPositions?: Record<string, number>;
+
+  /** Real players who have confirmed readiness in the CUSTOM lobby. */
+  @Expose()
+  readyPlayerIds?: string[];
+
   /**
    * Bot participants currently attached to the room.
    */
